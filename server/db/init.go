@@ -6,18 +6,19 @@ import (
 	"path"
 )
 
-func InitDB() (*gorm.DB, error) {
+var db *gorm.DB
+
+func Init() {
 	pathDb := path.Join("var", "sqlite.db")
-	db, err := gorm.Open(sqlite.Open(pathDb), &gorm.Config{})
+	var err error
+	db, err = gorm.Open(sqlite.Open(pathDb), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		panic("failed to connect database '" + pathDb + "': " + err.Error())
 	}
 
 	// Migrate the schema
 	err = db.AutoMigrate(&User{})
 	if err != nil {
-		return nil, err
+		panic("failed to migrate database: " + err.Error())
 	}
-
-	return db, nil
 }

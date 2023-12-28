@@ -36,11 +36,7 @@ func main() {
 		log.Fatalf("Error loading the .env file: %v", err)
 	}
 
-	database, err := db.InitDB()
-	if err != nil {
-		log.Fatalf("Error initializing the database: %v", err)
-	}
-	_ = database
+	db.Init()
 
 	rtr := router.NewRouter([]router.Endpoint{
 		api.External,
