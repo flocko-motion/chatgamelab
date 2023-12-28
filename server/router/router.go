@@ -30,7 +30,8 @@ func (e HTTPError) Json() []byte {
 }
 
 type Request struct {
-	R *http.Request
+	R      *http.Request
+	UserId string
 }
 
 type HandlerJson func(request Request) (interface{}, *HTTPError)
@@ -58,7 +59,12 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 			}
 		}
 
-		res, httpError := handler(Request{R: r})
+		request := Request{
+			R:      r,
+			UserId: token.RegisteredClaims.Subject,
+		}
+
+		res, httpError := handler(request)
 		var resBytes []byte
 		var err error
 		if httpError == nil {
