@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"webapp-server/api"
+	"webapp-server/db"
 
 	"github.com/joho/godotenv"
 	"webapp-server/router"
@@ -34,6 +35,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading the .env file: %v", err)
 	}
+
+	database, err := db.InitDB()
+	if err != nil {
+		log.Fatalf("Error initializing the database: %v", err)
+	}
+	_ = database
 
 	rtr := router.NewRouter([]router.Endpoint{
 		api.External,
