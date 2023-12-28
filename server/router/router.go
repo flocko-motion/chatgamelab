@@ -5,6 +5,7 @@ import (
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"net/http"
+	"webapp-server/db"
 )
 
 type Endpoint struct {
@@ -30,8 +31,8 @@ func (e HTTPError) Json() []byte {
 }
 
 type Request struct {
-	R      *http.Request
-	UserId string
+	R    *http.Request
+	User *db.User
 }
 
 type HandlerJson func(request Request) (interface{}, *HTTPError)
@@ -59,14 +60,35 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 			}
 		}
 
+		var httpError *HTTPError
+		var err error
+
 		request := Request{
-			R:      r,
-			UserId: token.RegisteredClaims.Subject,
+			R: r,
 		}
 
-		res, httpError := handler(request)
+		if userId := token.RegisteredClaims.Subject; userId != "" {
+			request.User, err = db.GetUserByAuth0ID(userId)
+
+			// unknown user
+			if err != nil {
+				newUser := &db.User{
+					Auth0ID: userId,
+				}
+				if err = db.CreateUser(newUser); err != nil {
+					httpError = &HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
+				} else {
+					request.User = newUser
+				}
+			}
+		}
+
+		var res interface{}
+		if httpError == nil {
+			res, httpError = handler(request)
+		}
+
 		var resBytes []byte
-		var err error
 		if httpError == nil {
 			if resBytes, err = json.Marshal(res); err != nil {
 				httpError = &HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
