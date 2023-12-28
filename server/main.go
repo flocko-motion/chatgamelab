@@ -35,7 +35,7 @@ func main() {
 		log.Fatalf("Error loading the .env file: %v", err)
 	}
 
-	rtr := router.New([]router.Endpoint{
+	rtr := router.NewRouter([]router.Endpoint{
 		api.External,
 	})
 

@@ -1,73 +1,104 @@
 package router
 
 import (
-	"net/http"
-
-	"github.com/auth0/go-jwt-middleware/v2"
+	"encoding/json"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
-
-	"webapp-server/middleware"
+	"net/http"
 )
 
-// New sets up our routes and returns a *http.ServeMux.
-func New(endpoints []Endpoint) *http.ServeMux {
+type Endpoint struct {
+	// The path of the endpoint.
+	Path           string
+	Public         bool
+	RequiredScopes []string
+	ContentType    string
+	Handler        http.HandlerFunc
+}
+
+type HTTPError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e HTTPError) Json() []byte {
+	type Error struct {
+		Message string `json:"message"`
+	}
+	res, _ := json.Marshal(Error{Message: e.Message})
+	return res
+}
+
+type Request struct {
+	R *http.Request
+}
+
+type HandlerJson func(request Request) (interface{}, *HTTPError)
+
+func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
+	endpoint := Endpoint{
+		Path:           path,
+		Public:         public,
+		RequiredScopes: []string{},
+		ContentType:    "application/json",
+	}
+
+	endpoint.Handler = func(w http.ResponseWriter, r *http.Request) {
+		SetCorsHeaders(w)
+		w.Header().Set("Content-Type", "application/json")
+
+		token := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+
+		claims := token.CustomClaims.(*CustomClaims)
+		for _, requiredScope := range endpoint.RequiredScopes {
+			if !claims.HasScope(requiredScope) {
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"message":"Insufficient scope."}`))
+				return
+			}
+		}
+
+		res, httpError := handler(Request{R: r})
+		var resBytes []byte
+		var err error
+		if httpError == nil {
+			if resBytes, err = json.Marshal(res); err != nil {
+				httpError = &HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
+			}
+		}
+
+		if httpError != nil {
+			w.WriteHeader(httpError.StatusCode)
+			_, _ = w.Write(httpError.Json())
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(resBytes)
+	}
+
+	return endpoint
+}
+
+// NewRouter sets up our routes and returns a *http.ServeMux.
+func NewRouter(endpoints []Endpoint) *http.ServeMux {
 	router := http.NewServeMux()
 
-	// This route is always accessible.
-	router.Handle("/api/public", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"message":"Hello from a public endpoint! You don't need to be authenticated to see this."}`))
-	}))
+	//// This route is always accessible.
+	//router.Handle("/api/public", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	w.Header().Set("Content-Type", "application/json")
+	//	w.WriteHeader(http.StatusOK)
+	//	_, _ = w.Write([]byte(`{"message":"Hello from a public endpoint! You don't need to be authenticated to see this."}`))
+	//}))
 
 	for _, endpoint := range endpoints {
 		if endpoint.Public {
 			router.Handle(endpoint.Path, endpoint.Handler)
 		} else {
-			router.Handle(endpoint.Path, middleware.EnsureValidToken()(
+			router.Handle(endpoint.Path, EnsureValidToken()(
 				endpoint.Handler,
 			))
 		}
 	}
-	// This route is only accessible if the user has a valid access_token.
-	//router.Handle("/api/external", middleware.EnsureValidToken()(
-	//	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//		// CORS Headers.
-	//		//w.Header().Set("Access-Control-Allow-Credentials", "true")
-	//		//w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	//		//w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-	//		SetCorsHeaders(w)
-	//
-	//		w.Header().Set("Content-Type", "application/json")
-	//		w.WriteHeader(http.StatusOK)
-	//		w.Write([]byte(`{"message":"Hello from a private endpoint! You need to be authenticated to see this."}`))
-	//	}),
-	//))
-
-	// This route is only accessible if the user has a
-	// valid access_token with the read:messages scope.
-	router.Handle("/api/private-scoped", middleware.EnsureValidToken()(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// CORS Headers.
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-			w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-
-			w.Header().Set("Content-Type", "application/json")
-
-			token := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-
-			claims := token.CustomClaims.(*middleware.CustomClaims)
-			if !claims.HasScope("read:messages") {
-				w.WriteHeader(http.StatusForbidden)
-				w.Write([]byte(`{"message":"Insufficient scope."}`))
-				return
-			}
-
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"message":"Hello from a private endpoint! You need to be authenticated to see this."}`))
-		}),
-	))
-
 	return router
 }
