@@ -16,6 +16,8 @@ import "./App.css";
 
 // fontawesome
 import initFontAwesome from "./utils/initFontAwesome";
+import Games from "./views/Games";
+import AuthErrorHandler from "./components/AuthErrorHandler";
 initFontAwesome();
 
 const App = () => {
@@ -34,10 +36,12 @@ const App = () => {
       <div id="app" className="d-flex flex-column h-100">
         <NavBar />
         <Container className="flex-grow-1 mt-5">
+          <AuthErrorHandler/>
           <Switch>
             <Route path="/" exact component={Home} />
             <Route path="/profile" component={Profile} />
             <Route path="/external-api" component={ExternalApi} />
+            <Route path="/games" component={Games} />
           </Switch>
         </Container>
         <Footer />

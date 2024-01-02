@@ -12,9 +12,12 @@ export function getConfig() {
       ? configJson.audience
       : null;
 
+  const apiOrigin = configJson.apiOrigin || "http://localhost:3001";
+
   return {
     domain: configJson.domain,
     clientId: configJson.clientId,
     ...(audience ? { audience } : null),
+    apiOrigin,
   };
 }

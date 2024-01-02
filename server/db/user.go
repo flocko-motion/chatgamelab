@@ -40,3 +40,13 @@ func UpdateUser(user *User) error {
 func DeleteUser(id uint) error {
 	return db.Delete(&User{}, id).Error
 }
+
+func (user *User) GetGames() ([]Game, error) {
+	var games []Game
+	err := db.Model(&user).Association("Games").Find(&games)
+	return games, err
+}
+
+func (user *User) CreateGame(game *Game) error {
+	return db.Model(&user).Association("Games").Append(game)
+}
