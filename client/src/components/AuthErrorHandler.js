@@ -9,7 +9,7 @@ const AuthErrorHandler = () => {
     const onConsent= (e) => api.handle(e, api.handlerConsent)
     const onLoginAgain= (e) => api.handle(e, api.handlerLoginAgain)
 
-    const { error, audience } = api.state;
+    const { error } = api.state;
 
     if (error === "consent_required") {
         return (
@@ -29,10 +29,10 @@ const AuthErrorHandler = () => {
                 </a>
             </Alert>
         );
-    } else if (!audience) {
+    } else if (!api.config.audience) {
         return (
             <Alert color="warning">
-                {/* The content for the 'audience' error */}
+                No 'audience' claim found in your configuration.
             </Alert>
         );
     }

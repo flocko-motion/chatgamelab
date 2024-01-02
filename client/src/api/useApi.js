@@ -15,13 +15,13 @@ export const useApi = () => {
         getAccessTokenWithPopup,
     } = useAuth0();
 
-    const { apiOrigin } = getConfig();
+    const config = getConfig();
 
     const callApi = async () => {
         try {
             const token = await getAccessTokenSilently();
 
-            const response = await fetch(`${apiOrigin}/api/external`, {
+            const response = await fetch(`${config.apiOrigin}/api/external`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -79,5 +79,5 @@ export const useApi = () => {
         fn();
     };
 
-    return { callApi, handle, handlerConsent, handlerLoginAgain, state };
+    return { callApi, handle, handlerConsent, handlerLoginAgain, state, config };
 };
