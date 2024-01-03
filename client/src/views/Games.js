@@ -8,6 +8,7 @@ import {useApi} from "../api/useApi";
 import {gamesState} from "../api/atoms"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faPlay } from '@fortawesome/free-solid-svg-icons';
+import {Link} from "react-router-dom";
 
 
 
@@ -25,6 +26,7 @@ export const GamesComponent = () => {
                 <Table striped bordered hover className="mt-4">
                     <thead>
                     <tr>
+                        <th>#</th>
                         <th>Name</th>
                         <th>Visibility</th>
                         <th>Owner</th>
@@ -34,16 +36,17 @@ export const GamesComponent = () => {
                     <tbody>
                     {games.map((game, index) => (
                         <tr key={index}>
+                            <td>{game.ID}</td>
                             <td>{game.title}</td>
                             <td>{game.shareState}</td>
                             <td>{game.user.name}</td>
                             <td>
-                                <a href={game.editLink} className="btn btn-secondary mr-2">
+                                <Link to={`/edit/${game.ID}`} className="btn btn-secondary mr-2">
                                     <FontAwesomeIcon icon={faEdit} /> Edit
-                                </a>
-                                <a href={game.playLink} className="btn btn-secondary">
+                                </Link>
+                                <Link to={`/play/${game.ID}`} className="btn btn-secondary">
                                     <FontAwesomeIcon icon={faPlay} /> Play
-                                </a>
+                                </Link>
                             </td>
 
                         </tr>

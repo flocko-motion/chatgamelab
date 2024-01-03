@@ -19,7 +19,9 @@ import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
 
 import Games from "./views/Games";
+import GameEdit from "./views/GameEdit";
 import Profile from "./views/Profile";
+import {GameEditComponent} from "./views/GameEdit";
 
 initFontAwesome();
 
@@ -66,6 +68,7 @@ const App = () => {
                             <Route path="/" exact component={Home}/>
                             <Route path="/profile" component={Profile}/>
                             <Route path="/games" component={Games}/>
+                            <Route path="/edit/:id" component={GameEdit}/>
                         </Switch>
                     </Container>
                     <Footer/>
