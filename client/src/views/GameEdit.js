@@ -1,16 +1,25 @@
-import React from 'react';
-import { useRecoilState } from 'recoil';
+import React, { useState, useEffect } from 'react';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
-import {gamesState} from "../api/atoms"
+import {useApi} from "../api/useApi";
 
 
 
 export const GameEditComponent = ({match}) => {
-
-    const [games, ] = useRecoilState(gamesState);
-
+    const [game, setGame] = useState(null);
     const gameId = match.params.id;
+
+    const api = useApi();
+
+    useEffect(() => {
+        if (game == null || gameId !== game.ID) {
+
+            // Call your API here
+            console.log(`Game ID changed to: ${gameId}`);
+
+            api.callApi(`/game/${gameId}`).then(game => setGame(game));
+        }
+    }, [gameId]);
 
     return (
         <>
