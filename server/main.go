@@ -39,7 +39,6 @@ func main() {
 	db.Init()
 
 	rtr := router.NewRouter([]router.Endpoint{
-		api.External,
 		api.Games,
 	})
 

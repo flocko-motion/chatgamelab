@@ -6,6 +6,9 @@ import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
 // import Highlight from "../components/Highlight";
 import {gamesState} from "../api/atoms"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faPlay } from '@fortawesome/free-solid-svg-icons';
+
 
 
 export const GamesComponent = () => {
@@ -31,10 +34,18 @@ export const GamesComponent = () => {
                     <tbody>
                     {games.map((game, index) => (
                         <tr key={index}>
-                            <td>{game.name}</td>
+                            <td>{game.title}</td>
                             <td>{game.shareState}</td>
-                            <td>{game.ownerName}</td>
-                            <td><a href={game.editLink}>Edit</a></td>
+                            <td>{game.user.name}</td>
+                            <td>
+                                <a href={game.editLink} className="btn btn-secondary mr-2">
+                                    <FontAwesomeIcon icon={faEdit} /> Edit
+                                </a>
+                                <a href={game.playLink} className="btn btn-secondary">
+                                    <FontAwesomeIcon icon={faPlay} /> Play
+                                </a>
+                            </td>
+
                         </tr>
                     ))}
                     </tbody>

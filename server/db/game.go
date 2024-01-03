@@ -6,15 +6,15 @@ import (
 
 type Game struct {
 	gorm.Model
-	Title               string
+	Title               string `json:"title"`
 	TitleImage          []byte
-	Description         string
-	Scenario            string
-	SessionStartSyscall string
-	PostActionSyscall   string
-	ImageStyle          string
-	UserID              uint
-	User                User `gorm:"foreignKey:UserID"`
+	Description         string `json:"description"`
+	Scenario            string `json:"scenario"`
+	SessionStartSyscall string `json:"sessionStartSyscall"`
+	PostActionSyscall   string `json:"postActionSyscall"`
+	ImageStyle          string `json:"imageStyle"`
+	UserID              uint   `json:"-"`
+	User                User   `json:"user" gorm:"foreignKey:UserID"`
 }
 
 // CreateGame creates a new game in the database

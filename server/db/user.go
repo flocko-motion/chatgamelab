@@ -1,14 +1,15 @@
 package db
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Auth0ID string `gorm:"uniqueIndex"` // Unique identifier from Auth0
-	Email   string
-	Name    string
+	Auth0ID string `json:"-" gorm:"uniqueIndex"` // Unique identifier from Auth0
+	Email   string `json:"-"`
+	Name    string `json:"name"`
 	Games   []Game
 }
 
@@ -44,6 +45,11 @@ func DeleteUser(id uint) error {
 func (user *User) GetGames() ([]Game, error) {
 	var games []Game
 	err := db.Model(&user).Association("Games").Find(&games)
+	for i := range games {
+		if games[i].User.Name == "" {
+			games[i].User.Name = fmt.Sprintf("user_%d", games[i].UserID)
+		}
+	}
 	return games, err
 }
 

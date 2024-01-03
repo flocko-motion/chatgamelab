@@ -36,20 +36,15 @@ export const useApi = () => {
                 showResult: true,
                 apiMessage: responseData,
             });
+
+            console.log("api response: ", responseData);
+            return responseData;
         } catch (error) {
             setState({
                 ...state,
                 error: error.error,
             });
         }
-
-        const gamesStateExample = [
-            {name: "Game Foo", shareState: "public", editLink: "/edit/game1", ownerName: "Alice"},
-            {name: "Game Bar", shareState: "private", editLink: "/edit/game2", ownerName: "Bob"},
-            // ... more games
-        ];
-
-        return gamesStateExample
     };
 
     const handlerConsent = async () => {
