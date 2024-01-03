@@ -17,8 +17,11 @@ func Init() {
 	}
 
 	// Migrate the schema
-	err = db.AutoMigrate(&User{})
-	if err != nil {
-		panic("failed to migrate database: " + err.Error())
+	tables := []interface{}{&User{}, &Game{}, &Session{}, &Share{}}
+	for _, table := range tables {
+		err = db.AutoMigrate(table)
+		if err != nil {
+			panic("failed to migrate database: " + err.Error())
+		}
 	}
 }

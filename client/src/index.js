@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { Auth0Provider } from "@auth0/auth0-react";
+import {RecoilRoot} from "recoil";
 import history from "./utils/history";
 import { getConfig } from "./config";
 
@@ -32,7 +33,10 @@ root.render(
   <Auth0Provider
     {...providerConfig}
   >
+    <RecoilRoot>
+
     <App />
+      </RecoilRoot>
   </Auth0Provider>,
 );
 

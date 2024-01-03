@@ -17,11 +17,13 @@ export const useApi = () => {
 
     const config = getConfig();
 
-    const callApi = async () => {
+    const callApi = async (endpoint) => {
         try {
             const token = await getAccessTokenSilently();
 
-            const response = await fetch(`${config.apiOrigin}/api/external`, {
+            endpoint = endpoint.substring(0,1) === "/" ? endpoint.substring(1) : endpoint;
+
+            const response = await fetch(`${config.apiOrigin}/api/${endpoint}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -39,7 +41,16 @@ export const useApi = () => {
                 ...state,
                 error: error.error,
             });
-        }    };
+        }
+
+        const gamesStateExample = [
+            {name: "Game Foo", shareState: "public", editLink: "/edit/game1", ownerName: "Alice"},
+            {name: "Game Bar", shareState: "private", editLink: "/edit/game2", ownerName: "Bob"},
+            // ... more games
+        ];
+
+        return gamesStateExample
+    };
 
     const handlerConsent = async () => {
         try {
@@ -54,8 +65,8 @@ export const useApi = () => {
                 error: error.error,
             });
         }
-
-        await callApi();
+        console.log("handlerConsent - what now?")
+        await callApi("/external");
     };
 
     const handlerLoginAgain = async () => {
@@ -71,8 +82,8 @@ export const useApi = () => {
                 error: error.error,
             });
         }
-
-        await callApi();    };
+        console.log("handlerLoginAgain - why now?")
+        await callApi("/external");    };
 
     const handle = (e, fn) => {
         e.preventDefault();

@@ -14,7 +14,7 @@ type Game struct {
 	PostActionSyscall   string
 	ImageStyle          string
 	UserID              uint
-	User                User
+	User                User `gorm:"foreignKey:UserID"`
 }
 
 // CreateGame creates a new game in the database

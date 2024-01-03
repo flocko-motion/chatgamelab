@@ -9,7 +9,7 @@ type User struct {
 	Auth0ID string `gorm:"uniqueIndex"` // Unique identifier from Auth0
 	Email   string
 	Name    string
-	// Add other fields as necessary
+	Games   []Game
 }
 
 // CreateUser creates a new user in the database

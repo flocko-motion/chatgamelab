@@ -2,16 +2,16 @@
 import React from 'react';
 import { Alert } from "reactstrap";
 import {useApi} from "../api/useApi";
+import Highlight from "./Highlight";
 
 const AuthErrorHandler = () => {
     const api = useApi();
 
-    const onConsent= (e) => api.handle(e, api.handlerConsent)
-    const onLoginAgain= (e) => api.handle(e, api.handlerLoginAgain)
+    const onConsent = (e) => api.handle(e, api.handlerConsent)
+    const onLoginAgain = (e) => api.handle(e, api.handlerLoginAgain)
 
-    const { error } = api.state;
 
-    if (error === "consent_required") {
+    if (api.state.error === "consent_required") {
         return (
             <Alert color="warning">
                 You need to{" "}
@@ -20,7 +20,7 @@ const AuthErrorHandler = () => {
                 </a>
             </Alert>
         );
-    } else if (error === "login_required") {
+    } else if (api.state.error === "login_required") {
         return (
             <Alert color="warning">
                 You need to{" "}
@@ -37,7 +37,20 @@ const AuthErrorHandler = () => {
         );
     }
 
-    return null;
+    if(!api.state.showResult) return null;
+
+    return (
+        <div className="result-block-container">
+            {api.state.showResult && (
+                <div className="result-block" data-testid="api-result">
+                    <h6 className="muted">Result</h6>
+                    <Highlight>
+                        <span>{JSON.stringify(api.state.apiMessage, null, 2)}</span>
+                    </Highlight>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default AuthErrorHandler;

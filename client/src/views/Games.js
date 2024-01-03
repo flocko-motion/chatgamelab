@@ -1,52 +1,49 @@
-import React, { useState } from "react";
-import { Button, Alert } from "reactstrap";
-import Highlight from "../components/Highlight";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import { getConfig } from "../config";
+import React, {useEffect} from 'react';
+import { useRecoilState } from 'recoil';
+import {Button, Table} from "reactstrap";
+import {useAuth0, withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
-import AuthErrorHandler from "../components/AuthErrorHandler";
+// import Highlight from "../components/Highlight";
+import {gamesState} from "../api/atoms"
+
 
 export const GamesComponent = () => {
-  const api = useApi();
+    const api = useApi();
 
-  return (
-    <>
-      <div className="mb-5">
-
-        <h1>Games</h1>
-        <p className="lead">
-          Ping an external API by clicking the button below.
-        </p>
-
-        <p>
-          This will call a local API
-        </p>
+    const [games, ] = useRecoilState(gamesState);
 
 
-        <Button
-          color="primary"
-          className="mt-5"
-          onClick={api.callApi}
-        >
-          Ping API
-        </Button>
-      </div>
+    return (
+        <>
+            <div className="mb-5">
+                <h1>Games</h1>
 
-      <div className="result-block-container">
-        {api.state.showResult && (
-          <div className="result-block" data-testid="api-result">
-            <h6 className="muted">Result</h6>
-            <Highlight>
-              <span>{JSON.stringify(api.state.apiMessage, null, 2)}</span>
-            </Highlight>
-          </div>
-        )}
-      </div>
-    </>
-  );
+                <Table striped bordered hover className="mt-4">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Visibility</th>
+                        <th>Owner</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {games.map((game, index) => (
+                        <tr key={index}>
+                            <td>{game.name}</td>
+                            <td>{game.shareState}</td>
+                            <td>{game.ownerName}</td>
+                            <td><a href={game.editLink}>Edit</a></td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </Table>
+            </div>
+        </>
+    );
 };
 
 export default withAuthenticationRequired(GamesComponent, {
-  onRedirecting: () => <Loading />,
+    onRedirecting: () => <Loading/>,
 });
