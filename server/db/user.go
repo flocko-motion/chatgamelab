@@ -83,13 +83,13 @@ func (user *User) UpdateGame(updatedGame obj.Game) error {
 		return err
 	}
 	// remove the user from the game
-	updatedGame.User = obj.User{}
+	updatedGame.User = nil
 	// Update the game
 	return db.Save(game).Error
 }
 
-func (user *User) ToObjUser() obj.User {
-	return obj.User{
+func (user *User) ToObjUser() *obj.User {
+	return &obj.User{
 		ID:   user.ID,
 		Name: user.Name,
 	}

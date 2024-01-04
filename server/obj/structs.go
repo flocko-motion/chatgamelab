@@ -14,5 +14,5 @@ type Game struct {
 	SessionStartSyscall string `json:"sessionStartSyscall"`
 	PostActionSyscall   string `json:"postActionSyscall"`
 	ImageStyle          string `json:"imageStyle"`
-	User                User   `json:"user"`
+	User                *User  `json:"user"`
 }
