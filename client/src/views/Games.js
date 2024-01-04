@@ -47,7 +47,7 @@ export const GamesComponent = () => {
                                 <Link to={DebugUri(game.id)} className="btn btn-secondary mr-2">
                                     <FontAwesomeIcon icon={faBug} /> Debug
                                 </Link>
-                                <a href={SharePlayUri(game.sharePlayHash)} className="btn btn-secondary">
+                                <a href={SharePlayUri(game.sharePlayHash)} target="_blank" className="btn btn-secondary">
                                     <FontAwesomeIcon icon={faPlay} /> Play
                                 </a>
                             </td>
