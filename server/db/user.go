@@ -53,6 +53,18 @@ func (user *User) GetGames() ([]Game, error) {
 	return games, err
 }
 
+func (user *User) GetGame(id string) (*Game, error) {
+	var game Game
+	err := db.Where("id = ?", id).First(&game).Error
+	if err != nil {
+		return nil, err
+	}
+	if game.UserID != user.ID {
+		return nil, fmt.Errorf("unauthorized")
+	}
+	return &game, nil
+}
+
 func (user *User) CreateGame(game *Game) error {
 	return db.Model(&user).Association("Games").Append(game)
 }
