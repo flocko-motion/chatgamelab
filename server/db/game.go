@@ -2,6 +2,7 @@ package db
 
 import (
 	"gorm.io/gorm"
+	"webapp-server/obj"
 )
 
 type Game struct {
@@ -27,6 +28,19 @@ func GetGameByID(id uint) (*Game, error) {
 	var game Game
 	err := db.First(&game, id).Error
 	return &game, err
+}
+
+func (game *Game) ToObjGame() *obj.Game {
+	return &obj.Game{
+		ID:                  game.ID,
+		Title:               game.Title,
+		Description:         game.Description,
+		Scenario:            game.Scenario,
+		SessionStartSyscall: game.SessionStartSyscall,
+		PostActionSyscall:   game.PostActionSyscall,
+		ImageStyle:          game.ImageStyle,
+		User:                game.User.ToObjUser(),
+	}
 }
 
 func (game *Game) Update() error {

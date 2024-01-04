@@ -3,6 +3,8 @@ package db
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"net/http"
+	"webapp-server/obj"
 )
 
 type User struct {
@@ -42,29 +44,53 @@ func DeleteUser(id uint) error {
 	return db.Delete(&User{}, id).Error
 }
 
-func (user *User) GetGames() ([]Game, error) {
+func (user *User) GetGames() ([]Game, *obj.HTTPError) {
 	var games []Game
 	err := db.Model(&user).Association("Games").Find(&games)
+	if err != nil {
+		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
+	}
 	for i := range games {
 		if games[i].User.Name == "" {
 			games[i].User.Name = fmt.Sprintf("user_%d", games[i].UserID)
 		}
 	}
-	return games, err
+	return games, nil
 }
 
-func (user *User) GetGame(id string) (*Game, error) {
+func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
 	var game Game
 	err := db.Where("id = ?", id).First(&game).Error
 	if err != nil {
-		return nil, err
+		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
 	}
 	if game.UserID != user.ID {
-		return nil, fmt.Errorf("unauthorized")
+		return nil, obj.NewHTTPErrorf(http.StatusUnauthorized, "unauthorized")
 	}
-	return &game, nil
+	// convert to obj.Game
+
+	return game.ToObjGame(), nil
 }
 
 func (user *User) CreateGame(game *Game) error {
 	return db.Model(&user).Association("Games").Append(game)
+}
+
+func (user *User) UpdateGame(updatedGame obj.Game) error {
+	// Check that the game belongs to the user
+	game, err := user.GetGame(updatedGame.ID)
+	if err != nil {
+		return err
+	}
+	// remove the user from the game
+	updatedGame.User = obj.User{}
+	// Update the game
+	return db.Save(game).Error
+}
+
+func (user *User) ToObjUser() obj.User {
+	return obj.User{
+		ID:   user.ID,
+		Name: user.Name,
+	}
 }

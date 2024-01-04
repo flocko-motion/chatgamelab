@@ -6,6 +6,7 @@ import (
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"net/http"
 	"webapp-server/db"
+	"webapp-server/obj"
 )
 
 type Endpoint struct {
@@ -17,25 +18,12 @@ type Endpoint struct {
 	Handler        http.HandlerFunc
 }
 
-type HTTPError struct {
-	StatusCode int
-	Message    string
-}
-
-func (e HTTPError) Json() []byte {
-	type Error struct {
-		Message string `json:"message"`
-	}
-	res, _ := json.Marshal(Error{Message: e.Message})
-	return res
-}
-
 type Request struct {
 	R    *http.Request
 	User *db.User
 }
 
-type HandlerJson func(request Request) (interface{}, *HTTPError)
+type HandlerJson func(request Request) (interface{}, *obj.HTTPError)
 
 func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 	endpoint := Endpoint{
@@ -60,7 +48,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 			}
 		}
 
-		var httpError *HTTPError
+		var httpError *obj.HTTPError
 		var err error
 
 		request := Request{
@@ -76,7 +64,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 					Auth0ID: userId,
 				}
 				if err = db.CreateUser(newUser); err != nil {
-					httpError = &HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
+					httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
 				} else {
 					request.User = newUser
 				}
@@ -91,7 +79,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 		var resBytes []byte
 		if httpError == nil {
 			if resBytes, err = json.Marshal(res); err != nil {
-				httpError = &HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
+				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
 			}
 		}
 
