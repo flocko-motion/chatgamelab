@@ -7,8 +7,9 @@ import {useApi} from "../api/useApi";
 // import Highlight from "../components/Highlight";
 import {gamesState} from "../api/atoms"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faPlay } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlay, faBug } from '@fortawesome/free-solid-svg-icons';
 import {Link} from "react-router-dom";
+import {SharePlayUri, SharePlayUrl, DebugUri, EditUri} from "../utils/urls";
 
 
 
@@ -28,9 +29,9 @@ export const GamesComponent = () => {
                     <tr>
                         <th>#</th>
                         <th>Name</th>
-                        <th>Visibility</th>
                         <th>Owner</th>
                         <th>Action</th>
+                        <th>Play URL</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -38,17 +39,23 @@ export const GamesComponent = () => {
                         <tr key={index}>
                             <td>{game.id}</td>
                             <td>{game.title}</td>
-                            <td>{game.shareState}</td>
                             <td>{game.user.name}</td>
                             <td>
-                                <Link to={`/edit/${game.id}`} className="btn btn-secondary mr-2">
+                                <Link to={EditUri(game.id)} className="btn btn-secondary mr-2">
                                     <FontAwesomeIcon icon={faEdit} /> Edit
                                 </Link>
-                                <Link to={`/play/${game.id}`} className="btn btn-secondary">
-                                    <FontAwesomeIcon icon={faPlay} /> Play
+                                <Link to={DebugUri(game.id)} className="btn btn-secondary mr-2">
+                                    <FontAwesomeIcon icon={faBug} /> Debug
                                 </Link>
+                                <a href={SharePlayUri(game.sharePlayHash)} className="btn btn-secondary">
+                                    <FontAwesomeIcon icon={faPlay} /> Play
+                                </a>
                             </td>
-
+                            <td>
+                                {game.sharePlayActive ?
+                                    <a href={SharePlayUrl(game.sharePlayHash)} target="_blank">{SharePlayUrl(game.sharePlayHash)}</a>
+                                    : "not published"}
+                            </td>
                         </tr>
                     ))}
                     </tbody>

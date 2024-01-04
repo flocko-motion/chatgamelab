@@ -98,8 +98,10 @@ func (user *User) UpdateGame(updatedGame obj.Game) error {
 	game.SessionStartSyscall = updatedGame.SessionStartSyscall
 	game.PostActionSyscall = updatedGame.PostActionSyscall
 	game.ImageStyle = updatedGame.ImageStyle
+	game.SharePlayActive = updatedGame.SharePlayActive
+	game.ShareEditActive = updatedGame.ShareEditActive
 
-	return db.Save(game).Error
+	return game.update()
 }
 
 func (user *User) ToObjUser() *obj.User {

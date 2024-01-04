@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, FormGroup, Label, Input, Col, FormText } from 'reactstrap';
+import {SharePlayUrl} from "../utils/urls";
 
 const GameEditForm = ({ initialGame, onSave, onCancel }) => {
     const [formData, setFormData] = useState(initialGame);
@@ -75,17 +76,17 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 
             <FormGroup row>
-                <Label for="publish" sm={2}>Publish</Label>
+                <Label for="sharePlayActive" sm={2}>Share Play</Label>
                 <Col sm={10}>
-                    <Input type="checkbox" name="publish" id="publish" checked={formData.publish || false} onChange={handleToggle} />
+                    <Input type="checkbox" name="sharePlayActive" id="sharePlayActive" checked={formData.sharePlayActive || false} onChange={handleToggle} />
                 </Col>
             </FormGroup>
 
-            {formData.publish && (
+            {formData.sharePlayActive && (
                 <FormGroup row>
-                    <Label for="publicUrl" sm={2}>Public URL</Label>
+                    <Label for="sharePlayUrl" sm={2}>Share Play URL</Label>
                     <Col sm={10}>
-                        <Input type="text" name="publicUrl" id="publicUrl" readOnly value={formData.publicUrl || ''} />
+                        <Input type="text" name="sharePlayUrl" id="sharePlayUrl" readOnly value={SharePlayUrl(formData.sharePlayHash) || ''} />
                     </Col>
                 </FormGroup>
             )}

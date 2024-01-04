@@ -14,6 +14,10 @@ type Game struct {
 	SessionStartSyscall string `json:"sessionStartSyscall"`
 	PostActionSyscall   string `json:"postActionSyscall"`
 	ImageStyle          string `json:"imageStyle"`
+	SharePlayActive     bool   `json:"sharePlayActive"`
+	SharePlayHash       string `json:"sharePlayHash"`
+	ShareEditActive     bool   `json:"shareEditActive"`
+	ShareEditHash       string `json:"shareEditHash"`
 	UserID              uint   `json:"-"`
 	User                User   `json:"user" gorm:"foreignKey:UserID"`
 }
@@ -39,18 +43,16 @@ func (game *Game) ToObjGame() *obj.Game {
 		SessionStartSyscall: game.SessionStartSyscall,
 		PostActionSyscall:   game.PostActionSyscall,
 		ImageStyle:          game.ImageStyle,
+		SharePlayActive:     game.SharePlayActive,
+		SharePlayHash:       game.SharePlayHash,
+		ShareEditActive:     game.ShareEditActive,
+		ShareEditHash:       game.ShareEditHash,
 		User:                game.User.ToObjUser(),
 	}
 }
 
-func (game *Game) Update() error {
+func (game *Game) update() error {
 	return db.Save(game).Error
-}
-
-func (game *Game) GetShares() ([]Share, error) {
-	var shares []Share
-	err := db.Model(&game).Association("Shares").Find(&shares)
-	return shares, err
 }
 
 func (game *Game) CreateSession(user *User) (*Session, error) {

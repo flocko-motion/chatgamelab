@@ -4,9 +4,13 @@ import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
 import GameEditForm from '../components/GameEditForm';
+import {useRecoilState} from "recoil";
+import {gamesState} from "../api/atoms";
+import {GamesUri} from "../utils/urls";
 
 
 export const GameEditComponent = ({match}) => {
+    const [, setGames] = useRecoilState(gamesState);
     const [game, setGame] = useState(null);
     const history = useHistory();
     const api = useApi();
@@ -23,11 +27,15 @@ export const GameEditComponent = ({match}) => {
     const handleSave = updatedGameData => {
         setGame(null);
         api.callApi(`/game/${gameId}`, updatedGameData)
-            .then(game => setGame(game));
+            .then(game => {
+                api.callApi("/games").then(games => setGames(games));
+                history.push(GamesUri());
+                // setGame(game);
+            });
     };
 
     const handleCancel = () => {
-        history.push('/games'); // Redirect to the /games route
+        history.push(GamesUri()); // Redirect to the /games route
     };
 
     if (!game) return <Loading />;

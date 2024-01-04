@@ -17,7 +17,7 @@ func Init() {
 	}
 
 	// Migrate the schema
-	tables := []interface{}{&User{}, &Game{}, &Session{}, &Share{}}
+	tables := []interface{}{&User{}, &Game{}, &Session{}}
 	for _, table := range tables {
 		err = db.AutoMigrate(table)
 		if err != nil {

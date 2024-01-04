@@ -21,7 +21,6 @@ import AuthErrorHandler from "./components/AuthErrorHandler";
 import Games from "./views/Games";
 import GameEdit from "./views/GameEdit";
 import Profile from "./views/Profile";
-import {GameEditComponent} from "./views/GameEdit";
 
 initFontAwesome();
 

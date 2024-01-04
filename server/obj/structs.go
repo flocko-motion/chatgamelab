@@ -14,5 +14,9 @@ type Game struct {
 	SessionStartSyscall string `json:"sessionStartSyscall"`
 	PostActionSyscall   string `json:"postActionSyscall"`
 	ImageStyle          string `json:"imageStyle"`
+	SharePlayActive     bool   `json:"sharePlayActive"`
+	SharePlayHash       string `json:"sharePlayHash"`
+	ShareEditActive     bool   `json:"shareEditActive"`
+	ShareEditHash       string `json:"shareEditHash"`
 	User                *User  `json:"user"`
 }
