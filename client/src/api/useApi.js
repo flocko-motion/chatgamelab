@@ -17,17 +17,25 @@ export const useApi = () => {
 
     const config = getConfig();
 
-    const callApi = async (endpoint) => {
+    const callApi = async (endpoint, data = null) => {
         try {
             const token = await getAccessTokenSilently();
 
-            endpoint = endpoint.substring(0,1) === "/" ? endpoint.substring(1) : endpoint;
+            endpoint = endpoint.substring(0, 1) === "/" ? endpoint.substring(1) : endpoint;
 
-            const response = await fetch(`${config.apiOrigin}/api/${endpoint}`, {
+            const requestOptions = {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json' // Add Content-Type for JSON
                 },
-            });
+                method: data ? 'POST' : 'GET', // Determine method based on presence of data
+            };
+
+            if (data) {
+                requestOptions.body = JSON.stringify(data); // Add body if data is present
+            }
+
+            const response = await fetch(`${config.apiOrigin}/api/${endpoint}`, requestOptions);
 
             const responseData = await response.json();
 
@@ -46,6 +54,7 @@ export const useApi = () => {
             });
         }
     };
+
 
     const handlerConsent = async () => {
         try {

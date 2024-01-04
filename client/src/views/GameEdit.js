@@ -15,22 +15,18 @@ export const GameEditComponent = ({match}) => {
 
     useEffect(() => {
         if (game == null || gameId !== game.ID) {
-
-            // Call your API here
-            console.log(`Game ID changed to: ${gameId}`);
-
-            api.callApi(`/game/${gameId}`).then(game => setGame(game));
+            api.callApi(`/game/${gameId}`)
+                .then(game => setGame(game));
         }
     }, [gameId]);
 
     const handleSave = updatedGameData => {
-        // Implement the logic to save the updated game data
-        console.log('Saving game:', updatedGameData);
-        // e.g., api.saveGame(updatedGameData).then(...)
+        setGame(null);
+        api.callApi(`/game/${gameId}`, updatedGameData)
+            .then(game => setGame(game));
     };
 
     const handleCancel = () => {
-        console.log('Editing cancelled');
         history.push('/games'); // Redirect to the /games route
     };
 
