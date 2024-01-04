@@ -44,21 +44,33 @@ func DeleteUser(id uint) error {
 	return db.Delete(&User{}, id).Error
 }
 
-func (user *User) GetGames() ([]Game, *obj.HTTPError) {
+func (user *User) GetGames() ([]obj.Game, *obj.HTTPError) {
 	var games []Game
 	err := db.Model(&user).Association("Games").Find(&games)
 	if err != nil {
 		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
 	}
+	gamesObj := make([]obj.Game, len(games))
 	for i := range games {
 		if games[i].User.Name == "" {
 			games[i].User.Name = fmt.Sprintf("user_%d", games[i].UserID)
 		}
+		gamesObj[i] = *games[i].ToObjGame()
 	}
-	return games, nil
+	return gamesObj, nil
 }
 
+// GetGame gets a game by ID, formatted for external use
 func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
+	game, err := user.getGame(id)
+	if err != nil {
+		return nil, err
+	}
+	return game.ToObjGame(), nil
+}
+
+// getGame is for internal use only
+func (user *User) getGame(id uint) (*Game, *obj.HTTPError) {
 	var game Game
 	err := db.Where("id = ?", id).First(&game).Error
 	if err != nil {
@@ -67,24 +79,26 @@ func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
 	if game.UserID != user.ID {
 		return nil, obj.NewHTTPErrorf(http.StatusUnauthorized, "unauthorized")
 	}
-	// convert to obj.Game
-
-	return game.ToObjGame(), nil
+	return &game, nil
 }
 
-func (user *User) CreateGame(game *Game) error {
+func (user *User) CreateGame(game obj.Game) error {
 	return db.Model(&user).Association("Games").Append(game)
 }
 
 func (user *User) UpdateGame(updatedGame obj.Game) error {
-	// Check that the game belongs to the user
-	game, err := user.GetGame(updatedGame.ID)
+	game, err := user.getGame(updatedGame.ID)
 	if err != nil {
 		return err
 	}
-	// remove the user from the game
-	updatedGame.User = nil
-	// Update the game
+
+	game.Title = updatedGame.Title
+	game.Description = updatedGame.Description
+	game.Scenario = updatedGame.Scenario
+	game.SessionStartSyscall = updatedGame.SessionStartSyscall
+	game.PostActionSyscall = updatedGame.PostActionSyscall
+	game.ImageStyle = updatedGame.ImageStyle
+
 	return db.Save(game).Error
 }
 

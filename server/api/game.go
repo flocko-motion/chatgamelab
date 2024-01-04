@@ -21,8 +21,7 @@ var Game = router.NewEndpointJson(
 		}
 		switch request.R.Method {
 		case "GET":
-			game, err := request.User.GetGame(uint(gameId))
-			return game, err
+			return request.User.GetGame(uint(gameId))
 
 		case "POST":
 			var updatedGame obj.Game // Replace GameType with your actual game struct type

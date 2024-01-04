@@ -36,15 +36,15 @@ export const GamesComponent = () => {
                     <tbody>
                     {games.map((game, index) => (
                         <tr key={index}>
-                            <td>{game.ID}</td>
+                            <td>{game.id}</td>
                             <td>{game.title}</td>
                             <td>{game.shareState}</td>
                             <td>{game.user.name}</td>
                             <td>
-                                <Link to={`/edit/${game.ID}`} className="btn btn-secondary mr-2">
+                                <Link to={`/edit/${game.id}`} className="btn btn-secondary mr-2">
                                     <FontAwesomeIcon icon={faEdit} /> Edit
                                 </Link>
-                                <Link to={`/play/${game.ID}`} className="btn btn-secondary">
+                                <Link to={`/play/${game.id}`} className="btn btn-secondary">
                                     <FontAwesomeIcon icon={faPlay} /> Play
                                 </Link>
                             </td>
