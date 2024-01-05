@@ -82,7 +82,7 @@ const NavBar = () => {
                 </NavItem>
               )}
               {isAuthenticated && (
-                <UncontrolledDropdown nav inNavbar>
+                <UncontrolledDropdown nav inNavbar className="nav-dropdown">
                   <DropdownToggle nav caret id="profileDropDown">
                     <img
                       src={user.picture}
