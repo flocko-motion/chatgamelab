@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import Highlight from "../components/Highlight";
 import Loading from "../components/Loading";
 import {useRecoilState} from "recoil";
 import {userState} from "../api/atoms";
@@ -78,8 +77,6 @@ export const ProfileComponent = () => {
                     </Form>
                 </Col>
             </Row>
-            <Highlight>{JSON.stringify(user, null, 2)}</Highlight>
-            <Highlight>{JSON.stringify(userDetails, null, 2)}</Highlight>
         </Container>
     );
 };
