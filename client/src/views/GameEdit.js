@@ -18,7 +18,7 @@ export const GameEditComponent = ({match}) => {
     const gameId = match.params.id;
 
     useEffect(() => {
-        if (game == null || gameId !== game.ID) {
+        if (game == null || gameId !== game.id) {
             api.callApi(`/game/${gameId}`)
                 .then(game => setGame(game));
         }

@@ -39,7 +39,7 @@ export const GamesComponent = () => {
                         <tr key={index}>
                             <td>{game.id}</td>
                             <td>{game.title}</td>
-                            <td>{game.user.name}</td>
+                            <td>{game.userName}</td>
                             <td>
                                 <Link to={EditUri(game.id)} className="btn btn-secondary mr-2">
                                     <FontAwesomeIcon icon={faEdit} /> Edit

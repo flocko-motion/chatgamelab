@@ -29,7 +29,7 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             <FormGroup row>
                 <Label for="owner" sm={2}>Owner</Label>
                 <Col sm={10}>
-                    <Input type="text" name="owner" id="owner" readOnly value={formData.owner || ''} />
+                    <Input type="text" name="owner" id="owner" readOnly value={formData.userName || ''} />
                 </Col>
             </FormGroup>
 

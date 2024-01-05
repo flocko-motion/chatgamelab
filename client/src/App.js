@@ -13,7 +13,7 @@ import history from "./utils/history";
 
 import "./App.css";
 
-import {gamesState} from "./api/atoms";
+import {gamesState, userState} from "./api/atoms";
 
 import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
@@ -36,6 +36,7 @@ const App = () => {
     const api = useApi();
 
     const [, setGames] = useRecoilState(gamesState);
+    const [, setUserDetails] = useRecoilState(userState);
 
     useEffect(() => {
         console.log("user changed: ", user, isAuthenticated);
@@ -43,7 +44,7 @@ const App = () => {
             setGames([]);
             return;
         }
-        api.callApi("/login", user).then(() => console.log("notified backend about login"));
+        api.callApi("/login", user).then(userDetails => setUserDetails(userDetails));
         api.callApi("/games").then(games => setGames(games));
     }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
 

@@ -34,23 +34,6 @@ func GetGameByID(id uint) (*Game, error) {
 	return &game, err
 }
 
-func (game *Game) ToObjGame() *obj.Game {
-	return &obj.Game{
-		ID:                  game.ID,
-		Title:               game.Title,
-		Description:         game.Description,
-		Scenario:            game.Scenario,
-		SessionStartSyscall: game.SessionStartSyscall,
-		PostActionSyscall:   game.PostActionSyscall,
-		ImageStyle:          game.ImageStyle,
-		SharePlayActive:     game.SharePlayActive,
-		SharePlayHash:       game.SharePlayHash,
-		ShareEditActive:     game.ShareEditActive,
-		ShareEditHash:       game.ShareEditHash,
-		User:                game.User.ToObjUser(),
-	}
-}
-
 func (game *Game) update() error {
 	return db.Save(game).Error
 }
@@ -63,4 +46,22 @@ func (game *Game) CreateSession(user *User) (*Session, error) {
 	}
 	err := db.Create(&session).Error
 	return &session, err
+}
+
+func (game *Game) Export() *obj.Game {
+	return &obj.Game{
+		ID:                  game.ID,
+		Title:               game.Title,
+		Description:         game.Description,
+		Scenario:            game.Scenario,
+		SessionStartSyscall: game.SessionStartSyscall,
+		PostActionSyscall:   game.PostActionSyscall,
+		ImageStyle:          game.ImageStyle,
+		SharePlayActive:     game.SharePlayActive,
+		SharePlayHash:       game.SharePlayHash,
+		ShareEditActive:     game.ShareEditActive,
+		ShareEditHash:       game.ShareEditHash,
+		UserId:              game.UserID,
+		UserName:            game.User.Name,
+	}
 }

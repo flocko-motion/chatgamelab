@@ -9,10 +9,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Auth0ID string `json:"-" gorm:"uniqueIndex"` // Unique identifier from Auth0
-	Email   string `json:"-"`
-	Name    string `json:"name"`
-	Games   []Game
+	Auth0ID           string `json:"-" gorm:"uniqueIndex"` // Unique identifier from Auth0
+	Email             string `json:"-"`
+	Name              string `json:"name"`
+	OpenAiKeyPublish  string `json:"openaiKeyPublish"`
+	OpenAiKeyPersonal string `json:"openaiKeyPersonal"`
+	Games             []Game
 }
 
 // CreateUser creates a new user in the database
@@ -50,7 +52,7 @@ func (user *User) GetGames() ([]obj.Game, *obj.HTTPError) {
 		if games[i].User.Name == "" {
 			games[i].User.Name = fmt.Sprintf("user_%d", games[i].UserID)
 		}
-		gamesObj[i] = *games[i].ToObjGame()
+		gamesObj[i] = *games[i].Export()
 	}
 	return gamesObj, nil
 }
@@ -61,13 +63,13 @@ func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
 	if err != nil {
 		return nil, err
 	}
-	return game.ToObjGame(), nil
+	return game.Export(), nil
 }
 
 // getGame is for internal use only
 func (user *User) getGame(id uint) (*Game, *obj.HTTPError) {
 	var game Game
-	err := db.Where("id = ?", id).First(&game).Error
+	err := db.Preload("User").Where("id = ?", id).First(&game).Error
 	if err != nil {
 		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
 	}
@@ -99,10 +101,11 @@ func (user *User) UpdateGame(updatedGame obj.Game) error {
 	return game.update()
 }
 
-func (user *User) ToObjUser() *obj.User {
+func (user *User) Export() *obj.User {
 	return &obj.User{
-		ID:   user.ID,
-		Name: user.Name,
+		ID:                user.ID,
+		Name:              user.Name,
+		OpenAiKeyPersonal: user.OpenAiKeyPersonal,
 	}
 }
 

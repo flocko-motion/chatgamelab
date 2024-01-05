@@ -40,6 +40,6 @@ var Login = router.NewEndpointJson(
 			request.User.Update(user.Name, user.Email)
 		}
 
-		return nil, nil
+		return request.User.Export(), nil
 	},
 )

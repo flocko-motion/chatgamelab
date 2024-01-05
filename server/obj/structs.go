@@ -1,8 +1,10 @@
 package obj
 
 type User struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID                uint   `json:"id"`
+	Name              string `json:"name"`
+	OpenAiKeyPublish  string `json:"openaiKeyPublish"`
+	OpenAiKeyPersonal string `json:"openaiKeyPersonal"`
 }
 
 type Game struct {
@@ -18,5 +20,6 @@ type Game struct {
 	SharePlayHash       string `json:"sharePlayHash"`
 	ShareEditActive     bool   `json:"shareEditActive"`
 	ShareEditHash       string `json:"shareEditHash"`
-	User                *User  `json:"user"`
+	UserId              uint   `json:"userId"`
+	UserName            string `json:"userName"`
 }
