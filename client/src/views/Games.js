@@ -31,7 +31,7 @@ export const GamesComponent = () => {
                         <th>Name</th>
                         <th>Owner</th>
                         <th>Action</th>
-                        <th>Play URL</th>
+                        <th>Public URL</th>
                     </tr>
                     </thead>
                     <tbody>

@@ -76,7 +76,7 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 
             <FormGroup row>
-                <Label for="sharePlayActive" sm={2}>Share Play</Label>
+                <Label for="sharePlayActive" sm={2}>Public</Label>
                 <Col sm={10}>
                     <Input type="checkbox" name="sharePlayActive" id="sharePlayActive" checked={formData.sharePlayActive || false} onChange={handleToggle} />
                 </Col>
@@ -84,7 +84,7 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
 
             {formData.sharePlayActive && (
                 <FormGroup row>
-                    <Label for="sharePlayUrl" sm={2}>Share Play URL</Label>
+                    <Label for="sharePlayUrl" sm={2}>Public URL</Label>
                     <Col sm={10}>
                         <Input type="text" name="sharePlayUrl" id="sharePlayUrl" readOnly value={SharePlayUrl(formData.sharePlayHash) || ''} />
                     </Col>

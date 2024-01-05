@@ -105,12 +105,30 @@ func (user *User) Export() *obj.User {
 	return &obj.User{
 		ID:                user.ID,
 		Name:              user.Name,
-		OpenAiKeyPersonal: user.OpenAiKeyPersonal,
+		OpenAiKeyPersonal: shortenOpenaiKey(user.OpenAiKeyPersonal),
+		OpenAiKeyPublish:  shortenOpenaiKey(user.OpenAiKeyPublish),
 	}
+}
+
+func shortenOpenaiKey(key string) string {
+	if len(key) != 51 {
+		return ""
+	}
+	return "sk-..." + key[47:51]
 }
 
 func (user *User) Update(name string, email string) {
 	user.Name = name
 	user.Email = email
+	db.Save(user)
+}
+
+func (user *User) UpdateApiKeyPublish(publish string) {
+	user.OpenAiKeyPublish = publish
+	db.Save(user)
+}
+
+func (user *User) UpdateApiKeyPersonal(personal string) {
+	user.OpenAiKeyPersonal = personal
 	db.Save(user)
 }

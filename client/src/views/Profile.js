@@ -6,17 +6,31 @@ import Loading from "../components/Loading";
 import {useRecoilState} from "recoil";
 import {userState} from "../api/atoms";
 
+import {useApi} from "../api/useApi";
+
 export const ProfileComponent = () => {
+    const api = useApi();
     const { user } = useAuth0();
     const [userDetails, setUserDetails] = useRecoilState(userState);
-    const [personalKey, setPersonalKey] = useState(user.openaiKeyPersonal || ''); // Assuming these keys are part of the user object
-    const [publishKey, setPublishKey] = useState(user.openaiKeyPublish || '');
+
+    const setPersonalKey = (key) => {
+        setUserDetails({...userDetails, openaiKeyPersonal: key});
+    }
+
+    const setPublishKey = (key) => {
+        setUserDetails({...userDetails, openaiKeyPublish: key});
+    }
 
     const handleSave = () => {
-        // Implement the logic to save the keys
-        console.log('Saving keys:', personalKey, publishKey);
-        // This could involve making an API call to your backend to store the keys
+        const data = userDetails;
+        setUserDetails(null);
+        api.callApi("/user", data)
+            .then(data => setUserDetails(data));
     };
+
+    if (!user || !userDetails) {
+        return <Loading />;
+    }
 
     return (
         <Container className="mb-5">
@@ -37,26 +51,26 @@ export const ProfileComponent = () => {
                 <Col lg={12}>
                     <Form>
                         <FormGroup>
-                            <Label for="personalKey">Personal Key</Label>
+                            <Label for="personalKey">Private Playing Key</Label>
                             <small className="form-text text-muted">
-                                OpenAI API key to be used for yourself playing your own games.
+                                OpenAI API key to be used for yourself playing your own games while logged in.
                             </small>
                             <Input
                                 type="text"
                                 id="personalKey"
-                                value={personalKey}
+                                value={userDetails.openaiKeyPersonal}
                                 onChange={(e) => setPersonalKey(e.target.value)}
                             />
                         </FormGroup>
                         <FormGroup>
-                            <Label for="publishKey">Publishing Key</Label>
+                            <Label for="publishKey">Public Playing Key</Label>
                             <small className="form-text text-muted">
-                                OpenAI API key to be used for others playing your published games.
+                                OpenAI API key to be used for others playing your games via the public URL.
                             </small>
                             <Input
                                 type="text"
                                 id="publishKey"
-                                value={publishKey}
+                                value={userDetails.openaiKeyPublish}
                                 onChange={(e) => setPublishKey(e.target.value)}
                             />
                         </FormGroup>

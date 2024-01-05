@@ -44,7 +44,7 @@ const App = () => {
             setGames([]);
             return;
         }
-        api.callApi("/login", user).then(userDetails => setUserDetails(userDetails));
+        api.callApi("/user", {...user, openaiKeyPersonal:"-", openaiKeyPublish:"-"}).then(userDetails => setUserDetails(userDetails));
         api.callApi("/games").then(games => setGames(games));
     }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
 
