@@ -33,17 +33,15 @@ export const GameDebugComponent = ({match}) => {
     if (!game) return <Loading />;
 
     return (
-        <Row className="flex-grow-1" >
-            <Col md={8} className="d-flex flex-column">
+        <Row className="flex-grow-1 h-100">
+            <Col md={8} className="d-flex flex-column h-100">
                 <h1>Debug Game #{gameId}</h1>
                 <div className="game-view-container flex-grow-1">
                     <GameViewComponent gameId={gameId} />
                 </div>
             </Col>
-            <Col md={4} className="d-flex flex-column">
-                <div className="debug-logs-container flex-grow-1">
-                    <DebugLogsComponent logs={debugLogs} />
-                </div>
+            <Col md={4} className="d-flex flex-column h-100">
+                <DebugLogsComponent logs={debugLogs} />
             </Col>
         </Row>
     );

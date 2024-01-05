@@ -4,7 +4,7 @@ import ScrollableDiv from './ScrollableDiv';
 
 const DebugLogsComponent = ({ logs }) => {
     return (
-        <ScrollableDiv>
+        <div className="flex-grow-1 overflow-auto p-2">
             {logs.map((log, index) => (
                 <Card key={index} className="mb-2">
                     <CardBody>
@@ -18,7 +18,7 @@ const DebugLogsComponent = ({ logs }) => {
                     </CardBody>
                 </Card>
             ))}
-        </ScrollableDiv>
+        </div>
     );
 };
 

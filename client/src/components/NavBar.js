@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink as RouterNavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useLocation } from 'react-router-dom';
 
 import {
   Collapse,
@@ -31,12 +32,18 @@ const NavBar = () => {
   } = useAuth0();
   const toggle = () => setIsOpen(!isOpen);
 
+  const location = useLocation();
+
   const logoutWithRedirect = () =>
     logout({
         logoutParams: {
           returnTo: window.location.origin,
         }
     });
+
+  if(location.pathname.startsWith('/play')) {
+    return null;
+  }
 
   return (
     <div className="nav-container">

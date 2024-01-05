@@ -1,9 +1,9 @@
 import React, {useEffect} from "react";
 import {Router, Route, Switch} from "react-router-dom";
-import {Container} from "reactstrap";
 import {useAuth0} from "@auth0/auth0-react";
 import initFontAwesome from "./utils/initFontAwesome";
 import {useRecoilState} from "recoil";
+
 
 import Loading from "./components/Loading";
 import NavBar from "./components/NavBar";
@@ -22,7 +22,6 @@ import Games from "./views/Games";
 import GameEdit from "./views/GameEdit";
 import GameDebug from "./views/GameDebug";
 import Profile from "./views/Profile";
-import ScrollableDiv from "./components/ScrollableDiv";
 
 initFontAwesome();
 
@@ -39,6 +38,7 @@ const App = () => {
 
     const [, setGames] = useRecoilState(gamesState);
     const [, setUserDetails] = useRecoilState(userState);
+
 
     useEffect(() => {
         console.log("user changed: ", user, isAuthenticated);
@@ -58,6 +58,7 @@ const App = () => {
     if (isLoading) {
         return <Loading/>;
     }
+
 
 
     return (
