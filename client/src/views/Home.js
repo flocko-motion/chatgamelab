@@ -1,14 +1,12 @@
 import React, { Fragment } from "react";
 
-import Hero from "../components/Hero";
+import Splash from "../components/Splash";
 import Content from "../components/Content";
 
 const Home = () => (
-  <Fragment>
-    <Hero />
-    <hr />
-    <Content />
-  </Fragment>
+  <Content>
+    <Splash />
+  </Content>
 );
 
 export default Home;

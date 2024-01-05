@@ -7,6 +7,7 @@ import GameEditForm from '../components/GameEditForm';
 import {useRecoilState} from "recoil";
 import {gamesState} from "../api/atoms";
 import {GamesUri} from "../utils/urls";
+import Content from "../components/Content";
 
 
 export const GameEditComponent = ({match}) => {
@@ -41,16 +42,14 @@ export const GameEditComponent = ({match}) => {
     if (!game) return <Loading />;
 
     return (
-        <>
-            <div className="mb-5">
-                <h1>Edit Game #{gameId}</h1>
-                <GameEditForm
-                    initialGame={game}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                />
-            </div>
-        </>
+        <Content>
+            <h1>Edit Game #{gameId}</h1>
+            <GameEditForm
+                initialGame={game}
+                onSave={handleSave}
+                onCancel={handleCancel}
+            />
+        </Content>
     );
 };
 

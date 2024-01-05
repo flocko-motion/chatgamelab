@@ -20,7 +20,9 @@ import AuthErrorHandler from "./components/AuthErrorHandler";
 
 import Games from "./views/Games";
 import GameEdit from "./views/GameEdit";
+import GameDebug from "./views/GameDebug";
 import Profile from "./views/Profile";
+import ScrollableDiv from "./components/ScrollableDiv";
 
 initFontAwesome();
 
@@ -60,9 +62,9 @@ const App = () => {
 
     return (
             <Router history={history}>
-                <div id="app" className="d-flex flex-column h-100">
+                <div id="app">
                     <NavBar/>
-                    <Container className="flex-grow-1 mt-5">
+                    <div className="flex-grow-1 overflow-hidden">
                         <AuthErrorHandler/>
 
                         <Switch>
@@ -70,8 +72,10 @@ const App = () => {
                             <Route path="/profile" component={Profile}/>
                             <Route path="/games" component={Games}/>
                             <Route path="/edit/:id" component={GameEdit}/>
+                            <Route path="/debug/:id" component={GameDebug}/>
+                            {/*<Route path="/play/:hash" component={GamePlay}/>*/}
                         </Switch>
-                    </Container>
+                    </div>
                     <Footer/>
                 </div>
             </Router>

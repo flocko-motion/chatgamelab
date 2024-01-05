@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from "reactstrap";
+import Content from "../components/Content";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useRecoilState} from "recoil";
@@ -32,7 +33,7 @@ export const ProfileComponent = () => {
     }
 
     return (
-        <Container className="mb-5">
+        <Content>
             <Row className="align-items-center profile-header mb-5 text-center text-md-left">
                 <Col md={2}>
                     <img
@@ -77,7 +78,7 @@ export const ProfileComponent = () => {
                     </Form>
                 </Col>
             </Row>
-        </Container>
+        </Content>
     );
 };
 
