@@ -34,11 +34,6 @@ func GetUserByAuth0ID(auth0ID string) (*User, error) {
 	return &user, err
 }
 
-// UpdateUser updates an existing user
-func UpdateUser(user *User) error {
-	return db.Save(user).Error
-}
-
 // DeleteUser deletes a user
 func DeleteUser(id uint) error {
 	return db.Delete(&User{}, id).Error
@@ -46,7 +41,7 @@ func DeleteUser(id uint) error {
 
 func (user *User) GetGames() ([]obj.Game, *obj.HTTPError) {
 	var games []Game
-	err := db.Model(&user).Association("Games").Find(&games)
+	err := db.Preload("User").Model(&user).Association("Games").Find(&games)
 	if err != nil {
 		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
 	}
@@ -109,4 +104,10 @@ func (user *User) ToObjUser() *obj.User {
 		ID:   user.ID,
 		Name: user.Name,
 	}
+}
+
+func (user *User) Update(name string, email string) {
+	user.Name = name
+	user.Email = email
+	db.Save(user)
 }

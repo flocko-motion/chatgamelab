@@ -41,6 +41,7 @@ func main() {
 	rtr := router.NewRouter([]router.Endpoint{
 		api.Games,
 		api.Game,
+		api.Login,
 	})
 
 	// Apply the CORS middleware to the router

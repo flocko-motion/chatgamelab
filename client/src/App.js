@@ -43,6 +43,7 @@ const App = () => {
             setGames([]);
             return;
         }
+        api.callApi("/login", user).then(() => console.log("notified backend about login"));
         api.callApi("/games").then(games => setGames(games));
     }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
 

@@ -11,7 +11,7 @@ export const ProfileComponent = () => {
   return (
     <Container className="mb-5">
       <Row className="align-items-center profile-header mb-5 text-center text-md-left">
-        <Col md={2}>
+        <Col md={2}>auth0 go-jwt-middleware get user details example
           <img
             src={user.picture}
             alt="Profile"
