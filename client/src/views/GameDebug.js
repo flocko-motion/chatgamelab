@@ -10,6 +10,7 @@ import {useApi} from "../api/useApi";
 
 export const GameDebugComponent = ({match}) => {
     const [game, setGame] = useState(null);
+    const [sessionId, setSessionId] = useState(null);
     const api = useApi();
 
     const gameId = match.params.id;
@@ -21,6 +22,16 @@ export const GameDebugComponent = ({match}) => {
         }
     }, [gameId]);
 
+    useEffect(() => {
+        if (game) {
+            api.callApi(`/session/new`, {gameId: game.id})
+                .then(session => {
+                    console.log("new session: ", session);
+                    setSessionId(session.id);
+                });
+        }
+    }, [game]);
+
     const debugLogs = [
         {request: "request1", response: "response1"},
         {request: "request2", response: "response2"},
@@ -30,12 +41,12 @@ export const GameDebugComponent = ({match}) => {
 
     ];
 
-    if (!game) return <Loading />;
+    if (!game || !sessionId) return <Loading />;
 
     return (
         <Row className="flex-grow-1 h-100">
             <Col md={8} className="d-flex flex-column h-100 p-0">
-                <GameViewComponent gameId={gameId} />
+                <GameViewComponent game={game} sessionId={sessionId} />
             </Col>
             <Col md={4} className="d-flex flex-column h-100 p-0">
                 <DebugLogsComponent logs={debugLogs} />
