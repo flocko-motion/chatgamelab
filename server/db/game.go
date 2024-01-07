@@ -38,11 +38,13 @@ func (game *Game) update() error {
 	return db.Save(game).Error
 }
 
-func (game *Game) CreateSession(user *User) (*Session, error) {
+func (game *Game) CreateSession(user *User, assistantId, threadId string) (*Session, error) {
 	session := Session{
-		GameID: game.ID,
-		UserID: &user.ID,
-		Hash:   generateHash(),
+		GameID:      game.ID,
+		UserID:      &user.ID,
+		AssistantID: assistantId,
+		ThreadID:    threadId,
+		Hash:        generateHash(),
 	}
 	err := db.Create(&session).Error
 	return &session, err

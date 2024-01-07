@@ -21,6 +21,7 @@ import AuthErrorHandler from "./components/AuthErrorHandler";
 import Games from "./views/Games";
 import GameEdit from "./views/GameEdit";
 import GameDebug from "./views/GameDebug";
+import GamePlay from "./views/GamePlay";
 import Profile from "./views/Profile";
 
 initFontAwesome();
@@ -74,7 +75,7 @@ const App = () => {
                             <Route path="/games" component={Games}/>
                             <Route path="/edit/:id" component={GameEdit}/>
                             <Route path="/debug/:id" component={GameDebug}/>
-                            {/*<Route path="/play/:hash" component={GamePlay}/>*/}
+                            <Route path="/play/:hash" component={GamePlay}/>
                         </Switch>
                     </div>
                     <Footer/>

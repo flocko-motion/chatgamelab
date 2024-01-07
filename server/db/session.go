@@ -1,11 +1,13 @@
 package db
 
 type Session struct {
-	GameID uint
-	Game   Game
-	UserID *uint
-	User   User
-	Hash   string
+	GameID      uint
+	Game        Game
+	UserID      *uint
+	User        User
+	Hash        string
+	AssistantID string
+	ThreadID    string
 }
 
 func GetSessionByHash(hash string) (*Session, error) {

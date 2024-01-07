@@ -1,6 +1,7 @@
 {
   "name": "auth0-react-sample",
   "version": "0.1.0",
+  "license": "GPL-3.0",
   "private": true,
   "scripts": {
     "start": "npm-run-all --parallel spa api-server",

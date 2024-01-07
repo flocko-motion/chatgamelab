@@ -4,7 +4,7 @@ import ScrollableDiv from './ScrollableDiv';
 
 const DebugLogsComponent = ({ logs }) => {
     return (
-        <div className="flex-grow-1 overflow-auto p-2">
+        <div className="flex-grow-1 overflow-auto p-2 bg-dark">
             {logs.map((log, index) => (
                 <Card key={index} className="mb-2">
                     <CardBody>
