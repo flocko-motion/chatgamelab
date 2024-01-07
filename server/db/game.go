@@ -34,20 +34,17 @@ func GetGameByID(id uint) (*Game, error) {
 	return &game, err
 }
 
-func (game *Game) update() error {
-	return db.Save(game).Error
+func GetGameByPublicHash(hash string) (*obj.Game, *obj.HTTPError) {
+	var game Game
+	err := db.Where("share_play_hash = ?", hash).Where("share_play_active = ?", true).First(&game).Error
+	if err != nil {
+		return nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found"}
+	}
+	return game.Export(), nil
 }
 
-func (game *Game) CreateSession(user *User, assistantId, threadId string) (*Session, error) {
-	session := Session{
-		GameID:      game.ID,
-		UserID:      &user.ID,
-		AssistantID: assistantId,
-		ThreadID:    threadId,
-		Hash:        generateHash(),
-	}
-	err := db.Create(&session).Error
-	return &session, err
+func (game *Game) update() error {
+	return db.Save(game).Error
 }
 
 func (game *Game) Export() *obj.Game {

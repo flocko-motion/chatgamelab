@@ -1,18 +1,47 @@
 package db
 
+import (
+	"gorm.io/gorm"
+	"webapp-server/obj"
+)
+
 type Session struct {
+	gorm.Model
 	GameID      uint
 	Game        Game
 	UserID      *uint
 	User        User
-	Hash        string
 	AssistantID string
 	ThreadID    string
+	Hash        string
 }
 
-func GetSessionByHash(hash string) (*Session, error) {
+func (session *Session) export() *obj.Session {
+	return &obj.Session{
+		ID:          session.ID,
+		GameID:      session.GameID,
+		UserID:      *session.UserID,
+		AssistantID: session.AssistantID,
+		ThreadID:    session.ThreadID,
+		Hash:        session.Hash,
+	}
+}
+
+func GetSessionByHash(hash string) (*obj.Session, error) {
 	var session Session
-	// Preload Game when retrieving the session
-	err := db.Preload("Game").Preload("User").Where("hash = ?", hash).First(&session).Error
-	return &session, err
+	err := db.Where("hash = ?", hash).First(&session).Error
+	return session.export(), err
+}
+
+func CreateSession(session *obj.Session) (*obj.Session, error) {
+	userId := session.UserID
+	sessionDb := Session{
+		GameID:      session.GameID,
+		UserID:      &userId,
+		AssistantID: session.AssistantID,
+		ThreadID:    session.ThreadID,
+		Hash:        generateHash(),
+	}
+	err := db.Create(&sessionDb).Error
+	return sessionDb.export(), err
 }

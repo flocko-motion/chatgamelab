@@ -46,7 +46,7 @@ func init() {
 	}
 }
 
-func PrepareAssistant(ctx context.Context, name, instructions string) (assistantId string, threadId string, err error) {
+func initAssistant(ctx context.Context, name, instructions string) (assistantId string, threadId string, err error) {
 	assistantCfg := openai.AssistantRequest{
 		Model:        openai.GPT3Dot5Turbo1106,
 		Instructions: &instructions,

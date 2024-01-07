@@ -23,3 +23,17 @@ type Game struct {
 	UserId              uint   `json:"userId"`
 	UserName            string `json:"userName"`
 }
+
+type Session struct {
+	ID          uint   `json:"id"`
+	GameID      uint   `json:"gameId"`
+	UserID      uint   `json:"userId"`
+	AssistantID string `json:"assistantId"`
+	ThreadID    string `json:"threadId"`
+	Hash        string `json:"hash"`
+}
+
+type StatusField struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
