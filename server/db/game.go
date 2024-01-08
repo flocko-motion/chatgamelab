@@ -28,10 +28,10 @@ func CreateGame(game *Game) error {
 }
 
 // GetGameByID gets a game by ID
-func GetGameByID(id uint) (*Game, error) {
+func GetGameByID(id uint) (*obj.Game, error) {
 	var game Game
 	err := db.First(&game, id).Error
-	return &game, err
+	return game.Export(), err
 }
 
 func GetGameByPublicHash(hash string) (*obj.Game, *obj.HTTPError) {

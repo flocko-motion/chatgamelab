@@ -2,10 +2,12 @@ package gpt
 
 import (
 	"context"
+	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
 	"webapp-server/constants"
+	"webapp-server/obj"
 )
 
 func TestCreateThread(t *testing.T) {
@@ -18,7 +20,7 @@ func TestCreateThread(t *testing.T) {
 	assert.NotEmpty(t, threadId)
 
 	var response string
-	response, err = SendUserMessage(ctx, threadId, assistantId, "I look around the room")
+	response, err = AddMessageToThread(ctx, obj.Session{ThreadID: threadId, AssistantID: assistantId}, openai.ChatMessageRoleUser, "I look around the room")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, response)
 	log.Printf("Message response: %s\n", response)

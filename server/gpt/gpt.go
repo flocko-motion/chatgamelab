@@ -1,49 +1,16 @@
 package gpt
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"log"
-	"os"
 	"time"
+	"webapp-server/obj"
 )
 
 func newClient() *openai.Client {
 	return openai.NewClient(OPENAI_API_KEY)
-}
-
-func init() {
-	client := newClient()
-
-	req := openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: "you are a helpful chatbot",
-			},
-		},
-	}
-	fmt.Println("Conversation")
-	fmt.Println("---------------------")
-	fmt.Print("> ")
-	s := bufio.NewScanner(os.Stdin)
-	for s.Scan() {
-		req.Messages = append(req.Messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleUser,
-			Content: s.Text(),
-		})
-		resp, err := client.CreateChatCompletion(context.Background(), req)
-		if err != nil {
-			fmt.Printf("ChatCompletion error: %v\n", err)
-			continue
-		}
-		fmt.Printf("%s\n\n", resp.Choices[0].Message.Content)
-		req.Messages = append(req.Messages, resp.Choices[0].Message)
-		fmt.Print("> ")
-	}
 }
 
 func initAssistant(ctx context.Context, name, instructions string) (assistantId string, threadId string, err error) {
@@ -92,12 +59,12 @@ func initAssistant(ctx context.Context, name, instructions string) (assistantId 
 	return
 }
 
-func SendUserMessage(ctx context.Context, threadId, assistantId, message string) (response string, err error) {
+func AddMessageToThread(ctx context.Context, session obj.Session, role, message string) (response string, err error) {
 	client := newClient()
 
 	var messageObject openai.Message
-	if messageObject, err = client.CreateMessage(ctx, threadId, openai.MessageRequest{
-		Role:    openai.ChatMessageRoleUser,
+	if messageObject, err = client.CreateMessage(ctx, session.ThreadID, openai.MessageRequest{
+		Role:    role,
 		Content: "I look around the room",
 	}); err != nil {
 		return
@@ -105,15 +72,15 @@ func SendUserMessage(ctx context.Context, threadId, assistantId, message string)
 	log.Printf("Message created: %s\n", messageObject.ID)
 
 	var run openai.Run
-	if run, err = client.CreateRun(ctx, threadId, openai.RunRequest{
-		AssistantID: assistantId,
+	if run, err = client.CreateRun(ctx, session.ThreadID, openai.RunRequest{
+		AssistantID: session.AssistantID,
 	}); err != nil {
 		return
 	}
 	log.Printf("Run %s created", run.ID)
 
 	for run.Status == openai.RunStatusQueued || run.Status == openai.RunStatusInProgress {
-		if run, err = client.RetrieveRun(ctx, threadId, run.ID); err != nil {
+		if run, err = client.RetrieveRun(ctx, session.ThreadID, run.ID); err != nil {
 			return
 		}
 		time.Sleep(1 * time.Second)
@@ -122,7 +89,7 @@ func SendUserMessage(ctx context.Context, threadId, assistantId, message string)
 
 	limit := 1
 	var msgList openai.MessagesList
-	if msgList, err = client.ListMessage(ctx, threadId, &limit, nil, nil, nil); err != nil {
+	if msgList, err = client.ListMessage(ctx, session.ThreadID, &limit, nil, nil, nil); err != nil {
 		return
 	}
 	if len(msgList.Messages) != 1 {
