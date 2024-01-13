@@ -43,7 +43,9 @@ export const GameDebugComponent = ({match}) => {
 
     if (!game || !sessionHash) return <Loading />;
 
-    return (
+    return <GamePlayer game={game} sessionHash={sessionHash} debug={true} />
+
+/*    return (
         <Row className="flex-grow-1 h-100">
             <Col md={8} className="d-flex flex-column h-100 p-0">
                 <GamePlayer game={game} sessionHash={sessionHash} debug={true} />
@@ -52,7 +54,7 @@ export const GameDebugComponent = ({match}) => {
                 <DebugLogsComponent logs={debugLogs} />
             </Col>
         </Row>
-    );
+    );*/
 };
 
 export default withAuthenticationRequired(GameDebugComponent, {

@@ -112,16 +112,6 @@ const Chapter = ({chapter, debug}) => {
 
     const toggleDebug = () => setShowDebug(!showDebug);
 
-    let debugInfo = ""
-    if (chapter.rawOutput) {
-        try {
-            debugInfo += JSON.stringify(JSON.parse(chapter.rawOutput), null, 4);
-        } catch (Exception) {
-            debugInfo += chapter.rawOutput;
-        }
-
-    }
-
     return (
         <Toast className="w-100 mt-2">
             <ToastHeader>
@@ -134,7 +124,7 @@ const Chapter = ({chapter, debug}) => {
                 {chapter.type === chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }
                 { chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
 
-                {debug && debugInfo && (
+                {debug && (chapter.rawInput || chapter.rawOutput)  && (
                     <div className="text-right">
                         <div className="text-right">
                             <FontAwesomeIcon icon={faBug} onClick={toggleDebug} style={{ cursor: 'pointer' }} />
@@ -142,13 +132,20 @@ const Chapter = ({chapter, debug}) => {
                     </div>
                 )}
 
-                {showDebug && (
-                    <Highlight>{debugInfo}</Highlight>
-                )}
+                {showDebug && chapter.rawInput && <p>GPT Input: <Highlight>{ beautifyJson(chapter.rawInput) }</Highlight></p> }
+                {showDebug && chapter.rawOutput && <p>GPT Output: <Highlight>{ beautifyJson(chapter.rawOutput) }</Highlight></p>  }
             </ToastBody>
 
         </Toast>
     );
+}
+
+const beautifyJson = (json) => {
+    try {
+        return JSON.stringify(JSON.parse(json), null, 2);
+    } catch (Exception) {
+        return json;
+    }
 }
 
 export default GamePlayer;
