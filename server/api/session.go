@@ -14,7 +14,8 @@ const (
 )
 
 type SessionRequest struct {
-	Action string `json:"action"` // type of action
+	Action   string `json:"action"`   // type of action
+	ActionId uint   `json:"actionId"` // id of action
 	// creating a new session:
 	GameID   uint   `json:"gameId"`
 	GameHash string `json:"gameHash"`

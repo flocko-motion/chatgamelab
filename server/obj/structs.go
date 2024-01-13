@@ -44,9 +44,10 @@ const GameOutputTypeError = "error"
 const GameOutputTypeStory = "story"
 
 type GameActionInput struct {
-	Type    string        `json:"type"`
-	Message string        `json:"action"`
-	Status  []StatusField `json:"status"`
+	ActionId uint          `json:"-"`
+	Type     string        `json:"type"`
+	Message  string        `json:"action"`
+	Status   []StatusField `json:"status"`
 }
 
 /*
@@ -58,10 +59,11 @@ type GameActionInput struct {
 */
 
 type GameActionOutput struct {
-	Type   string        `json:"type"`
-	Story  string        `json:"story"`
-	Status []StatusField `json:"status"`
-	Image  string        `json:"image"`
-	Error  string        `json:"error"`
-	Raw    string        `json:"raw"`
+	ActionId uint          `json:"actionId"`
+	Type     string        `json:"type"`
+	Story    string        `json:"story"`
+	Status   []StatusField `json:"status"`
+	Image    string        `json:"image"`
+	Error    string        `json:"error"`
+	Raw      string        `json:"raw"`
 }

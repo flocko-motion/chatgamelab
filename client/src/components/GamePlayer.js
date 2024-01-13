@@ -13,6 +13,7 @@ const GamePlayer = ({game, sessionHash}) => {
     const [action, setAction] = useState('');
     const [sessionStatus, setSessionStatus] = useState([]);
     const [chapters, setChapters] = useState([]);
+    const [actionId, setActionId] = useState(0);
 
     const receiveChapter = (chapter) => {
         console.log("received chapter: ", chapter);
@@ -22,8 +23,10 @@ const GamePlayer = ({game, sessionHash}) => {
 
     const submitAction = (action) => {
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
+        setActionId(actionId + 1);
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
+            actionId: actionId,
             message: action,
             status: sessionStatus,
         }).then(chapter => {

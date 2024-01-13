@@ -65,7 +65,7 @@ func AddMessageToThread(ctx context.Context, session obj.Session, role, message 
 	var messageObject openai.Message
 	if messageObject, err = client.CreateMessage(ctx, session.ThreadID, openai.MessageRequest{
 		Role:    role,
-		Content: "I look around the room",
+		Content: message,
 	}); err != nil {
 		return
 	}
