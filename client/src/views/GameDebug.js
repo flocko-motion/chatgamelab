@@ -46,7 +46,7 @@ export const GameDebugComponent = ({match}) => {
     return (
         <Row className="flex-grow-1 h-100">
             <Col md={8} className="d-flex flex-column h-100 p-0">
-                <GamePlayer game={game} sessionHash={sessionHash} />
+                <GamePlayer game={game} sessionHash={sessionHash} debug={true} />
             </Col>
             <Col md={4} className="d-flex flex-column h-100 p-0">
                 <DebugLogsComponent logs={debugLogs} />

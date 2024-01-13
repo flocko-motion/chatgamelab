@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import { Container, Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import {useApi} from "../api/useApi";
+import Highlight from "./Highlight";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faBug} from "@fortawesome/free-solid-svg-icons";
 
 
 const chapterTypeStory ="story";
@@ -8,7 +11,7 @@ const chapterTypeError ="error";
 const chapterTypeAction ="player-action";
 const chapterTypeLoading ="loading";
 
-const GamePlayer = ({game, sessionHash}) => {
+const GamePlayer = ({game, sessionHash, debug}) => {
     const api = useApi();
 
     const [action, setAction] = useState('');
@@ -17,9 +20,7 @@ const GamePlayer = ({game, sessionHash}) => {
     const [actionIdSent, setActionIdSent] = useState(0);
     const [actionIdReceived, setActionIdReceived] = useState(0);
 
-
     const receiveChapter = (chapter) => {
-        console.log("received chapter: ", chapter);
         setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
         if (chapter.actionId) {
@@ -31,7 +32,6 @@ const GamePlayer = ({game, sessionHash}) => {
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
         const newActionId = actionIdSent + 1
         setActionIdSent(newActionId);
-        console.log("sending action: ", newActionId);
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
             actionId: newActionId,
@@ -78,8 +78,8 @@ const GamePlayer = ({game, sessionHash}) => {
             {/* Main Pane */}
             <Row className="flex-grow-1 overflow-auto ml-0 bg-light">
                 <Col>
-                    {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} /> })}
-                    { actionIdSent > actionIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} /> : null }
+                    {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} debug={Boolean(debug)} /> })}
+                    { actionIdSent > actionIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} debug={Boolean(debug)}/> : null }
                 </Col>
             </Row>
 
@@ -106,19 +106,47 @@ const GamePlayer = ({game, sessionHash}) => {
     );
 };
 
-const Chapter = ({chapter}) => {
+const Chapter = ({chapter, debug}) => {
+
+    const [showDebug, setShowDebug] = useState(false);
+
+    const toggleDebug = () => setShowDebug(!showDebug);
+
+    let debugInfo = ""
+    if (chapter.rawOutput) {
+        try {
+            debugInfo += JSON.stringify(JSON.parse(chapter.rawOutput), null, 4);
+        } catch (Exception) {
+            debugInfo += chapter.rawOutput;
+        }
+
+    }
+
     return (
         <Toast className="w-100 mt-2">
             <ToastHeader>
                 { chapter.type === chapterTypeStory ? "Narrator" : null }
                 { chapter.type === chapterTypeAction ? "You" : null }
                 { chapter.type === chapterTypeError ? "Error" : null }
-                { chapter.type === chapterTypeLoading ? "Loading" : null }
+                { chapter.type === chapterTypeLoading ? "Loading.." : null }
             </ToastHeader>
             <ToastBody>
                 {chapter.type === chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }
                 { chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
+
+                {debug && debugInfo && (
+                    <div className="text-right">
+                        <div className="text-right">
+                            <FontAwesomeIcon icon={faBug} onClick={toggleDebug} style={{ cursor: 'pointer' }} />
+                        </div>
+                    </div>
+                )}
+
+                {showDebug && (
+                    <Highlight>{debugInfo}</Highlight>
+                )}
             </ToastBody>
+
         </Toast>
     );
 }
