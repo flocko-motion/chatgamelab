@@ -33,7 +33,7 @@ type SessionCreateResponse struct {
 	Chapter obj.GameActionOutput `json:"chapter"`
 }
 
-var SessionIntro = router.NewEndpointJson(
+var Session = router.NewEndpointJson(
 	"/api/session/",
 	false,
 	func(request router.Request) (out interface{}, httpErr *obj.HTTPError) {

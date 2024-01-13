@@ -42,8 +42,7 @@ func main() {
 		api.Games,
 		api.Game,
 		api.User,
-		api.SessionNew,
-		api.SessionIntro,
+		api.Session,
 	})
 
 	// Apply the CORS middleware to the router
