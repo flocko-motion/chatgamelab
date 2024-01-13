@@ -37,3 +37,26 @@ type StatusField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
+
+const GameActionTypePlayerInput = "player-input"
+const GameActionTypeInitialization = "initialization"
+
+type GameActionInput struct {
+	Type    string `json:"type"`
+	Message string `json:"action"`
+	Status  []StatusField
+}
+
+/*
+{
+  "story": "You opened the red door with the key. The key stuck in the door. You're now outside the castle.",
+ "status": {{STATUS}},
+"image":"a castle in the background, green grass, late afternoon"
+}
+*/
+
+type GameActionOutput struct {
+	Story  string `json:"story"`
+	Status []StatusField
+	Image  string `json:"image"`
+}

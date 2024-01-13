@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/sashabaranov/go-openai"
 	"strings"
 	"webapp-server/constants"
 	"webapp-server/obj"
@@ -15,23 +16,24 @@ You're job is not to please the player, but to create a coherent world. You're j
 
 The game frontend sends player actions together with player status as json. Example:
 
-{
-  "action": "Enter the red door using red key",
- "status": {{STATUS}}
-}
+{{INPUT_EXAMPLE}}
 
-You answer with a result json. The result json must exactly follow the format of this Example:
+Possible action types are: 
+` + obj.GameActionTypePlayerInput + `: input from player
+` + obj.GameActionTypeInitialization + `: system starts a new game session, message contains instructions generating the first scene
 
-{
-  "story": "You opened the red door with the key. The key stuck in the door. You're now outside the castle.",
- "status": {{STATUS}},
-"image":"a castle in the background, green grass, late afternoon"
-}
+You always answer with a result json. The result json must exactly follow the format of this Example:
 
-As you see in the example, you have to update the status after each player action. The "image" field describes the new scenery for a generative image AI to produce artwork. 
+{{OUTPUT_EXAMPLE}}
 
-The player input and the story output should be in the language that the scenario (see below) is written in. 
-The JSON structure, field names, etc. are fixed and must not be changed. The image description should be in english always.
+As you see in the example, you have to update the status after each player action. The "image" field describes the new scenery for a generative image AI to produce artwork.
+
+The language and literary style ouf your output should follow the scenario definition.
+
+The JSON structure, field names, etc. are fixed and must not be changed or translated. The image description should be in english always.
+Any changes to the JSON structure will break the game frontend.
+
+You always stay in your role. You are the game master. You are the world. You are the narrator. You are the storyteller. You decide, what's possible and what not. You are the text-adventure engine. You are the game. Don't please the player, challenge him.
 
 The scenario:
 
@@ -42,14 +44,30 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	if game == nil {
 		return nil, fmt.Errorf("game is nil")
 	}
-	// TODO: this is just a placeholder, should be configured in game
-	statusFields := []obj.StatusField{
-		{Name: "gold", Value: "100"},
-		{Name: "items", Value: "sword, potion"},
-	}
 
-	instructions := game.Scenario
-	strings.ReplaceAll(instructions, "{{STATUS}}", serializeStatusFields(statusFields))
+	actionInput := obj.GameActionInput{
+		Type:    obj.GameActionTypePlayerInput,
+		Message: "drink the potion",
+		Status: []obj.StatusField{
+			{Name: "gold", Value: "100"},
+			{Name: "items", Value: "sword, potion"},
+		},
+	}
+	actionInputStr, _ := json.Marshal(actionInput)
+
+	actionOutput := obj.GameActionOutput{
+		Story: "You drink the potion. You feel a little bit dizzy. You feel a little bit stronger.",
+		Status: []obj.StatusField{
+			{Name: "gold", Value: "100"},
+			{Name: "items", Value: "sword"},
+		},
+		Image: "a castle in the background, green grass, late afternoon",
+	}
+	actionOutputStr, _ := json.Marshal(actionOutput)
+
+	instructions := template
+	strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
+	strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
 	strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
@@ -65,7 +83,23 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	}, nil
 }
 
-func serializeStatusFields(statusFields []obj.StatusField) string {
+func ExecuteAction(session *obj.Session, action obj.GameActionInput) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
+	var err error
+	actionSerialized, _ := json.Marshal(action)
+
+	var res string
+	if res, err = AddMessageToThread(context.Background(), *session, openai.ChatMessageRoleUser, string(actionSerialized)); err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT execution error: " + err.Error()}
+	}
+
+	if err = json.Unmarshal([]byte(res), &response); err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT result parsing error: " + err.Error()}
+	}
+
+	return response, nil
+}
+
+/*func serializeStatusFields(statusFields []obj.StatusField) string {
 	fields := make([]map[string]string, len(statusFields))
 	for i, statusField := range statusFields {
 		fields[i] = map[string]string{
@@ -78,3 +112,4 @@ func serializeStatusFields(statusFields []obj.StatusField) string {
 	}
 	return string(bytes)
 }
+*/
