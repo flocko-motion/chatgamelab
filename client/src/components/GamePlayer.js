@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import { Container, Row, Col, Input, Button, Badge } from 'reactstrap';
+import { Container, Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import {useApi} from "../api/useApi";
 
 
 const chapterTypeStory ="story";
 const chapterTypeError ="error";
 const chapterTypeAction ="player-action";
+const chapterTypeLoading ="loading";
 
 const GamePlayer = ({game, sessionHash}) => {
     const api = useApi();
@@ -13,20 +14,27 @@ const GamePlayer = ({game, sessionHash}) => {
     const [action, setAction] = useState('');
     const [sessionStatus, setSessionStatus] = useState([]);
     const [chapters, setChapters] = useState([]);
-    const [actionId, setActionId] = useState(0);
+    const [actionIdSent, setActionIdSent] = useState(0);
+    const [actionIdReceived, setActionIdReceived] = useState(0);
+
 
     const receiveChapter = (chapter) => {
         console.log("received chapter: ", chapter);
         setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
+        if (chapter.actionId) {
+            setActionIdReceived(chapter.actionId);
+        }
     }
 
     const submitAction = (action) => {
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
-        setActionId(actionId + 1);
+        const newActionId = actionIdSent + 1
+        setActionIdSent(newActionId);
+        console.log("sending action: ", newActionId);
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
-            actionId: actionId,
+            actionId: newActionId,
             message: action,
             status: sessionStatus,
         }).then(chapter => {
@@ -35,8 +43,11 @@ const GamePlayer = ({game, sessionHash}) => {
     }
 
     useEffect(() => {
+        if (sessionHash == null || actionIdSent !== 0) return;
+        setActionIdSent(1);
         api.callApi(`/session/${sessionHash}`, {
             action: "intro",
+            actionId: 1,
         }).then(chapter => {
             receiveChapter(chapter);
         });
@@ -45,6 +56,12 @@ const GamePlayer = ({game, sessionHash}) => {
 
     return (
         <Container fluid className="h-100 d-flex flex-column bg-dark">
+            <Row className="m-0 p-0">
+                <Col>
+                    <h1 className="m-0 p-0 text-white">{game.title}</h1>
+                    <p  className="m-0 p-0 text-white"><small>Session #{sessionHash}, sent: {actionIdSent}, recv: {actionIdReceived}</small></p>
+                </Col>
+            </Row>
             <Row className="m-0 p-1">
                 <Col>
                     {sessionStatus ? sessionStatus.map((item, index) => {
@@ -61,20 +78,13 @@ const GamePlayer = ({game, sessionHash}) => {
             {/* Main Pane */}
             <Row className="flex-grow-1 overflow-auto ml-0 bg-light">
                 <Col>
-                    <h1>{game.title}</h1>
-                    <p><small>Session #{sessionHash}</small></p>
-                    {chapters.map((chapter, index) => {
-                        return (
-                            <div key={index}>
-                                <p><b>{chapter.type}</b> {chapter.type == chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }</p>
-                            </div>
-                        );
-                    })}
+                    {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} /> })}
+                    { actionIdSent > actionIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} /> : null }
                 </Col>
             </Row>
 
             {/* Bottom Pane */}
-            <Row className="m-0 p-2">
+            { actionIdReceived < 1 ? null : <Row className="m-0 p-2">
                 <Col className="d-flex align-items-center">
                     <Input
                         type="text"
@@ -91,9 +101,26 @@ const GamePlayer = ({game, sessionHash}) => {
                     />
                     <Button color="primary" onClick={() => submitAction(action)}>Submit</Button>
                 </Col>
-            </Row>
+            </Row> }
         </Container>
     );
 };
+
+const Chapter = ({chapter}) => {
+    return (
+        <Toast className="w-100 mt-2">
+            <ToastHeader>
+                { chapter.type === chapterTypeStory ? "Narrator" : null }
+                { chapter.type === chapterTypeAction ? "You" : null }
+                { chapter.type === chapterTypeError ? "Error" : null }
+                { chapter.type === chapterTypeLoading ? "Loading" : null }
+            </ToastHeader>
+            <ToastBody>
+                {chapter.type === chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }
+                { chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
+            </ToastBody>
+        </Toast>
+    );
+}
 
 export default GamePlayer;

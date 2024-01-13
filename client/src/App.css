@@ -61,3 +61,7 @@
 footer {
   min-height: 30px;
 }
+
+div.toast {
+  max-width: 100%;
+}

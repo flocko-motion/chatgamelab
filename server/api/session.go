@@ -53,8 +53,9 @@ var Session = router.NewEndpointJson(
 		switch sessionRequest.Action {
 		case obj.GameInputTypeIntro:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:    obj.GameInputTypeIntro,
-				Message: sessionRequest.Game.SessionStartSyscall,
+				Type:     obj.GameInputTypeIntro,
+				ActionId: sessionRequest.ActionId,
+				Message:  sessionRequest.Game.SessionStartSyscall,
 				Status: []obj.StatusField{
 					{Name: "gold", Value: "100"},
 					{Name: "items", Value: "sword, potion"},
@@ -62,9 +63,10 @@ var Session = router.NewEndpointJson(
 			})
 		case obj.GameInputTypeAction:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:    obj.GameInputTypeAction,
-				Message: sessionRequest.Message,
-				Status:  sessionRequest.Status,
+				Type:     obj.GameInputTypeAction,
+				ActionId: sessionRequest.ActionId,
+				Message:  sessionRequest.Message,
+				Status:   sessionRequest.Status,
 			})
 		default:
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
