@@ -59,11 +59,12 @@ type GameActionInput struct {
 */
 
 type GameActionOutput struct {
-	ActionId uint          `json:"actionId"`
-	Type     string        `json:"type"`
-	Story    string        `json:"story"`
-	Status   []StatusField `json:"status"`
-	Image    string        `json:"image"`
-	Error    string        `json:"error"`
-	Raw      string        `json:"raw"`
+	ActionId  uint          `json:"actionId"`
+	Type      string        `json:"type"`
+	Story     string        `json:"story"`
+	Status    []StatusField `json:"status"`
+	Image     string        `json:"image"`
+	Error     string        `json:"error"`
+	RawInput  string        `json:"rawInput"`
+	RawOutput string        `json:"rawOutput"`
 }

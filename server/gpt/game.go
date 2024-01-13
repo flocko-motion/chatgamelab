@@ -100,16 +100,17 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput) (response *
 	fmt.Println(gptResponse)
 
 	if err = json.Unmarshal([]byte(gptResponse), &response); err != nil {
-		return &obj.GameActionOutput{
-			ActionId: action.ActionId,
-			Type:     obj.GameOutputTypeError,
-			Error:    fmt.Sprintf("failed parsing gpt output: %s", err.Error()),
-			Raw:      gptResponse,
-		}, nil
+		response = &obj.GameActionOutput{
+			Type:  obj.GameOutputTypeError,
+			Error: fmt.Sprintf("failed parsing gpt output: %s", err.Error()),
+		}
+	} else {
+		response.Type = obj.GameOutputTypeStory
 	}
-	response.Raw = gptResponse
-	response.Type = obj.GameOutputTypeStory
+
 	response.ActionId = action.ActionId
+	response.RawInput = string(actionSerialized)
+	response.RawOutput = gptResponse
 
 	return response, nil
 }
