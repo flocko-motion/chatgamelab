@@ -19,8 +19,8 @@ The game frontend sends player actions together with player status as json. Exam
 {{INPUT_EXAMPLE}}
 
 Possible action types are: 
-` + obj.GameActionTypePlayerInput + `: input from player
-` + obj.GameActionTypeInitialization + `: system starts a new game session, message contains instructions generating the first scene
+` + obj.GameInputTypeAction + `: input from player
+` + obj.GameInputTypeIntro + `: system starts a new game session, message contains instructions generating the first scene
 
 You always answer with a result json. The result json must exactly follow the format of this Example:
 
@@ -46,7 +46,7 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	}
 
 	actionInput := obj.GameActionInput{
-		Type:    obj.GameActionTypePlayerInput,
+		Type:    obj.GameInputTypeAction,
 		Message: "drink the potion",
 		Status: []obj.StatusField{
 			{Name: "gold", Value: "100"},
@@ -66,9 +66,9 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	actionOutputStr, _ := json.Marshal(actionOutput)
 
 	instructions := template
-	strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
-	strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
-	strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
+	instructions = strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
+	instructions = strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
+	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
 	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions)
@@ -87,14 +87,21 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput) (response *
 	var err error
 	actionSerialized, _ := json.Marshal(action)
 
-	var res string
-	if res, err = AddMessageToThread(context.Background(), *session, openai.ChatMessageRoleUser, string(actionSerialized)); err != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT execution error: " + err.Error()}
+	var gptResponse string
+	if gptResponse, err = AddMessageToThread(context.Background(), *session, openai.ChatMessageRoleUser, string(actionSerialized)); err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT error: " + err.Error()}
 	}
+	fmt.Println(gptResponse)
 
-	if err = json.Unmarshal([]byte(res), &response); err != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT result parsing error: " + err.Error()}
+	if err = json.Unmarshal([]byte(gptResponse), &response); err != nil {
+		return &obj.GameActionOutput{
+			Type:  obj.GameOutputTypeError,
+			Error: fmt.Sprintf("failed parsing gpt output: %s", err.Error()),
+			Raw:   gptResponse,
+		}, nil
 	}
+	response.Raw = gptResponse
+	response.Type = obj.GameOutputTypeStory
 
 	return response, nil
 }

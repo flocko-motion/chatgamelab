@@ -38,13 +38,15 @@ type StatusField struct {
 	Value string `json:"value"`
 }
 
-const GameActionTypePlayerInput = "player-input"
-const GameActionTypeInitialization = "initialization"
+const GameInputTypeAction = "player-action"
+const GameInputTypeIntro = "intro"
+const GameOutputTypeError = "error"
+const GameOutputTypeStory = "story"
 
 type GameActionInput struct {
-	Type    string `json:"type"`
-	Message string `json:"action"`
-	Status  []StatusField
+	Type    string        `json:"type"`
+	Message string        `json:"action"`
+	Status  []StatusField `json:"status"`
 }
 
 /*
@@ -56,7 +58,10 @@ type GameActionInput struct {
 */
 
 type GameActionOutput struct {
-	Story  string `json:"story"`
-	Status []StatusField
-	Image  string `json:"image"`
+	Type   string        `json:"type"`
+	Story  string        `json:"story"`
+	Status []StatusField `json:"status"`
+	Image  string        `json:"image"`
+	Error  string        `json:"error"`
+	Raw    string        `json:"raw"`
 }

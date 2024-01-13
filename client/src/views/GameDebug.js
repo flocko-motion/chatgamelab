@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import { Row, Col } from 'reactstrap';
-import GameViewComponent from '../components/GameView'; // Assuming this is your game component
+import GamePlayer from '../components/GamePlayer'; // Assuming this is your game component
 import DebugLogsComponent from '../components/DebugLogs'; // Assuming this is your debug logs component
 
 import {useApi} from "../api/useApi";
@@ -10,7 +10,7 @@ import {useApi} from "../api/useApi";
 
 export const GameDebugComponent = ({match}) => {
     const [game, setGame] = useState(null);
-    const [sessionId, setSessionId] = useState(null);
+    const [sessionHash, setSessionHash] = useState(null);
     const api = useApi();
 
     const gameId = match.params.id;
@@ -27,7 +27,7 @@ export const GameDebugComponent = ({match}) => {
             api.callApi(`/session/new`, {gameId: game.id})
                 .then(session => {
                     console.log("new session: ", session);
-                    setSessionId(session.id);
+                    setSessionHash(session.hash);
                 });
         }
     }, [game]);
@@ -41,12 +41,12 @@ export const GameDebugComponent = ({match}) => {
 
     ];
 
-    if (!game || !sessionId) return <Loading />;
+    if (!game || !sessionHash) return <Loading />;
 
     return (
         <Row className="flex-grow-1 h-100">
             <Col md={8} className="d-flex flex-column h-100 p-0">
-                <GameViewComponent game={game} sessionId={sessionId} />
+                <GamePlayer game={game} sessionHash={sessionHash} />
             </Col>
             <Col md={4} className="d-flex flex-column h-100 p-0">
                 <DebugLogsComponent logs={debugLogs} />

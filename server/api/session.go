@@ -28,11 +28,6 @@ type SessionRequest struct {
 	Session *obj.Session `json:"-"`
 }
 
-type SessionCreateResponse struct {
-	Session obj.Session          `json:"session"`
-	Chapter obj.GameActionOutput `json:"chapter"`
-}
-
 var Session = router.NewEndpointJson(
 	"/api/session/",
 	false,
@@ -52,15 +47,14 @@ var Session = router.NewEndpointJson(
 			return nil, &obj.HTTPError{StatusCode: 404, Message: "Not Found"}
 		}
 
-		if sessionRequest.Game, err = db.GetGameByID(sessionRequest.GameID); err != nil {
+		if sessionRequest.Game, err = db.GetGameByID(sessionRequest.Session.GameID); err != nil {
 			return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
 		}
 
-		var message string
 		switch sessionRequest.Action {
 		case sessionActionIntro:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:    obj.GameActionTypeInitialization,
+				Type:    obj.GameInputTypeIntro,
 				Message: sessionRequest.Game.SessionStartSyscall,
 				Status: []obj.StatusField{
 					{Name: "gold", Value: "100"},
@@ -69,16 +63,13 @@ var Session = router.NewEndpointJson(
 			})
 		case sessionActionInput:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:    obj.GameActionTypePlayerInput,
+				Type:    obj.GameInputTypeAction,
 				Message: sessionRequest.Message,
 				Status:  sessionRequest.Status,
 			})
+		default:
+			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
 		}
-		if err != nil {
-			return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
-		}
-
-		return message, nil
 	},
 )
 

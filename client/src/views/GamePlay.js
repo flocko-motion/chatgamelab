@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import { Row, Col } from 'reactstrap';
-import GameViewComponent from '../components/GameView'; // Assuming this is your game component
+import GamePlayer from '../components/GamePlayer'; // Assuming this is your game component
 import DebugLogsComponent from '../components/DebugLogs'; // Assuming this is your debug logs component
 
 import {useApi} from "../api/useApi";
@@ -24,7 +24,7 @@ export const GamePlayComponent = ({match}) => {
     // if (!game) return <Loading />;
 
     return (
-        <GameViewComponent gameId={gameId} />
+        <GamePlayer gameId={gameId} />
     );
 };
 
