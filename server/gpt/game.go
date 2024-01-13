@@ -19,8 +19,10 @@ The game frontend sends player actions together with player status as json. Exam
 {{INPUT_EXAMPLE}}
 
 Possible action types are: 
-` + obj.GameInputTypeAction + `: input from player
+` + obj.GameInputTypeAction + `: action, which the player wants to do
 ` + obj.GameInputTypeIntro + `: system starts a new game session, message contains instructions generating the first scene
+
+When you receive a player action, you continue the story based on his actions and update the player status.
 
 You always answer with a result json. The result json must exactly follow the format of this Example:
 
@@ -69,6 +71,7 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	instructions = strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
 	instructions = strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
+	fmt.Println(instructions)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
 	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions)

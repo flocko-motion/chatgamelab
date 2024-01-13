@@ -10,9 +10,7 @@ import (
 )
 
 const (
-	userAnonymous      = uint(0)
-	sessionActionIntro = "intro"
-	sessionActionInput = "input"
+	userAnonymous = uint(0)
 )
 
 type SessionRequest struct {
@@ -52,7 +50,7 @@ var Session = router.NewEndpointJson(
 		}
 
 		switch sessionRequest.Action {
-		case sessionActionIntro:
+		case obj.GameInputTypeIntro:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
 				Type:    obj.GameInputTypeIntro,
 				Message: sessionRequest.Game.SessionStartSyscall,
@@ -61,7 +59,7 @@ var Session = router.NewEndpointJson(
 					{Name: "items", Value: "sword, potion"},
 				},
 			})
-		case sessionActionInput:
+		case obj.GameInputTypeAction:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
 				Type:    obj.GameInputTypeAction,
 				Message: sessionRequest.Message,
