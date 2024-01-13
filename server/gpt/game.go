@@ -91,6 +91,9 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput) (response *
 	if gptResponse, err = AddMessageToThread(context.Background(), *session, openai.ChatMessageRoleUser, string(actionSerialized)); err != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT error: " + err.Error()}
 	}
+	gptResponse = strings.TrimPrefix(gptResponse, "```json")
+	gptResponse = strings.TrimSuffix(gptResponse, "```")
+	gptResponse = strings.TrimSpace(gptResponse)
 	fmt.Println(gptResponse)
 
 	if err = json.Unmarshal([]byte(gptResponse), &response); err != nil {

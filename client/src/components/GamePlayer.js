@@ -2,6 +2,11 @@ import React, {useEffect, useState} from 'react';
 import { Container, Row, Col, Input, Button, Badge } from 'reactstrap';
 import {useApi} from "../api/useApi";
 
+
+const chapterTypeStory ="story";
+const chapterTypeError ="error";
+const chapterTypeAction ="player-action";
+
 const GamePlayer = ({game, sessionHash}) => {
     const api = useApi();
 
@@ -16,7 +21,7 @@ const GamePlayer = ({game, sessionHash}) => {
     }
 
     const submitAction = (action) => {
-        setChapters(chapters => [...chapters, {"type": "action", "story": action}]);
+        setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
             message: action,
@@ -57,7 +62,7 @@ const GamePlayer = ({game, sessionHash}) => {
                     {chapters.map((chapter, index) => {
                         return (
                             <div key={index}>
-                                <p><b>{chapter.type}</b> {chapter.story}</p>
+                                <p><b>{chapter.type}</b> {chapter.type == chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }</p>
                             </div>
                         );
                     })}
