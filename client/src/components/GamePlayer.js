@@ -11,12 +11,12 @@ const GamePlayer = ({game, sessionHash}) => {
     const api = useApi();
 
     const [action, setAction] = useState('');
-    const [statusBar, setStatusBar] = useState([]);
+    const [sessionStatus, setSessionStatus] = useState([]);
     const [chapters, setChapters] = useState([]);
 
     const receiveChapter = (chapter) => {
         console.log("received chapter: ", chapter);
-        setStatusBar(chapter.status);
+        setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
     }
 
@@ -25,6 +25,7 @@ const GamePlayer = ({game, sessionHash}) => {
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
             message: action,
+            status: sessionStatus,
         }).then(chapter => {
             receiveChapter(chapter);
         });
@@ -43,7 +44,7 @@ const GamePlayer = ({game, sessionHash}) => {
         <Container fluid className="h-100 d-flex flex-column bg-dark">
             <Row className="m-0 p-1">
                 <Col>
-                    {statusBar ? statusBar.map((item, index) => {
+                    {sessionStatus ? sessionStatus.map((item, index) => {
                         return (
                             <Badge color="light" key={index} className="mr-2">
                                 {item.name}: {item.value}

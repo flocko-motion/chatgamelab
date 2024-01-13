@@ -15,7 +15,7 @@ func newClient() *openai.Client {
 
 func initAssistant(ctx context.Context, name, instructions string) (assistantId string, threadId string, err error) {
 	assistantCfg := openai.AssistantRequest{
-		Model:        openai.GPT3Dot5Turbo1106,
+		Model:        openai.GPT4TurboPreview,
 		Instructions: &instructions,
 		Name:         &name,
 	}
