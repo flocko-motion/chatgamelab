@@ -1,3 +1,5 @@
+[![CI to GHCR](https://github.com/flocko-motion/chatgamelab/actions/workflows/docker-image.yml/badge.svg)](https://github.com/flocko-motion/chatgamelab/actions/workflows/docker-image.yml)
+
 # chatgamelab
 
 Educational GPT-Chat based text adventure lab. 
