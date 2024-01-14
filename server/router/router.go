@@ -34,20 +34,6 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 	}
 
 	endpoint.Handler = func(w http.ResponseWriter, r *http.Request) {
-		SetCorsHeaders(w)
-		w.Header().Set("Content-Type", "application/json")
-
-		token := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-
-		claims := token.CustomClaims.(*CustomClaims)
-		for _, requiredScope := range endpoint.RequiredScopes {
-			if !claims.HasScope(requiredScope) {
-				w.WriteHeader(http.StatusForbidden)
-				_, _ = w.Write([]byte(`{"message":"Insufficient scope."}`))
-				return
-			}
-		}
-
 		var httpError *obj.HTTPError
 		var err error
 
@@ -55,18 +41,35 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 			R: r,
 		}
 
-		if userId := token.RegisteredClaims.Subject; userId != "" {
-			request.User, err = db.GetUserByAuth0ID(userId)
+		SetCorsHeaders(w)
+		w.Header().Set("Content-Type", "application/json")
 
-			// unknown user
-			if err != nil {
-				newUser := &db.User{
-					Auth0ID: userId,
+		tokenObj := r.Context().Value(jwtmiddleware.ContextKey{})
+		if tokenObj != nil {
+			token := tokenObj.(*validator.ValidatedClaims)
+
+			claims := token.CustomClaims.(*CustomClaims)
+			for _, requiredScope := range endpoint.RequiredScopes {
+				if !claims.HasScope(requiredScope) {
+					w.WriteHeader(http.StatusForbidden)
+					_, _ = w.Write([]byte(`{"message":"Insufficient scope."}`))
+					return
 				}
-				if err = db.CreateUser(newUser); err != nil {
-					httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
-				} else {
-					request.User = newUser
+			}
+
+			if userId := token.RegisteredClaims.Subject; userId != "" {
+				request.User, err = db.GetUserByAuth0ID(userId)
+
+				// unknown user
+				if err != nil {
+					newUser := &db.User{
+						Auth0ID: userId,
+					}
+					if err = db.CreateUser(newUser); err != nil {
+						httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
+					} else {
+						request.User = newUser
+					}
 				}
 			}
 		}

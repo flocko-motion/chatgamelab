@@ -7,5 +7,5 @@ cd "$(dirname "$0")"
 echo "Building..."
 
 pushd client
-npm build
+npm run build
 popd

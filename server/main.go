@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"webapp-server/api"
 	"webapp-server/db"
 
@@ -38,30 +39,51 @@ func main() {
 
 	db.Init()
 
-	rtr := router.NewRouter([]router.Endpoint{
+	router := router.NewRouter([]router.Endpoint{
 		api.Games,
 		api.Game,
 		api.User,
 		api.Session,
+		api.Status,
 	})
 
-	// Serve API routes
-	apiPrefix := "/api/"
-	http.Handle(apiPrefix, corsMiddleware(http.StripPrefix(apiPrefix, rtr)))
-
-	// Static files directory
 	htmlDir := http.Dir("./html")
+	router.Handle("/", spaHandler(htmlDir, "./html/index.html"))
 
-	// Serve static files for all other requests
-	http.Handle("/", http.FileServer(htmlDir))
+	// Apply the CORS middleware to the router
+	http.Handle("/", corsMiddleware(router))
 
 	port := os.Getenv("API_PORT")
 	if port == "" {
-		port = "3001"
+		port = "3000"
 	}
 
 	log.Printf("Server listening on http://localhost:%s\n", port)
 	if err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil); err != nil {
 		log.Fatalf("There was an error with the http server: %v", err)
+	}
+}
+
+// spaHandler is a custom http handler that serves the SPA
+func spaHandler(htmlDir http.FileSystem, indexFileName string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Serve the file directly if it exists and is not a directory
+		path := r.URL.Path
+		if strings.HasPrefix(path, "/api/") {
+			http.NotFound(w, r)
+			return
+		}
+
+		_, err := htmlDir.Open(path)
+		if os.IsNotExist(err) {
+			// File does not exist, serve index.html
+			http.ServeFile(w, r, indexFileName)
+		} else if err != nil {
+			// Some other error occurred, send an internal server error
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			// File exists, serve it as usual
+			http.FileServer(htmlDir).ServeHTTP(w, r)
+		}
 	}
 }

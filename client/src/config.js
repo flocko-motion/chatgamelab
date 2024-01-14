@@ -12,7 +12,7 @@ export function getConfig() {
       ? configJson.audience
       : null;
 
-  const apiOrigin = configJson.apiOrigin || "http://localhost:3001";
+  const apiOrigin = (configJson.apiOrigin || "http://localhost:3001").replace(/\/$/, "");
 
   return {
     domain: configJson.domain,
