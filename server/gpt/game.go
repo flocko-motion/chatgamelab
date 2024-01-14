@@ -42,7 +42,7 @@ The scenario:
 {{SCENARIO}}
 `
 
-func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err error) {
+func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj.Session, err error) {
 	if game == nil {
 		return nil, fmt.Errorf("game is nil")
 	}
@@ -74,7 +74,7 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	fmt.Println(instructions)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
-	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions)
+	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +86,18 @@ func CreateGameSession(game *obj.Game, userId uint) (session *obj.Session, err e
 	}, nil
 }
 
-func ExecuteAction(session *obj.Session, action obj.GameActionInput) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
+func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey string) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
 	var err error
 	actionSerialized, _ := json.Marshal(action)
 
 	var gptResponse string
-	if gptResponse, err = AddMessageToThread(context.Background(), *session, openai.ChatMessageRoleUser, string(actionSerialized)); err != nil {
+	if gptResponse, err = AddMessageToThread(
+		context.Background(),
+		*session,
+		openai.ChatMessageRoleUser,
+		string(actionSerialized),
+		apiKey,
+	); err != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT error: " + err.Error()}
 	}
 	gptResponse = strings.TrimPrefix(gptResponse, "```json")

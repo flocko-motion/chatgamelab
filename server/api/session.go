@@ -37,8 +37,11 @@ var Session = router.NewEndpointJson(
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
 		}
 
+		// TODO: we need to decide public/private and use the key of the game-owner for public games
+		apiKey := request.User.OpenAiKeyPersonal
+
 		if sessionHash == "new" {
-			return newSession(request, sessionRequest)
+			return newSession(request, sessionRequest, apiKey)
 		}
 
 		var err error
@@ -60,21 +63,21 @@ var Session = router.NewEndpointJson(
 					{Name: "gold", Value: "100"},
 					{Name: "items", Value: "sword, potion"},
 				},
-			})
+			}, apiKey)
 		case obj.GameInputTypeAction:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
 				Type:     obj.GameInputTypeAction,
 				ActionId: sessionRequest.ActionId,
 				Message:  sessionRequest.Message,
 				Status:   sessionRequest.Status,
-			})
+			}, apiKey)
 		default:
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
 		}
 	},
 )
 
-func newSession(request router.Request, body SessionRequest) (*obj.Session, *obj.HTTPError) {
+func newSession(request router.Request, body SessionRequest, apiKey string) (*obj.Session, *obj.HTTPError) {
 
 	// Note: public games are initialized via public hash, private games by game id
 	var game *obj.Game
@@ -98,7 +101,7 @@ func newSession(request router.Request, body SessionRequest) (*obj.Session, *obj
 	}
 
 	// Build session
-	session, e := gpt.CreateGameSession(game, userId)
+	session, e := gpt.CreateGameSession(game, userId, apiKey)
 	if e != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
 	}

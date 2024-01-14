@@ -9,18 +9,18 @@ import (
 	"webapp-server/obj"
 )
 
-func newClient() *openai.Client {
-	return openai.NewClient(OPENAI_API_KEY)
+func newClient(apiKey string) *openai.Client {
+	return openai.NewClient(apiKey)
 }
 
-func initAssistant(ctx context.Context, name, instructions string) (assistantId string, threadId string, err error) {
+func initAssistant(ctx context.Context, name, instructions, apiKey string) (assistantId string, threadId string, err error) {
 	assistantCfg := openai.AssistantRequest{
 		Model:        openai.GPT4TurboPreview,
 		Instructions: &instructions,
 		Name:         &name,
 	}
 
-	client := newClient()
+	client := newClient(apiKey)
 
 	var assistants openai.AssistantsList
 	if assistants, err = client.ListAssistants(ctx, nil, nil, nil, nil); err != nil {
@@ -59,8 +59,8 @@ func initAssistant(ctx context.Context, name, instructions string) (assistantId 
 	return
 }
 
-func AddMessageToThread(ctx context.Context, session obj.Session, role, message string) (response string, err error) {
-	client := newClient()
+func AddMessageToThread(ctx context.Context, session obj.Session, role, message, apiKey string) (response string, err error) {
+	client := newClient(apiKey)
 
 	var messageObject openai.Message
 	if messageObject, err = client.CreateMessage(ctx, session.ThreadID, openai.MessageRequest{
