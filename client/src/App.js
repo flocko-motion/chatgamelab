@@ -13,7 +13,7 @@ import history from "./utils/history";
 
 import "./App.css";
 
-import {gamesState, userState} from "./api/atoms";
+import {gamesState, loadingState, userState} from "./api/atoms";
 
 import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
@@ -31,7 +31,6 @@ const App = () => {
     const {
         user,
         isAuthenticated,
-        isLoading,
         error
     } = useAuth0();
 
@@ -39,6 +38,7 @@ const App = () => {
 
     const [, setGames] = useRecoilState(gamesState);
     const [, setUserDetails] = useRecoilState(userState);
+    const [loading, setLoading] = useRecoilState(loadingState);
 
 
     useEffect(() => {
@@ -47,8 +47,15 @@ const App = () => {
             setGames([]);
             return;
         }
-        api.callApi("/user", {...user, openaiKeyPersonal:"-", openaiKeyPublish:"-"}).then(userDetails => setUserDetails(userDetails));
-        api.callApi("/games").then(games => setGames(games));
+        setLoading(true);
+        let loadingCount = 2;
+        api.callApi("/user", {...user, openaiKeyPersonal:"-", openaiKeyPublish:"-"})
+            .then(userDetails => setUserDetails(userDetails))
+            .finally(() => --loadingCount  === 0 && setLoading(false));
+        api.callApi("/games")
+            .then(games => setGames(games))
+            .finally(() => --loadingCount  === 0 && setLoading(false));
+
     }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
 
 
@@ -56,7 +63,7 @@ const App = () => {
         return <div>Oops... {error.message}</div>;
     }
 
-    if (isLoading) {
+    if (loading) {
         return <Loading/>;
     }
 

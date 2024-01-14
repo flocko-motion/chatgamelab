@@ -15,3 +15,8 @@ export const gamesState = atom({
     key: 'games',
     default: gamesStateExample,
 });
+
+export const loadingState = atom({
+    key: 'loading',
+    default: false,
+})
