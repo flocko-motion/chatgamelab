@@ -34,7 +34,7 @@ func corsMiddleware(next http.Handler) http.Handler {
 
 func main() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading the .env file: %v", err)
+		log.Println("No .env file found - not importing env variables from file")
 	}
 
 	db.Init()
