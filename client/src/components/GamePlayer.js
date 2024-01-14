@@ -135,7 +135,6 @@ const Chapter = ({chapter, debug}) => {
                 {showDebug && chapter.rawInput && <p>GPT Input: <Highlight>{ beautifyJson(chapter.rawInput) }</Highlight></p> }
                 {showDebug && chapter.rawOutput && <p>GPT Output: <Highlight>{ beautifyJson(chapter.rawOutput) }</Highlight></p>  }
             </ToastBody>
-
         </Toast>
     );
 }
