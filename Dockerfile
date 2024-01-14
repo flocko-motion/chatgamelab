@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/
 # Install binaries
 COPY --from=build-node /app/build /app/html
 COPY --from=build-go /go/src/webapp-server/webapp-server /app/
-COPY server/.env /app/
 RUN mkdir -p /app/var
 VOLUME ["/app/var"]
 EXPOSE 3000
