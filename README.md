@@ -1,9 +1,22 @@
 # chatgamelab
-Educational GPT-Chat based text adventure studio
+
+Educational GPT-Chat based text adventure lab. 
+
+Create your own text adventure games and play them with your friends.
+
+- Learn, how GPT can be used to create interactive stories.
+- Use debug-mode to see the raw requests and responses of the GPT model 
+
+## Requirements
+
+To install and run the project you will need the following:
+- Auth0 account
+- Docker
+
+To use the project you will need the following:
+- OpenAI API key
 
 ## Installation
-
-
 
 The project is deployed as a docker. Start by pulling the image:
 
