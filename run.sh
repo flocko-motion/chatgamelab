@@ -4,9 +4,6 @@ set -e # Exit with nonzero exit code if anything fails
 
 cd "$(dirname "$0")"
 
-echo "Building..."
+echo "Starting up..."
 
-#pushd client
-#npm run build
-#popd
-docker build -t chatgamelab .
+docker run -p 3000:3000 -v ./server/var:/app/var chatgamelab
