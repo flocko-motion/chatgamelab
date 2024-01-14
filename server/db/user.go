@@ -79,8 +79,34 @@ func (user *User) getGame(id uint) (*Game, *obj.HTTPError) {
 	return &game, nil
 }
 
-func (user *User) CreateGame(game obj.Game) error {
-	return db.Model(&user).Association("Games").Append(game)
+func (user *User) DeleteGame(gameId uint) *obj.HTTPError {
+	// assert access rights
+	game, httpErr := user.getGame(gameId)
+	if httpErr != nil {
+		return httpErr
+	}
+	if game.UserID != user.ID {
+		return obj.NewHTTPErrorf(http.StatusUnauthorized, "access denied - this game is owned by another user")
+	}
+
+	// Perform the deletion
+	err := db.Delete(&game).Error
+	if err != nil {
+		return obj.ErrorToHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
+func (user *User) CreateGame(game *obj.Game) error {
+	gameDb := &Game{
+		Title: game.Title,
+	}
+	if err := db.Model(&user).Association("Games").Append(gameDb); err != nil {
+		return err
+	}
+	game.ID = gameDb.ID
+	return nil
 }
 
 func (user *User) UpdateGame(updatedGame obj.Game) error {
