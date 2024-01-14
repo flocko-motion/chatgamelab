@@ -1,5 +1,5 @@
 # Build stage for React frontend
-FROM node:latest as build-node
+FROM node:20 as build-node
 WORKDIR /app
 COPY client/package.json client/package-lock.json ./
 RUN npm install
