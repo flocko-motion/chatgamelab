@@ -45,8 +45,15 @@ func main() {
 		api.Session,
 	})
 
-	// Apply the CORS middleware to the router
-	http.Handle("/", corsMiddleware(rtr))
+	// Serve API routes
+	apiPrefix := "/api/"
+	http.Handle(apiPrefix, corsMiddleware(http.StripPrefix(apiPrefix, rtr)))
+
+	// Static files directory
+	htmlDir := http.Dir("./html")
+
+	// Serve static files for all other requests
+	http.Handle("/", http.FileServer(htmlDir))
 
 	port := os.Getenv("API_PORT")
 	if port == "" {

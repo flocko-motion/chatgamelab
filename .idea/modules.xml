@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/webapp-boilerplate-react-go.iml" filepath="$PROJECT_DIR$/.idea/webapp-boilerplate-react-go.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ChatGameLab.iml" filepath="$PROJECT_DIR$/.idea/ChatGameLab.iml" />
     </modules>
   </component>
 </project>
