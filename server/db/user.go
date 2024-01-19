@@ -103,8 +103,10 @@ func (user *User) DeleteGame(gameId uint) *obj.HTTPError {
 }
 
 func (user *User) CreateGame(game *obj.Game) error {
+	statusFieldsSerialized, _ := json.Marshal(game.StatusFields)
 	gameDb := &Game{
-		Title: game.Title,
+		Title:        game.Title,
+		StatusFields: string(statusFieldsSerialized),
 	}
 	if err := db.Model(&user).Association("Games").Append(gameDb); err != nil {
 		return err
