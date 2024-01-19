@@ -45,7 +45,7 @@ var Game = router.NewEndpointJson(
 		}
 
 		gameId, err := strconv.ParseUint(path.Base(request.R.URL.Path), 10, 32)
-		log.Printf("gameId: %d", gameId)
+		log.Printf("gameId: %d, method: %s", gameId, request.R.Method)
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
 		}

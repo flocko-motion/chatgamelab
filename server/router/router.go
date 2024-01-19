@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
+	"log"
 	"net/http"
 	"webapp-server/db"
 	"webapp-server/obj"
@@ -44,6 +45,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 		SetCorsHeaders(w)
 		w.Header().Set("Content-Type", "application/json")
 
+		log.Printf("Handling request for %s", r.URL.Path)
 		tokenObj := r.Context().Value(jwtmiddleware.ContextKey{})
 		if tokenObj != nil {
 			token := tokenObj.(*validator.ValidatedClaims)
@@ -76,6 +78,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 
 		var res interface{}
 		if httpError == nil {
+			log.Printf("Passing over to handler")
 			res, httpError = handler(request)
 		}
 

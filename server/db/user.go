@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"webapp-server/obj"
 )
@@ -59,10 +60,12 @@ func (user *User) GetGames() ([]obj.Game, *obj.HTTPError) {
 
 // GetGame gets a game by ID, formatted for external use
 func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
+	log.Printf("Getting game %d from db", id)
 	game, err := user.getGame(id)
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Got game %d from db", id)
 	return game.Export(), nil
 }
 

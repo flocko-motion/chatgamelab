@@ -39,19 +39,20 @@ func main() {
 
 	db.Init()
 
-	router := router.NewRouter([]router.Endpoint{
-		api.Games,
+	theRouter := router.NewRouter([]router.Endpoint{
 		api.Game,
-		api.User,
+		api.Games,
 		api.Session,
 		api.Status,
+		api.Upgrade,
+		api.User,
 	})
 
 	htmlDir := http.Dir("./html")
-	router.Handle("/", spaHandler(htmlDir, "./html/index.html"))
+	theRouter.Handle("/", spaHandler(htmlDir, "./html/index.html"))
 
 	// Apply the CORS middleware to the router
-	http.Handle("/", corsMiddleware(router))
+	http.Handle("/", corsMiddleware(theRouter))
 
 	port := os.Getenv("API_PORT")
 	if port == "" {
