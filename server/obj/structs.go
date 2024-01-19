@@ -25,12 +25,13 @@ type Game struct {
 }
 
 type Session struct {
-	ID          uint   `json:"id"`
-	GameID      uint   `json:"gameId"`
-	UserID      uint   `json:"userId"`
-	AssistantID string `json:"assistantId"`
-	ThreadID    string `json:"threadId"`
-	Hash        string `json:"hash"`
+	ID                    uint   `json:"id"`
+	GameID                uint   `json:"gameId"`
+	UserID                uint   `json:"userId"`
+	AssistantID           string `json:"assistantId"`
+	AssistantInstructions string `json:"assistantInstructions"`
+	ThreadID              string `json:"threadId"`
+	Hash                  string `json:"hash"`
 }
 
 type StatusField struct {
@@ -59,12 +60,13 @@ type GameActionInput struct {
 */
 
 type GameActionOutput struct {
-	ActionId  uint          `json:"actionId"`
-	Type      string        `json:"type"`
-	Story     string        `json:"story"`
-	Status    []StatusField `json:"status"`
-	Image     string        `json:"image"`
-	Error     string        `json:"error"`
-	RawInput  string        `json:"rawInput"`
-	RawOutput string        `json:"rawOutput"`
+	ActionId              uint          `json:"actionId"`
+	Type                  string        `json:"type"`
+	Story                 string        `json:"story"`
+	Status                []StatusField `json:"status"`
+	Image                 string        `json:"image"`
+	Error                 string        `json:"error"`
+	RawInput              string        `json:"rawInput"`
+	RawOutput             string        `json:"rawOutput"`
+	AssistantInstructions string        `json:"-"`
 }

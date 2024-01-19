@@ -7,12 +7,10 @@ export function getConfig() {
   // don't have an API).
   // If this resolves to `null`, the API page changes to show some helpful info about what to do
   // with the audience.
-  const audience =
-    configJson.audience && configJson.audience !== "YOUR_API_IDENTIFIER"
-      ? configJson.audience
-      : null;
+  const audience = configJson.audience;
 
-  const apiOrigin = (configJson.apiOrigin || "http://localhost:3001").replace(/\/$/, "");
+  const apiOrigin = ((window.location.hostname !== "localhost" && configJson.apiOrigin)
+      || "http://localhost:3001").replace(/\/$/, "");
 
   return {
     domain: configJson.domain,

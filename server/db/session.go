@@ -7,23 +7,25 @@ import (
 
 type Session struct {
 	gorm.Model
-	GameID      uint
-	Game        Game
-	UserID      *uint
-	User        User
-	AssistantID string
-	ThreadID    string
-	Hash        string
+	GameID                uint
+	Game                  Game
+	UserID                *uint
+	User                  User
+	AssistantID           string
+	AssistantInstructions string
+	ThreadID              string
+	Hash                  string
 }
 
 func (session *Session) export() *obj.Session {
 	return &obj.Session{
-		ID:          session.ID,
-		GameID:      session.GameID,
-		UserID:      *session.UserID,
-		AssistantID: session.AssistantID,
-		ThreadID:    session.ThreadID,
-		Hash:        session.Hash,
+		ID:                    session.ID,
+		GameID:                session.GameID,
+		UserID:                *session.UserID,
+		AssistantID:           session.AssistantID,
+		AssistantInstructions: session.AssistantInstructions,
+		ThreadID:              session.ThreadID,
+		Hash:                  session.Hash,
 	}
 }
 
@@ -36,11 +38,12 @@ func GetSessionByHash(hash string) (*obj.Session, error) {
 func CreateSession(session *obj.Session) (*obj.Session, error) {
 	userId := session.UserID
 	sessionDb := Session{
-		GameID:      session.GameID,
-		UserID:      &userId,
-		AssistantID: session.AssistantID,
-		ThreadID:    session.ThreadID,
-		Hash:        generateHash(),
+		GameID:                session.GameID,
+		UserID:                &userId,
+		AssistantID:           session.AssistantID,
+		AssistantInstructions: session.AssistantInstructions,
+		ThreadID:              session.ThreadID,
+		Hash:                  generateHash(),
 	}
 	err := db.Create(&sessionDb).Error
 	return sessionDb.export(), err

@@ -20,3 +20,8 @@ export const loadingState = atom({
     key: 'loading',
     default: false,
 })
+
+export const errorsState = atom({
+    key: 'errors',
+    default: [],
+})

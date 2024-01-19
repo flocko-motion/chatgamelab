@@ -83,10 +83,11 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 		return nil, err
 	}
 	return &obj.Session{
-		GameID:      game.ID,
-		AssistantID: assistantId,
-		ThreadID:    threadId,
-		UserID:      userId,
+		GameID:                game.ID,
+		AssistantID:           assistantId,
+		AssistantInstructions: instructions,
+		ThreadID:              threadId,
+		UserID:                userId,
 	}, nil
 }
 
@@ -123,6 +124,9 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey stri
 	response.ActionId = action.ActionId
 	response.RawInput = string(actionSerialized)
 	response.RawOutput = gptResponse
+	if action.ActionId == 1 {
+		response.AssistantInstructions = session.AssistantInstructions
+	}
 
 	return response, nil
 }

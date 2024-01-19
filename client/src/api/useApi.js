@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { getConfig } from "../config";
+import {useRecoilState} from "recoil";
+import {errorsState} from "./atoms";
 
 export const useApi = () => {
+    const [errors, setErrors ]= useRecoilState(errorsState)
+
     const [state, setState] = useState({
         showResult: false,
         apiMessage: "",
@@ -44,6 +48,10 @@ export const useApi = () => {
                 showResult: true,
                 apiMessage: responseData,
             });
+
+            if (responseData.error) {
+                setErrors([...errors, responseData.message])
+            }
 
             console.log("api response: ", responseData);
             return responseData;

@@ -13,7 +13,7 @@ import history from "./utils/history";
 
 import "./App.css";
 
-import {gamesState, loadingState, userState} from "./api/atoms";
+import {errorsState, gamesState, loadingState, userState} from "./api/atoms";
 
 import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
@@ -23,6 +23,7 @@ import GameEdit from "./views/GameEdit";
 import GameDebug from "./views/GameDebug";
 import GamePlay from "./views/GamePlay";
 import Profile from "./views/Profile";
+import Errors from "./components/Errors";
 
 initFontAwesome();
 
@@ -74,8 +75,9 @@ const App = () => {
                 <div id="app">
                     <NavBar/>
                     <div className="flex-grow-1 overflow-hidden">
-                        <AuthErrorHandler/>
 
+                        <AuthErrorHandler/>
+                        <Errors />
                         <Switch>
                             <Route path="/" exact component={Home}/>
                             <Route path="/profile" component={Profile}/>

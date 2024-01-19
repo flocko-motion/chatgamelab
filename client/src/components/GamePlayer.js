@@ -21,6 +21,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
     const [actionIdReceived, setActionIdReceived] = useState(0);
 
     const receiveChapter = (chapter) => {
+        console.log("got chapter", chapter);
         setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
         if (chapter.actionId) {
@@ -118,7 +119,7 @@ const Chapter = ({chapter, debug}) => {
                 { chapter.type === chapterTypeStory ? "Narrator" : null }
                 { chapter.type === chapterTypeAction ? "You" : null }
                 { chapter.type === chapterTypeError ? "Error" : null }
-                { chapter.type === chapterTypeLoading ? "Loading.." : null }
+                { chapter.type === chapterTypeLoading ? "Writing story, please be patient.." : null }
             </ToastHeader>
             <ToastBody>
                 {chapter.type === chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }
@@ -132,8 +133,11 @@ const Chapter = ({chapter, debug}) => {
                     </div>
                 )}
 
-                {showDebug && chapter.rawInput && <p>GPT Input: <Highlight>{ beautifyJson(chapter.rawInput) }</Highlight></p> }
-                {showDebug && chapter.rawOutput && <p>GPT Output: <Highlight>{ beautifyJson(chapter.rawOutput) }</Highlight></p>  }
+                {showDebug && chapter.assistantInstructions && <><p>GPT Instructions:</p><Highlight>{ chapter.assistantInstructions }</Highlight></> }
+                {showDebug && chapter.rawInput && <><p>GPT Input:</p><Highlight>{ beautifyJson(chapter.rawInput) }</Highlight></> }
+                {showDebug && chapter.rawOutput && <><p>GPT Output:</p><Highlight>{ beautifyJson(chapter.rawOutput) }</Highlight></>  }
+                {showDebug && chapter.image && <><p>GPT Generated Image Prompt:</p><Highlight>{ chapter.image }</Highlight></> }
+
             </ToastBody>
         </Toast>
     );
