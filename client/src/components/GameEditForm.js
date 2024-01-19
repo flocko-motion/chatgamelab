@@ -5,6 +5,9 @@ import {SharePlayUrl} from "../utils/urls";
 const GameEditForm = ({ initialGame, onSave, onCancel }) => {
     const [formData, setFormData] = useState(initialGame);
 
+
+    console.log("game edit form: ", initialGame);
+    
     useEffect(() => {
         setFormData(initialGame);
     }, [initialGame]);
@@ -68,12 +71,6 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                 </Col>
             </FormGroup>
 
-            <FormGroup row>
-                <Label for="postActionSyscall" sm={2}>Post Action Syscall</Label>
-                <Col sm={10}>
-                    <Input type="textarea" name="postActionSyscall" id="postActionSyscall" value={formData.postActionSyscall || ''} onChange={handleChange} />
-                </Col>
-            </FormGroup>
 
             <FormGroup row>
                 <Label for="sharePlayActive" sm={2}>Public</Label>

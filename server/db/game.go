@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/json"
 	"gorm.io/gorm"
 	"webapp-server/obj"
 )
@@ -12,8 +13,8 @@ type Game struct {
 	Description         string `json:"description"`
 	Scenario            string `json:"scenario"`
 	SessionStartSyscall string `json:"sessionStartSyscall"`
-	PostActionSyscall   string `json:"postActionSyscall"`
 	ImageStyle          string `json:"imageStyle"`
+	StatusFields        string `json:"statusProperties"`
 	SharePlayActive     bool   `json:"sharePlayActive"`
 	SharePlayHash       string `json:"sharePlayHash"`
 	ShareEditActive     bool   `json:"shareEditActive"`
@@ -48,13 +49,17 @@ func (game *Game) update() error {
 }
 
 func (game *Game) Export() *obj.Game {
+	var statusFields []obj.StatusField
+	if err := json.Unmarshal([]byte(game.StatusFields), &statusFields); err != nil {
+		statusFields = []obj.StatusField{}
+	}
 	return &obj.Game{
 		ID:                  game.ID,
 		Title:               game.Title,
 		Description:         game.Description,
 		Scenario:            game.Scenario,
 		SessionStartSyscall: game.SessionStartSyscall,
-		PostActionSyscall:   game.PostActionSyscall,
+		StatusFields:        statusFields,
 		ImageStyle:          game.ImageStyle,
 		SharePlayActive:     game.SharePlayActive,
 		SharePlayHash:       game.SharePlayHash,
