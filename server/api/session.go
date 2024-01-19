@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"path"
 	"webapp-server/db"
 	"webapp-server/gpt"
@@ -84,6 +85,7 @@ func newSession(request router.Request, body SessionRequest, apiKey string) (*ob
 	var err *obj.HTTPError
 	var userId uint
 	if body.GameID > 0 {
+		log.Printf("Creating new session for game id=%d", body.GameID)
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}
@@ -92,11 +94,13 @@ func newSession(request router.Request, body SessionRequest, apiKey string) (*ob
 		}
 		userId = request.User.ID
 	} else if body.GameHash != "" {
+		log.Printf("Creating new session for game hash=%s", body.GameHash)
 		if game, err = db.GetGameByPublicHash(body.GameHash); err != nil {
 			return nil, err
 		}
 		userId = userAnonymous
 	} else {
+		log.Printf("Creating new session - no game id or hash provided")
 		return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
 	}
 

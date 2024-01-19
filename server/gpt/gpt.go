@@ -14,6 +14,7 @@ func newClient(apiKey string) *openai.Client {
 }
 
 func initAssistant(ctx context.Context, name, instructions, apiKey string) (assistantId string, threadId string, err error) {
+	log.Printf("initAssistant: %s", name)
 	assistantCfg := openai.AssistantRequest{
 		Model:        openai.GPT4TurboPreview,
 		Instructions: &instructions,
@@ -36,6 +37,7 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 
 	var assistant openai.Assistant
 	if assistantId == "" {
+		log.Printf("Assistant '%s' not found, creating\n", name)
 		assistant, err = client.CreateAssistant(context.Background(), assistantCfg)
 		assistantId = assistant.ID
 		log.Printf("Assistant '%s' created, id=%s\n", name, assistant.ID)

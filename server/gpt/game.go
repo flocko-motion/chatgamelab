@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
+	"log"
 	"strings"
 	"webapp-server/constants"
 	"webapp-server/obj"
@@ -47,6 +48,8 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 		return nil, fmt.Errorf("game is nil")
 	}
 
+	log.Printf("CreateGameSession, game.ID %d, userId ", game.ID, userId)
+
 	actionInput := obj.GameActionInput{
 		Type:    obj.GameInputTypeAction,
 		Message: "drink the potion",
@@ -71,7 +74,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	instructions = strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
 	instructions = strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
-	fmt.Println(instructions)
+	log.Printf("Instructions: %s", instructions)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
 	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
