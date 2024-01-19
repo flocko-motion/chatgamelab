@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"path"
 	"strconv"
 	"webapp-server/obj"
@@ -15,9 +16,11 @@ var Game = router.NewEndpointJson(
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}
+		log.Printf("Handling game request for user %s", request.User.Name)
 
 		// new game?
 		if path.Base(request.R.URL.Path) == "new" {
+			log.Printf("Creating new game..")
 			type GameNewRequest struct {
 				Title string `json:"title"`
 			}
@@ -29,11 +32,12 @@ var Game = router.NewEndpointJson(
 				Title: gameRequest.Title,
 			}
 			if err := request.User.CreateGame(&newGame); err != nil {
-				return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
+				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create game: " + err.Error()}
 			}
 			type GameNewResponse struct {
 				GameId uint `json:"id"`
 			}
+			log.Printf("Created new game with id %d", newGame.ID)
 			return GameNewResponse{
 				GameId: newGame.ID,
 			}, nil
@@ -41,16 +45,20 @@ var Game = router.NewEndpointJson(
 		}
 
 		gameId, err := strconv.ParseUint(path.Base(request.R.URL.Path), 10, 32)
+		log.Printf("gameId: %d", gameId)
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
 		}
 		switch request.R.Method {
 		case "DELETE":
+			log.Printf("Deleting game %d", gameId)
 			return nil, request.User.DeleteGame(uint(gameId))
 		case "GET":
+			log.Printf("Getting game %d", gameId)
 			return request.User.GetGame(uint(gameId))
 
 		case "POST":
+			log.Printf("Updating game %d", gameId)
 			var updatedGame obj.Game // Replace GameType with your actual game struct type
 			err := json.NewDecoder(request.R.Body).Decode(&updatedGame)
 			if err != nil {
