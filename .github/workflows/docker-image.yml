@@ -27,3 +27,8 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/chatgamelab:latest
+
+      - name: Call API to Upgrade
+        run: |
+          curl -X POST https://play.chatgamelab.eu/api/upgrade
+
