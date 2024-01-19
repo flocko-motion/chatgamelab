@@ -79,6 +79,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
 	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
 	if err != nil {
+		log.Printf("initAssistant failed: %s", err.Error())
 		return nil, err
 	}
 	return &obj.Session{
@@ -92,6 +93,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey string) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
 	var err error
 	actionSerialized, _ := json.Marshal(action)
+	log.Printf("ExecuteAction, session %d, action %s", session.ID, string(actionSerialized))
 
 	var gptResponse string
 	if gptResponse, err = AddMessageToThread(
@@ -101,12 +103,13 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey stri
 		string(actionSerialized),
 		apiKey,
 	); err != nil {
+		log.Printf("AddMessageToThread failed: %s", err.Error())
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "GPT error: " + err.Error()}
 	}
 	gptResponse = strings.TrimPrefix(gptResponse, "```json")
 	gptResponse = strings.TrimSuffix(gptResponse, "```")
 	gptResponse = strings.TrimSpace(gptResponse)
-	fmt.Println(gptResponse)
+	log.Printf("GPT responded: %s", gptResponse)
 
 	if err = json.Unmarshal([]byte(gptResponse), &response); err != nil {
 		response = &obj.GameActionOutput{

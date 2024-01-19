@@ -21,16 +21,22 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		Name:         &name,
 	}
 
+	log.Printf("newClient..")
 	client := newClient(apiKey)
 
 	var assistants openai.AssistantsList
+	log.Printf("ListAssistants..")
 	if assistants, err = client.ListAssistants(ctx, nil, nil, nil, nil); err != nil {
+		log.Printf("ListAssistants failed: %s", err.Error())
 		return
 	}
 
+	log.Printf("Checking existing assistants..")
 	for _, assistant := range assistants.Assistants {
+		log.Printf("Found assistant: %s", *assistant.Name)
 		if *assistant.Name == name {
 			assistantId = assistant.ID
+			log.Printf("Match! '%s' found, id=%s\n", name, assistant.ID)
 			break
 		}
 	}
