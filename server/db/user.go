@@ -1,6 +1,7 @@
 package db
 
 import (
+	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
 	"log"
@@ -118,11 +119,13 @@ func (user *User) UpdateGame(updatedGame obj.Game) error {
 		return err
 	}
 
+	statusFieldsSerialized, _ := json.Marshal(updatedGame.StatusFields)
+
 	game.Title = updatedGame.Title
 	game.Description = updatedGame.Description
 	game.Scenario = updatedGame.Scenario
 	game.SessionStartSyscall = updatedGame.SessionStartSyscall
-	game.PostActionSyscall = updatedGame.PostActionSyscall
+	game.StatusFields = string(statusFieldsSerialized)
 	game.ImageStyle = updatedGame.ImageStyle
 	game.SharePlayActive = updatedGame.SharePlayActive
 	game.ShareEditActive = updatedGame.ShareEditActive
