@@ -1,25 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, FormGroup, Label, Input, Col, FormText } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input, Col, Row } from 'reactstrap';
 import {SharePlayUrl} from "../utils/urls";
+import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const GameEditForm = ({ initialGame, onSave, onCancel }) => {
-    const [formData, setFormData] = useState(initialGame);
-
+    const [formData, setFormData] = useState({
+        ...initialGame,
+        statusFields: initialGame.statusFields || []
+    });
 
     console.log("game edit form: ", initialGame);
-    
+
     useEffect(() => {
-        setFormData(initialGame);
+        setFormData({
+            ...initialGame,
+            statusFields: initialGame.statusFields || []
+        });
     }, [initialGame]);
 
-    const handleChange = (event) => {
+    const handleChange = (event, index) => {
         const { name, value } = event.target;
-        setFormData({ ...formData, [name]: value });
+
+        if (index !== undefined) {
+            // Handle changes in statusFields
+            const updatedStatusFields = formData.statusFields.map((field, idx) =>
+                idx === index ? { ...field, [name]: value } : field
+            );
+            setFormData({ ...formData, statusFields: updatedStatusFields });
+        } else {
+            // Handle changes in other fields
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleToggle = (event) => {
         const { name, checked } = event.target;
         setFormData({ ...formData, [name]: checked });
+    };
+
+    const handleAddStatusField = () => {
+        setFormData({
+            ...formData,
+            statusFields: [...formData.statusFields, { name: '', value: '' }]
+        });
+    };
+
+    const handleRemoveStatusField = (index) => {
+        const updatedStatusFields = formData.statusFields.filter((_, idx) => idx !== index);
+        setFormData({ ...formData, statusFields: updatedStatusFields });
     };
 
     const handleSave = (event) => {
@@ -37,40 +66,75 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 
             <FormGroup row>
-                <Label for="title" sm={2}>Title</Label>
+                <Label for="title" sm={2}>Game Title</Label>
                 <Col sm={10}>
                     <Input type="text" name="title" id="title" value={formData.title || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="description" sm={2}>Description</Label>
+                <Label for="description" sm={2}>Game Description</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="description" id="description" value={formData.description || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="scenario" sm={2}>Scenario</Label>
+                <Label for="scenario" sm={2}>GPT Instructions</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="scenario" id="scenario" value={formData.scenario || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="imageStyle" sm={2}>Image Style</Label>
-                <Col sm={10}>
-                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
-                </Col>
-            </FormGroup>
-
-            <FormGroup row>
-                <Label for="sessionStartSyscall" sm={2}>Session Start Syscall</Label>
+                <Label for="sessionStartSyscall" sm={2}>GPT Initialization</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="sessionStartSyscall" id="sessionStartSyscall" value={formData.sessionStartSyscall || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
+
+            {/* Status Fields Section */}
+            <FormGroup row>
+                <Label for="statusFields" sm={2}>Status Fields</Label>
+                <Col sm={10}>
+                    {formData.statusFields.map((field, index) => (
+                        <Row key={index} className="mb-3" >
+                            <Col >
+                                <Input
+                                    type="text"
+                                    name="name"
+                                    value={field.name || ''}
+                                    placeholder="Name"
+                                    onChange={(e) => handleChange(e, index)}
+                                />
+                            </Col>
+                            <Col >
+                                <Input
+                                    type="text"
+                                    name="value"
+                                    value={field.value || ''}
+                                    placeholder="Value"
+                                    onChange={(e) => handleChange(e, index)}
+                                />
+                            </Col>
+                            <Col>
+                                <Button color="danger" onClick={() => handleRemoveStatusField(index)}><FontAwesomeIcon icon={faMinus}/></Button>
+                            </Col>
+                        </Row>
+                    ))}
+
+
+                    <Button  color="primary" onClick={handleAddStatusField}><FontAwesomeIcon icon={faPlus}/></Button>
+                </Col>
+            </FormGroup>
+
+            <FormGroup row>
+                <Label for="imageStyle" sm={2}>Image Style Prompt</Label>
+                <Col sm={10}>
+                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
+                </Col>
+            </FormGroup>
 
             <FormGroup row>
                 <Label for="sharePlayActive" sm={2}>Public</Label>

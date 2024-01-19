@@ -16,6 +16,7 @@ export const GameEditComponent = ({match}) => {
     const history = useHistory();
     const api = useApi();
 
+
     const gameId = match.params.id;
 
     useEffect(() => {

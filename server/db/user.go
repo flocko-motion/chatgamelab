@@ -105,8 +105,12 @@ func (user *User) DeleteGame(gameId uint) *obj.HTTPError {
 func (user *User) CreateGame(game *obj.Game) error {
 	statusFieldsSerialized, _ := json.Marshal(game.StatusFields)
 	gameDb := &Game{
-		Title:        game.Title,
-		StatusFields: string(statusFieldsSerialized),
+		Title:               game.Title,
+		StatusFields:        string(statusFieldsSerialized),
+		Description:         "This is a new game.",
+		Scenario:            "An adventure in a fantasy world. The player must find a way out of a castle.",
+		SessionStartSyscall: "Introduce the player to the game and write the first scene.",
+		ImageStyle:          "illustration, watercolor, fantastic",
 	}
 	if err := db.Model(&user).Association("Games").Append(gameDb); err != nil {
 		return err
