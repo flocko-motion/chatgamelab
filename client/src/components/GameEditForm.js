@@ -94,9 +94,15 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 
 
+            <FormGroup row>
+                <Label for="imageStyle" sm={2}>GPT Image Style</Label>
+                <Col sm={10}>
+                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
+                </Col>
+            </FormGroup>
             {/* Status Fields Section */}
             <FormGroup row>
-                <Label for="statusFields" sm={2}>Status Fields</Label>
+                <Label for="statusFields" sm={2}>GPT Status Fields</Label>
                 <Col sm={10}>
                     {formData.statusFields.map((field, index) => (
                         <Row key={index} className="mb-3" >
@@ -129,12 +135,7 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                 </Col>
             </FormGroup>
 
-            <FormGroup row>
-                <Label for="imageStyle" sm={2}>Image Style Prompt</Label>
-                <Col sm={10}>
-                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
-                </Col>
-            </FormGroup>
+
 
             <FormGroup row>
                 <Label for="sharePlayActive" sm={2}>Public</Label>
