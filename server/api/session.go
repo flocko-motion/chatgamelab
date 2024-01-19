@@ -60,10 +60,7 @@ var Session = router.NewEndpointJson(
 				Type:     obj.GameInputTypeIntro,
 				ActionId: sessionRequest.ActionId,
 				Message:  sessionRequest.Game.SessionStartSyscall,
-				Status: []obj.StatusField{
-					{Name: "gold", Value: "100"},
-					{Name: "items", Value: "sword, potion"},
-				},
+				Status:   sessionRequest.Game.StatusFields,
 			}, apiKey)
 		case obj.GameInputTypeAction:
 			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{

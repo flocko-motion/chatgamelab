@@ -37,15 +37,12 @@ func ErrorToHTTPError(statusCode int, err error) *HTTPError {
 
 func (e HTTPError) Json() []byte {
 	type Error struct {
-		Error   int    `json:"error"`
-		Message string `json:"message"`
+		Type  string `json:"type"`
+		Error string `json:"error"`
 	}
 	resObj := Error{
-		Message: e.Message,
-		Error:   0,
-	}
-	if e.StatusCode != 200 {
-		resObj.Error = e.StatusCode
+		Error: fmt.Sprintf("%s (%d)", e.Message, e.StatusCode),
+		Type:  "error",
 	}
 	res, _ := json.Marshal(resObj)
 	return res

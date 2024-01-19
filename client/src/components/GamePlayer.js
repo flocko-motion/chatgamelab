@@ -78,7 +78,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
 
             {/* Main Pane */}
             <Row className="flex-grow-1 overflow-auto ml-0 bg-light">
-                <Col>
+                <Col className="pb-4">
                     {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} debug={Boolean(debug)} /> })}
                     { actionIdSent > actionIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} debug={Boolean(debug)}/> : null }
                 </Col>

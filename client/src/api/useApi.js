@@ -50,8 +50,8 @@ export const useApi = () => {
                 apiMessage: responseData,
             });
 
-            if (responseData.error) {
-                setErrors([...errors, responseData.message])
+            if (responseData.type === "error") {
+                setErrors([...errors, responseData.error])
             }
 
             console.log("api response: ", responseData);
