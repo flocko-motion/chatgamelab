@@ -68,5 +68,5 @@ type GameActionOutput struct {
 	Error                 string        `json:"error"`
 	RawInput              string        `json:"rawInput"`
 	RawOutput             string        `json:"rawOutput"`
-	AssistantInstructions string        `json:"-"`
+	AssistantInstructions string        `json:"assistantInstructions"`
 }
