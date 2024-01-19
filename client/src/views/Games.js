@@ -39,7 +39,7 @@ export const GamesComponent = () => {
 
     const confirmDeletion = () => {
 
-        api.callApi(`/game/delete/${selectedGameId}`, {method: 'DELETE'})
+        api.callApi(`/game/${selectedGameId}`, null, 'DELETE')
             .then(() => {
                 // Update games state
                 setIsModalOpen(false);

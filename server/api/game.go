@@ -30,6 +30,9 @@ var Game = router.NewEndpointJson(
 			}
 			newGame := obj.Game{
 				Title: gameRequest.Title,
+				StatusFields: []obj.StatusField{
+					{Name: "Gold", Value: "100"},
+				},
 			}
 			if err := request.User.CreateGame(&newGame); err != nil {
 				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create game: " + err.Error()}

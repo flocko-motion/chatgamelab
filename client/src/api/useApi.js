@@ -21,7 +21,7 @@ export const useApi = () => {
 
     const config = getConfig();
 
-    const callApi = async (endpoint, data = null) => {
+    const callApi = async (endpoint, data = null, method=null) => {
         try {
             const token = await getAccessTokenSilently();
 
@@ -32,13 +32,14 @@ export const useApi = () => {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json' // Add Content-Type for JSON
                 },
-                method: data ? 'POST' : 'GET', // Determine method based on presence of data
+                method: method ? method : (data ? 'POST' : 'GET'), // Determine method based on presence of data
             };
 
             if (data) {
                 requestOptions.body = JSON.stringify(data); // Add body if data is present
             }
 
+            console.log("specified method: ", method, "requestOptions: ", requestOptions);
             const response = await fetch(`${config.apiOrigin}/api/${endpoint}`, requestOptions);
 
             const responseData = await response.json();
