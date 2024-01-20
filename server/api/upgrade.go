@@ -8,9 +8,10 @@ import (
 	"webapp-server/router"
 )
 
-var Upgrade = router.NewEndpointJson(
+var Upgrade = router.NewEndpoint(
 	"/api/upgrade",
 	true,
+	"application/json",
 	func(request router.Request) (interface{}, *obj.HTTPError) {
 		log.Println("upgrade docker request - exiting server")
 		go func() {

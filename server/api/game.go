@@ -9,9 +9,10 @@ import (
 	"webapp-server/router"
 )
 
-var Game = router.NewEndpointJson(
+var Game = router.NewEndpoint(
 	"/api/game/",
 	false,
+	"application/json",
 	func(request router.Request) (interface{}, *obj.HTTPError) {
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}

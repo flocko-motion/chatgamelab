@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"log"
+	"net/http"
 	"strings"
 	"webapp-server/constants"
+	"webapp-server/db"
 	"webapp-server/obj"
 )
 
@@ -91,7 +93,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	}, nil
 }
 
-func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey string) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
+func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionInput, apiKey string) (response *obj.GameActionOutput, httpErr *obj.HTTPError) {
 	var err error
 	actionSerialized, _ := json.Marshal(action)
 	log.Printf("ExecuteAction, session %d, action %s", session.ID, string(actionSerialized))
@@ -121,12 +123,32 @@ func ExecuteAction(session *obj.Session, action obj.GameActionInput, apiKey stri
 		response.Type = obj.GameOutputTypeStory
 	}
 
-	response.ActionId = action.ActionId
+	response.ChapterId = action.ChapterId
+	response.SessionHash = session.Hash
 	response.RawInput = string(actionSerialized)
 	response.RawOutput = gptResponse
-	if action.ActionId == 1 {
+	response.Image = fmt.Sprintf("%s - %s", response.Image, game.ImageStyle)
+	if action.ChapterId == 1 {
 		response.AssistantInstructions = session.AssistantInstructions
 	}
+
+	if _, err = db.AddChapter(session.ID, action.ChapterId, response.RawInput, response.RawOutput, response.Image); err != nil {
+		return nil, &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed adding chapter"}
+	}
+
+	go func() {
+		var image []byte
+		var imageErr *obj.HTTPError
+		if image, imageErr = GenerateImage(context.Background(), apiKey, response.Image); imageErr != nil {
+			log.Printf("failed generating image: %s", imageErr)
+			return
+		}
+		if imageErr = db.SetImage(session.ID, action.ChapterId, image); imageErr != nil {
+			log.Printf("failed saving image to chapter: %s", imageErr)
+			return
+		}
+		log.Printf("sucessfully generated and stored image for session %d chapter %d", session.ID, action.ChapterId)
+	}()
 
 	return response, nil
 }

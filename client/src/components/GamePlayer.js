@@ -17,25 +17,25 @@ const GamePlayer = ({game, sessionHash, debug}) => {
     const [action, setAction] = useState('');
     const [sessionStatus, setSessionStatus] = useState([]);
     const [chapters, setChapters] = useState([]);
-    const [actionIdSent, setActionIdSent] = useState(0);
-    const [actionIdReceived, setActionIdReceived] = useState(0);
+    const [chapterIdSent, setChapterIdSent] = useState(0);
+    const [chapterIdReceived, setChapterIdReceived] = useState(0);
 
     const receiveChapter = (chapter) => {
         console.log("got chapter", chapter);
         setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
-        if (chapter.actionId) {
-            setActionIdReceived(chapter.actionId);
+        if (chapter.chapterId) {
+            setChapterIdReceived(chapter.chapterId);
         }
     }
 
     const submitAction = (action) => {
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
-        const newActionId = actionIdSent + 1
-        setActionIdSent(newActionId);
+        const newChapterId = chapterIdSent + 1
+        setChapterIdSent(newChapterId);
         api.callApi(`/session/${sessionHash}`, {
             action: "player-action",
-            actionId: newActionId,
+            chapterId: newChapterId,
             message: action,
             status: sessionStatus,
         }).then(chapter => {
@@ -44,11 +44,11 @@ const GamePlayer = ({game, sessionHash, debug}) => {
     }
 
     useEffect(() => {
-        if (sessionHash == null || actionIdSent !== 0) return;
-        setActionIdSent(1);
+        if (sessionHash == null || chapterIdSent !== 0) return;
+        setChapterIdSent(1);
         api.callApi(`/session/${sessionHash}`, {
             action: "intro",
-            actionId: 1,
+            chapterId: 1,
         }).then(chapter => {
             receiveChapter(chapter);
         });
@@ -60,7 +60,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
             <Row className="m-0 p-0">
                 <Col>
                     <h1 className="m-0 p-0 text-white">{game.title}</h1>
-                    <p  className="m-0 p-0 text-white"><small>Session #{sessionHash}, sent: {actionIdSent}, recv: {actionIdReceived}</small></p>
+                    <p  className="m-0 p-0 text-white"><small>Session #{sessionHash}, sent: {chapterIdSent}, recv: {chapterIdReceived}</small></p>
                 </Col>
             </Row>
             <Row className="m-0 p-1">
@@ -80,12 +80,12 @@ const GamePlayer = ({game, sessionHash, debug}) => {
             <Row className="flex-grow-1 overflow-auto ml-0 bg-light">
                 <Col className="pb-4">
                     {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} debug={Boolean(debug)} /> })}
-                    { actionIdSent > actionIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} debug={Boolean(debug)}/> : null }
+                    { chapterIdSent > chapterIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} debug={Boolean(debug)}/> : null }
                 </Col>
             </Row>
 
             {/* Bottom Pane */}
-            { actionIdReceived < 1 ? null : <Row className="m-0 p-2">
+            { chapterIdReceived < 1 ? null : <Row className="m-0 p-2">
                 <Col className="d-flex align-items-center">
                     <Input
                         type="text"
@@ -109,6 +109,8 @@ const GamePlayer = ({game, sessionHash, debug}) => {
 
 const Chapter = ({chapter, debug}) => {
 
+    const api = useApi();
+
     const [showDebug, setShowDebug] = useState(false);
 
     const toggleDebug = () => setShowDebug(!showDebug);
@@ -122,8 +124,26 @@ const Chapter = ({chapter, debug}) => {
                 { chapter.type === chapterTypeLoading ? "Writing story, please be patient.." : null }
             </ToastHeader>
             <ToastBody>
-                {chapter.type === chapterTypeError ? chapter.error + <br /> + chapter.raw : chapter.story }
-                { chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
+                {chapter.type === chapterTypeError && chapter.error + <br /> + chapter.raw }
+                {chapter.story &&
+                    <>
+                        <div style={{ textAlign: 'left' }}>
+                            <img
+                                src={api.apiUrl(`/image/${chapter.sessionHash}/${chapter.chapterId}`)}
+                                alt=""
+                                style={{
+                                    width: '256px',
+                                    height: '256px',
+                                    marginRight: '10px',
+                                    float: 'left'
+                                }}
+                            />
+                            {chapter.story}
+                        </div>
+                    </>
+
+                }
+                {chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
 
                 {debug && (chapter.rawInput || chapter.rawOutput)  && (
                     <div className="text-right">

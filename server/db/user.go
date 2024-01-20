@@ -171,8 +171,8 @@ func (user *User) UpdateApiKeyPersonal(personal string) {
 	db.Save(user)
 }
 
-func (user *User) GetApiKey(session *obj.Session, game *obj.Game) (*string, error) {
-	if session == nil || game == nil || session.GameID != game.ID {
+func (user *User) GetApiKey(session *obj.Session) (*string, error) {
+	if session == nil {
 		return nil, fmt.Errorf("invalid parameters for fetchin api key")
 	}
 

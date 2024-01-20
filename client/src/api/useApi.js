@@ -21,11 +21,14 @@ export const useApi = () => {
 
     const config = getConfig();
 
+    const apiUrl = (endpoint) => {
+        endpoint = endpoint.substring(0, 1) === "/" ? endpoint.substring(1) : endpoint;
+        return `${config.apiOrigin}/api/${endpoint}`
+    }
+
     const callApi = async (endpoint, data = null, method=null) => {
         try {
             const token = await getAccessTokenSilently();
-
-            endpoint = endpoint.substring(0, 1) === "/" ? endpoint.substring(1) : endpoint;
 
             const requestOptions = {
                 headers: {
@@ -40,7 +43,7 @@ export const useApi = () => {
             }
 
             console.log("specified method: ", method, "requestOptions: ", requestOptions);
-            const response = await fetch(`${config.apiOrigin}/api/${endpoint}`, requestOptions);
+            const response = await fetch(apiUrl(endpoint), requestOptions);
 
             const responseData = await response.json();
 
@@ -103,5 +106,5 @@ export const useApi = () => {
         fn();
     };
 
-    return { callApi, handle, handlerConsent, handlerLoginAgain, state, config };
+    return { callApi, apiUrl, handle, handlerConsent, handlerLoginAgain, state, config };
 };

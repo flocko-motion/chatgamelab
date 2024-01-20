@@ -42,6 +42,17 @@ func (session *Session) export() *obj.Session {
 	}
 }
 
+func (chapter *Chapter) export() *obj.Chapter {
+	return &obj.Chapter{
+		SessionID:   chapter.SessionID,
+		Chapter:     chapter.Chapter,
+		Input:       chapter.Input,
+		Output:      chapter.Output,
+		ImagePrompt: chapter.ImagePrompt,
+		Image:       chapter.Image,
+	}
+}
+
 func GetSessionByHash(hash string) (*obj.Session, error) {
 	var session Session
 	err := db.Where("hash = ?", hash).First(&session).Error
@@ -62,9 +73,9 @@ func CreateSession(session *obj.Session) (*obj.Session, error) {
 	return sessionDb.export(), err
 }
 
-func (session *Session) AddChapter(chapterId uint, input, output, imagePrompt string) (*Chapter, error) {
+func AddChapter(sessionId, chapterId uint, input, output, imagePrompt string) (*Chapter, error) {
 	chapterDb := Chapter{
-		SessionID:   session.ID,
+		SessionID:   sessionId,
 		Chapter:     chapterId,
 		Input:       input,
 		Output:      output,
@@ -78,13 +89,13 @@ func (session *Session) AddChapter(chapterId uint, input, output, imagePrompt st
 	return &chapterDb, nil
 }
 
-func GetImage(sessionId, chapterId uint) ([]byte, error) {
+func GetChapter(sessionId, chapterId uint) (*obj.Chapter, error) {
 	var chapter Chapter
 	err := db.Where("session_id = ? AND chapter = ?", sessionId, chapterId).First(&chapter).Error
 	if err != nil {
 		return nil, err
 	}
-	return chapter.Image, nil
+	return chapter.export(), nil
 }
 
 func SetImage(sessionId, chapterId uint, image []byte) *obj.HTTPError {

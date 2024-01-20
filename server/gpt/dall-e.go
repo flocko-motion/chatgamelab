@@ -2,6 +2,7 @@ package gpt
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"log"
@@ -30,7 +31,9 @@ func GenerateImage(ctx context.Context, apiKey string, prompt string) (image []b
 		}
 	}
 	log.Printf("Image created in %v\n", time.Since(timeStart))
-	log.Println(respUrl.Data[0].URL)
-	log.Println(respUrl.Data[0].B64JSON)
-	return nil, nil
+	data, err := base64.StdEncoding.DecodeString(respUrl.Data[0].B64JSON)
+	if err != nil {
+		return nil, &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed decoding generated image: " + err.Error()}
+	}
+	return data, nil
 }

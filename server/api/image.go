@@ -4,58 +4,47 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"time"
 	"webapp-server/db"
-	"webapp-server/gpt"
 	"webapp-server/lang"
 	"webapp-server/obj"
 	"webapp-server/router"
 )
 
-var Image = router.NewEndpointJson(
-	"/api/image/:sessionHash/:chapter",
-	false,
+var Image = router.NewEndpoint(
+	"/api/image/",
+	true,
+	"image/png",
 	func(request router.Request) (out interface{}, httpErr *obj.HTTPError) {
 		var err error
-		sessionHash := path.Base(request.R.URL.Path)
-		chapterRaw := path.Base(path.Dir(request.R.URL.Path))
-		var chapter uint64
-		chapter, err = strconv.ParseUint(chapterRaw, 10, 32)
+		chapterRaw := path.Base(request.R.URL.Path)
+		sessionHash := path.Base(path.Dir(request.R.URL.Path))
+		var chapterId uint64
+		chapterId, err = strconv.ParseUint(chapterRaw, 10, 32)
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: http.StatusBadRequest, Message: lang.ErrorParsingRequest}
 		}
 
 		var session *obj.Session
-		var game *obj.Game
 		if session, err = db.GetSessionByHash(sessionHash); err != nil {
 			return nil, &obj.HTTPError{StatusCode: 404, Message: lang.ErrorFailedLoadingGameData}
 		}
 
-		if game, err = db.GetGameByID(session.GameID); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 500, Message: lang.ErrorFailedLoadingGameData}
+		// image creation can take a while - so we query the db until it's ready, or timeout
+		for i := 0; i < 20; i++ {
+			var chapter *obj.Chapter
+			chapter, err = db.GetChapter(session.ID, uint(chapterId))
+			if err != nil {
+				return nil, &obj.HTTPError{StatusCode: 500, Message: lang.ErrorFailedLoadingGameData}
+			}
+
+			if chapter.Image != nil && len(chapter.Image) > 0 {
+				return chapter.Image, nil
+			}
+
+			time.Sleep(1 * time.Second)
 		}
 
-		var image []byte
-		image, err = db.GetImage(session.ID, uint(chapter))
-		if err != nil {
-			return nil, &obj.HTTPError{StatusCode: 500, Message: lang.ErrorFailedLoadingGameData}
-		}
-
-		if image != nil || len(image) > 0 {
-			return image, nil
-		}
-
-		var apiKey *string
-		if apiKey, err = request.User.GetApiKey(session, game); err != nil {
-			return nil, &obj.HTTPError{StatusCode: http.StatusUnauthorized, Message: lang.ErrorNoValidKey}
-		}
-		if image, httpErr = gpt.GenerateImage(request.Ctx, *apiKey, "a red circle and a blue hand"); httpErr != nil {
-			return nil, httpErr
-		}
-
-		if httpErr = db.SetImage(session.ID, uint(chapter), image); httpErr != nil {
-			return nil, nil
-		}
-
-		return []byte{}, nil
+		return nil, &obj.HTTPError{StatusCode: 404, Message: "Image not found"}
 	},
 )

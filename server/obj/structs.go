@@ -34,6 +34,15 @@ type Session struct {
 	Hash                  string `json:"hash"`
 }
 
+type Chapter struct {
+	SessionID   uint   `json:"sessionId"`
+	Chapter     uint   `json:"chapter"`
+	Input       string `json:"input"`
+	Output      string `json:"output"`
+	ImagePrompt string `json:"imagePrompt"`
+	Image       []byte `json:"image"`
+}
+
 type StatusField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -45,10 +54,10 @@ const GameOutputTypeError = "error"
 const GameOutputTypeStory = "story"
 
 type GameActionInput struct {
-	ActionId uint          `json:"-"`
-	Type     string        `json:"type"`
-	Message  string        `json:"action"`
-	Status   []StatusField `json:"status"`
+	ChapterId uint          `json:"-"`
+	Type      string        `json:"type"`
+	Message   string        `json:"action"`
+	Status    []StatusField `json:"status"`
 }
 
 /*
@@ -60,7 +69,8 @@ type GameActionInput struct {
 */
 
 type GameActionOutput struct {
-	ActionId              uint          `json:"actionId"`
+	ChapterId             uint          `json:"chapterId"`
+	SessionHash           string        `json:"sessionHash"`
 	Type                  string        `json:"type"`
 	Story                 string        `json:"story"`
 	Status                []StatusField `json:"status"`

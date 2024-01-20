@@ -26,14 +26,14 @@ type Request struct {
 	Ctx  context.Context
 }
 
-type HandlerJson func(request Request) (interface{}, *obj.HTTPError)
+type Handler func(request Request) (interface{}, *obj.HTTPError)
 
-func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
+func NewEndpoint(path string, public bool, contentType string, handler Handler) Endpoint {
 	endpoint := Endpoint{
 		Path:           path,
 		Public:         public,
 		RequiredScopes: []string{},
-		ContentType:    "application/json",
+		ContentType:    contentType,
 	}
 
 	endpoint.Handler = func(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +46,7 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 		}
 
 		SetCorsHeaders(w)
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", endpoint.ContentType)
 
 		log.Printf("Handling request for %s", r.URL.Path)
 		tokenObj := r.Context().Value(jwtmiddleware.ContextKey{})
@@ -87,12 +87,20 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 
 		var resBytes []byte
 		if httpError == nil {
-			if resBytes, err = json.Marshal(res); err != nil {
-				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
+			switch endpoint.ContentType {
+			case "application/json":
+				if resBytes, err = json.Marshal(res); err != nil {
+					httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
+				}
+			case "image/png":
+				resBytes = res.([]byte)
+			default:
+				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Handler has unknown content type"}
 			}
 		}
 
 		if httpError != nil {
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(httpError.StatusCode)
 			_, _ = w.Write(httpError.Json())
 			return

@@ -15,8 +15,8 @@ const (
 )
 
 type SessionRequest struct {
-	Action   string `json:"action"`   // type of action
-	ActionId uint   `json:"actionId"` // id of action
+	Action    string `json:"action"`    // type of action
+	ChapterId uint   `json:"chapterId"` // id of action
 	// creating a new session:
 	GameID   uint   `json:"gameId"`
 	GameHash string `json:"gameHash"`
@@ -28,9 +28,10 @@ type SessionRequest struct {
 	Session *obj.Session `json:"-"`
 }
 
-var Session = router.NewEndpointJson(
+var Session = router.NewEndpoint(
 	"/api/session/",
 	false,
+	"application/json",
 	func(request router.Request) (out interface{}, httpErr *obj.HTTPError) {
 		sessionHash := path.Base(request.R.URL.Path)
 		var sessionRequest SessionRequest
@@ -56,18 +57,18 @@ var Session = router.NewEndpointJson(
 
 		switch sessionRequest.Action {
 		case obj.GameInputTypeIntro:
-			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:     obj.GameInputTypeIntro,
-				ActionId: sessionRequest.ActionId,
-				Message:  sessionRequest.Game.SessionStartSyscall,
-				Status:   sessionRequest.Game.StatusFields,
+			return gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
+				Type:      obj.GameInputTypeIntro,
+				ChapterId: sessionRequest.ChapterId,
+				Message:   sessionRequest.Game.SessionStartSyscall,
+				Status:    sessionRequest.Game.StatusFields,
 			}, apiKey)
 		case obj.GameInputTypeAction:
-			return gpt.ExecuteAction(sessionRequest.Session, obj.GameActionInput{
-				Type:     obj.GameInputTypeAction,
-				ActionId: sessionRequest.ActionId,
-				Message:  sessionRequest.Message,
-				Status:   sessionRequest.Status,
+			return gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
+				Type:      obj.GameInputTypeAction,
+				ChapterId: sessionRequest.ChapterId,
+				Message:   sessionRequest.Message,
+				Status:    sessionRequest.Status,
 			}, apiKey)
 		default:
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
