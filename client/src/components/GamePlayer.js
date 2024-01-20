@@ -3,8 +3,8 @@ import { Container, Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader,
 import {useApi} from "../api/useApi";
 import Highlight from "./Highlight";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBug} from "@fortawesome/free-solid-svg-icons";
-
+import {faEye} from "@fortawesome/free-solid-svg-icons";
+import loading from "../assets/loading.svg";
 
 const chapterTypeStory ="story";
 const chapterTypeError ="error";
@@ -125,30 +125,12 @@ const Chapter = ({chapter, debug}) => {
             </ToastHeader>
             <ToastBody>
                 {chapter.type === chapterTypeError && chapter.error + <br /> + chapter.raw }
-                {chapter.story &&
-                    <>
-                        <div style={{ textAlign: 'left' }}>
-                            <img
-                                src={api.apiUrl(`/image/${chapter.sessionHash}/${chapter.chapterId}`)}
-                                alt=""
-                                style={{
-                                    width: '256px',
-                                    height: '256px',
-                                    marginRight: '10px',
-                                    float: 'left'
-                                }}
-                            />
-                            {chapter.story}
-                        </div>
-                    </>
-
-                }
-                {chapter.type === chapterTypeLoading ? <Spinner color="primary" animation="grow"> </Spinner> : null}
+                <ChapterContent chapter={chapter} />
 
                 {debug && (chapter.rawInput || chapter.rawOutput)  && (
                     <div className="text-right">
                         <div className="text-right">
-                            <FontAwesomeIcon icon={faBug} onClick={toggleDebug} style={{ cursor: 'pointer' }} />
+                            <FontAwesomeIcon icon={faEye} onClick={toggleDebug} style={{ cursor: 'pointer' }} />
                         </div>
                     </div>
                 )}
@@ -160,6 +142,48 @@ const Chapter = ({chapter, debug}) => {
 
             </ToastBody>
         </Toast>
+    );
+}
+
+const ChapterContent = ({chapter}) => {
+    const api = useApi();
+
+    if (chapter.type === chapterTypeLoading) {
+        return <Spinner color="primary" animation="grow"> </Spinner>
+    }
+
+    if (!chapter.story) {
+        return null
+    }
+
+    if (chapter.type === chapterTypeAction) {
+        return (
+            <div className="text-left">
+                {chapter.story}
+            </div>
+        );
+    }
+
+    return (
+        <>
+            <div className="text-left">
+                <img
+                    src={api.apiUrl(`/image/${chapter.sessionHash}/${chapter.chapterId}`)}
+                    alt=""
+                    className="float-left mr-2"
+                    style={{
+                        width: '256px',
+                        height: '256px',
+                        backgroundColor: '#eaeaea', // placeholder color
+                        // or use a background image URL
+                        background: `url(${loading}) no-repeat center center`,
+                        backgroundSize: 'cover',                    }}
+                />
+                {chapter.story}
+            </div>
+            <div className="clearfix"></div>
+            {/* Content that follows won't float around the image */}
+        </>
     );
 }
 
