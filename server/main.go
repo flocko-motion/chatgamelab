@@ -42,6 +42,7 @@ func main() {
 	theRouter := router.NewRouter([]router.Endpoint{
 		api.Game,
 		api.Games,
+		api.Image,
 		api.Session,
 		api.Status,
 		api.Upgrade,

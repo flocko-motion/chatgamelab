@@ -1,6 +1,7 @@
 package router
 
 import (
+	"context"
 	"encoding/json"
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
@@ -22,6 +23,7 @@ type Endpoint struct {
 type Request struct {
 	R    *http.Request
 	User *db.User
+	Ctx  context.Context
 }
 
 type HandlerJson func(request Request) (interface{}, *obj.HTTPError)
@@ -39,7 +41,8 @@ func NewEndpointJson(path string, public bool, handler HandlerJson) Endpoint {
 		var err error
 
 		request := Request{
-			R: r,
+			R:   r,
+			Ctx: context.Background(),
 		}
 
 		SetCorsHeaders(w)

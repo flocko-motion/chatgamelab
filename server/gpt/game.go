@@ -48,7 +48,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 		return nil, fmt.Errorf("game is nil")
 	}
 
-	log.Printf("CreateGameSession, game.ID %d, userId ", game.ID, userId)
+	log.Printf("CreateGameSession, game.ID %d, userId %d", game.ID, userId)
 
 	actionInput := obj.GameActionInput{
 		Type:    obj.GameInputTypeAction,

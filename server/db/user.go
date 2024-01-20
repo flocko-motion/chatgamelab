@@ -170,3 +170,15 @@ func (user *User) UpdateApiKeyPersonal(personal string) {
 	user.OpenAiKeyPersonal = personal
 	db.Save(user)
 }
+
+func (user *User) GetApiKey(session *obj.Session, game *obj.Game) (*string, error) {
+	if session == nil || game == nil || session.GameID != game.ID {
+		return nil, fmt.Errorf("invalid parameters for fetchin api key")
+	}
+
+	// TODO: fetch key dependent on play type
+	key := user.OpenAiKeyPersonal
+
+	return &key, nil
+
+}
