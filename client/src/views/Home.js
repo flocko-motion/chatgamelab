@@ -1,8 +1,7 @@
 import React from "react";
 
-import Splash from "../components/Splash";
-import Content from "../components/Content";
-import {Button, NavItem} from "reactstrap";
+
+import {Button} from "reactstrap";
 import {useAuth0} from "@auth0/auth0-react";
 import logo from "../assets/logo.svg";
 
