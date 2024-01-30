@@ -72,12 +72,14 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                 </Col>
             </FormGroup>
 
+{/*
             <FormGroup row>
                 <Label for="description" sm={2}>Description</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="description" id="description" value={formData.description || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
+*/}
 
             <FormGroup row>
                 <Label for="scenario" sm={2}>Game Scenario</Label>
