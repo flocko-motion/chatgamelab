@@ -8,6 +8,8 @@ import {useRecoilState} from "recoil";
 import {gamesState} from "../api/atoms";
 import {GamesUri} from "../utils/urls";
 import Content from "../components/Content";
+import {Menu} from "../components/Menu";
+import {GamesButton} from "../components/GamesButton";
 
 
 export const GameEditComponent = ({match}) => {
@@ -44,7 +46,9 @@ export const GameEditComponent = ({match}) => {
 
     return (
         <Content>
-            <h1>Edit Game #{gameId}</h1>
+            <Menu title={`Edit Game #${gameId}`}>
+                <GamesButton />
+            </Menu>
             <GameEditForm
                 initialGame={game}
                 onSave={handleSave}

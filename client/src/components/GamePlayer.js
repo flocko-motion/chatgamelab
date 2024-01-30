@@ -1,10 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import { Container, Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader, ToastBody } from 'reactstrap';
+import { Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import {useApi} from "../api/useApi";
 import Highlight from "./Highlight";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEye} from "@fortawesome/free-solid-svg-icons";
 import loading from "../assets/loading.svg";
+import {Menu} from "./Menu";
+import {GamesButton} from "./GamesButton";
+import Content from "./Content";
 
 const chapterTypeStory ="story";
 const chapterTypeError ="error";
@@ -56,13 +59,10 @@ const GamePlayer = ({game, sessionHash, debug}) => {
 
 
     return (
-        <Container fluid className="h-100 d-flex flex-column bg-dark">
-            <Row className="m-0 p-0">
-                <Col>
-                    <h1 className="m-0 p-0 text-white">{game.title}</h1>
-                    <p  className="m-0 p-0 text-white"><small>Session #{sessionHash}, sent: {chapterIdSent}, recv: {chapterIdReceived}</small></p>
-                </Col>
-            </Row>
+        <Content fluid className="h-100 d-flex flex-column">
+            <Menu title={game.title}>
+                <GamesButton />
+            </Menu>
             <Row className="m-0 p-1">
                 <Col>
                     {sessionStatus ? sessionStatus.map((item, index) => {
@@ -103,7 +103,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
                     <Button color="primary" onClick={() => submitAction(action)}>Submit</Button>
                 </Col>
             </Row> }
-        </Container>
+        </Content>
     );
 };
 

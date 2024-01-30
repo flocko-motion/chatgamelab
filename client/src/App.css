@@ -11,6 +11,11 @@
   /* Scrolling will be managed by the content within each route component */
 }
 
+div.hero img.app-logo {
+  width: 60%;
+  max-width: fit-content;
+}
+
 /* Styles for NavBar and Footer */
 /* Ensure they are not taking more space than necessary and are fixed in size */
 .navbar, .footer {

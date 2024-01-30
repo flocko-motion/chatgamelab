@@ -1,31 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import {withAuthenticationRequired} from "@auth0/auth0-react";
-import Loading from "../components/Loading";
 import GamePlayer from '../components/GamePlayer'; // Assuming this is your game component
 
 import {useApi} from "../api/useApi";
+import Loading from "../components/Loading";
 
 
-export const GamePlayComponent = ({match}) => {
+const  GamePlay = ({match}) => {
     const [game, setGame] = useState(null);
     const api = useApi();
 
-    const gameId = match.params.hash;
+    const gameHash = match.params.hash;
 
     useEffect(() => {
-        if (game == null || gameId !== game.id) {
-            api.callApi(`/game/${gameId}`)
+        if (game == null || gameHash !== game.id) {
+            api.callApi(`/game/${gameHash}`)
                 .then(game => setGame(game));
         }
-    }, [gameId]);
+    }, [gameHash]);
 
-    // if (!game) return <Loading />;
-
-    return (
-        <GamePlayer gameId={gameId} />
-    );
+    return game ? <GamePlayer gameId={gameHash} /> : <Loading />;
 };
 
-export default withAuthenticationRequired(GamePlayComponent, {
-    onRedirecting: () => <Loading/>,
-});
+export default GamePlay;

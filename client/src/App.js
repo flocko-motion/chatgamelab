@@ -6,14 +6,13 @@ import {useRecoilState} from "recoil";
 
 
 import Loading from "./components/Loading";
-import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import Home from "./views/Home";
 import history from "./utils/history";
 
 import "./App.css";
 
-import {errorsState, gamesState, loadingState, userState} from "./api/atoms";
+import {gamesState, loadingState, userState} from "./api/atoms";
 
 import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
@@ -75,17 +74,19 @@ const App = () => {
                 <div className="flex-grow-1 overflow-hidden">
                     <AuthErrorHandler/>
                     <Errors/>
-                    {isAuthenticated ?
-                        <Switch>
-                            <Route path="/" exact component={Games}/>
-                            <Route path="/games" component={Games}/>
-                            <Route path="/profile" component={Profile}/>
-                            <Route path="/edit/:id" component={GameEdit}/>
-                            <Route path="/debug/:id" component={GameDebug}/>
-                            <Route path="/play/:hash" component={GamePlay}/>
-                        </Switch> :
-                        <Home/>
-                    }
+                    <Switch>
+                        {isAuthenticated && (
+                            <>
+                                <Route path="/" exact component={Games}/>
+                                <Route path="/games" component={Games}/>
+                                <Route path="/profile" component={Profile}/>
+                                <Route path="/edit/:id" component={GameEdit}/>
+                                <Route path="/debug/:id" component={GameDebug}/>
+                            </>
+                        )}
+                        <Route path="/play/:hash" component={GamePlay}/>
+                        <Route path="/" component={Home}/>
+                    </Switch>
                 </div>
                 <Footer/>
             </div>
