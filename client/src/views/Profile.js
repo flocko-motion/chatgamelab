@@ -1,5 +1,18 @@
 import React from "react";
-import { Container, Row, Col, Form, FormGroup, Label, Input, Button } from "reactstrap";
+import {
+    Container,
+    Card,
+    CardBody,
+    Row,
+    Col,
+    Form,
+    FormGroup,
+    Label,
+    Input,
+    Button,
+    ButtonGroup,
+    CardHeader
+} from "reactstrap";
 import Content from "../components/Content";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "../components/Loading";
@@ -7,6 +20,9 @@ import {useRecoilState} from "recoil";
 import {userState} from "../api/atoms";
 
 import {useApi} from "../api/useApi";
+import {LogoutButton} from "../components/LogoutButton";
+import {GamesButton} from "../components/GamesButton";
+import {Menu} from "../components/Menu";
 
 export const ProfileComponent = () => {
     const api = useApi();
@@ -34,21 +50,15 @@ export const ProfileComponent = () => {
 
     return (
         <Content>
-            <Row className="align-items-center profile-header mb-5 text-center text-md-left">
-                <Col md={2}>
-                    <img
-                        src={user.picture}
-                        alt="Profile"
-                        className="rounded-circle img-fluid profile-picture mb-3 mb-md-0"
-                    />
-                </Col>
-                <Col md>
-                    <h2>{user.name}</h2>
+            <Menu title="Settings">
+                <GamesButton/>
+            </Menu>
+            <Card className="mb-4">
+                <CardHeader>
+                    <h3>{user.name}</h3>
                     <p className="lead text-muted">{user.email}</p>
-                </Col>
-            </Row>
-            <Row>
-                <Col lg={12}>
+                </CardHeader>
+                <CardBody>
                     <Form>
                         <FormGroup>
                             <Label for="personalKey">Private Playing Key</Label>
@@ -76,6 +86,11 @@ export const ProfileComponent = () => {
                         </FormGroup>
                         <Button color="primary" onClick={handleSave}>Save</Button>
                     </Form>
+                </CardBody>
+            </Card>
+            <Row>
+                <Col lg={12}>
+
                 </Col>
             </Row>
         </Content>

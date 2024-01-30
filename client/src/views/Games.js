@@ -1,15 +1,18 @@
 import React, {useState} from 'react';
 import {useRecoilState} from 'recoil';
-import {Button, Table, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+import {Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, ButtonGroup} from "reactstrap";
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
 import {gamesState} from "../api/atoms"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faEdit, faPlay, faBug, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faEdit, faPlay, faTrash, faPlus, faCog, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
 import {Link} from "react-router-dom";
-import {SharePlayUri, SharePlayUrl, DebugUri, EditUri} from "../utils/urls";
+import {SharePlayUrl, DebugUri, EditUri} from "../utils/urls";
 import Content from "../components/Content";
+import {LogoutButton} from "../components/LogoutButton";
+import {SettingsButton} from "../components/SettingsButton";
+import {Menu} from "../components/Menu";
 
 
 export const GamesComponent = () => {
@@ -53,7 +56,12 @@ export const GamesComponent = () => {
     return (
         <>
             <Content>
-                <h1>Games</h1>
+                <Menu title="Games">
+                    <Button color="primary" onClick={handleCreateGame} className="ml-2">
+                        <FontAwesomeIcon icon={faPlus} className="mr-2"/> Create
+                    </Button>
+                    <SettingsButton/>
+                </Menu>
 
                 <Table striped bordered hover className="mt-4">
                     <thead>
@@ -92,7 +100,7 @@ export const GamesComponent = () => {
                     ))}
                     </tbody>
                 </Table>
-                <Button color="primary" onClick={handleCreateGame}>Create New Game</Button>
+
 
             </Content>
 
@@ -104,7 +112,7 @@ export const GamesComponent = () => {
                     Do you really want to delete this game?
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" onClick={confirmDeletion}>Delete</Button>{' '}
+                <Button color="danger" onClick={confirmDeletion}>Delete</Button>{' '}
                     <Button color="secondary" onClick={() => setIsModalOpen(false)}>Cancel</Button>
                 </ModalFooter>
             </Modal>

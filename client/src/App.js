@@ -44,18 +44,18 @@ const App = () => {
 
     useEffect(() => {
         console.log("user changed: ", user, isAuthenticated);
-        if(!isAuthenticated) {
+        if (!isAuthenticated) {
             setGames([]);
             return;
         }
         setLoading(true);
         let loadingCount = 2;
-        api.callApi("/user", {...user, openaiKeyPersonal:"-", openaiKeyPublish:"-"})
+        api.callApi("/user", {...user, openaiKeyPersonal: "-", openaiKeyPublish: "-"})
             .then(userDetails => setUserDetails(userDetails))
-            .finally(() => --loadingCount  === 0 && setLoading(false));
+            .finally(() => --loadingCount === 0 && setLoading(false));
         api.callApi("/games")
             .then(games => setGames(games))
-            .finally(() => --loadingCount  === 0 && setLoading(false));
+            .finally(() => --loadingCount === 0 && setLoading(false));
 
     }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
 
@@ -68,25 +68,28 @@ const App = () => {
         return <Loading/>;
     }
 
+
     return (
-            <Router history={history}>
-                <div id="app">
-                    <NavBar/>
-                    <div className="flex-grow-1 overflow-hidden">
-                        <AuthErrorHandler/>
-                        <Errors />
+        <Router history={history}>
+            <div id="app">
+                <div className="flex-grow-1 overflow-hidden">
+                    <AuthErrorHandler/>
+                    <Errors/>
+                    {isAuthenticated ?
                         <Switch>
-                            <Route path="/" exact component={isAuthenticated ? Games : Home}/>
+                            <Route path="/" exact component={Games}/>
                             <Route path="/games" component={Games}/>
                             <Route path="/profile" component={Profile}/>
                             <Route path="/edit/:id" component={GameEdit}/>
                             <Route path="/debug/:id" component={GameDebug}/>
                             <Route path="/play/:hash" component={GamePlay}/>
-                        </Switch>
-                    </div>
-                    <Footer/>
+                        </Switch> :
+                        <Home/>
+                    }
                 </div>
-            </Router>
+                <Footer/>
+            </div>
+        </Router>
     );
 };
 
