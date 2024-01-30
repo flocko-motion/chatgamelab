@@ -76,12 +76,8 @@ export const GamesComponent = () => {
                                     <FontAwesomeIcon icon={faEdit}/>
                                 </Link>
                                 <Link to={DebugUri(game.id)} className="btn btn-secondary mr-2">
-                                    <FontAwesomeIcon icon={faBug}/>
-                                </Link>
-                                <a href={SharePlayUri(game.sharePlayHash)} target="_blank"
-                                   className="btn btn-secondary mr-2" rel="noreferrer">
                                     <FontAwesomeIcon icon={faPlay}/>
-                                </a>
+                                </Link>
                                 <Button color="danger" onClick={() => handleDeleteGame(game.id)}>
                                     <FontAwesomeIcon icon={faTrash}/>
                                 </Button>
@@ -90,7 +86,7 @@ export const GamesComponent = () => {
                                 {game.sharePlayActive ?
                                     <a href={SharePlayUrl(game.sharePlayHash)}
                                        target="_blank">{SharePlayUrl(game.sharePlayHash)}</a>
-                                    : "not published"}
+                                    : "Game is not public"}
                             </td>
                         </tr>
                     ))}

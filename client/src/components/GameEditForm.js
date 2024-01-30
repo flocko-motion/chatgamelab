@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, FormGroup, Label, Input, Col, Row } from 'reactstrap';
+import {Button, Form, FormGroup, Label, Input, Col, Row, FormText} from 'reactstrap';
 import {SharePlayUrl} from "../utils/urls";
 import {faMinus, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -66,38 +66,53 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 
             <FormGroup row>
-                <Label for="title" sm={2}>Game Title</Label>
+                <Label for="title" sm={2}>Title</Label>
                 <Col sm={10}>
                     <Input type="text" name="title" id="title" value={formData.title || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="description" sm={2}>Game Description</Label>
+                <Label for="description" sm={2}>Description</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="description" id="description" value={formData.description || ''} onChange={handleChange} />
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="scenario" sm={2}>GPT Instructions</Label>
+                <Label for="scenario" sm={2}>Game Scenario</Label>
                 <Col sm={10}>
-                    <Input type="textarea" name="scenario" id="scenario" value={formData.scenario || ''} onChange={handleChange} />
+                    <Input
+                        type="textarea"
+                        name="scenario"
+                        id="scenario"
+                        value={formData.scenario || ''}
+                        onChange={handleChange}
+                    />
+                    <FormText color="muted">
+                        What is the game about? How does it work? What role does the player have? What's the world like?
+                    </FormText>
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="sessionStartSyscall" sm={2}>GPT Initialization</Label>
+                <Label for="sessionStartSyscall" sm={2}>Game Opening</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="sessionStartSyscall" id="sessionStartSyscall" value={formData.sessionStartSyscall || ''} onChange={handleChange} />
+                    <FormText color="muted">
+                        How should the game start? What's the first scene? How is the player welcomed?
+                    </FormText>
                 </Col>
             </FormGroup>
 
 
             <FormGroup row>
-                <Label for="imageStyle" sm={2}>GPT Image Style</Label>
+                <Label for="imageStyle" sm={2}>Image Style</Label>
                 <Col sm={10}>
                     <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
+                    <FormText color="muted">
+                        What art style should be used for generating the images?
+                    </FormText>
                 </Col>
             </FormGroup>
             {/* Status Fields Section */}
@@ -149,6 +164,9 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                     <Label for="sharePlayUrl" sm={2}>Public URL</Label>
                     <Col sm={10}>
                         <Input type="text" name="sharePlayUrl" id="sharePlayUrl" readOnly value={SharePlayUrl(formData.sharePlayHash) || ''} />
+                        <FormText color="muted">
+                            Playing the game via this URL will not require a login. Your public-playing-key will be used, which generates costs for you for each game played.
+                        </FormText>
                     </Col>
                 </FormGroup>
             )}

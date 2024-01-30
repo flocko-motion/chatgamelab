@@ -68,20 +68,17 @@ const App = () => {
         return <Loading/>;
     }
 
-
-
     return (
             <Router history={history}>
                 <div id="app">
                     <NavBar/>
                     <div className="flex-grow-1 overflow-hidden">
-
                         <AuthErrorHandler/>
                         <Errors />
                         <Switch>
-                            <Route path="/" exact component={Home}/>
-                            <Route path="/profile" component={Profile}/>
+                            <Route path="/" exact component={isAuthenticated ? Games : Home}/>
                             <Route path="/games" component={Games}/>
+                            <Route path="/profile" component={Profile}/>
                             <Route path="/edit/:id" component={GameEdit}/>
                             <Route path="/debug/:id" component={GameDebug}/>
                             <Route path="/play/:hash" component={GamePlay}/>
