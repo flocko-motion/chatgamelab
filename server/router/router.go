@@ -46,6 +46,7 @@ func NewEndpoint(path string, public bool, contentType string, handler Handler) 
 		}
 
 		SetCorsHeaders(w)
+		SetNoCacheHeaders(w)
 		w.Header().Set("Content-Type", endpoint.ContentType)
 
 		log.Printf("Handling request for %s", r.URL.Path)

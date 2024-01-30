@@ -15,3 +15,9 @@ func SetCorsHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", corsAllowedOrigin)
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 }
+
+func SetNoCacheHeaders(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+	w.Header().Set("Pragma", "no-cache")
+	w.Header().Set("Expires", "Thu, 01 Jan 1970 00:00:00 GMT")
+}
