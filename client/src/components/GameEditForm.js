@@ -61,18 +61,41 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             <FormGroup row>
                 <Label for="owner" sm={2}>Owner</Label>
                 <Col sm={10}>
-                    <Input type="text" name="owner" id="owner" readOnly value={formData.userName || ''} />
+                    <Input type="text" name="owner" id="owner" readOnly value={formData.userName || ''}/>
                 </Col>
             </FormGroup>
 
             <FormGroup row>
                 <Label for="title" sm={2}>Title</Label>
                 <Col sm={10}>
-                    <Input type="text" name="title" id="title" value={formData.title || ''} onChange={handleChange} />
+                    <Input type="text" name="title" id="title" value={formData.title || ''} onChange={handleChange}/>
                 </Col>
             </FormGroup>
 
-{/*
+            <h3>Publish Game</h3>
+
+            <FormGroup row>
+                <Label for="sharePlayActive" sm={2}>Public</Label>
+                <Col sm={10}>
+                    <Input type="checkbox" name="sharePlayActive" id="sharePlayActive"
+                           checked={formData.sharePlayActive || false} onChange={handleToggle}/>
+                </Col>
+            </FormGroup>
+
+            {formData.sharePlayActive && (
+                <FormGroup row>
+                    <Label for="sharePlayUrl" sm={2}>Public URL</Label>
+                    <Col sm={10}>
+                        <Input type="text" name="sharePlayUrl" id="sharePlayUrl" readOnly
+                               value={SharePlayUrl(formData.sharePlayHash) || ''}/>
+                        <FormText color="muted">
+                            Playing the game via this URL will not require a login. Your public-playing-key will be
+                            used, which generates costs for you for each game played.
+                        </FormText>
+                    </Col>
+                </FormGroup>
+            )}
+            {/*
             <FormGroup row>
                 <Label for="description" sm={2}>Description</Label>
                 <Col sm={10}>
@@ -81,8 +104,9 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
             </FormGroup>
 */}
 
+            <h3>GPT Instructions</h3>
             <FormGroup row>
-                <Label for="scenario" sm={2}>Game Scenario</Label>
+                <Label for="scenario" sm={2}>GPT: Game Scenario</Label>
                 <Col sm={10}>
                     <Input
                         type="textarea"
@@ -92,38 +116,42 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                         onChange={handleChange}
                     />
                     <FormText color="muted">
-                        What is the game about? How does it work? What role does the player have? What's the world like?
+                        Instructions for GPT: What is the game about? How does it work? What role does the player have?
+                        What's the world like?
                     </FormText>
                 </Col>
             </FormGroup>
 
             <FormGroup row>
-                <Label for="sessionStartSyscall" sm={2}>Game Opening</Label>
+                <Label for="sessionStartSyscall" sm={2}>GPT: Game Opening</Label>
                 <Col sm={10}>
-                    <Input type="textarea" name="sessionStartSyscall" id="sessionStartSyscall" value={formData.sessionStartSyscall || ''} onChange={handleChange} />
+                    <Input type="textarea" name="sessionStartSyscall" id="sessionStartSyscall"
+                           value={formData.sessionStartSyscall || ''} onChange={handleChange}/>
                     <FormText color="muted">
-                        How should the game start? What's the first scene? How is the player welcomed?
+                        Instructions for GPT: How should the game start? What's the first scene? How is the player
+                        welcomed?
                     </FormText>
                 </Col>
             </FormGroup>
 
 
             <FormGroup row>
-                <Label for="imageStyle" sm={2}>Image Style</Label>
+                <Label for="imageStyle" sm={2}>GPT: Image Style</Label>
                 <Col sm={10}>
-                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''} onChange={handleChange} />
+                    <Input type="textarea" name="imageStyle" id="imageStyle" value={formData.imageStyle || ''}
+                           onChange={handleChange}/>
                     <FormText color="muted">
-                        What art style should be used for generating the images?
+                        Instructions for GPT: What art style should be used for generating the images?
                     </FormText>
                 </Col>
             </FormGroup>
             {/* Status Fields Section */}
             <FormGroup row>
-                <Label for="statusFields" sm={2}>GPT Status Fields</Label>
+                <Label for="statusFields" sm={2}>GPT: Status Fields</Label>
                 <Col sm={10}>
                     {formData.statusFields.map((field, index) => (
-                        <Row key={index} className="mb-3" >
-                            <Col >
+                        <Row key={index} className="mb-3">
+                            <Col>
                                 <Input
                                     type="text"
                                     name="name"
@@ -132,7 +160,7 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                                     onChange={(e) => handleChange(e, index)}
                                 />
                             </Col>
-                            <Col >
+                            <Col>
                                 <Input
                                     type="text"
                                     name="value"
@@ -142,36 +170,17 @@ const GameEditForm = ({ initialGame, onSave, onCancel }) => {
                                 />
                             </Col>
                             <Col>
-                                <Button color="danger" onClick={() => handleRemoveStatusField(index)}><FontAwesomeIcon icon={faMinus}/></Button>
+                                <Button color="danger" onClick={() => handleRemoveStatusField(index)}><FontAwesomeIcon
+                                    icon={faMinus}/></Button>
                             </Col>
                         </Row>
                     ))}
 
 
-                    <Button  color="primary" onClick={handleAddStatusField}><FontAwesomeIcon icon={faPlus}/></Button>
+                    <Button color="primary" onClick={handleAddStatusField}><FontAwesomeIcon icon={faPlus}/></Button>
                 </Col>
             </FormGroup>
 
-
-
-            <FormGroup row>
-                <Label for="sharePlayActive" sm={2}>Public</Label>
-                <Col sm={10}>
-                    <Input type="checkbox" name="sharePlayActive" id="sharePlayActive" checked={formData.sharePlayActive || false} onChange={handleToggle} />
-                </Col>
-            </FormGroup>
-
-            {formData.sharePlayActive && (
-                <FormGroup row>
-                    <Label for="sharePlayUrl" sm={2}>Public URL</Label>
-                    <Col sm={10}>
-                        <Input type="text" name="sharePlayUrl" id="sharePlayUrl" readOnly value={SharePlayUrl(formData.sharePlayHash) || ''} />
-                        <FormText color="muted">
-                            Playing the game via this URL will not require a login. Your public-playing-key will be used, which generates costs for you for each game played.
-                        </FormText>
-                    </Col>
-                </FormGroup>
-            )}
 
             <Button color="primary" type="submit">Save</Button>
             <Button color="secondary" onClick={onCancel} className="ml-2">Cancel</Button>
