@@ -1,22 +1,23 @@
 import React, {useState} from 'react';
 import {useRecoilState} from 'recoil';
-import {Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, ButtonGroup} from "reactstrap";
+import {Button, Table, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
 import {gamesState} from "../api/atoms"
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faEdit, faPlay, faTrash, faPlus, faCog, faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
-import {Link} from "react-router-dom";
+import {faEdit, faPlay, faTrash, faPlus} from '@fortawesome/free-solid-svg-icons';
+import {Link, useHistory} from "react-router-dom";
 import {SharePlayUrl, DebugUri, EditUri} from "../utils/urls";
 import Content from "../components/Content";
-import {LogoutButton} from "../components/LogoutButton";
+// import {LogoutButton} from "../components/LogoutButton";
 import {SettingsButton} from "../components/SettingsButton";
 import {Menu} from "../components/Menu";
 
 
 export const GamesComponent = () => {
     const api = useApi();
+    const history = useHistory();
 
     const [games, setGames] = useRecoilState(gamesState);
 
@@ -28,7 +29,8 @@ export const GamesComponent = () => {
         api.callApi(`/game/new`, {
             title: title,
         }).then(game => {
-            window.location.href = EditUri(game.id);
+            history.push(EditUri(game.id));
+            // window.location.href = EditUri(game.id);
         });
     }
 
