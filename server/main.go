@@ -47,6 +47,8 @@ func main() {
 		api.Status,
 		api.Upgrade,
 		api.User,
+		api.PublicGame,
+		api.PublicSession,
 	})
 
 	htmlDir := http.Dir("./html")

@@ -1,24 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import GamePlayer from '../components/GamePlayer'; // Assuming this is your game component
 
 import {useApi} from "../api/useApi";
 import Loading from "../components/Loading";
 
 
-const  GamePlay = ({match}) => {
+const GamePlay = ({match}) => {
     const [game, setGame] = useState(null);
+    const [sessionHash, setSessionHash] = useState(null);
     const api = useApi();
 
     const gameHash = match.params.hash;
 
     useEffect(() => {
         if (game == null || gameHash !== game.id) {
-            api.callApi(`/game/${gameHash}`)
+            api.callApi(`/public/game/${gameHash}`, null, null)
                 .then(game => setGame(game));
         }
     }, [gameHash]);
 
-    return game ? <GamePlayer gameId={gameHash} /> : <Loading />;
+    useEffect(() => {
+        if (game) {
+            api.callApi(`/public/session/new`, {gameId: game.id})
+                .then(session => {
+                    setSessionHash(session.hash);
+                });
+        }
+    }, [game]);
+
+    return (!game || !sessionHash) ? <Loading /> :
+        <GamePlayer game={game} sessionHash={sessionHash} publicSession={true} />;
 };
 
 export default GamePlay;

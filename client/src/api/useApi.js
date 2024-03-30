@@ -28,11 +28,12 @@ export const useApi = () => {
 
     const callApi = async (endpoint, data = null, method=null) => {
         try {
-            const token = await getAccessTokenSilently();
+            const authorization = !endpoint.startsWith("/public/");
+            const token = authorization ? await getAccessTokenSilently() : "";
 
             const requestOptions = {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    ...(authorization ? { Authorization: `Bearer ${token}` } : {}),
                     'Content-Type': 'application/json' // Add Content-Type for JSON
                 },
                 method: method ? method : (data ? 'POST' : 'GET'), // Determine method based on presence of data
@@ -60,6 +61,7 @@ export const useApi = () => {
             console.log("api response: ", responseData);
             return responseData;
         } catch (error) {
+            console.error("api error: ", error);
             setState({
                 ...state,
                 error: error.error,

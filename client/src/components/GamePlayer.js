@@ -14,7 +14,7 @@ const chapterTypeError ="error";
 const chapterTypeAction ="player-action";
 const chapterTypeLoading ="loading";
 
-const GamePlayer = ({game, sessionHash, debug}) => {
+const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
     const api = useApi();
 
     const [action, setAction] = useState('');
@@ -36,7 +36,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
         const newChapterId = chapterIdSent + 1
         setChapterIdSent(newChapterId);
-        api.callApi(`/session/${sessionHash}`, {
+        api.callApi((publicSession ? '/public' : '') + `/session/${sessionHash}`, {
             action: "player-action",
             chapterId: newChapterId,
             message: action,
@@ -49,7 +49,7 @@ const GamePlayer = ({game, sessionHash, debug}) => {
     useEffect(() => {
         if (sessionHash == null || chapterIdSent !== 0) return;
         setChapterIdSent(1);
-        api.callApi(`/session/${sessionHash}`, {
+        api.callApi((publicSession ? '/public' : '') +`/session/${sessionHash}`, {
             action: "intro",
             chapterId: 1,
         }).then(chapter => {

@@ -30,13 +30,10 @@ const providerConfig = {
 
 const root = createRoot(document.getElementById('root'));
 root.render(
-  <Auth0Provider
-    {...providerConfig}
-  >
+  <Auth0Provider {...providerConfig} >
     <RecoilRoot>
-
-    <App />
-      </RecoilRoot>
+      <App />
+    </RecoilRoot>
   </Auth0Provider>,
 );
 
