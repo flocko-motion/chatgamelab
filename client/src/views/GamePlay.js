@@ -30,6 +30,7 @@ const GamePlay = ({match}) => {
 
     return (!game || !sessionHash) ? <Loading /> :
         <GamePlayer game={game} sessionHash={sessionHash} publicSession={true} />;
+
 };
 
 export default GamePlay;

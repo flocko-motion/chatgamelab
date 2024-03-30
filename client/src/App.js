@@ -82,6 +82,7 @@ const App = () => {
                                 <Route path="/profile" component={Profile}/>
                                 <Route path="/edit/:id" component={GameEdit}/>
                                 <Route path="/debug/:id" component={GameDebug}/>
+                                <Route path="/play/:hash" component={GamePlay}/>
                             </>
                         )}
                         <Route path="/play/:hash" component={GamePlay}/>
