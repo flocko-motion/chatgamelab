@@ -1,8 +1,11 @@
 package db
 
 import (
+	"crypto/rand"
+	"encoding/base32"
 	"encoding/json"
 	"gorm.io/gorm"
+	"strings"
 	"webapp-server/obj"
 )
 
@@ -45,6 +48,10 @@ func GetGameByPublicHash(hash string) (*obj.Game, *obj.HTTPError) {
 }
 
 func (game *Game) update() error {
+	game.SharePlayHash = strings.TrimSpace(game.SharePlayHash)
+	if game.SharePlayHash == "" {
+		game.SharePlayHash = randomHash()
+	}
 	return db.Save(game).Error
 }
 
@@ -68,4 +75,11 @@ func (game *Game) Export() *obj.Game {
 		UserId:              game.UserID,
 		UserName:            game.User.Name,
 	}
+}
+
+func randomHash() string {
+	randomBytes := make([]byte, 8)
+	_, _ = rand.Read(randomBytes)
+	enc := base32.StdEncoding.WithPadding(base32.NoPadding)
+	return enc.EncodeToString(randomBytes)
 }

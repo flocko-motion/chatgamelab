@@ -111,6 +111,7 @@ func (user *User) CreateGame(game *obj.Game) error {
 		Scenario:            "An adventure in a fantasy world. The player must find a way out of a castle.",
 		SessionStartSyscall: "Introduce the player to the game and write the first scene.",
 		ImageStyle:          "illustration, watercolor, fantastic",
+		SharePlayHash:       randomHash(),
 	}
 	if err := db.Model(&user).Association("Games").Append(gameDb); err != nil {
 		return err
@@ -135,6 +136,10 @@ func (user *User) UpdateGame(updatedGame obj.Game) error {
 	game.ImageStyle = updatedGame.ImageStyle
 	game.SharePlayActive = updatedGame.SharePlayActive
 	game.ShareEditActive = updatedGame.ShareEditActive
+
+	if game.SharePlayHash == "" {
+		game.SharePlayHash = randomHash()
+	}
 
 	return game.update()
 }
