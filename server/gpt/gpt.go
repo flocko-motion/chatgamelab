@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sashabaranov/go-openai"
 	"log"
+	"strings"
 	"time"
 	"webapp-server/obj"
 )
@@ -15,42 +16,78 @@ func newClient(apiKey string) *openai.Client {
 
 func initAssistant(ctx context.Context, name, instructions, apiKey string) (assistantId string, threadId string, err error) {
 	log.Printf("initAssistant: %s", name)
-	assistantCfg := openai.AssistantRequest{
-		Model:        openai.GPT4TurboPreview,
-		Instructions: &instructions,
-		Name:         &name,
-	}
 
 	log.Printf("newClient..")
 	client := newClient(apiKey)
 
-	var assistants openai.AssistantsList
-	log.Printf("ListAssistants..")
-	if assistants, err = client.ListAssistants(ctx, nil, nil, nil, nil); err != nil {
-		log.Printf("ListAssistants failed: %s", err.Error())
-		return
+	models, err := client.ListModels(context.Background())
+	if err != nil {
+		return "", "", err
 	}
-
-	log.Printf("Checking existing assistants..")
-	for _, assistant := range assistants.Assistants {
-		log.Printf("Found assistant: %s", *assistant.Name)
-		if *assistant.Name == name {
-			assistantId = assistant.ID
-			log.Printf("Match! '%s' found, id=%s\n", name, assistant.ID)
-			break
+	bestModel := ""
+	var bestModelVersion float64
+	var bestModelDate int64
+	for _, model := range models.Models {
+		log.Printf("Model: %s", model.ID)
+		var modelVersion float64
+		var modelDate int64
+		if strings.HasPrefix(model.ID, "gpt-3.5-turbo") {
+			modelVersion = 3.5
+			modelDate = model.CreatedAt
+		}
+		if strings.HasPrefix(model.ID, "gpt-4-turbo") {
+			modelVersion = 4
+			modelDate = model.CreatedAt
+		}
+		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
+			bestModel = model.ID
+			bestModelVersion = modelVersion
+			bestModelDate = modelDate
 		}
 	}
+	log.Printf("Best model for api key %s: %s", apiKey, bestModel)
+	if bestModelVersion < 4 {
+		if len(apiKey) < 5 {
+			log.Printf("Malformed API key: %s", apiKey)
+			return "", "", fmt.Errorf("malformed API key")
+		}
+		return "", "", fmt.Errorf("API key %s does not have access to GPT-4", apiKey[:5]+"..."+apiKey[len(apiKey)-5:])
+	}
+
+	assistantCfg := openai.AssistantRequest{
+		Model:        bestModel,
+		Instructions: &instructions,
+		Name:         &name,
+	}
+
+	// DEACTIVATED: we're not updating existing assistants, because this can cause conflicts with running games
+	//var assistants openai.AssistantsList
+	//log.Printf("ListAssistants..")
+	//if assistants, err = client.ListAssistants(ctx, nil, nil, nil, nil); err != nil {
+	//	log.Printf("ListAssistants failed: %s", err.Error())
+	//	return
+	//}
+	//
+	//log.Printf("Checking existing assistants..")
+	//for _, assistant := range assistants.Assistants {
+	//	log.Printf("Found assistant: %s", *assistant.Name)
+	//	if *assistant.Name == name {
+	//		assistantId = assistant.ID
+	//		log.Printf("Match! '%s' found, id=%s\n", name, assistant.ID)
+	//		break
+	//	}
+	//}
 
 	var assistant openai.Assistant
-	if assistantId == "" {
-		log.Printf("Assistant '%s' not found, creating\n", name)
-		assistant, err = client.CreateAssistant(context.Background(), assistantCfg)
-		assistantId = assistant.ID
-		log.Printf("Assistant '%s' created, id=%s\n", name, assistant.ID)
-	} else {
-		assistant, err = client.ModifyAssistant(context.Background(), assistantId, assistantCfg)
-		log.Printf("Assistant '%s' updated, id=%s\n", name, assistant.ID)
-	}
+	//if assistantId == "" {
+	//log.Printf("Assistant '%s' not found, creating\n", name)
+	assistant, err = client.CreateAssistant(context.Background(), assistantCfg)
+	assistantId = assistant.ID
+	log.Printf("Assistant '%s' created, id=%s\n", name, assistant.ID)
+	//} else {
+	//	assistant, err = client.ModifyAssistant(context.Background(), assistantId, assistantCfg)
+	//	log.Printf("Assistant '%s' updated, id=%s\n", name, assistant.ID)
+	//}
 	if err != nil {
 		return
 	}

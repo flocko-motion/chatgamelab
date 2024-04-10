@@ -3,6 +3,8 @@ import GamePlayer from '../components/GamePlayer'; // Assuming this is your game
 
 import {useApi} from "../api/useApi";
 import Loading from "../components/Loading";
+import {useRecoilState} from "recoil";
+import {errorsState} from "../api/atoms";
 
 
 const GamePlay = ({match}) => {
@@ -23,6 +25,9 @@ const GamePlay = ({match}) => {
         if (game) {
             api.callApi(`/public/session/new`, {gameId: game.id})
                 .then(session => {
+                    if (session.type === "error") {
+                        return;
+                    }
                     setSessionHash(session.hash);
                 });
         }

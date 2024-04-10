@@ -1,5 +1,4 @@
 import React from 'react';
-import { Alert } from "reactstrap";
 import { useRecoilState } from "recoil";
 import { errorsState } from "../api/atoms";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,14 +12,17 @@ const Errors = () => {
         setErrors(updatedErrors);
     }
 
-    return errors.map((error, index) => (
+    return <div className="errors"> {
+        errors.map((error, index) => (
         <div key={index} className="alert alert-danger" role="alert">
             <FontAwesomeIcon icon={faExclamationTriangle} /> {error}
             <button type="button" className="close" aria-label="Close" onClick={() => handleClose(index)}>
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
-    ));
+        ))
+    }
+    </div>
 };
 
 export default Errors;

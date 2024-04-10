@@ -137,7 +137,7 @@ func newSession(request router.Request, gameID uint, apiKey string) (*obj.Sessio
 	// Build session
 	session, e := gpt.CreateGameSession(game, userId, apiKey)
 	if e != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
+		return nil, &obj.HTTPError{StatusCode: 500, Message: e.Error()}
 	}
 
 	// Store session
