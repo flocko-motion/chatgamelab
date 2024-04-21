@@ -4,7 +4,7 @@ WORKDIR /app
 COPY client/package.json client/package-lock.json ./
 RUN npm install
 COPY client/ ./
-RUN echo "$(date +%y%m%d).$(printf '%04d' $(date +%s) | tail -c 4)" > ./src/version.js
+RUN echo "export const version =\"$(date +%y%m%d).$(printf '%04d' $(date +%s) | tail -c 4)\"" > ./src/version.js
 
 RUN npm run build
 
