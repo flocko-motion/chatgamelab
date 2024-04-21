@@ -34,7 +34,7 @@ const GamePlay = ({match}) => {
     }, [game]);
 
     return (!game || !sessionHash) ? <Loading /> :
-        <GamePlayer game={game} sessionHash={sessionHash} publicSession={true} />;
+        <GamePlayer game={game} sessionHash={sessionHash} publicSession={true} debug={true} />;
 
 };
 
