@@ -33,6 +33,7 @@ const GamePlay = ({match}) => {
         }
     }, [game]);
 
+    // "debug" = show "eye" symbol
     return (!game || !sessionHash) ? <Loading /> :
         <GamePlayer game={game} sessionHash={sessionHash} publicSession={true} debug={true} />;
 
