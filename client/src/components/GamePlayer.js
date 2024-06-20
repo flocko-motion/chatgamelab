@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { Row, Col, Input, Button, Badge, Spinner, Toast, ToastHeader, ToastBody } from 'reactstrap';
 import {useApi} from "../api/useApi";
 import Highlight from "./Highlight";
@@ -22,6 +22,9 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
     const [chapters, setChapters] = useState([]);
     const [chapterIdSent, setChapterIdSent] = useState(0);
     const [chapterIdReceived, setChapterIdReceived] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const bottomRef = useRef(null);
 
     const receiveChapter = (chapter) => {
         console.log("got chapter", chapter);
@@ -30,12 +33,32 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
         if (chapter.chapterId) {
             setChapterIdReceived(chapter.chapterId);
         }
+        scrollToBottom();
+    }
+
+    const scrollToBottom = () => {
+        for (let i = 100; i <= 2000; i += 250) {
+            setTimeout(scrollToBottomDo, i);
+        }
+    }
+
+    const scrollToBottomDo = () => {
+        if (bottomRef.current) {
+            console.log("scrolling to bottom of chat")
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        } else {
+            console.log("no bottomRef")
+        }
     }
 
     const submitAction = (action) => {
+        setIsSubmitting(true);
+        setTimeout(() => setIsSubmitting(false), 5000); // re-enable after 5 seconds
+
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
         const newChapterId = chapterIdSent + 1
         setChapterIdSent(newChapterId);
+        scrollToBottom();
         api.callApi((publicSession ? '/public' : '') + `/session/${sessionHash}`, {
             action: "player-action",
             chapterId: newChapterId,
@@ -79,8 +102,12 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
             {/* Main Pane */}
             <Row className="flex-grow-1 overflow-auto ml-0 bg-light">
                 <Col className="pb-4">
-                    {chapters.map((chapter, index) => { return <Chapter key={index} chapter={chapter} debug={Boolean(debug)} /> })}
-                    { chapterIdSent > chapterIdReceived ? <Chapter chapter={{type: chapterTypeLoading }} debug={Boolean(debug)}/> : null }
+                    {chapters.map((chapter, index) => {
+                        return <Chapter key={index} chapter={chapter} debug={Boolean(debug)}/>
+                    })}
+                    {chapterIdSent > chapterIdReceived ?
+                        <Chapter chapter={{type: chapterTypeLoading}} debug={Boolean(debug)}/> : null}
+                    <div ref={bottomRef}></div>
                 </Col>
             </Row>
 
@@ -100,7 +127,7 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
                             }
                         }}
                     />
-                    <Button color="primary" onClick={() => submitAction(action)}>Submit</Button>
+                    <Button color="primary" onClick={() => submitAction(action)} disabled={isSubmitting}>Submit</Button>
                 </Col>
             </Row> }
         </Content>
