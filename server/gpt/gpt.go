@@ -39,6 +39,10 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 			modelVersion = 4
 			modelDate = model.CreatedAt
 		}
+		if strings.HasPrefix(model.ID, "gpt-4o") {
+			modelVersion = 4.1
+			modelDate = model.CreatedAt
+		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
 			bestModelVersion = modelVersion
