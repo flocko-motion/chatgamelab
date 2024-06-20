@@ -120,12 +120,13 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
                 <Col className="d-flex align-items-center">
                     <Input
                         type="text"
-                        placeholder="Enter your action..."
+                        placeholder={isSubmitting ? "Waiting for response.." : "Enter your action..."}
+                        disabled={isSubmitting}
                         className="mr-2"
                         value={action}
                         onChange={(e) => setAction(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
+                            if (e.key === 'Enter' && action.length > 0 && !isSubmitting) {
                                 submitAction(action);
                                 setAction(''); // Optional: clear input after submit
                             }
