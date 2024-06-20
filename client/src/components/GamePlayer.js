@@ -52,6 +52,10 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
     }
 
     const submitAction = (action) => {
+        if (!action || isSubmitting) {
+            return;
+        }
+
         setIsSubmitting(true);
         setTimeout(() => setIsSubmitting(false), 5000); // re-enable after 5 seconds
 
