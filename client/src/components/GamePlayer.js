@@ -57,7 +57,7 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
         }
 
         setIsSubmitting(true);
-        setTimeout(() => setIsSubmitting(false), 5000); // re-enable after 5 seconds
+        setTimeout(() => setIsSubmitting(false), 7000);
 
         setChapters(chapters => [...chapters, {"type": chapterTypeAction, "story": action}]);
         const newChapterId = chapterIdSent + 1
