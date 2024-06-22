@@ -56,6 +56,8 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
             return;
         }
 
+        setAction('');
+
         setIsSubmitting(true);
         setTimeout(() => setIsSubmitting(false), 7000);
 
@@ -128,7 +130,6 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && action.length > 0 && !isSubmitting) {
                                 submitAction(action);
-                                setAction(''); // Optional: clear input after submit
                             }
                         }}
                     />
