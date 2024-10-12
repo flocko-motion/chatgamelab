@@ -43,6 +43,10 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 			modelVersion = 4.1
 			modelDate = model.CreatedAt
 		}
+		// realtime models are not suitable for assistant
+		if strings.Contains(model.ID, "-realtime-") {
+			continue
+		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
 			bestModelVersion = modelVersion
