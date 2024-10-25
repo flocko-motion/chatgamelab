@@ -31,6 +31,19 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		log.Printf("Model: %s", model.ID)
 		var modelVersion float64
 		var modelDate int64
+
+		// some models are not suitable for assistant
+		if strings.Contains(model.ID, "-realtime-") {
+			continue
+		}
+		if strings.HasSuffix(model.ID, "-preview") {
+			continue
+		}
+		if strings.Contains(model.ID, "-audio-") {
+			continue
+		}
+
+		// available models get rated by version and creation date
 		if strings.HasPrefix(model.ID, "gpt-3.5-turbo") {
 			modelVersion = 3.5
 			modelDate = model.CreatedAt
@@ -39,13 +52,13 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 			modelVersion = 4
 			modelDate = model.CreatedAt
 		}
-		if strings.HasPrefix(model.ID, "gpt-4o") {
-			modelVersion = 4.1
+		if strings.HasPrefix(model.ID, "gpt-4o-mini") {
+			modelVersion = 4.2
 			modelDate = model.CreatedAt
 		}
-		// realtime models are not suitable for assistant
-		if strings.Contains(model.ID, "-realtime-") {
-			continue
+		if strings.HasPrefix(model.ID, "gpt-4o") {
+			modelVersion = 4.5
+			modelDate = model.CreatedAt
 		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
