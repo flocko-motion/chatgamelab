@@ -14,6 +14,7 @@ type Session struct {
 	UserID                *uint
 	User                  User
 	AssistantID           string
+	AssistantModel        string
 	AssistantInstructions string
 	ThreadID              string
 	Hash                  string
@@ -36,6 +37,7 @@ func (session *Session) export() *obj.Session {
 		GameID:                session.GameID,
 		UserID:                *session.UserID,
 		AssistantID:           session.AssistantID,
+		Model:                 session.AssistantModel,
 		AssistantInstructions: session.AssistantInstructions,
 		ThreadID:              session.ThreadID,
 		Hash:                  session.Hash,
@@ -65,6 +67,7 @@ func CreateSession(session *obj.Session) (*obj.Session, error) {
 		GameID:                session.GameID,
 		UserID:                &userId,
 		AssistantID:           session.AssistantID,
+		AssistantModel:        session.Model,
 		AssistantInstructions: session.AssistantInstructions,
 		ThreadID:              session.ThreadID,
 		Hash:                  generateHash(),

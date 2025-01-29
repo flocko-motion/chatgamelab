@@ -32,6 +32,7 @@ type Session struct {
 	AssistantInstructions string `json:"assistantInstructions"`
 	ThreadID              string `json:"threadId"`
 	Hash                  string `json:"hash"`
+	Model                 string `json:"model"`
 }
 
 type Chapter struct {
@@ -79,4 +80,10 @@ type GameActionOutput struct {
 	RawInput              string        `json:"rawInput"`
 	RawOutput             string        `json:"rawOutput"`
 	AssistantInstructions string        `json:"assistantInstructions"`
+	Agent                 AgentInfo     `json:"agent"`
+}
+
+type AgentInfo struct {
+	Key   string `json:"key"`
+	Model string `json:"model"`
 }

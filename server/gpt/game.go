@@ -79,7 +79,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	log.Printf("Instructions: %s", instructions)
 
 	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
-	assistantId, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
+	assistantId, assistantModel, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
 	if err != nil {
 		log.Printf("initAssistant failed: %s", err.Error())
 		return nil, err
@@ -90,6 +90,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 		AssistantInstructions: instructions,
 		ThreadID:              threadId,
 		UserID:                userId,
+		Model:                 assistantModel,
 	}, nil
 }
 
@@ -127,6 +128,10 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 	response.SessionHash = session.Hash
 	response.RawInput = string(actionSerialized)
 	response.RawOutput = gptResponse
+	response.Agent = obj.AgentInfo{
+		Key:   ".." + apiKey[len(apiKey)-4:],
+		Model: session.Model,
+	}
 	response.Image = fmt.Sprintf("%s - %s", response.Image, game.ImageStyle)
 	if action.ChapterId == 1 {
 		response.AssistantInstructions = session.AssistantInstructions

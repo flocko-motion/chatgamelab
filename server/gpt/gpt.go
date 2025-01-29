@@ -14,7 +14,7 @@ func newClient(apiKey string) *openai.Client {
 	return openai.NewClient(apiKey)
 }
 
-func initAssistant(ctx context.Context, name, instructions, apiKey string) (assistantId string, threadId string, err error) {
+func initAssistant(ctx context.Context, name, instructions, apiKey string) (assistantId string, bestModel string, threadId string, err error) {
 	log.Printf("initAssistant: %s", name)
 
 	log.Printf("newClient..")
@@ -22,9 +22,8 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 
 	models, err := client.ListModels(context.Background())
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
-	bestModel := ""
 	var bestModelVersion float64
 	var bestModelDate int64
 	for _, model := range models.Models {
@@ -49,15 +48,21 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 	if bestModelVersion < 4 {
 		if len(apiKey) < 5 {
 			log.Printf("Malformed API key: %s", apiKey)
-			return "", "", fmt.Errorf("malformed API key")
+			return "", "", "", fmt.Errorf("malformed API key")
 		}
-		return "", "", fmt.Errorf("API key %s does not have access to GPT-4", apiKey[:5]+"..."+apiKey[len(apiKey)-5:])
+		return "", "", "", fmt.Errorf("API key %s does not have access to GPT-4", apiKey[:5]+"..."+apiKey[len(apiKey)-5:])
 	}
 
 	assistantCfg := openai.AssistantRequest{
 		Model:        bestModel,
 		Instructions: &instructions,
 		Name:         &name,
+		// TODO: add JSON schema as soon as it's supported by the library
+		//ResponseFormat: openai.ChatCompletionResponseFormatTypeJSONSchema,
+		//JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
+		//	Name:   "math_reasoning",
+		//	Schema: schema,
+		//	Strict: true,
 	}
 
 	// DEACTIVATED: we're not updating existing assistants, because this can cause conflicts with running games
@@ -130,11 +135,19 @@ func AddMessageToThread(ctx context.Context, session obj.Session, role, message,
 		}
 		time.Sleep(1 * time.Second)
 	}
+	if run.Status == openai.RunStatusFailed || run.Status == openai.RunStatusExpired {
+		if run.LastError != nil {
+			err = fmt.Errorf("run %s failed: %s", run.ID, run.LastError.Message)
+		} else {
+			err = fmt.Errorf("run %s failed: %s", run.ID, run.Status)
+		}
+		return
+	}
 	log.Printf("Run %s completed", run.ID)
 
 	limit := 1
 	var msgList openai.MessagesList
-	if msgList, err = client.ListMessage(ctx, session.ThreadID, &limit, nil, nil, nil); err != nil {
+	if msgList, err = client.ListMessage(ctx, session.ThreadID, &limit, nil, nil, nil, &run.ID); err != nil {
 		return
 	}
 	if len(msgList.Messages) != 1 {
