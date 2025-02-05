@@ -161,10 +161,9 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 			UserID:    session.UserID,
 			UserName:  "-",
 			Action:    "gen-image",
+			Error:     fmt.Sprintf("%v", imageErr),
 		}
-		if err != nil {
-			report.Error = err.Error()
-		}
+
 		db.WriteSessionUsageReport(report)
 	}()
 

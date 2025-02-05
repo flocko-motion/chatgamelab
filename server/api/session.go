@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"path"
 	"webapp-server/db"
@@ -96,9 +97,7 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 		UserID:    sessionRequest.Session.UserID,
 		UserName:  request.User.Name,
 		Action:    sessionRequest.Action,
-	}
-	if err != nil {
-		report.Error = err.Error()
+		Error:     fmt.Sprintf("%v", err),
 	}
 	db.WriteSessionUsageReport(report)
 
