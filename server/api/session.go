@@ -91,7 +91,7 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 
 	report := obj.SessionUsageReport{
 		SessionID: sessionRequest.Session.ID,
-		ApiKey:    apiKey[:6] + "..",
+		ApiKey:    apiKey[:8] + "..",
 		GameID:    sessionRequest.Game.ID,
 		UserID:    sessionRequest.Session.UserID,
 		UserName:  request.User.Name,

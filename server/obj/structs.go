@@ -53,10 +53,10 @@ type SessionUsageReport struct {
 
 func (o *SessionUsageReport) ToCsv() string {
 	return strings.Join([]string{
-		strconv.Itoa(int(o.SessionID)),
-		strconv.Itoa(int(o.GameID)),
 		strconv.Itoa(int(o.UserID)),
 		o.UserName,
+		strconv.Itoa(int(o.GameID)),
+		strconv.Itoa(int(o.SessionID)),
 		o.Action,
 		o.ApiKey,
 		o.Model,
