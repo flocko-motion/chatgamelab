@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"sync"
 	"webapp-server/lang"
 	"webapp-server/obj"
 )
@@ -115,8 +116,14 @@ func SetImage(sessionId, chapterId uint, image []byte) *obj.HTTPError {
 	return nil
 }
 
+var writeSessionLock sync.Mutex
+
 func WriteSessionUsageReport(report obj.SessionUsageReport) {
 	csv := report.ToCsv()
 	log.Println("Writing session usage report: " + csv)
+
+	writeSessionLock.Lock()
+	defer writeSessionLock.Unlock()
+
 	_, _ = fileUsageReport.WriteString(csv)
 }

@@ -153,9 +153,27 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 			return
 		}
 		log.Printf("sucessfully generated and stored image for session %d chapter %d", session.ID, action.ChapterId)
+
+		report := obj.SessionUsageReport{
+			SessionID: session.ID,
+			ApiKey:    apiKey[:8] + "..",
+			GameID:    game.ID,
+			UserID:    session.UserID,
+			UserName:  "-",
+			Action:    "gen-image",
+			Error:     errToString(imageErr),
+		}
+		db.WriteSessionUsageReport(report)
 	}()
 
 	return response, nil
+}
+
+func errToString(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
 }
 
 /*func serializeStatusFields(statusFields []obj.StatusField) string {
