@@ -3,10 +3,14 @@ package db
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"os"
 	"path"
 )
 
-var db *gorm.DB
+var (
+	db              *gorm.DB
+	fileUsageReport *os.File
+)
 
 func Init() {
 	pathDb := path.Join("var", "sqlite.db")
@@ -14,6 +18,11 @@ func Init() {
 	db, err = gorm.Open(sqlite.Open(pathDb), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database '" + pathDb + "': " + err.Error())
+	}
+
+	pathUsageReport := path.Join("var", "usage_report.csv")
+	if fileUsageReport, err = os.OpenFile(pathUsageReport, os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		panic("failed to create or open usage report file: " + err.Error())
 	}
 
 	// Migrate the schema

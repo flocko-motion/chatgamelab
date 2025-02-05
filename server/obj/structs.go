@@ -1,5 +1,10 @@
 package obj
 
+import (
+	"strconv"
+	"strings"
+)
+
 type User struct {
 	ID                uint   `json:"id"`
 	Name              string `json:"name"`
@@ -33,6 +38,30 @@ type Session struct {
 	ThreadID              string `json:"threadId"`
 	Hash                  string `json:"hash"`
 	Model                 string `json:"model"`
+}
+
+type SessionUsageReport struct {
+	SessionID uint   `json:"sessionId"`
+	GameID    uint   `json:"gameId"`
+	UserID    uint   `json:"userId"`
+	UserName  string `json:"userName"`
+	Action    string `json:"action"`
+	ApiKey    string `json:"apiKey"`
+	Model     string `json:"model"`
+	Error     string `json:"error"`
+}
+
+func (o *SessionUsageReport) ToCsv() string {
+	return strings.Join([]string{
+		strconv.Itoa(int(o.SessionID)),
+		strconv.Itoa(int(o.GameID)),
+		strconv.Itoa(int(o.UserID)),
+		o.UserName,
+		o.Action,
+		o.ApiKey,
+		o.Model,
+		o.Error,
+	}, ",")
 }
 
 type Chapter struct {

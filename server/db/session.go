@@ -2,6 +2,7 @@ package db
 
 import (
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"webapp-server/lang"
 	"webapp-server/obj"
@@ -112,4 +113,10 @@ func SetImage(sessionId, chapterId uint, image []byte) *obj.HTTPError {
 		return &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: lang.ErrorFailedUpdatingGameData}
 	}
 	return nil
+}
+
+func WriteSessionUsageReport(report obj.SessionUsageReport) {
+	csv := report.ToCsv()
+	log.Println("Writing session usage report: " + csv)
+	_, _ = fileUsageReport.WriteString(csv)
 }
