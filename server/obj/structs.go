@@ -3,6 +3,7 @@ package obj
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 type User struct {
@@ -53,6 +54,7 @@ type SessionUsageReport struct {
 
 func (o *SessionUsageReport) ToCsv() string {
 	return strings.Join([]string{
+		time.Now().Format("2006-01-02 15:04:05"),
 		strconv.Itoa(int(o.UserID)),
 		o.UserName,
 		strconv.Itoa(int(o.GameID)),
@@ -61,7 +63,7 @@ func (o *SessionUsageReport) ToCsv() string {
 		o.ApiKey,
 		o.Model,
 		o.Error,
-	}, ",")
+	}, ",") + "\n"
 }
 
 type Chapter struct {
