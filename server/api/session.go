@@ -96,18 +96,13 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 		UserID:    sessionRequest.Session.UserID,
 		UserName:  request.User.Name,
 		Action:    sessionRequest.Action,
-		Error:     errToString(err),
+	}
+	if err != nil {
+		report.Error = err.Error()
 	}
 	db.WriteSessionUsageReport(report)
 
 	return response, nil
-}
-
-func errToString(httpError error) string {
-	if httpError == nil {
-		return ""
-	}
-	return httpError.Error()
 }
 
 func getGamePublicApiKey(gameID uint, user *db.User, public bool) (string, *obj.HTTPError) {

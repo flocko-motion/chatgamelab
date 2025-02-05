@@ -161,19 +161,14 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 			UserID:    session.UserID,
 			UserName:  "-",
 			Action:    "gen-image",
-			Error:     errToString(imageErr),
+		}
+		if err != nil {
+			report.Error = err.Error()
 		}
 		db.WriteSessionUsageReport(report)
 	}()
 
 	return response, nil
-}
-
-func errToString(err error) string {
-	if err == nil {
-		return ""
-	}
-	return err.Error()
 }
 
 /*func serializeStatusFields(statusFields []obj.StatusField) string {
