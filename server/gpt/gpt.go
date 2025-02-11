@@ -56,8 +56,10 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 			modelDate = model.CreatedAt
 		}
 		if strings.HasPrefix(model.ID, "gpt-4o") {
-			modelVersion = 4.5
-			modelDate = model.CreatedAt
+			// deactivated due to slow speed
+			continue
+			//modelVersion = 4.5
+			//modelDate = model.CreatedAt
 		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
