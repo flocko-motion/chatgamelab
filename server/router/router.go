@@ -95,6 +95,8 @@ func NewEndpoint(path string, public bool, contentType string, handler Handler) 
 				}
 			case "image/png":
 				resBytes = res.([]byte)
+			case "text/csv":
+				resBytes = []byte(res.(string))
 			default:
 				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Handler has unknown content type"}
 			}

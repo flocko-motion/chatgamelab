@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 	"webapp-server/lang"
 	"webapp-server/obj"
@@ -126,4 +127,13 @@ func WriteSessionUsageReport(report obj.SessionUsageReport) {
 	defer writeSessionLock.Unlock()
 
 	_, _ = fileUsageReport.WriteString(csv)
+}
+
+func GetSessionUsageReport() (string, error) {
+	content, err := os.ReadFile(pathUsageReport)
+	if err != nil {
+		return "", err
+	}
+
+	return string(content), nil
 }

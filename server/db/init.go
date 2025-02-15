@@ -10,6 +10,7 @@ import (
 var (
 	db              *gorm.DB
 	fileUsageReport *os.File
+	pathUsageReport string
 )
 
 func Init() {
@@ -20,7 +21,7 @@ func Init() {
 		panic("failed to connect database '" + pathDb + "': " + err.Error())
 	}
 
-	pathUsageReport := path.Join("var", "usage_report.csv")
+	pathUsageReport = path.Join("var", "usage_report.csv")
 	if fileUsageReport, err = os.OpenFile(pathUsageReport, os.O_CREATE|os.O_WRONLY, 0644); err != nil {
 		panic("failed to create or open usage report file: " + err.Error())
 	}

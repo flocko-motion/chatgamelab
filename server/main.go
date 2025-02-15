@@ -43,6 +43,7 @@ func main() {
 		api.Game,
 		api.Games,
 		api.Image,
+		api.Report,
 		api.Session,
 		api.Status,
 		api.Upgrade,
