@@ -45,21 +45,21 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 
 		// available models get rated by version and creation date
 		if strings.HasPrefix(model.ID, "gpt-3.5-turbo") {
-			modelVersion = 3.5
-			modelDate = model.CreatedAt
+			// this model sucks - we shouldn't use it any more
+			continue
+			//modelVersion = 3.5
+			//modelDate = model.CreatedAt
 		}
 		if strings.HasPrefix(model.ID, "gpt-4-turbo") {
 			modelVersion = 4
 			modelDate = model.CreatedAt
 		}
-		if strings.HasPrefix(model.ID, "gpt-4o-mini") {
-			modelVersion = 4.2
+		if strings.HasPrefix(model.ID, "gpt-4o") {
+			modelVersion = 4.5
 			modelDate = model.CreatedAt
 		}
-		if strings.HasPrefix(model.ID, "gpt-4o") {
-			// deactivated due to slow speed
-			//continue
-			modelVersion = 4.5
+		if strings.HasPrefix(model.ID, "gpt-4o-mini") {
+			modelVersion = 4.6
 			modelDate = model.CreatedAt
 		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
