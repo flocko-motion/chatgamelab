@@ -95,9 +95,13 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 		ApiKey:    apiKey[:8] + "..",
 		GameID:    sessionRequest.Game.ID,
 		UserID:    sessionRequest.Session.UserID,
-		UserName:  request.User.Name,
 		Action:    sessionRequest.Action,
 		Error:     fmt.Sprintf("%v", err),
+	}
+	if request.User != nil {
+		report.UserName = request.User.Name
+	} else {
+		report.UserName = "[public]"
 	}
 	db.WriteSessionUsageReport(report)
 
