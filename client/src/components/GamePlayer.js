@@ -51,6 +51,10 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
         }
     }
 
+    const receiveError = (error) => {
+        receiveChapter({"type": chapterTypeError, "error": error.message, "raw": error});
+    }
+
     const submitAction = (action) => {
         if (!action || isSubmitting) {
             return;
@@ -72,6 +76,8 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
             status: sessionStatus,
         }).then(chapter => {
             receiveChapter(chapter);
+        }).catch(error => {
+            receiveError(error);
         });
     }
 
@@ -83,6 +89,8 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
             chapterId: 1,
         }).then(chapter => {
             receiveChapter(chapter);
+        }).catch(error => {
+            receiveError(error);
         });
     }, []);
 
