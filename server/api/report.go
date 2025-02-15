@@ -9,7 +9,7 @@ import (
 
 var Report = router.NewEndpoint(
 	"/api/report",
-	false,
+	true,
 	"text/csv",
 	func(request router.Request) (interface{}, *obj.HTTPError) {
 		fmt.Println("api report called")
