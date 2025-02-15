@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai/jsonschema"
 	"log"
 	"strings"
 	"time"
@@ -57,9 +58,9 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		}
 		if strings.HasPrefix(model.ID, "gpt-4o") {
 			// deactivated due to slow speed
-			continue
-			//modelVersion = 4.5
-			//modelDate = model.CreatedAt
+			//continue
+			modelVersion = 4.5
+			modelDate = model.CreatedAt
 		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
@@ -76,16 +77,27 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		return "", "", "", fmt.Errorf("API key %s does not have access to GPT-4", apiKey[:5]+"..."+apiKey[len(apiKey)-5:])
 	}
 
+	var result obj.GameActionOutputGpt
+	schema, err := jsonschema.GenerateSchemaForType(result)
+	if err != nil {
+		log.Fatalf("GenerateSchemaForType error: %v", err)
+	}
+
 	assistantCfg := openai.AssistantRequest{
 		Model:        bestModel,
 		Instructions: &instructions,
 		Name:         &name,
-		// TODO: add JSON schema as soon as it's supported by the library
-		//ResponseFormat: openai.ChatCompletionResponseFormatTypeJSONSchema,
-		//JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
-		//	Name:   "math_reasoning",
-		//	Schema: schema,
-		//	Strict: true,
+	}
+
+	if bestModelVersion >= 4.5 {
+		assistantCfg.ResponseFormat = &openai.ChatCompletionResponseFormat{
+			Type: openai.ChatCompletionResponseFormatTypeJSONSchema,
+			JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
+				Name:   "math_reasoning",
+				Schema: schema,
+				Strict: true,
+			},
+		}
 	}
 
 	// DEACTIVATED: we're not updating existing assistants, because this can cause conflicts with running games
