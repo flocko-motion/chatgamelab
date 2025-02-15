@@ -79,7 +79,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
 	log.Printf("Instructions: %s", instructions)
 
-	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
+	assistantName := fmt.Sprintf("%s Game #%d", constants.ProjectName, game.ID)
 	assistantId, assistantModel, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
 	if err != nil {
 		log.Printf("initAssistant failed: %s", err.Error())
