@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 	"webapp-server/constants"
 	"webapp-server/db"
 	"webapp-server/obj"
@@ -62,7 +63,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	}
 	actionInputStr, _ := json.Marshal(actionInput)
 
-	actionOutput := obj.GameActionOutput{
+	actionOutput := obj.GameActionOutputGpt{
 		Story: "You drink the potion. You feel a little bit dizzy. You feel a little bit stronger.",
 		Status: []obj.StatusField{
 			{Name: "gold", Value: "100"},
@@ -100,6 +101,7 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 	log.Printf("ExecuteAction, session %d, action %s", session.ID, string(actionSerialized))
 
 	var gptResponse string
+	timeStart := time.Now()
 	if gptResponse, err = AddMessageToThread(
 		context.Background(),
 		*session,
@@ -129,8 +131,11 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 	response.RawInput = string(actionSerialized)
 	response.RawOutput = gptResponse
 	response.Agent = obj.AgentInfo{
-		Key:   ".." + apiKey[len(apiKey)-4:],
-		Model: session.Model,
+		Key:             ".." + apiKey[len(apiKey)-4:],
+		Model:           session.Model,
+		Assistant:       session.AssistantID,
+		Thread:          session.ThreadID,
+		ComputationTime: time.Since(timeStart).String(),
 	}
 	response.Image = fmt.Sprintf("%s - %s", response.Image, game.ImageStyle)
 	if action.ChapterId == 1 {

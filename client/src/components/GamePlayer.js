@@ -27,7 +27,7 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
     const bottomRef = useRef(null);
 
     const receiveChapter = (chapter) => {
-        console.log("got chapter", chapter);
+        // console.log("got chapter", chapter);
         setSessionStatus(chapter.status);
         setChapters(chapters => [...chapters, chapter]);
         if (chapter.chapterId) {
@@ -44,10 +44,10 @@ const GamePlayer = ({game, sessionHash, debug, publicSession}) => {
 
     const scrollToBottomDo = () => {
         if (bottomRef.current) {
-            console.log("scrolling to bottom of chat")
+            // console.log("scrolling to bottom of chat")
             bottomRef.current.scrollIntoView({ behavior: "smooth" });
         } else {
-            console.log("no bottomRef")
+            // console.log("no bottomRef")
         }
     }
 
@@ -147,7 +147,7 @@ const Chapter = ({chapter, debug}) => {
     const [showDebug, setShowDebug] = useState(false);
 
     const toggleDebug = () => setShowDebug(!showDebug);
-
+    // console.log("chapter: ", chapter);
     return (
         <Toast className="w-100 mt-2">
             <ToastHeader>
@@ -167,12 +167,20 @@ const Chapter = ({chapter, debug}) => {
                         </div>
                     </div>
                 )}
-
                 {showDebug && chapter.assistantInstructions && <><p>GPT Instructions:</p><Highlight>{ chapter.assistantInstructions }</Highlight></> }
                 {showDebug && chapter.rawInput && <><p>GPT Input:</p><Highlight>{ beautifyJson(chapter.rawInput) }</Highlight></> }
                 {showDebug && chapter.rawOutput && <><p>GPT Output:</p><Highlight>{ beautifyJson(chapter.rawOutput) }</Highlight></>  }
                 {showDebug && chapter.image && <><p>GPT Generated Image Prompt:</p><Highlight>{ chapter.image }</Highlight></> }
-
+                {showDebug && chapter.agent && (
+                    <>
+                        <p>
+                            <a target="_blank" href={`https://platform.openai.com/playground/assistants?assistant=${chapter.agent.assistant}&thread=${chapter.agent.thread}`}>
+                                GPT Agent:
+                            </a>
+                        </p>
+                        <Highlight>{beautifyObject(chapter.agent)}</Highlight>
+                    </>
+                )}
             </ToastBody>
         </Toast>
     );
@@ -227,5 +235,15 @@ const beautifyJson = (json) => {
         return json;
     }
 }
+
+
+const beautifyObject = (o) => {
+    try {
+        return JSON.stringify(o, null, 2);
+    } catch (Exception) {
+        return "Error beautifying object";
+    }
+}
+
 
 export default GamePlayer;

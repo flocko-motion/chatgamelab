@@ -100,6 +100,15 @@ type GameActionInput struct {
 }
 */
 
+type GameActionOutputGpt struct {
+	ChapterId   uint          `json:"chapterId"`
+	SessionHash string        `json:"sessionHash"`
+	Type        string        `json:"type"`
+	Story       string        `json:"story"`
+	Status      []StatusField `json:"status"`
+	Image       string        `json:"image"`
+}
+
 type GameActionOutput struct {
 	ChapterId             uint          `json:"chapterId"`
 	SessionHash           string        `json:"sessionHash"`
@@ -115,6 +124,9 @@ type GameActionOutput struct {
 }
 
 type AgentInfo struct {
-	Key   string `json:"key"`
-	Model string `json:"model"`
+	Key             string `json:"key"`
+	Model           string `json:"model"`
+	Assistant       string `json:"assistant"`
+	Thread          string `json:"thread"`
+	ComputationTime string `json:"computationTime"`
 }
