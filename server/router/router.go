@@ -26,6 +26,10 @@ type Request struct {
 	Ctx  context.Context
 }
 
+func (r *Request) GetParam(key string) string {
+	return r.R.URL.Query().Get(key)
+}
+
 type Handler func(request Request) (interface{}, *obj.HTTPError)
 
 func NewEndpoint(path string, public bool, contentType string, handler Handler) Endpoint {
