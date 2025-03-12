@@ -36,7 +36,7 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		if strings.Contains(model.ID, "-realtime-") {
 			continue
 		}
-		if strings.HasSuffix(model.ID, "-preview") {
+		if strings.HasSuffix(model.ID, "-preview") || strings.Contains(model.ID, "-preview-") {
 			continue
 		}
 		if strings.Contains(model.ID, "-audio-") {
