@@ -6,7 +6,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 	"github.com/sashabaranov/go-openai/jsonschema"
 	"log"
-	"strings"
 	"time"
 	"webapp-server/obj"
 )
@@ -33,34 +32,35 @@ func initAssistant(ctx context.Context, name, instructions, apiKey string) (assi
 		var modelDate int64
 
 		// some models are not suitable for assistant
-		if strings.Contains(model.ID, "-realtime-") {
-			continue
-		}
-		if strings.HasSuffix(model.ID, "-preview") || strings.Contains(model.ID, "-preview-") {
-			continue
-		}
-		if strings.Contains(model.ID, "-audio-") {
-			continue
-		}
+		//if strings.Contains(model.ID, "-realtime-") {
+		//	continue
+		//}
+		//if strings.HasSuffix(model.ID, "-preview") || strings.Contains(model.ID, "-preview-") {
+		//	continue
+		//}
+		//if strings.Contains(model.ID, "-audio-") {
+		//	continue
+		//}
 
 		// available models get rated by version and creation date
-		if strings.HasPrefix(model.ID, "gpt-3.5-turbo") {
-			// this model sucks - we shouldn't use it any more
-			continue
-			//modelVersion = 3.5
-			//modelDate = model.CreatedAt
-		}
-		if strings.HasPrefix(model.ID, "gpt-4-turbo") {
-			modelVersion = 4
-			modelDate = model.CreatedAt
-		}
-		if strings.HasPrefix(model.ID, "gpt-4o") {
+		//if strings.HasPrefix(model.ID, "gpt-3.5-turbo") {
+		//	// this model sucks - we shouldn't use it any more
+		//	continue
+		//	//modelVersion = 3.5
+		//	//modelDate = model.CreatedAt
+		//}
+		//if strings.HasPrefix(model.ID, "gpt-4-turbo") {
+		//	modelVersion = 4
+		//	modelDate = model.CreatedAt
+		//}
+		if model.ID == "gpt-4o" {
 			modelVersion = 4.5
 			modelDate = model.CreatedAt
-		}
-		if strings.HasPrefix(model.ID, "gpt-4o-mini") {
+		} else if model.ID == "gpt-4o-mini" {
 			modelVersion = 4.6
 			modelDate = model.CreatedAt
+		} else {
+			continue
 		}
 		if modelVersion > bestModelVersion || (modelVersion == bestModelVersion && modelDate > bestModelDate) {
 			bestModel = model.ID
