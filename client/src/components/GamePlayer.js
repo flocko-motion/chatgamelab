@@ -165,7 +165,13 @@ const Chapter = ({chapter, debug}) => {
                 { chapter.type === chapterTypeLoading ? "Writing story, please be patient.." : null }
             </ToastHeader>
             <ToastBody>
-                {chapter.type === chapterTypeError && chapter.error + <br /> + chapter.raw }
+                {chapter.type === chapterTypeError && (
+                  <>
+                    {chapter.error}
+                    <br />
+                    {chapter.raw}
+                  </>
+                )}
                 <ChapterContent chapter={chapter} />
 
                 {debug && (chapter.rawInput || chapter.rawOutput)  && (

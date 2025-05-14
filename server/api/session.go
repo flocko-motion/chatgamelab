@@ -73,21 +73,21 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 
 	switch sessionRequest.Action {
 	case obj.GameInputTypeIntro:
-		response, err = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
+		response, httpErr = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
 			Type:      obj.GameInputTypeIntro,
 			ChapterId: sessionRequest.ChapterId,
 			Message:   sessionRequest.Game.SessionStartSyscall,
 			Status:    sessionRequest.Game.StatusFields,
 		}, apiKey)
 	case obj.GameInputTypeAction:
-		response, err = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
+		response, httpErr = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
 			Type:      obj.GameInputTypeAction,
 			ChapterId: sessionRequest.ChapterId,
 			Message:   sessionRequest.Message,
 			Status:    sessionRequest.Status,
 		}, apiKey)
 	default:
-		response, err = nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
+		response, httpErr = nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
 	}
 
 	report := obj.SessionUsageReport{
@@ -105,7 +105,7 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 	}
 	db.WriteSessionUsageReport(report)
 
-	return response, nil
+	return response, httpErr
 }
 
 func getGamePublicApiKey(gameID uint, user *db.User, public bool) (string, *obj.HTTPError) {
