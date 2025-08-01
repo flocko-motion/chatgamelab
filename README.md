@@ -9,6 +9,20 @@ Create your own text adventure games and play them with your friends.
 - Learn, how GPT can be used to create interactive stories.
 - Use debug-mode to see the raw requests and responses of the GPT model 
 
+## Rules for working on this project
+
+If you're working on ChatGameLab (including web designers), you **must learn Git basics first**. There are user-friendly Git clients for Mac like [GitHub Desktop](https://desktop.github.com/) or [Sourcetree](https://www.sourcetreeapp.com/) that make this easier.
+
+**Essential Rules:**
+
+1. **`main` branch** = Published/live website (don't touch!)
+2. **`development` branch** = Current development work
+3. **Your workflow**: Fork `development` → make changes → create Pull Request to `development`→ wait for review
+4. **Never** change `main` directly or make PRs to `main` alone
+5. **Work in small chunks** - when you finish a feature, make a PR right away. Don't work alone for weeks!
+
+This keeps everyone in sync and prevents the project from breaking apart.
+
 ## Quick Start for Designers (Mock Mode)
 
 If you're a designer wanting to explore the React frontend without setting up the full backend, you can run the app in mock mode:
