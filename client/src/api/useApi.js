@@ -4,7 +4,7 @@ import { getConfig } from "../config";
 import {useRecoilState} from "recoil";
 import {errorsState} from "./atoms";
 import { useMockMode } from "./useMockMode";
-import { getMockResponse } from "./mockData";
+import { getMockResponse, mockImageUrl } from "./mockData";
 
 export const useApi = () => {
     const [errors, setErrors ]= useRecoilState(errorsState)
@@ -26,6 +26,12 @@ export const useApi = () => {
 
     const apiUrl = (endpoint) => {
         endpoint = endpoint.substring(0, 1) === "/" ? endpoint.substring(1) : endpoint;
+        
+        // In mock mode, return mock data URLs for image endpoints
+        if (mockMode && endpoint.startsWith('image/')) {
+            return mockImageUrl;
+        }
+        
         return `${config.apiOrigin}/api/${endpoint}`
     }
 
