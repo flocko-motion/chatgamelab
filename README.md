@@ -9,6 +9,30 @@ Create your own text adventure games and play them with your friends.
 - Learn, how GPT can be used to create interactive stories.
 - Use debug-mode to see the raw requests and responses of the GPT model 
 
+## Quick Start for Designers (Mock Mode)
+
+If you're a designer wanting to explore the React frontend without setting up the full backend, you can run the app in mock mode:
+
+**Prerequisites**: Make sure you have [Node.js and npm](https://nodejs.org/) installed on your Mac.
+
+1. **Launch the frontend** (on Mac):
+   ```bash
+   ./run-frontend.sh
+   ```
+
+2. **Open your browser** and go to:
+   ```
+   http://localhost:3000?mock=true
+   ```
+
+3. **Explore the app**:
+   - The React app will be running at `http://localhost:3000`
+   - Mock mode provides fake data so you can test all features
+   - No Auth0 or backend setup required
+   - Login/logout buttons work with fake authentication
+
+Perfect for UI/UX design work and frontend development!
+
 ## Requirements
 
 To install and run the project you will need the following:

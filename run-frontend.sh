@@ -14,6 +14,21 @@ if [ ! -d "client" ]; then
     exit 1
 fi
 
+# Check if Node.js and npm are installed
+if ! command -v node >/dev/null 2>&1; then
+    echo "❌ Error: Node.js is not installed"
+    echo "   Please install Node.js and npm from: https://nodejs.org/"
+    echo "   This will install both Node.js and npm which are required to run the frontend."
+    exit 1
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+    echo "❌ Error: npm is not installed"
+    echo "   Please install Node.js and npm from: https://nodejs.org/"
+    echo "   This will install both Node.js and npm which are required to run the frontend."
+    exit 1
+fi
+
 # Move to client directory
 cd client
 
