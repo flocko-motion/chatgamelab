@@ -14,8 +14,9 @@ import {
     CardHeader
 } from "reactstrap";
 import Content from "../components/Content";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "../components/Loading";
+import {withMockAwareAuth} from "../utils/withMockAwareAuth";
 import {useRecoilState} from "recoil";
 import {userState} from "../api/atoms";
 
@@ -97,6 +98,6 @@ export const ProfileComponent = () => {
     );
 };
 
-export default withAuthenticationRequired(ProfileComponent, {
+export default withMockAwareAuth(ProfileComponent, {
     onRedirecting: () => <Loading />,
 });

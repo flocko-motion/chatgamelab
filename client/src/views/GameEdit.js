@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
+import {withMockAwareAuth} from "../utils/withMockAwareAuth";
 import {useApi} from "../api/useApi";
 import GameEditForm from '../components/GameEditForm';
 import {useRecoilState} from "recoil";
@@ -58,6 +58,6 @@ export const GameEditComponent = ({match}) => {
     );
 };
 
-export default withAuthenticationRequired(GameEditComponent, {
+export default withMockAwareAuth(GameEditComponent, {
     onRedirecting: () => <Loading/>,
 });
