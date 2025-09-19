@@ -155,10 +155,12 @@ func (user *User) Export() *obj.User {
 }
 
 func shortenOpenaiKey(key string) string {
-	if len(key) > 0 && len(key) <= 51 {
+	if len(key) == 0 {
+		return "none"
+	} else if len(key) < 12 {
 		return "invalid"
 	}
-	return "sk-..." + key[47:51]
+	return "sk-..." + key[len(key)-8:]
 }
 
 func (user *User) Update(name string, email string) {
