@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"webapp-server/obj"
 	"webapp-server/router"
 )
@@ -45,7 +46,7 @@ var User = router.NewEndpoint(
 			request.User.Update(postUser.Name, postUser.Email)
 		}
 
-		if postUser.OpenaiKeyPublish == "-" {
+		if postUser.OpenaiKeyPublish == "-" || strings.HasPrefix(postUser.OpenaiKeyPublish, "sk-...") {
 			// nothing to do
 		} else if postUser.OpenaiKeyPublish == "" {
 			request.User.UpdateApiKeyPublish(postUser.OpenaiKeyPublish)
@@ -55,7 +56,7 @@ var User = router.NewEndpoint(
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Invalid OpenAI API key format for publish key"}
 		}
 
-		if postUser.OpenaiKeyPersonal == "-" {
+		if postUser.OpenaiKeyPersonal == "-" || strings.HasPrefix(postUser.OpenaiKeyPersonal, "sk-...") {
 			// nothing to do
 		} else if postUser.OpenaiKeyPersonal == "" {
 			request.User.UpdateApiKeyPersonal(postUser.OpenaiKeyPersonal)
