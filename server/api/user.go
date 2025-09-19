@@ -46,7 +46,7 @@ var User = router.NewEndpoint(
 			request.User.Update(postUser.Name, postUser.Email)
 		}
 
-		if postUser.OpenaiKeyPublish == "-" || strings.HasPrefix(postUser.OpenaiKeyPublish, "sk-...") {
+		if isOpenaiApiKeyIgnore(postUser.OpenaiKeyPublish) {
 			// nothing to do
 		} else if postUser.OpenaiKeyPublish == "" {
 			request.User.UpdateApiKeyPublish(postUser.OpenaiKeyPublish)
@@ -56,7 +56,7 @@ var User = router.NewEndpoint(
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Invalid OpenAI API key format for publish key"}
 		}
 
-		if postUser.OpenaiKeyPersonal == "-" || strings.HasPrefix(postUser.OpenaiKeyPersonal, "sk-...") {
+		if isOpenaiApiKeyIgnore(postUser.OpenaiKeyPersonal) {
 			// nothing to do
 		} else if postUser.OpenaiKeyPersonal == "" {
 			request.User.UpdateApiKeyPersonal(postUser.OpenaiKeyPersonal)
@@ -69,6 +69,10 @@ var User = router.NewEndpoint(
 		return request.User.Export(), nil
 	},
 )
+
+func isOpenaiApiKeyIgnore(key string) bool {
+	return key == "-" || strings.HasPrefix(key, "sk-...") || key == "none" || key == "invalid"
+}
 
 func isOpenaiApiKey(key string) bool {
 	// This is a basic regex pattern for demonstration purposes.
