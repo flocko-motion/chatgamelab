@@ -3,10 +3,11 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"webapp-server/obj"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -154,8 +155,8 @@ func (user *User) Export() *obj.User {
 }
 
 func shortenOpenaiKey(key string) string {
-	if len(key) != 51 {
-		return ""
+	if len(key) > 0 && len(key) <= 51 {
+		return "invalid"
 	}
 	return "sk-..." + key[47:51]
 }
