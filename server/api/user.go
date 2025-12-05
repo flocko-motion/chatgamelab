@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"webapp-server/obj"
 	"webapp-server/router"
 )
@@ -45,21 +46,39 @@ var User = router.NewEndpoint(
 			request.User.Update(postUser.Name, postUser.Email)
 		}
 
-		if postUser.OpenaiKeyPublish == "" || isOpenaiApiKey(postUser.OpenaiKeyPublish) {
+		if isOpenaiApiKeyIgnore(postUser.OpenaiKeyPublish) {
+			// nothing to do
+		} else if postUser.OpenaiKeyPublish == "" {
 			request.User.UpdateApiKeyPublish(postUser.OpenaiKeyPublish)
+		} else if isOpenaiApiKey(postUser.OpenaiKeyPublish) {
+			request.User.UpdateApiKeyPublish(postUser.OpenaiKeyPublish)
+		} else {
+			return nil, &obj.HTTPError{StatusCode: 400, Message: "Invalid OpenAI API key format for publish key"}
 		}
-		if postUser.OpenaiKeyPersonal == "" || isOpenaiApiKey(postUser.OpenaiKeyPersonal) {
+
+		if isOpenaiApiKeyIgnore(postUser.OpenaiKeyPersonal) {
+			// nothing to do
+		} else if postUser.OpenaiKeyPersonal == "" {
 			request.User.UpdateApiKeyPersonal(postUser.OpenaiKeyPersonal)
+		} else if isOpenaiApiKey(postUser.OpenaiKeyPersonal) {
+			request.User.UpdateApiKeyPersonal(postUser.OpenaiKeyPersonal)
+		} else {
+			return nil, &obj.HTTPError{StatusCode: 400, Message: "Invalid OpenAI API key format for personal key"}
 		}
 
 		return request.User.Export(), nil
 	},
 )
 
+func isOpenaiApiKeyIgnore(key string) bool {
+	return key == "-" || strings.HasPrefix(key, "sk-...") || key == "none" || key == "invalid"
+}
+
 func isOpenaiApiKey(key string) bool {
 	// This is a basic regex pattern for demonstration purposes.
 	// Adjust the regex according to the actual key format you expect.
-	pattern := `^sk-[A-Za-z0-9]{48}$`
+	// Updated pattern to match both old (sk-xxx48chars) and new (sk-proj-xxx) OpenAI API key formats
+	pattern := `^sk-[A-Za-z0-9_-]{48,}$`
 	matched, err := regexp.MatchString(pattern, key)
 	if err != nil {
 		fmt.Println("Error in regex pattern:", err)
