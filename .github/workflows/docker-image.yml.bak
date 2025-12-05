@@ -1,3 +1,5 @@
+# this is legacy code - we need to rework it for the new docker-compose based architecture. 
+
 name: CI to GHCR
 
 on:

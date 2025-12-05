@@ -80,28 +80,57 @@ To install and run the project you will need the following:
 To use the project you will need the following:
 - OpenAI API key
 
-## Installation
+## Running with Docker Compose (recommended)
 
-The project is deployed as a docker. Start by pulling the image:
+The repository now contains a multi-container setup using **Docker Compose**:
+
+- `client/` – React SPA, built and served via Node/Express
+- `server/` – Go backend API
+- `db` – PostgreSQL database
+
+### 1. Prerequisites
+
+- Docker
+- docker compose (v2+)
+- Auth0 account & OpenAI API key
+
+### 2. Configure environment
+
+For Docker Compose, copy the example file at the **repo root**:
 
 ```bash
-# make sure to login to ghcr.io first..
-docker pull ghcr.io/flocko-motion/chatgamelab:latest
+cp .env.example .env
 ```
 
-The docker requires a few
-runtime parameters to be set:
+Then adjust the values as needed. A typical setup:
 
-```bash 
-DATA_PATH=/path/to/data/dir
+```bash
 AUTH0_DOMAIN=your.auth0.domain
 AUTH0_AUDIENCE=your.auth0.audience
-PUBLIC_URL=your.public.url
+PUBLIC_URL=http://localhost:3000
+```
 
-docker run -p 3000:3000
--v ${DATA_PATH}:/app/var
--e AUTH0_DOMAIN=${AUTH0_DOMAIN}
--e AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
--e CORS_ALLOWED_ORIGIN=${PUBLIC_URL}
-chatgamelab
+You may also want to adjust the `DATABASE_URL` in `docker-compose.yml` if you change DB credentials.
+
+### 3. Build and start the stack
+
+From the project root:
+
+```bash
+docker compose build
+docker compose up
+```
+
+This will start three services:
+
+- `db`       → PostgreSQL at `localhost:5432`
+- `server`   → Go API at `http://localhost:3001`
+- `client`   → React frontend at `http://localhost:3000`
+
+Inside the Docker network, the frontend talks to the API at `http://server:3000` (see `REACT_APP_API_BASE_URL` in `docker-compose.yml`).
+
+To stop the stack:
+
+```bash
+docker compose down
 ```
