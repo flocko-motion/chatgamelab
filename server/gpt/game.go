@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/sashabaranov/go-openai"
 	"log"
 	"net/http"
 	"strings"
@@ -12,6 +11,8 @@ import (
 	"webapp-server/constants"
 	"webapp-server/db"
 	"webapp-server/obj"
+
+	"github.com/sashabaranov/go-openai"
 )
 
 const template = `You are a text-adventure API. You get inputs, what the player wants to do. You act as the game master and decide, what happens. You decide, what's possible and what's not possible - not the player.
@@ -79,7 +80,7 @@ func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.Scenario)
 	log.Printf("Instructions: %s", instructions)
 
-	assistantName := fmt.Sprintf("%s Game #%d", constants.ProjectName, game.ID)
+	assistantName := fmt.Sprintf("%s #%d", constants.ProjectName, game.ID)
 	assistantId, assistantModel, threadId, err := initAssistant(context.Background(), assistantName, instructions, apiKey)
 	if err != nil {
 		log.Printf("initAssistant failed: %s", err.Error())

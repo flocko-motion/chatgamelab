@@ -2,12 +2,13 @@ package gpt
 
 import (
 	"context"
-	"github.com/sashabaranov/go-openai"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
 	"webapp-server/constants"
 	"webapp-server/obj"
+
+	"github.com/sashabaranov/go-openai"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateThread(t *testing.T) {
