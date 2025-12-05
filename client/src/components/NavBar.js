@@ -18,9 +18,13 @@ import {
 } from "reactstrap";
 
 import { useAuth0 } from "@auth0/auth0-react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { mockAuthState } from "../api/atoms";
+import { useMockMode } from "../api/useMockMode";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const mockMode = useMockMode();
   const {
     user,
     isAuthenticated,
@@ -29,11 +33,36 @@ const NavBar = () => {
   } = useAuth0();
   const toggle = () => setIsOpen(!isOpen);
   const location = useLocation();
+  
+  // Use Recoil state for mock authentication
+  const isAuthenticatedMock = useRecoilValue(mockAuthState);
+  const setIsAuthenticatedMock = useSetRecoilState(mockAuthState);
+  const actuallyAuthenticated = isAuthenticated || isAuthenticatedMock;
+  const actualUser = isAuthenticatedMock ? 
+    { name: 'Mock Developer', picture: 'https://via.placeholder.com/150/0000FF/808080?text=Mock+User' } : 
+    user;
 
-  const logoutWithRedirect = () =>
+  const handleLogin = () => {
+    console.log("handleLogin:mockMode=", mockMode);
+    if (mockMode) {
+      console.log('[MOCK MODE] NavBar login click intercepted - not calling Auth0');
+      setIsAuthenticatedMock(true);
+    } else {
+      loginWithRedirect({});
+    }
+  };
+
+  const handleLogout = () => {
+    console.log("handleLogout: mockMode=", mockMode);
+    if (mockMode) {
+      console.log('[MOCK MODE] Logout click intercepted - not calling Auth0');
+      setIsAuthenticatedMock(false);
+    } else {
       logout({
         returnTo: window.location.origin,
       });
+    }
+  };
 
   if(location.pathname.startsWith('/play')) {
     return null;
@@ -46,30 +75,30 @@ const NavBar = () => {
             <NavbarToggler onClick={toggle} />
             <Collapse isOpen={isOpen} navbar>
               <Nav className="mr-auto" navbar>
-                {!isAuthenticated && (
+                {!actuallyAuthenticated && (
                     <NavItem>
                       <Button
                           id="qsLoginBtn"
                           color="primary"
                           block
-                          onClick={() => loginWithRedirect({})}
+                          onClick={handleLogin}
                       >
                         Log in
                       </Button>
                     </NavItem>
                 )}
-                {isAuthenticated && (
+                {actuallyAuthenticated && (
                     <UncontrolledDropdown nav inNavbar>
                       <DropdownToggle nav caret id="profileDropDown">
                         <img
-                            src={user.picture}
+                            src={actualUser.picture}
                             alt="Profile"
                             className="nav-user-profile rounded-circle"
                             width="50"
                         />
                       </DropdownToggle>
                       <DropdownMenu>
-                        <DropdownItem header>{user.name}</DropdownItem>
+                        <DropdownItem header>{actualUser.name}</DropdownItem>
                         <DropdownItem
                             tag={RouterNavLink}
                             to="/profile"
@@ -80,7 +109,7 @@ const NavBar = () => {
                         </DropdownItem>
                         <DropdownItem
                             id="qsLogoutBtn"
-                            onClick={() => logoutWithRedirect()}
+                            onClick={handleLogout}
                         >
                           <FontAwesomeIcon icon="power-off" className="mr-3" /> Log out
                         </DropdownItem>

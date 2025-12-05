@@ -1,8 +1,9 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Router, Route, Switch} from "react-router-dom";
 import {useAuth0} from "@auth0/auth0-react";
 import initFontAwesome from "./utils/initFontAwesome";
 import {useRecoilState} from "recoil";
+import { useMockMode } from "./api/useMockMode";
 
 
 import Loading from "./components/Loading";
@@ -12,7 +13,7 @@ import history from "./utils/history";
 
 import "./App.css";
 
-import {gamesState, loadingState, userState} from "./api/atoms";
+import {gamesState, loadingState, userState, mockAuthState} from "./api/atoms";
 
 import {useApi} from "./api/useApi";
 import AuthErrorHandler from "./components/AuthErrorHandler";
@@ -27,6 +28,8 @@ import Errors from "./components/Errors";
 initFontAwesome();
 
 const App = () => {
+    const mockMode = useMockMode();
+    const [isAuthenticatedMock, setIsAuthenticatedMock] = useRecoilState(mockAuthState);
 
     const {
         user,
@@ -40,23 +43,28 @@ const App = () => {
     const [, setUserDetails] = useRecoilState(userState);
     const [loading, setLoading] = useRecoilState(loadingState);
 
-
+    // Handle authentication - either mock or real
     useEffect(() => {
-        console.log("user changed: ", user, isAuthenticated);
-        if (!isAuthenticated) {
+        const actuallyAuthenticated = mockMode ? isAuthenticatedMock : isAuthenticated;
+        const actualUser = mockMode ? { sub: 'mock-user', name: 'Mock User' } : user;
+        
+        console.log("auth changed:", { mockMode, isAuthenticatedMock, isAuthenticated, actuallyAuthenticated });
+        
+        if (!actuallyAuthenticated) {
             setGames([]);
             return;
         }
+        
         setLoading(true);
         let loadingCount = 2;
-        api.callApi("/user", {...user, openaiKeyPersonal: "-", openaiKeyPublish: "-"})
+        api.callApi("/user", {...actualUser, openaiKeyPersonal: "-", openaiKeyPublish: "-"})
             .then(userDetails => setUserDetails(userDetails))
             .finally(() => --loadingCount === 0 && setLoading(false));
         api.callApi("/games")
             .then(games => setGames(games))
             .finally(() => --loadingCount === 0 && setLoading(false));
 
-    }, [user, isAuthenticated]); // Dependency array ensures the effect runs only when api object changes
+    }, [mockMode, isAuthenticatedMock, user, isAuthenticated]);
 
 
     if (error) {
@@ -75,7 +83,7 @@ const App = () => {
                     <AuthErrorHandler/>
                     <Errors/>
                     <Switch>
-                        {isAuthenticated && (
+                        {(isAuthenticated || isAuthenticatedMock) && (
                             <>
                                 <Route path="/" exact component={Games}/>
                                 <Route path="/games" component={Games}/>

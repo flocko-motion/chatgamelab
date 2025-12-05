@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {useRecoilState} from 'recoil';
 import {Button, Table, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
-import {withAuthenticationRequired} from "@auth0/auth0-react";
 import Loading from "../components/Loading";
 import {useApi} from "../api/useApi";
-import {gamesState} from "../api/atoms"
+import {gamesState} from "../api/atoms";
+import {withMockAwareAuth} from "../utils/withMockAwareAuth";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEdit, faPlay, faTrash, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {Link, useHistory} from "react-router-dom";
@@ -122,6 +122,6 @@ export const GamesComponent = () => {
     );
 };
 
-export default withAuthenticationRequired(GamesComponent, {
+export default withMockAwareAuth(GamesComponent, {
     onRedirecting: () => <Loading/>,
 });

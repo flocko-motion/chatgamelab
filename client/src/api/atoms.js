@@ -25,3 +25,8 @@ export const errorsState = atom({
     key: 'errors',
     default: [],
 })
+
+export const mockAuthState = atom({
+    key: 'mockAuth',
+    default: false,
+})
