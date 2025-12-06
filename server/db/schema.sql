@@ -49,20 +49,6 @@ CREATE TABLE user_role (
     CONSTRAINT user_role_user_institution_uniq UNIQUE (user_id, role, institution_id)
 );
 
--- ApiKey
--- An API key for an LLM provider (e.g. OpenAI, Anthropic) owned by a user.
-CREATE TABLE api_key (
-    id              uuid PRIMARY KEY,
-    created_by      uuid NULL,
-    created_at      timestamptz NOT NULL DEFAULT now(),
-    modified_by     uuid NULL,
-    modified_at     timestamptz NOT NULL DEFAULT now(),
-
-    user_id         uuid NOT NULL REFERENCES app_user(id),
-    platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
-    key             text NOT NULL
-);
-
 -- Workshop
 -- A workshop belongs to an institution; the owner is defined by created_by.
 -- If not active, the workshop cannot be joined by participants.
@@ -95,6 +81,20 @@ CREATE TABLE workshop_participant (
     active          boolean NOT NULL DEFAULT true,
 
     CONSTRAINT workshop_participant_workshop_token_uniq UNIQUE (workshop_id, access_token)
+);
+
+-- ApiKey
+-- An API key for an LLM provider (e.g. OpenAI, Anthropic) owned by a user.
+CREATE TABLE api_key (
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    user_id         uuid NOT NULL REFERENCES app_user(id),
+    platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
+    key             text NOT NULL
 );
 
 -- ApiKeyShareUser

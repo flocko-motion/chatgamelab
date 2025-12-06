@@ -18,6 +18,30 @@ RETURNING *;
 -- name: GetUserByID :one
 SELECT * FROM app_user WHERE id = $1;
 
+-- name: GetUserWithCurrentRole :one
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name
+FROM app_user u
+LEFT JOIN user_role r
+  ON r.user_id = u.id
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+WHERE u.id = $1
+ORDER BY r.created_at DESC
+LIMIT 1;
+
 -- name: UpdateUser :one
 UPDATE app_user SET
   created_by = $2,

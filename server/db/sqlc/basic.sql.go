@@ -1029,6 +1029,68 @@ func (q *Queries) GetUserRoleByID(ctx context.Context, id uuid.UUID) (UserRole, 
 	return i, err
 }
 
+const getUserWithCurrentRole = `-- name: GetUserWithCurrentRole :one
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name
+FROM app_user u
+LEFT JOIN user_role r
+  ON r.user_id = u.id
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+WHERE u.id = $1
+ORDER BY r.created_at DESC
+LIMIT 1
+`
+
+type GetUserWithCurrentRoleRow struct {
+	ID              uuid.UUID
+	CreatedBy       uuid.NullUUID
+	CreatedAt       time.Time
+	ModifiedBy      uuid.NullUUID
+	ModifiedAt      time.Time
+	Name            string
+	Email           string
+	DeletedAt       sql.NullTime
+	Auth0ID         sql.NullString
+	RoleID          uuid.NullUUID
+	Role            sql.NullString
+	InstitutionID   uuid.NullUUID
+	InstitutionName sql.NullString
+}
+
+func (q *Queries) GetUserWithCurrentRole(ctx context.Context, id uuid.UUID) (GetUserWithCurrentRoleRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserWithCurrentRole, id)
+	var i GetUserWithCurrentRoleRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.RoleID,
+		&i.Role,
+		&i.InstitutionID,
+		&i.InstitutionName,
+	)
+	return i, err
+}
+
 const getWorkshopByID = `-- name: GetWorkshopByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public FROM workshop WHERE id = $1
 `
