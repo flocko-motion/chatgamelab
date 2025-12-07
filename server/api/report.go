@@ -2,11 +2,11 @@ package api
 
 import (
 	"fmt"
-	"webapp-server/db"
 	"webapp-server/obj"
 	"webapp-server/router"
 )
 
+// Report endpoint - temporarily disabled pending session refactor
 var Report = router.NewEndpoint(
 	"/api/report",
 	true,
@@ -16,10 +16,7 @@ var Report = router.NewEndpoint(
 		if request.GetParam("secret") != "ccccccngiibddiecnllviecihbgflufetrrjhdthcfib" {
 			return nil, &obj.HTTPError{StatusCode: 403, Message: "Forbidden"}
 		}
-		report, err := db.GetSessionUsageReport()
-		if err != nil {
-			return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
-		}
-		return report, nil
+		// TODO: Reimplement using new GameSession types
+		return nil, &obj.HTTPErrorNotImplemented
 	},
 )

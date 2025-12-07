@@ -16,10 +16,12 @@ var (
 	queriesSingleton *sqlc.Queries // sqlc-generated Queries (see db/sqlc/db.go)
 )
 
-// Init initializes the global SQLDB and Queries using a Postgres connection.
-//
-// It reads the DSN from DATABASE_URL or DB_DSN. If both are empty, it falls
-// back to a local development DSN; adjust as needed for your environment.
+// Init initializes the database connection. Call this at startup.
+func Init() {
+	_ = queries() // trigger lazy initialization
+}
+
+// queries returns the sqlc Queries singleton, initializing if needed.
 func queries() *sqlc.Queries {
 	if queriesSingleton != nil {
 		return queriesSingleton
