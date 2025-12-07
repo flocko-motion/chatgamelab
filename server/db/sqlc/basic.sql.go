@@ -445,6 +445,7 @@ func (q *Queries) CreateGameTag(ctx context.Context, arg CreateGameTagParams) (G
 
 const createInstitution = `-- name: CreateInstitution :one
 
+
 INSERT INTO institution (
   id, created_by,
   created_at, modified_by, modified_at,
@@ -466,6 +467,8 @@ type CreateInstitutionParams struct {
 	Name       string
 }
 
+// Basic CRUD queries for core entities
+// Exactly four per table: create, read by id, update by id, delete by id.
 // institution ----------------------------------------------------------
 func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionParams) (Institution, error) {
 	row := q.db.QueryRowContext(ctx, createInstitution,
@@ -484,114 +487,6 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
-	)
-	return i, err
-}
-
-const createUser = `-- name: CreateUser :one
-
-
-INSERT INTO app_user (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  name, email, deleted_at, auth0_id
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8, $9
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id
-`
-
-type CreateUserParams struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	Name       string
-	Email      string
-	DeletedAt  sql.NullTime
-	Auth0ID    sql.NullString
-}
-
-// Basic CRUD queries for core entities
-// Exactly four per table: create, read by id, update by id, delete by id.
-// app_user -------------------------------------------------------------
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (AppUser, error) {
-	row := q.db.QueryRowContext(ctx, createUser,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.Name,
-		arg.Email,
-		arg.DeletedAt,
-		arg.Auth0ID,
-	)
-	var i AppUser
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.Email,
-		&i.DeletedAt,
-		&i.Auth0ID,
-	)
-	return i, err
-}
-
-const createUserRole = `-- name: CreateUserRole :one
-
-INSERT INTO user_role (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  user_id, role, institution_id
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, role, institution_id
-`
-
-type CreateUserRoleParams struct {
-	ID            uuid.UUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	UserID        uuid.UUID
-	Role          string
-	InstitutionID uuid.NullUUID
-}
-
-// user_role ------------------------------------------------------------
-func (q *Queries) CreateUserRole(ctx context.Context, arg CreateUserRoleParams) (UserRole, error) {
-	row := q.db.QueryRowContext(ctx, createUserRole,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.UserID,
-		arg.Role,
-		arg.InstitutionID,
-	)
-	var i UserRole
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Role,
-		&i.InstitutionID,
 	)
 	return i, err
 }
@@ -773,24 +668,6 @@ DELETE FROM institution WHERE id = $1
 
 func (q *Queries) DeleteInstitution(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteInstitution, id)
-	return err
-}
-
-const deleteUser = `-- name: DeleteUser :exec
-DELETE FROM app_user WHERE id = $1
-`
-
-func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
-	return err
-}
-
-const deleteUserRole = `-- name: DeleteUserRole :exec
-DELETE FROM user_role WHERE id = $1
-`
-
-func (q *Queries) DeleteUserRole(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteUserRole, id)
 	return err
 }
 
@@ -984,109 +861,6 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
-	)
-	return i, err
-}
-
-const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id FROM app_user WHERE id = $1
-`
-
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
-	row := q.db.QueryRowContext(ctx, getUserByID, id)
-	var i AppUser
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.Email,
-		&i.DeletedAt,
-		&i.Auth0ID,
-	)
-	return i, err
-}
-
-const getUserRoleByID = `-- name: GetUserRoleByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, role, institution_id FROM user_role WHERE id = $1
-`
-
-func (q *Queries) GetUserRoleByID(ctx context.Context, id uuid.UUID) (UserRole, error) {
-	row := q.db.QueryRowContext(ctx, getUserRoleByID, id)
-	var i UserRole
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Role,
-		&i.InstitutionID,
-	)
-	return i, err
-}
-
-const getUserWithCurrentRole = `-- name: GetUserWithCurrentRole :one
-SELECT
-  u.id,
-  u.created_by,
-  u.created_at,
-  u.modified_by,
-  u.modified_at,
-  u.name,
-  u.email,
-  u.deleted_at,
-  u.auth0_id,
-  r.id           AS role_id,
-  r.role         AS role,
-  r.institution_id,
-  i.name         AS institution_name
-FROM app_user u
-LEFT JOIN user_role r
-  ON r.user_id = u.id
-LEFT JOIN institution i
-  ON i.id = r.institution_id
-WHERE u.id = $1
-ORDER BY r.created_at DESC
-LIMIT 1
-`
-
-type GetUserWithCurrentRoleRow struct {
-	ID              uuid.UUID
-	CreatedBy       uuid.NullUUID
-	CreatedAt       time.Time
-	ModifiedBy      uuid.NullUUID
-	ModifiedAt      time.Time
-	Name            string
-	Email           string
-	DeletedAt       sql.NullTime
-	Auth0ID         sql.NullString
-	RoleID          uuid.NullUUID
-	Role            sql.NullString
-	InstitutionID   uuid.NullUUID
-	InstitutionName sql.NullString
-}
-
-func (q *Queries) GetUserWithCurrentRole(ctx context.Context, id uuid.UUID) (GetUserWithCurrentRoleRow, error) {
-	row := q.db.QueryRowContext(ctx, getUserWithCurrentRole, id)
-	var i GetUserWithCurrentRoleRow
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.Email,
-		&i.DeletedAt,
-		&i.Auth0ID,
-		&i.RoleID,
-		&i.Role,
-		&i.InstitutionID,
-		&i.InstitutionName,
 	)
 	return i, err
 }
@@ -1585,108 +1359,6 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
-	)
-	return i, err
-}
-
-const updateUser = `-- name: UpdateUser :one
-UPDATE app_user SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  name = $6,
-  email = $7,
-  deleted_at = $8,
-  auth0_id = $9
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id
-`
-
-type UpdateUserParams struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	Name       string
-	Email      string
-	DeletedAt  sql.NullTime
-	Auth0ID    sql.NullString
-}
-
-func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (AppUser, error) {
-	row := q.db.QueryRowContext(ctx, updateUser,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.Name,
-		arg.Email,
-		arg.DeletedAt,
-		arg.Auth0ID,
-	)
-	var i AppUser
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.Name,
-		&i.Email,
-		&i.DeletedAt,
-		&i.Auth0ID,
-	)
-	return i, err
-}
-
-const updateUserRole = `-- name: UpdateUserRole :one
-UPDATE user_role SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  user_id = $6,
-  role = $7,
-  institution_id = $8
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, role, institution_id
-`
-
-type UpdateUserRoleParams struct {
-	ID            uuid.UUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	UserID        uuid.UUID
-	Role          string
-	InstitutionID uuid.NullUUID
-}
-
-func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (UserRole, error) {
-	row := q.db.QueryRowContext(ctx, updateUserRole,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.UserID,
-		arg.Role,
-		arg.InstitutionID,
-	)
-	var i UserRole
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Role,
-		&i.InstitutionID,
 	)
 	return i, err
 }

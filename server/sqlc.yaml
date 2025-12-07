@@ -8,3 +8,12 @@ sql:
       go:
         package: "db"
         out: "db/sqlc"
+        overrides:
+          - column: "user_role.id"
+            go_type:
+              import: "github.com/google/uuid"
+              type: "NullUUID"
+          - column: "user_role.role"
+            go_type:
+              import: "database/sql"
+              type: "NullString"

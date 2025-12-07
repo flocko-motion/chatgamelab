@@ -17,9 +17,9 @@ type User struct {
 	ID        uuid.UUID  `json:"id"`
 	Meta      Meta       `json:"meta"`
 	Name      string     `json:"name"`
-	Email     string     `json:"email"`
+	Email     *string    `json:"email"`
 	DeletedAt *time.Time `json:"deletedAt"`
-	Auth0Id   string     `json:"auth0Id"`
+	Auth0Id   *string    `json:"auth0Id"`
 	Role      *UserRole  `json:"role"`
 	ApiKeys   []ApiKey   `json:"apiKeys"`
 }

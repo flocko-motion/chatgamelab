@@ -52,7 +52,7 @@ type AppUser struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	Name       string
-	Email      string
+	Email      sql.NullString
 	DeletedAt  sql.NullTime
 	Auth0ID    sql.NullString
 }
@@ -129,13 +129,13 @@ type Institution struct {
 }
 
 type UserRole struct {
-	ID            uuid.UUID
+	ID            uuid.NullUUID
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
 	ModifiedBy    uuid.NullUUID
 	ModifiedAt    time.Time
 	UserID        uuid.UUID
-	Role          string
+	Role          sql.NullString
 	InstitutionID uuid.NullUUID
 }
 
