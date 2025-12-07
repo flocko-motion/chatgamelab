@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"webapp-server/ai"
 	db "webapp-server/db/sqlc"
 	"webapp-server/obj"
 
@@ -16,6 +17,28 @@ import (
 
 type GetGamesFilters struct {
 	PublicOnly bool
+}
+
+func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) error {
+	g, err := queries().GetGameByID(ctx, gameID)
+	if err != nil {
+		return fmt.Errorf("game not found: %w", err)
+	}
+
+	// Public games are accessible to everyone
+	if g.Public {
+		return nil
+	}
+
+	// Non-public games require ownership
+	if userID == nil {
+		return errors.New("access denied: authentication required")
+	}
+	if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
+		return errors.New("access denied: not the owner of this game")
+	}
+
+	return nil
 }
 
 // GetGames returns games based on filters. If userID is provided, returns user's games.
@@ -172,6 +195,45 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err = queries().UpdateGame(ctx, arg)
 	return err
+}
+
+func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID) (sessionID *uuid.UUID, err error) {
+	if err := userIsAllowedToPlayGame(ctx, &userID, gameID); err != nil {
+		return nil, fmt.Errorf("cannot create session: %w", err)
+	}
+	if err := userIsAllowedToUseApiKey(ctx, userID, apiKeyID); err != nil {
+		return nil, fmt.Errorf("cannot create session: %w", err)
+	}
+
+	game, err := GetGameByID(ctx, &userID, gameID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get game: %w", err)
+	}
+
+	session := ai.NewSession(*game, userID, apiKeyID)
+
+	now := time.Now()
+	arg := db.CreateGameSessionParams{
+		ID:           session.ID,
+		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:    now,
+		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:   now,
+		GameID:       gameID,
+		UserID:       userID,
+		ApiKeyID:     apiKeyID,
+		Model:        session.Model,
+		ModelSession: []byte(session.ModelSession),
+		ImageStyle:   session.ImageStyle,
+		StatusFields: game.StatusFields,
+	}
+
+	_, err = queries().CreateGameSession(ctx, arg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
+	return &session.ID, nil
 }
 
 // dbGameToObj converts a sqlc Game to obj.Game, including tags

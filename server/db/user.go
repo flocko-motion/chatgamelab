@@ -14,6 +14,25 @@ import (
 	"github.com/google/uuid"
 )
 
+func userIsAllowedToUseApiKey(ctx context.Context, userID, apiKeyID uuid.UUID) error {
+	// Validate that user is allowed to use this API key
+	apiKeys, err := GetUserApiKeys(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user api keys: %w", err)
+	}
+	var foundKey *obj.ApiKeyShare
+	for i := range apiKeys {
+		if apiKeys[i].ApiKey != nil && apiKeys[i].ApiKey.ID == apiKeyID {
+			foundKey = &apiKeys[i]
+			break
+		}
+	}
+	if foundKey == nil {
+		return errors.New("access denied: user does not have access to this API key")
+	}
+	return nil
+}
+
 // CreateUser creates a new user in the database
 func CreateUser(ctx context.Context, name string, email *string, auth0ID string) (*obj.User, error) {
 	arg := db.CreateUserParams{
