@@ -3,7 +3,11 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"slices"
+	"time"
+	"webapp-server/ai"
 	db "webapp-server/db/sqlc"
 	"webapp-server/obj"
 
@@ -67,6 +71,10 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name: res.InstitutionName.String,
 			}
 		}
+	}
+	user.ApiKeys, err = GetUserApiKeys(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
 	return &user, nil
@@ -132,9 +140,115 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 	return err
 }
 
+func CreateUserApiKey(ctx context.Context, userID uuid.UUID, platform, key string) (*uuid.UUID, error) {
+	if !slices.Contains(ai.ApiKeyPlatforms, platform) {
+		return nil, errors.New("unknown platform: " + platform)
+	}
+
+	now := time.Now()
+	arg := db.CreateApiKeyParams{
+		ID:         uuid.New(),
+		CreatedBy:  uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:  now,
+		ModifiedBy: uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt: now,
+		UserID:     userID,
+		Platform:   platform,
+		Key:        key,
+	}
+	result, err := queries().CreateApiKey(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+	return &result.ID, nil
+}
+
+func DeleteUserApiKey(ctx context.Context, userID uuid.UUID, apiKeyID string) error {
+	id, err := uuid.Parse(apiKeyID)
+	if err != nil {
+		return errors.New("invalid api key id")
+	}
+
+	// Verify the key belongs to the user
+	key, err := queries().GetApiKeyByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if key.UserID != userID {
+		return errors.New("api key does not belong to user")
+	}
+
+	return queries().DeleteApiKey(ctx, id)
+}
+
+func GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyShare, error) {
+	var result []obj.ApiKeyShare
+
+	// 1. Get user's own API keys (treated as "shared with self")
+	ownKeys, err := queries().GetUserApiKeys(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get own api keys: %w", err)
+	}
+	for _, k := range ownKeys {
+		result = append(result, obj.ApiKeyShare{
+			ID: k.ID,
+			Meta: obj.Meta{
+				CreatedBy:  k.CreatedBy,
+				CreatedAt:  &k.CreatedAt,
+				ModifiedBy: k.ModifiedBy,
+				ModifiedAt: &k.ModifiedAt,
+			},
+			ApiKey: &obj.ApiKey{
+				ID:           k.ID,
+				UserID:       k.UserID,
+				Platform:     k.Platform,
+				Key:          k.Key,
+				KeyShortened: shortenApiKey(k.Key),
+			},
+			UserID:                    &userID,
+			AllowPublicSponsoredPlays: true, // own keys have full access
+		})
+	}
+
+	// 2. Get API keys shared with this user by others
+	sharedKeys, err := queries().GetApiKeySharesByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get shared api keys: %w", err)
+	}
+	for _, s := range sharedKeys {
+		result = append(result, obj.ApiKeyShare{
+			ID: s.ID,
+			Meta: obj.Meta{
+				CreatedBy:  s.CreatedBy,
+				CreatedAt:  &s.CreatedAt,
+				ModifiedBy: s.ModifiedBy,
+				ModifiedAt: &s.ModifiedAt,
+			},
+			ApiKey: &obj.ApiKey{
+				ID:           s.ApiKeyID,
+				Platform:     s.ApiKeyPlatform,
+				Key:          s.ApiKeyKey,
+				KeyShortened: shortenApiKey(s.ApiKeyKey),
+			},
+			UserID:                    &s.UserID,
+			AllowPublicSponsoredPlays: s.AllowPublicSponsoredPlays,
+		})
+	}
+
+	return result, nil
+}
+
 func uuidPtrToUUID(id *uuid.UUID) uuid.UUID {
 	if id == nil {
 		return uuid.UUID{}
 	}
 	return *id
+}
+
+func shortenApiKey(key string) string {
+	toLen := 6
+	if len(key) >= 6 {
+		return ".." + key[len(key)-toLen-1:len(key)-1]
+	}
+	return key
 }

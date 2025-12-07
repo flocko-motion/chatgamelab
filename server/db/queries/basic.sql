@@ -32,39 +32,6 @@ RETURNING *;
 DELETE FROM institution WHERE id = $1;
 
 
--- api_key --------------------------------------------------------------
-
--- name: CreateApiKey :one
-INSERT INTO api_key (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  user_id, platform, key
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
-)
-RETURNING *;
-
--- name: GetApiKeyByID :one
-SELECT * FROM api_key WHERE id = $1;
-
--- name: UpdateApiKey :one
-UPDATE api_key SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  user_id = $6,
-  platform = $7,
-  key = $8
-WHERE id = $1
-RETURNING *;
-
--- name: DeleteApiKey :exec
-DELETE FROM api_key WHERE id = $1;
-
-
 -- workshop -------------------------------------------------------------
 
 -- name: CreateWorkshop :one

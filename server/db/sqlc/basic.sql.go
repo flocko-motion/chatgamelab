@@ -14,57 +14,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const createApiKey = `-- name: CreateApiKey :one
-
-INSERT INTO api_key (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  user_id, platform, key
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, platform, key
-`
-
-type CreateApiKeyParams struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	UserID     uuid.UUID
-	Platform   string
-	Key        string
-}
-
-// api_key --------------------------------------------------------------
-func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (ApiKey, error) {
-	row := q.db.QueryRowContext(ctx, createApiKey,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.UserID,
-		arg.Platform,
-		arg.Key,
-	)
-	var i ApiKey
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Platform,
-		&i.Key,
-	)
-	return i, err
-}
-
 const createApiKeyShareUser = `-- name: CreateApiKeyShareUser :one
 
 INSERT INTO api_key_share_user (
@@ -599,15 +548,6 @@ func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorks
 	return i, err
 }
 
-const deleteApiKey = `-- name: DeleteApiKey :exec
-DELETE FROM api_key WHERE id = $1
-`
-
-func (q *Queries) DeleteApiKey(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKey, id)
-	return err
-}
-
 const deleteApiKeyShareUser = `-- name: DeleteApiKeyShareUser :exec
 DELETE FROM api_key_share_user WHERE id = $1
 `
@@ -687,26 +627,6 @@ DELETE FROM workshop_participant WHERE id = $1
 func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipant, id)
 	return err
-}
-
-const getApiKeyByID = `-- name: GetApiKeyByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, platform, key FROM api_key WHERE id = $1
-`
-
-func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, error) {
-	row := q.db.QueryRowContext(ctx, getApiKeyByID, id)
-	var i ApiKey
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Platform,
-		&i.Key,
-	)
-	return i, err
 }
 
 const getApiKeyShareUserByID = `-- name: GetApiKeyShareUserByID :one
@@ -903,55 +823,6 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 		&i.Name,
 		&i.AccessToken,
 		&i.Active,
-	)
-	return i, err
-}
-
-const updateApiKey = `-- name: UpdateApiKey :one
-UPDATE api_key SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  user_id = $6,
-  platform = $7,
-  key = $8
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, platform, key
-`
-
-type UpdateApiKeyParams struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	UserID     uuid.UUID
-	Platform   string
-	Key        string
-}
-
-func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (ApiKey, error) {
-	row := q.db.QueryRowContext(ctx, updateApiKey,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.UserID,
-		arg.Platform,
-		arg.Key,
-	)
-	var i ApiKey
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.UserID,
-		&i.Platform,
-		&i.Key,
 	)
 	return i, err
 }

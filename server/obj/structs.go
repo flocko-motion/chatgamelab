@@ -14,14 +14,14 @@ type Meta struct {
 }
 
 type User struct {
-	ID        uuid.UUID  `json:"id"`
-	Meta      Meta       `json:"meta"`
-	Name      string     `json:"name"`
-	Email     *string    `json:"email"`
-	DeletedAt *time.Time `json:"deletedAt"`
-	Auth0Id   *string    `json:"auth0Id"`
-	Role      *UserRole  `json:"role"`
-	ApiKeys   []ApiKey   `json:"apiKeys"`
+	ID        uuid.UUID     `json:"id"`
+	Meta      Meta          `json:"meta"`
+	Name      string        `json:"name"`
+	Email     *string       `json:"email"`
+	DeletedAt *time.Time    `json:"deletedAt"`
+	Auth0Id   *string       `json:"auth0Id"`
+	Role      *UserRole     `json:"role"`
+	ApiKeys   []ApiKeyShare `json:"apiKeys"`
 }
 
 type Institution struct {
@@ -66,27 +66,22 @@ type WorkshopParticipant struct {
 }
 
 type ApiKey struct {
-	ID       uuid.UUID `json:"id"`
-	Meta     Meta      `json:"meta"`
-	UserID   uuid.UUID `json:"userId"`
-	Platform string    `json:"platform"`
-	Key      string    `json:"-"`
+	ID           uuid.UUID `json:"id"`
+	Meta         Meta      `json:"meta"`
+	UserID       uuid.UUID `json:"userId"`
+	Platform     string    `json:"platform"`
+	Key          string    `json:"-"`
+	KeyShortened string    `json:"keyShortened"`
 }
 
-type ApiKeyShareUser struct {
-	ID                        uuid.UUID `json:"id"`
-	Meta                      Meta      `json:"meta"`
-	ApiKey                    *ApiKey   `json:"apiKey"`
-	UserID                    uuid.UUID `json:"userId"`
-	AllowPublicSponsoredPlays bool      `json:"allowPublicSponsoredPlays"`
-}
-
-type ApiKeyShareWorkshop struct {
-	ID                        uuid.UUID `json:"id"`
-	Meta                      Meta      `json:"meta"`
-	ApiKey                    *ApiKey   `json:"apiKey"`
-	WorkshopID                uuid.UUID `json:"workshopId"`
-	AllowPublicSponsoredPlays bool      `json:"allowPublicSponsoredPlays"`
+// userID of owner is stored in createdBy
+type ApiKeyShare struct {
+	ID                        uuid.UUID  `json:"id"`
+	Meta                      Meta       `json:"meta"`
+	ApiKey                    *ApiKey    `json:"apiKey"`
+	UserID                    *uuid.UUID `json:"userId"`
+	WorkshopID                *uuid.UUID `json:"workshopId"`
+	AllowPublicSponsoredPlays bool       `json:"allowPublicSponsoredPlays"`
 }
 
 type Game struct {

@@ -74,3 +74,53 @@ DELETE FROM user_role WHERE user_id = $1;
 INSERT INTO user_role (id, user_id, role, institution_id)
 VALUES (gen_random_uuid(), $1, $2, $3)
 RETURNING id;
+
+
+-- api_key --------------------------------------------------------------
+
+-- name: CreateApiKey :one
+INSERT INTO api_key (
+  id, created_by,
+  created_at, modified_by, modified_at,
+  user_id, platform, key
+) VALUES (
+  $1, $2,
+  $3, $4, $5,
+  $6, $7, $8
+)
+RETURNING *;
+
+-- name: GetApiKeyByID :one
+SELECT * FROM api_key WHERE id = $1;
+
+-- name: UpdateApiKey :one
+UPDATE api_key SET
+  created_by = $2,
+  created_at = $3,
+  modified_by = $4,
+  modified_at = $5,
+  user_id = $6,
+  platform = $7,
+  key = $8
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteApiKey :exec
+DELETE FROM api_key WHERE id = $1;
+
+-- name: GetApiKeySharesByUserID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.allow_public_sponsored_plays,
+  k.platform AS api_key_platform,
+  k.key AS api_key_key
+FROM api_key_share_user s
+JOIN api_key k ON k.id = s.api_key_id
+WHERE s.user_id = $1;
+
