@@ -1,185 +1,255 @@
 package db
 
 import (
+	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base32"
-	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
-	"net/http"
-	"strings"
+	"time"
+	db "webapp-server/db/sqlc"
 	"webapp-server/obj"
 
-	"gorm.io/gorm"
+	"github.com/google/uuid"
 )
 
-type Game struct {
-	gorm.Model
-	Title               string `json:"title"`
-	TitleImage          []byte
-	Description         string `json:"description"`
-	Scenario            string `json:"scenario"`
-	SessionStartSyscall string `json:"sessionStartSyscall"`
-	ImageStyle          string `json:"imageStyle"`
-	StatusFields        string `json:"statusProperties"`
-	SharePlayActive     bool   `json:"sharePlayActive"`
-	SharePlayHash       string `json:"sharePlayHash"`
-	ShareEditActive     bool   `json:"shareEditActive"`
-	ShareEditHash       string `json:"shareEditHash"`
-	UserID              uint   `json:"-"`
-	User                User   `json:"user" gorm:"foreignKey:UserID"`
+type GetGamesFilters struct {
+	PublicOnly bool
 }
 
-func (user *User) GetGames() ([]obj.Game, *obj.HTTPError) {
-	var games []Game
-	err := db.Preload("User").Model(&user).Association("Games").Find(&games)
-	if err != nil {
-		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
+// GetGames returns games based on filters. If userID is provided, returns user's games.
+// If PublicOnly filter is set, returns only public games.
+func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) ([]obj.Game, error) {
+	var dbGames []db.Game
+	var err error
+
+	if filters != nil && filters.PublicOnly {
+		dbGames, err = queries().GetPublicGames(ctx)
+	} else if userID != nil {
+		// TODO: we need to add complex selection of games owned by workshops that the user is allowed to see to to an institution membership.. we'll leave that for later.
+		dbGames, err = queries().GetGamesVisibleToUser(ctx, uuid.NullUUID{UUID: *userID, Valid: true})
+	} else {
+		return nil, errors.New("must provide userID or set PublicOnly filter")
 	}
-	gamesObj := make([]obj.Game, len(games))
-	for i := range games {
-		if games[i].User.Name == "" {
-			games[i].User.Name = fmt.Sprintf("user_%d", games[i].UserID)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get games: %w", err)
+	}
+
+	result := make([]obj.Game, 0, len(dbGames))
+	for _, g := range dbGames {
+		game, err := dbGameToObj(ctx, g)
+		if err != nil {
+			return nil, err
 		}
-		gamesObj[i] = *games[i].Export()
+		result = append(result, *game)
 	}
-	return gamesObj, nil
+	return result, nil
 }
 
-// GetGame gets a game by ID, formatted for external use
-func (user *User) GetGame(id uint) (*obj.Game, *obj.HTTPError) {
-	log.Printf("Getting game %d from db", id)
-	game, err := user.getGame(id)
+// GetGameByID gets a game by ID. If userID is provided, verifies ownership.
+func GetGameByID(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) (*obj.Game, error) {
+	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("game not found: %w", err)
 	}
-	log.Printf("Got game %d from db", id)
-	return game.Export(), nil
+
+	// If userID provided, verify ownership (unless game is public)
+	if userID != nil && !g.Public {
+		if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
+			return nil, errors.New("access denied: not the owner of this game")
+		}
+	}
+
+	return dbGameToObj(ctx, g)
 }
 
-// getGame is for internal use only
-func (user *User) getGame(id uint) (*Game, *obj.HTTPError) {
-	var game Game
-	err := db.Preload("User").Where("id = ?", id).First(&game).Error
+// GetGameByToken gets a game by its private share hash (token).
+func GetGameByToken(ctx context.Context, token string) (*obj.Game, error) {
+	g, err := queries().GetGameByPrivateShareHash(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
-		return nil, obj.ErrorToHTTPError(http.StatusInternalServerError, err)
+		return nil, fmt.Errorf("game not found: %w", err)
 	}
-	if game.UserID != user.ID {
-		return nil, obj.NewHTTPErrorf(http.StatusUnauthorized, "unauthorized")
-	}
-	return &game, nil
+	return dbGameToObj(ctx, g)
 }
 
-func (user *User) DeleteGame(gameId uint) *obj.HTTPError {
-	// assert access rights
-	game, httpErr := user.getGame(gameId)
-	if httpErr != nil {
-		return httpErr
-	}
-	if game.UserID != user.ID {
-		return obj.NewHTTPErrorf(http.StatusUnauthorized, "access denied - this game is owned by another user")
-	}
-
-	// Perform the deletion
-	err := db.Delete(&game).Error
+// DeleteGame deletes a game. userID must be the owner.
+func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
+	// Verify ownership
+	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
-		return obj.ErrorToHTTPError(http.StatusInternalServerError, err)
+		return fmt.Errorf("game not found: %w", err)
+	}
+	if !g.CreatedBy.Valid || g.CreatedBy.UUID != userID {
+		return errors.New("access denied: not the owner of this game")
 	}
 
-	return nil
+	return queries().DeleteGame(ctx, gameID)
 }
 
-func (user *User) CreateGame(game *obj.Game) error {
-	statusFieldsSerialized, _ := json.Marshal(game.StatusFields)
-	gameDb := &Game{
-		Title:               game.Title,
-		StatusFields:        string(statusFieldsSerialized),
-		Description:         "This is a new game.",
-		Scenario:            "An adventure in a fantasy world. The player must find a way out of a castle.",
-		SessionStartSyscall: "Introduce the player to the game and write the first scene.",
-		ImageStyle:          "illustration, watercolor, fantastic",
-		SharePlayHash:       randomHash(),
+// CreateGame creates a new game. userID is set as the owner (createdBy).
+func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
+	now := time.Now()
+	game.ID = uuid.New()
+
+	arg := db.CreateGameParams{
+		ID:                       game.ID,
+		CreatedBy:                uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:                now,
+		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:               now,
+		Name:                     game.Name,
+		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Icon:                     game.Icon,
+		Public:                   game.Public,
+		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
+		PrivateShareHash:         sql.NullString{String: ptrToString(game.PrivateShareHash), Valid: game.PrivateShareHash != nil},
+		PrivateSponsoredApiKeyID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyID),
+		SystemMessageScenario:    game.SystemMessageScenario,
+		SystemMessageGameStart:   game.SystemMessageGameStart,
+		ImageStyle:               game.ImageStyle,
+		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		StatusFields:             game.StatusFields,
+		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
+		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
+		FirstImage:               game.FirstImage,
 	}
-	if err := db.Model(&user).Association("Games").Append(gameDb); err != nil {
-		return err
+
+	// Generate private share hash if not provided
+	if !arg.PrivateShareHash.Valid || arg.PrivateShareHash.String == "" {
+		arg.PrivateShareHash = sql.NullString{String: randomHash(), Valid: true}
 	}
-	game.ID = gameDb.ID
-	return nil
+
+	_, err := queries().CreateGame(ctx, arg)
+	return err
 }
 
-func (user *User) UpdateGame(updatedGame obj.Game) error {
-	game, err := user.getGame(updatedGame.ID)
+// UpdateGame updates an existing game. userID must be the owner.
+func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
+	// Verify ownership
+	existing, err := queries().GetGameByID(ctx, game.ID)
 	if err != nil {
-		return err
+		return fmt.Errorf("game not found: %w", err)
+	}
+	if !existing.CreatedBy.Valid || existing.CreatedBy.UUID != userID {
+		return errors.New("access denied: not the owner of this game")
 	}
 
-	statusFieldsSerialized, _ := json.Marshal(updatedGame.StatusFields)
-
-	game.Title = updatedGame.Title
-	game.Description = updatedGame.Description
-	game.Scenario = updatedGame.Scenario
-	game.SessionStartSyscall = updatedGame.SessionStartSyscall
-	game.StatusFields = string(statusFieldsSerialized)
-	game.ImageStyle = updatedGame.ImageStyle
-	game.SharePlayActive = updatedGame.SharePlayActive
-	game.ShareEditActive = updatedGame.ShareEditActive
-
-	if game.SharePlayHash == "" {
-		game.SharePlayHash = randomHash()
+	now := time.Now()
+	privateShareHash := sql.NullString{String: ptrToString(game.PrivateShareHash), Valid: game.PrivateShareHash != nil}
+	if !privateShareHash.Valid || privateShareHash.String == "" {
+		// Keep existing hash or generate new one
+		if existing.PrivateShareHash.Valid && existing.PrivateShareHash.String != "" {
+			privateShareHash = existing.PrivateShareHash
+		} else {
+			privateShareHash = sql.NullString{String: randomHash(), Valid: true}
+		}
 	}
 
-	return game.update()
+	arg := db.UpdateGameParams{
+		ID:                       game.ID,
+		CreatedBy:                existing.CreatedBy,
+		CreatedAt:                existing.CreatedAt,
+		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:               now,
+		Name:                     game.Name,
+		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Icon:                     game.Icon,
+		Public:                   game.Public,
+		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
+		PrivateShareHash:         privateShareHash,
+		PrivateSponsoredApiKeyID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyID),
+		SystemMessageScenario:    game.SystemMessageScenario,
+		SystemMessageGameStart:   game.SystemMessageGameStart,
+		ImageStyle:               game.ImageStyle,
+		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		StatusFields:             game.StatusFields,
+		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
+		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
+		FirstImage:               game.FirstImage,
+	}
+
+	_, err = queries().UpdateGame(ctx, arg)
+	return err
 }
 
-// CreateGame creates a new game in the database
-func CreateGame(game *Game) error {
-	return db.Create(game).Error
-}
-
-// GetGameByID gets a game by ID
-func GetGameByID(id uint) (*obj.Game, error) {
-	var game Game
-	err := db.First(&game, id).Error
-	return game.Export(), err
-}
-
-func GetGameByPublicHash(hash string) (*obj.Game, *obj.HTTPError) {
-	var game Game
-	err := db.Where("share_play_hash = ?", hash).Where("share_play_active = ?", true).First(&game).Error
+// dbGameToObj converts a sqlc Game to obj.Game, including tags
+func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
+	// Get tags for this game
+	dbTags, err := queries().GetGameTagsByGameID(ctx, g.ID)
 	if err != nil {
-		return nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found"}
+		return nil, fmt.Errorf("failed to get game tags: %w", err)
 	}
-	return game.Export(), nil
-}
 
-func (game *Game) update() error {
-	game.SharePlayHash = strings.TrimSpace(game.SharePlayHash)
-	if game.SharePlayHash == "" {
-		game.SharePlayHash = randomHash()
+	tags := make([]obj.GameTag, 0, len(dbTags))
+	for _, t := range dbTags {
+		tags = append(tags, obj.GameTag{
+			ID: t.ID,
+			Meta: obj.Meta{
+				CreatedBy:  t.CreatedBy,
+				CreatedAt:  &t.CreatedAt,
+				ModifiedBy: t.ModifiedBy,
+				ModifiedAt: &t.ModifiedAt,
+			},
+			GameID: t.GameID,
+			Tag:    t.Tag,
+		})
 	}
-	return db.Save(game).Error
-}
 
-func (game *Game) Export() *obj.Game {
-	var statusFields []obj.StatusField
-	if err := json.Unmarshal([]byte(game.StatusFields), &statusFields); err != nil {
-		statusFields = []obj.StatusField{}
-	}
 	return &obj.Game{
-		ID:                  game.ID,
-		Title:               game.Title,
-		Description:         game.Description,
-		Scenario:            game.Scenario,
-		SessionStartSyscall: game.SessionStartSyscall,
-		StatusFields:        statusFields,
-		ImageStyle:          game.ImageStyle,
-		SharePlayActive:     game.SharePlayActive,
-		SharePlayHash:       game.SharePlayHash,
-		ShareEditActive:     game.ShareEditActive,
-		ShareEditHash:       game.ShareEditHash,
-		UserId:              game.UserID,
-		UserName:            game.User.Name,
+		ID: g.ID,
+		Meta: obj.Meta{
+			CreatedBy:  g.CreatedBy,
+			CreatedAt:  &g.CreatedAt,
+			ModifiedBy: g.ModifiedBy,
+			ModifiedAt: &g.ModifiedAt,
+		},
+		Name:                     g.Name,
+		Description:              nullStringToPtr(g.Description),
+		Icon:                     g.Icon,
+		Public:                   g.Public,
+		PublicSponsoredApiKeyID:  nullUUIDToPtr(g.PublicSponsoredApiKeyID),
+		PrivateShareHash:         nullStringToPtr(g.PrivateShareHash),
+		PrivateSponsoredApiKeyID: nullUUIDToPtr(g.PrivateSponsoredApiKeyID),
+		SystemMessageScenario:    g.SystemMessageScenario,
+		SystemMessageGameStart:   g.SystemMessageGameStart,
+		ImageStyle:               g.ImageStyle,
+		CSS:                      nullStringToPtr(g.Css),
+		StatusFields:             g.StatusFields,
+		FirstMessage:             nullStringToPtr(g.FirstMessage),
+		FirstStatus:              nullStringToPtr(g.FirstStatus),
+		FirstImage:               g.FirstImage,
+		Tags:                     tags,
+	}, nil
+}
+
+func nullStringToPtr(ns sql.NullString) *string {
+	if !ns.Valid {
+		return nil
 	}
+	return &ns.String
+}
+
+func nullUUIDToPtr(nu uuid.NullUUID) *uuid.UUID {
+	if !nu.Valid {
+		return nil
+	}
+	return &nu.UUID
+}
+
+func uuidPtrToNullUUID(id *uuid.UUID) uuid.NullUUID {
+	if id == nil {
+		return uuid.NullUUID{}
+	}
+	return uuid.NullUUID{UUID: *id, Valid: true}
+}
+
+func ptrToString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
 
 func randomHash() string {

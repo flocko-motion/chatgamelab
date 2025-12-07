@@ -193,6 +193,18 @@ RETURNING *;
 -- name: GetGameByID :one
 SELECT * FROM game WHERE id = $1;
 
+-- name: GetGamesVisibleToUser :many
+SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY created_at DESC;
+
+-- name: GetPublicGames :many
+SELECT * FROM game WHERE public = true ORDER BY created_at DESC;
+
+-- name: GetGameByPrivateShareHash :one
+SELECT * FROM game WHERE private_share_hash = $1;
+
+-- name: GetGameTagsByGameID :many
+SELECT * FROM game_tag WHERE game_id = $1;
+
 -- name: UpdateGame :one
 UPDATE game SET
   created_by = $2,

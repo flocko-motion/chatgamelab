@@ -701,6 +701,38 @@ func (q *Queries) GetGameByID(ctx context.Context, id uuid.UUID) (Game, error) {
 	return i, err
 }
 
+const getGameByPrivateShareHash = `-- name: GetGameByPrivateShareHash :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE private_share_hash = $1
+`
+
+func (q *Queries) GetGameByPrivateShareHash(ctx context.Context, privateShareHash sql.NullString) (Game, error) {
+	row := q.db.QueryRowContext(ctx, getGameByPrivateShareHash, privateShareHash)
+	var i Game
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Description,
+		&i.Icon,
+		&i.Public,
+		&i.PublicSponsoredApiKeyID,
+		&i.PrivateShareHash,
+		&i.PrivateSponsoredApiKeyID,
+		&i.SystemMessageScenario,
+		&i.SystemMessageGameStart,
+		&i.ImageStyle,
+		&i.Css,
+		&i.StatusFields,
+		&i.FirstMessage,
+		&i.FirstStatus,
+		&i.FirstImage,
+	)
+	return i, err
+}
+
 const getGameSessionByID = `-- name: GetGameSessionByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields FROM game_session WHERE id = $1
 `
@@ -767,6 +799,89 @@ func (q *Queries) GetGameTagByID(ctx context.Context, id uuid.UUID) (GameTag, er
 	return i, err
 }
 
+const getGameTagsByGameID = `-- name: GetGameTagsByGameID :many
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, tag FROM game_tag WHERE game_id = $1
+`
+
+func (q *Queries) GetGameTagsByGameID(ctx context.Context, gameID uuid.UUID) ([]GameTag, error) {
+	rows, err := q.db.QueryContext(ctx, getGameTagsByGameID, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameTag
+	for rows.Next() {
+		var i GameTag
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.Tag,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesVisibleToUser = `-- name: GetGamesVisibleToUser :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY created_at DESC
+`
+
+func (q *Queries) GetGamesVisibleToUser(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUser, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getInstitutionByID = `-- name: GetInstitutionByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, name FROM institution WHERE id = $1
 `
@@ -783,6 +898,54 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.Name,
 	)
 	return i, err
+}
+
+const getPublicGames = `-- name: GetPublicGames :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY created_at DESC
+`
+
+func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getWorkshopByID = `-- name: GetWorkshopByID :one
