@@ -23,114 +23,96 @@ If you're working on ChatGameLab (including web designers), you **must learn Git
 
 This keeps everyone in sync and prevents the project from breaking apart.
 
-## Quick Start for Designers (Mock Mode)
-
-If you're a designer wanting to explore the React frontend without setting up the full backend, you can run the app in mock mode:
-
-**Prerequisites**: Make sure you have [Node.js and npm](https://nodejs.org/) installed on your Mac.
-
-1. **Launch the frontend** (on Mac):
-   ```bash
-   ./run-frontend.sh
-   ```
-
-2. **Open your browser** and go to:
-   ```
-   http://localhost:3000?mock=true
-   ```
-
-3. **Explore the app**:
-    - The React app will be running at `http://localhost:3000`
-    - Mock mode provides fake data so you can test all features
-    - No Auth0 or backend setup required
-    - Login/logout buttons work with fake authentication
-
-Perfect for UI/UX design work and frontend development!
-
-## Quick Start for Designers (Mock Mode)
-
-If you're a designer wanting to explore the React frontend without setting up the full backend, you can run the app in mock mode:
-
-**Prerequisites**: Make sure you have [Node.js and npm](https://nodejs.org/) installed on your Mac.
-
-1. **Launch the frontend** (on Mac):
-   ```bash
-   ./run-frontend.sh
-   ```
-
-2. **Open your browser** and go to:
-   ```
-   http://localhost:3000?mock=true
-   ```
-
-3. **Explore the app**:
-   - The React app will be running at `http://localhost:3000`
-   - Mock mode provides fake data so you can test all features
-   - No Auth0 or backend setup required
-   - Login/logout buttons work with fake authentication
-
-Perfect for UI/UX design work and frontend development!
 
 ## Requirements
 
-To install and run the project you will need the following:
-- Auth0 account
-- Docker
+- **Docker** and **docker compose** (v2+)
+- **Node.js and npm** (for local frontend development)
+- **Go 1.21+** (for local backend development)
+- **Auth0 account** (for authentication)
+- **OpenAI API key** (to play games)
 
-To use the project you will need the following:
-- OpenAI API key
+## Setup
 
-## Running with Docker Compose (recommended)
+### 1. Configure environment
 
-The repository now contains a multi-container setup using **Docker Compose**:
-
-- `client/` – React SPA, built and served via Node/Express
-- `server/` – Go backend API
-- `db` – PostgreSQL database
-
-### 1. Prerequisites
-
-- Docker
-- docker compose (v2+)
-- Auth0 account & OpenAI API key
-
-### 2. Configure environment
-
-For Docker Compose, copy the example file at the **repo root**:
+Copy the example environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Then adjust the values as needed. A typical setup:
+Edit `.env` and set your values:
 
 ```bash
-AUTH0_DOMAIN=your.auth0.domain
-AUTH0_AUDIENCE=your.auth0.audience
+# Database password (use something simple for dev, no special characters)
+DB_PASSWORD='your_dev_password'
+
+# Auth0 configuration
+AUTH0_DOMAIN="your.auth0.domain"
+AUTH0_AUDIENCE="your.auth0.audience"
 PUBLIC_URL=http://localhost:3000
 ```
 
-You may also want to adjust the `DATABASE_URL` in `docker-compose.yml` if you change DB credentials.
+## Development Mode
 
-### 3. Build and start the stack
+Development mode runs the database and nginx proxy in Docker, while you run the Go server and React client locally with full debugger support.
 
-From the project root:
+### Start development environment
 
+**Terminal 1** - Start database and proxy:
 ```bash
-docker compose build
-docker compose up
+./run-dev.sh
 ```
 
-This will start three services:
+**Terminal 2** - Start Go backend (port 8080):
+```bash
+./run-dev-server.sh
+```
 
-- `db`       → PostgreSQL at `localhost:5432`
-- `server`   → Go API at `http://localhost:3001`
-- `client`   → React frontend at `http://localhost:3000`
+**Terminal 3** - Start React frontend (port 3000):
+```bash
+./run-dev-client.sh
+```
 
-Inside the Docker network, the frontend talks to the API at `http://server:3000` (see `REACT_APP_API_BASE_URL` in `docker-compose.yml`).
+Then open **http://localhost** in your browser. The nginx proxy routes:
+- `/api/*` → Go server (localhost:8080)
+- `/*` → React dev server (localhost:3000)
 
-To stop the stack:
+### Reset the database
+
+To wipe the database and recreate it from `schema.sql`:
 
 ```bash
-docker compose down
+./reset-dev-db.sh
 ```
+
+Then restart with `./run-dev.sh`.
+
+## Production Mode
+
+Production mode builds and runs everything in Docker containers.
+
+```bash
+./run-prod.sh
+```
+
+This builds all images and starts the full stack in detached mode.
+
+Useful commands:
+```bash
+docker compose logs -f    # View logs
+docker compose down       # Stop all services
+```
+
+## Quick Start for Designers (Mock Mode)
+
+If you're a designer wanting to explore the React frontend without setting up the full backend:
+
+```bash
+./run-dev-client.sh
+```
+
+Then open **http://localhost:3000?mock=true**
+
+Mock mode provides fake data so you can test all UI features without Auth0 or backend setup.
