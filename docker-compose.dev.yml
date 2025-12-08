@@ -1,0 +1,31 @@
+# Dev mode: only db + proxy, connects to local dev servers
+# Usage: docker compose -f docker-compose.dev.yml up
+
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: chatgamelab-db
+    environment:
+      POSTGRES_DB: chatgamelab
+      POSTGRES_USER: chatgamelab
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5433:5432"
+
+  web:
+    image: nginx:alpine
+    container_name: chatgamelab-web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+
+volumes:
+  db_data:

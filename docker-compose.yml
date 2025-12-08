@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: chatgamelab
       POSTGRES_USER: chatgamelab
-      POSTGRES_PASSWORD: change_me
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
@@ -19,8 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: chatgamelab-server
     environment:
-      # Example; adjust to match your Go server config
-      DATABASE_URL: postgres://chatgamelab:change_me@db:5432/chatgamelab?sslmode=disable
+      DATABASE_URL: postgres://chatgamelab:${DB_PASSWORD}@db:5432/chatgamelab?sslmode=disable
     depends_on:
       - db
     expose:

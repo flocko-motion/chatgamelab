@@ -27,13 +27,9 @@ func queries() *sqlc.Queries {
 		return queriesSingleton
 	}
 
-	dsn := os.Getenv("DB_DSN")
+	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = os.Getenv("DATABASE_URL")
-	}
-	if dsn == "" {
-		// Fallback for local development; change to match your setup.
-		dsn = "postgres://postgres:postgres@localhost:5432/chatgamelab?sslmode=disable"
+		panic("DATABASE_URL environment variable is required")
 	}
 
 	var err error

@@ -8,8 +8,6 @@ import (
 	"strings"
 	"webapp-server/api"
 	"webapp-server/db"
-
-	"github.com/joho/godotenv"
 	"webapp-server/router"
 )
 
@@ -33,10 +31,6 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found - not importing env variables from file")
-	}
-
 	db.Init()
 
 	theRouter := router.NewRouter([]router.Endpoint{
