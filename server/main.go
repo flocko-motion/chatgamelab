@@ -42,6 +42,7 @@ func main() {
 		api.Status,
 		api.Upgrade,
 		api.User,
+		api.Version,
 		api.PublicGame,
 		api.PublicSession,
 	})
