@@ -29,6 +29,12 @@ if ! command -v npm >/dev/null 2>&1; then
     exit 1
 fi
 
+# Generate version file with git info
+GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "dev")
+BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "export const version = \"${GIT_COMMIT}\";" > client/src/version.js
+echo "export const buildTime = \"${BUILD_TIME}\";" >> client/src/version.js
+
 # Move to client directory
 cd client
 

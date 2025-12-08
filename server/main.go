@@ -11,6 +11,12 @@ import (
 	"webapp-server/router"
 )
 
+// Set via -ldflags at build time
+var (
+	GitCommit = "dev"
+	BuildTime = "unknown"
+)
+
 // corsMiddleware adds CORS headers to the response
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +37,10 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	// Pass version info to api package
+	api.GitCommit = GitCommit
+	api.BuildTime = BuildTime
+
 	db.Init()
 
 	theRouter := router.NewRouter([]router.Endpoint{

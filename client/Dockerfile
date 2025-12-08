@@ -6,10 +6,15 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
+# Copy git directory for version info
+COPY .git .git
 COPY . .
 
-# Generate version file (mimic legacy Dockerfile behaviour)
-RUN echo "export const version =\"$(date +%y%m%d).$(printf '%04d' $(date +%s) | tail -c 4)\"" > ./src/version.js
+# Generate version file with git commit and datetime
+RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
+    BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && \
+    echo "export const version = \"${GIT_COMMIT}\";" > ./src/version.js && \
+    echo "export const buildTime = \"${BUILD_TIME}\";" >> ./src/version.js
 
 RUN npm run build
 
