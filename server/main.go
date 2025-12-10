@@ -8,9 +8,13 @@ import (
 	"strings"
 	"webapp-server/api"
 	"webapp-server/db"
-
-	"github.com/joho/godotenv"
 	"webapp-server/router"
+)
+
+// Set via -ldflags at build time
+var (
+	GitCommit = "dev"
+	BuildTime = "unknown"
 )
 
 // corsMiddleware adds CORS headers to the response
@@ -33,9 +37,9 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found - not importing env variables from file")
-	}
+	// Pass version info to api package
+	api.GitCommit = GitCommit
+	api.BuildTime = BuildTime
 
 	db.Init()
 
@@ -48,6 +52,7 @@ func main() {
 		api.Status,
 		api.Upgrade,
 		api.User,
+		api.Version,
 		api.PublicGame,
 		api.PublicSession,
 	})

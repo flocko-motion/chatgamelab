@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: chatgamelab-db
+    environment:
+      POSTGRES_DB: chatgamelab
+      POSTGRES_USER: chatgamelab
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: chatgamelab-server
+    environment:
+      DATABASE_URL: postgres://chatgamelab:${DB_PASSWORD}@db:5432/chatgamelab?sslmode=disable
+    depends_on:
+      - db
+    expose:
+      - "3000" # only accessible inside the Docker network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: chatgamelab-client
+    environment:
+      # Where the frontend should call the API from inside Docker network
+      REACT_APP_API_BASE_URL: http://server:3000
+    depends_on:
+      - server
+
+  web:
+    image: nginx:alpine
+    container_name: chatgamelab-web
+    depends_on:
+      - client
+      - server
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+
+volumes:
+  db_data:

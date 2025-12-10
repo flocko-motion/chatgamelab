@@ -1,6 +1,7 @@
 package api
 
 import (
+	"webapp-server/db"
 	"webapp-server/obj"
 	"webapp-server/router"
 )
@@ -13,7 +14,10 @@ var Games = router.NewEndpoint(
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}
-		games, err := request.User.GetGames()
-		return games, err
+		games, err := db.GetGames(request.Ctx, &request.User.ID, nil)
+		if err != nil {
+			return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get games: " + err.Error()}
+		}
+		return games, nil
 	},
 )

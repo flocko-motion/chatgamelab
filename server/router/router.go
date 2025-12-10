@@ -3,12 +3,13 @@ package router
 import (
 	"context"
 	"encoding/json"
-	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
-	"github.com/auth0/go-jwt-middleware/v2/validator"
 	"log"
 	"net/http"
 	"webapp-server/db"
 	"webapp-server/obj"
+
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
+	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
 
 type Endpoint struct {
@@ -22,7 +23,7 @@ type Endpoint struct {
 
 type Request struct {
 	R    *http.Request
-	User *db.User
+	User *obj.User
 	Ctx  context.Context
 }
 
@@ -67,18 +68,14 @@ func NewEndpoint(path string, public bool, contentType string, handler Handler) 
 				}
 			}
 
-			if userId := token.RegisteredClaims.Subject; userId != "" {
-				request.User, err = db.GetUserByAuth0ID(userId)
+			if auth0ID := token.RegisteredClaims.Subject; auth0ID != "" {
+				request.User, err = db.GetUserByAuth0ID(request.Ctx, auth0ID)
 
-				// unknown user
+				// unknown user - create them
 				if err != nil {
-					newUser := &db.User{
-						Auth0ID: userId,
-					}
-					if err = db.CreateUser(newUser); err != nil {
+					request.User, err = db.CreateUser(request.Ctx, "Unnamed Auth0 User", nil, auth0ID)
+					if err != nil {
 						httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to create user"}
-					} else {
-						request.User = newUser
 					}
 				}
 			}

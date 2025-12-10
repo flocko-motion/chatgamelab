@@ -1,37 +1,68 @@
 package db
 
 import (
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"database/sql"
+	"errors"
 	"os"
-	"path"
+
+	sqlc "webapp-server/db/sqlc"
+	"webapp-server/obj"
+
+	_ "github.com/lib/pq" // Postgres driver
 )
 
 var (
-	db              *gorm.DB
-	fileUsageReport *os.File
-	pathUsageReport string
+	sqlDb            *sql.DB       // shared *sql.DB
+	queriesSingleton *sqlc.Queries // sqlc-generated Queries (see db/sqlc/db.go)
 )
 
+// Init initializes the database connection. Call this at startup.
 func Init() {
-	pathDb := path.Join("var", "sqlite.db")
+	_ = queries() // trigger lazy initialization
+}
+
+// queries returns the sqlc Queries singleton, initializing if needed.
+func queries() *sqlc.Queries {
+	if queriesSingleton != nil {
+		return queriesSingleton
+	}
+
+	dsn := os.Getenv("DATABASE_URL")
+	if dsn == "" {
+		panic("DATABASE_URL environment variable is required")
+	}
+
 	var err error
-	db, err = gorm.Open(sqlite.Open(pathDb), &gorm.Config{})
+	sqlDb, err = sql.Open("postgres", dsn)
 	if err != nil {
-		panic("failed to connect database '" + pathDb + "': " + err.Error())
+		panic("failed to open postgres connection: " + err.Error())
 	}
 
-	pathUsageReport = path.Join("var", "usage_report.csv")
-	if fileUsageReport, err = os.OpenFile(pathUsageReport, os.O_CREATE|os.O_WRONLY, 0644); err != nil {
-		panic("failed to create or open usage report file: " + err.Error())
+	if err = sqlDb.Ping(); err != nil {
+		panic("failed to connect to postgres: " + err.Error())
 	}
 
-	// Migrate the schema
-	tables := []interface{}{&User{}, &Game{}, &Session{}, &Chapter{}}
-	for _, table := range tables {
-		err = db.AutoMigrate(table)
-		if err != nil {
-			panic("failed to migrate database: " + err.Error())
-		}
+	// New is defined in db/sqlc/db.go and returns *Queries.
+	queriesSingleton = sqlc.New(sqlDb)
+	return queriesSingleton
+}
+
+func sqlNullStringToMaybeString(ns sql.NullString) *string {
+	if ns.Valid {
+		return &ns.String
+	}
+	return nil
+}
+
+func stringToRole(s string) (obj.Role, error) {
+	switch s {
+	case string(obj.RoleAdmin):
+		return obj.RoleAdmin, nil
+	case string(obj.RoleHead):
+		return obj.RoleHead, nil
+	case string(obj.RoleStaff):
+		return obj.RoleStaff, nil
+	default:
+		return obj.Role("invalid:" + s), errors.New("invalid role")
 	}
 }

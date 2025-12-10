@@ -6,6 +6,10 @@ import (
 	"fmt"
 )
 
+var (
+	HTTPErrorNotImplemented = HTTPError{StatusCode: 501, Message: "Not Implemented"}
+)
+
 type HTTPError struct {
 	StatusCode int
 	Message    string
