@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cgl/api/auth"
 	"cgl/api/endpoints"
 	"cgl/api/handler"
 	"cgl/db"
@@ -10,6 +11,9 @@ import (
 )
 
 func RunServer(port int, devMode bool) {
+
+	auth.InitJwtGeneration()
+
 	endpoints.DevMode = devMode
 
 	if devMode {

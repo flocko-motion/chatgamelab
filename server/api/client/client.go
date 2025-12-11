@@ -7,31 +7,86 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
-func ApiGet(endpoint string, out any) error {
-	url := endpointUrl(endpoint)
-	fmt.Printf("GET %s\n", url)
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("request failed: %v", err)
-	}
-	defer resp.Body.Close()
+var cglDir string
 
-	return parseResponse(resp, out)
+func init() {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("Warning: could not get home directory: %v\n", err)
+		return
+	}
+	cglDir = filepath.Join(home, ".cgl")
+}
+
+// GetJwtPath returns the path to the JWT file
+func GetJwtPath() string {
+	return filepath.Join(cglDir, "jwt")
+}
+
+// SaveJwt saves the JWT token to ~/.cgl/jwt
+func SaveJwt(token string) error {
+	if err := os.MkdirAll(cglDir, 0700); err != nil {
+		return fmt.Errorf("failed to create %s: %v", cglDir, err)
+	}
+	if err := os.WriteFile(GetJwtPath(), []byte(token), 0600); err != nil {
+		return fmt.Errorf("failed to write JWT: %v", err)
+	}
+	return nil
+}
+
+// LoadJwt loads the JWT token from ~/.cgl/jwt
+func LoadJwt() string {
+	data, err := os.ReadFile(GetJwtPath())
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(data))
+}
+
+func ApiGet(endpoint string, out any) error {
+	return apiRequest("GET", endpoint, nil, out)
 }
 
 func ApiPost(endpoint string, payload any, out any) error {
-	url := endpointUrl(endpoint)
+	return apiRequest("POST", endpoint, payload, out)
+}
 
-	fmt.Printf("POST %s\n%v\n", url, payload)
-	body, err := json.Marshal(payload)
-	if err != nil {
-		return fmt.Errorf("failed to marshal request: %v", err)
+func apiRequest(method, endpoint string, payload any, out any) error {
+	endpoint = strings.TrimPrefix(endpoint, "/")
+	url := endpointUrl(endpoint)
+	fmt.Printf("%s %s\n", method, url)
+
+	var bodyReader io.Reader
+	if payload != nil {
+		body, err := json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("failed to marshal request: %v", err)
+		}
+		bodyReader = bytes.NewReader(body)
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewReader(body))
+	req, err := http.NewRequest(method, url, bodyReader)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %v", err)
+	}
+
+	if payload != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	// Add JWT auth if available - except when trying to generate dev jwt tokens
+	if !strings.HasPrefix(endpoint, "user/jwt") {
+		if jwt := LoadJwt(); jwt != "" {
+			req.Header.Set("Authorization", "Bearer "+jwt)
+			fmt.Printf("Authorization %s..\n", req.Header.Get("Authorization")[0:30])
+		}
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("request failed: %v", err)
 	}

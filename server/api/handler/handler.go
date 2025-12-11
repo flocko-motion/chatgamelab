@@ -63,6 +63,7 @@ func NewEndpoint(path string, public bool, contentType string, endpointHandler H
 			if err != nil {
 				httpError = &obj.HTTPError{StatusCode: http.StatusUnauthorized, Message: "User not found"}
 			}
+			log.Printf("valid jwt user: %s (%s) for %s %s", userId, request.User.Name, r.Method, r.URL.Path)
 		} else if tokenObj := r.Context().Value(jwtmiddleware.ContextKey{}); tokenObj != nil {
 			// Fall back to Auth0 token
 			token := tokenObj.(*validator.ValidatedClaims)

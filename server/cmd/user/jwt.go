@@ -27,7 +27,11 @@ func runUserJwt(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to generate JWT: %v", err)
 	}
 
+	if err := client.SaveJwt(resp.Token); err != nil {
+		log.Fatalf("Failed to save JWT: %v", err)
+	}
+
 	fmt.Printf("User ID: %s\n", resp.UserID)
 	fmt.Printf("Auth0 ID: %s\n", resp.Auth0ID)
-	fmt.Printf("\nJWT Token (valid for 24h):\n%s\n", resp.Token)
+	fmt.Printf("\nJWT Token saved to %s\n", client.GetJwtPath())
 }

@@ -13,7 +13,7 @@ import (
 // Secret is generated on startup and used for signing/validating JWTs
 var Secret []byte
 
-func init() {
+func InitJwtGeneration() {
 	Secret = make([]byte, 32)
 	if _, err := rand.Read(Secret); err != nil {
 		log.Fatalf("Failed to generate JWT secret: %v", err)
