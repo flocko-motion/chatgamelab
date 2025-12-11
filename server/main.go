@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cgl/endpoints"
+	"cgl/api/endpoints"
 	"cgl/cmd"
 )
 

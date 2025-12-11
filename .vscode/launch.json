@@ -11,6 +11,10 @@
             "mode": "auto",
             "program": "${workspaceFolder}/server",
             "cwd": "${workspaceFolder}/server",
+            "args": [
+                "server",
+                "--dev"
+            ],
             "envFile": "${workspaceFolder}/.env",
             "env": {
                 "DATABASE_URL": "postgres://chatgamelab@localhost:5433/chatgamelab?sslmode=disable"
