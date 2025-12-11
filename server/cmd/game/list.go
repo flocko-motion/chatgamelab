@@ -42,11 +42,6 @@ func runGameList(cmd *cobra.Command, args []string) {
 			created = g.Meta.CreatedAt.Format("2006-01-02")
 		}
 
-		desc := ""
-		if g.Description != nil {
-			desc = functional.Shorten(*g.Description, 40)
-		}
-
 		public := "no"
 		if g.Public {
 			public = "yes"
@@ -58,7 +53,7 @@ func runGameList(cmd *cobra.Command, args []string) {
 			owner,
 			created,
 			public,
-			desc,
+			functional.Shorten(g.Description, 40),
 		})
 	}
 	table.Render()

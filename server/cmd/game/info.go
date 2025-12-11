@@ -23,7 +23,10 @@ func init() {
 }
 
 func runGameInfo(cmd *cobra.Command, args []string) {
-	gameID := args[0]
+	printGameInfo(args[0])
+}
+
+func printGameInfo(gameID string) {
 
 	var game obj.Game
 	if err := client.ApiGet("games/"+gameID, &game); err != nil {

@@ -2,6 +2,7 @@ package game
 
 import (
 	"cgl/api/client"
+	"cgl/functional"
 	"fmt"
 	"io"
 	"log"
@@ -11,17 +12,17 @@ import (
 )
 
 var putCmd = &cobra.Command{
-	Use:   "put <game-id>",
+	Use:   "put <game-id> <yaml-file>",
 	Short: "Update a game from YAML",
-	Long:  "Update a game by ID from YAML input (stdin or file).",
-	Args:  cobra.ExactArgs(1),
+	Long:  "Update a game by ID from YAML file. Use --stdin to read from stdin instead.",
+	Args:  cobra.RangeArgs(1, 2),
 	Run:   runPut,
 }
 
-var inputFile string
+var useStdin bool
 
 func init() {
-	putCmd.Flags().StringVarP(&inputFile, "file", "f", "", "YAML file to read (default: stdin)")
+	putCmd.Flags().BoolVar(&useStdin, "stdin", false, "Read YAML from stdin instead of file")
 	Cmd.AddCommand(putCmd)
 }
 
@@ -29,23 +30,17 @@ func runPut(cmd *cobra.Command, args []string) {
 	gameID := args[0]
 
 	var yamlContent []byte
-	var err error
 
-	if inputFile != "" {
-		yamlContent, err = os.ReadFile(inputFile)
-		if err != nil {
-			log.Fatalf("Failed to read file: %v", err)
-		}
+	if useStdin {
+		yamlContent = functional.MustReturn(io.ReadAll(os.Stdin))
+	} else if len(args) > 1 {
+		yamlContent = functional.MustReturn(os.ReadFile(args[1]))
 	} else {
-		yamlContent, err = io.ReadAll(os.Stdin)
-		if err != nil {
-			log.Fatalf("Failed to read stdin: %v", err)
-		}
+		log.Fatalf("Either provide a YAML file as second argument or use --stdin")
 	}
 
-	if err := client.ApiPutRaw(fmt.Sprintf("games/%s/yaml", gameID), string(yamlContent)); err != nil {
-		log.Fatalf("Failed to update game: %v", err)
-	}
+	functional.Must(client.ApiPutRaw(fmt.Sprintf("games/%s/yaml", gameID), string(yamlContent)), "failed to update game")
 
 	fmt.Println("Game updated successfully")
+	printGameInfo(gameID)
 }

@@ -9,6 +9,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func RunServer(ctx context.Context, port int, devMode bool) {
@@ -49,14 +53,41 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	}
 	mux := NewRouter(endpointList)
 
-	http.Handle("/", handler.CorsMiddleware(mux))
-
 	bindAddr := fmt.Sprintf("0.0.0.0:%d", port)
-	log.Printf("Server listening on %s\n", bindAddr)
-	if err := http.ListenAndServe(bindAddr, nil); err != nil {
-		log.Fatalf("There was an error with the http server: %v", err)
+	server := &http.Server{
+		Addr:    bindAddr,
+		Handler: handler.CorsMiddleware(mux),
 	}
 
+	// Start server in goroutine
+	go func() {
+		log.Printf("Server listening on %s\n", bindAddr)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("There was an error with the http server: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal or context cancellation
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case <-quit:
+		log.Println("Received shutdown signal")
+	case <-ctx.Done():
+		log.Println("Context cancelled")
+	}
+
+	// Graceful shutdown with timeout
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	log.Println("Shutting down server...")
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Server stopped")
 }
 
 // Router handles routing with path parameter support

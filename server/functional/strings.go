@@ -1,9 +1,13 @@
 package functional
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 func Shorten(s string, max int) string {
@@ -57,4 +61,33 @@ func HumanizeDuration(d time.Duration) string {
 	days := int(d.Hours()) / 24
 	hours := int(d.Hours()) % 24
 	return fmt.Sprintf("%dd %dh", days, hours)
+}
+
+// NormalizeJson unmarshals JSON into the given struct type and re-marshals it to normalize the format.
+// If o is not a pointer, a pointer to a new instance of its type is created automatically.
+func NormalizeJson(in string, o any) string {
+	target := EnsurePointer(o)
+	_ = json.Unmarshal([]byte(in), target)
+	normalized, _ := json.Marshal(target)
+	return string(normalized)
+}
+
+// EnsurePointer returns a pointer to o if o is not already a pointer.
+func EnsurePointer(o any) any {
+	v := reflect.ValueOf(o)
+	if v.Kind() == reflect.Ptr {
+		return o
+	}
+	// Create a new pointer to the same type and return it
+	ptr := reflect.New(v.Type())
+	return ptr.Interface()
+}
+
+// NormalizeYaml unmarshals YAML into the given struct type and re-marshals it to normalize the format.
+// If o is not a pointer, a pointer to a new instance of its type is created automatically.
+func NormalizeYaml(in string, o any) string {
+	target := EnsurePointer(o)
+	_ = yaml.Unmarshal([]byte(in), target)
+	normalized, _ := yaml.Marshal(target)
+	return string(normalized)
 }

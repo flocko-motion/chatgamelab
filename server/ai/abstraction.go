@@ -15,16 +15,12 @@ type AiPlatform interface {
 
 // NewSession creates a new session object, but doesn't store it in the db or push it to any ai platform.
 func NewSession(game obj.Game, userID uuid.UUID, apiKeyID uuid.UUID) *obj.GameSession {
-	description := ""
-	if game.Description != nil {
-		description = *game.Description
-	}
 
 	return &obj.GameSession{
 		ID:              uuid.New(),
 		GameID:          game.ID,
 		GameName:        game.Name,
-		GameDescription: description,
+		GameDescription: game.Description,
 		UserID:          userID,
 		ApiKeyID:        apiKeyID,
 		ImageStyle:      game.ImageStyle,

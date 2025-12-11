@@ -119,6 +119,15 @@ type Game struct {
 	Tags         []GameTag `json:"tags" yaml:"-"`
 }
 
+// this is just a dummy example for a CSS struct that can be used to have validateable CSS definitions
+type CSS struct {
+	ColorFg     string `json:"colorFg"`
+	ColorBg     string `json:"colorBg"`
+	ColorAccent string `json:"colorAccent"`
+	ColorButton string `json:"colorButton"`
+	Font        string `json:"font"`
+}
+
 type GameTag struct {
 	ID     uuid.UUID `json:"id"`
 	Meta   Meta      `json:"meta"`
