@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"crypto/rand"
+	"cgl/functional"
 	"log"
 	"net/http"
 	"strings"
@@ -10,15 +10,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// Secret is generated on startup and used for signing/validating JWTs
-var Secret []byte
+// secret is used for signing/validating JWTs
+var secret []byte
 
 func InitJwtGeneration() {
-	Secret = make([]byte, 32)
-	if _, err := rand.Read(Secret); err != nil {
-		log.Fatalf("Failed to generate JWT secret: %v", err)
-	}
-	log.Println("Generated JWT secret")
+	secret = []byte(functional.RequireEnv("JWT_SECRET"))
 }
 
 // GenerateToken creates a new JWT token for the given subject (user ID)
@@ -33,7 +29,7 @@ func GenerateToken(userId string) (string, int64, error) {
 		"scope": "openid profile email",
 	})
 
-	tokenString, err := token.SignedString(Secret)
+	tokenString, err := token.SignedString(secret)
 	if err != nil {
 		return "", 0, err
 	}
@@ -50,13 +46,17 @@ func ValidateToken(r *http.Request) (userId string, valid bool) {
 	}
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
+	log.Printf("[CGL JWT] Validating token: %s...", tokenString[:min(50, len(tokenString))])
+
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			log.Printf("[CGL JWT] Invalid signing method: %v", token.Method)
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return Secret, nil
+		return secret, nil
 	})
 	if err != nil {
+		log.Printf("[CGL JWT] Parse error: %v", err)
 		return "", false
 	}
 

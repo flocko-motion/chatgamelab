@@ -84,6 +84,13 @@ func EnsureValidToken() func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Try CGL token first
 			if userId, valid := auth.ValidateToken(r); valid {
+				if userId == "" {
+					log.Printf("[CGL JWT] Error: token has empty 'sub' claim")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"message":"Invalid token: missing user ID"}`))
+					return
+				}
+				log.Printf("[CGL JWT] Valid token for userId: %s", userId)
 				// Store userId in context for handler to use
 				ctx := context.WithValue(r.Context(), CglUserIdKey{}, userId)
 				next.ServeHTTP(w, r.WithContext(ctx))

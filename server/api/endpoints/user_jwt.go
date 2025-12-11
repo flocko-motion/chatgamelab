@@ -57,7 +57,7 @@ var UserJwt = handler.NewEndpoint(
 			}
 		}
 
-		tokenString, expireAt, err := auth.GenerateToken(auth0ID)
+		tokenString, expireAt, err := auth.GenerateToken(userID.String())
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to sign token"}
 		}
