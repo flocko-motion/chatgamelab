@@ -9,10 +9,15 @@ import (
 	"strings"
 	"time"
 
+	"cgl/api/auth"
+
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/jwks"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
+
+// CglUserIdKey is the context key for CGL JWT user ID
+type CglUserIdKey struct{}
 
 // CustomClaims contains custom data we want from the token.
 type CustomClaims struct {
@@ -76,6 +81,16 @@ func EnsureValidToken() func(next http.Handler) http.Handler {
 	)
 
 	return func(next http.Handler) http.Handler {
-		return middleware.CheckJWT(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Try CGL token first
+			if userId, valid := auth.ValidateToken(r); valid {
+				// Store userId in context for handler to use
+				ctx := context.WithValue(r.Context(), CglUserIdKey{}, userId)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+			// Fall back to Auth0 validation
+			middleware.CheckJWT(next).ServeHTTP(w, r)
+		})
 	}
 }

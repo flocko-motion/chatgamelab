@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"net/url"
+	"fmt"
 	"os"
 
 	sqlc "cgl/db/sqlc"
@@ -28,20 +28,13 @@ func queries() *sqlc.Queries {
 		return queriesSingleton
 	}
 
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		panic("DATABASE_URL environment variable is required")
-	}
-
-	// If DATABASE_URL has no password, inject DB_PASSWORD if available
-	if dbPassword := os.Getenv("DB_PASSWORD"); dbPassword != "" {
-		if u, err := url.Parse(dsn); err == nil {
-			if _, hasPassword := u.User.Password(); !hasPassword && u.User.Username() != "" {
-				u.User = url.UserPassword(u.User.Username(), dbPassword)
-				dsn = u.String()
-			}
+	for _, required := range []string{"DB_PASSWORD", "DB_USER", "DB_DATABASE"} {
+		if os.Getenv(required) == "" {
+			fmt.Printf("missing env %s - did you source the .env file?\n", required)
+			os.Exit(1)
 		}
 	}
+	dsn := fmt.Sprintf("postgres://%s:%s@localhost:5433/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE"))
 
 	var err error
 	sqlDb, err = sql.Open("postgres", dsn)

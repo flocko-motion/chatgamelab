@@ -1,15 +1,15 @@
 package db
 
 import (
+	"cgl/ai"
+	db "cgl/db/sqlc"
+	"cgl/obj"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"slices"
 	"time"
-	"cgl/ai"
-	db "cgl/db/sqlc"
-	"cgl/obj"
 
 	"github.com/google/uuid"
 )
@@ -270,4 +270,33 @@ func shortenApiKey(key string) string {
 		return ".." + key[len(key)-toLen-1:len(key)-1]
 	}
 	return key
+}
+
+// GetAllUsers returns all users (for admin/CLI use)
+func GetAllUsers(ctx context.Context) ([]obj.User, error) {
+	rows, err := sqlDb.QueryContext(ctx, `
+		SELECT id, name, email, auth0_id, created_at
+		FROM app_user
+		WHERE deleted_at IS NULL
+		ORDER BY created_at DESC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []obj.User
+	for rows.Next() {
+		var u obj.User
+		var email, auth0ID sql.NullString
+		var createdAt time.Time
+		if err := rows.Scan(&u.ID, &u.Name, &email, &auth0ID, &createdAt); err != nil {
+			return nil, err
+		}
+		u.Email = sqlNullStringToMaybeString(email)
+		u.Auth0Id = sqlNullStringToMaybeString(auth0ID)
+		u.Meta.CreatedAt = &createdAt
+		users = append(users, u)
+	}
+	return users, rows.Err()
 }

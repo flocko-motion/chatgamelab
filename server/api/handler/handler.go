@@ -10,6 +10,7 @@ import (
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
+	"github.com/google/uuid"
 )
 
 type Handler func(request Request) (interface{}, *obj.HTTPError)
@@ -55,8 +56,15 @@ func NewEndpoint(path string, public bool, contentType string, endpointHandler H
 		w.Header().Set("Content-Type", endpoint.ContentType)
 
 		log.Printf("Handling request for %s", r.URL.Path)
-		tokenObj := r.Context().Value(jwtmiddleware.ContextKey{})
-		if tokenObj != nil {
+
+		// Check for CGL JWT user ID first
+		if userId, ok := r.Context().Value(CglUserIdKey{}).(string); ok && userId != "" {
+			request.User, err = db.GetUserByID(request.Ctx, uuid.MustParse(userId))
+			if err != nil {
+				httpError = &obj.HTTPError{StatusCode: http.StatusUnauthorized, Message: "User not found"}
+			}
+		} else if tokenObj := r.Context().Value(jwtmiddleware.ContextKey{}); tokenObj != nil {
+			// Fall back to Auth0 token
 			token := tokenObj.(*validator.ValidatedClaims)
 
 			claims := token.CustomClaims.(*CustomClaims)

@@ -18,7 +18,7 @@ func RunServer(port int, devMode bool) {
 
 	db.Init()
 
-	mux := NewRouter([]handler.Endpoint{
+	endpointList := []handler.Endpoint{
 		endpoints.Game,
 		endpoints.Games,
 		endpoints.Image,
@@ -27,10 +27,18 @@ func RunServer(port int, devMode bool) {
 		endpoints.Status,
 		endpoints.Upgrade,
 		endpoints.User,
+		endpoints.Users,
 		endpoints.Version,
 		endpoints.PublicGame,
 		endpoints.PublicSession,
-	})
+	}
+	if devMode {
+		endpointList = append(endpointList,
+			endpoints.UserAdd,
+			endpoints.UserJwt,
+		)
+	}
+	mux := NewRouter(endpointList)
 
 	http.Handle("/", handler.CorsMiddleware(mux))
 
