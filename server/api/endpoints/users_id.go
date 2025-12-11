@@ -23,11 +23,6 @@ var UsersId = handler.NewEndpoint(
 		}
 		log.Printf("UsersId: %s %s", request.R.Method, userID)
 
-		// only admins may edit other users - normal users may only edit themselves
-		if request.User.Role.Role != obj.RoleAdmin && userID != request.User.ID {
-			return nil, &obj.HTTPError{StatusCode: 403, Message: "Forbidden: insufficient permissions"}
-		}
-
 		switch request.R.Method {
 		case "GET":
 			user, err := db.GetUserByID(request.Ctx, userID)
@@ -37,9 +32,11 @@ var UsersId = handler.NewEndpoint(
 			return user, nil
 
 		case "POST":
-			// TODO: Add admin check - for now only allow editing own profile
+			// only admins may access other users
 			if userID != request.User.ID {
-				return nil, &obj.HTTPError{StatusCode: 403, Message: "Can only edit your own profile"}
+				if httpErr := request.RequireAdmin(); httpErr != nil {
+					return nil, httpErr
+				}
 			}
 
 			var req UserUpdateRequest

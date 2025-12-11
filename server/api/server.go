@@ -33,7 +33,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.Report,
 		endpoints.Session,
 		endpoints.Status,
-		endpoints.Upgrade,
+		endpoints.Restart,
 		endpoints.UsersList,
 		endpoints.UsersMe,
 		endpoints.UsersId,

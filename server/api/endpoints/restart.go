@@ -8,12 +8,15 @@ import (
 	"time"
 )
 
-var Upgrade = handler.NewEndpoint(
-	"/api/upgrade",
-	true,
+var Restart = handler.NewEndpoint(
+	"/api/restart",
+	false,
 	"application/json",
-	func(request handler.Request) (interface{}, *obj.HTTPError) {
-		log.Println("upgrade docker request - exiting server")
+	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
+		if httpErr := request.RequireAdmin(); httpErr != nil {
+			return nil, httpErr
+		}
+		log.Println("restart request - exiting server")
 		go func() {
 			time.Sleep(10 * time.Second)
 			log.Println("shutting down server")

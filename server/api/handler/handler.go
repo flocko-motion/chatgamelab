@@ -44,6 +44,19 @@ func (r *Request) GetPathParamUUID(key string) (uuid.UUID, error) {
 	return uuid.Parse(r.GetPathParam(key))
 }
 
+// IsAdmin returns true if the current user has admin role
+func (r *Request) IsAdmin() bool {
+	return r.User != nil && r.User.Role.Role == obj.RoleAdmin
+}
+
+// RequireAdmin returns an error if the current user is not an admin
+func (r *Request) RequireAdmin() *obj.HTTPError {
+	if !r.IsAdmin() {
+		return &obj.HTTPError{StatusCode: 403, Message: "Forbidden: admin access required"}
+	}
+	return nil
+}
+
 // Body returns the request body as bytes
 func (r *Request) Body() ([]byte, *obj.HTTPError) {
 	body, err := io.ReadAll(r.R.Body)
