@@ -1,14 +1,13 @@
 package db
 
 import (
-	"cgl/ai"
 	db "cgl/db/sqlc"
+	"cgl/game/ai"
 	"cgl/obj"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -177,7 +176,7 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 }
 
 func CreateUserApiKey(ctx context.Context, userID uuid.UUID, platform, key string) (*uuid.UUID, error) {
-	if !slices.Contains(ai.ApiKeyPlatforms, platform) {
+	if !ai.IsValidApiKeyPlatform(platform) {
 		return nil, errors.New("unknown platform: " + platform)
 	}
 
@@ -197,6 +196,36 @@ func CreateUserApiKey(ctx context.Context, userID uuid.UUID, platform, key strin
 		return nil, err
 	}
 	return &result.ID, nil
+}
+
+// GetApiKeyByID gets an API key by ID. If userID is provided, verifies ownership or access.
+func GetApiKeyByID(ctx context.Context, userID *uuid.UUID, apiKeyID uuid.UUID) (*obj.ApiKey, error) {
+	k, err := queries().GetApiKeyByID(ctx, apiKeyID)
+	if err != nil {
+		return nil, fmt.Errorf("api key not found: %w", err)
+	}
+
+	// If userID provided, verify ownership or access
+	if userID != nil && k.UserID != *userID {
+		// Check if user has access via sharing
+		if err := userIsAllowedToUseApiKey(ctx, *userID, apiKeyID); err != nil {
+			return nil, errors.New("access denied: not the owner of this API key")
+		}
+	}
+
+	return &obj.ApiKey{
+		ID:       k.ID,
+		UserID:   k.UserID,
+		Platform: k.Platform,
+		Key:      k.Key,
+		Meta: obj.Meta{
+			CreatedBy:  k.CreatedBy,
+			CreatedAt:  &k.CreatedAt,
+			ModifiedBy: k.ModifiedBy,
+			ModifiedAt: &k.ModifiedAt,
+		},
+		KeyShortened: shortenApiKey(k.Key),
+	}, nil
 }
 
 func DeleteUserApiKey(ctx context.Context, userID uuid.UUID, apiKeyID string) error {

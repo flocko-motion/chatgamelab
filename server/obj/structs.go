@@ -148,13 +148,14 @@ type GameSession struct {
 	UserName        string    `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
 	ApiKeyID uuid.UUID `json:"apiKeyId"`
+	ApiKey   *ApiKey   `json:"apiKey"`
 	// AI model used for playing.
 	Model string `json:"model"`
 	// JSON with arbitrary details to be used within that model and within that session.
 	ModelSession string `json:"modelSession"`
 	ImageStyle   string `json:"imageStyle"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
-	StatusFields []StatusField `json:"statusFields"`
+	StatusFields string `json:"statusFields"`
 }
 
 type StatusField struct {
@@ -162,11 +163,20 @@ type StatusField struct {
 	Value string `json:"value"`
 }
 
+const (
+	GameSessionMessageTypeStory  = "story"
+	GameSessionMessageTypeAction = "action"
+	GameSessionMessageTypeSystem = "system"
+	GameSessionMessageTypeError  = "error"
+)
+
 type GameSessionMessage struct {
 	ID   uuid.UUID `json:"id"`
 	Meta Meta      `json:"meta"`
 
 	GameSessionID uuid.UUID `json:"gameSessionId"`
+	// Sequence number within the session, starting at 1
+	Seq int `json:"seq"`
 	// player: user message; game: LLM/game response; system: initial system/context messages.
 	Type string `json:"type"`
 	// Plain text of the scene (system message, player action, or game response).
@@ -175,52 +185,4 @@ type GameSessionMessage struct {
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt"`
 	Image        []byte        `json:"image"`
-}
-
-// ----------------LEGACY TYPES-----------------------
-const GameInputTypeAction = "player-action"
-const GameInputTypeIntro = "intro"
-const GameOutputTypeError = "error"
-const GameOutputTypeStory = "story"
-
-// ----------------LEGACY TYPES-----------------------
-type GameActionInput struct {
-	ChapterId uint          `json:"-"`
-	Type      string        `json:"type"`
-	Message   string        `json:"action"`
-	Status    []StatusField `json:"status"`
-}
-
-// ----------------LEGACY TYPES-----------------------
-type GameActionOutputGpt struct {
-	ChapterId   uint          `json:"chapterId"`
-	SessionHash string        `json:"sessionHash"`
-	Type        string        `json:"type"`
-	Story       string        `json:"story"`
-	Status      []StatusField `json:"status"`
-	Image       string        `json:"image"`
-}
-
-// ----------------LEGACY TYPES-----------------------
-type GameActionOutput struct {
-	ChapterId             uint          `json:"chapterId"`
-	SessionHash           string        `json:"sessionHash"`
-	Type                  string        `json:"type"`
-	Story                 string        `json:"story"`
-	Status                []StatusField `json:"status"`
-	Image                 string        `json:"image"`
-	Error                 string        `json:"error"`
-	RawInput              string        `json:"rawInput"`
-	RawOutput             string        `json:"rawOutput"`
-	AssistantInstructions string        `json:"assistantInstructions"`
-	Agent                 AgentInfo     `json:"agent"`
-}
-
-// ----------------LEGACY TYPES-----------------------
-type AgentInfo struct {
-	Key             string `json:"key"`
-	Model           string `json:"model"`
-	Assistant       string `json:"assistant"`
-	Thread          string `json:"thread"`
-	ComputationTime string `json:"computationTime"`
 }

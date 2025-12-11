@@ -218,6 +218,8 @@ CREATE TABLE game_session_message (
     modified_at         timestamptz NOT NULL DEFAULT now(),
 
     game_session_id     uuid NOT NULL REFERENCES game_session(id),
+    -- Sequence number within the session, starting at 1
+    seq                 integer NOT NULL,
     -- player: user message; game: LLM/game response; system: initial system/context messages.
     type                text NOT NULL,
     -- Plain text of the scene (system message, player action, or game response).

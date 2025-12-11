@@ -187,21 +187,20 @@ const createGameSessionMessage = `-- name: CreateGameSessionMessage :one
 INSERT INTO game_session_message (
   id, created_by,
   created_at, modified_by, modified_at,
-  game_session_id,
+  game_session_id, seq,
   type, message,
   status, image_prompt, image
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6,
-  $7, $8,
-  $9, $10, $11
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
+  $6, $7,
+  $8, $9, $10
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, type, message, status, image_prompt, image
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image
 `
 
 type CreateGameSessionMessageParams struct {
-	ID            uuid.UUID
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
 	ModifiedBy    uuid.NullUUID
@@ -217,7 +216,6 @@ type CreateGameSessionMessageParams struct {
 // game_session_message -------------------------------------------------
 func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSessionMessageParams) (GameSessionMessage, error) {
 	row := q.db.QueryRowContext(ctx, createGameSessionMessage,
-		arg.ID,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ModifiedBy,
@@ -237,6 +235,7 @@ func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSe
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.GameSessionID,
+		&i.Seq,
 		&i.Type,
 		&i.Message,
 		&i.Status,
@@ -446,7 +445,7 @@ func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSes
 }
 
 const getGameSessionMessageByID = `-- name: GetGameSessionMessageByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, type, message, status, image_prompt, image FROM game_session_message WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image FROM game_session_message WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (GameSessionMessage, error) {
@@ -459,6 +458,7 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.GameSessionID,
+		&i.Seq,
 		&i.Type,
 		&i.Message,
 		&i.Status,
@@ -466,6 +466,46 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.Image,
 	)
 	return i, err
+}
+
+const getGameSessionsByGameID = `-- name: GetGameSessionsByGameID :many
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields FROM game_session WHERE game_id = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]GameSession, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSessionsByGameID, gameID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameSession
+	for rows.Next() {
+		var i GameSession
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.Model,
+			&i.ModelSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getGameTagByID = `-- name: GetGameTagByID :one
@@ -793,7 +833,7 @@ UPDATE game_session_message SET
   image_prompt = $10,
   image = $11
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, type, message, status, image_prompt, image
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image
 `
 
 type UpdateGameSessionMessageParams struct {
@@ -832,6 +872,7 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.GameSessionID,
+		&i.Seq,
 		&i.Type,
 		&i.Message,
 		&i.Status,

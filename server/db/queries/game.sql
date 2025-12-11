@@ -125,6 +125,9 @@ RETURNING *;
 -- name: GetGameSessionByID :one
 SELECT * FROM game_session WHERE id = $1;
 
+-- name: GetGameSessionsByGameID :many
+SELECT * FROM game_session WHERE game_id = $1 ORDER BY created_at DESC;
+
 -- name: UpdateGameSession :one
 UPDATE game_session SET
   created_by = $2,
@@ -151,15 +154,15 @@ DELETE FROM game_session WHERE id = $1;
 INSERT INTO game_session_message (
   id, created_by,
   created_at, modified_by, modified_at,
-  game_session_id,
+  game_session_id, seq,
   type, message,
   status, image_prompt, image
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6,
-  $7, $8,
-  $9, $10, $11
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
+  $6, $7,
+  $8, $9, $10
 )
 RETURNING *;
 

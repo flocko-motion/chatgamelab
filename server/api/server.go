@@ -33,6 +33,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.GamesNew,
 		endpoints.GamesId,
 		endpoints.GamesIdYaml,
+		endpoints.GamesIdSessions,
 		endpoints.Image,
 		endpoints.Report,
 		endpoints.Session,

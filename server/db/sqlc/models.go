@@ -102,6 +102,7 @@ type GameSessionMessage struct {
 	ModifiedBy    uuid.NullUUID
 	ModifiedAt    time.Time
 	GameSessionID uuid.UUID
+	Seq           int32
 	Type          string
 	Message       string
 	Status        sql.NullString

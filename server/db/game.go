@@ -1,13 +1,13 @@
 package db
 
 import (
-	"cgl/ai"
 	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/base32"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -197,43 +197,99 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	return err
 }
 
-func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID) (sessionID *uuid.UUID, err error) {
-	if err := userIsAllowedToPlayGame(ctx, &userID, gameID); err != nil {
-		return nil, fmt.Errorf("cannot create session: %w", err)
+// CreateGameSession persists a game session to the database
+func CreateGameSession(ctx context.Context, session *obj.GameSession) error {
+	if session == nil {
+		return fmt.Errorf("session is nil")
 	}
-	if err := userIsAllowedToUseApiKey(ctx, userID, apiKeyID); err != nil {
-		return nil, fmt.Errorf("cannot create session: %w", err)
-	}
-
-	game, err := GetGameByID(ctx, &userID, gameID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get game: %w", err)
-	}
-
-	session := ai.NewSession(*game, userID, apiKeyID)
-
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
 		ID:           session.ID,
-		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedBy:    uuid.NullUUID{UUID: session.UserID, Valid: true},
 		CreatedAt:    now,
-		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedBy:   uuid.NullUUID{UUID: session.UserID, Valid: true},
 		ModifiedAt:   now,
-		GameID:       gameID,
-		UserID:       userID,
-		ApiKeyID:     apiKeyID,
+		GameID:       session.GameID,
+		UserID:       session.UserID,
+		ApiKeyID:     session.ApiKeyID,
 		Model:        session.Model,
 		ModelSession: []byte(session.ModelSession),
 		ImageStyle:   session.ImageStyle,
-		StatusFields: game.StatusFields,
+		StatusFields: session.StatusFields,
 	}
 
-	_, err = queries().CreateGameSession(ctx, arg)
+	_, err := queries().CreateGameSession(ctx, arg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create session: %w", err)
+		return fmt.Errorf("failed to create session: %w", err)
 	}
 
-	return &session.ID, nil
+	return nil
+}
+
+// CreateGameSessionMessage adds a message to a game session with auto-incremented seq
+func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
+	now := time.Now()
+	var statusJSON sql.NullString
+	if len(msg.StatusFields) > 0 {
+		statusBytes, _ := json.Marshal(msg.StatusFields)
+		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
+	}
+
+	arg := db.CreateGameSessionMessageParams{
+		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:     now,
+		ModifiedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:    now,
+		GameSessionID: msg.GameSessionID,
+		Type:          msg.Type,
+		Message:       msg.Message,
+		Status:        statusJSON,
+		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		Image:         msg.Image,
+	}
+
+	result, err := queries().CreateGameSessionMessage(ctx, arg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session message: %w", err)
+	}
+
+	// Return a copy with the generated values from the database
+	msg.Seq = int(result.Seq)
+	msg.ID = result.ID
+	msg.Meta.CreatedAt = &result.CreatedAt
+	msg.Meta.ModifiedAt = &result.ModifiedAt
+
+	return &msg, nil
+}
+
+// GetGameSessionsByGameID returns all sessions for a game
+func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
+	// TODO: we should consider user access rights here!
+	dbSessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sessions: %w", err)
+	}
+
+	sessions := make([]obj.GameSession, 0, len(dbSessions))
+	for _, s := range dbSessions {
+		sessions = append(sessions, obj.GameSession{
+			ID:           s.ID,
+			GameID:       s.GameID,
+			UserID:       s.UserID,
+			ApiKeyID:     s.ApiKeyID,
+			Model:        s.Model,
+			ModelSession: string(s.ModelSession),
+			ImageStyle:   s.ImageStyle,
+			Meta: obj.Meta{
+				CreatedBy:  s.CreatedBy,
+				CreatedAt:  &s.CreatedAt,
+				ModifiedBy: s.ModifiedBy,
+				ModifiedAt: &s.ModifiedAt,
+			},
+		})
+	}
+
+	return sessions, nil
 }
 
 // dbGameToObj converts a sqlc Game to obj.Game, including tags
