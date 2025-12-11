@@ -104,6 +104,32 @@ func (q *Queries) CreateUserRole(ctx context.Context, arg CreateUserRoleParams) 
 	return id, err
 }
 
+const createUserWithID = `-- name: CreateUserWithID :one
+INSERT INTO app_user (id, name, email, auth0_id)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING
+RETURNING id
+`
+
+type CreateUserWithIDParams struct {
+	ID      uuid.UUID
+	Name    string
+	Email   sql.NullString
+	Auth0ID sql.NullString
+}
+
+func (q *Queries) CreateUserWithID(ctx context.Context, arg CreateUserWithIDParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createUserWithID,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const deleteApiKey = `-- name: DeleteApiKey :exec
 DELETE FROM api_key WHERE id = $1
 `

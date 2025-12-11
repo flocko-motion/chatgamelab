@@ -13,7 +13,7 @@ var userJwtCmd = &cobra.Command{
 	Use:   "jwt <id>",
 	Short: "Generate a JWT token for a user",
 	Long:  "Generate a JWT token for a user by UUID or Auth0 ID. Useful for development/testing.",
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.RangeArgs(0, 1),
 	Run:   runUserJwt,
 }
 
@@ -23,7 +23,16 @@ func init() {
 
 func runUserJwt(cmd *cobra.Command, args []string) {
 	var resp endpoints.UserJwtResponse
-	if err := client.ApiGet("user/jwt?id="+args[0], &resp); err != nil {
+
+	var userId string
+	if len(args) > 0 {
+		userId = args[0]
+	} else {
+		userId = "00000000-0000-0000-0000-000000000000" // dev user
+		fmt.Println("Creating JWT for dev user")
+	}
+
+	if err := client.ApiGet("user/jwt?id="+userId, &resp); err != nil {
 		log.Fatalf("Failed to generate JWT: %v", err)
 	}
 
@@ -33,5 +42,6 @@ func runUserJwt(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("User ID: %s\n", resp.UserID)
 	fmt.Printf("Auth0 ID: %s\n", resp.Auth0ID)
+	fmt.Printf("JWT: %s\n", resp.Token)
 	fmt.Printf("\nJWT Token saved to %s\n", client.GetJwtPath())
 }

@@ -33,5 +33,5 @@ func runServer(cmd *cobra.Command, args []string) {
 		log.Fatalf("Invalid API_PORT '%s': %v", portStr, err)
 	}
 
-	api.RunServer(port, devMode)
+	api.RunServer(cmd.Context(), port, devMode)
 }

@@ -8,7 +8,7 @@ import (
 
 var Users = handler.NewEndpoint(
 	"/api/users",
-	true, // Public endpoint for CLI access
+	false, // Requires authentication
 	"application/json",
 	func(request handler.Request) (interface{}, *obj.HTTPError) {
 		users, err := db.GetAllUsers(request.Ctx)

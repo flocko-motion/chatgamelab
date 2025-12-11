@@ -5,12 +5,13 @@ import (
 	"cgl/api/endpoints"
 	"cgl/api/handler"
 	"cgl/db"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-func RunServer(port int, devMode bool) {
+func RunServer(ctx context.Context, port int, devMode bool) {
 
 	auth.InitJwtGeneration()
 
@@ -21,6 +22,7 @@ func RunServer(port int, devMode bool) {
 	}
 
 	db.Init()
+	db.Preseed(ctx)
 
 	endpointList := []handler.Endpoint{
 		endpoints.Game,

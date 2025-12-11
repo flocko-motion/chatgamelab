@@ -6,6 +6,12 @@ INSERT INTO app_user (id, name, email, auth0_id)
 VALUES (gen_random_uuid(), $1, $2, $3)
 RETURNING id;
 
+-- name: CreateUserWithID :one
+INSERT INTO app_user (id, name, email, auth0_id)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
 

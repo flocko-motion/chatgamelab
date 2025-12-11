@@ -49,6 +49,23 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 	return GetUserByID(ctx, id)
 }
 
+// CreateUserWithID creates a new user with a specific UUID
+func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *string, auth0ID string) (*obj.User, error) {
+	arg := db.CreateUserWithIDParams{
+		ID:      id,
+		Name:    name,
+		Email:   sql.NullString{String: stringPtrToString(email), Valid: email != nil},
+		Auth0ID: sql.NullString{String: auth0ID, Valid: auth0ID != ""},
+	}
+
+	_, err := queries().CreateUserWithID(ctx, arg)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetUserByID(ctx, id)
+}
+
 func stringPtrToString(s *string) string {
 	if s == nil {
 		return ""
