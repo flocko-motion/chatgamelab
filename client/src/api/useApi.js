@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { getConfig } from "../config";
-import {useRecoilState} from "recoil";
-import {errorsState} from "./atoms";
+import { useRecoilState } from "recoil";
+import { errorsState } from "./atoms";
 import { useMockMode } from "./useMockMode";
 import { getMockResponse, mockImageUrl } from "./mockData";
 
 export const useApi = () => {
-    const [errors, setErrors ]= useRecoilState(errorsState)
+    const [errors, setErrors] = useRecoilState(errorsState)
     const mockMode = useMockMode();
 
     const [state, setState] = useState({
@@ -26,23 +26,23 @@ export const useApi = () => {
 
     const apiUrl = (endpoint) => {
         endpoint = endpoint.substring(0, 1) === "/" ? endpoint.substring(1) : endpoint;
-        
+
         // In mock mode, return mock data URLs for image endpoints
         if (mockMode && endpoint.startsWith('image/')) {
             return mockImageUrl;
         }
-        
+
         return `${config.apiOrigin}/api/${endpoint}`
     }
 
-    const callApi = async (endpoint, data = null, method=null) => {
+    const callApi = async (endpoint, data = null, method = null) => {
         console.log(`[DEBUG] callApi called: mockMode=${mockMode}, endpoint=${endpoint}`);
         try {
             // If mock mode is enabled, return mock data instead of making real API calls
             if (mockMode) {
                 console.log(`[MOCK MODE] Intercepted API call: ${method || (data ? 'POST' : 'GET')} ${endpoint}`);
                 const responseData = await getMockResponse(endpoint, data, method || (data ? 'POST' : 'GET'));
-                
+
                 setState({
                     ...state,
                     showResult: true,
@@ -61,7 +61,17 @@ export const useApi = () => {
             console.log("[DEBUG] NOT in mock mode, proceeding with real API call");
 
             const authorization = !endpoint.startsWith("/public/");
-            const token = authorization ? await getAccessTokenSilently() : "";
+            let token = "";
+            if (authorization) {
+                // Check for CGL token first (dev login), fall back to Auth0
+                const cglToken = localStorage.getItem('cgl_token');
+                if (cglToken) {
+                    token = cglToken;
+                    console.log("[DEBUG] Using CGL token from localStorage");
+                } else {
+                    token = await getAccessTokenSilently();
+                }
+            }
 
             const requestOptions = {
                 headers: {
@@ -143,7 +153,8 @@ export const useApi = () => {
             });
         }
         console.log("handlerLoginAgain - why now?")
-        await callApi("/external");    };
+        await callApi("/external");
+    };
 
     const handle = (e, fn) => {
         e.preventDefault();

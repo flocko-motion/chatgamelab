@@ -2,8 +2,8 @@ package server
 
 import (
 	"cgl/api"
+	"cgl/functional"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -24,13 +24,10 @@ func init() {
 }
 
 func runServer(cmd *cobra.Command, args []string) {
-	portStr := os.Getenv("API_PORT")
-	if portStr == "" {
-		portStr = "3000"
-	}
+	portStr := functional.RequireEnv("PORT_BACKEND")
 	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		log.Fatalf("Invalid API_PORT '%s': %v", portStr, err)
+		log.Fatalf("Invalid PORT_BACKEND '%s': %v", portStr, err)
 	}
 
 	api.RunServer(cmd.Context(), port, devMode)

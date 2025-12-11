@@ -3,6 +3,7 @@ package user
 import (
 	"cgl/api/client"
 	"cgl/api/endpoints"
+	"cgl/functional"
 	"fmt"
 	"log"
 
@@ -42,6 +43,7 @@ func runUserJwt(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("User ID: %s\n", resp.UserID)
 	fmt.Printf("Auth0 ID: %s\n", resp.Auth0ID)
-	fmt.Printf("JWT: %s\n", resp.Token)
 	fmt.Printf("\nJWT Token saved to %s\n", client.GetJwtPath())
+
+	fmt.Printf("\nOpen in browser:\n%s?cgl_token=%s\n", functional.RequireEnv("PUBLIC_URL"), resp.Token)
 }

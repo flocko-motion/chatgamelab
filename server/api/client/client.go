@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"cgl/functional"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -113,12 +114,7 @@ func parseResponse(resp *http.Response, out any) error {
 }
 
 func endpointUrl(endpoint string) string {
-	port := os.Getenv("API_PORT")
-	if port == "" {
-		fmt.Println("missing env API_PORT - did you source the .env file?")
-		os.Exit(1)
-	}
-
-	return fmt.Sprintf("http://127.0.0.1:%s/api/%s", port, strings.TrimPrefix(endpoint, "/"))
+	url := functional.RequireEnv("PUBLIC_URL")
+	return fmt.Sprintf("%s/api/%s", url, strings.TrimPrefix(endpoint, "/"))
 
 }

@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"os"
 
 	sqlc "cgl/db/sqlc"
+	"cgl/functional"
 	"cgl/obj"
 
 	_ "github.com/lib/pq" // Postgres driver
@@ -28,13 +28,12 @@ func queries() *sqlc.Queries {
 		return queriesSingleton
 	}
 
-	for _, required := range []string{"DB_PASSWORD", "DB_USER", "DB_DATABASE"} {
-		if os.Getenv(required) == "" {
-			fmt.Printf("missing env %s - did you source the .env file?\n", required)
-			os.Exit(1)
-		}
-	}
-	dsn := fmt.Sprintf("postgres://%s:%s@localhost:5433/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE"))
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		functional.RequireEnv("DB_USER"),
+		functional.RequireEnv("DB_PASSWORD"),
+		functional.EnvOrDefault("DB_HOST", "127.0.0.1"),
+		functional.RequireEnv("PORT_POSTGRES"),
+		functional.RequireEnv("DB_DATABASE"))
 
 	var err error
 	sqlDb, err = sql.Open("postgres", dsn)
