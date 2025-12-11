@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"time"
-	"webapp-server/obj"
+	"cgl/obj"
 )
 
 func GenerateImage(ctx context.Context, apiKey string, prompt string) (image []byte, httpErr *obj.HTTPError) {

@@ -1,21 +1,22 @@
-package api
+package endpoints
 
 import (
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/obj"
+	"cgl/api"
 )
 
-// Set by main package init
+// Set by main package / CLI
 var (
 	GitCommit = "dev"
 	BuildTime = "unknown"
+	DevMode   = false
 )
 
-var Version = router.NewEndpoint(
+var Version = api.NewEndpoint(
 	"/api/version",
 	true,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		return map[string]string{
 			"version":   GitCommit,
 			"buildTime": BuildTime,

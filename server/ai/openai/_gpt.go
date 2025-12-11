@@ -7,7 +7,7 @@ import (
 	"github.com/sashabaranov/go-openai/jsonschema"
 	"log"
 	"time"
-	"webapp-server/obj"
+	"cgl/obj"
 )
 
 func newClient(apiKey string) *openai.Client {

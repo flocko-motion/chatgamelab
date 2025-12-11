@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"webapp-server/constants"
-	"webapp-server/db"
-	"webapp-server/obj"
+	"cgl/constants"
+	"cgl/db"
+	"cgl/obj"
 
 	"github.com/sashabaranov/go-openai"
 )

@@ -1,12 +1,12 @@
-package api
+package endpoints
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"webapp-server/db"
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/db"
+	"cgl/obj"
+	"cgl/api"
 )
 
 type userDetail struct {
@@ -19,11 +19,11 @@ type userDetail struct {
 	Email      string `json:"email"`
 }
 
-var User = router.NewEndpoint(
+var User = api.NewEndpoint(
 	"/api/user",
 	false,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}
@@ -69,11 +69,11 @@ var User = router.NewEndpoint(
 )
 
 // API key management endpoints - to be implemented
-var UserApiKeys = router.NewEndpoint(
+var UserApiKeys = api.NewEndpoint(
 	"/api/user/apikeys",
 	false,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}

@@ -3,10 +3,11 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"net/url"
 	"os"
 
-	sqlc "webapp-server/db/sqlc"
-	"webapp-server/obj"
+	sqlc "cgl/db/sqlc"
+	"cgl/obj"
 
 	_ "github.com/lib/pq" // Postgres driver
 )
@@ -30,6 +31,16 @@ func queries() *sqlc.Queries {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		panic("DATABASE_URL environment variable is required")
+	}
+
+	// If DATABASE_URL has no password, inject DB_PASSWORD if available
+	if dbPassword := os.Getenv("DB_PASSWORD"); dbPassword != "" {
+		if u, err := url.Parse(dsn); err == nil {
+			if _, hasPassword := u.User.Password(); !hasPassword && u.User.Username() != "" {
+				u.User = url.UserPassword(u.User.Username(), dbPassword)
+				dsn = u.String()
+			}
+		}
 	}
 
 	var err error

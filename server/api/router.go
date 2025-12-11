@@ -1,12 +1,12 @@
-package router
+package api
 
 import (
+	"cgl/db"
+	"cgl/obj"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
-	"webapp-server/db"
-	"webapp-server/obj"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
@@ -122,7 +122,7 @@ func NewRouter(endpoints []Endpoint) *http.ServeMux {
 	router := http.NewServeMux()
 
 	//// This route is always accessible.
-	//router.Handle("/api/public", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//api.Handle("/api/public", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	//	w.Header().Set("Content-Type", "application/json")
 	//	w.WriteHeader(http.StatusOK)
 	//	_, _ = w.Write([]byte(`{"message":"Hello from a public endpoint! You don't need to be authenticated to see this."}`))

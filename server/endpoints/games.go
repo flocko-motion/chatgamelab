@@ -1,16 +1,16 @@
-package api
+package endpoints
 
 import (
-	"webapp-server/db"
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/db"
+	"cgl/obj"
+	"cgl/api"
 )
 
-var Games = router.NewEndpoint(
+var Games = api.NewEndpoint(
 	"/api/games",
 	false,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		if request.User == nil {
 			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
 		}

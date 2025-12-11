@@ -1,2 +1,2 @@
-export const version = "c7d1400";
-export const buildTime = "2025-12-08T07:48:56Z";
+export const version = "5c6ee65";
+export const buildTime = "2025-12-11T07:33:01Z";

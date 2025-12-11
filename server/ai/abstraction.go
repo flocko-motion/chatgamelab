@@ -1,7 +1,7 @@
 package ai
 
 import (
-	"webapp-server/obj"
+	"cgl/obj"
 
 	"github.com/google/uuid"
 )

@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"testing"
-	"webapp-server/constants"
-	"webapp-server/obj"
+	"cgl/constants"
+	"cgl/obj"
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/stretchr/testify/assert"

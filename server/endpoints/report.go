@@ -1,17 +1,17 @@
-package api
+package endpoints
 
 import (
 	"fmt"
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/obj"
+	"cgl/api"
 )
 
 // Report endpoint - temporarily disabled pending session refactor
-var Report = router.NewEndpoint(
+var Report = api.NewEndpoint(
 	"/api/report",
 	true,
 	"text/csv",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		fmt.Println("api report called")
 		if request.GetParam("secret") != "ccccccngiibddiecnllviecihbgflufetrrjhdthcfib" {
 			return nil, &obj.HTTPError{StatusCode: 403, Message: "Forbidden"}

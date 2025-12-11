@@ -1,8 +1,8 @@
-package api
+package endpoints
 
 import (
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/obj"
+	"cgl/api"
 )
 
 const (
@@ -22,16 +22,16 @@ type SessionRequest struct {
 	Session *obj.GameSession `json:"-"`
 }
 
-var Session = router.NewEndpoint(
+var Session = api.NewEndpoint(
 	"/api/session/",
 	false,
 	"application/json",
-	func(request router.Request) (out interface{}, httpErr *obj.HTTPError) {
+	func(request api.Request) (out interface{}, httpErr *obj.HTTPError) {
 		return handleSessionRequest(request, false)
 	},
 )
 
-func handleSessionRequest(request router.Request, public bool) (out interface{}, httpErr *obj.HTTPError) {
+func handleSessionRequest(request api.Request, public bool) (out interface{}, httpErr *obj.HTTPError) {
 	return nil, &obj.HTTPErrorNotImplemented
 	/*
 		var err error
@@ -105,7 +105,7 @@ func handleSessionRequest(request router.Request, public bool) (out interface{},
 }
 
 /*
-func newSession(request router.Request, gameID uint, apiKey string) (*obj.Session, *obj.HTTPError) {
+func newSession(request api.Request, gameID uint, apiKey string) (*obj.Session, *obj.HTTPError) {
 	var game *obj.Game
 	var userId uint
 	if gameID > 0 {

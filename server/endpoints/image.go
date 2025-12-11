@@ -1,16 +1,16 @@
-package api
+package endpoints
 
 import (
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/obj"
+	"cgl/api"
 )
 
 // Image endpoint - temporarily disabled pending session/message refactor
-var Image = router.NewEndpoint(
+var Image = api.NewEndpoint(
 	"/api/image/",
 	true,
 	"image/png",
-	func(request router.Request) (out interface{}, httpErr *obj.HTTPError) {
+	func(request api.Request) (out interface{}, httpErr *obj.HTTPError) {
 		/*
 			var err error
 			chapterRaw := path.Base(request.R.URL.Path)

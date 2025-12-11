@@ -1,18 +1,18 @@
-package api
+package endpoints
 
 import (
 	"log"
 	"os"
 	"time"
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/obj"
+	"cgl/api"
 )
 
-var Upgrade = router.NewEndpoint(
+var Upgrade = api.NewEndpoint(
 	"/api/upgrade",
 	true,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		log.Println("upgrade docker request - exiting server")
 		go func() {
 			time.Sleep(10 * time.Second)

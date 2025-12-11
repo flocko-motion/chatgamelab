@@ -1,18 +1,18 @@
-package api
+package endpoints
 
 import (
 	"log"
 	"path"
-	"webapp-server/db"
-	"webapp-server/obj"
-	"webapp-server/router"
+	"cgl/db"
+	"cgl/obj"
+	"cgl/api"
 )
 
-var PublicGame = router.NewEndpoint(
+var PublicGame = api.NewEndpoint(
 	"/api/public/game/",
 	true,
 	"application/json",
-	func(request router.Request) (interface{}, *obj.HTTPError) {
+	func(request api.Request) (interface{}, *obj.HTTPError) {
 		gameToken := path.Base(request.R.URL.Path)
 		log.Printf("gameToken: %s, method: %s", gameToken, request.R.Method)
 		game, err := db.GetGameByToken(request.Ctx, gameToken)

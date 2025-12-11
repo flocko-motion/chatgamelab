@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"slices"
 	"time"
-	"webapp-server/ai"
-	db "webapp-server/db/sqlc"
-	"webapp-server/obj"
+	"cgl/ai"
+	db "cgl/db/sqlc"
+	"cgl/obj"
 
 	"github.com/google/uuid"
 )
