@@ -5,6 +5,7 @@ import (
 	"cgl/obj"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -239,12 +240,16 @@ func NewEndpoint(path string, public bool, contentType string, endpointHandler H
 				if resBytes, err = json.Marshal(res); err != nil {
 					httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal json"}
 				}
+			case "application/x-yaml":
+				if resBytes, err = yaml.Marshal(res); err != nil {
+					httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal yaml"}
+				}
 			case "image/png":
 				resBytes = res.([]byte)
 			case "text/csv":
 				resBytes = []byte(res.(string))
 			default:
-				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Handler has unknown content type"}
+				httpError = &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: fmt.Sprintf("Handler has unknown content type '%s'", endpoint.ContentType)}
 			}
 		}
 

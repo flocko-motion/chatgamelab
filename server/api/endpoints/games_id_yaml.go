@@ -6,8 +6,6 @@ import (
 	"cgl/obj"
 	"log"
 	"net/http"
-
-	"gopkg.in/yaml.v3"
 )
 
 var GamesIdYaml = handler.NewEndpoint(
@@ -28,11 +26,7 @@ var GamesIdYaml = handler.NewEndpoint(
 				return nil, &obj.HTTPError{StatusCode: http.StatusNotFound, Message: "Game not found"}
 			}
 
-			yamlData, err := yaml.Marshal(game)
-			if err != nil {
-				return nil, &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to marshal YAML"}
-			}
-			return string(yamlData), nil
+			return game, nil
 
 		case "PUT":
 			// Get existing game first

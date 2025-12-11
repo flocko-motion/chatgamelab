@@ -96,7 +96,7 @@ func endpointUrl(endpoint string) string {
 func apiRequestRaw(method, endpoint string, content string, contentType string, out *string) error {
 	endpoint = strings.TrimPrefix(endpoint, "/")
 	url := endpointUrl(endpoint)
-	fmt.Printf("%s %s\n", method, url)
+	fmt.Fprintf(os.Stderr, "%s %s\n", method, url)
 
 	var bodyReader io.Reader
 	if content != "" {

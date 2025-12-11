@@ -1,6 +1,9 @@
 package db
 
 import (
+	"cgl/ai"
+	db "cgl/db/sqlc"
+	"cgl/obj"
 	"context"
 	"crypto/rand"
 	"database/sql"
@@ -8,9 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"cgl/ai"
-	db "cgl/db/sqlc"
-	"cgl/obj"
 
 	"github.com/google/uuid"
 )
@@ -123,7 +123,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:               now,
 		Name:                     game.Name,
-		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Description:              game.Description,
 		Icon:                     game.Icon,
 		Public:                   game.Public,
 		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
@@ -132,7 +132,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		SystemMessageScenario:    game.SystemMessageScenario,
 		SystemMessageGameStart:   game.SystemMessageGameStart,
 		ImageStyle:               game.ImageStyle,
-		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
@@ -177,7 +177,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:               now,
 		Name:                     game.Name,
-		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Description:              game.Description,
 		Icon:                     game.Icon,
 		Public:                   game.Public,
 		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
@@ -186,7 +186,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		SystemMessageScenario:    game.SystemMessageScenario,
 		SystemMessageGameStart:   game.SystemMessageGameStart,
 		ImageStyle:               game.ImageStyle,
-		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
@@ -268,7 +268,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 			ModifiedAt: &g.ModifiedAt,
 		},
 		Name:                     g.Name,
-		Description:              nullStringToPtr(g.Description),
+		Description:              g.Description,
 		Icon:                     g.Icon,
 		Public:                   g.Public,
 		PublicSponsoredApiKeyID:  nullUUIDToPtr(g.PublicSponsoredApiKeyID),
@@ -277,7 +277,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		SystemMessageScenario:    g.SystemMessageScenario,
 		SystemMessageGameStart:   g.SystemMessageGameStart,
 		ImageStyle:               g.ImageStyle,
-		CSS:                      nullStringToPtr(g.Css),
+		CSS:                      g.Css,
 		StatusFields:             g.StatusFields,
 		FirstMessage:             nullStringToPtr(g.FirstMessage),
 		FirstStatus:              nullStringToPtr(g.FirstStatus),

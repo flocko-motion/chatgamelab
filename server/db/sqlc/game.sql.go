@@ -47,7 +47,7 @@ type CreateGameParams struct {
 	ModifiedBy               uuid.NullUUID
 	ModifiedAt               time.Time
 	Name                     string
-	Description              sql.NullString
+	Description              string
 	Icon                     []byte
 	Public                   bool
 	PublicSponsoredApiKeyID  uuid.NullUUID
@@ -56,7 +56,7 @@ type CreateGameParams struct {
 	SystemMessageScenario    string
 	SystemMessageGameStart   string
 	ImageStyle               string
-	Css                      sql.NullString
+	Css                      string
 	StatusFields             string
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString
@@ -650,7 +650,7 @@ type UpdateGameParams struct {
 	ModifiedBy               uuid.NullUUID
 	ModifiedAt               time.Time
 	Name                     string
-	Description              sql.NullString
+	Description              string
 	Icon                     []byte
 	Public                   bool
 	PublicSponsoredApiKeyID  uuid.NullUUID
@@ -659,7 +659,7 @@ type UpdateGameParams struct {
 	SystemMessageScenario    string
 	SystemMessageGameStart   string
 	ImageStyle               string
-	Css                      sql.NullString
+	Css                      string
 	StatusFields             string
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString

@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+func Shorten(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	return s[:max-2] + ".."
+}
+
 func MaybeFieldToString(m map[string]any, key, ifNotExisting, ifNil string) string {
 	if val, exists := m[key]; exists {
 		return MaybeToString(val, ifNil)

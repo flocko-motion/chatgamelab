@@ -2,17 +2,18 @@ package game
 
 import (
 	"cgl/api/client"
+	"cgl/functional"
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
 
 var getCmd = &cobra.Command{
-	Use:   "get <game-id>",
+	Use:   "get <game-id> [output-file]",
 	Short: "Get a game as YAML",
-	Long:  "Fetch a game by ID and output it as YAML. Redirect to a file to edit.",
-	Args:  cobra.ExactArgs(1),
+	Long:  "Fetch a game by ID and output it as YAML. Optionally write to a file.",
+	Args:  cobra.RangeArgs(1, 2),
 	Run:   runGet,
 }
 
@@ -24,9 +25,11 @@ func runGet(cmd *cobra.Command, args []string) {
 	gameID := args[0]
 
 	var yamlContent string
-	if err := client.ApiGetRaw(fmt.Sprintf("games/%s/yaml", gameID), &yamlContent); err != nil {
-		log.Fatalf("Failed to get game: %v", err)
-	}
-
+	functional.Require(client.ApiGetRaw(fmt.Sprintf("games/%s/yaml", gameID), &yamlContent), "failed to get game")
 	fmt.Print(yamlContent)
+
+	if len(args) > 1 {
+		outputFile := args[1]
+		functional.Require(os.WriteFile(outputFile, []byte(yamlContent), 0644), "failed to write to file")
+	}
 }
