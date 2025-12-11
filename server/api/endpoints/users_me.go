@@ -4,9 +4,6 @@ import (
 	"cgl/api/handler"
 	"cgl/db"
 	"cgl/obj"
-	"encoding/json"
-	"io"
-	"net/http"
 )
 
 type userDetail struct {
@@ -19,15 +16,11 @@ type userDetail struct {
 	Email      string `json:"email"`
 }
 
-var User = handler.NewEndpoint(
-	"/api/user",
+var UsersMe = handler.NewEndpoint(
+	"/api/users/me",
 	false,
 	"application/json",
-	func(request handler.Request) (interface{}, *obj.HTTPError) {
-		if request.User == nil {
-			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
-		}
-
+	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		// GET: return user info
 		if request.R.Method == "GET" {
 			return request.User, nil
@@ -35,12 +28,8 @@ var User = handler.NewEndpoint(
 
 		// POST: update user info
 		var postUser userDetail
-		bodyBytes, err := io.ReadAll(request.R.Body)
-		if err == nil {
-			err = json.Unmarshal(bodyBytes, &postUser)
-		}
-		if err != nil {
-			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad request"}
+		if httpErr := request.BodyJSON(&postUser); httpErr != nil {
+			return nil, httpErr
 		}
 
 		// Check if name or email changed
@@ -57,27 +46,13 @@ var User = handler.NewEndpoint(
 				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to update user"}
 			}
 			// Refresh user data
+			var err error
 			request.User, err = db.GetUserByID(request.Ctx, request.User.ID)
 			if err != nil {
 				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get updated user"}
 			}
 		}
 
-		// TODO: API key management moved to separate endpoints
 		return request.User, nil
-	},
-)
-
-// API key management endpoints - to be implemented
-var UserApiKeys = handler.NewEndpoint(
-	"/api/user/apikeys",
-	false,
-	"application/json",
-	func(request handler.Request) (interface{}, *obj.HTTPError) {
-		if request.User == nil {
-			return nil, &obj.HTTPError{StatusCode: 401, Message: "Unauthorized"}
-		}
-		// TODO: Implement API key CRUD using db.GetUserApiKeys, db.CreateUserApiKey, db.DeleteUserApiKey
-		return nil, &obj.HTTPError{StatusCode: http.StatusNotImplemented, Message: "API keys endpoint not yet implemented"}
 	},
 )

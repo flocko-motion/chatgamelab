@@ -23,7 +23,7 @@ type SessionRequest struct {
 }
 
 var Session = handler.NewEndpoint(
-	"/api/session/",
+	"/api/sessions/",
 	false,
 	"application/json",
 	func(request handler.Request) (out interface{}, httpErr *obj.HTTPError) {

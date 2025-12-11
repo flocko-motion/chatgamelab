@@ -8,9 +8,9 @@ import (
 
 var Users = handler.NewEndpoint(
 	"/api/users",
-	false, // Requires authentication
+	false,
 	"application/json",
-	func(request handler.Request) (interface{}, *obj.HTTPError) {
+	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		users, err := db.GetAllUsers(request.Ctx)
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get users: " + err.Error()}

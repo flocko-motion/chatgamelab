@@ -11,23 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserJwtResponse struct {
+type UsersJwtResponse struct {
 	UserID   string `json:"user_id"`
 	Auth0ID  string `json:"auth0_id"`
 	Token    string `json:"token"`
 	ExpireAt int64  `json:"expire_at"`
 }
 
-var UserJwt = handler.NewEndpoint(
-	"/api/user/jwt",
+var UsersJwt = handler.NewEndpoint(
+	"/api/users/jwt",
 	true, // public for dev use
 	"application/json",
-	func(request handler.Request) (interface{}, *obj.HTTPError) {
-		if !DevMode {
-			return nil, &obj.HTTPError{StatusCode: http.StatusForbidden, Message: "JWT generation only available in dev mode"}
-		}
-
-		userIdentifier := request.R.URL.Query().Get("id")
+	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
+		userIdentifier := request.GetParam("id")
 		if userIdentifier == "" {
 			return nil, &obj.HTTPError{StatusCode: http.StatusBadRequest, Message: "id query parameter is required"}
 		}
@@ -62,7 +58,7 @@ var UserJwt = handler.NewEndpoint(
 			return nil, &obj.HTTPError{StatusCode: http.StatusInternalServerError, Message: "Failed to sign token"}
 		}
 
-		return UserJwtResponse{
+		return UsersJwtResponse{
 			UserID:   userID.String(),
 			Auth0ID:  auth0ID,
 			Token:    tokenString,

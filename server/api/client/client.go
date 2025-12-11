@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"cgl/functional"
 	"encoding/json"
 	"fmt"
@@ -56,18 +55,52 @@ func ApiPost(endpoint string, payload any, out any) error {
 	return apiRequest("POST", endpoint, payload, out)
 }
 
-func apiRequest(method, endpoint string, payload any, out any) error {
-	endpoint = strings.TrimPrefix(endpoint, "/")
-	url := endpointUrl(endpoint)
-	fmt.Printf("%s %s\n", method, url)
+// ApiGetRaw fetches raw text content (e.g., YAML)
+func ApiGetRaw(endpoint string, out *string) error {
+	return apiRequestRaw("GET", endpoint, "", "", out)
+}
 
-	var bodyReader io.Reader
+// ApiPutRaw sends raw text content (e.g., YAML)
+func ApiPutRaw(endpoint string, content string) error {
+	return apiRequestRaw("PUT", endpoint, content, "application/x-yaml", nil)
+}
+
+func apiRequest(method, endpoint string, payload any, out any) error {
+	var content string
 	if payload != nil {
 		body, err := json.Marshal(payload)
 		if err != nil {
 			return fmt.Errorf("failed to marshal request: %v", err)
 		}
-		bodyReader = bytes.NewReader(body)
+		content = string(body)
+	}
+
+	var rawOut string
+	if err := apiRequestRaw(method, endpoint, content, "application/json", &rawOut); err != nil {
+		return err
+	}
+
+	if out != nil && rawOut != "" {
+		if err := json.Unmarshal([]byte(rawOut), out); err != nil {
+			return fmt.Errorf("failed to parse response: %v", err)
+		}
+	}
+	return nil
+}
+
+func endpointUrl(endpoint string) string {
+	url := functional.RequireEnv("PUBLIC_URL")
+	return fmt.Sprintf("%s/api/%s", url, strings.TrimPrefix(endpoint, "/"))
+}
+
+func apiRequestRaw(method, endpoint string, content string, contentType string, out *string) error {
+	endpoint = strings.TrimPrefix(endpoint, "/")
+	url := endpointUrl(endpoint)
+	fmt.Printf("%s %s\n", method, url)
+
+	var bodyReader io.Reader
+	if content != "" {
+		bodyReader = strings.NewReader(content)
 	}
 
 	req, err := http.NewRequest(method, url, bodyReader)
@@ -75,15 +108,14 @@ func apiRequest(method, endpoint string, payload any, out any) error {
 		return fmt.Errorf("failed to create request: %v", err)
 	}
 
-	if payload != nil {
-		req.Header.Set("Content-Type", "application/json")
+	if content != "" {
+		req.Header.Set("Content-Type", contentType)
 	}
 
-	// Add JWT auth if available - except when trying to generate dev jwt tokens
+	// Add JWT auth if available - except when generating jwt tokens
 	if !strings.HasPrefix(endpoint, "user/jwt") {
 		if jwt := LoadJwt(); jwt != "" {
 			req.Header.Set("Authorization", "Bearer "+jwt)
-			fmt.Printf("Authorization %s..\n", req.Header.Get("Authorization")[0:30])
 		}
 	}
 
@@ -93,10 +125,6 @@ func apiRequest(method, endpoint string, payload any, out any) error {
 	}
 	defer resp.Body.Close()
 
-	return parseResponse(resp, out)
-}
-
-func parseResponse(resp *http.Response, out any) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response: %v", err)
@@ -106,15 +134,9 @@ func parseResponse(resp *http.Response, out any) error {
 		return fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
-	if err := json.Unmarshal(body, out); err != nil {
-		return fmt.Errorf("failed to parse response: %v", err)
+	if out != nil {
+		*out = string(body)
 	}
 
 	return nil
-}
-
-func endpointUrl(endpoint string) string {
-	url := functional.RequireEnv("PUBLIC_URL")
-	return fmt.Sprintf("%s/api/%s", url, strings.TrimPrefix(endpoint, "/"))
-
 }

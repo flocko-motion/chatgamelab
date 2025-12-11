@@ -25,8 +25,10 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	db.Preseed(ctx)
 
 	endpointList := []handler.Endpoint{
-		endpoints.Game,
 		endpoints.Games,
+		endpoints.GamesNew,
+		endpoints.GamesId,
+		endpoints.GamesIdYaml,
 		endpoints.Image,
 		endpoints.Report,
 		endpoints.Session,
@@ -56,18 +58,29 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 
 }
 
-// NewRouter sets up our routes and returns a *http.ServeMux.
-func NewRouter(endpoints []handler.Endpoint) *http.ServeMux {
-	router := http.NewServeMux()
+// Router handles routing with path parameter support
+type Router struct {
+	endpoints []handler.Endpoint
+}
 
-	for _, endpoint := range endpoints {
-		if endpoint.Public {
-			router.Handle(endpoint.Path, endpoint.Handler)
-		} else {
-			router.Handle(endpoint.Path, handler.EnsureValidToken()(
-				endpoint.Handler,
-			))
+// NewRouter sets up our routes and returns a Router.
+func NewRouter(endpoints []handler.Endpoint) *Router {
+	// Wrap all endpoints with auth middleware (extracts user if token present)
+	// For public endpoints, user is optional; for private, it's required
+	for i, endpoint := range endpoints {
+		endpoints[i].Handler = handler.EnsureValidToken()(endpoint.Handler).ServeHTTP
+	}
+	return &Router{endpoints: endpoints}
+}
+
+// ServeHTTP implements http.Handler
+func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	for _, endpoint := range router.endpoints {
+		if endpoint.MatchesPath(r.URL.Path) {
+			endpoint.Handler(w, r)
+			return
 		}
 	}
-	return router
+	// No match found
+	http.NotFound(w, r)
 }

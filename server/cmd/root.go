@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"cgl/cmd/game"
 	"cgl/cmd/server"
 	"cgl/cmd/user"
 
@@ -23,6 +24,7 @@ func init() {
 
 	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(user.Cmd)
+	rootCmd.AddCommand(game.Cmd)
 }
 
 func Execute() {

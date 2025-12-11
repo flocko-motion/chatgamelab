@@ -96,7 +96,16 @@ func EnsureValidToken() func(next http.Handler) http.Handler {
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
-			// Fall back to Auth0 validation
+
+			// Check if there's an Authorization header at all
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				// No token provided - pass through (handler will check if user is required)
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// Has Authorization header but not a valid CGL token - try Auth0
 			middleware.CheckJWT(next).ServeHTTP(w, r)
 		})
 	}
