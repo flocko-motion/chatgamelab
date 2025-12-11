@@ -25,7 +25,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	db.Preseed(ctx)
 
 	endpointList := []handler.Endpoint{
-		endpoints.Games,
+		endpoints.GamesList,
 		endpoints.GamesNew,
 		endpoints.GamesId,
 		endpoints.GamesIdYaml,
@@ -34,16 +34,17 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.Session,
 		endpoints.Status,
 		endpoints.Upgrade,
-		endpoints.User,
-		endpoints.Users,
+		endpoints.UsersList,
+		endpoints.UsersMe,
+		endpoints.UsersId,
 		endpoints.Version,
 		endpoints.PublicGame,
 		endpoints.PublicSession,
 	}
 	if devMode {
 		endpointList = append(endpointList,
-			endpoints.UserAdd,
-			endpoints.UserJwt,
+			endpoints.UsersNew,
+			endpoints.UsersJwt,
 		)
 	}
 	mux := NewRouter(endpointList)

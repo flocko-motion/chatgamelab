@@ -6,7 +6,7 @@ import (
 	"cgl/obj"
 )
 
-var Users = handler.NewEndpoint(
+var UsersList = handler.NewEndpoint(
 	"/api/users",
 	false,
 	"application/json",

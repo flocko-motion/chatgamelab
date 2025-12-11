@@ -6,7 +6,7 @@ import (
 	"cgl/obj"
 )
 
-var Games = handler.NewEndpoint(
+var GamesList = handler.NewEndpoint(
 	"/api/games",
 	true,
 	"application/json",

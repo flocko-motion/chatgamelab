@@ -7,8 +7,6 @@ import (
 	"cgl/api/handler"
 	"cgl/db"
 	"cgl/obj"
-
-	"github.com/google/uuid"
 )
 
 type UsersJwtResponse struct {
@@ -19,38 +17,27 @@ type UsersJwtResponse struct {
 }
 
 var UsersJwt = handler.NewEndpoint(
-	"/api/users/jwt",
+	"/api/users/{id:uuid}/jwt",
 	true, // public for dev use
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
-		userIdentifier := request.GetParam("id")
-		if userIdentifier == "" {
-			return nil, &obj.HTTPError{StatusCode: http.StatusBadRequest, Message: "id query parameter is required"}
+		if !DevMode {
+			return nil, &obj.HTTPError{StatusCode: http.StatusForbidden, Message: "JWT generation only available in dev mode"}
 		}
 
-		var userID uuid.UUID
-		var auth0ID string
+		userID, err := request.GetPathParamUUID("id")
+		if err != nil {
+			return nil, &obj.HTTPError{StatusCode: http.StatusBadRequest, Message: "Invalid user ID"}
+		}
 
-		// Try parsing as UUID first
-		if id, err := uuid.Parse(userIdentifier); err == nil {
-			user, err := db.GetUserByID(request.Ctx, id)
-			if err != nil {
-				return nil, &obj.HTTPError{StatusCode: http.StatusNotFound, Message: "User not found by ID"}
-			}
-			userID = user.ID
-			if user.Auth0Id != nil {
-				auth0ID = *user.Auth0Id
-			}
-		} else {
-			// Try as Auth0 ID
-			user, err := db.GetUserByAuth0ID(request.Ctx, userIdentifier)
-			if err != nil {
-				return nil, &obj.HTTPError{StatusCode: http.StatusNotFound, Message: "User not found by Auth0 ID"}
-			}
-			userID = user.ID
-			if user.Auth0Id != nil {
-				auth0ID = *user.Auth0Id
-			}
+		user, err := db.GetUserByID(request.Ctx, userID)
+		if err != nil {
+			return nil, &obj.HTTPError{StatusCode: http.StatusNotFound, Message: "User not found"}
+		}
+
+		var auth0ID string
+		if user.Auth0Id != nil {
+			auth0ID = *user.Auth0Id
 		}
 
 		tokenString, expireAt, err := auth.GenerateToken(userID.String())

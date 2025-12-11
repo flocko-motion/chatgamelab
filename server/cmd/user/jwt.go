@@ -23,7 +23,7 @@ func init() {
 }
 
 func runUserJwt(cmd *cobra.Command, args []string) {
-	var resp endpoints.UserJwtResponse
+	var resp endpoints.UsersJwtResponse
 
 	var userId string
 	if len(args) > 0 {
@@ -33,7 +33,7 @@ func runUserJwt(cmd *cobra.Command, args []string) {
 		fmt.Println("Creating JWT for dev user")
 	}
 
-	if err := client.ApiGet("user/jwt?id="+userId, &resp); err != nil {
+	if err := client.ApiGet("users/"+userId+"/jwt", &resp); err != nil {
 		log.Fatalf("Failed to generate JWT: %v", err)
 	}
 

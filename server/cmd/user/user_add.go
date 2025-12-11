@@ -23,13 +23,13 @@ func init() {
 }
 
 func runUserAdd(cmd *cobra.Command, args []string) {
-	req := endpoints.UserAddRequest{Name: args[0]}
+	req := endpoints.UsersNewRequest{Name: args[0]}
 	if len(args) > 1 {
 		req.Email = &args[1]
 	}
 
 	var user obj.User
-	if err := client.ApiPost("user/add", req, &user); err != nil {
+	if err := client.ApiPost("users/new", req, &user); err != nil {
 		log.Fatalf("Failed to create user: %v", err)
 	}
 
