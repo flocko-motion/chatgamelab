@@ -5,11 +5,14 @@ import (
 	"cgl/db"
 	"cgl/obj"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 type UserUpdateRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name                 string     `json:"name"`
+	Email                string     `json:"email"`
+	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 }
 
 var UsersId = handler.NewEndpoint(
@@ -62,11 +65,19 @@ var UsersId = handler.NewEndpoint(
 				if err := db.UpdateUserDetails(request.Ctx, userID, req.Name, email); err != nil {
 					return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to update user"}
 				}
-				// Refresh user data
-				user, err = db.GetUserByID(request.Ctx, userID)
-				if err != nil {
-					return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get updated user"}
+			}
+
+			// Handle default API key share update
+			if req.DefaultApiKeyShareID != nil {
+				if err := db.SetUserDefaultApiKeyShare(request.Ctx, userID, req.DefaultApiKeyShareID); err != nil {
+					return nil, &obj.HTTPError{StatusCode: 400, Message: "Failed to set default API key: " + err.Error()}
 				}
+			}
+
+			// Refresh user data
+			user, err = db.GetUserByID(request.Ctx, userID)
+			if err != nil {
+				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get updated user"}
 			}
 
 			return user, nil

@@ -38,15 +38,16 @@ type ApiKeyShare struct {
 }
 
 type AppUser struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	Name       string
-	Email      sql.NullString
-	DeletedAt  sql.NullTime
-	Auth0ID    sql.NullString
+	ID                   uuid.UUID
+	CreatedBy            uuid.NullUUID
+	CreatedAt            time.Time
+	ModifiedBy           uuid.NullUUID
+	ModifiedAt           time.Time
+	Name                 string
+	Email                sql.NullString
+	DeletedAt            sql.NullTime
+	Auth0ID              sql.NullString
+	DefaultApiKeyShareID uuid.NullUUID
 }
 
 type Game struct {

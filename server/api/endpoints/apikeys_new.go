@@ -42,7 +42,7 @@ var ApiKeysNew = handler.NewEndpoint(
 			return nil, &obj.HTTPError{StatusCode: 400, Message: "Key is required"}
 		}
 
-		id, err := db.CreateUserApiKey(request.Ctx, request.User.ID, req.Name, req.Platform, req.Key)
+		id, err := db.CreateApiKey(request.Ctx, request.User.ID, req.Name, req.Platform, req.Key)
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create API key: " + err.Error()}
 		}

@@ -29,6 +29,7 @@ SELECT
   u.email,
   u.deleted_at,
   u.auth0_id,
+  u.default_api_key_share_id,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -114,4 +115,13 @@ RETURNING *;
 DELETE FROM api_key WHERE id = $1 AND user_id = $2;
 
 -- GetApiKeySharesByUserID is now in api_key.sql using the unified api_key_share table
+
+-- name: SetUserDefaultApiKeyShare :exec
+UPDATE app_user SET
+  default_api_key_share_id = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: GetUserDefaultApiKeyShare :one
+SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 

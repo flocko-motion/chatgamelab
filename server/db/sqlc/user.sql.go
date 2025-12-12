@@ -254,7 +254,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -270,8 +270,20 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.Email,
 		&i.DeletedAt,
 		&i.Auth0ID,
+		&i.DefaultApiKeyShareID,
 	)
 	return i, err
+}
+
+const getUserDefaultApiKeyShare = `-- name: GetUserDefaultApiKeyShare :one
+SELECT default_api_key_share_id FROM app_user WHERE id = $1
+`
+
+func (q *Queries) GetUserDefaultApiKeyShare(ctx context.Context, id uuid.UUID) (uuid.NullUUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserDefaultApiKeyShare, id)
+	var default_api_key_share_id uuid.NullUUID
+	err := row.Scan(&default_api_key_share_id)
+	return default_api_key_share_id, err
 }
 
 const getUserDetailsByID = `-- name: GetUserDetailsByID :one
@@ -285,6 +297,7 @@ SELECT
   u.email,
   u.deleted_at,
   u.auth0_id,
+  u.default_api_key_share_id,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -303,19 +316,20 @@ WHERE u.id = $1
 `
 
 type GetUserDetailsByIDRow struct {
-	ID              uuid.UUID
-	CreatedBy       uuid.NullUUID
-	CreatedAt       time.Time
-	ModifiedBy      uuid.NullUUID
-	ModifiedAt      time.Time
-	Name            string
-	Email           sql.NullString
-	DeletedAt       sql.NullTime
-	Auth0ID         sql.NullString
-	RoleID          uuid.NullUUID
-	Role            sql.NullString
-	InstitutionID   uuid.NullUUID
-	InstitutionName sql.NullString
+	ID                   uuid.UUID
+	CreatedBy            uuid.NullUUID
+	CreatedAt            time.Time
+	ModifiedBy           uuid.NullUUID
+	ModifiedAt           time.Time
+	Name                 string
+	Email                sql.NullString
+	DeletedAt            sql.NullTime
+	Auth0ID              sql.NullString
+	DefaultApiKeyShareID uuid.NullUUID
+	RoleID               uuid.NullUUID
+	Role                 sql.NullString
+	InstitutionID        uuid.NullUUID
+	InstitutionName      sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -331,6 +345,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.Email,
 		&i.DeletedAt,
 		&i.Auth0ID,
+		&i.DefaultApiKeyShareID,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
@@ -348,6 +363,25 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const setUserDefaultApiKeyShare = `-- name: SetUserDefaultApiKeyShare :exec
+
+UPDATE app_user SET
+  default_api_key_share_id = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type SetUserDefaultApiKeyShareParams struct {
+	ID                   uuid.UUID
+	DefaultApiKeyShareID uuid.NullUUID
+}
+
+// GetApiKeySharesByUserID is now in api_key.sql using the unified api_key_share table
+func (q *Queries) SetUserDefaultApiKeyShare(ctx context.Context, arg SetUserDefaultApiKeyShareParams) error {
+	_, err := q.db.ExecContext(ctx, setUserDefaultApiKeyShare, arg.ID, arg.DefaultApiKeyShareID)
+	return err
 }
 
 const updateApiKey = `-- name: UpdateApiKey :one

@@ -85,12 +85,51 @@ func (q *Queries) DeleteApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uui
 }
 
 const getApiKeyShareByID = `-- name: GetApiKeyShareByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, allow_public_sponsored_plays FROM api_key_share WHERE id = $1
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.id AS key_id,
+  k.user_id AS key_owner_id,
+  k.name AS key_name,
+  k.platform AS key_platform,
+  k.key AS key_key,
+  o.name AS key_owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user o ON o.id = k.user_id
+WHERE s.id = $1
 `
 
-func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (ApiKeyShare, error) {
+type GetApiKeyShareByIDRow struct {
+	ID                        uuid.UUID
+	CreatedBy                 uuid.NullUUID
+	CreatedAt                 time.Time
+	ModifiedBy                uuid.NullUUID
+	ModifiedAt                time.Time
+	ApiKeyID                  uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
+	AllowPublicSponsoredPlays bool
+	KeyID                     uuid.UUID
+	KeyOwnerID                uuid.UUID
+	KeyName                   string
+	KeyPlatform               string
+	KeyKey                    string
+	KeyOwnerName              string
+}
+
+func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiKeyShareByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getApiKeyShareByID, id)
-	var i ApiKeyShare
+	var i GetApiKeyShareByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedBy,
@@ -102,6 +141,12 @@ func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (ApiKeyS
 		&i.WorkshopID,
 		&i.InstitutionID,
 		&i.AllowPublicSponsoredPlays,
+		&i.KeyID,
+		&i.KeyOwnerID,
+		&i.KeyName,
+		&i.KeyPlatform,
+		&i.KeyKey,
+		&i.KeyOwnerName,
 	)
 	return i, err
 }

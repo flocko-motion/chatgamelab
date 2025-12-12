@@ -84,11 +84,13 @@ type ApiKey struct {
 type ApiKeyShare struct {
 	ID                        uuid.UUID    `json:"id"`
 	Meta                      Meta         `json:"meta"`
-	ApiKey                    *ApiKey      `json:"apiKey"`
+	ApiKeyID                  uuid.UUID    `json:"apiKeyId"`
+	ApiKey                    *ApiKey      `json:"apiKey,omitempty"`
 	User                      *User        `json:"user,omitempty"`
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
 	AllowPublicSponsoredPlays bool         `json:"allowPublicSponsoredPlays"`
+	IsUserDefault             bool         `json:"isUserDefault"`
 }
 
 type Game struct {

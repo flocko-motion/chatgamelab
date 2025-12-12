@@ -12,7 +12,7 @@ import (
 )
 
 type CreateSessionRequest struct {
-	ApiKeyID uuid.UUID `json:"apiKeyId"`
+	ShareID uuid.UUID `json:"shareId"`
 }
 
 type CreateSessionResponse struct {
@@ -37,9 +37,9 @@ var GamesIdSessions = handler.NewEndpoint(
 				return nil, httpErr
 			}
 
-			session, err := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ApiKeyID)
-			if err != nil {
-				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
+			session, httpErr := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ShareID)
+			if httpErr != nil {
+				return nil, httpErr
 			}
 
 			return CreateSessionResponse{SessionID: session.ID}, nil

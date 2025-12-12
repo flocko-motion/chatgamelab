@@ -12,7 +12,27 @@ INSERT INTO api_key_share (
 RETURNING *;
 
 -- name: GetApiKeyShareByID :one
-SELECT * FROM api_key_share WHERE id = $1;
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.id AS key_id,
+  k.user_id AS key_owner_id,
+  k.name AS key_name,
+  k.platform AS key_platform,
+  k.key AS key_key,
+  o.name AS key_owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user o ON o.id = k.user_id
+WHERE s.id = $1;
 
 -- name: GetApiKeySharesByApiKeyID :many
 SELECT

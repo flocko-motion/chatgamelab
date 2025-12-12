@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var apiKeyID string
+var shareID string
 
 var gamePlayCmd = &cobra.Command{
 	Use:   "play <game-id>",
@@ -19,12 +19,12 @@ var gamePlayCmd = &cobra.Command{
 }
 
 func init() {
-	gamePlayCmd.Flags().StringVarP(&apiKeyID, "api-key", "k", "", "API key ID to use (optional, uses game's public key if not provided)")
+	gamePlayCmd.Flags().StringVarP(&shareID, "share", "s", "", "API key share ID to use (optional, uses default if not provided)")
 	Cmd.AddCommand(gamePlayCmd)
 }
 
 type createSessionRequest struct {
-	ApiKeyID uuid.UUID `json:"apiKeyId"`
+	ShareID uuid.UUID `json:"shareId"`
 }
 
 type createSessionResponse struct {
@@ -35,12 +35,12 @@ func runGamePlay(cmd *cobra.Command, args []string) {
 	gameID := args[0]
 
 	var req createSessionRequest
-	if apiKeyID != "" {
-		keyID, err := uuid.Parse(apiKeyID)
+	if shareID != "" {
+		id, err := uuid.Parse(shareID)
 		if err != nil {
-			log.Fatalf("Invalid API key ID: %v", err)
+			log.Fatalf("Invalid share ID: %v", err)
 		}
-		req.ApiKeyID = keyID
+		req.ShareID = id
 	}
 	var resp createSessionResponse
 

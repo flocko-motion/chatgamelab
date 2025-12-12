@@ -66,7 +66,7 @@ var ApiKeysId = handler.NewEndpoint(
 				return nil, &obj.HTTPError{StatusCode: 400, Message: "At least one of userId, workshopId, or institutionId is required"}
 			}
 
-			newShareID, err := db.ShareApiKeyFromShare(request.Ctx, request.User.ID, shareID, req.UserID, req.WorkshopID, req.InstitutionID, req.AllowPublic)
+			newShareID, err := db.CreateApiKeyShare(request.Ctx, request.User.ID, shareID, req.UserID, req.WorkshopID, req.InstitutionID, req.AllowPublic)
 			if err != nil {
 				return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to share: " + err.Error()}
 			}
@@ -80,7 +80,7 @@ var ApiKeysId = handler.NewEndpoint(
 			}
 
 			if req.Name != nil {
-				if err := db.UpdateApiKeyNameFromShare(request.Ctx, request.User.ID, shareID, *req.Name); err != nil {
+				if err := db.UpdateApiKeyName(request.Ctx, request.User.ID, shareID, *req.Name); err != nil {
 					return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to update: " + err.Error()}
 				}
 			}
@@ -91,7 +91,7 @@ var ApiKeysId = handler.NewEndpoint(
 			cascade := request.R.URL.Query().Get("cascade") == "true"
 
 			if cascade {
-				if err := db.DeleteApiKeyFromShare(request.Ctx, request.User.ID, shareID); err != nil {
+				if err := db.DeleteApiKey(request.Ctx, request.User.ID, shareID); err != nil {
 					return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to delete key: " + err.Error()}
 				}
 				return map[string]string{"status": "deleted"}, nil

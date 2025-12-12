@@ -11,19 +11,40 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateSession creates a new game session for a user
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID) (*obj.GameSession, error) {
-	const failedAction = "failed creating session"
+// CreateSession creates a new game session for a user.
+// If shareID is uuid.Nil, the user's default API key share will be used.
+// Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
+func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shareID uuid.UUID) (*obj.GameSession, *obj.HTTPError) {
+	// TODO: resolving keys is more complex - we also have sponsored public keys, workshop keys, institution keys... so we need more logic to figure out which key to use
+	// For now, we'll just use the provided share or default, but in the future we should implement proper key resolution logic
+
+	// Resolve share: use provided share, or fall back to user's default
+	if shareID == uuid.Nil {
+		defaultShareID, err := db.GetUserDefaultApiKeyShare(ctx, userID)
+		if err != nil {
+			return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get default API key: " + err.Error()}
+		}
+		if defaultShareID == nil {
+			return nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided and no default set. Use 'apikey default <share-id>' to set a default."}
+		}
+		shareID = *defaultShareID
+	}
+
+	// Get the share and check if user is directly included
+	share, err := db.GetApiKeyShareByID(ctx, shareID)
+	if err != nil {
+		return nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
+	}
+
+	// Check if user is directly included in the share (not via workshop/institution for now)
+	if share.User == nil || share.User.ID != userID {
+		return nil, &obj.HTTPError{StatusCode: 403, Message: "You don't have direct access to this API key share"}
+	}
+
 	// Get the game
 	game, err := db.GetGameByID(ctx, &userID, gameID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to get game: %w", failedAction, err)
-	}
-
-	// get the api key
-	apiKey, err := db.GetApiKeyByID(ctx, &userID, apiKeyID)
-	if err != nil {
-		return nil, fmt.Errorf("%s: failed to get api key: %w", failedAction, err)
+		return nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found: " + err.Error()}
 	}
 
 	// Create session object
@@ -33,8 +54,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiK
 		GameName:        game.Name,
 		GameDescription: game.Description,
 		UserID:          userID,
-		ApiKeyID:        apiKey.ID,
-		ApiKey:          apiKey,
+		ApiKeyID:        share.ApiKey.ID,
+		ApiKey:          share.ApiKey,
 		ImageStyle:      game.ImageStyle,
 		StatusFields:    game.StatusFields,
 		ModelSession:    "{}",
@@ -42,16 +63,16 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiK
 
 	// Persist to database
 	if err := db.CreateGameSession(ctx, &session); err != nil {
-		return nil, fmt.Errorf("%s: failed to create session: %w", failedAction, err)
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 
-	// Initialize the session
-	ai, err := ai.GetAiPlatform(session.ApiKey.Platform)
+	// Initialize the session - this will create the AI chat and inject the system message and initial game state
+	aiPlatform, err := ai.GetAiPlatform(session.ApiKey.Platform)
 	if err != nil {
-		return nil, fmt.Errorf("%s: failed to get ai platform: %w", failedAction, err)
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get AI platform: " + err.Error()}
 	}
-	if err := ai.InitGameSession(&session); err != nil {
-		return nil, fmt.Errorf("%s: failed to initialize session: %w", failedAction, err)
+	if err := aiPlatform.InitGameSession(&session); err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to initialize session: " + err.Error()}
 	}
 
 	return &session, nil

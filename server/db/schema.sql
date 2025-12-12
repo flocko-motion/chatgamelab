@@ -16,7 +16,10 @@ CREATE TABLE app_user (
     name            text NOT NULL,
     email           text UNIQUE,
     deleted_at      timestamptz NULL,
-    auth0_id        text UNIQUE
+    auth0_id        text UNIQUE,
+    -- Default API key share to use when creating sessions without specifying one.
+    -- References api_key_share instead of api_key to ensure the user has access to the key.
+    default_api_key_share_id uuid NULL
 );
 
 -- Institution

@@ -17,6 +17,14 @@ func Shorten(s string, max int) string {
 	return s[:max-2] + ".."
 }
 
+// ShortenLeft returns a shortened version of a string for display (showing right part)
+func ShortenLeft(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	return ".." + s[len(s)-max+2:]
+}
+
 func MaybeFieldToString(m map[string]any, key, ifNotExisting, ifNil string) string {
 	if val, exists := m[key]; exists {
 		return MaybeToString(val, ifNil)
