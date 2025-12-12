@@ -29,18 +29,9 @@ func runGameList(cmd *cobra.Command, args []string) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.Header([]string{"ID", "Name", "Owner", "Created", "Public", "Description"})
+	table.Header([]string{"ID", "Owner", "Created", "Public", "Name", "Description"})
 
 	for _, g := range games {
-		owner := "n/a"
-		if g.Meta.CreatedBy.Valid {
-			owner = g.Meta.CreatedBy.UUID.String()[:8] + "..."
-		}
-
-		created := "n/a"
-		if g.Meta.CreatedAt != nil {
-			created = g.Meta.CreatedAt.Format("2006-01-02")
-		}
 
 		public := "no"
 		if g.Public {
@@ -49,11 +40,11 @@ func runGameList(cmd *cobra.Command, args []string) {
 
 		table.Append([]string{
 			g.ID.String(),
-			functional.Shorten(g.Name, 30),
-			owner,
-			created,
+			g.Meta.CreatedBy.UUID.String(),
+			g.Meta.CreatedAt.Format("2006-01-02"),
 			public,
-			functional.Shorten(g.Description, 40),
+			functional.Shorten(g.Name, 30),
+			functional.Shorten(g.Description, 60),
 		})
 	}
 	table.Render()
