@@ -159,12 +159,26 @@ type GameSession struct {
 	ApiKeyID uuid.UUID `json:"apiKeyId"`
 	ApiKey   *ApiKey   `json:"apiKey"`
 	// AI model used for playing.
-	Model string `json:"model"`
+	AiPlatform string `json:"aiPlatform"`
+	AiModel    string `json:"aiModel"`
 	// JSON with arbitrary details to be used within that model and within that session.
-	ModelSession string `json:"modelSession"`
-	ImageStyle   string `json:"imageStyle"`
+	AiSession string `json:"aiSession"`
+
+	ImageStyle string `json:"imageStyle"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
+}
+
+type AiPlatform struct {
+	ID     string    `json:"id"`   // technical name without spaces, e.g. "openai"
+	Name   string    `json:"name"` // display name e.g. "OpenAI"
+	Models []AiModel `json:"models"`
+}
+
+type AiModel struct {
+	ID          string `json:"id"`   // technical name without spaces, e.g. "gpt-4-nano"
+	Name        string `json:"name"` // display name e.g. "GPT 4 Nano"
+	Description string `json:"description"`
 }
 
 type StatusField struct {

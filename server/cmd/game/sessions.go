@@ -52,7 +52,7 @@ func runGameSessions(cmd *cobra.Command, args []string) {
 			s.ID.String(),
 			userID,
 			apiKeyID,
-			functional.Shorten(s.Model, 20),
+			functional.Shorten(s.AiModel, 20),
 			created,
 		})
 	}

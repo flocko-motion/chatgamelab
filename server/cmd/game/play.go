@@ -9,6 +9,7 @@ import (
 )
 
 var shareID string
+var modelID string
 
 var gamePlayCmd = &cobra.Command{
 	Use:   "play <game-id>",
@@ -20,11 +21,13 @@ var gamePlayCmd = &cobra.Command{
 
 func init() {
 	gamePlayCmd.Flags().StringVarP(&shareID, "share", "s", "", "API key share ID to use (optional, uses default if not provided)")
+	gamePlayCmd.Flags().StringVarP(&modelID, "model", "m", "", "AI model to use (optional, uses platform default if not provided)")
 	Cmd.AddCommand(gamePlayCmd)
 }
 
 type createSessionRequest struct {
 	ShareID uuid.UUID `json:"shareId"`
+	Model   string    `json:"model"`
 }
 
 type createSessionResponse struct {
@@ -42,6 +45,7 @@ func runGamePlay(cmd *cobra.Command, args []string) {
 		}
 		req.ShareID = id
 	}
+	req.Model = modelID
 	var resp createSessionResponse
 
 	if err := client.ApiPost("games/"+gameID+"/sessions", req, &resp); err != nil {

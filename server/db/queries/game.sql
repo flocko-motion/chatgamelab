@@ -111,14 +111,14 @@ INSERT INTO game_session (
   id, created_by,
   created_at, modified_by, modified_at,
   game_id, user_id, api_key_id,
-  model, model_session,
+  ai_platform, ai_model, ai_session,
   image_style, status_fields
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8,
-  $9, $10,
-  $11, $12
+  $9, $10, $11,
+  $12, $13
 )
 RETURNING *;
 
@@ -137,10 +137,11 @@ UPDATE game_session SET
   game_id = $6,
   user_id = $7,
   api_key_id = $8,
-  model = $9,
-  model_session = $10,
-  image_style = $11,
-  status_fields = $12
+  ai_platform = $9,
+  ai_model = $10,
+  ai_session = $11,
+  image_style = $12,
+  status_fields = $13
 WHERE id = $1
 RETURNING *;
 

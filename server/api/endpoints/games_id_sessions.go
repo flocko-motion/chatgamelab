@@ -13,6 +13,7 @@ import (
 
 type CreateSessionRequest struct {
 	ShareID uuid.UUID `json:"shareId"`
+	Model   string    `json:"model"`
 }
 
 type CreateSessionResponse struct {
@@ -37,7 +38,7 @@ var GamesIdSessions = handler.NewEndpoint(
 				return nil, httpErr
 			}
 
-			session, httpErr := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ShareID)
+			session, httpErr := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ShareID, req.Model)
 			if httpErr != nil {
 				return nil, httpErr
 			}

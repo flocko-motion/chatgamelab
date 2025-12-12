@@ -14,7 +14,17 @@ import (
 
 type MockPlatform struct{}
 
-func (p *MockPlatform) InitGameSession(session *obj.GameSession) error {
+func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
+	return obj.AiPlatform{
+		ID:   "mock",
+		Name: "Mock (Testing)",
+		Models: []obj.AiModel{
+			{ID: "mock-v1", Name: "Mock Model", Description: "Dummy AI for testing purposes only"},
+		},
+	}
+}
+
+func (p *MockPlatform) InitGameSession(session *obj.GameSession, systemMessage string) error {
 	// Mock implementation - does nothing
 	return nil
 }

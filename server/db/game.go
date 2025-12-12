@@ -242,8 +242,9 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) error {
 		GameID:       session.GameID,
 		UserID:       session.UserID,
 		ApiKeyID:     session.ApiKeyID,
-		Model:        session.Model,
-		ModelSession: []byte(session.ModelSession),
+		AiPlatform:   session.AiPlatform,
+		AiModel:      session.AiModel,
+		AiSession:    []byte(session.AiSession),
 		ImageStyle:   session.ImageStyle,
 		StatusFields: session.StatusFields,
 	}
@@ -303,13 +304,14 @@ func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameS
 	sessions := make([]obj.GameSession, 0, len(dbSessions))
 	for _, s := range dbSessions {
 		sessions = append(sessions, obj.GameSession{
-			ID:           s.ID,
-			GameID:       s.GameID,
-			UserID:       s.UserID,
-			ApiKeyID:     s.ApiKeyID,
-			Model:        s.Model,
-			ModelSession: string(s.ModelSession),
-			ImageStyle:   s.ImageStyle,
+			ID:         s.ID,
+			GameID:     s.GameID,
+			UserID:     s.UserID,
+			ApiKeyID:   s.ApiKeyID,
+			AiPlatform: s.AiPlatform,
+			AiModel:    s.AiModel,
+			AiSession:  string(s.AiSession),
+			ImageStyle: s.ImageStyle,
 			Meta: obj.Meta{
 				CreatedBy:  s.CreatedBy,
 				CreatedAt:  &s.CreatedAt,

@@ -1,6 +1,9 @@
 package gpt
 
 import (
+	"cgl/constants"
+	"cgl/db"
+	"cgl/obj"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -8,44 +11,9 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"cgl/constants"
-	"cgl/db"
-	"cgl/obj"
 
 	"github.com/sashabaranov/go-openai"
 )
-
-const template = `You are a text-adventure API. You get inputs, what the player wants to do. You act as the game master and decide, what happens. You decide, what's possible and what's not possible - not the player.
-If the player posts an action, that doesn't work in the world you are simulating, then continue the story with the player failing in his attempt.
-You're job is not to please the player, but to create a coherent world. You're job is to create a world, that is fun to explore. You're job is to create a world, that is fun to play in.
-
-The game frontend sends player actions together with player status as json. Example:
-
-{{INPUT_EXAMPLE}}
-
-Possible action types are: 
-` + obj.GameInputTypeAction + `: action, which the player wants to do
-` + obj.GameInputTypeIntro + `: system starts a new game session, message contains instructions generating the first scene
-
-When you receive a player action, you continue the story based on his actions and update the player status.
-
-You always answer with a result json. The result json must exactly follow the format of this Example:
-
-{{OUTPUT_EXAMPLE}}
-
-As you see in the example, you have to update the status after each player action. The "image" field describes the new scenery for a generative image AI to produce artwork.
-
-The language and literary style ouf your output should follow the scenario definition.
-
-The JSON structure, field names, etc. are fixed and must not be changed or translated. The image description should be in english always.
-Any changes to the JSON structure will break the game frontend.
-
-You always stay in your role. You are the game master. You are the world. You are the narrator. You are the storyteller. You decide, what's possible and what not. You are the text-adventure engine. You are the game. Don't please the player, challenge him.
-
-The scenario:
-
-{{SCENARIO}}
-`
 
 func CreateGameSession(game *obj.Game, userId uint, apiKey string) (session *obj.Session, err error) {
 	if game == nil {
@@ -175,18 +143,3 @@ func ExecuteAction(session *obj.Session, game *obj.Game, action obj.GameActionIn
 
 	return response, nil
 }
-
-/*func serializeStatusFields(statusFields []obj.StatusField) string {
-	fields := make([]map[string]string, len(statusFields))
-	for i, statusField := range statusFields {
-		fields[i] = map[string]string{
-			statusField.Name: statusField.Value,
-		}
-	}
-	bytes, err := json.Marshal(fields)
-	if err != nil {
-		panic(err)
-	}
-	return string(bytes)
-}
-*/

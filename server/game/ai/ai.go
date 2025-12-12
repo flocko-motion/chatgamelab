@@ -26,20 +26,46 @@ func IsValidApiKeyPlatform(platform string) bool {
 }
 
 type AiPlatform interface {
-	InitGameSession(session *obj.GameSession) (err error)
+	GetPlatformInfo() obj.AiPlatform
+	InitGameSession(session *obj.GameSession, systemMessage string) (err error)
 	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, err error)
 }
 
-func GetAiPlatform(name string) (AiPlatform, error) {
-	const failedAction = "failed getting ai platform"
-	switch name {
+// GetAiPlatform returns the AI platform and resolves the model.
+// If model is empty, returns the platform's default model.
+// Returns error if platform is unknown or model is invalid.
+func GetAiPlatform(platformName, model string) (AiPlatform, string, error) {
+	var platform AiPlatform
+	switch platformName {
 	case OpenAi:
-		return &openai.OpenAiPlatform{}, nil
+		platform = &openai.OpenAiPlatform{}
 	// case Mistral:
-	// 	return &mistral.MistralPlatform{}, nil
+	// 	platform = &mistral.MistralPlatform{}
 	case Mock:
-		return &mock.MockPlatform{}, nil
+		platform = &mock.MockPlatform{}
 	default:
-		return nil, fmt.Errorf("%s: unknown ai platform: %s", failedAction, name)
+		return nil, "", fmt.Errorf("unknown ai platform: %s", platformName)
 	}
+
+	info := platform.GetPlatformInfo()
+
+	if model == "" {
+		if len(info.Models) == 0 {
+			return nil, "", fmt.Errorf("no models available for platform %s", info.Name)
+		}
+		model = info.Models[0].ID
+	} else {
+		valid := false
+		for _, m := range info.Models {
+			if m.ID == model {
+				valid = true
+				break
+			}
+		}
+		if !valid {
+			return nil, "", fmt.Errorf("invalid model '%s' for platform %s", model, info.Name)
+		}
+	}
+
+	return platform, model, nil
 }

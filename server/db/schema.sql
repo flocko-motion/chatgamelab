@@ -196,10 +196,12 @@ CREATE TABLE game_session (
     user_id         uuid NOT NULL REFERENCES app_user(id),
     -- API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
     api_key_id      uuid NOT NULL REFERENCES api_key(id),
-    -- AI model used for playing.
-    model           text NOT NULL,
+    -- AI platform used for playing (e.g. 'openai', 'anthropic').
+    ai_platform     text NOT NULL,
+    -- AI model used for playing (e.g. 'gpt-4o-mini').
+    ai_model        text NOT NULL,
     -- JSON with arbitrary details to be used within that model and within that session.
-    model_session   jsonb NOT NULL,
+    ai_session      jsonb NOT NULL,
     image_style     text NOT NULL,
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
     status_fields   text NOT NULL

@@ -121,16 +121,16 @@ INSERT INTO game_session (
   id, created_by,
   created_at, modified_by, modified_at,
   game_id, user_id, api_key_id,
-  model, model_session,
+  ai_platform, ai_model, ai_session,
   image_style, status_fields
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8,
-  $9, $10,
-  $11, $12
+  $9, $10, $11,
+  $12, $13
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields
 `
 
 type CreateGameSessionParams struct {
@@ -142,8 +142,9 @@ type CreateGameSessionParams struct {
 	GameID       uuid.UUID
 	UserID       uuid.UUID
 	ApiKeyID     uuid.UUID
-	Model        string
-	ModelSession json.RawMessage
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
 }
@@ -159,8 +160,9 @@ func (q *Queries) CreateGameSession(ctx context.Context, arg CreateGameSessionPa
 		arg.GameID,
 		arg.UserID,
 		arg.ApiKeyID,
-		arg.Model,
-		arg.ModelSession,
+		arg.AiPlatform,
+		arg.AiModel,
+		arg.AiSession,
 		arg.ImageStyle,
 		arg.StatusFields,
 	)
@@ -174,8 +176,9 @@ func (q *Queries) CreateGameSession(ctx context.Context, arg CreateGameSessionPa
 		&i.GameID,
 		&i.UserID,
 		&i.ApiKeyID,
-		&i.Model,
-		&i.ModelSession,
+		&i.AiPlatform,
+		&i.AiModel,
+		&i.AiSession,
 		&i.ImageStyle,
 		&i.StatusFields,
 	)
@@ -421,7 +424,7 @@ func (q *Queries) GetGameIDsVisibleToUser(ctx context.Context, createdBy uuid.Nu
 }
 
 const getGameSessionByID = `-- name: GetGameSessionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields FROM game_session WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields FROM game_session WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSession, error) {
@@ -436,8 +439,9 @@ func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSes
 		&i.GameID,
 		&i.UserID,
 		&i.ApiKeyID,
-		&i.Model,
-		&i.ModelSession,
+		&i.AiPlatform,
+		&i.AiModel,
+		&i.AiSession,
 		&i.ImageStyle,
 		&i.StatusFields,
 	)
@@ -469,7 +473,7 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 }
 
 const getGameSessionsByGameID = `-- name: GetGameSessionsByGameID :many
-SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields FROM game_session WHERE game_id = $1 ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields FROM game_session WHERE game_id = $1 ORDER BY created_at DESC
 `
 
 func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]GameSession, error) {
@@ -490,8 +494,9 @@ func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID)
 			&i.GameID,
 			&i.UserID,
 			&i.ApiKeyID,
-			&i.Model,
-			&i.ModelSession,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
 			&i.ImageStyle,
 			&i.StatusFields,
 		); err != nil {
@@ -764,12 +769,13 @@ UPDATE game_session SET
   game_id = $6,
   user_id = $7,
   api_key_id = $8,
-  model = $9,
-  model_session = $10,
-  image_style = $11,
-  status_fields = $12
+  ai_platform = $9,
+  ai_model = $10,
+  ai_session = $11,
+  image_style = $12,
+  status_fields = $13
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, model, model_session, image_style, status_fields
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields
 `
 
 type UpdateGameSessionParams struct {
@@ -781,8 +787,9 @@ type UpdateGameSessionParams struct {
 	GameID       uuid.UUID
 	UserID       uuid.UUID
 	ApiKeyID     uuid.UUID
-	Model        string
-	ModelSession json.RawMessage
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
 }
@@ -797,8 +804,9 @@ func (q *Queries) UpdateGameSession(ctx context.Context, arg UpdateGameSessionPa
 		arg.GameID,
 		arg.UserID,
 		arg.ApiKeyID,
-		arg.Model,
-		arg.ModelSession,
+		arg.AiPlatform,
+		arg.AiModel,
+		arg.AiSession,
 		arg.ImageStyle,
 		arg.StatusFields,
 	)
@@ -812,8 +820,9 @@ func (q *Queries) UpdateGameSession(ctx context.Context, arg UpdateGameSessionPa
 		&i.GameID,
 		&i.UserID,
 		&i.ApiKeyID,
-		&i.Model,
-		&i.ModelSession,
+		&i.AiPlatform,
+		&i.AiModel,
+		&i.AiSession,
 		&i.ImageStyle,
 		&i.StatusFields,
 	)

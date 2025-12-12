@@ -82,8 +82,9 @@ type GameSession struct {
 	GameID       uuid.UUID
 	UserID       uuid.UUID
 	ApiKeyID     uuid.UUID
-	Model        string
-	ModelSession json.RawMessage
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
 }

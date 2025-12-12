@@ -6,6 +6,7 @@ import (
 
 	"cgl/db"
 	"cgl/game/ai"
+	"cgl/game/templates"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -13,8 +14,9 @@ import (
 
 // CreateSession creates a new game session for a user.
 // If shareID is uuid.Nil, the user's default API key share will be used.
+// If model is empty, the platform's default model will be used.
 // Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shareID uuid.UUID) (*obj.GameSession, *obj.HTTPError) {
+func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shareID uuid.UUID, aiModel string) (*obj.GameSession, *obj.HTTPError) {
 	// TODO: resolving keys is more complex - we also have sponsored public keys, workshop keys, institution keys... so we need more logic to figure out which key to use
 	// For now, we'll just use the provided share or default, but in the future we should implement proper key resolution logic
 
@@ -47,6 +49,18 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found: " + err.Error()}
 	}
 
+	// Parse game template to get system message
+	systemMessage, err := templates.GetTemplate(game)
+	if err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
+	}
+
+	// Get AI platform and resolve model
+	aiPlatform, aiModel, err := ai.GetAiPlatform(share.ApiKey.Platform, aiModel)
+	if err != nil {
+		return nil, &obj.HTTPError{StatusCode: 400, Message: err.Error()}
+	}
+
 	// Create session object
 	session := obj.GameSession{
 		ID:              uuid.New(),
@@ -56,9 +70,11 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		UserID:          userID,
 		ApiKeyID:        share.ApiKey.ID,
 		ApiKey:          share.ApiKey,
+		AiPlatform:      share.ApiKey.Platform,
+		AiModel:         aiModel,
 		ImageStyle:      game.ImageStyle,
 		StatusFields:    game.StatusFields,
-		ModelSession:    "{}",
+		AiSession:       "{}",
 	}
 
 	// Persist to database
@@ -66,12 +82,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 
-	// Initialize the session - this will create the AI chat and inject the system message and initial game state
-	aiPlatform, err := ai.GetAiPlatform(session.ApiKey.Platform)
-	if err != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get AI platform: " + err.Error()}
-	}
-	if err := aiPlatform.InitGameSession(&session); err != nil {
+	if err := aiPlatform.InitGameSession(&session, systemMessage); err != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to initialize session: " + err.Error()}
 	}
 
@@ -86,7 +97,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	if session.ApiKey == nil {
 		return nil, fmt.Errorf("%s %s: session has no api key object", failedAction, session.ID)
 	}
-	platform, err := ai.GetAiPlatform(session.ApiKey.Platform)
+	platform, _, err := ai.GetAiPlatform(session.AiPlatform, session.AiModel)
 	if err != nil {
 		return nil, fmt.Errorf("%s %s: %w", failedAction, session.ID, err)
 	}
