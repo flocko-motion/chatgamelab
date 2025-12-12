@@ -23,7 +23,8 @@ func init() {
 func runShareDelete(cmd *cobra.Command, args []string) {
 	shareID := args[0]
 
-	if err := client.ApiDelete("apikeys/shares/" + shareID); err != nil {
+	// Without cascade=true, this just removes the share (unshare)
+	if err := client.ApiDelete("apikeys/" + shareID); err != nil {
 		log.Fatalf("Failed to delete share: %v", err)
 	}
 

@@ -4,7 +4,6 @@ import (
 	"cgl/api/handler"
 	"cgl/db"
 	"cgl/obj"
-	"encoding/json"
 	"log"
 )
 
@@ -29,8 +28,8 @@ var GamesId = handler.NewEndpoint(
 
 		case "POST":
 			var updatedGame obj.Game
-			if err := json.NewDecoder(request.R.Body).Decode(&updatedGame); err != nil {
-				return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
+			if httpErr := request.BodyJSON(&updatedGame); httpErr != nil {
+				return nil, httpErr
 			}
 			updatedGame.ID = gameID
 

@@ -9,9 +9,9 @@ import (
 )
 
 var modifyCmd = &cobra.Command{
-	Use:   "modify <api-key-id>",
+	Use:   "modify <share-id>",
 	Short: "Modify an API key",
-	Long:  "Modify an API key's properties (e.g., name).",
+	Long:  "Modify an API key's properties (e.g., name) using its share ID.",
 	Args:  cobra.ExactArgs(1),
 	Run:   runModify,
 }

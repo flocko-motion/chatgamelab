@@ -10,9 +10,9 @@ import (
 )
 
 var shareAddCmd = &cobra.Command{
-	Use:   "add <api-key-id>",
-	Short: "Add a new share for an API key",
-	Long:  "Share an API key with a user, workshop, or institution.",
+	Use:   "add <share-id>",
+	Short: "Share an API key with others",
+	Long:  "Share an API key (using your share ID) with a user, workshop, or institution.",
 	Args:  cobra.ExactArgs(1),
 	Run:   runShareAdd,
 }

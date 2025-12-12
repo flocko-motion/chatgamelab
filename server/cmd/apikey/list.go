@@ -34,7 +34,7 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.Header([]string{"ID", "Name", "Platform", "Key", "Owner", "Created"})
+	table.Header([]string{"Share ID", "Key ID", "Platform", "Name", "Owner", "Created", "Key"})
 
 	for _, k := range keys {
 		if k.ApiKey == nil {
@@ -47,12 +47,13 @@ func runList(cmd *cobra.Command, args []string) {
 		}
 
 		table.Append([]string{
+			k.ID.String(),
 			k.ApiKey.ID.String(),
-			functional.Shorten(k.ApiKey.Name, 20),
 			k.ApiKey.Platform,
-			k.ApiKey.KeyShortened,
+			functional.Shorten(k.ApiKey.Name, 15),
 			functional.Shorten(k.ApiKey.UserName, 15),
 			created,
+			k.ApiKey.KeyShortened,
 		})
 	}
 	table.Render()

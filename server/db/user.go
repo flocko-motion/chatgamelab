@@ -391,24 +391,145 @@ func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID u
 	return &result.ID, nil
 }
 
-// DeleteApiKeyShare deletes a share. Only the API key owner can delete shares.
+// DeleteApiKeyShare deletes a single share (unshare). Owner can delete any share, others can only delete their own.
 func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {
-	// Get the share to find the API key
 	share, err := queries().GetApiKeyShareByID(ctx, shareID)
 	if err != nil {
 		return fmt.Errorf("share not found: %w", err)
 	}
 
-	// Verify the API key belongs to the user
 	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
 	if err != nil {
 		return fmt.Errorf("api key not found: %w", err)
 	}
-	if key.UserID != userID {
-		return errors.New("api key does not belong to user")
+
+	// Owner can delete any share, others can only delete shares targeting themselves
+	isOwner := key.UserID == userID
+	isOwnShare := share.UserID.Valid && share.UserID.UUID == userID
+
+	if !isOwner && !isOwnShare {
+		return errors.New("not authorized to delete this share")
 	}
 
 	return queries().DeleteApiKeyShare(ctx, shareID)
+}
+
+// GetApiKeyShareInfo returns a share and its linked shares (if the user is the owner)
+func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) (*obj.ApiKeyShare, []obj.ApiKeyShare, error) {
+	share, err := queries().GetApiKeyShareByID(ctx, shareID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("share not found: %w", err)
+	}
+
+	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+	if err != nil {
+		return nil, nil, fmt.Errorf("api key not found: %w", err)
+	}
+
+	// Verify user has access to this share
+	isOwner := key.UserID == userID
+	isShareTarget := share.UserID.Valid && share.UserID.UUID == userID
+
+	if !isOwner && !isShareTarget {
+		return nil, nil, errors.New("not authorized to view this share")
+	}
+
+	// Build the share object
+	result := &obj.ApiKeyShare{
+		ID: share.ID,
+		Meta: obj.Meta{
+			CreatedBy:  share.CreatedBy,
+			CreatedAt:  &share.CreatedAt,
+			ModifiedBy: share.ModifiedBy,
+			ModifiedAt: &share.ModifiedAt,
+		},
+		ApiKey: &obj.ApiKey{
+			ID:           key.ID,
+			UserID:       key.UserID,
+			Name:         key.Name,
+			Platform:     key.Platform,
+			KeyShortened: shortenApiKey(key.Key),
+		},
+		AllowPublicSponsoredPlays: share.AllowPublicSponsoredPlays,
+	}
+
+	if share.UserID.Valid {
+		result.User = &obj.User{ID: share.UserID.UUID}
+	}
+	if share.WorkshopID.Valid {
+		result.Workshop = &obj.Workshop{ID: share.WorkshopID.UUID}
+	}
+	if share.InstitutionID.Valid {
+		result.Institution = &obj.Institution{ID: share.InstitutionID.UUID}
+	}
+
+	// If owner, get all linked shares
+	var linkedShares []obj.ApiKeyShare
+	if isOwner {
+		linkedShares, err = GetApiKeyShares(ctx, userID, key.ID)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to get linked shares: %w", err)
+		}
+	}
+
+	return result, linkedShares, nil
+}
+
+// ShareApiKeyFromShare creates a new share for the underlying API key (owner only)
+func ShareApiKeyFromShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, targetUserID, workshopID, institutionID *uuid.UUID, allowPublic bool) (*uuid.UUID, error) {
+	share, err := queries().GetApiKeyShareByID(ctx, shareID)
+	if err != nil {
+		return nil, fmt.Errorf("share not found: %w", err)
+	}
+
+	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+	if err != nil {
+		return nil, fmt.Errorf("api key not found: %w", err)
+	}
+
+	if key.UserID != userID {
+		return nil, errors.New("only the owner can share this key")
+	}
+
+	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, allowPublic)
+}
+
+// UpdateApiKeyNameFromShare updates the API key name (owner only)
+func UpdateApiKeyNameFromShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, name string) error {
+	share, err := queries().GetApiKeyShareByID(ctx, shareID)
+	if err != nil {
+		return fmt.Errorf("share not found: %w", err)
+	}
+
+	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+	if err != nil {
+		return fmt.Errorf("api key not found: %w", err)
+	}
+
+	if key.UserID != userID {
+		return errors.New("only the owner can update this key")
+	}
+
+	return UpdateUserApiKeyName(ctx, userID, key.ID, name)
+}
+
+// DeleteApiKeyFromShare deletes the underlying API key and all its shares (owner only)
+func DeleteApiKeyFromShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {
+	share, err := queries().GetApiKeyShareByID(ctx, shareID)
+	if err != nil {
+		return fmt.Errorf("share not found: %w", err)
+	}
+
+	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+	if err != nil {
+		return fmt.Errorf("api key not found: %w", err)
+	}
+
+	if key.UserID != userID {
+		return errors.New("only the owner can delete this key")
+	}
+
+	return DeleteUserApiKey(ctx, userID, key.ID)
 }
 
 func uuidPtrToUUID(id *uuid.UUID) uuid.UUID {

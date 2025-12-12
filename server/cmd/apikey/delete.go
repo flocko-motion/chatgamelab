@@ -9,9 +9,9 @@ import (
 )
 
 var deleteCmd = &cobra.Command{
-	Use:   "delete <api-key-id>",
-	Short: "Delete an API key",
-	Long:  "Delete an API key by its ID.",
+	Use:   "delete <share-id>",
+	Short: "Delete an API key and all its shares",
+	Long:  "Delete an API key by its share ID. This removes the key and all associated shares.",
 	Args:  cobra.ExactArgs(1),
 	Run:   runDelete,
 }
@@ -21,9 +21,9 @@ func init() {
 }
 
 func runDelete(cmd *cobra.Command, args []string) {
-	apiKeyID := args[0]
+	shareID := args[0]
 
-	if err := client.ApiDelete("apikeys/" + apiKeyID); err != nil {
+	if err := client.ApiDelete("apikeys/" + shareID + "?cascade=true"); err != nil {
 		log.Fatalf("Failed to delete API key: %v", err)
 	}
 

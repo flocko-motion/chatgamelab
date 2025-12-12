@@ -12,7 +12,7 @@ import (
 var getCmd = &cobra.Command{
 	Use:   "get <game-id> [output-file]",
 	Short: "Get a game as YAML",
-	Long:  "Fetch a game by ID and output it as YAML. Optionally write to a file.",
+	Long:  "Fetch a game by ID and output it as YAML. Optionally write to a file. We propose .cgl.yaml as file extension.",
 	Args:  cobra.RangeArgs(1, 2),
 	Run:   runGet,
 }
@@ -31,5 +31,6 @@ func runGet(cmd *cobra.Command, args []string) {
 	if len(args) > 1 {
 		outputFile := args[1]
 		functional.Must(os.WriteFile(outputFile, []byte(yamlContent), 0644), "failed to write to file")
+		fmt.Printf("Game YAML written to %s\n", outputFile)
 	}
 }

@@ -5,7 +5,6 @@ import (
 	"cgl/db"
 	"cgl/game"
 	"cgl/obj"
-	"encoding/json"
 	"log"
 	"net/http"
 
@@ -34,8 +33,8 @@ var GamesIdSessions = handler.NewEndpoint(
 		switch request.R.Method {
 		case "POST":
 			var req CreateSessionRequest
-			if err := json.NewDecoder(request.R.Body).Decode(&req); err != nil {
-				return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request: " + err.Error()}
+			if httpErr := request.BodyJSON(&req); httpErr != nil {
+				return nil, httpErr
 			}
 
 			session, err := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ApiKeyID)

@@ -4,7 +4,6 @@ import (
 	"cgl/api/handler"
 	"cgl/db"
 	"cgl/obj"
-	"encoding/json"
 	"strings"
 
 	"github.com/google/uuid"
@@ -48,8 +47,8 @@ var GamesNew = handler.NewEndpoint(
 		} else {
 			// Update with JSON content from "new game" form
 			var req GameNewRequest
-			if err := json.NewDecoder(request.R.Body).Decode(&req); err != nil {
-				return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
+			if httpErr := request.BodyJSON(&req); httpErr != nil {
+				return nil, httpErr
 			}
 
 			if req.Name != "" {

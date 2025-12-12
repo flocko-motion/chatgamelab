@@ -4,7 +4,6 @@ import (
 	"cgl/api/handler"
 	"cgl/db"
 	"cgl/obj"
-	"encoding/json"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -20,6 +19,8 @@ type CreateApiKeyResponse struct {
 	ID uuid.UUID `json:"id"`
 }
 
+// ApiKeysNew handles:
+// POST /api/apikeys/new - Create new API key + self-share
 var ApiKeysNew = handler.NewEndpoint(
 	"/api/apikeys/new",
 	false,
@@ -30,8 +31,8 @@ var ApiKeysNew = handler.NewEndpoint(
 		}
 
 		var req CreateApiKeyRequest
-		if err := json.NewDecoder(request.R.Body).Decode(&req); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request: " + err.Error()}
+		if httpErr := request.BodyJSON(&req); httpErr != nil {
+			return nil, httpErr
 		}
 
 		if req.Platform == "" {

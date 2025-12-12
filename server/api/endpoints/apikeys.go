@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+// ApiKeys handles:
+// GET /api/apikeys - List all shares accessible to current user
 var ApiKeys = handler.NewEndpoint(
 	"/api/apikeys",
 	false,
@@ -20,7 +22,6 @@ var ApiKeys = handler.NewEndpoint(
 		if err != nil {
 			return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get API keys: " + err.Error()}
 		}
-
 		return keys, nil
 	},
 )
