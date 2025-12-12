@@ -17,7 +17,7 @@ The game frontend sends player actions together with player status as json. Exam
 {{INPUT_EXAMPLE}}
 
 Possible action types are: 
-` + obj.GameSessionMessageTypeAction + `: action, which the player wants to do
+` + obj.GameSessionMessageTypePlayer + `: action, which the player wants to do
 ` + obj.GameSessionMessageTypeSystem + `: system starts a new game session, message contains instructions generating the first scene
 
 When you receive a player action, you continue the story based on his actions and update the player status.
@@ -52,7 +52,7 @@ func GetTemplate(game *obj.Game) (string, error) {
 	}
 
 	actionInput := obj.GameSessionMessage{
-		Type:         obj.GameSessionMessageTypeAction,
+		Type:         obj.GameSessionMessageTypePlayer,
 		Message:      "drink the potion",
 		StatusFields: statusFields,
 		ImagePrompt:  nil,
@@ -60,7 +60,7 @@ func GetTemplate(game *obj.Game) (string, error) {
 	actionInputStr, _ := json.Marshal(actionInput)
 
 	actionOutput := obj.GameSessionMessage{
-		Type:         obj.GameSessionMessageTypeStory,
+		Type:         obj.GameSessionMessageTypeGame,
 		Message:      "You drink the potion. You feel a little bit dizzy. You feel a little bit stronger.",
 		StatusFields: statusFields,
 		// outputs have image prompts, inputs don't

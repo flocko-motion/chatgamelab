@@ -114,11 +114,11 @@ INSERT INTO game_session (
   ai_platform, ai_model, ai_session,
   image_style, status_fields
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8,
-  $9, $10, $11,
-  $12, $13
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7,
+  $8, $9, $10,
+  $11, $12
 )
 RETURNING *;
 

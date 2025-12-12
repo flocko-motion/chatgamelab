@@ -4,6 +4,7 @@ import (
 	"cgl/api/client"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -36,7 +37,7 @@ type addApiKeyResponse struct {
 
 func runAdd(cmd *cobra.Command, args []string) {
 	platform := args[0]
-	key := args[1]
+	key := strings.TrimSpace(args[1])
 
 	req := addApiKeyRequest{
 		Name:     keyName,

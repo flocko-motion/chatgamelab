@@ -124,17 +124,16 @@ INSERT INTO game_session (
   ai_platform, ai_model, ai_session,
   image_style, status_fields
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8,
-  $9, $10, $11,
-  $12, $13
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7,
+  $8, $9, $10,
+  $11, $12
 )
 RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields
 `
 
 type CreateGameSessionParams struct {
-	ID           uuid.UUID
 	CreatedBy    uuid.NullUUID
 	CreatedAt    time.Time
 	ModifiedBy   uuid.NullUUID
@@ -152,7 +151,6 @@ type CreateGameSessionParams struct {
 // game_session ---------------------------------------------------------
 func (q *Queries) CreateGameSession(ctx context.Context, arg CreateGameSessionParams) (GameSession, error) {
 	row := q.db.QueryRowContext(ctx, createGameSession,
-		arg.ID,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ModifiedBy,

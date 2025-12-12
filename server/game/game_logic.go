@@ -62,8 +62,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 
 	// Create session object
-	session := obj.GameSession{
-		ID:              uuid.New(),
+	session := &obj.GameSession{
 		GameID:          game.ID,
 		GameName:        game.Name,
 		GameDescription: game.Description,
@@ -78,15 +77,23 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 
 	// Persist to database
-	if err := db.CreateGameSession(ctx, &session); err != nil {
+	session, err = db.CreateGameSession(ctx, session)
+	if err != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 
-	if err := aiPlatform.InitGameSession(&session, systemMessage); err != nil {
+	// Initialize the AI session and get the opening scene
+	firstMessage, err := aiPlatform.InitGameSession(ctx, session, systemMessage)
+	if err != nil {
 		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to initialize session: " + err.Error()}
 	}
 
-	return &session, nil
+	// Save the opening scene to the database
+	if _, err := db.CreateGameSessionMessage(ctx, userID, *firstMessage); err != nil {
+		return nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to save opening scene: " + err.Error()}
+	}
+
+	return session, nil
 }
 
 func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, err error) {
@@ -113,7 +120,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// write action to db
 	msgResult, err := db.CreateGameSessionMessage(ctx, session.UserID, obj.GameSessionMessage{
 		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypeStory,
+		Type:          obj.GameSessionMessageTypeGame,
 		Message:       actionResult.Message,
 		StatusFields:  actionResult.StatusFields,
 		ImagePrompt:   actionResult.ImagePrompt,

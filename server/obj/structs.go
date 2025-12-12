@@ -187,10 +187,9 @@ type StatusField struct {
 }
 
 const (
-	GameSessionMessageTypeStory  = "story"
-	GameSessionMessageTypeAction = "action"
-	GameSessionMessageTypeSystem = "system"
-	GameSessionMessageTypeError  = "error"
+	GameSessionMessageTypeGame   = "game"   // LLM/game response
+	GameSessionMessageTypePlayer = "player" // player action
+	GameSessionMessageTypeSystem = "system" // system/context messages
 )
 
 type GameSessionMessage struct {
@@ -208,4 +207,35 @@ type GameSessionMessage struct {
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt"`
 	Image        []byte        `json:"image"`
+}
+
+// GameResponseSchema is the JSON schema for LLM responses, shared across all AI platforms.
+// It defines the expected structure: message, statusFields, and imagePrompt.
+var GameResponseSchema = map[string]interface{}{
+	"type": "object",
+	"properties": map[string]interface{}{
+		"message": map[string]interface{}{
+			"type":        "string",
+			"description": "The narrative response to the player's action",
+		},
+		"statusFields": map[string]interface{}{
+			"type": "array",
+			"items": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"name":  map[string]interface{}{"type": "string"},
+					"value": map[string]interface{}{"type": "string"},
+				},
+				"required":             []string{"name", "value"},
+				"additionalProperties": false,
+			},
+			"description": "Updated status fields after the action",
+		},
+		"imagePrompt": map[string]interface{}{
+			"type":        []string{"string", "null"},
+			"description": "Description for generating an image of the scene",
+		},
+	},
+	"required":             []string{"message", "statusFields", "imagePrompt"},
+	"additionalProperties": false,
 }

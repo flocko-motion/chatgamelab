@@ -27,7 +27,7 @@ func IsValidApiKeyPlatform(platform string) bool {
 
 type AiPlatform interface {
 	GetPlatformInfo() obj.AiPlatform
-	InitGameSession(session *obj.GameSession, systemMessage string) (err error)
+	InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (firstMessage *obj.GameSessionMessage, err error)
 	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, err error)
 }
 

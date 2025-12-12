@@ -24,9 +24,14 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
-func (p *MockPlatform) InitGameSession(session *obj.GameSession, systemMessage string) error {
-	// Mock implementation - does nothing
-	return nil
+func (p *MockPlatform) InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (*obj.GameSessionMessage, error) {
+	// Mock implementation - return a mock opening scene
+	return &obj.GameSessionMessage{
+		GameSessionID: session.ID,
+		Type:          obj.GameSessionMessageTypeGame,
+		Message:       "Welcome to the mock game! This is a test session.",
+		StatusFields:  []obj.StatusField{{Name: "Health", Value: "100"}},
+	}, nil
 }
 
 func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (*obj.GameSessionMessage, error) {

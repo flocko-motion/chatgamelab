@@ -227,14 +227,13 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	return UpdateGame(ctx, userID, existing)
 }
 
-// CreateGameSession persists a game session to the database
-func CreateGameSession(ctx context.Context, session *obj.GameSession) error {
+// CreateGameSession persists a game session to the database and returns the created session with DB-generated ID
+func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.GameSession, error) {
 	if session == nil {
-		return fmt.Errorf("session is nil")
+		return nil, fmt.Errorf("session is nil")
 	}
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
-		ID:           session.ID,
 		CreatedBy:    uuid.NullUUID{UUID: session.UserID, Valid: true},
 		CreatedAt:    now,
 		ModifiedBy:   uuid.NullUUID{UUID: session.UserID, Valid: true},
@@ -249,12 +248,16 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) error {
 		StatusFields: session.StatusFields,
 	}
 
-	_, err := queries().CreateGameSession(ctx, arg)
+	result, err := queries().CreateGameSession(ctx, arg)
 	if err != nil {
-		return fmt.Errorf("failed to create session: %w", err)
+		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	return nil
+	session.ID = result.ID
+	session.Meta.CreatedAt = &result.CreatedAt
+	session.Meta.ModifiedAt = &result.ModifiedAt
+
+	return session, nil
 }
 
 // CreateGameSessionMessage adds a message to a game session with auto-incremented seq

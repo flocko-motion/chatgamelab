@@ -2,6 +2,7 @@ package openai
 
 import (
 	"bytes"
+	"cgl/lang"
 	"cgl/obj"
 	"context"
 	"encoding/json"
@@ -31,8 +32,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 
 // ModelSession stores the OpenAI response ID for conversation continuity
 type ModelSession struct {
-	ResponseID    string `json:"responseId"`
-	SystemMessage string `json:"systemMessage"`
+	ResponseID string `json:"responseId"`
 }
 
 // ResponsesAPIRequest is the request body for the Responses API
@@ -77,51 +77,23 @@ type ContentItem struct {
 	Text string `json:"text"`
 }
 
-// JSON schema for structured outputs
-var gameResponseSchema = map[string]interface{}{
-	"type": "object",
-	"properties": map[string]interface{}{
-		"message": map[string]interface{}{
-			"type":        "string",
-			"description": "The narrative response to the player's action",
-		},
-		"statusFields": map[string]interface{}{
-			"type": "array",
-			"items": map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
-					"name":  map[string]interface{}{"type": "string"},
-					"value": map[string]interface{}{"type": "string"},
-				},
-				"required":             []string{"name", "value"},
-				"additionalProperties": false,
-			},
-			"description": "Updated status fields after the action",
-		},
-		"imagePrompt": map[string]interface{}{
-			"type":        []string{"string", "null"},
-			"description": "Description for generating an image of the scene",
-		},
-	},
-	"required":             []string{"message", "statusFields", "imagePrompt"},
-	"additionalProperties": false,
-}
-
-func (p *OpenAiPlatform) InitGameSession(session *obj.GameSession, systemMessage string) error {
-	// Store the system message - we'll use it with the first action
-	// No API call needed yet - Responses API creates conversation on first request
+func (p *OpenAiPlatform) InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (*obj.GameSessionMessage, error) {
+	// Store the system message for the first ExecuteAction call
 	modelSession := ModelSession{
-		ResponseID:    "",
-		SystemMessage: systemMessage,
+		ResponseID: "",
 	}
-
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return fmt.Errorf("failed to marshal model session: %w", err)
+		return nil, fmt.Errorf("failed to marshal model session: %w", err)
 	}
-
 	session.AiSession = string(sessionJSON)
-	return nil
+
+	// Execute the "start game" action to get the opening scene
+	return p.ExecuteAction(ctx, session, obj.GameSessionMessage{
+		GameSessionID: session.ID,
+		Type:          obj.GameSessionMessageTypeSystem,
+		Message:       systemMessage,
+	})
 }
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
@@ -143,23 +115,24 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Build the request
 	req := ResponsesAPIRequest{
-		Model: defaultModel,
+		Model: session.AiModel,
 		Input: string(actionInput),
 		Store: true,
 		Text: &TextConfig{
 			Format: FormatConfig{
 				Type:   "json_schema",
 				Name:   "game_response",
-				Schema: gameResponseSchema,
+				Schema: obj.GameResponseSchema,
 				Strict: true,
 			},
 		},
 	}
 
-	// First request includes instructions, subsequent requests use previous_response_id
-	if modelSession.ResponseID == "" {
-		req.Instructions = modelSession.SystemMessage
-	} else {
+	// System messages become instructions, otherwise use previous_response_id for continuity
+	if action.Type == obj.GameSessionMessageTypeSystem {
+		req.Instructions = action.Message
+		req.Input = lang.T("aiMessageStart")
+	} else if modelSession.ResponseID != "" {
 		req.PreviousResponseID = modelSession.ResponseID
 	}
 
@@ -178,18 +151,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	}
 
 	// Extract the text response
-	var responseText string
-	for _, output := range apiResponse.Output {
-		if output.Type == "message" && output.Role == "assistant" {
-			for _, content := range output.Content {
-				if content.Type == "output_text" {
-					responseText = content.Text
-					break
-				}
-			}
-		}
-	}
-
+	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
 		return nil, fmt.Errorf("no text response from OpenAI")
 	}
@@ -210,9 +172,23 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Set fields that come from the session, not from GPT
 	response.GameSessionID = session.ID
-	response.Type = obj.GameSessionMessageTypeStory
+	response.Type = obj.GameSessionMessageTypeGame
 
 	return &response, nil
+}
+
+// extractResponseText extracts the text content from an OpenAI Responses API response
+func extractResponseText(apiResponse *ResponsesAPIResponse) string {
+	for _, output := range apiResponse.Output {
+		if output.Type == "message" && output.Role == "assistant" {
+			for _, content := range output.Content {
+				if content.Type == "output_text" {
+					return content.Text
+				}
+			}
+		}
+	}
+	return ""
 }
 
 func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest) (*ResponsesAPIResponse, error) {
