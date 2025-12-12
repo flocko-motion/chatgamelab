@@ -98,10 +98,13 @@ CREATE TABLE api_key (
     key             text NOT NULL
 );
 
--- ApiKeyShareUser
--- A user can allow another user to use their API key (also for workshops).
--- The receiving user can then assign the key to a workshop.
-CREATE TABLE api_key_share_user (
+-- ApiKeyShare
+-- A unified share table for API keys. An API key can be shared with:
+-- - A user (user_id set)
+-- - A workshop (workshop_id set)
+-- - An institution (institution_id set)
+-- At least one target must be set.
+CREATE TABLE api_key_share (
     id                              uuid PRIMARY KEY,
     created_by                      uuid NULL,
     created_at                      timestamptz NOT NULL DEFAULT now(),
@@ -109,24 +112,14 @@ CREATE TABLE api_key_share_user (
     modified_at                     timestamptz NOT NULL DEFAULT now(),
 
     api_key_id                      uuid NOT NULL REFERENCES api_key(id),
-    user_id                         uuid NOT NULL REFERENCES app_user(id),
-    -- false: limited to workshop participants; true: allows sponsored public share links.
-    allow_public_sponsored_plays    boolean NOT NULL DEFAULT false
-);
+    user_id                         uuid NULL REFERENCES app_user(id),
+    workshop_id                     uuid NULL REFERENCES workshop(id),
+    institution_id                  uuid NULL REFERENCES institution(id),
+    allow_public_sponsored_plays    boolean NOT NULL DEFAULT false,
 
--- ApiKeyShareWorkshop
--- A user can give their API key to be used in a specific workshop.
-CREATE TABLE api_key_share_workshop (
-    id                              uuid PRIMARY KEY,
-    created_by                      uuid NULL,
-    created_at                      timestamptz NOT NULL DEFAULT now(),
-    modified_by                     uuid NULL,
-    modified_at                     timestamptz NOT NULL DEFAULT now(),
-
-    api_key_id                      uuid NOT NULL REFERENCES api_key(id),
-    workshop_id                     uuid NOT NULL REFERENCES workshop(id),
-    -- false: limited to workshop participants; true: allows sponsored public share links.
-    allow_public_sponsored_plays    boolean NOT NULL DEFAULT false
+    CONSTRAINT api_key_share_target_chk CHECK (
+        user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL
+    )
 );
 
 -- Game

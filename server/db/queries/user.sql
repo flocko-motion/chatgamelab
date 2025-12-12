@@ -113,32 +113,5 @@ RETURNING *;
 -- name: DeleteApiKey :exec
 DELETE FROM api_key WHERE id = $1 AND user_id = $2;
 
--- name: GetApiKeySharesByUserID :many
-SELECT
-  s.id,
-  s.created_by,
-  s.created_at,
-  s.modified_by,
-  s.modified_at,
-  s.api_key_id,
-  s.user_id,
-  s.allow_public_sponsored_plays,
-  k.platform AS api_key_platform,
-  k.name AS api_key_name,
-  k.key AS api_key_key,
-  u.name AS owner_name,
-  r.institution_id,
-  i.name AS institution_name
-FROM api_key_share_user s
-JOIN api_key k ON k.id = s.api_key_id
-JOIN app_user u ON u.id = k.user_id
-LEFT JOIN LATERAL (
-  SELECT ur.institution_id
-  FROM user_role ur
-  WHERE ur.user_id = k.user_id AND ur.institution_id IS NOT NULL
-  ORDER BY ur.created_at DESC
-  LIMIT 1
-) r ON TRUE
-LEFT JOIN institution i ON i.id = r.institution_id
-WHERE s.user_id = $1;
+-- GetApiKeySharesByUserID is now in api_key.sql using the unified api_key_share table
 

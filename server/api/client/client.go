@@ -59,6 +59,10 @@ func ApiDelete(endpoint string) error {
 	return apiRequest("DELETE", endpoint, nil, nil)
 }
 
+func ApiPatch(endpoint string, payload any, out any) error {
+	return apiRequest("PATCH", endpoint, payload, out)
+}
+
 // ApiGetRaw fetches raw text content (e.g., YAML)
 func ApiGetRaw(endpoint string, out *string) error {
 	return apiRequestRaw("GET", endpoint, "", "", out)

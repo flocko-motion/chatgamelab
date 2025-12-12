@@ -24,25 +24,16 @@ type ApiKey struct {
 	Key        string
 }
 
-type ApiKeyShareUser struct {
+type ApiKeyShare struct {
 	ID                        uuid.UUID
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
 	ModifiedAt                time.Time
 	ApiKeyID                  uuid.UUID
-	UserID                    uuid.UUID
-	AllowPublicSponsoredPlays bool
-}
-
-type ApiKeyShareWorkshop struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	WorkshopID                uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
 	AllowPublicSponsoredPlays bool
 }
 

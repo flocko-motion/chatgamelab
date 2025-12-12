@@ -32,6 +32,8 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.ApiKeys,
 		endpoints.ApiKeysNew,
 		endpoints.ApiKeysId,
+		endpoints.ApiKeysIdShares,
+		endpoints.ApiKeysSharesId,
 		endpoints.GamesList,
 		endpoints.GamesNew,
 		endpoints.GamesId,
