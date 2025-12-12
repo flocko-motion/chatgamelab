@@ -29,10 +29,12 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	db.Preseed(ctx)
 
 	endpointList := []handler.Endpoint{
+		endpoints.ApiKeys,
+		endpoints.ApiKeysNew,
+		endpoints.ApiKeysId,
 		endpoints.GamesList,
 		endpoints.GamesNew,
 		endpoints.GamesId,
-		endpoints.GamesIdYaml,
 		endpoints.GamesIdSessions,
 		endpoints.Image,
 		endpoints.Report,

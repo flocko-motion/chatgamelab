@@ -19,15 +19,14 @@ INSERT INTO api_key_share_user (
   created_at, modified_by, modified_at,
   api_key_id, user_id, allow_public_sponsored_plays
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7
 )
 RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, allow_public_sponsored_plays
 `
 
 type CreateApiKeyShareUserParams struct {
-	ID                        uuid.UUID
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
@@ -40,7 +39,6 @@ type CreateApiKeyShareUserParams struct {
 // api_key_share_user ---------------------------------------------------
 func (q *Queries) CreateApiKeyShareUser(ctx context.Context, arg CreateApiKeyShareUserParams) (ApiKeyShareUser, error) {
 	row := q.db.QueryRowContext(ctx, createApiKeyShareUser,
-		arg.ID,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ModifiedBy,
@@ -123,12 +121,30 @@ func (q *Queries) DeleteApiKeyShareUser(ctx context.Context, id uuid.UUID) error
 	return err
 }
 
+const deleteApiKeyShareUsersByApiKeyID = `-- name: DeleteApiKeyShareUsersByApiKeyID :exec
+DELETE FROM api_key_share_user WHERE api_key_id = $1
+`
+
+func (q *Queries) DeleteApiKeyShareUsersByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeyShareUsersByApiKeyID, apiKeyID)
+	return err
+}
+
 const deleteApiKeyShareWorkshop = `-- name: DeleteApiKeyShareWorkshop :exec
 DELETE FROM api_key_share_workshop WHERE id = $1
 `
 
 func (q *Queries) DeleteApiKeyShareWorkshop(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteApiKeyShareWorkshop, id)
+	return err
+}
+
+const deleteApiKeyShareWorkshopsByApiKeyID = `-- name: DeleteApiKeyShareWorkshopsByApiKeyID :exec
+DELETE FROM api_key_share_workshop WHERE api_key_id = $1
+`
+
+func (q *Queries) DeleteApiKeyShareWorkshopsByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeyShareWorkshopsByApiKeyID, apiKeyID)
 	return err
 }
 

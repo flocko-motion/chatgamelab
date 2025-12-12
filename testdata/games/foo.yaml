@@ -1,0 +1,8 @@
+id: 511922e7-6df3-4846-91b2-1f20cda2a97f
+name: foo
+description: "my first game"
+system_message_scenario: "it's a goblle di doo"
+system_message_game_start: "you are in the middle of hobble dobble"
+image_style: "strawberries all over the place"
+css: ""
+status_fields: '[{"name":"Gold","value":"100"}]'

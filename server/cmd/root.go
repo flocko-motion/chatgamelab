@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"cgl/cmd/apikey"
 	"cgl/cmd/game"
 	"cgl/cmd/server"
 	"cgl/cmd/user"
@@ -22,6 +23,7 @@ func init() {
 	_ = godotenv.Load(".env")
 	_ = godotenv.Load("../.env")
 
+	rootCmd.AddCommand(apikey.Cmd)
 	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(user.Cmd)
 	rootCmd.AddCommand(game.Cmd)

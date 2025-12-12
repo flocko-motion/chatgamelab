@@ -175,19 +175,19 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 	return err
 }
 
-func CreateUserApiKey(ctx context.Context, userID uuid.UUID, platform, key string) (*uuid.UUID, error) {
+func CreateUserApiKey(ctx context.Context, userID uuid.UUID, name, platform, key string) (*uuid.UUID, error) {
 	if !ai.IsValidApiKeyPlatform(platform) {
 		return nil, errors.New("unknown platform: " + platform)
 	}
 
 	now := time.Now()
 	arg := db.CreateApiKeyParams{
-		ID:         uuid.New(),
 		CreatedBy:  uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:  now,
 		ModifiedBy: uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt: now,
 		UserID:     userID,
+		Name:       name,
 		Platform:   platform,
 		Key:        key,
 	}
@@ -195,6 +195,21 @@ func CreateUserApiKey(ctx context.Context, userID uuid.UUID, platform, key strin
 	if err != nil {
 		return nil, err
 	}
+
+	// Create a self-share so the user can access their own key via the shares API
+	shareArg := db.CreateApiKeyShareUserParams{
+		CreatedBy:                 uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:                 now,
+		ModifiedBy:                uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:                now,
+		ApiKeyID:                  result.ID,
+		UserID:                    userID,
+		AllowPublicSponsoredPlays: true,
+	}
+	if _, err := queries().CreateApiKeyShareUser(ctx, shareArg); err != nil {
+		return nil, fmt.Errorf("failed to create self-share: %w", err)
+	}
+
 	return &result.ID, nil
 }
 
@@ -216,6 +231,7 @@ func GetApiKeyByID(ctx context.Context, userID *uuid.UUID, apiKeyID uuid.UUID) (
 	return &obj.ApiKey{
 		ID:       k.ID,
 		UserID:   k.UserID,
+		Name:     k.Name,
 		Platform: k.Platform,
 		Key:      k.Key,
 		Meta: obj.Meta{
@@ -228,14 +244,9 @@ func GetApiKeyByID(ctx context.Context, userID *uuid.UUID, apiKeyID uuid.UUID) (
 	}, nil
 }
 
-func DeleteUserApiKey(ctx context.Context, userID uuid.UUID, apiKeyID string) error {
-	id, err := uuid.Parse(apiKeyID)
-	if err != nil {
-		return errors.New("invalid api key id")
-	}
-
+func DeleteUserApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID) error {
 	// Verify the key belongs to the user
-	key, err := queries().GetApiKeyByID(ctx, id)
+	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
 	if err != nil {
 		return err
 	}
@@ -243,43 +254,29 @@ func DeleteUserApiKey(ctx context.Context, userID uuid.UUID, apiKeyID string) er
 		return errors.New("api key does not belong to user")
 	}
 
-	return queries().DeleteApiKey(ctx, id)
+	// Delete all shares first (user shares and workshop shares)
+	if err := queries().DeleteApiKeyShareUsersByApiKeyID(ctx, apiKeyID); err != nil {
+		return fmt.Errorf("failed to delete user shares: %w", err)
+	}
+	if err := queries().DeleteApiKeyShareWorkshopsByApiKeyID(ctx, apiKeyID); err != nil {
+		return fmt.Errorf("failed to delete workshop shares: %w", err)
+	}
+
+	return queries().DeleteApiKey(ctx, db.DeleteApiKeyParams{
+		ID:     apiKeyID,
+		UserID: userID,
+	})
 }
 
 func GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyShare, error) {
-	var result []obj.ApiKeyShare
-
-	// 1. Get user's own API keys (treated as "shared with self")
-	ownKeys, err := queries().GetUserApiKeys(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get own api keys: %w", err)
-	}
-	for _, k := range ownKeys {
-		result = append(result, obj.ApiKeyShare{
-			ID: k.ID,
-			Meta: obj.Meta{
-				CreatedBy:  k.CreatedBy,
-				CreatedAt:  &k.CreatedAt,
-				ModifiedBy: k.ModifiedBy,
-				ModifiedAt: &k.ModifiedAt,
-			},
-			ApiKey: &obj.ApiKey{
-				ID:           k.ID,
-				UserID:       k.UserID,
-				Platform:     k.Platform,
-				Key:          k.Key,
-				KeyShortened: shortenApiKey(k.Key),
-			},
-			UserID:                    &userID,
-			AllowPublicSponsoredPlays: true, // own keys have full access
-		})
-	}
-
-	// 2. Get API keys shared with this user by others
+	// All API keys (own and shared) are now accessed via shares
+	// Own keys have a self-share created when the key is created
 	sharedKeys, err := queries().GetApiKeySharesByUserID(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get shared api keys: %w", err)
+		return nil, fmt.Errorf("failed to get api key shares: %w", err)
 	}
+
+	result := make([]obj.ApiKeyShare, 0, len(sharedKeys))
 	for _, s := range sharedKeys {
 		result = append(result, obj.ApiKeyShare{
 			ID: s.ID,
@@ -291,11 +288,13 @@ func GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyShare, e
 			},
 			ApiKey: &obj.ApiKey{
 				ID:           s.ApiKeyID,
+				UserID:       s.UserID,
+				UserName:     s.OwnerName,
+				Name:         s.ApiKeyName,
 				Platform:     s.ApiKeyPlatform,
 				Key:          s.ApiKeyKey,
 				KeyShortened: shortenApiKey(s.ApiKeyKey),
 			},
-			UserID:                    &s.UserID,
 			AllowPublicSponsoredPlays: s.AllowPublicSponsoredPlays,
 		})
 	}

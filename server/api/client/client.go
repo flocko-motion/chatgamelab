@@ -55,6 +55,10 @@ func ApiPost(endpoint string, payload any, out any) error {
 	return apiRequest("POST", endpoint, payload, out)
 }
 
+func ApiDelete(endpoint string) error {
+	return apiRequest("DELETE", endpoint, nil, nil)
+}
+
 // ApiGetRaw fetches raw text content (e.g., YAML)
 func ApiGetRaw(endpoint string, out *string) error {
 	return apiRequestRaw("GET", endpoint, "", "", out)
@@ -63,6 +67,20 @@ func ApiGetRaw(endpoint string, out *string) error {
 // ApiPutRaw sends raw text content (e.g., YAML)
 func ApiPutRaw(endpoint string, content string) error {
 	return apiRequestRaw("PUT", endpoint, content, "application/x-yaml", nil)
+}
+
+// ApiPostRaw sends raw text content and parses JSON response
+func ApiPostRaw(endpoint string, content string, out any) error {
+	var rawOut string
+	if err := apiRequestRaw("POST", endpoint, content, "application/x-yaml", &rawOut); err != nil {
+		return err
+	}
+	if out != nil && rawOut != "" {
+		if err := json.Unmarshal([]byte(rawOut), out); err != nil {
+			return fmt.Errorf("failed to parse response: %v", err)
+		}
+	}
+	return nil
 }
 
 func apiRequest(method, endpoint string, payload any, out any) error {

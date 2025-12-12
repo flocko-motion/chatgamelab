@@ -93,6 +93,7 @@ CREATE TABLE api_key (
     modified_at     timestamptz NOT NULL DEFAULT now(),
 
     user_id         uuid NOT NULL REFERENCES app_user(id),
+    name            text NOT NULL DEFAULT '',
     platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
     key             text NOT NULL
 );

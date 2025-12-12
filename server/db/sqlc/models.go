@@ -19,6 +19,7 @@ type ApiKey struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	UserID     uuid.UUID
+	Name       string
 	Platform   string
 	Key        string
 }

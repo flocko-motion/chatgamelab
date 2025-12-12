@@ -75,6 +75,15 @@ func (r *Request) BodyJSON(v any) *obj.HTTPError {
 	return nil
 }
 
+// BodyRaw returns the request body as a string
+func (r *Request) BodyRaw() (string, *obj.HTTPError) {
+	body, httpErr := r.Body()
+	if httpErr != nil {
+		return "", httpErr
+	}
+	return string(body), nil
+}
+
 // BodyYAML decodes the request body as YAML into the given struct
 func (r *Request) BodyYAML(v any) *obj.HTTPError {
 	body, httpErr := r.Body()

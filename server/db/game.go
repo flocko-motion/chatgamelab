@@ -2,6 +2,7 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/functional"
 	"cgl/obj"
 	"context"
 	"crypto/rand"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v3"
 )
 
 type GetGamesFilters struct {
@@ -195,6 +197,34 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err = queries().UpdateGame(ctx, arg)
 	return err
+}
+
+// UpdateGameYaml updates a game from YAML content. userID must be the owner.
+func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yamlContent string) error {
+	// Get existing game first
+	existing, err := GetGameByID(ctx, &userID, gameID)
+	if err != nil {
+		return fmt.Errorf("game not found: %w", err)
+	}
+
+	// Parse YAML into a game object
+	var incoming obj.Game
+	if err := yaml.Unmarshal([]byte(yamlContent), &incoming); err != nil {
+		return fmt.Errorf("invalid YAML: %w", err)
+	}
+
+	// Selectively copy allowed fields
+	existing.Name = incoming.Name
+	existing.Description = incoming.Description
+	existing.SystemMessageScenario = incoming.SystemMessageScenario
+	existing.SystemMessageGameStart = incoming.SystemMessageGameStart
+	existing.ImageStyle = incoming.ImageStyle
+
+	// Normalize JSON fields
+	existing.StatusFields = functional.NormalizeJson(incoming.StatusFields, &[]obj.StatusField{})
+	existing.CSS = functional.NormalizeJson(incoming.CSS, &obj.CSS{})
+
+	return UpdateGame(ctx, userID, existing)
 }
 
 // CreateGameSession persists a game session to the database

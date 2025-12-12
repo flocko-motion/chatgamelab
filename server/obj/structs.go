@@ -68,20 +68,27 @@ type WorkshopParticipant struct {
 type ApiKey struct {
 	ID           uuid.UUID `json:"id"`
 	Meta         Meta      `json:"meta"`
+	Name         string    `json:"name"`
 	UserID       uuid.UUID `json:"userId"`
+	UserName     string    `json:"userName"`
 	Platform     string    `json:"platform"`
 	Key          string    `json:"-"`
 	KeyShortened string    `json:"keyShortened"`
 }
 
-// userID of owner is stored in createdBy
+// ApiKeyShare represents how an API key is shared with a user, workshop, or institution.
+// The ApiKey contains owner info (UserID, UserName). The share target is one of:
+// - User (for direct user-to-user sharing)
+// - Workshop (for workshop-scoped sharing)
+// - Institution (for institution-wide sharing)
 type ApiKeyShare struct {
-	ID                        uuid.UUID  `json:"id"`
-	Meta                      Meta       `json:"meta"`
-	ApiKey                    *ApiKey    `json:"apiKey"`
-	UserID                    *uuid.UUID `json:"userId"`
-	WorkshopID                *uuid.UUID `json:"workshopId"`
-	AllowPublicSponsoredPlays bool       `json:"allowPublicSponsoredPlays"`
+	ID                        uuid.UUID    `json:"id"`
+	Meta                      Meta         `json:"meta"`
+	ApiKey                    *ApiKey      `json:"apiKey"`
+	User                      *User        `json:"user,omitempty"`
+	Workshop                  *Workshop    `json:"workshop,omitempty"`
+	Institution               *Institution `json:"institution,omitempty"`
+	AllowPublicSponsoredPlays bool         `json:"allowPublicSponsoredPlays"`
 }
 
 type Game struct {

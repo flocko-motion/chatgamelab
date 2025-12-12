@@ -18,22 +18,22 @@ const createApiKey = `-- name: CreateApiKey :one
 INSERT INTO api_key (
   id, created_by,
   created_at, modified_by, modified_at,
-  user_id, platform, key
+  user_id, name, platform, key
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7, $8
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, platform, key
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key
 `
 
 type CreateApiKeyParams struct {
-	ID         uuid.UUID
 	CreatedBy  uuid.NullUUID
 	CreatedAt  time.Time
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	UserID     uuid.UUID
+	Name       string
 	Platform   string
 	Key        string
 }
@@ -41,12 +41,12 @@ type CreateApiKeyParams struct {
 // api_key --------------------------------------------------------------
 func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (ApiKey, error) {
 	row := q.db.QueryRowContext(ctx, createApiKey,
-		arg.ID,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ModifiedBy,
 		arg.ModifiedAt,
 		arg.UserID,
+		arg.Name,
 		arg.Platform,
 		arg.Key,
 	)
@@ -58,6 +58,7 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.UserID,
+		&i.Name,
 		&i.Platform,
 		&i.Key,
 	)
@@ -131,11 +132,16 @@ func (q *Queries) CreateUserWithID(ctx context.Context, arg CreateUserWithIDPara
 }
 
 const deleteApiKey = `-- name: DeleteApiKey :exec
-DELETE FROM api_key WHERE id = $1
+DELETE FROM api_key WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) DeleteApiKey(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKey, id)
+type DeleteApiKeyParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteApiKey(ctx context.Context, arg DeleteApiKeyParams) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKey, arg.ID, arg.UserID)
 	return err
 }
 
@@ -163,7 +169,7 @@ func (q *Queries) DeleteUserRoles(ctx context.Context, userID uuid.UUID) error {
 }
 
 const getApiKeyByID = `-- name: GetApiKeyByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, platform, key FROM api_key WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key FROM api_key WHERE id = $1
 `
 
 func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, error) {
@@ -176,6 +182,7 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.UserID,
+		&i.Name,
 		&i.Platform,
 		&i.Key,
 	)
@@ -193,9 +200,22 @@ SELECT
   s.user_id,
   s.allow_public_sponsored_plays,
   k.platform AS api_key_platform,
-  k.key AS api_key_key
+  k.name AS api_key_name,
+  k.key AS api_key_key,
+  u.name AS owner_name,
+  r.institution_id,
+  i.name AS institution_name
 FROM api_key_share_user s
 JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user u ON u.id = k.user_id
+LEFT JOIN LATERAL (
+  SELECT ur.institution_id
+  FROM user_role ur
+  WHERE ur.user_id = k.user_id AND ur.institution_id IS NOT NULL
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+) r ON TRUE
+LEFT JOIN institution i ON i.id = r.institution_id
 WHERE s.user_id = $1
 `
 
@@ -209,7 +229,11 @@ type GetApiKeySharesByUserIDRow struct {
 	UserID                    uuid.UUID
 	AllowPublicSponsoredPlays bool
 	ApiKeyPlatform            string
+	ApiKeyName                string
 	ApiKeyKey                 string
+	OwnerName                 string
+	InstitutionID             uuid.NullUUID
+	InstitutionName           sql.NullString
 }
 
 func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.UUID) ([]GetApiKeySharesByUserIDRow, error) {
@@ -231,7 +255,11 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.UUID)
 			&i.UserID,
 			&i.AllowPublicSponsoredPlays,
 			&i.ApiKeyPlatform,
+			&i.ApiKeyName,
 			&i.ApiKeyKey,
+			&i.OwnerName,
+			&i.InstitutionID,
+			&i.InstitutionName,
 		); err != nil {
 			return nil, err
 		}
@@ -248,27 +276,43 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.UUID)
 
 const getUserApiKeys = `-- name: GetUserApiKeys :many
 SELECT
-  id,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
-  user_id,
-  platform,
-  key
-FROM api_key
-WHERE user_id = $1
+  k.id,
+  k.created_by,
+  k.created_at,
+  k.modified_by,
+  k.modified_at,
+  k.user_id,
+  u.name AS user_name,
+  k.name,
+  k.platform,
+  k.key
+FROM api_key k
+JOIN app_user u ON u.id = k.user_id
+WHERE k.user_id = $1
 `
 
-func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]ApiKey, error) {
+type GetUserApiKeysRow struct {
+	ID         uuid.UUID
+	CreatedBy  uuid.NullUUID
+	CreatedAt  time.Time
+	ModifiedBy uuid.NullUUID
+	ModifiedAt time.Time
+	UserID     uuid.UUID
+	UserName   string
+	Name       string
+	Platform   string
+	Key        string
+}
+
+func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUserApiKeysRow, error) {
 	rows, err := q.db.QueryContext(ctx, getUserApiKeys, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ApiKey
+	var items []GetUserApiKeysRow
 	for rows.Next() {
-		var i ApiKey
+		var i GetUserApiKeysRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CreatedBy,
@@ -276,6 +320,8 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]ApiKe
 			&i.ModifiedBy,
 			&i.ModifiedAt,
 			&i.UserID,
+			&i.UserName,
+			&i.Name,
 			&i.Platform,
 			&i.Key,
 		); err != nil {
@@ -391,38 +437,26 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 
 const updateApiKey = `-- name: UpdateApiKey :one
 UPDATE api_key SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  user_id = $6,
-  platform = $7,
-  key = $8
+  modified_by = $2,
+  modified_at = $3,
+  name = $4
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, platform, key
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key
 `
 
 type UpdateApiKeyParams struct {
 	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
-	UserID     uuid.UUID
-	Platform   string
-	Key        string
+	Name       string
 }
 
 func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (ApiKey, error) {
 	row := q.db.QueryRowContext(ctx, updateApiKey,
 		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
 		arg.ModifiedBy,
 		arg.ModifiedAt,
-		arg.UserID,
-		arg.Platform,
-		arg.Key,
+		arg.Name,
 	)
 	var i ApiKey
 	err := row.Scan(
@@ -432,6 +466,7 @@ func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (Api
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.UserID,
+		&i.Name,
 		&i.Platform,
 		&i.Key,
 	)

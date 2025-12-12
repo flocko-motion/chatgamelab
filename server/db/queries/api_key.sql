@@ -8,9 +8,9 @@ INSERT INTO api_key_share_user (
   created_at, modified_by, modified_at,
   api_key_id, user_id, allow_public_sponsored_plays
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7
 )
 RETURNING *;
 
@@ -31,6 +31,9 @@ RETURNING *;
 
 -- name: DeleteApiKeyShareUser :exec
 DELETE FROM api_key_share_user WHERE id = $1;
+
+-- name: DeleteApiKeyShareUsersByApiKeyID :exec
+DELETE FROM api_key_share_user WHERE api_key_id = $1;
 
 
 -- api_key_share_workshop ----------------------------------------------
@@ -64,4 +67,7 @@ RETURNING *;
 
 -- name: DeleteApiKeyShareWorkshop :exec
 DELETE FROM api_key_share_workshop WHERE id = $1;
+
+-- name: DeleteApiKeyShareWorkshopsByApiKeyID :exec
+DELETE FROM api_key_share_workshop WHERE api_key_id = $1;
 
