@@ -1,9 +1,12 @@
 package stream
 
 import (
+	"cgl/functional"
 	"cgl/obj"
 	"context"
+	"log"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -29,7 +32,10 @@ func Get() *Registry {
 	return defaultRegistry
 }
 
+const streamTimeout = 5 * time.Minute
+
 // Create creates a new stream for the given message ID
+// The stream will automatically be removed after 5 minutes
 func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage) (stream *Stream) {
 
 	r.mu.Lock()
@@ -40,6 +46,14 @@ func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage) 
 		Chunks:    make(chan obj.GameSessionMessageChunk, 100), // buffered channel
 	}
 	r.streams[message.ID] = stream
+
+	// Auto-cleanup after timeout
+	go func() {
+		time.Sleep(streamTimeout)
+		r.Remove(message.ID)
+		log.Printf("stream %s: expired after %v", message.ID, streamTimeout)
+	}()
+
 	return stream
 }
 
@@ -71,6 +85,7 @@ func (s *Stream) Send(chunk obj.GameSessionMessageChunk) {
 
 // SendText sends a text chunk, with isDone=true for the final chunk
 func (s *Stream) SendText(text string, isDone bool) {
+	log.Printf("stream %s: %s %s", s.MessageID, text, functional.BoolToString(isDone, " (DONE)", ""))
 	s.Send(obj.GameSessionMessageChunk{Text: text, TextDone: isDone})
 }
 
@@ -81,5 +96,6 @@ func (s *Stream) SendError(err string) {
 
 // SendImage sends an image chunk, with isDone=true for the final image
 func (s *Stream) SendImage(data []byte, isDone bool) {
+	log.Printf("stream %s: %d bytes image %s", s.MessageID, len(data), functional.BoolToString(isDone, " (DONE)", ""))
 	s.Send(obj.GameSessionMessageChunk{ImageData: data, ImageDone: isDone})
 }

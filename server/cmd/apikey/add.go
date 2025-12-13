@@ -2,11 +2,11 @@ package apikey
 
 import (
 	"cgl/api/client"
+	"cgl/api/endpoints"
 	"fmt"
 	"log"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -25,27 +25,17 @@ func init() {
 	Cmd.AddCommand(addCmd)
 }
 
-type addApiKeyRequest struct {
-	Name     string `json:"name"`
-	Platform string `json:"platform"`
-	Key      string `json:"key"`
-}
-
-type addApiKeyResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 func runAdd(cmd *cobra.Command, args []string) {
 	platform := args[0]
 	key := strings.TrimSpace(args[1])
 
-	req := addApiKeyRequest{
+	req := endpoints.CreateApiKeyRequest{
 		Name:     keyName,
 		Platform: platform,
 		Key:      key,
 	}
 
-	var resp addApiKeyResponse
+	var resp endpoints.CreateApiKeyResponse
 	if err := client.ApiPost("apikeys/new", req, &resp); err != nil {
 		log.Fatalf("Failed to add API key: %v", err)
 	}

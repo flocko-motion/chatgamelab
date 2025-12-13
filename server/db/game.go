@@ -338,7 +338,7 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 
 // UpdateGameSessionAiSession updates the AI session state for a game session
 func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSession string) error {
-	_, err := queries().UpdateGameSession(ctx, db.UpdateGameSessionParams{
+	_, err := queries().UpdateGameSessionAiSession(ctx, db.UpdateGameSessionAiSessionParams{
 		ID:        sessionID,
 		AiSession: []byte(aiSession),
 	})
@@ -350,7 +350,7 @@ func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSess
 
 // UpdateGameSessionMessageImage updates only the image field of a message
 func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, image []byte) error {
-	_, err := queries().UpdateGameSessionMessage(ctx, db.UpdateGameSessionMessageParams{
+	_, err := queries().UpdateGameSessionMessageImage(ctx, db.UpdateGameSessionMessageImageParams{
 		ID:    messageID,
 		Image: image,
 	})

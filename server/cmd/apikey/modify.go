@@ -2,6 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
+	"cgl/api/endpoints"
 	"fmt"
 	"log"
 
@@ -23,10 +24,6 @@ func init() {
 	Cmd.AddCommand(modifyCmd)
 }
 
-type modifyApiKeyRequest struct {
-	Name string `json:"name"`
-}
-
 func runModify(cmd *cobra.Command, args []string) {
 	apiKeyID := args[0]
 
@@ -34,8 +31,8 @@ func runModify(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one modification flag is required (e.g., --name)")
 	}
 
-	req := modifyApiKeyRequest{
-		Name: modifyName,
+	req := endpoints.UpdateApiKeyRequest{
+		Name: &modifyName,
 	}
 
 	if err := client.ApiPatch("apikeys/"+apiKeyID, req, nil); err != nil {

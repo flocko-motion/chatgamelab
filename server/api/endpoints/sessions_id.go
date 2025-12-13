@@ -3,11 +3,21 @@ package endpoints
 import (
 	"cgl/api/handler"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 const (
 	userAnonymous = uint(0)
 )
+
+type SessionActionRequest struct {
+	Message string `json:"message"` // user input
+}
+
+type SessionActionResponse struct {
+	MessageID uuid.UUID `json:"messageId"`
+}
 
 type SessionRequest struct {
 	Action    string `json:"action"`    // type of action
@@ -33,108 +43,4 @@ var Session = handler.NewEndpoint(
 
 func handleSessionRequest(request handler.Request, public bool) (out interface{}, httpErr *obj.HTTPError) {
 	return nil, &obj.HTTPErrorNotImplemented
-	/*
-		var err error
-		var apiKey string
-
-		sessionId := path.Base(request.R.URL.Path)
-		var sessionRequest SessionRequest
-		if err = json.NewDecoder(request.R.Body).Decode(&sessionRequest); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
-		}
-
-		if sessionId == "new" {
-			if apiKey, httpErr = getGamePublicApiKey(sessionRequest.GameID, request.User, public); httpErr != nil {
-				return nil, httpErr
-			}
-			return newSession(request, sessionRequest.GameID, apiKey)
-		}
-
-		if sessionRequest.Session, err = db.GetSessionByHash(sessionId); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 404, Message: "Not Found"}
-		}
-
-		if sessionRequest.Game, err = db.GetGameByID(sessionRequest.Session.GameID); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
-		}
-
-		if apiKey, httpErr = getGamePublicApiKey(sessionRequest.Game.ID, request.User, public); httpErr != nil {
-			return nil, httpErr
-		}
-
-		var (
-			response *obj.GameActionOutput
-		)
-
-		switch sessionRequest.Action {
-		case obj.GameInputTypeIntro:
-			response, httpErr = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
-				Type:      obj.GameInputTypeIntro,
-				ChapterId: sessionRequest.ChapterId,
-				Message:   sessionRequest.Game.SessionStartSyscall,
-				Status:    sessionRequest.Game.StatusFields,
-			}, apiKey)
-		case obj.GameInputTypeAction:
-			response, httpErr = gpt.ExecuteAction(sessionRequest.Session, sessionRequest.Game, obj.GameActionInput{
-				Type:      obj.GameInputTypeAction,
-				ChapterId: sessionRequest.ChapterId,
-				Message:   sessionRequest.Message,
-				Status:    sessionRequest.Status,
-			}, apiKey)
-		default:
-			response, httpErr = nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request - unknown action: " + sessionRequest.Action}
-		}
-
-		report := obj.SessionUsageReport{
-			SessionID: sessionRequest.Session.ID,
-			ApiKey:    apiKey[:8] + "..",
-			GameID:    sessionRequest.Game.ID,
-			UserID:    sessionRequest.Session.UserID,
-			Action:    sessionRequest.Action,
-			Error:     fmt.Sprintf("%v", err),
-		}
-		if request.User != nil {
-			report.UserName = request.User.Name
-		} else {
-			report.UserName = "[public]"
-		}
-		db.WriteSessionUsageReport(report)
-
-		return response, httpErr
-	*/
 }
-
-/*
-func newSession(request api.Request, gameID uint, apiKey string) (*obj.Session, *obj.HTTPError) {
-	var game *obj.Game
-	var userId uint
-	if gameID > 0 {
-		log.Printf("Creating new session for game id=%d", gameID)
-		var err error
-		if game, err = db.GetGameByID(gameID); err != nil {
-			return nil, &obj.HTTPError{StatusCode: 404, Message: "Not Found - Game not found"}
-		}
-		if request.User == nil {
-			userId = userAnonymous
-		} else {
-			userId = request.User.ID
-		}
-	} else {
-		log.Printf("Creating new session - no game id or hash provided")
-		return nil, &obj.HTTPError{StatusCode: 400, Message: "Bad Request"}
-	}
-
-	// Build session
-	session, e := gpt.CreateGameSession(game, userId, apiKey)
-	if e != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: e.Error()}
-	}
-
-	// Store session
-	if session, e = db.CreateSession(session); e != nil {
-		return nil, &obj.HTTPError{StatusCode: 500, Message: "Internal Server Error"}
-	}
-
-	return session, nil
-}
-*/

@@ -39,6 +39,13 @@ func MaybeToString(v any, ifNil string) string {
 	return fmt.Sprintf("%v", v)
 }
 
+func BoolToString(b bool, ifTrue, ifFalse string) string {
+	if b {
+		return ifTrue
+	}
+	return ifFalse
+}
+
 func RequireEnv(name string) string {
 	v := os.Getenv(name)
 	if v == "" {

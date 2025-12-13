@@ -100,6 +100,9 @@ func NewRouter(endpoints []handler.Endpoint) *Router {
 	// Wrap all endpoints with auth middleware (extracts user if token present)
 	// For public endpoints, user is optional; for private, it's required
 	for i, endpoint := range endpoints {
+		if endpoint.Auth == handler.AuthNone {
+			continue
+		}
 		endpoints[i].Handler = handler.EnsureValidToken()(endpoint.Handler).ServeHTTP
 	}
 	return &Router{endpoints: endpoints}

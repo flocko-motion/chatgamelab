@@ -2,6 +2,7 @@ package game
 
 import (
 	"cgl/api/client"
+	"cgl/api/endpoints"
 	"fmt"
 	"log"
 
@@ -23,15 +24,8 @@ func init() {
 func runCreate(cmd *cobra.Command, args []string) {
 	name := args[0]
 
-	type CreateRequest struct {
-		Name string `json:"name"`
-	}
-	type CreateResponse struct {
-		ID string `json:"id"`
-	}
-
-	var resp CreateResponse
-	if err := client.ApiPost("games/new", CreateRequest{Name: name}, &resp); err != nil {
+	var resp endpoints.GameNewResponse
+	if err := client.ApiPost("games/new", endpoints.GameNewRequest{Name: name}, &resp); err != nil {
 		log.Fatalf("Failed to create game: %v", err)
 	}
 

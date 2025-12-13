@@ -349,19 +349,22 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, responseStream *stream.Stream) ([]byte, error) {
 	const imageGenURL = "https://api.openai.com/v1/images/generations"
 
+	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
+	// For gpt-image-1, we include the style in the prompt instead
+	fullPrompt := prompt
+	if style != "" {
+		fullPrompt = fmt.Sprintf("%s. Style: %s", prompt, style)
+	}
+
 	reqBody := map[string]interface{}{
 		"model":          "gpt-image-1",
-		"prompt":         prompt,
+		"prompt":         fullPrompt,
 		"n":              1,
-		"size":           "512x512",
+		"size":           "1024x1024",
 		"quality":        "low",
 		"output_format":  "png",
 		"stream":         true,
 		"partial_images": 2, // Get 2 partial images during generation
-	}
-
-	if style != "" {
-		reqBody["style"] = style
 	}
 
 	reqJSON, err := json.Marshal(reqBody)

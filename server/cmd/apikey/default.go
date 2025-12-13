@@ -2,6 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
+	"cgl/api/endpoints"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -20,12 +21,6 @@ var defaultCmd = &cobra.Command{
 
 func init() {
 	Cmd.AddCommand(defaultCmd)
-}
-
-type userUpdateRequest struct {
-	Name                 string     `json:"name"`
-	Email                string     `json:"email"`
-	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 }
 
 func runDefault(cmd *cobra.Command, args []string) {
@@ -73,7 +68,7 @@ func runDefault(cmd *cobra.Command, args []string) {
 		log.Fatalf("Invalid share ID: %v", err)
 	}
 
-	req := userUpdateRequest{
+	req := endpoints.UserUpdateRequest{
 		Name:                 user.Name,
 		Email:                email,
 		DefaultApiKeyShareID: &shareID,
