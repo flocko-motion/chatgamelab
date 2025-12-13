@@ -187,3 +187,17 @@ RETURNING *;
 
 -- name: DeleteGameSessionMessage :exec
 DELETE FROM game_session_message WHERE id = $1;
+
+-- name: UpdateGameSessionAiSession :one
+UPDATE game_session SET
+  ai_session = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING *;
+
+-- name: UpdateGameSessionMessageImage :one
+UPDATE game_session_message SET
+  image = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING *;

@@ -45,13 +45,25 @@ func getMessageStream(w http.ResponseWriter, r *http.Request, pathParams map[str
 		return
 	}
 
-	// Stream chunks to client
+	// Stream chunks to client until both text and image are done
+	textDone := false
+	imageDone := false
+
 	for chunk := range s.Chunks {
 		data, _ := json.Marshal(chunk)
 		fmt.Fprintf(w, "data: %s\n\n", data)
 		flusher.Flush()
 
-		if chunk.Done {
+		if chunk.TextDone {
+			textDone = true
+		}
+		if chunk.ImageDone {
+			imageDone = true
+		}
+		if chunk.Error != "" {
+			break
+		}
+		if textDone && imageDone {
 			break
 		}
 	}

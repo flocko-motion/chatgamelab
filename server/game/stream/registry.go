@@ -8,17 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// Chunk represents a piece of streamed content
-type Chunk struct {
-	Text  string `json:"text,omitempty"`  // Partial text content
-	Done  bool   `json:"done,omitempty"`  // True when stream is complete
-	Error string `json:"error,omitempty"` // Error message if failed
-}
-
 // Stream represents an active streaming response
 type Stream struct {
 	MessageID uuid.UUID
-	Chunks    chan Chunk
+	Chunks    chan obj.GameSessionMessageChunk
 }
 
 // Registry manages active streams
@@ -44,7 +37,7 @@ func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage) 
 
 	stream = &Stream{
 		MessageID: message.ID,
-		Chunks:    make(chan Chunk, 100), // buffered channel
+		Chunks:    make(chan obj.GameSessionMessageChunk, 100), // buffered channel
 	}
 	r.streams[message.ID] = stream
 	return stream
@@ -68,7 +61,7 @@ func (r *Registry) Remove(messageID uuid.UUID) {
 }
 
 // Send sends a chunk to the stream (non-blocking, drops if buffer full)
-func (s *Stream) Send(chunk Chunk) {
+func (s *Stream) Send(chunk obj.GameSessionMessageChunk) {
 	select {
 	case s.Chunks <- chunk:
 	default:
@@ -76,17 +69,17 @@ func (s *Stream) Send(chunk Chunk) {
 	}
 }
 
-// SendText sends a text chunk
-func (s *Stream) SendText(text string) {
-	s.Send(Chunk{Text: text})
-}
-
-// SendDone signals stream completion
-func (s *Stream) SendDone() {
-	s.Send(Chunk{Done: true})
+// SendText sends a text chunk, with isDone=true for the final chunk
+func (s *Stream) SendText(text string, isDone bool) {
+	s.Send(obj.GameSessionMessageChunk{Text: text, TextDone: isDone})
 }
 
 // SendError signals an error
 func (s *Stream) SendError(err string) {
-	s.Send(Chunk{Error: err, Done: true})
+	s.Send(obj.GameSessionMessageChunk{Error: err})
+}
+
+// SendImage sends an image chunk, with isDone=true for the final image
+func (s *Stream) SendImage(data []byte, isDone bool) {
+	s.Send(obj.GameSessionMessageChunk{ImageData: data, ImageDone: isDone})
 }

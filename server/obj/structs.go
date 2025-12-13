@@ -210,6 +210,15 @@ type GameSessionMessage struct {
 	Image        []byte        `json:"image"`
 }
 
+// GameSessionMessageChunk represents a piece of streamed content (text or image)
+type GameSessionMessageChunk struct {
+	Text      string `json:"text,omitempty"`      // Partial text content
+	TextDone  bool   `json:"textDone,omitempty"`  // True when text streaming is complete
+	ImageData []byte `json:"imageData,omitempty"` // Partial/final image data
+	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
+	Error     string `json:"error,omitempty"`     // Error message if failed
+}
+
 // GameResponseSchema is the JSON schema for LLM responses, shared across all AI platforms.
 // It defines the expected structure: message, statusFields, and imagePrompt.
 var GameResponseSchema = map[string]interface{}{

@@ -3,6 +3,7 @@ package ai
 import (
 	"cgl/game/ai/mock"
 	"cgl/game/ai/openai"
+	"cgl/game/stream"
 	"cgl/obj"
 	"context"
 	"fmt"
@@ -27,11 +28,18 @@ func IsValidApiKeyPlatform(platform string) bool {
 
 type AiPlatform interface {
 	GetPlatformInfo() obj.AiPlatform
-	// ExecuteAction executes an action and fills in the response message
-	// The msg parameter is pre-created with ID set; this function fills Message, StatusFields, ImagePrompt
-	// For system messages (first call), the action.Message contains the system prompt/instructions
-	// Caller handles streaming and DB persistence
-	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, msg *obj.GameSessionMessage) error
+
+	// ExecuteAction - blocking, returns structured JSON (plotOutline in Message, statusFields, imagePrompt)
+	// For system messages (first call), action.Message contains the system prompt/instructions
+	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error
+
+	// ExpandStory - async/streaming, expands plotOutline to full narrative text
+	// Streams text chunks to responseStream, updates response.Message with full text when done
+	ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
+
+	// GenerateImage - async/streaming, generates image from response.ImagePrompt
+	// Streams partial images to responseStream, updates response.Image with final image when done
+	GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
 }
 
 // GetAiPlatform returns the AI platform and resolves the model.

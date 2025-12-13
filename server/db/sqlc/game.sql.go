@@ -827,6 +827,40 @@ func (q *Queries) UpdateGameSession(ctx context.Context, arg UpdateGameSessionPa
 	return i, err
 }
 
+const updateGameSessionAiSession = `-- name: UpdateGameSessionAiSession :one
+UPDATE game_session SET
+  ai_session = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, api_key_id, ai_platform, ai_model, ai_session, image_style, status_fields
+`
+
+type UpdateGameSessionAiSessionParams struct {
+	ID        uuid.UUID
+	AiSession json.RawMessage
+}
+
+func (q *Queries) UpdateGameSessionAiSession(ctx context.Context, arg UpdateGameSessionAiSessionParams) (GameSession, error) {
+	row := q.db.QueryRowContext(ctx, updateGameSessionAiSession, arg.ID, arg.AiSession)
+	var i GameSession
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.GameID,
+		&i.UserID,
+		&i.ApiKeyID,
+		&i.AiPlatform,
+		&i.AiModel,
+		&i.AiSession,
+		&i.ImageStyle,
+		&i.StatusFields,
+	)
+	return i, err
+}
+
 const updateGameSessionMessage = `-- name: UpdateGameSessionMessage :one
 UPDATE game_session_message SET
   created_by = $2,
@@ -871,6 +905,39 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		arg.ImagePrompt,
 		arg.Image,
 	)
+	var i GameSessionMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.GameSessionID,
+		&i.Seq,
+		&i.Type,
+		&i.Message,
+		&i.Status,
+		&i.ImagePrompt,
+		&i.Image,
+	)
+	return i, err
+}
+
+const updateGameSessionMessageImage = `-- name: UpdateGameSessionMessageImage :one
+UPDATE game_session_message SET
+  image = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image
+`
+
+type UpdateGameSessionMessageImageParams struct {
+	ID    uuid.UUID
+	Image []byte
+}
+
+func (q *Queries) UpdateGameSessionMessageImage(ctx context.Context, arg UpdateGameSessionMessageImageParams) (GameSessionMessage, error) {
+	row := q.db.QueryRowContext(ctx, updateGameSessionMessageImage, arg.ID, arg.Image)
 	var i GameSessionMessage
 	err := row.Scan(
 		&i.ID,

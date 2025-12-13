@@ -336,6 +336,30 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 	return nil
 }
 
+// UpdateGameSessionAiSession updates the AI session state for a game session
+func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSession string) error {
+	_, err := queries().UpdateGameSession(ctx, db.UpdateGameSessionParams{
+		ID:        sessionID,
+		AiSession: []byte(aiSession),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update session AI state: %w", err)
+	}
+	return nil
+}
+
+// UpdateGameSessionMessageImage updates only the image field of a message
+func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, image []byte) error {
+	_, err := queries().UpdateGameSessionMessage(ctx, db.UpdateGameSessionMessageParams{
+		ID:    messageID,
+		Image: image,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update message image: %w", err)
+	}
+	return nil
+}
+
 // GetGameSessionsByGameID returns all sessions for a game
 func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
 	// TODO: we should consider user access rights here!

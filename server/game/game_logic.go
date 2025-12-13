@@ -93,12 +93,12 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	return session, response, httpErr
 }
 
-// Spawn async AI call
-func executeActionAsync() {
-
-}
-
-// DoSessionAction returns an response that doesn't contain the actual text, but a session message with an id to stream the result in a follow up call via SSE
+// DoSessionAction orchestrates the AI response generation:
+// 1. ExecuteAction (blocking) - gets structured JSON with plotOutline, statusFields, imagePrompt
+// 2. ExpandStory (async/streaming) - expands plotOutline to full narrative, streams to client
+// 3. GenerateImage (async/streaming) - generates image from imagePrompt, streams partial images
+// Returns immediately after ExecuteAction with the response containing plotOutline.
+// Client connects to SSE to receive streamed text and image updates.
 func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, httpErr *obj.HTTPError) {
 	const failedAction = "failed doing session action"
 	if session == nil {
@@ -122,28 +122,48 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// Create stream for SSE
 	responseStream := stream.Get().Create(ctx, response)
 
-	// Spawn async AI call - result will be available via SSE stream
+	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
+	if err = platform.ExecuteAction(ctx, session, action, response); err != nil {
+		responseStream.SendError(err.Error())
+		response.Type = "error"
+		response.Message = err.Error()
+		response.Stream = false
+		_ = db.UpdateGameSessionMessage(ctx, *response)
+		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err)}
+	}
+
+	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
+	// This is returned to client immediately
+	_ = db.UpdateGameSessionMessage(ctx, *response)
+
+	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	go func() {
-		var err error
-		err = platform.ExecuteAction(context.Background(), session, action, response)
-		if err != nil {
-			responseStream.SendError(err.Error())
-			// Mark message as error type
-			response.Type = "error"
-			response.Message = err.Error()
-			response.Stream = false
-			_ = db.UpdateGameSessionMessage(context.Background(), *response)
-			return
+		// ExpandStory streams text and updates response.Message with full narrative
+		if err := platform.ExpandStory(context.Background(), session, response, responseStream); err != nil {
+			fmt.Printf("%s: WARNING: ExpandStory failed: %v\n", failedAction, err)
 		}
 
-		// Stream the result
-		responseStream.SendText(response.Message)
-		responseStream.SendDone()
-
-		// Update the message in DB with final content
+		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
-		if err = db.UpdateGameSessionMessage(context.Background(), *response); err != nil {
-			fmt.Printf("%s: WARNING: failed to update game session message: %v\n", failedAction, err)
+		if err := db.UpdateGameSessionMessage(context.Background(), *response); err != nil {
+			fmt.Printf("%s: WARNING: failed to update message after ExpandStory: %v\n", failedAction, err)
+		}
+
+		// Update session with new AI state (response IDs for conversation continuity)
+		if err := db.UpdateGameSessionAiSession(context.Background(), session.ID, session.AiSession); err != nil {
+			fmt.Printf("%s: WARNING: failed to update session AI state: %v\n", failedAction, err)
+		}
+	}()
+
+	go func() {
+		// GenerateImage streams partial images and updates response.Image with final
+		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
+			fmt.Printf("%s: WARNING: GenerateImage failed: %v\n", failedAction, err)
+		}
+
+		// Update DB with final image
+		if err := db.UpdateGameSessionMessageImage(context.Background(), response.ID, response.Image); err != nil {
+			fmt.Printf("%s: WARNING: failed to update message image: %v\n", failedAction, err)
 		}
 	}()
 
