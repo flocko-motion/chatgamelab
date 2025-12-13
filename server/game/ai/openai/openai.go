@@ -353,8 +353,8 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 		"model":          "gpt-image-1",
 		"prompt":         prompt,
 		"n":              1,
-		"size":           "1024x1024",
-		"quality":        "medium",
+		"size":           "512x512",
+		"quality":        "low",
 		"output_format":  "png",
 		"stream":         true,
 		"partial_images": 2, // Get 2 partial images during generation
