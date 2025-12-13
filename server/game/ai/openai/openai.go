@@ -47,6 +47,7 @@ type ResponsesAPIRequest struct {
 	PreviousResponseID string      `json:"previous_response_id,omitempty"`
 	Store              bool        `json:"store"`
 	Stream             bool        `json:"stream,omitempty"`
+	MaxOutputTokens    int         `json:"max_output_tokens,omitempty"`
 	Text               *TextConfig `json:"text,omitempty"`
 }
 
@@ -101,9 +102,10 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Build the request
 	req := ResponsesAPIRequest{
-		Model: session.AiModel,
-		Input: string(actionInput),
-		Store: true,
+		Model:           session.AiModel,
+		Input:           string(actionInput),
+		Store:           true,
+		MaxOutputTokens: 500, // Keep responses concise
 		Text: &TextConfig{
 			Format: FormatConfig{
 				Type:   "json_schema",
@@ -236,6 +238,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 		Input:              lang.T("aiExpandPlotOutline"),
 		Store:              true,
 		Stream:             true,
+		MaxOutputTokens:    400, // Keep expanded text concise
 		PreviousResponseID: modelSession.ResponseID,
 	}
 

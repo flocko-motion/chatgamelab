@@ -5,7 +5,6 @@ import (
 	"cgl/api/client"
 	"cgl/api/endpoints"
 	"cgl/obj"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -81,21 +80,21 @@ func createNewSession(gameID string) uuid.UUID {
 	}
 	req.Model = modelID
 
-	var resp endpoints.CreateSessionResponse
+	var resp obj.GameSessionMessage
 	if err := client.ApiPost("games/"+gameID+"/sessions", req, &resp); err != nil {
 		log.Fatalf("Failed to create session: %v", err)
 	}
 
-	// Print session info
-	respJSON, _ := json.MarshalIndent(resp, "", "  ")
-	fmt.Printf("=== Session Created ===\n%s\n\n", respJSON)
+	// Print message details (summary, status, image prompt)
+	fmt.Println("=== Session Created ===")
+	printMessageDetails(resp)
 
 	// Stream the initial response
-	if err := streamMessageResponse(resp.MessageID); err != nil {
+	if err := streamMessageResponse(resp.ID); err != nil {
 		log.Fatalf("Failed to stream response: %v", err)
 	}
 
-	return resp.SessionID
+	return resp.GameSessionID
 }
 
 // gameLoop runs the interactive game loop
