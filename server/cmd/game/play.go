@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -60,7 +61,7 @@ func tryGetSession(id string) (uuid.UUID, error) {
 
 	// Print latest message for context
 	if len(resp.Messages) > 0 {
-		printMessageDetails(resp.Messages[0])
+		printMessageDetails(resp.Messages[0], time.Now())
 	} else {
 		fmt.Println("[No messages found]")
 	}
@@ -80,6 +81,7 @@ func createNewSession(gameID string) uuid.UUID {
 	}
 	req.Model = modelID
 
+	startTime := time.Now()
 	var resp obj.GameSessionMessage
 	if err := client.ApiPost("games/"+gameID+"/sessions", req, &resp); err != nil {
 		log.Fatalf("Failed to create session: %v", err)
@@ -87,10 +89,10 @@ func createNewSession(gameID string) uuid.UUID {
 
 	// Print message details (summary, status, image prompt)
 	fmt.Println("=== Session Created ===")
-	printMessageDetails(resp)
+	printMessageDetails(resp, startTime)
 
 	// Stream the initial response
-	if err := streamMessageResponse(resp.ID); err != nil {
+	if err := streamMessageResponse(resp.ID, startTime); err != nil {
 		log.Fatalf("Failed to stream response: %v", err)
 	}
 
@@ -127,6 +129,7 @@ func gameLoop(sessionID uuid.UUID) {
 
 // sendAction sends a player action to the session and streams the response
 func sendAction(sessionID uuid.UUID, message string) error {
+	startTime := time.Now()
 	req := endpoints.SessionActionRequest{Message: message}
 	var resp obj.GameSessionMessage
 
@@ -135,16 +138,16 @@ func sendAction(sessionID uuid.UUID, message string) error {
 	}
 
 	// Print the initial response (plot outline, status, image prompt)
-	printMessageDetails(resp)
+	printMessageDetails(resp, startTime)
 
 	// Stream the expanded text and image
-	return streamMessageResponse(resp.ID)
+	return streamMessageResponse(resp.ID, startTime)
 }
 
 // printMessageDetails prints the initial message details (plot outline, status, image prompt)
-func printMessageDetails(msg obj.GameSessionMessage) {
-	// Print message ID
-	fmt.Printf("\n[Message ID: %s]\n", msg.ID)
+func printMessageDetails(msg obj.GameSessionMessage, startTime time.Time) {
+	// Print message ID with elapsed time
+	fmt.Printf("\n[Message ID: %s @ %.1fs]\n", msg.ID, time.Since(startTime).Seconds())
 
 	// Print plot outline (initial message before streaming expands it)
 	if msg.Message != "" {
@@ -170,10 +173,14 @@ func printMessageDetails(msg obj.GameSessionMessage) {
 
 // streamMessageResponse connects to SSE and streams text/image content
 // This function is reusable for both session creation and game actions
-func streamMessageResponse(messageID uuid.UUID) error {
+func streamMessageResponse(messageID uuid.UUID, startTime time.Time) error {
 	// Ensure output directory exists
 	if err := os.MkdirAll(imageOutputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create image output dir: %v", err)
+	}
+
+	elapsed := func() string {
+		return fmt.Sprintf("%.1fs", time.Since(startTime).Seconds())
 	}
 
 	var textBuilder strings.Builder
@@ -188,7 +195,7 @@ func streamMessageResponse(messageID uuid.UUID) error {
 			textBuilder.WriteString(chunk.Text)
 		}
 		if chunk.TextDone {
-			fmt.Println("\n[TEXT DONE]")
+			fmt.Printf("\n[TEXT DONE @ %s]\n", elapsed())
 		}
 
 		// Handle image chunks
@@ -198,11 +205,11 @@ func streamMessageResponse(messageID uuid.UUID) error {
 			if err := os.WriteFile(filename, chunk.ImageData, 0644); err != nil {
 				fmt.Printf("\n[IMAGE ERROR: %v]\n", err)
 			} else {
-				fmt.Printf("\n[IMAGE: %d bytes -> %s]\n", len(chunk.ImageData), filename)
+				fmt.Printf("\n[IMAGE %d: %d bytes -> %s @ %s]\n", imageCount, len(chunk.ImageData), filename, elapsed())
 			}
 		}
 		if chunk.ImageDone {
-			fmt.Println("[IMAGE DONE]")
+			fmt.Printf("[IMAGE DONE @ %s]\n", elapsed())
 		}
 
 		return nil
@@ -215,6 +222,7 @@ func streamMessageResponse(messageID uuid.UUID) error {
 	fmt.Println("\n=== Stream Complete ===")
 	fmt.Printf("Total text: %d chars\n", textBuilder.Len())
 	fmt.Printf("Total images: %d\n", imageCount)
+	fmt.Printf("Total time: %s\n", elapsed())
 
 	return nil
 }
