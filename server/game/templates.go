@@ -1,4 +1,4 @@
-package templates
+package game
 
 import (
 	"cgl/functional"
@@ -33,6 +33,9 @@ they actually earned it through gameplay. The player's input status is read-only
 The "image" field describes the new scenery for a generative image AI to produce artwork.
 
 The language and literary style of your output should follow the scenario definition.
+
+Make your output concise and engaging - keep your answers short, users don't want to read through a wall of text. 
+Focus on advancing the story and updating the status. You can use markdown for emphasis and structure. Avoid lists and excessive formatting. Be prosaic. 
 
 The JSON structure, field names, etc. are fixed and must not be changed or translated. The image description should be in english always.
 Any changes to the JSON structure will break the game frontend.

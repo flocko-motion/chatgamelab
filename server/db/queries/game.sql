@@ -170,6 +170,9 @@ RETURNING *;
 -- name: GetGameSessionMessageByID :one
 SELECT * FROM game_session_message WHERE id = $1;
 
+-- name: GetLatestGameSessionMessage :one
+SELECT * FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1;
+
 -- name: UpdateGameSessionMessage :one
 UPDATE game_session_message SET
   created_by = $2,

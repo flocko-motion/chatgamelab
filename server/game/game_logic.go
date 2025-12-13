@@ -7,7 +7,6 @@ import (
 	"cgl/db"
 	"cgl/game/ai"
 	"cgl/game/stream"
-	"cgl/game/templates"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -51,7 +50,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 
 	// Parse game template to get system message
-	systemMessage, err := templates.GetTemplate(game)
+	systemMessage, err := GetTemplate(game)
 	if err != nil {
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
 	}

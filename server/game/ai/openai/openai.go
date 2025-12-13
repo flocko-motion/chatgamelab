@@ -364,7 +364,7 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 		"quality":        "low",
 		"output_format":  "png",
 		"stream":         true,
-		"partial_images": 2, // Get 2 partial images during generation
+		"partial_images": 3, // Get previews of the image generation process - each preview is sent as a full png file
 	}
 
 	reqJSON, err := json.Marshal(reqBody)

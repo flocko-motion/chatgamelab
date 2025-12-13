@@ -360,6 +360,86 @@ func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, ima
 	return nil
 }
 
+// GetGameSessionByID returns a single session by ID with its API key loaded
+func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
+	s, err := queries().GetGameSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get session: %w", err)
+	}
+
+	if userID != nil {
+		if s.UserID != *userID {
+			return nil, fmt.Errorf("failed to get session: access denied for user %s and session %s", userID.String(), s.ID.String())
+		}
+	}
+
+	session := &obj.GameSession{
+		ID:         s.ID,
+		GameID:     s.GameID,
+		UserID:     s.UserID,
+		ApiKeyID:   s.ApiKeyID,
+		AiPlatform: s.AiPlatform,
+		AiModel:    s.AiModel,
+		AiSession:  string(s.AiSession),
+		ImageStyle: s.ImageStyle,
+		Meta: obj.Meta{
+			CreatedBy:  s.CreatedBy,
+			CreatedAt:  &s.CreatedAt,
+			ModifiedBy: s.ModifiedBy,
+			ModifiedAt: &s.ModifiedAt,
+		},
+	}
+
+	// Load API key
+	key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get API key for session: %w", err)
+	}
+	session.ApiKey = &obj.ApiKey{
+		ID:       key.ID,
+		UserID:   key.UserID,
+		Name:     key.Name,
+		Platform: key.Platform,
+		Key:      key.Key,
+	}
+
+	return session, nil
+}
+
+// GetLatestGameSessionMessage returns the most recent message for a session
+func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetLatestGameSessionMessage(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest message: %w", err)
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:            m.ID,
+		GameSessionID: m.GameSessionID,
+		Seq:           int(m.Seq),
+		Type:          m.Type,
+		Message:       m.Message,
+		Meta: obj.Meta{
+			CreatedBy:  m.CreatedBy,
+			CreatedAt:  &m.CreatedAt,
+			ModifiedBy: m.ModifiedBy,
+			ModifiedAt: &m.ModifiedAt,
+		},
+	}
+
+	// Parse status fields from JSON
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+
+	// Set image prompt
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+
+	return msg, nil
+}
+
 // GetGameSessionsByGameID returns all sessions for a game
 func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
 	// TODO: we should consider user access rights here!

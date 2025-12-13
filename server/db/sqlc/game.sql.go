@@ -613,6 +613,30 @@ func (q *Queries) GetGamesVisibleToUser(ctx context.Context, createdBy uuid.Null
 	return items, nil
 }
 
+const getLatestGameSessionMessage = `-- name: GetLatestGameSessionMessage :one
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
+`
+
+func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID uuid.UUID) (GameSessionMessage, error) {
+	row := q.db.QueryRowContext(ctx, getLatestGameSessionMessage, gameSessionID)
+	var i GameSessionMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.GameSessionID,
+		&i.Seq,
+		&i.Type,
+		&i.Message,
+		&i.Status,
+		&i.ImagePrompt,
+		&i.Image,
+	)
+	return i, err
+}
+
 const getPublicGames = `-- name: GetPublicGames :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY created_at DESC
 `

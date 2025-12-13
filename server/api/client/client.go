@@ -145,6 +145,9 @@ func StreamSSE(endpoint string, handler func(chunk obj.GameSessionMessageChunk) 
 	}
 
 	scanner := bufio.NewScanner(resp.Body)
+	// Increase buffer size to handle large image chunks (up to 10MB)
+	const maxScanTokenSize = 10 * 1024 * 1024
+	scanner.Buffer(make([]byte, 64*1024), maxScanTokenSize)
 	textDone := false
 	imageDone := false
 
