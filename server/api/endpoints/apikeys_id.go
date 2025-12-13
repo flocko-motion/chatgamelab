@@ -24,6 +24,11 @@ type UpdateApiKeyRequest struct {
 	Name *string `json:"name,omitempty"`
 }
 
+type ApiKeyInfoResponse struct {
+	Share        *obj.ApiKeyShare  `json:"share"`
+	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
+}
+
 // FYI: ApiKeys are always delivered to the user as ApiKeyShares - so it's a wrapped format.
 // When adding a new ApiKey, the system automatically creates a share for the owning user. The owner
 // can then add shares for other users, institutions, workshops, etc. to also use the key. The underlying key itself

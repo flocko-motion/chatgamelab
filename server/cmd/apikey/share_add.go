@@ -2,6 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
+	"cgl/api/endpoints"
 	"fmt"
 	"log"
 
@@ -32,17 +33,6 @@ func init() {
 	shareCmd.AddCommand(shareAddCmd)
 }
 
-type addShareRequest struct {
-	UserID        *uuid.UUID `json:"userId,omitempty"`
-	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
-	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
-	AllowPublic   bool       `json:"allowPublicSponsoredPlays"`
-}
-
-type addShareResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 func runShareAdd(cmd *cobra.Command, args []string) {
 	apiKeyID := args[0]
 
@@ -50,7 +40,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one of --user-id, --workshop-id, or --institution-id is required")
 	}
 
-	req := addShareRequest{
+	req := endpoints.ShareRequest{
 		AllowPublic: shareAllowPublic,
 	}
 
@@ -76,7 +66,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		req.InstitutionID = &id
 	}
 
-	var resp addShareResponse
+	var resp endpoints.ShareResponse
 	if err := client.ApiPost("apikeys/"+apiKeyID+"/shares", req, &resp); err != nil {
 		log.Fatalf("Failed to add share: %v", err)
 	}

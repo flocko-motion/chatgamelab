@@ -2,7 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
-	"cgl/obj"
+	"cgl/api/endpoints"
 	"fmt"
 	"log"
 	"os"
@@ -23,15 +23,10 @@ func init() {
 	Cmd.AddCommand(infoCmd)
 }
 
-type infoResponse struct {
-	Share        *obj.ApiKeyShare  `json:"share"`
-	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
-}
-
 func runInfo(cmd *cobra.Command, args []string) {
 	shareID := args[0]
 
-	var resp infoResponse
+	var resp endpoints.ApiKeyInfoResponse
 	if err := client.ApiGet("apikeys/"+shareID, &resp); err != nil {
 		log.Fatalf("Failed to fetch API key info: %v", err)
 	}
