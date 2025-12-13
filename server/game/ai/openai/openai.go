@@ -77,40 +77,21 @@ type ContentItem struct {
 	Text string `json:"text"`
 }
 
-func (p *OpenAiPlatform) InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (*obj.GameSessionMessage, error) {
-	// Store the system message for the first ExecuteAction call
-	modelSession := ModelSession{
-		ResponseID: "",
-	}
-	sessionJSON, err := json.Marshal(modelSession)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal model session: %w", err)
-	}
-	session.AiSession = string(sessionJSON)
-
-	// Execute the "start game" action to get the opening scene
-	return p.ExecuteAction(ctx, session, obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypeSystem,
-		Message:       systemMessage,
-	})
-}
-
-func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
+func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, msg *obj.GameSessionMessage) error {
 	if session.ApiKey == nil {
-		return nil, fmt.Errorf("session has no API key")
+		return fmt.Errorf("session has no API key")
 	}
 
 	// Parse the model session
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
-		return nil, fmt.Errorf("failed to parse model session: %w", err)
+		return fmt.Errorf("failed to parse model session: %w", err)
 	}
 
 	// Serialize the player action as JSON input
 	actionInput, err := json.Marshal(action)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal action: %w", err)
+		return fmt.Errorf("failed to marshal action: %w", err)
 	}
 
 	// Build the request
@@ -139,7 +120,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// Make the API call
 	apiResponse, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
-		return nil, fmt.Errorf("OpenAI API error: %w", err)
+		return fmt.Errorf("OpenAI API error: %w", err)
 	}
 
 	if apiResponse.Status != "completed" {
@@ -147,34 +128,33 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		if apiResponse.Error != nil {
 			errMsg = apiResponse.Error.Message
 		}
-		return nil, fmt.Errorf("response failed: %s", errMsg)
+		return fmt.Errorf("response failed: %s", errMsg)
 	}
 
 	// Extract the text response
 	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
-		return nil, fmt.Errorf("no text response from OpenAI")
+		return fmt.Errorf("no text response from OpenAI")
 	}
 
-	// Parse the structured response directly into GameSessionMessage
-	var response obj.GameSessionMessage
-	if err := json.Unmarshal([]byte(responseText), &response); err != nil {
-		return nil, fmt.Errorf("failed to parse game response: %w", err)
+	// Parse the structured response into the pre-created message
+	if err := json.Unmarshal([]byte(responseText), msg); err != nil {
+		return fmt.Errorf("failed to parse game response: %w", err)
 	}
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal model session: %w", err)
+		return fmt.Errorf("failed to marshal model session: %w", err)
 	}
 	session.AiSession = string(sessionJSON)
 
 	// Set fields that come from the session, not from GPT
-	response.GameSessionID = session.ID
-	response.Type = obj.GameSessionMessageTypeGame
+	msg.GameSessionID = session.ID
+	msg.Type = obj.GameSessionMessageTypeGame
 
-	return &response, nil
+	return nil
 }
 
 // extractResponseText extracts the text content from an OpenAI Responses API response

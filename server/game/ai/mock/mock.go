@@ -10,6 +10,8 @@ import (
 	"image/color"
 	"image/png"
 	"math/rand"
+
+	lorem "github.com/drhodes/golorem"
 )
 
 type MockPlatform struct{}
@@ -24,22 +26,12 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
-func (p *MockPlatform) InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (*obj.GameSessionMessage, error) {
-	// Mock implementation - return a mock opening scene
-	return &obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypeGame,
-		Message:       "Welcome to the mock game! This is a test session.",
-		StatusFields:  []obj.StatusField{{Name: "Health", Value: "100"}},
-	}, nil
-}
-
-func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
+func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, msg *obj.GameSessionMessage) error {
 	// Parse status fields from session to generate mock status
 	var statusFields []obj.StatusField
 	if session != nil && session.StatusFields != "" {
 		if err := json.Unmarshal([]byte(session.StatusFields), &statusFields); err != nil {
-			return nil, fmt.Errorf("failed to parse status fields: %w", err)
+			return fmt.Errorf("failed to parse status fields: %w", err)
 		}
 	}
 
@@ -52,11 +44,14 @@ func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSessi
 		}
 	}
 
-	return &obj.GameSessionMessage{
-		Seq:          action.Seq + 1,
-		StatusFields: mockStatus,
-		Image:        generateMockImage(),
-	}, nil
+	// Fill in the pre-created message with lorem ipsum text
+	msg.Message = lorem.Paragraph(3, 5)
+	msg.StatusFields = mockStatus
+	msg.Image = generateMockImage()
+	msg.GameSessionID = session.ID
+	msg.Type = obj.GameSessionMessageTypeGame
+
+	return nil
 }
 
 // generateMockImage creates a random PNG image and returns it as a data URL

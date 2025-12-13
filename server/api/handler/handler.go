@@ -172,6 +172,32 @@ func (e *Endpoint) MatchesPath(urlPath string) bool {
 	return e.pathRegex.MatchString(urlPath)
 }
 
+// RawHandler is a handler that gets direct access to ResponseWriter for streaming
+type RawHandler func(w http.ResponseWriter, r *http.Request, pathParams map[string]string)
+
+// NewSSEEndpoint creates an endpoint for Server-Sent Events streaming
+func NewSSEEndpoint(path string, public bool, rawHandler RawHandler) Endpoint {
+	pathRegex, paramNames := compilePath(path)
+	endpoint := Endpoint{
+		Path:           path,
+		pathRegex:      pathRegex,
+		paramNames:     paramNames,
+		Public:         public,
+		RequiredScopes: []string{},
+		ContentType:    "text/event-stream",
+	}
+
+	endpoint.Handler = func(w http.ResponseWriter, r *http.Request) {
+		pathParams := endpoint.extractPathParams(r.URL.Path)
+
+		// For SSE, we skip the normal JSON response handling
+		// and give direct access to the ResponseWriter
+		rawHandler(w, r, pathParams)
+	}
+
+	return endpoint
+}
+
 func NewEndpoint(path string, public bool, contentType string, endpointHandler Handler) Endpoint {
 	pathRegex, paramNames := compilePath(path)
 	endpoint := Endpoint{

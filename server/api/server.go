@@ -37,6 +37,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.GamesId,
 		endpoints.GamesIdSessions,
 		endpoints.Image,
+		endpoints.MessageStream,
 		endpoints.Report,
 		endpoints.Session,
 		endpoints.Status,

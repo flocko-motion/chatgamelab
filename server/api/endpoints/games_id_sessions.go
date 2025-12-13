@@ -18,6 +18,7 @@ type CreateSessionRequest struct {
 
 type CreateSessionResponse struct {
 	SessionID uuid.UUID `json:"sessionId"`
+	MessageID uuid.UUID `json:"messageId"`
 }
 
 var GamesIdSessions = handler.NewEndpoint(
@@ -38,12 +39,12 @@ var GamesIdSessions = handler.NewEndpoint(
 				return nil, httpErr
 			}
 
-			session, httpErr := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ShareID, req.Model)
+			session, firstMessage, httpErr := game.CreateSession(request.Ctx, request.User.ID, gameID, req.ShareID, req.Model)
 			if httpErr != nil {
 				return nil, httpErr
 			}
 
-			return CreateSessionResponse{SessionID: session.ID}, nil
+			return CreateSessionResponse{SessionID: session.ID, MessageID: firstMessage.ID}, nil
 
 		case "GET":
 			// TODO: we need to consider user permissions here!

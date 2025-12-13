@@ -193,8 +193,9 @@ const (
 )
 
 type GameSessionMessage struct {
-	ID   uuid.UUID `json:"id"`
-	Meta Meta      `json:"meta"`
+	ID     uuid.UUID `json:"id"`
+	Meta   Meta      `json:"meta"`
+	Stream bool      `json:"stream"`
 
 	GameSessionID uuid.UUID `json:"gameSessionId"`
 	// Sequence number within the session, starting at 1

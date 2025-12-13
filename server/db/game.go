@@ -296,6 +296,46 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 	return &msg, nil
 }
 
+// CreateStreamingMessage creates a placeholder message with Stream=true for async AI responses
+func CreateStreamingMessage(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, msgType string) (*obj.GameSessionMessage, error) {
+	return CreateGameSessionMessage(ctx, userID, obj.GameSessionMessage{
+		GameSessionID: sessionID,
+		Type:          msgType,
+		Stream:        true,
+	})
+}
+
+// UpdateGameSessionMessage updates a message in the database
+func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) error {
+	now := time.Now()
+	var statusJSON sql.NullString
+	if len(msg.StatusFields) > 0 {
+		statusBytes, _ := json.Marshal(msg.StatusFields)
+		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
+	}
+
+	arg := db.UpdateGameSessionMessageParams{
+		ID:            msg.ID,
+		CreatedBy:     uuid.NullUUID{},
+		CreatedAt:     time.Time{},
+		ModifiedBy:    uuid.NullUUID{},
+		ModifiedAt:    now,
+		GameSessionID: msg.GameSessionID,
+		Type:          msg.Type,
+		Message:       msg.Message,
+		Status:        statusJSON,
+		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		Image:         msg.Image,
+	}
+
+	_, err := queries().UpdateGameSessionMessage(ctx, arg)
+	if err != nil {
+		return fmt.Errorf("failed to update session message: %w", err)
+	}
+
+	return nil
+}
+
 // GetGameSessionsByGameID returns all sessions for a game
 func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
 	// TODO: we should consider user access rights here!

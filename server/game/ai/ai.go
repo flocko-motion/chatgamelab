@@ -27,8 +27,11 @@ func IsValidApiKeyPlatform(platform string) bool {
 
 type AiPlatform interface {
 	GetPlatformInfo() obj.AiPlatform
-	InitGameSession(ctx context.Context, session *obj.GameSession, systemMessage string) (firstMessage *obj.GameSessionMessage, err error)
-	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, err error)
+	// ExecuteAction executes an action and fills in the response message
+	// The msg parameter is pre-created with ID set; this function fills Message, StatusFields, ImagePrompt
+	// For system messages (first call), the action.Message contains the system prompt/instructions
+	// Caller handles streaming and DB persistence
+	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, msg *obj.GameSessionMessage) error
 }
 
 // GetAiPlatform returns the AI platform and resolves the model.
