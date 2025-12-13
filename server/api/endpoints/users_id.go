@@ -17,7 +17,7 @@ type UserUpdateRequest struct {
 
 var UsersId = handler.NewEndpoint(
 	"/api/users/{id:uuid}",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		userID, err := request.GetPathParamUUID("id")

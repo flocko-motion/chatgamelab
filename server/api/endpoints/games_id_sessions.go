@@ -23,7 +23,7 @@ type CreateSessionResponse struct {
 
 var GamesIdSessions = handler.NewEndpoint(
 	"/api/games/{id:uuid}/sessions",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		gameID, err := request.GetPathParamUUID("id")

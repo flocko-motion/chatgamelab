@@ -14,7 +14,7 @@ var (
 
 var Version = handler.NewEndpoint(
 	"/api/version",
-	true,
+	handler.AuthNone,
 	"application/json",
 	func(request handler.Request) (interface{}, *obj.HTTPError) {
 		return map[string]string{

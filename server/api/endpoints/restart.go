@@ -10,7 +10,7 @@ import (
 
 var Restart = handler.NewEndpoint(
 	"/api/restart",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		if httpErr := request.RequireAdmin(); httpErr != nil {

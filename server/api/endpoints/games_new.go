@@ -19,7 +19,7 @@ type GameNewResponse struct {
 
 var GamesNew = handler.NewEndpoint(
 	"/api/games/new",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (interface{}, *obj.HTTPError) {
 		contentType := request.R.Header.Get("Content-Type")

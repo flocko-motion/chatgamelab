@@ -18,7 +18,7 @@ type UsersJwtResponse struct {
 
 var UsersJwt = handler.NewEndpoint(
 	"/api/users/{id:uuid}/jwt",
-	true, // public for dev use
+	handler.AuthNone, // no auth - dev mode only endpoint
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		if !DevMode {

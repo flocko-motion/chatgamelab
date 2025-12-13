@@ -24,7 +24,7 @@ type SessionRequest struct {
 
 var Session = handler.NewEndpoint(
 	"/api/sessions/{id:uuid}",
-	false,
+	handler.AuthOptional,
 	"application/json",
 	func(request handler.Request) (out interface{}, httpErr *obj.HTTPError) {
 		return handleSessionRequest(request, false)

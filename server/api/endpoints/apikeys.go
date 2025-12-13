@@ -11,7 +11,7 @@ import (
 // GET /api/apikeys - List all shares accessible to current user
 var ApiKeys = handler.NewEndpoint(
 	"/api/apikeys",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		if request.R.Method != http.MethodGet {

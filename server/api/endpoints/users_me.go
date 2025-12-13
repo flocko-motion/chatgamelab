@@ -9,7 +9,7 @@ import (
 // For updates, use /api/users/{id}
 var UsersMe = handler.NewEndpoint(
 	"/api/users/me",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		return request.User, nil

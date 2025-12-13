@@ -14,7 +14,7 @@ type UsersNewRequest struct {
 
 var UsersNew = handler.NewEndpoint(
 	"/api/users/new",
-	true, // public for dev use - endpoint is only existing in --dev mode of server
+	handler.AuthNone, // no auth - dev mode only endpoint
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		var req UsersNewRequest

@@ -13,7 +13,7 @@ import (
 // MessageStream is the SSE endpoint for streaming message content
 var MessageStream = handler.NewSSEEndpoint(
 	"/api/messages/{id:uuid}/stream",
-	true, // public - auth handled separately if needed
+	handler.AuthOptional,
 	getMessageStream,
 )
 

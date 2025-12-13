@@ -8,7 +8,7 @@ import (
 
 var GamesList = handler.NewEndpoint(
 	"/api/games",
-	true,
+	handler.AuthOptional, // public games visible, private games if logged in
 	"application/json",
 	func(request handler.Request) (interface{}, *obj.HTTPError) {
 		games, err := db.GetGames(request.Ctx, &request.User.ID, nil)

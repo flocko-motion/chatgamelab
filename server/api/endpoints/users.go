@@ -8,7 +8,7 @@ import (
 
 var UsersList = handler.NewEndpoint(
 	"/api/users",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		users, err := db.GetAllUsers(request.Ctx)

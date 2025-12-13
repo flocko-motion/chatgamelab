@@ -96,6 +96,18 @@ func (r *Request) BodyYAML(v any) *obj.HTTPError {
 	return nil
 }
 
+// AuthMode defines how authentication is handled for an endpoint
+type AuthMode string
+
+const (
+	// AuthRequired - endpoint requires authenticated user, returns 401 if not logged in
+	AuthRequired AuthMode = "required"
+	// AuthOptional - endpoint works without auth but may have enhanced functionality with auth
+	AuthOptional AuthMode = "optional"
+	// AuthNone - no auth check at all (e.g., JWT generation endpoint)
+	AuthNone AuthMode = "none"
+)
+
 type Endpoint struct {
 	// The path pattern of the endpoint (e.g., "/api/games/{id}/yaml")
 	Path string
@@ -103,7 +115,7 @@ type Endpoint struct {
 	pathRegex *regexp.Regexp
 	// paramNames extracted from Path (e.g., ["id"])
 	paramNames     []string
-	Public         bool
+	Auth           AuthMode
 	RequiredScopes []string
 	ContentType    string
 	Handler        http.HandlerFunc
@@ -176,13 +188,13 @@ func (e *Endpoint) MatchesPath(urlPath string) bool {
 type RawHandler func(w http.ResponseWriter, r *http.Request, pathParams map[string]string)
 
 // NewSSEEndpoint creates an endpoint for Server-Sent Events streaming
-func NewSSEEndpoint(path string, public bool, rawHandler RawHandler) Endpoint {
+func NewSSEEndpoint(path string, auth AuthMode, rawHandler RawHandler) Endpoint {
 	pathRegex, paramNames := compilePath(path)
 	endpoint := Endpoint{
 		Path:           path,
 		pathRegex:      pathRegex,
 		paramNames:     paramNames,
-		Public:         public,
+		Auth:           auth,
 		RequiredScopes: []string{},
 		ContentType:    "text/event-stream",
 	}
@@ -198,13 +210,13 @@ func NewSSEEndpoint(path string, public bool, rawHandler RawHandler) Endpoint {
 	return endpoint
 }
 
-func NewEndpoint(path string, public bool, contentType string, endpointHandler Handler) Endpoint {
+func NewEndpoint(path string, auth AuthMode, contentType string, endpointHandler Handler) Endpoint {
 	pathRegex, paramNames := compilePath(path)
 	endpoint := Endpoint{
 		Path:           path,
 		pathRegex:      pathRegex,
 		paramNames:     paramNames,
-		Public:         public,
+		Auth:           auth,
 		RequiredScopes: []string{},
 		ContentType:    contentType,
 	}
@@ -258,7 +270,7 @@ func NewEndpoint(path string, public bool, contentType string, endpointHandler H
 			}
 		}
 
-		if !public && request.User == nil {
+		if auth == AuthRequired && request.User == nil {
 			httpError = &obj.HTTPError{StatusCode: http.StatusUnauthorized, Message: "Unauthorized"}
 		}
 

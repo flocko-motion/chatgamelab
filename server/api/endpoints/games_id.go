@@ -9,7 +9,7 @@ import (
 
 var GamesId = handler.NewEndpoint(
 	"/api/games/{id}",
-	false,
+	handler.AuthOptional,
 	"application/json",
 	func(request handler.Request) (interface{}, *obj.HTTPError) {
 		gameID, err := request.GetPathParamUUID("id")

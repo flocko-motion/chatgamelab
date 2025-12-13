@@ -36,9 +36,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.GamesNew,
 		endpoints.GamesId,
 		endpoints.GamesIdSessions,
-		endpoints.Image,
 		endpoints.MessageStream,
-		endpoints.Report,
 		endpoints.Session,
 		endpoints.Status,
 		endpoints.Restart,
@@ -46,8 +44,6 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		endpoints.UsersMe,
 		endpoints.UsersId,
 		endpoints.Version,
-		endpoints.PublicGame,
-		endpoints.PublicSession,
 	}
 	if devMode {
 		endpointList = append(endpointList,

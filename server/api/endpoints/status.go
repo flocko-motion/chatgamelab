@@ -16,7 +16,7 @@ type StatusResponse struct {
 
 var Status = handler.NewEndpoint(
 	"/api/status",
-	true,
+	handler.AuthNone,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		return StatusResponse{

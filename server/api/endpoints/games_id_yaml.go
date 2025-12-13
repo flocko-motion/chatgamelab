@@ -10,7 +10,7 @@ import (
 
 var GamesIdYaml = handler.NewEndpoint(
 	"/api/games/{id:uuid}/yaml",
-	false,
+	handler.AuthRequired,
 	"application/x-yaml",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		gameID, err := request.GetPathParamUUID("id")

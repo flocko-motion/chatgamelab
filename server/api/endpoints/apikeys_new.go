@@ -23,7 +23,7 @@ type CreateApiKeyResponse struct {
 // POST /api/apikeys/new - Create new API key + self-share
 var ApiKeysNew = handler.NewEndpoint(
 	"/api/apikeys/new",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		if request.R.Method != http.MethodPost {

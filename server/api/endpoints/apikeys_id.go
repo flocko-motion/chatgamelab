@@ -37,7 +37,7 @@ type UpdateApiKeyRequest struct {
 // DELETE /api/apikeys/{id} - Unshare (delete single share)
 var ApiKeysId = handler.NewEndpoint(
 	"/api/apikeys/{id:uuid}",
-	false,
+	handler.AuthRequired,
 	"application/json",
 	func(request handler.Request) (res any, httpErr *obj.HTTPError) {
 		shareID, err := request.GetPathParamUUID("id")
