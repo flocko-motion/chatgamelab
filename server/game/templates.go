@@ -49,6 +49,7 @@ Rules for Phase 2:
 - 2-3 short paragraphs maximum
 - No headers, no markdown, no lists
 - Describe the scene, not a story structure
+- DON'T repeat the status fields, only write the story content (status fields are reported in Phase 1 only!)
 - End on an open note - let the player decide what to do next
 
 ---
