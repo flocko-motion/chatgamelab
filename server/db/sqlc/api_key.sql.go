@@ -7,49 +7,50 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-const createApiKeyShareUser = `-- name: CreateApiKeyShareUser :one
+const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
-INSERT INTO api_key_share_user (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  api_key_id, user_id, allow_public_sponsored_plays
+INSERT INTO api_key_share (
+  id, created_by, created_at, modified_by, modified_at,
+  api_key_id, user_id, workshop_id, institution_id, allow_public_sponsored_plays
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
+  gen_random_uuid(), $1, $2, $3, $4,
+  $5, $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, allow_public_sponsored_plays
+RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, allow_public_sponsored_plays
 `
 
-type CreateApiKeyShareUserParams struct {
-	ID                        uuid.UUID
+type CreateApiKeyShareParams struct {
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
 	ModifiedAt                time.Time
 	ApiKeyID                  uuid.UUID
-	UserID                    uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
 	AllowPublicSponsoredPlays bool
 }
 
-// api_key_share_user ---------------------------------------------------
-func (q *Queries) CreateApiKeyShareUser(ctx context.Context, arg CreateApiKeyShareUserParams) (ApiKeyShareUser, error) {
-	row := q.db.QueryRowContext(ctx, createApiKeyShareUser,
-		arg.ID,
+// api_key_share -------------------------------------------------------
+func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeyShareParams) (ApiKeyShare, error) {
+	row := q.db.QueryRowContext(ctx, createApiKeyShare,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.ModifiedBy,
 		arg.ModifiedAt,
 		arg.ApiKeyID,
 		arg.UserID,
+		arg.WorkshopID,
+		arg.InstitutionID,
 		arg.AllowPublicSponsoredPlays,
 	)
-	var i ApiKeyShareUser
+	var i ApiKeyShare
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedBy,
@@ -58,87 +59,77 @@ func (q *Queries) CreateApiKeyShareUser(ctx context.Context, arg CreateApiKeySha
 		&i.ModifiedAt,
 		&i.ApiKeyID,
 		&i.UserID,
-		&i.AllowPublicSponsoredPlays,
-	)
-	return i, err
-}
-
-const createApiKeyShareWorkshop = `-- name: CreateApiKeyShareWorkshop :one
-
-INSERT INTO api_key_share_workshop (
-  id, created_by,
-  created_at, modified_by, modified_at,
-  api_key_id, workshop_id, allow_public_sponsored_plays
-) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
-)
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, workshop_id, allow_public_sponsored_plays
-`
-
-type CreateApiKeyShareWorkshopParams struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	WorkshopID                uuid.UUID
-	AllowPublicSponsoredPlays bool
-}
-
-// api_key_share_workshop ----------------------------------------------
-func (q *Queries) CreateApiKeyShareWorkshop(ctx context.Context, arg CreateApiKeyShareWorkshopParams) (ApiKeyShareWorkshop, error) {
-	row := q.db.QueryRowContext(ctx, createApiKeyShareWorkshop,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.ApiKeyID,
-		arg.WorkshopID,
-		arg.AllowPublicSponsoredPlays,
-	)
-	var i ApiKeyShareWorkshop
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.ApiKeyID,
 		&i.WorkshopID,
+		&i.InstitutionID,
 		&i.AllowPublicSponsoredPlays,
 	)
 	return i, err
 }
 
-const deleteApiKeyShareUser = `-- name: DeleteApiKeyShareUser :exec
-DELETE FROM api_key_share_user WHERE id = $1
+const deleteApiKeyShare = `-- name: DeleteApiKeyShare :exec
+DELETE FROM api_key_share WHERE id = $1
 `
 
-func (q *Queries) DeleteApiKeyShareUser(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKeyShareUser, id)
+func (q *Queries) DeleteApiKeyShare(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeyShare, id)
 	return err
 }
 
-const deleteApiKeyShareWorkshop = `-- name: DeleteApiKeyShareWorkshop :exec
-DELETE FROM api_key_share_workshop WHERE id = $1
+const deleteApiKeySharesByApiKeyID = `-- name: DeleteApiKeySharesByApiKeyID :exec
+DELETE FROM api_key_share WHERE api_key_id = $1
 `
 
-func (q *Queries) DeleteApiKeyShareWorkshop(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteApiKeyShareWorkshop, id)
+func (q *Queries) DeleteApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByApiKeyID, apiKeyID)
 	return err
 }
 
-const getApiKeyShareUserByID = `-- name: GetApiKeyShareUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, allow_public_sponsored_plays FROM api_key_share_user WHERE id = $1
+const getApiKeyShareByID = `-- name: GetApiKeyShareByID :one
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.id AS key_id,
+  k.user_id AS key_owner_id,
+  k.name AS key_name,
+  k.platform AS key_platform,
+  k.key AS key_key,
+  o.name AS key_owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user o ON o.id = k.user_id
+WHERE s.id = $1
 `
 
-func (q *Queries) GetApiKeyShareUserByID(ctx context.Context, id uuid.UUID) (ApiKeyShareUser, error) {
-	row := q.db.QueryRowContext(ctx, getApiKeyShareUserByID, id)
-	var i ApiKeyShareUser
+type GetApiKeyShareByIDRow struct {
+	ID                        uuid.UUID
+	CreatedBy                 uuid.NullUUID
+	CreatedAt                 time.Time
+	ModifiedBy                uuid.NullUUID
+	ModifiedAt                time.Time
+	ApiKeyID                  uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
+	AllowPublicSponsoredPlays bool
+	KeyID                     uuid.UUID
+	KeyOwnerID                uuid.UUID
+	KeyName                   string
+	KeyPlatform               string
+	KeyKey                    string
+	KeyOwnerName              string
+}
+
+func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiKeyShareByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getApiKeyShareByID, id)
+	var i GetApiKeyShareByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedBy,
@@ -147,125 +138,170 @@ func (q *Queries) GetApiKeyShareUserByID(ctx context.Context, id uuid.UUID) (Api
 		&i.ModifiedAt,
 		&i.ApiKeyID,
 		&i.UserID,
-		&i.AllowPublicSponsoredPlays,
-	)
-	return i, err
-}
-
-const getApiKeyShareWorkshopByID = `-- name: GetApiKeyShareWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, api_key_id, workshop_id, allow_public_sponsored_plays FROM api_key_share_workshop WHERE id = $1
-`
-
-func (q *Queries) GetApiKeyShareWorkshopByID(ctx context.Context, id uuid.UUID) (ApiKeyShareWorkshop, error) {
-	row := q.db.QueryRowContext(ctx, getApiKeyShareWorkshopByID, id)
-	var i ApiKeyShareWorkshop
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.ApiKeyID,
 		&i.WorkshopID,
+		&i.InstitutionID,
 		&i.AllowPublicSponsoredPlays,
+		&i.KeyID,
+		&i.KeyOwnerID,
+		&i.KeyName,
+		&i.KeyPlatform,
+		&i.KeyKey,
+		&i.KeyOwnerName,
 	)
 	return i, err
 }
 
-const updateApiKeyShareUser = `-- name: UpdateApiKeyShareUser :one
-UPDATE api_key_share_user SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  api_key_id = $6,
-  user_id = $7,
-  allow_public_sponsored_plays = $8
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, allow_public_sponsored_plays
+const getApiKeySharesByApiKeyID = `-- name: GetApiKeySharesByApiKeyID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  u.name AS user_name,
+  w.name AS workshop_name,
+  i.name AS institution_name
+FROM api_key_share s
+LEFT JOIN app_user u ON u.id = s.user_id
+LEFT JOIN workshop w ON w.id = s.workshop_id
+LEFT JOIN institution i ON i.id = s.institution_id
+WHERE s.api_key_id = $1
 `
 
-type UpdateApiKeyShareUserParams struct {
+type GetApiKeySharesByApiKeyIDRow struct {
 	ID                        uuid.UUID
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
 	ModifiedAt                time.Time
 	ApiKeyID                  uuid.UUID
-	UserID                    uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
 	AllowPublicSponsoredPlays bool
+	UserName                  sql.NullString
+	WorkshopName              sql.NullString
+	InstitutionName           sql.NullString
 }
 
-func (q *Queries) UpdateApiKeyShareUser(ctx context.Context, arg UpdateApiKeyShareUserParams) (ApiKeyShareUser, error) {
-	row := q.db.QueryRowContext(ctx, updateApiKeyShareUser,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.ApiKeyID,
-		arg.UserID,
-		arg.AllowPublicSponsoredPlays,
-	)
-	var i ApiKeyShareUser
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.ApiKeyID,
-		&i.UserID,
-		&i.AllowPublicSponsoredPlays,
-	)
-	return i, err
+func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GetApiKeySharesByApiKeyIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApiKeySharesByApiKeyID, apiKeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApiKeySharesByApiKeyIDRow
+	for rows.Next() {
+		var i GetApiKeySharesByApiKeyIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.ApiKeyID,
+			&i.UserID,
+			&i.WorkshopID,
+			&i.InstitutionID,
+			&i.AllowPublicSponsoredPlays,
+			&i.UserName,
+			&i.WorkshopName,
+			&i.InstitutionName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-const updateApiKeyShareWorkshop = `-- name: UpdateApiKeyShareWorkshop :one
-UPDATE api_key_share_workshop SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  api_key_id = $6,
-  workshop_id = $7,
-  allow_public_sponsored_plays = $8
-WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, workshop_id, allow_public_sponsored_plays
+const getApiKeySharesByUserID = `-- name: GetApiKeySharesByUserID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.name AS api_key_name,
+  k.platform AS api_key_platform,
+  k.key AS api_key_key,
+  k.user_id AS owner_id,
+  owner.name AS owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user owner ON owner.id = k.user_id
+WHERE s.user_id = $1
 `
 
-type UpdateApiKeyShareWorkshopParams struct {
+type GetApiKeySharesByUserIDRow struct {
 	ID                        uuid.UUID
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
 	ModifiedAt                time.Time
 	ApiKeyID                  uuid.UUID
-	WorkshopID                uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
 	AllowPublicSponsoredPlays bool
+	ApiKeyName                string
+	ApiKeyPlatform            string
+	ApiKeyKey                 string
+	OwnerID                   uuid.UUID
+	OwnerName                 string
 }
 
-func (q *Queries) UpdateApiKeyShareWorkshop(ctx context.Context, arg UpdateApiKeyShareWorkshopParams) (ApiKeyShareWorkshop, error) {
-	row := q.db.QueryRowContext(ctx, updateApiKeyShareWorkshop,
-		arg.ID,
-		arg.CreatedBy,
-		arg.CreatedAt,
-		arg.ModifiedBy,
-		arg.ModifiedAt,
-		arg.ApiKeyID,
-		arg.WorkshopID,
-		arg.AllowPublicSponsoredPlays,
-	)
-	var i ApiKeyShareWorkshop
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedBy,
-		&i.CreatedAt,
-		&i.ModifiedBy,
-		&i.ModifiedAt,
-		&i.ApiKeyID,
-		&i.WorkshopID,
-		&i.AllowPublicSponsoredPlays,
-	)
-	return i, err
+func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullUUID) ([]GetApiKeySharesByUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApiKeySharesByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApiKeySharesByUserIDRow
+	for rows.Next() {
+		var i GetApiKeySharesByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.ApiKeyID,
+			&i.UserID,
+			&i.WorkshopID,
+			&i.InstitutionID,
+			&i.AllowPublicSponsoredPlays,
+			&i.ApiKeyName,
+			&i.ApiKeyPlatform,
+			&i.ApiKeyKey,
+			&i.OwnerID,
+			&i.OwnerName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

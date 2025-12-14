@@ -3,10 +3,11 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"os"
+	"fmt"
 
-	sqlc "webapp-server/db/sqlc"
-	"webapp-server/obj"
+	sqlc "cgl/db/sqlc"
+	"cgl/functional"
+	"cgl/obj"
 
 	_ "github.com/lib/pq" // Postgres driver
 )
@@ -27,10 +28,12 @@ func queries() *sqlc.Queries {
 		return queriesSingleton
 	}
 
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		panic("DATABASE_URL environment variable is required")
-	}
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		functional.RequireEnv("DB_USER"),
+		functional.RequireEnv("DB_PASSWORD"),
+		functional.EnvOrDefault("DB_HOST", "127.0.0.1"),
+		functional.RequireEnv("PORT_POSTGRES"),
+		functional.RequireEnv("DB_DATABASE"))
 
 	var err error
 	sqlDb, err = sql.Open("postgres", dsn)

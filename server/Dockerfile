@@ -17,7 +17,7 @@ RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
     BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && \
     CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
     -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.BuildTime=${BUILD_TIME}" \
-    -o webapp-server ./
+    -o cgl ./
 
 # Runtime image (slim, no shell, based on Debian)
 FROM gcr.io/distroless/base-debian12
@@ -25,11 +25,11 @@ FROM gcr.io/distroless/base-debian12
 WORKDIR /app
 
 # Copy binary
-COPY --from=build /app/webapp-server /app/webapp-server
+COPY --from=build /app/cgl /app/cgl
 
 # Directory for writable data
 VOLUME ["/app/var"]
 
 EXPOSE 3000
 
-ENTRYPOINT ["/app/webapp-server"]
+ENTRYPOINT ["/app/cgl"]

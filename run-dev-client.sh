@@ -3,6 +3,7 @@
 set -e # Exit with nonzero exit code if anything fails
 
 cd "$(dirname "$0")"
+source .env 2>/dev/null || true
 
 echo "Starting Chat Game Lab Frontend..."
 echo ""
@@ -45,14 +46,14 @@ if [ ! -d "node_modules" ]; then
     echo ""
 fi
 
-echo "🚀 Starting React development server..."
+echo "🚀 Starting React development server on port ${PORT_FRONTEND:-3001}..."
 echo ""
-echo "Frontend will be available at:"
-echo "  Regular mode: http://localhost:3000"
-echo "  Mock mode:    http://localhost:3000?mock=true"
+echo "Frontend dev server: http://localhost:${PORT_FRONTEND:-3001}"
+echo "Access via proxy:    http://localhost:${PORT_EXPOSED:-80}"
+echo "Mock mode:           http://localhost:${PORT_EXPOSED:-80}?mock=true"
 echo ""
 echo "Press Ctrl+C to stop"
 echo ""
 
 # Start the React dev server
-npm start
+PORT=${PORT_FRONTEND:-3001} npm start

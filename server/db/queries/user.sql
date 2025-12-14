@@ -6,6 +6,12 @@ INSERT INTO app_user (id, name, email, auth0_id)
 VALUES (gen_random_uuid(), $1, $2, $3)
 RETURNING id;
 
+-- name: CreateUserWithID :one
+INSERT INTO app_user (id, name, email, auth0_id)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
 
@@ -23,6 +29,7 @@ SELECT
   u.email,
   u.deleted_at,
   u.auth0_id,
+  u.default_api_key_share_id,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -41,16 +48,19 @@ WHERE u.id = $1;
 
 -- name: GetUserApiKeys :many
 SELECT
-  id,
-  created_by,
-  created_at,
-  modified_by,
-  modified_at,
-  user_id,
-  platform,
-  key
-FROM api_key
-WHERE user_id = $1;
+  k.id,
+  k.created_by,
+  k.created_at,
+  k.modified_by,
+  k.modified_at,
+  k.user_id,
+  u.name AS user_name,
+  k.name,
+  k.platform,
+  k.key
+FROM api_key k
+JOIN app_user u ON u.id = k.user_id
+WHERE k.user_id = $1;
 
 -- name: UpdateUser :exec
 UPDATE app_user SET
@@ -82,11 +92,11 @@ RETURNING id;
 INSERT INTO api_key (
   id, created_by,
   created_at, modified_by, modified_at,
-  user_id, platform, key
+  user_id, name, platform, key
 ) VALUES (
-  $1, $2,
-  $3, $4, $5,
-  $6, $7, $8
+  gen_random_uuid(), $1,
+  $2, $3, $4,
+  $5, $6, $7, $8
 )
 RETURNING *;
 
@@ -95,32 +105,23 @@ SELECT * FROM api_key WHERE id = $1;
 
 -- name: UpdateApiKey :one
 UPDATE api_key SET
-  created_by = $2,
-  created_at = $3,
-  modified_by = $4,
-  modified_at = $5,
-  user_id = $6,
-  platform = $7,
-  key = $8
+  modified_by = $2,
+  modified_at = $3,
+  name = $4
 WHERE id = $1
 RETURNING *;
 
 -- name: DeleteApiKey :exec
-DELETE FROM api_key WHERE id = $1;
+DELETE FROM api_key WHERE id = $1 AND user_id = $2;
 
--- name: GetApiKeySharesByUserID :many
-SELECT
-  s.id,
-  s.created_by,
-  s.created_at,
-  s.modified_by,
-  s.modified_at,
-  s.api_key_id,
-  s.user_id,
-  s.allow_public_sponsored_plays,
-  k.platform AS api_key_platform,
-  k.key AS api_key_key
-FROM api_key_share_user s
-JOIN api_key k ON k.id = s.api_key_id
-WHERE s.user_id = $1;
+-- GetApiKeySharesByUserID is now in api_key.sql using the unified api_key_share table
+
+-- name: SetUserDefaultApiKeyShare :exec
+UPDATE app_user SET
+  default_api_key_share_id = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: GetUserDefaultApiKeyShare :one
+SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 

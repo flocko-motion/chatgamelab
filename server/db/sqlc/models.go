@@ -19,42 +19,35 @@ type ApiKey struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	UserID     uuid.UUID
+	Name       string
 	Platform   string
 	Key        string
 }
 
-type ApiKeyShareUser struct {
+type ApiKeyShare struct {
 	ID                        uuid.UUID
 	CreatedBy                 uuid.NullUUID
 	CreatedAt                 time.Time
 	ModifiedBy                uuid.NullUUID
 	ModifiedAt                time.Time
 	ApiKeyID                  uuid.UUID
-	UserID                    uuid.UUID
-	AllowPublicSponsoredPlays bool
-}
-
-type ApiKeyShareWorkshop struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	WorkshopID                uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
 	AllowPublicSponsoredPlays bool
 }
 
 type AppUser struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	Name       string
-	Email      sql.NullString
-	DeletedAt  sql.NullTime
-	Auth0ID    sql.NullString
+	ID                   uuid.UUID
+	CreatedBy            uuid.NullUUID
+	CreatedAt            time.Time
+	ModifiedBy           uuid.NullUUID
+	ModifiedAt           time.Time
+	Name                 string
+	Email                sql.NullString
+	DeletedAt            sql.NullTime
+	Auth0ID              sql.NullString
+	DefaultApiKeyShareID uuid.NullUUID
 }
 
 type Game struct {
@@ -64,7 +57,7 @@ type Game struct {
 	ModifiedBy               uuid.NullUUID
 	ModifiedAt               time.Time
 	Name                     string
-	Description              sql.NullString
+	Description              string
 	Icon                     []byte
 	Public                   bool
 	PublicSponsoredApiKeyID  uuid.NullUUID
@@ -73,7 +66,7 @@ type Game struct {
 	SystemMessageScenario    string
 	SystemMessageGameStart   string
 	ImageStyle               string
-	Css                      sql.NullString
+	Css                      string
 	StatusFields             string
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString
@@ -89,8 +82,9 @@ type GameSession struct {
 	GameID       uuid.UUID
 	UserID       uuid.UUID
 	ApiKeyID     uuid.UUID
-	Model        string
-	ModelSession json.RawMessage
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
 }
@@ -102,6 +96,7 @@ type GameSessionMessage struct {
 	ModifiedBy    uuid.NullUUID
 	ModifiedAt    time.Time
 	GameSessionID uuid.UUID
+	Seq           int32
 	Type          string
 	Message       string
 	Status        sql.NullString

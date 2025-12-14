@@ -17,10 +17,10 @@ fi
 echo "Starting dev environment (db + proxy)..."
 echo ""
 echo "Now start the backend and frontend in separate terminals:"
-echo "  Terminal 2: ./run-dev-server.sh    (Go server on :8080)"
-echo "  Terminal 3: ./run-dev-client.sh  (React on :3000)"
+echo "  Terminal 2: ./run-dev-server.sh   (Go server on :${PORT_BACKEND})"
+echo "  Terminal 3: ./run-dev-client.sh   (React on :${PORT_FRONTEND})"
 echo ""
-echo "Then open http://localhost in your browser"
+echo "Then open http://localhost:${PORT_EXPOSED} in your browser"
 echo ""
 
 docker compose -f docker-compose.dev.yml up

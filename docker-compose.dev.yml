@@ -1,8 +1,6 @@
 # Dev mode: only db + proxy, connects to local dev servers
 # Usage: docker compose -f docker-compose.dev.yml up
 
-version: "3.9"
-
 services:
   db:
     image: postgres:16
@@ -15,7 +13,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     ports:
-      - "5433:5432"
+      - "${PORT_POSTGRES}:5432"
 
   web:
     image: nginx:alpine
@@ -25,7 +23,7 @@ services:
     volumes:
       - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "80:80"
+      - "${PORT_EXPOSED}:80"
 
 volumes:
   db_data:

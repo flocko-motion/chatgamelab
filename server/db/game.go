@@ -1,18 +1,20 @@
 package db
 
 import (
+	db "cgl/db/sqlc"
+	"cgl/functional"
+	"cgl/obj"
 	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/base32"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
-	"webapp-server/ai"
-	db "webapp-server/db/sqlc"
-	"webapp-server/obj"
 
 	"github.com/google/uuid"
+	"gopkg.in/yaml.v3"
 )
 
 type GetGamesFilters struct {
@@ -123,7 +125,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:               now,
 		Name:                     game.Name,
-		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Description:              game.Description,
 		Icon:                     game.Icon,
 		Public:                   game.Public,
 		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
@@ -132,7 +134,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		SystemMessageScenario:    game.SystemMessageScenario,
 		SystemMessageGameStart:   game.SystemMessageGameStart,
 		ImageStyle:               game.ImageStyle,
-		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
@@ -177,7 +179,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:               now,
 		Name:                     game.Name,
-		Description:              sql.NullString{String: ptrToString(game.Description), Valid: game.Description != nil},
+		Description:              game.Description,
 		Icon:                     game.Icon,
 		Public:                   game.Public,
 		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
@@ -186,7 +188,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		SystemMessageScenario:    game.SystemMessageScenario,
 		SystemMessageGameStart:   game.SystemMessageGameStart,
 		ImageStyle:               game.ImageStyle,
-		Css:                      sql.NullString{String: ptrToString(game.CSS), Valid: game.CSS != nil},
+		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
@@ -197,43 +199,276 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	return err
 }
 
-func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID) (sessionID *uuid.UUID, err error) {
-	if err := userIsAllowedToPlayGame(ctx, &userID, gameID); err != nil {
-		return nil, fmt.Errorf("cannot create session: %w", err)
-	}
-	if err := userIsAllowedToUseApiKey(ctx, userID, apiKeyID); err != nil {
-		return nil, fmt.Errorf("cannot create session: %w", err)
-	}
-
-	game, err := GetGameByID(ctx, &userID, gameID)
+// UpdateGameYaml updates a game from YAML content. userID must be the owner.
+func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yamlContent string) error {
+	// Get existing game first
+	existing, err := GetGameByID(ctx, &userID, gameID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get game: %w", err)
+		return fmt.Errorf("game not found: %w", err)
 	}
 
-	session := ai.NewSession(*game, userID, apiKeyID)
+	// Parse YAML into a game object
+	var incoming obj.Game
+	if err := yaml.Unmarshal([]byte(yamlContent), &incoming); err != nil {
+		return fmt.Errorf("invalid YAML: %w", err)
+	}
 
+	// Selectively copy allowed fields
+	existing.Name = incoming.Name
+	existing.Description = incoming.Description
+	existing.SystemMessageScenario = incoming.SystemMessageScenario
+	existing.SystemMessageGameStart = incoming.SystemMessageGameStart
+	existing.ImageStyle = incoming.ImageStyle
+
+	// Normalize JSON fields
+	existing.StatusFields = functional.NormalizeJson(incoming.StatusFields, &[]obj.StatusField{})
+	existing.CSS = functional.NormalizeJson(incoming.CSS, &obj.CSS{})
+
+	return UpdateGame(ctx, userID, existing)
+}
+
+// CreateGameSession persists a game session to the database and returns the created session with DB-generated ID
+func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.GameSession, error) {
+	if session == nil {
+		return nil, fmt.Errorf("session is nil")
+	}
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
-		ID:           session.ID,
-		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedBy:    uuid.NullUUID{UUID: session.UserID, Valid: true},
 		CreatedAt:    now,
-		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedBy:   uuid.NullUUID{UUID: session.UserID, Valid: true},
 		ModifiedAt:   now,
-		GameID:       gameID,
-		UserID:       userID,
-		ApiKeyID:     apiKeyID,
-		Model:        session.Model,
-		ModelSession: []byte(session.ModelSession),
+		GameID:       session.GameID,
+		UserID:       session.UserID,
+		ApiKeyID:     session.ApiKeyID,
+		AiPlatform:   session.AiPlatform,
+		AiModel:      session.AiModel,
+		AiSession:    []byte(session.AiSession),
 		ImageStyle:   session.ImageStyle,
-		StatusFields: game.StatusFields,
+		StatusFields: session.StatusFields,
 	}
 
-	_, err = queries().CreateGameSession(ctx, arg)
+	result, err := queries().CreateGameSession(ctx, arg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	return &session.ID, nil
+	session.ID = result.ID
+	session.Meta.CreatedAt = &result.CreatedAt
+	session.Meta.ModifiedAt = &result.ModifiedAt
+
+	return session, nil
+}
+
+// CreateGameSessionMessage adds a message to a game session with auto-incremented seq
+func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
+	now := time.Now()
+	var statusJSON sql.NullString
+	if len(msg.StatusFields) > 0 {
+		statusBytes, _ := json.Marshal(msg.StatusFields)
+		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
+	}
+
+	arg := db.CreateGameSessionMessageParams{
+		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:     now,
+		ModifiedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:    now,
+		GameSessionID: msg.GameSessionID,
+		Type:          msg.Type,
+		Message:       msg.Message,
+		Status:        statusJSON,
+		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		Image:         msg.Image,
+	}
+
+	result, err := queries().CreateGameSessionMessage(ctx, arg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session message: %w", err)
+	}
+
+	// Return a copy with the generated values from the database
+	msg.Seq = int(result.Seq)
+	msg.ID = result.ID
+	msg.Meta.CreatedAt = &result.CreatedAt
+	msg.Meta.ModifiedAt = &result.ModifiedAt
+
+	return &msg, nil
+}
+
+// CreateStreamingMessage creates a placeholder message with Stream=true for async AI responses
+func CreateStreamingMessage(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, msgType string) (*obj.GameSessionMessage, error) {
+	return CreateGameSessionMessage(ctx, userID, obj.GameSessionMessage{
+		GameSessionID: sessionID,
+		Type:          msgType,
+		Stream:        true,
+	})
+}
+
+// UpdateGameSessionMessage updates a message in the database
+func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) error {
+	now := time.Now()
+	var statusJSON sql.NullString
+	if len(msg.StatusFields) > 0 {
+		statusBytes, _ := json.Marshal(msg.StatusFields)
+		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
+	}
+
+	arg := db.UpdateGameSessionMessageParams{
+		ID:            msg.ID,
+		CreatedBy:     uuid.NullUUID{},
+		CreatedAt:     time.Time{},
+		ModifiedBy:    uuid.NullUUID{},
+		ModifiedAt:    now,
+		GameSessionID: msg.GameSessionID,
+		Type:          msg.Type,
+		Message:       msg.Message,
+		Status:        statusJSON,
+		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		Image:         msg.Image,
+	}
+
+	_, err := queries().UpdateGameSessionMessage(ctx, arg)
+	if err != nil {
+		return fmt.Errorf("failed to update session message: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateGameSessionAiSession updates the AI session state for a game session
+func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSession string) error {
+	_, err := queries().UpdateGameSessionAiSession(ctx, db.UpdateGameSessionAiSessionParams{
+		ID:        sessionID,
+		AiSession: []byte(aiSession),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update session AI state: %w", err)
+	}
+	return nil
+}
+
+// UpdateGameSessionMessageImage updates only the image field of a message
+func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, image []byte) error {
+	_, err := queries().UpdateGameSessionMessageImage(ctx, db.UpdateGameSessionMessageImageParams{
+		ID:    messageID,
+		Image: image,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to update message image: %w", err)
+	}
+	return nil
+}
+
+// GetGameSessionByID returns a single session by ID with its API key loaded
+func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
+	s, err := queries().GetGameSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get session: %w", err)
+	}
+
+	if userID != nil {
+		if s.UserID != *userID {
+			return nil, fmt.Errorf("failed to get session: access denied for user %s and session %s", userID.String(), s.ID.String())
+		}
+	}
+
+	session := &obj.GameSession{
+		ID:         s.ID,
+		GameID:     s.GameID,
+		UserID:     s.UserID,
+		ApiKeyID:   s.ApiKeyID,
+		AiPlatform: s.AiPlatform,
+		AiModel:    s.AiModel,
+		AiSession:  string(s.AiSession),
+		ImageStyle: s.ImageStyle,
+		Meta: obj.Meta{
+			CreatedBy:  s.CreatedBy,
+			CreatedAt:  &s.CreatedAt,
+			ModifiedBy: s.ModifiedBy,
+			ModifiedAt: &s.ModifiedAt,
+		},
+	}
+
+	// Load API key
+	key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get API key for session: %w", err)
+	}
+	session.ApiKey = &obj.ApiKey{
+		ID:       key.ID,
+		UserID:   key.UserID,
+		Name:     key.Name,
+		Platform: key.Platform,
+		Key:      key.Key,
+	}
+
+	return session, nil
+}
+
+// GetLatestGameSessionMessage returns the most recent message for a session
+func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetLatestGameSessionMessage(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get latest message: %w", err)
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:            m.ID,
+		GameSessionID: m.GameSessionID,
+		Seq:           int(m.Seq),
+		Type:          m.Type,
+		Message:       m.Message,
+		Meta: obj.Meta{
+			CreatedBy:  m.CreatedBy,
+			CreatedAt:  &m.CreatedAt,
+			ModifiedBy: m.ModifiedBy,
+			ModifiedAt: &m.ModifiedAt,
+		},
+	}
+
+	// Parse status fields from JSON
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+
+	// Set image prompt
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+
+	return msg, nil
+}
+
+// GetGameSessionsByGameID returns all sessions for a game
+func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
+	// TODO: we should consider user access rights here!
+	dbSessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sessions: %w", err)
+	}
+
+	sessions := make([]obj.GameSession, 0, len(dbSessions))
+	for _, s := range dbSessions {
+		sessions = append(sessions, obj.GameSession{
+			ID:         s.ID,
+			GameID:     s.GameID,
+			UserID:     s.UserID,
+			ApiKeyID:   s.ApiKeyID,
+			AiPlatform: s.AiPlatform,
+			AiModel:    s.AiModel,
+			AiSession:  string(s.AiSession),
+			ImageStyle: s.ImageStyle,
+			Meta: obj.Meta{
+				CreatedBy:  s.CreatedBy,
+				CreatedAt:  &s.CreatedAt,
+				ModifiedBy: s.ModifiedBy,
+				ModifiedAt: &s.ModifiedAt,
+			},
+		})
+	}
+
+	return sessions, nil
 }
 
 // dbGameToObj converts a sqlc Game to obj.Game, including tags
@@ -268,7 +503,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 			ModifiedAt: &g.ModifiedAt,
 		},
 		Name:                     g.Name,
-		Description:              nullStringToPtr(g.Description),
+		Description:              g.Description,
 		Icon:                     g.Icon,
 		Public:                   g.Public,
 		PublicSponsoredApiKeyID:  nullUUIDToPtr(g.PublicSponsoredApiKeyID),
@@ -277,7 +512,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		SystemMessageScenario:    g.SystemMessageScenario,
 		SystemMessageGameStart:   g.SystemMessageGameStart,
 		ImageStyle:               g.ImageStyle,
-		CSS:                      nullStringToPtr(g.Css),
+		CSS:                      g.Css,
 		StatusFields:             g.StatusFields,
 		FirstMessage:             nullStringToPtr(g.FirstMessage),
 		FirstStatus:              nullStringToPtr(g.FirstStatus),

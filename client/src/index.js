@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { Auth0Provider } from "@auth0/auth0-react";
-import {RecoilRoot} from "recoil";
+import { RecoilRoot } from "recoil";
 import history from "./utils/history";
 import { getConfig } from "./config";
 
@@ -13,6 +13,15 @@ const onRedirectCallback = (appState) => {
     appState && appState.returnTo ? appState.returnTo : window.location.pathname
   );
 };
+
+// Handle CGL token from URL param (for dev login)
+const cglToken = new URLSearchParams(window.location.search).get('cgl_token');
+if (cglToken) {
+  localStorage.setItem('cgl_token', cglToken);
+  // Clean URL
+  window.history.replaceState({}, '', window.location.pathname);
+  console.log('CGL token stored from URL');
+}
 
 // Please see https://auth0.github.io/auth0-react/interfaces/Auth0ProviderOptions.html
 // for a full list of the available properties on the provider

@@ -17,6 +17,8 @@ fi
 echo "Starting production environment..."
 docker compose up --build -d
 echo ""
-echo "Services running at http://localhost"
+echo "Services running at:"
+echo "http://127.0.0.1:${PORT_EXPOSED}"
+echo "${PUBLIC_URL}"
 echo "Use 'docker compose logs -f' to view logs"
 echo "Use 'docker compose down' to stop"

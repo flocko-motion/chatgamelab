@@ -65,19 +65,32 @@ Development mode runs the database and nginx proxy in Docker, while you run the 
 ./run-dev.sh
 ```
 
-**Terminal 2** - Start Go backend (port 8080):
+**Terminal 2** - Start Go backend:
 ```bash
 ./run-dev-server.sh
 ```
 
-**Terminal 3** - Start React frontend (port 3000):
+**Terminal 3** - Start React frontend:
 ```bash
 ./run-dev-client.sh
 ```
 
-Then open **http://localhost** in your browser. The nginx proxy routes:
-- `/api/*` → Go server (localhost:8080)
-- `/*` → React dev server (localhost:3000)
+Then open **http://localhost** in your browser (or the `PUBLIC_URL` from your `.env`).
+
+### Dev Mode Features
+
+When running the server with the `--dev` flag (as done in `run-dev-server.sh`), additional development features are enabled:
+
+**JWT Token Generation** - Generate JWT tokens for any user without Auth0:
+```bash
+cd server
+go run . user jwt                    # Generate token for dev user
+go run . user jwt <user-uuid>        # Generate token for specific user
+```
+
+This saves the token to `~/.cgl/jwt` and outputs a URL you can open in your browser to log in automatically. The CLI tool will use this token for subsequent API calls.
+
+**Dev User** - A default dev user is seeded on startup with UUID `00000000-0000-0000-0000-000000000000`.
 
 ### Reset the database
 
