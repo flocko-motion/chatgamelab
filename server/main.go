@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"cgl/cmd"
 )
 
@@ -12,9 +12,9 @@ var (
 )
 
 func main() {
-	// Pass version info to api package
-	endpoints.GitCommit = GitCommit
-	endpoints.BuildTime = BuildTime
+	// Pass version info to routes package
+	routes.GitCommit = GitCommit
+	routes.BuildTime = BuildTime
 
 	cmd.Execute()
 }
