@@ -1,10 +1,11 @@
 package routes
 
 import (
-	"io"
 	"log"
 	"net/http"
+	"strings"
 
+	"cgl/api/auth"
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/obj"
@@ -12,15 +13,22 @@ import (
 	"github.com/google/uuid"
 )
 
-// Request types for users
+// Request/Response types for users
 type UserUpdateRequest struct {
 	Name                 string     `json:"name"`
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 }
 
-type CreateGameResponse struct {
-	ID uuid.UUID `json:"id"`
+type UsersNewRequest struct {
+	Name  string  `json:"name"`
+	Email *string `json:"email,omitempty"`
+}
+
+type UsersJwtResponse struct {
+	UserID  string `json:"userId"`
+	Auth0ID string `json:"auth0Id"`
+	Token   string `json:"token"`
 }
 
 // GetUsers godoc
@@ -192,70 +200,80 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, user)
 }
 
-// CreateGame godoc
+// CreateUser godoc
 //
-//	@Summary		Create game
-//	@Description	Creates a new game. Supports JSON body {"name":"..."}. If Content-Type is application/x-yaml, the raw body is interpreted as YAML and applied after creation.
-//	@Tags			games
+//	@Summary		Create user (dev only)
+//	@Description	Creates a new user without Auth0. Only available in dev mode.
+//	@Tags			users
 //	@Accept			json
-//	@Accept			application/x-yaml
 //	@Produce		json
-//	@Param			request	body		object	false	"Create game request (JSON: {name}) or YAML string"
-//	@Success		200		{object}	CreateGameResponse
+//	@Param			request	body		UsersNewRequest	true	"Create user request"
+//	@Success		200		{object}	obj.User
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden (not dev mode)"
 //	@Failure		500		{object}	httpx.ErrorResponse
-//	@Security		BearerAuth
-//	@Router			/games/new [post]
-func CreateGame(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
+//	@Router			/users/new [post]
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	var req UsersNewRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
 		return
 	}
 
-	contentType := r.Header.Get("Content-Type")
-
-	// Create a minimal game first
-	newGame := obj.Game{
-		Name:         "New Game",
-		StatusFields: `[{"name":"Gold","value":"100"}]`,
-	}
-
-	if err := db.CreateGame(r.Context(), user.ID, &newGame); err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
+	if strings.TrimSpace(req.Name) == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Name is required")
 		return
 	}
 
-	if contentType == "application/x-yaml" || contentType == "text/yaml" {
-		// Update with YAML content from "import game" form
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			httpx.WriteError(w, http.StatusBadRequest, "Failed to read body: "+err.Error())
-			return
-		}
-
-		if err := db.UpdateGameYaml(r.Context(), user.ID, newGame.ID, string(body)); err != nil {
-			httpx.WriteError(w, http.StatusBadRequest, "Failed to apply YAML: "+err.Error())
-			return
-		}
-	} else {
-		// Update with JSON content from "new game" form
-		var req struct {
-			Name string `json:"name"`
-		}
-		if err := httpx.ReadJSON(r, &req); err != nil {
-			// Ignore JSON parse error for empty body
-		}
-
-		if req.Name != "" {
-			newGame.Name = req.Name
-			if err := db.UpdateGame(r.Context(), user.ID, &newGame); err != nil {
-				httpx.WriteError(w, http.StatusInternalServerError, "Failed to update game: "+err.Error())
-				return
-			}
-		}
+	user, err := db.CreateUser(r.Context(), req.Name, req.Email, "")
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
+		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, CreateGameResponse{ID: newGame.ID})
+	httpx.WriteJSON(w, http.StatusOK, user)
+}
+
+// GetUserJWT godoc
+//
+//	@Summary		Generate JWT (dev only)
+//	@Description	Generates a JWT token for a user. Only available in dev mode.
+//	@Tags			users
+//	@Produce		json
+//	@Param			id	path		string	true	"User ID (UUID)"
+//	@Success		200	{object}	UsersJwtResponse
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid user ID"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden (not dev mode)"
+//	@Failure		404	{object}	httpx.ErrorResponse	"User not found"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Router			/users/{id}/jwt [get]
+func GetUserJWT(w http.ResponseWriter, r *http.Request) {
+	userID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
+		return
+	}
+
+	user, err := db.GetUserByID(r.Context(), userID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	var auth0ID string
+	if user.Auth0Id != nil {
+		auth0ID = *user.Auth0Id
+	}
+
+	tokenString, _, err := auth.GenerateToken(userID.String())
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to sign token")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, UsersJwtResponse{
+		UserID:  userID.String(),
+		Auth0ID: auth0ID,
+		Token:   tokenString,
+	})
 }
