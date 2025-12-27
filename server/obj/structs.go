@@ -21,7 +21,7 @@ type User struct {
 	DeletedAt *time.Time    `json:"deletedAt"`
 	Auth0Id   *string       `json:"auth0Id"`
 	Role      *UserRole     `json:"role"`
-	ApiKeys   []ApiKeyShare `json:"apiKeys"`
+	ApiKeys   []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
 }
 
 type Institution struct {
