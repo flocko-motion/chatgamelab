@@ -13,48 +13,46 @@ var DevMode = false
 func NewMux() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	// Public endpoints (no auth at all)
+	// Public endpoints (no auth at all) - GET
 	mux.HandleFunc("GET /api/status", GetStatus)
 	mux.HandleFunc("GET /api/version", GetVersion)
 
-	// Games - list (auth optional for enhanced results)
+	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
-
-	// Games by ID - GET is optional auth, POST/DELETE require auth
 	mux.Handle("GET /api/games/{id}", httpx.OptionalAuth(GetGameByID))
+	mux.Handle("GET /api/games/{id}/yaml", httpx.RequireAuth(GetGameYAML))
+	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
+	mux.Handle("POST /api/games/new", httpx.RequireAuth(CreateGame))
 	mux.Handle("POST /api/games/{id}", httpx.RequireAuth(UpdateGame))
+	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
+	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
 	mux.Handle("DELETE /api/games/{id}", httpx.RequireAuth(DeleteGame))
 
-	// Games YAML export/import
-	mux.Handle("GET /api/games/{id}/yaml", httpx.RequireAuth(GetGameYAML))
-	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
-
-	// Games - create new
-	mux.Handle("POST /api/games/new", httpx.RequireAuth(CreateGame))
-
-	// Game sessions
-	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
-	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
-
-	// API Keys - all require auth
+	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
-	mux.Handle("POST /api/apikeys/new", httpx.RequireAuth(CreateApiKey))
 	mux.Handle("GET /api/apikeys/{id}", httpx.RequireAuth(GetApiKeyByID))
+	mux.Handle("POST /api/apikeys/new", httpx.RequireAuth(CreateApiKey))
+	mux.Handle("POST /api/apikeys/{id}/shares", httpx.RequireAuth(ShareApiKey))
+	// Backward compatibility: previously used POST /api/apikeys/{id} for sharing
 	mux.Handle("POST /api/apikeys/{id}", httpx.RequireAuth(ShareApiKey))
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
-	// Users - all require auth
+	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
+	if DevMode {
+		mux.HandleFunc("POST /api/users/new", CreateUser)
+		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
+	}
 
-	// Sessions - optional auth (can play without login)
+	// Sessions
 	mux.Handle("GET /api/sessions/{id}", httpx.OptionalAuth(GetSession))
 	mux.Handle("POST /api/sessions/{id}", httpx.OptionalAuth(PostSessionAction))
 
-	// SSE streaming - optional auth
+	// Messages
 	mux.Handle("GET /api/messages/{id}/stream", httpx.OptionalAuth(GetMessageStream))
 
 	// Admin
