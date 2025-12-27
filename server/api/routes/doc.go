@@ -10,10 +10,11 @@
 //	@license.name	MIT
 //
 //	@host			localhost:8080
+//	@schemes		http https
 //	@BasePath		/api
 //
 //	@securityDefinitions.apikey	BearerAuth
-//	@in							header
-//	@name						Authorization
+//	@in						header
+//	@name					Authorization
 //	@description				JWT token in format: Bearer {token}
 package routes

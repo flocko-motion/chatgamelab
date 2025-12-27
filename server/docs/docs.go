@@ -94,7 +94,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.CreateApiKeyResponse"
+                            "$ref": "#/definitions/obj.ApiKeyShare"
                         }
                     },
                     "400": {
@@ -169,68 +169,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Shares an API key with a user, workshop, or institution",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "apikeys"
-                ],
-                "summary": "Share API key",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Share ID (UUID)",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Share request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.ShareRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/routes.ShareResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "security": [
                     {
@@ -264,7 +202,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.ApiKeysStatusResponse"
+                            "$ref": "#/definitions/obj.ApiKeyShare"
                         }
                     },
                     "400": {
@@ -326,7 +264,71 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.ApiKeysStatusResponse"
+                            "$ref": "#/definitions/obj.ApiKeyShare"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/apikeys/{id}/shares": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Shares an API key with a user, workshop, or institution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apikeys"
+                ],
+                "summary": "Share API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Share ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Share request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.ApiKeyShare"
                         }
                     },
                     "400": {
@@ -386,10 +388,9 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new game. Supports JSON body {\"name\":\"...\"}. If Content-Type is application/x-yaml, the raw body is interpreted as YAML and applied after creation.",
+                "description": "Creates a new game. A non-empty name is required.",
                 "consumes": [
-                    "application/json",
-                    "application/x-yaml"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -400,11 +401,12 @@ const docTemplate = `{
                 "summary": "Create game",
                 "parameters": [
                     {
-                        "description": "Create game request (JSON: {name}) or YAML string",
+                        "description": "Create game request",
                         "name": "request",
                         "in": "body",
+                        "required": true,
                         "schema": {
-                            "type": "object"
+                            "$ref": "#/definitions/routes.CreateGameRequest"
                         }
                     }
                 ],
@@ -412,7 +414,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.CreateGameResponse"
+                            "$ref": "#/definitions/obj.Game"
                         }
                     },
                     "400": {
@@ -563,12 +565,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "status: deleted",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/obj.Game"
                         }
                     },
                     "400": {
@@ -797,12 +796,9 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "status: updated",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/obj.Game"
                         }
                     },
                     "400": {
@@ -1099,6 +1095,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/new": {
+            "post": {
+                "description": "Creates a new user without Auth0. Only available in dev mode.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create user (dev only)",
+                "parameters": [
+                    {
+                        "description": "Create user request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UsersNewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (not dev mode)",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/{id}": {
             "get": {
                 "security": [
@@ -1212,6 +1260,59 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/jwt": {
+            "get": {
+                "description": "Generates a JWT token for a user. Only available in dev mode.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Generate JWT (dev only)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.UsersJwtResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden (not dev mode)",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1558,12 +1659,6 @@ const docTemplate = `{
         "obj.User": {
             "type": "object",
             "properties": {
-                "apiKeys": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/obj.ApiKeyShare"
-                    }
-                },
                 "auth0Id": {
                     "type": "string"
                 },
@@ -1673,14 +1768,6 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.ApiKeysStatusResponse": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "type": "string"
-                }
-            }
-        },
         "routes.CreateApiKeyRequest": {
             "type": "object",
             "properties": {
@@ -1695,18 +1782,10 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.CreateApiKeyResponse": {
+        "routes.CreateGameRequest": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.CreateGameResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
+                "name": {
                     "type": "string"
                 }
             }
@@ -1804,14 +1883,6 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.ShareResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                }
-            }
-        },
         "routes.StatusResponse": {
             "type": "object",
             "properties": {
@@ -1837,6 +1908,31 @@ const docTemplate = `{
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.UsersJwtResponse": {
+            "type": "object",
+            "properties": {
+                "auth0Id": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.UsersNewRequest": {
+            "type": "object",
+            "properties": {
                 "email": {
                     "type": "string"
                 },
@@ -1884,7 +1980,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "ChatGameLab API",
 	Description:      "API for ChatGameLab - an AI-powered interactive game platform",
 	InfoInstanceName: "swagger",
