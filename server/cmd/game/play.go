@@ -3,7 +3,7 @@ package game
 import (
 	"bufio"
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -53,7 +53,7 @@ func runGamePlay(cmd *cobra.Command, args []string) {
 
 // tryGetSession checks if the ID is a valid session ID and prints the latest message
 func tryGetSession(id string) (uuid.UUID, error) {
-	var resp endpoints.SessionResponse
+	var resp routes.SessionResponse
 	err := client.ApiGet("sessions/"+id+"?messages=latest", &resp)
 	if err != nil {
 		return uuid.Nil, err
@@ -71,7 +71,7 @@ func tryGetSession(id string) (uuid.UUID, error) {
 
 // createNewSession creates a new session for the given game ID
 func createNewSession(gameID string) uuid.UUID {
-	var req endpoints.CreateSessionRequest
+	var req routes.CreateSessionRequest
 	if shareID != "" {
 		id, err := uuid.Parse(shareID)
 		if err != nil {
@@ -130,7 +130,7 @@ func gameLoop(sessionID uuid.UUID) {
 // sendAction sends a player action to the session and streams the response
 func sendAction(sessionID uuid.UUID, message string) error {
 	startTime := time.Now()
-	req := endpoints.SessionActionRequest{Message: message}
+	req := routes.SessionActionRequest{Message: message}
 	var resp obj.GameSessionMessage
 
 	if err := client.ApiPost(fmt.Sprintf("sessions/%s", sessionID), req, &resp); err != nil {

@@ -2,7 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"fmt"
 	"log"
 
@@ -31,7 +31,7 @@ func runModify(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one modification flag is required (e.g., --name)")
 	}
 
-	req := endpoints.UpdateApiKeyRequest{
+	req := routes.UpdateApiKeyRequest{
 		Name: &modifyName,
 	}
 
