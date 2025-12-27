@@ -17,19 +17,11 @@ type CreateApiKeyRequest struct {
 	Key      string `json:"key"`
 }
 
-type CreateApiKeyResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 type ShareRequest struct {
 	UserID        *uuid.UUID `json:"userId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
 	AllowPublic   bool       `json:"allowPublicSponsoredPlays"`
-}
-
-type ShareResponse struct {
-	ID uuid.UUID `json:"id"`
 }
 
 type UpdateApiKeyRequest struct {
@@ -39,10 +31,6 @@ type UpdateApiKeyRequest struct {
 type ApiKeyInfoResponse struct {
 	Share        *obj.ApiKeyShare  `json:"share"`
 	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
-}
-
-type ApiKeysStatusResponse struct {
-	Status string `json:"status"`
 }
 
 // GetApiKeys godoc
@@ -80,7 +68,7 @@ func GetApiKeys(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		CreateApiKeyRequest	true	"API key data"
-//	@Success		200		{object}	CreateApiKeyResponse
+//	@Success		200		{object}	obj.ApiKeyShare
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse
@@ -108,13 +96,13 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := db.CreateApiKey(r.Context(), user.ID, req.Name, req.Platform, req.Key)
+	share, err := db.CreateApiKeyWithSelfShare(r.Context(), user.ID, req.Name, req.Platform, req.Key)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create API key: "+err.Error())
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, CreateApiKeyResponse{ID: *id})
+	httpx.WriteJSON(w, http.StatusOK, share)
 }
 
 // GetApiKeyByID godoc
@@ -164,12 +152,12 @@ func GetApiKeyByID(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id		path		string			true	"Share ID (UUID)"
 //	@Param			request	body		ShareRequest	true	"Share request"
-//	@Success		200		{object}	ShareResponse
+//	@Success		200		{object}	obj.ApiKeyShare
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
-//	@Router			/apikeys/{id} [post]
+//	@Router			/apikeys/{id}/shares [post]
 func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFrom(r)
 	if user == nil {
@@ -200,7 +188,13 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, ShareResponse{ID: *newShareID})
+	createdShare, err := db.GetApiKeyShareByID(r.Context(), *newShareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created share: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, createdShare)
 }
 
 // UpdateApiKey godoc
@@ -212,7 +206,7 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id		path		string			true	"Share ID (UUID)"
 //	@Param			request	body		UpdateApiKeyRequest	true	"Update request"
-//	@Success		200		{object}	ApiKeysStatusResponse
+//	@Success		200		{object}	obj.ApiKeyShare
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse
@@ -244,7 +238,13 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, ApiKeysStatusResponse{Status: "updated"})
+	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load updated share: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, share)
 }
 
 // DeleteApiKey godoc
@@ -255,7 +255,7 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id		path		string	true	"Share ID (UUID)"
 //	@Param			cascade	query		bool	false	"Delete key and all shares"
-//	@Success		200		{object}	ApiKeysStatusResponse
+//	@Success		200		{object}	obj.ApiKeyShare
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid share ID"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse
@@ -276,12 +276,20 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 
 	cascade := httpx.QueryParam(r, "cascade") == "true"
 
+	// Capture the share before deleting so we can return an obj type.
+	// (After deletion it may no longer be loadable.)
+	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load share: "+err.Error())
+		return
+	}
+
 	if cascade {
 		if err := db.DeleteApiKey(r.Context(), user.ID, shareID); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete key: "+err.Error())
 			return
 		}
-		httpx.WriteJSON(w, http.StatusOK, ApiKeysStatusResponse{Status: "deleted"})
+		httpx.WriteJSON(w, http.StatusOK, share)
 		return
 	}
 
@@ -290,5 +298,5 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, ApiKeysStatusResponse{Status: "unshared"})
+	httpx.WriteJSON(w, http.StatusOK, share)
 }

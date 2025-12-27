@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"cgl/api/httpx"
 	"cgl/db"
@@ -11,6 +12,10 @@ import (
 
 	"github.com/google/uuid"
 )
+
+type CreateGameRequest struct {
+	Name string `json:"name"`
+}
 
 // GetGames godoc
 //
@@ -36,6 +41,52 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, games)
+}
+
+// CreateGame godoc
+//
+//	@Summary		Create game
+//	@Description	Creates a new game. A non-empty name is required.
+//	@Tags			games
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		CreateGameRequest	true	"Create game request"
+//	@Success		200		{object}	obj.Game
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/new [post]
+func CreateGame(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFrom(r)
+	if user == nil {
+		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	var req CreateGameRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+	if strings.TrimSpace(req.Name) == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Missing required field: name")
+		return
+	}
+
+	newGame := obj.Game{Name: req.Name}
+	if err := db.CreateGame(r.Context(), user.ID, &newGame); err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
+		return
+	}
+
+	created, err := db.GetGameByID(r.Context(), &user.ID, newGame.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created game: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, created)
 }
 
 // GetGameByID godoc
@@ -131,7 +182,7 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 //	@Tags			games
 //	@Produce		json
 //	@Param			id	path		string	true	"Game ID (UUID)"
-//	@Success		200	{object}	map[string]string	"status: deleted"
+//	@Success		200	{object}	obj.Game
 //	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
 //	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500	{object}	httpx.ErrorResponse	"Failed to delete"
@@ -152,12 +203,18 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("DeleteGame: %s", gameID)
 
+	deleted, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
 	if err := db.DeleteGame(r.Context(), user.ID, gameID); err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete game: "+err.Error())
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+	httpx.WriteJSON(w, http.StatusOK, deleted)
 }
 
 // GetGameYAML godoc
@@ -206,7 +263,7 @@ func GetGameYAML(w http.ResponseWriter, r *http.Request) {
 //	@Produce		json
 //	@Param			id		path	string	true	"Game ID (UUID)"
 //	@Param			yaml	body	string	true	"Game YAML content"
-//	@Success		200		{object}	map[string]string	"status: updated"
+//	@Success		200		{object}	obj.Game
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse	"Failed to update"
@@ -238,5 +295,11 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "updated"})
+	updated, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updated)
 }
