@@ -49,7 +49,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
+	user := httpx.MaybeUserFromRequest(r)
 	var userID *uuid.UUID
 	if user != nil {
 		userID = &user.ID
@@ -101,7 +101,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
+	user := httpx.MaybeUserFromRequest(r)
 	var userID *uuid.UUID
 	if user != nil {
 		userID = &user.ID
@@ -155,12 +155,6 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/games/{id}/sessions [get]
 func GetGameSessions(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
-
 	gameID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
@@ -195,11 +189,7 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/games/{id}/sessions [post]
 func CreateGameSession(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	gameID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
@@ -302,11 +292,7 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/restart [post]
 func PostRestart(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	// Require admin
 	if user.Role == nil || user.Role.Role != obj.RoleAdmin {

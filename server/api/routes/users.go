@@ -43,12 +43,6 @@ type UsersJwtResponse struct {
 //	@Security		BearerAuth
 //	@Router			/users [get]
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
-
 	users, err := db.GetAllUsers(r.Context())
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get users: "+err.Error())
@@ -69,11 +63,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/users/me [get]
 func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	httpx.WriteJSON(w, http.StatusOK, user)
 }
@@ -92,12 +82,6 @@ func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/users/{id} [get]
 func GetUserByID(w http.ResponseWriter, r *http.Request) {
-	currentUser := httpx.UserFrom(r)
-	if currentUser == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
-
 	userID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
@@ -132,11 +116,7 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/users/{id} [post]
 func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
-	currentUser := httpx.UserFrom(r)
-	if currentUser == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	currentUser := httpx.UserFromRequest(r)
 
 	userID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {

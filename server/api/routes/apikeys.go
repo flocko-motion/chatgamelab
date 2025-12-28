@@ -45,11 +45,7 @@ type ApiKeyInfoResponse struct {
 //	@Security		BearerAuth
 //	@Router			/apikeys [get]
 func GetApiKeys(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	keys, err := db.GetApiKeySharesByUser(r.Context(), user.ID)
 	if err != nil {
@@ -75,11 +71,7 @@ func GetApiKeys(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/apikeys/new [post]
 func CreateApiKey(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	var req CreateApiKeyRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
@@ -119,11 +111,7 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/apikeys/{id} [get]
 func GetApiKeyByID(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	shareID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
@@ -159,11 +147,7 @@ func GetApiKeyByID(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/apikeys/{id}/shares [post]
 func ShareApiKey(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	shareID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
@@ -213,11 +197,7 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/apikeys/{id} [patch]
 func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	shareID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
@@ -262,11 +242,7 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/apikeys/{id} [delete]
 func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	shareID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {

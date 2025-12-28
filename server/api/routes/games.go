@@ -27,7 +27,7 @@ type CreateGameRequest struct {
 //	@Failure		500	{object}	httpx.ErrorResponse
 //	@Router			/games [get]
 func GetGames(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
+	user := httpx.MaybeUserFromRequest(r)
 
 	var userID *uuid.UUID
 	if user != nil {
@@ -58,11 +58,7 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/games/new [post]
 func CreateGame(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	var req CreateGameRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
@@ -107,7 +103,7 @@ func GetGameByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
+	user := httpx.MaybeUserFromRequest(r)
 	var userID *uuid.UUID
 	if user != nil {
 		userID = &user.ID
@@ -146,11 +142,7 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	log.Printf("UpdateGame: %s", gameID)
 
@@ -195,11 +187,7 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	log.Printf("DeleteGame: %s", gameID)
 
@@ -237,11 +225,7 @@ func GetGameYAML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	log.Printf("GetGameYAML: %s", gameID)
 
@@ -276,11 +260,7 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFrom(r)
-	if user == nil {
-		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
-		return
-	}
+	user := httpx.UserFromRequest(r)
 
 	log.Printf("UpdateGameYAML: %s", gameID)
 
