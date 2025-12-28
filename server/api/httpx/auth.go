@@ -28,8 +28,46 @@ func WithUser(r *http.Request, user *obj.User) *http.Request {
 	return r.WithContext(ctx)
 }
 
-// UserFrom returns the authenticated user from the request context, or nil if not authenticated
-func UserFrom(r *http.Request) *obj.User {
+// UserFromRequest returns the authenticated user from the request context.
+//
+// This function should ONLY be called in handlers wrapped with RequireAuth middleware.
+// If the user is nil, it panics with a clear error message indicating a programming error
+// (i.e., the handler was not properly wrapped with RequireAuth).
+//
+// Example usage:
+//
+//	func MyProtectedHandler(w http.ResponseWriter, r *http.Request) {
+//		user := httpx.UserFromRequest(r) // Safe: RequireAuth guarantees user is non-nil
+//		// ... use user
+//	}
+//
+//	mux.Handle("/api/protected", httpx.RequireAuth(MyProtectedHandler))
+func UserFromRequest(r *http.Request) *obj.User {
+	u, _ := r.Context().Value(ctxKeyUser{}).(*obj.User)
+	if u == nil {
+		panic("UserFromRequest called but user is nil - handler must be wrapped with RequireAuth middleware")
+	}
+	return u
+}
+
+// MaybeUserFromRequest returns the authenticated user from the request context, or nil if not authenticated.
+//
+// Use this function in handlers wrapped with OptionalAuth where the user may or may not be present.
+// Always check if the returned user is nil before using it.
+//
+// Example usage:
+//
+//	func MyOptionalAuthHandler(w http.ResponseWriter, r *http.Request) {
+//		user := httpx.MaybeUserFromRequest(r)
+//		if user != nil {
+//			// User is authenticated, show personalized content
+//		} else {
+//			// User is not authenticated, show public content
+//		}
+//	}
+//
+//	mux.Handle("/api/optional", httpx.OptionalAuth(MyOptionalAuthHandler))
+func MaybeUserFromRequest(r *http.Request) *obj.User {
 	u, _ := r.Context().Value(ctxKeyUser{}).(*obj.User)
 	return u
 }
@@ -38,7 +76,7 @@ func UserFrom(r *http.Request) *obj.User {
 // If no user is attached to the request context, it returns 401 Unauthorized.
 func RequireUser(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if UserFrom(r) == nil {
+		if MaybeUserFromRequest(r) == nil {
 			WriteError(w, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
