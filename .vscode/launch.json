@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CGL Server",
+            "name": "CGL Dev Server",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -15,10 +15,15 @@
                 "server",
                 "--dev"
             ],
-            "envFile": "${workspaceFolder}/.env",
-            "env": {
-                "DATABASE_URL": "postgres://chatgamelab@localhost:5433/chatgamelab?sslmode=disable"
-            }
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "CGL Dev Server (Attach)",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "host": "127.0.0.1",
+            "port": 2345
         }
     ]
 }

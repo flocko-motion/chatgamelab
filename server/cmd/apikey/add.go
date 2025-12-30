@@ -2,7 +2,8 @@ package apikey
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
+	"cgl/obj"
 	"fmt"
 	"log"
 	"strings"
@@ -29,16 +30,16 @@ func runAdd(cmd *cobra.Command, args []string) {
 	platform := args[0]
 	key := strings.TrimSpace(args[1])
 
-	req := endpoints.CreateApiKeyRequest{
+	req := routes.CreateApiKeyRequest{
 		Name:     keyName,
 		Platform: platform,
 		Key:      key,
 	}
 
-	var resp endpoints.CreateApiKeyResponse
+	var resp obj.ApiKeyShare
 	if err := client.ApiPost("apikeys/new", req, &resp); err != nil {
 		log.Fatalf("Failed to add API key: %v", err)
 	}
 
-	fmt.Printf("API key added: %s\n", resp.ID)
+	fmt.Printf("API key added (share id): %s\n", resp.ID)
 }

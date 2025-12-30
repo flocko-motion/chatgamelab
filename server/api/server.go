@@ -2,8 +2,7 @@ package api
 
 import (
 	"cgl/api/auth"
-	"cgl/api/endpoints"
-	"cgl/api/handler"
+	"cgl/api/routes"
 	"cgl/db"
 	"context"
 	"fmt"
@@ -19,7 +18,7 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 
 	auth.InitJwtGeneration()
 
-	endpoints.DevMode = devMode
+	routes.DevMode = devMode
 
 	if devMode {
 		log.Println("Development mode enabled")
@@ -28,35 +27,13 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	db.Init()
 	db.Preseed(ctx)
 
-	endpointList := []handler.Endpoint{
-		endpoints.ApiKeys,
-		endpoints.ApiKeysNew,
-		endpoints.ApiKeysId,
-		endpoints.GamesList,
-		endpoints.GamesNew,
-		endpoints.GamesId,
-		endpoints.GamesIdSessions,
-		endpoints.MessageStream,
-		endpoints.Session,
-		endpoints.Status,
-		endpoints.Restart,
-		endpoints.UsersList,
-		endpoints.UsersMe,
-		endpoints.UsersId,
-		endpoints.Version,
-	}
-	if devMode {
-		endpointList = append(endpointList,
-			endpoints.UsersNew,
-			endpoints.UsersJwt,
-		)
-	}
-	mux := NewRouter(endpointList)
+	// Use new stdlib-based router
+	h := routes.Handler()
 
 	bindAddr := fmt.Sprintf("0.0.0.0:%d", port)
 	server := &http.Server{
 		Addr:    bindAddr,
-		Handler: handler.CorsMiddleware(mux),
+		Handler: h,
 	}
 
 	// Start server in goroutine
@@ -88,34 +65,4 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	}
 
 	log.Println("Server stopped")
-}
-
-// Router handles routing with path parameter support
-type Router struct {
-	endpoints []handler.Endpoint
-}
-
-// NewRouter sets up our routes and returns a Router.
-func NewRouter(endpoints []handler.Endpoint) *Router {
-	// Wrap all endpoints with auth middleware (extracts user if token present)
-	// For public endpoints, user is optional; for private, it's required
-	for i, endpoint := range endpoints {
-		if endpoint.Auth == handler.AuthNone {
-			continue
-		}
-		endpoints[i].Handler = handler.EnsureValidToken()(endpoint.Handler).ServeHTTP
-	}
-	return &Router{endpoints: endpoints}
-}
-
-// ServeHTTP implements http.Handler
-func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	for _, endpoint := range router.endpoints {
-		if endpoint.MatchesPath(r.URL.Path) {
-			endpoint.Handler(w, r)
-			return
-		}
-	}
-	// No match found
-	http.NotFound(w, r)
 }

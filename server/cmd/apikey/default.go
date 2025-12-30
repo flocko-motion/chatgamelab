@@ -2,7 +2,7 @@ package apikey
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -68,7 +68,7 @@ func runDefault(cmd *cobra.Command, args []string) {
 		log.Fatalf("Invalid share ID: %v", err)
 	}
 
-	req := endpoints.UserUpdateRequest{
+	req := routes.UserUpdateRequest{
 		Name:                 user.Name,
 		Email:                email,
 		DefaultApiKeyShareID: &shareID,

@@ -190,7 +190,7 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 	// Create the new role
 	arg := db.CreateUserRoleParams{
 		UserID:        userID,
-		Role:          sql.NullString{String: *role, Valid: role != nil && *role != ""},
+		Role:          sql.NullString{String: *role, Valid: *role != ""},
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
 	}
 	_, err := queries().CreateUserRole(ctx, arg)

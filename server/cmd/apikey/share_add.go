@@ -2,7 +2,8 @@ package apikey
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
+	"cgl/obj"
 	"fmt"
 	"log"
 
@@ -40,7 +41,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one of --user-id, --workshop-id, or --institution-id is required")
 	}
 
-	req := endpoints.ShareRequest{
+	req := routes.ShareRequest{
 		AllowPublic: shareAllowPublic,
 	}
 
@@ -66,7 +67,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		req.InstitutionID = &id
 	}
 
-	var resp endpoints.ShareResponse
+	var resp obj.ApiKeyShare
 	if err := client.ApiPost("apikeys/"+apiKeyID+"/shares", req, &resp); err != nil {
 		log.Fatalf("Failed to add share: %v", err)
 	}
