@@ -1,5 +1,7 @@
-import { Select, Loader, Group, Text } from '@mantine/core';
-import { useLanguageSwitcher } from '../hooks/useTranslation';
+import { Group, Text } from '@mantine/core';
+import { useLanguageSwitcher } from '@hooks/useTranslation';
+import { useTranslation } from 'react-i18next';
+import { Dropdown } from './Dropdown';
 
 interface LanguageSwitcherProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -7,33 +9,35 @@ interface LanguageSwitcherProps {
 }
 
 export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageSwitcherProps) {
+  const { t } = useTranslation('common');
   const { currentLanguage, availableLanguages, changeLanguage } = useLanguageSwitcher();
+  const hasWipLanguages = availableLanguages.some((lang) => !lang.isStatic);
 
   return (
     <Group gap="sm">
-      <Select
+      <Dropdown
         size={size}
         variant={variant}
         value={currentLanguage.code}
-        onChange={(value) => value && changeLanguage(value)}
+        onChange={(value) => {
+          if (!value) return;
+          const selected = availableLanguages.find((l) => l.code === value);
+          if (!selected) return;
+          if (!selected.isStatic) return;
+          void changeLanguage(value);
+        }}
         data={availableLanguages.map((lang: { code: string; name: string; isStatic: boolean }) => ({
           value: lang.code,
-          label: `${lang.name}${lang.isStatic ? ' ⚡' : ' 🌐'}`,
+          disabled: !lang.isStatic,
+          label: lang.isStatic ? lang.name : `${lang.name} (${t('languageSwitcher.wipLabel')})`,
         }))}
         leftSection={<Text size="xs">🌍</Text>}
-        styles={{
-          input: {
-            minWidth: 120,
-          },
-        }}
       />
-      {!currentLanguage.isStatic && (
-        <Group gap="xs">
-          <Loader size="xs" />
-          <Text size="xs" c="dimmed">
-            Translating...
-          </Text>
-        </Group>
+
+      {hasWipLanguages && (
+        <Text size="xs" c="dimmed">
+          {t('languageSwitcher.wipHint')}
+        </Text>
       )}
     </Group>
   );
