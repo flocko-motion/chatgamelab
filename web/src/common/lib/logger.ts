@@ -13,7 +13,7 @@ export interface LogEntry {
   message: string;
   timestamp: Date;
   scope?: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export interface LogTransport {
@@ -57,7 +57,7 @@ export class Logger {
     this.transports = options?.transports ?? [new ConsoleTransport()];
   }
 
-  private log(level: LogLevel, message: string, data?: any): void {
+  private log(level: LogLevel, message: string, data?: Record<string, unknown>): void {
     if (level < this.minLevel) {
       return;
     }
@@ -73,23 +73,23 @@ export class Logger {
     this.transports.forEach(transport => transport.send(entry));
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: Record<string, unknown>): void {
     this.log(LogLevel.Debug, message, data);
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: Record<string, unknown>): void {
     this.log(LogLevel.Info, message, data);
   }
 
-  warning(message: string, data?: any): void {
+  warning(message: string, data?: Record<string, unknown>): void {
     this.log(LogLevel.Warning, message, data);
   }
 
-  error(message: string, data?: any): void {
+  error(message: string, data?: Record<string, unknown>): void {
     this.log(LogLevel.Error, message, data);
   }
 
-  fatal(message: string, data?: any): void {
+  fatal(message: string, data?: Record<string, unknown>): void {
     this.log(LogLevel.Fatal, message, data);
   }
 
