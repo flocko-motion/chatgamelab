@@ -1,0 +1,59 @@
+{
+  "common": {
+    "welcome": "Willkommen",
+    "hello": "Hallo",
+    "goodbye": "Auf Wiedersehen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "language": "Sprache",
+    "theme": "Design",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "system": "System"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "games": "Spiele",
+    "create": "Erstellen",
+    "play": "Spielen",
+    "learn": "Lernen",
+    "debug": "Debug"
+  },
+  "game": {
+    "createNew": "Neues Spiel erstellen",
+    "title": "Titel",
+    "description": "Beschreibung",
+    "start": "Starten",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "restart": "Neustarten",
+    "score": "Punkte",
+    "level": "Level",
+    "time": "Zeit",
+    "players": "Spieler",
+    "invite": "Einladen",
+    "join": "Beitreten",
+    "leave": "Verlassen"
+  },
+  "errors": {
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "server": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.",
+    "unauthorized": "Sie müssen sich anmelden, um auf diese Seite zuzugreifen.",
+    "forbidden": "Sie haben keine Berechtigung, um auf diese Seite zuzugreifen.",
+    "notFound": "Seite nicht gefunden.",
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
+  }
+}

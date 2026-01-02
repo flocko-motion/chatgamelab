@@ -1,0 +1,59 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "hello": "Hello",
+    "goodbye": "Goodbye",
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System"
+  },
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "games": "Games",
+    "create": "Create",
+    "play": "Play",
+    "learn": "Learn",
+    "debug": "Debug"
+  },
+  "game": {
+    "createNew": "Create New Game",
+    "title": "Title",
+    "description": "Description",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "restart": "Restart",
+    "score": "Score",
+    "level": "Level",
+    "time": "Time",
+    "players": "Players",
+    "invite": "Invite",
+    "join": "Join",
+    "leave": "Leave"
+  },
+  "errors": {
+    "network": "Network error. Please check your connection.",
+    "server": "Server error. Please try again later.",
+    "validation": "Please check your input and try again.",
+    "unauthorized": "You need to log in to access this page.",
+    "forbidden": "You don't have permission to access this page.",
+    "notFound": "Page not found.",
+    "generic": "Something went wrong. Please try again."
+  }
+}
