@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: model_decision
 description: Explain and enforce the frontend directory structure and how to place code.
 ---
 
