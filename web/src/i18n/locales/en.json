@@ -20,7 +20,21 @@
     "theme": "Theme",
     "dark": "Dark",
     "light": "Light",
-    "system": "System"
+    "system": "System",
+    "home": {
+      "splashDescription": "An educational game, allowing the creation of GPT-4 based text-adventure games.",
+      "loginCta": "Login to Get Started"
+    },
+    "languageSwitcher": {
+      "wipLabel": "WIP",
+      "wipHint": "More languages are work in progress. Only English and German are available right now."
+    },
+    "footer": {
+      "loginByAuth0": "Login by Auth0",
+      "programmedByOmnitopos": "Programmed by omnitopos.net",
+      "producedByTausendMedien": "Produced by tausend-medien.de",
+      "version": "v1.0.0"
+    }
   },
   "navigation": {
     "home": "Home",

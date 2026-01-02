@@ -21,6 +21,20 @@ export interface TranslationResources {
     dark: string;
     light: string;
     system: string;
+    home: {
+      splashDescription: string;
+      loginCta: string;
+    };
+    languageSwitcher: {
+      wipLabel: string;
+      wipHint: string;
+    };
+    footer: {
+      loginByAuth0: string;
+      programmedByOmnitopos: string;
+      producedByTausendMedien: string;
+      version: string;
+    };
   };
   navigation: {
     home: string;

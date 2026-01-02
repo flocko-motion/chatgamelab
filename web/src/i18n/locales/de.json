@@ -20,7 +20,21 @@
     "theme": "Design",
     "dark": "Dunkel",
     "light": "Hell",
-    "system": "System"
+    "system": "System",
+    "home": {
+      "splashDescription": "Ein Lernspiel, das das Erstellen von GPT-4-basierten Textadventures ermöglicht.",
+      "loginCta": "Anmelden und loslegen"
+    },
+    "languageSwitcher": {
+      "wipLabel": "WIP",
+      "wipHint": "Weitere Sprachen sind noch in Arbeit. Aktuell sind nur Englisch und Deutsch verfügbar."
+    },
+    "footer": {
+      "loginByAuth0": "Login via Auth0",
+      "programmedByOmnitopos": "Programmiert von omnitopos.net",
+      "producedByTausendMedien": "Produziert von tausend-medien.de",
+      "version": "v1.0.0"
+    }
   },
   "navigation": {
     "home": "Startseite",
