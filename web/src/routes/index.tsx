@@ -1,31 +1,42 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Title, Text, Stack, Card, Group, Badge } from '@mantine/core';
+import { Title, Text, Stack, Center, Image } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+import logo from '@/assets/logo.png';
+import { Button } from '@components/Button';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
 });
 
 function HomePage() {
+  const { t } = useTranslation('common');
+
   return (
-    <Stack gap="lg">
-      <Title order={1}>Welcome to ChatGameLab</Title>
-      <Text c="dimmed" size="lg">
-        Create your own GPT-powered text adventure games and play them with your friends.
-      </Text>
+    <Stack gap="xl" py="xl">
+      <Center>
+        <Stack gap="lg" align="center" ta="center">
+          <Image 
+            src={logo} 
+            alt="ChatGameLab Logo" 
+            w={400}
+            h={400}
+            fit="contain"
+          />
+          <Text size="lg" c="dimmed" maw={600}>
+            {t('home.splashDescription')}
+          </Text>
 
-      <Group>
-        <Badge color="violet" size="lg">Educational</Badge>
-        <Badge color="blue" size="lg">Interactive</Badge>
-        <Badge color="green" size="lg">AI-Powered</Badge>
-      </Group>
-
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Text fw={500} size="lg" mb="xs">Getting Started</Text>
-        <Text c="dimmed">
-          This is a placeholder home page. The project structure is now set up with
-          TanStack Router, TanStack Query, and Mantine UI.
-        </Text>
-      </Card>
+          <Button 
+            size="lg"
+            onClick={() => {
+              // TODO: Implement login functionality
+              console.log('Login clicked');
+            }}
+          >
+            {t('home.loginCta')}
+          </Button>
+        </Stack>
+      </Center>
     </Stack>
   );
 }
