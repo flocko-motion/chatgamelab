@@ -10,9 +10,9 @@ export function ErrorTest() {
   };
 
   const causeTypeError = () => {
-    // @ts-ignore - Intentional type error for testing
-    const obj: any = null;
-    return obj.property.nested.property;
+    const obj = null;
+    // @ts-expect-error - Intentional type error for testing
+    return obj.property;
   };
 
   return (
