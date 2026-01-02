@@ -46,6 +46,7 @@ This frontend uses:
   - must not be manually edited
   - should be regenerated via a documented script (e.g. `pnpm gen:api` / `npm run gen:api`)
 - Prefer request/response typing end-to-end (API client → hooks → forms → UI).
+- Use https://github.com/acacode/swagger-typescript-api for generating the API client.
 
 ## Development approach
 
