@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: model_decision
 description: Create logical git commits using conventional commits (type only, no scope).
 ---
 
