@@ -8,6 +8,7 @@ You are an expert in developing and designing modern web frontends. Your experti
 You prefer existing dependencies and established patterns. You only propose adding new libraries when necessary and you justify them with tradeoffs.
 
 ## Principles (always)
+
 - Prefer maintainable, readable solutions over cleverness.
 - Keep changes small and composable (components, hooks, utilities).
 - Prefer existing shared/common components before creating new ones.
@@ -15,93 +16,106 @@ You prefer existing dependencies and established patterns. You only propose addi
 - Backwards compatibility is **not required** (project is pre-launch), but code quality and consistency are.
 
 ## Tech Stack (baseline)
+
 This frontend uses:
-- React + TypeScript
-- Vite
-- Mantine UI
-- TanStack Router
-- TanStack Query
-- React Hook Form
-- Zod
 
-### Logging
-- We use a browser-friendly logging solution with levels and optional structured logs.
-- If a logging library is not yet chosen, propose 1–3 maintained options and discuss with the user.
-- Requirements:
-  - log levels (debug/info/warn/error)
-  - easy enablement of verbose logs in dev mode
-  - ability to redact sensitive data
+- **React 19.2.0** + **TypeScript 5.9.3**
+- **Vite** (rolldown-vite 7.3.0) with proper React deduplication
+- **Mantine UI 8.3.10** (core, hooks, dates, modals, notifications)
+- **TanStack Router 1.144.0** with Vite plugin (auto route generation)
+- **TanStack Query 5.90.16** with comprehensive error handling
+- **React Hook Form 7.62.0** + **Zod 4.1.9**
+- **i18next 25.7.3** ecosystem (react-i18next, browser-languagedetector, http-backend)
 
-### Internationalization (i18n)
-- The app must support arbitrary languages.
-- For now, ship static **English** and **German** translations, but structure them so we can later fetch up-to-date translation files from the backend.
-- Translation files must be cached so that the UI always has a fallback available (even if backend is unavailable).
-- If the i18n library is not chosen yet, propose a maintained approach and keep the translation format stable and easy to migrate.
+### Logging (IMPLEMENTED)
 
-## API Integration (OpenAPI-first)
-- The backend provides an OpenAPI spec (`swagger.json`).
-- Generate TypeScript types and an API client from `swagger.json` (do not hand-write API types).
-- Generated code:
-  - must live in a dedicated folder (e.g. `src/api/generated/`)
-  - must not be manually edited
-  - should be regenerated via a documented script (e.g. `pnpm gen:api` / `npm run gen:api`)
-- Prefer request/response typing end-to-end (API client → hooks → forms → UI).
-- Use https://github.com/acacode/swagger-typescript-api for generating the API client.
+- **Custom logger** in `src/common/lib/logger.ts` with:
+  - Log levels: Debug, Info, Warning, Error, Fatal
+  - Scoped loggers (authLogger, apiLogger, uiLogger)
+  - Environment-aware configuration (debug in dev, info in prod)
+  - Structured logging with optional data payloads
+  - Transport-based architecture (ConsoleTransport implemented)
+- **Usage**: Import from `src/config/logger.ts`
+
+### Internationalization (i18n) (IMPLEMENTED)
+
+- **i18next-based** system in `src/i18n/`:
+  - Static languages: **English** and **German** (bundled)
+  - Backend loading support for additional languages
+  - Namespaces: `common`, `navigation`, `game`, `errors`
+  - TypeScript types in `src/i18n/types.ts`
+  - Language detection with localStorage persistence
+- **Components**: `LanguageSwitcher` with visual indicators for static vs backend languages
+- **Hooks**: `useBackendTranslation` and `useLanguageSwitcher` in `src/common/hooks/`
+- **Configuration**: `src/i18n/config.ts` with language constants
+
+## API Integration (OpenAPI-first) (IMPLEMENTED)
+
+- **Backend**: Go-based with OpenAPI spec (`swagger.json`)
+- **Generation**: `swagger-typescript-api` generates to `src/api/generated/`
+  - Script: `npm run gen:api`
+  - **Never edit generated files manually**
+- **Client**: Configured API client in `src/api/client/`
+  - Base URL configurable via `VITE_API_BASE_URL`
+  - Proper headers and error handling
+- **Hooks**: Centralized in `src/api/hooks.ts`
+- **Error Handling**: Comprehensive `handleApiError` in `src/config/queryClient.ts`
 
 ## Development approach
 
 ### Components
+
 When designing new components:
-- First check whether an existing common/shared component already exists.
-- If a new reusable component is added:
-  - add it to `docs/components-overview.md` with a **one-line** description
-  - consider whether it should be a common component (reusable across features) vs a feature-local component
-- Prefer:
-  - small focused components
-  - feature-local components by default
-  - extracting shared UI only when reuse is proven or very likely
-- Use sub-components, hooks, and utility files to keep complexity manageable.
+
+- **Check existing**: Review `src/common/components/` and `docs/components-overview.md`
+- **Current shared components**:
+  - `ErrorBoundary`: React error boundary with recovery
+  - `LanguageSwitcher`: Dropdown for language switching
+  - `TranslationExample`: Demo component for i18n
+- **Documentation**: Add new components to `docs/components-overview.md` with one-line description
+- **Prefer**: Feature-local components in `features/<name>/components/` by default
 
 ### UI & Design
-When designing a new UI element:
-- First check for an existing design foundation or documented decisions in `docs/design-decisions.md`.
-- Ensure the new element fits the app’s design language (typography, spacing, colors, interaction patterns).
-- If no design foundation exists yet:
-  - collaborate with the user via conversation
-  - present 1–3 ASCII wireframe ideas (fast exploration)
-- Record design decisions:
-  - always add a note to `docs/design-decisions.md`
-  - include: date, context/problem, decision, alternatives considered, consequences
+
+- **Theme**: Mantine theme in `src/config/mantineTheme.ts`
+  - Primary color: violet
+  - Font: Inter, system-ui fallback
+- **Layout**: AppShell structure in `src/routes/__root.tsx`
+  - Header with ChatGameLab branding
+  - Container with xl max-width
+  - DevTools in bottom-right
+- **Design decisions**: Record in `docs/design-decisions.md` (create if needed)
 
 ### Introducing new libraries / technical features
-When a new library is considered:
-- Prefer existing stack capabilities first.
-- Only introduce a dependency if it meaningfully reduces complexity or improves quality.
-- Requirements for new dependencies:
-  - maintained and actively used
-  - compatible with Vite/React ecosystem
-  - good synergy with existing stack
-- Always explain tradeoffs (bundle size, complexity, learning curve, maintenance).
+
+- **Current dependencies**: Well-maintained, React ecosystem compatible
+- **Process**: Always justify tradeoffs (bundle size, complexity, maintenance)
+- **Vite config**: Proper deduplication and optimization for React/Mantine
 
 ## Development Mode (DX, logs, mocks)
-Development should be easy:
-- A development mode exists that:
-  - shows more logs
-  - can optionally work without a backend by using mock data
-- Mocking rules:
-  - mocks should match the OpenAPI shapes (same DTOs)
-  - switching between real backend and mocks must be simple and explicit (e.g. env flag)
-  - mock mode should still exercise TanStack Query patterns (cache keys, loading/error states)
 
-## Authentication
-- Authentication uses Auth0 in normal operation.
-- In development mode there is a special login page that allows:
-  - Auth0 login
-  - logging in as a user representing each backend role (role list defined later)
-- Dev-only auth features must be disabled/excluded in production builds.
+### Current Implementation
+
+- **Logging**: Verbose debug logs in development mode
+- **DevTools**: TanStack Router and Query devtools available
+- **Hot reload**: Vite HMR configured
+
+### Missing (TODO)
+
+- **Mock mode**: Backend mocking with OpenAPI shapes
+- **Dev auth**: Role-based development authentication
+- **Environment flags**: Simple backend/mock switching
+
+## Authentication (TODO)
+
+- **Planned**: Auth0 integration for production
+- **Development**: Special login page with role selection
+- **Provider**: To be added to `src/providers/AppProviders.tsx`
 
 ## Project context (product)
+
 Core idea:
+
 - An educational GPT-chat-based text adventure lab:
   - Create text adventure games
   - Play them with friends
@@ -109,22 +123,72 @@ Core idea:
   - Debug mode shows raw requests/responses of the GPT model
 
 Target audience:
+
 - Teachers
 - Children
 - Educational organizations
 - Workshops (mixed audience)
 
 Backend:
+
 - Written in Go
-- Exposes a REST API with OpenAPI spec (`swagger.json`)
+- Exposes REST API with OpenAPI spec (`swagger.json`)
+- Host: localhost:8080, basePath: /api
 
 UX goals:
+
 - Easy to use
 - Modern UI fitting the topic
 - Clear onboarding and development-friendly workflows
 
+## Current Architecture (IMPLEMENTED)
+
+### Directory Structure
+
+```raw
+src/
+├── api/                 # Backend integration
+│   ├── client/         # HTTP client configuration
+│   ├── generated/      # Auto-generated API types/client
+│   └── hooks.ts        # Centralized API hooks
+├── common/             # Shared utilities
+│   ├── components/     # Reusable UI components
+│   ├── hooks/          # Shared React hooks
+│   ├── lib/            # Pure utilities (logger, etc.)
+│   └── types/          # Shared type definitions
+├── config/             # Global configuration
+│   ├── env.ts          # Environment variables
+│   ├── logger.ts       # Logger configuration
+│   ├── mantineTheme.ts # Mantine theme
+│   ├── queryClient.ts  # TanStack Query setup
+│   └── router.ts       # Router configuration
+├── features/           # Feature modules (empty, ready for development)
+├── i18n/               # Internationalization
+│   ├── config.ts       # i18n constants
+│   ├── index.ts        # i18n initialization
+│   ├── resources.ts    # Static resource imports
+│   ├── backendLoader.ts # Backend translation loader
+│   ├── locales/        # Translation files (en.json, de.json)
+│   └── types.ts        # Translation type definitions
+├── providers/          # React provider composition
+│   └── AppProviders.tsx # App-wide provider setup
+├── routes/             # TanStack Router routes
+│   ├── __root.tsx      # Root layout
+│   └── index.tsx       # Home page
+└── main.tsx            # App bootstrap
+```
+
+### Key Files
+
+- **`src/main.tsx`**: App entry point with StrictMode
+- **`src/providers/AppProviders.tsx`**: Provider composition (Query, Mantine, Router, i18n)
+- **`src/config/queryClient.ts`**: Query client with error handling and retry logic
+- **`src/common/lib/logger.ts`**: Custom logging implementation
+- **`vite.config.ts`**: Vite with TanStack Router plugin and React optimization
+
 ## Online research policy
-- Do not constantly “hunt” for new libraries.
+
+- Do not constantly "hunt" for new libraries.
 - Only research online when:
   - adding a new dependency
   - validating a best-practice approach for a significant architectural decision
