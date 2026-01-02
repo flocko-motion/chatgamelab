@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "gen:api": "swagger-typescript-api generate --path ./swagger.json --output ./src/api/generated --name index.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -38,6 +39,7 @@
     "globals": "^16.5.0",
     "postcss": "^8.5.6",
     "postcss-preset-mantine": "^1.18.0",
+    "swagger-typescript-api": "^13.2.7",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "npm:rolldown-vite@7.3.0"
