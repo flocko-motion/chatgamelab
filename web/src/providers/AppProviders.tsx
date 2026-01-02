@@ -10,6 +10,9 @@ import { mantineTheme } from '../config/mantineTheme';
 import { queryClient } from '../config/queryClient';
 import { router } from '../config/router';
 
+// Initialize i18n
+import '../i18n';
+
 export function AppProviders() {
   return (
     <ErrorBoundary>
