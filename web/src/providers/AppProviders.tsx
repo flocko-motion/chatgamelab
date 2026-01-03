@@ -5,7 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider } from '@tanstack/react-router';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { ErrorBoundary } from '../common/components/ErrorBoundary';
+import { ErrorBoundary } from '@/common/components/ErrorBoundary';
 
 import { mantineTheme } from '../config/mantineTheme';
 import { queryClient } from '../config/queryClient';
