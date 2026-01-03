@@ -30,11 +30,14 @@ function Auth0Callback() {
         // If we have auth parameters, handle the callback
         if (hasCode || hasState) {
           await handleRedirectCallback();
+          // Successfully authenticated, redirect to dashboard
+          navigate({ to: '/dashboard' });
+          return;
         }
         
-        // If already authenticated or no auth params needed, redirect to home
+        // If already authenticated or no auth params needed, redirect to dashboard
         if (isAuthenticated || (!hasCode && !hasState && !hasError)) {
-          navigate({ to: '/' });
+          navigate({ to: '/dashboard' });
           return;
         }
         
