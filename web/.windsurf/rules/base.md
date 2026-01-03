@@ -63,18 +63,6 @@ This frontend uses:
 
 ## Development approach
 
-### Components
-
-When designing new components:
-
-- **Check existing**: Review `src/common/components/` and `docs/components-overview.md`
-- **Current shared components**:
-  - `ErrorBoundary`: React error boundary with recovery
-  - `LanguageSwitcher`: Dropdown for language switching
-  - `TranslationExample`: Demo component for i18n
-- **Documentation**: Add new components to `docs/components-overview.md` with one-line description
-- **Prefer**: Feature-local components in `features/<name>/components/` by default
-
 ### UI & Design
 
 - **Theme**: Mantine theme in `src/config/mantineTheme.ts`
@@ -85,6 +73,55 @@ When designing new components:
   - Container with xl max-width
   - DevTools in bottom-right
 - **Design decisions**: Record in `docs/design-decisions.md` (create if needed)
+
+### Mobile & Responsive Design (CRITICAL)
+
+**All UI must work seamlessly on mobile devices and small windows.**
+
+#### Responsive Requirements
+
+- **Mobile-first approach**: Design for mobile first, then scale up
+- **Breakpoints**: Use Mantine's responsive breakpoints (xs, sm, md, lg, xl)
+- **Touch-friendly**: All interactive elements must be easily tappable (minimum 44px)
+- **Readable text**: Font sizes must be readable on small screens
+- **Scrollable content**: Horizontal scrolling should never be required
+
+#### Implementation Guidelines
+
+1. **Use Mantine Responsive Props**:
+   ```tsx
+   // ✅ Correct - use responsive props
+   <Container size="sm" px={{ base: 'md', sm: 'xl' }}>
+   <Stack gap={{ base: 'sm', sm: 'md', lg: 'lg' }}>
+   <Grid>
+     <Grid.Col span={{ base: 12, sm: 6, lg: 4 }}>
+   ```
+
+2. **Responsive Typography**:
+   ```tsx
+   <Title order={2} size={{ base: 'h3', sm: 'h2' }}>
+   <Text size={{ base: 'sm', sm: 'md' }}>
+   ```
+
+3. **Mobile-Optimized Components**:
+   - Buttons: Ensure minimum touch target size (44px)
+   - Forms: Use appropriate input sizes for mobile
+   - Navigation: Collapsible menus for small screens
+   - Tables: Use horizontal scrolling or card layouts on mobile
+
+4. **Testing Requirements**:
+   - Test on actual mobile devices when possible
+   - Use browser dev tools to simulate mobile viewports
+   - Check touch interactions and gesture support
+   - Verify readability and usability on small screens
+
+#### Common Mobile Patterns
+
+- **Drawer/Sidebar**: Use `Drawer` component for mobile navigation
+- **Modals**: Ensure modals are properly sized and scrollable on mobile
+- **Cards**: Stack cards vertically on mobile, use grid on larger screens
+- **Forms**: Single column layout on mobile, multi-column on larger screens
+- **Images**: Use responsive images with proper aspect ratios
 
 ### Introducing new libraries / technical features
 
@@ -140,6 +177,7 @@ UX goals:
 - Easy to use
 - Modern UI fitting the topic
 - Clear onboarding and development-friendly workflows
+- **Mobile-friendly** for educational settings (tablets, phones)
 
 ## Current Architecture (IMPLEMENTED)
 
