@@ -1,8 +1,9 @@
 import { Button as MantineButton, type ButtonProps as MantineButtonProps } from '@mantine/core';
 
-export interface ButtonProps extends Omit<MantineButtonProps, 'color'> {
+export interface ButtonProps extends Omit<MantineButtonProps, 'color' | 'onClick'> {
   variant?: 'primary' | 'secondary' | 'danger';
   fullWidth?: boolean;
+  onClick?: () => void;
 }
 
 export function Button({ variant = 'primary', fullWidth = false, ...props }: ButtonProps) {
