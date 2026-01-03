@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Title, Text, Stack, Center, Image } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import logo from '@/assets/logo.png';
@@ -10,6 +10,7 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { t } = useTranslation('common');
+  const router = useRouter();
 
   return (
     <Stack gap="xl" py="xl">
@@ -29,8 +30,7 @@ function HomePage() {
           <Button 
             size="lg"
             onClick={() => {
-              // TODO: Implement login functionality
-              console.log('Login clicked');
+              router.navigate({ to: '/auth/login' });
             }}
           >
             {t('home.loginCta')}
