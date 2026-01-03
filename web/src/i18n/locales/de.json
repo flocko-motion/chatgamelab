@@ -69,5 +69,28 @@
     "forbidden": "Sie haben keine Berechtigung, um auf diese Seite zuzugreifen.",
     "notFound": "Seite nicht gefunden.",
     "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen bei ChatGameLab",
+      "subtitle": "Wählen Sie, wie Sie sich anmelden möchten",
+      "auth0Button": "Mit Auth0 anmelden",
+      "devMode": "Entwicklungsmodus",
+      "devModeDescription": "Schneller Login für Entwicklung und Tests",
+      "devModeAlert": {
+        "title": "Entwicklungsmodus",
+        "message": "Dies ist die Entwickler-Login-Seite. In der Produktion werden Sie direkt zu Auth0 weitergeleitet."
+      },
+      "redirecting": {
+        "title": "Weiterleitung zu Auth0...",
+        "message": "Bitte warten Sie, während wir Sie zur Login-Seite weiterleiten."
+      },
+      "role": {
+        "admin": "Als Admin anmelden",
+        "teacher": "Als Lehrer anmelden", 
+        "student": "Als Schüler anmelden",
+        "guest": "Als Gast anmelden"
+      }
+    }
   }
 }

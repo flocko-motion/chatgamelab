@@ -69,5 +69,28 @@
     "forbidden": "You don't have permission to access this page.",
     "notFound": "Page not found.",
     "generic": "Something went wrong. Please try again."
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome to ChatGameLab",
+      "subtitle": "Choose how you want to sign in",
+      "auth0Button": "Login with Auth0",
+      "devMode": "Development Mode",
+      "devModeDescription": "Quick login for development and testing",
+      "devModeAlert": {
+        "title": "Development Mode",
+        "message": "This is the development login page. In production, you'll be redirected directly to Auth0."
+      },
+      "redirecting": {
+        "title": "Redirecting to Auth0...",
+        "message": "Please wait while we redirect you to the login page."
+      },
+      "role": {
+        "admin": "Login as Admin",
+        "teacher": "Login as Teacher", 
+        "student": "Login as Student",
+        "guest": "Login as Guest"
+      }
+    }
   }
 }
