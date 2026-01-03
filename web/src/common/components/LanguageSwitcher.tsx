@@ -1,4 +1,4 @@
-import { Group, Text } from '@mantine/core';
+import { Text, Box } from '@mantine/core';
 import { useLanguageSwitcher } from '@hooks/useTranslation';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from './Dropdown';
@@ -14,7 +14,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
   const hasWipLanguages = availableLanguages.some((lang) => !lang.isStatic);
 
   return (
-    <Group gap="sm">
+    <Box>
       <Dropdown
         size={size}
         variant={variant}
@@ -32,13 +32,19 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           label: lang.isStatic ? lang.name : `${lang.name} (${t('languageSwitcher.wipLabel')})`,
         }))}
         leftSection={<Text size="xs">🌍</Text>}
+        styles={{
+          input: {
+            minWidth: 80,
+            maxWidth: 150,
+          },
+        }}
       />
 
       {hasWipLanguages && (
-        <Text size="xs" c="dimmed">
+        <Text size="xs" c="dimmed" mt={4} style={{ whiteSpace: 'nowrap' }}>
           {t('languageSwitcher.wipHint')}
         </Text>
       )}
-    </Group>
+    </Box>
   );
 }
