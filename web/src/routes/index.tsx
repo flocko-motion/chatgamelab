@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { Title, Text, Stack, Center, Image } from '@mantine/core';
+import { Text, Stack, Center, Image } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import logo from '@/assets/logo.png';
 import { Button } from '@components/Button';
@@ -19,11 +19,11 @@ function HomePage() {
           <Image 
             src={logo} 
             alt="ChatGameLab Logo" 
-            w={400}
-            h={400}
+            w={{ base: 250, sm: 350, lg: 400 }}
+            h={{ base: 250, sm: 350, lg: 400 }}
             fit="contain"
           />
-          <Text size="lg" c="dimmed" maw={600}>
+          <Text size="lg" c="dimmed" maw={{ base: 400, sm: 600 }}>
             {t('home.splashDescription')}
           </Text>
 
