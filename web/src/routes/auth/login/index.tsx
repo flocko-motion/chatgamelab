@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Button, Container, Paper, Stack, Title, Text, Divider } from '@mantine/core';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,15 @@ export const Route = createFileRoute('/auth/login/')({
 
 function LoginComponent() {
   const { t } = useTranslation('auth');
-  const { loginWithAuth0, loginWithRole, isDevMode } = useAuth();
+  const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
+  const router = useRouter();
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      router.navigate({ to: '/dashboard' });
+    }
+  }, [user, router]);
 
   // In production mode, redirect directly to Auth0
   useEffect(() => {
@@ -71,7 +79,13 @@ function LoginComponent() {
               <Button
                 key={role.key}
                 variant="outline"
-                onClick={() => loginWithRole(role.key)}
+                onClick={() => {
+                  loginWithRole(role.key);
+                  // Redirect to dashboard after login
+                  setTimeout(() => {
+                    router.navigate({ to: '/dashboard' });
+                  }, 100);
+                }}
                 fullWidth
               >
                 {t(`login.role.${role.key}`)} ({role.label})
