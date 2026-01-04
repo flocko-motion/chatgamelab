@@ -88,7 +88,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     if (auth0IsAuthenticated) {
-      auth0Logout({ logoutParams: { returnTo: window.location.origin } });
+      auth0Logout({ 
+        logoutParams: { 
+          returnTo: `${window.location.origin}/auth/logout/auth0/callback` 
+        } 
+      });
     } else {
       setUser(null);
       setIsAuthenticated(false);
