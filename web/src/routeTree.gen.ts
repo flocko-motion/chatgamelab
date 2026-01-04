@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
 
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const AuthLoginAuth0CallbackRoute = AuthLoginAuth0CallbackRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -50,6 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -58,18 +67,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dashboard'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
     | '/auth/login/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -77,6 +89,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
@@ -84,6 +97,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -117,6 +137,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,
