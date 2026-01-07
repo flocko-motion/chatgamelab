@@ -2,7 +2,7 @@ package user
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"cgl/obj"
 	"fmt"
 	"log"
@@ -23,7 +23,7 @@ func init() {
 }
 
 func runUserAdd(cmd *cobra.Command, args []string) {
-	req := endpoints.UsersNewRequest{Name: args[0]}
+	req := routes.UsersNewRequest{Name: args[0]}
 	if len(args) > 1 {
 		req.Email = &args[1]
 	}

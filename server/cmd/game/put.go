@@ -3,6 +3,7 @@ package game
 import (
 	"cgl/api/client"
 	"cgl/functional"
+	"cgl/obj"
 	"fmt"
 	"io"
 	"os"
@@ -42,11 +43,9 @@ func runPut(cmd *cobra.Command, args []string) {
 		printGameInfo(gameID)
 	} else {
 		// Create new game
-		var resp struct {
-			ID string `json:"id"`
-		}
+		var resp obj.Game
 		functional.Must(client.ApiPostRaw("games/new", string(yamlContent), &resp), "failed to create game")
 		fmt.Println("Game created successfully")
-		printGameInfo(resp.ID)
+		printGameInfo(resp.ID.String())
 	}
 }

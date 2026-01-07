@@ -2,7 +2,7 @@ package user
 
 import (
 	"cgl/api/client"
-	"cgl/api/endpoints"
+	"cgl/api/routes"
 	"cgl/functional"
 	"fmt"
 	"log"
@@ -23,7 +23,7 @@ func init() {
 }
 
 func runUserJwt(cmd *cobra.Command, args []string) {
-	var resp endpoints.UsersJwtResponse
+	var resp routes.UsersJwtResponse
 
 	var userId string
 	if len(args) > 0 {

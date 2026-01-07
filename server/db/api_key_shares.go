@@ -15,10 +15,9 @@ import (
 
 const apiKeyShortenLength = 6
 
-// CreateApiKey creates a new API key for a user with a self-share
-func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key string) (*uuid.UUID, error) {
+func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (apiKeyID uuid.UUID, shareID uuid.UUID, err error) {
 	if !ai.IsValidApiKeyPlatform(platform) {
-		return nil, errors.New("unknown platform: " + platform)
+		return uuid.Nil, uuid.Nil, errors.New("unknown platform: " + platform)
 	}
 
 	now := time.Now()
@@ -34,15 +33,37 @@ func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key str
 	}
 	result, err := queries().CreateApiKey(ctx, arg)
 	if err != nil {
-		return nil, err
+		return uuid.Nil, uuid.Nil, err
 	}
 
 	// Create a self-share so the user can access their own key via the shares API
-	if _, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, true); err != nil {
-		return nil, fmt.Errorf("failed to create self-share: %w", err)
+	selfShareID, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, true)
+	if err != nil {
+		return uuid.Nil, uuid.Nil, fmt.Errorf("failed to create self-share: %w", err)
+	}
+	if selfShareID == nil {
+		return uuid.Nil, uuid.Nil, errors.New("failed to create self-share")
 	}
 
-	return &result.ID, nil
+	return result.ID, *selfShareID, nil
+}
+
+// CreateApiKey creates a new API key for a user with a self-share
+func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key string) (*uuid.UUID, error) {
+	apiKeyID, _, err := createApiKeyAndSelfShare(ctx, userID, name, platform, key)
+	if err != nil {
+		return nil, err
+	}
+	return &apiKeyID, nil
+}
+
+// CreateApiKeyWithSelfShare creates a new API key and returns the user's self-share.
+func CreateApiKeyWithSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (*obj.ApiKeyShare, error) {
+	_, shareID, err := createApiKeyAndSelfShare(ctx, userID, name, platform, key)
+	if err != nil {
+		return nil, err
+	}
+	return GetApiKeyShareByID(ctx, shareID)
 }
 
 // DeleteApiKey deletes the underlying API key and all its shares (owner only).
