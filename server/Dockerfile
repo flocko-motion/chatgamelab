@@ -9,6 +9,7 @@ RUN go mod download
 
 # Copy git directory for version info
 COPY .git .git
+
 # Copy the rest of the server source
 COPY . .
 
@@ -20,7 +21,7 @@ RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
     -o cgl ./
 
 # Runtime image (slim, no shell, based on Debian)
-FROM gcr.io/distroless/base-debian12
+FROM gcr.io/distroless/base-debian13
 
 WORKDIR /app
 
