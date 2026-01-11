@@ -42,44 +42,55 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-Edit `.env` and set your values:
+Edit `.env` with your values. See `.env.example` for all available options organized by service (Database, Backend, Frontend).
+
+## Development
+
+Development uses Docker for services you're not actively working on, while you run your code locally with full debugger support.
+
+### Development Modes
+
+| Command | Docker runs | You develop locally |
+|---------|-------------|---------------------|
+| `./run-dev.sh frontend` | db + backend | Frontend (`cd web && npm run dev`) |
+| `./run-dev.sh backend` | db + web | Backend (`cd server && go run . server`) |
+| `./run-dev.sh db` | db only | Both frontend and backend |
+
+### Develop Frontend
 
 ```bash
-# Database password (use something simple for dev, no special characters)
-DB_PASSWORD='your_dev_password'
+# Terminal 1 - Start database and backend in Docker
+./run-dev.sh frontend
 
-# Auth0 configuration
-AUTH0_DOMAIN="your.auth0.domain"
-AUTH0_AUDIENCE="your.auth0.audience"
-PUBLIC_URL=http://localhost:3000
+# Terminal 2 - Start frontend locally (with hot reload)
+cd web && npm run dev
 ```
 
-## Development Mode
+Open **http://localhost:5173** in your browser.
 
-Development mode runs the database and nginx proxy in Docker, while you run the Go server and React client locally with full debugger support.
+### Develop Backend
 
-### Start development environment
-
-**Terminal 1** - Start database and proxy:
 ```bash
-./run-dev.sh
+# Terminal 1 - Start database and frontend in Docker
+./run-dev.sh backend
+
+# Terminal 2 - Start backend locally (with debugger)
+cd server && go run . server
 ```
 
-**Terminal 2** - Start Go backend:
+Open **http://localhost** in your browser (served by Docker).
+
+### Options
+
 ```bash
-./run-dev-server.sh
+./run-dev.sh frontend --reset-db          # Reset database before starting
+./run-dev.sh frontend --port-backend 8080 # Custom backend port
+./run-dev.sh --help                       # Show all options
 ```
-
-**Terminal 3** - Start React frontend:
-```bash
-./run-dev-client.sh
-```
-
-Then open **http://localhost** in your browser (or the `PUBLIC_URL` from your `.env`).
 
 ### Dev Mode Features
 
-When running the server with the `--dev` flag (as done in `run-dev-server.sh`), additional development features are enabled:
+When `DEV_MODE=true` in `.env`, additional development features are enabled:
 
 **JWT Token Generation** - Generate JWT tokens for any user without Auth0:
 ```bash
@@ -88,13 +99,9 @@ go run . user jwt                    # Generate token for dev user
 go run . user jwt <user-uuid>        # Generate token for specific user
 ```
 
-This saves the token to `~/.cgl/jwt` and outputs a URL you can open in your browser to log in automatically. The CLI tool will use this token for subsequent API calls.
-
 **Dev User** - A default dev user is seeded on startup with UUID `00000000-0000-0000-0000-000000000000`.
 
-### Reset the database
-
-To wipe the database and recreate it from `schema.sql`:
+### Reset Database
 
 ```bash
 ./reset-dev-db.sh
@@ -102,30 +109,85 @@ To wipe the database and recreate it from `schema.sql`:
 
 Then restart with `./run-dev.sh`.
 
-## Production Mode
+## Production
 
-Production mode builds and runs everything in Docker containers.
+Production runs everything in Docker containers. **Do NOT use `.env` files in production.** Environment variables must be injected externally via your hosting provider or systemd.
 
-```bash
-./run-prod.sh
-```
-
-This builds all images and starts the full stack in detached mode.
-
-Useful commands:
-```bash
-docker compose logs -f    # View logs
-docker compose down       # Stop all services
-```
-
-## Quick Start for Designers (Mock Mode)
-
-If you're a designer wanting to explore the React frontend without setting up the full backend:
+### Required Environment Variables
 
 ```bash
-./run-dev-client.sh
+# Database
+DB_PASSWORD=secure_password_here
+
+# Backend
+DEV_JWT_SECRET=random_secret_here
+PUBLIC_URL=https://yourdomain.com
+
+# Auth0 (used by both backend and frontend)
+AUTH0_DOMAIN=your.auth0.domain
+AUTH0_AUDIENCE=your.auth0.audience
+AUTH0_CLIENT_ID=your_client_id
+
+# Frontend (runtime config - injected at container startup)
+API_BASE_URL=https://yourdomain.com
+
+# Ports
+PORT_EXPOSED=80
 ```
 
-Then open **http://localhost:3000?mock=true**
+> **Security:** Frontend config is PUBLIC (readable by browser). Never put secrets here. Auth0 SPA values are safe - security relies on Auth0's allowed origins and backend JWT validation.
 
-Mock mode provides fake data so you can test all UI features without Auth0 or backend setup.
+### Option 1: Hosting Provider (Render, Railway, etc.)
+
+Set environment variables in your provider's dashboard, then deploy.
+
+### Option 2: Self-hosted with systemd
+
+Create a systemd service with environment variables:
+
+```bash
+# Create service file
+sudo nano /etc/systemd/system/chatgamelab.service
+```
+
+```ini
+[Unit]
+Description=ChatGameLab
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/path/to/chatgamelab
+Environment="DB_PASSWORD=secure_password"
+Environment="AUTH0_DOMAIN=your.auth0.domain"
+Environment="AUTH0_AUDIENCE=your.auth0.audience"
+Environment="API_BASE_URL=https://yourdomain.com"
+Environment="AUTH0_CLIENT_ID=your_client_id"
+ExecStart=/usr/bin/docker compose up -d --build
+ExecStop=/usr/bin/docker compose down
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Or use `systemctl edit chatgamelab` to add environment overrides
+
+### Useful Commands
+
+```bash
+docker compose logs -f      # View logs
+docker compose down         # Stop all services
+docker compose up -d --build  # Rebuild and restart
+```
+
+## Quick Start for Designers
+
+If you're a designer wanting to explore the React frontend without the full backend:
+
+```bash
+cd web && npm run dev
+```
+
+Then open **http://localhost:5173**
