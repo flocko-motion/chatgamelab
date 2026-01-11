@@ -1,10 +1,13 @@
-# Dev mode: only db + proxy, connects to local dev servers
+# Dev mode: database + backend + frontend + proxy
 # Usage: docker compose -f docker-compose.dev.yml up
+# Profiles: db, backend, frontend
 
 services:
   db:
     image: postgres:16
     container_name: chatgamelab-db
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: chatgamelab
       POSTGRES_USER: chatgamelab
@@ -16,16 +19,45 @@ services:
       - "${PORT_POSTGRES}:5432"
     profiles:
       - db
+      - backend
+      - frontend
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: chatgamelab-backend
+    env_file:
+      - .env
+    environment:
+      # Override postgres host for docker network (localhost -> db)
+      DB_HOST: db
+      PORT_POSTGRES: 5432
+    depends_on:
+      - db
+    ports:
+      - "${PORT_BACKEND}:3000"
+    profiles:
+      - frontend
+    command: ["server"]
 
   web:
-    image: nginx:alpine
+    build:
+      context: ./web
+      dockerfile: Dockerfile
     container_name: chatgamelab-web
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    env_file:
+      - .env
+    environment:
+      # Runtime config for frontend (injected at container startup)
+      API_BASE_URL: http://localhost:${PORT_BACKEND}
+      AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
+      AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
+      AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
     ports:
       - "${PORT_EXPOSED}:80"
+    profiles:
+      - backend
 
 volumes:
   db_data:
