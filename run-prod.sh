@@ -1,16 +1,8 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 
-if [ ! -f .env ]; then
-    echo "Error: .env file not found"
-    echo "Copy .env.example to .env and set your values"
-    exit 1
-fi
-
-source .env
-
 if [ -z "$DB_PASSWORD" ]; then
-    echo "Error: DB_PASSWORD is not set in .env"
+    echo "Error: DB_PASSWORD is not set"
     exit 1
 fi
 
