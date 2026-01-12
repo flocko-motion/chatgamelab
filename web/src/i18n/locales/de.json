@@ -1,0 +1,96 @@
+{
+  "common": {
+    "welcome": "Willkommen",
+    "hello": "Hallo",
+    "goodbye": "Auf Wiedersehen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "language": "Sprache",
+    "theme": "Design",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "system": "System",
+    "home": {
+      "splashDescription": "Ein Lernspiel, das das Erstellen von GPT-4-basierten Textadventures ermöglicht.",
+      "loginCta": "Anmelden und loslegen"
+    },
+    "languageSwitcher": {
+      "wipLabel": "WIP",
+      "wipHint": "Weitere Sprachen sind noch in Arbeit. Aktuell sind nur Englisch und Deutsch verfügbar."
+    },
+    "footer": {
+      "loginByAuth0": "Login via Auth0",
+      "programmedByOmnitopos": "Programmiert von omnitopos.net",
+      "producedByTausendMedien": "Produziert von tausend-medien.de",
+      "version": "v0.0.0"
+    }
+  },
+  "navigation": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "games": "Spiele",
+    "create": "Erstellen",
+    "play": "Spielen",
+    "learn": "Lernen",
+    "debug": "Debug"
+  },
+  "game": {
+    "createNew": "Neues Spiel erstellen",
+    "title": "Titel",
+    "description": "Beschreibung",
+    "start": "Starten",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "restart": "Neustarten",
+    "score": "Punkte",
+    "level": "Level",
+    "time": "Zeit",
+    "players": "Spieler",
+    "invite": "Einladen",
+    "join": "Beitreten",
+    "leave": "Verlassen"
+  },
+  "errors": {
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "server": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.",
+    "unauthorized": "Sie müssen sich anmelden, um auf diese Seite zuzugreifen.",
+    "forbidden": "Sie haben keine Berechtigung, um auf diese Seite zuzugreifen.",
+    "notFound": "Seite nicht gefunden.",
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen bei ChatGameLab",
+      "subtitle": "Wählen Sie, wie Sie sich anmelden möchten",
+      "auth0Button": "Mit Auth0 anmelden",
+      "devMode": "Entwicklungsmodus",
+      "devModeDescription": "Schneller Login für Entwicklung und Tests",
+      "devModeAlert": {
+        "title": "Entwicklungsmodus",
+        "message": "Dies ist die Entwickler-Login-Seite. In der Produktion werden Sie direkt zu Auth0 weitergeleitet."
+      },
+      "redirecting": {
+        "title": "Weiterleitung zu Auth0...",
+        "message": "Bitte warten Sie, während wir Sie zur Login-Seite weiterleiten."
+      },
+      "role": {
+        "admin": "Als Admin anmelden",
+        "teacher": "Als Lehrer anmelden", 
+        "student": "Als Schüler anmelden",
+        "guest": "Als Gast anmelden"
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+import { createFileRoute, useRouter } from '@tanstack/react-router';
+import { Text, Stack, Center, Image } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+import logo from '/logos/black/ChatGameLab-Logo-2025-Square-Black-Black-Text-Transparent.png';
+import { Button } from '@components/Button';
+
+export const Route = createFileRoute('/')({
+  component: HomePage,
+});
+
+function HomePage() {
+  const { t } = useTranslation('common');
+  const router = useRouter();
+
+  return (
+    <Stack gap="xl" py="xl">
+      <Center>
+        <Stack gap="lg" align="center" ta="center">
+          <Image 
+            src={logo} 
+            alt="ChatGameLab Logo" 
+            w={{ base: 250, sm: 350, lg: 400 }}
+            h={{ base: 250, sm: 350, lg: 400 }}
+            fit="contain"
+          />
+          <Text size="lg" c="dimmed" maw={{ base: 400, sm: 600 }}>
+            {t('home.splashDescription')}
+          </Text>
+
+          <Button 
+            size="lg"
+            onClick={() => {
+              router.navigate({ to: '/auth/login' });
+            }}
+          >
+            {t('home.loginCta')}
+          </Button>
+        </Stack>
+      </Center>
+    </Stack>
+  );
+}
