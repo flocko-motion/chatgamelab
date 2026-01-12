@@ -21,6 +21,7 @@ services:
       - db
       - backend
       - frontend
+      - all
 
   backend:
     build:
@@ -39,6 +40,7 @@ services:
       - "${PORT_BACKEND}:3000"
     profiles:
       - frontend
+      - all
     command: ["server"]
 
   web:
@@ -58,6 +60,7 @@ services:
       - "${PORT_EXPOSED}:80"
     profiles:
       - backend
+      - all
 
 volumes:
   db_data:
