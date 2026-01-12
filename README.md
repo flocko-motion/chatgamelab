@@ -120,7 +120,6 @@ Production runs everything in Docker containers. **Do NOT use `.env` files in pr
 DB_PASSWORD=secure_password_here
 
 # Backend
-DEV_JWT_SECRET=random_secret_here
 PUBLIC_URL=https://yourdomain.com
 
 # Auth0 (used by both backend and frontend)
