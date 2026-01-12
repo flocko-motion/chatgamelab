@@ -4,7 +4,7 @@
 
 services:
   db:
-    image: postgres:16
+    image: postgres:18
     container_name: chatgamelab-db
     env_file:
       - .env
