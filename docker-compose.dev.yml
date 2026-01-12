@@ -25,8 +25,8 @@ services:
 
   backend:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./server/Dockerfile
     container_name: chatgamelab-backend
     env_file:
       - .env
