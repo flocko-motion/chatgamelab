@@ -36,8 +36,14 @@ reset_database() {
 
 # Check if .env exists
 if [ ! -f .env ]; then
-    echo "Error: .env file not found"
-    echo "Copy .env.example to .env and set your values"
+    echo "❌ ERROR: .env file not found in root directory"
+    echo ""
+    echo "To fix this issue:"
+    echo "  1. Copy the example file: cp .env.example .env"
+    echo "  2. Edit .env with your configuration values"
+    echo "  3. Run this script again"
+    echo ""
+    echo "The .env file is required for development environment configuration."
     exit 1
 fi
 
