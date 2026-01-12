@@ -11,13 +11,18 @@ services:
       POSTGRES_USER: chatgamelab
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql
       - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
-      context: ./server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./server/Dockerfile
     container_name: chatgamelab-backend
     environment:
       DB_HOST: db
@@ -31,7 +36,8 @@ services:
       DEV_JWT_SECRET: ${DEV_JWT_SECRET}
       PUBLIC_URL: ${PUBLIC_URL}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     expose:
       - "3000"
     command: ["server"]
@@ -47,7 +53,8 @@ services:
       AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     ports:
       - "${PORT_EXPOSED:-80}:80"
 

@@ -64,6 +64,9 @@ services:
       AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
     ports:
       - "${PORT_EXPOSED}:80"
+    depends_on:
+      backend:
+        condition: service_started
     profiles:
       - backend
       - all
