@@ -65,10 +65,21 @@
     "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
     "server": "Serverfehler. Bitte versuchen Sie es später erneut.",
     "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.",
-    "unauthorized": "Sie müssen sich anmelden, um auf diese Seite zuzugreifen.",
-    "forbidden": "Sie haben keine Berechtigung, um auf diese Seite zuzugreifen.",
-    "notFound": "Seite nicht gefunden.",
-    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
+    "unauthorized": "Bitte melden Sie sich an, um fortzufahren.",
+    "forbidden": "Sie haben keine Berechtigung, diese Aktion durchzuführen.",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+    "backendUserFetch": "Benutzerdaten konnten nicht vom Server geladen werden. Bitte versuchen Sie es erneut.",
+    "titles": {
+      "network": "Netzwerkfehler",
+      "server": "Serverfehler",
+      "validation": "Validierungsfehler",
+      "authentication": "Authentifizierungsfehler",
+      "permission": "Zugriff verweigert",
+      "notFound": "Nicht gefunden",
+      "error": "Fehler"
+    }
   },
   "auth": {
     "login": {

@@ -6,6 +6,8 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   envDir: '../',  // Load .env from root directory (single source of truth)
+  // Base path for assets - defaults to '/' for dev
+  base: process.env.PUBLIC_URL || '/',
   plugins: [
     TanStackRouterVite({
       routesDirectory: './src/routes',

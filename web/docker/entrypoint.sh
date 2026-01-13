@@ -12,6 +12,7 @@ ENV_JS="$HTML_DIR/env.js"
 
 # Optional
 AUTH0_REDIRECT_URI="${AUTH0_REDIRECT_URI:-}"
+PUBLIC_URL="${PUBLIC_URL:-}"
 
 # Generate env.js (public values only - no secrets!)
 cat > "$ENV_JS" <<EOF
@@ -20,7 +21,8 @@ window.__APP_CONFIG__ = {
   AUTH0_DOMAIN: "$(printf '%s' "$AUTH0_DOMAIN" | sed 's/"/\\"/g')",
   AUTH0_CLIENT_ID: "$(printf '%s' "$AUTH0_CLIENT_ID" | sed 's/"/\\"/g')",
   AUTH0_AUDIENCE: "$(printf '%s' "$AUTH0_AUDIENCE" | sed 's/"/\\"/g')",
-  AUTH0_REDIRECT_URI: "$(printf '%s' "$AUTH0_REDIRECT_URI" | sed 's/"/\\"/g')"
+  AUTH0_REDIRECT_URI: "$(printf '%s' "$AUTH0_REDIRECT_URI" | sed 's/"/\\"/g')",
+  PUBLIC_URL: "$(printf '%s' "$PUBLIC_URL" | sed 's/"/\\"/g')"
 };
 EOF
 
