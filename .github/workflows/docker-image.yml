@@ -99,6 +99,7 @@ jobs:
             -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
             -H "Content-Type: application/json" \
             -d '{"branch":"${{ github.ref_name }}","commit":"${{ github.sha }}"}' \
+            -f \
             "$WEBHOOK_URL"
 
   summary:
