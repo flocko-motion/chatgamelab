@@ -29,6 +29,7 @@ COPY --from=build /app/cgl /app/cgl
 # Directory for writable data
 VOLUME ["/app/var"]
 
+# Expose port (will be overridden by PORT_BACKEND env var)
 EXPOSE 3000
 
 ENTRYPOINT ["/app/cgl"]
