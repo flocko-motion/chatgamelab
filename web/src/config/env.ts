@@ -13,6 +13,7 @@ type AppConfig = {
   AUTH0_CLIENT_ID: string;
   AUTH0_AUDIENCE: string;
   AUTH0_REDIRECT_URI?: string;
+  PUBLIC_URL?: string;
 };
 
 declare global {
@@ -36,6 +37,7 @@ export const config: AppConfig = {
   AUTH0_CLIENT_ID: must(runtime.AUTH0_CLIENT_ID ?? import.meta.env.VITE_AUTH0_CLIENT_ID, 'AUTH0_CLIENT_ID'),
   AUTH0_AUDIENCE: must(runtime.AUTH0_AUDIENCE ?? import.meta.env.VITE_AUTH0_AUDIENCE, 'AUTH0_AUDIENCE'),
   AUTH0_REDIRECT_URI: runtime.AUTH0_REDIRECT_URI ?? import.meta.env.VITE_AUTH0_REDIRECT_URI,
+  PUBLIC_URL: runtime.PUBLIC_URL || import.meta.env.PUBLIC_URL || '/',
 };
 
 const env = {
