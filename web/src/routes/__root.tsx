@@ -1,14 +1,13 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { AppShell, Container, Text, Anchor, Box } from '@mantine/core';
-import { useTranslation } from 'react-i18next';
+import { version } from '@version';
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
 function RootComponent() {
-  const { t } = useTranslation('common');
 
   return (
     <AppShell footer={{ height: { base: 80, sm: 60 } }} padding={{ base: 'sm', sm: 'md' }}>
@@ -20,11 +19,11 @@ function RootComponent() {
 
       <AppShell.Footer>
         <Container size="xl" h="100%" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
-          <Box 
-            h="100%" 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+          <Box
+            h="100%"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center'
             }}
           >
@@ -42,7 +41,7 @@ function RootComponent() {
                   Produced by <Anchor href="https://tausend-medien.de" target="_blank" size="sm" c="violet">tausend-medien.de</Anchor>
                 </Text>
                 <Text size="sm" c="dimmed" span>|</Text>
-                <Text size="sm" c="dimmed" span>{t('footer.version')}</Text>
+                <Text size="sm" c="dimmed" span>v{version}</Text>
               </Box>
             </Text>
           </Box>
