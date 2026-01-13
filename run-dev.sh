@@ -8,8 +8,8 @@ show_usage() {
     echo "Modes:"
     echo "  frontend    Develop frontend locally (starts db + backend in Docker)"
     echo "  backend     Develop backend locally (starts db + web in Docker)"
-    echo "  all         Start all services in Docker (db + backend + web)"
-    echo "  db          Start only database"
+    echo "  all         Start only database"
+    echo "  (no args)   Start all services in Docker (db + backend + web)"
     echo ""
     echo "Options:"
     echo "  --reset-db        Reset database before starting"
@@ -21,8 +21,8 @@ show_usage() {
     echo "Examples:"
     echo "  $0 frontend                    # Develop frontend (run npm run dev locally)"
     echo "  $0 backend                     # Develop backend (run go run . locally)"
-    echo "  $0 all                         # Run everything in Docker"
-    echo "  $0 db                          # Start only database"
+    echo "  $0 all                         # Start only database"
+    echo "  $0                             # Run everything in Docker"
     echo "  $0 frontend --reset-db         # Reset DB and start frontend dev"
     echo "  $0 frontend --no-build          # Skip rebuild for faster startup"
     echo "  $0 frontend --port-backend 8080  # Use custom backend port"
@@ -64,7 +64,7 @@ PORT_POSTGRES_OVERRIDE=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        frontend|backend|all|db)
+        frontend|backend|all)
             MODE="$1"
             shift
             ;;
@@ -100,9 +100,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# If no mode specified, default to frontend
+# If no mode specified, default to all services
 if [ -z "$MODE" ]; then
-    MODE="frontend"
+    MODE="all_services"
 fi
 
 # Reset database if requested
@@ -151,6 +151,12 @@ case $MODE in
         docker compose -f docker-compose.dev.yml --profile backend up
         ;;
     all)
+        echo -e "\033[1;35m🗄️  Starting Database Only\033[0m"
+        echo -e "\033[1;34m📍 Database:  localhost:${PORT_POSTGRES}\033[0m"
+        echo ""
+        docker compose -f docker-compose.dev.yml --profile db up${BUILD_FLAG}
+        ;;
+    all_services)
         echo -e "\033[1;34m All Services Mode\033[0m"
         echo -e "\033[1;36m Frontend (Docker): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
         echo -e "\033[1;33m Backend (Docker):  \033[1;34mhttp://localhost:${PORT_BACKEND}\033[0m"
@@ -158,12 +164,6 @@ case $MODE in
         echo ""
         echo -e "\033[1;32m✨ All services running in Docker containers\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile all up${BUILD_FLAG}
-        ;;
-    db)
-        echo -e "\033[1;35m🗄️  Starting Database Only\033[0m"
-        echo -e "\033[1;34m📍 Database:  localhost:${PORT_POSTGRES}\033[0m"
-        echo ""
-        docker compose -f docker-compose.dev.yml --profile db up${BUILD_FLAG}
+        docker compose -f docker-compose.dev.yml up${BUILD_FLAG}
         ;;
 esac
