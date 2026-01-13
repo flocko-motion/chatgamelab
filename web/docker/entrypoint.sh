@@ -74,15 +74,13 @@ window.__APP_CONFIG__ = {
 };
 EOF
 
-# Update index.html to use PUBLIC_URL_PATH for all asset paths
+# Update index.html base href for subpath deployments
 if [ -n "$PUBLIC_URL_PATH" ]; then
-  # Patch env.js path
-  sed -i "s|src=\"/env.js\"|src=\"${PUBLIC_URL_PATH}/env.js\"|g" "$INDEX_HTML"
-  # Patch all /assets/ references to use the base path
-  sed -i "s|src=\"/assets/|src=\"${PUBLIC_URL_PATH}/assets/|g" "$INDEX_HTML"
-  sed -i "s|href=\"/assets/|href=\"${PUBLIC_URL_PATH}/assets/|g" "$INDEX_HTML"
-  # Patch favicon/logo path
-  sed -i "s|href=\"/logo.png\"|href=\"${PUBLIC_URL_PATH}/logo.png\"|g" "$INDEX_HTML"
+  # Ensure trailing slash for base href
+  BASE_HREF="${PUBLIC_URL_PATH}/"
+  # Replace any existing <base href="..."> tag value
+  # (handle minor formatting differences like optional spaces / self-closing)
+  sed -i -E "s|<base href=\"[^\"]*\"[[:space:]]*/?>|<base href=\"${BASE_HREF}\" />|g" "$INDEX_HTML"
 fi
 
 exec "$@"
