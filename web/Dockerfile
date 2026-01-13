@@ -7,18 +7,22 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-# Copy source code
-COPY . .
-
-# Generate API types first
-RUN npm run gen:api
-
 # Build the application with version info
 ARG VERSION=dev
 ARG BUILD_TIME=unknown
+
+# Copy source code
+COPY . .
+
+# Create version.js BEFORE TypeScript compilation
 RUN echo "export const version = \"${VERSION}\";" > src/version.js && \
-    echo "export const buildTime = \"${BUILD_TIME}\";" >> src/version.js && \
-    npm run build
+    echo "export const buildTime = \"${BUILD_TIME}\";" >> src/version.js
+
+# Generate API types
+RUN npm run gen:api
+
+# Build the application
+RUN npm run build
 
 # Production stage - serve static files with nginx
 FROM nginx:1.27-alpine
