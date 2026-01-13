@@ -7,17 +7,15 @@ WORKDIR /app
 COPY server/go.mod server/go.sum ./
 RUN go mod download
 
-# Copy git directory for version info
-COPY .git server/.git
-
 # Copy the rest of the server source
 COPY server/ ./
 
 # Build the server binary with version info
-RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
-    BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ") && \
-    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
-    -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.BuildTime=${BUILD_TIME}" \
+ARG VERSION=dev
+ARG GIT_COMMIT=unknown
+ARG BUILD_TIME=unknown
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+    -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME}" \
     -o cgl ./
 
 # Runtime image (slim, no shell, based on Debian)

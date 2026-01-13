@@ -37,12 +37,41 @@ jobs:
         run: |
           echo "Running semantic-release on branch: ${{ github.ref_name }}"
           VERSION=$(npx semantic-release --dryRun | grep -o 'The next release version is [0-9.]*' | awk '{print $NF}' || echo "no-release")
+          
           if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
             echo "RELEASE_VERSION=$VERSION" >> $GITHUB_OUTPUT
-            echo "Calculated version: $VERSION"
+            echo "Calculated new version: $VERSION"
           else
-            echo "No release needed"
-            echo "RELEASE_VERSION=no-release" >> $GITHUB_OUTPUT
+            echo "No release needed, finding latest version..."
+            # Get latest tag from this branch
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              # Get highest version tag (excluding dev tags)
+              LATEST_VERSION=$(git tag -l "*.*.*" --sort=-version:refname | grep -v "dev" | head -n1 || echo "1.0.0")
+              # Remove 'v' prefix if present
+              LATEST_VERSION=$(echo "$LATEST_VERSION" | sed 's/^v//')
+              echo "Using latest version: $LATEST_VERSION"
+            else
+              # For development branch, always create a new dev version
+              # Get highest dev version tag
+              LATEST_DEV_VERSION=$(git tag -l "*.*.*-dev.*" --sort=-version:refname | head -n1 || echo "1.0.0-dev.0")
+              # Remove 'v' prefix if present
+              LATEST_DEV_VERSION=$(echo "$LATEST_DEV_VERSION" | sed 's/^v//')
+              
+              # Extract base version and dev number
+              if [[ "$LATEST_DEV_VERSION" =~ (.+)-dev\.([0-9]+) ]]; then
+                BASE_VERSION="${BASH_REMATCH[1]}"
+                DEV_NUM="${BASH_REMATCH[2]}"
+                # Increment dev number
+                NEW_DEV_NUM=$((DEV_NUM + 1))
+                LATEST_VERSION="${BASE_VERSION}-dev.${NEW_DEV_NUM}"
+              else
+                # If no dev version exists, start with 1.0.0-dev.1
+                LATEST_VERSION="1.0.0-dev.1"
+              fi
+              echo "Generated new dev version: $LATEST_VERSION"
+            fi
+            
+            echo "RELEASE_VERSION=$LATEST_VERSION" >> $GITHUB_OUTPUT
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,6 +154,10 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.semantic-release.outputs.version }}
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
