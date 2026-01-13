@@ -12,7 +12,9 @@ ENV_JS="$HTML_DIR/env.js"
 
 # Optional
 AUTH0_REDIRECT_URI="${AUTH0_REDIRECT_URI:-}"
-PUBLIC_URL="${PUBLIC_URL:-}"
+
+# Required - runtime config for the app
+: "${PUBLIC_URL:?Must set PUBLIC_URL}"
 
 # Generate env.js (public values only - no secrets!)
 cat > "$ENV_JS" <<EOF
