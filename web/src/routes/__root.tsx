@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { AppShell, Container, Text, Anchor, Box } from '@mantine/core';
-import { version } from '@version';
+import { version } from '../version';
 
 export const Route = createRootRoute({
   component: RootComponent,
