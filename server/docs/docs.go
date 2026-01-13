@@ -1947,6 +1947,9 @@ const docTemplate = `{
                 "buildTime": {
                     "type": "string"
                 },
+                "gitCommit": {
+                    "type": "string"
+                },
                 "version": {
                     "type": "string"
                 }
