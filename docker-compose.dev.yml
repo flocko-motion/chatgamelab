@@ -52,24 +52,20 @@ services:
   web:
     build:
       context: ./web
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: chatgamelab-web
     env_file:
       - .env
-    environment:
-      # Runtime config for frontend (injected at container startup)
-      API_BASE_URL: http://localhost:${PORT_BACKEND}
-      AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
-      AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
-      AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
     ports:
-      - "${PORT_EXPOSED}:80"
-    depends_on:
-      backend:
-        condition: service_started
+      - "${PORT_EXPOSED}:${PORT_EXPOSED}"  # Use same port for host and container
+    volumes:
+      - ./web:/app
+      - /app/node_modules  # Prevent node_modules override
     profiles:
       - backend
+      - frontend
       - all
+    command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
 
 volumes:
   db_data:
