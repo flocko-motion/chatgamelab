@@ -2,12 +2,12 @@ package routes
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -34,6 +34,7 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
+	log.Debug("listing games", "user_id", userID)
 	games, err := db.GetGames(r.Context(), userID, nil)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get games: "+err.Error())
@@ -71,10 +72,13 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newGame := obj.Game{Name: req.Name}
+	log.Debug("creating game", "user_id", user.ID, "name", req.Name)
 	if err := db.CreateGame(r.Context(), user.ID, &newGame); err != nil {
+		log.Debug("game creation failed", "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
 		return
 	}
+	log.Debug("game created", "game_id", newGame.ID)
 
 	created, err := db.GetGameByID(r.Context(), &user.ID, newGame.ID)
 	if err != nil {
@@ -109,7 +113,7 @@ func GetGameByID(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
-	log.Printf("GetGameByID: %s", gameID)
+	log.Debug("getting game by ID", "game_id", gameID, "user_id", userID)
 
 	game, err := db.GetGameByID(r.Context(), userID, gameID)
 	if err != nil {
@@ -144,7 +148,7 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
-	log.Printf("UpdateGame: %s", gameID)
+	log.Debug("updating game", "game_id", gameID, "user_id", user.ID)
 
 	var updatedGame obj.Game
 	if err := httpx.ReadJSON(r, &updatedGame); err != nil {
@@ -189,7 +193,7 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
-	log.Printf("DeleteGame: %s", gameID)
+	log.Debug("deleting game", "game_id", gameID, "user_id", user.ID)
 
 	deleted, err := db.GetGameByID(r.Context(), &user.ID, gameID)
 	if err != nil {
@@ -198,9 +202,11 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.DeleteGame(r.Context(), user.ID, gameID); err != nil {
+		log.Debug("game deletion failed", "game_id", gameID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete game: "+err.Error())
 		return
 	}
+	log.Debug("game deleted", "game_id", gameID)
 
 	httpx.WriteJSON(w, http.StatusOK, deleted)
 }
@@ -227,7 +233,7 @@ func GetGameYAML(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
-	log.Printf("GetGameYAML: %s", gameID)
+	log.Debug("exporting game as YAML", "game_id", gameID, "user_id", user.ID)
 
 	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
 	if err != nil {
@@ -262,7 +268,7 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
-	log.Printf("UpdateGameYAML: %s", gameID)
+	log.Debug("updating game from YAML", "game_id", gameID, "user_id", user.ID)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {

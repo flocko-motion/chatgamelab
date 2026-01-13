@@ -1,9 +1,10 @@
 package db
 
 import (
-	"cgl/obj"
 	"context"
-	"log"
+
+	"cgl/log"
+	"cgl/obj"
 
 	"github.com/google/uuid"
 )
@@ -13,36 +14,38 @@ var DevUserID = uuid.MustParse("00000000-0000-0000-0000-000000000000")
 
 // Preseed ensures required seed data exists in the database
 func Preseed(ctx context.Context) {
+	log.Debug("running database preseed")
+
 	// Ensure dev user exists
 	user, err := GetUserByID(ctx, DevUserID)
 	if err != nil {
-		log.Printf("Creating dev user with ID %s", DevUserID)
+		log.Debug("creating dev user", "user_id", DevUserID)
 		user, err = CreateUserWithID(ctx, DevUserID, "dev", nil, "")
 		if err != nil {
-			log.Printf("Warning: failed to create dev user: %v", err)
+			log.Warn("failed to create dev user", "error", err)
 			return
 		}
 	}
 
 	// Ensure dev user has a mock API key
 	if len(user.ApiKeys) == 0 {
-		log.Printf("Creating mock API key for dev user")
+		log.Debug("creating mock API key for dev user")
 		keyID, err := CreateApiKey(ctx, DevUserID, "Dev Mock Key", "mock", "mock-api-key-for-testing")
 		if err != nil {
-			log.Printf("Warning: failed to create mock API key: %v", err)
+			log.Warn("failed to create mock API key", "error", err)
 			return
 		}
 
 		// Set it as the default
 		shares, err := GetApiKeySharesByUser(ctx, DevUserID)
 		if err != nil {
-			log.Printf("Warning: failed to get shares: %v", err)
+			log.Warn("failed to get shares", "error", err)
 			return
 		}
 		for _, share := range shares {
 			if share.ApiKeyID == *keyID {
 				if err := SetUserDefaultApiKeyShare(ctx, DevUserID, &share.ID); err != nil {
-					log.Printf("Warning: failed to set default API key: %v", err)
+					log.Warn("failed to set default API key", "error", err)
 				}
 				break
 			}
@@ -52,11 +55,11 @@ func Preseed(ctx context.Context) {
 	// Ensure dev user has a dummy game
 	games, err := GetGames(ctx, &DevUserID, nil)
 	if err != nil {
-		log.Printf("Warning: failed to get games: %v", err)
+		log.Warn("failed to get games", "error", err)
 		return
 	}
 	if len(games) == 0 {
-		log.Printf("Creating dummy game for dev user")
+		log.Debug("creating dummy game for dev user")
 		game := &obj.Game{
 			Name:                   "Dev Test Game",
 			Description:            "A simple test game for development",
@@ -67,7 +70,9 @@ func Preseed(ctx context.Context) {
 			StatusFields:           `[{"name": "Health", "value": "100"}, {"name": "Gold", "value": "5"}, {"name": "XP", "value": "0"}, {"name": "Level", "value": "1"}]`,
 		}
 		if err := CreateGame(ctx, DevUserID, game); err != nil {
-			log.Printf("Warning: failed to create dummy game: %v", err)
+			log.Warn("failed to create dummy game", "error", err)
 		}
 	}
+
+	log.Debug("database preseed completed")
 }

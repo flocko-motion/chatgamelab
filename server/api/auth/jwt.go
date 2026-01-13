@@ -2,8 +2,8 @@ package auth
 
 import (
 	"cgl/functional"
+	"cgl/log"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -55,17 +55,17 @@ func ValidateToken(r *http.Request) (userId string, valid bool) {
 	}
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-	log.Printf("[CGL JWT] Validating token: %s...", tokenString[:min(50, len(tokenString))])
+	log.Debug("validating CGL JWT", "token_prefix", tokenString[:min(50, len(tokenString))])
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			log.Printf("[CGL JWT] Invalid signing method: %v", token.Method)
+			log.Debug("invalid JWT signing method", "method", token.Method)
 			return nil, jwt.ErrSignatureInvalid
 		}
 		return secret, nil
 	})
 	if err != nil {
-		log.Printf("[CGL JWT] Parse error: %v", err)
+		log.Debug("JWT parse error", "error", err)
 		return "", false
 	}
 

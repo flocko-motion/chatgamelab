@@ -1,13 +1,13 @@
 package routes
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	"cgl/api/auth"
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -88,7 +88,7 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("GetUserByID: %s", userID)
+	log.Debug("getting user by ID", "user_id", userID)
 
 	user, err := db.GetUserByID(r.Context(), userID)
 	if err != nil {
@@ -124,7 +124,7 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("UpdateUserByID: %s", userID)
+	log.Debug("updating user", "target_user_id", userID, "current_user_id", currentUser.ID)
 
 	// Only admins may access other users
 	if userID != currentUser.ID {
