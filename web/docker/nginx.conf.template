@@ -1,0 +1,44 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+    # Handle requests at the configured base path
+    # PUBLIC_URL_PATH will be replaced by entrypoint (e.g., "/whatever" or "")
+    location ${PUBLIC_URL_PATH}/ {
+        alias /usr/share/nginx/html/;
+
+        # Runtime config: never cache (generated at container startup)
+        location = ${PUBLIC_URL_PATH}/env.js {
+            alias /usr/share/nginx/html/env.js;
+            add_header Cache-Control "no-store";
+        }
+
+        # index.html: allow revalidation so new releases load quickly
+        location = ${PUBLIC_URL_PATH}/index.html {
+            alias /usr/share/nginx/html/index.html;
+            add_header Cache-Control "no-cache";
+        }
+
+        # Vite hashed assets: cache forever (filenames are fingerprinted)
+        location ${PUBLIC_URL_PATH}/assets/ {
+            alias /usr/share/nginx/html/assets/;
+            add_header Cache-Control "public, max-age=31536000, immutable";
+        }
+
+        # SPA fallback: serve index.html for all non-file requests
+        try_files $uri $uri/ ${PUBLIC_URL_PATH}/index.html;
+    }
+
+    # Redirect root to base path if PUBLIC_URL_PATH is set
+    location = / {
+        return 302 ${PUBLIC_URL_PATH}/;
+    }
+}
