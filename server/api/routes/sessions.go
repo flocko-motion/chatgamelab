@@ -3,13 +3,13 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/game"
 	"cgl/game/stream"
+	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -55,7 +55,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
-	log.Printf("GetSession: %s", sessionID)
+	log.Debug("getting session", "session_id", sessionID, "user_id", userID)
 
 	session, err := db.GetGameSessionByID(r.Context(), userID, sessionID)
 	if err != nil {
@@ -71,7 +71,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		if msg, err := db.GetLatestGameSessionMessage(r.Context(), sessionID); err == nil {
 			resp.Messages = []obj.GameSessionMessage{*msg}
 		} else {
-			log.Printf("GetLatestGameSessionMessage error: %v", err)
+			log.Debug("failed to get latest message", "session_id", sessionID, "error", err)
 		}
 	case "all":
 		// TODO: implement GetAllGameSessionMessages
@@ -107,7 +107,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
-	log.Printf("PostSessionAction: %s", sessionID)
+	log.Debug("session action request", "session_id", sessionID, "user_id", userID)
 
 	var req SessionActionRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
@@ -130,11 +130,14 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute the action and get streaming response
+	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
 	response, httpErr := game.DoSessionAction(r.Context(), session, action)
 	if httpErr != nil {
+		log.Debug("session action failed", "session_id", session.ID, "error", httpErr.Message)
 		httpx.WriteError(w, httpErr.StatusCode, httpErr.Message)
 		return
 	}
+	log.Debug("session action completed", "session_id", session.ID, "response_id", response.ID)
 
 	// Return full message (without image bytes)
 	response.Image = nil
@@ -161,7 +164,7 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("GetGameSessions: %s", gameID)
+	log.Debug("getting game sessions", "game_id", gameID)
 
 	// TODO: we need to consider user permissions here!
 	sessions, err := db.GetGameSessionsByGameID(r.Context(), gameID)
@@ -197,7 +200,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("CreateGameSession: %s", gameID)
+	log.Debug("creating game session", "game_id", gameID, "user_id", user.ID)
 
 	var req CreateSessionRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
@@ -205,11 +208,14 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("creating session with model", "game_id", gameID, "share_id", req.ShareID, "model", req.Model)
 	_, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
 	if httpErr != nil {
+		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteError(w, httpErr.StatusCode, httpErr.Message)
 		return
 	}
+	log.Debug("session created", "game_id", gameID, "message_id", firstMessage.ID)
 
 	firstMessage.Image = nil
 	httpx.WriteJSON(w, http.StatusOK, firstMessage)
@@ -296,15 +302,16 @@ func PostRestart(w http.ResponseWriter, r *http.Request) {
 
 	// Require admin
 	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		log.Debug("restart denied - not admin", "user_id", user.ID)
 		httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
 		return
 	}
 
-	log.Println("restart request - exiting server")
+	log.Info("restart request received", "user_id", user.ID)
 	go func() {
 		// Give time for response to be sent
 		<-r.Context().Done()
-		log.Println("shutting down server")
+		log.Info("shutting down server for restart")
 		// Use a channel or signal instead of os.Exit for graceful shutdown
 	}()
 

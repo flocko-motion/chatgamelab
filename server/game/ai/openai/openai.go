@@ -3,9 +3,6 @@ package openai
 import (
 	"bufio"
 	"bytes"
-	"cgl/game/stream"
-	"cgl/lang"
-	"cgl/obj"
 	"context"
 	"encoding/base64"
 	"encoding/json"
@@ -13,6 +10,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"cgl/game/stream"
+	"cgl/lang"
+	"cgl/log"
+	"cgl/obj"
 )
 
 const (
@@ -84,6 +86,8 @@ type ContentItem struct {
 }
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
+	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", session.AiModel)
+
 	if session.ApiKey == nil {
 		return fmt.Errorf("session has no API key")
 	}
@@ -91,6 +95,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// Parse the model session
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
+		log.Debug("failed to parse model session", "error", err)
 		return fmt.Errorf("failed to parse model session: %w", err)
 	}
 
@@ -130,10 +135,13 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	}
 
 	// Make the API call
+	log.Debug("calling OpenAI Responses API", "model", req.Model, "has_previous_response", req.PreviousResponseID != "")
 	apiResponse, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
+		log.Debug("OpenAI API call failed", "error", err)
 		return fmt.Errorf("OpenAI API error: %w", err)
 	}
+	log.Debug("OpenAI API call completed", "response_id", apiResponse.ID, "status", apiResponse.Status)
 
 	if apiResponse.Status != "completed" {
 		errMsg := "unknown error"
@@ -150,7 +158,9 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	}
 
 	// Parse the structured response into the pre-created message
+	log.Debug("parsing OpenAI response", "response_length", len(responseText))
 	if err := json.Unmarshal([]byte(responseText), response); err != nil {
+		log.Debug("failed to parse game response", "error", err, "response_text", responseText[:min(200, len(responseText))])
 		return fmt.Errorf("failed to parse game response: %w", err)
 	}
 
@@ -222,6 +232,8 @@ func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIReques
 
 // ExpandStory expands the plot outline to full narrative text using streaming
 func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
+	log.Debug("OpenAI ExpandStory starting", "session_id", session.ID, "message_id", response.ID)
+
 	if session.ApiKey == nil {
 		return fmt.Errorf("session has no API key")
 	}
@@ -243,10 +255,13 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	}
 
 	// Make streaming API call
+	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
+		log.Debug("OpenAI streaming API failed", "error", err)
 		return fmt.Errorf("OpenAI streaming API error: %w", err)
 	}
+	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
 
 	// Update response with full text
 	response.Message = fullText
@@ -264,19 +279,25 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 
 // GenerateImage generates an image from the imagePrompt using streaming
 func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
+	log.Debug("OpenAI GenerateImage starting", "session_id", session.ID, "message_id", response.ID)
+
 	if session.ApiKey == nil {
 		return fmt.Errorf("session has no API key")
 	}
 
 	if response.ImagePrompt == nil || *response.ImagePrompt == "" {
+		log.Debug("no image prompt, skipping image generation")
 		return nil // No image to generate
 	}
+	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle)
 
 	// Build image generation request with streaming
 	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, responseStream)
 	if err != nil {
+		log.Debug("image generation failed", "error", err)
 		return fmt.Errorf("OpenAI image generation error: %w", err)
 	}
+	log.Debug("image generation completed", "image_size", len(imageData))
 
 	// Update response with final image
 	response.Image = imageData

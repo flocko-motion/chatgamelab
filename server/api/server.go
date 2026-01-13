@@ -4,9 +4,9 @@ import (
 	"cgl/api/auth"
 	"cgl/api/routes"
 	"cgl/db"
+	"cgl/log"
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,12 +21,16 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	routes.DevMode = devMode
 
 	if devMode {
-		log.Println("Development mode enabled")
+		log.SetDebug(true)
+		log.Info("development mode enabled", "debug_logging", true)
 	}
 
+	log.Debug("initializing database")
 	db.Init()
+	log.Debug("running database preseed")
 	db.Preseed(ctx)
 
+	log.Debug("setting up HTTP router")
 	// Use new stdlib-based router
 	h := routes.Handler()
 
@@ -38,9 +42,10 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 
 	// Start server in goroutine
 	go func() {
-		log.Printf("Server listening on %s\n", bindAddr)
+		log.Info("server listening", "address", bindAddr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("There was an error with the http server: %v", err)
+			log.Error("http server error", "error", err)
+			os.Exit(1)
 		}
 	}()
 
@@ -50,19 +55,20 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 
 	select {
 	case <-quit:
-		log.Println("Received shutdown signal")
+		log.Info("received shutdown signal")
 	case <-ctx.Done():
-		log.Println("Context cancelled")
+		log.Info("context cancelled")
 	}
 
 	// Graceful shutdown with timeout
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	log.Println("Shutting down server...")
+	log.Info("shutting down server")
 	if err := server.Shutdown(shutdownCtx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		log.Error("server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
 
-	log.Println("Server stopped")
+	log.Info("server stopped")
 }

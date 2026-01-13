@@ -2,7 +2,6 @@ package httpx
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,6 +10,7 @@ import (
 
 	"cgl/api/auth"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
@@ -121,13 +121,13 @@ func Authenticate(next http.Handler) http.Handler {
 
 		domain := os.Getenv("AUTH0_DOMAIN")
 		if domain == "" {
-			log.Println("[Auth] AUTH0_DOMAIN not set, Auth0 authentication disabled")
+			log.Debug("auth0 authentication disabled", "reason", "AUTH0_DOMAIN not set")
 			return nil
 		}
 
 		issuerURL, err := url.Parse("https://" + domain + "/")
 		if err != nil {
-			log.Printf("[Auth] Failed to parse Auth0 issuer URL: %v", err)
+			log.Error("failed to parse auth0 issuer URL", "domain", domain, "error", err)
 			return nil
 		}
 
@@ -144,14 +144,15 @@ func Authenticate(next http.Handler) http.Handler {
 			validator.WithAllowedClockSkew(time.Minute),
 		)
 		if err != nil {
-			log.Printf("[Auth] Failed to set up Auth0 validator: %v", err)
+			log.Error("failed to set up auth0 validator", "error", err)
 			return nil
 		}
+		log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
 
 		auth0Middleware = jwtmiddleware.New(
 			jwtValidator.ValidateToken,
 			jwtmiddleware.WithErrorHandler(func(w http.ResponseWriter, r *http.Request, err error) {
-				log.Printf("[Auth] Auth0 JWT validation error: %v", err)
+				log.Debug("auth0 JWT validation failed", "error", err, "path", r.URL.Path)
 				WriteError(w, http.StatusUnauthorized, "Invalid token")
 			}),
 		)
@@ -170,19 +171,19 @@ func Authenticate(next http.Handler) http.Handler {
 		// Try CGL dev JWT first (HS256, signed with JWT_SECRET)
 		if userId, valid := auth.ValidateToken(r); valid {
 			if userId == "" {
-				log.Printf("[Auth] CGL JWT has empty 'sub' claim")
+				log.Warn("CGL JWT has empty sub claim")
 				WriteError(w, http.StatusUnauthorized, "Invalid token: missing user ID")
 				return
 			}
 
 			user, err := db.GetUserByID(r.Context(), uuid.MustParse(userId))
 			if err != nil {
-				log.Printf("[Auth] CGL JWT user not found: %s", userId)
+				log.Debug("CGL JWT user not found", "user_id", userId, "error", err)
 				WriteError(w, http.StatusUnauthorized, "User not found")
 				return
 			}
 
-			log.Printf("[Auth] CGL JWT authenticated user: %s (%s)", userId, user.Name)
+			log.Debug("CGL JWT authenticated", "user_id", userId, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
@@ -214,15 +215,16 @@ func Authenticate(next http.Handler) http.Handler {
 			user, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
 			if err != nil {
 				// Auto-create user on first login
+				log.Debug("creating new user for auth0 ID", "auth0_id", auth0ID)
 				user, err = db.CreateUser(r.Context(), "Unnamed Auth0 User", nil, auth0ID)
 				if err != nil {
-					log.Printf("[Auth] Failed to create user for Auth0 ID %s: %v", auth0ID, err)
+					log.Error("failed to create user for auth0 ID", "auth0_id", auth0ID, "error", err)
 					WriteError(w, http.StatusInternalServerError, "Failed to create user")
 					return
 				}
 			}
 
-			log.Printf("[Auth] Auth0 authenticated user: %s (%s)", auth0ID, user.Name)
+			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 		})).ServeHTTP(w, r)
 	})
