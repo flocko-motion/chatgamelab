@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { apiLogger } from './logger';
+import i18n from '../i18n';
 import type { HttpxErrorResponse } from '../api/generated';
 
 export const queryClient = new QueryClient({
@@ -125,29 +126,33 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
   switch (status) {
     case 401:
       notifications.show({
-        title: 'Authentication Error',
-        message: 'Please log in to continue.',
+        title: i18n.t('errors.titles.authentication'),
+        message: i18n.t('errors.unauthorized'),
         color: 'red',
       });
+      // Redirect to login page
+      if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/')) {
+        window.location.href = '/auth/login';
+      }
       break;
     case 403:
       notifications.show({
-        title: 'Permission Denied',
-        message: 'You do not have permission to perform this action.',
+        title: i18n.t('errors.titles.permission'),
+        message: i18n.t('errors.forbidden'),
         color: 'red',
       });
       break;
     case 404:
       notifications.show({
-        title: 'Not Found',
-        message: 'The requested resource was not found.',
+        title: i18n.t('errors.titles.notFound'),
+        message: i18n.t('errors.notFound'),
         color: 'orange',
       });
       break;
     case 422:
       notifications.show({
-        title: 'Validation Error',
-        message: message || 'Please check your input and try again.',
+        title: i18n.t('errors.titles.validation'),
+        message: message || i18n.t('errors.validation'),
         color: 'orange',
       });
       break;
@@ -156,15 +161,15 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
     case 503:
     case 504:
       notifications.show({
-        title: 'Server Error',
-        message: 'Something went wrong on our end. Please try again later.',
+        title: i18n.t('errors.titles.server'),
+        message: i18n.t('errors.server'),
         color: 'red',
       });
       break;
     case 0:
       notifications.show({
-        title: 'Network Error',
-        message: message,
+        title: i18n.t('errors.titles.network'),
+        message: i18n.t('errors.network'),
         color: 'red',
       });
       break;
@@ -172,14 +177,14 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       // For other errors, show a generic error message
       if (status >= 400 && status < 500) {
         notifications.show({
-          title: 'Error',
-          message: message || 'Something went wrong. Please try again.',
+          title: i18n.t('errors.titles.error'),
+          message: message || i18n.t('errors.generic'),
           color: 'orange',
         });
       } else {
         notifications.show({
-          title: 'Error',
-          message: message || 'An unexpected error occurred.',
+          title: i18n.t('errors.titles.error'),
+          message: message || i18n.t('errors.unexpected'),
           color: 'red',
         });
       }
