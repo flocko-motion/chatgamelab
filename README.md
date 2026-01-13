@@ -190,7 +190,7 @@ User=youruser
 Group=youruser
 
 # Environment variables
-Environment="IMAGE_TAG=latest"
+Environment="IMAGE_TAG=latest" # production: latest, development: dev
 Environment="DB_PASSWORD=secure_password"
 Environment="AUTH0_DOMAIN=your.auth0.domain"
 Environment="AUTH0_AUDIENCE=your.auth0.audience"
