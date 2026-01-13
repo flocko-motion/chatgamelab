@@ -27,6 +27,8 @@ export function AppProviders() {
             audience: auth0Config.audience,
             redirect_uri: auth0Config.redirectUri,
           }}
+          cacheLocation="localstorage"
+          useRefreshTokens={true}
         >
           <MantineProvider theme={mantineTheme}>
             <ModalsProvider>
