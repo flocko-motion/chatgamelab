@@ -5,6 +5,20 @@ on:
     branches:
       - main
       - development
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - main
+          - development
+      reason:
+        description: 'Reason for manual build'
+        required: false
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -16,11 +30,19 @@ jobs:
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:
+      - name: Display build info
+        run: |
+          echo "🚀 Manual build triggered"
+          echo "📂 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "💬 Reason: ${{ github.event.inputs.reason || 'No reason provided' }}"
+          echo "👤 Triggered by: ${{ github.actor }}"
+      
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
