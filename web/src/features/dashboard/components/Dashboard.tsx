@@ -28,8 +28,8 @@ import {
   IconTrendingUp,
   IconPlus
 } from '@tabler/icons-react';
-import logo from '/logos/black/ChatGameLab-Logo-2025-Landscape-Black-Black-Text-Transparent.png';
 import { LanguageSwitcher } from '@components/LanguageSwitcher';
+import logo from '@/assets/logos/black/ChatGameLab-Logo-2025-Landscape-Black-Black-Text-Transparent.png';
 
 // Navigation Component
 function AppNavigation() {
