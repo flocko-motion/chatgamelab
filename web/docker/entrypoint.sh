@@ -74,9 +74,15 @@ window.__APP_CONFIG__ = {
 };
 EOF
 
-# Update index.html to use PUBLIC_URL_PATH for asset paths
+# Update index.html to use PUBLIC_URL_PATH for all asset paths
 if [ -n "$PUBLIC_URL_PATH" ]; then
-  sed -i "s|src=\"./env.js\"|src=\"${PUBLIC_URL_PATH}/env.js\"|g" "$INDEX_HTML"
+  # Patch env.js path
+  sed -i "s|src=\"/env.js\"|src=\"${PUBLIC_URL_PATH}/env.js\"|g" "$INDEX_HTML"
+  # Patch all /assets/ references to use the base path
+  sed -i "s|src=\"/assets/|src=\"${PUBLIC_URL_PATH}/assets/|g" "$INDEX_HTML"
+  sed -i "s|href=\"/assets/|href=\"${PUBLIC_URL_PATH}/assets/|g" "$INDEX_HTML"
+  # Patch favicon/logo path
+  sed -i "s|href=\"/logo.png\"|href=\"${PUBLIC_URL_PATH}/logo.png\"|g" "$INDEX_HTML"
 fi
 
 exec "$@"
