@@ -13,6 +13,7 @@ show_usage() {
     echo ""
     echo "Options:"
     echo "  --reset-db        Reset database before starting"
+    echo "  --no-build        Skip Docker rebuild (use cached images)"
     echo "  --port-frontend   Override frontend port (default: 80)"
     echo "  --port-backend    Override backend port (default: 7001)"
     echo "  --port-db         Override database port (default: 7003)"
@@ -23,6 +24,7 @@ show_usage() {
     echo "  $0 all                         # Run everything in Docker"
     echo "  $0 db                          # Start only database"
     echo "  $0 frontend --reset-db         # Reset DB and start frontend dev"
+    echo "  $0 frontend --no-build          # Skip rebuild for faster startup"
     echo "  $0 frontend --port-backend 8080  # Use custom backend port"
 }
 
@@ -55,6 +57,7 @@ source .env
 # Parse arguments
 MODE=""
 RESET_DB=false
+BUILD_CONTAINERS=true
 PORT_EXPOSED_OVERRIDE=""
 PORT_BACKEND_OVERRIDE=""
 PORT_POSTGRES_OVERRIDE=""
@@ -67,6 +70,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --reset-db)
             RESET_DB=true
+            shift
+            ;;
+        --no-build)
+            BUILD_CONTAINERS=false
             shift
             ;;
         --port-frontend)
@@ -108,6 +115,16 @@ PORT_EXPOSED=${PORT_EXPOSED_OVERRIDE:-$PORT_EXPOSED}
 PORT_BACKEND=${PORT_BACKEND_OVERRIDE:-$PORT_BACKEND}
 PORT_POSTGRES=${PORT_POSTGRES_OVERRIDE:-$PORT_POSTGRES}
 
+# Set build flag
+if [ "$BUILD_CONTAINERS" = true ]; then
+    BUILD_FLAG=" --build"
+    echo -e "\033[1;33m🔨 Building containers (use --no-build to skip)\033[0m"
+else
+    BUILD_FLAG=""
+    echo -e "\033[1;36m⚡ Using cached containers (faster startup)\033[0m"
+fi
+echo ""
+
 # Start services based on mode
 echo "Starting development environment in $MODE mode..."
 echo ""
@@ -121,7 +138,7 @@ case $MODE in
         echo -e "\033[1;32m� Now run the frontend locally:\033[0m"
         echo -e "   \033[1;34mcd web && npm run dev\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile frontend up
+        docker compose -f docker-compose.dev.yml --profile frontend up${BUILD_FLAG}
         ;;
     backend)
         echo -e "\033[1;33m🔧 Backend Development Mode\033[0m"
@@ -131,7 +148,7 @@ case $MODE in
         echo -e "\033[1;32m💡 Now run the backend locally:\033[0m"
         echo -e "   \033[1;34mcd server && go run . server\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile backend up
+        docker compose -f docker-compose.dev.yml --profile backend up${BUILD_FLAG}
         ;;
     all)
         echo -e "\033[1;34m🚀 All Services Mode\033[0m"
@@ -141,12 +158,12 @@ case $MODE in
         echo ""
         echo -e "\033[1;32m✨ All services running in Docker containers\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile all up
+        docker compose -f docker-compose.dev.yml --profile all up${BUILD_FLAG}
         ;;
     db)
         echo -e "\033[1;35m🗄️  Starting Database Only\033[0m"
         echo -e "\033[1;34m📍 Database:  localhost:${PORT_POSTGRES}\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile db up
+        docker compose -f docker-compose.dev.yml --profile db up${BUILD_FLAG}
         ;;
 esac

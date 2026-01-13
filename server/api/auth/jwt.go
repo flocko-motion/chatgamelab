@@ -2,6 +2,7 @@ package auth
 
 import (
 	"cgl/functional"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -14,11 +15,15 @@ import (
 var secret []byte
 
 func InitJwtGeneration() {
-	secret = []byte(functional.RequireEnv("DEV_JWT_SECRET"))
+	secret = []byte(functional.EnvOrDefault("DEV_JWT_SECRET", ""))
 }
 
 // GenerateToken creates a new JWT token for the given subject (user ID)
 func GenerateToken(userId string) (string, int64, error) {
+	if len(secret) == 0 {
+		return "", 0, fmt.Errorf("DEV_JWT_SECRET not set - dev JWT generation disabled")
+	}
+
 	expireAt := time.Now().Add(24 * time.Hour)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":   userId,
@@ -40,6 +45,10 @@ func GenerateToken(userId string) (string, int64, error) {
 // ValidateToken checks if the request has a valid CGL JWT token
 // Returns the userId from the token if valid, empty string otherwise
 func ValidateToken(r *http.Request) (userId string, valid bool) {
+	if len(secret) == 0 {
+		return "", false
+	}
+
 	authHeader := r.Header.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 		return "", false
