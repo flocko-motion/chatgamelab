@@ -65,10 +65,21 @@
     "network": "Network error. Please check your connection.",
     "server": "Server error. Please try again later.",
     "validation": "Please check your input and try again.",
-    "unauthorized": "You need to log in to access this page.",
-    "forbidden": "You don't have permission to access this page.",
-    "notFound": "Page not found.",
-    "generic": "Something went wrong. Please try again."
+    "unauthorized": "Please log in to continue.",
+    "forbidden": "You don't have permission to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "generic": "Something went wrong. Please try again.",
+    "unexpected": "An unexpected error occurred.",
+    "backendUserFetch": "Failed to load user data from server. Please try again.",
+    "titles": {
+      "network": "Network Error",
+      "server": "Server Error",
+      "validation": "Validation Error",
+      "authentication": "Authentication Error",
+      "permission": "Permission Denied",
+      "notFound": "Not Found",
+      "error": "Error"
+    }
   },
   "auth": {
     "login": {
