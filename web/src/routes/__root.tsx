@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { AppShell, Container, Text, Anchor, Box } from '@mantine/core';
-import { version } from '../version';
+import { VersionDisplay } from '../common/components/VersionDisplay';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -41,7 +41,7 @@ function RootComponent() {
                   Produced by <Anchor href="https://tausend-medien.de" target="_blank" size="sm" c="violet">tausend-medien.de</Anchor>
                 </Text>
                 <Text size="sm" c="dimmed" span>|</Text>
-                <Text size="sm" c="dimmed" span>v{version}</Text>
+                <VersionDisplay />
               </Box>
             </Text>
           </Box>

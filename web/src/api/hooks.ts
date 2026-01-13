@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
+import { apiClient } from './client';
 import type { 
   ObjApiKeyShare, 
   ObjGame, 
@@ -197,7 +198,7 @@ export function useCreateUser() {
 
 // Version hook (public endpoint, no auth needed)
 export function useVersion() {
-  const api = useRequiredAuthenticatedApi();
+  const api = apiClient;
   
   return useQuery<RoutesVersionResponse, HttpxErrorResponse>({
     queryKey: queryKeys.version,
