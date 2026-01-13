@@ -44,10 +44,17 @@ jobs:
           VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
           
           if [ -z "$VERSION" ]; then
-            # No release was published, get the latest tag
-            echo "No new release, finding latest version..."
-            VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | head -n1 || echo "1.0.0")
-            echo "Using existing version: $VERSION"
+            # No release was published, check if semantic-release found an existing tag
+            FOUND_TAG=$(grep -oP 'Found git tag v\K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
+            
+            if [ -n "$FOUND_TAG" ]; then
+              VERSION="$FOUND_TAG"
+              echo "No new release, using existing tag: $VERSION"
+            else
+              # Fallback: get the latest tag from git
+              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | head -n1 | sed 's/^v//' || echo "1.0.0")
+              echo "No tag found in release log, using latest git tag: $VERSION"
+            fi
           else
             echo "New version published: $VERSION"
           fi
