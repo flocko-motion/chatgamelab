@@ -5,6 +5,7 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  envDir: '../',  // Load .env from root directory (single source of truth)
   plugins: [
     TanStackRouterVite({
       routesDirectory: './src/routes',

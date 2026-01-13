@@ -14,7 +14,7 @@ import (
 var secret []byte
 
 func InitJwtGeneration() {
-	secret = []byte(functional.RequireEnv("JWT_SECRET"))
+	secret = []byte(functional.RequireEnv("DEV_JWT_SECRET"))
 }
 
 // GenerateToken creates a new JWT token for the given subject (user ID)

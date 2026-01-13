@@ -4,13 +4,14 @@ FROM golang:1.25 AS build
 WORKDIR /app
 
 # Copy go module files first for better caching
-COPY go.mod go.sum ./
+COPY server/go.mod server/go.sum ./
 RUN go mod download
 
 # Copy git directory for version info
-COPY .git .git
+COPY .git server/.git
+
 # Copy the rest of the server source
-COPY . .
+COPY server/ ./
 
 # Build the server binary with version info
 RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
@@ -20,7 +21,7 @@ RUN GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown") && \
     -o cgl ./
 
 # Runtime image (slim, no shell, based on Debian)
-FROM gcr.io/distroless/base-debian12
+FROM gcr.io/distroless/base-debian13
 
 WORKDIR /app
 
