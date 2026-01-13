@@ -1,6 +1,9 @@
-# Production mode
-# Usage: docker compose up -d
-# Environment variables must be set (e.g., via CI/CD or export)
+# Production deployment using pre-built images from GitHub Container Registry
+# Usage: 
+#   Production (main):     IMAGE_TAG=latest docker compose up -d
+#   Development (dev):     IMAGE_TAG=dev docker compose up -d
+#   Specific version:      IMAGE_TAG=abc1234 docker compose up -d
+# Environment variables must be set (e.g., via systemd, .env, or export)
 
 services:
   db:
@@ -14,15 +17,14 @@ services:
       - db_data:/var/lib/postgresql
       - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab"]
+      test: [ "CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   backend:
-    build:
-      context: .
-      dockerfile: ./server/Dockerfile
+    image: ghcr.io/flocko-motion/chatgamelab-backend:${IMAGE_TAG:-latest}
     container_name: chatgamelab-backend
     environment:
       DB_HOST: db
@@ -40,12 +42,11 @@ services:
         condition: service_healthy
     expose:
       - "3000"
-    command: ["server"]
+    command: [ "server" ]
+    restart: unless-stopped
 
   web:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
+    image: ghcr.io/flocko-motion/chatgamelab-web:${IMAGE_TAG:-latest}
     container_name: chatgamelab-web
     environment:
       API_BASE_URL: ${API_BASE_URL}
@@ -57,6 +58,7 @@ services:
         condition: service_started
     ports:
       - "${PORT_EXPOSED:-80}:80"
+    restart: unless-stopped
 
 volumes:
   db_data:

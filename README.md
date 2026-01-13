@@ -111,11 +111,37 @@ Then restart with `./run-dev.sh`.
 
 ## Production
 
-Production runs everything in Docker containers. **Do NOT use `.env` files in production.** Environment variables must be injected externally via your hosting provider or systemd.
+Production uses pre-built Docker images from GitHub Container Registry (GHCR). Images are automatically built by GitHub Actions when you push to `main` or `development` branches.
+
+**Image tags:**
+- `main` branch → `:latest` tag (production)
+- `development` branch → `:dev` tag (staging)
+- All commits also get SHA tags (e.g., `:abc1234`) for rollbacks
+
+### Deployment Steps
+
+1. **Authenticate to GitHub Container Registry** on your server:
+   ```bash
+   # Create a GitHub Personal Access Token with read:packages scope
+   # https://github.com/settings/tokens/new
+   
+   echo "YOUR_GITHUB_TOKEN" | docker login ghcr.io -u YOUR_USERNAME --password-stdin
+   ```
+
+2. **Copy deployment files** to your server:
+   - `docker-compose.yml` - Container orchestration
+   - Create systemd service file (see below)
+
+3. **Configure and start** via systemd (recommended) or manually
 
 ### Required Environment Variables
 
+**Do NOT use `.env` files in production.** Environment variables must be injected externally via your hosting provider or systemd.
+
 ```bash
+# Image tag (controls which branch's images to use)
+IMAGE_TAG=latest  # or 'dev' for development branch
+
 # Database
 DB_PASSWORD=secure_password_here
 
@@ -142,43 +168,97 @@ Set environment variables in your provider's dashboard, then deploy.
 
 ### Option 2: Self-hosted with systemd
 
-Create a systemd service with environment variables:
+Create a systemd service for automatic startup and management:
 
 ```bash
-# Create service file
 sudo nano /etc/systemd/system/chatgamelab.service
 ```
 
+**Production service:**
 ```ini
 [Unit]
-Description=ChatGameLab
-After=docker.service
+Description=ChatGameLab Production
+After=docker.service network-online.target
 Requires=docker.service
+Wants=network-online.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/path/to/chatgamelab
+User=youruser
+Group=youruser
+
+# Environment variables
+Environment="IMAGE_TAG=latest"
 Environment="DB_PASSWORD=secure_password"
 Environment="AUTH0_DOMAIN=your.auth0.domain"
 Environment="AUTH0_AUDIENCE=your.auth0.audience"
-Environment="API_BASE_URL=https://yourdomain.com"
 Environment="AUTH0_CLIENT_ID=your_client_id"
-ExecStart=/usr/bin/docker compose up -d --build
+Environment="API_BASE_URL=https://yourdomain.com"
+Environment="PUBLIC_URL=https://yourdomain.com"
+Environment="PORT_EXPOSED=80"
+
+# Commands
+ExecStartPre=/usr/bin/docker compose pull
+ExecStart=/usr/bin/docker compose up -d
 ExecStop=/usr/bin/docker compose down
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Or use `systemctl edit chatgamelab` to add environment overrides
+**Enable and start:**
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable chatgamelab.service
+sudo systemctl start chatgamelab.service
+sudo systemctl status chatgamelab.service
+```
+
+### Updating to Latest Images
+
+When new code is pushed to GitHub, images are automatically built. To update your server:
+
+```bash
+# Via systemd (pulls latest images automatically)
+sudo systemctl restart chatgamelab.service
+
+# Or manually
+IMAGE_TAG=latest docker compose pull
+IMAGE_TAG=latest docker compose up -d
+```
+
+### Rollback to Previous Version
+
+```bash
+# Use the short commit SHA from GitHub Actions
+IMAGE_TAG=abc1234 docker compose pull
+IMAGE_TAG=abc1234 docker compose up -d
+```
 
 ### Useful Commands
 
 ```bash
-docker compose logs -f      # View logs
-docker compose down         # Stop all services
-docker compose up -d --build  # Rebuild and restart
+# View logs
+docker compose logs -f
+docker compose logs -f backend
+
+# Check status
+docker compose ps
+sudo systemctl status chatgamelab.service
+
+# Stop/start
+docker compose down
+IMAGE_TAG=latest docker compose up -d
+
+# Or via systemd
+sudo systemctl stop chatgamelab.service
+sudo systemctl start chatgamelab.service
 ```
 
 ## Quick Start for Designers
