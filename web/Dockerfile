@@ -13,11 +13,7 @@ COPY . .
 # Generate API types first
 RUN npm run gen:api
 
-# Build argument for base path (e.g., /cgldev/)
-ARG PUBLIC_URL=/
-ENV PUBLIC_URL=${PUBLIC_URL}
-
-# Build the application with the configured base path
+# Build the application (uses relative paths, works for any deployment)
 RUN npm run build
 
 # Production stage - serve static files with nginx

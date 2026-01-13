@@ -9,10 +9,10 @@ ENV_JS="$HTML_DIR/env.js"
 : "${AUTH0_DOMAIN:?Must set AUTH0_DOMAIN}"
 : "${AUTH0_CLIENT_ID:?Must set AUTH0_CLIENT_ID}"
 : "${AUTH0_AUDIENCE:?Must set AUTH0_AUDIENCE}"
+: "${PUBLIC_URL:?Must set PUBLIC_URL}"
 
 # Optional
 AUTH0_REDIRECT_URI="${AUTH0_REDIRECT_URI:-}"
-PUBLIC_URL="${PUBLIC_URL:-}"
 
 # Generate env.js (public values only - no secrets!)
 cat > "$ENV_JS" <<EOF
