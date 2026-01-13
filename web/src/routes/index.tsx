@@ -1,8 +1,8 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Text, Stack, Center, Image } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import logo from '/logos/black/ChatGameLab-Logo-2025-Square-Black-Black-Text-Transparent.png';
 import { Button } from '@components/Button';
+import logo from '@/assets/logos/black/ChatGameLab-Logo-2025-Square-Black-Black-Text-Transparent.png';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
