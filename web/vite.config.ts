@@ -6,8 +6,8 @@ import path from 'path';
 // https://vite.dev/config/
 export default defineConfig({
   envDir: '../',  // Load .env from root directory (single source of truth)
-  // Use relative paths for assets - works for any deployment path
-  base: './',
+  // Use absolute paths - entrypoint.sh patches them with PUBLIC_URL_PATH at runtime
+  base: '/',
   plugins: [
     TanStackRouterVite({
       routesDirectory: './src/routes',
