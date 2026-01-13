@@ -54,16 +54,20 @@ Development uses Docker for services you're not actively working on, while you r
 |---------|-------------|---------------------|
 | `./run-dev.sh frontend` | db + backend | Frontend (`cd web && npm run dev`) |
 | `./run-dev.sh backend` | db + web | Backend (`cd server && go run . server`) |
-| `./run-dev.sh db` | db only | Both frontend and backend |
+| `./run-dev.sh all` | db only | Both frontend and backend |
+| `./run-dev.sh` | all services | None (everything in Docker) |
 
 ### Develop Frontend
 
 ```bash
-# Terminal 1 - Start database and backend in Docker
-./run-dev.sh frontend
+# Terminal 1 - Start database only
+./run-dev.sh all
 
-# Terminal 2 - Start frontend locally (with hot reload)
+# Terminal 2 - Start frontend locally
 cd web && npm run dev
+
+# Terminal 3 - Start backend locally
+cd server && go run . server
 ```
 
 Open **http://localhost:5173** in your browser.
@@ -80,10 +84,21 @@ cd server && go run . server
 
 Open **http://localhost** in your browser (served by Docker).
 
+### Start All Services in Docker
+
+```bash
+# Start everything (db + backend + web) in Docker
+./run-dev.sh
+```
+
+Open **http://localhost** in your browser.
+
 ### Options
 
 ```bash
 ./run-dev.sh frontend --reset-db          # Reset database before starting
+./run-dev.sh all --reset-db               # Reset database before starting
+./run-dev.sh --reset-db                   # Reset database before starting all services
 ./run-dev.sh frontend --port-backend 8080 # Custom backend port
 ./run-dev.sh --help                       # Show all options
 ```

@@ -26,7 +26,6 @@ services:
       - db
       - backend
       - frontend
-      - all
 
   backend:
     build:
@@ -46,7 +45,6 @@ services:
       - "${PORT_BACKEND}:3000"
     profiles:
       - frontend
-      - all
     command: ["server"]
 
   web:
@@ -64,7 +62,6 @@ services:
     profiles:
       - backend
       - frontend
-      - all
     command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
 
 volumes:
