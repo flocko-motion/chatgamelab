@@ -13,8 +13,12 @@ COPY . .
 # Generate API types first
 RUN npm run gen:api
 
-# Build the application (no env vars needed - config injected at runtime)
-RUN npm run build
+# Build the application with version info
+ARG VERSION=dev
+ARG BUILD_TIME=unknown
+RUN echo "export const version = \"${VERSION}\";" > src/version.js && \
+    echo "export const buildTime = \"${BUILD_TIME}\";" >> src/version.js && \
+    npm run build
 
 # Production stage - serve static files with nginx
 FROM nginx:1.27-alpine

@@ -9,11 +9,13 @@ import (
 // Version info (set via main package at startup)
 var (
 	GitCommit = "dev"
+	Version   = "dev"
 	BuildTime = "unknown"
 )
 
 type VersionResponse struct {
 	Version   string `json:"version"`
+	GitCommit string `json:"gitCommit"`
 	BuildTime string `json:"buildTime"`
 }
 
@@ -27,7 +29,8 @@ type VersionResponse struct {
 //	@Router			/version [get]
 func GetVersion(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, VersionResponse{
-		Version:   GitCommit,
+		Version:   Version,
+		GitCommit: GitCommit,
 		BuildTime: BuildTime,
 	})
 }

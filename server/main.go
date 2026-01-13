@@ -10,6 +10,7 @@ import (
 // Set via -ldflags at build time
 var (
 	GitCommit = "dev"
+	Version   = "dev"
 	BuildTime = "unknown"
 )
 
@@ -22,6 +23,7 @@ func init() {
 func main() {
 	// Pass version info to routes package
 	routes.GitCommit = GitCommit
+	routes.Version = Version
 	routes.BuildTime = BuildTime
 
 	cmd.Execute()
