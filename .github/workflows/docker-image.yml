@@ -39,7 +39,7 @@ jobs:
           VERSION=$(npx semantic-release --dryRun | grep -o 'The next release version is [0-9.]*' | awk '{print $NF}' || echo "no-release")
           
           if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
-            echo "RELEASE_VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "Calculated new version: $VERSION"
           else
             echo "No release needed, finding latest version..."
@@ -71,7 +71,7 @@ jobs:
               echo "Generated new dev version: $LATEST_VERSION"
             fi
             
-            echo "RELEASE_VERSION=$LATEST_VERSION" >> $GITHUB_OUTPUT
+            echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -145,6 +145,10 @@ jobs:
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
           echo "Building tags: ${TAGS}"
 
+      - name: Debug version
+        run: |
+          echo "Version from semantic-release: ${{ needs.semantic-release.outputs.version }}"
+      
       - name: Build and push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
         with:
