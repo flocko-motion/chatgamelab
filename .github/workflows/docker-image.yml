@@ -79,8 +79,30 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
-  summary:
+  webhook:
     needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment webhook
+        run: |
+          # Determine webhook URL based on branch
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            WEBHOOK_URL="https://omnitopos.net/dashctl/cgl-prod/restart"
+          else
+            WEBHOOK_URL="https://omnitopos.net/dashctl/cgl-dev/restart"
+          fi
+          
+          echo "Triggering webhook: $WEBHOOK_URL"
+          
+          # Call webhook with htpasswd authentication
+          curl -X POST \
+            -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+            -H "Content-Type: application/json" \
+            -d '{"branch":"${{ github.ref_name }}","commit":"${{ github.sha }}"}' \
+            "$WEBHOOK_URL"
+
+  summary:
+    needs: [build-and-push, webhook]
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
