@@ -14,7 +14,7 @@ jobs:
   semantic-release:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.release.outputs.RELEASE_VERSION }}
+      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
