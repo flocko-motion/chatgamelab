@@ -42,7 +42,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "${PORT_BACKEND}:3000"
+      - "${PORT_BACKEND}:${PORT_BACKEND}"
     profiles:
       - frontend
     command: ["server"]
@@ -61,7 +61,6 @@ services:
       - /app/node_modules  # Prevent node_modules override
     profiles:
       - backend
-      - frontend
     command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
 
 volumes:

@@ -423,6 +423,8 @@ definitions:
     properties:
       buildTime:
         type: string
+      gitCommit:
+        type: string
       version:
         type: string
     type: object

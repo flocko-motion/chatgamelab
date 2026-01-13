@@ -267,6 +267,7 @@ export interface RoutesUsersNewRequest {
 
 export interface RoutesVersionResponse {
   buildTime?: string;
+  gitCommit?: string;
   version?: string;
 }
 
