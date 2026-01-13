@@ -3,6 +3,7 @@ set -eu
 
 HTML_DIR="/usr/share/nginx/html"
 ENV_JS="$HTML_DIR/env.js"
+INDEX_HTML="$HTML_DIR/index.html"
 
 # Fail fast for required env vars
 : "${API_BASE_URL:?Must set API_BASE_URL}"
@@ -25,5 +26,12 @@ window.__APP_CONFIG__ = {
   PUBLIC_URL: "$(printf '%s' "$PUBLIC_URL" | sed 's/"/\\"/g')"
 };
 EOF
+
+# Update index.html to use PUBLIC_URL for env.js path
+if [ -n "$PUBLIC_URL" ] && [ "$PUBLIC_URL" != "/" ]; then
+  # Remove trailing slash from PUBLIC_URL for script src
+  PUBLIC_URL_NO_SLASH="${PUBLIC_URL%/}"
+  sed -i "s|src=\"./env.js\"|src=\"${PUBLIC_URL_NO_SLASH}/env.js\"|g" "$INDEX_HTML"
+fi
 
 exec "$@"
