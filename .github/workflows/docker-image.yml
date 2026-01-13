@@ -40,23 +40,28 @@ jobs:
           npx semantic-release > /tmp/release.log 2>&1 || true
           cat /tmp/release.log
           
-          # Extract the published version
-          VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+(-dev\.[0-9]+)?' /tmp/release.log | tail -1)
+          # Extract the published version (clean semver without prerelease)
+          VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
           
           if [ -z "$VERSION" ]; then
             # No release was published, get the latest tag
             echo "No new release, finding latest version..."
-            if [ "${{ github.ref_name }}" = "main" ]; then
-              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | grep -v "dev" | head -n1 || echo "1.0.0")
-            else
-              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*-dev.*" --sort=-version:refname | head -n1 || echo "1.0.0-dev.1")
-            fi
+            VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | head -n1 || echo "1.0.0")
             echo "Using existing version: $VERSION"
           else
             echo "New version published: $VERSION"
           fi
           
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # For development branch, append -dev suffix for Docker images
+          if [ "${{ github.ref_name }}" = "development" ]; then
+            BUILD_VERSION="${VERSION}-dev"
+            echo "Build version for development: $BUILD_VERSION"
+          else
+            BUILD_VERSION="$VERSION"
+            echo "Build version for main: $BUILD_VERSION"
+          fi
+          
+          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
