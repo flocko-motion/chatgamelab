@@ -131,30 +131,30 @@ echo ""
 
 case $MODE in
     frontend)
-        echo -e "\033[1;32m🚀 Frontend Development Mode\033[0m"
-        echo -e "\033[1;33m� Backend (Docker):  \033[1;34mhttp://localhost:${PORT_BACKEND}\033[0m"
-        echo -e "\033[1;35m�️  Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
+        echo -e "\033[1;32m Frontend Development Mode\033[0m"
+        echo -e "\033[1;33m Backend (Docker):  \033[1;34mhttp://localhost:${PORT_BACKEND}\033[0m"
+        echo -e "\033[1;35m Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
         echo ""
-        echo -e "\033[1;32m� Now run the frontend locally:\033[0m"
-        echo -e "   \033[1;34mcd web && npm run dev\033[0m"
+        echo -e "\033[1;32m Frontend (Vite Dev): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
         echo ""
         docker compose -f docker-compose.dev.yml --profile frontend up${BUILD_FLAG}
         ;;
     backend)
-        echo -e "\033[1;33m🔧 Backend Development Mode\033[0m"
-        echo -e "\033[1;36m📱 Frontend (Docker): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
-        echo -e "\033[1;35m🗄️  Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
+        echo -e "\033[1;33m Backend Development Mode\033[0m"
+        echo -e "\033[1;36m Frontend (Docker): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
+        echo -e "\033[1;35m Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
         echo ""
-        echo -e "\033[1;32m💡 Now run the backend locally:\033[0m"
+        echo -e "\033[1;32m Now run the backend locally:\033[0m"
         echo -e "   \033[1;34mcd server && go run . server\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml --profile backend up${BUILD_FLAG}
+        # Skip build for backend mode - running locally
+        docker compose -f docker-compose.dev.yml --profile backend up
         ;;
     all)
-        echo -e "\033[1;34m🚀 All Services Mode\033[0m"
-        echo -e "\033[1;36m📱 Frontend (Docker): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
-        echo -e "\033[1;33m🔧 Backend (Docker):  \033[1;34mhttp://localhost:${PORT_BACKEND}\033[0m"
-        echo -e "\033[1;35m🗄️  Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
+        echo -e "\033[1;34m All Services Mode\033[0m"
+        echo -e "\033[1;36m Frontend (Docker): \033[1;34mhttp://localhost:${PORT_EXPOSED}\033[0m"
+        echo -e "\033[1;33m Backend (Docker):  \033[1;34mhttp://localhost:${PORT_BACKEND}\033[0m"
+        echo -e "\033[1;35m Database (Docker): \033[1;34mlocalhost:${PORT_POSTGRES}\033[0m"
         echo ""
         echo -e "\033[1;32m✨ All services running in Docker containers\033[0m"
         echo ""
