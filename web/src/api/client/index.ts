@@ -1,4 +1,4 @@
-export { getApiConfig } from './http';
+export { getApiConfig, createAuthenticatedApiConfig } from './http';
 
 export * from '../generated';
 
