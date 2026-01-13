@@ -36,43 +36,27 @@ jobs:
         id: release
         run: |
           echo "Running semantic-release on branch: ${{ github.ref_name }}"
-          VERSION=$(npx semantic-release --dryRun | grep -o 'The next release version is [0-9.]*' | awk '{print $NF}' || echo "no-release")
+          # Run semantic-release and capture output
+          npx semantic-release > /tmp/release.log 2>&1 || true
+          cat /tmp/release.log
           
-          if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            echo "Calculated new version: $VERSION"
-          else
-            echo "No release needed, finding latest version..."
-            # Get latest tag from this branch
+          # Extract the published version
+          VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+(-dev\.[0-9]+)?' /tmp/release.log | tail -1)
+          
+          if [ -z "$VERSION" ]; then
+            # No release was published, get the latest tag
+            echo "No new release, finding latest version..."
             if [ "${{ github.ref_name }}" = "main" ]; then
-              # Get highest version tag (excluding dev tags)
-              LATEST_VERSION=$(git tag -l "*.*.*" --sort=-version:refname | grep -v "dev" | head -n1 || echo "1.0.0")
-              # Remove 'v' prefix if present
-              LATEST_VERSION=$(echo "$LATEST_VERSION" | sed 's/^v//')
-              echo "Using latest version: $LATEST_VERSION"
+              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | grep -v "dev" | head -n1 || echo "1.0.0")
             else
-              # For development branch, always create a new dev version
-              # Get highest dev version tag
-              LATEST_DEV_VERSION=$(git tag -l "*.*.*-dev.*" --sort=-version:refname | head -n1 || echo "1.0.0-dev.0")
-              # Remove 'v' prefix if present
-              LATEST_DEV_VERSION=$(echo "$LATEST_DEV_VERSION" | sed 's/^v//')
-              
-              # Extract base version and dev number
-              if [[ "$LATEST_DEV_VERSION" =~ (.+)-dev\.([0-9]+) ]]; then
-                BASE_VERSION="${BASH_REMATCH[1]}"
-                DEV_NUM="${BASH_REMATCH[2]}"
-                # Increment dev number
-                NEW_DEV_NUM=$((DEV_NUM + 1))
-                LATEST_VERSION="${BASE_VERSION}-dev.${NEW_DEV_NUM}"
-              else
-                # If no dev version exists, start with 1.0.0-dev.1
-                LATEST_VERSION="1.0.0-dev.1"
-              fi
-              echo "Generated new dev version: $LATEST_VERSION"
+              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*-dev.*" --sort=-version:refname | head -n1 || echo "1.0.0-dev.1")
             fi
-            
-            echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+            echo "Using existing version: $VERSION"
+          else
+            echo "New version published: $VERSION"
           fi
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
