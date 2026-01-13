@@ -1,8 +1,7 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { AppShell, Container, Text, Anchor, Box, Group } from '@mantine/core';
+import { AppShell, Container, Text, Anchor, Box } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@components/LanguageSwitcher';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -13,19 +12,6 @@ function RootComponent() {
 
   return (
     <AppShell footer={{ height: { base: 80, sm: 60 } }} padding={{ base: 'sm', sm: 'md' }}>
-      <Box 
-        style={{ 
-          position: 'fixed', 
-          top: 8, 
-          right: 8, 
-          zIndex: 1000 
-        }}
-      >
-        <Group gap="sm" style={{ alignItems: 'center' }}>
-          <LanguageSwitcher size="sm" variant="default" />
-        </Group>
-      </Box>
-
       <AppShell.Main pt={{ base: 60, sm: 80 }}>
         <Container size="xl" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
           <Outlet />
