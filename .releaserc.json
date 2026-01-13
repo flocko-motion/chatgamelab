@@ -1,0 +1,34 @@
+{
+    "branches": [
+        {
+            "name": "main",
+            "channel": false
+        },
+        {
+            "name": "development",
+            "prerelease": "dev"
+        }
+    ],
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        [
+            "@semantic-release/github",
+            {
+                "assets": [
+                    {
+                        "path": "CHANGELOG.md",
+                        "label": "Changelog"
+                    }
+                ]
+            }
+        ],
+        [
+            "@semantic-release/exec",
+            {
+                "successCmd": "echo \"RELEASE_VERSION=${nextRelease.version}\"",
+                "failCmd": "echo \"RELEASE_VERSION=failed\""
+            }
+        ]
+    ]
+}

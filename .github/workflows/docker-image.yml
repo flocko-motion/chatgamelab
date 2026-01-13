@@ -11,7 +11,44 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chatgamelab
 
 jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.RELEASE_VERSION }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release
+          npm install -g @semantic-release/github @semantic-release/exec
+      
+      - name: Run semantic-release
+        id: release
+        run: |
+          echo "Running semantic-release on branch: ${{ github.ref_name }}"
+          VERSION=$(npx semantic-release --dryRun | grep -o 'The next release version is [0-9.]*' | awk '{print $NF}' || echo "no-release")
+          if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
+            echo "RELEASE_VERSION=$VERSION" >> $GITHUB_OUTPUT
+            echo "Calculated version: $VERSION"
+          else
+            echo "No release needed"
+            echo "RELEASE_VERSION=no-release" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-push:
+    needs: semantic-release
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,20 +83,34 @@ jobs:
         run: |
           SERVICE_NAME="${{ matrix.service.name }}"
           BRANCH_NAME="${{ github.ref_name }}"
+          VERSION="${{ needs.semantic-release.outputs.version }}"
           
           # Base image name
           IMAGE_NAME="${{ env.IMAGE_PREFIX }}-${SERVICE_NAME}"
           
-          # Tags based on branch
+          # Initialize tags array
+          TAGS=""
+          
+          # Always add version tag (if we have one)
+          if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
+            TAGS="${IMAGE_NAME}:${VERSION}"
+          fi
+          
+          # Add branch-specific tags
           if [ "$BRANCH_NAME" = "main" ]; then
-            # Main branch: latest + sha
-            TAGS="${IMAGE_NAME}:latest,${IMAGE_NAME}:${GITHUB_SHA::7}"
+            # Main branch: add latest
+            if [ -n "$TAGS" ]; then
+              TAGS="${TAGS},${IMAGE_NAME}:latest"
+            else
+              TAGS="${IMAGE_NAME}:latest"
+            fi
           elif [ "$BRANCH_NAME" = "development" ]; then
-            # Development branch: dev + dev-sha
-            TAGS="${IMAGE_NAME}:dev,${IMAGE_NAME}:dev-${GITHUB_SHA::7}"
-          else
-            # Other branches: branch name + sha
-            TAGS="${IMAGE_NAME}:${BRANCH_NAME},${IMAGE_NAME}:${BRANCH_NAME}-${GITHUB_SHA::7}"
+            # Development branch: add dev
+            if [ -n "$TAGS" ]; then
+              TAGS="${TAGS},${IMAGE_NAME}:dev"
+            else
+              TAGS="${IMAGE_NAME}:dev"
+            fi
           fi
           
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
@@ -78,9 +129,10 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.version=${{ needs.semantic-release.outputs.version }}
 
   webhook:
-    needs: build-and-push
+    needs: [build-and-push, semantic-release]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deployment webhook
@@ -93,6 +145,7 @@ jobs:
           fi
           
           echo "Triggering webhook: $WEBHOOK_URL"
+          echo "Release version: ${{ needs.semantic-release.outputs.version }}"
           
           # Call webhook with htpasswd authentication
           curl -X POST \
@@ -101,7 +154,7 @@ jobs:
             "$WEBHOOK_URL"
 
   summary:
-    needs: [build-and-push, webhook]
+    needs: [build-and-push, semantic-release, webhook]
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
@@ -110,17 +163,23 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Version:** \`${{ needs.semantic-release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images:" >> $GITHUB_STEP_SUMMARY
           
+          VERSION="${{ needs.semantic-release.outputs.version }}"
           if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "$VERSION" != "no-release" ]; then
+              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            fi
             echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-web:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ github.ref_name }}" = "development" ]; then
+            if [ "$VERSION" != "no-release" ]; then
+              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            fi
             echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
             echo "- \`${{ env.IMAGE_PREFIX }}-web:dev\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-web:dev-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
           fi

@@ -2,7 +2,7 @@
 # Usage: 
 #   Production (main):     IMAGE_TAG=latest docker compose up -d
 #   Development (dev):     IMAGE_TAG=dev docker compose up -d
-#   Specific version:      IMAGE_TAG=abc1234 docker compose up -d
+#   Specific version:      IMAGE_TAG=1.2.3 docker compose up -d
 # Environment variables must be set (e.g., via systemd, .env, or export)
 
 services:
