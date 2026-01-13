@@ -23,8 +23,8 @@ RUN echo "export const version = \"${VERSION}\";" > src/version.js && \
 # Production stage - serve static files with nginx
 FROM nginx:1.27-alpine
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration template (will be processed by entrypoint)
+COPY docker/nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Copy entrypoint script for runtime config generation
 COPY docker/entrypoint.sh /entrypoint.sh
