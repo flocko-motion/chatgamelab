@@ -42,6 +42,8 @@ services:
         condition: service_healthy
     expose:
       - "3000"
+    ports:
+      - "${PORT_BACKEND:-3000}:3000"
     command: [ "server" ]
     restart: unless-stopped
 
@@ -58,7 +60,7 @@ services:
       backend:
         condition: service_started
     ports:
-      - "${PORT_EXPOSED:-80}:80"
+      - "${PORT_FRONTEND:-80}:80"
     restart: unless-stopped
 
 volumes:

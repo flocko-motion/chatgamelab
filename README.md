@@ -173,8 +173,8 @@ Create a systemd service for automatic startup and management:
 ```bash
 sudo nano /etc/systemd/system/chatgamelab.service
 ```
+With the following content:
 
-**Production service:**
 ```ini
 [Unit]
 Description=ChatGameLab Production
@@ -191,13 +191,14 @@ Group=youruser
 
 # Environment variables
 Environment="IMAGE_TAG=latest" # production: latest, development: dev
-Environment="DB_PASSWORD=secure_password"
-Environment="AUTH0_DOMAIN=your.auth0.domain"
-Environment="AUTH0_AUDIENCE=your.auth0.audience"
-Environment="AUTH0_CLIENT_ID=your_client_id"
-Environment="API_BASE_URL=https://yourdomain.com"
-Environment="PUBLIC_URL=https://yourdomain.com"
-Environment="PORT_EXPOSED=80"
+Environment="DB_PASSWORD=secure_password" # change this to a random password
+Environment="AUTH0_DOMAIN=your.auth0.domain" # configure this according to your Auth0 account
+Environment="AUTH0_AUDIENCE=your.auth0.audience" # configure this according to your Auth0 account
+Environment="AUTH0_CLIENT_ID=your_client_id" # configure this according to your Auth0 account
+Environment="API_BASE_URL=https://yourdomain.com/api" # configure this according to your domain
+Environment="PUBLIC_URL=https://yourdomain.com" # configure this according to your domain
+Environment="PORT_FRONTEND=8000" # port internal to webserver for exposing webapp
+Environment="PORT_BACKEND=8001" # port internal to webserver for exposing backend
 
 # Commands
 ExecStartPre=/usr/bin/docker compose pull
