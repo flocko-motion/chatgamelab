@@ -1,0 +1,105 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chatgamelab
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service:
+          - name: backend
+            context: .
+            dockerfile: ./server/Dockerfile
+          - name: web
+            context: ./web
+            dockerfile: ./web/Dockerfile
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine image tags
+        id: tags
+        run: |
+          SERVICE_NAME="${{ matrix.service.name }}"
+          BRANCH_NAME="${{ github.ref_name }}"
+          
+          # Base image name
+          IMAGE_NAME="${{ env.IMAGE_PREFIX }}-${SERVICE_NAME}"
+          
+          # Tags based on branch
+          if [ "$BRANCH_NAME" = "main" ]; then
+            # Main branch: latest + sha
+            TAGS="${IMAGE_NAME}:latest,${IMAGE_NAME}:${GITHUB_SHA::7}"
+          elif [ "$BRANCH_NAME" = "development" ]; then
+            # Development branch: dev + dev-sha
+            TAGS="${IMAGE_NAME}:dev,${IMAGE_NAME}:dev-${GITHUB_SHA::7}"
+          else
+            # Other branches: branch name + sha
+            TAGS="${IMAGE_NAME}:${BRANCH_NAME},${IMAGE_NAME}:${BRANCH_NAME}-${GITHUB_SHA::7}"
+          fi
+          
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "Building tags: ${TAGS}"
+
+      - name: Build and push ${{ matrix.service.name }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+
+  summary:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        run: |
+          echo "## Docker Images Built and Pushed 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Images:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.ref_name }}" = "development" ]; then
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:dev\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:dev-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          fi
