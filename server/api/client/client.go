@@ -5,58 +5,42 @@
 // - JWT token management for authentication
 // - Endpoints for game, user, and API key management
 // - SSE streaming support for game sessions
-// - Uses PUBLIC_URL environment variable for backend location
+// - Uses config module for server URL and JWT storage
 //
 // For external API calls (OpenAI, Mistral, etc.), use the apiclient package instead.
 package client
 
 import (
 	"bufio"
-	"cgl/functional"
+	"cgl/config"
 	"cgl/obj"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
-var cglDir string
-
-func init() {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Printf("Warning: could not get home directory: %v\n", err)
-		return
-	}
-	cglDir = filepath.Join(home, ".cgl")
-}
-
-// GetJwtPath returns the path to the JWT file
-func GetJwtPath() string {
-	return filepath.Join(cglDir, "jwt")
-}
-
-// SaveJwt saves the JWT token to ~/.cgl/jwt
+// SaveJwt saves the JWT token to config (deprecated, use config.SetServerConfig)
 func SaveJwt(token string) error {
-	if err := os.MkdirAll(cglDir, 0700); err != nil {
-		return fmt.Errorf("failed to create %s: %v", cglDir, err)
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return fmt.Errorf("no server configured: %w", err)
 	}
-	if err := os.WriteFile(GetJwtPath(), []byte(token), 0600); err != nil {
-		return fmt.Errorf("failed to write JWT: %v", err)
-	}
-	return nil
+	return config.SetServerConfig(serverURL, token)
 }
 
-// LoadJwt loads the JWT token from ~/.cgl/jwt
+// LoadJwt loads the JWT token from config
 func LoadJwt() string {
-	data, err := os.ReadFile(GetJwtPath())
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(data))
+	jwt, _ := config.GetJWT()
+	return jwt
+}
+
+// GetJwtPath returns a description of where JWT is stored (for display purposes)
+func GetJwtPath() string {
+	configPath, _ := config.GetConfigPath()
+	return configPath + " (server.jwt)"
 }
 
 func ApiGet(endpoint string, out any) error {
@@ -123,7 +107,11 @@ func apiRequest(method, endpoint string, payload any, out any) error {
 }
 
 func endpointUrl(endpoint string) string {
-	url := functional.RequireEnv("PUBLIC_URL")
+	url, err := config.GetServerURL()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 	return fmt.Sprintf("%s/api/%s", url, strings.TrimPrefix(endpoint, "/"))
 }
 

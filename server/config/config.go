@@ -10,6 +10,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Config represents the full configuration structure
+type Config struct {
+	Server    ServerConfig              `yaml:"server"`
+	Platforms map[string]PlatformConfig `yaml:"platforms"`
+}
+
+// ServerConfig holds server connection details
+type ServerConfig struct {
+	URL string `yaml:"url"`
+	JWT string `yaml:"jwt"`
+}
+
+// PlatformConfig holds platform-specific API keys
+type PlatformConfig struct {
+	APIKey string `yaml:"apikey"`
+}
+
 // GetConfigPath returns the path to the config file
 func GetConfigPath() (string, error) {
 	home, err := os.UserHomeDir()
@@ -42,7 +59,11 @@ func createInitialConfig(path string) error {
 
 	// Generate YAML content
 	content := "# ChatGameLab Configuration\n"
-	content += "# Replace 'your-api-key-here' with your actual API key\n\n"
+	content += "# Use 'user login' command to configure server connection\n\n"
+	content += "server:\n"
+	content += "  url: \"\"\n"
+	content += "  jwt: \"\"\n\n"
+	content += "# Replace 'your-api-key-here' with your actual API key\n"
 	content += "platforms:\n"
 
 	for _, platform := range platformInfos {
@@ -51,6 +72,78 @@ func createInitialConfig(path string) error {
 	}
 
 	return os.WriteFile(path, []byte(content), 0644)
+}
+
+// LoadConfig reads and parses the config file
+func LoadConfig() (*Config, error) {
+	configPath, err := GetConfigPath()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read config file: %w", err)
+	}
+
+	var config Config
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	return &config, nil
+}
+
+// SaveConfig writes the config to the config file
+func SaveConfig(config *Config) error {
+	configPath, err := GetConfigPath()
+	if err != nil {
+		return err
+	}
+
+	data, err := yaml.Marshal(config)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config: %w", err)
+	}
+
+	return os.WriteFile(configPath, data, 0644)
+}
+
+// GetServerURL returns the configured server URL
+func GetServerURL() (string, error) {
+	config, err := LoadConfig()
+	if err != nil {
+		return "", err
+	}
+
+	if config.Server.URL == "" {
+		return "", fmt.Errorf("no server configured. Use 'user login' to configure")
+	}
+
+	return config.Server.URL, nil
+}
+
+// GetJWT returns the configured JWT token
+func GetJWT() (string, error) {
+	config, err := LoadConfig()
+	if err != nil {
+		return "", err
+	}
+
+	return config.Server.JWT, nil
+}
+
+// SetServerConfig updates the server configuration
+func SetServerConfig(url, jwt string) error {
+	config, err := LoadConfig()
+	if err != nil {
+		return err
+	}
+
+	config.Server.URL = url
+	config.Server.JWT = jwt
+
+	return SaveConfig(config)
 }
 
 // GetApiKey retrieves the API key for a given platform from the config file.
@@ -64,33 +157,20 @@ func GetApiKey(platform string, apiKeyFlag string) (string, error) {
 	}
 
 	// Read from config file
-	configPath, err := GetConfigPath()
+	config, err := LoadConfig()
 	if err != nil {
 		return "", err
 	}
 
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read config file: %w", err)
-	}
-
-	var config struct {
-		Platforms map[string]struct {
-			APIKey string `yaml:"apikey"`
-		} `yaml:"platforms"`
-	}
-
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		return "", fmt.Errorf("failed to parse config file: %w", err)
-	}
-
 	platformConfig, exists := config.Platforms[platform]
 	if !exists {
+		configPath, _ := GetConfigPath()
 		return "", fmt.Errorf("platform %s not found in config file %s", platform, configPath)
 	}
 
 	apiKey := platformConfig.APIKey
 	if apiKey == "" || apiKey == "your-api-key-here" {
+		configPath, _ := GetConfigPath()
 		return "", fmt.Errorf("no API key configured for platform %s. Use --api-key or edit %s", platform, configPath)
 	}
 
