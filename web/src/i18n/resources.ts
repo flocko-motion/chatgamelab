@@ -76,3 +76,5 @@ export const staticResources = {
   uk: uk as TranslationResources,
   zh: zh as TranslationResources,
 };
+
+export const enResources = en as TranslationResources;
