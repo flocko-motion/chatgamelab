@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
 import { auth0Config } from '../config/auth0';
+import { config } from '../config/env';
 import { Api } from '../api/generated';
 import { createAuthenticatedApiConfig } from '../api/client/http';
 import type { ObjUser } from '../api/generated';
@@ -277,6 +278,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
+      // Redirect to homepage
+      window.location.href = config.PUBLIC_URL || '/';
     }
   };
 
