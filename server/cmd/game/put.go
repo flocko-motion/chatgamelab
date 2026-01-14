@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
 
 var putCmd = &cobra.Command{
-	Use:   "put <yaml-file> [game-id]",
+	Use:   "put <yaml-file-or-directory> [game-id]",
 	Short: "Create or update a game from YAML",
-	Long:  "Create a new game or update an existing game from YAML file. If game-id is provided, updates that game. Otherwise creates a new game. Use --stdin to read from stdin instead of file.",
+	Long:  "Create a new game or update an existing game from YAML file or directory. If a directory is provided, all .yaml files in it will be uploaded. If game-id is provided, updates that game. Otherwise creates new games. Use --stdin to read from stdin instead of file.",
 	Args:  cobra.RangeArgs(1, 2),
 	Run:   runPut,
 }
@@ -27,14 +28,92 @@ func init() {
 }
 
 func runPut(cmd *cobra.Command, args []string) {
-	var yamlContent []byte
-
 	if useStdin {
-		yamlContent = functional.MustReturn(io.ReadAll(os.Stdin))
-	} else {
-		yamlContent = functional.MustReturn(os.ReadFile(args[0]))
+		// Read from stdin
+		yamlContent := functional.MustReturn(io.ReadAll(os.Stdin))
+		uploadSingleGame(yamlContent, args)
+		return
 	}
 
+	path := args[0]
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Cannot access path: %v\n", err)
+		os.Exit(1)
+	}
+
+	if fileInfo.IsDir() {
+		// Upload all YAML files in directory
+		if len(args) > 1 {
+			fmt.Fprintf(os.Stderr, "Error: Cannot specify game-id when uploading a directory\n")
+			os.Exit(1)
+		}
+		uploadDirectory(path)
+	} else {
+		// Upload single file
+		yamlContent := functional.MustReturn(os.ReadFile(path))
+		uploadSingleGame(yamlContent, args)
+	}
+}
+
+func uploadDirectory(dirPath string) {
+	// Find all .yaml and .yml files
+	yamlFiles, err := filepath.Glob(filepath.Join(dirPath, "*.yaml"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error finding YAML files: %v\n", err)
+		os.Exit(1)
+	}
+
+	ymlFiles, err := filepath.Glob(filepath.Join(dirPath, "*.yml"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error finding YML files: %v\n", err)
+		os.Exit(1)
+	}
+
+	allFiles := append(yamlFiles, ymlFiles...)
+
+	if len(allFiles) == 0 {
+		fmt.Fprintf(os.Stderr, "No YAML files found in directory: %s\n", dirPath)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Found %d YAML file(s) in %s\n", len(allFiles), dirPath)
+
+	successCount := 0
+	failCount := 0
+
+	for i, filePath := range allFiles {
+		fileName := filepath.Base(filePath)
+		fmt.Printf("\n[%d/%d] Uploading %s...\n", i+1, len(allFiles), fileName)
+
+		yamlContent, err := os.ReadFile(filePath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "✗ Failed to read %s: %v\n", fileName, err)
+			failCount++
+			continue
+		}
+
+		var resp obj.Game
+		err = client.ApiPostRaw("games/new", string(yamlContent), &resp)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "✗ Failed to upload %s: %v\n", fileName, err)
+			failCount++
+			continue
+		}
+
+		fmt.Printf("✓ Created game: %s (ID: %s)\n", resp.Name, resp.ID.String())
+		successCount++
+	}
+
+	fmt.Printf("\n=== Upload Summary ===\n")
+	fmt.Printf("Total files: %d\n", len(allFiles))
+	fmt.Printf("✓ Successful: %d\n", successCount)
+	if failCount > 0 {
+		fmt.Printf("✗ Failed: %d\n", failCount)
+	}
+}
+
+func uploadSingleGame(yamlContent []byte, args []string) {
 	if len(args) > 1 {
 		// Update existing game
 		gameID := args[1]
