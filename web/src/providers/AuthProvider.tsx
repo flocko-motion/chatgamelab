@@ -14,6 +14,13 @@ export interface AuthUser {
   role?: string;
 }
 
+/** Data needed for registration when user is authenticated but not registered */
+export interface RegistrationData {
+  auth0Id: string;
+  email: string;
+  name: string;
+}
+
 export interface AuthContextType {
   /** Auth0 user info (from token) */
   user: AuthUser | null;
@@ -21,6 +28,10 @@ export interface AuthContextType {
   backendUser: ObjUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** True if user is authenticated with Auth0 but not registered in backend */
+  needsRegistration: boolean;
+  /** Data from Auth0 to pre-fill registration form */
+  registrationData: RegistrationData | null;
   /** Error fetching backend user - app is not operational */
   backendError: string | null;
   loginWithAuth0: () => void;
@@ -31,6 +42,8 @@ export interface AuthContextType {
   getAccessToken: () => Promise<string | null>;
   /** Retry fetching backend user after an error */
   retryBackendFetch: () => void;
+  /** Register the user with the backend */
+  register: (name: string, email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,6 +82,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [backendError, setBackendError] = useState<string | null>(null);
+  const [needsRegistration, setNeedsRegistration] = useState(false);
+  const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
   const [isDevMode] = useState(import.meta.env.VITE_DEV_MODE === 'true' || import.meta.env.DEV);
   
   // Token cache for dev mode tokens
@@ -103,20 +118,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   }, [auth0IsAuthenticated, getAccessTokenSilently]);
 
+  // Check if error is a "user not registered" response
+  const isUserNotRegisteredError = (error: unknown): boolean => {
+    if (error && typeof error === 'object' && 'error' in error) {
+      const errorData = (error as { error: unknown }).error;
+      if (errorData && typeof errorData === 'object' && 'type' in errorData) {
+        const typedError = errorData as { type: string };
+        return typedError.type === 'user_not_registered';
+      }
+    }
+    return false;
+  };
+
+  // Get registration data from Auth0 user - apply smart defaults for name
+  const getRegistrationDataFromAuth0 = useCallback((): RegistrationData | null => {
+    if (!auth0User?.sub) return null;
+    
+    const email = auth0User.email || '';
+    let name = '';
+    
+    // Use nickname or name from Auth0, but skip if it looks like an email
+    const isEmailLike = (s: string) => s.includes('@') || s.includes('+') || s === email.split('@')[0];
+    
+    if (auth0User.nickname && !isEmailLike(auth0User.nickname)) {
+      name = auth0User.nickname;
+    } else if (auth0User.name && !isEmailLike(auth0User.name)) {
+      name = auth0User.name;
+    }
+    
+    return {
+      auth0Id: auth0User.sub,
+      email,
+      name,
+    };
+  }, [auth0User]);
+
   // Fetch backend user
   const fetchBackendUser = useCallback(async () => {
     try {
       setBackendError(null);
+      setNeedsRegistration(false);
+      setRegistrationData(null);
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
       console.log('[Auth] Backend user fetched:', response.data.name);
     } catch (error) {
       console.error('[Auth] Failed to fetch backend user:', error);
+      
+      // Check if this is a "user not registered" error
+      if (isUserNotRegisteredError(error)) {
+        const regData = getRegistrationDataFromAuth0();
+        console.log('[Auth] User needs registration:', regData?.auth0Id);
+        setNeedsRegistration(true);
+        setRegistrationData(regData);
+        setBackendUser(null);
+        return;
+      }
+      
       setBackendError(t('errors.backendUserFetch'));
       setBackendUser(null);
     }
-  }, [getAccessToken, t]);
+  }, [getAccessToken, t, getRegistrationDataFromAuth0]);
 
   // Retry backend fetch (for error recovery)
   const retryBackendFetch = useCallback(() => {
@@ -124,6 +187,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetchBackendUser();
     }
   }, [isAuthenticated, fetchBackendUser]);
+
+  // Register user with backend
+  const register = useCallback(async (name: string, email: string) => {
+    const api = new Api(createAuthenticatedApiConfig(getAccessToken));
+    // Auth0 ID is extracted from the token by the backend middleware
+    const response = await api.auth.registerCreate({
+      name,
+      email,
+    });
+    
+    setBackendUser(response.data);
+    setNeedsRegistration(false);
+    setRegistrationData(null);
+    console.log('[Auth] User registered:', response.data.name);
+  }, [getAccessToken]);
 
   // Handle Auth0 authentication state changes
   useEffect(() => {
@@ -184,6 +262,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     backendFetchAttempted.current = false;
     setBackendUser(null);
     setBackendError(null);
+    setNeedsRegistration(false);
+    setRegistrationData(null);
     
     if (auth0IsAuthenticated) {
       auth0Logout({ 
@@ -205,6 +285,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     backendUser,
     isLoading,
     isAuthenticated,
+    needsRegistration,
+    registrationData,
     backendError,
     loginWithAuth0,
     loginWithRole,
@@ -212,6 +294,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isDevMode,
     getAccessToken,
     retryBackendFetch,
+    register,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
