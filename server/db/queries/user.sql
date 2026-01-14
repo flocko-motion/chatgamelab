@@ -15,6 +15,15 @@ RETURNING id;
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
 
+-- name: IsNameTaken :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
+
+-- name: IsNameTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND id != $2 AND deleted_at IS NULL) AS taken;
+
+-- name: IsEmailTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE email = $1 AND id != $2 AND deleted_at IS NULL) AS taken;
+
 -- name: GetUserByID :one
 SELECT * FROM app_user WHERE id = $1;
 

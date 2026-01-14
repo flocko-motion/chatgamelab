@@ -106,6 +106,27 @@ func GetUserByAuth0ID(ctx context.Context, auth0ID string) (*obj.User, error) {
 	return GetUserByID(ctx, id)
 }
 
+// IsNameTaken checks if a username is already taken
+func IsNameTaken(ctx context.Context, name string) (bool, error) {
+	return queries().IsNameTaken(ctx, name)
+}
+
+// IsNameTakenByOther checks if a username is taken by another user (for updates)
+func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUID) (bool, error) {
+	return queries().IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+		Name: name,
+		ID:   excludeUserID,
+	})
+}
+
+// IsEmailTakenByOther checks if an email is taken by another user (for updates)
+func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.UUID) (bool, error) {
+	return queries().IsEmailTakenByOther(ctx, db.IsEmailTakenByOtherParams{
+		Email: sql.NullString{String: email, Valid: true},
+		ID:    excludeUserID,
+	})
+}
+
 // DeleteUser deletes a user
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return queries().DeleteUser(ctx, id)
