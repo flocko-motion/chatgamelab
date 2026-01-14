@@ -76,32 +76,24 @@ func getAiPlatform(platformName string) (AiPlatform, error) {
 
 // GetAiPlatform returns the AI platform and resolves the model.
 // If model is empty, returns the platform's default model.
-// Returns error if platform is unknown or model is invalid.
+// Returns error if platform is unknown.
+// Note: Does not validate model names - allows any model string for flexibility with dev tools.
 func GetAiPlatform(platformName, model string) (AiPlatform, string, error) {
 	platform, err := getAiPlatform(platformName)
 	if err != nil {
 		return nil, "", err
 	}
 
-	info := platform.GetPlatformInfo()
-
+	// If no model specified, use the first hardcoded model as default
 	if model == "" {
+		info := platform.GetPlatformInfo()
 		if len(info.Models) == 0 {
 			return nil, "", fmt.Errorf("no models available for platform %s", info.Name)
 		}
 		model = info.Models[0].ID
-	} else {
-		valid := false
-		for _, m := range info.Models {
-			if m.ID == model {
-				valid = true
-				break
-			}
-		}
-		if !valid {
-			return nil, "", fmt.Errorf("invalid model '%s' for platform %s", model, info.Name)
-		}
 	}
 
+	// Return platform and model without validation
+	// This allows dev tools to use any model name, including new ones not in hardcoded list
 	return platform, model, nil
 }
