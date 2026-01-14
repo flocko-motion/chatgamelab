@@ -42,8 +42,13 @@ Supported platforms:
 		// Determine target languages
 		var targetLangs []string
 		if targetLang == "" {
-			// No language specified - translate all supported languages
-			targetLangs = langutil.GetAllLanguageCodes()
+			// No language specified - translate all supported languages except source languages (en, de)
+			allLangs := langutil.GetAllLanguageCodes()
+			for _, lang := range allLangs {
+				if lang != "en" && lang != "de" {
+					targetLangs = append(targetLangs, lang)
+				}
+			}
 		} else {
 			targetLangs = []string{targetLang}
 		}
@@ -103,14 +108,15 @@ Supported platforms:
 		}
 
 		// Translate all target languages in parallel
-		fmt.Printf("Translating to %d language(s) using %s platform...\n", len(targetLangs), platform)
+		const threads = 10
+		fmt.Printf("Translating to %d language(s) using %s platform with model %s in %d threads...\n", len(targetLangs), platform, model, threads)
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
 		successCount := 0
 
 		// Semaphore to limit concurrent translations to 10
-		semaphore := make(chan struct{}, 10)
+		semaphore := make(chan struct{}, threads)
 
 		for _, currentLang := range targetLangs {
 			wg.Add(1)
@@ -124,6 +130,11 @@ Supported platforms:
 				defer func() { <-semaphore }() // Release slot when done
 
 				langName := langutil.GetLanguageName(lang)
+
+				// Print starting message
+				mu.Lock()
+				fmt.Printf("⏳ Starting translation for %s (%s)...\n", langName, lang)
+				mu.Unlock()
 
 				// Retry logic: up to 3 attempts
 				var translatedJSON string

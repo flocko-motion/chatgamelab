@@ -1,8 +1,11 @@
 package httpx
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -54,6 +57,42 @@ func WriteError(w http.ResponseWriter, status int, message string) {
 // ReadJSON decodes the request body as JSON into the given struct
 func ReadJSON(r *http.Request, v any) error {
 	return json.NewDecoder(r.Body).Decode(v)
+}
+
+// ReadYAML decodes the request body as YAML into the given struct
+func ReadYAML(r *http.Request, v any) error {
+	return yaml.NewDecoder(r.Body).Decode(v)
+}
+
+// ReadJSONOrYAML auto-detects content type and decodes accordingly
+// Checks Content-Type header first, then tries to detect from content
+func ReadJSONOrYAML(r *http.Request, v any) error {
+	contentType := r.Header.Get("Content-Type")
+
+	// If explicitly YAML, use YAML decoder
+	if contentType == "application/x-yaml" || contentType == "text/yaml" {
+		return ReadYAML(r, v)
+	}
+
+	// If explicitly JSON, use JSON decoder
+	if strings.Contains(contentType, "application/json") {
+		return ReadJSON(r, v)
+	}
+
+	// No explicit content type or unknown - read body and auto-detect
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return err
+	}
+
+	// Try JSON first (starts with { or [)
+	trimmed := bytes.TrimSpace(body)
+	if len(trimmed) > 0 && (trimmed[0] == '{' || trimmed[0] == '[') {
+		return json.Unmarshal(body, v)
+	}
+
+	// Otherwise assume YAML
+	return yaml.Unmarshal(body, v)
 }
 
 // SetCORSHeaders sets CORS headers for cross-origin requests

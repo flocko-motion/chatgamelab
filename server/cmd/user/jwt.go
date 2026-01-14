@@ -3,6 +3,7 @@ package user
 import (
 	"cgl/api/client"
 	"cgl/api/routes"
+	"cgl/config"
 	"cgl/functional"
 	"fmt"
 	"log"
@@ -41,9 +42,14 @@ func runUserJwt(cmd *cobra.Command, args []string) {
 		log.Fatalf("Failed to save JWT: %v", err)
 	}
 
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		log.Fatalf("Failed to get server URL: %v", err)
+	}
+
 	fmt.Printf("User ID: %s\n", resp.UserID)
 	fmt.Printf("Auth0 ID: %s\n", resp.Auth0ID)
-	fmt.Printf("\nJWT Token saved to %s\n", client.GetJwtPath())
+	fmt.Printf("\nJWT Token saved to config: %s\n", functional.First(config.GetConfigPath()))
 
-	fmt.Printf("\nOpen in browser:\n%s?cgl_token=%s\n", functional.RequireEnv("PUBLIC_URL"), resp.Token)
+	fmt.Printf("\nOpen in browser:\n%s?cgl_token=%s\n", serverURL, resp.Token)
 }
