@@ -26,6 +26,9 @@ WORKDIR /app
 # Copy binary
 COPY --from=build /app/cgl /app/cgl
 
+# Copy i18n locales from web app
+COPY web/src/i18n/locales /app/locales
+
 # Directory for writable data
 VOLUME ["/app/var"]
 
