@@ -31,7 +31,7 @@ CREATE TABLE institution (
     modified_by     uuid NULL,
     modified_at     timestamptz NOT NULL DEFAULT now(),
 
-    name            text NOT NULL
+    name            text NOT NULL UNIQUE
 );
 
 -- UserRole
@@ -66,7 +66,9 @@ CREATE TABLE workshop (
     name            text NOT NULL,
     institution_id  uuid NOT NULL REFERENCES institution(id),
     active          boolean NOT NULL DEFAULT true,
-    public          boolean NOT NULL DEFAULT false
+    public          boolean NOT NULL DEFAULT false,
+
+    CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
 
 -- WorkshopParticipant
@@ -83,7 +85,8 @@ CREATE TABLE workshop_participant (
     access_token    text NOT NULL,
     active          boolean NOT NULL DEFAULT true,
 
-    CONSTRAINT workshop_participant_workshop_token_uniq UNIQUE (workshop_id, access_token)
+    CONSTRAINT workshop_participant_workshop_token_uniq UNIQUE (workshop_id, access_token),
+    CONSTRAINT workshop_participant_workshop_name_uniq UNIQUE (workshop_id, name)
 );
 
 -- ApiKey
@@ -134,7 +137,7 @@ CREATE TABLE game (
     modified_by                     uuid NULL,
     modified_at                     timestamptz NOT NULL DEFAULT now(),
 
-    name                            text NOT NULL,
+    name                            text NOT NULL UNIQUE,
     description                     text NOT NULL,
     icon                            bytea NULL,
 

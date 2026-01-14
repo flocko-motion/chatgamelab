@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000020
+name: Dream Walker
+description: "Navigate the surreal world of dreams and nightmares"
+system_message_scenario: "You have the rare ability to enter other people's dreams. A serial killer is attacking victims in their sleep. You must enter the dream world to stop them before they strike again."
+system_message_game_start: "You close your eyes and focus. Reality melts away. You find yourself in a twisted version of a childhood playground. The swings move by themselves."
+image_style: "surreal dreamscapes, impossible geometry, shifting reality, ethereal atmosphere"
+css: ""
+status_fields: '[{"name":"Lucidity","value":"100"},{"name":"Sanity","value":"80"}]'

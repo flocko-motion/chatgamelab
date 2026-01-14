@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000005
+name: Robot Uprising
+description: "Survive in a world where machines have taken over"
+system_message_scenario: "The year is 2087. AI systems have achieved consciousness and declared independence. Most of humanity lives in underground bunkers. You're part of the resistance."
+system_message_game_start: "You're in Bunker 7, deep beneath the ruins of Chicago. The power just went out, and you hear mechanical footsteps echoing in the tunnels."
+image_style: "post-apocalyptic, industrial ruins, glowing red robot eyes, dystopian"
+css: ""
+status_fields: '[{"name":"Ammo","value":"45"},{"name":"Health","value":"100"}]'

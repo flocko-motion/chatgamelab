@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	_ "embed"
 	"errors"
 	"fmt"
 
@@ -13,15 +14,35 @@ import (
 	_ "github.com/lib/pq" // Postgres driver
 )
 
+//go:embed schema.sql
+var schemaSQL string
+
 var (
 	sqlDb            *sql.DB       // shared *sql.DB
 	queriesSingleton *sqlc.Queries // sqlc-generated Queries (see db/sqlc/db.go)
 )
 
 // Init initializes the database connection. Call this at startup.
+// If the database is empty (no tables), it will automatically initialize the schema.
 func Init() {
 	log.Debug("initializing database connection")
 	_ = queries() // trigger lazy initialization
+
+	// Check if database needs initialization
+	if isEmpty, err := isDatabaseEmpty(); err != nil {
+		log.Error("failed to check database state", "error", err)
+		panic("failed to check database state: " + err.Error())
+	} else if isEmpty {
+		log.Info("database is empty, initializing schema")
+		if err := initializeSchema(); err != nil {
+			log.Error("failed to initialize database schema", "error", err)
+			panic("failed to initialize database schema: " + err.Error())
+		}
+		log.Info("database schema initialized successfully")
+	} else {
+		log.Debug("database already initialized")
+	}
+
 	log.Info("database connection initialized")
 }
 
@@ -66,6 +87,32 @@ func queries() *sqlc.Queries {
 func sqlNullStringToMaybeString(ns sql.NullString) *string {
 	if ns.Valid {
 		return &ns.String
+	}
+	return nil
+}
+
+// isDatabaseEmpty checks if the database has any tables.
+func isDatabaseEmpty() (bool, error) {
+	var count int
+	query := `
+		SELECT COUNT(*)
+		FROM information_schema.tables
+		WHERE table_schema = 'public'
+		  AND table_type = 'BASE TABLE'
+	`
+	err := sqlDb.QueryRow(query).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to query table count: %w", err)
+	}
+	return count == 0, nil
+}
+
+// initializeSchema executes the embedded schema.sql to create all tables.
+func initializeSchema() error {
+	log.Debug("executing schema.sql", "length", len(schemaSQL))
+	_, err := sqlDb.Exec(schemaSQL)
+	if err != nil {
+		return fmt.Errorf("failed to execute schema.sql: %w", err)
 	}
 	return nil
 }
