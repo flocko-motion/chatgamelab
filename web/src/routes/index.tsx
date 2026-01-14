@@ -68,6 +68,31 @@ function HomePage() {
         "Join friends in collaborative storytelling sessions",
       ),
     },
+        {
+      icon: IconUsers,
+      title: t("home.features.play.title", "Play Together"),
+      description: t(
+        "home.features.play.description",
+        "Join friends in collaborative storytelling sessions",
+      ),
+    },
+        {
+      icon: IconUsers,
+      title: t("home.features.play.title", "Play Together"),
+      description: t(
+        "home.features.play.description",
+        "Join friends in collaborative storytelling sessions",
+      ),
+    },
+        {
+      icon: IconUsers,
+      title: t("home.features.play.title", "Play Together"),
+      description: t(
+        "home.features.play.description",
+        "Join friends in collaborative storytelling sessions",
+      ),
+    }
+    
   ];
 
   return (
