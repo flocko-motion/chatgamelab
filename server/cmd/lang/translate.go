@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/spf13/cobra"
 )
@@ -49,7 +50,7 @@ Supported platforms:
 
 		// Determine output path
 		if outputPath == "" {
-			outputPath = "./assets/locales/"
+			outputPath = "./lang/locales/"
 			// Check if output directory exists
 			if _, err := os.Stat(outputPath); os.IsNotExist(err) {
 				fmt.Fprintf(os.Stderr, "Error: Output directory does not exist: %s\n", outputPath)
@@ -101,37 +102,84 @@ Supported platforms:
 			fmt.Println("✓ Original files have matching structure")
 		}
 
-		// Translate all target languages
+		// Translate all target languages in parallel
 		fmt.Printf("Translating to %d language(s) using %s platform...\n", len(targetLangs), platform)
 
+		var wg sync.WaitGroup
+		var mu sync.Mutex
+		successCount := 0
+
+		// Semaphore to limit concurrent translations to 10
+		semaphore := make(chan struct{}, 10)
+
 		for _, currentLang := range targetLangs {
-			langName := langutil.GetLanguageName(currentLang)
-			fmt.Printf("\n→ Translating to %s (%s)...\n", langName, currentLang)
+			wg.Add(1)
 
-			// Call the AI platform's Translate method
-			translatedJSON, err := aiPlatform.Translate(cmd.Context(), apiKey, inputContents, currentLang)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "  ✗ Translation failed: %v\n", err)
-				continue
-			}
+			// Launch goroutine for each translation
+			go func(lang string) {
+				defer wg.Done()
 
-			// Validate that translation has the same structure as original
-			if err := functional.IsSameJsonStructure(inputContents[0], translatedJSON); err != nil {
-				fmt.Fprintf(os.Stderr, "  WARNING: Translation has different structure than original: %v\n", err)
-			} else {
-				fmt.Println("  ✓ Translation structure validated")
-			}
+				// Acquire semaphore slot
+				semaphore <- struct{}{}
+				defer func() { <-semaphore }() // Release slot when done
 
-			// Write to file
-			outputFile := filepath.Join(outputPath, currentLang+".json")
-			if err := os.WriteFile(outputFile, []byte(translatedJSON), 0644); err != nil {
-				fmt.Fprintf(os.Stderr, "  ✗ Failed to write output file: %v\n", err)
-				continue
-			}
-			fmt.Printf("  ✓ Output written to: %s\n", outputFile)
+				langName := langutil.GetLanguageName(lang)
+
+				// Retry logic: up to 3 attempts
+				var translatedJSON string
+				var err error
+				maxRetries := 3
+
+				for attempt := 1; attempt <= maxRetries; attempt++ {
+					// Call the AI platform's Translate method
+					translatedJSON, err = aiPlatform.Translate(cmd.Context(), apiKey, inputContents, lang)
+					if err == nil {
+						break // Success, exit retry loop
+					}
+
+					// Failed - print error and retry if attempts remain
+					mu.Lock()
+					if attempt < maxRetries {
+						fmt.Fprintf(os.Stderr, "⚠ %s (%s): Attempt %d/%d failed: %v - retrying...\n", langName, lang, attempt, maxRetries, err)
+					} else {
+						fmt.Fprintf(os.Stderr, "✗ %s (%s): All %d attempts failed: %v\n", langName, lang, maxRetries, err)
+					}
+					mu.Unlock()
+				}
+
+				// If all retries failed, exit
+				if err != nil {
+					return
+				}
+
+				// Validate that translation has the same structure as original
+				if err := functional.IsSameJsonStructure(inputContents[0], translatedJSON); err != nil {
+					mu.Lock()
+					fmt.Fprintf(os.Stderr, "⚠ %s (%s): Translation has different structure than original: %v\n", langName, lang, err)
+					mu.Unlock()
+				}
+
+				// Write to file
+				outputFile := filepath.Join(outputPath, lang+".json")
+				if err := os.WriteFile(outputFile, []byte(translatedJSON), 0644); err != nil {
+					mu.Lock()
+					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to write output file: %v\n", langName, lang, err)
+					mu.Unlock()
+					return
+				}
+
+				// Success - print with lock
+				mu.Lock()
+				successCount++
+				fmt.Printf("✓ %s (%s) → %s\n", langName, lang, outputFile)
+				mu.Unlock()
+			}(currentLang)
 		}
 
-		fmt.Printf("\n✓ Translation complete for %d language(s)\n", len(targetLangs))
+		// Wait for all translations to complete
+		wg.Wait()
+
+		fmt.Printf("\n✓ Translation complete: %d/%d successful\n", successCount, len(targetLangs))
 	},
 }
 
@@ -140,7 +188,7 @@ func init() {
 
 	translateCmd.Flags().String("api-key", "", "API key for the platform")
 	translateCmd.Flags().String("input", "../web/src/i18n/locales", "Path containing original language files (en.json, de.json)")
-	translateCmd.Flags().String("output", "./assets/locales/", "Output directory for generated translation files")
+	translateCmd.Flags().String("output", "./lang/locales/", "Output directory for generated translation files")
 	translateCmd.Flags().String("lang", "", "Target language code (e.g., 'fr', 'es', 'it'). If not specified, translates to all supported languages")
 	translateCmd.Flags().String("platform", "mistral", "AI platform to use (openai, mock, mistral)")
 	translateCmd.Flags().String("model", "mistral-large-latest", "AI model to use (e.g., 'mistral-large-latest', 'gpt-4o-mini')")

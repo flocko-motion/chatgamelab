@@ -16,6 +16,8 @@ func NewMux() *http.ServeMux {
 	// Public endpoints (no auth at all) - GET
 	mux.HandleFunc("GET /api/status", GetStatus)
 	mux.HandleFunc("GET /api/version", GetVersion)
+	mux.HandleFunc("GET /api/languages", GetLanguages)
+	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))

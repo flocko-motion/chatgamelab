@@ -1,3 +1,13 @@
+// Package client provides HTTP client functionality for CLI commands to communicate
+// with the ChatGameLab backend API. This is NOT for external API calls.
+//
+// Features:
+// - JWT token management for authentication
+// - Endpoints for game, user, and API key management
+// - SSE streaming support for game sessions
+// - Uses PUBLIC_URL environment variable for backend location
+//
+// For external API calls (OpenAI, Mistral, etc.), use the apiclient package instead.
 package client
 
 import (

@@ -1,3 +1,13 @@
+// Package apiclient provides a generic, reusable HTTP client for calling external APIs.
+// This is used for AI platform integrations (OpenAI, Mistral, etc.).
+//
+// Features:
+// - Configurable base URL and headers
+// - Context-aware requests
+// - JSON marshaling/unmarshaling helpers
+// - Reusable client instances
+//
+// For ChatGameLab backend API calls from CLI commands, use the api/client package instead.
 package apiclient
 
 import (
