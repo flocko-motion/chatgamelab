@@ -1,150 +1,191 @@
-// Color palette configuration for ChatGameLab
-// Centralized color definitions make it easy to change the app's visual theme
+/**
+ * Color System for ChatGameLab
+ * 
+ * This file defines color palettes in Mantine's 10-shade format (indices 0-9).
+ * 
+ * Brand Identity:
+ * - Dark bluish gradient header → trustworthy, techy, calm
+ * - Neon cyan/magenta logo → playful, game-y, creative
+ * - Light theme content → modern SaaS, readable, scalable
+ *
+ * Usage Rules:
+ * - Cyan (accent) → primary actions, highlights, focus states
+ * - Magenta (highlight) → attention, notifications, special actions (use sparingly!)
+ * - Everything else → calm, neutral, predictable
+ * - "If everything is colorful, nothing is important"
+ * 
+ * Mantine Index Reference:
+ * - Index 0-2: Light shades (backgrounds, subtle states)
+ * - Index 3-4: Medium-light (hover states)
+ * - Index 5-6: Main color (default, filled buttons) ← primaryShade
+ * - Index 7-8: Dark shades (pressed states, borders)
+ * - Index 9: Darkest (text on light bg, high contrast)
+ */
 
-export const colors = {
-  // Primary accent color - change this to update the entire app's color scheme
-  primary: {
-    50: '#f5f3ff',
-    100: '#e9e5ff',
-    200: '#d4d0ff',
-    300: '#b8b3ff',
-    400: '#9c95ff',
-    500: '#8077ff', // Main primary color
-    600: '#6d62ff',
-    700: '#5a4dff',
-    800: '#4738ff',
-    900: '#3425ff',
-    950: '#1f1aff',
-  },
+import type { MantineColorsTuple } from '@mantine/core';
 
-  // Semantic colors
-  success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    200: '#bbf7d0',
-    300: '#86efac',
-    400: '#4ade80',
-    500: '#22c55e',
-    600: '#16a34a',
-    700: '#15803d',
-    800: '#166534',
-    900: '#14532d',
-    950: '#052e16',
-  },
+// =============================================================================
+// MANTINE COLOR TUPLES (10 shades each, index 0-9)
+// =============================================================================
 
-  error: {
-    50: '#fef2f2',
-    100: '#fee2e2',
-    200: '#fecaca',
-    300: '#fca5a5',
-    400: '#f87171',
-    500: '#ef4444',
-    600: '#dc2626',
-    700: '#b91c1c',
-    800: '#991b1b',
-    900: '#7f1d1d',
-    950: '#450a0a',
-  },
+/**
+ * Primary Accent - Cyan (main: #29D0DE)
+ * Use for: Primary buttons, active nav, toggles, focus rings, links
+ */
+export const accentColors: MantineColorsTuple = [
+  '#e6fafb', // 0 - lightest (tinted white)
+  '#b8f0f4', // 1
+  '#8ae6ed', // 2
+  '#5cdce6', // 3
+  '#3ed6e2', // 4
+  '#29D0DE', // 5 - main accent (primaryShade)
+  '#22b8c9', // 6 - hover/darker
+  '#1a9baa', // 7
+  '#137e8b', // 8
+  '#0d616c', // 9 - darkest (for text)
+];
 
-  warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    200: '#fde68a',
-    300: '#fcd34d',
-    400: '#fbbf24',
-    500: '#f59e0b',
-    600: '#d97706',
-    700: '#b45309',
-    800: '#92400e',
-    900: '#78350f',
-    950: '#451a03',
-  },
+/**
+ * Secondary Accent - Magenta (from logo #FF4D9D)  
+ * Use for: Notifications, badges, special actions (Create, New, Pro)
+ * ⚠️ Don't overuse - one accent per screen is ideal
+ */
+export const highlightColors: MantineColorsTuple = [
+  '#fdf2f8', // 0
+  '#fce7f3', // 1
+  '#fbcfe8', // 2
+  '#f9a8d4', // 3
+  '#f472b6', // 4
+  '#FF4D9D', // 5 - main highlight
+  '#db2777', // 6
+  '#be185d', // 7
+  '#9d174d', // 8
+  '#831843', // 9
+];
 
-  // Neutral colors
-  gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
-    950: '#030712',
-  },
+/**
+ * Slate-based neutrals (slightly blue-tinted for cohesion with header)
+ */
+export const grayColors: MantineColorsTuple = [
+  '#F6F8FB', // 0 - main app background
+  '#EEF2F7', // 1 - hover/selected backgrounds
+  '#E2E8F0', // 2 - borders, dividers
+  '#cbd5e1', // 3
+  '#94a3b8', // 4
+  '#64748B', // 5 - muted text
+  '#475569', // 6 - icon default
+  '#334155', // 7 - body text
+  '#1e293b', // 8
+  '#0F172A', // 9 - title text (dark blue, not pure black)
+];
 
-  // Special colors
-  white: '#ffffff',
-  black: '#000000',
-  transparent: 'transparent',
+/**
+ * Success - Green
+ */
+export const successColors: MantineColorsTuple = [
+  '#f0fdf4', // 0
+  '#dcfce7', // 1
+  '#bbf7d0', // 2
+  '#86efac', // 3
+  '#4ade80', // 4
+  '#22c55e', // 5
+  '#16a34a', // 6
+  '#15803d', // 7
+  '#166534', // 8
+  '#14532d', // 9
+];
+
+/**
+ * Error - Red
+ */
+export const errorColors: MantineColorsTuple = [
+  '#fef2f2', // 0
+  '#fee2e2', // 1
+  '#fecaca', // 2
+  '#fca5a5', // 3
+  '#f87171', // 4
+  '#ef4444', // 5
+  '#dc2626', // 6
+  '#b91c1c', // 7
+  '#991b1b', // 8
+  '#7f1d1d', // 9
+];
+
+/**
+ * Warning - Orange/Amber
+ */
+export const warningColors: MantineColorsTuple = [
+  '#fffbeb', // 0
+  '#fef3c7', // 1
+  '#fde68a', // 2
+  '#fcd34d', // 3
+  '#fbbf24', // 4
+  '#f59e0b', // 5
+  '#d97706', // 6
+  '#b45309', // 7
+  '#92400e', // 8
+  '#78350f', // 9
+];
+
+/**
+ * Info - Blue (using Mantine's default blue, slightly adjusted)
+ */
+export const infoColors: MantineColorsTuple = [
+  '#eff6ff', // 0
+  '#dbeafe', // 1
+  '#bfdbfe', // 2
+  '#93c5fd', // 3
+  '#60a5fa', // 4
+  '#3b82f6', // 5
+  '#2563eb', // 6
+  '#1d4ed8', // 7
+  '#1e40af', // 8
+  '#1e3a8a', // 9
+];
+
+// =============================================================================
+// SEMANTIC COLORS (for direct use in components)
+// =============================================================================
+
+export const semanticColors = {
+  // Backgrounds
+  bgMain: grayColors[0],        // #F6F8FB - main app background
+  bgSurface: '#ffffff',         // cards, modals, dropdowns
+  bgHover: grayColors[1],       // #EEF2F7 - hover/selected states
+  bgCard: '#f0f4f8',            // bluish card bg (matches header tone)
+  bgCardBorder: '#d1dce8',      // bluish card border
+  
+  // Gradients
+  bgLandingGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
+  bgRegistrationGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
+  
+  // Typography
+  textTitle: grayColors[9],     // #0F172A - headlines
+  textBody: grayColors[7],      // #334155 - body text
+  textMuted: grayColors[5],     // #64748B - secondary text
+  textInverse: '#E6F0FF',       // text on dark backgrounds
+  
+  // Borders & Icons
+  border: grayColors[2],        // #E2E8F0 - subtle borders
+  borderStrong: grayColors[3],  // #cbd5e1 - emphasized borders
+  iconDefault: grayColors[6],   // #475569 - default icon color
+  iconActive: accentColors[5],  // cyan for active icons
 } as const;
 
-// Mantine color mappings
-export const mantineColors = {
-  primary: colors.primary[500],
-  primaryHover: colors.primary[600],
-  primaryLight: colors.primary[100],
-  primaryDark: colors.primary[700],
-  
-  success: colors.success[500],
-  error: colors.error[500],
-  warning: colors.warning[500],
-  
-  gray: colors.gray[500],
-  grayLight: colors.gray[400],
-  grayDark: colors.gray[600],
-  
-  background: colors.white,
-  surface: colors.gray[50],
-  border: colors.gray[200],
-  text: colors.gray[900],
-  textSecondary: colors.gray[600],
-  textMuted: colors.gray[400],
+// =============================================================================
+// HEADER/DARK THEME LAYOUT COLORS
+// =============================================================================
+
+export const layoutColors = {
+  headerGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+  drawerGradient: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
+  borderLight: '1px solid rgba(255, 255, 255, 0.1)',
+  lineLight: 'rgba(255, 255, 255, 0.1)',
+  panelBg: '#1a1a2e',
+  bgSubtle: 'rgba(15, 52, 96, 0.25)',
+  bgHover: 'rgba(15, 52, 96, 0.45)',
+  bgActive: 'rgba(15, 52, 96, 0.6)',
+  borderSubtle: 'rgba(255, 255, 255, 0.18)',
+  borderStrong: 'rgba(255, 255, 255, 0.26)',
+  shadowHeader: '0 2px 10px rgba(0, 0, 0, 0.3)',
 } as const;
-
-// CSS custom properties for global access
-export const cssVariables = {
-  '--color-primary': mantineColors.primary,
-  '--color-primary-hover': mantineColors.primaryHover,
-  '--color-primary-light': mantineColors.primaryLight,
-  '--color-primary-dark': mantineColors.primaryDark,
-  
-  '--color-success': mantineColors.success,
-  '--color-error': mantineColors.error,
-  '--color-warning': mantineColors.warning,
-  
-  '--color-gray': mantineColors.gray,
-  '--color-gray-light': mantineColors.grayLight,
-  '--color-gray-dark': mantineColors.grayDark,
-  
-  '--color-background': mantineColors.background,
-  '--color-surface': mantineColors.surface,
-  '--color-border': mantineColors.border,
-  '--color-text': mantineColors.text,
-  '--color-text-secondary': mantineColors.textSecondary,
-  '--color-text-muted': mantineColors.textMuted,
-} as const;
-
-// Type definitions
-export type ColorShade = keyof typeof colors.primary;
-export type ColorName = keyof typeof colors;
-
-// Helper functions
-export const getColor = (colorName: ColorName, shade: ColorShade = 500) => {
-  return colors[colorName]?.[shade] || colors.gray[shade];
-};
-
-export const getPrimaryColor = (shade: ColorShade = 500) => {
-  return colors.primary[shade];
-};
-
-// Theme configuration for Mantine
-export const themeColors = {
-  primary: mantineColors.primary,
-  // You can easily change the primary color here:
-  // primary: colors.blue[500], // for blue theme
-  // primary: colors.green[500], // for green theme
-  // primary: colors.red[500], // for red theme
-};

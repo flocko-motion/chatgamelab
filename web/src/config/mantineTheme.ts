@@ -1,114 +1,92 @@
+/**
+ * Mantine Theme Configuration for ChatGameLab
+ * 
+ * This theme enforces a light color scheme with:
+ * - Cyan (accent) as primary color
+ * - Auto-contrast for readable button text
+ * - Consistent component styling
+ * 
+ * Color Usage:
+ * - Use color="accent" for primary actions
+ * - Use color="highlight" sparingly for attention
+ * - Use color="green/red/orange/blue" for semantic states
+ * - Use c="gray.9" for title text, c="gray.7" for body, c="gray.5" for muted
+ */
+
 import { createTheme } from '@mantine/core';
-import { colors } from './colors';
+import {
+  accentColors,
+  highlightColors,
+  grayColors,
+  successColors,
+  errorColors,
+  warningColors,
+  infoColors,
+  semanticColors,
+  layoutColors,
+} from './colors';
 
 export const mantineTheme = createTheme({
-  primaryColor: 'violet',
-  fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-
-  other: {
-    layout: {
-      headerGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      drawerGradient: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
-      borderLight: '1px solid rgba(255, 255, 255, 0.1)',
-      lineLight: 'rgba(255, 255, 255, 0.1)',
-      panelBg: '#1a1a2e',
-      bgSubtle: 'rgba(15, 52, 96, 0.25)',
-      bgHover: 'rgba(15, 52, 96, 0.45)',
-      bgActive: 'rgba(15, 52, 96, 0.6)',
-      borderSubtle: 'rgba(255, 255, 255, 0.18)',
-      borderStrong: 'rgba(255, 255, 255, 0.26)',
-      shadowHeader: '0 2px 10px rgba(0, 0, 0, 0.3)',
-    },
-  },
+  // ==========================================================================
+  // COLOR CONFIGURATION
+  // ==========================================================================
   
-  // Override color palettes with our centralized colors
+  primaryColor: 'accent',
+  primaryShade: 5,
+  
+  // Auto-contrast ensures readable text on colored backgrounds (e.g., cyan buttons)
+  autoContrast: true,
+  luminanceThreshold: 0.3,
+  
+  // Custom color palettes
   colors: {
-    violet: [
-      colors.primary[50],   // 50
-      colors.primary[100],  // 100
-      colors.primary[200],  // 200
-      colors.primary[300],  // 300
-      colors.primary[400],  // 400
-      colors.primary[500],  // 500 - main primary color
-      colors.primary[600],  // 600 - hover
-      colors.primary[700],  // 700 - dark
-      colors.primary[800],  // 800
-      colors.primary[900],  // 900
-      colors.primary[950],  // 950
-    ],
-    
-    green: [
-      colors.success[50],   // 50
-      colors.success[100],  // 100
-      colors.success[200],  // 200
-      colors.success[300],  // 300
-      colors.success[400],  // 400
-      colors.success[500],  // 500 - main success color
-      colors.success[600],  // 600
-      colors.success[700],  // 700
-      colors.success[800],  // 800
-      colors.success[900],  // 900
-      colors.success[950],  // 950
-    ],
-    
-    red: [
-      colors.error[50],    // 50
-      colors.error[100],   // 100
-      colors.error[200],   // 200
-      colors.error[300],   // 300
-      colors.error[400],   // 400
-      colors.error[500],   // 500 - main error color
-      colors.error[600],   // 600
-      colors.error[700],   // 700
-      colors.error[800],   // 800
-      colors.error[900],   // 900
-      colors.error[950],   // 950
-    ],
-    
-    orange: [
-      colors.warning[50],   // 50
-      colors.warning[100],  // 100
-      colors.warning[200],  // 200
-      colors.warning[300],  // 300
-      colors.warning[400],  // 400
-      colors.warning[500],  // 500 - main warning color
-      colors.warning[600],  // 600
-      colors.warning[700],  // 700
-      colors.warning[800],  // 800
-      colors.warning[900],  // 900
-      colors.warning[950],  // 950
-    ],
-    
-    gray: [
-      colors.gray[50],     // 50
-      colors.gray[100],    // 100
-      colors.gray[200],    // 200
-      colors.gray[300],    // 300
-      colors.gray[400],    // 400
-      colors.gray[500],    // 500
-      colors.gray[600],    // 600
-      colors.gray[700],    // 700
-      colors.gray[800],    // 800
-      colors.gray[900],    // 900
-      colors.gray[950],    // 950
-    ],
+    accent: accentColors,
+    highlight: highlightColors,
+    gray: grayColors,
+    green: successColors,
+    red: errorColors,
+    orange: warningColors,
+    blue: infoColors,
   },
+
+  // ==========================================================================
+  // TYPOGRAPHY
+  // ==========================================================================
   
-  // Default styling
+  fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+  
+  headings: {
+    fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+    fontWeight: '600',
+  },
+
+  // ==========================================================================
+  // GENERAL STYLING
+  // ==========================================================================
+  
   defaultRadius: 'md',
-  
-  // Focus styles
-  focusRing: 'always',
-  scale: 1,
-  
-  // Cursor styles
+  focusRing: 'auto',
   cursorType: 'pointer',
+
+  // ==========================================================================
+  // THEME EXTENSIONS (theme.other)
+  // ==========================================================================
   
-  // Component-specific overrides
+  other: {
+    // Layout colors for header/dark elements
+    layout: layoutColors,
+    // Semantic colors for direct access
+    colors: semanticColors,
+  },
+
+  // ==========================================================================
+  // COMPONENT DEFAULTS
+  // ==========================================================================
+  
   components: {
     Button: {
       defaultProps: {
-        color: 'violet',
+        color: 'accent',
       },
       styles: {
         root: {
@@ -119,18 +97,18 @@ export const mantineTheme = createTheme({
     
     ActionIcon: {
       defaultProps: {
-        color: 'violet',
+        color: 'accent',
       },
     },
     
     Anchor: {
       defaultProps: {
-        c: 'violet',
+        c: 'accent.6',
       },
       styles: {
         root: {
           textDecoration: 'none',
-          transition: 'all 0.2s ease',
+          transition: 'color 0.15s ease',
           '&:hover': {
             textDecoration: 'underline',
           },
@@ -138,13 +116,21 @@ export const mantineTheme = createTheme({
       },
     },
     
-    TextInput: {
-      styles: {
-        input: {
-          '&:focus': {
-            borderColor: 'var(--mantine-color-violet-6)',
-          },
-        },
+    ThemeIcon: {
+      defaultProps: {
+        color: 'accent',
+      },
+    },
+    
+    Badge: {
+      defaultProps: {
+        color: 'accent',
+      },
+    },
+    
+    Loader: {
+      defaultProps: {
+        color: 'accent',
       },
     },
     
@@ -155,15 +141,15 @@ export const mantineTheme = createTheme({
     },
     
     Card: {
+      defaultProps: {
+        withBorder: true,
+      },
       styles: {
         root: {
-          transition: 'all 0.2s ease',
-          '&:hover': {
-            transform: 'translateY(-1px)',
-            boxShadow: 'var(--mantine-shadow-lg)',
-          },
+          borderColor: 'var(--mantine-color-gray-2)',
         },
       },
     },
+    
   },
 });
