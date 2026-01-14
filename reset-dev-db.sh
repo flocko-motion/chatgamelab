@@ -9,5 +9,5 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-docker compose -f docker-compose.dev.yml down -v
-echo "Database volume removed. Run ./run-dev.sh to recreate with fresh schema."
+# Remove all containers and volumes for this project
+docker compose -f docker-compose.dev.yml down -v --remove-orphans

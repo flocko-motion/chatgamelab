@@ -38,6 +38,10 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
+	// Auth
+	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
+	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
+
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
