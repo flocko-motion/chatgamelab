@@ -3,6 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader } from '@mantine/core';
 import { IconPlayerPlay, IconEdit, IconBuilding, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
 import { useAuth } from '../providers/AuthProvider';
 import { RegistrationForm } from '../features/auth';
@@ -17,12 +18,25 @@ function RootComponent() {
   const { t } = useTranslation('navigation');
   const location = useLocation();
   const navigate = useNavigate();
-  const isHomePage = location.pathname === '/';
+  const pathname = location.pathname;
+  const isHomePage = pathname === '/';
+  
+  // Public routes that don't require authentication
+  const isPublicRoute = isHomePage || pathname.startsWith('/auth/');
 
   // Determine layout variant based on auth state
-  // Homepage always uses public layout, other pages use authenticated layout when logged in
   const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;
   const useAuthenticatedLayout = isFullyAuthenticated && !isHomePage;
+  
+  // Redirect to homepage if trying to access protected route without full authentication
+  const shouldRedirect = !isLoading && !isFullyAuthenticated && !isPublicRoute && !needsRegistration;
+  
+  // All hooks must be called before any early returns
+  useEffect(() => {
+    if (shouldRedirect) {
+      window.location.href = '/';
+    }
+  }, [shouldRedirect]);
 
   // Navigation items for authenticated header
   const navItems: NavItem[] = [
@@ -31,6 +45,12 @@ function RootComponent() {
     { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
     { label: t('rooms'), icon: <IconUsers size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
   ];
+
+  // Header navigation callbacks
+  const headerProps = useAuthenticatedLayout ? {
+    onSettingsClick: () => navigate({ to: '/settings' }),
+    onProfileClick: () => navigate({ to: '/profile' }),
+  } : undefined;
 
   // Show loading state while auth is initializing
   if (isLoading) {
@@ -47,7 +67,7 @@ function RootComponent() {
   if (needsRegistration && registrationData) {
     return (
       <>
-        <AppLayout variant="public" background={isHomePage ? 'linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)' : undefined}>
+        <AppLayout variant="public" background="linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)">
           <RegistrationForm registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
@@ -55,11 +75,16 @@ function RootComponent() {
     );
   }
 
-  // Header navigation callbacks
-  const headerProps = useAuthenticatedLayout ? {
-    onSettingsClick: () => navigate({ to: '/settings' }),
-    onProfileClick: () => navigate({ to: '/profile' }),
-  } : undefined;
+  // Show loading while redirecting
+  if (shouldRedirect) {
+    return (
+      <AppLayout variant="public">
+        <Center h="50vh">
+          <Loader size="lg" />
+        </Center>
+      </AppLayout>
+    );
+  }
 
   return (
     <>

@@ -94,7 +94,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info("user registered", "user_id", user.ID, "name", name, "auth0_id", auth0ID)
+	log.Info("user registered", "user_id", user.ID, "name", name, "auth0_id", auth0ID, "email", email)
 	httpx.WriteJSON(w, http.StatusOK, user)
 }
 
