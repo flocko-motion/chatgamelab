@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 )
 
@@ -472,11 +473,30 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 		return nil, fmt.Errorf("failed to get models: %w", err)
 	}
 
+	// Check if we should show all models without filtering
+	showAll := false
+	if val := ctx.Value("showAll"); val != nil {
+		showAll, _ = val.(bool)
+	}
+
 	models := make([]obj.AiModel, 0, len(response.Data))
 	for _, model := range response.Data {
-		// Skip non-chat models
-		if !isOpenAIChatModel(model.ID) {
-			continue
+		// Apply filters only if not showing all
+		if !showAll {
+			// Skip non-chat models
+			if isIrrelevantModel(model.ID) {
+				continue
+			}
+
+			// Skip preview models
+			if strings.Contains(model.ID, "-preview") {
+				continue
+			}
+
+			// Skip dated models (ending with YYYY-MM-DD pattern or 4-digit versions)
+			if isDatedModel(model.ID) {
+				continue
+			}
 		}
 
 		models = append(models, obj.AiModel{
@@ -486,42 +506,73 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 		})
 	}
 
+	// Sort alphabetically by model ID
+	sort.Slice(models, func(i, j int) bool {
+		return models[i].ID < models[j].ID
+	})
+
 	return models, nil
 }
 
-// isOpenAIChatModel checks if a model supports chat completions
-func isOpenAIChatModel(modelID string) bool {
-	// List of known chat model patterns
-	chatPatterns := []string{
-		"gpt-4",
-		"gpt-3.5",
-		"chatgpt",
+// isIrrelevantModel checks if a model is known to NOT support chat completions
+func isIrrelevantModel(modelID string) bool {
+	// List of known non-chatmodel prefixes
+	nonChatPrefixes := []string{
+		"sora-",
+		"tts-",
+		"whisper-",
+		"text-embedding-",
+		"omni-moderation-",
+		"codex-",
 	}
 
-	for _, pattern := range chatPatterns {
-		if strings.Contains(modelID, pattern) {
+	for _, prefix := range nonChatPrefixes {
+		if strings.HasPrefix(modelID, prefix) {
 			return true
 		}
 	}
 
-	// Skip known non-chat models
-	nonChatPatterns := []string{
-		"davinci",
-		"curie",
-		"babbage",
-		"ada",
-		"text-",
-		"embedding",
-		"fine-tune",
-		"audio",
-		"image",
-		"moderation",
+	return false
+}
+
+// isDatedModel checks if a model ID ends with a date or version pattern
+func isDatedModel(modelID string) bool {
+	parts := strings.Split(modelID, "-")
+	if len(parts) < 2 {
+		return false
 	}
 
-	for _, pattern := range nonChatPatterns {
-		if strings.Contains(modelID, pattern) {
-			return false
+	lastPart := parts[len(parts)-1]
+
+	// Check if ends with 4 digits (e.g., -1106, -0914)
+	if len(lastPart) == 4 {
+		for _, ch := range lastPart {
+			if ch < '0' || ch > '9' {
+				return false
+			}
 		}
+		return true
+	}
+
+	// Check if model ends with -YYYY-MM-DD pattern
+	if len(parts) < 3 {
+		return false
+	}
+
+	// Get last 3 parts
+	lastThree := parts[len(parts)-3:]
+
+	// Check if they match YYYY-MM-DD pattern
+	if len(lastThree[0]) == 4 && len(lastThree[1]) == 2 && len(lastThree[2]) == 2 {
+		// Verify they're all numeric
+		for _, part := range lastThree {
+			for _, ch := range part {
+				if ch < '0' || ch > '9' {
+					return false
+				}
+			}
+		}
+		return true
 	}
 
 	return false

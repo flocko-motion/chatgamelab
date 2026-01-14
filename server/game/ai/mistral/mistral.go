@@ -9,6 +9,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
 )
 
 type MistralPlatform struct{}
@@ -148,11 +150,20 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 		return nil, fmt.Errorf("failed to get models: %w", err)
 	}
 
+	// Check if we should show all models without filtering
+	showAll := false
+	if val := ctx.Value("showAll"); val != nil {
+		showAll, _ = val.(bool)
+	}
+
 	models := make([]obj.AiModel, 0, len(response.Data))
 	for _, model := range response.Data {
-		// Skip non-chat models
-		if !isChatModel(model.ID) {
-			continue
+		// Apply filters only if not showing all
+		if !showAll {
+			// Skip non-chat models
+			if !isRelevantModel(model.ID) {
+				continue
+			}
 		}
 
 		models = append(models, obj.AiModel{
@@ -162,22 +173,56 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 		})
 	}
 
+	// Sort alphabetically by model ID
+	sort.Slice(models, func(i, j int) bool {
+		return models[i].ID < models[j].ID
+	})
+
 	return models, nil
 }
 
-// isChatModel checks if a model supports chat completions
-func isChatModel(modelID string) bool {
+// endsWithFourDigits checks if a model ID ends with -XXXX pattern (4 digits)
+func endsWithFourDigits(modelID string) bool {
+	parts := strings.Split(modelID, "-")
+	if len(parts) < 2 {
+		return false
+	}
+
+	lastPart := parts[len(parts)-1]
+
+	// Check if last part is exactly 4 digits
+	if len(lastPart) == 4 {
+		for _, ch := range lastPart {
+			if ch < '0' || ch > '9' {
+				return false
+			}
+		}
+		return true
+	}
+
+	return false
+}
+
+// isRelevantModel checks if a model supports chat completions
+func isRelevantModel(modelID string) bool {
 	// List of known non-chat model prefixes to skip
 	nonChatPrefixes := []string{
 		"embed-",
 		"rerank-",
 		"code-",
+		"codestral-",
+		"devstral-",
 	}
 
 	for _, prefix := range nonChatPrefixes {
 		if len(modelID) > len(prefix) && modelID[:len(prefix)] == prefix {
 			return false
 		}
+	}
+
+	// Skip dated models (ending with -XXXX where X is a digit)
+	if endsWithFourDigits(modelID) {
+		return false
 	}
 
 	return true
