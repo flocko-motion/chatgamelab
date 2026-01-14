@@ -18,27 +18,27 @@ export const useNavigation = () => {
   const goToProfile = useCallback(() => navigate({ to: ROUTES.PROFILE }), [navigate]);
   const goToSettings = useCallback(() => navigate({ to: ROUTES.SETTINGS }), [navigate]);
   const goToLogin = useCallback(() => navigate({ to: ROUTES.AUTH_LOGIN }), [navigate]);
-  const goToLogout = useCallback(() => navigate({ to: ROUTES.AUTH_LOGOUT as any }), [navigate]);
-  const goToGames = useCallback(() => navigate({ to: ROUTES.GAMES as any }), [navigate]);
-  const goToGameCreate = useCallback(() => navigate({ to: ROUTES.GAME_CREATE as any }), [navigate]);
-  const goToRooms = useCallback(() => navigate({ to: ROUTES.ROOMS as any }), [navigate]);
-  const goToRoomCreate = useCallback(() => navigate({ to: ROUTES.ROOM_CREATE as any }), [navigate]);
-  const goToDebug = useCallback(() => navigate({ to: ROUTES.DEBUG as any }), [navigate]);
+  const goToLogout = useCallback(() => navigate({ to: ROUTES.AUTH_LOGOUT as string }), [navigate]);
+  const goToGames = useCallback(() => navigate({ to: ROUTES.GAMES as string }), [navigate]);
+  const goToGameCreate = useCallback(() => navigate({ to: ROUTES.GAME_CREATE as string }), [navigate]);
+  const goToRooms = useCallback(() => navigate({ to: ROUTES.ROOMS as string }), [navigate]);
+  const goToRoomCreate = useCallback(() => navigate({ to: ROUTES.ROOM_CREATE as string }), [navigate]);
+  const goToDebug = useCallback(() => navigate({ to: ROUTES.DEBUG as string }), [navigate]);
 
   const goToGameDetail = useCallback((gameId: string) => 
-    navigate({ to: createGameDetailRoute(gameId) as any }), [navigate]);
+    navigate({ to: createGameDetailRoute(gameId) as string }), [navigate]);
   
   const goToGamePlay = useCallback((gameId: string) => 
-    navigate({ to: createGamePlayRoute(gameId) as any }), [navigate]);
+    navigate({ to: createGamePlayRoute(gameId) as string }), [navigate]);
   
   const goToGameEdit = useCallback((gameId: string) => 
-    navigate({ to: createGameEditRoute(gameId) as any }), [navigate]);
+    navigate({ to: createGameEditRoute(gameId) as string }), [navigate]);
   
   const goToRoomDetail = useCallback((roomId: string) => 
-    navigate({ to: createRoomDetailRoute(roomId) as any }), [navigate]);
+    navigate({ to: createRoomDetailRoute(roomId) as string }), [navigate]);
   
   const goToRoomJoin = useCallback((roomId: string) => 
-    navigate({ to: createRoomJoinRoute(roomId) as any }), [navigate]);
+    navigate({ to: createRoomJoinRoute(roomId) as string }), [navigate]);
 
   return {
     // Basic navigation
