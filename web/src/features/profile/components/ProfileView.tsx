@@ -51,7 +51,7 @@ export function ProfileView() {
           <Avatar
             size={80}
             radius="xl"
-            color="violet"
+            color="accent"
           >
             <IconUser size={40} />
           </Avatar>
@@ -72,7 +72,7 @@ export function ProfileView() {
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Stack gap="md">
           <Group gap="sm">
-            <ThemeIcon variant="light" size="lg" color="violet">
+            <ThemeIcon variant="light" size="lg" color="accent">
               <IconBuilding size={20} />
             </ThemeIcon>
             <Title order={3}>{t('profile.organizationSection')}</Title>
@@ -89,7 +89,7 @@ export function ProfileView() {
             <Stack gap="xs">
               <Text size="sm" c="dimmed">{t('profile.role')}</Text>
               {backendUser.role?.role ? (
-                <Badge variant="light" color="violet" size="lg">
+                <Badge variant="light" color="accent" size="lg">
                   {backendUser.role.role}
                 </Badge>
               ) : (
@@ -104,7 +104,7 @@ export function ProfileView() {
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Stack gap="md">
           <Group gap="sm">
-            <ThemeIcon variant="light" size="lg" color="violet">
+            <ThemeIcon variant="light" size="lg" color="accent">
               <IconChartBar size={20} />
             </ThemeIcon>
             <Title order={3}>{t('profile.statisticsSection')}</Title>
@@ -114,7 +114,7 @@ export function ProfileView() {
             {stats.map((stat) => (
               <Card key={stat.label} padding="md" radius="md" bg="gray.0">
                 <Stack gap="xs" align="center" ta="center">
-                  <ThemeIcon variant="light" size="xl" color="violet" radius="xl">
+                  <ThemeIcon variant="light" size="xl" color="accent" radius="xl">
                     <stat.icon size={24} />
                   </ThemeIcon>
                   <Text size="xl" fw={700}>{stat.value}</Text>

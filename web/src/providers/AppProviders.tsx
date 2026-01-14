@@ -30,7 +30,7 @@ export function AppProviders() {
           cacheLocation="localstorage"
           useRefreshTokens={true}
         >
-          <MantineProvider theme={mantineTheme}>
+          <MantineProvider theme={mantineTheme} forceColorScheme="light">
             <ModalsProvider>
               <Notifications />
               <AuthProvider>

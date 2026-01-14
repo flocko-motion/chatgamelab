@@ -3,8 +3,9 @@ import { Container, Stack, Title } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 import { ProfileView } from '@/features/profile';
+import { ROUTES } from '@/common/routes/routes';
 
-export const Route = createFileRoute('/profile')({
+export const Route = createFileRoute(ROUTES.PROFILE)({
   component: ProfilePage,
 });
 

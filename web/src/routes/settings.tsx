@@ -3,8 +3,9 @@ import { Container, Stack, Title, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 import { SettingsForm } from '@/features/settings';
+import { ROUTES } from '@/common/routes/routes';
 
-export const Route = createFileRoute('/settings')({
+export const Route = createFileRoute(ROUTES.SETTINGS)({
   component: SettingsPage,
 });
 

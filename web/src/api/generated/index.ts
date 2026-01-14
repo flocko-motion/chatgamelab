@@ -207,7 +207,6 @@ export interface RoutesCreateSessionRequest {
 }
 
 export interface RoutesRegisterRequest {
-  auth0Id?: string;
   email?: string;
   name?: string;
 }
@@ -336,7 +335,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:8080/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -539,8 +538,13 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title No title
- * @contact
+ * @title ChatGameLab API
+ * @version 1.0
+ * @license MIT
+ * @baseUrl http://localhost:8080/api
+ * @contact ChatGameLab Team (https://chatgamelab.com)
+ *
+ * API for ChatGameLab - an AI-powered interactive game platform
  */
 export class Api<
   SecurityDataType extends unknown,

@@ -1,11 +1,78 @@
 import type { TranslationResources } from './types';
-import en from './locales/en.json';
+import ar from './locales/ar.json';
+import bar from './locales/bar.json';
+import bg from './locales/bg.json';
+import bs from './locales/bs.json';
+import cs from './locales/cs.json';
+import da from './locales/da.json';
 import de from './locales/de.json';
-
-export const enResources: TranslationResources = en;
-export const deResources: TranslationResources = de;
+import el from './locales/el.json';
+import en from './locales/en.json';
+import es from './locales/es.json';
+import fa from './locales/fa.json';
+import fi from './locales/fi.json';
+import fr from './locales/fr.json';
+import hi from './locales/hi.json';
+import hr from './locales/hr.json';
+import hu from './locales/hu.json';
+import id from './locales/id.json';
+import it from './locales/it.json';
+import ja from './locales/ja.json';
+import ko from './locales/ko.json';
+import nl from './locales/nl.json';
+import no from './locales/no.json';
+import pl from './locales/pl.json';
+import ps from './locales/ps.json';
+import pt from './locales/pt.json';
+import ro from './locales/ro.json';
+import ru from './locales/ru.json';
+import sk from './locales/sk.json';
+import sl from './locales/sl.json';
+import so from './locales/so.json';
+import sq from './locales/sq.json';
+import sr from './locales/sr.json';
+import sv from './locales/sv.json';
+import ti from './locales/ti.json';
+import tr from './locales/tr.json';
+import uk from './locales/uk.json';
+import zh from './locales/zh.json';
 
 export const staticResources = {
-  en: enResources,
-  de: deResources,
+  ar: ar as TranslationResources,
+  bar: bar as TranslationResources,
+  bg: bg as TranslationResources,
+  bs: bs as TranslationResources,
+  cs: cs as TranslationResources,
+  da: da as TranslationResources,
+  de: de as TranslationResources,
+  el: el as TranslationResources,
+  en: en as TranslationResources,
+  es: es as TranslationResources,
+  fa: fa as TranslationResources,
+  fi: fi as TranslationResources,
+  fr: fr as TranslationResources,
+  hi: hi as TranslationResources,
+  hr: hr as TranslationResources,
+  hu: hu as TranslationResources,
+  id: id as TranslationResources,
+  it: it as TranslationResources,
+  ja: ja as TranslationResources,
+  ko: ko as TranslationResources,
+  nl: nl as TranslationResources,
+  no: no as TranslationResources,
+  pl: pl as TranslationResources,
+  ps: ps as TranslationResources,
+  pt: pt as TranslationResources,
+  ro: ro as TranslationResources,
+  ru: ru as TranslationResources,
+  sk: sk as TranslationResources,
+  sl: sl as TranslationResources,
+  so: so as TranslationResources,
+  sq: sq as TranslationResources,
+  sr: sr as TranslationResources,
+  sv: sv as TranslationResources,
+  ti: ti as TranslationResources,
+  tr: tr as TranslationResources,
+  uk: uk as TranslationResources,
+  zh: zh as TranslationResources,
 };

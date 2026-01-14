@@ -1,14 +1,14 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { Center, Loader } from '@mantine/core';
+import { Center, Loader, useMantineTheme } from '@mantine/core';
 import { IconPlayerPlay, IconEdit, IconBuilding, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
 import { useAuth } from '../providers/AuthProvider';
 import { RegistrationForm } from '../features/auth';
-import { config } from '../config/env';
 import { useLocation } from '@tanstack/react-router';
+import { ROUTES } from '../common/routes/routes';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -19,11 +19,12 @@ function RootComponent() {
   const { t } = useTranslation('navigation');
   const location = useLocation();
   const navigate = useNavigate();
+  const theme = useMantineTheme();
   const pathname = location.pathname;
-  const isHomePage = pathname === '/';
+  const isHomePage = pathname === ROUTES.HOME;
   
   // Public routes that don't require authentication
-  const isPublicRoute = isHomePage || pathname.startsWith('/auth/');
+  const isPublicRoute = isHomePage || pathname.startsWith(ROUTES.AUTH_LOGIN);
 
   // Determine layout variant based on auth state
   const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;
@@ -35,22 +36,22 @@ function RootComponent() {
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
-      window.location.href = config.PUBLIC_URL || '/';
+      navigate({ to: ROUTES.HOME });
     }
-  }, [shouldRedirect]);
+  }, [shouldRedirect, navigate]);
 
   // Navigation items for authenticated header
   const navItems: NavItem[] = [
-    { label: t('dashboard'), icon: <IconBuilding size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
-    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
-    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
-    { label: t('rooms'), icon: <IconUsers size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
+    { label: t('dashboard'), icon: <IconBuilding size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
+    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
+    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
+    { label: t('rooms'), icon: <IconUsers size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
   ];
 
   // Header navigation callbacks
   const headerProps = useAuthenticatedLayout ? {
-    onSettingsClick: () => navigate({ to: '/settings' }),
-    onProfileClick: () => navigate({ to: '/profile' }),
+    onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
+    onProfileClick: () => navigate({ to: ROUTES.PROFILE }),
   } : undefined;
 
   // Show loading state while auth is initializing
@@ -68,7 +69,7 @@ function RootComponent() {
   if (needsRegistration && registrationData) {
     return (
       <>
-        <AppLayout variant="public" background="linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)">
+        <AppLayout variant="public" background={theme.other.colors.bgRegistrationGradient}>
           <RegistrationForm registrationData={registrationData} />
         </AppLayout>
         <TanStackRouterDevtools position="bottom-right" />
@@ -92,7 +93,7 @@ function RootComponent() {
       <AppLayout 
         variant={useAuthenticatedLayout ? 'authenticated' : 'public'}
         navItems={useAuthenticatedLayout ? navItems : undefined}
-        background={isHomePage ? 'linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)' : undefined}
+        background={theme.other.colors.bgLandingGradient}
         transparentFooter={isHomePage}
         headerProps={headerProps}
       >
