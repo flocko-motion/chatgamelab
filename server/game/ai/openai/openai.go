@@ -3,38 +3,30 @@ package openai
 import (
 	"bufio"
 	"bytes"
+	"cgl/apiclient"
+	"cgl/game/stream"
+	"cgl/lang"
+	"cgl/log"
+	"cgl/obj"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
-
-	"cgl/game/stream"
-	"cgl/lang"
-	"cgl/log"
-	"cgl/obj"
-)
-
-const (
-	responsesURL = "https://api.openai.com/v1/responses"
-	defaultModel = "gpt-4o-mini"
 )
 
 type OpenAiPlatform struct{}
 
-func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
-	return obj.AiPlatform{
-		ID:   "openai",
-		Name: "OpenAI",
-		Models: []obj.AiModel{
-			{ID: "gpt-4o-mini", Name: "GPT-4o Mini", Description: "Fast and cost-effective for most tasks"},
-			{ID: "gpt-4o", Name: "GPT-4o", Description: "Most capable model for complex tasks"},
-			{ID: "gpt-4.1-nano", Name: "GPT-4.1 Nano", Description: "Cheapest option for simple tasks"},
-		},
-	}
-}
+const (
+	openaiBaseURL     = "https://api.openai.com/v1"
+	responsesEndpoint = "/responses"
+	modelsEndpoint    = "/models"
+	imageGenEndpoint  = "/images/generations"
+	defaultModel      = "gpt-4o-mini"
+)
 
 // ModelSession stores the OpenAI response ID for conversation continuity
 type ModelSession struct {
@@ -83,6 +75,25 @@ type OutputItem struct {
 type ContentItem struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+// newApi creates a new API client for OpenAI with the given API key
+func (p *OpenAiPlatform) newApi(apiKey string) *apiclient.Client {
+	return apiclient.NewApi(openaiBaseURL, map[string]string{
+		"Authorization": "Bearer " + apiKey,
+	})
+}
+
+func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
+	return obj.AiPlatform{
+		ID:   "openai",
+		Name: "OpenAI",
+		Models: []obj.AiModel{
+			{ID: "gpt-4o-mini", Name: "GPT-4o Mini", Description: "Fast and cost-effective for most tasks"},
+			{ID: "gpt-4o", Name: "GPT-4o", Description: "Most capable model for complex tasks"},
+			{ID: "gpt-4.1-nano", Name: "GPT-4.1 Nano", Description: "Cheapest option for simple tasks"},
+		},
+	}
 }
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
@@ -194,37 +205,13 @@ func extractResponseText(apiResponse *ResponsesAPIResponse) string {
 }
 
 func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest) (*ResponsesAPIResponse, error) {
-	reqBody, err := json.Marshal(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", responsesURL, bytes.NewReader(reqBody))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
-
-	resp, err := http.DefaultClient.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
-	}
+	client := apiclient.NewApi(openaiBaseURL, map[string]string{
+		"Authorization": "Bearer " + apiKey,
+	})
 
 	var apiResp ResponsesAPIResponse
-	if err := json.Unmarshal(body, &apiResp); err != nil {
-		return nil, fmt.Errorf("failed to parse response: %w", err)
+	if err := client.PostJson(ctx, responsesEndpoint, req, &apiResp); err != nil {
+		return nil, err
 	}
 
 	return &apiResp, nil
@@ -306,12 +293,15 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 }
 
 // callStreamingResponsesAPI makes a streaming call to the Responses API
+// Note: Uses direct HTTP instead of apiclient because it requires SSE (Server-Sent Events) streaming
+// with line-by-line processing and keeping the connection open for incremental responses
 func callStreamingResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest, responseStream *stream.Stream) (fullText string, responseID string, err error) {
 	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
+	responsesURL := openaiBaseURL + responsesEndpoint
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", responsesURL, bytes.NewReader(reqBody))
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create request: %w", err)
@@ -370,8 +360,10 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 }
 
 // callImageGenerationAPI generates an image with streaming partial images
+// Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
+// for large base64-encoded image data and incremental partial image previews
 func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, responseStream *stream.Stream) ([]byte, error) {
-	const imageGenURL = "https://api.openai.com/v1/images/generations"
+	imageGenURL := openaiBaseURL + imageGenEndpoint
 
 	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
 	// For gpt-image-1, we include the style in the prompt instead
@@ -457,4 +449,131 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 	}
 
 	return finalImageData, nil
+}
+
+// Translate translates language files to a target language using OpenAI API
+func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
+	return "", fmt.Errorf("translation not yet implemented for openai - use mistral instead")
+}
+
+// ListModels retrieves all available models from OpenAI API
+func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error) {
+	client := p.newApi(apiKey)
+
+	var response struct {
+		Data []struct {
+			ID      string `json:"id"`
+			Object  string `json:"object"`
+			Created int64  `json:"created"`
+			OwnedBy string `json:"owned_by"`
+		} `json:"data"`
+	}
+
+	if err := client.GetJson(ctx, modelsEndpoint, &response); err != nil {
+		return nil, fmt.Errorf("failed to get models: %w", err)
+	}
+
+	// Check if we should show all models without filtering
+	showAll := false
+	if val := ctx.Value("showAll"); val != nil {
+		showAll, _ = val.(bool)
+	}
+
+	models := make([]obj.AiModel, 0, len(response.Data))
+	for _, model := range response.Data {
+		// Apply filters only if not showing all
+		if !showAll {
+			// Skip non-chat models
+			if isIrrelevantModel(model.ID) {
+				continue
+			}
+
+			// Skip preview models
+			if strings.Contains(model.ID, "-preview") {
+				continue
+			}
+
+			// Skip dated models (ending with YYYY-MM-DD pattern or 4-digit versions)
+			if isDatedModel(model.ID) {
+				continue
+			}
+		}
+
+		models = append(models, obj.AiModel{
+			ID:          model.ID,
+			Name:        model.ID,
+			Description: fmt.Sprintf("OpenAI model: %s", model.ID),
+		})
+	}
+
+	// Sort alphabetically by model ID
+	sort.Slice(models, func(i, j int) bool {
+		return models[i].ID < models[j].ID
+	})
+
+	return models, nil
+}
+
+// isIrrelevantModel checks if a model is known to NOT support chat completions
+func isIrrelevantModel(modelID string) bool {
+	// List of known non-chatmodel prefixes
+	nonChatPrefixes := []string{
+		"sora-",
+		"tts-",
+		"whisper-",
+		"text-embedding-",
+		"omni-moderation-",
+		"codex-",
+	}
+
+	for _, prefix := range nonChatPrefixes {
+		if strings.HasPrefix(modelID, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// isDatedModel checks if a model ID ends with a date or version pattern
+func isDatedModel(modelID string) bool {
+	parts := strings.Split(modelID, "-")
+	if len(parts) < 2 {
+		return false
+	}
+
+	lastPart := parts[len(parts)-1]
+
+	// Check if ends with 4 digits (e.g., -1106, -0914)
+	if len(lastPart) == 4 {
+		for _, ch := range lastPart {
+			if ch < '0' || ch > '9' {
+				return false
+			}
+		}
+		return true
+	}
+
+	// Check if model ends with -YYYY-MM-DD pattern
+	if len(parts) < 3 {
+		return false
+	}
+
+	// Get last 3 parts
+	lastThree := parts[len(parts)-3:]
+
+	// Check if they match YYYY-MM-DD pattern
+	if len(lastThree[0]) == 4 && len(lastThree[1]) == 2 && len(lastThree[2]) == 2 {
+		// Verify they're all numeric
+		for _, part := range lastThree {
+			for _, ch := range part {
+				if ch < '0' || ch > '9' {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
+	return false
 }

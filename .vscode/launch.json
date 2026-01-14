@@ -12,9 +12,11 @@
             "program": "${workspaceFolder}/server",
             "cwd": "${workspaceFolder}/server",
             "args": [
-                "server",
-                "--dev"
+                "server"
             ],
+            "env": {
+                "DEV_MODE": "1"
+            },
             "envFile": "${workspaceFolder}/.env"
         },
         {

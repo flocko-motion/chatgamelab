@@ -1,6 +1,8 @@
 package ai
 
 import (
+	"cgl/functional"
+	"cgl/game/ai/mistral"
 	"cgl/game/ai/mock"
 	"cgl/game/ai/openai"
 	"cgl/game/stream"
@@ -40,43 +42,58 @@ type AiPlatform interface {
 	// GenerateImage - async/streaming, generates image from response.ImagePrompt
 	// Streams partial images to responseStream, updates response.Image with final image when done
 	GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
+
+	// Translate - blocking, translates a set of language files to a target language
+	// Returns the translated JSON as a stringified object
+	Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error)
+
+	// ListModels - blocking, retrieves all available models from the platform API
+	ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error)
 }
 
-// GetAiPlatform returns the AI platform and resolves the model.
-// If model is empty, returns the platform's default model.
-// Returns error if platform is unknown or model is invalid.
-func GetAiPlatform(platformName, model string) (AiPlatform, string, error) {
+func GetAiPlatformInfos() []obj.AiPlatform {
+	return []obj.AiPlatform{
+		functional.First(getAiPlatform(OpenAi)).GetPlatformInfo(),
+		functional.First(getAiPlatform(Mistral)).GetPlatformInfo(),
+		functional.First(getAiPlatform(Mock)).GetPlatformInfo(),
+	}
+}
+
+func getAiPlatform(platformName string) (AiPlatform, error) {
 	var platform AiPlatform
 	switch platformName {
 	case OpenAi:
 		platform = &openai.OpenAiPlatform{}
-	// case Mistral:
-	// 	platform = &mistral.MistralPlatform{}
+	case Mistral:
+		platform = &mistral.MistralPlatform{}
 	case Mock:
 		platform = &mock.MockPlatform{}
 	default:
-		return nil, "", fmt.Errorf("unknown ai platform: %s", platformName)
+		return nil, fmt.Errorf("unknown ai platform: %s", platformName)
+	}
+	return platform, nil
+}
+
+// GetAiPlatform returns the AI platform and resolves the model.
+// If model is empty, returns the platform's default model.
+// Returns error if platform is unknown.
+// Note: Does not validate model names - allows any model string for flexibility with dev tools.
+func GetAiPlatform(platformName, model string) (AiPlatform, string, error) {
+	platform, err := getAiPlatform(platformName)
+	if err != nil {
+		return nil, "", err
 	}
 
-	info := platform.GetPlatformInfo()
-
+	// If no model specified, use the first hardcoded model as default
 	if model == "" {
+		info := platform.GetPlatformInfo()
 		if len(info.Models) == 0 {
 			return nil, "", fmt.Errorf("no models available for platform %s", info.Name)
 		}
 		model = info.Models[0].ID
-	} else {
-		valid := false
-		for _, m := range info.Models {
-			if m.ID == model {
-				valid = true
-				break
-			}
-		}
-		if !valid {
-			return nil, "", fmt.Errorf("invalid model '%s' for platform %s", model, info.Name)
-		}
 	}
 
+	// Return platform and model without validation
+	// This allows dev tools to use any model name, including new ones not in hardcoded list
 	return platform, model, nil
 }

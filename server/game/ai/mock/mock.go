@@ -92,6 +92,19 @@ func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSessi
 	return nil
 }
 
+// Translate provides a mock translation implementation
+func (p *MockPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
+	// Mock implementation: generate pseudo-translations by adding "[MOCK]" prefix
+	fmt.Printf("MOCK: Translating %d files to %s\n", len(input), targetLang)
+	for _, file := range input {
+		fmt.Printf("MOCK: Would process file: %s\n", file)
+	}
+
+	// Return mock translated JSON
+	mockTranslation := `{"mock": "translation", "language": "` + targetLang + `"}`
+	return mockTranslation, nil
+}
+
 // splitIntoChunks splits text into chunks of n words
 func splitIntoChunks(text string, wordsPerChunk int) []string {
 	words := make([]string, 0)
@@ -132,4 +145,12 @@ func generateMockImage(width, height int) []byte {
 	var buf bytes.Buffer
 	_ = png.Encode(&buf, img)
 	return buf.Bytes()
+}
+
+// ListModels returns mock models for testing
+func (p *MockPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error) {
+	return []obj.AiModel{
+		{ID: "mock-v1", Name: "Mock Model", Description: "Dummy AI for testing purposes"},
+		{ID: "mock-v2", Name: "Mock Model v2", Description: "Enhanced dummy AI for testing"},
+	}, nil
 }
