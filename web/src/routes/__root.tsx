@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
 import { useAuth } from '../providers/AuthProvider';
 import { RegistrationForm } from '../features/auth';
+import { config } from '../config/env';
 import { useLocation } from '@tanstack/react-router';
 
 export const Route = createRootRoute({
@@ -34,7 +35,7 @@ function RootComponent() {
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
-      window.location.href = '/';
+      window.location.href = config.PUBLIC_URL || '/';
     }
   }, [shouldRedirect]);
 
