@@ -34,14 +34,17 @@ The API key will be read from ~/.chatgamelab/config.yaml unless --api-key is pro
 				platform = args[0]
 			} else {
 				// List all platforms
+				fmt.Println("List of hardcoded models configured for production:")
+				fmt.Println()
 				platformInfos := ai.GetAiPlatformInfos()
 				for _, info := range platformInfos {
-					fmt.Printf("\n=== %s ===\n", info.Name)
+					fmt.Printf("=== %s ===\n", info.Name)
 					for _, model := range info.Models {
 						fmt.Printf("  %s: %s\n", model.ID, model.Description)
 					}
+					fmt.Println()
 				}
-				fmt.Printf("\nUse 'cgl ai models <platform>' to query live models from API\n")
+				fmt.Printf("Use 'cgl ai models <platform>' to query live models from API\n")
 				return
 			}
 		}

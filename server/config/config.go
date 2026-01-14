@@ -42,21 +42,12 @@ func createInitialConfig(path string) error {
 
 	// Generate YAML content
 	content := "# ChatGameLab Configuration\n"
-	content += "# Store your API keys here for each platform\n"
 	content += "# Replace 'your-api-key-here' with your actual API key\n\n"
 	content += "platforms:\n"
 
 	for _, platform := range platformInfos {
 		content += fmt.Sprintf("  %s:\n", platform.ID)
 		content += "    apikey: your-api-key-here\n"
-		content += fmt.Sprintf("    # %s - %s\n", platform.Name, platform.Models[0].Description)
-		if len(platform.Models) > 1 {
-			content += "    # Available models:\n"
-			for _, model := range platform.Models {
-				content += fmt.Sprintf("    #   - %s: %s\n", model.ID, model.Description)
-			}
-		}
-		content += "\n"
 	}
 
 	return os.WriteFile(path, []byte(content), 0644)
