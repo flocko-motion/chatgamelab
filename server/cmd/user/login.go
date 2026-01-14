@@ -7,6 +7,7 @@ import (
 	"cgl/functional"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -49,14 +50,18 @@ func runLogin(cmd *cobra.Command, args []string) {
 }
 
 func runRemoteLogin() {
-	if err := config.SetServerConfig(remoteURL, remoteToken); err != nil {
+	// Strip "Bearer " prefix if user included it
+	token := strings.TrimSpace(strings.TrimPrefix(remoteToken, "Bearer "))
+	remoteURL := strings.TrimSuffix(strings.TrimSuffix(remoteURL, "/"), "/api")
+
+	if err := config.SetServerConfig(remoteURL, token); err != nil {
 		log.Fatalf("Failed to save configuration: %v", err)
 	}
 
 	configPath, _ := config.GetConfigPath()
 	fmt.Printf("✓ Configuration saved to %s\n", configPath)
 	fmt.Printf("  Server URL: %s\n", remoteURL)
-	fmt.Printf("  JWT: %s...\n", truncateToken(remoteToken))
+	fmt.Printf("  JWT: %s...\n", truncateToken(token))
 }
 
 func runLocalLogin(args []string) {

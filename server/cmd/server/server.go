@@ -26,9 +26,10 @@ func runServer(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	// Dev mode enabled via DEV_MODE env variable
-	devMode := os.Getenv("DEV_MODE") == "true"
+	// Dev mode enabled via DEV_MODE env variable (accepts "true" or "1")
+	devModeStr := os.Getenv("DEV_MODE")
+	devMode := devModeStr == "true" || devModeStr == "1"
 
-	log.Debug("starting server", "port", port, "dev_mode", devMode)
+	log.Info("starting server", "port", port, "dev_mode", devMode)
 	api.RunServer(cmd.Context(), port, devMode)
 }

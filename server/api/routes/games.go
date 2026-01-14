@@ -47,11 +47,11 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 // CreateGame godoc
 //
 //	@Summary		Create game
-//	@Description	Creates a new game. A non-empty name is required.
+//	@Description	Creates a new game from JSON or YAML. Accepts either a simple name or full game object.
 //	@Tags			games
-//	@Accept			json
+//	@Accept			json,application/x-yaml
 //	@Produce		json
-//	@Param			request	body		CreateGameRequest	true	"Create game request"
+//	@Param			request	body		CreateGameRequest	true	"Create game request (JSON or YAML)"
 //	@Success		200		{object}	obj.Game
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
@@ -61,26 +61,28 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 func CreateGame(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	var req CreateGameRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+	// Try to parse as full game object first
+	var game obj.Game
+	if err := httpx.ReadJSONOrYAML(r, &game); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body: "+err.Error())
 		return
 	}
-	if strings.TrimSpace(req.Name) == "" {
+
+	// Validate that at least name is provided
+	if strings.TrimSpace(game.Name) == "" {
 		httpx.WriteError(w, http.StatusBadRequest, "Missing required field: name")
 		return
 	}
 
-	newGame := obj.Game{Name: req.Name}
-	log.Debug("creating game", "user_id", user.ID, "name", req.Name)
-	if err := db.CreateGame(r.Context(), user.ID, &newGame); err != nil {
+	log.Debug("creating game", "user_id", user.ID, "name", game.Name)
+	if err := db.CreateGame(r.Context(), user.ID, &game); err != nil {
 		log.Debug("game creation failed", "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
 		return
 	}
-	log.Debug("game created", "game_id", newGame.ID)
+	log.Debug("game created", "game_id", game.ID)
 
-	created, err := db.GetGameByID(r.Context(), &user.ID, newGame.ID)
+	created, err := db.GetGameByID(r.Context(), &user.ID, game.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created game: "+err.Error())
 		return
