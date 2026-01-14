@@ -87,6 +87,14 @@ func NormalizeJson(in string, o any) string {
 	return string(normalized)
 }
 
+func MustAnyToJson(v any) string {
+	data, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
+}
+
 // EnsurePointer returns a pointer to o if o is not already a pointer.
 func EnsurePointer(o any) any {
 	v := reflect.ValueOf(o)
