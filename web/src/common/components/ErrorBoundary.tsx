@@ -1,6 +1,8 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
-import { Button, Container, Group, Text, Title, Alert } from '@mantine/core';
+import { Container, Group, Alert, Box } from '@mantine/core';
+import { DangerButton } from './buttons';
+import { SectionTitle, BodyText, HelperText } from './typography';
 
 interface Props {
   children: ReactNode;
@@ -57,50 +59,56 @@ export class ErrorBoundary extends Component<Props, State> {
         <Container size="md" py="xl">
           <div style={{ textAlign: 'center' }}>
             <Alert color="red" title="Error" icon="🚨">
-              <Title order={2} c="red" mb="md">
+              <SectionTitle>
                 Something went wrong
-              </Title>
+              </SectionTitle>
               
-              <Text mb="lg">
+              <BodyText>
                 An unexpected error occurred. This has been logged and we'll look into it.
-              </Text>
+              </BodyText>
 
               {import.meta.env.DEV && this.state.error && (
-                <div style={{ 
-                  background: '#fef2f2', 
-                  border: '1px solid #fecaca',
-                  padding: '1rem', 
-                  borderRadius: '8px', 
-                  textAlign: 'left',
-                  marginBottom: '1rem'
-                }}>
-                  <Text size="sm" fw={500} mb="xs" c="red">
+                <Box
+                  mb="md"
+                  p="md"
+                  style={{
+                    background: 'var(--mantine-color-red-0)',
+                    border: '1px solid var(--mantine-color-red-2)',
+                    borderRadius: 'var(--mantine-radius-md)',
+                    textAlign: 'left',
+                  }}
+                >
+                  <HelperText>
                     Error Details (Development Mode):
-                  </Text>
-                  <Text size="xs" component="pre" style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    fontFamily: 'monospace',
-                    fontSize: '12px',
-                    maxHeight: '200px',
-                    overflow: 'auto'
-                  }}>
+                  </HelperText>
+                  <Box
+                    component="pre"
+                    style={{
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'monospace',
+                      fontSize: '12px',
+                      maxHeight: '200px',
+                      overflow: 'auto',
+                      margin: 0,
+                      color: 'var(--mantine-color-red-7)',
+                    }}
+                  >
                     {this.state.error.toString()}
                     {this.state.errorInfo && this.state.errorInfo.componentStack}
-                  </Text>
-                </div>
+                  </Box>
+                </Box>
               )}
 
               <Group justify="center" gap="md">
-                <Button onClick={this.handleReset} variant="filled" color="red">
+                <DangerButton onClick={this.handleReset}>
                   Try Again
-                </Button>
-                <Button 
+                </DangerButton>
+                <DangerButton 
                   onClick={() => window.location.reload()} 
                   variant="outline"
-                  color="red"
                 >
                   Reload Page
-                </Button>
+                </DangerButton>
               </Group>
             </Alert>
           </div>
