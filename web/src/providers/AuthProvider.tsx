@@ -1,10 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 import { auth0Config } from '../config/auth0';
-import { config } from '../config/env';
 import { Api } from '../api/generated';
 import { createAuthenticatedApiConfig } from '../api/client/http';
+import { ROUTES } from '../common/routes/routes';
 import type { ObjUser } from '../api/generated';
 
 export interface AuthUser {
@@ -69,6 +70,7 @@ interface TokenCache {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const {
     user: auth0User,
     isAuthenticated: auth0IsAuthenticated,
@@ -269,7 +271,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (auth0IsAuthenticated) {
       auth0Logout({ 
         logoutParams: { 
-          returnTo: `${window.location.origin}/auth/logout/auth0/callback` 
+          returnTo: `${window.location.origin}${ROUTES.AUTH0_LOGOUT_CALLBACK}` 
         } 
       });
     } else {
@@ -279,7 +281,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       setIsLoading(false);
       // Redirect to homepage
-      window.location.href = config.PUBLIC_URL || '/';
+      navigate({ to: ROUTES.HOME });
     }
   };
 

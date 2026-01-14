@@ -4,15 +4,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Box,
-  Button,
   Card,
   Container,
   Stack,
   Text,
   TextInput,
-  Title,
   Loader,
 } from '@mantine/core';
+import { ActionButton, TextButton } from '@components/buttons';
+import { SectionTitle, HelperText } from '@components/typography';
 import { IconUser, IconMail, IconCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -142,12 +142,12 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
       <Card shadow="md" padding="xl" radius="md" withBorder>
         <Stack gap="lg">
           <Box ta="center">
-            <Title order={2}>
+            <SectionTitle>
               {t('register.title')}
-            </Title>
-            <Text c="dimmed" size="md" mt="xs">
+            </SectionTitle>
+            <HelperText>
               {t('register.subtitle')}
-            </Text>
+            </HelperText>
           </Box>
 
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -180,7 +180,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
               )}
 
               <Stack gap="xs" mt="md">
-                <Button
+                <ActionButton
                   type="submit"
                   fullWidth
                   loading={isSubmitting}
@@ -189,16 +189,14 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
                   {isSubmitting
                     ? t('register.submitting')
                     : t('register.submitButton')}
-                </Button>
+                </ActionButton>
 
-                <Button
-                  variant="subtle"
-                  fullWidth
+                <TextButton
                   onClick={handleCancel}
                   disabled={isSubmitting}
                 >
                   {t('register.cancelButton')}
-                </Button>
+                </TextButton>
               </Stack>
             </Stack>
           </form>

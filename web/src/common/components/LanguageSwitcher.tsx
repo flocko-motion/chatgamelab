@@ -66,7 +66,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
     );
   }
 
-  // Subtle variant for light backgrounds
+  // Subtle variant for light backgrounds (soft gradient style)
   if (variant === 'subtle') {
     return (
       <Box>
@@ -91,13 +91,17 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
               minWidth: 80,
               maxWidth: 150,
               textAlign: 'center',
-              backgroundColor: 'rgba(139, 92, 246, 0.1)',
-              borderColor: 'rgba(139, 92, 246, 0.25)',
-              color: '#7c3aed',
+              background: 'transparent',
+              borderColor: 'var(--mantine-color-accent-5)',
+              borderWidth: '2px',
+              borderStyle: 'solid',
+              color: 'var(--mantine-color-accent-9)',
               fontWeight: 600,
+              transition: 'all 0.2s ease',
               '&:hover': {
-                backgroundColor: 'rgba(139, 92, 246, 0.18)',
-                borderColor: 'rgba(139, 92, 246, 0.4)',
+                background: 'var(--mantine-color-accent-0)',
+                borderColor: 'var(--mantine-color-accent-6)',
+                transform: 'translateY(-1px)',
               },
             },
           }}

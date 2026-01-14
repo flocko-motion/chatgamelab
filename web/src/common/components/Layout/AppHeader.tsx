@@ -16,6 +16,7 @@ import {
 import { useDisclosure, useElementSize } from '@mantine/hooks';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
 import { useAuth } from '../../../providers/AuthProvider';
 import {
@@ -26,6 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { DropdownMenu } from '../DropdownMenu';
+import { ROUTES } from '../../routes/routes';
 import logoLandscapeWhite from '@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-White-Text-Transparent.png';
 
 export interface NavItem {
@@ -119,7 +121,7 @@ function UserActions({
             backgroundColor: theme.other.layout.bgActive,
           },
           '&:focus-visible': {
-            outline: `2px solid ${theme.colors.violet[6]}`,
+            outline: `2px solid ${theme.colors.accent[6]}`,
             outlineOffset: 2,
           },
         },
@@ -318,6 +320,7 @@ export function AppHeader({
   const [mobileNavOpened, { open: openMobileNav, close: closeMobileNav }] = useDisclosure(false);
   const { isMobile: isViewportMobile } = useResponsiveDesign();
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const theme = useMantineTheme();
 
   // Measure header container width
@@ -326,19 +329,15 @@ export function AppHeader({
   const { ref: measureLogoRef, width: logoWidth } = useElementSize();
   const { ref: measureActionsRef, width: actionsWidth } = useElementSize();
 
-  // With centered logo, we need to check if left/right content would overlap with the logo
+  // With left-aligned layout, we only need to check if total content fits
   const contentOverflows = (() => {
     if (headerWidth === 0 || navWidth === 0 || logoWidth === 0 || actionsWidth === 0) return false;
 
     const padding = 32; // p="md" = 16px * 2
-    const safetyMargin = 24; // Extra margin to prevent near-collision
-    const availableWidth = headerWidth - padding;
-    const halfAvailable = availableWidth / 2;
-    const halfLogo = logoWidth / 2;
-    const spaceForNav = halfAvailable - halfLogo - safetyMargin;
-    const spaceForActions = halfAvailable - halfLogo - safetyMargin;
+    const gap = 16; // gap="md" between left and right sections
+    const totalWidth = logoWidth + navWidth + actionsWidth + gap + padding;
 
-    return navWidth > spaceForNav || actionsWidth > spaceForActions;
+    return totalWidth > headerWidth;
   })();
 
   // Force mobile if viewport is mobile OR content overflows
@@ -394,29 +393,60 @@ export function AppHeader({
           boxShadow: theme.other.layout.shadowHeader,
         }}
       >
-        <Box style={{ position: 'relative', height: '100%' }}>
-          {/* Center section: Logo - absolutely positioned for true centering */}
-          <Box
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1,
-            }}
-          >
-            <Image
-              src={logoLandscapeWhite}
-              alt="ChatGameLab Logo"
-              h={{ base: 36, sm: 50 }}
-              w="auto"
-              fit="contain"
-            />
-          </Box>
+        <Group justify="space-between" align="center" h="100%" wrap="nowrap" gap="md">
+          {/* Left section: Logo + Navigation (desktop) */}
+          <Group gap="lg" align="center" wrap="nowrap">
+            {/* Logo */}
+            <UnstyledButton
+              onClick={() => navigate({ to: ROUTES.DASHBOARD })}
+              aria-label={t('header.goToDashboard')}
+              style={{
+                borderRadius: 'var(--mantine-radius-sm)',
+                transition: 'background-color 150ms ease',
+              }}
+              styles={{
+                root: {
+                  '&:hover': {
+                    backgroundColor: theme.other.layout.bgHover,
+                  },
+                  '&:active': {
+                    backgroundColor: theme.other.layout.bgActive,
+                  },
+                  '&:focus-visible': {
+                    outline: `2px solid ${theme.colors.accent[6]}`,
+                    outlineOffset: 2,
+                  },
+                },
+              }}
+            >
+              <Image
+                src={logoLandscapeWhite}
+                alt="ChatGameLab Logo"
+                h={{ base: 36, sm: 50 }}
+                w="auto"
+                fit="contain"
+              />
+            </UnstyledButton>
 
-          {/* Left and right sections */}
-          <Group justify="space-between" align="center" h="100%" wrap="nowrap" gap="md">
-            {/* Mobile: Burger */}
+            {/* Desktop: Nav items */}
+            {!forceMobile && (
+              <DesktopNavigation items={navItems} />
+            )}
+          </Group>
+
+          {/* Right section */}
+          <Group gap="sm" align="center" wrap="nowrap">
+            {/* Desktop: Full user actions */}
+            {!forceMobile && (
+              <UserActions
+                onNotificationsClick={onNotificationsClick}
+                onSettingsClick={onSettingsClick}
+                onProfileClick={onProfileClick}
+                onLogoutClick={onLogoutClick}
+              />
+            )}
+
+            {/* Mobile: Burger menu */}
             {forceMobile && (
               <Burger
                 opened={mobileNavOpened}
@@ -426,33 +456,8 @@ export function AppHeader({
                 aria-label={mobileNavOpened ? t('header.closeNavigation') : t('header.openNavigation')}
               />
             )}
-
-            {/* Desktop: Nav items */}
-            {!forceMobile && (
-              <Box style={{ zIndex: 2 }}>
-                <DesktopNavigation items={navItems} />
-              </Box>
-            )}
-
-            {/* Spacer to push right content to the right */}
-            <Box style={{ flex: 1 }} />
-
-            {/* Mobile: No user avatar - it's in the burger menu */}
-            {forceMobile && <Box style={{ width: 48 }} />}
-
-            {/* Desktop: Full user actions */}
-            {!forceMobile && (
-              <Box style={{ zIndex: 2 }}>
-                <UserActions
-                  onNotificationsClick={onNotificationsClick}
-                  onSettingsClick={onSettingsClick}
-                  onProfileClick={onProfileClick}
-                  onLogoutClick={onLogoutClick}
-                />
-              </Box>
-            )}
           </Group>
-        </Box>
+        </Group>
       </AppShell.Header>
 
       {/* Mobile Navigation Drawer */}

@@ -1,8 +1,23 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API for ChatGameLab - an AI-powered interactive game platform",
+        "title": "ChatGameLab API",
+        "contact": {
+            "name": "ChatGameLab Team",
+            "url": "https://chatgamelab.com"
+        },
+        "license": {
+            "name": "MIT"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api",
     "paths": {
         "/apikeys": {
             "get": {
@@ -1882,9 +1897,6 @@
         "routes.RegisterRequest": {
             "type": "object",
             "properties": {
-                "auth0Id": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -2058,6 +2070,14 @@
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "JWT token in format: Bearer {token}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

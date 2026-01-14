@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Center, Loader, Text } from '@mantine/core';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/auth/login/auth0/callback')({
   component: Auth0Callback,
@@ -31,22 +32,22 @@ function Auth0Callback() {
         if (hasCode || hasState) {
           await handleRedirectCallback();
           // Successfully authenticated, redirect to dashboard
-          navigate({ to: '/dashboard' });
+          navigate({ to: ROUTES.DASHBOARD });
           return;
         }
         
         // If already authenticated or no auth params needed, redirect to dashboard
         if (isAuthenticated || (!hasCode && !hasState && !hasError)) {
-          navigate({ to: '/dashboard' });
+          navigate({ to: ROUTES.DASHBOARD });
           return;
         }
         
         // If we got here without being authenticated, redirect to login
-        navigate({ to: '/auth/login' });
+        navigate({ to: ROUTES.AUTH_LOGIN });
       } catch (err) {
         console.error('Auth0 callback error:', err);
         // If there's an error, redirect to login page
-        navigate({ to: '/auth/login' });
+        navigate({ to: ROUTES.AUTH_LOGIN });
       }
     };
 
