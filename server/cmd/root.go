@@ -5,6 +5,7 @@ import (
 
 	"cgl/cmd/apikey"
 	"cgl/cmd/game"
+	"cgl/cmd/lang"
 	"cgl/cmd/server"
 	"cgl/cmd/user"
 
@@ -27,6 +28,7 @@ func init() {
 	rootCmd.AddCommand(server.Cmd)
 	rootCmd.AddCommand(user.Cmd)
 	rootCmd.AddCommand(game.Cmd)
+	rootCmd.AddCommand(lang.Cmd)
 }
 
 func Execute() {
