@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  Button,
   Card,
   Stack,
   TextInput,
-  Title,
   Alert,
 } from '@mantine/core';
+import { ActionButton } from '@components/buttons';
+import { SectionTitle } from '@components/typography';
 import { IconUser, IconMail, IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -110,7 +110,7 @@ export function SettingsForm() {
   return (
     <Card shadow="sm" padding="xl" radius="md" withBorder>
       <Stack gap="lg">
-        <Title order={3}>{t('settings.accountSection')}</Title>
+        <SectionTitle>{t('settings.accountSection')}</SectionTitle>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack gap="md">
@@ -146,14 +146,14 @@ export function SettingsForm() {
               </Alert>
             )}
 
-            <Button
+            <ActionButton
               type="submit"
               loading={isSubmitting}
               disabled={!isDirty}
-              mt="sm"
+              size="md"
             >
               {isSubmitting ? t('settings.saving') : t('settings.saveButton')}
-            </Button>
+            </ActionButton>
           </Stack>
         </form>
       </Stack>

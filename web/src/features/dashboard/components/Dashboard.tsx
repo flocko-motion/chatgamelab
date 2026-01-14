@@ -1,5 +1,4 @@
 import { 
-  Button, 
   Card, 
   Text, 
   Title, 
@@ -11,6 +10,8 @@ import {
   Box,
   ThemeIcon,
 } from '@mantine/core';
+import { MenuButton, TextButton } from '@components/buttons';
+import { CardTitle, Label, HelperText } from '@components/typography';
 import { useTranslation } from 'react-i18next';
 import { 
   IconPlayerPlay, 
@@ -34,24 +35,22 @@ function QuickStatsCards() {
         withBorder 
         shadow="md"
         style={{ 
-          background: '#ffffff',
-          borderColor: '#e1e5e9',
-          borderTop: '3px solid #8b5cf6'
+          borderTop: '3px solid var(--mantine-color-highlight-5)'
         }}
       >
         <Group justify="space-between" align="flex-start">
           <div>
-            <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
+            <Label uppercase>
               {t('stats.activeAdventures')}
-            </Text>
-            <Title order={1} c="#1f2937" mb="xs">3</Title>
-            <Text size="sm" c="#6b7280">{t('stats.storiesInProgress', { count: 2 })}</Text>
+            </Label>
+            <Title order={1} c="accent.9" mb="xs">3</Title>
+            <HelperText>{t('stats.storiesInProgress', { count: 2 })}</HelperText>
           </div>
           <ThemeIcon 
             size={48} 
             radius="md"
             variant="light"
-            color="violet"
+            color="accent"
           >
             <IconPlayerPlay size={24} />
           </ThemeIcon>
@@ -63,18 +62,16 @@ function QuickStatsCards() {
         withBorder 
         shadow="md"
         style={{ 
-          background: '#ffffff',
-          borderColor: '#e1e5e9',
-          borderTop: '3px solid #3b82f6'
+          borderTop: '3px solid var(--mantine-color-blue-5)'
         }}
       >
         <Group justify="space-between" align="flex-start">
           <div>
-            <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
+            <Label uppercase>
               {t('stats.storyDrafts')}
-            </Text>
-            <Title order={1} c="#1f2937" mb="xs">2</Title>
-            <Text size="sm" c="#6b7280">{t('stats.readyForPlayers')}</Text>
+            </Label>
+            <Title order={1} c="accent.9" mb="xs">2</Title>
+            <HelperText>{t('stats.readyForPlayers')}</HelperText>
           </div>
           <ThemeIcon 
             size={48} 
@@ -92,18 +89,16 @@ function QuickStatsCards() {
         withBorder 
         shadow="md"
         style={{ 
-          background: '#ffffff',
-          borderColor: '#e1e5e9',
-          borderTop: '3px solid #10b981'
+          borderTop: '3px solid var(--mantine-color-green-5)'
         }}
       >
         <Group justify="space-between" align="flex-start">
           <div>
-            <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
+            <Label uppercase>
               {t('stats.storyRooms')}
-            </Text>
-            <Title order={1} c="#1f2937" mb="xs">5</Title>
-            <Text size="sm" c="#6b7280">{t('stats.availableSessions')}</Text>
+            </Label>
+            <Title order={1} c="accent.9" mb="xs">5</Title>
+            <HelperText>{t('stats.availableSessions')}</HelperText>
           </div>
           <ThemeIcon 
             size={48} 
@@ -121,18 +116,16 @@ function QuickStatsCards() {
         withBorder 
         shadow="md"
         style={{ 
-          background: '#ffffff',
-          borderColor: '#e1e5e9',
-          borderTop: '3px solid #f59e0b'
+          borderTop: '3px solid var(--mantine-color-orange-5)'
         }}
       >
         <Group justify="space-between" align="flex-start">
           <div>
-            <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
+            <Label uppercase>
               {t('stats.storytellers')}
-            </Text>
-            <Title order={1} c="#1f2937" mb="xs">12</Title>
-            <Text size="sm" c="#6b7280">{t('stats.onlineNow')}</Text>
+            </Label>
+            <Title order={1} c="accent.9" mb="xs">12</Title>
+            <HelperText>{t('stats.onlineNow')}</HelperText>
           </div>
           <ThemeIcon 
             size={48} 
@@ -155,7 +148,7 @@ function RecentActivity() {
   const activities = [
     {
       icon: <IconPlayerPlay size={16} />,
-      color: 'violet',
+      color: 'accent',
       title: 'Space Adventure',
       user: 'Sarah',
       action: t('recentActivity.continuedPlaying'),
@@ -185,8 +178,8 @@ function RecentActivity() {
   return (
     <Card p="lg" withBorder shadow="sm">
       <Group justify="space-between" mb="md">
-        <Title order={3}>{t('recentActivity.title')}</Title>
-        <Button variant="subtle" size="sm">{t('recentActivity.viewAll')}</Button>
+        <CardTitle accent>{t('recentActivity.title')}</CardTitle>
+        <TextButton>{t('recentActivity.viewAll')}</TextButton>
       </Group>
       
       <Stack gap="md">
@@ -223,40 +216,20 @@ function QuickActions() {
 
   return (
     <Card p="lg" withBorder shadow="sm">
-      <Title order={3} mb="md">{t('quickActions.title')}</Title>
+      <CardTitle accent>{t('quickActions.title')}</CardTitle>
       <Stack gap="sm">
-        <Button 
-          variant="light" 
-          leftSection={<IconPlus size={16} />}
-          fullWidth
-          justify="start"
-        >
+        <MenuButton leftSection={<IconPlus size={16} />}>
           {t('quickActions.createNewGame')}
-        </Button>
-        <Button 
-          variant="light" 
-          leftSection={<IconBuilding size={16} />}
-          fullWidth
-          justify="start"
-        >
+        </MenuButton>
+        <MenuButton leftSection={<IconBuilding size={16} />}>
           {t('quickActions.createRoom')}
-        </Button>
-        <Button 
-          variant="light" 
-          leftSection={<IconUsers size={16} />}
-          fullWidth
-          justify="start"
-        >
+        </MenuButton>
+        <MenuButton leftSection={<IconUsers size={16} />}>
           {t('quickActions.inviteMembers')}
-        </Button>
-        <Button 
-          variant="light" 
-          leftSection={<IconTrendingUp size={16} />}
-          fullWidth
-          justify="start"
-        >
+        </MenuButton>
+        <MenuButton leftSection={<IconTrendingUp size={16} />}>
           {t('quickActions.viewAnalytics')}
-        </Button>
+        </MenuButton>
       </Stack>
     </Card>
   );

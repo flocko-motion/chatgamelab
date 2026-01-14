@@ -1,8 +1,11 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
-import { Button, Container, Paper, Stack, Title, Text, Divider } from '@mantine/core';
+import { Container, Paper, Stack, Divider, Button as MantineButton } from '@mantine/core';
+import { ActionButton } from '@components/buttons';
+import { SectionTitle, HelperText } from '@components/typography';
 import { useAuth } from '@/providers/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/auth/login/')({
   component: LoginComponent,
@@ -16,7 +19,7 @@ function LoginComponent() {
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (user) {
-      router.navigate({ to: '/dashboard' });
+      router.navigate({ to: ROUTES.DASHBOARD });
     }
   }, [user, router]);
 
@@ -32,8 +35,8 @@ function LoginComponent() {
     return (
       <Container size="sm" py="xl">
         <Stack gap="lg" align="center">
-          <Title order={2}>{t('login.redirecting.title')}</Title>
-          <Text c="dimmed">{t('login.redirecting.message')}</Text>
+          <SectionTitle>{t('login.redirecting.title')}</SectionTitle>
+          <HelperText>{t('login.redirecting.message')}</HelperText>
         </Stack>
       </Container>
     );
@@ -51,34 +54,33 @@ function LoginComponent() {
       <Paper shadow="md" p="xl" withBorder>
         <Stack gap="lg">
           <Stack gap="xs" align="center">
-            <Title order={2} c="yellow">
+            <SectionTitle>
               {t('login.devModeAlert.title')}
-            </Title>
-            <Text c="dimmed" ta="center" size="sm">
+            </SectionTitle>
+            <HelperText>
               {t('login.devModeAlert.message')}
-            </Text>
+            </HelperText>
           </Stack>
 
-          <Button
-            size="lg"
+          <ActionButton
             onClick={loginWithAuth0}
-            variant="filled"
             fullWidth
           >
             {t('login.auth0Button')}
-          </Button>
+          </ActionButton>
 
           <Divider label={t('login.devMode')} labelPosition="center" />
           
           <Stack gap="sm">
-            <Text size="sm" c="dimmed" ta="center">
+            <HelperText>
               {t('login.devModeDescription')}
-            </Text>
+            </HelperText>
             
             {devRoles.map((role) => (
-              <Button
+              <MantineButton
                 key={role.key}
                 variant="outline"
+                color="gray"
                 onClick={() => {
                   loginWithRole(role.key);
                   // Redirect to dashboard after login
@@ -89,7 +91,7 @@ function LoginComponent() {
                 fullWidth
               >
                 {t(`login.role.${role.key}`)} ({role.label})
-              </Button>
+              </MantineButton>
             ))}
           </Stack>
         </Stack>

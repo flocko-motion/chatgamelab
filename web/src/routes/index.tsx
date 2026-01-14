@@ -1,19 +1,19 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
-  Text,
   Stack,
   Center,
   Image,
   Container,
-  Title,
   SimpleGrid,
   Card,
   Group,
   ThemeIcon,
   Box,
+  useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import { Button } from "@components/Button";
+import { ActionButton } from "@components/buttons";
+import { SectionTitle, CardTitle, BodyText } from "@components/typography";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 import {
   IconBook,
@@ -22,15 +22,17 @@ import {
   IconSparkles,
   IconRocket,
 } from "@tabler/icons-react";
-import logo from "@/assets/logos/black/ChatGameLab-Logo-2025-Square-Black-Black-Text-Transparent.png";
+import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
+import { ROUTES } from "@/common/routes/routes";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute(ROUTES.HOME)({
   component: HomePage,
 });
 
 function HomePage() {
   const { t } = useTranslation("common");
   const router = useRouter();
+  const theme = useMantineTheme();
 
   const features = [
     {
@@ -87,35 +89,30 @@ function HomePage() {
                 fit="contain"
               />
 
-              <Text size="xl" c="gray.8" maw={600} lh={1.6}>
+              <BodyText size="xl">
                 {t(
                   "home.splashDescription",
                   "An educational platform for creating and playing AI-powered text-adventure games. Perfect for teachers, students, and creative storytellers.",
                 )}
-              </Text>
+              </BodyText>
 
-              <Button
-                size="lg"
+              <ActionButton
                 onClick={() => {
-                  router.navigate({ to: "/auth/login" });
+                  router.navigate({ to: ROUTES.AUTH_LOGIN });
                 }}
                 leftSection={<IconRocket size={20} />}
-                fullWidth={true}
-                w={{ base: "100%", sm: "auto" }}
-                miw={200}
-                mt="lg"
               >
                 {t("home.loginCta", "Get Started")}
-              </Button>
+              </ActionButton>
             </Stack>
           </Center>
 
           {/* Features Section */}
           <Stack gap="xl" mt="xl">
             <Stack gap="md" align="center" ta="center">
-              <Title order={2} size="h2" c="gray.9">
+              <SectionTitle accent>
                 {t("home.features.title", "Why Choose ChatGameLab?")}
-              </Title>
+              </SectionTitle>
             </Stack>
 
             <SimpleGrid
@@ -131,29 +128,29 @@ function HomePage() {
                   radius="md"
                   withBorder={false}
                   h="100%"
-                  bg="#faf9ff"
+                  bg={theme.other.colors.bgCard}
                   style={{
                     transition: "all 0.3s ease",
-                    border: "2px solid #e9d5ff",
+                    border: `1px solid ${theme.other.colors.bgCardBorder}`,
                   }}
                 >
                   <Stack gap="md" align="center" ta="center">
                     <ThemeIcon
                       size="xl"
                       radius="xl"
-                      color="violet"
+                      color="accent"
                       variant="light"
                     >
                       <feature.icon size={24} />
                     </ThemeIcon>
 
-                    <Title order={3} size="h4" c="gray.9">
+                    <CardTitle accent>
                       {feature.title}
-                    </Title>
+                    </CardTitle>
 
-                    <Text size="sm" c="gray.7" lh={1.5}>
+                    <BodyText size="sm">
                       {feature.description}
-                    </Text>
+                    </BodyText>
                   </Stack>
                 </Card>
               ))}
