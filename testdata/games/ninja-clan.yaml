@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000015
+name: Shadow of the Ninja
+description: "Master the way of the ninja in feudal Japan"
+system_message_scenario: "Feudal Japan, 1580. Your ninja clan has been betrayed. The shogun's forces hunt you. You must uncover the traitor and restore your clan's honor."
+system_message_game_start: "You crouch on a rooftop in Kyoto. Below, samurai patrol the streets. Your master's final words echo in your mind: 'Trust no one.'"
+image_style: "feudal Japan, ninja in shadows, cherry blossoms, traditional architecture"
+css: ""
+status_fields: '[{"name":"Stealth","value":"100"},{"name":"Honor","value":"80"}]'

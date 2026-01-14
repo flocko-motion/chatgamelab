@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000009
+name: Dragon Rider
+description: "Bond with a dragon and save the kingdom"
+system_message_scenario: "Dragons have returned to the realm after centuries of absence. You've been chosen by a young dragon as its rider. Together, you must stop an ancient evil from awakening."
+system_message_game_start: "You stand in the dragon hatchery. A silver egg cracks open before you, and a pair of intelligent eyes meet yours. Your destiny begins."
+image_style: "epic fantasy, dragons in flight, mountain peaks, medieval kingdoms"
+css: ""
+status_fields: '[{"name":"Dragon Bond","value":"30"},{"name":"Honor","value":"100"}]'

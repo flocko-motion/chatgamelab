@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000017
+name: Gladiator Arena
+description: "Fight for freedom in the Roman Colosseum"
+system_message_scenario: "Ancient Rome, 80 AD. You're a slave forced to fight as a gladiator. Win enough battles, and you might earn your freedom. Lose, and you die in the sand."
+system_message_game_start: "The iron gate rises. Sunlight blinds you as you step into the arena. The crowd roars. Your opponent emerges from the opposite gate - a massive warrior."
+image_style: "ancient Rome, colosseum, gladiator combat, sand and blood"
+css: ""
+status_fields: '[{"name":"Health","value":"100"},{"name":"Fame","value":"10"},{"name":"Victories","value":"0"}]'
