@@ -22,6 +22,52 @@ import (
 // ctxKeyUser is the context key for the authenticated user
 type ctxKeyUser struct{}
 
+// Package-level Auth0 validator (lazily initialized)
+var (
+	auth0Validator            *validator.Validator
+	auth0ValidatorInitialized bool
+)
+
+// getAuth0Validator returns the Auth0 JWT validator, initializing it if needed
+func getAuth0Validator() *validator.Validator {
+	if auth0ValidatorInitialized {
+		return auth0Validator
+	}
+	auth0ValidatorInitialized = true
+
+	domain := os.Getenv("AUTH0_DOMAIN")
+	if domain == "" {
+		log.Debug("auth0 authentication disabled", "reason", "AUTH0_DOMAIN not set")
+		return nil
+	}
+
+	issuerURL, err := url.Parse("https://" + domain + "/")
+	if err != nil {
+		log.Error("failed to parse auth0 issuer URL", "domain", domain, "error", err)
+		return nil
+	}
+
+	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
+
+	auth0Validator, err = validator.New(
+		provider.KeyFunc,
+		validator.RS256,
+		issuerURL.String(),
+		[]string{os.Getenv("AUTH0_AUDIENCE")},
+		validator.WithCustomClaims(func() validator.CustomClaims {
+			return &CustomClaims{}
+		}),
+		validator.WithAllowedClockSkew(time.Minute),
+	)
+	if err != nil {
+		log.Error("failed to set up auth0 validator", "error", err)
+		return nil
+	}
+	log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
+
+	return auth0Validator
+}
+
 // WithUser returns a new request with the user attached to its context
 func WithUser(r *http.Request, user *obj.User) *http.Request {
 	ctx := context.WithValue(r.Context(), ctxKeyUser{}, user)
@@ -86,7 +132,10 @@ func RequireUser(next http.Handler) http.Handler {
 
 // CustomClaims contains custom data we want from the Auth0 token
 type CustomClaims struct {
-	Scope string `json:"scope"`
+	Scope    string `json:"scope"`
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+	Nickname string `json:"nickname"`
 }
 
 func (c CustomClaims) Validate(ctx context.Context) error {
@@ -211,17 +260,13 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			// Load or create user by Auth0 ID
+			// Load user by Auth0 ID - do NOT auto-create
 			user, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
 			if err != nil {
-				// Auto-create user on first login
-				log.Debug("creating new user for auth0 ID", "auth0_id", auth0ID)
-				user, err = db.CreateUser(r.Context(), "Unnamed Auth0 User", nil, auth0ID)
-				if err != nil {
-					log.Error("failed to create user for auth0 ID", "auth0_id", auth0ID, "error", err)
-					WriteError(w, http.StatusInternalServerError, "Failed to create user")
-					return
-				}
+				// User not registered - frontend will get email/name from Auth0 directly
+				log.Debug("auth0 user not registered", "auth0_id", auth0ID)
+				WriteUserNotRegistered(w, auth0ID)
+				return
 			}
 
 			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
@@ -240,4 +285,71 @@ func OptionalAuth(h http.HandlerFunc) http.Handler {
 // Use this for endpoints that require a logged-in user
 func RequireAuth(h http.HandlerFunc) http.Handler {
 	return Authenticate(RequireUser(h))
+}
+
+// RequireAuth0Token validates Auth0 token but allows unregistered users.
+// Use this for endpoints like registration where user is authenticated via Auth0
+// but may not yet exist in our database. Sets Auth0ID in context.
+func RequireAuth0Token(h http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Extract and validate Auth0 token
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			WriteError(w, http.StatusUnauthorized, "Missing or invalid Authorization header")
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+		// Check if it's a CGL dev JWT first
+		if strings.HasPrefix(tokenString, "cgl-") {
+			WriteError(w, http.StatusForbidden, "Dev tokens cannot be used for registration")
+			return
+		}
+
+		// Validate Auth0 token
+		jwtValidator := getAuth0Validator()
+		if jwtValidator == nil {
+			WriteError(w, http.StatusInternalServerError, "Auth0 not configured")
+			return
+		}
+
+		tokenObj, err := jwtValidator.ValidateToken(r.Context(), tokenString)
+		if err != nil {
+			log.Debug("auth0 token validation failed", "error", err)
+			WriteError(w, http.StatusUnauthorized, "Invalid token")
+			return
+		}
+
+		claims, ok := tokenObj.(*validator.ValidatedClaims)
+		if !ok {
+			WriteError(w, http.StatusUnauthorized, "Invalid token claims")
+			return
+		}
+
+		auth0ID := claims.RegisteredClaims.Subject
+		if auth0ID == "" {
+			WriteError(w, http.StatusUnauthorized, "Invalid token: missing subject")
+			return
+		}
+
+		log.Debug("auth0 token validated for registration", "auth0_id", auth0ID)
+
+		// Store Auth0 ID in context for the handler to use
+		ctx := context.WithValue(r.Context(), auth0IDContextKey, auth0ID)
+		h.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// auth0IDContextKey is the context key for storing Auth0 ID
+type auth0IDContextKeyType string
+
+const auth0IDContextKey auth0IDContextKeyType = "auth0_id"
+
+// Auth0IDFromContext retrieves the Auth0 ID from the request context
+func Auth0IDFromContext(ctx context.Context) string {
+	if id, ok := ctx.Value(auth0IDContextKey).(string); ok {
+		return id
+	}
+	return ""
 }

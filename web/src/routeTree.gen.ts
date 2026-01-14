@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -44,6 +56,8 @@ const AuthLoginAuth0CallbackRoute = AuthLoginAuth0CallbackRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -51,6 +65,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -59,6 +75,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/settings': typeof SettingsRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -68,6 +86,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/profile'
+    | '/settings'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -75,6 +95,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/profile'
+    | '/settings'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -82,6 +104,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/profile'
+    | '/settings'
     | '/auth/login/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -90,6 +114,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  ProfileRoute: typeof ProfileRoute
+  SettingsRoute: typeof SettingsRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
@@ -97,6 +123,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -138,6 +178,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  ProfileRoute: ProfileRoute,
+  SettingsRoute: SettingsRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,

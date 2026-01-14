@@ -46,8 +46,8 @@ export const useLanguageSwitcher = () => {
   };
 
   const availableLanguages = [
-    { code: 'en', name: 'English', isStatic: isStaticLanguage('en') },
-    { code: 'de', name: 'Deutsch', isStatic: isStaticLanguage('de') },
+    { code: 'en', name: 'English', flag: '🇬🇧', isStatic: isStaticLanguage('en') },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪', isStatic: isStaticLanguage('de') },
   ];
 
   const currentLanguage = availableLanguages.find(lang => lang.code === i18n.language) || availableLanguages[0];

@@ -149,14 +149,48 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	// Check if name or email changed
 	emailChanged := (user.Email == nil && req.Email != "") ||
 		(user.Email != nil && req.Email != *user.Email)
-	nameChanged := req.Name != user.Name
+	nameChanged := req.Name != "" && req.Name != user.Name
+
+	// Validate name uniqueness if changed
+	if nameChanged {
+		nameTaken, err := db.IsNameTakenByOther(r.Context(), req.Name, userID)
+		if err != nil {
+			log.Error("failed to check name availability", "error", err)
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to check name availability")
+			return
+		}
+		if nameTaken {
+			httpx.WriteError(w, http.StatusConflict, "Name is already taken")
+			return
+		}
+	}
+
+	// Validate email uniqueness if changed
+	if emailChanged && req.Email != "" {
+		emailTaken, err := db.IsEmailTakenByOther(r.Context(), req.Email, userID)
+		if err != nil {
+			log.Error("failed to check email availability", "error", err)
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to check email availability")
+			return
+		}
+		if emailTaken {
+			httpx.WriteError(w, http.StatusConflict, "Email is already taken")
+			return
+		}
+	}
 
 	if nameChanged || emailChanged {
+		name := user.Name
+		if req.Name != "" {
+			name = req.Name
+		}
 		var email *string
 		if req.Email != "" {
 			email = &req.Email
+		} else if user.Email != nil {
+			email = user.Email
 		}
-		if err := db.UpdateUserDetails(r.Context(), userID, req.Name, email); err != nil {
+		if err := db.UpdateUserDetails(r.Context(), userID, name, email); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update user")
 			return
 		}

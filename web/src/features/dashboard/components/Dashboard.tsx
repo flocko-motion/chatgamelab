@@ -6,157 +6,27 @@ import {
   Stack, 
   Group, 
   Grid,
-  Avatar,
-  ActionIcon,
   Divider,
   SimpleGrid,
   Box,
   ThemeIcon,
-  Image,
-  AppShell,
-  Container
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { 
   IconPlayerPlay, 
   IconEdit, 
   IconBuilding, 
   IconUsers, 
-  IconSettings, 
-  IconBell,
-  IconUser,
   IconClock,
   IconTrendingUp,
   IconPlus
 } from '@tabler/icons-react';
-import { LanguageSwitcher } from '@components/LanguageSwitcher';
-import logo from '@/assets/logos/black/ChatGameLab-Logo-2025-Landscape-Black-Black-Text-Transparent.png';
-
-// Navigation Component
-function AppNavigation() {
-  return (
-    <Group gap="lg">
-      <Button 
-        variant="subtle" 
-        size="md"
-        c="white"
-        leftSection={<IconPlayerPlay size={18} />}
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        Play
-      </Button>
-      <Button 
-        variant="subtle" 
-        size="md"
-        c="white"
-        leftSection={<IconEdit size={18} />}
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        Create
-      </Button>
-      <Button 
-        variant="subtle" 
-        size="md"
-        c="white"
-        leftSection={<IconBuilding size={18} />}
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        Rooms
-      </Button>
-      <Button 
-        variant="subtle" 
-        size="md"
-        c="white"
-        leftSection={<IconUsers size={18} />}
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        Groups
-      </Button>
-    </Group>
-  );
-}
-
-// User Actions Component
-function UserActions() {
-  return (
-    <Group gap="sm">
-      <LanguageSwitcher size="sm" variant="compact" />
-      <ActionIcon 
-        variant="subtle" 
-        size="lg"
-        c="white"
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        <IconBell size={20} />
-      </ActionIcon>
-      <ActionIcon 
-        variant="subtle" 
-        size="lg"
-        c="white"
-        styles={{
-          root: { '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }
-        }}
-      >
-        <IconSettings size={20} />
-      </ActionIcon>
-      <Avatar 
-        size="md" 
-        radius="xl" 
-        style={{ 
-          cursor: 'pointer',
-          border: '2px solid rgba(255, 255, 255, 0.3)',
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          color: 'white'
-        }}
-      >
-        <IconUser size={20} color="white" />
-      </Avatar>
-    </Group>
-  );
-}
-
-// Dashboard Header with proper layout
-function DashboardHeader() {
-  return (
-    <AppShell.Header 
-      p="md" 
-      style={{ 
-        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)'
-      }}
-    >
-      <Group justify="space-between" align="center" h="100%">
-        <AppNavigation />
-        
-        {/* Centered Logo - Larger */}
-        <Box style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          <Image 
-            src={logo} 
-            alt="ChatGameLab Logo" 
-            h={60}
-            w="auto"
-            fit="contain"
-          />
-        </Box>
-        
-        <UserActions />
-      </Group>
-    </AppShell.Header>
-  );
-}
+import { AppLayout, type NavItem } from '@/common/components/Layout';
 
 // Quick Stats Cards
 function QuickStatsCards() {
+  const { t } = useTranslation('dashboard');
+
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="xl">
       <Card 
@@ -172,10 +42,10 @@ function QuickStatsCards() {
         <Group justify="space-between" align="flex-start">
           <div>
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
-              Active Adventures
+              {t('stats.activeAdventures')}
             </Text>
             <Title order={1} c="#1f2937" mb="xs">3</Title>
-            <Text size="sm" c="#6b7280">2 stories in progress</Text>
+            <Text size="sm" c="#6b7280">{t('stats.storiesInProgress', { count: 2 })}</Text>
           </div>
           <ThemeIcon 
             size={48} 
@@ -201,10 +71,10 @@ function QuickStatsCards() {
         <Group justify="space-between" align="flex-start">
           <div>
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
-              Story Drafts
+              {t('stats.storyDrafts')}
             </Text>
             <Title order={1} c="#1f2937" mb="xs">2</Title>
-            <Text size="sm" c="#6b7280">Ready for players</Text>
+            <Text size="sm" c="#6b7280">{t('stats.readyForPlayers')}</Text>
           </div>
           <ThemeIcon 
             size={48} 
@@ -230,10 +100,10 @@ function QuickStatsCards() {
         <Group justify="space-between" align="flex-start">
           <div>
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
-              Story Rooms
+              {t('stats.storyRooms')}
             </Text>
             <Title order={1} c="#1f2937" mb="xs">5</Title>
-            <Text size="sm" c="#6b7280">Available sessions</Text>
+            <Text size="sm" c="#6b7280">{t('stats.availableSessions')}</Text>
           </div>
           <ThemeIcon 
             size={48} 
@@ -259,10 +129,10 @@ function QuickStatsCards() {
         <Group justify="space-between" align="flex-start">
           <div>
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
-              Storytellers
+              {t('stats.storytellers')}
             </Text>
             <Title order={1} c="#1f2937" mb="xs">12</Title>
-            <Text size="sm" c="#6b7280">Online now</Text>
+            <Text size="sm" c="#6b7280">{t('stats.onlineNow')}</Text>
           </div>
           <ThemeIcon 
             size={48} 
@@ -280,13 +150,15 @@ function QuickStatsCards() {
 
 // Recent Activity Feed
 function RecentActivity() {
+  const { t } = useTranslation('dashboard');
+
   const activities = [
     {
       icon: <IconPlayerPlay size={16} />,
       color: 'violet',
       title: 'Space Adventure',
       user: 'Sarah',
-      action: 'continued playing',
+      action: t('recentActivity.continuedPlaying'),
       time: '2 min ago',
       description: 'Chapter 3: The Dark Forest'
     },
@@ -295,7 +167,7 @@ function RecentActivity() {
       color: 'blue',
       title: 'Dragon Quest',
       user: 'Mike',
-      action: 'created new game',
+      action: t('recentActivity.createdNewGame'),
       time: '15 min ago',
       description: 'Fantasy adventure with magic'
     },
@@ -304,7 +176,7 @@ function RecentActivity() {
       color: 'green',
       title: 'Workshop 3B',
       user: 'Emma',
-      action: 'invited 5 students',
+      action: t('recentActivity.invitedStudents', { count: 5 }),
       time: '1 hour ago',
       description: 'Creative writing session'
     }
@@ -313,8 +185,8 @@ function RecentActivity() {
   return (
     <Card p="lg" withBorder shadow="sm">
       <Group justify="space-between" mb="md">
-        <Title order={3}>Recent Activity</Title>
-        <Button variant="subtle" size="sm">View All</Button>
+        <Title order={3}>{t('recentActivity.title')}</Title>
+        <Button variant="subtle" size="sm">{t('recentActivity.viewAll')}</Button>
       </Group>
       
       <Stack gap="md">
@@ -347,9 +219,11 @@ function RecentActivity() {
 
 // Quick Actions
 function QuickActions() {
+  const { t } = useTranslation('dashboard');
+
   return (
     <Card p="lg" withBorder shadow="sm">
-      <Title order={3} mb="md">Quick Actions</Title>
+      <Title order={3} mb="md">{t('quickActions.title')}</Title>
       <Stack gap="sm">
         <Button 
           variant="light" 
@@ -357,7 +231,7 @@ function QuickActions() {
           fullWidth
           justify="start"
         >
-          Create New Game
+          {t('quickActions.createNewGame')}
         </Button>
         <Button 
           variant="light" 
@@ -365,7 +239,7 @@ function QuickActions() {
           fullWidth
           justify="start"
         >
-          Create Room
+          {t('quickActions.createRoom')}
         </Button>
         <Button 
           variant="light" 
@@ -373,7 +247,7 @@ function QuickActions() {
           fullWidth
           justify="start"
         >
-          Invite Members
+          {t('quickActions.inviteMembers')}
         </Button>
         <Button 
           variant="light" 
@@ -381,39 +255,57 @@ function QuickActions() {
           fullWidth
           justify="start"
         >
-          View Analytics
+          {t('quickActions.viewAnalytics')}
         </Button>
       </Stack>
     </Card>
   );
 }
 
-// Main Dashboard Component
-export function Dashboard() {
+/**
+ * Dashboard content component - can be used standalone or within AppLayout
+ */
+export function DashboardContent() {
   return (
-    <AppShell
-      header={{ height: 80 }}
-      padding="xl"
-      style={{ 
-        background: '#ffffff',
-        minHeight: '100vh'
+    <Stack gap="xl">
+      <QuickStatsCards />
+      
+      <Grid>
+        <Grid.Col span={{ base: 12, lg: 8 }}>
+          <RecentActivity />
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, lg: 4 }}>
+          <QuickActions />
+        </Grid.Col>
+      </Grid>
+    </Stack>
+  );
+}
+
+/**
+ * Full Dashboard page with layout - for standalone use
+ */
+export function Dashboard() {
+  const { t } = useTranslation('navigation');
+
+  const navItems: NavItem[] = [
+    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => {} },
+    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => {} },
+    { label: t('rooms'), icon: <IconBuilding size={18} />, onClick: () => {} },
+    { label: t('groups'), icon: <IconUsers size={18} />, onClick: () => {} },
+  ];
+
+  return (
+    <AppLayout 
+      variant="authenticated" 
+      navItems={navItems}
+      headerProps={{
+        onNotificationsClick: () => console.log('Notifications clicked'),
+        onSettingsClick: () => console.log('Settings clicked'),
+        onProfileClick: () => console.log('Profile clicked'),
       }}
     >
-      <DashboardHeader />
-      <Container size="xl" fluid>
-        <Stack gap="xl" mt="xl">
-          <QuickStatsCards />
-          
-          <Grid>
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <RecentActivity />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <QuickActions />
-            </Grid.Col>
-          </Grid>
-        </Stack>
-      </Container>
-    </AppShell>
+      <DashboardContent />
+    </AppLayout>
   );
 }

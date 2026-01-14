@@ -206,6 +206,12 @@ export interface RoutesCreateSessionRequest {
   shareId?: string;
 }
 
+export interface RoutesRegisterRequest {
+  auth0Id?: string;
+  email?: string;
+  name?: string;
+}
+
 export interface RoutesSessionActionRequest {
   message?: string;
 }
@@ -330,7 +336,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8080/api";
+  public baseUrl: string = "";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -533,13 +539,8 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title ChatGameLab API
- * @version 1.0
- * @license MIT
- * @baseUrl http://localhost:8080/api
- * @contact ChatGameLab Team (https://chatgamelab.com)
- *
- * API for ChatGameLab - an AI-powered interactive game platform
+ * @title No title
+ * @contact
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -670,6 +671,53 @@ export class Api<
     ) =>
       this.request<ObjApiKeyShare, HttpxErrorResponse>({
         path: `/apikeys/${id}/shares`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+  };
+  auth = {
+    /**
+     * @description Checks if a username is available for registration
+     *
+     * @tags auth
+     * @name CheckNameList
+     * @summary Check if name is available
+     * @request GET:/auth/check-name
+     */
+    checkNameList: (
+      query: {
+        /** Name to check */
+        name: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, boolean>, HttpxErrorResponse>({
+        path: `/auth/check-name`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Registers a new user after Auth0 authentication. Requires valid Auth0 token.
+     *
+     * @tags auth
+     * @name RegisterCreate
+     * @summary Register new user
+     * @request POST:/auth/register
+     * @secure
+     */
+    registerCreate: (
+      request: RoutesRegisterRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/auth/register`,
         method: "POST",
         body: request,
         secure: true,

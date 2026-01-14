@@ -9,5 +9,13 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     exit 1
 fi
 
-docker compose -f docker-compose.dev.yml down -v
-echo "Database volume removed. Run ./run-dev.sh to recreate with fresh schema."
+# Remove all containers and orphans (containers should already be stopped)
+docker compose -f docker-compose.dev.yml down --remove-orphans
+
+# Force remove the database container if it still exists
+docker rm -f chatgamelab-db 2>/dev/null || true
+
+# Explicitly remove the named volume (down -v doesn't remove named volumes)
+docker volume rm chatgamelab_db_data 2>/dev/null || true
+
+echo "✅ Database volumes removed. Fresh database will be initialized on next startup."

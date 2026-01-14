@@ -13,6 +13,22 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
+// UserNotRegisteredResponse is returned when an Auth0 user is not yet registered in the system
+type UserNotRegisteredResponse struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+	Auth0ID string `json:"auth0Id"`
+}
+
+// WriteUserNotRegistered writes a response indicating the user needs to complete registration
+func WriteUserNotRegistered(w http.ResponseWriter, auth0ID string) {
+	WriteJSON(w, http.StatusForbidden, UserNotRegisteredResponse{
+		Type:    "user_not_registered",
+		Message: "User is not registered. Please complete registration.",
+		Auth0ID: auth0ID,
+	})
+}
+
 // WriteJSON writes a JSON response with the given status code
 func WriteJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")

@@ -4,6 +4,22 @@ import { colors } from './colors';
 export const mantineTheme = createTheme({
   primaryColor: 'violet',
   fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+
+  other: {
+    layout: {
+      headerGradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      drawerGradient: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)',
+      borderLight: '1px solid rgba(255, 255, 255, 0.1)',
+      lineLight: 'rgba(255, 255, 255, 0.1)',
+      panelBg: '#1a1a2e',
+      bgSubtle: 'rgba(15, 52, 96, 0.25)',
+      bgHover: 'rgba(15, 52, 96, 0.45)',
+      bgActive: 'rgba(15, 52, 96, 0.6)',
+      borderSubtle: 'rgba(255, 255, 255, 0.18)',
+      borderStrong: 'rgba(255, 255, 255, 0.26)',
+      shadowHeader: '0 2px 10px rgba(0, 0, 0, 0.3)',
+    },
+  },
   
   // Override color palettes with our centralized colors
   colors: {

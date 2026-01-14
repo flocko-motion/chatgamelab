@@ -1,54 +1,78 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
-import { AppShell, Container, Text, Anchor, Box } from '@mantine/core';
-import { VersionDisplay } from '../common/components/VersionDisplay';
+import { Center, Loader } from '@mantine/core';
+import { IconPlayerPlay, IconEdit, IconBuilding, IconUsers } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { AppLayout, type NavItem } from '../common/components/Layout';
+import { useAuth } from '../providers/AuthProvider';
+import { RegistrationForm } from '../features/auth';
+import { useLocation } from '@tanstack/react-router';
 
 export const Route = createRootRoute({
   component: RootComponent,
 });
 
 function RootComponent() {
+  const { isLoading, needsRegistration, registrationData, isAuthenticated, backendUser } = useAuth();
+  const { t } = useTranslation('navigation');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHomePage = location.pathname === '/';
+
+  // Determine layout variant based on auth state
+  // Homepage always uses public layout, other pages use authenticated layout when logged in
+  const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;
+  const useAuthenticatedLayout = isFullyAuthenticated && !isHomePage;
+
+  // Navigation items for authenticated header
+  const navItems: NavItem[] = [
+    { label: t('dashboard'), icon: <IconBuilding size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
+    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
+    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
+    { label: t('rooms'), icon: <IconUsers size={18} />, onClick: () => navigate({ to: '/dashboard' }) },
+  ];
+
+  // Show loading state while auth is initializing
+  if (isLoading) {
+    return (
+      <AppLayout variant="public">
+        <Center h="50vh">
+          <Loader size="lg" />
+        </Center>
+      </AppLayout>
+    );
+  }
+
+  // Show registration form if user needs to complete registration
+  if (needsRegistration && registrationData) {
+    return (
+      <>
+        <AppLayout variant="public" background={isHomePage ? 'linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)' : undefined}>
+          <RegistrationForm registrationData={registrationData} />
+        </AppLayout>
+        <TanStackRouterDevtools position="bottom-right" />
+      </>
+    );
+  }
+
+  // Header navigation callbacks
+  const headerProps = useAuthenticatedLayout ? {
+    onSettingsClick: () => navigate({ to: '/settings' }),
+    onProfileClick: () => navigate({ to: '/profile' }),
+  } : undefined;
 
   return (
-    <AppShell footer={{ height: { base: 80, sm: 60 } }} padding={{ base: 'sm', sm: 'md' }}>
-      <AppShell.Main pt={{ base: 60, sm: 80 }}>
-        <Container size="xl" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
-          <Outlet />
-        </Container>
-      </AppShell.Main>
-
-      <AppShell.Footer>
-        <Container size="xl" h="100%" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
-          <Box
-            h="100%"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Text size="sm" c="dimmed" component="div" ta="center">
-              <Box style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
-                <Text size="sm" c="dimmed" span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  Login via <Anchor href="https://auth0.com" target="_blank" size="sm" c="violet">Auth0</Anchor>
-                </Text>
-                <Text size="sm" c="dimmed" span>|</Text>
-                <Text size="sm" c="dimmed" span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  Programmed by <Anchor href="https://omnitopos.net" target="_blank" size="sm" c="violet">omnitopos.net</Anchor>
-                </Text>
-                <Text size="sm" c="dimmed" span>|</Text>
-                <Text size="sm" c="dimmed" span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  Produced by <Anchor href="https://tausend-medien.de" target="_blank" size="sm" c="violet">tausend-medien.de</Anchor>
-                </Text>
-                <Text size="sm" c="dimmed" span>|</Text>
-                <VersionDisplay />
-              </Box>
-            </Text>
-          </Box>
-        </Container>
-      </AppShell.Footer>
-
+    <>
+      <AppLayout 
+        variant={useAuthenticatedLayout ? 'authenticated' : 'public'}
+        navItems={useAuthenticatedLayout ? navItems : undefined}
+        background={isHomePage ? 'linear-gradient(180deg, #fef3ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f5f3ff 75%, #faf5ff 100%)' : undefined}
+        transparentFooter={isHomePage}
+        headerProps={headerProps}
+      >
+        <Outlet />
+      </AppLayout>
       <TanStackRouterDevtools position="bottom-right" />
-    </AppShell>
+    </>
   );
 }

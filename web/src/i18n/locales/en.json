@@ -21,19 +21,53 @@
     "dark": "Dark",
     "light": "Light",
     "system": "System",
+    "notifications": "Notifications",
     "home": {
-      "splashDescription": "An educational game, allowing the creation of GPT-4 based text-adventure games.",
-      "loginCta": "Login to Get Started"
+      "badge": "Educational Gaming Lab",
+      "title": "ChatGameLab",
+      "splashDescription": "An educational platform for creating and playing AI-powered text-adventure games. Perfect for teachers, students, and creative storytellers.",
+      "loginCta": "Get Started",
+      "features": {
+        "title": "Why Choose ChatGameLab?",
+        "subtitle": "Discover the perfect blend of education and entertainment",
+        "create": {
+          "title": "Create Adventures",
+          "description": "Design interactive text adventures powered by AI"
+        },
+        "play": {
+          "title": "Play Together", 
+          "description": "Join friends in collaborative storytelling sessions"
+        },
+        "learn": {
+          "title": "Learn & Teach",
+          "description": "Perfect for educational workshops and classroom activities"
+        },
+        "understand": {
+          "title": "Understand AI",
+          "description": "Explore how AI models create stories and learn how they work"
+        }
+      }
     },
     "languageSwitcher": {
       "wipLabel": "WIP",
       "wipHint": "More languages are work in progress. Only English and German are available right now."
     },
     "footer": {
-      "loginByAuth0": "Login by Auth0",
-      "programmedByOmnitopos": "Programmed by omnitopos.net",
-      "producedByTausendMedien": "Produced by tausend-medien.de",
-      "version": "v0.0.0"
+      "loginVia": "Login via",
+      "programmedBy": "Programmed by",
+      "producedBy": "Produced by",
+      "copyright": "© ChatGameLab"
+    },
+    "header": {
+      "openNavigation": "Open navigation menu",
+      "closeNavigation": "Close navigation menu",
+      "viewNotifications": "View notifications",
+      "openSettings": "Open settings",
+      "openProfile": "Open profile menu",
+      "openUserMenu": "Open user menu",
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Logout"
     }
   },
   "navigation": {
@@ -42,8 +76,36 @@
     "games": "Games",
     "create": "Create",
     "play": "Play",
+    "rooms": "Rooms",
+    "groups": "Groups",
     "learn": "Learn",
     "debug": "Debug"
+  },
+  "dashboard": {
+    "stats": {
+      "activeAdventures": "Active Adventures",
+      "storiesInProgress": "{{count}} stories in progress",
+      "storyDrafts": "Story Drafts",
+      "readyForPlayers": "Ready for players",
+      "storyRooms": "Story Rooms",
+      "availableSessions": "Available sessions",
+      "storytellers": "Storytellers",
+      "onlineNow": "Online now"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "viewAll": "View All",
+      "continuedPlaying": "continued playing",
+      "createdNewGame": "created new game",
+      "invitedStudents": "invited {{count}} students"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "createNewGame": "Create New Game",
+      "createRoom": "Create Room",
+      "inviteMembers": "Invite Members",
+      "viewAnalytics": "View Analytics"
+    }
   },
   "game": {
     "createNew": "Create New Game",
@@ -102,6 +164,64 @@
         "student": "Login as Student",
         "guest": "Login as Guest"
       }
+    },
+    "register": {
+      "title": "Complete Your Profile",
+      "subtitle": "Just a few more details to get started",
+      "nameLabel": "Display Name",
+      "namePlaceholder": "Enter your display name",
+      "nameDescription": "This is how other users will see you. Max 24 characters.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "emailDescription": "We'll use this for important notifications.",
+      "submitButton": "Create Account",
+      "submitting": "Creating account...",
+      "cancelButton": "Cancel",
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be at most 24 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "nameTaken": "This name is already taken",
+        "registrationFailed": "Registration failed. Please try again."
+      },
+      "checkingName": "Checking availability..."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your account settings",
+      "accountSection": "Account",
+      "nameLabel": "Display Name",
+      "namePlaceholder": "Enter your display name",
+      "nameDescription": "This is how other users will see you. Max 24 characters.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "emailDescription": "We'll use this for important notifications.",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Changes saved successfully",
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be at most 24 characters",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Please enter a valid email address",
+        "nameTaken": "This name is already taken",
+        "emailTaken": "This email is already taken",
+        "saveFailed": "Failed to save changes. Please try again."
+      }
+    },
+    "profile": {
+      "title": "Profile",
+      "memberSince": "Registered since",
+      "organizationSection": "Organization",
+      "noOrganization": "No organization",
+      "role": "Role",
+      "noRole": "No role assigned",
+      "statisticsSection": "Statistics",
+      "gamesPlayed": "Games Played",
+      "gamesCreated": "Games Created",
+      "messagesSent": "Messages Sent",
+      "sessionsJoined": "Sessions Joined"
     }
   }
 }

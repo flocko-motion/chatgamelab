@@ -31,6 +31,8 @@ show_usage() {
 # Function to reset database
 reset_database() {
     echo "Resetting database..."
+    echo "Stopping all containers first..."
+    docker compose -f docker-compose.dev.yml down
     ./reset-dev-db.sh
     if [ $? -ne 0 ]; then
         echo "Database reset failed"

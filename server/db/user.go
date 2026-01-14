@@ -2,7 +2,6 @@ package db
 
 import (
 	db "cgl/db/sqlc"
-	"cgl/functional"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -14,9 +13,13 @@ import (
 
 // CreateUser creates a new user in the database
 func CreateUser(ctx context.Context, name string, email *string, auth0ID string) (*obj.User, error) {
+	emailStr := ""
+	if email != nil {
+		emailStr = *email
+	}
 	arg := db.CreateUserParams{
 		Name:    name,
-		Email:   sql.NullString{String: functional.MaybeToString(email, ""), Valid: email != nil},
+		Email:   sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID: sql.NullString{String: auth0ID, Valid: auth0ID != ""},
 	}
 
@@ -30,10 +33,14 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 
 // CreateUserWithID creates a new user with a specific UUID
 func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *string, auth0ID string) (*obj.User, error) {
+	emailStr := ""
+	if email != nil {
+		emailStr = *email
+	}
 	arg := db.CreateUserWithIDParams{
 		ID:      id,
 		Name:    name,
-		Email:   sql.NullString{String: functional.MaybeToString(email, ""), Valid: email != nil},
+		Email:   sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID: sql.NullString{String: auth0ID, Valid: auth0ID != ""},
 	}
 
@@ -46,10 +53,14 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 }
 
 func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *string) error {
+	emailStr := ""
+	if email != nil {
+		emailStr = *email
+	}
 	arg := db.UpdateUserParams{
 		ID:    id,
 		Name:  name,
-		Email: sql.NullString{String: functional.MaybeToString(email, ""), Valid: email != nil},
+		Email: sql.NullString{String: emailStr, Valid: email != nil},
 	}
 	return queries().UpdateUser(ctx, arg)
 }
@@ -104,6 +115,27 @@ func GetUserByAuth0ID(ctx context.Context, auth0ID string) (*obj.User, error) {
 		return nil, err
 	}
 	return GetUserByID(ctx, id)
+}
+
+// IsNameTaken checks if a username is already taken
+func IsNameTaken(ctx context.Context, name string) (bool, error) {
+	return queries().IsNameTaken(ctx, name)
+}
+
+// IsNameTakenByOther checks if a username is taken by another user (for updates)
+func IsNameTakenByOther(ctx context.Context, name string, excludeUserID uuid.UUID) (bool, error) {
+	return queries().IsNameTakenByOther(ctx, db.IsNameTakenByOtherParams{
+		Name: name,
+		ID:   excludeUserID,
+	})
+}
+
+// IsEmailTakenByOther checks if an email is taken by another user (for updates)
+func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.UUID) (bool, error) {
+	return queries().IsEmailTakenByOther(ctx, db.IsEmailTakenByOtherParams{
+		Email: sql.NullString{String: email, Valid: true},
+		ID:    excludeUserID,
+	})
 }
 
 // DeleteUser deletes a user

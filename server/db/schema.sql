@@ -13,7 +13,7 @@ CREATE TABLE app_user (
     modified_by     uuid NULL,
     modified_at     timestamptz NOT NULL DEFAULT now(),
 
-    name            text NOT NULL,
+    name            text NOT NULL UNIQUE,
     email           text UNIQUE,
     deleted_at      timestamptz NULL,
     auth0_id        text UNIQUE,

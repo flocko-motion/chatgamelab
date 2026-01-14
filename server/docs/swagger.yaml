@@ -324,6 +324,13 @@ definitions:
       shareId:
         type: string
     type: object
+  routes.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
   routes.SessionActionRequest:
     properties:
       message:
@@ -659,6 +666,68 @@ paths:
       summary: Create API key
       tags:
       - apikeys
+  /auth/check-name:
+    get:
+      description: Checks if a username is available for registration
+      parameters:
+      - description: Name to check
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Check if name is available
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Registers a new user after Auth0 authentication. Requires valid
+        Auth0 token.
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.User'
+        "400":
+          description: Invalid request or validation error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "409":
+          description: Name already taken
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Register new user
+      tags:
+      - auth
   /games:
     get:
       description: Returns a list of games. If authenticated, includes user's private

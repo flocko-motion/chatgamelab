@@ -365,6 +365,49 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	return id, err
 }
 
+const isEmailTakenByOther = `-- name: IsEmailTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE email = $1 AND id != $2 AND deleted_at IS NULL) AS taken
+`
+
+type IsEmailTakenByOtherParams struct {
+	Email sql.NullString
+	ID    uuid.UUID
+}
+
+func (q *Queries) IsEmailTakenByOther(ctx context.Context, arg IsEmailTakenByOtherParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isEmailTakenByOther, arg.Email, arg.ID)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const isNameTaken = `-- name: IsNameTaken :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken
+`
+
+func (q *Queries) IsNameTaken(ctx context.Context, name string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isNameTaken, name)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
+const isNameTakenByOther = `-- name: IsNameTakenByOther :one
+SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND id != $2 AND deleted_at IS NULL) AS taken
+`
+
+type IsNameTakenByOtherParams struct {
+	Name string
+	ID   uuid.UUID
+}
+
+func (q *Queries) IsNameTakenByOther(ctx context.Context, arg IsNameTakenByOtherParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isNameTakenByOther, arg.Name, arg.ID)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
 const setUserDefaultApiKeyShare = `-- name: SetUserDefaultApiKeyShare :exec
 
 UPDATE app_user SET
