@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { isStaticLanguage } from '../../i18n/config';
+import { getLanguageFlag } from '../../i18n/languageFlags';
+import languagesData from '../../i18n/locales/languages.json';
 
 export const useBackendTranslation = (namespace = 'common') => {
   const { t, i18n, ready } = useTranslation(namespace);
@@ -45,10 +47,12 @@ export const useLanguageSwitcher = () => {
     await i18n.changeLanguage(language);
   };
 
-  const availableLanguages = [
-    { code: 'en', name: 'English', flag: '🇬🇧', isStatic: isStaticLanguage('en') },
-    { code: 'de', name: 'Deutsch', flag: '🇩🇪', isStatic: isStaticLanguage('de') },
-  ];
+  const availableLanguages = languagesData.map((lang) => ({
+    code: lang.code,
+    name: lang.label,
+    flag: getLanguageFlag(lang.code),
+    isStatic: isStaticLanguage(lang.code),
+  }));
 
   const currentLanguage = availableLanguages.find(lang => lang.code === i18n.language) || availableLanguages[0];
 

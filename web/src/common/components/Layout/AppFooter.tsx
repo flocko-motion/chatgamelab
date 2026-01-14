@@ -45,21 +45,21 @@ export function AppFooter({ links = defaultLinks, showVersion = true, transparen
             <Group gap="xs" justify="center" wrap="wrap">
               <Text size="sm" c="dimmed" span>
                 {t('footer.loginVia')}{' '}
-                <Anchor href={links[0]?.href} target="_blank" size="sm" c="violet">
+                <Anchor href={links[0]?.href} target="_blank" size="sm" c="accent">
                   {links[0]?.label}
                 </Anchor>
               </Text>
               <Text size="sm" c="dimmed" span>|</Text>
               <Text size="sm" c="dimmed" span>
                 {t('footer.programmedBy')}{' '}
-                <Anchor href={links[1]?.href} target="_blank" size="sm" c="violet">
+                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent">
                   {links[1]?.label}
                 </Anchor>
               </Text>
               <Text size="sm" c="dimmed" span>|</Text>
               <Text size="sm" c="dimmed" span>
                 {t('footer.producedBy')}{' '}
-                <Anchor href={links[2]?.href} target="_blank" size="sm" c="violet">
+                <Anchor href={links[2]?.href} target="_blank" size="sm" c="accent">
                   {links[2]?.label}
                 </Anchor>
               </Text>

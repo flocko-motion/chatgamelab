@@ -11,6 +11,7 @@ import {
   Group,
   ThemeIcon,
   Box,
+  useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Button } from "@components/Button";
@@ -22,15 +23,17 @@ import {
   IconSparkles,
   IconRocket,
 } from "@tabler/icons-react";
-import logo from "@/assets/logos/black/ChatGameLab-Logo-2025-Square-Black-Black-Text-Transparent.png";
+import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
+import { ROUTES } from "@/common/routes/routes";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute(ROUTES.HOME)({
   component: HomePage,
 });
 
 function HomePage() {
   const { t } = useTranslation("common");
   const router = useRouter();
+  const theme = useMantineTheme();
 
   const features = [
     {
@@ -95,9 +98,12 @@ function HomePage() {
               </Text>
 
               <Button
+                variant="primary"
+                color="accent"
+                textColor="#083344"
                 size="lg"
                 onClick={() => {
-                  router.navigate({ to: "/auth/login" });
+                  router.navigate({ to: ROUTES.AUTH_LOGIN });
                 }}
                 leftSection={<IconRocket size={20} />}
                 fullWidth={true}
@@ -113,7 +119,7 @@ function HomePage() {
           {/* Features Section */}
           <Stack gap="xl" mt="xl">
             <Stack gap="md" align="center" ta="center">
-              <Title order={2} size="h2" c="gray.9">
+              <Title order={2} size="h2" c="accent.9.5">
                 {t("home.features.title", "Why Choose ChatGameLab?")}
               </Title>
             </Stack>
@@ -131,23 +137,23 @@ function HomePage() {
                   radius="md"
                   withBorder={false}
                   h="100%"
-                  bg="#faf9ff"
+                  bg={theme.other.colors.bgCard}
                   style={{
                     transition: "all 0.3s ease",
-                    border: "2px solid #e9d5ff",
+                    border: `1px solid ${theme.other.colors.bgCardBorder}`,
                   }}
                 >
                   <Stack gap="md" align="center" ta="center">
                     <ThemeIcon
                       size="xl"
                       radius="xl"
-                      color="violet"
+                      color="accent"
                       variant="light"
                     >
                       <feature.icon size={24} />
                     </ThemeIcon>
 
-                    <Title order={3} size="h4" c="gray.9">
+                    <Title order={3} size="h4" c="accent.9.5">
                       {feature.title}
                     </Title>
 

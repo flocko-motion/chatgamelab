@@ -3,6 +3,7 @@ import { Button, Container, Paper, Stack, Title, Text, Divider } from '@mantine/
 import { useAuth } from '@/providers/AuthProvider';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/auth/login/')({
   component: LoginComponent,
@@ -16,7 +17,7 @@ function LoginComponent() {
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (user) {
-      router.navigate({ to: '/dashboard' });
+      router.navigate({ to: ROUTES.DASHBOARD });
     }
   }, [user, router]);
 

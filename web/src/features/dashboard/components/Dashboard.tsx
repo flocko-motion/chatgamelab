@@ -44,14 +44,14 @@ function QuickStatsCards() {
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
               {t('stats.activeAdventures')}
             </Text>
-            <Title order={1} c="#1f2937" mb="xs">3</Title>
+            <Title order={1} c="accent.9" mb="xs">3</Title>
             <Text size="sm" c="#6b7280">{t('stats.storiesInProgress', { count: 2 })}</Text>
           </div>
           <ThemeIcon 
             size={48} 
             radius="md"
             variant="light"
-            color="violet"
+            color="accent"
           >
             <IconPlayerPlay size={24} />
           </ThemeIcon>
@@ -73,7 +73,7 @@ function QuickStatsCards() {
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
               {t('stats.storyDrafts')}
             </Text>
-            <Title order={1} c="#1f2937" mb="xs">2</Title>
+            <Title order={1} c="accent.9" mb="xs">2</Title>
             <Text size="sm" c="#6b7280">{t('stats.readyForPlayers')}</Text>
           </div>
           <ThemeIcon 
@@ -102,7 +102,7 @@ function QuickStatsCards() {
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
               {t('stats.storyRooms')}
             </Text>
-            <Title order={1} c="#1f2937" mb="xs">5</Title>
+            <Title order={1} c="accent.9" mb="xs">5</Title>
             <Text size="sm" c="#6b7280">{t('stats.availableSessions')}</Text>
           </div>
           <ThemeIcon 
@@ -131,7 +131,7 @@ function QuickStatsCards() {
             <Text size="sm" tt="uppercase" fw={600} c="#6b7280" mb="xs">
               {t('stats.storytellers')}
             </Text>
-            <Title order={1} c="#1f2937" mb="xs">12</Title>
+            <Title order={1} c="accent.9" mb="xs">12</Title>
             <Text size="sm" c="#6b7280">{t('stats.onlineNow')}</Text>
           </div>
           <ThemeIcon 
@@ -155,7 +155,7 @@ function RecentActivity() {
   const activities = [
     {
       icon: <IconPlayerPlay size={16} />,
-      color: 'violet',
+      color: 'accent',
       title: 'Space Adventure',
       user: 'Sarah',
       action: t('recentActivity.continuedPlaying'),
@@ -185,7 +185,7 @@ function RecentActivity() {
   return (
     <Card p="lg" withBorder shadow="sm">
       <Group justify="space-between" mb="md">
-        <Title order={3}>{t('recentActivity.title')}</Title>
+        <Title order={3} c="accent.9.5">{t('recentActivity.title')}</Title>
         <Button variant="subtle" size="sm">{t('recentActivity.viewAll')}</Button>
       </Group>
       
@@ -223,10 +223,12 @@ function QuickActions() {
 
   return (
     <Card p="lg" withBorder shadow="sm">
-      <Title order={3} mb="md">{t('quickActions.title')}</Title>
+      <Title order={3} c="accent.9.5" mb="md">{t('quickActions.title')}</Title>
       <Stack gap="sm">
         <Button 
           variant="light" 
+          color="accent"
+          c="accent.7"
           leftSection={<IconPlus size={16} />}
           fullWidth
           justify="start"
@@ -235,6 +237,8 @@ function QuickActions() {
         </Button>
         <Button 
           variant="light" 
+          color="accent"
+          c="accent.7"
           leftSection={<IconBuilding size={16} />}
           fullWidth
           justify="start"
@@ -243,6 +247,8 @@ function QuickActions() {
         </Button>
         <Button 
           variant="light" 
+          color="accent"
+          c="accent.7"
           leftSection={<IconUsers size={16} />}
           fullWidth
           justify="start"
@@ -251,6 +257,8 @@ function QuickActions() {
         </Button>
         <Button 
           variant="light" 
+          color="accent"
+          c="accent.7"
           leftSection={<IconTrendingUp size={16} />}
           fullWidth
           justify="start"

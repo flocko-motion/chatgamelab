@@ -1,23 +1,59 @@
 // Color palette configuration for ChatGameLab
-// Centralized color definitions make it easy to change the app's visual theme
+// Centralized color definitions - all color decisions live here
+//
+// Brand Identity:
+// - Dark bluish gradient header → trustworthy, techy, calm
+// - Neon cyan/magenta logo → playful, game-y, creative
+// - Light theme content → modern SaaS, readable, scalable
+//
+// Usage Rules:
+// - Cyan → primary actions, highlights, focus states
+// - Magenta → attention, notifications, special actions
+// - Everything else → calm, neutral, predictable
+// - If everything is colorful, nothing is important
 
 export const colors = {
-  // Primary accent color - change this to update the entire app's color scheme
-  primary: {
-    50: '#f5f3ff',
-    100: '#e9e5ff',
-    200: '#d4d0ff',
-    300: '#b8b3ff',
-    400: '#9c95ff',
-    500: '#8077ff', // Main primary color
-    600: '#6d62ff',
-    700: '#5a4dff',
-    800: '#4738ff',
-    900: '#3425ff',
-    950: '#1f1aff',
+  // ==========================================================================
+  // BRAND ACCENT COLORS (from logo)
+  // ==========================================================================
+  
+  // Primary Accent - Cyan (logo cyan #22E6F3)
+  // Use for: Primary buttons, active nav, toggles, sliders, focus rings
+  accent: {
+    50: '#ecfeff',
+    100: '#cffafe',
+    200: '#a5f3fc',
+    300: '#67e8f9',
+    400: '#22d3ee',
+    500: '#2ADDEC', // Main accent - cyan
+    600: '#28D5E4', // Hover state (subtle darkening)
+    700: '#0e7490',
+    800: '#155e75',
+    900: '#164e63',
+    950: '#083344',
+  },
+  
+  // Secondary Accent - Magenta (logo magenta #FF4D9D)
+  // Use for: Notifications, badges, special actions (Create, New, Pro)
+  // ⚠️ Don't overuse - one accent per screen is ideal
+  highlight: {
+    50: '#fdf2f8',
+    100: '#fce7f3',
+    200: '#fbcfe8',
+    300: '#f9a8d4',
+    400: '#f472b6',
+    500: '#FF4D9D', // Main highlight - logo magenta
+    600: '#db2777',
+    700: '#be185d',
+    800: '#9d174d',
+    900: '#831843',
+    950: '#500724',
   },
 
-  // Semantic colors
+  // ==========================================================================
+  // SEMANTIC COLORS
+  // ==========================================================================
+  
   success: {
     50: '#f0fdf4',
     100: '#dcfce7',
@@ -60,19 +96,23 @@ export const colors = {
     950: '#451a03',
   },
 
-  // Neutral colors
+  // ==========================================================================
+  // NEUTRAL / SURFACE COLORS
+  // ==========================================================================
+  
+  // Slate-based neutrals (slightly blue-tinted for cohesion with header)
   gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    200: '#e5e7eb',
-    300: '#d1d5db',
-    400: '#9ca3af',
-    500: '#6b7280',
-    600: '#4b5563',
-    700: '#374151',
-    800: '#1f2937',
-    900: '#111827',
-    950: '#030712',
+    50: '#F6F8FB',  // Main app background - soft, reduces eye strain
+    100: '#EEF2F7', // Hover/selected backgrounds
+    200: '#E2E8F0', // Borders, dividers
+    300: '#cbd5e1',
+    400: '#94a3b8',
+    500: '#64748B', // Muted text
+    600: '#475569', // Icon default
+    700: '#334155', // Body text
+    800: '#1e293b',
+    900: '#0F172A', // Title text - dark blue instead of pure black
+    950: '#020617',
   },
 
   // Special colors
@@ -81,70 +121,87 @@ export const colors = {
   transparent: 'transparent',
 } as const;
 
-// Mantine color mappings
-export const mantineColors = {
-  primary: colors.primary[500],
-  primaryHover: colors.primary[600],
-  primaryLight: colors.primary[100],
-  primaryDark: colors.primary[700],
+// ==========================================================================
+// SEMANTIC COLOR ROLES
+// ==========================================================================
+
+export const semanticColors = {
+  // Accent colors (use sparingly)
+  accentPrimary: colors.accent[500],      // #2ADDEC - cyan
+  accentSecondary: colors.highlight[500], // #FF4D9D - magenta
   
-  success: colors.success[500],
-  error: colors.error[500],
-  warning: colors.warning[500],
+  // Backgrounds
+  bgMain: colors.gray[50],      // #F6F8FB - main app background
+  bgSurface: colors.white,      // #FFFFFF - cards, modals, dropdowns
+  bgHover: colors.gray[100],    // #EEF2F7 - hover/selected states
+  bgCard: '#f0f4f8',            // Bluish card background (matches header tone)
+  bgCardBorder: '#d1dce8',      // Bluish card border
   
-  gray: colors.gray[500],
-  grayLight: colors.gray[400],
-  grayDark: colors.gray[600],
+  // Landing page gradient (bluish, matches header gradient but brighter)
+  bgLandingGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
+  // Registration page gradient (same style)
+  bgRegistrationGradient: 'linear-gradient(180deg, #f0f4f8 0%, #e8eef5 25%, #dfe8f2 50%, #e8eef5 75%, #f0f4f8 100%)',
   
-  background: colors.white,
-  surface: colors.gray[50],
-  border: colors.gray[200],
-  text: colors.gray[900],
-  textSecondary: colors.gray[600],
-  textMuted: colors.gray[400],
+  // Typography
+  textTitle: colors.gray[900],  // #0F172A - headlines (dark blue, not pure black)
+  textBody: colors.gray[700],   // #334155 - body text
+  textMuted: colors.gray[500],  // #64748B - secondary/muted text
+  textInverse: '#E6F0FF',       // For dark backgrounds (header)
+  
+  // Borders & Icons
+  border: colors.gray[200],     // #E2E8F0 - subtle borders
+  iconDefault: colors.gray[600], // #475569 - default icon color
+  iconActive: colors.accent[500], // Cyan for active icons
 } as const;
 
-// CSS custom properties for global access
+// ==========================================================================
+// CSS CUSTOM PROPERTIES
+// ==========================================================================
+// These are injected into the app and can be used in CSS/styled-components
+
 export const cssVariables = {
-  '--color-primary': mantineColors.primary,
-  '--color-primary-hover': mantineColors.primaryHover,
-  '--color-primary-light': mantineColors.primaryLight,
-  '--color-primary-dark': mantineColors.primaryDark,
+  // Accent colors
+  '--color-accent-primary': semanticColors.accentPrimary,
+  '--color-accent-secondary': semanticColors.accentSecondary,
   
-  '--color-success': mantineColors.success,
-  '--color-error': mantineColors.error,
-  '--color-warning': mantineColors.warning,
+  // Backgrounds
+  '--color-bg-main': semanticColors.bgMain,
+  '--color-bg-surface': semanticColors.bgSurface,
+  '--color-bg-hover': semanticColors.bgHover,
+  '--color-bg-card': semanticColors.bgCard,
+  '--color-bg-card-border': semanticColors.bgCardBorder,
   
-  '--color-gray': mantineColors.gray,
-  '--color-gray-light': mantineColors.grayLight,
-  '--color-gray-dark': mantineColors.grayDark,
+  // Typography
+  '--color-text-title': semanticColors.textTitle,
+  '--color-text-body': semanticColors.textBody,
+  '--color-text-muted': semanticColors.textMuted,
+  '--color-text-inverse': semanticColors.textInverse,
   
-  '--color-background': mantineColors.background,
-  '--color-surface': mantineColors.surface,
-  '--color-border': mantineColors.border,
-  '--color-text': mantineColors.text,
-  '--color-text-secondary': mantineColors.textSecondary,
-  '--color-text-muted': mantineColors.textMuted,
+  // Borders & Icons
+  '--color-border': semanticColors.border,
+  '--color-icon-default': semanticColors.iconDefault,
+  '--color-icon-active': semanticColors.iconActive,
+  
+  // Semantic
+  '--color-success': colors.success[500],
+  '--color-error': colors.error[500],
+  '--color-warning': colors.warning[500],
 } as const;
 
-// Type definitions
-export type ColorShade = keyof typeof colors.primary;
-export type ColorName = keyof typeof colors;
+// ==========================================================================
+// TYPE DEFINITIONS
+// ==========================================================================
 
-// Helper functions
-export const getColor = (colorName: ColorName, shade: ColorShade = 500) => {
-  return colors[colorName]?.[shade] || colors.gray[shade];
-};
+export type ColorShade = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
+export type AccentColorName = 'accent' | 'highlight';
+export type SemanticColorName = 'success' | 'error' | 'warning';
+export type NeutralColorName = 'gray';
+export type ColorName = AccentColorName | SemanticColorName | NeutralColorName;
 
-export const getPrimaryColor = (shade: ColorShade = 500) => {
-  return colors.primary[shade];
-};
+// ==========================================================================
+// HELPER FUNCTIONS
+// ==========================================================================
 
-// Theme configuration for Mantine
-export const themeColors = {
-  primary: mantineColors.primary,
-  // You can easily change the primary color here:
-  // primary: colors.blue[500], // for blue theme
-  // primary: colors.green[500], // for green theme
-  // primary: colors.red[500], // for red theme
-};
+export const getAccentColor = (shade: ColorShade = 500) => colors.accent[shade];
+export const getHighlightColor = (shade: ColorShade = 500) => colors.highlight[shade];
+export const getGrayColor = (shade: ColorShade = 500) => colors.gray[shade];
