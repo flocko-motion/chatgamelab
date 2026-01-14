@@ -1,6 +1,8 @@
 package lang
 
 var supportedLanguages = map[string]string{
+	"en":  "English",
+	"de":  "Deutsch",
 	"fr":  "Français",
 	"es":  "Español",
 	"it":  "Italiano",

@@ -1,0 +1,227 @@
+{
+  "common": {
+    "welcome": "Willkommen",
+    "hello": "Hallo",
+    "goodbye": "Auf Wiedersehen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "language": "Sprache",
+    "theme": "Design",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "system": "System",
+    "notifications": "Benachrichtigungen",
+    "home": {
+      "badge": "Lernspiel-Labor",
+      "title": "ChatGameLab",
+      "splashDescription": "Eine Lernplattform zum Erstellen und Spielen von KI-gestützten Text-Adventures. Perfekt für Lehrer, Schüler und kreative Geschichtenerzähler.",
+      "loginCta": "Loslegen",
+      "features": {
+        "title": "Warum ChatGameLab?",
+        "subtitle": "Entdecken Sie die perfekte Verbindung von Bildung und Unterhaltung",
+        "create": {
+          "title": "Abenteuer erstellen",
+          "description": "Entwerfen Sie interaktive Text-Adventures mit KI"
+        },
+        "play": {
+          "title": "Gemeinsam spielen", 
+          "description": "Schließen Sie sich Freunden bei kollaborativen Geschichtensitzungen an"
+        },
+        "learn": {
+          "title": "Lernen & Lehren",
+          "description": "Perfekt für Bildungsworkshops und Unterrichtsaktivitäten"
+        },
+        "understand": {
+          "title": "KI verstehen",
+          "description": "Erkunden Sie, wie KI-Modelle Geschichten erstellen und lernen Sie, wie sie funktionieren"
+        }
+      }
+    },
+    "languageSwitcher": {
+      "wipLabel": "WIP",
+      "wipHint": "Weitere Sprachen sind noch in Arbeit. Aktuell sind nur Englisch und Deutsch verfügbar."
+    },
+    "footer": {
+      "loginVia": "Login via",
+      "programmedBy": "Programmiert von",
+      "producedBy": "Produziert von",
+      "copyright": "© ChatGameLab"
+    },
+    "header": {
+      "openNavigation": "Navigationsmenü öffnen",
+      "closeNavigation": "Navigationsmenü schließen",
+      "viewNotifications": "Benachrichtigungen anzeigen",
+      "openSettings": "Einstellungen öffnen",
+      "openProfile": "Profilmenü öffnen",
+      "openUserMenu": "Benutzermenü öffnen",
+      "profile": "Profil",
+      "settings": "Einstellungen",
+      "logout": "Abmelden"
+    }
+  },
+  "navigation": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "games": "Spiele",
+    "create": "Erstellen",
+    "play": "Spielen",
+    "rooms": "Räume",
+    "groups": "Gruppen",
+    "learn": "Lernen",
+    "debug": "Debug"
+  },
+  "dashboard": {
+    "stats": {
+      "activeAdventures": "Aktive Abenteuer",
+      "storiesInProgress": "{{count}} Geschichten in Bearbeitung",
+      "storyDrafts": "Geschichtenentwürfe",
+      "readyForPlayers": "Bereit für Spieler",
+      "storyRooms": "Geschichtenräume",
+      "availableSessions": "Verfügbare Sitzungen",
+      "storytellers": "Geschichtenerzähler",
+      "onlineNow": "Jetzt online"
+    },
+    "recentActivity": {
+      "title": "Letzte Aktivitäten",
+      "viewAll": "Alle anzeigen",
+      "continuedPlaying": "hat weitergespielt",
+      "createdNewGame": "hat neues Spiel erstellt",
+      "invitedStudents": "hat {{count}} Schüler eingeladen"
+    },
+    "quickActions": {
+      "title": "Schnellaktionen",
+      "createNewGame": "Neues Spiel erstellen",
+      "createRoom": "Raum erstellen",
+      "inviteMembers": "Mitglieder einladen",
+      "viewAnalytics": "Analysen anzeigen"
+    }
+  },
+  "game": {
+    "createNew": "Neues Spiel erstellen",
+    "title": "Titel",
+    "description": "Beschreibung",
+    "start": "Starten",
+    "pause": "Pausieren",
+    "resume": "Fortsetzen",
+    "restart": "Neustarten",
+    "score": "Punkte",
+    "level": "Level",
+    "time": "Zeit",
+    "players": "Spieler",
+    "invite": "Einladen",
+    "join": "Beitreten",
+    "leave": "Verlassen"
+  },
+  "errors": {
+    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
+    "server": "Serverfehler. Bitte versuchen Sie es später erneut.",
+    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.",
+    "unauthorized": "Bitte melden Sie sich an, um fortzufahren.",
+    "forbidden": "Sie haben keine Berechtigung, diese Aktion durchzuführen.",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
+    "backendUserFetch": "Benutzerdaten konnten nicht vom Server geladen werden. Bitte versuchen Sie es erneut.",
+    "titles": {
+      "network": "Netzwerkfehler",
+      "server": "Serverfehler",
+      "validation": "Validierungsfehler",
+      "authentication": "Authentifizierungsfehler",
+      "permission": "Zugriff verweigert",
+      "notFound": "Nicht gefunden",
+      "error": "Fehler"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen bei ChatGameLab",
+      "subtitle": "Wählen Sie, wie Sie sich anmelden möchten",
+      "auth0Button": "Mit Auth0 anmelden",
+      "devMode": "Entwicklungsmodus",
+      "devModeDescription": "Schneller Login für Entwicklung und Tests",
+      "devModeAlert": {
+        "title": "Entwicklungsmodus",
+        "message": "Dies ist die Entwickler-Login-Seite. In der Produktion werden Sie direkt zu Auth0 weitergeleitet."
+      },
+      "redirecting": {
+        "title": "Weiterleitung zu Auth0...",
+        "message": "Bitte warten Sie, während wir Sie zur Login-Seite weiterleiten."
+      },
+      "role": {
+        "admin": "Als Admin anmelden",
+        "teacher": "Als Lehrer anmelden", 
+        "student": "Als Schüler anmelden",
+        "guest": "Als Gast anmelden"
+      }
+    },
+    "register": {
+      "title": "Profil vervollständigen",
+      "subtitle": "Nur noch ein paar Details, um loszulegen",
+      "nameLabel": "Anzeigename",
+      "namePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
+      "nameDescription": "So werden andere Benutzer Sie sehen. Maximal 24 Zeichen.",
+      "emailLabel": "E-Mail-Adresse",
+      "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+      "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+      "submitButton": "Konto erstellen",
+      "submitting": "Konto wird erstellt...",
+      "cancelButton": "Abbrechen",
+      "errors": {
+        "nameRequired": "Name ist erforderlich",
+        "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
+        "emailRequired": "E-Mail ist erforderlich",
+        "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "nameTaken": "Dieser Name ist bereits vergeben",
+        "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+      },
+      "checkingName": "Verfügbarkeit wird geprüft..."
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Verwalten Sie Ihre Kontoeinstellungen",
+      "accountSection": "Konto",
+      "nameLabel": "Anzeigename",
+      "namePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
+      "nameDescription": "So werden andere Benutzer Sie sehen. Maximal 24 Zeichen.",
+      "emailLabel": "E-Mail-Adresse",
+      "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+      "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+      "saveButton": "Änderungen speichern",
+      "saving": "Wird gespeichert...",
+      "saved": "Änderungen erfolgreich gespeichert",
+      "errors": {
+        "nameRequired": "Name ist erforderlich",
+        "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
+        "emailRequired": "E-Mail ist erforderlich",
+        "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "nameTaken": "Dieser Name ist bereits vergeben",
+        "emailTaken": "Diese E-Mail ist bereits vergeben",
+        "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut."
+      }
+    },
+    "profile": {
+      "title": "Profil",
+      "memberSince": "Angemeldet seit",
+      "organizationSection": "Organisation",
+      "noOrganization": "Keine Organisation",
+      "role": "Rolle",
+      "noRole": "Keine Rolle zugewiesen",
+      "statisticsSection": "Statistiken",
+      "gamesPlayed": "Gespielte Spiele",
+      "gamesCreated": "Erstellte Spiele",
+      "messagesSent": "Gesendete Nachrichten",
+      "sessionsJoined": "Beigetretene Sitzungen"
+    }
+  }
+}
