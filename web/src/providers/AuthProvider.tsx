@@ -345,7 +345,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authLogger.debug('Logging out from Auth0');
       auth0Logout({ 
         logoutParams: { 
-          returnTo: `${window.location.origin}${ROUTES.AUTH0_LOGOUT_CALLBACK}` 
+          returnTo: auth0Config.logoutUri
         } 
       });
     } else {
