@@ -52,6 +52,7 @@ function RootComponent() {
   const headerProps = useAuthenticatedLayout ? {
     onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
     onProfileClick: () => navigate({ to: ROUTES.PROFILE }),
+    onApiKeysClick: () => navigate({ to: ROUTES.API_KEYS }),
   } : undefined;
 
   // Show loading state while auth is initializing
