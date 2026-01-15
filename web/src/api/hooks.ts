@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth0 } from '@auth0/auth0-react';
 import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
 import { apiClient } from './client';
@@ -17,7 +18,8 @@ import type {
   RoutesUsersNewRequest,
   RoutesShareRequest,
   RoutesUserUpdateRequest,
-  RoutesVersionResponse
+  RoutesVersionResponse,
+  DbUserSessionWithGame
 } from './generated';
 
 // Query keys
@@ -27,6 +29,7 @@ export const queryKeys = {
   platforms: ['platforms'] as const,
   games: ['games'] as const,
   gameSessions: ['gameSessions'] as const,
+  userSessions: ['userSessions'] as const,
   users: ['users'] as const,
   currentUser: ['currentUser'] as const,
   roles: ['roles'] as const,
@@ -116,21 +119,34 @@ export function useRoles() {
 }
 
 // Games hooks
-export function useGames() {
+export interface UseGamesParams {
+  search?: string;
+  sortBy?: 'name' | 'createdAt' | 'modifiedAt';
+  sortDir?: 'asc' | 'desc';
+  filter?: 'all' | 'own' | 'public' | 'organization' | 'favorites';
+}
+
+export function useGames(params?: UseGamesParams) {
   const api = useRequiredAuthenticatedApi();
+  const { search, sortBy, sortDir, filter } = params || {};
   
   return useQuery<ObjGame[], HttpxErrorResponse>({
-    queryKey: queryKeys.games,
-    queryFn: () => api.games.gamesList().then(response => response.data),
+    queryKey: [...queryKeys.games, { search, sortBy, sortDir, filter }],
+    queryFn: () => api.games.gamesList({ 
+      search: search || undefined,
+      sortBy: sortBy || undefined,
+      sortDir: sortDir || undefined,
+      filter: filter || undefined,
+    }).then(response => response.data),
   });
 }
 
-export function useGame(id: string) {
+export function useGame(id: string | undefined) {
   const api = useRequiredAuthenticatedApi();
   
   return useQuery<ObjGame, HttpxErrorResponse>({
     queryKey: [...queryKeys.games, id],
-    queryFn: () => api.games.gamesDetail(id).then(response => response.data),
+    queryFn: () => api.games.gamesDetail(id!).then(response => response.data),
     enabled: !!id,
   });
 }
@@ -188,6 +204,50 @@ export function useCloneGame() {
   });
 }
 
+export function useExportGameYaml() {
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<string, HttpxErrorResponse, string>({
+    mutationFn: async (id) => {
+      const response = await api.games.yamlList(id);
+      // The response is text/yaml, so we need to get it as text
+      return response.data as unknown as string;
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useImportGameYaml() {
+  const queryClient = useQueryClient();
+  const { getAccessTokenSilently } = useAuth0();
+  
+  return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>({
+    mutationFn: async ({ id, yaml }) => {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/games/${id}/yaml`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/x-yaml',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: yaml, // Send raw YAML, not JSON-stringified
+      });
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Import failed' }));
+        throw { ...error, status: response.status };
+      }
+      
+      return response.json();
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
+    },
+    onError: handleApiError,
+  });
+}
+
 // Game Sessions hooks
 export function useGameSessions(gameId: string) {
   const api = useRequiredAuthenticatedApi();
@@ -196,6 +256,22 @@ export function useGameSessions(gameId: string) {
     queryKey: [...queryKeys.gameSessions, gameId],
     queryFn: () => api.games.sessionsList(gameId).then(response => response.data),
     enabled: !!gameId,
+  });
+}
+
+// User Sessions hooks (last played)
+export interface UseUserSessionsParams {
+  search?: string;
+  sortBy?: 'game' | 'model' | 'lastPlayed';
+}
+
+export function useUserSessions(params?: UseUserSessionsParams) {
+  const api = useRequiredAuthenticatedApi();
+  const { search, sortBy } = params || {};
+  
+  return useQuery<DbUserSessionWithGame[], HttpxErrorResponse>({
+    queryKey: [...queryKeys.userSessions, { search, sortBy }],
+    queryFn: () => api.sessions.sessionsList({ search, sortBy }).then(response => response.data),
   });
 }
 
@@ -208,6 +284,20 @@ export function useCreateGameSession() {
       api.games.sessionsCreate(gameId, request).then(response => response.data),
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({ queryKey: [...queryKeys.gameSessions, gameId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useDeleteSession() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<Record<string, string>, HttpxErrorResponse, string>({
+    mutationFn: (id) => api.sessions.sessionsDelete(id).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+      queryClient.invalidateQueries({ queryKey: queryKeys.gameSessions });
     },
     onError: handleApiError,
   });

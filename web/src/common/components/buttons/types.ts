@@ -6,5 +6,5 @@ export interface IconButtonProps {
   'aria-label': string;
   disabled?: boolean;
   loading?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }

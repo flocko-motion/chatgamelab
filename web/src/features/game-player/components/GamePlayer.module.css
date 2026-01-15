@@ -1,0 +1,237 @@
+/* Game Player Container - fills available viewport height */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--mantine-color-gray-0);
+}
+
+/* Header section */
+.header {
+  flex-shrink: 0;
+  background: var(--mantine-color-body);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+/* Status bar */
+.statusBar {
+  flex-shrink: 0;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  overflow-x: auto;
+}
+
+.statusField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.statusFieldName {
+  color: var(--mantine-color-gray-6);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusFieldValue {
+  color: var(--mantine-color-gray-8);
+  font-weight: 600;
+}
+
+/* Chat area - scrollable messages */
+.chatArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Input area */
+.inputArea {
+  flex-shrink: 0;
+  background: var(--mantine-color-body);
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+/* Message styles */
+.messageWrapper {
+  width: 100%;
+}
+
+.messageWrapper[data-type="player"] {
+  text-align: right;
+}
+
+.messageWrapper[data-type="game"],
+.messageWrapper[data-type="system"] {
+  text-align: left;
+}
+
+/* Player message bubble */
+.playerBubble {
+  display: inline-block;
+  max-width: 70%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-accent-1);
+  color: var(--mantine-color-accent-9);
+  border: 1px solid var(--mantine-color-accent-2);
+  border-radius: var(--mantine-radius-lg);
+  border-bottom-right-radius: var(--mantine-radius-sm);
+  text-align: left;
+}
+
+/* Game message bubble */
+.gameBubble {
+  display: inline-block;
+  position: relative;
+  max-width: 98%;
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-lg);
+  border-bottom-left-radius: var(--mantine-radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  text-align: left;
+}
+
+/* Desktop: image floats to top-left */
+@media (min-width: 48em) {
+  .gameBubble {
+    max-width: 95%;
+  }
+
+  .gameBubble .imageSection {
+    float: left;
+    margin-right: var(--mantine-spacing-xl);
+    margin-bottom: var(--mantine-spacing-md);
+  }
+}
+
+/* Image section - fixed size to prevent layout shift */
+.imageSection {
+  width: 200px;
+  height: 200px;
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.imageSection img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    var(--mantine-color-gray-1) 8%,
+    var(--mantine-color-gray-2) 18%,
+    var(--mantine-color-gray-1) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Text section */
+.textSection {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+/* System message */
+.systemBubble {
+  display: inline-block;
+  max-width: 90%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-gray-1);
+  border: 1px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-lg);
+  font-style: italic;
+  text-align: left;
+}
+
+/* Streaming indicator */
+.streamingIndicator {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: var(--mantine-spacing-xs);
+  vertical-align: middle;
+}
+
+.streamingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mantine-color-accent-5);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.streamingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.streamingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Loading and Error states */
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-md);
+  height: 100%;
+  padding: var(--mantine-spacing-xl);
+  text-align: center;
+}
+
+/* Mobile adjustments */
+@media (max-width: 48em) {
+  .playerBubble {
+    max-width: 85%;
+  }
+
+  .gameBubble,
+  .systemBubble {
+    max-width: 98%;
+  }
+}

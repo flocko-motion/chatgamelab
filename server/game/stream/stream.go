@@ -11,10 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
+// ImageSaver is a function that saves image data to persistent storage
+type ImageSaver func(messageID uuid.UUID, imageData []byte) error
+
 // Stream represents an active streaming response
 type Stream struct {
-	MessageID uuid.UUID
-	Chunks    chan obj.GameSessionMessageChunk
+	MessageID  uuid.UUID
+	Chunks     chan obj.GameSessionMessageChunk
+	ImageSaver ImageSaver
 }
 
 // Registry manages active streams
@@ -36,14 +40,16 @@ const streamTimeout = 5 * time.Minute
 
 // Create creates a new stream for the given message ID
 // The stream will automatically be removed after 5 minutes
-func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage) (stream *Stream) {
+// ImageSaver is called to persist image data before signaling imageDone
+func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage, imageSaver ImageSaver) (stream *Stream) {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	stream = &Stream{
-		MessageID: message.ID,
-		Chunks:    make(chan obj.GameSessionMessageChunk, 100), // buffered channel
+		MessageID:  message.ID,
+		Chunks:     make(chan obj.GameSessionMessageChunk, 100), // buffered channel
+		ImageSaver: imageSaver,
 	}
 	r.streams[message.ID] = stream
 
@@ -94,8 +100,22 @@ func (s *Stream) SendError(err string) {
 	s.Send(obj.GameSessionMessageChunk{Error: err})
 }
 
-// SendImage sends an image chunk, with isDone=true for the final image
+// SendImage signals image progress. Only sends imageDone signal, not image bytes.
+// Image data should be fetched from /api/messages/{id}/image endpoint.
+// When isDone is true, saves image to DB first, then sends imageDone signal.
 func (s *Stream) SendImage(data []byte, isDone bool) {
 	log.Printf("stream %s: %d bytes image %s", s.MessageID, len(data), functional.BoolToString(isDone, " (DONE)", ""))
-	s.Send(obj.GameSessionMessageChunk{ImageData: data, ImageDone: isDone})
+
+	if isDone {
+		// Save image to DB BEFORE signaling done, so frontend can fetch it
+		if s.ImageSaver != nil && len(data) > 0 {
+			if err := s.ImageSaver(s.MessageID, data); err != nil {
+				log.Printf("stream %s: failed to save image: %v", s.MessageID, err)
+			} else {
+				log.Printf("stream %s: image saved to DB", s.MessageID)
+			}
+		}
+		// Now signal that image is ready to fetch
+		s.Send(obj.GameSessionMessageChunk{ImageDone: true})
+	}
 }

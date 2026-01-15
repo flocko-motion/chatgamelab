@@ -3,6 +3,7 @@ package db
 import (
 	db "cgl/db/sqlc"
 	"cgl/functional"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"crypto/rand"
@@ -19,6 +20,10 @@ import (
 
 type GetGamesFilters struct {
 	PublicOnly bool
+	Search     string
+	SortField  string // name, createdAt, modifiedAt
+	SortDir    string // asc, desc
+	Filter     string // all, own, public
 }
 
 func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) error {
@@ -45,17 +50,55 @@ func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid
 
 // GetGames returns games based on filters. If userID is provided, returns user's games.
 // If PublicOnly filter is set, returns only public games.
+// If Search is provided, filters games by name (case-insensitive).
+// If SortField/SortDir are provided, results are sorted accordingly.
+// Filter can be: all, own, public (organization and favorites fall back to all).
 func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) ([]obj.Game, error) {
 	var dbGames []db.Game
 	var err error
 
+	searchQuery := ""
+	sortField := ""
+	sortDir := "desc"
+	filterType := "all"
+	if filters != nil {
+		searchQuery = filters.Search
+		sortField = filters.SortField
+		if filters.SortDir != "" {
+			sortDir = filters.SortDir
+		}
+		if filters.Filter != "" {
+			filterType = filters.Filter
+		}
+	}
+
+	// Handle legacy PublicOnly flag
 	if filters != nil && filters.PublicOnly {
-		dbGames, err = queries().GetPublicGames(ctx)
-	} else if userID != nil {
-		// TODO: we need to add complex selection of games owned by workshops that the user is allowed to see to to an institution membership.. we'll leave that for later.
-		dbGames, err = queries().GetGamesVisibleToUser(ctx, uuid.NullUUID{UUID: *userID, Valid: true})
-	} else {
-		return nil, errors.New("must provide userID or set PublicOnly filter")
+		filterType = "public"
+	}
+
+	switch filterType {
+	case "public":
+		dbGames, err = getPublicGames(ctx, searchQuery, sortField, sortDir)
+	case "own":
+		if userID == nil {
+			return nil, errors.New("must provide userID for own filter")
+		}
+		dbGames, err = getOwnGames(ctx, *userID, searchQuery, sortField, sortDir)
+	case "all", "organization", "favorites":
+		// organization and favorites fall back to all for now
+		if userID != nil {
+			dbGames, err = getGamesVisibleToUser(ctx, *userID, searchQuery, sortField, sortDir)
+		} else {
+			// Unauthenticated users can only see public games
+			dbGames, err = getPublicGames(ctx, searchQuery, sortField, sortDir)
+		}
+	default:
+		if userID != nil {
+			dbGames, err = getGamesVisibleToUser(ctx, *userID, searchQuery, sortField, sortDir)
+		} else {
+			return nil, errors.New("must provide userID or valid filter")
+		}
 	}
 
 	if err != nil {
@@ -71,6 +114,149 @@ func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) 
 		result = append(result, *game)
 	}
 	return result, nil
+}
+
+// getPublicGames fetches public games with optional search and sorting
+func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]db.Game, error) {
+	searchParam := sql.NullString{String: search, Valid: search != ""}
+
+	if search != "" {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByName(ctx, searchParam)
+			}
+			return queries().SearchPublicGamesSortedByNameDesc(ctx, searchParam)
+		case "createdAt":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByCreatedAt(ctx, searchParam)
+			}
+			return queries().SearchPublicGames(ctx, searchParam) // default createdAt desc
+		case "modifiedAt":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByModifiedAtAsc(ctx, searchParam)
+			}
+			return queries().SearchPublicGamesSortedByModifiedAt(ctx, searchParam)
+		default:
+			return queries().SearchPublicGames(ctx, searchParam)
+		}
+	}
+
+	switch sortField {
+	case "name":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByName(ctx)
+		}
+		return queries().GetPublicGamesSortedByNameDesc(ctx)
+	case "createdAt":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByCreatedAt(ctx)
+		}
+		return queries().GetPublicGames(ctx) // default createdAt desc
+	case "modifiedAt":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByModifiedAtAsc(ctx)
+		}
+		return queries().GetPublicGamesSortedByModifiedAt(ctx)
+	default:
+		return queries().GetPublicGames(ctx)
+	}
+}
+
+// getOwnGames fetches games owned by user with optional search and sorting
+func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortDir string) ([]db.Game, error) {
+	userParam := uuid.NullUUID{UUID: userID, Valid: true}
+	searchStr := sql.NullString{String: search, Valid: search != ""}
+
+	if search != "" {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByName(ctx, db.SearchOwnGamesSortedByNameParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByNameDesc(ctx, db.SearchOwnGamesSortedByNameDescParams{CreatedBy: userParam, Column2: searchStr})
+		case "createdAt":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByCreatedAt(ctx, db.SearchOwnGamesSortedByCreatedAtParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
+		case "modifiedAt":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByModifiedAtAsc(ctx, db.SearchOwnGamesSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByModifiedAt(ctx, db.SearchOwnGamesSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		default:
+			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
+		}
+	}
+
+	switch sortField {
+	case "name":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByName(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByNameDesc(ctx, userParam)
+	case "createdAt":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByCreatedAt(ctx, userParam)
+		}
+		return queries().GetOwnGames(ctx, userParam)
+	case "modifiedAt":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByModifiedAtAsc(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByModifiedAt(ctx, userParam)
+	default:
+		return queries().GetOwnGames(ctx, userParam)
+	}
+}
+
+// getGamesVisibleToUser fetches games visible to user with optional search and sorting
+func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortField, sortDir string) ([]db.Game, error) {
+	userParam := uuid.NullUUID{UUID: userID, Valid: true}
+	searchStr := sql.NullString{String: search, Valid: search != ""}
+
+	if search != "" {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				return queries().SearchGamesVisibleToUserSortedByName(ctx, db.SearchGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchGamesVisibleToUserSortedByNameDesc(ctx, db.SearchGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, Column2: searchStr})
+		case "createdAt":
+			if sortDir == "asc" {
+				return queries().SearchGamesVisibleToUserSortedByCreatedAt(ctx, db.SearchGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, Column2: searchStr})
+		case "modifiedAt":
+			if sortDir == "asc" {
+				return queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		default:
+			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, Column2: searchStr})
+		}
+	}
+
+	switch sortField {
+	case "name":
+		if sortDir == "asc" {
+			return queries().GetGamesVisibleToUserSortedByName(ctx, userParam)
+		}
+		return queries().GetGamesVisibleToUserSortedByNameDesc(ctx, userParam)
+	case "createdAt":
+		if sortDir == "asc" {
+			return queries().GetGamesVisibleToUserSortedByCreatedAt(ctx, userParam)
+		}
+		return queries().GetGamesVisibleToUser(ctx, userParam)
+	case "modifiedAt":
+		if sortDir == "asc" {
+			return queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, userParam)
+		}
+		return queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, userParam)
+	default:
+		return queries().GetGamesVisibleToUser(ctx, userParam)
+	}
 }
 
 // GetGameByID gets a game by ID. If userID is provided, verifies ownership.
@@ -201,17 +387,23 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 // UpdateGameYaml updates a game from YAML content. userID must be the owner.
 func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yamlContent string) error {
+	log.Debug("UpdateGameYaml: starting", "user_id", userID, "game_id", gameID)
+
 	// Get existing game first
 	existing, err := GetGameByID(ctx, &userID, gameID)
 	if err != nil {
+		log.Debug("UpdateGameYaml: GetGameByID failed", "error", err)
 		return fmt.Errorf("game not found: %w", err)
 	}
+	log.Debug("UpdateGameYaml: existing game loaded", "name", existing.Name)
 
 	// Parse YAML into a game object
 	var incoming obj.Game
 	if err := yaml.Unmarshal([]byte(yamlContent), &incoming); err != nil {
+		log.Debug("UpdateGameYaml: YAML unmarshal failed", "error", err)
 		return fmt.Errorf("invalid YAML: %w", err)
 	}
+	log.Debug("UpdateGameYaml: YAML parsed", "incoming_name", incoming.Name, "incoming_description", incoming.Description)
 
 	// Selectively copy allowed fields
 	existing.Name = incoming.Name
@@ -224,7 +416,13 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	existing.StatusFields = functional.NormalizeJson(incoming.StatusFields, &[]obj.StatusField{})
 	existing.CSS = functional.NormalizeJson(incoming.CSS, &obj.CSS{})
 
-	return UpdateGame(ctx, userID, existing)
+	log.Debug("UpdateGameYaml: calling UpdateGame", "game_id", existing.ID, "name", existing.Name)
+	if err := UpdateGame(ctx, userID, existing); err != nil {
+		log.Debug("UpdateGameYaml: UpdateGame failed", "error", err)
+		return err
+	}
+	log.Debug("UpdateGameYaml: success")
+	return nil
 }
 
 // CreateGameSession persists a game session to the database and returns the created session with DB-generated ID
@@ -390,6 +588,13 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		},
 	}
 
+	// Load game info
+	game, err := queries().GetGameByID(ctx, s.GameID)
+	if err == nil {
+		session.GameName = game.Name
+		session.GameDescription = game.Description
+	}
+
 	// Load API key
 	key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
 	if err != nil {
@@ -404,6 +609,41 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	return session, nil
+}
+
+// GetGameSessionMessageByID returns a message by its ID
+func GetGameSessionMessageByID(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get message: %w", err)
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:            m.ID,
+		GameSessionID: m.GameSessionID,
+		Seq:           int(m.Seq),
+		Type:          m.Type,
+		Message:       m.Message,
+		Image:         m.Image,
+		Meta: obj.Meta{
+			CreatedBy:  m.CreatedBy,
+			CreatedAt:  &m.CreatedAt,
+			ModifiedBy: m.ModifiedBy,
+			ModifiedAt: &m.ModifiedAt,
+		},
+	}
+
+	// Parse status fields from JSON
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+
+	// Set image prompt
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+
+	return msg, nil
 }
 
 // GetLatestGameSessionMessage returns the most recent message for a session
@@ -438,6 +678,178 @@ func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj
 	}
 
 	return msg, nil
+}
+
+// GetAllGameSessionMessages returns all messages for a session ordered by sequence
+func GetAllGameSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj.GameSessionMessage, error) {
+	messages, err := queries().GetAllGameSessionMessages(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get session messages: %w", err)
+	}
+
+	result := make([]obj.GameSessionMessage, 0, len(messages))
+	for _, m := range messages {
+		msg := obj.GameSessionMessage{
+			ID:            m.ID,
+			GameSessionID: m.GameSessionID,
+			Seq:           int(m.Seq),
+			Type:          m.Type,
+			Message:       m.Message,
+			Image:         m.Image,
+			Meta: obj.Meta{
+				CreatedBy:  m.CreatedBy,
+				CreatedAt:  &m.CreatedAt,
+				ModifiedBy: m.ModifiedBy,
+				ModifiedAt: &m.ModifiedAt,
+			},
+		}
+
+		// Parse status fields from JSON
+		if m.Status.Valid && m.Status.String != "" {
+			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+		}
+
+		// Set image prompt
+		if m.ImagePrompt.Valid {
+			msg.ImagePrompt = &m.ImagePrompt.String
+		}
+
+		result = append(result, msg)
+	}
+
+	return result, nil
+}
+
+// UserSessionWithGame represents a session with its game name for display
+type UserSessionWithGame struct {
+	obj.GameSession
+	GameName string `json:"gameName"`
+}
+
+// GetUserSessionsFilters contains filter options for user sessions
+type GetUserSessionsFilters struct {
+	Search    string // Search by game name
+	SortField string // game, model, lastPlayed (default)
+}
+
+// sessionRowToUserSession converts a db row to UserSessionWithGame
+func sessionRowToUserSession(id, gameID, userID, apiKeyID uuid.UUID, aiPlatform, aiModel string, aiSession []byte, imageStyle string, createdBy, modifiedBy uuid.NullUUID, createdAt, modifiedAt time.Time, gameName string) UserSessionWithGame {
+	return UserSessionWithGame{
+		GameSession: obj.GameSession{
+			ID:         id,
+			GameID:     gameID,
+			UserID:     userID,
+			ApiKeyID:   apiKeyID,
+			AiPlatform: aiPlatform,
+			AiModel:    aiModel,
+			AiSession:  string(aiSession),
+			ImageStyle: imageStyle,
+			Meta: obj.Meta{
+				CreatedBy:  createdBy,
+				CreatedAt:  &createdAt,
+				ModifiedBy: modifiedBy,
+				ModifiedAt: &modifiedAt,
+			},
+		},
+		GameName: gameName,
+	}
+}
+
+// GetGameSessionsByUserID returns recent sessions for a user with game names
+func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *GetUserSessionsFilters) ([]UserSessionWithGame, error) {
+	search := ""
+	sortField := "lastPlayed"
+	if filters != nil {
+		search = filters.Search
+		if filters.SortField != "" {
+			sortField = filters.SortField
+		}
+	}
+
+	var sessions []UserSessionWithGame
+
+	if search != "" {
+		searchParam := sql.NullString{String: search, Valid: true}
+		switch sortField {
+		case "game":
+			rows, err := queries().SearchGameSessionsByUserIDSortByGame(ctx, db.SearchGameSessionsByUserIDSortByGameParams{UserID: userID, Column2: searchParam})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		case "model":
+			rows, err := queries().SearchGameSessionsByUserIDSortByModel(ctx, db.SearchGameSessionsByUserIDSortByModelParams{UserID: userID, Column2: searchParam})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		default:
+			rows, err := queries().SearchGameSessionsByUserID(ctx, db.SearchGameSessionsByUserIDParams{UserID: userID, Column2: searchParam})
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		}
+	} else {
+		switch sortField {
+		case "game":
+			rows, err := queries().GetGameSessionsByUserIDSortByGame(ctx, userID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		case "model":
+			rows, err := queries().GetGameSessionsByUserIDSortByModel(ctx, userID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		default:
+			rows, err := queries().GetGameSessionsByUserID(ctx, userID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+			}
+			for _, s := range rows {
+				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
+			}
+		}
+	}
+
+	return sessions, nil
+}
+
+// DeleteGameSession deletes a game session and all its messages. userID must be the owner.
+func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
+	// Verify ownership
+	session, err := queries().GetGameSessionByID(ctx, sessionID)
+	if err != nil {
+		return fmt.Errorf("session not found: %w", err)
+	}
+	if session.UserID != userID {
+		return errors.New("access denied: not the owner of this session")
+	}
+
+	// Delete messages first (cascading)
+	if err := queries().DeleteGameSessionMessagesBySessionID(ctx, sessionID); err != nil {
+		return fmt.Errorf("failed to delete session messages: %w", err)
+	}
+
+	// Delete the session
+	if err := queries().DeleteGameSession(ctx, sessionID); err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+
+	return nil
 }
 
 // GetGameSessionsByGameID returns all sessions for a game

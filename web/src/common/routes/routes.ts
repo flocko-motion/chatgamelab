@@ -30,7 +30,11 @@ export const ROUTES = {
   CREATIONS: '/creations',
   CREATION_DETAIL: '/creations/$gameId',
 
-  // Play page (browse and play games)
+  // Sessions (user's game instances)
+  SESSIONS: '/sessions',
+  SESSION_DETAIL: '/sessions/$sessionId',
+
+  // Game selection for starting new sessions
   PLAY: '/play',
 
   // Game play routes (actual gameplay)

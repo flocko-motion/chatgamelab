@@ -1,7 +1,7 @@
 import { Table, Group, Badge, Text, Stack, Tooltip } from '@mantine/core';
-import { IconWorld, IconLock } from '@tabler/icons-react';
+import { IconWorld, IconLock, IconDownload } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { EditIconButton, DeleteIconButton } from '@components/buttons';
+import { EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import type { ObjGame } from '@/api/generated';
 
 interface GamesTableProps {
@@ -9,9 +9,11 @@ interface GamesTableProps {
   onView: (game: ObjGame) => void;
   onEdit: (game: ObjGame) => void;
   onDelete: (game: ObjGame) => void;
+  onExport: (game: ObjGame) => void;
+  fillHeight?: boolean;
 }
 
-export function GamesTable({ games, onView, onEdit, onDelete }: GamesTableProps) {
+export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeight = false }: GamesTableProps) {
   const { t } = useTranslation('common');
 
   const formatDate = (dateString?: string) => {
@@ -20,8 +22,8 @@ export function GamesTable({ games, onView, onEdit, onDelete }: GamesTableProps)
   };
 
   return (
-    <Table.ScrollContainer minWidth={500}>
-      <Table verticalSpacing="md" horizontalSpacing="lg">
+    <Table.ScrollContainer minWidth={500} style={fillHeight ? { overflowY: 'auto', flex: 1 } : undefined}>
+      <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader={fillHeight}>
         <Table.Thead>
           <Table.Tr style={{ borderBottom: '2px solid var(--mantine-color-gray-2)' }}>
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -33,7 +35,7 @@ export function GamesTable({ games, onView, onEdit, onDelete }: GamesTableProps)
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('games.fields.modified')}
             </Table.Th>
-            <Table.Th w={120} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <Table.Th w={150} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('actions')}
             </Table.Th>
           </Table.Tr>
@@ -81,6 +83,15 @@ export function GamesTable({ games, onView, onEdit, onDelete }: GamesTableProps)
                       <EditIconButton
                         onClick={() => onEdit(game)}
                         aria-label={t('edit')}
+                      />
+                    </span>
+                  </Tooltip>
+                  <Tooltip label={t('games.importExport.exportButton')} position="top" withArrow>
+                    <span>
+                      <GenericIconButton
+                        icon={<IconDownload size={16} />}
+                        onClick={() => onExport(game)}
+                        aria-label={t('games.importExport.exportButton')}
                       />
                     </span>
                   </Tooltip>

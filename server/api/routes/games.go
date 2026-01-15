@@ -25,8 +25,12 @@ type CreateGameRequest struct {
 //	@Description	Returns a list of games. If authenticated, includes user's private games.
 //	@Tags			games
 //	@Produce		json
-//	@Success		200	{array}		obj.Game
-//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Param			search	query		string	false	"Search games by name (case-insensitive)"
+//	@Param			sortBy	query		string	false	"Sort field (name, createdAt, modifiedAt)"
+//	@Param			sortDir	query		string	false	"Sort direction (asc, desc)"
+//	@Param			filter	query		string	false	"Filter type (all, own, public, organization, favorites)"
+//	@Success		200		{array}		obj.Game
+//	@Failure		500		{object}	httpx.ErrorResponse
 //	@Router			/games [get]
 func GetGames(w http.ResponseWriter, r *http.Request) {
 	user := httpx.MaybeUserFromRequest(r)
@@ -36,8 +40,19 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
-	log.Debug("listing games", "user_id", userID)
-	games, err := db.GetGames(r.Context(), userID, nil)
+	searchQuery := r.URL.Query().Get("search")
+	sortBy := r.URL.Query().Get("sortBy")
+	sortDir := r.URL.Query().Get("sortDir")
+	filter := r.URL.Query().Get("filter")
+
+	log.Debug("listing games", "user_id", userID, "search", searchQuery, "sortBy", sortBy, "sortDir", sortDir, "filter", filter)
+	filters := &db.GetGamesFilters{
+		Search:    searchQuery,
+		SortField: sortBy,
+		SortDir:   sortDir,
+		Filter:    filter,
+	}
+	games, err := db.GetGames(r.Context(), userID, filters)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get games: "+err.Error())
 		return
@@ -275,6 +290,7 @@ func GetGameYAML(w http.ResponseWriter, r *http.Request) {
 func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 	gameID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
+		log.Debug("UpdateGameYAML: invalid game ID", "error", err)
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
 		return
 	}
@@ -285,11 +301,15 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Debug("UpdateGameYAML: failed to read body", "error", err)
 		httpx.WriteError(w, http.StatusBadRequest, "Failed to read body: "+err.Error())
 		return
 	}
 
+	log.Debug("UpdateGameYAML: body read", "body_length", len(body), "body_preview", string(body[:min(200, len(body))]))
+
 	if err := db.UpdateGameYaml(r.Context(), user.ID, gameID, string(body)); err != nil {
+		log.Error("UpdateGameYAML: db.UpdateGameYaml failed", "error", err, "game_id", gameID, "user_id", user.ID)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update game: "+err.Error())
 		return
 	}

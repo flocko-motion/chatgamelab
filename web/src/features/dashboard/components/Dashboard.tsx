@@ -7,14 +7,18 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { AppLayout, type NavItem } from '@/common/components/Layout';
 import { navigationLogger } from '@/config/logger';
-import { useGames } from '@/api/hooks';
+import { useGames, useUserSessions } from '@/api/hooks';
 import { 
   IconPlayerPlay, 
   IconEdit, 
   IconBuilding, 
   IconUsers, 
   IconPlus,
-  IconSchool
+  IconSchool,
+  IconTools,
+  IconDeviceGamepad,
+  IconDeviceGamepad2,
+  IconDeviceGamepad3
 } from '@tabler/icons-react';
 import { InformationalCard, type ListItem } from './InformationalCard';
 import { QuickActionCard } from './QuickActionCard';
@@ -39,20 +43,14 @@ function formatRelativeTime(dateString?: string): string {
 function MyGamesCard() {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
-  const { data: games, isLoading } = useGames();
+  const { data: games, isLoading } = useGames({ sortBy: 'modifiedAt', sortDir: 'desc' });
 
-  const sortedGames = useMemo(() => {
+  const recentGames = useMemo(() => {
     if (!games) return [];
-    return [...games]
-      .sort((a, b) => {
-        const aDate = new Date(a.meta?.modifiedAt ?? a.meta?.createdAt ?? 0);
-        const bDate = new Date(b.meta?.modifiedAt ?? b.meta?.createdAt ?? 0);
-        return bDate.getTime() - aDate.getTime();
-      })
-      .slice(0, 5);
+    return games.slice(0, 5);
   }, [games]);
 
-  const items: ListItem[] = sortedGames.map((game) => ({
+  const items: ListItem[] = recentGames.map((game) => ({
     id: game.id ?? '',
     label: game.name ?? 'Untitled',
     sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
@@ -90,12 +88,23 @@ function MyRoomsCard() {
   );
 }
 
-// Last Played Card - placeholder for play history
+// Last Played Card - shows recent play sessions
 function LastPlayedCard() {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
+  const { data: sessions, isLoading } = useUserSessions();
 
-  const items: ListItem[] = [];
+  const recentSessions = useMemo(() => {
+    if (!sessions) return [];
+    return sessions.slice(0, 5);
+  }, [sessions]);
+
+  const items: ListItem[] = recentSessions.map((session) => ({
+    id: session.id ?? '',
+    label: session.gameName ?? 'Untitled Game',
+    sublabel: formatRelativeTime(session.meta?.modifiedAt ?? session.meta?.createdAt),
+    onClick: () => navigate({ to: `/sessions/${session.id}` as '/' }),
+  }));
 
   return (
     <InformationalCard
@@ -103,8 +112,8 @@ function LastPlayedCard() {
       items={items}
       emptyMessage={t('cards.lastPlayed.empty')}
       viewAllLabel={t('cards.lastPlayed.viewAll')}
-      onViewAll={() => navigate({ to: '/games' as '/' })}
-      isLoading={false}
+      onViewAll={() => navigate({ to: '/sessions' as '/' })}
+      isLoading={isLoading}
     />
   );
 }
@@ -145,9 +154,15 @@ function QuickActionsCard() {
 
   const actions = [
     {
+      id: 'start-new-game',
+      label: t('quickActions.startNewGame'),
+      icon: <IconDeviceGamepad2 size={16} />,
+      onClick: () => navigate({ to: '/play/new' as '/' }),
+    },  
+    {
       id: 'create-game',
       label: t('quickActions.createNewGame'),
-      icon: <IconPlus size={16} />,
+      icon: <IconTools size={16} />,
       onClick: () => navigate({ to: '/creations/create' as '/' }),
     },
     {
@@ -155,6 +170,7 @@ function QuickActionsCard() {
       label: t('quickActions.createRoom'),
       icon: <IconBuilding size={16} />,
       onClick: () => navigate({ to: '/rooms' as '/' }),
+      disabled: true
     },
     {
       id: 'invite-members',

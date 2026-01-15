@@ -1,7 +1,7 @@
 import { Card, Group, Badge, Stack, Text, Title, Box, Tooltip } from '@mantine/core';
-import { IconWorld, IconLock } from '@tabler/icons-react';
+import { IconWorld, IconLock, IconDownload } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { EditIconButton, DeleteIconButton } from '@components/buttons';
+import { EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import type { ObjGame } from '@/api/generated';
 
 interface GameCardProps {
@@ -9,9 +9,10 @@ interface GameCardProps {
   onView: (game: ObjGame) => void;
   onEdit: (game: ObjGame) => void;
   onDelete: (game: ObjGame) => void;
+  onExport: (game: ObjGame) => void;
 }
 
-export function GameCard({ game, onView, onEdit, onDelete }: GameCardProps) {
+export function GameCard({ game, onView, onEdit, onDelete, onExport }: GameCardProps) {
   const { t } = useTranslation('common');
 
   const formatDate = (dateString?: string) => {
@@ -60,6 +61,15 @@ export function GameCard({ game, onView, onEdit, onDelete }: GameCardProps) {
                 <EditIconButton
                   onClick={() => onEdit(game)}
                   aria-label={t('edit')}
+                />
+              </span>
+            </Tooltip>
+            <Tooltip label={t('games.importExport.exportButton')} position="top" withArrow>
+              <span>
+                <GenericIconButton
+                  icon={<IconDownload size={16} />}
+                  onClick={() => onExport(game)}
+                  aria-label={t('games.importExport.exportButton')}
                 />
               </span>
             </Tooltip>

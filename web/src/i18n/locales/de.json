@@ -174,7 +174,9 @@
       "tabs": {
         "basic": "Grundlagen",
         "story": "Geschichte & KI",
-        "quickStart": "Schnellstart"
+        "style": "Design",
+        "quickStart": "Schnellstart",
+        "importExport": "Import/Export"
       },
       "editFields": {
         "name": "Spielname",
@@ -185,17 +187,31 @@
         "scenarioHint": "Worum geht es im Spiel? Beschreiben Sie die Welt, Regeln und die Rolle des Spielers.",
         "gameStart": "Spielstart-Nachricht",
         "gameStartHint": "Wie soll das Spiel den Spieler begrüßen? Erste Szene.",
-        "statusFields": "Statusfelder (JSON)",
-        "statusFieldsHint": "Definieren Sie die Statusfelder für die KI (z.B. Gesundheit, Inventar).",
+        "statusFields": "Statusfelder",
+        "statusFieldsHint": "Definieren Sie die Statusfelder für die KI (z.B. Gesundheit, Inventar) und deren initiale Werte.",
         "firstMessage": "Erste Nachricht",
         "firstMessageHint": "Vorgenerierte Eröffnungsnachricht für schnellen Spielstart.",
-        "firstStatus": "Erster Status (JSON)",
+        "firstStatus": "Erster Status",
         "firstStatusHint": "Initiale Statuswerte für den Schnellstart.",
         "quickStartInfo": "Schnellstart-Inhalte werden vorgeneriert, um sofortige Spielstarts zu ermöglichen."
       },
       "quickStart": {
         "regenerate": "Neu generieren",
         "noContent": "Noch nicht generiert"
+      },
+      "statusFieldsEditor": {
+        "visual": "Visuell",
+        "raw": "Raw JSON",
+        "noFields": "Keine Statusfelder definiert. Klicken Sie auf + um eines hinzuzufügen.",
+        "namePlaceholder": "Feldname (z.B. Gesundheit)",
+        "valuePlaceholder": "Startwert (z.B. 100)",
+        "subNamePlaceholder": "Unterfeldname (z.B. Rüstung)",
+        "addField": "Statusfeld hinzufügen",
+        "addSubFields": "Unterfelder hinzufügen",
+        "addSubField": "Unterfeld hinzufügen",
+        "subFields": "Unterfelder",
+        "convertToSimple": "Unterfelder entfernen",
+        "invalidJson": "Ungültiges JSON-Format. Beheben Sie die Fehler, bevor Sie zum visuellen Modus wechseln."
       },
       "view": {
         "noScenario": "Noch kein Szenario definiert.",
@@ -212,10 +228,60 @@
       "errors": {
         "nameRequired": "Spielname ist erforderlich",
         "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+      },
+      "importExport": {
+        "description": "Exportieren Sie Ihre Spielkonfiguration, um sie mit anderen zu teilen, oder importieren Sie eine Konfiguration, um dieses Spiel zu aktualisieren.",
+        "exportTitle": "Spiel exportieren",
+        "exportDescription": "Laden Sie die Spielkonfiguration als YAML-Datei herunter.",
+        "exportButton": "Spiel exportieren",
+        "importTitle": "Spiel importieren",
+        "importDescription": "Laden Sie eine YAML-Datei hoch, um die Konfiguration dieses Spiels zu aktualisieren.",
+        "selectFile": "YAML-Datei auswählen",
+        "yamlPreview": "YAML-Inhalt",
+        "importButton": "Spiel importieren",
+        "importSuccess": "Spielkonfiguration erfolgreich importiert!",
+        "importError": "Spielkonfiguration konnte nicht importiert werden. Bitte überprüfen Sie das YAML-Format."
+      }
+    },
+    "sessions": {
+      "title": "Weiterspielen",
+      "startNewGame": "Neues Spiel starten",
+      "untitledGame": "Unbenanntes Spiel",
+      "noDescription": "Keine Beschreibung",
+      "resume": "Fortsetzen",
+      "filters": {
+        "all": "Alle",
+        "organization": "Organisation"
+      },
+      "fields": {
+        "game": "Spiel",
+        "model": "Modell",
+        "lastPlayed": "Zuletzt gespielt"
+      },
+      "sort": {
+        "label": "Sortieren nach",
+        "lastPlayed": "Zuletzt gespielt",
+        "game": "Spiel",
+        "model": "Modell"
+      },
+      "empty": {
+        "title": "Noch keine Spiele gespielt",
+        "description": "Starte ein neues Spiel, um dein Abenteuer zu beginnen!",
+        "noResults": "Keine passenden Spiele gefunden"
+      },
+      "errors": {
+        "loadFailed": "Deine Spiele konnten nicht geladen werden. Bitte versuche es erneut."
+      },
+      "delete": "Sitzung löschen",
+      "deleteConfirm": {
+        "title": "Sitzung löschen",
+        "message": "Möchtest du diese Sitzung für \"{{game}}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
       }
     },
     "play": {
-      "title": "Spiele spielen",
+      "title": "Spiel auswählen",
+      "selectGameTitle": "Spiel auswählen",
+      "selectGame": "Dieses Spiel auswählen",
       "owner": "Mein",
       "favorite": "Zu Favoriten hinzufügen",
       "unfavorite": "Aus Favoriten entfernen",
@@ -242,11 +308,50 @@
         "title": "Spiel kopiert",
         "message": "\"{{name}}\" wurde zu Ihren Spielen hinzugefügt."
       }
+    },
+    "gamePlayer": {
+      "unnamed": "Unbenannt",
+      "loading": {
+        "game": "Spiel wird geladen...",
+        "starting": "Spielsitzung wird gestartet...",
+        "startingHint": "Die KI bereitet dein Abenteuer vor"
+      },
+      "error": {
+        "gameNotFound": "Spiel nicht gefunden",
+        "sessionFailed": "Spielsitzung konnte nicht gestartet werden",
+        "backToGames": "Zurück zu Spielen",
+        "tryAgain": "Erneut versuchen"
+      },
+      "header": {
+        "back": "Zurück zu Spielen",
+        "restart": "Spiel neustarten",
+        "showDebug": "Debug-Info anzeigen",
+        "hideDebug": "Debug-Info ausblenden"
+      },
+      "input": {
+        "placeholder": "Was tust du?",
+        "waiting": "Warte auf Antwort...",
+        "send": "Aktion senden"
+      },
+      "selectApiKey": {
+        "title": "API-Schlüssel auswählen",
+        "playing": "Spiel",
+        "keyLabel": "API-Schlüssel",
+        "keyDescription": "Wähle den API-Schlüssel für diese Spielsitzung",
+        "keyPlaceholder": "API-Schlüssel auswählen",
+        "modelLabel": "KI-Modell",
+        "modelDescription": "Optional ein bestimmtes KI-Modell auswählen",
+        "modelPlaceholder": "Standard-Modell",
+        "startGame": "Spiel starten",
+        "loadError": "API-Schlüssel konnten nicht geladen werden",
+        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu."
+      }
     }
   },
   "navigation": {
     "home": "Startseite",
     "dashboard": "Dashboard",
+    "sessions": "Sitzungen",
     "games": "Spiele",
     "create": "Erstellen",
     "play": "Spielen",
@@ -286,6 +391,7 @@
     },
     "quickActions": {
       "title": "Schnellaktionen",
+      "startNewGame": "Neues Spiel starten",
       "createNewGame": "Neues Spiel erstellen",
       "createRoom": "Raum erstellen",
       "inviteMembers": "Mitglieder einladen"

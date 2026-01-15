@@ -101,6 +101,7 @@
     },
     "quickActions": {
       "title": "Schnellaktionen",
+      "startNewGame": "Neues Spiel starten",
       "createNewGame": "Neues Spiel erstellen",
       "createRoom": "Raum erstellen",
       "inviteMembers": "Mitglieder einladen",

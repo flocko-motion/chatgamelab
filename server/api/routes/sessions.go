@@ -30,6 +30,38 @@ type CreateSessionRequest struct {
 	Model   string    `json:"model"`
 }
 
+// GetUserSessions godoc
+//
+//	@Summary		List user sessions
+//	@Description	Returns recent sessions for the authenticated user with game names
+//	@Tags			sessions
+//	@Produce		json
+//	@Param			search	query		string	false	"Search by game name"
+//	@Param			sortBy	query		string	false	"Sort field: game, model, lastPlayed (default)"
+//	@Success		200	{array}		db.UserSessionWithGame
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/sessions [get]
+func GetUserSessions(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	filters := &db.GetUserSessionsFilters{
+		Search:    httpx.QueryParam(r, "search"),
+		SortField: httpx.QueryParam(r, "sortBy"),
+	}
+
+	log.Debug("getting user sessions", "user_id", user.ID, "search", filters.Search, "sortBy", filters.SortField)
+
+	sessions, err := db.GetGameSessionsByUserID(r.Context(), user.ID, filters)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get sessions: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, sessions)
+}
+
 // GetSession godoc
 //
 //	@Summary		Get session
@@ -74,7 +106,11 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 			log.Debug("failed to get latest message", "session_id", sessionID, "error", err)
 		}
 	case "all":
-		// TODO: implement GetAllGameSessionMessages
+		if msgs, err := db.GetAllGameSessionMessages(r.Context(), sessionID); err == nil {
+			resp.Messages = msgs
+		} else {
+			log.Debug("failed to get all messages", "session_id", sessionID, "error", err)
+		}
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, resp)
@@ -219,6 +255,84 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 
 	firstMessage.Image = nil
 	httpx.WriteJSON(w, http.StatusOK, firstMessage)
+}
+
+// DeleteSession godoc
+//
+//	@Summary		Delete session
+//	@Description	Deletes a session and all its messages. User must be the owner.
+//	@Tags			sessions
+//	@Produce		json
+//	@Param			id	path		string	true	"Session ID (UUID)"
+//	@Success		200	{object}	map[string]string
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid session ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Session not found"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/sessions/{id} [delete]
+func DeleteSession(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	sessionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid session ID")
+		return
+	}
+
+	log.Debug("deleting session", "session_id", sessionID, "user_id", user.ID)
+
+	if err := db.DeleteGameSession(r.Context(), user.ID, sessionID); err != nil {
+		if err.Error() == "access denied: not the owner of this session" {
+			httpx.WriteError(w, http.StatusForbidden, err.Error())
+			return
+		}
+		if err.Error() == "session not found" {
+			httpx.WriteError(w, http.StatusNotFound, err.Error())
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete session: "+err.Error())
+		return
+	}
+
+	log.Debug("session deleted", "session_id", sessionID)
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
+}
+
+// GetMessageImage godoc
+//
+//	@Summary		Get message image
+//	@Description	Returns the image for a message as PNG
+//	@Tags			messages
+//	@Produce		image/png
+//	@Param			id	path		string	true	"Message ID (UUID)"
+//	@Success		200	{file}		binary	"PNG image"
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Message or image not found"
+//	@Router			/messages/{id}/image [get]
+func GetMessageImage(w http.ResponseWriter, r *http.Request) {
+	messageID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	msg, err := db.GetGameSessionMessageByID(r.Context(), messageID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Message not found")
+		return
+	}
+
+	if len(msg.Image) == 0 {
+		httpx.WriteError(w, http.StatusNotFound, "Image not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Cache-Control", "public, max-age=31536000") // Cache for 1 year
+	w.WriteHeader(http.StatusOK)
+	w.Write(msg.Image)
 }
 
 // GetMessageStream godoc

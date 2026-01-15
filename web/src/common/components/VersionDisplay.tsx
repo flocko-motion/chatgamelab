@@ -1,6 +1,6 @@
 import { Text, Tooltip, Divider, Alert, Group } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { useVersion } from '../../api/hooks';
 import { version as frontendVersion, buildTime as frontendBuildTime } from '../../version';
 
@@ -11,7 +11,7 @@ interface BackendVersionInfo {
 }
 
 export function VersionDisplay() {
-  const { t } = useTranslation('version');
+  const { t } = useTranslation('dashboard');
   const { data: backendData, isError } = useVersion();
 
   const backendInfo: BackendVersionInfo | null = 
@@ -71,7 +71,7 @@ export function VersionDisplay() {
             <strong>Built:</strong>
           </Text>
           <Text size="sm" c="gray.2">
-            {new Date(backendInfo.buildTime).toLocaleString()}
+            {backendInfo.buildTime === 'unknown' ? 'Unknown' : new Date(backendInfo.buildTime).toLocaleString()}
           </Text>
         </div>
         <div style={{ display: 'flex', gap: 'var(--mantine-spacing-sm)' }}>
@@ -104,10 +104,18 @@ export function VersionDisplay() {
       style={{ marginTop: 'var(--mantine-spacing-sm)' }}
     >
       <Text size="sm" c="red">
-        {t('version.mismatch.message', { 
-          frontendVersion, 
-          backendVersion: backendInfo?.version 
-        })}
+        <Trans 
+        i18nKey="version.mismatch.message" 
+        t={t}
+        values={{
+          frontendVersion: `v${frontendVersion}`,
+          backendVersion: `v${backendInfo?.version}`
+        }}
+        components={{
+          frontendVersion: <Text span c="blue.3" fw={600} />,
+          backendVersion: <Text span c="orange.3" fw={600} />
+        }}
+      />
       </Text>
     </Alert>
   ) : null;

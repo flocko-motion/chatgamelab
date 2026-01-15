@@ -1,5 +1,43 @@
 basePath: /api
 definitions:
+  db.UserSessionWithGame:
+    properties:
+      aiModel:
+        type: string
+      aiPlatform:
+        description: AI model used for playing.
+        type: string
+      aiSession:
+        description: JSON with arbitrary details to be used within that model and
+          within that session.
+        type: string
+      apiKey:
+        $ref: '#/definitions/obj.ApiKey'
+      apiKeyId:
+        description: API key used to pay for this session (sponsored or user-owned),
+          implicitly defines platform.
+        type: string
+      gameDescription:
+        type: string
+      gameId:
+        type: string
+      gameName:
+        type: string
+      id:
+        type: string
+      imageStyle:
+        type: string
+      meta:
+        $ref: '#/definitions/obj.Meta'
+      statusFields:
+        description: Defines the status fields available in the game; copied from
+          game.status_fields at launch.
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
   httpx.ErrorResponse:
     properties:
       code:
@@ -782,6 +820,23 @@ paths:
     get:
       description: Returns a list of games. If authenticated, includes user's private
         games.
+      parameters:
+      - description: Search games by name (case-insensitive)
+        in: query
+        name: search
+        type: string
+      - description: Sort field (name, createdAt, modifiedAt)
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort direction (asc, desc)
+        in: query
+        name: sortDir
+        type: string
+      - description: Filter type (all, own, public, organization, favorites)
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:
@@ -1162,6 +1217,33 @@ paths:
       summary: Get locale file for a specific language
       tags:
       - languages
+  /messages/{id}/image:
+    get:
+      description: Returns the image for a message as PNG
+      parameters:
+      - description: Message ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: PNG image
+          schema:
+            type: file
+        "400":
+          description: Invalid message ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Message or image not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Get message image
+      tags:
+      - messages
   /messages/{id}/stream:
     get:
       description: Server-Sent Events endpoint for streaming message chunks.
@@ -1254,7 +1336,83 @@ paths:
       summary: Get available roles
       tags:
       - roles
+  /sessions:
+    get:
+      description: Returns recent sessions for the authenticated user with game names
+      parameters:
+      - description: Search by game name
+        in: query
+        name: search
+        type: string
+      - description: 'Sort field: game, model, lastPlayed (default)'
+        in: query
+        name: sortBy
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/db.UserSessionWithGame'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List user sessions
+      tags:
+      - sessions
   /sessions/{id}:
+    delete:
+      description: Deletes a session and all its messages. User must be the owner.
+      parameters:
+      - description: Session ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid session ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Session not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete session
+      tags:
+      - sessions
     get:
       description: Returns session details. Optional query parameter can include latest
         message.

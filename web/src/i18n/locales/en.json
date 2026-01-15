@@ -174,7 +174,9 @@
       "tabs": {
         "basic": "Basic",
         "story": "Story & AI",
-        "quickStart": "Quick Start"
+        "style": "Style",
+        "quickStart": "Quick Start",
+        "importExport": "Import/Export"
       },
       "editFields": {
         "name": "Game Name",
@@ -185,17 +187,31 @@
         "scenarioHint": "What is the game about? Describe the world, rules, and player's role.",
         "gameStart": "Game Start Message",
         "gameStartHint": "How should the game welcome the player? First scene setup.",
-        "statusFields": "Status Fields (JSON)",
-        "statusFieldsHint": "Define the status fields available to the AI (e.g., health, inventory).",
+        "statusFields": "Status Fields",
+        "statusFieldsHint": "Define the status fields available to the AI (e.g., health, inventory) and their initial values.",
         "firstMessage": "First Message",
         "firstMessageHint": "Pre-generated opening message for quick game start.",
-        "firstStatus": "First Status (JSON)",
+        "firstStatus": "First Status",
         "firstStatusHint": "Initial status values for the quick start.",
         "quickStartInfo": "Quick start content is pre-generated to allow instant game starts."
       },
       "quickStart": {
         "regenerate": "Regenerate",
         "noContent": "Not generated yet"
+      },
+      "statusFieldsEditor": {
+        "visual": "Visual",
+        "raw": "Raw JSON",
+        "noFields": "No status fields defined. Click + to add one.",
+        "namePlaceholder": "Field name (e.g., Health)",
+        "valuePlaceholder": "Initial value (e.g., 100)",
+        "subNamePlaceholder": "Sub-field name (e.g., armor)",
+        "addField": "Add status field",
+        "addSubFields": "Add sub-fields",
+        "addSubField": "Add sub-field",
+        "subFields": "sub-fields",
+        "convertToSimple": "Remove sub-fields",
+        "invalidJson": "Invalid JSON format. Fix errors before switching to Visual mode."
       },
       "view": {
         "noScenario": "No scenario defined yet.",
@@ -212,10 +228,60 @@
       "errors": {
         "nameRequired": "Game name is required",
         "loadFailed": "Failed to load games. Please try again."
+      },
+      "importExport": {
+        "description": "Export your game configuration to share with others, or import a configuration to update this game.",
+        "exportTitle": "Export Game",
+        "exportDescription": "Download the game configuration as a YAML file.",
+        "exportButton": "Export Game",
+        "importTitle": "Import Game",
+        "importDescription": "Upload a YAML file to update this game's configuration.",
+        "selectFile": "Select YAML File",
+        "yamlPreview": "YAML Content",
+        "importButton": "Import Game",
+        "importSuccess": "Game configuration imported successfully!",
+        "importError": "Failed to import game configuration. Please check the YAML format."
+      }
+    },
+    "sessions": {
+      "title": "Continue Playing",
+      "startNewGame": "Start New Game",
+      "untitledGame": "Untitled Game",
+      "noDescription": "No description",
+      "resume": "Continue",
+      "filters": {
+        "all": "All",
+        "organization": "Organization"
+      },
+      "fields": {
+        "game": "Game",
+        "model": "Model",
+        "lastPlayed": "Last Played"
+      },
+      "sort": {
+        "label": "Sort by",
+        "lastPlayed": "Last Played",
+        "game": "Game",
+        "model": "Model"
+      },
+      "empty": {
+        "title": "No games played yet",
+        "description": "Start a new game to begin your adventure!",
+        "noResults": "No matching games found"
+      },
+      "errors": {
+        "loadFailed": "Failed to load your games. Please try again."
+      },
+      "delete": "Delete session",
+      "deleteConfirm": {
+        "title": "Delete Session",
+        "message": "Are you sure you want to delete this session for \"{{game}}\"? This action cannot be undone."
       }
     },
     "play": {
-      "title": "Play Games",
+      "title": "Select a Game",
+      "selectGameTitle": "Select a Game",
+      "selectGame": "Select this game",
       "owner": "Mine",
       "favorite": "Add to favorites",
       "unfavorite": "Remove from favorites",
@@ -242,11 +308,50 @@
         "title": "Game Cloned",
         "message": "\"{{name}}\" has been added to your games."
       }
+    },
+    "gamePlayer": {
+      "unnamed": "Unnamed",
+      "loading": {
+        "game": "Loading game...",
+        "starting": "Starting game session...",
+        "startingHint": "The AI is preparing your adventure"
+      },
+      "error": {
+        "gameNotFound": "Game not found",
+        "sessionFailed": "Failed to start game session",
+        "backToGames": "Back to Games",
+        "tryAgain": "Try Again"
+      },
+      "header": {
+        "back": "Back to games",
+        "restart": "Restart game",
+        "showDebug": "Show debug info",
+        "hideDebug": "Hide debug info"
+      },
+      "input": {
+        "placeholder": "What do you do?",
+        "waiting": "Waiting for response...",
+        "send": "Send action"
+      },
+      "selectApiKey": {
+        "title": "Select API Key",
+        "playing": "Playing",
+        "keyLabel": "API Key",
+        "keyDescription": "Select the API key to use for this game session",
+        "keyPlaceholder": "Select an API key",
+        "modelLabel": "AI Model",
+        "modelDescription": "Optionally select a specific AI model",
+        "modelPlaceholder": "Default model",
+        "startGame": "Start Game",
+        "loadError": "Failed to load API keys",
+        "noKeys": "You need at least one API key to play. Add one in Settings → API Keys."
+      }
     }
   },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "sessions": "Sessions",
     "games": "Games",
     "create": "Create",
     "play": "Play",
@@ -286,6 +391,7 @@
     },
     "quickActions": {
       "title": "Quick Actions",
+      "startNewGame": "Start New Game",
       "createNewGame": "Create New Game",
       "createRoom": "Create Room",
       "inviteMembers": "Invite Members"
@@ -300,7 +406,7 @@
       "commit": "Commit",
       "mismatch": {
         "title": "Version Mismatch Detected",
-        "message": "Frontend version {{frontendVersion}} does not match backend version {{backendVersion}}. This may cause unexpected behavior. Contact support if issues persist."
+        "message": "Frontend version <frontendVersion>{{frontendVersion}}</frontendVersion> does not match backend version <backendVersion>{{backendVersion}}</backendVersion>. This may cause unexpected behavior. Contact support if issues persist."
       }
     }
   },

@@ -3,11 +3,11 @@ import { GameSelection } from '@/features/play';
 import { createGamePlayRoute } from '@/common/routes/routes';
 import type { ObjGame } from '@/api/generated';
 
-export const Route = createFileRoute('/play/')({
-  component: PlayPage,
+export const Route = createFileRoute('/sessions/new')({
+  component: NewSessionPage,
 });
 
-function PlayPage() {
+function NewSessionPage() {
   const navigate = useNavigate();
 
   const handleSelectGame = (game: ObjGame) => {

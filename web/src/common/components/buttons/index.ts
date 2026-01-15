@@ -18,4 +18,5 @@ export { DeleteIconButton } from './DeleteIconButton';
 export { EditIconButton } from './EditIconButton';
 export { GenericIconButton, type GenericIconButtonProps } from './GenericIconButton';
 export { PlayIconButton } from './PlayIconButton';
+export { PlusIconButton, type PlusIconButtonProps } from './PlusIconButton';
 export type { IconButtonProps } from './types';

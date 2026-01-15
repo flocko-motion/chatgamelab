@@ -19,6 +19,8 @@ export interface DataTableProps<T> {
   emptyState?: ReactNode;
   isLoading?: boolean;
   loadingRows?: number;
+  maxHeight?: number | string;
+  fillHeight?: boolean;
 }
 
 const tableHeaderStyle = {
@@ -38,6 +40,8 @@ export function DataTable<T>({
   emptyState,
   isLoading = false,
   loadingRows = 3,
+  maxHeight,
+  fillHeight = false,
 }: DataTableProps<T>) {
   const isMobile = useMediaQuery('(max-width: 48em)');
 
@@ -77,10 +81,13 @@ export function DataTable<T>({
     );
   }
 
+  const effectiveMaxHeight = fillHeight ? '100%' : maxHeight;
+  const useScrolling = fillHeight || !!maxHeight;
+
   return (
-    <Card shadow="sm" p={0} radius="md" withBorder>
-      <Table.ScrollContainer minWidth={500}>
-        <Table verticalSpacing="md" horizontalSpacing="lg">
+    <Card shadow="sm" p={0} radius="md" withBorder style={fillHeight ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : undefined}>
+      <Table.ScrollContainer minWidth={500} mah={effectiveMaxHeight} style={useScrolling ? { overflowY: 'auto', flex: 1 } : undefined}>
+        <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader={useScrolling}>
           <Table.Thead>
             <Table.Tr style={{ borderBottom: '2px solid var(--mantine-color-gray-2)' }}>
               {columns

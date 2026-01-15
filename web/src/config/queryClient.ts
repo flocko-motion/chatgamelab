@@ -131,11 +131,14 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
     errorDetails
   });
 
+  // Helper to get error translations from the 'errors' namespace
+  const te = (key: string, options?: object) => i18n.t(key, { ns: 'errors', ...options });
+
   // Handle specific error codes
   if (errorCode === 'invalid_platform') {
     notifications.show({
-      title: i18n.t('errors.titles.validation'),
-      message: i18n.t('apiKeys.errors.invalidPlatform', { defaultValue: message }),
+      title: te('titles.validation'),
+      message: i18n.t('apiKeys.errors.invalidPlatform', { ns: 'common', defaultValue: message }),
       color: 'orange',
     });
     return;
@@ -143,8 +146,8 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
   
   if (errorCode === 'validation_error') {
     notifications.show({
-      title: i18n.t('errors.titles.validation'),
-      message: message || i18n.t('errors.validation'),
+      title: te('titles.validation'),
+      message: message || te('validation'),
       color: 'orange',
     });
     return;
@@ -154,8 +157,8 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
   switch (status) {
     case 401:
       notifications.show({
-        title: i18n.t('errors.titles.authentication'),
-        message: i18n.t('errors.unauthorized'),
+        title: te('titles.authentication'),
+        message: te('unauthorized'),
         color: 'red',
       });
       // Redirect to login page
@@ -165,22 +168,22 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       break;
     case 403:
       notifications.show({
-        title: i18n.t('errors.titles.permission'),
-        message: i18n.t('errors.forbidden'),
+        title: te('titles.permission'),
+        message: te('forbidden'),
         color: 'red',
       });
       break;
     case 404:
       notifications.show({
-        title: i18n.t('errors.titles.notFound'),
-        message: i18n.t('errors.notFound'),
+        title: te('titles.notFound'),
+        message: te('notFound'),
         color: 'orange',
       });
       break;
     case 422:
       notifications.show({
-        title: i18n.t('errors.titles.validation'),
-        message: message || i18n.t('errors.validation'),
+        title: te('titles.validation'),
+        message: message || te('validation'),
         color: 'orange',
       });
       break;
@@ -189,15 +192,15 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
     case 503:
     case 504:
       notifications.show({
-        title: i18n.t('errors.titles.server'),
-        message: i18n.t('errors.server'),
+        title: te('titles.server'),
+        message: te('server'),
         color: 'red',
       });
       break;
     case 0:
       notifications.show({
-        title: i18n.t('errors.titles.network'),
-        message: i18n.t('errors.network'),
+        title: te('titles.network'),
+        message: te('network'),
         color: 'red',
       });
       break;
@@ -205,14 +208,14 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       // For other errors, show a generic error message
       if (status >= 400 && status < 500) {
         notifications.show({
-          title: i18n.t('errors.titles.error'),
-          message: message || i18n.t('errors.generic'),
+          title: te('titles.error'),
+          message: message || te('generic'),
           color: 'orange',
         });
       } else {
         notifications.show({
-          title: i18n.t('errors.titles.error'),
-          message: message || i18n.t('errors.unexpected'),
+          title: te('titles.error'),
+          message: message || te('unexpected'),
           color: 'red',
         });
       }

@@ -12,6 +12,7 @@ import {
   Tabs,
   ScrollArea,
   Box,
+  rem,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { 
@@ -23,26 +24,26 @@ import {
   IconMessage,
   IconPhoto,
   IconRefresh,
+  IconPalette,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
-import { ActionButton, TextButton, EditIconButton } from '@components/buttons';
+import { useState, useEffect, useRef } from 'react';
+import { ActionButton, TextButton } from '@components/buttons';
 import { InfoCard } from '@components/cards';
 import { SectionTitle } from '@components/typography';
 import { useGame, useUpdateGame } from '@/api/hooks';
+import { StatusFieldsEditor } from './StatusFieldsEditor';
 
 interface GameViewModalProps {
   gameId: string | null;
   opened: boolean;
   onClose: () => void;
-  allowEdit?: boolean;
-  startInEditMode?: boolean;
+  editMode?: boolean;
 }
 
-export function GameViewModal({ gameId, opened, onClose, allowEdit = true, startInEditMode = false }: GameViewModalProps) {
+export function GameViewModal({ gameId, opened, onClose, editMode = false }: GameViewModalProps) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
-  const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>('basic');
   
   const { data: game, isLoading, error } = useGame(gameId ?? '');
@@ -65,26 +66,28 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
   const [firstMessage, setFirstMessage] = useState('');
   const [firstStatus, setFirstStatus] = useState('');
 
-  const handleStartEdit = () => {
-    setName(game?.name ?? '');
-    setDescription(game?.description ?? '');
-    setIsPublic(game?.public ?? false);
-    setSystemMessageScenario(game?.systemMessageScenario ?? '');
-    setSystemMessageGameStart(game?.systemMessageGameStart ?? '');
-    setImageStyle(game?.imageStyle ?? '');
-    setStatusFields(game?.statusFields ?? '');
-    setFirstMessage(game?.firstMessage ?? '');
-    setFirstStatus(game?.firstStatus ?? '');
-    setIsEditing(true);
-  };
-
-  // Start in edit mode if prop is set and game is loaded
+  // Track if we've initialized form values
+  const hasInitialized = useRef(false);
+  
+  // Initialize form values when game loads in edit mode (only once)
   useEffect(() => {
-    if (opened && startInEditMode && game && !isLoading && !isEditing) {
-      handleStartEdit();
+    if (editMode && game && !isLoading && !hasInitialized.current) {
+      hasInitialized.current = true;
+      setName(game.name ?? '');
+      setDescription(game.description ?? '');
+      setIsPublic(game.public ?? false);
+      setSystemMessageScenario(game.systemMessageScenario ?? '');
+      setSystemMessageGameStart(game.systemMessageGameStart ?? '');
+      setImageStyle(game.imageStyle ?? '');
+      setStatusFields(game.statusFields ?? '');
+      setFirstMessage(game.firstMessage ?? '');
+      setFirstStatus(game.firstStatus ?? '');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [opened, startInEditMode, game, isLoading]);
+    // Reset when modal closes
+    if (!opened) {
+      hasInitialized.current = false;
+    }
+  }, [editMode, game, isLoading, opened]);
 
   const handleRegenerate = () => {
     // TODO: Call API to regenerate first message and first status
@@ -111,7 +114,7 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
           firstStatus: firstStatus || undefined,
         },
       });
-      setIsEditing(false);
+      onClose();
     } catch {
       // Error handled by mutation
     }
@@ -122,7 +125,6 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
   };
 
   const handleModalClose = () => {
-    setIsEditing(false);
     setActiveTab('basic');
     onClose();
   };
@@ -151,7 +153,7 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
       );
     }
 
-    if (isEditing) {
+    if (editMode) {
       return (
         <Stack gap="md">
           <Tabs value={activeTab} onChange={setActiveTab}>
@@ -162,12 +164,15 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
               <Tabs.Tab value="story" leftSection={<IconMessage size={14} />}>
                 {t('games.tabs.story')}
               </Tabs.Tab>
+              <Tabs.Tab value="style" leftSection={<IconPalette size={14} />}>
+                {t('games.tabs.style')}
+              </Tabs.Tab>
               <Tabs.Tab value="quickstart" leftSection={<IconPhoto size={14} />}>
                 {t('games.tabs.quickStart')}
               </Tabs.Tab>
             </Tabs.List>
 
-            <ScrollArea h={isMobile ? 'calc(100vh - 250px)' : 400} mt="md">
+            <ScrollArea h={isMobile ? 'calc(100vh - 250px)' : 600} mt="md">
               <Tabs.Panel value="basic">
                 <Stack gap="md">
                   <TextInput
@@ -223,17 +228,26 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
                     maxRows={8}
                   />
 
-                  <Textarea
-                    label={t('games.editFields.statusFields')}
-                    description={t('games.editFields.statusFieldsHint')}
+                  <StatusFieldsEditor
                     value={statusFields}
-                    onChange={(e) => setStatusFields(e.target.value)}
-                    minRows={3}
-                    autosize
-                    maxRows={6}
-                    styles={{ input: { fontFamily: 'monospace' } }}
+                    onChange={setStatusFields}
                   />
                 </Stack>
+              </Tabs.Panel>
+
+              <Tabs.Panel value="style">
+                <Box 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    minHeight: 300 
+                  }}
+                >
+                  <Text size="lg" c="dimmed" fw={500}>
+                    Coming Soon
+                  </Text>
+                </Box>
               </Tabs.Panel>
 
               <Tabs.Panel value="quickstart">
@@ -285,6 +299,7 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
                   </Group>
                 </Stack>
               </Tabs.Panel>
+
             </ScrollArea>
           </Tabs>
 
@@ -321,12 +336,6 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
               <Text c="gray.6">{game.description}</Text>
             )}
           </Stack>
-          {allowEdit && (
-            <EditIconButton
-              onClick={handleStartEdit}
-              aria-label={t('edit')}
-            />
-          )}
         </Group>
 
         <Tabs value={activeTab} onChange={setActiveTab}>
@@ -337,12 +346,15 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
             <Tabs.Tab value="story" leftSection={<IconMessage size={14} />}>
               {t('games.tabs.story')}
             </Tabs.Tab>
+            <Tabs.Tab value="style" leftSection={<IconPalette size={14} />}>
+              {t('games.tabs.style')}
+            </Tabs.Tab>
             <Tabs.Tab value="quickstart" leftSection={<IconPhoto size={14} />}>
               {t('games.tabs.quickStart')}
             </Tabs.Tab>
           </Tabs.List>
 
-          <ScrollArea h={isMobile ? 'calc(100vh - 300px)' : 350} mt="md">
+          <ScrollArea h={isMobile ? 'calc(100vh - 300px)' : 550} mt="md">
             <Tabs.Panel value="basic">
               <Stack gap="md">
                 <Group gap="xl">
@@ -428,6 +440,21 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
               </Stack>
             </Tabs.Panel>
 
+            <Tabs.Panel value="style">
+              <Box 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  minHeight: 300 
+                }}
+              >
+                <Text size="lg" c="dimmed" fw={500}>
+                  Coming Soon
+                </Text>
+              </Box>
+            </Tabs.Panel>
+
             <Tabs.Panel value="quickstart">
               <Stack gap="md">
                 <InfoCard>
@@ -477,6 +504,7 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
                 </Group>
               </Stack>
             </Tabs.Panel>
+
           </ScrollArea>
         </Tabs>
 
@@ -493,10 +521,14 @@ export function GameViewModal({ gameId, opened, onClose, allowEdit = true, start
     <Modal
       opened={opened}
       onClose={handleModalClose}
-      title={isEditing ? t('games.editModal.title') : t('games.viewModal.title')}
-      size={isMobile ? '100%' : 'xl'}
+      title={editMode ? t('games.editModal.title') : t('games.viewModal.title')}
+      size={isMobile ? '100%' : rem(1100)}
       fullScreen={isMobile}
       centered={!isMobile}
+      styles={{
+        content: { maxHeight: isMobile ? undefined : '92vh' },
+        body: { maxHeight: isMobile ? undefined : 'calc(92vh - 60px)' },
+      }}
     >
       {modalContent()}
     </Modal>

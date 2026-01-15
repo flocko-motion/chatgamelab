@@ -7,46 +7,42 @@ import {
   SegmentedControl,
   Badge,
   Text,
-  Tooltip,
   TextInput,
 } from '@mantine/core';
 import { useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 import {
   IconAlertCircle,
   IconMoodEmpty,
   IconWorld,
   IconLock,
-  IconCopy,
-  IconStar,
-  IconStarFilled,
-  IconFilter,
+  IconArrowLeft,
   IconSearch,
 } from '@tabler/icons-react';
 import { PageTitle } from '@components/typography';
 import { SortSelector, type SortOption } from '@components/controls';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
-import { PlayIconButton, GenericIconButton } from '@components/buttons';
+import { PlayIconButton, TextButton } from '@components/buttons';
 import { useGames } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame } from '@/api/generated';
+import { ROUTES } from '@/common/routes/routes';
 import { type GameFilter, type GameSortField } from '../types';
 import { PlayGameCard } from './PlayGameCard';
 
-interface PlayGamesListProps {
-  onPlay: (game: ObjGame) => void;
-  onClone: (game: ObjGame) => void;
-  isCloning?: boolean;
+interface GameSelectionProps {
+  onSelectGame: (game: ObjGame) => void;
 }
 
-export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
+export function GameSelection({ onSelectGame }: GameSelectionProps) {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 48em)');
   const { backendUser } = useAuth();
 
   const [filter, setFilter] = useState<GameFilter>('all');
   const [sortField, setSortField] = useState<GameSortField>('modifiedAt');
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
@@ -57,26 +53,11 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
     filter: filter,
   });
 
-  const handleToggleFavorite = (game: ObjGame) => {
-    if (!game.id) return;
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(game.id!)) {
-        next.delete(game.id!);
-      } else {
-        next.add(game.id!);
-      }
-      return next;
-    });
+  const handleBack = () => {
+    navigate({ to: ROUTES.SESSIONS as '/' });
   };
 
   const isOwner = (game: ObjGame) => game.meta?.createdBy === backendUser?.id;
-  const isFavorite = (game: ObjGame) => game.id ? favorites.has(game.id) : false;
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString();
-  };
 
   const columns: DataTableColumn<ObjGame>[] = [
     {
@@ -118,46 +99,15 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
         ),
     },
     {
-      key: 'modified',
-      header: t('games.fields.modified'),
-      width: 120,
-      hideOnMobile: true,
-      render: (game) => (
-        <Text size="sm" c="gray.5">
-          {formatDate(game.meta?.modifiedAt)}
-        </Text>
-      ),
-    },
-    {
       key: 'actions',
       header: t('actions'),
-      width: 140,
+      width: 100,
       render: (game) => (
         <Group gap="xs" wrap="nowrap" onClick={(e) => e.stopPropagation()}>
-          <Tooltip label={t('play.playGame')} position="top" withArrow>
-            <PlayIconButton
-              onClick={() => onPlay(game)}
-              aria-label={t('play.playGame')}
-            />
-          </Tooltip>
-          <Tooltip label={isFavorite(game) ? t('play.unfavorite') : t('play.favorite')} position="top" withArrow>
-            <GenericIconButton
-              icon={isFavorite(game) ? <IconStarFilled size={16} /> : <IconStar size={16} />}
-              variant="subtle"
-              color={isFavorite(game) ? 'yellow' : 'gray'}
-              onClick={() => handleToggleFavorite(game)}
-              aria-label={isFavorite(game) ? t('play.unfavorite') : t('play.favorite')}
-            />
-          </Tooltip>
-          <Tooltip label={t('play.cloneGame')} position="top" withArrow>
-            <GenericIconButton
-              icon={<IconCopy size={16} />}
-              variant="subtle"
-              color="gray"
-              onClick={() => onClone(game)}
-              aria-label={t('play.cloneGame')}
-            />
-          </Tooltip>
+          <PlayIconButton
+            onClick={() => onSelectGame(game)}
+            aria-label={t('play.selectGame')}
+          />
         </Group>
       ),
     },
@@ -167,8 +117,6 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
     { value: 'all', label: t('play.filters.all') },
     { value: 'own', label: t('play.filters.own') },
     { value: 'public', label: t('play.filters.public') },
-    { value: 'organization', label: t('play.filters.organization') },
-    { value: 'favorites', label: t('play.filters.favorites') },
   ];
 
   const sortOptions: SortOption[] = [
@@ -188,9 +136,18 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
   }
 
   return (
-    <Container size="lg" py="xl" h="calc(100vh - 210px)">
-      <Stack gap="lg" h="100%">
-        <PageTitle>{t('play.title')}</PageTitle>
+    <Container size="lg" py="xl">
+      <Stack gap="lg">
+        <Group gap="md">
+          <TextButton
+            leftSection={<IconArrowLeft size={16} />}
+            onClick={handleBack}
+          >
+            {t('back')}
+          </TextButton>
+        </Group>
+
+        <PageTitle>{t('play.selectGameTitle')}</PageTitle>
 
         <Group justify="space-between" wrap="wrap" gap="sm">
           <Group gap="sm" wrap="wrap">
@@ -202,24 +159,12 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
               size={isMobile ? 'xs' : 'sm'}
               w={{ base: 150, sm: 200 }}
             />
-            {isMobile ? (
-              <Group gap="xs">
-                <IconFilter size={16} color="var(--mantine-color-gray-6)" />
-                <SegmentedControl
-                  size="xs"
-                  value={filter}
-                  onChange={(v) => setFilter(v as GameFilter)}
-                  data={filterOptions}
-                />
-              </Group>
-            ) : (
-              <SegmentedControl
-                size="sm"
-                value={filter}
-                onChange={(v) => setFilter(v as GameFilter)}
-                data={filterOptions}
-              />
-            )}
+            <SegmentedControl
+              size={isMobile ? 'xs' : 'sm'}
+              value={filter}
+              onChange={(v) => setFilter(v as GameFilter)}
+              data={filterOptions}
+            />
           </Group>
           <SortSelector
             options={sortOptions}
@@ -233,17 +178,16 @@ export function PlayGamesList({ onPlay, onClone }: PlayGamesListProps) {
           data={games ?? []}
           columns={columns}
           getRowKey={(game) => game.id || ''}
-          onRowClick={onPlay}
+          onRowClick={onSelectGame}
           isLoading={isLoading}
-          fillHeight
           renderMobileCard={(game) => (
             <PlayGameCard
               game={game}
               isOwner={isOwner(game)}
-              isFavorite={isFavorite(game)}
-              onPlay={onPlay}
-              onClone={onClone}
-              onToggleFavorite={handleToggleFavorite}
+              isFavorite={false}
+              onPlay={onSelectGame}
+              onClone={() => {}}
+              onToggleFavorite={() => {}}
             />
           )}
           emptyState={

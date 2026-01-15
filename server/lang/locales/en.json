@@ -101,6 +101,7 @@
     },
     "quickActions": {
       "title": "Quick Actions",
+      "startNewGame": "Start New Game",
       "createNewGame": "Create New Game",
       "createRoom": "Create Room",
       "inviteMembers": "Invite Members",
