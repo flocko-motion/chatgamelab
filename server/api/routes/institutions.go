@@ -1,0 +1,199 @@
+package routes
+
+import (
+	"cgl/api/httpx"
+	"cgl/db"
+	"cgl/obj"
+	"net/http"
+)
+
+// CreateInstitutionRequest represents the request to create an institution
+type CreateInstitutionRequest struct {
+	Name string `json:"name"`
+}
+
+// UpdateInstitutionRequest represents the request to update an institution
+type UpdateInstitutionRequest struct {
+	Name string `json:"name"`
+}
+
+// CreateInstitution godoc
+//
+//	@Summary		Create institution
+//	@Description	Creates a new institution
+//	@Tags			institutions
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		CreateInstitutionRequest	true	"Institution details"
+//	@Success		200		{object}	obj.Institution
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions [post]
+func CreateInstitution(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	var req CreateInstitutionRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteAppError(w, obj.ErrInvalidInput("Invalid JSON"))
+		return
+	}
+
+	if req.Name == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("Name is required"))
+		return
+	}
+
+	institution, err := db.CreateInstitution(r.Context(), user.ID, req.Name)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institution)
+}
+
+// ListInstitutions godoc
+//
+//	@Summary		List institutions
+//	@Description	Lists all institutions
+//	@Tags			institutions
+//	@Produce		json
+//	@Success		200	{array}		obj.Institution
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions [get]
+func ListInstitutions(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutions, err := db.ListInstitutions(r.Context(), user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institutions)
+}
+
+// GetInstitution godoc
+//
+//	@Summary		Get institution
+//	@Description	Gets an institution by ID
+//	@Tags			institutions
+//	@Produce		json
+//	@Param			id	path		string	true	"Institution ID"
+//	@Success		200	{object}	obj.Institution
+//	@Failure		404	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id} [get]
+func GetInstitution(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	id, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	institution, err := db.GetInstitutionByID(r.Context(), user.ID, id)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institution)
+}
+
+// UpdateInstitution godoc
+//
+//	@Summary		Update institution
+//	@Description	Updates an institution
+//	@Tags			institutions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"Institution ID"
+//	@Param			request	body		UpdateInstitutionRequest	true	"Institution details"
+//	@Success		200		{object}	obj.Institution
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id} [patch]
+func UpdateInstitution(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	id, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	var req UpdateInstitutionRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteAppError(w, obj.ErrInvalidInput("Invalid JSON"))
+		return
+	}
+
+	if req.Name == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("Name is required"))
+		return
+	}
+
+	institution, err := db.UpdateInstitution(r.Context(), id, user.ID, req.Name)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institution)
+}
+
+// DeleteInstitution godoc
+//
+//	@Summary		Delete institution
+//	@Description	Soft-deletes an institution (admin only)
+//	@Tags			institutions
+//	@Produce		json
+//	@Param			id	path		string	true	"Institution ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		403	{object}	httpx.ErrorResponse
+//	@Failure		404	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id} [delete]
+func DeleteInstitution(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	id, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	err = db.DeleteInstitution(r.Context(), id, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Institution deleted",
+	})
+}

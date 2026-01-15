@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sqlc-dev/pqtype"
 )
 
 type ApiKey struct {
@@ -49,7 +48,6 @@ type AppUser struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
-	ShowAiModelSelector  bool
 }
 
 type Game struct {
@@ -61,6 +59,7 @@ type Game struct {
 	Name                     string
 	Description              string
 	Icon                     []byte
+	WorkshopID               uuid.NullUUID
 	Public                   bool
 	PublicSponsoredApiKeyID  uuid.NullUUID
 	PrivateShareHash         sql.NullString
@@ -73,9 +72,6 @@ type Game struct {
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString
 	FirstImage               []byte
-	OriginallyCreatedBy      uuid.NullUUID
-	PlayCount                int32
-	CloneCount               int32
 }
 
 type GameSession struct {
@@ -86,13 +82,14 @@ type GameSession struct {
 	ModifiedAt   time.Time
 	GameID       uuid.UUID
 	UserID       uuid.UUID
+	WorkshopID   uuid.NullUUID
 	ApiKeyID     uuid.UUID
 	AiPlatform   string
 	AiModel      string
 	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
-	Theme        pqtype.NullRawMessage
+	DeletedAt    sql.NullTime
 }
 
 type GameSessionMessage struct {
@@ -108,6 +105,7 @@ type GameSessionMessage struct {
 	Status        sql.NullString
 	ImagePrompt   sql.NullString
 	Image         []byte
+	DeletedAt     sql.NullTime
 }
 
 type GameTag struct {
@@ -127,23 +125,7 @@ type Institution struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	Name       string
-}
-
-type SystemSetting struct {
-	ID             uuid.UUID
-	CreatedAt      time.Time
-	ModifiedAt     time.Time
-	DefaultAiModel string
-}
-
-type UserFavouriteGame struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	UserID     uuid.UUID
-	GameID     uuid.UUID
+	DeletedAt  sql.NullTime
 }
 
 type UserRole struct {
@@ -174,6 +156,7 @@ type UserRoleInvite struct {
 	UsesCount     int32
 	ExpiresAt     sql.NullTime
 	Status        string
+	DeletedAt     sql.NullTime
 	AcceptedAt    sql.NullTime
 	AcceptedBy    uuid.NullUUID
 }
@@ -188,6 +171,7 @@ type Workshop struct {
 	InstitutionID uuid.UUID
 	Active        bool
 	Public        bool
+	DeletedAt     sql.NullTime
 }
 
 type WorkshopParticipant struct {

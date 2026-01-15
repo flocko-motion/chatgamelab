@@ -96,7 +96,7 @@ INSERT INTO user_role_invite (
   $5, $6, $7,
   'pending'
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
 `
 
 type CreateOpenInviteParams struct {
@@ -136,6 +136,7 @@ func (q *Queries) CreateOpenInvite(ctx context.Context, arg CreateOpenInvitePara
 		&i.UsesCount,
 		&i.ExpiresAt,
 		&i.Status,
+		&i.DeletedAt,
 		&i.AcceptedAt,
 		&i.AcceptedBy,
 	)
@@ -157,7 +158,7 @@ INSERT INTO user_role_invite (
   $7,
   'pending'
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
 `
 
 type CreateTargetedInviteParams struct {
@@ -198,6 +199,7 @@ func (q *Queries) CreateTargetedInvite(ctx context.Context, arg CreateTargetedIn
 		&i.UsesCount,
 		&i.ExpiresAt,
 		&i.Status,
+		&i.DeletedAt,
 		&i.AcceptedAt,
 		&i.AcceptedBy,
 	)
@@ -335,7 +337,7 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 }
 
 const getInviteByID = `-- name: GetInviteByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by FROM user_role_invite WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite WHERE id = $1
 `
 
 func (q *Queries) GetInviteByID(ctx context.Context, id uuid.UUID) (UserRoleInvite, error) {
@@ -357,6 +359,7 @@ func (q *Queries) GetInviteByID(ctx context.Context, id uuid.UUID) (UserRoleInvi
 		&i.UsesCount,
 		&i.ExpiresAt,
 		&i.Status,
+		&i.DeletedAt,
 		&i.AcceptedAt,
 		&i.AcceptedBy,
 	)
@@ -364,7 +367,7 @@ func (q *Queries) GetInviteByID(ctx context.Context, id uuid.UUID) (UserRoleInvi
 }
 
 const getInviteByToken = `-- name: GetInviteByToken :one
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by FROM user_role_invite WHERE invite_token = $1
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite WHERE invite_token = $1
 `
 
 func (q *Queries) GetInviteByToken(ctx context.Context, inviteToken sql.NullString) (UserRoleInvite, error) {
@@ -386,10 +389,59 @@ func (q *Queries) GetInviteByToken(ctx context.Context, inviteToken sql.NullStri
 		&i.UsesCount,
 		&i.ExpiresAt,
 		&i.Status,
+		&i.DeletedAt,
 		&i.AcceptedAt,
 		&i.AcceptedBy,
 	)
 	return i, err
+}
+
+const getInvitesByWorkshop = `-- name: GetInvitesByWorkshop :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserApiKeys = `-- name: GetUserApiKeys :many
@@ -504,7 +556,9 @@ SELECT
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
-  i.name         AS institution_name
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
@@ -515,6 +569,8 @@ LEFT JOIN LATERAL (
 ) r ON TRUE
 LEFT JOIN institution i
   ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
 WHERE u.id = $1
 `
 
@@ -533,6 +589,8 @@ type GetUserDetailsByIDRow struct {
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
 	InstitutionName      sql.NullString
+	WorkshopID           uuid.NullUUID
+	WorkshopName         sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -553,6 +611,8 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.Role,
 		&i.InstitutionID,
 		&i.InstitutionName,
+		&i.WorkshopID,
+		&i.WorkshopName,
 	)
 	return i, err
 }
@@ -566,6 +626,25 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const hasWorkshopRole = `-- name: HasWorkshopRole :one
+SELECT EXISTS(
+    SELECT 1 FROM user_role 
+    WHERE user_id = $1 AND workshop_id = $2
+) AS has_role
+`
+
+type HasWorkshopRoleParams struct {
+	UserID     uuid.UUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) HasWorkshopRole(ctx context.Context, arg HasWorkshopRoleParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, hasWorkshopRole, arg.UserID, arg.WorkshopID)
+	var has_role bool
+	err := row.Scan(&has_role)
+	return has_role, err
 }
 
 const incrementInviteUses = `-- name: IncrementInviteUses :exec

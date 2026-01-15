@@ -49,14 +49,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Resolve share: use provided share, or fall back to user's default
 	if shareID == uuid.Nil {
-		defaultShareID, err := db.GetUserDefaultApiKeyShare(ctx, userID)
-		if err != nil {
-			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get default API key: " + err.Error()}
-		}
-		if defaultShareID == nil {
-			return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided and no default set. Use 'apikey default <share-id>' to set a default."}
-		}
-		shareID = *defaultShareID
+		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided."}
 	}
 
 	// Get the share and check if user is directly included
@@ -97,6 +90,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
 
+<<<<<<< HEAD
 	// Create session object
 	session := &obj.GameSession{
 		GameID:          game.ID,
@@ -124,14 +118,18 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 
 	// Persist to database
+=======
+	// Persist to database - CreateGameSession will load game details and construct session
+>>>>>>> 876746c (feat: centralized db permissions)
 	log.Debug("persisting session to database")
-	session, err = db.CreateGameSession(ctx, session)
+	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 	log.Debug("session created", "session_id", session.ID)
 
+<<<<<<< HEAD
 	// Increment play count if the user is not the owner of the game
 	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == userID
 	if !isOwner {
@@ -140,6 +138,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 			// Don't fail the request, just log the error
 		}
 	}
+=======
+	// Attach API key for response
+	session.ApiKey = share.ApiKey
+>>>>>>> 876746c (feat: centralized db permissions)
 
 	// First action is a system message containing the game instructions
 	log.Debug("executing initial system action", "session_id", session.ID)

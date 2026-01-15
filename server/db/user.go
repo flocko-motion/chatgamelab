@@ -99,6 +99,12 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name: res.InstitutionName.String,
 			}
 		}
+		if res.WorkshopID.Valid {
+			user.Role.Workshop = &obj.Workshop{
+				ID:   res.WorkshopID.UUID,
+				Name: res.WorkshopName.String,
+			}
+		}
 	}
 	user.ApiKeys, err = GetApiKeySharesByUser(ctx, id)
 	if err != nil {

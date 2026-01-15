@@ -71,6 +71,7 @@ type UserRole struct {
 	UserID      uuid.UUID    `json:"userId"`
 	Role        Role         `json:"role"`
 	Institution *Institution `json:"institution"`
+	Workshop    *Workshop    `json:"workshop,omitempty"`
 }
 
 type Workshop struct {
@@ -81,6 +82,7 @@ type Workshop struct {
 	Active       bool                  `json:"active"`
 	Public       bool                  `json:"public"`
 	Participants []WorkshopParticipant `json:"participants,omitempty"`
+	Invites      []UserRoleInvite      `json:"invites,omitempty"`
 }
 
 type WorkshopParticipant struct {
@@ -126,6 +128,8 @@ type Game struct {
 	Name        string    `json:"name" yaml:"name"`
 	Description string    `json:"description" yaml:"description"`
 	Icon        []byte    `json:"icon" yaml:"-"`
+	// Optional workshop scope (games can be created within a workshop context)
+	WorkshopID *uuid.UUID `json:"workshopId,omitempty" yaml:"-"`
 	// Access rights and payments. public = true: discoverable on the website and playable by anyone.
 	Public bool `json:"public" yaml:"-"`
 	// If public, a sponsored API key can be provided to pay for any public plays.
@@ -187,11 +191,12 @@ type GameSession struct {
 	ID   uuid.UUID `json:"id"`
 	Meta Meta      `json:"meta"`
 
-	GameID          uuid.UUID `json:"gameId"`
-	GameName        string    `json:"gameName"`
-	GameDescription string    `json:"gameDescription"`
-	UserID          uuid.UUID `json:"userId"`
-	UserName        string    `json:"userName"`
+	GameID          uuid.UUID  `json:"gameId"`
+	GameName        string     `json:"gameName"`
+	GameDescription string     `json:"gameDescription"`
+	UserID          uuid.UUID  `json:"userId"`
+	WorkshopID      *uuid.UUID `json:"workshopId,omitempty"`
+	UserName        string     `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
 	ApiKeyID uuid.UUID `json:"apiKeyId"`
 	ApiKey   *ApiKey   `json:"apiKey"`

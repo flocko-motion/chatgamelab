@@ -9,6 +9,7 @@ INSERT INTO game (
   id, created_by,
   created_at, modified_by, modified_at,
   name, description, icon,
+  workshop_id,
   public, public_sponsored_api_key_id,
   private_share_hash, private_sponsored_api_key_id,
   system_message_scenario, system_message_game_start,
@@ -19,12 +20,12 @@ INSERT INTO game (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8,
-  $9, $10,
-  $11, $12,
-  $13, $14,
-  $15, $16, $17,
-  $18, $19, $20,
-  $21
+  $9,
+  $10, $11,
+  $12, $13,
+  $14, $15,
+  $16, $17, $18,
+  $19, $20, $21
 )
 RETURNING *;
 
@@ -284,15 +285,21 @@ DELETE FROM game_tag WHERE id = $1;
 INSERT INTO game_session (
   id, created_by,
   created_at, modified_by, modified_at,
-  game_id, user_id, api_key_id,
+  game_id, user_id, workshop_id, api_key_id,
   ai_platform, ai_model, ai_session,
   image_style, status_fields, theme
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
+<<<<<<< HEAD
   $5, $6, $7,
   $8, $9, $10,
   $11, $12, $13
+=======
+  $5, $6, $7, $8,
+  $9, $10, $11,
+  $12, $13
+>>>>>>> 876746c (feat: centralized db permissions)
 )
 RETURNING *;
 

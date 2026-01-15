@@ -62,6 +62,28 @@ func NewMux() *http.ServeMux {
 		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
 	}
 
+	// Institutions
+	mux.Handle("POST /api/institutions", httpx.RequireAuth(CreateInstitution))
+	mux.Handle("GET /api/institutions", httpx.RequireAuth(ListInstitutions))
+	mux.Handle("GET /api/institutions/{id}", httpx.RequireAuth(GetInstitution))
+	mux.Handle("PATCH /api/institutions/{id}", httpx.RequireAuth(UpdateInstitution))
+	mux.Handle("DELETE /api/institutions/{id}", httpx.RequireAuth(DeleteInstitution))
+
+	// Workshops
+	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))
+	mux.Handle("GET /api/workshops", httpx.RequireAuth(ListWorkshops))
+	mux.Handle("GET /api/workshops/{id}", httpx.RequireAuth(GetWorkshop))
+	mux.Handle("PATCH /api/workshops/{id}", httpx.RequireAuth(UpdateWorkshop))
+	mux.Handle("DELETE /api/workshops/{id}", httpx.RequireAuth(DeleteWorkshop))
+
+	// Invites
+	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
+	mux.Handle("POST /api/invites/institution/{idOrToken}/accept", httpx.RequireAuth(AcceptInstitutionInvite))
+	mux.Handle("POST /api/invites/institution/{idOrToken}/decline", httpx.RequireAuth(DeclineInstitutionInvite))
+	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
+	mux.Handle("POST /api/invites/workshop/{token}/accept", httpx.RequireAuth(AcceptWorkshopInvite))
+	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
+
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
 	mux.Handle("GET /api/sessions/{id}", httpx.OptionalAuth(GetSession))

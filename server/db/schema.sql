@@ -36,12 +36,23 @@ CREATE TABLE system_settings (
 -- Institution
 -- Organization that can run workshops and own games.
 CREATE TABLE institution (
+<<<<<<< HEAD
     id uuid PRIMARY KEY,
     created_by uuid NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
     modified_by uuid NULL,
     modified_at timestamptz NOT NULL DEFAULT now(),
     name text NOT NULL UNIQUE
+=======
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    name            text NOT NULL UNIQUE,
+    deleted_at      timestamptz NULL
+>>>>>>> 876746c (feat: centralized db permissions)
 );
 
 -- Workshop
@@ -49,6 +60,7 @@ CREATE TABLE institution (
 -- If not active, the workshop cannot be joined by participants.
 -- If public, it can be discovered by visitors, but they only see games marked public.
 CREATE TABLE workshop (
+<<<<<<< HEAD
     id uuid PRIMARY KEY,
     created_by uuid NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -58,6 +70,20 @@ CREATE TABLE workshop (
     institution_id uuid NOT NULL REFERENCES institution(id),
     active boolean NOT NULL DEFAULT true,
     public boolean NOT NULL DEFAULT false,
+=======
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    name            text NOT NULL,
+    institution_id  uuid NOT NULL REFERENCES institution(id),
+    active          boolean NOT NULL DEFAULT true,
+    public          boolean NOT NULL DEFAULT false,
+    deleted_at      timestamptz NULL,
+
+>>>>>>> 876746c (feat: centralized db permissions)
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
 
@@ -120,6 +146,8 @@ CREATE TABLE user_role_invite (
     -- expired: past expiration date or max uses reached
     -- revoked: manually cancelled by creator
     status          text NOT NULL DEFAULT 'pending',
+    
+    deleted_at      timestamptz NULL,
 
     -- When the invite was accepted (only for targeted invites)
     accepted_at     timestamptz NULL,
@@ -193,14 +221,19 @@ CREATE TABLE api_key_share (
 -- Game
 -- Description and configuration of a game.
 CREATE TABLE game (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    name text NOT NULL UNIQUE,
-    description text NOT NULL,
-    icon bytea NULL,
+    id                              uuid PRIMARY KEY,
+    created_by                      uuid NULL,
+    created_at                      timestamptz NOT NULL DEFAULT now(),
+    modified_by                     uuid NULL,
+    modified_at                     timestamptz NOT NULL DEFAULT now(),
+
+    name                            text NOT NULL UNIQUE,
+    description                     text NOT NULL,
+    icon                            bytea NULL,
+    
+    -- Optional workshop scope (games can be created within a workshop context)
+    workshop_id                     uuid NULL REFERENCES workshop(id),
+
     -- Access rights and payments. public = true: discoverable on the website and playable by anyone.
     public boolean NOT NULL DEFAULT false,
     -- If public, a sponsored API key can be provided to pay for any public plays.
@@ -247,13 +280,16 @@ CREATE TABLE game_tag (
 -- GameSession
 -- A session is created when a user plays a game -> it's the instance of a game.
 CREATE TABLE game_session (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    game_id uuid NOT NULL REFERENCES game(id),
-    user_id uuid NOT NULL REFERENCES app_user(id),
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    game_id         uuid NOT NULL REFERENCES game(id),
+    user_id         uuid NOT NULL REFERENCES app_user(id),
+    -- Optional workshop scope (sessions can be created within a workshop context)
+    workshop_id     uuid NULL REFERENCES workshop(id),
     -- API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
     api_key_id uuid NOT NULL REFERENCES api_key(id),
     -- AI platform used for playing (e.g. 'openai', 'anthropic').
@@ -264,9 +300,9 @@ CREATE TABLE game_session (
     ai_session jsonb NOT NULL,
     image_style text NOT NULL,
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
-    status_fields text NOT NULL,
-    -- AI-generated visual theme for the game player UI (JSON)
-    theme jsonb NULL
+    status_fields   text NOT NULL,
+    
+    deleted_at      timestamptz NULL
 );
 -- GameSessionMessage
 -- Messages of a game session: system message, player actions, and game responses.
@@ -284,9 +320,18 @@ CREATE TABLE game_session_message (
     -- Plain text of the scene (system message, player action, or game response).
     message text NOT NULL,
     -- JSON encoded status fields.
+<<<<<<< HEAD
     status text NULL,
     image_prompt text NULL,
     image bytea NULL,
+=======
+    status              text NULL,
+    image_prompt        text NULL,
+    image               bytea NULL,
+    
+    deleted_at          timestamptz NULL,
+
+>>>>>>> 876746c (feat: centralized db permissions)
     CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
 );
 -- UserFavouriteGame

@@ -41,7 +41,9 @@ SELECT
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
-  i.name         AS institution_name
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -52,6 +54,8 @@ LEFT JOIN LATERAL (
 ) r ON TRUE
 LEFT JOIN institution i
   ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
 WHERE u.id = $1;
 
 -- name: GetUserApiKeys :many
@@ -163,6 +167,17 @@ INSERT INTO user_role_invite (
   'pending'
 )
 RETURNING *;
+
+-- name: GetInvitesByWorkshop :many
+SELECT * FROM user_role_invite 
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: HasWorkshopRole :one
+SELECT EXISTS(
+    SELECT 1 FROM user_role 
+    WHERE user_id = $1 AND workshop_id = $2
+) AS has_role;
 
 -- name: GetInviteByID :one
 SELECT * FROM user_role_invite WHERE id = $1;

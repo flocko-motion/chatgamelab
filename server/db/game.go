@@ -6,9 +6,7 @@ import (
 	"cgl/log"
 	"cgl/obj"
 	"context"
-	"crypto/rand"
 	"database/sql"
-	"encoding/base32"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -351,7 +349,16 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 }
 
 // CreateGame creates a new game. userID is set as the owner (createdBy).
+// If game.WorkshopID is set, validates that user has read access to that workshop.
 func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
+	// If workshop is specified, validate user has read access to the workshop
+	if game.WorkshopID != nil {
+		// User must be able to see/read the workshop (participant, staff, or head)
+		if err := canAccessWorkshop(ctx, userID, OpRead, uuid.Nil, game.WorkshopID, uuid.Nil); err != nil {
+			return obj.ErrForbidden("not authorized to create games in this workshop")
+		}
+	}
+
 	now := time.Now()
 	game.ID = uuid.New()
 
@@ -364,25 +371,24 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		Name:                     game.Name,
 		Description:              game.Description,
 		Icon:                     game.Icon,
+		WorkshopID:               uuidPtrToNullUUID(game.WorkshopID),
 		Public:                   game.Public,
 		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
-		PrivateShareHash:         sql.NullString{String: ptrToString(game.PrivateShareHash), Valid: game.PrivateShareHash != nil},
+		PrivateShareHash:         sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil},
 		PrivateSponsoredApiKeyID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyID),
 		SystemMessageScenario:    game.SystemMessageScenario,
 		SystemMessageGameStart:   game.SystemMessageGameStart,
 		ImageStyle:               game.ImageStyle,
 		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
-		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
-		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
+		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
+		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
 		OriginallyCreatedBy:      uuidPtrToNullUUID(game.OriginallyCreatedBy),
 	}
 
-	// Generate private share hash if not provided
-	if !arg.PrivateShareHash.Valid || arg.PrivateShareHash.String == "" {
-		arg.PrivateShareHash = sql.NullString{String: randomHash(), Valid: true}
-	}
+	// Note: Private share hash is not generated at creation
+	// Users must explicitly share the game after creating and writing the story
 
 	_, err := queries().CreateGame(ctx, arg)
 	return err
@@ -400,13 +406,14 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	}
 
 	now := time.Now()
-	privateShareHash := sql.NullString{String: ptrToString(game.PrivateShareHash), Valid: game.PrivateShareHash != nil}
+	privateShareHash := sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil}
 	if !privateShareHash.Valid || privateShareHash.String == "" {
 		// Keep existing hash or generate new one
 		if existing.PrivateShareHash.Valid && existing.PrivateShareHash.String != "" {
 			privateShareHash = existing.PrivateShareHash
 		} else {
-			privateShareHash = sql.NullString{String: randomHash(), Valid: true}
+			hash, _ := functional.GenerateSecureToken(20)
+			privateShareHash = sql.NullString{String: hash, Valid: true}
 		}
 	}
 
@@ -428,8 +435,8 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ImageStyle:               game.ImageStyle,
 		Css:                      game.CSS,
 		StatusFields:             game.StatusFields,
-		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
-		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
+		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
+		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
 		OriginallyCreatedBy:      existing.OriginallyCreatedBy, // Preserve original creator
 	}
@@ -478,11 +485,32 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	return nil
 }
 
-// CreateGameSession persists a game session to the database and returns the created session with DB-generated ID
-func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.GameSession, error) {
-	if session == nil {
-		return nil, obj.ErrValidation("session is nil")
+// CreateGameSession creates a new game session with minimal required parameters.
+// The function loads game details and constructs the session object internally.
+// Parameters:
+// - userID: the user creating the session
+// - gameID: the game to play
+// - apiKeyID: the API key to use (defines platform)
+// - aiModel: the AI model to use
+// - workshopID: optional workshop context
+func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID) (*obj.GameSession, error) {
+	// Validate workshop access and game permissions
+	if err := canAccessGameSession(ctx, userID, OpCreate, nil, gameID, workshopID); err != nil {
+		return nil, err
 	}
+
+	// Load game to get details
+	game, err := queries().GetGameByID(ctx, gameID)
+	if err != nil {
+		return nil, obj.ErrNotFound("game not found")
+	}
+
+	// Load API key to get platform
+	apiKey, err := queries().GetApiKeyByID(ctx, apiKeyID)
+	if err != nil {
+		return nil, obj.ErrNotFound("api key not found")
+	}
+
 	now := time.Now()
 
 	// Serialize theme to JSON if present
@@ -496,10 +524,11 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 	}
 
 	arg := db.CreateGameSessionParams{
-		CreatedBy:    uuid.NullUUID{UUID: session.UserID, Valid: true},
+		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:    now,
-		ModifiedBy:   uuid.NullUUID{UUID: session.UserID, Valid: true},
+		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:   now,
+<<<<<<< HEAD
 		GameID:       session.GameID,
 		UserID:       session.UserID,
 		ApiKeyID:     session.ApiKeyID,
@@ -509,6 +538,17 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 		ImageStyle:   session.ImageStyle,
 		StatusFields: session.StatusFields,
 		Theme:        themeJSON,
+=======
+		GameID:       gameID,
+		UserID:       userID,
+		WorkshopID:   uuidPtrToNullUUID(workshopID),
+		ApiKeyID:     apiKeyID,
+		AiPlatform:   apiKey.Platform,
+		AiModel:      aiModel,
+		AiSession:    []byte("{}"), // Empty JSON object as initial state
+		ImageStyle:   game.ImageStyle,
+		StatusFields: game.StatusFields,
+>>>>>>> 876746c (feat: centralized db permissions)
 	}
 
 	result, err := queries().CreateGameSession(ctx, arg)
@@ -516,11 +556,27 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 		return nil, obj.ErrServerError("failed to create session")
 	}
 
-	session.ID = result.ID
-	session.Meta.CreatedAt = &result.CreatedAt
-	session.Meta.ModifiedAt = &result.ModifiedAt
-
-	return session, nil
+	// Construct and return the session object
+	return &obj.GameSession{
+		ID: result.ID,
+		Meta: obj.Meta{
+			CreatedBy:  result.CreatedBy,
+			CreatedAt:  &result.CreatedAt,
+			ModifiedBy: result.ModifiedBy,
+			ModifiedAt: &result.ModifiedAt,
+		},
+		GameID:          result.GameID,
+		GameName:        game.Name,
+		GameDescription: game.Description,
+		UserID:          result.UserID,
+		WorkshopID:      nullUUIDToPtr(result.WorkshopID),
+		ApiKeyID:        result.ApiKeyID,
+		AiPlatform:      result.AiPlatform,
+		AiModel:         result.AiModel,
+		AiSession:       string(result.AiSession),
+		ImageStyle:      result.ImageStyle,
+		StatusFields:    result.StatusFields,
+	}, nil
 }
 
 // CreateGameSessionMessage adds a message to a game session with auto-incremented seq
@@ -541,7 +597,7 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Type:          msg.Type,
 		Message:       msg.Message,
 		Status:        statusJSON,
-		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
 	}
 
@@ -587,7 +643,7 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 		Type:          msg.Type,
 		Message:       msg.Message,
 		Status:        statusJSON,
-		ImagePrompt:   sql.NullString{String: ptrToString(msg.ImagePrompt), Valid: msg.ImagePrompt != nil},
+		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
 	}
 
@@ -1062,6 +1118,8 @@ func IncrementGameCloneCount(ctx context.Context, gameID uuid.UUID) error {
 	return queries().IncrementGameCloneCount(ctx, gameID)
 }
 
+// Helper functions for converting between sql.Null* types and pointers
+
 func nullStringToPtr(ns sql.NullString) *string {
 	if !ns.Valid {
 		return nil
@@ -1081,18 +1139,4 @@ func uuidPtrToNullUUID(id *uuid.UUID) uuid.NullUUID {
 		return uuid.NullUUID{}
 	}
 	return uuid.NullUUID{UUID: *id, Valid: true}
-}
-
-func ptrToString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-func randomHash() string {
-	randomBytes := make([]byte, 8)
-	_, _ = rand.Read(randomBytes)
-	enc := base32.StdEncoding.WithPadding(base32.NoPadding)
-	return enc.EncodeToString(randomBytes)
 }
