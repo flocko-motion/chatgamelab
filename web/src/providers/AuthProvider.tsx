@@ -2,10 +2,10 @@
 import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from '@tanstack/react-router';
 import { auth0Config } from '../config/auth0';
 import { Api } from '../api/generated';
-import { createAuthenticatedApiConfig } from '../api/client/http';
+import { createAuthenticatedApiConfig, getApiConfig } from '../api/client/http';
+import { authLogger } from '../config/logger';
 import { ROUTES } from '../common/routes/routes';
 import type { ObjUser } from '../api/generated';
 
@@ -71,7 +71,6 @@ interface TokenCache {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const {
     user: auth0User,
     isAuthenticated: auth0IsAuthenticated,
@@ -241,28 +240,88 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser]);
 
-  // Sync loading state with Auth0
-  useEffect(() => {
-    setIsLoading(auth0IsLoading);
-  }, [auth0IsLoading]);
-
   const loginWithAuth0 = () => {
     auth0LoginWithRedirect();
   };
 
   const loginWithRole = async (role: string) => {
-    const mockUser: AuthUser = {
-      sub: `dev-${role}`,
-      name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
-      email: `${role}@dev.local`,
-      role,
-    };
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    
-    // For dev mode, we need to fetch a dev JWT and then the backend user
-    // TODO: Implement dev mode backend integration
-    setIsLoading(false);
+    if (!isDevMode) {
+      authLogger.warning('loginWithRole called but not in dev mode');
+      return;
+    }
+
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      // Use unauthenticated API to get users list
+      const publicApi = new Api(getApiConfig());
+      
+      // Try to find an existing user or create one
+      // First, try to create a dev user (will fail if already exists, that's ok)
+      let targetUserId: string | undefined;
+      
+      try {
+        const createResponse = await publicApi.users.postUsers({
+          name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+          email: `${role}@dev.local`,
+        });
+        targetUserId = createResponse.data.id;
+        authLogger.info('Created dev user', { userId: targetUserId, role });
+      } catch {
+        // User might already exist, try to find them
+        authLogger.debug('Could not create dev user, will try to find existing', { role });
+      }
+
+      // If we couldn't create, we need to get a user ID somehow
+      // The /users endpoint requires auth, so we need a different approach
+      // Let's try the JWT endpoint directly with a known pattern
+      if (!targetUserId) {
+        // For dev mode, the backend should have seed users
+        // We'll need to handle this case - for now show an error
+        throw new Error(`No dev user found for role '${role}'. Please seed the database with dev users.`);
+      }
+
+      // Get JWT for this user
+      const jwtResponse = await publicApi.users.getUsers2(targetUserId);
+      const token = jwtResponse.data.token;
+      const userId = jwtResponse.data.userId;
+
+      if (!token || !userId) {
+        throw new Error('Failed to get dev JWT token');
+      }
+
+      // Cache the token (expires in 24h according to backend)
+      devTokenCache.current = {
+        token,
+        expiresAt: Date.now() + 23 * 60 * 60 * 1000, // 23 hours to be safe
+      };
+
+      authLogger.info('Dev JWT obtained', { userId, role });
+
+      // Set user state
+      const authUser: AuthUser = {
+        sub: userId,
+        name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        email: `${role}@dev.local`,
+        role,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+
+      // Now fetch the backend user with the new token
+      backendFetchAttempted.current = true;
+      await fetchBackendUser();
+
+    } catch (error) {
+      authLogger.error('Dev login failed', { role, error });
+      const errorMessage = error instanceof Error ? error.message : 'Dev login failed';
+      setBackendError(errorMessage);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
@@ -285,8 +344,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
-      // Redirect to homepage
-      navigate({ to: ROUTES.HOME });
+      // Redirect to homepage using window.location since we're outside RouterProvider
+      window.location.href = ROUTES.HOME;
     }
   };
 
