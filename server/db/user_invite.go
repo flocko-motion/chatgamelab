@@ -35,22 +35,10 @@ func CreateInstitutionInvite(
 		return db.UserRoleInvite{}, obj.ErrValidation("either invitedUserID or invitedEmail must be provided")
 	}
 
-	// Verify creator has permission (must be admin or head of the institution)
-	creator, err := GetUserByID(ctx, createdBy)
-	if err != nil {
-		return db.UserRoleInvite{}, obj.ErrNotFound("creator not found")
-	}
-	if creator.Role == nil {
-		return db.UserRoleInvite{}, obj.ErrUnauthorized("creator has no role assigned")
-	}
-	// Admin can create invites for any institution (god-mode)
-	if creator.Role.Role != obj.RoleAdmin {
-		// Non-admin must be head of the specific institution
-		if creator.Role.Role != obj.RoleHead ||
-			creator.Role.Institution == nil ||
-			creator.Role.Institution.ID != institutionID {
-			return db.UserRoleInvite{}, obj.ErrForbidden("only admins or institution heads can create institution invites")
-		}
+	// Check permission using centralized system
+	// Creating invites requires update permission on the institution
+	if err := canAccessInstitution(ctx, createdBy, OpUpdate, &institutionID); err != nil {
+		return db.UserRoleInvite{}, err
 	}
 
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
@@ -86,28 +74,16 @@ func CreateWorkshopInvite(
 	maxUses *int32,
 	expiresAt *time.Time,
 ) (db.UserRoleInvite, error) {
+	// Check permission using centralized system
+	// Creating invites requires update permission on the workshop
+	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, uuid.Nil, &workshopID, uuid.Nil); err != nil {
+		return db.UserRoleInvite{}, err
+	}
+
 	// Get workshop to look up institution_id
 	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
 	if err != nil {
 		return db.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
-	}
-
-	// Verify creator has permission (must be admin, or head/staff of the institution)
-	creator, err := GetUserByID(ctx, createdBy)
-	if err != nil {
-		return db.UserRoleInvite{}, obj.ErrNotFound("creator not found")
-	}
-	if creator.Role == nil {
-		return db.UserRoleInvite{}, obj.ErrUnauthorized("creator has no role assigned")
-	}
-	// Admin can create invites for any workshop (god-mode)
-	if creator.Role.Role != obj.RoleAdmin {
-		// Non-admin must be head or staff of the institution that owns the workshop
-		if (creator.Role.Role != obj.RoleHead && creator.Role.Role != obj.RoleStaff) ||
-			creator.Role.Institution == nil ||
-			creator.Role.Institution.ID != workshop.InstitutionID {
-			return db.UserRoleInvite{}, obj.ErrForbidden("only admins or institution heads/staff can create workshop invites")
-		}
 	}
 
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
@@ -132,7 +108,29 @@ func CreateWorkshopInvite(
 }
 
 // UpdateInviteStatus updates the status of an invite.
-func UpdateInviteStatus(ctx context.Context, inviteID uuid.UUID, status obj.InviteStatus) error {
+// Only the creator, admin, or the invited user can update the status.
+func UpdateInviteStatus(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID, status obj.InviteStatus) error {
+	// Get the invite to check permissions
+	invite, err := queries().GetInviteByID(ctx, inviteID)
+	if err != nil {
+		return obj.ErrNotFound("invite not found")
+	}
+
+	// Check permission: creator, admin, or invited user
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	isAdmin := user.Role != nil && user.Role.Role == obj.RoleAdmin
+	isCreator := invite.CreatedBy.Valid && invite.CreatedBy.UUID == userID
+	isInvitedUser := (invite.InvitedUserID.Valid && invite.InvitedUserID.UUID == userID) ||
+		(invite.InvitedEmail.Valid && user.Email != nil && *user.Email == invite.InvitedEmail.String)
+
+	if !isAdmin && !isCreator && !isInvitedUser {
+		return obj.ErrForbidden("not authorized to update this invite")
+	}
+
 	arg := db.UpdateInviteStatusParams{
 		ID:     inviteID,
 		Status: string(status),
@@ -176,7 +174,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 
 	// Check expiration
 	if invite.ExpiresAt.Valid && invite.ExpiresAt.Time.Before(time.Now()) {
-		_ = UpdateInviteStatus(ctx, invite.ID, obj.InviteStatusExpired)
+		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
 		return uuid.Nil, obj.ErrValidation("invite has expired")
 	}
 
@@ -275,7 +273,7 @@ func DeclineTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken 
 	}
 
 	// Mark invite as declined
-	return UpdateInviteStatus(ctx, inviteID, obj.InviteStatusDeclined)
+	return UpdateInviteStatus(ctx, userID, inviteID, obj.InviteStatusDeclined)
 }
 
 // RevokeInvite revokes an invite (can only be done by the creator or an admin).
@@ -311,7 +309,7 @@ func RevokeInvite(ctx context.Context, inviteID uuid.UUID, revokedBy uuid.UUID) 
 	}
 
 	// Mark invite as revoked
-	return UpdateInviteStatus(ctx, inviteID, obj.InviteStatusRevoked)
+	return UpdateInviteStatus(ctx, revokedBy, inviteID, obj.InviteStatusRevoked)
 }
 
 // AcceptOpenInvite accepts an open invite using its token and creates a user role.
@@ -331,14 +329,14 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 	// Check expiration
 	if invite.ExpiresAt.Valid && invite.ExpiresAt.Time.Before(time.Now()) {
 		// Mark as expired
-		_ = UpdateInviteStatus(ctx, invite.ID, obj.InviteStatusExpired)
+		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
 		return uuid.Nil, fmt.Errorf("invite has expired")
 	}
 
 	// Check max uses
 	if invite.MaxUses.Valid && invite.UsesCount >= invite.MaxUses.Int32 {
 		// Mark as expired
-		_ = UpdateInviteStatus(ctx, invite.ID, obj.InviteStatusExpired)
+		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
 		return uuid.Nil, fmt.Errorf("invite has reached maximum uses")
 	}
 
@@ -362,7 +360,7 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 
 	// If max uses reached, mark as expired
 	if invite.MaxUses.Valid && invite.UsesCount+1 >= invite.MaxUses.Int32 {
-		_ = UpdateInviteStatus(ctx, invite.ID, obj.InviteStatusExpired)
+		_ = UpdateInviteStatus(ctx, userID, invite.ID, obj.InviteStatusExpired)
 	}
 
 	// Return the role ID (handle NullUUID)
