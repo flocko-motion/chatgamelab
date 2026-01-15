@@ -22,7 +22,7 @@ export function EditButtonWithText({
   return (
     <Button
       variant="subtle"
-      color="blue"
+      color="accent.9"
       size={size}
       radius="md"
       leftSection={<IconPencil size={14} />}

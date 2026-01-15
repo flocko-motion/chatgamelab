@@ -22,7 +22,7 @@ export function ExportButtonWithText({
   return (
     <Button
       variant="subtle"
-      color="grey"
+      color="accent.9"
       size={size}
       radius="md"
       leftSection={<IconDownload size={14} />}

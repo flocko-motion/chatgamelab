@@ -25,7 +25,7 @@ export const PlayGameButton = forwardRef<HTMLButtonElement, PlayGameButtonProps>
     return (
       <Button
         ref={ref}
-        color="highlight.5"
+        color="accent.7"
         size={size}
         radius="md"
         leftSection={<IconPlayerPlay size={14} />}
