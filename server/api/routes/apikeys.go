@@ -2,6 +2,7 @@ package routes
 
 import (
 	"net/http"
+	"strings"
 
 	"cgl/api/httpx"
 	"cgl/db"
@@ -75,22 +76,27 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateApiKeyRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeInvalidInput, "Invalid JSON: "+err.Error())
 		return
 	}
 
 	if req.Platform == "" {
-		httpx.WriteError(w, http.StatusBadRequest, "Platform is required")
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeValidation, "Platform is required")
 		return
 	}
 	if req.Key == "" {
-		httpx.WriteError(w, http.StatusBadRequest, "Key is required")
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeValidation, "Key is required")
 		return
 	}
 
 	share, err := db.CreateApiKeyWithSelfShare(r.Context(), user.ID, req.Name, req.Platform, req.Key)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create API key: "+err.Error())
+		// Check if it's a platform validation error
+		if strings.Contains(err.Error(), "unknown platform") {
+			httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeInvalidPlatform, "Invalid platform: "+req.Platform)
+			return
+		}
+		httpx.WriteErrorWithCode(w, http.StatusInternalServerError, httpx.ErrCodeServerError, "Failed to create API key: "+err.Error())
 		return
 	}
 
