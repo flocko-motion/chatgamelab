@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader, useMantineTheme } from '@mantine/core';
-import { IconPlayerPlay, IconEdit, IconBuilding, IconUsers } from '@tabler/icons-react';
+import { IconPlayerPlay, IconEdit, IconBuilding } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';

@@ -29,6 +29,7 @@ export const ROUTES = {
   // Game creation/management routes
   CREATIONS: '/creations',
   CREATION_DETAIL: '/creations/$gameId',
+  GAME_CREATE: '/creations/create',
 
   // Sessions (user's game instances)
   SESSIONS: '/sessions',
@@ -70,6 +71,8 @@ export type RouteParams = {
 };
 
 // Helper functions for dynamic routes
+export const createGameDetailRoute = (gameId: string) => `/creations/${gameId}`;
 export const createGamePlayRoute = (gameId: string) => `/games/${gameId}/play`;
+export const createGameEditRoute = (gameId: string) => `/creations/${gameId}/edit`;
 export const createRoomDetailRoute = (roomId: string) => `/rooms/${roomId}`;
 export const createRoomJoinRoute = (roomId: string) => `/rooms/${roomId}/join`;

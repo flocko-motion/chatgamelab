@@ -13,12 +13,9 @@ import {
   IconEdit, 
   IconBuilding, 
   IconUsers, 
-  IconPlus,
   IconSchool,
   IconTools,
-  IconDeviceGamepad,
   IconDeviceGamepad2,
-  IconDeviceGamepad3
 } from '@tabler/icons-react';
 import { InformationalCard, type ListItem } from './InformationalCard';
 import { QuickActionCard } from './QuickActionCard';
