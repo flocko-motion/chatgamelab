@@ -14,6 +14,10 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayIndexRouteImport } from './routes/play/index'
+import { Route as CreationsIndexRouteImport } from './routes/creations/index'
+import { Route as CreationsCreateRouteImport } from './routes/creations/create'
+import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
@@ -43,6 +47,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayIndexRoute = PlayIndexRouteImport.update({
+  id: '/play/',
+  path: '/play/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreationsIndexRoute = CreationsIndexRouteImport.update({
+  id: '/creations/',
+  path: '/creations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreationsCreateRoute = CreationsCreateRouteImport.update({
+  id: '/creations/create',
+  path: '/creations/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreationsGameIdRoute = CreationsGameIdRouteImport.update({
+  id: '/creations/$gameId',
+  path: '/creations/$gameId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
   id: '/auth/login/',
   path: '/auth/login/',
@@ -65,6 +89,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/creations/$gameId': typeof CreationsGameIdRoute
+  '/creations/create': typeof CreationsCreateRoute
+  '/creations': typeof CreationsIndexRoute
+  '/play': typeof PlayIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -75,6 +103,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/creations/$gameId': typeof CreationsGameIdRoute
+  '/creations/create': typeof CreationsCreateRoute
+  '/creations': typeof CreationsIndexRoute
+  '/play': typeof PlayIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -86,6 +118,10 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
+  '/creations/$gameId': typeof CreationsGameIdRoute
+  '/creations/create': typeof CreationsCreateRoute
+  '/creations/': typeof CreationsIndexRoute
+  '/play/': typeof PlayIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -98,6 +134,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/settings'
+    | '/creations/$gameId'
+    | '/creations/create'
+    | '/creations'
+    | '/play'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -108,6 +148,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/settings'
+    | '/creations/$gameId'
+    | '/creations/create'
+    | '/creations'
+    | '/play'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -118,6 +162,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/profile'
     | '/settings'
+    | '/creations/$gameId'
+    | '/creations/create'
+    | '/creations/'
+    | '/play/'
     | '/auth/login/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -129,6 +177,10 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
+  CreationsGameIdRoute: typeof CreationsGameIdRoute
+  CreationsCreateRoute: typeof CreationsCreateRoute
+  CreationsIndexRoute: typeof CreationsIndexRoute
+  PlayIndexRoute: typeof PlayIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
@@ -171,6 +223,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play/': {
+      id: '/play/'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creations/': {
+      id: '/creations/'
+      path: '/creations'
+      fullPath: '/creations'
+      preLoaderRoute: typeof CreationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creations/create': {
+      id: '/creations/create'
+      path: '/creations/create'
+      fullPath: '/creations/create'
+      preLoaderRoute: typeof CreationsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creations/$gameId': {
+      id: '/creations/$gameId'
+      path: '/creations/$gameId'
+      fullPath: '/creations/$gameId'
+      preLoaderRoute: typeof CreationsGameIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login/': {
       id: '/auth/login/'
       path: '/auth/login'
@@ -201,6 +281,10 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
+  CreationsGameIdRoute: CreationsGameIdRoute,
+  CreationsCreateRoute: CreationsCreateRoute,
+  CreationsIndexRoute: CreationsIndexRoute,
+  PlayIndexRoute: PlayIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,
