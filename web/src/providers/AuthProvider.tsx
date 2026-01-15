@@ -165,7 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
-      console.log('[Auth] Backend user fetched:', response.data.name);
+      console.log('[Auth] Backend user fetched:', response.data);
     } catch (error) {
       console.error('[Auth] Failed to fetch backend user:', error);
       
@@ -193,6 +193,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Register user with backend
   const register = useCallback(async (name: string, email: string) => {
+    authLogger.debug('Starting user registration', { name });
+    
     const api = new Api(createAuthenticatedApiConfig(getAccessToken));
     // Auth0 ID is extracted from the token by the backend middleware
     const response = await api.auth.registerCreate({
@@ -203,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setBackendUser(response.data);
     setNeedsRegistration(false);
     setRegistrationData(null);
-    console.log('[Auth] User registered:', response.data.name);
+    authLogger.info('User registered successfully', { userId: response.data.id, name: response.data.name });
   }, [getAccessToken]);
 
   // Handle Auth0 authentication state changes
@@ -221,6 +223,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
+      authLogger.info('Auth0 authentication successful', { auth0Id: auth0User.sub, name: auth0User.name });
       
       // Fetch backend user if not already attempted
       if (!backendFetchAttempted.current) {
@@ -232,6 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     } else {
+      authLogger.debug('Auth0 authentication cleared');
       setUser(null);
       setBackendUser(null);
       setIsAuthenticated(false);
@@ -241,6 +245,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser]);
 
   const loginWithAuth0 = () => {
+    authLogger.debug('Initiating Auth0 login');
     auth0LoginWithRedirect();
   };
 
@@ -250,6 +255,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
+    authLogger.debug('Initiating dev mode login', { role });
     setIsLoading(true);
     setBackendError(null);
 
@@ -308,6 +314,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
+      authLogger.info('Dev login successful', { role, userId });
 
       // Now fetch the backend user with the new token
       backendFetchAttempted.current = true;
@@ -325,6 +332,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    authLogger.debug('Initiating logout', { isAuth0Authenticated: auth0IsAuthenticated });
+    
     // Reset backend fetch tracking
     backendFetchAttempted.current = false;
     setBackendUser(null);
@@ -333,18 +342,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setRegistrationData(null);
     
     if (auth0IsAuthenticated) {
+      authLogger.debug('Logging out from Auth0');
       auth0Logout({ 
         logoutParams: { 
           returnTo: `${window.location.origin}${ROUTES.AUTH0_LOGOUT_CALLBACK}` 
         } 
       });
     } else {
+      authLogger.debug('Logging out from dev mode');
       // Clear dev token cache on logout
       devTokenCache.current = null;
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
       // Redirect to homepage using window.location since we're outside RouterProvider
+      authLogger.debug('Redirecting to homepage after logout', { path: ROUTES.HOME });
       window.location.href = ROUTES.HOME;
     }
   };
