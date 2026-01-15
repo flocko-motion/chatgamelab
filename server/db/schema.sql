@@ -43,21 +43,7 @@ CREATE TABLE institution (
     modified_at timestamptz NOT NULL DEFAULT now(),
     name text NOT NULL UNIQUE
 );
--- UserRole
--- Role assignment for a user, optionally scoped to an institution.
--- admin: god-mode website owner, head: institution owner, staff: institution staff.
-CREATE TABLE user_role (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    user_id uuid NOT NULL REFERENCES app_user(id),
-    role text NOT NULL,
-    institution_id uuid NULL REFERENCES institution(id),
-    CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff')),
-    CONSTRAINT user_role_user_institution_uniq UNIQUE (user_id, role, institution_id)
-);
+
 -- Workshop
 -- A workshop belongs to an institution; the owner is defined by created_by.
 -- If not active, the workshop cannot be joined by participants.
@@ -74,6 +60,84 @@ CREATE TABLE workshop (
     public boolean NOT NULL DEFAULT false,
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
+
+-- UserRole
+-- Role assignment for a user, optionally scoped to an institution.
+-- admin: god-mode website owner, head: institution owner, staff: institution staff, participant: workshop participant.
+CREATE TABLE user_role (
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    user_id         uuid NOT NULL REFERENCES app_user(id),
+    role            text NOT NULL,
+    institution_id  uuid NULL REFERENCES institution(id),
+    workshop_id     uuid NULL REFERENCES workshop(id),
+
+    CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant')),
+    CONSTRAINT user_role_user_institution_workshop_uniq UNIQUE (user_id, role, institution_id, workshop_id)
+);
+
+-- UserRoleInvite
+-- Invite a user to assume a role in an organization (institution).
+-- Supports two use cases:
+-- 1. Targeted invite: inviting a specific user (by user_id or email) to assume a role
+-- 2. Open invite: creating an invite token that allows unspecified users to claim a role (e.g., participant)
+CREATE TABLE user_role_invite (
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    -- The institution this invite is for
+    institution_id  uuid NOT NULL REFERENCES institution(id),
+    -- The role being offered (admin, head, staff, participant)
+    role            text NOT NULL,
+    -- Optional workshop scope (e.g., for participant invites to a specific workshop)
+    workshop_id     uuid NULL REFERENCES workshop(id),
+
+    -- Targeted invite fields (at least one should be set for targeted invites)
+    invited_user_id uuid NULL REFERENCES app_user(id),
+    invited_email   text NULL,
+
+    -- Open invite fields (for unspecified users)
+    -- A secure random token that can be shared via link
+    invite_token    text NULL UNIQUE,
+    -- Maximum number of times this invite can be used (NULL = unlimited)
+    max_uses        integer NULL,
+    -- Current number of times this invite has been used
+    uses_count      integer NOT NULL DEFAULT 0,
+    -- Expiration timestamp (NULL = never expires)
+    expires_at      timestamptz NULL,
+
+    -- Invite status
+    -- pending: not yet accepted
+    -- accepted: accepted by the invited user (only for targeted invites)
+    -- declined: explicitly rejected by the invited user (only for targeted invites)
+    -- expired: past expiration date or max uses reached
+    -- revoked: manually cancelled by creator
+    status          text NOT NULL DEFAULT 'pending',
+
+    -- When the invite was accepted (only for targeted invites)
+    accepted_at     timestamptz NULL,
+    accepted_by     uuid NULL REFERENCES app_user(id),
+
+    CONSTRAINT user_role_invite_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant')),
+    CONSTRAINT user_role_invite_status_chk CHECK (status IN ('pending', 'accepted', 'declined', 'expired', 'revoked')),
+    -- Either targeted (user_id or email) OR open (invite_token), not both
+    CONSTRAINT user_role_invite_type_chk CHECK (
+        (invited_user_id IS NOT NULL OR invited_email IS NOT NULL) AND invite_token IS NULL
+        OR (invited_user_id IS NULL AND invited_email IS NULL) AND invite_token IS NOT NULL
+    ),
+    -- If max_uses is set, it must be positive
+    CONSTRAINT user_role_invite_max_uses_chk CHECK (max_uses IS NULL OR max_uses > 0),
+    -- uses_count cannot exceed max_uses
+    CONSTRAINT user_role_invite_uses_count_chk CHECK (max_uses IS NULL OR uses_count <= max_uses)
+);
+
 -- WorkshopParticipant
 -- Anonymous guest user participating in a workshop.
 CREATE TABLE workshop_participant (

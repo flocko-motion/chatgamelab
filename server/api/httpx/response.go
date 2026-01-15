@@ -11,26 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Common error codes that frontend can handle
-const (
-	ErrCodeGeneric           = "error"
-	ErrCodeValidation        = "validation_error"
-	ErrCodeUnauthorized      = "unauthorized"
-	ErrCodeForbidden         = "forbidden"
-	ErrCodeNotFound          = "not_found"
-	ErrCodeConflict          = "conflict"
-	ErrCodeInvalidPlatform   = "invalid_platform"
-	ErrCodeInvalidInput      = "invalid_input"
-	ErrCodeServerError       = "server_error"
-	ErrCodeUserNotRegistered = "user_not_registered"
-
-	// AI-related error codes
-	ErrCodeInvalidApiKey           = "invalid_api_key"
-	ErrCodeOrgVerificationRequired = "org_verification_required"
-	ErrCodeBillingNotActive        = "billing_not_active"
-	ErrCodeAiError                 = "ai_error"
-)
-
 // ErrorResponse is the standard error format for the API
 type ErrorResponse struct {
 	Code    string `json:"code"`    // Machine-readable error code
@@ -48,7 +28,7 @@ type UserNotRegisteredResponse struct {
 // WriteUserNotRegistered writes a response indicating the user needs to complete registration
 func WriteUserNotRegistered(w http.ResponseWriter, auth0ID string) {
 	WriteJSON(w, http.StatusForbidden, UserNotRegisteredResponse{
-		Type:    ErrCodeUserNotRegistered,
+		Type:    obj.ErrCodeUserNotRegistered,
 		Message: "User is not registered. Please complete registration.",
 		Auth0ID: auth0ID,
 	})
@@ -70,7 +50,7 @@ func WriteYAML(w http.ResponseWriter, status int, v any) {
 
 // WriteError writes a JSON error response with a generic error code
 func WriteError(w http.ResponseWriter, status int, message string) {
-	WriteErrorWithCode(w, status, ErrCodeGeneric, message)
+	WriteErrorWithCode(w, status, obj.ErrCodeGeneric, message)
 }
 
 // WriteErrorWithCode writes a JSON error response with a specific error code
@@ -86,9 +66,39 @@ func WriteErrorWithCode(w http.ResponseWriter, status int, code string, message 
 func WriteHTTPError(w http.ResponseWriter, err *obj.HTTPError) {
 	code := err.Code
 	if code == "" {
-		code = ErrCodeGeneric
+		code = obj.ErrCodeGeneric
 	}
 	WriteErrorWithCode(w, err.StatusCode, code, err.Message)
+}
+
+// ErrorCodeToStatus maps error codes to HTTP status codes
+func ErrorCodeToStatus(code string) int {
+	switch code {
+	case obj.ErrCodeValidation, obj.ErrCodeInvalidInput, obj.ErrCodeInvalidPlatform:
+		return http.StatusBadRequest
+	case obj.ErrCodeUnauthorized:
+		return http.StatusUnauthorized
+	case obj.ErrCodeForbidden, obj.ErrCodeUserNotRegistered:
+		return http.StatusForbidden
+	case obj.ErrCodeNotFound:
+		return http.StatusNotFound
+	case obj.ErrCodeConflict:
+		return http.StatusConflict
+	case obj.ErrCodeServerError:
+		return http.StatusInternalServerError
+	default:
+		return http.StatusInternalServerError
+	}
+}
+
+// WriteAppError writes an AppError as a JSON response with the appropriate HTTP status code
+func WriteAppError(w http.ResponseWriter, err *obj.AppError) {
+	status := ErrorCodeToStatus(err.Code)
+	WriteJSON(w, status, ErrorResponse{
+		Code:    err.Code,
+		Message: err.Message,
+		Type:    err.Code, // For backwards compatibility
+	})
 }
 
 // ReadJSON decodes the request body as JSON into the given struct

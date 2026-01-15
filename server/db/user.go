@@ -65,14 +65,6 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
-func UpdateUserSettings(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
-	arg := db.UpdateUserSettingsParams{
-		ID:                  id,
-		ShowAiModelSelector: showAiModelSelector,
-	}
-	return queries().UpdateUserSettings(ctx, arg)
-}
-
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 	res, err := queries().GetUserDetailsByID(ctx, id)
@@ -87,11 +79,10 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:                res.Name,
-		Email:               sqlNullStringToMaybeString(res.Email),
-		DeletedAt:           &res.DeletedAt.Time,
-		Auth0Id:             sqlNullStringToMaybeString(res.Auth0ID),
-		ShowAiModelSelector: res.ShowAiModelSelector,
+		Name:      res.Name,
+		Email:     sqlNullStringToMaybeString(res.Email),
+		DeletedAt: &res.DeletedAt.Time,
+		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)
@@ -210,37 +201,7 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	return users, rows.Err()
 }
 
-// GetUserStats returns aggregated statistics for a user
-func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
-	gamesPlayed, err := queries().CountUserSessions(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to count sessions: %w", err)
-	}
-
-	gamesCreated, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to count games: %w", err)
-	}
-
-	messagesSent, err := queries().CountUserPlayerMessages(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to count messages: %w", err)
-	}
-
-	totalPlays, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to sum play counts: %w", err)
-	}
-
-	return &obj.UserStats{
-		GamesPlayed:       int(gamesPlayed),
-		GamesCreated:      int(gamesCreated),
-		MessagesSent:      int(messagesSent),
-		TotalPlaysOnGames: int(totalPlays),
-	}, nil
-}
-
-func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID) error {
+func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {
 	// Validate role name
 	if role != nil {
 		if _, err := stringToRole(*role); err != nil {
@@ -248,14 +209,23 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 		}
 	}
 
+	// Use a transaction to ensure atomicity
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Rollback if not committed
+
+	txQueries := queries().WithTx(tx)
+
 	// Delete existing roles for this user
-	if err := queries().DeleteUserRoles(ctx, userID); err != nil {
+	if err := txQueries.DeleteUserRoles(ctx, userID); err != nil {
 		return fmt.Errorf("failed to delete existing roles: %w", err)
 	}
 
-	// No new role?
+	// No new role? Commit and return
 	if role == nil {
-		return nil
+		return tx.Commit()
 	}
 
 	// Create the new role
@@ -263,7 +233,12 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 		UserID:        userID,
 		Role:          sql.NullString{String: *role, Valid: *role != ""},
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
+		WorkshopID:    uuid.NullUUID{UUID: uuidPtrToUUID(workshopID), Valid: workshopID != nil},
 	}
-	_, err := queries().CreateUserRole(ctx, arg)
-	return err
+	if _, err := txQueries.CreateUserRole(ctx, arg); err != nil {
+		return fmt.Errorf("failed to create user role: %w", err)
+	}
+
+	// Commit the transaction
+	return tx.Commit()
 }

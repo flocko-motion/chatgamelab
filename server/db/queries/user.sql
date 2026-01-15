@@ -1,4 +1,3 @@
-
 -- app_user -------------------------------------------------------------
 
 -- name: CreateUser :one
@@ -39,7 +38,6 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
-  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -79,12 +77,6 @@ UPDATE app_user SET
   modified_at = now()
 WHERE id = $1;
 
--- name: UpdateUserSettings :exec
-UPDATE app_user SET
-  show_ai_model_selector = $2,
-  modified_at = now()
-WHERE id = $1;
-
 -- name: DeleteUser :exec
 UPDATE app_user
 SET
@@ -97,10 +89,9 @@ WHERE id = $1;
 DELETE FROM user_role WHERE user_id = $1;
 
 -- name: CreateUserRole :one
-INSERT INTO user_role (id, user_id, role, institution_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
+INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id;
-
 
 -- api_key --------------------------------------------------------------
 
@@ -141,6 +132,64 @@ WHERE id = $1;
 -- name: GetUserDefaultApiKeyShare :one
 SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 
+-- user_role_invite -------------------------------------------------------------
+
+-- name: CreateTargetedInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: GetInviteByID :one
+SELECT * FROM user_role_invite WHERE id = $1;
+
+-- name: GetInviteByToken :one
+SELECT * FROM user_role_invite WHERE invite_token = $1;
+
+-- name: UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: AcceptTargetedInvite :exec
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: IncrementInviteUses :exec
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1;
+
 -- User Statistics queries
 
 -- name: CountUserSessions :one
@@ -157,4 +206,3 @@ WHERE s.user_id = $1 AND m.type = 'player';
 
 -- name: SumPlayCountOfUserGames :one
 SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;
-

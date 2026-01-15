@@ -155,6 +155,27 @@ type UserRole struct {
 	UserID        uuid.UUID
 	Role          sql.NullString
 	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
+type UserRoleInvite struct {
+	ID            uuid.UUID
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	ModifiedBy    uuid.NullUUID
+	ModifiedAt    time.Time
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+	InviteToken   sql.NullString
+	MaxUses       sql.NullInt32
+	UsesCount     int32
+	ExpiresAt     sql.NullTime
+	Status        string
+	AcceptedAt    sql.NullTime
+	AcceptedBy    uuid.NullUUID
 }
 
 type Workshop struct {

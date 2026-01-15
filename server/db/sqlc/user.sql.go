@@ -13,42 +13,23 @@ import (
 	"github.com/google/uuid"
 )
 
-const countUserGames = `-- name: CountUserGames :one
-SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
+const acceptTargetedInvite = `-- name: AcceptTargetedInvite :exec
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1
 `
 
-func (q *Queries) CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countUserGames, createdBy)
-	var count int32
-	err := row.Scan(&count)
-	return count, err
+type AcceptTargetedInviteParams struct {
+	ID         uuid.UUID
+	AcceptedBy uuid.NullUUID
 }
 
-const countUserPlayerMessages = `-- name: CountUserPlayerMessages :one
-SELECT COUNT(*)::int AS count
-FROM game_session_message m
-JOIN game_session s ON s.id = m.game_session_id
-WHERE s.user_id = $1 AND m.type = 'player'
-`
-
-func (q *Queries) CountUserPlayerMessages(ctx context.Context, userID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countUserPlayerMessages, userID)
-	var count int32
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countUserSessions = `-- name: CountUserSessions :one
-
-SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1
-`
-
-// User Statistics queries
-func (q *Queries) CountUserSessions(ctx context.Context, userID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countUserSessions, userID)
-	var count int32
-	err := row.Scan(&count)
-	return count, err
+func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedInviteParams) error {
+	_, err := q.db.ExecContext(ctx, acceptTargetedInvite, arg.ID, arg.AcceptedBy)
+	return err
 }
 
 const createApiKey = `-- name: CreateApiKey :one
@@ -103,6 +84,126 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 	return i, err
 }
 
+const createOpenInvite = `-- name: CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by
+`
+
+type CreateOpenInviteParams struct {
+	CreatedBy     uuid.NullUUID
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InviteToken   sql.NullString
+	MaxUses       sql.NullInt32
+	ExpiresAt     sql.NullTime
+}
+
+func (q *Queries) CreateOpenInvite(ctx context.Context, arg CreateOpenInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, createOpenInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InviteToken,
+		arg.MaxUses,
+		arg.ExpiresAt,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const createTargetedInvite = `-- name: CreateTargetedInvite :one
+
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by
+`
+
+type CreateTargetedInviteParams struct {
+	CreatedBy     uuid.NullUUID
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+	InviteToken   sql.NullString
+}
+
+// user_role_invite -------------------------------------------------------------
+func (q *Queries) CreateTargetedInvite(ctx context.Context, arg CreateTargetedInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, createTargetedInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InvitedUserID,
+		arg.InvitedEmail,
+		arg.InviteToken,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 
 INSERT INTO app_user (id, name, email, auth0_id)
@@ -125,8 +226,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 }
 
 const createUserRole = `-- name: CreateUserRole :one
-INSERT INTO user_role (id, user_id, role, institution_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
+INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id
 `
 
@@ -134,10 +235,16 @@ type CreateUserRoleParams struct {
 	UserID        uuid.UUID
 	Role          sql.NullString
 	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
 }
 
 func (q *Queries) CreateUserRole(ctx context.Context, arg CreateUserRoleParams) (uuid.NullUUID, error) {
-	row := q.db.QueryRowContext(ctx, createUserRole, arg.UserID, arg.Role, arg.InstitutionID)
+	row := q.db.QueryRowContext(ctx, createUserRole,
+		arg.UserID,
+		arg.Role,
+		arg.InstitutionID,
+		arg.WorkshopID,
+	)
 	var id uuid.NullUUID
 	err := row.Scan(&id)
 	return id, err
@@ -227,6 +334,64 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 	return i, err
 }
 
+const getInviteByID = `-- name: GetInviteByID :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by FROM user_role_invite WHERE id = $1
+`
+
+func (q *Queries) GetInviteByID(ctx context.Context, id uuid.UUID) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getInviteByID, id)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const getInviteByToken = `-- name: GetInviteByToken :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, accepted_at, accepted_by FROM user_role_invite WHERE invite_token = $1
+`
+
+func (q *Queries) GetInviteByToken(ctx context.Context, inviteToken sql.NullString) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getInviteByToken, inviteToken)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
 const getUserApiKeys = `-- name: GetUserApiKeys :many
 SELECT
   k.id,
@@ -292,7 +457,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -309,7 +474,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
@@ -337,14 +501,13 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
-  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
   i.name         AS institution_name
 FROM app_user u
 LEFT JOIN LATERAL (
-  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY ur.created_at DESC
@@ -366,7 +529,6 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
-	ShowAiModelSelector  bool
 	RoleID               uuid.NullUUID
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
@@ -387,7 +549,6 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
@@ -405,6 +566,18 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const incrementInviteUses = `-- name: IncrementInviteUses :exec
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1
+`
+
+func (q *Queries) IncrementInviteUses(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, incrementInviteUses, id)
+	return err
 }
 
 const isEmailTakenByOther = `-- name: IsEmailTakenByOther :one
@@ -469,17 +642,6 @@ func (q *Queries) SetUserDefaultApiKeyShare(ctx context.Context, arg SetUserDefa
 	return err
 }
 
-const sumPlayCountOfUserGames = `-- name: SumPlayCountOfUserGames :one
-SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1
-`
-
-func (q *Queries) SumPlayCountOfUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, sumPlayCountOfUserGames, createdBy)
-	var total int32
-	err := row.Scan(&total)
-	return total, err
-}
-
 const updateApiKey = `-- name: UpdateApiKey :one
 UPDATE api_key SET
   modified_by = $2,
@@ -518,6 +680,23 @@ func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (Api
 	return i, err
 }
 
+const updateInviteStatus = `-- name: UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateInviteStatusParams struct {
+	ID     uuid.UUID
+	Status string
+}
+
+func (q *Queries) UpdateInviteStatus(ctx context.Context, arg UpdateInviteStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateInviteStatus, arg.ID, arg.Status)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE app_user SET
   name = $2,
@@ -534,22 +713,5 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
-	return err
-}
-
-const updateUserSettings = `-- name: UpdateUserSettings :exec
-UPDATE app_user SET
-  show_ai_model_selector = $2,
-  modified_at = now()
-WHERE id = $1
-`
-
-type UpdateUserSettingsParams struct {
-	ID                  uuid.UUID
-	ShowAiModelSelector bool
-}
-
-func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserSettings, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

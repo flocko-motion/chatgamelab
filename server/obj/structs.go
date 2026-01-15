@@ -49,9 +49,20 @@ type SystemSettings struct {
 type Role string
 
 const (
-	RoleAdmin Role = "admin"
-	RoleHead  Role = "head"
-	RoleStaff Role = "staff"
+	RoleAdmin       Role = "admin"
+	RoleHead        Role = "head"
+	RoleStaff       Role = "staff"
+	RoleParticipant Role = "participant"
+)
+
+type InviteStatus string
+
+const (
+	InviteStatusPending  InviteStatus = "pending"
+	InviteStatusAccepted InviteStatus = "accepted"
+	InviteStatusDeclined InviteStatus = "declined"
+	InviteStatusExpired  InviteStatus = "expired"
+	InviteStatusRevoked  InviteStatus = "revoked"
 )
 
 type UserRole struct {

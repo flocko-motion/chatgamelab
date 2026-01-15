@@ -30,7 +30,7 @@ type GetGamesFilters struct {
 func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) error {
 	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
-		return fmt.Errorf("game not found: %w", err)
+		return obj.ErrNotFound("game not found")
 	}
 
 	// Public games are accessible to everyone
@@ -40,10 +40,10 @@ func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid
 
 	// Non-public games require ownership
 	if userID == nil {
-		return errors.New("access denied: authentication required")
+		return obj.ErrUnauthorized("access denied: authentication required")
 	}
 	if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
-		return errors.New("access denied: not the owner of this game")
+		return obj.ErrForbidden("access denied: not the owner of this game")
 	}
 
 	return nil
@@ -83,7 +83,7 @@ func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) 
 		dbGames, err = getPublicGames(ctx, searchQuery, sortField, sortDir)
 	case "own":
 		if userID == nil {
-			return nil, errors.New("must provide userID for own filter")
+			return nil, obj.ErrValidation("must provide userID for own filter")
 		}
 		dbGames, err = getOwnGames(ctx, *userID, searchQuery, sortField, sortDir)
 	case "all", "organization", "favorites":
@@ -98,12 +98,12 @@ func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) 
 		if userID != nil {
 			dbGames, err = getGamesVisibleToUser(ctx, *userID, searchQuery, sortField, sortDir)
 		} else {
-			return nil, errors.New("must provide userID or valid filter")
+			return nil, obj.ErrValidation("must provide userID or valid filter")
 		}
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to get games: %w", err)
+		return nil, obj.ErrServerError("failed to get games")
 	}
 
 	result := make([]obj.Game, 0, len(dbGames))
@@ -314,13 +314,13 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 func GetGameByID(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) (*obj.Game, error) {
 	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
-		return nil, fmt.Errorf("game not found: %w", err)
+		return nil, obj.ErrNotFound("game not found")
 	}
 
 	// If userID provided, verify ownership (unless game is public)
 	if userID != nil && !g.Public {
 		if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
-			return nil, errors.New("access denied: not the owner of this game")
+			return nil, obj.ErrForbidden("access denied: not the owner of this game")
 		}
 	}
 
@@ -331,7 +331,7 @@ func GetGameByID(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) (*obj
 func GetGameByToken(ctx context.Context, token string) (*obj.Game, error) {
 	g, err := queries().GetGameByPrivateShareHash(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
-		return nil, fmt.Errorf("game not found: %w", err)
+		return nil, obj.ErrNotFound("game not found")
 	}
 	return dbGameToObj(ctx, g)
 }
@@ -341,10 +341,10 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Verify ownership
 	g, err := queries().GetGameByID(ctx, gameID)
 	if err != nil {
-		return fmt.Errorf("game not found: %w", err)
+		return obj.ErrNotFound("game not found")
 	}
 	if !g.CreatedBy.Valid || g.CreatedBy.UUID != userID {
-		return errors.New("access denied: not the owner of this game")
+		return obj.ErrForbidden("access denied: not the owner of this game")
 	}
 
 	return queries().DeleteGame(ctx, gameID)
@@ -393,10 +393,10 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	// Verify ownership
 	existing, err := queries().GetGameByID(ctx, game.ID)
 	if err != nil {
-		return fmt.Errorf("game not found: %w", err)
+		return obj.ErrNotFound("game not found")
 	}
 	if !existing.CreatedBy.Valid || existing.CreatedBy.UUID != userID {
-		return errors.New("access denied: not the owner of this game")
+		return obj.ErrForbidden("access denied: not the owner of this game")
 	}
 
 	now := time.Now()
@@ -454,7 +454,7 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 	var incoming obj.Game
 	if err := yaml.Unmarshal([]byte(yamlContent), &incoming); err != nil {
 		log.Debug("UpdateGameYaml: YAML unmarshal failed", "error", err)
-		return fmt.Errorf("invalid YAML: %w", err)
+		return obj.ErrValidation("invalid YAML")
 	}
 	log.Debug("UpdateGameYaml: YAML parsed", "incoming_name", incoming.Name, "incoming_description", incoming.Description)
 
@@ -481,7 +481,7 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // CreateGameSession persists a game session to the database and returns the created session with DB-generated ID
 func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.GameSession, error) {
 	if session == nil {
-		return nil, fmt.Errorf("session is nil")
+		return nil, obj.ErrValidation("session is nil")
 	}
 	now := time.Now()
 
@@ -513,7 +513,7 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 
 	result, err := queries().CreateGameSession(ctx, arg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create session: %w", err)
+		return nil, obj.ErrServerError("failed to create session")
 	}
 
 	session.ID = result.ID
@@ -547,7 +547,7 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create session message: %w", err)
+		return nil, obj.ErrServerError("failed to create session message")
 	}
 
 	// Return a copy with the generated values from the database
@@ -593,7 +593,7 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 
 	_, err := queries().UpdateGameSessionMessage(ctx, arg)
 	if err != nil {
-		return fmt.Errorf("failed to update session message: %w", err)
+		return obj.ErrServerError("failed to update session message")
 	}
 
 	return nil
@@ -606,7 +606,7 @@ func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSess
 		AiSession: []byte(aiSession),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to update session AI state: %w", err)
+		return obj.ErrServerError("failed to update session AI state")
 	}
 	return nil
 }
@@ -618,7 +618,7 @@ func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, ima
 		Image: image,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to update message image: %w", err)
+		return obj.ErrServerError("failed to update message image")
 	}
 	return nil
 }
@@ -627,12 +627,12 @@ func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, ima
 func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	s, err := queries().GetGameSessionByID(ctx, sessionID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get session: %w", err)
+		return nil, obj.ErrNotFound("session not found")
 	}
 
 	if userID != nil {
 		if s.UserID != *userID {
-			return nil, fmt.Errorf("failed to get session: access denied for user %s and session %s", userID.String(), s.ID.String())
+			return nil, obj.ErrForbidden("access denied to this session")
 		}
 	}
 
@@ -672,7 +672,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	// Load API key
 	key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get API key for session: %w", err)
+		return nil, obj.ErrServerError("failed to get API key for session")
 	}
 	session.ApiKey = &obj.ApiKey{
 		ID:       key.ID,
@@ -689,7 +689,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 func GetGameSessionMessageByID(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
 	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get message: %w", err)
+		return nil, obj.ErrNotFound("message not found")
 	}
 
 	msg := &obj.GameSessionMessage{
@@ -724,7 +724,7 @@ func GetGameSessionMessageByID(ctx context.Context, messageID uuid.UUID) (*obj.G
 func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
 	m, err := queries().GetLatestGameSessionMessage(ctx, sessionID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get latest message: %w", err)
+		return nil, obj.ErrNotFound("latest message not found")
 	}
 
 	msg := &obj.GameSessionMessage{
@@ -758,7 +758,7 @@ func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj
 func GetAllGameSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj.GameSessionMessage, error) {
 	messages, err := queries().GetAllGameSessionMessages(ctx, sessionID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get session messages: %w", err)
+		return nil, obj.ErrServerError("failed to get session messages")
 	}
 
 	result := make([]obj.GameSessionMessage, 0, len(messages))
@@ -848,7 +848,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		case "game":
 			rows, err := queries().SearchGameSessionsByUserIDSortByGame(ctx, db.SearchGameSessionsByUserIDSortByGameParams{UserID: userID, Column2: searchParam})
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
@@ -856,7 +856,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		case "model":
 			rows, err := queries().SearchGameSessionsByUserIDSortByModel(ctx, db.SearchGameSessionsByUserIDSortByModelParams{UserID: userID, Column2: searchParam})
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
@@ -864,7 +864,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		default:
 			rows, err := queries().SearchGameSessionsByUserID(ctx, db.SearchGameSessionsByUserIDParams{UserID: userID, Column2: searchParam})
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
@@ -875,7 +875,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		case "game":
 			rows, err := queries().GetGameSessionsByUserIDSortByGame(ctx, userID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
@@ -883,7 +883,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		case "model":
 			rows, err := queries().GetGameSessionsByUserIDSortByModel(ctx, userID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
@@ -891,7 +891,7 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 		default:
 			rows, err := queries().GetGameSessionsByUserID(ctx, userID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to get user sessions: %w", err)
+				return nil, obj.ErrServerError("failed to get user sessions")
 			}
 			for _, s := range rows {
 				sessions = append(sessions, sessionRowToUserSession(s.ID, s.GameID, s.UserID, s.ApiKeyID, s.AiPlatform, s.AiModel, s.AiSession, s.ImageStyle, s.CreatedBy, s.ModifiedBy, s.CreatedAt, s.ModifiedAt, s.GameName))
