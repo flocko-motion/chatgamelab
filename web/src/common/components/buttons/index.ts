@@ -14,3 +14,8 @@ export { ActionButton, type ActionButtonProps } from './ActionButton';
 export { MenuButton, type MenuButtonProps } from './MenuButton';
 export { TextButton, type TextButtonProps } from './TextButton';
 export { DangerButton, type DangerButtonProps } from './DangerButton';
+export { DeleteIconButton } from './DeleteIconButton';
+export { EditIconButton } from './EditIconButton';
+export { GenericIconButton, type GenericIconButtonProps } from './GenericIconButton';
+export { PlayIconButton } from './PlayIconButton';
+export type { IconButtonProps } from './types';
