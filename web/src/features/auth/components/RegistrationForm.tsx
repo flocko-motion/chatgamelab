@@ -16,6 +16,7 @@ import { SectionTitle, HelperText } from '@components/typography';
 import { IconUser, IconMail, IconCheck, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@mantine/hooks';
+import { authLogger } from '@/config/logger';
 
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
 import { Api } from '@/api/generated';
@@ -88,7 +89,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
           clearErrors('name');
         }
       } catch (error) {
-        console.error('Failed to check name availability:', error);
+        authLogger.error('Failed to check name availability', { error });
         setNameAvailable(null);
       } finally {
         setIsCheckingName(false);
@@ -109,7 +110,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     try {
       await registerUser(data.name.trim(), data.email.trim());
     } catch (error) {
-      console.error('Registration failed:', error);
+      authLogger.error('Registration failed', { error });
       setSubmitError(t('register.errors.registrationFailed'));
     } finally {
       setIsSubmitting(false);
