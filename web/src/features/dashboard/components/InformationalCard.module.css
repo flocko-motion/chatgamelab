@@ -1,0 +1,17 @@
+.listItem {
+  display: block;
+  width: 100%;
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-gray-0);
+  text-align: left;
+  transition: background-color 150ms ease;
+}
+
+.listItem[data-clickable="true"] {
+  cursor: pointer;
+}
+
+.listItem[data-clickable="true"]:hover {
+  background-color: var(--mantine-color-gray-1);
+}

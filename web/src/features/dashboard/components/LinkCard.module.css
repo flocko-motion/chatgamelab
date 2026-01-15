@@ -1,0 +1,23 @@
+.card {
+  text-decoration: none;
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.card:hover {
+  background-color: var(--mantine-color-gray-0);
+  transform: translateY(-2px);
+}
+
+.linkItem {
+  display: block;
+  width: 100%;
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--mantine-color-gray-0);
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.linkItem:hover {
+  background-color: var(--mantine-color-gray-1);
+}
