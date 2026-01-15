@@ -57,6 +57,8 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
+	mux.Handle("POST /api/users/{id}/role", httpx.RequireAuth(SetUserRole))
+	mux.Handle("DELETE /api/users/{id}/role", httpx.RequireAuth(RemoveUserRole))
 	if DevMode {
 		mux.HandleFunc("POST /api/users/new", CreateUser)
 		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)

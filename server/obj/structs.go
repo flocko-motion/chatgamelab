@@ -34,9 +34,17 @@ type UserStats struct {
 }
 
 type Institution struct {
-	ID   uuid.UUID `json:"id"`
-	Meta Meta      `json:"meta"`
-	Name string    `json:"name"`
+	ID      uuid.UUID           `json:"id"`
+	Meta    Meta                `json:"meta"`
+	Name    string              `json:"name"`
+	Members []InstitutionMember `json:"members,omitempty"`
+}
+
+type InstitutionMember struct {
+	UserID uuid.UUID `json:"userId"`
+	Name   string    `json:"name"`
+	Email  *string   `json:"email,omitempty"`
+	Role   Role      `json:"role"`
 }
 
 type SystemSettings struct {

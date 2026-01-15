@@ -1,17 +1,16 @@
 package httpx
 
 import (
+	"cgl/api/auth"
+	"cgl/db"
+	"cgl/log"
+	"cgl/obj"
 	"context"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
-
-	"cgl/api/auth"
-	"cgl/db"
-	"cgl/log"
-	"cgl/obj"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/jwks"

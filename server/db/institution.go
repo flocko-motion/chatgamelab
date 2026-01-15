@@ -56,7 +56,7 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 		return nil, obj.ErrNotFound("institution not found")
 	}
 
-	return &obj.Institution{
+	institution := &obj.Institution{
 		ID:   result.ID,
 		Name: result.Name,
 		Meta: obj.Meta{
@@ -65,7 +65,42 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+
+	// Load members if user has permission (admin, head, or staff of this institution)
+	if canViewInstitutionMembers(ctx, userID, id) {
+		members, err := loadInstitutionMembers(ctx, id)
+		if err == nil {
+			institution.Members = members
+		}
+	}
+
+	return institution, nil
+}
+
+// loadInstitutionMembers loads all users with roles for a given institution
+func loadInstitutionMembers(ctx context.Context, institutionID uuid.UUID) ([]obj.InstitutionMember, error) {
+	rows, err := queries().GetInstitutionMembers(ctx, uuid.NullUUID{UUID: institutionID, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+
+	members := make([]obj.InstitutionMember, 0, len(rows))
+	for _, row := range rows {
+		member := obj.InstitutionMember{
+			UserID: row.ID,
+			Name:   row.Name,
+		}
+		if row.Email.Valid {
+			member.Email = &row.Email.String
+		}
+		if row.Role.Valid {
+			member.Role = obj.Role(row.Role.String)
+		}
+		members = append(members, member)
+	}
+
+	return members, nil
 }
 
 // ListInstitutions retrieves all non-deleted institutions (admin only)

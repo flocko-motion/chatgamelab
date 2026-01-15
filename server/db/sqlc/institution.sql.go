@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -211,6 +212,50 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getInstitutionMembers = `-- name: GetInstitutionMembers :many
+SELECT u.id, u.name, u.email, r.role
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND u.deleted_at IS NULL
+ORDER BY r.role, u.name
+`
+
+type GetInstitutionMembersRow struct {
+	ID    uuid.UUID
+	Name  string
+	Email sql.NullString
+	Role  sql.NullString
+}
+
+func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.NullUUID) ([]GetInstitutionMembersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getInstitutionMembers, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetInstitutionMembersRow
+	for rows.Next() {
+		var i GetInstitutionMembersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getWorkshopByID = `-- name: GetWorkshopByID :one

@@ -483,3 +483,42 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		return obj.ErrForbidden("unknown operation")
 	}
 }
+
+// canViewInstitutionMembers checks if user can view members of an institution
+// Returns true if user is admin OR head/staff of this institution
+func canViewInstitutionMembers(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) bool {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return false
+	}
+
+	// Admin can view all
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return true
+	}
+
+	// Head or Staff of this institution can view
+	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
+			return true
+		}
+	}
+
+	return false
+}
+
+// canManageUserRole checks if user can manage (set/remove) roles
+// Currently only admins can manage roles
+func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	// Only admin can manage roles
+	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		return obj.ErrForbidden("only admins can manage user roles")
+	}
+
+	return nil
+}

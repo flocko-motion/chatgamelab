@@ -36,6 +36,16 @@ func MaybeToString(v any, ifNil string) string {
 	if v == nil {
 		return ifNil
 	}
+
+	// Handle pointers by dereferencing them
+	val := reflect.ValueOf(v)
+	if val.Kind() == reflect.Ptr {
+		if val.IsNil() {
+			return ifNil
+		}
+		return fmt.Sprintf("%v", val.Elem().Interface())
+	}
+
 	return fmt.Sprintf("%v", v)
 }
 

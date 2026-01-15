@@ -6,6 +6,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,6 +30,14 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 		return nil, err
 	}
 
+	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	if email != nil && isAdminEmail(*email) {
+		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+		}
+	}
+
 	return GetUserByID(ctx, id)
 }
 
@@ -47,6 +57,14 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	_, err := queries().CreateUserWithID(ctx, arg)
 	if err != nil {
 		return nil, err
+	}
+
+	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	if email != nil && isAdminEmail(*email) {
+		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+		}
 	}
 
 	return GetUserByID(ctx, id)
@@ -178,6 +196,42 @@ func uuidPtrToUUID(id *uuid.UUID) uuid.UUID {
 	return *id
 }
 
+// isAdminEmail checks if the given email is in the ADMIN_EMAILS environment variable
+func isAdminEmail(email string) bool {
+	adminEmails := os.Getenv("ADMIN_EMAILS")
+	if adminEmails == "" {
+		return false
+	}
+
+	// Split by comma and trim whitespace
+	emails := strings.Split(adminEmails, ",")
+	for _, adminEmail := range emails {
+		if strings.TrimSpace(adminEmail) == strings.TrimSpace(email) {
+			return true
+		}
+	}
+	return false
+}
+
+// autoUpgradeUserToAdmin creates an admin role for the user
+func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
+	// Create admin role for the user
+	arg := db.CreateUserRoleParams{
+		UserID:        userID,
+		Role:          sql.NullString{String: string(obj.RoleAdmin), Valid: true},
+		InstitutionID: uuid.NullUUID{}, // Admin role has no institution
+		WorkshopID:    uuid.NullUUID{}, // Admin role has no workshop
+	}
+
+	_, err := queries().CreateUserRole(ctx, arg)
+	if err != nil {
+		return fmt.Errorf("failed to create admin role: %w", err)
+	}
+
+	fmt.Printf("Auto-upgraded user %s to admin role\n", userID)
+	return nil
+}
+
 // GetAllUsers returns all users (for admin/CLI use)
 func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	rows, err := sqlDb.QueryContext(ctx, `
@@ -207,7 +261,18 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	return users, rows.Err()
 }
 
-func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {
+func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {
+	// Check permissions
+	currentUser, err := GetUserByID(ctx, currentUserID)
+	if err != nil {
+		return obj.ErrNotFound("current user not found")
+	}
+
+	// Only admin can set roles
+	if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
+		return obj.ErrForbidden("only admins can manage user roles")
+	}
+
 	// Validate role name
 	if role != nil {
 		if _, err := stringToRole(*role); err != nil {
@@ -225,7 +290,7 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 	txQueries := queries().WithTx(tx)
 
 	// Delete existing roles for this user
-	if err := txQueries.DeleteUserRoles(ctx, userID); err != nil {
+	if err := txQueries.DeleteUserRoles(ctx, targetUserID); err != nil {
 		return fmt.Errorf("failed to delete existing roles: %w", err)
 	}
 
@@ -236,7 +301,7 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 
 	// Create the new role
 	arg := db.CreateUserRoleParams{
-		UserID:        userID,
+		UserID:        targetUserID,
 		Role:          sql.NullString{String: *role, Valid: *role != ""},
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
 		WorkshopID:    uuid.NullUUID{UUID: uuidPtrToUUID(workshopID), Valid: workshopID != nil},

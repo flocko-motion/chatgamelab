@@ -31,6 +31,14 @@ RETURNING *;
 -- name: DeleteInstitution :exec
 UPDATE institution SET deleted_at = now() WHERE id = $1;
 
+-- name: GetInstitutionMembers :many
+SELECT u.id, u.name, u.email, r.role
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND u.deleted_at IS NULL
+ORDER BY r.role, u.name;
+
 
 -- workshop -------------------------------------------------------------
 
