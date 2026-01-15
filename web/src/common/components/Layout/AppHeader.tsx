@@ -24,6 +24,7 @@ import {
   IconBell,
   IconUser,
   IconLogout,
+  IconKey,
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { DropdownMenu } from '../DropdownMenu';
@@ -43,6 +44,7 @@ export interface AppHeaderProps {
   onNotificationsClick?: () => void;
   onSettingsClick?: () => void;
   onProfileClick?: () => void;
+  onApiKeysClick?: () => void;
   onLogoutClick?: () => void;
   userName?: string;
 }
@@ -91,8 +93,9 @@ function UserActions({
   onNotificationsClick,
   onSettingsClick,
   onProfileClick,
+  onApiKeysClick,
   onLogoutClick,
-}: Pick<AppHeaderProps, 'onNotificationsClick' | 'onSettingsClick' | 'onProfileClick' | 'onLogoutClick'>) {
+}: Pick<AppHeaderProps, 'onNotificationsClick' | 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick'>) {
   const { t } = useTranslation('common');
   const { logout: authLogout } = useAuth();
   const theme = useMantineTheme();
@@ -152,6 +155,12 @@ function UserActions({
       label: t('header.settings'),
       icon: <IconSettings size={16} />,
       onClick: onSettingsClick,
+    },
+    {
+      key: 'apiKeys',
+      label: t('header.apiKeys'),
+      icon: <IconKey size={16} />,
+      onClick: onApiKeysClick,
     },
     {
       key: 'logout',
@@ -315,6 +324,7 @@ export function AppHeader({
   onNotificationsClick,
   onSettingsClick,
   onProfileClick,
+  onApiKeysClick,
   onLogoutClick,
 }: AppHeaderProps) {
   const [mobileNavOpened, { open: openMobileNav, close: closeMobileNav }] = useDisclosure(false);
@@ -379,6 +389,7 @@ export function AppHeader({
             onNotificationsClick={onNotificationsClick}
             onSettingsClick={onSettingsClick}
             onProfileClick={onProfileClick}
+            onApiKeysClick={onApiKeysClick}
             onLogoutClick={onLogoutClick}
           />
         </Box>
@@ -442,6 +453,7 @@ export function AppHeader({
                 onNotificationsClick={onNotificationsClick}
                 onSettingsClick={onSettingsClick}
                 onProfileClick={onProfileClick}
+                onApiKeysClick={onApiKeysClick}
                 onLogoutClick={onLogoutClick}
               />
             )}

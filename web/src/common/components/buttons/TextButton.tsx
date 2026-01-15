@@ -40,7 +40,7 @@ export function TextButton({
   return (
     <MantineButton
       variant="subtle"
-      color="accent"
+      color="accent.9"
       size={size}
       radius="md"
       onClick={onClick}
