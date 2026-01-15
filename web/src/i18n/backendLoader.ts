@@ -1,4 +1,5 @@
 import { isStaticLanguage } from './config';
+import { apiLogger } from '../config/logger';
 
 // Backend loader for dynamic translations
 export const backendLoader = {
@@ -17,13 +18,13 @@ export const backendLoader = {
       const namespaceTranslations = (enResources as any)[namespace];
       
       if (!namespaceTranslations) {
-        console.warn(`No translations found for namespace: ${namespace}`);
+        apiLogger.warning('No translations found for namespace', { namespace });
         return null;
       }
 
       // TODO: We have to replace this later with the actual translation endpoint
       // and actually do the translation
-      console.log(`Translating ${namespace} from English to ${language}`);
+      apiLogger.debug('Translating namespace', { namespace, language });
       
       // const response = await apiClient.post('/translate', {
       //   sourceLanguage: 'en',
@@ -35,7 +36,7 @@ export const backendLoader = {
       return namespaceTranslations;
       
     } catch (error) {
-      console.warn(`Failed to load translations for ${language}/${namespace}:`, error);
+      apiLogger.warning('Failed to load translations', { language, namespace, error });
       return null; // Falls back to English
     }
   },
