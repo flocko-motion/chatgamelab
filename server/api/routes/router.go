@@ -19,6 +19,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/platforms", GetPlatforms)
 	mux.HandleFunc("GET /api/languages", GetLanguages)
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
+	mux.HandleFunc("GET /api/roles", GetRoles)
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
@@ -27,6 +28,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
 	mux.Handle("POST /api/games/new", httpx.RequireAuth(CreateGame))
 	mux.Handle("POST /api/games/{id}", httpx.RequireAuth(UpdateGame))
+	mux.Handle("POST /api/games/{id}/clone", httpx.RequireAuth(CloneGame))
 	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
 	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
 	mux.Handle("DELETE /api/games/{id}", httpx.RequireAuth(DeleteGame))
