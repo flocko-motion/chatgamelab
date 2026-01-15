@@ -107,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
         return token;
       } catch (error) {
-        console.error('[Auth] Failed to get Auth0 access token:', error);
+        authLogger.error('Failed to get Auth0 access token', { error });
         return null;
       }
     }
@@ -165,14 +165,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
-      console.log('[Auth] Backend user fetched:', response.data);
+      authLogger.debug('Backend user fetched', { userId: response.data.id, name: response.data.name });
     } catch (error) {
-      console.error('[Auth] Failed to fetch backend user:', error);
+      authLogger.error('Failed to fetch backend user', { error });
       
       // Check if this is a "user not registered" error
       if (isUserNotRegisteredError(error)) {
         const regData = getRegistrationDataFromAuth0();
-        console.log('[Auth] User needs registration:', regData?.auth0Id);
+        authLogger.debug('User needs registration', { auth0Id: regData?.auth0Id });
         setNeedsRegistration(true);
         setRegistrationData(regData);
         setBackendUser(null);
