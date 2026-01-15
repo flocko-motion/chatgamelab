@@ -134,6 +134,8 @@
     "games": {
       "title": "My Created Games",
       "createButton": "Create Game",
+      "playNow": "Play Now",
+      "saveAndPlay": "Save & Play",
       "fields": {
         "name": "Name",
         "description": "Description",
@@ -173,22 +175,25 @@
       },
       "tabs": {
         "basic": "Basic",
+        "basicInfo": "General info about the game. This is just for you and won't affect gameplay.",
         "story": "Story & AI",
+        "storyInfo": "Everything here is sent to the AI to set up your game world and story.",
         "style": "Style",
+        "styleInfo": "Optional visual settings for how the game looks when playing.",
         "quickStart": "Quick Start",
         "importExport": "Import/Export"
       },
       "editFields": {
         "name": "Game Name",
-        "description": "Description",
-        "imageStyle": "Image Style",
-        "imageStyleHint": "Describe the visual style for generated images",
-        "scenario": "Scenario",
-        "scenarioHint": "What is the game about? Describe the world, rules, and player's role.",
-        "gameStart": "Game Start Message",
-        "gameStartHint": "How should the game welcome the player? First scene setup.",
-        "statusFields": "Status Fields",
-        "statusFieldsHint": "Define the status fields available to the AI (e.g., health, inventory) and their initial values.",
+        "description": "Give the game a short description. This is just for you.",
+        "imageStyle": "What style should the game's images have?",
+        "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
+        "scenario": "What is the game about?",
+        "scenarioHint": "Briefly describe: Where does the game take place? Who are you? What is the goal? Any important rules?",
+        "gameStart": "How does the game begin?",
+        "gameStartHint": "What happens at the start? Describe the first scene that the player sees.",
+        "statusFields": "Game values",
+        "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing.",
         "firstMessage": "First Message",
         "firstMessageHint": "Pre-generated opening message for quick game start.",
         "firstStatus": "First Status",
@@ -202,15 +207,15 @@
       "statusFieldsEditor": {
         "visual": "Visual",
         "raw": "Raw JSON",
-        "noFields": "No status fields defined. Click + to add one.",
-        "namePlaceholder": "Field name (e.g., Health)",
-        "valuePlaceholder": "Initial value (e.g., 100)",
-        "subNamePlaceholder": "Sub-field name (e.g., armor)",
-        "addField": "Add status field",
-        "addSubFields": "Add sub-fields",
-        "addSubField": "Add sub-field",
-        "subFields": "sub-fields",
-        "convertToSimple": "Remove sub-fields",
+        "noFields": "No values yet. Click + to add a new value.",
+        "namePlaceholder": "Name (e.g., Health)",
+        "valuePlaceholder": "Starting value (e.g., 100)",
+        "subNamePlaceholder": "Detail (e.g., armor)",
+        "addField": "Add new value",
+        "addSubFields": "Add details",
+        "addSubField": "Add details",
+        "subFields": "details",
+        "convertToSimple": "Remove details",
         "invalidJson": "Invalid JSON format. Fix errors before switching to Visual mode."
       },
       "view": {
@@ -221,9 +226,6 @@
         "title": "Delete Game",
         "message": "Are you sure you want to delete \"{{name}}\"?",
         "warning": "This action cannot be undone. All game data will be permanently deleted."
-      },
-      "editPage": {
-        "placeholder": "Advanced game editor coming soon. You'll be able to configure scenarios, AI settings, images, and more."
       },
       "errors": {
         "nameRequired": "Game name is required",
@@ -249,6 +251,7 @@
       "untitledGame": "Untitled Game",
       "noDescription": "No description",
       "resume": "Continue",
+      "continueGame": "Continue Game",
       "filters": {
         "all": "All",
         "organization": "Organization"
@@ -282,6 +285,7 @@
       "title": "Select a Game",
       "selectGameTitle": "Select a Game",
       "selectGame": "Select this game",
+      "playNow": "Play now",
       "owner": "Mine",
       "favorite": "Add to favorites",
       "unfavorite": "Remove from favorites",
@@ -353,8 +357,8 @@
     "dashboard": "Dashboard",
     "sessions": "Sessions",
     "games": "Games",
-    "create": "Create",
-    "play": "Play",
+    "create": "Create Your Own Game",
+    "play": "Play a Game",
     "rooms": "Rooms",
     "groups": "Groups",
     "learn": "Learn",
