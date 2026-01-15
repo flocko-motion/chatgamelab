@@ -42,9 +42,24 @@ function RootComponent() {
 
   // Navigation items for authenticated header
   const navItems: NavItem[] = [
-    { label: t('dashboard'), icon: <IconBuilding size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
-    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: ROUTES.SESSIONS as '/' }) },
-    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: ROUTES.CREATIONS as '/' }) },
+    { 
+      label: t('dashboard'), 
+      icon: <IconBuilding size={18} />, 
+      onClick: () => navigate({ to: ROUTES.DASHBOARD }),
+      active: pathname === ROUTES.DASHBOARD,
+    },
+    { 
+      label: t('play'), 
+      icon: <IconPlayerPlay size={18} />, 
+      onClick: () => navigate({ to: ROUTES.SESSIONS as '/' }),
+      active: pathname.startsWith(ROUTES.SESSIONS) || pathname.startsWith('/play'),
+    },
+    { 
+      label: t('create'), 
+      icon: <IconEdit size={18} />, 
+      onClick: () => navigate({ to: ROUTES.CREATIONS as '/' }),
+      active: pathname.startsWith(ROUTES.CREATIONS) || pathname.startsWith('/games'),
+    },
   ];
 
   // Header navigation callbacks

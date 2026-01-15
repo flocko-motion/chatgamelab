@@ -64,12 +64,15 @@ function NavButton({ item }: { item: NavItem }) {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        transition: 'background-color 150ms ease',
+        transition: 'background-color 150ms ease, box-shadow 150ms ease',
       }}
       styles={{
         root: {
+          backgroundColor: item.active ? theme.other.layout.bgActive : 'transparent',
+          boxShadow: item.active ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
           '&:hover': {
-            backgroundColor: theme.other.layout.bgHover,
+            backgroundColor: item.active ? theme.other.layout.bgActive : 'rgba(255, 255, 255, 0.2)',
+            boxShadow: item.active ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
           },
         },
       }}
@@ -238,7 +241,9 @@ function MobileNavigation({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                backgroundColor: theme.other.layout.bgSubtle,
+                transition: 'background-color 150ms ease, box-shadow 150ms ease',
+                backgroundColor: item.active ? theme.other.layout.bgActive : theme.other.layout.bgSubtle,
+                boxShadow: item.active ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
               }}
             >
               {item.icon}
