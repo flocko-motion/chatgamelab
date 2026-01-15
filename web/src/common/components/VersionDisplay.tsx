@@ -1,4 +1,6 @@
-import { Text, Tooltip, Divider } from '@mantine/core';
+import { Text, Tooltip, Divider, Alert, Group } from '@mantine/core';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import { useTranslation, Trans } from 'react-i18next';
 import { useVersion } from '../../api/hooks';
 import { version as frontendVersion, buildTime as frontendBuildTime } from '../../version';
 
@@ -9,7 +11,8 @@ interface BackendVersionInfo {
 }
 
 export function VersionDisplay() {
-  const { data: backendData, isLoading, isError } = useVersion();
+  const { t } = useTranslation('dashboard');
+  const { data: backendData, isError } = useVersion();
 
   const backendInfo: BackendVersionInfo | null = 
     backendData && backendData.version && backendData.buildTime && backendData.gitCommit
@@ -20,11 +23,9 @@ export function VersionDisplay() {
         }
       : null;
 
-  const backendVersion = backendInfo?.version || (isError ? 'unknown' : 'loading...');
-  const displayVersion = isLoading ? 'v{frontend} / loading...' : 
-                         isError ? `v${frontendVersion} / unknown` :
-                         `v${frontendVersion} / v${backendVersion}`;
-
+  // Check for version mismatch
+  const hasVersionMismatch = backendInfo && backendInfo.version !== frontendVersion;
+  
   const frontendLabel = (
     <div style={{ marginBottom: 'var(--mantine-spacing-sm)' }}>
       <Text size="lg" c="white" fw={600} mb="xs">
@@ -61,7 +62,7 @@ export function VersionDisplay() {
           <Text size="sm" c="gray.2" style={{ minWidth: '60px' }}>
             <strong>Version:</strong>
           </Text>
-          <Text size="sm" c="gray.2">
+          <Text size="sm" c={hasVersionMismatch ? 'red.4' : 'gray.2'}>
             v{backendInfo.version}
           </Text>
         </div>
@@ -70,7 +71,7 @@ export function VersionDisplay() {
             <strong>Built:</strong>
           </Text>
           <Text size="sm" c="gray.2">
-            {new Date(backendInfo.buildTime).toLocaleString()}
+            {backendInfo.buildTime === 'unknown' ? 'Unknown' : new Date(backendInfo.buildTime).toLocaleString()}
           </Text>
         </div>
         <div style={{ display: 'flex', gap: 'var(--mantine-spacing-sm)' }}>
@@ -94,6 +95,31 @@ export function VersionDisplay() {
     </div>
   );
 
+  const versionMismatchAlert = hasVersionMismatch ? (
+    <Alert 
+      variant="outline" 
+      color="red" 
+      title={t('version.mismatch.title')}
+      icon={<IconAlertTriangle size={16} />}
+      style={{ marginTop: 'var(--mantine-spacing-sm)' }}
+    >
+      <Text size="sm" c="red">
+        <Trans 
+        i18nKey="version.mismatch.message" 
+        t={t}
+        values={{
+          frontendVersion: `v${frontendVersion}`,
+          backendVersion: `v${backendInfo?.version}`
+        }}
+        components={{
+          frontendVersion: <Text span c="blue.3" fw={600} />,
+          backendVersion: <Text span c="orange.3" fw={600} />
+        }}
+      />
+      </Text>
+    </Alert>
+  ) : null;
+
   return (
     <Tooltip 
       label={
@@ -107,6 +133,7 @@ export function VersionDisplay() {
           {frontendLabel}
           <Divider color="gray.7" />
           {backendLabel}
+          {versionMismatchAlert}
         </div>
       }
       withArrow
@@ -117,9 +144,20 @@ export function VersionDisplay() {
       radius="md"
       maw={400}
     >
-      <Text size="sm" c="dimmed" span style={{ cursor: 'help' }}>
-        {displayVersion}
-      </Text>
+      <Group gap="xs" style={{ cursor: 'help', alignItems: 'center' }}>
+        <Text size="sm" c="dimmed" span>
+          v{frontendVersion}
+        </Text>
+        {hasVersionMismatch && (
+          <IconAlertTriangle 
+            size={14} 
+            color="red" 
+            style={{ 
+              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' 
+            }} 
+          />
+        )}
+      </Group>
     </Tooltip>
   );
 }

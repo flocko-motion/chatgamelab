@@ -134,6 +134,15 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s %s: %v", failedAction, session.ID, err)}
 	}
 
+	// Store player/system action message (skip for system messages which are just prompts)
+	if action.Type == obj.GameSessionMessageTypePlayer {
+		log.Debug("storing player action message", "session_id", session.ID)
+		if _, err = db.CreateGameSessionMessage(ctx, session.UserID, action); err != nil {
+			log.Debug("failed to store player action", "session_id", session.ID, "error", err)
+			return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: failed to store player action: %v", failedAction, err)}
+		}
+	}
+
 	// Create placeholder message with Stream=true (client will connect to SSE)
 	log.Debug("creating streaming message", "session_id", session.ID)
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
@@ -143,8 +152,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	log.Debug("streaming message created", "message_id", response.ID)
 
-	// Create stream for SSE
-	responseStream := stream.Get().Create(ctx, response)
+	// Create stream for SSE with ImageSaver to persist image before signaling done
+	responseStream := stream.Get().Create(ctx, response, func(messageID uuid.UUID, imageData []byte) error {
+		return db.UpdateGameSessionMessageImage(context.Background(), messageID, imageData)
+	})
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
@@ -189,15 +200,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	go func() {
 		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", response.ID)
 		// GenerateImage streams partial images and updates response.Image with final
+		// Note: Image is saved to DB inside stream.SendImage when isDone=true
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
 			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("GenerateImage completed", "session_id", session.ID, "image_size", len(response.Image))
-		}
-
-		// Update DB with final image
-		if err := db.UpdateGameSessionMessageImage(context.Background(), response.ID, response.Image); err != nil {
-			log.Warn("failed to update message image", "session_id", session.ID, "error", err)
 		}
 	}()
 

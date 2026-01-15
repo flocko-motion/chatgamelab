@@ -11,14 +11,14 @@ import {
   Alert,
   Box,
   SimpleGrid,
-  ActionIcon,
   Skeleton,
   useMantineTheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
-import { IconPlus, IconAlertCircle, IconTrash } from '@tabler/icons-react';
-import { ActionButton, TextButton, DangerButton } from '@components/buttons';
+import { IconPlus, IconAlertCircle } from '@tabler/icons-react';
+import { ActionButton, TextButton, DangerButton, DeleteIconButton } from '@components/buttons';
+import { InfoCard } from '@components/cards';
 import { PageTitle } from '@components/typography';
 import { useApiKeys, useCreateApiKey, useDeleteApiKey, usePlatforms } from '@/api/hooks';
 import type { ObjAiPlatform } from '@/api/generated';
@@ -143,12 +143,9 @@ export function ApiKeyManagement() {
         </Box>
 
         {/* Info Block */}
-        <Alert icon={<IconAlertCircle size={18} />} color="cyan" variant="light">
-          <Stack gap="xs">
-            <Text fw={600} size="sm">{t('apiKeys.aboutSection.title')}</Text>
-            <Text size="sm">{t('apiKeys.aboutSection.description')}</Text>
-          </Stack>
-        </Alert>
+        <InfoCard title={t('apiKeys.aboutSection.title')}>
+          {t('apiKeys.aboutSection.description')}
+        </InfoCard>
 
         {/* Platform Cards */}
         {platformsLoading ? (
@@ -167,7 +164,7 @@ export function ApiKeyManagement() {
           </SimpleGrid>
         ) : (
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-            {platforms?.filter(p => p.id !== 'mock').map((platform) => {
+            {platforms?.filter(p => p.id !== 'mock' && (p.supportsApiKey || (apiKeys?.some(k => k.apiKey?.platform === p.id) || false))).map((platform) => {
               const platformKeys = apiKeys?.filter(k => k.apiKey?.platform === platform.id) || [];
               return (
                 <Card
@@ -237,14 +234,10 @@ export function ApiKeyManagement() {
                                 </Text>
                               </Group>
                             </Box>
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              size="sm"
+                            <DeleteIconButton
                               onClick={() => openDelete(keyShare.id || '', keyShare.apiKey?.name || t('apiKeys.unnamed'))}
-                            >
-                              <IconTrash size={14} />
-                            </ActionIcon>
+                              aria-label={t('delete')}
+                            />
                           </Group>
                         ))}
                       </Stack>

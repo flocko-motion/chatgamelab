@@ -51,10 +51,31 @@ export interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Default context value for error boundary recovery scenarios
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  backendUser: null,
+  isLoading: true,
+  isAuthenticated: false,
+  needsRegistration: false,
+  registrationData: null,
+  backendError: null,
+  loginWithAuth0: () => {},
+  loginWithRole: () => {},
+  logout: () => {},
+  isDevMode: false,
+  getAccessToken: async () => null,
+  retryBackendFetch: () => {},
+  register: async () => {},
+};
+
 export function useAuth() {
   const context = React.useContext(AuthContext);
+  // Return default context during error boundary recovery to prevent cascading errors
+  // This can happen when TanStack Router's CatchBoundaryImpl tries to re-render
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    authLogger.warning('useAuth called outside AuthProvider context, returning default (error boundary recovery)');
+    return defaultAuthContext;
   }
   return context;
 }

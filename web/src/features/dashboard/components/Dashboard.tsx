@@ -1,238 +1,191 @@
+import { useMemo } from 'react';
 import { 
-  Card, 
-  Text, 
-  Title, 
   Stack, 
-  Group, 
-  Grid,
-  Divider,
   SimpleGrid,
-  Box,
-  ThemeIcon,
 } from '@mantine/core';
-import { MenuButton, TextButton } from '@components/buttons';
-import { CardTitle, Label, HelperText } from '@components/typography';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 import { AppLayout, type NavItem } from '@/common/components/Layout';
 import { navigationLogger } from '@/config/logger';
+import { useGames, useUserSessions } from '@/api/hooks';
 import { 
   IconPlayerPlay, 
   IconEdit, 
   IconBuilding, 
   IconUsers, 
-  IconClock,
-  IconTrendingUp,
-  IconPlus
+  IconPlus,
+  IconSchool,
+  IconTools,
+  IconDeviceGamepad,
+  IconDeviceGamepad2,
+  IconDeviceGamepad3
 } from '@tabler/icons-react';
+import { InformationalCard, type ListItem } from './InformationalCard';
+import { QuickActionCard } from './QuickActionCard';
+import { LinksCard, type LinkItem } from './LinkCard';
 
-// Quick Stats Cards
-function QuickStatsCards() {
+function formatRelativeTime(dateString?: string): string {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+}
+
+// My Games Card - shows last edited/created games
+function MyGamesCard() {
   const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { data: games, isLoading } = useGames({ sortBy: 'modifiedAt', sortDir: 'desc' });
+
+  const recentGames = useMemo(() => {
+    if (!games) return [];
+    return games.slice(0, 5);
+  }, [games]);
+
+  const items: ListItem[] = recentGames.map((game) => ({
+    id: game.id ?? '',
+    label: game.name ?? 'Untitled',
+    sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
+    onClick: () => navigate({ to: `/creations/${game.id}` as '/' }),
+  }));
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg" mb="xl">
-      <Card 
-        p="xl" 
-        withBorder 
-        shadow="md"
-        style={{ 
-          borderTop: '3px solid var(--mantine-color-highlight-5)'
-        }}
-      >
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Label uppercase>
-              {t('stats.activeAdventures')}
-            </Label>
-            <Title order={1} c="accent.9" mb="xs">3</Title>
-            <HelperText>{t('stats.storiesInProgress', { count: 2 })}</HelperText>
-          </div>
-          <ThemeIcon 
-            size={48} 
-            radius="md"
-            variant="light"
-            color="accent"
-          >
-            <IconPlayerPlay size={24} />
-          </ThemeIcon>
-        </Group>
-      </Card>
-
-      <Card 
-        p="xl" 
-        withBorder 
-        shadow="md"
-        style={{ 
-          borderTop: '3px solid var(--mantine-color-blue-5)'
-        }}
-      >
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Label uppercase>
-              {t('stats.storyDrafts')}
-            </Label>
-            <Title order={1} c="accent.9" mb="xs">2</Title>
-            <HelperText>{t('stats.readyForPlayers')}</HelperText>
-          </div>
-          <ThemeIcon 
-            size={48} 
-            radius="md"
-            variant="light"
-            color="blue"
-          >
-            <IconEdit size={24} />
-          </ThemeIcon>
-        </Group>
-      </Card>
-
-      <Card 
-        p="xl" 
-        withBorder 
-        shadow="md"
-        style={{ 
-          borderTop: '3px solid var(--mantine-color-green-5)'
-        }}
-      >
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Label uppercase>
-              {t('stats.storyRooms')}
-            </Label>
-            <Title order={1} c="accent.9" mb="xs">5</Title>
-            <HelperText>{t('stats.availableSessions')}</HelperText>
-          </div>
-          <ThemeIcon 
-            size={48} 
-            radius="md"
-            variant="light"
-            color="green"
-          >
-            <IconBuilding size={24} />
-          </ThemeIcon>
-        </Group>
-      </Card>
-
-      <Card 
-        p="xl" 
-        withBorder 
-        shadow="md"
-        style={{ 
-          borderTop: '3px solid var(--mantine-color-orange-5)'
-        }}
-      >
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Label uppercase>
-              {t('stats.storytellers')}
-            </Label>
-            <Title order={1} c="accent.9" mb="xs">12</Title>
-            <HelperText>{t('stats.onlineNow')}</HelperText>
-          </div>
-          <ThemeIcon 
-            size={48} 
-            radius="md"
-            variant="light"
-            color="orange"
-          >
-            <IconUsers size={24} />
-          </ThemeIcon>
-        </Group>
-      </Card>
-    </SimpleGrid>
+    <InformationalCard
+      title={t('cards.myGames.title')}
+      items={items}
+      emptyMessage={t('cards.myGames.empty')}
+      viewAllLabel={t('cards.myGames.viewAll')}
+      onViewAll={() => navigate({ to: '/creations' })}
+      isLoading={isLoading}
+    />
   );
 }
 
-// Recent Activity Feed
-function RecentActivity() {
+// My Rooms Card - placeholder for rooms
+function MyRoomsCard() {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+
+  const items: ListItem[] = [];
+
+  return (
+    <InformationalCard
+      title={t('cards.myRooms.title')}
+      items={items}
+      emptyMessage={t('cards.myRooms.empty')}
+      viewAllLabel={t('cards.myRooms.viewAll')}
+      onViewAll={() => navigate({ to: '/rooms' as '/' })}
+      isLoading={false}
+    />
+  );
+}
+
+// Last Played Card - shows recent play sessions
+function LastPlayedCard() {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { data: sessions, isLoading } = useUserSessions();
+
+  const recentSessions = useMemo(() => {
+    if (!sessions) return [];
+    return sessions.slice(0, 5);
+  }, [sessions]);
+
+  const items: ListItem[] = recentSessions.map((session) => ({
+    id: session.id ?? '',
+    label: session.gameName ?? 'Untitled Game',
+    sublabel: formatRelativeTime(session.meta?.modifiedAt ?? session.meta?.createdAt),
+    onClick: () => navigate({ to: `/sessions/${session.id}` as '/' }),
+  }));
+
+  return (
+    <InformationalCard
+      title={t('cards.lastPlayed.title')}
+      items={items}
+      emptyMessage={t('cards.lastPlayed.empty')}
+      viewAllLabel={t('cards.lastPlayed.viewAll')}
+      onViewAll={() => navigate({ to: '/sessions' as '/' })}
+      isLoading={isLoading}
+    />
+  );
+}
+
+// External Links Card
+function ExternalLinksCard() {
   const { t } = useTranslation('dashboard');
 
-  const activities = [
+  const links: LinkItem[] = [
     {
-      icon: <IconPlayerPlay size={16} />,
-      color: 'accent',
-      title: 'Space Adventure',
-      user: 'Sarah',
-      action: t('recentActivity.continuedPlaying'),
-      time: '2 min ago',
-      description: 'Chapter 3: The Dark Forest'
+      id: 'chatgamelab',
+      title: t('cards.externalLinks.mainSite.title'),
+      description: t('cards.externalLinks.mainSite.description'),
+      href: 'https://chatgamelab.eu',
+      icon: <IconSchool size={16} />,
     },
     {
-      icon: <IconEdit size={16} />,
-      color: 'blue',
-      title: 'Dragon Quest',
-      user: 'Mike',
-      action: t('recentActivity.createdNewGame'),
-      time: '15 min ago',
-      description: 'Fantasy adventure with magic'
+      id: 'jff',
+      title: t('cards.externalLinks.jff.title'),
+      description: t('cards.externalLinks.jff.description'),
+      href: 'https://jff.berlin',
+      icon: <IconUsers size={16} />,
     },
-    {
-      icon: <IconBuilding size={16} />,
-      color: 'green',
-      title: 'Workshop 3B',
-      user: 'Emma',
-      action: t('recentActivity.invitedStudents', { count: 5 }),
-      time: '1 hour ago',
-      description: 'Creative writing session'
-    }
   ];
 
   return (
-    <Card p="lg" withBorder shadow="sm">
-      <Group justify="space-between" mb="md">
-        <CardTitle accent>{t('recentActivity.title')}</CardTitle>
-        <TextButton>{t('recentActivity.viewAll')}</TextButton>
-      </Group>
-      
-      <Stack gap="md">
-        {activities.map((activity, index) => (
-          <Box key={index}>
-            <Group gap="sm" align="flex-start">
-              <ThemeIcon color={activity.color} size={32} radius="md">
-                {activity.icon}
-              </ThemeIcon>
-              <div style={{ flex: 1 }}>
-                <Group gap="xs" align="center" mb={2}>
-                  <Text size="sm" fw={600}>{activity.title}</Text>
-                  <Text size="xs" c="dimmed">•</Text>
-                  <Text size="xs" c="dimmed">{activity.user} {activity.action}</Text>
-                </Group>
-                <Text size="xs" c="dimmed">{activity.description}</Text>
-                <Group gap="xs" mt={4}>
-                  <IconClock size={12} color="gray" />
-                  <Text size="xs" c="dimmed">{activity.time}</Text>
-                </Group>
-              </div>
-            </Group>
-            {index < activities.length - 1 && <Divider my="sm" />}
-          </Box>
-        ))}
-      </Stack>
-    </Card>
+    <LinksCard
+      title={t('cards.externalLinks.title')}
+      links={links}
+    />
   );
 }
 
-// Quick Actions
-function QuickActions() {
+// Quick Actions Card
+function QuickActionsCard() {
   const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+
+  const actions = [
+    {
+      id: 'start-new-game',
+      label: t('quickActions.startNewGame'),
+      icon: <IconDeviceGamepad2 size={16} />,
+      onClick: () => navigate({ to: '/play/new' as '/' }),
+    },  
+    {
+      id: 'create-game',
+      label: t('quickActions.createNewGame'),
+      icon: <IconTools size={16} />,
+      onClick: () => navigate({ to: '/creations/create' as '/' }),
+    },
+    {
+      id: 'create-room',
+      label: t('quickActions.createRoom'),
+      icon: <IconBuilding size={16} />,
+      onClick: () => navigate({ to: '/rooms' as '/' }),
+      disabled: true
+    },
+    {
+      id: 'invite-members',
+      label: t('quickActions.inviteMembers'),
+      icon: <IconUsers size={16} />,
+      onClick: () => {},
+      disabled: true,
+    },
+  ];
 
   return (
-    <Card p="lg" withBorder shadow="sm">
-      <CardTitle accent>{t('quickActions.title')}</CardTitle>
-      <Stack gap="sm">
-        <MenuButton leftSection={<IconPlus size={16} />}>
-          {t('quickActions.createNewGame')}
-        </MenuButton>
-        <MenuButton leftSection={<IconBuilding size={16} />}>
-          {t('quickActions.createRoom')}
-        </MenuButton>
-        <MenuButton leftSection={<IconUsers size={16} />}>
-          {t('quickActions.inviteMembers')}
-        </MenuButton>
-        <MenuButton leftSection={<IconTrendingUp size={16} />}>
-          {t('quickActions.viewAnalytics')}
-        </MenuButton>
-      </Stack>
-    </Card>
+    <QuickActionCard
+      title={t('quickActions.title')}
+      actions={actions}
+    />
   );
 }
 
@@ -242,16 +195,16 @@ function QuickActions() {
 export function DashboardContent() {
   return (
     <Stack gap="xl">
-      <QuickStatsCards />
-      
-      <Grid>
-        <Grid.Col span={{ base: 12, lg: 8 }}>
-          <RecentActivity />
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, lg: 4 }}>
-          <QuickActions />
-        </Grid.Col>
-      </Grid>
+      <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
+        <MyGamesCard />
+        <MyRoomsCard />
+        <LastPlayedCard />
+      </SimpleGrid>
+
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+        <QuickActionsCard />
+        <ExternalLinksCard />
+      </SimpleGrid>
     </Stack>
   );
 }

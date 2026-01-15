@@ -41,7 +41,7 @@ export function ActionButton({
   disabled = false,
   type = 'button',
   fullWidth = false,
-  size = 'lg',
+  size = 'md',
 }: ActionButtonProps) {
   return (
     <MantineButton

@@ -14,7 +14,9 @@ import (
 )
 
 type CreateGameRequest struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Public      *bool  `json:"public,omitempty"`
 }
 
 // GetGames godoc
@@ -23,8 +25,12 @@ type CreateGameRequest struct {
 //	@Description	Returns a list of games. If authenticated, includes user's private games.
 //	@Tags			games
 //	@Produce		json
-//	@Success		200	{array}		obj.Game
-//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Param			search	query		string	false	"Search games by name (case-insensitive)"
+//	@Param			sortBy	query		string	false	"Sort field (name, createdAt, modifiedAt)"
+//	@Param			sortDir	query		string	false	"Sort direction (asc, desc)"
+//	@Param			filter	query		string	false	"Filter type (all, own, public, organization, favorites)"
+//	@Success		200		{array}		obj.Game
+//	@Failure		500		{object}	httpx.ErrorResponse
 //	@Router			/games [get]
 func GetGames(w http.ResponseWriter, r *http.Request) {
 	user := httpx.MaybeUserFromRequest(r)
@@ -34,8 +40,19 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
-	log.Debug("listing games", "user_id", userID)
-	games, err := db.GetGames(r.Context(), userID, nil)
+	searchQuery := r.URL.Query().Get("search")
+	sortBy := r.URL.Query().Get("sortBy")
+	sortDir := r.URL.Query().Get("sortDir")
+	filter := r.URL.Query().Get("filter")
+
+	log.Debug("listing games", "user_id", userID, "search", searchQuery, "sortBy", sortBy, "sortDir", sortDir, "filter", filter)
+	filters := &db.GetGamesFilters{
+		Search:    searchQuery,
+		SortField: sortBy,
+		SortDir:   sortDir,
+		Filter:    filter,
+	}
+	games, err := db.GetGames(r.Context(), userID, filters)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get games: "+err.Error())
 		return
@@ -61,17 +78,26 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 func CreateGame(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	// Try to parse as full game object first
-	var game obj.Game
-	if err := httpx.ReadJSONOrYAML(r, &game); err != nil {
+	// Parse request
+	var req CreateGameRequest
+	if err := httpx.ReadJSONOrYAML(r, &req); err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body: "+err.Error())
 		return
 	}
 
 	// Validate that at least name is provided
-	if strings.TrimSpace(game.Name) == "" {
+	if strings.TrimSpace(req.Name) == "" {
 		httpx.WriteError(w, http.StatusBadRequest, "Missing required field: name")
 		return
+	}
+
+	// Build game object from request
+	game := obj.Game{
+		Name:        req.Name,
+		Description: req.Description,
+	}
+	if req.Public != nil {
+		game.Public = *req.Public
 	}
 
 	log.Debug("creating game", "user_id", user.ID, "name", game.Name)
@@ -264,6 +290,7 @@ func GetGameYAML(w http.ResponseWriter, r *http.Request) {
 func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 	gameID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
+		log.Debug("UpdateGameYAML: invalid game ID", "error", err)
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
 		return
 	}
@@ -274,11 +301,15 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Debug("UpdateGameYAML: failed to read body", "error", err)
 		httpx.WriteError(w, http.StatusBadRequest, "Failed to read body: "+err.Error())
 		return
 	}
 
+	log.Debug("UpdateGameYAML: body read", "body_length", len(body), "body_preview", string(body[:min(200, len(body))]))
+
 	if err := db.UpdateGameYaml(r.Context(), user.ID, gameID, string(body)); err != nil {
+		log.Error("UpdateGameYAML: db.UpdateGameYaml failed", "error", err, "game_id", gameID, "user_id", user.ID)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update game: "+err.Error())
 		return
 	}
@@ -290,4 +321,74 @@ func UpdateGameYAML(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, updated)
+}
+
+// CloneGame godoc
+//
+//	@Summary		Clone game
+//	@Description	Creates a copy of a game for the authenticated user
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID) to clone"
+//	@Success		200	{object}	obj.Game
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Game not found"
+//	@Failure		500	{object}	httpx.ErrorResponse	"Failed to clone"
+//	@Security		BearerAuth
+//	@Router			/games/{id}/clone [post]
+func CloneGame(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("cloning game", "game_id", gameID, "user_id", user.ID)
+
+	// Get the source game (allow cloning public games or own games)
+	sourceGame, err := db.GetGameByID(r.Context(), nil, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	// Check if user can clone: must be public or owned by user
+	isOwner := sourceGame.Meta.CreatedBy.Valid && sourceGame.Meta.CreatedBy.UUID == user.ID
+	if !sourceGame.Public && !isOwner {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	// Create a new game based on the source
+	clonedGame := obj.Game{
+		Name:                   sourceGame.Name + " (Copy)",
+		Description:            sourceGame.Description,
+		Public:                 false, // Cloned games start as private
+		ImageStyle:             sourceGame.ImageStyle,
+		SystemMessageScenario:  sourceGame.SystemMessageScenario,
+		SystemMessageGameStart: sourceGame.SystemMessageGameStart,
+		StatusFields:           sourceGame.StatusFields,
+		FirstMessage:           sourceGame.FirstMessage,
+		FirstStatus:            sourceGame.FirstStatus,
+		CSS:                    sourceGame.CSS,
+	}
+
+	log.Debug("creating cloned game", "user_id", user.ID, "source_game_id", gameID, "name", clonedGame.Name)
+	if err := db.CreateGame(r.Context(), user.ID, &clonedGame); err != nil {
+		log.Debug("game clone failed", "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to clone game: "+err.Error())
+		return
+	}
+	log.Debug("game cloned", "new_game_id", clonedGame.ID)
+
+	created, err := db.GetGameByID(r.Context(), &user.ID, clonedGame.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load cloned game: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, created)
 }

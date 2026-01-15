@@ -127,11 +127,231 @@
         "badge": "unsupported",
         "hint": "This platform is currently not supported. You can only remove existing keys."
       }
+    },
+    "actions": "Actions",
+    "back": "Back",
+    "close": "Close",
+    "games": {
+      "title": "My Created Games",
+      "createButton": "Create Game",
+      "fields": {
+        "name": "Name",
+        "description": "Description",
+        "visibility": "Visibility",
+        "created": "Created",
+        "modified": "Modified"
+      },
+      "visibility": {
+        "public": "Public",
+        "private": "Private"
+      },
+      "sort": {
+        "label": "Sort by",
+        "name": "Alphabetically",
+        "createdAt": "Created",
+        "modifiedAt": "Last Modified"
+      },
+      "empty": {
+        "title": "No games yet",
+        "description": "Create your first game to get started with interactive AI-powered adventures."
+      },
+      "createModal": {
+        "title": "Create New Game",
+        "nameLabel": "Game Name",
+        "namePlaceholder": "e.g., Space Adventure",
+        "descriptionLabel": "Description",
+        "descriptionPlaceholder": "What is your game about?",
+        "publicLabel": "Make this game public",
+        "publicDescription": "Public games are discoverable by everyone.",
+        "submit": "Create Game"
+      },
+      "viewModal": {
+        "title": "Game Details"
+      },
+      "editModal": {
+        "title": "Edit Game"
+      },
+      "tabs": {
+        "basic": "Basic",
+        "story": "Story & AI",
+        "style": "Style",
+        "quickStart": "Quick Start",
+        "importExport": "Import/Export"
+      },
+      "editFields": {
+        "name": "Game Name",
+        "description": "Description",
+        "imageStyle": "Image Style",
+        "imageStyleHint": "Describe the visual style for generated images",
+        "scenario": "Scenario",
+        "scenarioHint": "What is the game about? Describe the world, rules, and player's role.",
+        "gameStart": "Game Start Message",
+        "gameStartHint": "How should the game welcome the player? First scene setup.",
+        "statusFields": "Status Fields",
+        "statusFieldsHint": "Define the status fields available to the AI (e.g., health, inventory) and their initial values.",
+        "firstMessage": "First Message",
+        "firstMessageHint": "Pre-generated opening message for quick game start.",
+        "firstStatus": "First Status",
+        "firstStatusHint": "Initial status values for the quick start.",
+        "quickStartInfo": "Quick start content is pre-generated to allow instant game starts."
+      },
+      "quickStart": {
+        "regenerate": "Regenerate",
+        "noContent": "Not generated yet"
+      },
+      "statusFieldsEditor": {
+        "visual": "Visual",
+        "raw": "Raw JSON",
+        "noFields": "No status fields defined. Click + to add one.",
+        "namePlaceholder": "Field name (e.g., Health)",
+        "valuePlaceholder": "Initial value (e.g., 100)",
+        "subNamePlaceholder": "Sub-field name (e.g., armor)",
+        "addField": "Add status field",
+        "addSubFields": "Add sub-fields",
+        "addSubField": "Add sub-field",
+        "subFields": "sub-fields",
+        "convertToSimple": "Remove sub-fields",
+        "invalidJson": "Invalid JSON format. Fix errors before switching to Visual mode."
+      },
+      "view": {
+        "noScenario": "No scenario defined yet.",
+        "noGameStart": "No game start message defined yet."
+      },
+      "deleteModal": {
+        "title": "Delete Game",
+        "message": "Are you sure you want to delete \"{{name}}\"?",
+        "warning": "This action cannot be undone. All game data will be permanently deleted."
+      },
+      "editPage": {
+        "placeholder": "Advanced game editor coming soon. You'll be able to configure scenarios, AI settings, images, and more."
+      },
+      "errors": {
+        "nameRequired": "Game name is required",
+        "loadFailed": "Failed to load games. Please try again."
+      },
+      "importExport": {
+        "description": "Export your game configuration to share with others, or import a configuration to update this game.",
+        "exportTitle": "Export Game",
+        "exportDescription": "Download the game configuration as a YAML file.",
+        "exportButton": "Export Game",
+        "importTitle": "Import Game",
+        "importDescription": "Upload a YAML file to update this game's configuration.",
+        "selectFile": "Select YAML File",
+        "yamlPreview": "YAML Content",
+        "importButton": "Import Game",
+        "importSuccess": "Game configuration imported successfully!",
+        "importError": "Failed to import game configuration. Please check the YAML format."
+      }
+    },
+    "sessions": {
+      "title": "Continue Playing",
+      "startNewGame": "Start New Game",
+      "untitledGame": "Untitled Game",
+      "noDescription": "No description",
+      "resume": "Continue",
+      "filters": {
+        "all": "All",
+        "organization": "Organization"
+      },
+      "fields": {
+        "game": "Game",
+        "model": "Model",
+        "lastPlayed": "Last Played"
+      },
+      "sort": {
+        "label": "Sort by",
+        "lastPlayed": "Last Played",
+        "game": "Game",
+        "model": "Model"
+      },
+      "empty": {
+        "title": "No games played yet",
+        "description": "Start a new game to begin your adventure!",
+        "noResults": "No matching games found"
+      },
+      "errors": {
+        "loadFailed": "Failed to load your games. Please try again."
+      },
+      "delete": "Delete session",
+      "deleteConfirm": {
+        "title": "Delete Session",
+        "message": "Are you sure you want to delete this session for \"{{game}}\"? This action cannot be undone."
+      }
+    },
+    "play": {
+      "title": "Select a Game",
+      "selectGameTitle": "Select a Game",
+      "selectGame": "Select this game",
+      "owner": "Mine",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "playGame": "Play this game",
+      "cloneGame": "Clone to my games",
+      "unknownAuthor": "Unknown author",
+      "filters": {
+        "all": "All Games",
+        "own": "My Games",
+        "public": "Public",
+        "organization": "Organization",
+        "favorites": "Favorites"
+      },
+      "empty": {
+        "title": "No games found",
+        "description": "Try adjusting your filters or check back later for new games."
+      },
+      "cloneModal": {
+        "title": "Clone Game",
+        "message": "This will create a copy of \"{{name}}\" in your games.",
+        "confirm": "Clone Game"
+      },
+      "cloneSuccess": {
+        "title": "Game Cloned",
+        "message": "\"{{name}}\" has been added to your games."
+      }
+    },
+    "gamePlayer": {
+      "unnamed": "Unnamed",
+      "loading": {
+        "game": "Loading game...",
+        "starting": "Starting game session...",
+        "startingHint": "The AI is preparing your adventure"
+      },
+      "error": {
+        "gameNotFound": "Game not found",
+        "sessionFailed": "Failed to start game session",
+        "backToGames": "Back to Games",
+        "tryAgain": "Try Again"
+      },
+      "header": {
+        "back": "Back to games",
+        "restart": "Restart game",
+        "showDebug": "Show debug info",
+        "hideDebug": "Hide debug info"
+      },
+      "input": {
+        "placeholder": "What do you do?",
+        "waiting": "Waiting for response...",
+        "send": "Send action"
+      },
+      "selectApiKey": {
+        "title": "Select API Key",
+        "playing": "Playing",
+        "keyLabel": "API Key",
+        "keyDescription": "Select the API key to use for this game session",
+        "keyPlaceholder": "Select an API key",
+        "modelLabel": "AI Model",
+        "modelDescription": "Optionally select a specific AI model",
+        "modelPlaceholder": "Default model",
+        "startGame": "Start Game",
+        "loadError": "Failed to load API keys",
+        "noKeys": "You need at least one API key to play. Add one in Settings → API Keys."
+      }
     }
   },
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "sessions": "Sessions",
     "games": "Games",
     "create": "Create",
     "play": "Play",
@@ -141,29 +361,53 @@
     "debug": "Debug"
   },
   "dashboard": {
-    "stats": {
-      "activeAdventures": "Active Adventures",
-      "storiesInProgress": "{{count}} stories in progress",
-      "storyDrafts": "Story Drafts",
-      "readyForPlayers": "Ready for players",
-      "storyRooms": "Story Rooms",
-      "availableSessions": "Available sessions",
-      "storytellers": "Storytellers",
-      "onlineNow": "Online now"
-    },
-    "recentActivity": {
-      "title": "Recent Activity",
-      "viewAll": "View All",
-      "continuedPlaying": "continued playing",
-      "createdNewGame": "created new game",
-      "invitedStudents": "invited {{count}} students"
+    "cards": {
+      "myGames": {
+        "title": "My Game Creations",
+        "empty": "No games yet. Create your first game!",
+        "viewAll": "All Creations"
+      },
+      "myRooms": {
+        "title": "My Rooms",
+        "empty": "No rooms yet. Create a room to play with others!",
+        "viewAll": "All Rooms"
+      },
+      "lastPlayed": {
+        "title": "Last Played",
+        "empty": "No play history yet. Start playing a game!",
+        "viewAll": "Play History"
+      },
+      "externalLinks": {
+        "title": "About ChatGameLab",
+        "mainSite": {
+          "title": "ChatGameLab Project",
+          "description": "Learn more about the educational project behind this platform."
+        },
+        "jff": {
+          "title": "JFF – Institut für Medienpädagogik",
+          "description": "Project coordinator and lead organization."
+        }
+      }
     },
     "quickActions": {
       "title": "Quick Actions",
+      "startNewGame": "Start New Game",
       "createNewGame": "Create New Game",
       "createRoom": "Create Room",
-      "inviteMembers": "Invite Members",
-      "viewAnalytics": "View Analytics"
+      "inviteMembers": "Invite Members"
+    },
+    "version": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "unknown": "Unknown",
+      "loading": "Loading...",
+      "version": "Version",
+      "built": "Built",
+      "commit": "Commit",
+      "mismatch": {
+        "title": "Version Mismatch Detected",
+        "message": "Frontend version <frontendVersion>{{frontendVersion}}</frontendVersion> does not match backend version <backendVersion>{{backendVersion}}</backendVersion>. This may cause unexpected behavior. Contact support if issues persist."
+      }
     }
   },
   "game": {
@@ -276,6 +520,11 @@
       "noOrganization": "No organization",
       "role": "Role",
       "noRole": "No role assigned",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Head Teacher",
+        "staff": "Staff Member"
+      },
       "statisticsSection": "Statistics",
       "gamesPlayed": "Games Played",
       "gamesCreated": "Games Created",

@@ -16,6 +16,27 @@ export enum ObjRole {
   RoleStaff = "staff",
 }
 
+export interface DbUserSessionWithGame {
+  aiModel?: string;
+  /** AI model used for playing. */
+  aiPlatform?: string;
+  /** JSON with arbitrary details to be used within that model and within that session. */
+  aiSession?: string;
+  apiKey?: ObjApiKey;
+  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  apiKeyId?: string;
+  gameDescription?: string;
+  gameId?: string;
+  gameName?: string;
+  id?: string;
+  imageStyle?: string;
+  meta?: ObjMeta;
+  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
+  statusFields?: string;
+  userId?: string;
+  userName?: string;
+}
+
 export interface HttpxErrorResponse {
   /** Machine-readable error code */
   code?: string;
@@ -220,7 +241,9 @@ export interface RoutesCreateApiKeyRequest {
 }
 
 export interface RoutesCreateGameRequest {
+  description?: string;
   name?: string;
+  public?: boolean;
 }
 
 export interface RoutesCreateSessionRequest {
@@ -236,6 +259,10 @@ export interface RoutesLanguage {
 export interface RoutesRegisterRequest {
   email?: string;
   name?: string;
+}
+
+export interface RoutesRolesResponse {
+  roles?: ObjRole[];
 }
 
 export interface RoutesSessionActionRequest {
@@ -766,10 +793,23 @@ export class Api<
      * @summary List games
      * @request GET:/games
      */
-    gamesList: (params: RequestParams = {}) =>
+    gamesList: (
+      query?: {
+        /** Search games by name (case-insensitive) */
+        search?: string;
+        /** Sort field (name, createdAt, modifiedAt) */
+        sortBy?: string;
+        /** Sort direction (asc, desc) */
+        sortDir?: string;
+        /** Filter type (all, own, public, organization, favorites) */
+        filter?: string;
+      },
+      params: RequestParams = {},
+    ) =>
       this.request<ObjGame[], HttpxErrorResponse>({
         path: `/games`,
         method: "GET",
+        query: query,
         format: "json",
         ...params,
       }),
@@ -843,6 +883,24 @@ export class Api<
       this.request<ObjGame, HttpxErrorResponse>({
         path: `/games/${id}`,
         method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a copy of a game for the authenticated user
+     *
+     * @tags games
+     * @name CloneCreate
+     * @summary Clone game
+     * @request POST:/games/{id}/clone
+     * @secure
+     */
+    cloneCreate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/clone`,
+        method: "POST",
         secure: true,
         format: "json",
         ...params,
@@ -961,6 +1019,22 @@ export class Api<
   };
   messages = {
     /**
+     * @description Returns the image for a message as PNG
+     *
+     * @tags messages
+     * @name ImageList
+     * @summary Get message image
+     * @request GET:/messages/{id}/image
+     */
+    imageList: (id: string, params: RequestParams = {}) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/messages/${id}/image`,
+        method: "GET",
+        format: "blob",
+        ...params,
+      }),
+
+    /**
      * @description Server-Sent Events endpoint for streaming message chunks.
      *
      * @tags messages
@@ -1011,7 +1085,53 @@ export class Api<
         ...params,
       }),
   };
+  roles = {
+    /**
+     * @description Returns all available user roles
+     *
+     * @tags roles
+     * @name RolesList
+     * @summary Get available roles
+     * @request GET:/roles
+     * @secure
+     */
+    rolesList: (params: RequestParams = {}) =>
+      this.request<RoutesRolesResponse, HttpxErrorResponse>({
+        path: `/roles`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   sessions = {
+    /**
+     * @description Returns recent sessions for the authenticated user with game names
+     *
+     * @tags sessions
+     * @name SessionsList
+     * @summary List user sessions
+     * @request GET:/sessions
+     * @secure
+     */
+    sessionsList: (
+      query?: {
+        /** Search by game name */
+        search?: string;
+        /** Sort field: game, model, lastPlayed (default) */
+        sortBy?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<DbUserSessionWithGame[], HttpxErrorResponse>({
+        path: `/sessions`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Returns session details. Optional query parameter can include latest message.
      *
@@ -1054,6 +1174,24 @@ export class Api<
         method: "POST",
         body: request,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a session and all its messages. User must be the owner.
+     *
+     * @tags sessions
+     * @name SessionsDelete
+     * @summary Delete session
+     * @request DELETE:/sessions/{id}
+     * @secure
+     */
+    sessionsDelete: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/sessions/${id}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),

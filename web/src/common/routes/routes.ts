@@ -26,12 +26,20 @@ export const ROUTES = {
   AUTH0_CALLBACK: '/auth/login/auth0/callback',
   AUTH0_LOGOUT_CALLBACK: '/auth/logout/auth0/callback',
 
-  // Game routes
+  // Game creation/management routes
+  CREATIONS: '/creations',
+  CREATION_DETAIL: '/creations/$gameId',
+
+  // Sessions (user's game instances)
+  SESSIONS: '/sessions',
+  SESSION_DETAIL: '/sessions/$sessionId',
+
+  // Game selection for starting new sessions
+  PLAY: '/play',
+
+  // Game play routes (actual gameplay)
   GAMES: '/games',
-  GAME_CREATE: '/games/create',
-  GAME_DETAIL: '/games/$gameId',
   GAME_PLAY: '/games/$gameId/play',
-  GAME_EDIT: '/games/$gameId/edit',
 
   // Room routes
   ROOMS: '/rooms',
@@ -49,7 +57,8 @@ export const NAVIGATION_GROUPS = {
   MAIN: [ROUTES.HOME, ROUTES.DASHBOARD],
   AUTH: [ROUTES.AUTH_LOGIN, ROUTES.AUTH_REGISTER],
   USER: [ROUTES.PROFILE, ROUTES.SETTINGS, ROUTES.API_KEYS],
-  GAMES: [ROUTES.GAMES, ROUTES.GAME_CREATE],
+  CREATIONS: [ROUTES.CREATIONS],
+  GAMES: [ROUTES.GAMES],
   ROOMS: [ROUTES.ROOMS, ROUTES.ROOM_CREATE],
   DEBUG: [ROUTES.DEBUG],
 } as const;
@@ -61,8 +70,6 @@ export type RouteParams = {
 };
 
 // Helper functions for dynamic routes
-export const createGameDetailRoute = (gameId: string) => `/games/${gameId}`;
 export const createGamePlayRoute = (gameId: string) => `/games/${gameId}/play`;
-export const createGameEditRoute = (gameId: string) => `/games/${gameId}/edit`;
 export const createRoomDetailRoute = (roomId: string) => `/rooms/${roomId}`;
 export const createRoomJoinRoute = (roomId: string) => `/rooms/${roomId}/join`;

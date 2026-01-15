@@ -321,6 +321,15 @@ func (q *Queries) DeleteGameSessionMessage(ctx context.Context, id uuid.UUID) er
 	return err
 }
 
+const deleteGameSessionMessagesBySessionID = `-- name: DeleteGameSessionMessagesBySessionID :exec
+DELETE FROM game_session_message WHERE game_session_id = $1
+`
+
+func (q *Queries) DeleteGameSessionMessagesBySessionID(ctx context.Context, gameSessionID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGameSessionMessagesBySessionID, gameSessionID)
+	return err
+}
+
 const deleteGameTag = `-- name: DeleteGameTag :exec
 DELETE FROM game_tag WHERE id = $1
 `
@@ -328,6 +337,46 @@ DELETE FROM game_tag WHERE id = $1
 func (q *Queries) DeleteGameTag(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteGameTag, id)
 	return err
+}
+
+const getAllGameSessionMessages = `-- name: GetAllGameSessionMessages :many
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
+`
+
+func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID uuid.UUID) ([]GameSessionMessage, error) {
+	rows, err := q.db.QueryContext(ctx, getAllGameSessionMessages, gameSessionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameSessionMessage
+	for rows.Next() {
+		var i GameSessionMessage
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameSessionID,
+			&i.Seq,
+			&i.Type,
+			&i.Message,
+			&i.Status,
+			&i.ImagePrompt,
+			&i.Image,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getGameByID = `-- name: GetGameByID :one
@@ -511,6 +560,204 @@ func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID)
 	return items, nil
 }
 
+const getGameSessionsByUserID = `-- name: GetGameSessionsByUserID :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 
+ORDER BY gs.modified_at DESC
+LIMIT 20
+`
+
+type GetGameSessionsByUserIDRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]GetGameSessionsByUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSessionsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameSessionsByUserIDRow
+	for rows.Next() {
+		var i GetGameSessionsByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSessionsByUserIDSortByGame = `-- name: GetGameSessionsByUserIDSortByGame :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 
+ORDER BY LOWER(g.name) ASC, gs.modified_at DESC
+LIMIT 20
+`
+
+type GetGameSessionsByUserIDSortByGameRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) GetGameSessionsByUserIDSortByGame(ctx context.Context, userID uuid.UUID) ([]GetGameSessionsByUserIDSortByGameRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSessionsByUserIDSortByGame, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameSessionsByUserIDSortByGameRow
+	for rows.Next() {
+		var i GetGameSessionsByUserIDSortByGameRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSessionsByUserIDSortByModel = `-- name: GetGameSessionsByUserIDSortByModel :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 
+ORDER BY gs.ai_model ASC, gs.modified_at DESC
+LIMIT 20
+`
+
+type GetGameSessionsByUserIDSortByModelRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) GetGameSessionsByUserIDSortByModel(ctx context.Context, userID uuid.UUID) ([]GetGameSessionsByUserIDSortByModelRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSessionsByUserIDSortByModel, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameSessionsByUserIDSortByModelRow
+	for rows.Next() {
+		var i GetGameSessionsByUserIDSortByModelRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGameTagByID = `-- name: GetGameTagByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, game_id, tag FROM game_tag WHERE id = $1
 `
@@ -613,6 +860,246 @@ func (q *Queries) GetGamesVisibleToUser(ctx context.Context, createdBy uuid.Null
 	return items, nil
 }
 
+const getGamesVisibleToUserSortedByCreatedAt = `-- name: GetGamesVisibleToUserSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY created_at ASC
+`
+
+func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreatedAt, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesVisibleToUserSortedByModifiedAt = `-- name: GetGamesVisibleToUserSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY modified_at DESC
+`
+
+func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAt, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesVisibleToUserSortedByModifiedAtAsc = `-- name: GetGamesVisibleToUserSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY modified_at ASC
+`
+
+func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAtAsc, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesVisibleToUserSortedByName = `-- name: GetGamesVisibleToUserSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY LOWER(name) ASC
+`
+
+func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByName, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesVisibleToUserSortedByNameDesc = `-- name: GetGamesVisibleToUserSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 OR public = true ORDER BY LOWER(name) DESC
+`
+
+func (q *Queries) GetGamesVisibleToUserSortedByNameDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByNameDesc, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLatestGameSessionMessage = `-- name: GetLatestGameSessionMessage :one
 SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
 `
@@ -637,12 +1124,1678 @@ func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID
 	return i, err
 }
 
+const getOwnGames = `-- name: GetOwnGames :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY created_at DESC
+`
+
+// Own games (created by user) queries
+func (q *Queries) GetOwnGames(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGames, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOwnGamesSortedByCreatedAt = `-- name: GetOwnGamesSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY created_at ASC
+`
+
+func (q *Queries) GetOwnGamesSortedByCreatedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByCreatedAt, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOwnGamesSortedByModifiedAt = `-- name: GetOwnGamesSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY modified_at DESC
+`
+
+func (q *Queries) GetOwnGamesSortedByModifiedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByModifiedAt, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOwnGamesSortedByModifiedAtAsc = `-- name: GetOwnGamesSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY modified_at ASC
+`
+
+func (q *Queries) GetOwnGamesSortedByModifiedAtAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByModifiedAtAsc, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOwnGamesSortedByName = `-- name: GetOwnGamesSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY LOWER(name) ASC
+`
+
+func (q *Queries) GetOwnGamesSortedByName(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByName, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOwnGamesSortedByNameDesc = `-- name: GetOwnGamesSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 ORDER BY LOWER(name) DESC
+`
+
+func (q *Queries) GetOwnGamesSortedByNameDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getOwnGamesSortedByNameDesc, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getPublicGames = `-- name: GetPublicGames :many
 SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY created_at DESC
 `
 
 func (q *Queries) GetPublicGames(ctx context.Context) ([]Game, error) {
 	rows, err := q.db.QueryContext(ctx, getPublicGames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicGamesSortedByCreatedAt = `-- name: GetPublicGamesSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY created_at ASC
+`
+
+func (q *Queries) GetPublicGamesSortedByCreatedAt(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesSortedByCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicGamesSortedByModifiedAt = `-- name: GetPublicGamesSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY modified_at DESC
+`
+
+func (q *Queries) GetPublicGamesSortedByModifiedAt(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesSortedByModifiedAt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicGamesSortedByModifiedAtAsc = `-- name: GetPublicGamesSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY modified_at ASC
+`
+
+func (q *Queries) GetPublicGamesSortedByModifiedAtAsc(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesSortedByModifiedAtAsc)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicGamesSortedByName = `-- name: GetPublicGamesSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY LOWER(name) ASC
+`
+
+func (q *Queries) GetPublicGamesSortedByName(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesSortedByName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPublicGamesSortedByNameDesc = `-- name: GetPublicGamesSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true ORDER BY LOWER(name) DESC
+`
+
+func (q *Queries) GetPublicGamesSortedByNameDesc(ctx context.Context) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getPublicGamesSortedByNameDesc)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGameSessionsByUserID = `-- name: SearchGameSessionsByUserID :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 AND LOWER(g.name) LIKE LOWER('%' || $2 || '%')
+ORDER BY gs.modified_at DESC
+LIMIT 20
+`
+
+type SearchGameSessionsByUserIDParams struct {
+	UserID  uuid.UUID
+	Column2 sql.NullString
+}
+
+type SearchGameSessionsByUserIDRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) SearchGameSessionsByUserID(ctx context.Context, arg SearchGameSessionsByUserIDParams) ([]SearchGameSessionsByUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchGameSessionsByUserID, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchGameSessionsByUserIDRow
+	for rows.Next() {
+		var i SearchGameSessionsByUserIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGameSessionsByUserIDSortByGame = `-- name: SearchGameSessionsByUserIDSortByGame :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 AND LOWER(g.name) LIKE LOWER('%' || $2 || '%')
+ORDER BY LOWER(g.name) ASC, gs.modified_at DESC
+LIMIT 20
+`
+
+type SearchGameSessionsByUserIDSortByGameParams struct {
+	UserID  uuid.UUID
+	Column2 sql.NullString
+}
+
+type SearchGameSessionsByUserIDSortByGameRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) SearchGameSessionsByUserIDSortByGame(ctx context.Context, arg SearchGameSessionsByUserIDSortByGameParams) ([]SearchGameSessionsByUserIDSortByGameRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchGameSessionsByUserIDSortByGame, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchGameSessionsByUserIDSortByGameRow
+	for rows.Next() {
+		var i SearchGameSessionsByUserIDSortByGameRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGameSessionsByUserIDSortByModel = `-- name: SearchGameSessionsByUserIDSortByModel :many
+SELECT 
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields,
+  g.name as game_name
+FROM game_session gs
+JOIN game g ON gs.game_id = g.id
+WHERE gs.user_id = $1 AND LOWER(g.name) LIKE LOWER('%' || $2 || '%')
+ORDER BY gs.ai_model ASC, gs.modified_at DESC
+LIMIT 20
+`
+
+type SearchGameSessionsByUserIDSortByModelParams struct {
+	UserID  uuid.UUID
+	Column2 sql.NullString
+}
+
+type SearchGameSessionsByUserIDSortByModelRow struct {
+	ID           uuid.UUID
+	CreatedBy    uuid.NullUUID
+	CreatedAt    time.Time
+	ModifiedBy   uuid.NullUUID
+	ModifiedAt   time.Time
+	GameID       uuid.UUID
+	UserID       uuid.UUID
+	ApiKeyID     uuid.UUID
+	AiPlatform   string
+	AiModel      string
+	AiSession    json.RawMessage
+	ImageStyle   string
+	StatusFields string
+	GameName     string
+}
+
+func (q *Queries) SearchGameSessionsByUserIDSortByModel(ctx context.Context, arg SearchGameSessionsByUserIDSortByModelParams) ([]SearchGameSessionsByUserIDSortByModelRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchGameSessionsByUserIDSortByModel, arg.UserID, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchGameSessionsByUserIDSortByModelRow
+	for rows.Next() {
+		var i SearchGameSessionsByUserIDSortByModelRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.GameID,
+			&i.UserID,
+			&i.ApiKeyID,
+			&i.AiPlatform,
+			&i.AiModel,
+			&i.AiSession,
+			&i.ImageStyle,
+			&i.StatusFields,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUser = `-- name: SearchGamesVisibleToUser :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC
+`
+
+type SearchGamesVisibleToUserParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUser(ctx context.Context, arg SearchGamesVisibleToUserParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUser, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUserSortedByCreatedAt = `-- name: SearchGamesVisibleToUserSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC
+`
+
+type SearchGamesVisibleToUserSortedByCreatedAtParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUserSortedByCreatedAt(ctx context.Context, arg SearchGamesVisibleToUserSortedByCreatedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUserSortedByModifiedAt = `-- name: SearchGamesVisibleToUserSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC
+`
+
+type SearchGamesVisibleToUserSortedByModifiedAtParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAt(ctx context.Context, arg SearchGamesVisibleToUserSortedByModifiedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAt, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUserSortedByModifiedAtAsc = `-- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC
+`
+
+type SearchGamesVisibleToUserSortedByModifiedAtAscParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context, arg SearchGamesVisibleToUserSortedByModifiedAtAscParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAtAsc, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUserSortedByName = `-- name: SearchGamesVisibleToUserSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC
+`
+
+type SearchGamesVisibleToUserSortedByNameParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUserSortedByName(ctx context.Context, arg SearchGamesVisibleToUserSortedByNameParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByName, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchGamesVisibleToUserSortedByNameDesc = `-- name: SearchGamesVisibleToUserSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC
+`
+
+type SearchGamesVisibleToUserSortedByNameDescParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchGamesVisibleToUserSortedByNameDesc(ctx context.Context, arg SearchGamesVisibleToUserSortedByNameDescParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByNameDesc, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGames = `-- name: SearchOwnGames :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC
+`
+
+type SearchOwnGamesParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGames(ctx context.Context, arg SearchOwnGamesParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGames, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGamesSortedByCreatedAt = `-- name: SearchOwnGamesSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC
+`
+
+type SearchOwnGamesSortedByCreatedAtParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGamesSortedByCreatedAt(ctx context.Context, arg SearchOwnGamesSortedByCreatedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByCreatedAt, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGamesSortedByModifiedAt = `-- name: SearchOwnGamesSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC
+`
+
+type SearchOwnGamesSortedByModifiedAtParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGamesSortedByModifiedAt(ctx context.Context, arg SearchOwnGamesSortedByModifiedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByModifiedAt, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGamesSortedByModifiedAtAsc = `-- name: SearchOwnGamesSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC
+`
+
+type SearchOwnGamesSortedByModifiedAtAscParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGamesSortedByModifiedAtAsc(ctx context.Context, arg SearchOwnGamesSortedByModifiedAtAscParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByModifiedAtAsc, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGamesSortedByName = `-- name: SearchOwnGamesSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC
+`
+
+type SearchOwnGamesSortedByNameParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGamesSortedByName(ctx context.Context, arg SearchOwnGamesSortedByNameParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByName, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchOwnGamesSortedByNameDesc = `-- name: SearchOwnGamesSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC
+`
+
+type SearchOwnGamesSortedByNameDescParams struct {
+	CreatedBy uuid.NullUUID
+	Column2   sql.NullString
+}
+
+func (q *Queries) SearchOwnGamesSortedByNameDesc(ctx context.Context, arg SearchOwnGamesSortedByNameDescParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchOwnGamesSortedByNameDesc, arg.CreatedBy, arg.Column2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGames = `-- name: SearchPublicGames :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC
+`
+
+func (q *Queries) SearchPublicGames(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGames, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGamesSortedByCreatedAt = `-- name: SearchPublicGamesSortedByCreatedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC
+`
+
+func (q *Queries) SearchPublicGamesSortedByCreatedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGamesSortedByCreatedAt, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGamesSortedByModifiedAt = `-- name: SearchPublicGamesSortedByModifiedAt :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC
+`
+
+func (q *Queries) SearchPublicGamesSortedByModifiedAt(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGamesSortedByModifiedAt, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGamesSortedByModifiedAtAsc = `-- name: SearchPublicGamesSortedByModifiedAtAsc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC
+`
+
+func (q *Queries) SearchPublicGamesSortedByModifiedAtAsc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGamesSortedByModifiedAtAsc, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGamesSortedByName = `-- name: SearchPublicGamesSortedByName :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC
+`
+
+func (q *Queries) SearchPublicGamesSortedByName(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGamesSortedByName, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Game
+	for rows.Next() {
+		var i Game
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Description,
+			&i.Icon,
+			&i.Public,
+			&i.PublicSponsoredApiKeyID,
+			&i.PrivateShareHash,
+			&i.PrivateSponsoredApiKeyID,
+			&i.SystemMessageScenario,
+			&i.SystemMessageGameStart,
+			&i.ImageStyle,
+			&i.Css,
+			&i.StatusFields,
+			&i.FirstMessage,
+			&i.FirstStatus,
+			&i.FirstImage,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchPublicGamesSortedByNameDesc = `-- name: SearchPublicGamesSortedByNameDesc :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC
+`
+
+func (q *Queries) SearchPublicGamesSortedByNameDesc(ctx context.Context, dollar_1 sql.NullString) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, searchPublicGamesSortedByNameDesc, dollar_1)
 	if err != nil {
 		return nil, err
 	}

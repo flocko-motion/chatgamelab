@@ -3,7 +3,6 @@ import {
   Group,
   Box,
   Burger,
-  Avatar,
   ActionIcon,
   Drawer,
   Stack,
@@ -28,6 +27,8 @@ import {
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { DropdownMenu } from '../DropdownMenu';
+import { UserAvatar } from '../UserAvatar';
+import { getUserAvatarColor } from '@/common/lib/userUtils';
 import { ROUTES } from '../../routes/routes';
 import logoLandscapeWhite from '@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-White-Text-Transparent.png';
 
@@ -97,7 +98,7 @@ function UserActions({
   onLogoutClick,
 }: Pick<AppHeaderProps, 'onNotificationsClick' | 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick'>) {
   const { t } = useTranslation('common');
-  const { logout: authLogout } = useAuth();
+  const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
 
   const handleLogout = () => {
@@ -111,7 +112,7 @@ function UserActions({
       style={{
         borderRadius: 999,
         padding: 2,
-        border: `2px solid ${theme.other.layout.borderStrong}`,
+        border: `2px solid ${theme.colors[getUserAvatarColor(backendUser?.name || 'User')]?.[6] || theme.colors.accent[6]}`,
         backgroundColor: theme.other.layout.bgSubtle,
         transition: 'background-color 150ms ease, border-color 150ms ease',
       }}
@@ -130,16 +131,13 @@ function UserActions({
         },
       }}
     >
-      <Avatar
+      <UserAvatar
+        name={backendUser?.name || 'User'}
         size="md"
-        radius="xl"
         style={{
           backgroundColor: 'transparent',
-          color: 'white',
         }}
-      >
-        <IconUser size={20} color="white" />
-      </Avatar>
+      />
     </UnstyledButton>
   );
 

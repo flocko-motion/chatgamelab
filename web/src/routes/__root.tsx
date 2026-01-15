@@ -43,9 +43,8 @@ function RootComponent() {
   // Navigation items for authenticated header
   const navItems: NavItem[] = [
     { label: t('dashboard'), icon: <IconBuilding size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
-    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
-    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
-    { label: t('rooms'), icon: <IconUsers size={18} />, onClick: () => navigate({ to: ROUTES.DASHBOARD }) },
+    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => navigate({ to: ROUTES.SESSIONS as '/' }) },
+    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => navigate({ to: ROUTES.CREATIONS as '/' }) },
   ];
 
   // Header navigation callbacks

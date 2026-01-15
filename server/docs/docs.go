@@ -457,6 +457,32 @@ const docTemplate = `{
                     "games"
                 ],
                 "summary": "List games",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search games by name (case-insensitive)",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field (name, createdAt, modifiedAt)",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction (asc, desc)",
+                        "name": "sortDir",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter type (all, own, public, organization, favorites)",
+                        "name": "filter",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -680,6 +706,64 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to delete",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/clone": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a copy of a game for the authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Clone game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID) to clone",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Game"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to clone",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -980,6 +1064,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/messages/{id}/image": {
+            "get": {
+                "description": "Returns the image for a message as PNG",
+                "produces": [
+                    "image/png"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get message image",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PNG image",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid message ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Message or image not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/messages/{id}/stream": {
             "get": {
                 "description": "Server-Sent Events endpoint for streaming message chunks.",
@@ -1087,6 +1212,97 @@ const docTemplate = `{
                 }
             }
         },
+        "/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all available user roles",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Get available roles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.RolesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/sessions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns recent sessions for the authenticated user with game names",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "List user sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search by game name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field: game, model, lastPlayed (default)",
+                        "name": "sortBy",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.UserSessionWithGame"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/sessions/{id}": {
             "get": {
                 "description": "Returns session details. Optional query parameter can include latest message.",
@@ -1172,6 +1388,71 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a session and all its messages. User must be the owner.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Delete session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid session ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1529,6 +1810,57 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "db.UserSessionWithGame": {
+            "type": "object",
+            "properties": {
+                "aiModel": {
+                    "type": "string"
+                },
+                "aiPlatform": {
+                    "description": "AI model used for playing.",
+                    "type": "string"
+                },
+                "aiSession": {
+                    "description": "JSON with arbitrary details to be used within that model and within that session.",
+                    "type": "string"
+                },
+                "apiKey": {
+                    "$ref": "#/definitions/obj.ApiKey"
+                },
+                "apiKeyId": {
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "type": "string"
+                },
+                "gameDescription": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "gameName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageStyle": {
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/obj.Meta"
+                },
+                "statusFields": {
+                    "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
         "httpx.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -2017,8 +2349,14 @@ const docTemplate = `{
         "routes.CreateGameRequest": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2052,6 +2390,17 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "routes.RolesResponse": {
+            "type": "object",
+            "properties": {
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.Role"
+                    }
                 }
             }
         },
