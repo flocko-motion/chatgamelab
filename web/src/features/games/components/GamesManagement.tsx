@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from '@tanstack/react-router';
 import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
@@ -33,6 +34,7 @@ interface GamesManagementProps {
 export function GamesManagement({ initialGameId, initialMode, onModalClose }: GamesManagementProps = {}) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
+  const navigate = useNavigate();
   
   const [createModalOpened, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(initialMode === 'create');
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
@@ -129,6 +131,12 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handlePlayGame = (game: ObjGame) => {
+    if (game.id) {
+      navigate({ to: '/games/$gameId/play', params: { gameId: game.id } });
+    }
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -280,6 +288,7 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
                   onEdit={handleEditGame}
                   onDelete={handleDeleteClick}
                   onExport={handleExport}
+                  onPlay={handlePlayGame}
                 />
               ))}
             </SimpleGrid>
@@ -304,6 +313,7 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
               onEdit={handleEditGame}
               onDelete={handleDeleteClick}
               onExport={handleExport}
+              onPlay={handlePlayGame}
               fillHeight
             />
           </Card>

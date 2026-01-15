@@ -5,6 +5,7 @@ import {
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
+import { ROUTES } from '@/common/routes/routes';
 import { AppLayout, type NavItem } from '@/common/components/Layout';
 import { navigationLogger } from '@/config/logger';
 import { useGames, useUserSessions } from '@/api/hooks';
@@ -131,7 +132,7 @@ function ExternalLinksCard() {
       id: 'jff',
       title: t('cards.externalLinks.jff.title'),
       description: t('cards.externalLinks.jff.description'),
-      href: 'https://jff.berlin',
+      href: 'https://jff.de',
       icon: <IconUsers size={16} />,
     },
   ];
@@ -154,7 +155,7 @@ function QuickActionsCard() {
       id: 'start-new-game',
       label: t('quickActions.startNewGame'),
       icon: <IconDeviceGamepad2 size={16} />,
-      onClick: () => navigate({ to: '/play/new' as '/' }),
+      onClick: () => navigate({ to: ROUTES.SESSIONS + '/new' as '/' }),
     },  
     {
       id: 'create-game',

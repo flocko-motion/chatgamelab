@@ -23,7 +23,7 @@ import {
 import { PageTitle } from '@components/typography';
 import { SortSelector, type SortOption } from '@components/controls';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
-import { PlayIconButton, TextButton } from '@components/buttons';
+import { PlayGameButton, TextButton } from '@components/buttons';
 import { useGames } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame } from '@/api/generated';
@@ -61,6 +61,18 @@ export function GameSelection({ onSelectGame }: GameSelectionProps) {
 
   const columns: DataTableColumn<ObjGame>[] = [
     {
+      key: 'play',
+      header: '', // No header for play column
+      width: 120,
+      render: (game) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <PlayGameButton onClick={() => onSelectGame(game)}>
+            {t('play.playNow')}
+          </PlayGameButton>
+        </div>
+      ),
+    },
+    {
       key: 'name',
       header: t('games.fields.name'),
       render: (game) => (
@@ -97,19 +109,6 @@ export function GameSelection({ onSelectGame }: GameSelectionProps) {
             {t('games.visibility.private')}
           </Badge>
         ),
-    },
-    {
-      key: 'actions',
-      header: t('actions'),
-      width: 100,
-      render: (game) => (
-        <Group gap="xs" wrap="nowrap" onClick={(e) => e.stopPropagation()}>
-          <PlayIconButton
-            onClick={() => onSelectGame(game)}
-            aria-label={t('play.selectGame')}
-          />
-        </Group>
-      ),
     },
   ];
 
