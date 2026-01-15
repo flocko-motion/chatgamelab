@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Card,
   Group,
   SimpleGrid,
@@ -10,7 +9,6 @@ import {
   Badge,
 } from '@mantine/core';
 import {
-  IconUser,
   IconBuilding,
   IconChartBar,
   IconDeviceGamepad2,
@@ -21,6 +19,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/providers/AuthProvider';
+import { UserAvatar } from '@/common/components/UserAvatar';
 
 export function ProfileView() {
   const { t } = useTranslation('auth');
@@ -29,6 +28,11 @@ export function ProfileView() {
   if (!backendUser) {
     return null;
   }
+
+  // Get translated role name
+  const getRoleTranslation = (role: string) => {
+    return t(`profile.roles.${role}`);
+  };
 
   // Format member since date
   const memberSince = backendUser.meta?.createdAt
@@ -48,13 +52,10 @@ export function ProfileView() {
       {/* User Info Card */}
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Group gap="lg" align="flex-start">
-          <Avatar
-            size={80}
-            radius="xl"
-            color="accent"
-          >
-            <IconUser size={40} />
-          </Avatar>
+          <UserAvatar
+            name={backendUser.name || 'User'}
+            size="xl"
+          />
           
           <Stack gap="xs" style={{ flex: 1 }}>
             <Title order={2}>{backendUser.name}</Title>
@@ -90,7 +91,7 @@ export function ProfileView() {
               <Text size="sm" c="dimmed">{t('profile.role')}</Text>
               {backendUser.role?.role ? (
                 <Badge variant="light" color="accent" size="lg">
-                  {backendUser.role.role}
+                  {getRoleTranslation(backendUser.role.role)}
                 </Badge>
               ) : (
                 <Text fw={500}>{t('profile.noRole')}</Text>
