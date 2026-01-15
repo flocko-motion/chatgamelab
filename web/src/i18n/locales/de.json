@@ -29,14 +29,14 @@
       "loginCta": "Anmelden und loslegen",
       "features": {
         "title": "Warum ChatGameLab?",
-        "subtitle": "Entdecken Sie die perfekte Verbindung von Bildung und Unterhaltung",
+        "subtitle": "Entdecke die perfekte Verbindung von Bildung und Unterhaltung",
         "create": {
           "title": "Abenteuer erstellen",
-          "description": "Entwerfen Sie interaktive Text-Adventures mit KI"
+          "description": "Entwirf interaktive Text-Adventures mit KI"
         },
         "play": {
           "title": "Gemeinsam spielen", 
-          "description": "Schließen Sie sich Freunden bei kollaborativen Geschichtensitzungen an"
+          "description": "Schließ dich Freunden bei kollaborativen Geschichtensitzungen an"
         },
         "learn": {
           "title": "Lernen & Lehren",
@@ -44,7 +44,7 @@
         },
         "understand": {
           "title": "KI verstehen",
-          "description": "Erkunden Sie, wie KI-Modelle Geschichten erstellen und lernen Sie, wie sie funktionieren"
+          "description": "Erkunde, wie KI-Modelle Geschichten erstellen und lerne, wie sie funktionieren"
         }
       }
     },
@@ -73,11 +73,11 @@
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
-      "subtitle": "Verwalten Sie Ihre API-Schlüssel für KI-Plattformen.",
+      "subtitle": "Verwalte deine API-Schlüssel für KI-Plattformen.",
       "addKey": "Schlüssel hinzufügen",
       "addFirstKey": "Ersten API-Schlüssel hinzufügen",
-      "noKeys": "Sie haben noch keine API-Schlüssel.",
-      "yourKeys": "Ihre API-Schlüssel",
+      "noKeys": "Du hast noch keine API-Schlüssel.",
+      "yourKeys": "Deine API-Schlüssel",
       "key": "Schlüssel",
       "keys": "Schlüssel",
       "addedOn": "Hinzugefügt",
@@ -102,30 +102,30 @@
         "platformLabel": "Plattform",
         "platformPlaceholder": "Plattform auswählen",
         "keyLabel": "API-Schlüssel",
-        "keyPlaceholder": "Geben Sie Ihren API-Schlüssel ein",
-        "keyDescription": "Ihr Schlüssel wird verschlüsselt und sicher gespeichert.",
+        "keyPlaceholder": "Gib deinen API-Schlüssel ein",
+        "keyDescription": "Dein Schlüssel wird verschlüsselt und sicher gespeichert.",
         "submit": "Schlüssel hinzufügen"
       },
       "editModal": {
         "title": "API-Schlüssel bearbeiten",
         "nameLabel": "Schlüsselname",
-        "namePlaceholder": "Geben Sie einen Namen für diesen Schlüssel ein"
+        "namePlaceholder": "Gib einen Namen für diesen Schlüssel ein"
       },
       "deleteModal": {
         "title": "API-Schlüssel löschen",
-        "message": "Möchten Sie \"{{name}}\" wirklich löschen?",
+        "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Der Schlüssel wird dauerhaft gelöscht."
       },
       "errors": {
         "nameRequired": "Name ist erforderlich",
         "platformRequired": "Plattform ist erforderlich",
         "keyRequired": "API-Schlüssel ist erforderlich",
-        "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wählen Sie eine gültige KI-Plattform.",
-        "loadFailed": "API-Schlüssel konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+        "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wähle eine gültige KI-Plattform.",
+        "loadFailed": "API-Schlüssel konnten nicht geladen werden. Bitte versuche es erneut."
       },
       "unsupportedPlatform": {
         "badge": "nicht unterstützt",
-        "hint": "Diese Plattform wird derzeit nicht unterstützt. Sie können nur vorhandene Schlüssel entfernen."
+        "hint": "Diese Plattform wird derzeit nicht unterstützt. Du kannst nur vorhandene Schlüssel entfernen."
       }
     },
     "actions": "Aktionen",
@@ -134,6 +134,8 @@
     "games": {
       "title": "Meine erstellten Spiele",
       "createButton": "Spiel erstellen",
+      "playNow": "Jetzt spielen",
+      "saveAndPlay": "Speichern & Spielen",
       "fields": {
         "name": "Name",
         "description": "Beschreibung",
@@ -153,14 +155,14 @@
       },
       "empty": {
         "title": "Noch keine Spiele",
-        "description": "Erstellen Sie Ihr erstes Spiel und starten Sie mit interaktiven KI-gestützten Abenteuern."
+        "description": "Erstelle dein erstes Spiel und starte mit interaktiven KI-gestützten Abenteuern."
       },
       "createModal": {
         "title": "Neues Spiel erstellen",
         "nameLabel": "Spielname",
         "namePlaceholder": "z.B. Weltraumabenteuer",
         "descriptionLabel": "Beschreibung",
-        "descriptionPlaceholder": "Worum geht es in Ihrem Spiel?",
+        "descriptionPlaceholder": "Worum geht es in deinem Spiel?",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "publicDescription": "Öffentliche Spiele sind für alle sichtbar.",
         "submit": "Spiel erstellen"
@@ -173,22 +175,25 @@
       },
       "tabs": {
         "basic": "Grundlagen",
+        "basicInfo": "Allgemeine Infos zum Spiel. Das ist nur für dich und hat keinen Einfluss aufs Spiel.",
         "story": "Geschichte & KI",
+        "storyInfo": "Alles hier wird an die KI gesendet, um deine Spielwelt und Geschichte zu gestalten.",
         "style": "Design",
+        "styleInfo": "Optionale Einstellungen für das Aussehen des Spiels beim Spielen.",
         "quickStart": "Schnellstart",
         "importExport": "Import/Export"
       },
       "editFields": {
         "name": "Spielname",
-        "description": "Beschreibung",
-        "imageStyle": "Bildstil",
-        "imageStyleHint": "Beschreiben Sie den visuellen Stil für generierte Bilder",
-        "scenario": "Szenario",
-        "scenarioHint": "Worum geht es im Spiel? Beschreiben Sie die Welt, Regeln und die Rolle des Spielers.",
-        "gameStart": "Spielstart-Nachricht",
-        "gameStartHint": "Wie soll das Spiel den Spieler begrüßen? Erste Szene.",
-        "statusFields": "Statusfelder",
-        "statusFieldsHint": "Definieren Sie die Statusfelder für die KI (z.B. Gesundheit, Inventar) und deren initiale Werte.",
+        "description": "Gib dem Spiel eine kurze Beschreibung. Das ist nur für dich.",
+        "imageStyle": "Welchen Stil sollen die Bilder haben?",
+        "imageStyleHint": "Zum Beispiel: Comic, realistisch, Pixel-Art, Aquarell...",
+        "scenario": "Worum geht es im Spiel",
+        "scenarioHint": "Beschreibe kurz: Wo spielt das Spiel? Wer ist die Spielfigur? Was ist das Ziel? Welche Regeln sind wichtig?",
+        "gameStart": "Wie beginnt das Spiel?",
+        "gameStartHint": "Was passiert am Anfang? Beschreibe die erste Szene, die der Spieler sieht.",
+        "statusFields": "Spielwerte",
+        "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch.",
         "firstMessage": "Erste Nachricht",
         "firstMessageHint": "Vorgenerierte Eröffnungsnachricht für schnellen Spielstart.",
         "firstStatus": "Erster Status",
@@ -202,16 +207,16 @@
       "statusFieldsEditor": {
         "visual": "Visuell",
         "raw": "Raw JSON",
-        "noFields": "Keine Statusfelder definiert. Klicken Sie auf + um eines hinzuzufügen.",
-        "namePlaceholder": "Feldname (z.B. Gesundheit)",
+        "noFields": "Noch keine Werte. Klicke auf +, um einen neuen Wert hinzuzufügen.",
+        "namePlaceholder": "Name (z.B. Gesundheit)",
         "valuePlaceholder": "Startwert (z.B. 100)",
-        "subNamePlaceholder": "Unterfeldname (z.B. Rüstung)",
-        "addField": "Statusfeld hinzufügen",
-        "addSubFields": "Unterfelder hinzufügen",
-        "addSubField": "Unterfeld hinzufügen",
-        "subFields": "Unterfelder",
-        "convertToSimple": "Unterfelder entfernen",
-        "invalidJson": "Ungültiges JSON-Format. Beheben Sie die Fehler, bevor Sie zum visuellen Modus wechseln."
+        "subNamePlaceholder": "Detail (z.B. Rüstung)",
+        "addField": "Neuen Wert hinzufügen",
+        "addSubFields": "Details hinzufügen",
+        "addSubField": "Details hinzufügen",
+        "subFields": "Details",
+        "convertToSimple": "Details entfernen",
+        "invalidJson": "Ungültiges JSON-Format. Behebe die Fehler, bevor du zum visuellen Modus wechselst."
       },
       "view": {
         "noScenario": "Noch kein Szenario definiert.",
@@ -219,36 +224,34 @@
       },
       "deleteModal": {
         "title": "Spiel löschen",
-        "message": "Möchten Sie \"{{name}}\" wirklich löschen?",
+        "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
-      },
-      "editPage": {
-        "placeholder": "Erweiterter Spiel-Editor kommt bald. Sie können Szenarien, KI-Einstellungen, Bilder und mehr konfigurieren."
       },
       "errors": {
         "nameRequired": "Spielname ist erforderlich",
-        "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+        "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuche es erneut."
       },
       "importExport": {
-        "description": "Exportieren Sie Ihre Spielkonfiguration, um sie mit anderen zu teilen, oder importieren Sie eine Konfiguration, um dieses Spiel zu aktualisieren.",
+        "description": "Exportiere deine Spielkonfiguration, um sie mit anderen zu teilen, oder importiere eine Konfiguration, um dieses Spiel zu aktualisieren.",
         "exportTitle": "Spiel exportieren",
-        "exportDescription": "Laden Sie die Spielkonfiguration als YAML-Datei herunter.",
+        "exportDescription": "Lade die Spielkonfiguration als YAML-Datei herunter.",
         "exportButton": "Spiel exportieren",
         "importTitle": "Spiel importieren",
-        "importDescription": "Laden Sie eine YAML-Datei hoch, um die Konfiguration dieses Spiels zu aktualisieren.",
+        "importDescription": "Lade eine YAML-Datei hoch, um die Konfiguration dieses Spiels zu aktualisieren.",
         "selectFile": "YAML-Datei auswählen",
         "yamlPreview": "YAML-Inhalt",
         "importButton": "Spiel importieren",
         "importSuccess": "Spielkonfiguration erfolgreich importiert!",
-        "importError": "Spielkonfiguration konnte nicht importiert werden. Bitte überprüfen Sie das YAML-Format."
+        "importError": "Spielkonfiguration konnte nicht importiert werden. Bitte überprüfe das YAML-Format."
       }
     },
     "sessions": {
-      "title": "Weiterspielen",
-      "startNewGame": "Neues Spiel starten",
+      "title": "Deine laufenden Spiele",
+      "startNewGame": "Starte ein neues Spiel",
       "untitledGame": "Unbenanntes Spiel",
       "noDescription": "Keine Beschreibung",
       "resume": "Fortsetzen",
+      "continueGame": "Weiterspielen",
       "filters": {
         "all": "Alle",
         "organization": "Organisation"
@@ -282,6 +285,7 @@
       "title": "Spiel auswählen",
       "selectGameTitle": "Spiel auswählen",
       "selectGame": "Dieses Spiel auswählen",
+      "playNow": "Jetzt spielen",
       "owner": "Mein",
       "favorite": "Zu Favoriten hinzufügen",
       "unfavorite": "Aus Favoriten entfernen",
@@ -297,16 +301,16 @@
       },
       "empty": {
         "title": "Keine Spiele gefunden",
-        "description": "Versuchen Sie, Ihre Filter anzupassen oder schauen Sie später nach neuen Spielen."
+        "description": "Versuche, deine Filter anzupassen oder schau später nach neuen Spielen."
       },
       "cloneModal": {
         "title": "Spiel kopieren",
-        "message": "Dies erstellt eine Kopie von \"{{name}}\" in Ihren Spielen.",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
         "confirm": "Spiel kopieren"
       },
       "cloneSuccess": {
         "title": "Spiel kopiert",
-        "message": "\"{{name}}\" wurde zu Ihren Spielen hinzugefügt."
+        "message": "\"{{name}}\" wurde zu deinen Spielen hinzugefügt."
       }
     },
     "gamePlayer": {
@@ -323,7 +327,7 @@
         "tryAgain": "Erneut versuchen"
       },
       "header": {
-        "back": "Zurück zu Spielen",
+        "back": "Zurück zu deinen anderen laufenden Spielen",
         "restart": "Spiel neustarten",
         "showDebug": "Debug-Info anzeigen",
         "hideDebug": "Debug-Info ausblenden"
@@ -348,40 +352,39 @@
       }
     }
   },
-  "navigation": {
+ "navigation": {
     "home": "Startseite",
     "dashboard": "Dashboard",
     "sessions": "Sitzungen",
     "games": "Spiele",
-    "create": "Erstellen",
-    "play": "Spielen",
+    "create": "Eigenes Spiel erstellen",
+    "play": "Spiel spielen",
     "rooms": "Räume",
     "groups": "Gruppen",
-    "learn": "Lernen",
-    "debug": "Debug"
-  },
+    "learn": "Lernen"
+ },
   "dashboard": {
     "cards": {
       "myGames": {
-        "title": "Meine Spielkreationen",
-        "empty": "Noch keine Spiele. Erstellen Sie Ihr erstes Spiel!",
-        "viewAll": "Alle Kreationen"
+        "title": "Meine eigenen Spiele",
+        "empty": "Noch keine Spiele. Erstelle dein erstes Spiel!",
+        "viewAll": "Meine Spiele"
       },
       "myRooms": {
         "title": "Meine Räume",
-        "empty": "Noch keine Räume. Erstellen Sie einen Raum zum gemeinsamen Spielen!",
-        "viewAll": "Alle Räume"
+        "empty": "Noch keine Räume. Erstelle einen Raum zum gemeinsamen Spielen!",
+        "viewAll": "Meine Räume"
       },
       "lastPlayed": {
         "title": "Zuletzt gespielt",
-        "empty": "Noch kein Spielverlauf. Beginnen Sie ein Spiel!",
-        "viewAll": "Spielverlauf"
+        "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
+        "viewAll": "Laufende Spiele"
       },
       "externalLinks": {
         "title": "Über ChatGameLab",
         "mainSite": {
           "title": "ChatGameLab Projekt",
-          "description": "Erfahren Sie mehr über das Bildungsprojekt hinter dieser Plattform."
+          "description": "Erfahre mehr über das Bildungsprojekt hinter dieser Plattform."
         },
         "jff": {
           "title": "JFF – Institut für Medienpädagogik",
@@ -391,10 +394,10 @@
     },
     "quickActions": {
       "title": "Schnellaktionen",
-      "startNewGame": "Neues Spiel starten",
-      "createNewGame": "Neues Spiel erstellen",
-      "createRoom": "Raum erstellen",
-      "inviteMembers": "Mitglieder einladen"
+      "startNewGame": "Ein neues Spiel starten",
+      "createNewGame": "Ein neues Spiel erstellen",
+      "createRoom": "Einen Raum erstellen",
+      "inviteMembers": "Mitglieder zu einem Raum einladen"
     },
     "version": {
       "frontend": "Frontend",
@@ -406,7 +409,7 @@
       "commit": "Commit",
       "mismatch": {
         "title": "Versionenkonflikt erkannt",
-        "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktieren Sie den Support, wenn Probleme weiterhin bestehen."
+        "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen."
       }
     }
   },
@@ -427,15 +430,15 @@
     "leave": "Verlassen"
   },
   "errors": {
-    "network": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung.",
-    "server": "Serverfehler. Bitte versuchen Sie es später erneut.",
-    "validation": "Bitte überprüfen Sie Ihre Eingabe und versuchen Sie es erneut.",
-    "unauthorized": "Bitte melden Sie sich an, um fortzufahren.",
-    "forbidden": "Sie haben keine Berechtigung, diese Aktion durchzuführen.",
+    "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
+    "server": "Serverfehler. Bitte versuche es später erneut.",
+    "validation": "Bitte überprüfe deine Eingabe und versuche es erneut.",
+    "unauthorized": "Bitte melde dich an, um fortzufahren.",
+    "forbidden": "Du hast keine Berechtigung, diese Aktion durchzuführen.",
     "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
-    "generic": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
-    "backendUserFetch": "Benutzerdaten konnten nicht vom Server geladen werden. Bitte versuchen Sie es erneut.",
+    "backendUserFetch": "Benutzerdaten konnten nicht vom Server geladen werden. Bitte versuche es erneut.",
     "titles": {
       "network": "Netzwerkfehler",
       "server": "Serverfehler",
@@ -449,17 +452,17 @@
   "auth": {
     "login": {
       "title": "Willkommen bei ChatGameLab",
-      "subtitle": "Wählen Sie, wie Sie sich anmelden möchten",
+      "subtitle": "Wähle, wie du dich anmelden möchtest",
       "auth0Button": "Mit Auth0 anmelden",
       "devMode": "Entwicklungsmodus",
       "devModeDescription": "Schneller Login für Entwicklung und Tests",
       "devModeAlert": {
         "title": "Entwicklungsmodus",
-        "message": "Dies ist die Entwickler-Login-Seite. In der Produktion werden Sie direkt zu Auth0 weitergeleitet."
+        "message": "Dies ist die Entwickler-Login-Seite. In der Produktion wirst du direkt zu Auth0 weitergeleitet."
       },
       "redirecting": {
         "title": "Weiterleitung zu Auth0...",
-        "message": "Bitte warten Sie, während wir Sie zur Login-Seite weiterleiten."
+        "message": "Bitte warte, während wir dich zur Login-Seite weiterleiten."
       },
       "role": {
         "admin": "Als Admin anmelden",
@@ -472,10 +475,10 @@
       "title": "Profil vervollständigen",
       "subtitle": "Nur noch ein paar Details, um loszulegen",
       "nameLabel": "Anzeigename",
-      "namePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
-      "nameDescription": "So werden andere Benutzer Sie sehen. Maximal 24 Zeichen.",
+      "namePlaceholder": "Gib deinen Anzeigenamen ein",
+      "nameDescription": "So werden andere Benutzer dich sehen. Maximal 24 Zeichen.",
       "emailLabel": "E-Mail-Adresse",
-      "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+      "emailPlaceholder": "Gib deine E-Mail ein",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
       "submitButton": "Konto erstellen",
       "submitting": "Konto wird erstellt...",
@@ -484,21 +487,21 @@
         "nameRequired": "Name ist erforderlich",
         "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
         "emailRequired": "E-Mail ist erforderlich",
-        "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
         "nameTaken": "Dieser Name ist bereits vergeben",
-        "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut."
+        "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
       },
       "checkingName": "Verfügbarkeit wird geprüft..."
     },
     "settings": {
       "title": "Einstellungen",
-      "subtitle": "Verwalten Sie Ihre Kontoeinstellungen",
+      "subtitle": "Verwalte deine Kontoeinstellungen",
       "accountSection": "Konto",
       "nameLabel": "Anzeigename",
-      "namePlaceholder": "Geben Sie Ihren Anzeigenamen ein",
-      "nameDescription": "So werden andere Benutzer Sie sehen. Maximal 24 Zeichen.",
+      "namePlaceholder": "Gib deinen Anzeigenamen ein",
+      "nameDescription": "So werden andere Benutzer dich sehen. Maximal 24 Zeichen.",
       "emailLabel": "E-Mail-Adresse",
-      "emailPlaceholder": "Geben Sie Ihre E-Mail ein",
+      "emailPlaceholder": "Gib deine E-Mail ein",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
       "saveButton": "Änderungen speichern",
       "saving": "Wird gespeichert...",
@@ -507,10 +510,10 @@
         "nameRequired": "Name ist erforderlich",
         "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
         "emailRequired": "E-Mail ist erforderlich",
-        "emailInvalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
         "nameTaken": "Dieser Name ist bereits vergeben",
         "emailTaken": "Diese E-Mail ist bereits vergeben",
-        "saveFailed": "Speichern fehlgeschlagen. Bitte versuchen Sie es erneut."
+        "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es erneut."
       }
     },
     "profile": {

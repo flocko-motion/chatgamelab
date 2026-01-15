@@ -22,17 +22,15 @@ import {
   IconX,
   IconSettings,
   IconMessage,
-  IconPhoto,
-  IconRefresh,
   IconPalette,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import { ActionButton, TextButton } from '@components/buttons';
+import { useNavigate } from '@tanstack/react-router';
+import { ActionButton, CancelButton, TextButton } from '@components/buttons';
 import { InfoCard } from '@components/cards';
 import { SectionTitle } from '@components/typography';
 import { useGame, useUpdateGame } from '@/api/hooks';
-import { StatusFieldsEditor } from './StatusFieldsEditor';
 
 interface GameViewModalProps {
   gameId: string | null;
@@ -44,6 +42,7 @@ interface GameViewModalProps {
 export function GameViewModal({ gameId, opened, onClose, editMode = false }: GameViewModalProps) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string | null>('basic');
   
   const { data: game, isLoading, error } = useGame(gameId ?? '');
@@ -89,11 +88,11 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
     }
   }, [editMode, game, isLoading, opened]);
 
-  const handleRegenerate = () => {
-    // TODO: Call API to regenerate first message and first status
-    // This will be implemented when the backend endpoint is ready
-    console.log('Regenerate quick start for game:', gameId);
-  };
+  // Quick Start tab is hidden for now
+  // const handleRegenerate = () => {
+  //   // TODO: Call API to regenerate first message and first status
+  //   console.log('Regenerate quick start for game:', gameId);
+  // };
 
   const handleSave = async () => {
     if (!game?.id) return;
@@ -115,6 +114,32 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
         },
       });
       onClose();
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
+  const handleSaveAndPlay = async () => {
+    if (!game?.id) return;
+    
+    try {
+      await updateGame.mutateAsync({
+        id: game.id,
+        game: {
+          ...game,
+          name,
+          description,
+          public: isPublic,
+          systemMessageScenario,
+          systemMessageGameStart,
+          imageStyle,
+          statusFields,
+          firstMessage: firstMessage || undefined,
+          firstStatus: firstStatus || undefined,
+        },
+      });
+      onClose();
+      navigate({ to: '/games/$gameId/play', params: { gameId: game.id } });
     } catch {
       // Error handled by mutation
     }
@@ -167,14 +192,13 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
               <Tabs.Tab value="style" leftSection={<IconPalette size={14} />}>
                 {t('games.tabs.style')}
               </Tabs.Tab>
-              <Tabs.Tab value="quickstart" leftSection={<IconPhoto size={14} />}>
-                {t('games.tabs.quickStart')}
-              </Tabs.Tab>
             </Tabs.List>
 
             <ScrollArea h={isMobile ? 'calc(100vh - 250px)' : 600} mt="md">
               <Tabs.Panel value="basic">
                 <Stack gap="md">
+                  <InfoCard>{t('games.tabs.basicInfo')}</InfoCard>
+                  
                   <TextInput
                     label={t('games.editFields.name')}
                     value={name}
@@ -195,19 +219,13 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.currentTarget.checked)}
                   />
-
-                  <TextInput
-                    label={t('games.editFields.imageStyle')}
-                    description={t('games.editFields.imageStyleHint')}
-                    value={imageStyle}
-                    onChange={(e) => setImageStyle(e.target.value)}
-                    placeholder="e.g., pixel art, watercolor, realistic..."
-                  />
                 </Stack>
               </Tabs.Panel>
 
               <Tabs.Panel value="story">
                 <Stack gap="md">
+                  <InfoCard>{t('games.tabs.storyInfo')}</InfoCard>
+                  
                   <Textarea
                     label={t('games.editFields.scenario')}
                     description={t('games.editFields.scenarioHint')}
@@ -228,29 +246,43 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                     maxRows={8}
                   />
 
-                  <StatusFieldsEditor
+                  <TextInput
+                    label={t('games.editFields.imageStyle')}
+                    description={t('games.editFields.imageStyleHint')}
+                    value={imageStyle}
+                    onChange={(e) => setImageStyle(e.target.value)}
+                    placeholder="e.g., pixel art, watercolor, realistic..."
+                  />
+
+                  {/* Temporarily disabled - StatusFieldsEditor */}
+                  {/* <StatusFieldsEditor
                     value={statusFields}
                     onChange={setStatusFields}
-                  />
+                  /> */}
                 </Stack>
               </Tabs.Panel>
 
               <Tabs.Panel value="style">
-                <Box 
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    minHeight: 300 
-                  }}
-                >
-                  <Text size="lg" c="dimmed" fw={500}>
-                    Coming Soon
-                  </Text>
-                </Box>
+                <Stack gap="md">
+                  <InfoCard>{t('games.tabs.styleInfo')}</InfoCard>
+                  
+                  <Box 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      minHeight: 200 
+                    }}
+                  >
+                    <Text size="lg" c="dimmed" fw={500}>
+                      Coming Soon
+                    </Text>
+                  </Box>
+                </Stack>
               </Tabs.Panel>
 
-              <Tabs.Panel value="quickstart">
+              {/* Quick Start tab hidden for now */}
+              {/* <Tabs.Panel value="quickstart">
                 <Stack gap="md">
                   <InfoCard>
                     {t('games.editFields.quickStartInfo')}
@@ -298,18 +330,27 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                     </TextButton>
                   </Group>
                 </Stack>
-              </Tabs.Panel>
+              </Tabs.Panel> */}
 
             </ScrollArea>
           </Tabs>
 
-          <Group justify="flex-end" mt="md">
-            <TextButton onClick={handleCancel} disabled={updateGame.isPending}>
+          <Group justify="flex-end" mt="md" gap="sm">
+            <CancelButton onClick={handleCancel} disabled={updateGame.isPending}>
               {t('cancel')}
-            </TextButton>
-            <ActionButton onClick={handleSave} loading={updateGame.isPending}>
+            </CancelButton>
+            <ActionButton onClick={handleSave} loading={updateGame.isPending} size="sm">
               {t('save')}
             </ActionButton>
+            {name && description && systemMessageScenario && systemMessageGameStart && (
+              <ActionButton 
+                onClick={handleSaveAndPlay} 
+                loading={updateGame.isPending}
+                size="sm"
+              >
+                {t('games.saveAndPlay')}
+              </ActionButton>
+            )}
           </Group>
         </Stack>
       );
@@ -349,14 +390,13 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
             <Tabs.Tab value="style" leftSection={<IconPalette size={14} />}>
               {t('games.tabs.style')}
             </Tabs.Tab>
-            <Tabs.Tab value="quickstart" leftSection={<IconPhoto size={14} />}>
-              {t('games.tabs.quickStart')}
-            </Tabs.Tab>
           </Tabs.List>
 
           <ScrollArea h={isMobile ? 'calc(100vh - 300px)' : 550} mt="md">
             <Tabs.Panel value="basic">
               <Stack gap="md">
+                <InfoCard>{t('games.tabs.basicInfo')}</InfoCard>
+                
                 <Group gap="xl">
                   <Stack gap={2}>
                     <Text size="xs" c="gray.5" fw={500}>{t('games.fields.created')}</Text>
@@ -367,18 +407,13 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                     <Text size="sm">{formatDate(game.meta?.modifiedAt)}</Text>
                   </Stack>
                 </Group>
-
-                {game.imageStyle && (
-                  <Stack gap={4}>
-                    <Text size="xs" c="gray.5" fw={500}>{t('games.editFields.imageStyle')}</Text>
-                    <Text size="sm" c="gray.7">{game.imageStyle}</Text>
-                  </Stack>
-                )}
               </Stack>
             </Tabs.Panel>
 
             <Tabs.Panel value="story">
               <Stack gap="md">
+                <InfoCard>{t('games.tabs.storyInfo')}</InfoCard>
+                
                 {game.systemMessageScenario ? (
                   <Stack gap={4}>
                     <Text size="xs" c="gray.5" fw={500}>{t('games.editFields.scenario')}</Text>
@@ -419,7 +454,15 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                   <Text size="sm" c="dimmed" fs="italic">{t('games.view.noGameStart')}</Text>
                 )}
 
-                {game.statusFields && (
+                {game.imageStyle && (
+                  <Stack gap={4}>
+                    <Text size="xs" c="gray.5" fw={500}>{t('games.editFields.imageStyle')}</Text>
+                    <Text size="sm" c="gray.7">{game.imageStyle}</Text>
+                  </Stack>
+                )}
+
+                {/* Temporarily disabled - Status Fields display */}
+                {/* {game.statusFields && (
                   <Stack gap={4}>
                     <Text size="xs" c="gray.5" fw={500}>{t('games.editFields.statusFields')}</Text>
                     <Box 
@@ -436,26 +479,31 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                       </Text>
                     </Box>
                   </Stack>
-                )}
+                )} */}
               </Stack>
             </Tabs.Panel>
 
             <Tabs.Panel value="style">
-              <Box 
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  minHeight: 300 
-                }}
-              >
-                <Text size="lg" c="dimmed" fw={500}>
-                  Coming Soon
-                </Text>
-              </Box>
+              <Stack gap="md">
+                <InfoCard>{t('games.tabs.styleInfo')}</InfoCard>
+                
+                <Box 
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    minHeight: 200 
+                  }}
+                >
+                  <Text size="lg" c="dimmed" fw={500}>
+                    Coming Soon
+                  </Text>
+                </Box>
+              </Stack>
             </Tabs.Panel>
 
-            <Tabs.Panel value="quickstart">
+            {/* Quick Start tab hidden for now */}
+            {/* <Tabs.Panel value="quickstart">
               <Stack gap="md">
                 <InfoCard>
                   {t('games.editFields.quickStartInfo')}
@@ -503,7 +551,7 @@ export function GameViewModal({ gameId, opened, onClose, editMode = false }: Gam
                   </TextButton>
                 </Group>
               </Stack>
-            </Tabs.Panel>
+            </Tabs.Panel> */}
 
           </ScrollArea>
         </Tabs>

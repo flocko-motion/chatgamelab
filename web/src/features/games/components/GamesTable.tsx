@@ -1,7 +1,7 @@
-import { Table, Group, Badge, Text, Stack, Tooltip } from '@mantine/core';
-import { IconWorld, IconLock, IconDownload } from '@tabler/icons-react';
+import { Table, Group, Badge, Text, Stack } from '@mantine/core';
+import { IconWorld, IconLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
+import { PlayGameButton, EditButtonWithText, DeleteButtonWithText, ExportButtonWithText } from '@components/buttons';
 import type { ObjGame } from '@/api/generated';
 
 interface GamesTableProps {
@@ -10,10 +10,11 @@ interface GamesTableProps {
   onEdit: (game: ObjGame) => void;
   onDelete: (game: ObjGame) => void;
   onExport: (game: ObjGame) => void;
+  onPlay: (game: ObjGame) => void;
   fillHeight?: boolean;
 }
 
-export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeight = false }: GamesTableProps) {
+export function GamesTable({ games, onView, onEdit, onDelete, onExport, onPlay, fillHeight = false }: GamesTableProps) {
   const { t } = useTranslation('common');
 
   const formatDate = (dateString?: string) => {
@@ -26,6 +27,9 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeig
       <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader={fillHeight}>
         <Table.Thead>
           <Table.Tr style={{ borderBottom: '2px solid var(--mantine-color-gray-2)' }}>
+            <Table.Th w={120} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {/* Play column - no header text */}
+            </Table.Th>
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('games.fields.name')}
             </Table.Th>
@@ -35,7 +39,7 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeig
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('games.fields.modified')}
             </Table.Th>
-            <Table.Th w={150} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <Table.Th w={280} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('actions')}
             </Table.Th>
           </Table.Tr>
@@ -50,6 +54,11 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeig
               }}
               onClick={() => onView(game)}
             >
+              <Table.Td onClick={(e) => e.stopPropagation()}>
+                <PlayGameButton onClick={() => onPlay(game)}>
+                  {t('games.playNow')}
+                </PlayGameButton>
+              </Table.Td>
               <Table.Td>
                 <Stack gap={2}>
                   <Text fw={600} size="sm" c="gray.8" lineClamp={1}>
@@ -78,31 +87,15 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, fillHeig
               </Table.Td>
               <Table.Td onClick={(e) => e.stopPropagation()}>
                 <Group gap="xs" wrap="nowrap">
-                  <Tooltip label={t('edit')} position="top" withArrow>
-                    <span>
-                      <EditIconButton
-                        onClick={() => onEdit(game)}
-                        aria-label={t('edit')}
-                      />
-                    </span>
-                  </Tooltip>
-                  <Tooltip label={t('games.importExport.exportButton')} position="top" withArrow>
-                    <span>
-                      <GenericIconButton
-                        icon={<IconDownload size={16} />}
-                        onClick={() => onExport(game)}
-                        aria-label={t('games.importExport.exportButton')}
-                      />
-                    </span>
-                  </Tooltip>
-                  <Tooltip label={t('delete')} position="top" withArrow>
-                    <span>
-                      <DeleteIconButton
-                        onClick={() => onDelete(game)}
-                        aria-label={t('delete')}
-                      />
-                    </span>
-                  </Tooltip>
+                  <EditButtonWithText onClick={() => onEdit(game)}>
+                    {t('edit')}
+                  </EditButtonWithText>
+                  <ExportButtonWithText onClick={() => onExport(game)}>
+                    {t('games.importExport.exportButton')}
+                  </ExportButtonWithText>
+                  <DeleteButtonWithText onClick={() => onDelete(game)}>
+                    {t('delete')}
+                  </DeleteButtonWithText>
                 </Group>
               </Table.Td>
             </Table.Tr>

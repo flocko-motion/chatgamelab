@@ -1,7 +1,7 @@
 import { Card, Group, Badge, Stack, Text, Title, Box, Tooltip } from '@mantine/core';
 import { IconWorld, IconLock, IconDownload } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
+import { PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import type { ObjGame } from '@/api/generated';
 
 interface GameCardProps {
@@ -10,9 +10,10 @@ interface GameCardProps {
   onEdit: (game: ObjGame) => void;
   onDelete: (game: ObjGame) => void;
   onExport: (game: ObjGame) => void;
+  onPlay: (game: ObjGame) => void;
 }
 
-export function GameCard({ game, onView, onEdit, onDelete, onExport }: GameCardProps) {
+export function GameCard({ game, onView, onEdit, onDelete, onExport, onPlay }: GameCardProps) {
   const { t } = useTranslation('common');
 
   const formatDate = (dateString?: string) => {
@@ -30,11 +31,17 @@ export function GameCard({ game, onView, onEdit, onDelete, onExport }: GameCardP
       onClick={() => onView(game)}
     >
       <Stack gap="sm">
-        <Group justify="space-between" align="flex-start" wrap="nowrap">
+        <Group gap="md" align="flex-start" wrap="nowrap">
+          <Box onClick={(e) => e.stopPropagation()}>
+            <PlayGameButton onClick={() => onPlay(game)} size="sm">
+              {t('games.playNow')}
+            </PlayGameButton>
+          </Box>
+          
           <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
             <Group gap="xs" wrap="nowrap">
               <Box style={{ flex: 1, minWidth: 0 }}>
-                <Title order={4} lineClamp={1}>
+                <Title order={4}>
                   {game.name}
                 </Title>
               </Box>
@@ -54,7 +61,13 @@ export function GameCard({ game, onView, onEdit, onDelete, onExport }: GameCardP
               </Text>
             )}
           </Stack>
-          
+        </Group>
+        
+        <Group justify="space-between" align="center">
+          <Stack gap={2}>
+            <Text size="xs" c="gray.5">{t('games.fields.modified')}</Text>
+            <Text size="sm" c="gray.6">{formatDate(game.meta?.modifiedAt)}</Text>
+          </Stack>
           <Group gap="xs" onClick={(e) => e.stopPropagation()}>
             <Tooltip label={t('edit')} position="top" withArrow>
               <span>
@@ -82,13 +95,6 @@ export function GameCard({ game, onView, onEdit, onDelete, onExport }: GameCardP
               </span>
             </Tooltip>
           </Group>
-        </Group>
-        
-        <Group gap="xl">
-          <Stack gap={2}>
-            <Text size="xs" c="gray.5">{t('games.fields.modified')}</Text>
-            <Text size="sm" c="gray.6">{formatDate(game.meta?.modifiedAt)}</Text>
-          </Stack>
         </Group>
       </Stack>
     </Card>

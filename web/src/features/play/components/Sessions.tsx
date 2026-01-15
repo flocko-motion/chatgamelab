@@ -14,8 +14,8 @@ import {
 import { useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconPlayerPlay, IconSearch } from '@tabler/icons-react';
-import { TextButton, DeleteIconButton } from '@components/buttons';
+import { IconPlus, IconAlertCircle, IconMoodEmpty, IconSearch } from '@tabler/icons-react';
+import { TextButton, PlayGameButton, DeleteIconButton, DeleteButtonWithText } from '@components/buttons';
 import { useModals } from '@mantine/modals';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
@@ -52,30 +52,27 @@ function SessionCard({ session, onResume, onDelete, isDeleting }: SessionCardPro
   return (
     <Card shadow="sm" p="lg" radius="md" withBorder>
       <Stack gap="sm">
-        <Group justify="space-between" wrap="nowrap">
-          <Text fw={600} size="md" lineClamp={1}>
-            {session.gameName || t('sessions.untitledGame')}
-          </Text>
-          <Badge size="sm" color="gray" variant="light">
-            {session.aiModel || 'AI'}
-          </Badge>
-        </Group>
-        <Text size="xs" c="dimmed">
-          {formatRelativeTime(session.meta?.modifiedAt)}
-        </Text>
-        <Group gap="xs" mt="xs" justify="space-between">
-          <TextButton
-            size="xs"
-            leftSection={<IconPlayerPlay size={14} />}
-            onClick={() => onResume(session)}
-          >
-            {t('sessions.resume')}
-          </TextButton>
+        <Group gap="md" align="flex-start" wrap="nowrap">
+          <PlayGameButton onClick={() => onResume(session)} size="sm">
+            {t('sessions.continueGame')}
+          </PlayGameButton>
+          <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
+            <Group justify="space-between" wrap="nowrap">
+              <Text fw={600} size="md">
+                {session.gameName || t('sessions.untitledGame')}
+              </Text>
+              <Badge size="sm" color="gray" variant="light">
+                {session.aiModel || 'AI'}
+              </Badge>
+            </Group>
+            <Text size="xs" c="dimmed">
+              {formatRelativeTime(session.meta?.modifiedAt)}
+            </Text>
+          </Stack>
           <DeleteIconButton
-            size="sm"
-            aria-label={t('sessions.delete')}
             onClick={() => onDelete(session)}
             loading={isDeleting}
+            aria-label={t('delete')}
           />
         </Group>
       </Stack>
@@ -138,6 +135,18 @@ export function Sessions() {
 
   const columns: DataTableColumn<DbUserSessionWithGame>[] = [
     {
+      key: 'continue',
+      header: '', // No header for continue column
+      width: 140,
+      render: (session) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <PlayGameButton onClick={() => handleResume(session)}>
+            {t('sessions.continueGame')}
+          </PlayGameButton>
+        </div>
+      ),
+    },
+    {
       key: 'gameName',
       header: t('sessions.fields.game'),
       render: (session) => (
@@ -175,23 +184,16 @@ export function Sessions() {
     {
       key: 'actions',
       header: t('actions'),
-      width: 120,
+      width: 100,
       render: (session) => (
-        <Group gap="xs" wrap="nowrap" onClick={(e) => e.stopPropagation()}>
-          <TextButton
-            size="xs"
-            leftSection={<IconPlayerPlay size={14} />}
-            onClick={() => handleResume(session)}
-          >
-            {t('sessions.resume')}
-          </TextButton>
-          <DeleteIconButton
-            size="sm"
-            aria-label={t('sessions.delete')}
+        <div onClick={(e) => e.stopPropagation()}>
+          <DeleteButtonWithText
             onClick={() => handleDelete(session)}
             loading={deletingSessionId === session.id}
-          />
-        </Group>
+          >
+            {t('delete')}
+          </DeleteButtonWithText>
+        </div>
       ),
     },
   ];
