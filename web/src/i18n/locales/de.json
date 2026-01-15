@@ -127,6 +127,121 @@
         "badge": "nicht unterstützt",
         "hint": "Diese Plattform wird derzeit nicht unterstützt. Sie können nur vorhandene Schlüssel entfernen."
       }
+    },
+    "actions": "Aktionen",
+    "back": "Zurück",
+    "close": "Schließen",
+    "games": {
+      "title": "Meine erstellten Spiele",
+      "createButton": "Spiel erstellen",
+      "fields": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "visibility": "Sichtbarkeit",
+        "created": "Erstellt",
+        "modified": "Geändert"
+      },
+      "visibility": {
+        "public": "Öffentlich",
+        "private": "Privat"
+      },
+      "sort": {
+        "label": "Sortieren nach",
+        "name": "Alphabetisch",
+        "createdAt": "Erstellt",
+        "modifiedAt": "Zuletzt geändert"
+      },
+      "empty": {
+        "title": "Noch keine Spiele",
+        "description": "Erstellen Sie Ihr erstes Spiel und starten Sie mit interaktiven KI-gestützten Abenteuern."
+      },
+      "createModal": {
+        "title": "Neues Spiel erstellen",
+        "nameLabel": "Spielname",
+        "namePlaceholder": "z.B. Weltraumabenteuer",
+        "descriptionLabel": "Beschreibung",
+        "descriptionPlaceholder": "Worum geht es in Ihrem Spiel?",
+        "publicLabel": "Dieses Spiel öffentlich machen",
+        "publicDescription": "Öffentliche Spiele sind für alle sichtbar.",
+        "submit": "Spiel erstellen"
+      },
+      "viewModal": {
+        "title": "Spieldetails"
+      },
+      "editModal": {
+        "title": "Spiel bearbeiten"
+      },
+      "tabs": {
+        "basic": "Grundlagen",
+        "story": "Geschichte & KI",
+        "quickStart": "Schnellstart"
+      },
+      "editFields": {
+        "name": "Spielname",
+        "description": "Beschreibung",
+        "imageStyle": "Bildstil",
+        "imageStyleHint": "Beschreiben Sie den visuellen Stil für generierte Bilder",
+        "scenario": "Szenario",
+        "scenarioHint": "Worum geht es im Spiel? Beschreiben Sie die Welt, Regeln und die Rolle des Spielers.",
+        "gameStart": "Spielstart-Nachricht",
+        "gameStartHint": "Wie soll das Spiel den Spieler begrüßen? Erste Szene.",
+        "statusFields": "Statusfelder (JSON)",
+        "statusFieldsHint": "Definieren Sie die Statusfelder für die KI (z.B. Gesundheit, Inventar).",
+        "firstMessage": "Erste Nachricht",
+        "firstMessageHint": "Vorgenerierte Eröffnungsnachricht für schnellen Spielstart.",
+        "firstStatus": "Erster Status (JSON)",
+        "firstStatusHint": "Initiale Statuswerte für den Schnellstart.",
+        "quickStartInfo": "Schnellstart-Inhalte werden vorgeneriert, um sofortige Spielstarts zu ermöglichen."
+      },
+      "quickStart": {
+        "regenerate": "Neu generieren",
+        "noContent": "Noch nicht generiert"
+      },
+      "view": {
+        "noScenario": "Noch kein Szenario definiert.",
+        "noGameStart": "Noch keine Spielstart-Nachricht definiert."
+      },
+      "deleteModal": {
+        "title": "Spiel löschen",
+        "message": "Möchten Sie \"{{name}}\" wirklich löschen?",
+        "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
+      },
+      "editPage": {
+        "placeholder": "Erweiterter Spiel-Editor kommt bald. Sie können Szenarien, KI-Einstellungen, Bilder und mehr konfigurieren."
+      },
+      "errors": {
+        "nameRequired": "Spielname ist erforderlich",
+        "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+      }
+    },
+    "play": {
+      "title": "Spiele spielen",
+      "owner": "Mein",
+      "favorite": "Zu Favoriten hinzufügen",
+      "unfavorite": "Aus Favoriten entfernen",
+      "playGame": "Dieses Spiel spielen",
+      "cloneGame": "In meine Spiele kopieren",
+      "unknownAuthor": "Unbekannter Autor",
+      "filters": {
+        "all": "Alle Spiele",
+        "own": "Meine Spiele",
+        "public": "Öffentlich",
+        "organization": "Organisation",
+        "favorites": "Favoriten"
+      },
+      "empty": {
+        "title": "Keine Spiele gefunden",
+        "description": "Versuchen Sie, Ihre Filter anzupassen oder schauen Sie später nach neuen Spielen."
+      },
+      "cloneModal": {
+        "title": "Spiel kopieren",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in Ihren Spielen.",
+        "confirm": "Spiel kopieren"
+      },
+      "cloneSuccess": {
+        "title": "Spiel kopiert",
+        "message": "\"{{name}}\" wurde zu Ihren Spielen hinzugefügt."
+      }
     }
   },
   "navigation": {
@@ -141,29 +256,52 @@
     "debug": "Debug"
   },
   "dashboard": {
-    "stats": {
-      "activeAdventures": "Aktive Abenteuer",
-      "storiesInProgress": "{{count}} Geschichten in Bearbeitung",
-      "storyDrafts": "Geschichtenentwürfe",
-      "readyForPlayers": "Bereit für Spieler",
-      "storyRooms": "Geschichtenräume",
-      "availableSessions": "Verfügbare Sitzungen",
-      "storytellers": "Geschichtenerzähler",
-      "onlineNow": "Jetzt online"
-    },
-    "recentActivity": {
-      "title": "Letzte Aktivitäten",
-      "viewAll": "Alle anzeigen",
-      "continuedPlaying": "hat weitergespielt",
-      "createdNewGame": "hat neues Spiel erstellt",
-      "invitedStudents": "hat {{count}} Schüler eingeladen"
+    "cards": {
+      "myGames": {
+        "title": "Meine Spielkreationen",
+        "empty": "Noch keine Spiele. Erstellen Sie Ihr erstes Spiel!",
+        "viewAll": "Alle Kreationen"
+      },
+      "myRooms": {
+        "title": "Meine Räume",
+        "empty": "Noch keine Räume. Erstellen Sie einen Raum zum gemeinsamen Spielen!",
+        "viewAll": "Alle Räume"
+      },
+      "lastPlayed": {
+        "title": "Zuletzt gespielt",
+        "empty": "Noch kein Spielverlauf. Beginnen Sie ein Spiel!",
+        "viewAll": "Spielverlauf"
+      },
+      "externalLinks": {
+        "title": "Über ChatGameLab",
+        "mainSite": {
+          "title": "ChatGameLab Projekt",
+          "description": "Erfahren Sie mehr über das Bildungsprojekt hinter dieser Plattform."
+        },
+        "jff": {
+          "title": "JFF – Institut für Medienpädagogik",
+          "description": "Projektkoordinator und federführende Organisation."
+        }
+      }
     },
     "quickActions": {
       "title": "Schnellaktionen",
       "createNewGame": "Neues Spiel erstellen",
       "createRoom": "Raum erstellen",
-      "inviteMembers": "Mitglieder einladen",
-      "viewAnalytics": "Analysen anzeigen"
+      "inviteMembers": "Mitglieder einladen"
+    },
+    "version": {
+      "frontend": "Frontend",
+      "backend": "Backend",
+      "unknown": "Unbekannt",
+      "loading": "Laden...",
+      "version": "Version",
+      "built": "Erstellt",
+      "commit": "Commit",
+      "mismatch": {
+        "title": "Versionenkonflikt erkannt",
+        "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktieren Sie den Support, wenn Probleme weiterhin bestehen."
+      }
     }
   },
   "game": {
@@ -171,7 +309,7 @@
     "title": "Titel",
     "description": "Beschreibung",
     "start": "Starten",
-    "pause": "Pausieren",
+    "pause": "Pause",
     "resume": "Fortsetzen",
     "restart": "Neustarten",
     "score": "Punkte",
@@ -276,6 +414,11 @@
       "noOrganization": "Keine Organisation",
       "role": "Rolle",
       "noRole": "Keine Rolle zugewiesen",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Organisationsleiter",
+        "staff": "Mitarbeiter"
+      },
       "statisticsSection": "Statistiken",
       "gamesPlayed": "Gespielte Spiele",
       "gamesCreated": "Erstellte Spiele",
