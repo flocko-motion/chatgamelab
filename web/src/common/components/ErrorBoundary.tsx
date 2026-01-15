@@ -3,6 +3,7 @@ import type { ErrorInfo, ReactNode } from 'react';
 import { Container, Group, Alert, Box } from '@mantine/core';
 import { DangerButton } from './buttons';
 import { SectionTitle, BodyText, HelperText } from './typography';
+import { uiLogger } from '../../config/logger';
 
 interface Props {
   children: ReactNode;
@@ -40,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught an error:', error, errorInfo);
+      uiLogger.error('ErrorBoundary caught an error', { error, errorInfo });
     }
   }
 
@@ -126,7 +127,7 @@ export function ErrorBoundaryWrapper({ children, fallback, onError }: Props) {
     <Component
       fallback={fallback}
       onError={(error: Error, errorInfo: ErrorInfo) => {
-        console.error('Unhandled error:', error, errorInfo);
+        uiLogger.error('Unhandled error', { error, errorInfo });
         if (onError) {
           onError(error, errorInfo);
         }

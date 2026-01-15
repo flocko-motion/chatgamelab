@@ -81,12 +81,9 @@ function LoginComponent() {
                 key={role.key}
                 variant="outline"
                 color="gray"
-                onClick={() => {
-                  loginWithRole(role.key);
-                  // Redirect to dashboard after login
-                  setTimeout(() => {
-                    router.navigate({ to: '/dashboard' });
-                  }, 100);
+                onClick={async () => {
+                  await loginWithRole(role.key);
+                  router.navigate({ to: ROUTES.DASHBOARD });
                 }}
                 fullWidth
               >

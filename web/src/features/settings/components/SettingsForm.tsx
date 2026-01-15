@@ -14,6 +14,7 @@ import { IconUser, IconMail, IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/providers/AuthProvider';
+import { uiLogger } from '@/config/logger';
 import { Api } from '@/api/generated';
 import { createAuthenticatedApiConfig } from '@/api/client/http';
 
@@ -81,7 +82,7 @@ export function SettingsForm() {
       // Clear success message after 3 seconds
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (error: unknown) {
-      console.error('Failed to update settings:', error);
+      uiLogger.error('Failed to update settings', { error });
       
       // Check for specific error types
       if (error && typeof error === 'object' && 'error' in error) {

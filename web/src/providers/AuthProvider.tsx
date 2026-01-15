@@ -2,10 +2,10 @@
 import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from '@tanstack/react-router';
 import { auth0Config } from '../config/auth0';
 import { Api } from '../api/generated';
-import { createAuthenticatedApiConfig } from '../api/client/http';
+import { createAuthenticatedApiConfig, getApiConfig } from '../api/client/http';
+import { authLogger } from '../config/logger';
 import { ROUTES } from '../common/routes/routes';
 import type { ObjUser } from '../api/generated';
 
@@ -71,7 +71,6 @@ interface TokenCache {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const {
     user: auth0User,
     isAuthenticated: auth0IsAuthenticated,
@@ -108,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
         return token;
       } catch (error) {
-        console.error('[Auth] Failed to get Auth0 access token:', error);
+        authLogger.error('Failed to get Auth0 access token', { error });
         return null;
       }
     }
@@ -166,14 +165,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
-      console.log('[Auth] Backend user fetched:', response.data.name);
+      authLogger.debug('Backend user fetched', { userId: response.data.id, name: response.data.name });
     } catch (error) {
-      console.error('[Auth] Failed to fetch backend user:', error);
+      authLogger.error('Failed to fetch backend user', { error });
       
       // Check if this is a "user not registered" error
       if (isUserNotRegisteredError(error)) {
         const regData = getRegistrationDataFromAuth0();
-        console.log('[Auth] User needs registration:', regData?.auth0Id);
+        authLogger.debug('User needs registration', { auth0Id: regData?.auth0Id });
         setNeedsRegistration(true);
         setRegistrationData(regData);
         setBackendUser(null);
@@ -194,6 +193,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Register user with backend
   const register = useCallback(async (name: string, email: string) => {
+    authLogger.debug('Starting user registration', { name });
+    
     const api = new Api(createAuthenticatedApiConfig(getAccessToken));
     // Auth0 ID is extracted from the token by the backend middleware
     const response = await api.auth.registerCreate({
@@ -204,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setBackendUser(response.data);
     setNeedsRegistration(false);
     setRegistrationData(null);
-    console.log('[Auth] User registered:', response.data.name);
+    authLogger.info('User registered successfully', { userId: response.data.id, name: response.data.name });
   }, [getAccessToken]);
 
   // Handle Auth0 authentication state changes
@@ -222,6 +223,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
+      authLogger.info('Auth0 authentication successful', { auth0Id: auth0User.sub, name: auth0User.name });
       
       // Fetch backend user if not already attempted
       if (!backendFetchAttempted.current) {
@@ -233,6 +235,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     } else {
+      authLogger.debug('Auth0 authentication cleared');
       setUser(null);
       setBackendUser(null);
       setIsAuthenticated(false);
@@ -241,31 +244,96 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser]);
 
-  // Sync loading state with Auth0
-  useEffect(() => {
-    setIsLoading(auth0IsLoading);
-  }, [auth0IsLoading]);
-
   const loginWithAuth0 = () => {
+    authLogger.debug('Initiating Auth0 login');
     auth0LoginWithRedirect();
   };
 
   const loginWithRole = async (role: string) => {
-    const mockUser: AuthUser = {
-      sub: `dev-${role}`,
-      name: `${role.charAt(0).toUpperCase() + role.slice(1)} User`,
-      email: `${role}@dev.local`,
-      role,
-    };
-    setUser(mockUser);
-    setIsAuthenticated(true);
-    
-    // For dev mode, we need to fetch a dev JWT and then the backend user
-    // TODO: Implement dev mode backend integration
-    setIsLoading(false);
+    if (!isDevMode) {
+      authLogger.warning('loginWithRole called but not in dev mode');
+      return;
+    }
+
+    authLogger.debug('Initiating dev mode login', { role });
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      // Use unauthenticated API to get users list
+      const publicApi = new Api(getApiConfig());
+      
+      // Try to find an existing user or create one
+      // First, try to create a dev user (will fail if already exists, that's ok)
+      let targetUserId: string | undefined;
+      
+      try {
+        const createResponse = await publicApi.users.postUsers({
+          name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+          email: `${role}@dev.local`,
+        });
+        targetUserId = createResponse.data.id;
+        authLogger.info('Created dev user', { userId: targetUserId, role });
+      } catch {
+        // User might already exist, try to find them
+        authLogger.debug('Could not create dev user, will try to find existing', { role });
+      }
+
+      // If we couldn't create, we need to get a user ID somehow
+      // The /users endpoint requires auth, so we need a different approach
+      // Let's try the JWT endpoint directly with a known pattern
+      if (!targetUserId) {
+        // For dev mode, the backend should have seed users
+        // We'll need to handle this case - for now show an error
+        throw new Error(`No dev user found for role '${role}'. Please seed the database with dev users.`);
+      }
+
+      // Get JWT for this user
+      const jwtResponse = await publicApi.users.getUsers2(targetUserId);
+      const token = jwtResponse.data.token;
+      const userId = jwtResponse.data.userId;
+
+      if (!token || !userId) {
+        throw new Error('Failed to get dev JWT token');
+      }
+
+      // Cache the token (expires in 24h according to backend)
+      devTokenCache.current = {
+        token,
+        expiresAt: Date.now() + 23 * 60 * 60 * 1000, // 23 hours to be safe
+      };
+
+      authLogger.info('Dev JWT obtained', { userId, role });
+
+      // Set user state
+      const authUser: AuthUser = {
+        sub: userId,
+        name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        email: `${role}@dev.local`,
+        role,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      authLogger.info('Dev login successful', { role, userId });
+
+      // Now fetch the backend user with the new token
+      backendFetchAttempted.current = true;
+      await fetchBackendUser();
+
+    } catch (error) {
+      authLogger.error('Dev login failed', { role, error });
+      const errorMessage = error instanceof Error ? error.message : 'Dev login failed';
+      setBackendError(errorMessage);
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
+    authLogger.debug('Initiating logout', { isAuth0Authenticated: auth0IsAuthenticated });
+    
     // Reset backend fetch tracking
     backendFetchAttempted.current = false;
     setBackendUser(null);
@@ -274,19 +342,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setRegistrationData(null);
     
     if (auth0IsAuthenticated) {
+      authLogger.debug('Logging out from Auth0');
       auth0Logout({ 
         logoutParams: { 
           returnTo: `${window.location.origin}${ROUTES.AUTH0_LOGOUT_CALLBACK}` 
         } 
       });
     } else {
+      authLogger.debug('Logging out from dev mode');
       // Clear dev token cache on logout
       devTokenCache.current = null;
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
-      // Redirect to homepage
-      navigate({ to: ROUTES.HOME });
+      // Redirect to homepage using window.location since we're outside RouterProvider
+      authLogger.debug('Redirecting to homepage after logout', { path: ROUTES.HOME });
+      window.location.href = ROUTES.HOME;
     }
   };
 

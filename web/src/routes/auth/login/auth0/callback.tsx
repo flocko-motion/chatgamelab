@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Center, Loader, Text } from '@mantine/core';
 import { ROUTES } from '@/common/routes/routes';
+import { authLogger } from '@/config/logger';
 
 export const Route = createFileRoute('/auth/login/auth0/callback')({
   component: Auth0Callback,
@@ -21,7 +22,7 @@ function Auth0Callback() {
         const hasState = urlParams.has('state');
         const hasError = urlParams.has('error');
         
-        console.log('Auth0 callback params:', { hasCode, hasState, hasError, isAuthenticated });
+        authLogger.debug('Auth0 callback params', { hasCode, hasState, hasError, isAuthenticated });
         
         if (hasError) {
           const errorMessage = urlParams.get('error_description') || 'Authentication failed';
@@ -45,7 +46,7 @@ function Auth0Callback() {
         // If we got here without being authenticated, redirect to login
         navigate({ to: ROUTES.AUTH_LOGIN });
       } catch (err) {
-        console.error('Auth0 callback error:', err);
+        authLogger.error('Auth0 callback error', { error: err });
         // If there's an error, redirect to login page
         navigate({ to: ROUTES.AUTH_LOGIN });
       }
