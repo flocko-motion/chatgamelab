@@ -1,7 +1,9 @@
-import { Text, Box, Select, useMantineTheme } from '@mantine/core';
+import { Text, Box, Select } from '@mantine/core';
+import { IconCheck } from '@tabler/icons-react';
 import { useLanguageSwitcher } from '@hooks/useTranslation';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from './Dropdown';
+import classes from './LanguageSwitcher.module.css';
 
 interface LanguageSwitcherProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -12,56 +14,53 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
   const { t } = useTranslation('common');
   const { currentLanguage, availableLanguages, changeLanguage } = useLanguageSwitcher();
   const hasWipLanguages = availableLanguages.some((lang) => !lang.isStatic);
-  const theme = useMantineTheme();
 
   // Compact mode for dashboard header
   if (variant === 'compact') {
-    const staticLanguages = availableLanguages.filter(lang => lang.isStatic);
+    const selectData = availableLanguages
+      .filter(lang => lang.isStatic || lang.code === '__separator__')
+      .map((lang) => ({
+        value: lang.code,
+        label: lang.name,
+        disabled: lang.code === '__separator__',
+      }));
     
     return (
       <Select
-        data={staticLanguages.map((lang) => ({
-          value: lang.code,
-          label: lang.name,
-        }))}
+        data={selectData}
         value={currentLanguage.code}
         onChange={(value) => {
-          if (!value) return;
+          if (!value || value === '__separator__') return;
           void changeLanguage(value);
         }}
         size="sm"
-        styles={{
-          input: {
-            backgroundColor: theme.other.layout.bgSubtle,
-            borderColor: theme.other.layout.borderSubtle,
-            color: 'white',
-            width: '140px',
-            paddingLeft: '12px',
-            paddingRight: '14px',
-            fontWeight: 600,
-            textAlign: 'center',
-            '&:hover': {
-              backgroundColor: theme.other.layout.bgHover,
-            },
-            '&:focus': {
-              backgroundColor: theme.other.layout.bgActive,
-              borderColor: theme.other.layout.borderStrong,
-            },
-            '&:focusWithin': {
-              backgroundColor: theme.other.layout.bgActive,
-              borderColor: theme.other.layout.borderStrong,
-            },
-          },
-          dropdown: {
-            backgroundColor: theme.other.layout.panelBg,
-            borderColor: theme.other.layout.lineLight,
-          },
-          option: {
-            color: 'white',
-            '&:hover': {
-              backgroundColor: theme.other.layout.bgHover,
-            },
-          },
+        classNames={{
+          input: classes.input,
+          dropdown: classes.dropdown,
+          option: classes.option,
+        }}
+        renderOption={({ option }) => {
+          if (option.value === '__separator__') {
+            return (
+              <Box style={{ 
+                textAlign: 'center', 
+                color: 'rgba(255, 255, 255, 0.3)',
+                cursor: 'default',
+                userSelect: 'none',
+              }}>
+                {option.label}
+              </Box>
+            );
+          }
+          
+          return (
+            <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <span>{option.label}</span>
+              {option.value === currentLanguage.code && (
+                <IconCheck size={16} color="var(--mantine-color-green-5)" />
+              )}
+            </Box>
+          );
         }}
       />
     );

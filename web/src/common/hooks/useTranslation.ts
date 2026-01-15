@@ -46,13 +46,25 @@ export const useLanguageSwitcher = () => {
     await i18n.changeLanguage(language);
   };
 
-  const availableLanguages = languagesData.map((lang) => ({
+  const allLanguages = languagesData.map((lang) => ({
     code: lang.code,
     name: lang.label,
     isStatic: isStaticLanguage(lang.code),
   }));
 
-  const currentLanguage = availableLanguages.find(lang => lang.code === i18n.language) || availableLanguages[0];
+  // Sort: English, Deutsch first, then separator, then others alphabetically
+  const priorityLanguages = allLanguages.filter(lang => lang.code === 'en' || lang.code === 'de');
+  const otherLanguages = allLanguages
+    .filter(lang => lang.code !== 'en' && lang.code !== 'de')
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const availableLanguages = [
+    ...priorityLanguages.sort((a) => a.code === 'en' ? -1 : 1), // en first, then de
+    { code: '__separator__', name: '───────────', isStatic: false },
+    ...otherLanguages,
+  ];
+
+  const currentLanguage = allLanguages.find(lang => lang.code === i18n.language) || allLanguages[0];
 
   return {
     currentLanguage,
