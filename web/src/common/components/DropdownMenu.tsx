@@ -3,10 +3,10 @@ import {
   MenuTarget,
   MenuDropdown,
   MenuItem,
-  useMantineTheme,
   type MenuItemProps,
 } from '@mantine/core';
 import type { ReactNode } from 'react';
+import classes from './DropdownMenu.module.css';
 
 export interface DropdownMenuItem extends Omit<MenuItemProps, 'children' | 'key'> {
   key: string;
@@ -36,8 +36,6 @@ export function DropdownMenu({
   withArrow = true,
   shadow = 'md',
 }: DropdownMenuProps) {
-  const theme = useMantineTheme();
-
   return (
     <Menu
       position={position}
@@ -45,24 +43,11 @@ export function DropdownMenu({
       trigger={triggerAction}
       withArrow={withArrow}
       shadow={shadow}
-      styles={{
-        dropdown: {
-          backgroundColor: theme.other.layout.panelBg,
-          borderColor: theme.other.layout.lineLight,
-        },
-        arrow: {
-          backgroundColor: theme.other.layout.panelBg,
-          borderColor: theme.other.layout.lineLight,
-        },
-        item: {
-          color: 'white',
-          '&:hover': {
-            backgroundColor: theme.other.layout.bgHover,
-          },
-          '&:active': {
-            backgroundColor: theme.other.layout.bgActive,
-          },
-        },
+      classNames={{
+        dropdown: classes.dropdown,
+        arrow: classes.arrow,
+        item: classes.item,
+        itemLabel: classes.itemLabel,
       }}
     >
       <MenuTarget>{trigger}</MenuTarget>
@@ -76,11 +61,7 @@ export function DropdownMenu({
             href={item.href}
             target={item.href ? '_blank' : undefined}
             rel={item.href ? 'noopener noreferrer' : undefined}
-            styles={{
-              itemLabel: {
-                color: item.danger ? theme.colors.red[6] : 'white',
-              },
-            }}
+            className={item.danger ? classes.itemDanger : undefined}
           >
             {item.label}
           </MenuItem>

@@ -1,0 +1,46 @@
+/**
+ * LanguageSwitcher styles for dark header context (compact variant)
+ * Uses CSS modules to properly handle hover states (inline styles with &:hover don't work in Mantine v8)
+ * Uses Mantine CSS variables for theming consistency
+ */
+
+.input {
+  background-color: rgba(15, 52, 96, 0.25);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: white;
+  width: 140px;
+  padding-left: 12px;
+  padding-right: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.input:hover {
+  background-color: rgba(15, 52, 96, 0.45);
+}
+
+.input:focus,
+.input:focus-within {
+  background-color: rgba(15, 52, 96, 0.6);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.dropdown {
+  background-color: #0f3460;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.option {
+  color: white;
+}
+
+.option:hover,
+.option[data-hovered],
+.option[data-combobox-selected] {
+  background-color: color-mix(in srgb, var(--mantine-color-accent-5) 15%, transparent);
+  color: var(--mantine-color-accent-4);
+}
+
+.option[data-combobox-active] {
+  background-color: color-mix(in srgb, var(--mantine-color-accent-5) 25%, transparent);
+}
