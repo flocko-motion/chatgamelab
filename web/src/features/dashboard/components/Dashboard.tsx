@@ -13,6 +13,8 @@ import {
 import { MenuButton, TextButton } from '@components/buttons';
 import { CardTitle, Label, HelperText } from '@components/typography';
 import { useTranslation } from 'react-i18next';
+import { AppLayout, type NavItem } from '@/common/components/Layout';
+import { navigationLogger } from '@/config/logger';
 import { 
   IconPlayerPlay, 
   IconEdit, 
@@ -22,7 +24,6 @@ import {
   IconTrendingUp,
   IconPlus
 } from '@tabler/icons-react';
-import { AppLayout, type NavItem } from '@/common/components/Layout';
 
 // Quick Stats Cards
 function QuickStatsCards() {
@@ -273,9 +274,9 @@ export function Dashboard() {
       variant="authenticated" 
       navItems={navItems}
       headerProps={{
-        onNotificationsClick: () => console.log('Notifications clicked'),
-        onSettingsClick: () => console.log('Settings clicked'),
-        onProfileClick: () => console.log('Profile clicked'),
+        onNotificationsClick: () => navigationLogger.debug('Notifications clicked'),
+        onSettingsClick: () => navigationLogger.debug('Settings clicked'),
+        onProfileClick: () => navigationLogger.debug('Profile clicked'),
       }}
     >
       <DashboardContent />
