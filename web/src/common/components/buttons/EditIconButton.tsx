@@ -23,7 +23,7 @@ export function EditIconButton({
   return (
     <ActionIcon
       variant="subtle"
-      color="accent"
+      color="blue"
       size={size}
       radius="md"
       onClick={onClick}
