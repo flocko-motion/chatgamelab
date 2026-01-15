@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -29,6 +30,7 @@ interface RegistrationFormProps {
 
 export function RegistrationForm({ registrationData, onCancel }: RegistrationFormProps) {
   const { t } = useTranslation('auth');
+  const navigate = useNavigate();
   const { register: registerUser, getAccessToken, logout } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -109,6 +111,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
 
     try {
       await registerUser(data.name.trim(), data.email.trim());
+      navigate({ to: '/dashboard' });
     } catch (error) {
       authLogger.error('Registration failed', { error });
       setSubmitError(t('register.errors.registrationFailed'));
