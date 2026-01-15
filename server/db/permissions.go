@@ -330,7 +330,10 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 // - operation: the type of CRUD operation (create, read, update, delete, list)
 // - apiKeyID: the API key ID (for read operation to check shares)
 // - keyOwnerID: the user who owns the API key (only needed for update/delete)
-func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperation, apiKeyID uuid.UUID, keyOwnerID uuid.UUID) error {
+// - gameID: optional game ID for sponsorship context
+// - sessionID: optional session ID for sponsorship context
+// - workshopID: optional workshop ID for sponsorship context
+func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperation, apiKeyID uuid.UUID, keyOwnerID uuid.UUID, gameID *uuid.UUID, sessionID *uuid.UUID, workshopID *uuid.UUID) error {
 	switch operation {
 	case OpCreate:
 		// Any authenticated user can create API keys
@@ -364,6 +367,36 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 				}
 			}
 		}
+
+		// Check sponsorship context
+		if gameID != nil {
+			// Load game to check if this key sponsors it
+			game, err := queries().GetGameByID(ctx, *gameID)
+			if err == nil {
+				// Public game with sponsored key
+				if game.Public && game.PublicSponsoredApiKeyID.Valid && game.PublicSponsoredApiKeyID.UUID == apiKeyID {
+					return nil
+				}
+				// Private game with sponsored key (share link context)
+				if game.PrivateSponsoredApiKeyID.Valid && game.PrivateSponsoredApiKeyID.UUID == apiKeyID {
+					return nil
+				}
+			}
+		}
+
+		// Check workshop context for sponsored keys
+		if workshopID != nil {
+			// Check if key is shared with this workshop
+			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
+			if err == nil {
+				for _, share := range shares {
+					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicSponsoredPlays {
+						return nil
+					}
+				}
+			}
+		}
+
 		return obj.ErrForbidden("not authorized to read this API key")
 
 	case OpList:

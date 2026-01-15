@@ -178,7 +178,7 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdShare, err := db.GetApiKeyShareByID(r.Context(), *newShareID)
+	createdShare, err := db.GetApiKeyShareByID(r.Context(), user.ID, *newShareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created share: "+err.Error())
 		return
@@ -224,7 +224,7 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load updated share: "+err.Error())
 		return
@@ -260,7 +260,7 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 
 	// Capture the share before deleting so we can return an obj type.
 	// (After deletion it may no longer be loadable.)
-	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load share: "+err.Error())
 		return

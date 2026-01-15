@@ -8,12 +8,10 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
 
@@ -136,11 +134,6 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 				return queries().SearchPublicGamesSortedByModifiedAtAsc(ctx, searchParam)
 			}
 			return queries().SearchPublicGamesSortedByModifiedAt(ctx, searchParam)
-		case "playCount":
-			if sortDir == "asc" {
-				return queries().SearchPublicGamesSortedByPlayCountAsc(ctx, searchParam)
-			}
-			return queries().SearchPublicGamesSortedByPlayCount(ctx, searchParam)
 		default:
 			return queries().SearchPublicGames(ctx, searchParam)
 		}
@@ -162,11 +155,6 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 			return queries().GetPublicGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetPublicGamesSortedByModifiedAt(ctx)
-	case "playCount":
-		if sortDir == "asc" {
-			return queries().GetPublicGamesSortedByPlayCountAsc(ctx)
-		}
-		return queries().GetPublicGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetPublicGames(ctx)
 	}
@@ -194,16 +182,6 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 				return queries().SearchOwnGamesSortedByModifiedAtAsc(ctx, db.SearchOwnGamesSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchOwnGamesSortedByModifiedAt(ctx, db.SearchOwnGamesSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
-		case "playCount":
-			if sortDir == "asc" {
-				return queries().SearchOwnGamesSortedByPlayCountAsc(ctx, db.SearchOwnGamesSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
-			}
-			return queries().SearchOwnGamesSortedByPlayCount(ctx, db.SearchOwnGamesSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
-		case "visibility":
-			if sortDir == "asc" {
-				return queries().SearchOwnGamesSortedByVisibilityAsc(ctx, db.SearchOwnGamesSortedByVisibilityAscParams{CreatedBy: userParam, Column2: searchStr})
-			}
-			return queries().SearchOwnGamesSortedByVisibility(ctx, db.SearchOwnGamesSortedByVisibilityParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -225,16 +203,6 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 			return queries().GetOwnGamesSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetOwnGamesSortedByModifiedAt(ctx, userParam)
-	case "playCount":
-		if sortDir == "asc" {
-			return queries().GetOwnGamesSortedByPlayCountAsc(ctx, userParam)
-		}
-		return queries().GetOwnGamesSortedByPlayCount(ctx, userParam)
-	case "visibility":
-		if sortDir == "asc" {
-			return queries().GetOwnGamesSortedByVisibilityAsc(ctx, userParam)
-		}
-		return queries().GetOwnGamesSortedByVisibility(ctx, userParam)
 	default:
 		return queries().GetOwnGames(ctx, userParam)
 	}
@@ -262,16 +230,6 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 				return queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
-		case "playCount":
-			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByPlayCountAsc(ctx, db.SearchGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
-			}
-			return queries().SearchGamesVisibleToUserSortedByPlayCount(ctx, db.SearchGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
-		case "creator":
-			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByCreator(ctx, db.SearchGamesVisibleToUserSortedByCreatorParams{CreatedBy: userParam, Column2: searchStr})
-			}
-			return queries().SearchGamesVisibleToUserSortedByCreatorDesc(ctx, db.SearchGamesVisibleToUserSortedByCreatorDescParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -293,39 +251,32 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 			return queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, userParam)
-	case "playCount":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByPlayCountAsc(ctx, userParam)
-		}
-		return queries().GetGamesVisibleToUserSortedByPlayCount(ctx, userParam)
-	case "creator":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByCreator(ctx, userParam)
-		}
-		return queries().GetGamesVisibleToUserSortedByCreatorDesc(ctx, userParam)
 	default:
 		return queries().GetGamesVisibleToUser(ctx, userParam)
 	}
 }
 
-// GetGameByID gets a game by ID. If userID is provided, verifies ownership.
+// GetGameByID gets a game by ID. Verifies access based on user permissions.
 func GetGameByID(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) (*obj.Game, error) {
-	g, err := queries().GetGameByID(ctx, gameID)
+	game, err := loadGameByID(ctx, gameID)
 	if err != nil {
-		return nil, obj.ErrNotFound("game not found")
+		return nil, err
 	}
 
-	// If userID provided, verify ownership (unless game is public)
-	if userID != nil && !g.Public {
-		if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
-			return nil, obj.ErrForbidden("access denied: not the owner of this game")
-		}
+	// Always check permissions (anonymous users can access public games)
+	checkUserID := uuid.Nil
+	if userID != nil {
+		checkUserID = *userID
+	}
+	if err := canAccessGame(ctx, checkUserID, OpRead, game, nil); err != nil {
+		return nil, err
 	}
 
-	return dbGameToObj(ctx, g)
+	return game, nil
 }
 
 // GetGameByToken gets a game by its private share hash (token).
+// This needs no access check, because games with such a token are public by definition
 func GetGameByToken(ctx context.Context, token string) (*obj.Game, error) {
 	g, err := queries().GetGameByPrivateShareHash(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
@@ -336,13 +287,13 @@ func GetGameByToken(ctx context.Context, token string) (*obj.Game, error) {
 
 // DeleteGame deletes a game. userID must be the owner.
 func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	// Verify ownership
-	g, err := queries().GetGameByID(ctx, gameID)
+	// Load game and check permission
+	game, err := loadGameByID(ctx, gameID)
 	if err != nil {
-		return obj.ErrNotFound("game not found")
+		return err
 	}
-	if !g.CreatedBy.Valid || g.CreatedBy.UUID != userID {
-		return obj.ErrForbidden("access denied: not the owner of this game")
+	if err := canAccessGame(ctx, userID, OpDelete, game, nil); err != nil {
+		return err
 	}
 
 	return queries().DeleteGame(ctx, gameID)
@@ -351,6 +302,11 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 // CreateGame creates a new game. userID is set as the owner (createdBy).
 // If game.WorkshopID is set, validates that user has read access to that workshop.
 func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
+	// Check if user can create games (requires authentication)
+	if err := canAccessGame(ctx, userID, OpCreate, nil, nil); err != nil {
+		return err
+	}
+
 	// If workshop is specified, validate user has read access to the workshop
 	if game.WorkshopID != nil {
 		// User must be able to see/read the workshop (participant, staff, or head)
@@ -384,7 +340,6 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
-		OriginallyCreatedBy:      uuidPtrToNullUUID(game.OriginallyCreatedBy),
 	}
 
 	// Note: Private share hash is not generated at creation
@@ -396,21 +351,21 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 // UpdateGame updates an existing game. userID must be the owner.
 func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
-	// Verify ownership
-	existing, err := queries().GetGameByID(ctx, game.ID)
+	// Load game and check permission (get both parsed and raw)
+	existingGame, existingGameRaw, err := loadGameByIDWithRaw(ctx, game.ID)
 	if err != nil {
-		return obj.ErrNotFound("game not found")
+		return err
 	}
-	if !existing.CreatedBy.Valid || existing.CreatedBy.UUID != userID {
-		return obj.ErrForbidden("access denied: not the owner of this game")
+	if err := canAccessGame(ctx, userID, OpUpdate, existingGame, nil); err != nil {
+		return err
 	}
 
 	now := time.Now()
 	privateShareHash := sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil}
 	if !privateShareHash.Valid || privateShareHash.String == "" {
 		// Keep existing hash or generate new one
-		if existing.PrivateShareHash.Valid && existing.PrivateShareHash.String != "" {
-			privateShareHash = existing.PrivateShareHash
+		if existingGameRaw.PrivateShareHash.Valid && existingGameRaw.PrivateShareHash.String != "" {
+			privateShareHash = existingGameRaw.PrivateShareHash
 		} else {
 			hash, _ := functional.GenerateSecureToken(20)
 			privateShareHash = sql.NullString{String: hash, Valid: true}
@@ -419,8 +374,8 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	arg := db.UpdateGameParams{
 		ID:                       game.ID,
-		CreatedBy:                existing.CreatedBy,
-		CreatedAt:                existing.CreatedAt,
+		CreatedBy:                existingGameRaw.CreatedBy,
+		CreatedAt:                existingGameRaw.CreatedAt,
 		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:               now,
 		Name:                     game.Name,
@@ -438,7 +393,6 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
-		OriginallyCreatedBy:      existing.OriginallyCreatedBy, // Preserve original creator
 	}
 
 	_, err = queries().UpdateGame(ctx, arg)
@@ -449,13 +403,18 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yamlContent string) error {
 	log.Debug("UpdateGameYaml: starting", "user_id", userID, "game_id", gameID)
 
-	// Get existing game first
+	// Get existing game first (includes permission check)
 	existing, err := GetGameByID(ctx, &userID, gameID)
 	if err != nil {
 		log.Debug("UpdateGameYaml: GetGameByID failed", "error", err)
 		return fmt.Errorf("game not found: %w", err)
 	}
 	log.Debug("UpdateGameYaml: existing game loaded", "name", existing.Name)
+
+	// Additional permission check for update operation
+	if err := canAccessGame(ctx, userID, OpUpdate, existing, nil); err != nil {
+		return err
+	}
 
 	// Parse YAML into a game object
 	var incoming obj.Game
@@ -512,33 +471,11 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 	}
 
 	now := time.Now()
-
-	// Serialize theme to JSON if present
-	var themeJSON pqtype.NullRawMessage
-	if session.Theme != nil {
-		themeBytes, err := json.Marshal(session.Theme)
-		if err != nil {
-			return nil, fmt.Errorf("failed to serialize theme: %w", err)
-		}
-		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
-	}
-
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:    now,
 		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:   now,
-<<<<<<< HEAD
-		GameID:       session.GameID,
-		UserID:       session.UserID,
-		ApiKeyID:     session.ApiKeyID,
-		AiPlatform:   session.AiPlatform,
-		AiModel:      session.AiModel,
-		AiSession:    []byte(session.AiSession),
-		ImageStyle:   session.ImageStyle,
-		StatusFields: session.StatusFields,
-		Theme:        themeJSON,
-=======
 		GameID:       gameID,
 		UserID:       userID,
 		WorkshopID:   uuidPtrToNullUUID(workshopID),
@@ -548,7 +485,6 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
 		ImageStyle:   game.ImageStyle,
 		StatusFields: game.StatusFields,
->>>>>>> 876746c (feat: centralized db permissions)
 	}
 
 	result, err := queries().CreateGameSession(ctx, arg)
@@ -580,7 +516,17 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 }
 
 // CreateGameSessionMessage adds a message to a game session with auto-incremented seq
+// Creating a message modifies the session, so we check OpUpdate permission
 func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.GameSessionMessage) (*obj.GameSessionMessage, error) {
+	// Verify session access (creating messages = updating session)
+	sessionObj, err := loadSessionByID(ctx, msg.GameSessionID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	var statusJSON sql.NullString
 	if len(msg.StatusFields) > 0 {
@@ -625,7 +571,16 @@ func CreateStreamingMessage(ctx context.Context, userID uuid.UUID, sessionID uui
 }
 
 // UpdateGameSessionMessage updates a message in the database
-func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) error {
+func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.GameSessionMessage) error {
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, msg.GameSessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
 	now := time.Now()
 	var statusJSON sql.NullString
 	if len(msg.StatusFields) > 0 {
@@ -647,7 +602,7 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 		Image:         msg.Image,
 	}
 
-	_, err := queries().UpdateGameSessionMessage(ctx, arg)
+	_, err = queries().UpdateGameSessionMessage(ctx, arg)
 	if err != nil {
 		return obj.ErrServerError("failed to update session message")
 	}
@@ -656,8 +611,17 @@ func UpdateGameSessionMessage(ctx context.Context, msg obj.GameSessionMessage) e
 }
 
 // UpdateGameSessionAiSession updates the AI session state for a game session
-func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSession string) error {
-	_, err := queries().UpdateGameSessionAiSession(ctx, db.UpdateGameSessionAiSessionParams{
+func UpdateGameSessionAiSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, aiSession string) error {
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, sessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
+	_, err = queries().UpdateGameSessionAiSession(ctx, db.UpdateGameSessionAiSessionParams{
 		ID:        sessionID,
 		AiSession: []byte(aiSession),
 	})
@@ -668,8 +632,22 @@ func UpdateGameSessionAiSession(ctx context.Context, sessionID uuid.UUID, aiSess
 }
 
 // UpdateGameSessionMessageImage updates only the image field of a message
-func UpdateGameSessionMessageImage(ctx context.Context, messageID uuid.UUID, image []byte) error {
-	_, err := queries().UpdateGameSessionMessageImage(ctx, db.UpdateGameSessionMessageImageParams{
+func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messageID uuid.UUID, image []byte) error {
+	// Get message to find session
+	msg, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return obj.ErrNotFound("message not found")
+	}
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, msg.GameSessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
+	_, err = queries().UpdateGameSessionMessageImage(ctx, db.UpdateGameSessionMessageImageParams{
 		ID:    messageID,
 		Image: image,
 	})
@@ -686,36 +664,36 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		return nil, obj.ErrNotFound("session not found")
 	}
 
-	if userID != nil {
-		if s.UserID != *userID {
-			return nil, obj.ErrForbidden("access denied to this session")
-		}
+	// Sessions always require authentication
+	if userID == nil {
+		return nil, obj.ErrUnauthorized("authentication required to access sessions")
+	}
+
+	// Check permission
+	sessionObj := &obj.GameSession{
+		ID:         s.ID,
+		UserID:     s.UserID,
+		WorkshopID: nullUUIDToPtr(s.WorkshopID),
+	}
+	if err := canAccessGameSession(ctx, *userID, OpRead, sessionObj, s.GameID, sessionObj.WorkshopID); err != nil {
+		return nil, err
 	}
 
 	session := &obj.GameSession{
-		ID:           s.ID,
-		GameID:       s.GameID,
-		UserID:       s.UserID,
-		ApiKeyID:     s.ApiKeyID,
-		AiPlatform:   s.AiPlatform,
-		AiModel:      s.AiModel,
-		AiSession:    string(s.AiSession),
-		ImageStyle:   s.ImageStyle,
-		StatusFields: s.StatusFields,
+		ID:         s.ID,
+		GameID:     s.GameID,
+		UserID:     s.UserID,
+		ApiKeyID:   s.ApiKeyID,
+		AiPlatform: s.AiPlatform,
+		AiModel:    s.AiModel,
+		AiSession:  string(s.AiSession),
+		ImageStyle: s.ImageStyle,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
 			ModifiedBy: s.ModifiedBy,
 			ModifiedAt: &s.ModifiedAt,
 		},
-	}
-
-	// Deserialize theme if present
-	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
-		var theme obj.GameTheme
-		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
-			session.Theme = &theme
-		}
 	}
 
 	// Load game info
@@ -741,11 +719,20 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	return session, nil
 }
 
-// GetGameSessionMessageByID returns a message by its ID
-func GetGameSessionMessageByID(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
+// GetGameSessionMessageByID returns a message by its ID (requires read access to session)
+func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
 	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
 	if err != nil {
 		return nil, obj.ErrNotFound("message not found")
+	}
+
+	// Check if user has read access to the session
+	sessionObj, err := loadSessionByID(ctx, m.GameSessionID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGameSession(ctx, userID, OpRead, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return nil, err
 	}
 
 	msg := &obj.GameSessionMessage{
@@ -776,8 +763,17 @@ func GetGameSessionMessageByID(ctx context.Context, messageID uuid.UUID) (*obj.G
 	return msg, nil
 }
 
-// GetLatestGameSessionMessage returns the most recent message for a session
-func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
+// GetLatestGameSessionMessage returns the most recent message for a session (requires read access to session)
+func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
+	// Check if user has read access to the session
+	sessionObj, err := loadSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGameSession(ctx, userID, OpRead, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return nil, err
+	}
+
 	m, err := queries().GetLatestGameSessionMessage(ctx, sessionID)
 	if err != nil {
 		return nil, obj.ErrNotFound("latest message not found")
@@ -810,8 +806,17 @@ func GetLatestGameSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj
 	return msg, nil
 }
 
-// GetAllGameSessionMessages returns all messages for a session ordered by sequence
-func GetAllGameSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj.GameSessionMessage, error) {
+// GetAllGameSessionMessages returns all messages for a session ordered by sequence (requires read access to session)
+func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) ([]obj.GameSessionMessage, error) {
+	// Check if user has read access to the session
+	sessionObj, err := loadSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGameSession(ctx, userID, OpRead, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return nil, err
+	}
+
 	messages, err := queries().GetAllGameSessionMessages(ctx, sessionID)
 	if err != nil {
 		return nil, obj.ErrServerError("failed to get session messages")
@@ -960,13 +965,13 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 
 // DeleteGameSession deletes a game session and all its messages. userID must be the owner.
 func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
-	// Verify ownership
-	session, err := queries().GetGameSessionByID(ctx, sessionID)
+	// Check permission
+	sessionObj, err := loadSessionByID(ctx, sessionID)
 	if err != nil {
-		return fmt.Errorf("session not found: %w", err)
+		return err
 	}
-	if session.UserID != userID {
-		return errors.New("access denied: not the owner of this session")
+	if err := canAccessGameSession(ctx, userID, OpDelete, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
 	}
 
 	// Delete messages first (cascading)
@@ -982,31 +987,17 @@ func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 	return nil
 }
 
-// DeleteUserGameSessions deletes all sessions for a user+game combination (used when restarting a game)
-func DeleteUserGameSessions(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
-	// First delete all messages for sessions belonging to this user+game
-	sessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
+// GetGameSessionsByGameID returns all sessions for a game (requires read access to game)
+func GetGameSessionsByGameID(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]obj.GameSession, error) {
+	// Check if user has read access to the game
+	game, err := loadGameByID(ctx, gameID)
 	if err != nil {
-		return fmt.Errorf("failed to get sessions: %w", err)
+		return nil, err
 	}
-	for _, s := range sessions {
-		if s.UserID == userID {
-			if err := queries().DeleteGameSessionMessagesBySessionID(ctx, s.ID); err != nil {
-				return fmt.Errorf("failed to delete session messages: %w", err)
-			}
-		}
+	if err := canAccessGame(ctx, userID, OpRead, game, nil); err != nil {
+		return nil, err
 	}
 
-	// Then delete the sessions
-	return queries().DeleteUserGameSessions(ctx, db.DeleteUserGameSessionsParams{
-		UserID: userID,
-		GameID: gameID,
-	})
-}
-
-// GetGameSessionsByGameID returns all sessions for a game
-func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
-	// TODO: we should consider user access rights here!
 	dbSessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sessions: %w", err)
@@ -1058,7 +1049,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		})
 	}
 
-	game := &obj.Game{
+	return &obj.Game{
 		ID: g.ID,
 		Meta: obj.Meta{
 			CreatedBy:  g.CreatedBy,
@@ -1082,40 +1073,39 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		FirstStatus:              nullStringToPtr(g.FirstStatus),
 		FirstImage:               g.FirstImage,
 		Tags:                     tags,
-		OriginallyCreatedBy:      nullUUIDToPtr(g.OriginallyCreatedBy),
-		PlayCount:                int(g.PlayCount),
-		CloneCount:               int(g.CloneCount),
-	}
-
-	// Populate creator info
-	if g.CreatedBy.Valid {
-		game.CreatorID = &g.CreatedBy.UUID
-		creator, err := queries().GetUserByID(ctx, g.CreatedBy.UUID)
-		if err == nil {
-			game.CreatorName = &creator.Name
-		}
-	}
-
-	// Populate original creator info if this is a cloned game
-	if g.OriginallyCreatedBy.Valid {
-		game.OriginalCreatorID = &g.OriginallyCreatedBy.UUID
-		originalCreator, err := queries().GetUserByID(ctx, g.OriginallyCreatedBy.UUID)
-		if err == nil {
-			game.OriginalCreatorName = &originalCreator.Name
-		}
-	}
-
-	return game, nil
+	}, nil
 }
 
-// IncrementGamePlayCount increments the play_count for a game
-func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
-	return queries().IncrementGamePlayCount(ctx, gameID)
+// loadGameByID loads a game from DB and converts it to obj.Game
+func loadGameByID(ctx context.Context, gameID uuid.UUID) (*obj.Game, error) {
+	game, _, err := loadGameByIDWithRaw(ctx, gameID)
+	return game, err
 }
 
-// IncrementGameCloneCount increments the clone_count for a game
-func IncrementGameCloneCount(ctx context.Context, gameID uuid.UUID) error {
-	return queries().IncrementGameCloneCount(ctx, gameID)
+// loadGameByIDWithRaw loads a game from DB and returns both the parsed object and raw DB row
+func loadGameByIDWithRaw(ctx context.Context, gameID uuid.UUID) (*obj.Game, *db.Game, error) {
+	g, err := queries().GetGameByID(ctx, gameID)
+	if err != nil {
+		return nil, nil, obj.ErrNotFound("game not found")
+	}
+	game, err := dbGameToObj(ctx, g)
+	if err != nil {
+		return nil, nil, err
+	}
+	return game, &g, nil
+}
+
+// loadSessionForPermissionCheck loads a session and returns a minimal obj.GameSession for permission checking
+func loadSessionByID(ctx context.Context, sessionID uuid.UUID) (*obj.GameSession, error) {
+	session, err := queries().GetGameSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, obj.ErrNotFound("session not found")
+	}
+	return &obj.GameSession{
+		ID:         session.ID,
+		UserID:     session.UserID,
+		WorkshopID: nullUUIDToPtr(session.WorkshopID),
+	}, nil
 }
 
 // Helper functions for converting between sql.Null* types and pointers

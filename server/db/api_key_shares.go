@@ -48,6 +48,11 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 
 // CreateApiKey creates a new API key for a user with a self-share
 func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key string) (*uuid.UUID, error) {
+	// Check permission
+	if err := canAccessApiKey(ctx, userID, OpCreate, uuid.Nil, uuid.Nil, nil, nil, nil); err != nil {
+		return nil, err
+	}
+
 	apiKeyID, _, err := createApiKeyAndSelfShare(ctx, userID, name, platform, key)
 	if err != nil {
 		return nil, err
@@ -57,11 +62,16 @@ func CreateApiKey(ctx context.Context, userID uuid.UUID, name, platform, key str
 
 // CreateApiKeyWithSelfShare creates a new API key and returns the user's self-share.
 func CreateApiKeyWithSelfShare(ctx context.Context, userID uuid.UUID, name, platform, key string) (*obj.ApiKeyShare, error) {
+	// Check permission
+	if err := canAccessApiKey(ctx, userID, OpCreate, uuid.Nil, uuid.Nil, nil, nil, nil); err != nil {
+		return nil, err
+	}
+
 	_, shareID, err := createApiKeyAndSelfShare(ctx, userID, name, platform, key)
 	if err != nil {
 		return nil, err
 	}
-	return GetApiKeyShareByID(ctx, shareID)
+	return GetApiKeyShareByID(ctx, userID, shareID)
 }
 
 // DeleteApiKey deletes the underlying API key and all its shares (owner only).
@@ -76,8 +86,9 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrNotFound("api key not found")
 	}
 
-	if key.UserID != userID {
-		return obj.ErrForbidden("only the owner can delete this key")
+	// Check permission
+	if err := canAccessApiKey(ctx, userID, OpDelete, key.ID, key.UserID, nil, nil, nil); err != nil {
+		return err
 	}
 
 	// Delete all shares first
@@ -103,8 +114,9 @@ func UpdateApiKeyName(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, 
 		return obj.ErrNotFound("api key not found")
 	}
 
-	if key.UserID != userID {
-		return obj.ErrForbidden("only the owner can update this key")
+	// Check permission
+	if err := canAccessApiKey(ctx, userID, OpUpdate, key.ID, key.UserID, nil, nil, nil); err != nil {
+		return err
 	}
 
 	now := time.Now()
@@ -181,10 +193,15 @@ func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID)
 }
 
 // GetApiKeyShareByID returns an API key share by its ID, including the full API key.
-func GetApiKeyShareByID(ctx context.Context, shareID uuid.UUID) (*obj.ApiKeyShare, error) {
+func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) (*obj.ApiKeyShare, error) {
 	s, err := queries().GetApiKeyShareByID(ctx, shareID)
 	if err != nil {
 		return nil, obj.ErrNotFound("share not found")
+	}
+
+	// Check permission - user must have read access to the API key
+	if err := canAccessApiKey(ctx, userID, OpRead, s.ApiKeyID, s.KeyOwnerID, nil, nil, nil); err != nil {
+		return nil, err
 	}
 	share := &obj.ApiKeyShare{
 		ID: s.ID,
@@ -220,6 +237,11 @@ func GetApiKeyShareByID(ctx context.Context, shareID uuid.UUID) (*obj.ApiKeyShar
 
 // GetApiKeySharesByUser returns all API key shares accessible to a user
 func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyShare, error) {
+	// Check permission - users can list their own keys plus shared keys
+	if err := canAccessApiKey(ctx, userID, OpList, uuid.Nil, uuid.Nil, nil, nil, nil); err != nil {
+		return nil, err
+	}
+
 	sharedKeys, err := queries().GetApiKeySharesByUserID(ctx, uuid.NullUUID{UUID: userID, Valid: true})
 	if err != nil {
 		return nil, obj.ErrServerError("failed to get api key shares")
@@ -272,12 +294,12 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 		return nil, nil, obj.ErrNotFound("api key not found")
 	}
 
-	isOwner := key.UserID == userID
-	isShareTarget := share.UserID.Valid && share.UserID.UUID == userID
-
-	if !isOwner && !isShareTarget {
-		return nil, nil, obj.ErrForbidden("not authorized to view this share")
+	// Check permission
+	if err := canAccessApiKey(ctx, userID, OpRead, key.ID, key.UserID, nil, nil, nil); err != nil {
+		return nil, nil, err
 	}
+
+	isOwner := key.UserID == userID
 
 	result := &obj.ApiKeyShare{
 		ID: share.ID,
