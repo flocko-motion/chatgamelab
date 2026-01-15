@@ -22,7 +22,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
       <Select
         data={staticLanguages.map((lang) => ({
           value: lang.code,
-          label: `${lang.flag}   ${lang.name}`,
+          label: lang.name,
         }))}
         value={currentLanguage.code}
         onChange={(value) => {
@@ -39,6 +39,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
             paddingLeft: '12px',
             paddingRight: '14px',
             fontWeight: 600,
+            textAlign: 'center',
             '&:hover': {
               backgroundColor: theme.other.layout.bgHover,
             },
@@ -46,7 +47,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
               backgroundColor: theme.other.layout.bgActive,
               borderColor: theme.other.layout.borderStrong,
             },
-            '&:focus-within': {
+            '&:focusWithin': {
               backgroundColor: theme.other.layout.bgActive,
               borderColor: theme.other.layout.borderStrong,
             },
@@ -81,10 +82,10 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
             if (!selected.isStatic) return;
             void changeLanguage(value);
           }}
-          data={availableLanguages.map((lang: { code: string; name: string; flag: string; isStatic: boolean }) => ({
+          data={availableLanguages.map((lang: { code: string; name: string; isStatic: boolean }) => ({
             value: lang.code,
             disabled: !lang.isStatic,
-            label: lang.isStatic ? `${lang.flag}   ${lang.name}` : `${lang.flag}   ${lang.name} (${t('languageSwitcher.wipLabel')})`,
+            label: lang.isStatic ? lang.name : `${lang.name} (${t('languageSwitcher.wipLabel')})`,
           }))}
           styles={{
             input: {
@@ -129,10 +130,10 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           if (!selected.isStatic) return;
           void changeLanguage(value);
         }}
-        data={availableLanguages.map((lang: { code: string; name: string; flag: string; isStatic: boolean }) => ({
+        data={availableLanguages.map((lang: { code: string; name: string; isStatic: boolean }) => ({
           value: lang.code,
           disabled: !lang.isStatic,
-          label: lang.isStatic ? `${lang.flag}   ${lang.name}` : `${lang.flag}   ${lang.name} (${t('languageSwitcher.wipLabel')})`,
+          label: lang.isStatic ? lang.name : `${lang.name} (${t('languageSwitcher.wipLabel')})`,
         }))}
         styles={{
           input: {
