@@ -12,7 +12,7 @@ import {
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload } from '@tabler/icons-react';
-import { ActionButton, TextButton } from '@components/buttons';
+import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
 import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml } from '@/api/hooks';
@@ -232,32 +232,59 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
           style={{ display: 'none' }}
         />
 
-        {(games?.length ?? 0) > 0 && (
-          <Group justify="space-between">
-            <Group gap="sm">
-              <TextButton
-                leftSection={<IconPlus size={16} />}
-                onClick={openCreateModal}
-              >
-                {t('games.createButton')}
-              </TextButton>
-              <TextButton
-                leftSection={<IconUpload size={16} />}
-                onClick={handleImportClick}
-              >
-                {t('games.importExport.importButton')}
-              </TextButton>
-            </Group>
+        <Group justify="space-between">
+          <Group gap="sm">
+            <TextButton
+              leftSection={<IconPlus size={16} />}
+              onClick={openCreateModal}
+            >
+              {t('games.createButton')}
+            </TextButton>
+            <TextButton
+              leftSection={<IconUpload size={16} />}
+              onClick={handleImportClick}
+            >
+              {t('games.importExport.importButton')}
+            </TextButton>
+          </Group>
+          {(games?.length ?? 0) > 0 && (
             <SortSelector 
               options={sortOptions} 
               value={sortField} 
               onChange={(v) => setSortField(v as SortField)}
               label={t('games.sort.label')}
             />
-          </Group>
-        )}
+          )}
+        </Group>
 
-        {(games?.length ?? 0) === 0 ? (
+        {isMobile ? (
+          (games?.length ?? 0) === 0 ? (
+            <Card shadow="sm" p="xl" radius="md" withBorder>
+              <Stack align="center" gap="md" py="xl">
+                <IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />
+                <Text c="gray.6" ta="center">
+                  {t('games.empty.title')}
+                </Text>
+                <Text size="sm" c="gray.5" ta="center">
+                  {t('games.empty.description')}
+                </Text>
+              </Stack>
+            </Card>
+          ) : (
+            <SimpleGrid cols={1} spacing="md">
+              {games?.map((game) => (
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  onView={handleViewGame}
+                  onEdit={handleEditGame}
+                  onDelete={handleDeleteClick}
+                  onExport={handleExport}
+                />
+              ))}
+            </SimpleGrid>
+          )
+        ) : (games?.length ?? 0) === 0 ? (
           <Card shadow="sm" p="xl" radius="md" withBorder>
             <Stack align="center" gap="md" py="xl">
               <IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />
@@ -267,27 +294,8 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
               <Text size="sm" c="gray.5" ta="center">
                 {t('games.empty.description')}
               </Text>
-              <ActionButton
-                leftSection={<IconPlus size={18} />}
-                onClick={openCreateModal}
-              >
-                {t('games.createButton')}
-              </ActionButton>
             </Stack>
           </Card>
-        ) : isMobile ? (
-          <SimpleGrid cols={1} spacing="md">
-            {games?.map((game) => (
-              <GameCard
-                key={game.id}
-                game={game}
-                onView={handleViewGame}
-                onEdit={handleEditGame}
-                onDelete={handleDeleteClick}
-                onExport={handleExport}
-              />
-            ))}
-          </SimpleGrid>
         ) : (
           <Card shadow="sm" p={0} radius="md" withBorder style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <GamesTable
