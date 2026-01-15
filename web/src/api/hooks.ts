@@ -3,7 +3,8 @@ import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
 import { apiClient } from './client';
 import type { 
-  ObjApiKeyShare, 
+  ObjApiKeyShare,
+  ObjAiPlatform,
   ObjGame, 
   ObjGameSession,
   ObjGameSessionMessage,
@@ -22,6 +23,7 @@ import type {
 export const queryKeys = {
   apiKeys: ['apiKeys'] as const,
   apiKeyShares: ['apiKeyShares'] as const,
+  platforms: ['platforms'] as const,
   games: ['games'] as const,
   gameSessions: ['gameSessions'] as const,
   users: ['users'] as const,
@@ -52,7 +54,7 @@ export function useCreateApiKey() {
   });
 }
 
-export function useUpdateApiKey() {
+export function useShareApiKey() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();
   
@@ -62,6 +64,42 @@ export function useUpdateApiKey() {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
     onError: handleApiError,
+  });
+}
+
+export function useUpdateApiKeyName() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<ObjApiKeyShare, HttpxErrorResponse, { id: string; name: string }>({
+    mutationFn: ({ id, name }) => api.apikeys.apikeysPartialUpdate(id, { name }).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useDeleteApiKey() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<ObjApiKeyShare, HttpxErrorResponse, { id: string; cascade?: boolean }>({
+    mutationFn: ({ id, cascade }) => api.apikeys.apikeysDelete(id, { cascade }).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
+// Platforms hook (public endpoint, no auth needed)
+export function usePlatforms() {
+  const api = apiClient;
+  
+  return useQuery<ObjAiPlatform[], HttpxErrorResponse>({
+    queryKey: queryKeys.platforms,
+    queryFn: () => api.platforms.platformsList().then((response) => response.data),
   });
 }
 
