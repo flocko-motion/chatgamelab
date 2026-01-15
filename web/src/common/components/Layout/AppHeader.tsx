@@ -120,7 +120,7 @@ function UserActions({
           '&:active': {
             backgroundColor: theme.other.layout.bgActive,
           },
-          '&:focus-visible': {
+          '&:focusVisible': {
             outline: `2px solid ${theme.colors.accent[6]}`,
             outlineOffset: 2,
           },
@@ -412,7 +412,7 @@ export function AppHeader({
                   '&:active': {
                     backgroundColor: theme.other.layout.bgActive,
                   },
-                  '&:focus-visible': {
+                  '&:focusVisible': {
                     outline: `2px solid ${theme.colors.accent[6]}`,
                     outlineOffset: 2,
                   },
