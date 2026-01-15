@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
 import { apiClient } from './client';
+import { config } from '../config/env';
 import type { 
   ObjApiKeyShare,
   ObjAiPlatform,
@@ -224,7 +225,7 @@ export function useImportGameYaml() {
   return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>({
     mutationFn: async ({ id, yaml }) => {
       const token = await getAccessTokenSilently();
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/games/${id}/yaml`, {
+      const response = await fetch(`${config.API_BASE_URL}/games/${id}/yaml`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/x-yaml',
