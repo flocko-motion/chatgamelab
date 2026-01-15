@@ -17,8 +17,30 @@ export enum ObjRole {
 }
 
 export interface HttpxErrorResponse {
+  /** Machine-readable error code */
+  code?: string;
+  /** Human-readable error message */
   message?: string;
+  /** Deprecated: use Code instead */
   type?: string;
+}
+
+export interface ObjAiModel {
+  description?: string;
+  /** technical name without spaces, e.g. "gpt-4-nano" */
+  id?: string;
+  /** display name e.g. "GPT 4 Nano" */
+  name?: string;
+}
+
+export interface ObjAiPlatform {
+  /** technical name without spaces, e.g. "openai" */
+  id?: string;
+  models?: ObjAiModel[];
+  /** display name e.g. "OpenAI" */
+  name?: string;
+  /** whether this platform supports user API keys */
+  supportsApiKey?: boolean;
 }
 
 export interface ObjApiKey {
@@ -204,6 +226,11 @@ export interface RoutesCreateGameRequest {
 export interface RoutesCreateSessionRequest {
   model?: string;
   shareId?: string;
+}
+
+export interface RoutesLanguage {
+  iso?: string;
+  label?: string;
 }
 
 export interface RoutesRegisterRequest {
@@ -748,7 +775,7 @@ export class Api<
       }),
 
     /**
-     * @description Creates a new game. A non-empty name is required.
+     * @description Creates a new game from JSON or YAML. Accepts either a simple name or full game object.
      *
      * @tags games
      * @name PostGames
@@ -899,6 +926,39 @@ export class Api<
         ...params,
       }),
   };
+  languages = {
+    /**
+     * @description Returns a list of available languages for the application
+     *
+     * @tags languages
+     * @name LanguagesList
+     * @summary Get available languages
+     * @request GET:/languages
+     */
+    languagesList: (params: RequestParams = {}) =>
+      this.request<RoutesLanguage[], any>({
+        path: `/languages`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the translation JSON file for the specified language code
+     *
+     * @tags languages
+     * @name LanguagesDetail
+     * @summary Get locale file for a specific language
+     * @request GET:/languages/{code}
+     */
+    languagesDetail: (code: string, params: RequestParams = {}) =>
+      this.request<Record<string, any>, Record<string, string>>({
+        path: `/languages/${code}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
   messages = {
     /**
      * @description Server-Sent Events endpoint for streaming message chunks.
@@ -912,6 +972,23 @@ export class Api<
       this.request<string, string>({
         path: `/messages/${id}/stream`,
         method: "GET",
+        ...params,
+      }),
+  };
+  platforms = {
+    /**
+     * @description Returns all available AI platforms with their metadata
+     *
+     * @tags platforms
+     * @name PlatformsList
+     * @summary List AI platforms
+     * @request GET:/platforms
+     */
+    platformsList: (params: RequestParams = {}) =>
+      this.request<ObjAiPlatform[], HttpxErrorResponse>({
+        path: `/platforms`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
   };

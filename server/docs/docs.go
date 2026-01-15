@@ -483,9 +483,10 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new game. A non-empty name is required.",
+                "description": "Creates a new game from JSON or YAML. Accepts either a simple name or full game object.",
                 "consumes": [
-                    "application/json"
+                    "application/json",
+                    "application/x-yaml"
                 ],
                 "produces": [
                     "application/json"
@@ -496,7 +497,7 @@ const docTemplate = `{
                 "summary": "Create game",
                 "parameters": [
                     {
-                        "description": "Create game request",
+                        "description": "Create game request (JSON or YAML)",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -917,6 +918,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/languages": {
+            "get": {
+                "description": "Returns a list of available languages for the application",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "languages"
+                ],
+                "summary": "Get available languages",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.Language"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/languages/{code}": {
+            "get": {
+                "description": "Returns the translation JSON file for the specified language code",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "languages"
+                ],
+                "summary": "Get locale file for a specific language",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Language code (e.g., 'fr', 'de', 'no')",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/messages/{id}/stream": {
             "get": {
                 "description": "Server-Sent Events endpoint for streaming message chunks.",
@@ -953,6 +1016,35 @@ const docTemplate = `{
                         "description": "Stream not found",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/platforms": {
+            "get": {
+                "description": "Returns all available AI platforms with their metadata",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "platforms"
+                ],
+                "summary": "List AI platforms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.AiPlatform"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     }
                 }
@@ -1440,11 +1532,56 @@ const docTemplate = `{
         "httpx.ErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "description": "Machine-readable error code",
+                    "type": "string"
+                },
                 "message": {
+                    "description": "Human-readable error message",
                     "type": "string"
                 },
                 "type": {
+                    "description": "Deprecated: use Code instead",
                     "type": "string"
+                }
+            }
+        },
+        "obj.AiModel": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "technical name without spaces, e.g. \"gpt-4-nano\"",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "display name e.g. \"GPT 4 Nano\"",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.AiPlatform": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "technical name without spaces, e.g. \"openai\"",
+                    "type": "string"
+                },
+                "models": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.AiModel"
+                    }
+                },
+                "name": {
+                    "description": "display name e.g. \"OpenAI\"",
+                    "type": "string"
+                },
+                "supportsApiKey": {
+                    "description": "whether this platform supports user API keys",
+                    "type": "boolean"
                 }
             }
         },
@@ -1892,6 +2029,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "shareId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.Language": {
+            "type": "object",
+            "properties": {
+                "iso": {
+                    "type": "string"
+                },
+                "label": {
                     "type": "string"
                 }
             }

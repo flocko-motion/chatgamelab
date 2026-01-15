@@ -10,10 +10,25 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Common error codes that frontend can handle
+const (
+	ErrCodeGeneric           = "error"
+	ErrCodeValidation        = "validation_error"
+	ErrCodeUnauthorized      = "unauthorized"
+	ErrCodeForbidden         = "forbidden"
+	ErrCodeNotFound          = "not_found"
+	ErrCodeConflict          = "conflict"
+	ErrCodeInvalidPlatform   = "invalid_platform"
+	ErrCodeInvalidInput      = "invalid_input"
+	ErrCodeServerError       = "server_error"
+	ErrCodeUserNotRegistered = "user_not_registered"
+)
+
 // ErrorResponse is the standard error format for the API
 type ErrorResponse struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
+	Code    string `json:"code"`    // Machine-readable error code
+	Message string `json:"message"` // Human-readable error message
+	Type    string `json:"type"`    // Deprecated: use Code instead
 }
 
 // UserNotRegisteredResponse is returned when an Auth0 user is not yet registered in the system
@@ -26,7 +41,7 @@ type UserNotRegisteredResponse struct {
 // WriteUserNotRegistered writes a response indicating the user needs to complete registration
 func WriteUserNotRegistered(w http.ResponseWriter, auth0ID string) {
 	WriteJSON(w, http.StatusForbidden, UserNotRegisteredResponse{
-		Type:    "user_not_registered",
+		Type:    ErrCodeUserNotRegistered,
 		Message: "User is not registered. Please complete registration.",
 		Auth0ID: auth0ID,
 	})
@@ -46,11 +61,17 @@ func WriteYAML(w http.ResponseWriter, status int, v any) {
 	_ = yaml.NewEncoder(w).Encode(v)
 }
 
-// WriteError writes a JSON error response
+// WriteError writes a JSON error response with a generic error code
 func WriteError(w http.ResponseWriter, status int, message string) {
+	WriteErrorWithCode(w, status, ErrCodeGeneric, message)
+}
+
+// WriteErrorWithCode writes a JSON error response with a specific error code
+func WriteErrorWithCode(w http.ResponseWriter, status int, code string, message string) {
 	WriteJSON(w, status, ErrorResponse{
-		Type:    "error",
+		Code:    code,
 		Message: message,
+		Type:    code, // For backwards compatibility
 	})
 }
 

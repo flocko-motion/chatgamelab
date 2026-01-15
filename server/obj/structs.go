@@ -170,9 +170,10 @@ type GameSession struct {
 }
 
 type AiPlatform struct {
-	ID     string    `json:"id"`   // technical name without spaces, e.g. "openai"
-	Name   string    `json:"name"` // display name e.g. "OpenAI"
-	Models []AiModel `json:"models"`
+	ID             string    `json:"id"`   // technical name without spaces, e.g. "openai"
+	Name           string    `json:"name"` // display name e.g. "OpenAI"
+	Models         []AiModel `json:"models"`
+	SupportsApiKey bool      `json:"supportsApiKey"` // whether this platform supports user API keys
 }
 
 type AiModel struct {

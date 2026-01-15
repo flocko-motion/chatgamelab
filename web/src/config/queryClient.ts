@@ -63,11 +63,12 @@ export const queryClient = new QueryClient({
 });
 
 // Global error handler function
-export function handleApiError(error: HttpxErrorResponse | Error | { status?: number; type?: string; message?: string }) {
+export function handleApiError(error: HttpxErrorResponse | Error | { status?: number; type?: string; code?: string; message?: string }) {
   // Extract status code from the error
   let status = 0;
   let message = 'An unexpected error occurred';
   let errorType = 'Unknown';
+  let errorCode = '';
   let errorDetails: Record<string, unknown> = {};
   
   if (error && typeof error === 'object') {
@@ -87,6 +88,12 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       errorType = error.type;
     }
     
+    // Handle error code from API response (new structured errors)
+    if ('code' in error && typeof error.code === 'string') {
+      errorCode = error.code;
+      errorType = error.code; // Use code as type if available
+    }
+    
     // Handle network errors
     if (error instanceof TypeError && error.message.includes('fetch')) {
       message = 'Network error. Please check your connection.';
@@ -100,12 +107,13 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       status,
       message: errorObj.message || message,
       type: errorObj.type || errorType,
+      code: errorObj.code || errorCode,
       stack: errorObj.stack,
       name: errorObj.name,
       // Include any other error properties
       ...Object.fromEntries(
         Object.entries(errorObj).filter(([key]) => 
-          !['status', 'message', 'type', 'stack', 'name'].includes(key)
+          !['status', 'message', 'type', 'code', 'stack', 'name'].includes(key)
         )
       )
     };
@@ -114,6 +122,7 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
   // Log the complete error with details
   apiLogger.error('API Error occurred', {
     errorType,
+    errorCode,
     status,
     message,
     timestamp: new Date().toISOString(),
@@ -122,7 +131,26 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
     errorDetails
   });
 
-  // Show appropriate notification based on status code
+  // Handle specific error codes
+  if (errorCode === 'invalid_platform') {
+    notifications.show({
+      title: i18n.t('errors.titles.validation'),
+      message: i18n.t('apiKeys.errors.invalidPlatform', { defaultValue: message }),
+      color: 'orange',
+    });
+    return;
+  }
+  
+  if (errorCode === 'validation_error') {
+    notifications.show({
+      title: i18n.t('errors.titles.validation'),
+      message: message || i18n.t('errors.validation'),
+      color: 'orange',
+    });
+    return;
+  }
+
+  // Show appropriate notification based on status code (fallback if no error code handled)
   switch (status) {
     case 401:
       notifications.show({

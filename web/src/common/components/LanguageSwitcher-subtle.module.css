@@ -1,0 +1,44 @@
+/**
+ * LanguageSwitcher styles for subtle variant (homepage)
+ * Uses CSS modules for proper hover states
+ */
+
+.input {
+  min-width: 80px;
+  max-width: 150px;
+  text-align: center;
+  background: transparent;
+  border-color: var(--mantine-color-accent-5);
+  border-width: 2px;
+  border-style: solid;
+  color: var(--mantine-color-accent-9);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.input:hover {
+  background: var(--mantine-color-accent-0);
+  border-color: var(--mantine-color-accent-6);
+  transform: translateY(-1px);
+}
+
+.dropdown {
+  background-color: #f0f4f8;
+  border-color: var(--mantine-color-gray-2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.option {
+  color: var(--mantine-color-gray-9);
+}
+
+.option:hover,
+.option[data-hovered],
+.option[data-combobox-selected] {
+  background-color: var(--mantine-color-accent-1);
+  color: var(--mantine-color-accent-9);
+}
+
+.option[data-combobox-active] {
+  background-color: var(--mantine-color-accent-2);
+}

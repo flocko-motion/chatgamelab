@@ -4,6 +4,7 @@ import { useLanguageSwitcher } from '@hooks/useTranslation';
 import { useTranslation } from 'react-i18next';
 import { Dropdown } from './Dropdown';
 import classes from './LanguageSwitcher.module.css';
+import subtleClasses from './LanguageSwitcher-subtle.module.css';
 
 interface LanguageSwitcherProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -34,6 +35,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           void changeLanguage(value);
         }}
         size="sm"
+        maxDropdownHeight={400}
         classNames={{
           input: classes.input,
           dropdown: classes.dropdown,
@@ -55,7 +57,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           
           return (
             <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-              <span>{option.label}</span>
+              <span style={{ fontWeight: option.value === currentLanguage.code ? 600 : 400 }}>{option.label}</span>
               {option.value === currentLanguage.code && (
                 <IconCheck size={16} color="var(--mantine-color-green-5)" />
               )}
@@ -68,51 +70,53 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
 
   // Subtle variant for light backgrounds (soft gradient style)
   if (variant === 'subtle') {
+    const selectData = availableLanguages
+      .filter(lang => lang.isStatic || lang.code === '__separator__')
+      .map((lang) => ({
+        value: lang.code,
+        label: lang.name,
+        disabled: lang.code === '__separator__',
+      }));
+    
     return (
-      <Box>
-        <Dropdown
-          size={size}
-          variant="filled"
-          value={currentLanguage.code}
-          onChange={(value) => {
-            if (!value) return;
-            const selected = availableLanguages.find((l) => l.code === value);
-            if (!selected) return;
-            if (!selected.isStatic) return;
-            void changeLanguage(value);
-          }}
-          data={availableLanguages.map((lang: { code: string; name: string; isStatic: boolean }) => ({
-            value: lang.code,
-            disabled: !lang.isStatic,
-            label: lang.isStatic ? lang.name : `${lang.name} (${t('languageSwitcher.wipLabel')})`,
-          }))}
-          styles={{
-            input: {
-              minWidth: 80,
-              maxWidth: 150,
-              textAlign: 'center',
-              background: 'transparent',
-              borderColor: 'var(--mantine-color-accent-5)',
-              borderWidth: '2px',
-              borderStyle: 'solid',
-              color: 'var(--mantine-color-accent-9)',
-              fontWeight: 600,
-              transition: 'all 0.2s ease',
-              '&:hover': {
-                background: 'var(--mantine-color-accent-0)',
-                borderColor: 'var(--mantine-color-accent-6)',
-                transform: 'translateY(-1px)',
-              },
-            },
-          }}
-        />
-
-        {hasWipLanguages && (
-          <Text size="xs" c="dimmed" mt={4} style={{ whiteSpace: 'nowrap' }}>
-            {t('languageSwitcher.wipHint')}
-          </Text>
-        )}
-      </Box>
+      <Select
+        data={selectData}
+        value={currentLanguage.code}
+        onChange={(value) => {
+          if (!value || value === '__separator__') return;
+          void changeLanguage(value);
+        }}
+        size={size}
+        maxDropdownHeight={400}
+        classNames={{
+          input: subtleClasses.input,
+          dropdown: subtleClasses.dropdown,
+          option: subtleClasses.option,
+        }}
+        renderOption={({ option }) => {
+          if (option.value === '__separator__') {
+            return (
+              <Box style={{ 
+                textAlign: 'center', 
+                color: 'var(--mantine-color-gray-4)',
+                cursor: 'default',
+                userSelect: 'none',
+              }}>
+                {option.label}
+              </Box>
+            );
+          }
+          
+          return (
+            <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <span style={{ fontWeight: option.value === currentLanguage.code ? 600 : 400 }}>{option.label}</span>
+              {option.value === currentLanguage.code && (
+                <IconCheck size={16} color="var(--mantine-color-green-5)" />
+              )}
+            </Box>
+          );
+        }}
+      />
     );
   }
 

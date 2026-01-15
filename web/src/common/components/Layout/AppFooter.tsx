@@ -21,15 +21,15 @@ const defaultLinks: FooterLink[] = [
   { label: 'tausend-medien.de', href: 'https://tausend-medien.de' },
 ];
 
-export function AppFooter({ links = defaultLinks, showVersion = true, transparent = false }: AppFooterProps) {
+export function AppFooter({ links = defaultLinks, showVersion = true }: AppFooterProps) {
   const { mobileBreakpoint } = useResponsiveDesign();
   const { t } = useTranslation('common');
 
   return (
     <AppShell.Footer
       style={{
-        backgroundColor: transparent ? 'transparent' : undefined,
-        borderTop: transparent ? '1px solid var(--mantine-color-accent-2)' : undefined,
+        backgroundColor: 'var(--mantine-color-gray-0)',
+        borderTop: '1px solid var(--mantine-color-gray-2)',
       }}
     >
       <Container size="xl" h="100%" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
@@ -44,29 +44,29 @@ export function AppFooter({ links = defaultLinks, showVersion = true, transparen
           {/* Desktop: Full footer with all links */}
           <Box visibleFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center" wrap="wrap">
-              <HelperText>
+              <HelperText c="gray.5">
                 {t('footer.loginVia')}{' '}
-                <Anchor href={links[0]?.href} target="_blank" size="sm" c="accent">
+                <Anchor href={links[0]?.href} target="_blank" size="sm" c="accent.8">
                   {links[0]?.label}
                 </Anchor>
               </HelperText>
-              <HelperText>|</HelperText>
-              <HelperText>
+              <HelperText c="gray.5">|</HelperText>
+              <HelperText c="gray.5">
                 {t('footer.programmedBy')}{' '}
-                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent">
+                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent.8">
                   {links[1]?.label}
                 </Anchor>
               </HelperText>
-              <HelperText>|</HelperText>
-              <HelperText>
+              <HelperText c="gray.5">|</HelperText>
+              <HelperText c="gray.5">
                 {t('footer.producedBy')}{' '}
-                <Anchor href={links[2]?.href} target="_blank" size="sm" c="accent">
+                <Anchor href={links[2]?.href} target="_blank" size="sm" c="accent.8">
                   {links[2]?.label}
                 </Anchor>
               </HelperText>
               {showVersion && (
                 <>
-                  <HelperText>|</HelperText>
+                  <HelperText c="gray.5">|</HelperText>
                   <VersionDisplay />
                 </>
               )}
@@ -76,12 +76,12 @@ export function AppFooter({ links = defaultLinks, showVersion = true, transparen
           {/* Mobile: Condensed footer */}
           <Box hiddenFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center">
-              <HelperText>
+              <HelperText c="gray.5">
                 {t('footer.copyright')}
               </HelperText>
               {showVersion && (
                 <>
-                  <HelperText>•</HelperText>
+                  <HelperText c="gray.5">•</HelperText>
                   <VersionDisplay />
                 </>
               )}

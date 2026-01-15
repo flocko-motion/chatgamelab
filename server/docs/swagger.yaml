@@ -2,10 +2,42 @@ basePath: /api
 definitions:
   httpx.ErrorResponse:
     properties:
+      code:
+        description: Machine-readable error code
+        type: string
       message:
+        description: Human-readable error message
         type: string
       type:
+        description: 'Deprecated: use Code instead'
         type: string
+    type: object
+  obj.AiModel:
+    properties:
+      description:
+        type: string
+      id:
+        description: technical name without spaces, e.g. "gpt-4-nano"
+        type: string
+      name:
+        description: display name e.g. "GPT 4 Nano"
+        type: string
+    type: object
+  obj.AiPlatform:
+    properties:
+      id:
+        description: technical name without spaces, e.g. "openai"
+        type: string
+      models:
+        items:
+          $ref: '#/definitions/obj.AiModel'
+        type: array
+      name:
+        description: display name e.g. "OpenAI"
+        type: string
+      supportsApiKey:
+        description: whether this platform supports user API keys
+        type: boolean
     type: object
   obj.ApiKey:
     properties:
@@ -322,6 +354,13 @@ definitions:
       model:
         type: string
       shareId:
+        type: string
+    type: object
+  routes.Language:
+    properties:
+      iso:
+        type: string
+      label:
         type: string
     type: object
   routes.RegisterRequest:
@@ -1000,9 +1039,11 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new game. A non-empty name is required.
+      - application/x-yaml
+      description: Creates a new game from JSON or YAML. Accepts either a simple name
+        or full game object.
       parameters:
-      - description: Create game request
+      - description: Create game request (JSON or YAML)
         in: body
         name: request
         required: true
@@ -1032,6 +1073,47 @@ paths:
       summary: Create game
       tags:
       - games
+  /languages:
+    get:
+      description: Returns a list of available languages for the application
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/routes.Language'
+            type: array
+      summary: Get available languages
+      tags:
+      - languages
+  /languages/{code}:
+    get:
+      description: Returns the translation JSON file for the specified language code
+      parameters:
+      - description: Language code (e.g., 'fr', 'de', 'no')
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get locale file for a specific language
+      tags:
+      - languages
   /messages/{id}/stream:
     get:
       description: Server-Sent Events endpoint for streaming message chunks.
@@ -1059,6 +1141,25 @@ paths:
       summary: Stream message updates (SSE)
       tags:
       - messages
+  /platforms:
+    get:
+      description: Returns all available AI platforms with their metadata
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.AiPlatform'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: List AI platforms
+      tags:
+      - platforms
   /restart:
     post:
       description: Admin-only endpoint that triggers a server restart.
