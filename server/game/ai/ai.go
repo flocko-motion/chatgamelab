@@ -52,11 +52,18 @@ type AiPlatform interface {
 }
 
 func GetAiPlatformInfos() []obj.AiPlatform {
-	return []obj.AiPlatform{
+	platforms := []obj.AiPlatform{
 		functional.First(getAiPlatform(OpenAi)).GetPlatformInfo(),
 		functional.First(getAiPlatform(Mistral)).GetPlatformInfo(),
 		functional.First(getAiPlatform(Mock)).GetPlatformInfo(),
 	}
+
+	// Set SupportsApiKey flag for each platform
+	for i := range platforms {
+		platforms[i].SupportsApiKey = IsValidApiKeyPlatform(platforms[i].ID)
+	}
+
+	return platforms
 }
 
 func getAiPlatform(platformName string) (AiPlatform, error) {
