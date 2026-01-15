@@ -13,6 +13,7 @@ import type {
   RoutesCreateApiKeyRequest,
   RoutesCreateGameRequest,
   RoutesCreateSessionRequest,
+  RoutesRolesResponse,
   RoutesUsersNewRequest,
   RoutesShareRequest,
   RoutesUserUpdateRequest,
@@ -28,6 +29,7 @@ export const queryKeys = {
   gameSessions: ['gameSessions'] as const,
   users: ['users'] as const,
   currentUser: ['currentUser'] as const,
+  roles: ['roles'] as const,
   version: ['version'] as const,
 } as const;
 
@@ -103,6 +105,16 @@ export function usePlatforms() {
   });
 }
 
+// Roles hook (public endpoint, no auth needed)
+export function useRoles() {
+  const api = apiClient;
+  
+  return useQuery<RoutesRolesResponse, HttpxErrorResponse>({
+    queryKey: queryKeys.roles,
+    queryFn: () => api.roles.rolesList().then((response) => response.data),
+  });
+}
+
 // Games hooks
 export function useGames() {
   const api = useRequiredAuthenticatedApi();
@@ -145,6 +157,32 @@ export function useUpdateGame() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useDeleteGame() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<ObjGame, HttpxErrorResponse, string>({
+    mutationFn: (id) => api.games.gamesDelete(id).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useCloneGame() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<ObjGame, HttpxErrorResponse, string>({
+    mutationFn: (id) => api.games.cloneCreate(id).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
     onError: handleApiError,
   });
