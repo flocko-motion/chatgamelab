@@ -68,7 +68,65 @@
       "goToDashboard": "Zum Dashboard",
       "profile": "Profil",
       "settings": "Einstellungen",
+      "apiKeys": "API-Schlüssel",
       "logout": "Abmelden"
+    },
+    "apiKeys": {
+      "title": "API-Schlüssel verwalten",
+      "subtitle": "Verwalten Sie Ihre API-Schlüssel für KI-Plattformen.",
+      "addKey": "Schlüssel hinzufügen",
+      "addFirstKey": "Ersten API-Schlüssel hinzufügen",
+      "noKeys": "Sie haben noch keine API-Schlüssel.",
+      "yourKeys": "Ihre API-Schlüssel",
+      "key": "Schlüssel",
+      "keys": "Schlüssel",
+      "addedOn": "Hinzugefügt",
+      "unnamed": "Unbenannter Schlüssel",
+      "default": "Standard",
+      "active": "Aktiv",
+      "table": {
+        "name": "Name",
+        "platform": "Plattform",
+        "key": "Schlüssel",
+        "status": "Status",
+        "actions": "Aktionen"
+      },
+      "aboutSection": {
+        "title": "Über API-Schlüssel",
+        "description": "API-Schlüssel werden verwendet, um sich mit KI-Plattformen für die Generierung von Spielinhalten zu verbinden."
+      },
+      "createModal": {
+        "title": "Neuen API-Schlüssel hinzufügen",
+        "nameLabel": "Schlüsselname",
+        "namePlaceholder": "z.B. Mein OpenAI-Schlüssel",
+        "platformLabel": "Plattform",
+        "platformPlaceholder": "Plattform auswählen",
+        "keyLabel": "API-Schlüssel",
+        "keyPlaceholder": "Geben Sie Ihren API-Schlüssel ein",
+        "keyDescription": "Ihr Schlüssel wird verschlüsselt und sicher gespeichert.",
+        "submit": "Schlüssel hinzufügen"
+      },
+      "editModal": {
+        "title": "API-Schlüssel bearbeiten",
+        "nameLabel": "Schlüsselname",
+        "namePlaceholder": "Geben Sie einen Namen für diesen Schlüssel ein"
+      },
+      "deleteModal": {
+        "title": "API-Schlüssel löschen",
+        "message": "Möchten Sie \"{{name}}\" wirklich löschen?",
+        "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Der Schlüssel wird dauerhaft gelöscht."
+      },
+      "errors": {
+        "nameRequired": "Name ist erforderlich",
+        "platformRequired": "Plattform ist erforderlich",
+        "keyRequired": "API-Schlüssel ist erforderlich",
+        "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wählen Sie eine gültige KI-Plattform.",
+        "loadFailed": "API-Schlüssel konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+      },
+      "unsupportedPlatform": {
+        "badge": "nicht unterstützt",
+        "hint": "Diese Plattform wird derzeit nicht unterstützt. Sie können nur vorhandene Schlüssel entfernen."
+      }
     }
   },
   "navigation": {

@@ -68,7 +68,65 @@
       "goToDashboard": "Go to Dashboard",
       "profile": "Profile",
       "settings": "Settings",
+      "apiKeys": "API Keys",
       "logout": "Logout"
+    },
+    "apiKeys": {
+      "title": "API Key Management",
+      "subtitle": "Manage your API keys for AI platforms.",
+      "addKey": "Add Key",
+      "addFirstKey": "Add Your First API Key",
+      "noKeys": "You don't have any API keys yet.",
+      "yourKeys": "Your API Keys",
+      "key": "key",
+      "keys": "keys",
+      "addedOn": "Added",
+      "unnamed": "Unnamed Key",
+      "default": "Default",
+      "active": "Active",
+      "table": {
+        "name": "Name",
+        "platform": "Platform",
+        "key": "Key",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "aboutSection": {
+        "title": "About API Keys",
+        "description": "API keys are used to connect to AI platforms for generating game content."
+      },
+      "createModal": {
+        "title": "Add New API Key",
+        "nameLabel": "Key Name",
+        "namePlaceholder": "e.g., My OpenAI Key",
+        "platformLabel": "Platform",
+        "platformPlaceholder": "Select a platform",
+        "keyLabel": "API Key",
+        "keyPlaceholder": "Enter your API key",
+        "keyDescription": "Your key will be encrypted and stored securely.",
+        "submit": "Add Key"
+      },
+      "editModal": {
+        "title": "Edit API Key",
+        "nameLabel": "Key Name",
+        "namePlaceholder": "Enter a name for this key"
+      },
+      "deleteModal": {
+        "title": "Delete API Key",
+        "message": "Are you sure you want to delete \"{{name}}\"?",
+        "warning": "This action cannot be undone. The key will be permanently deleted."
+      },
+      "errors": {
+        "nameRequired": "Name is required",
+        "platformRequired": "Platform is required",
+        "keyRequired": "API key is required",
+        "invalidPlatform": "Invalid platform selected. Please choose a valid AI platform.",
+        "loadFailed": "Failed to load API keys. Please try again."
+      },
+      "unsupportedPlatform": {
+        "badge": "unsupported",
+        "hint": "This platform is currently not supported. You can only remove existing keys."
+      }
     }
   },
   "navigation": {
