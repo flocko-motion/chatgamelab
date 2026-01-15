@@ -58,7 +58,7 @@ function SessionCard({ session, onResume, onDelete, isDeleting }: SessionCardPro
           </PlayGameButton>
           <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
             <Group justify="space-between" wrap="nowrap">
-              <Text fw={600} size="md" lineClamp={1}>
+              <Text fw={600} size="md">
                 {session.gameName || t('sessions.untitledGame')}
               </Text>
               <Badge size="sm" color="gray" variant="light">

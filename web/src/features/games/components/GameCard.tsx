@@ -41,7 +41,7 @@ export function GameCard({ game, onView, onEdit, onDelete, onExport, onPlay }: G
           <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
             <Group gap="xs" wrap="nowrap">
               <Box style={{ flex: 1, minWidth: 0 }}>
-                <Title order={4} lineClamp={1}>
+                <Title order={4}>
                   {game.name}
                 </Title>
               </Box>
