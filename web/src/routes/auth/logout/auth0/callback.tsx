@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import { Center, Loader, Text } from '@mantine/core';
 import { ROUTES } from '@/common/routes/routes';
+import { authLogger } from '@/config/logger';
 
 export const Route = createFileRoute('/auth/logout/auth0/callback')({
   component: Auth0LogoutCallback,
@@ -13,13 +14,13 @@ function Auth0LogoutCallback() {
   useEffect(() => {
     const handleLogoutCallback = () => {
       try {
-        console.log('Logout callback: processing logout completion');
+        authLogger.debug('Processing logout callback completion');
         
         // Auth0 has already logged out the user server-side
         // Just redirect to home page
         navigate({ to: ROUTES.HOME });
       } catch (err) {
-        console.error('Auth0 logout callback error:', err);
+        authLogger.error('Auth0 logout callback error', { error: err });
         // Even if there's an error, redirect to home
         navigate({ to: ROUTES.HOME });
       }
