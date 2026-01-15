@@ -220,7 +220,9 @@ export interface RoutesCreateApiKeyRequest {
 }
 
 export interface RoutesCreateGameRequest {
+  description?: string;
   name?: string;
+  public?: boolean;
 }
 
 export interface RoutesCreateSessionRequest {
@@ -236,6 +238,10 @@ export interface RoutesLanguage {
 export interface RoutesRegisterRequest {
   email?: string;
   name?: string;
+}
+
+export interface RoutesRolesResponse {
+  roles?: ObjRole[];
 }
 
 export interface RoutesSessionActionRequest {
@@ -849,6 +855,24 @@ export class Api<
       }),
 
     /**
+     * @description Creates a copy of a game for the authenticated user
+     *
+     * @tags games
+     * @name CloneCreate
+     * @summary Clone game
+     * @request POST:/games/{id}/clone
+     * @secure
+     */
+    cloneCreate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/clone`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Lists sessions for a game
      *
      * @tags sessions
@@ -1006,6 +1030,25 @@ export class Api<
       this.request<string, HttpxErrorResponse>({
         path: `/restart`,
         method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  roles = {
+    /**
+     * @description Returns all available user roles
+     *
+     * @tags roles
+     * @name RolesList
+     * @summary Get available roles
+     * @request GET:/roles
+     * @secure
+     */
+    rolesList: (params: RequestParams = {}) =>
+      this.request<RoutesRolesResponse, HttpxErrorResponse>({
+        path: `/roles`,
+        method: "GET",
         secure: true,
         format: "json",
         ...params,

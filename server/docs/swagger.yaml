@@ -346,8 +346,12 @@ definitions:
     type: object
   routes.CreateGameRequest:
     properties:
+      description:
+        type: string
       name:
         type: string
+      public:
+        type: boolean
     type: object
   routes.CreateSessionRequest:
     properties:
@@ -369,6 +373,13 @@ definitions:
         type: string
       name:
         type: string
+    type: object
+  routes.RolesResponse:
+    properties:
+      roles:
+        items:
+          $ref: '#/definitions/obj.Role'
+        type: array
     type: object
   routes.SessionActionRequest:
     properties:
@@ -886,6 +897,43 @@ paths:
       summary: Update game
       tags:
       - games
+  /games/{id}/clone:
+    post:
+      description: Creates a copy of a game for the authenticated user
+      parameters:
+      - description: Game ID (UUID) to clone
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Game'
+        "400":
+          description: Invalid game ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Game not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Failed to clone
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Clone game
+      tags:
+      - games
   /games/{id}/sessions:
     get:
       description: Lists sessions for a game
@@ -1183,6 +1231,29 @@ paths:
       summary: Restart server
       tags:
       - admin
+  /roles:
+    get:
+      description: Returns all available user roles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.RolesResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get available roles
+      tags:
+      - roles
   /sessions/{id}:
     get:
       description: Returns session details. Optional query parameter can include latest
