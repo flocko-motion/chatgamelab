@@ -14,20 +14,28 @@ type Meta struct {
 }
 
 type User struct {
-	ID        uuid.UUID     `json:"id"`
-	Meta      Meta          `json:"meta"`
-	Name      string        `json:"name"`
-	Email     *string       `json:"email"`
-	DeletedAt *time.Time    `json:"deletedAt"`
-	Auth0Id   *string       `json:"auth0Id"`
-	Role      *UserRole     `json:"role"`
-	ApiKeys   []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
+	ID                  uuid.UUID     `json:"id"`
+	Meta                Meta          `json:"meta"`
+	Name                string        `json:"name"`
+	Email               *string       `json:"email"`
+	DeletedAt           *time.Time    `json:"deletedAt"`
+	Auth0Id             *string       `json:"auth0Id"`
+	Role                *UserRole     `json:"role"`
+	ApiKeys             []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
+	ShowAiModelSelector bool          `json:"showAiModelSelector"`
 }
 
 type Institution struct {
 	ID   uuid.UUID `json:"id"`
 	Meta Meta      `json:"meta"`
 	Name string    `json:"name"`
+}
+
+type SystemSettings struct {
+	ID             uuid.UUID  `json:"id"`
+	CreatedAt      *time.Time `json:"createdAt"`
+	ModifiedAt     *time.Time `json:"modifiedAt"`
+	DefaultAiModel string     `json:"defaultAiModel"`
 }
 
 type Role string
