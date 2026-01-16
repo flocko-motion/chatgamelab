@@ -1,20 +1,8 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { GamesManagement } from '@/features/games';
+import { createFileRoute, redirect } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/creations/$gameId')({
-  component: CreationDetailPage,
+  beforeLoad: ({ params }) => {
+    throw redirect({ to: `/my-games/${params.gameId}` as '/' });
+  },
+  component: () => null,
 });
-
-function CreationDetailPage() {
-  const { gameId } = Route.useParams();
-  const navigate = useNavigate();
-
-  // Pass gameId to GamesManagement to open modal directly
-  // On modal close, navigate back to /creations
-  return (
-    <GamesManagement 
-      initialGameId={gameId} 
-      onModalClose={() => navigate({ to: '/creations' })}
-    />
-  );
-}
