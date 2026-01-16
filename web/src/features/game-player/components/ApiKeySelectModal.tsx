@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { IconAlertCircle, IconKey } from '@tabler/icons-react';
 import { ActionButton, TextButton } from '@components/buttons';
 import { SectionTitle } from '@components/typography';
-import { useApiKeys, usePlatforms } from '@/api/hooks';
+import { useApiKeys, usePlatforms, useCurrentUser, useSystemSettings } from '@/api/hooks';
 import { getDefaultApiKey, getModelsForApiKey } from '../types';
 
 interface ApiKeySelectModalProps {
@@ -37,6 +37,8 @@ export function ApiKeySelectModal({
 
   const { data: apiKeys, isLoading: keysLoading, error: keysError } = useApiKeys();
   const { data: platforms, isLoading: platformsLoading } = usePlatforms();
+  const { data: currentUser } = useCurrentUser();
+  const { data: systemSettings } = useSystemSettings();
 
   const defaultKey = useMemo(() => getDefaultApiKey(apiKeys || []), [apiKeys]);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
@@ -71,7 +73,11 @@ export function ApiKeySelectModal({
 
   const handleStart = () => {
     if (!selectedKey?.id) return;
-    onStart(selectedKey.id, selectedModel || undefined);
+    // Use selected model if user has enabled selector, otherwise use system default
+    const modelToUse = currentUser?.showAiModelSelector 
+      ? (selectedModel || undefined)
+      : (systemSettings?.defaultAiModel || undefined);
+    onStart(selectedKey.id, modelToUse);
   };
 
   const hasNoKeys = !keysLoading && (!apiKeys || apiKeys.length === 0);
@@ -124,7 +130,7 @@ export function ApiKeySelectModal({
               clearable={false}
             />
 
-            {availableModels.length > 0 && (
+            {currentUser?.showAiModelSelector && availableModels.length > 0 && (
               <Select
                 label={t('gamePlayer.selectApiKey.modelLabel')}
                 description={t('gamePlayer.selectApiKey.modelDescription')}
