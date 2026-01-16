@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"time"
 
 	sqlc "cgl/db/sqlc"
 	"cgl/functional"
@@ -30,13 +31,11 @@ func Init() {
 
 	// Check if database needs initialization
 	if isEmpty, err := isDatabaseEmpty(); err != nil {
-		log.Error("failed to check database state", "error", err)
-		panic("failed to check database state: " + err.Error())
+		log.Fatal("failed to check database state", "error", err)
 	} else if isEmpty {
 		log.Info("database is empty, initializing schema")
 		if err := initializeSchema(); err != nil {
-			log.Error("failed to initialize database schema", "error", err)
-			panic("failed to initialize database schema: " + err.Error())
+			log.Fatal("failed to initialize database schema", "error", err)
 		}
 		log.Info("database schema initialized successfully")
 	} else {
@@ -68,16 +67,27 @@ func queries() *sqlc.Queries {
 	var err error
 	sqlDb, err = sql.Open("postgres", dsn)
 	if err != nil {
-		log.Error("failed to open postgres connection", "error", err)
-		panic("failed to open postgres connection: " + err.Error())
+		log.Fatal("failed to open postgres connection", "error", err)
 	}
 
-	if err = sqlDb.Ping(); err != nil {
-		log.Error("failed to connect to postgres", "error", err)
-		panic("failed to connect to postgres: " + err.Error())
-	}
+	// Retry connection with exponential backoff (max 2 minutes)
+	maxRetries := 24 // 25 attempts over ~2 minutes
+	retryDelay := 5 * time.Second
 
-	log.Debug("postgres connection established")
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		err = sqlDb.Ping()
+		if err == nil {
+			log.Debug("postgres connection established")
+			break
+		}
+
+		if attempt == maxRetries {
+			log.Fatal("failed to connect to postgres after retries", "error", err, "attempts", maxRetries)
+		}
+
+		log.Info("waiting for postgres to be ready", "attempt", attempt, "max_attempts", maxRetries, "retry_in", retryDelay)
+		time.Sleep(retryDelay)
+	}
 
 	// New is defined in db/sqlc/db.go and returns *Queries.
 	queriesSingleton = sqlc.New(sqlDb)
