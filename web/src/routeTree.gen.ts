@@ -16,9 +16,13 @@ import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionsIndexRouteImport } from './routes/sessions/index'
 import { Route as PlayIndexRouteImport } from './routes/play/index'
+import { Route as MyGamesIndexRouteImport } from './routes/my-games/index'
+import { Route as GamesIndexRouteImport } from './routes/games/index'
 import { Route as CreationsIndexRouteImport } from './routes/creations/index'
 import { Route as SessionsNewRouteImport } from './routes/sessions/new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
+import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
+import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
@@ -61,6 +65,16 @@ const PlayIndexRoute = PlayIndexRouteImport.update({
   path: '/play/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyGamesIndexRoute = MyGamesIndexRouteImport.update({
+  id: '/my-games/',
+  path: '/my-games/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesIndexRoute = GamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreationsIndexRoute = CreationsIndexRouteImport.update({
   id: '/creations/',
   path: '/creations/',
@@ -74,6 +88,16 @@ const SessionsNewRoute = SessionsNewRouteImport.update({
 const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
   id: '/sessions/$sessionId',
   path: '/sessions/$sessionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyGamesCreateRoute = MyGamesCreateRouteImport.update({
+  id: '/my-games/create',
+  path: '/my-games/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyGamesGameIdRoute = MyGamesGameIdRouteImport.update({
+  id: '/my-games/$gameId',
+  path: '/my-games/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreationsCreateRoute = CreationsCreateRouteImport.update({
@@ -115,9 +139,13 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/my-games/$gameId': typeof MyGamesGameIdRoute
+  '/my-games/create': typeof MyGamesCreateRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
   '/creations': typeof CreationsIndexRoute
+  '/games': typeof GamesIndexRoute
+  '/my-games': typeof MyGamesIndexRoute
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -133,9 +161,13 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/my-games/$gameId': typeof MyGamesGameIdRoute
+  '/my-games/create': typeof MyGamesCreateRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
   '/creations': typeof CreationsIndexRoute
+  '/games': typeof GamesIndexRoute
+  '/my-games': typeof MyGamesIndexRoute
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -152,9 +184,13 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
   '/creations/create': typeof CreationsCreateRoute
+  '/my-games/$gameId': typeof MyGamesGameIdRoute
+  '/my-games/create': typeof MyGamesCreateRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/sessions/new': typeof SessionsNewRoute
   '/creations/': typeof CreationsIndexRoute
+  '/games/': typeof GamesIndexRoute
+  '/my-games/': typeof MyGamesIndexRoute
   '/play/': typeof PlayIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
@@ -172,9 +208,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/my-games/$gameId'
+    | '/my-games/create'
     | '/sessions/$sessionId'
     | '/sessions/new'
     | '/creations'
+    | '/games'
+    | '/my-games'
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
@@ -190,9 +230,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/my-games/$gameId'
+    | '/my-games/create'
     | '/sessions/$sessionId'
     | '/sessions/new'
     | '/creations'
+    | '/games'
+    | '/my-games'
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
@@ -208,9 +252,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/creations/$gameId'
     | '/creations/create'
+    | '/my-games/$gameId'
+    | '/my-games/create'
     | '/sessions/$sessionId'
     | '/sessions/new'
     | '/creations/'
+    | '/games/'
+    | '/my-games/'
     | '/play/'
     | '/sessions/'
     | '/games/$gameId/play'
@@ -227,9 +275,13 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   CreationsGameIdRoute: typeof CreationsGameIdRoute
   CreationsCreateRoute: typeof CreationsCreateRoute
+  MyGamesGameIdRoute: typeof MyGamesGameIdRoute
+  MyGamesCreateRoute: typeof MyGamesCreateRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
   SessionsNewRoute: typeof SessionsNewRoute
   CreationsIndexRoute: typeof CreationsIndexRoute
+  GamesIndexRoute: typeof GamesIndexRoute
+  MyGamesIndexRoute: typeof MyGamesIndexRoute
   PlayIndexRoute: typeof PlayIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
@@ -289,6 +341,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-games/': {
+      id: '/my-games/'
+      path: '/my-games'
+      fullPath: '/my-games'
+      preLoaderRoute: typeof MyGamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games/': {
+      id: '/games/'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/creations/': {
       id: '/creations/'
       path: '/creations'
@@ -308,6 +374,20 @@ declare module '@tanstack/react-router' {
       path: '/sessions/$sessionId'
       fullPath: '/sessions/$sessionId'
       preLoaderRoute: typeof SessionsSessionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-games/create': {
+      id: '/my-games/create'
+      path: '/my-games/create'
+      fullPath: '/my-games/create'
+      preLoaderRoute: typeof MyGamesCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-games/$gameId': {
+      id: '/my-games/$gameId'
+      path: '/my-games/$gameId'
+      fullPath: '/my-games/$gameId'
+      preLoaderRoute: typeof MyGamesGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/creations/create': {
@@ -363,9 +443,13 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   CreationsGameIdRoute: CreationsGameIdRoute,
   CreationsCreateRoute: CreationsCreateRoute,
+  MyGamesGameIdRoute: MyGamesGameIdRoute,
+  MyGamesCreateRoute: MyGamesCreateRoute,
   SessionsSessionIdRoute: SessionsSessionIdRoute,
   SessionsNewRoute: SessionsNewRoute,
   CreationsIndexRoute: CreationsIndexRoute,
+  GamesIndexRoute: GamesIndexRoute,
+  MyGamesIndexRoute: MyGamesIndexRoute,
   PlayIndexRoute: PlayIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,

@@ -26,21 +26,20 @@ export const ROUTES = {
   AUTH0_CALLBACK: '/auth/login/auth0/callback',
   AUTH0_LOGOUT_CALLBACK: '/auth/logout/auth0/callback',
 
-  // Game creation/management routes
-  CREATIONS: '/creations',
-  CREATION_DETAIL: '/creations/$gameId',
-  GAME_CREATE: '/creations/create',
+  // My Games (user's own games - create/edit/play)
+  MY_GAMES: '/my-games',
+  MY_GAME_DETAIL: '/my-games/$gameId',
+  MY_GAME_CREATE: '/my-games/create',
 
-  // Sessions (user's game instances)
+  // All Games (browse all public + own games)
+  ALL_GAMES: '/games',
+  
+  // Game play routes (actual gameplay)
+  GAME_PLAY: '/games/$gameId/play',
+
+  // Sessions (kept for direct session access)
   SESSIONS: '/sessions',
   SESSION_DETAIL: '/sessions/$sessionId',
-
-  // Game selection for starting new sessions
-  PLAY: '/play',
-
-  // Game play routes (actual gameplay)
-  GAMES: '/games',
-  GAME_PLAY: '/games/$gameId/play',
 
   // Room routes
   ROOMS: '/rooms',
@@ -58,8 +57,8 @@ export const NAVIGATION_GROUPS = {
   MAIN: [ROUTES.HOME, ROUTES.DASHBOARD],
   AUTH: [ROUTES.AUTH_LOGIN, ROUTES.AUTH_REGISTER],
   USER: [ROUTES.PROFILE, ROUTES.SETTINGS, ROUTES.API_KEYS],
-  CREATIONS: [ROUTES.CREATIONS],
-  GAMES: [ROUTES.GAMES],
+  MY_GAMES: [ROUTES.MY_GAMES],
+  ALL_GAMES: [ROUTES.ALL_GAMES],
   ROOMS: [ROUTES.ROOMS, ROUTES.ROOM_CREATE],
   DEBUG: [ROUTES.DEBUG],
 } as const;
@@ -71,8 +70,8 @@ export type RouteParams = {
 };
 
 // Helper functions for dynamic routes
-export const createGameDetailRoute = (gameId: string) => `/creations/${gameId}`;
+export const createGameDetailRoute = (gameId: string) => `/my-games/${gameId}`;
 export const createGamePlayRoute = (gameId: string) => `/games/${gameId}/play`;
-export const createGameEditRoute = (gameId: string) => `/creations/${gameId}/edit`;
+export const createGameEditRoute = (gameId: string) => `/my-games/${gameId}/edit`;
 export const createRoomDetailRoute = (roomId: string) => `/rooms/${roomId}`;
 export const createRoomJoinRoute = (roomId: string) => `/rooms/${roomId}/join`;
