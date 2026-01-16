@@ -19,7 +19,23 @@ CREATE TABLE app_user (
     auth0_id        text UNIQUE,
     -- Default API key share to use when creating sessions without specifying one.
     -- References api_key_share instead of api_key to ensure the user has access to the key.
-    default_api_key_share_id uuid NULL
+    default_api_key_share_id uuid NULL,
+    -- User preference: show AI model selector when starting a game session
+    show_ai_model_selector boolean NOT NULL DEFAULT false
+);
+
+-- SystemSettings
+-- Global system settings (single row table)
+CREATE TABLE system_settings (
+    id              uuid PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    -- Default AI model to use when user hasn't configured one
+    default_ai_model text NOT NULL,
+
+    -- Ensure only one row exists by enforcing a fixed ID
+    CONSTRAINT system_settings_singleton CHECK (id = '00000000-0000-0000-0000-000000000001'::uuid)
 );
 
 -- Institution
