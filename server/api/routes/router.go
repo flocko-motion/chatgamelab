@@ -20,6 +20,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/languages", GetLanguages)
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
 	mux.HandleFunc("GET /api/roles", GetRoles)
+	mux.HandleFunc("GET /api/system/settings", GetSystemSettings)
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
