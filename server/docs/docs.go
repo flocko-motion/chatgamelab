@@ -1492,6 +1492,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/settings": {
+            "get": {
+                "description": "Returns the global system settings",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Get system settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.SystemSettings"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -2220,6 +2246,23 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.SystemSettings": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "defaultAiModel": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "modifiedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "obj.User": {
             "type": "object",
             "properties": {
@@ -2243,6 +2286,9 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/obj.UserRole"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2516,6 +2562,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
                 }
             }
         },

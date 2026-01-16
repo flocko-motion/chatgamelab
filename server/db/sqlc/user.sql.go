@@ -254,7 +254,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -271,6 +271,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
@@ -298,6 +299,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -326,6 +328,7 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	ShowAiModelSelector  bool
 	RoleID               uuid.NullUUID
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
@@ -346,6 +349,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
@@ -481,5 +485,22 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserSettings = `-- name: UpdateUserSettings :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserSettingsParams struct {
+	ID                  uuid.UUID
+	ShowAiModelSelector bool
+}
+
+func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserSettings, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

@@ -48,6 +48,7 @@ type AppUser struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	ShowAiModelSelector  bool
 }
 
 type Game struct {
@@ -121,6 +122,13 @@ type Institution struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	Name       string
+}
+
+type SystemSetting struct {
+	ID             uuid.UUID
+	CreatedAt      time.Time
+	ModifiedAt     time.Time
+	DefaultAiModel string
 }
 
 type UserRole struct {

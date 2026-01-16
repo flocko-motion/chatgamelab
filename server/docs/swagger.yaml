@@ -300,6 +300,17 @@ definitions:
       value:
         type: string
     type: object
+  obj.SystemSettings:
+    properties:
+      createdAt:
+        type: string
+      defaultAiModel:
+        type: string
+      id:
+        type: string
+      modifiedAt:
+        type: string
+    type: object
   obj.User:
     properties:
       auth0Id:
@@ -316,6 +327,8 @@ definitions:
         type: string
       role:
         $ref: '#/definitions/obj.UserRole'
+      showAiModelSelector:
+        type: boolean
     type: object
   obj.UserRole:
     properties:
@@ -497,6 +510,8 @@ definitions:
         type: string
       name:
         type: string
+      showAiModelSelector:
+        type: boolean
     type: object
   routes.UsersJwtResponse:
     properties:
@@ -1496,6 +1511,23 @@ paths:
       summary: Get server status
       tags:
       - status
+  /system/settings:
+    get:
+      description: Returns the global system settings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.SystemSettings'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Get system settings
+      tags:
+      - system
   /users:
     get:
       description: Returns all users
