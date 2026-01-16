@@ -504,6 +504,8 @@
       "emailLabel": "Email Address",
       "emailPlaceholder": "Enter your email",
       "emailDescription": "We'll use this for important notifications.",
+      "showAiModelSelectorLabel": "Show AI Model Selector",
+      "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
       "saveButton": "Save Changes",
       "saving": "Saving...",
       "saved": "Changes saved successfully",

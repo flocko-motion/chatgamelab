@@ -503,6 +503,8 @@
       "emailLabel": "E-Mail-Adresse",
       "emailPlaceholder": "Gib deine E-Mail ein",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+      "showAiModelSelectorLabel": "KI-Modell-Auswahl anzeigen",
+      "showAiModelSelectorDescription": "Wenn aktiviert, kannst du bei jedem Spielstart auswählen, welches KI-Modell verwendet werden soll.",
       "saveButton": "Änderungen speichern",
       "saving": "Wird gespeichert...",
       "saved": "Änderungen erfolgreich gespeichert",
