@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth0 } from '@auth0/auth0-react';
 import { handleApiError } from '../config/queryClient';
@@ -276,6 +277,24 @@ export function useUserSessions(params?: UseUserSessionsParams) {
     queryKey: [...queryKeys.userSessions, { search, sortBy }],
     queryFn: () => api.sessions.sessionsList({ search, sortBy }).then(response => response.data),
   });
+}
+
+// Hook to get a map of gameId -> session for quick lookup
+export function useGameSessionMap() {
+  const { data: sessions, isLoading, error } = useUserSessions();
+  
+  const sessionMap = useMemo(() => {
+    if (!sessions) return new Map<string, DbUserSessionWithGame>();
+    const map = new Map<string, DbUserSessionWithGame>();
+    for (const session of sessions) {
+      if (session.gameId) {
+        map.set(session.gameId, session);
+      }
+    }
+    return map;
+  }, [sessions]);
+  
+  return { sessionMap, isLoading, error };
 }
 
 export function useCreateGameSession() {
