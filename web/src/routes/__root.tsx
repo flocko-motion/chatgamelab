@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader, useMantineTheme } from '@mantine/core';
-import { IconPlayerPlay, IconEdit, IconBuilding } from '@tabler/icons-react';
+import { IconPlayerPlay, IconWorld, IconBuilding } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
@@ -49,16 +49,16 @@ function RootComponent() {
       active: pathname === ROUTES.DASHBOARD,
     },
     { 
-      label: t('play'), 
+      label: t('myGames'), 
       icon: <IconPlayerPlay size={18} />, 
-      onClick: () => navigate({ to: ROUTES.SESSIONS as '/' }),
-      active: pathname.startsWith(ROUTES.SESSIONS) || pathname.startsWith('/play'),
+      onClick: () => navigate({ to: ROUTES.MY_GAMES as '/' }),
+      active: pathname.startsWith(ROUTES.MY_GAMES),
     },
     { 
-      label: t('create'), 
-      icon: <IconEdit size={18} />, 
-      onClick: () => navigate({ to: ROUTES.CREATIONS as '/' }),
-      active: pathname.startsWith(ROUTES.CREATIONS) || pathname.startsWith('/games'),
+      label: t('allGames'), 
+      icon: <IconWorld size={18} />, 
+      onClick: () => navigate({ to: ROUTES.ALL_GAMES as '/' }),
+      active: pathname.startsWith(ROUTES.ALL_GAMES) || pathname.startsWith(ROUTES.SESSIONS),
     },
   ];
 
