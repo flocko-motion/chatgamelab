@@ -1,10 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { GamesManagement } from '@/features/games';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/creations/')({
-  component: CreationsPage,
+  beforeLoad: () => {
+    throw redirect({ to: ROUTES.MY_GAMES });
+  },
+  component: () => null,
 });
-
-function CreationsPage() {
-  return <GamesManagement />;
-}

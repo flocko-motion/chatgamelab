@@ -1,17 +1,9 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { GamesManagement } from '@/features/games';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/creations/create')({
-  component: CreateGamePage,
+  beforeLoad: () => {
+    throw redirect({ to: ROUTES.MY_GAMES + '/create' as '/' });
+  },
+  component: () => null,
 });
-
-function CreateGamePage() {
-  const navigate = useNavigate();
-
-  return (
-    <GamesManagement 
-      initialMode="create"
-      onModalClose={() => navigate({ to: '/creations' })}
-    />
-  );
-}
