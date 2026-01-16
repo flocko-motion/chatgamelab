@@ -18,6 +18,7 @@ type UserUpdateRequest struct {
 	Name                 string     `json:"name"`
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
+	ShowAiModelSelector  *bool      `json:"showAiModelSelector,omitempty"`
 }
 
 type UsersNewRequest struct {
@@ -200,6 +201,14 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	if req.DefaultApiKeyShareID != nil {
 		if err := db.SetUserDefaultApiKeyShare(r.Context(), userID, req.DefaultApiKeyShareID); err != nil {
 			httpx.WriteError(w, http.StatusBadRequest, "Failed to set default API key: "+err.Error())
+			return
+		}
+	}
+
+	// Handle show AI model selector setting update
+	if req.ShowAiModelSelector != nil {
+		if err := db.UpdateUserSettings(r.Context(), userID, *req.ShowAiModelSelector); err != nil {
+			httpx.WriteError(w, http.StatusBadRequest, "Failed to update settings: "+err.Error())
 			return
 		}
 	}
