@@ -65,6 +65,14 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
+func UpdateUserSettings(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
+	arg := db.UpdateUserSettingsParams{
+		ID:                  id,
+		ShowAiModelSelector: showAiModelSelector,
+	}
+	return queries().UpdateUserSettings(ctx, arg)
+}
+
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 	res, err := queries().GetUserDetailsByID(ctx, id)
@@ -79,10 +87,11 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:      res.Name,
-		Email:     sqlNullStringToMaybeString(res.Email),
-		DeletedAt: &res.DeletedAt.Time,
-		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
+		Name:                res.Name,
+		Email:               sqlNullStringToMaybeString(res.Email),
+		DeletedAt:           &res.DeletedAt.Time,
+		Auth0Id:             sqlNullStringToMaybeString(res.Auth0ID),
+		ShowAiModelSelector: res.ShowAiModelSelector,
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)

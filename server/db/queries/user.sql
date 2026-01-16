@@ -39,6 +39,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -75,6 +76,12 @@ WHERE k.user_id = $1;
 UPDATE app_user SET
   name = $2,
   email = $3,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserSettings :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
   modified_at = now()
 WHERE id = $1;
 
