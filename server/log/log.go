@@ -30,6 +30,22 @@ func SetDebug(enabled bool) {
 	}
 }
 
+// SetLevel sets the log level from a string (debug, info, warn, error)
+func SetLevel(levelStr string) {
+	switch levelStr {
+	case "debug":
+		level.Set(slog.LevelDebug)
+	case "info":
+		level.Set(slog.LevelInfo)
+	case "warn":
+		level.Set(slog.LevelWarn)
+	case "error":
+		level.Set(slog.LevelError)
+	default:
+		level.Set(slog.LevelInfo)
+	}
+}
+
 // Logger returns the configured slog logger
 func Logger() *slog.Logger {
 	return logger
@@ -58,4 +74,10 @@ func Warn(msg string, args ...any) {
 // Error logs at error level
 func Error(msg string, args ...any) {
 	logger.Error(msg, args...)
+}
+
+// Fatal logs at error level and exits with status code 1
+func Fatal(msg string, args ...any) {
+	logger.Error(msg, args...)
+	os.Exit(1)
 }
