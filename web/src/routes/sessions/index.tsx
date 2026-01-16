@@ -1,10 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Sessions } from '@/features/play';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/sessions/')({
-  component: SessionsPage,
+  beforeLoad: () => {
+    throw redirect({ to: ROUTES.ALL_GAMES });
+  },
+  component: () => null,
 });
-
-function SessionsPage() {
-  return <Sessions />;
-}
