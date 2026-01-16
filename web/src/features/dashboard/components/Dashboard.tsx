@@ -52,7 +52,7 @@ function MyGamesCard() {
     id: game.id ?? '',
     label: game.name ?? 'Untitled',
     sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
-    onClick: () => navigate({ to: `/creations/${game.id}` as '/' }),
+    onClick: () => navigate({ to: `/my-games/${game.id}` as '/' }),
   }));
 
   return (
@@ -61,7 +61,7 @@ function MyGamesCard() {
       items={items}
       emptyMessage={t('cards.myGames.empty')}
       viewAllLabel={t('cards.myGames.viewAll')}
-      onViewAll={() => navigate({ to: '/creations' })}
+      onViewAll={() => navigate({ to: ROUTES.MY_GAMES as '/' })}
       isLoading={isLoading}
     />
   );
@@ -110,7 +110,7 @@ function LastPlayedCard() {
       items={items}
       emptyMessage={t('cards.lastPlayed.empty')}
       viewAllLabel={t('cards.lastPlayed.viewAll')}
-      onViewAll={() => navigate({ to: '/sessions' as '/' })}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
       isLoading={isLoading}
     />
   );
@@ -155,13 +155,13 @@ function QuickActionsCard() {
       id: 'start-new-game',
       label: t('quickActions.startNewGame'),
       icon: <IconDeviceGamepad2 size={16} />,
-      onClick: () => navigate({ to: ROUTES.SESSIONS + '/new' as '/' }),
+      onClick: () => navigate({ to: ROUTES.ALL_GAMES as '/' }),
     },  
     {
       id: 'create-game',
       label: t('quickActions.createNewGame'),
       icon: <IconTools size={16} />,
-      onClick: () => navigate({ to: '/creations/create' as '/' }),
+      onClick: () => navigate({ to: ROUTES.MY_GAMES + '/create' as '/' }),
     },
     {
       id: 'create-room',
