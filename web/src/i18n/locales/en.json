@@ -245,6 +245,55 @@
         "importError": "Failed to import game configuration. Please check the YAML format."
       }
     },
+    "myGames": {
+      "title": "My Games",
+      "play": "Play",
+      "continue": "Continue",
+      "restart": "Restart",
+      "copyGame": "Copy Game",
+      "empty": {
+        "title": "No games yet",
+        "description": "Create your first game to get started with interactive AI-powered adventures."
+      },
+      "restartConfirm": {
+        "title": "Restart Game",
+        "message": "Are you sure you want to restart \"{{game}}\"? Your current progress will be lost.",
+        "confirm": "Restart"
+      },
+      "copyConfirm": {
+        "title": "Copy Game",
+        "message": "This will create a copy of \"{{name}}\" in your games.",
+        "confirm": "Copy Game"
+      }
+    },
+    "allGames": {
+      "title": "All Games",
+      "play": "Play",
+      "continue": "Continue",
+      "restart": "Restart",
+      "copyGame": "Copy Game",
+      "creator": "Creator",
+      "owner": "Mine",
+      "filters": {
+        "all": "All Games",
+        "own": "My Games",
+        "public": "Public"
+      },
+      "empty": {
+        "title": "No games found",
+        "description": "Try adjusting your filters or check back later for new games."
+      },
+      "restartConfirm": {
+        "title": "Restart Game",
+        "message": "Are you sure you want to restart \"{{game}}\"? Your current progress will be lost.",
+        "confirm": "Restart"
+      },
+      "copyConfirm": {
+        "title": "Copy Game",
+        "message": "This will create a copy of \"{{name}}\" in your games.",
+        "confirm": "Copy Game"
+      }
+    },
     "sessions": {
       "title": "Continue Playing",
       "startNewGame": "Start New Game",
@@ -355,6 +404,8 @@
   "navigation": {
     "home": "Home",
     "dashboard": "Dashboard",
+    "myGames": "My Games",
+    "allGames": "All Games",
     "sessions": "Sessions",
     "games": "Games",
     "create": "Create Your Own Game",

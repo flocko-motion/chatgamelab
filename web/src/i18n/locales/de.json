@@ -245,12 +245,61 @@
         "importError": "Spielkonfiguration konnte nicht importiert werden. Bitte überprüfe das YAML-Format."
       }
     },
+    "myGames": {
+      "title": "Meine Spiele",
+      "play": "Spielen",
+      "continue": "Weiterspielen",
+      "restart": "Neu starten",
+      "copyGame": "Spiel kopieren",
+      "empty": {
+        "title": "Noch keine Spiele",
+        "description": "Erstelle dein erstes Spiel, um mit interaktiven KI-gestützten Abenteuern zu beginnen."
+      },
+      "restartConfirm": {
+        "title": "Spiel neu starten",
+        "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
+        "confirm": "Neu starten"
+      },
+      "copyConfirm": {
+        "title": "Spiel kopieren",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
+        "confirm": "Spiel kopieren"
+      }
+    },
+    "allGames": {
+      "title": "Alle Spiele",
+      "play": "Spielen",
+      "continue": "Weiterspielen",
+      "restart": "Neu starten",
+      "copyGame": "Spiel kopieren",
+      "creator": "Ersteller",
+      "owner": "Mein",
+      "filters": {
+        "all": "Alle Spiele",
+        "own": "Meine Spiele",
+        "public": "Öffentlich"
+      },
+      "empty": {
+        "title": "Keine Spiele gefunden",
+        "description": "Versuche deine Filter anzupassen oder schau später nach neuen Spielen."
+      },
+      "restartConfirm": {
+        "title": "Spiel neu starten",
+        "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
+        "confirm": "Neu starten"
+      },
+      "copyConfirm": {
+        "title": "Spiel kopieren",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
+        "confirm": "Spiel kopieren"
+      }
+    },
     "sessions": {
       "title": "Deine laufenden Spiele",
       "startNewGame": "Starte ein neues Spiel",
       "untitledGame": "Unbenanntes Spiel",
       "noDescription": "Keine Beschreibung",
-      "resume": "Fortsetzen",
+      "resume": "Weiterspielen",
       "continueGame": "Weiterspielen",
       "filters": {
         "all": "Alle",
@@ -355,6 +404,8 @@
  "navigation": {
     "home": "Startseite",
     "dashboard": "Dashboard",
+    "myGames": "Meine Spiele",
+    "allGames": "Alle Spiele",
     "sessions": "Sitzungen",
     "games": "Spiele",
     "create": "Eigene Spiele erstellen",
@@ -419,7 +470,7 @@
     "description": "Beschreibung",
     "start": "Starten",
     "pause": "Pause",
-    "resume": "Fortsetzen",
+    "resume": "Weiterspielen",
     "restart": "Neustarten",
     "score": "Punkte",
     "level": "Level",
