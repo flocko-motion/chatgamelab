@@ -11,6 +11,7 @@ import type {
   ObjGameSession,
   ObjGameSessionMessage,
   ObjUser,
+  ObjSystemSettings,
   HttpxErrorResponse,
   RoutesCreateApiKeyRequest,
   RoutesCreateGameRequest,
@@ -35,6 +36,7 @@ export const queryKeys = {
   currentUser: ['currentUser'] as const,
   roles: ['roles'] as const,
   version: ['version'] as const,
+  systemSettings: ['systemSettings'] as const,
 } as const;
 
 // API Keys hooks
@@ -360,6 +362,14 @@ export function useCreateUser() {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
     },
     onError: handleApiError,
+  });
+}
+
+// System Settings hook (public endpoint, no auth needed)
+export function useSystemSettings() {
+  return useQuery<ObjSystemSettings, HttpxErrorResponse>({
+    queryKey: queryKeys.systemSettings,
+    queryFn: () => apiClient.system.settingsList().then(response => response.data),
   });
 }
 
