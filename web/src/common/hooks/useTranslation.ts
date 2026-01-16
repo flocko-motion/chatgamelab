@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { isStaticLanguage } from '../../i18n/config';
+import { isStaticLanguage, DEFAULT_LANGUAGE } from '../../i18n/config';
 import languagesData from '../../i18n/locales/languages.json';
 
 export const useBackendTranslation = (namespace = 'common') => {
@@ -64,7 +64,15 @@ export const useLanguageSwitcher = () => {
     ...otherLanguages,
   ];
 
-  const currentLanguage = allLanguages.find(lang => lang.code === i18n.language) || allLanguages[0];
+  // Extract base language code (e.g., 'en' from 'en-US')
+  const baseLanguageCode = i18n.language.split('-')[0];
+  
+  // Find current language by exact match or base code match, fallback to DEFAULT_LANGUAGE
+  const currentLanguage = 
+    allLanguages.find(lang => lang.code === i18n.language) ||
+    allLanguages.find(lang => lang.code === baseLanguageCode) ||
+    allLanguages.find(lang => lang.code === DEFAULT_LANGUAGE) ||
+    allLanguages[0];
 
   return {
     currentLanguage,
