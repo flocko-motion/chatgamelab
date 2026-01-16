@@ -192,6 +192,13 @@ export interface ObjStatusField {
   value?: string;
 }
 
+export interface ObjSystemSettings {
+  createdAt?: string;
+  defaultAiModel?: string;
+  id?: string;
+  modifiedAt?: string;
+}
+
 export interface ObjUser {
   auth0Id?: string;
   deletedAt?: string;
@@ -200,6 +207,7 @@ export interface ObjUser {
   meta?: ObjMeta;
   name?: string;
   role?: ObjUserRole;
+  showAiModelSelector?: boolean;
 }
 
 export interface ObjUserRole {
@@ -311,6 +319,7 @@ export interface RoutesUserUpdateRequest {
   defaultApiKeyShareId?: string;
   email?: string;
   name?: string;
+  showAiModelSelector?: boolean;
 }
 
 export interface RoutesUsersJwtResponse {
@@ -1208,6 +1217,23 @@ export class Api<
     statusList: (params: RequestParams = {}) =>
       this.request<RoutesStatusResponse, any>({
         path: `/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  system = {
+    /**
+     * @description Returns the global system settings
+     *
+     * @tags system
+     * @name SettingsList
+     * @summary Get system settings
+     * @request GET:/system/settings
+     */
+    settingsList: (params: RequestParams = {}) =>
+      this.request<ObjSystemSettings, HttpxErrorResponse>({
+        path: `/system/settings`,
         method: "GET",
         format: "json",
         ...params,
