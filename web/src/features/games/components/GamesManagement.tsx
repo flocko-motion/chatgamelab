@@ -12,7 +12,7 @@ import {
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconEye, IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
@@ -278,11 +278,15 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
                 <GameCard
                   key={game.id}
                   game={game}
-                  onView={handleViewGame}
-                  onEdit={handleEditGame}
-                  onDelete={handleDeleteClick}
-                  onExport={handleExport}
-                  onPlay={handlePlayGame}
+                  onPlay={() => handlePlayGame(game)}
+                  playLabel={t('games.actions.play')}
+                  showVisibility
+                  actions={[
+                    { key: 'view', icon: <IconEye size={16} />, label: t('games.actions.view'), onClick: () => handleViewGame(game) },
+                    { key: 'edit', icon: <IconEdit size={16} />, label: t('games.actions.edit'), onClick: () => handleEditGame(game) },
+                    { key: 'export', icon: <IconDownload size={16} />, label: t('games.actions.export'), onClick: () => handleExport(game) },
+                    { key: 'delete', icon: <IconTrash size={16} />, label: t('games.actions.delete'), onClick: () => handleDeleteClick(game) },
+                  ]}
                 />
               ))}
             </SimpleGrid>
