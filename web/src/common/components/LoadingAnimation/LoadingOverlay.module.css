@@ -1,0 +1,89 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.glowPulse {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--glow-color-rgb), 0.25) 25%,
+    rgba(var(--glow-color-rgb), 0.55) 50%,
+    rgba(var(--glow-color-rgb), 0.25) 75%,
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 240px 100%;
+  filter: blur(2px);
+  animation: glowSweep 1.2s ease-in-out infinite;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmerSweep 1.5s ease-in-out infinite;
+}
+
+.sparkle {
+  background: radial-gradient(
+    circle at var(--sparkle-x, 50%) var(--sparkle-y, 50%),
+    rgba(var(--glow-color-rgb), 0.3) 0%,
+    transparent 50%
+  );
+  animation: sparkleMove 2s ease-in-out infinite;
+}
+
+@keyframes glowSweep {
+  0% {
+    background-position: -240px 0;
+  }
+  100% {
+    background-position: calc(100% + 240px) 0;
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sparkleMove {
+  0%, 100% {
+    --sparkle-x: 20%;
+    --sparkle-y: 30%;
+  }
+  25% {
+    --sparkle-x: 80%;
+    --sparkle-y: 20%;
+  }
+  50% {
+    --sparkle-x: 60%;
+    --sparkle-y: 70%;
+  }
+  75% {
+    --sparkle-x: 30%;
+    --sparkle-y: 80%;
+  }
+}
+
+.wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.contentDimmed {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}

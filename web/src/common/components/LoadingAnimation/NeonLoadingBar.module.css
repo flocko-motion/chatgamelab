@@ -1,0 +1,74 @@
+.container {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.bar {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.barVisible {
+  opacity: 1;
+}
+
+.gradient {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--glow-color-rgb), 0.25) 25%,
+    rgba(var(--glow-color-rgb), 0.75) 50%,
+    rgba(var(--glow-color-rgb), 0.25) 75%,
+    transparent 100%
+  );
+  filter: blur(0.5px);
+  animation: sweep 0.9s ease-in-out infinite;
+}
+
+.spark {
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: rgba(var(--glow-color-rgb), 0.9);
+  box-shadow:
+    0 0 8px rgba(var(--glow-color-rgb), 0.55),
+    0 0 16px rgba(var(--glow-color-rgb), 0.25);
+  animation: spark 0.9s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+@keyframes spark {
+  0% {
+    transform: translate(-10px, -50%) scale(0.8);
+    opacity: 0.4;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(100% + 10px), -50%) scale(1);
+    opacity: 0.2;
+  }
+}
