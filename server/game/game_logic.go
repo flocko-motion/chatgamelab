@@ -88,6 +88,17 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		AiSession:       "{}",
 	}
 
+	// Generate visual theme for the game player UI
+	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+	theme, err := GenerateTheme(ctx, session, game)
+	if err != nil {
+		log.Warn("failed to generate theme, using default", "error", err)
+		// Don't fail - use nil theme (frontend will use defaults)
+	} else {
+		session.Theme = theme
+		log.Debug("theme generated successfully")
+	}
+
 	// Persist to database
 	log.Debug("persisting session to database")
 	session, err = db.CreateGameSession(ctx, session)

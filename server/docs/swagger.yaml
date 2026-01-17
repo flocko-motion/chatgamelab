@@ -33,6 +33,10 @@ definitions:
         description: Defines the status fields available in the game; copied from
           game.status_fields at launch.
         type: string
+      theme:
+        allOf:
+        - $ref: '#/definitions/obj.GameTheme'
+        description: AI-generated visual theme for the game player UI (JSON)
       userId:
         type: string
       userName:
@@ -232,6 +236,10 @@ definitions:
         description: Defines the status fields available in the game; copied from
           game.status_fields at launch.
         type: string
+      theme:
+        allOf:
+        - $ref: '#/definitions/obj.GameTheme'
+        description: AI-generated visual theme for the game player UI (JSON)
       userId:
         type: string
       userName:
@@ -279,6 +287,69 @@ definitions:
       meta:
         $ref: '#/definitions/obj.Meta'
       tag:
+        type: string
+    type: object
+  obj.GameTheme:
+    properties:
+      background:
+        $ref: '#/definitions/obj.GameThemeBackground'
+      corners:
+        $ref: '#/definitions/obj.GameThemeCorners'
+      player:
+        $ref: '#/definitions/obj.GameThemePlayer'
+      statusEmojis:
+        additionalProperties:
+          type: string
+        type: object
+      thinking:
+        $ref: '#/definitions/obj.GameThemeThinking'
+      typography:
+        $ref: '#/definitions/obj.GameThemeTypography'
+    type: object
+  obj.GameThemeBackground:
+    properties:
+      animation:
+        description: none, stars, rain, fog, particles, scanlines
+        type: string
+      tint:
+        description: warm, cool, neutral, dark
+        type: string
+    type: object
+  obj.GameThemeCorners:
+    properties:
+      color:
+        description: amber, emerald, cyan, violet, rose, slate
+        type: string
+      style:
+        description: brackets, flourish, arrows, dots, none
+        type: string
+    type: object
+  obj.GameThemePlayer:
+    properties:
+      color:
+        description: amber, emerald, cyan, violet, rose, slate
+        type: string
+      indicator:
+        description: dot, arrow, chevron, diamond, none
+        type: string
+      monochrome:
+        type: boolean
+      showChevron:
+        type: boolean
+    type: object
+  obj.GameThemeThinking:
+    properties:
+      style:
+        description: dots, spinner, pulse, typewriter
+        type: string
+      text:
+        description: e.g. "The story unfolds..."
+        type: string
+    type: object
+  obj.GameThemeTypography:
+    properties:
+      messages:
+        description: serif, sans, mono, fantasy
         type: string
     type: object
   obj.Institution:
@@ -492,6 +563,10 @@ definitions:
         description: Defines the status fields available in the game; copied from
           game.status_fields at launch.
         type: string
+      theme:
+        allOf:
+        - $ref: '#/definitions/obj.GameTheme'
+        description: AI-generated visual theme for the game player UI (JSON)
       userId:
         type: string
       userName:
@@ -1129,8 +1204,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Creates a new session for a game and returns the first message
-        (image bytes omitted)
+      description: Creates a new session for a game and returns the session with first
+        message
       parameters:
       - description: Game ID (UUID)
         in: path
@@ -1149,7 +1224,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/obj.GameSessionMessage'
+            $ref: '#/definitions/routes.SessionResponse'
         "400":
           description: Invalid request
           schema:

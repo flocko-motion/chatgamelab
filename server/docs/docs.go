@@ -979,7 +979,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new session for a game and returns the first message (image bytes omitted)",
+                "description": "Creates a new session for a game and returns the session with first message",
                 "consumes": [
                     "application/json"
                 ],
@@ -1012,7 +1012,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/obj.GameSessionMessage"
+                            "$ref": "#/definitions/routes.SessionResponse"
                         }
                     },
                     "400": {
@@ -2027,6 +2027,14 @@ const docTemplate = `{
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
                 },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
                 "userId": {
                     "type": "string"
                 },
@@ -2293,6 +2301,14 @@ const docTemplate = `{
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
                 },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
                 "userId": {
                     "type": "string"
                 },
@@ -2359,6 +2375,99 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "tag": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameTheme": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "$ref": "#/definitions/obj.GameThemeBackground"
+                },
+                "corners": {
+                    "$ref": "#/definitions/obj.GameThemeCorners"
+                },
+                "player": {
+                    "$ref": "#/definitions/obj.GameThemePlayer"
+                },
+                "statusEmojis": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "thinking": {
+                    "$ref": "#/definitions/obj.GameThemeThinking"
+                },
+                "typography": {
+                    "$ref": "#/definitions/obj.GameThemeTypography"
+                }
+            }
+        },
+        "obj.GameThemeBackground": {
+            "type": "object",
+            "properties": {
+                "animation": {
+                    "description": "none, stars, rain, fog, particles, scanlines",
+                    "type": "string"
+                },
+                "tint": {
+                    "description": "warm, cool, neutral, dark",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeCorners": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "style": {
+                    "description": "brackets, flourish, arrows, dots, none",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemePlayer": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "indicator": {
+                    "description": "dot, arrow, chevron, diamond, none",
+                    "type": "string"
+                },
+                "monochrome": {
+                    "type": "boolean"
+                },
+                "showChevron": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "obj.GameThemeThinking": {
+            "type": "object",
+            "properties": {
+                "style": {
+                    "description": "dots, spinner, pulse, typewriter",
+                    "type": "string"
+                },
+                "text": {
+                    "description": "e.g. \"The story unfolds...\"",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeTypography": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "description": "serif, sans, mono, fantasy",
                     "type": "string"
                 }
             }
@@ -2678,6 +2787,14 @@ const docTemplate = `{
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
+                },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
                 },
                 "userId": {
                     "type": "string"

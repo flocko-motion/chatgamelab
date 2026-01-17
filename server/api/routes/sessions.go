@@ -215,13 +215,13 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 // CreateGameSession godoc
 //
 //	@Summary		Create game session
-//	@Description	Creates a new session for a game and returns the first message (image bytes omitted)
+//	@Description	Creates a new session for a game and returns the session with first message
 //	@Tags			sessions
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		string				true	"Game ID (UUID)"
 //	@Param			request	body		CreateSessionRequest	true	"Create session request"
-//	@Success		200		{object}	obj.GameSessionMessage
+//	@Success		200		{object}	SessionResponse
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	httpx.ErrorResponse
@@ -245,16 +245,26 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Debug("creating session with model", "game_id", gameID, "share_id", req.ShareID, "model", req.Model)
-	_, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
+	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteError(w, httpErr.StatusCode, httpErr.Message)
 		return
 	}
-	log.Debug("session created", "game_id", gameID, "message_id", firstMessage.ID)
+	log.Debug("session created", "game_id", gameID, "session_id", session.ID, "message_id", firstMessage.ID)
 
-	firstMessage.Image = nil
-	httpx.WriteJSON(w, http.StatusOK, firstMessage)
+	// Create a copy for response to avoid modifying session used by async goroutines
+	responseSession := *session
+	responseSession.ApiKey = nil
+	responseSession.AiSession = ""
+
+	responseMessage := *firstMessage
+	responseMessage.Image = nil
+
+	httpx.WriteJSON(w, http.StatusOK, SessionResponse{
+		GameSession: &responseSession,
+		Messages:    []obj.GameSessionMessage{responseMessage},
+	})
 }
 
 // DeleteSession godoc
