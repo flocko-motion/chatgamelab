@@ -84,6 +84,24 @@ export const mantineTheme = createTheme({
   // ==========================================================================
   
   components: {
+    Container: {
+      defaultProps: {
+        size: 'xl',
+      },
+      vars: (_theme: unknown, props: { size?: string }) => ({
+        root: {
+          // Use max-width in px - on small screens, container naturally uses 100% minus padding
+          // xl increased by 1/3 (1400 → 1867), others scaled proportionally
+          '--container-size': props.size === 'xs' ? '720px'
+            : props.size === 'sm' ? '960px'
+            : props.size === 'md' ? '1280px'
+            : props.size === 'lg' ? '1520px'
+            : props.size === 'xl' ? '1867px'
+            : '1520px',
+        },
+      }),
+    },
+    
     Button: {
       defaultProps: {
         color: 'accent',
