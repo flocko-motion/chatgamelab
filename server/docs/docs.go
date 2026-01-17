@@ -1737,6 +1737,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns aggregated statistics for the currently authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current user statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.UserStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/new": {
             "post": {
                 "description": "Creates a new user without Auth0. Only available in dev mode.",
@@ -2388,6 +2425,9 @@ const docTemplate = `{
                 "corners": {
                     "$ref": "#/definitions/obj.GameThemeCorners"
                 },
+                "gameMessage": {
+                    "$ref": "#/definitions/obj.GameThemeGameMessage"
+                },
                 "player": {
                     "$ref": "#/definitions/obj.GameThemePlayer"
                 },
@@ -2431,9 +2471,28 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.GameThemeGameMessage": {
+            "type": "object",
+            "properties": {
+                "dropCap": {
+                    "type": "boolean"
+                },
+                "dropCapColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "monochrome": {
+                    "type": "boolean"
+                }
+            }
+        },
         "obj.GameThemePlayer": {
             "type": "object",
             "properties": {
+                "bgColor": {
+                    "description": "cyan, amber, violet, slate, white, emerald, rose",
+                    "type": "string"
+                },
                 "color": {
                     "description": "amber, emerald, cyan, violet, rose, slate",
                     "type": "string"
@@ -2593,6 +2652,23 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.UserStats": {
+            "type": "object",
+            "properties": {
+                "gamesCreated": {
+                    "type": "integer"
+                },
+                "gamesPlayed": {
+                    "type": "integer"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                },
+                "totalPlaysOnGames": {
+                    "type": "integer"
+                }
+            }
+        },
         "obj.Workshop": {
             "type": "object",
             "properties": {
@@ -2736,6 +2812,13 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                },
+                "statusFields": {
+                    "description": "Current status to pass to AI",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatusField"
+                    }
                 }
             }
         },

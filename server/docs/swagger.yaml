@@ -295,6 +295,8 @@ definitions:
         $ref: '#/definitions/obj.GameThemeBackground'
       corners:
         $ref: '#/definitions/obj.GameThemeCorners'
+      gameMessage:
+        $ref: '#/definitions/obj.GameThemeGameMessage'
       player:
         $ref: '#/definitions/obj.GameThemePlayer'
       statusEmojis:
@@ -324,8 +326,21 @@ definitions:
         description: brackets, flourish, arrows, dots, none
         type: string
     type: object
+  obj.GameThemeGameMessage:
+    properties:
+      dropCap:
+        type: boolean
+      dropCapColor:
+        description: amber, emerald, cyan, violet, rose, slate
+        type: string
+      monochrome:
+        type: boolean
+    type: object
   obj.GameThemePlayer:
     properties:
+      bgColor:
+        description: cyan, amber, violet, slate, white, emerald, rose
+        type: string
       color:
         description: amber, emerald, cyan, violet, rose, slate
         type: string
@@ -432,6 +447,17 @@ definitions:
       userId:
         type: string
     type: object
+  obj.UserStats:
+    properties:
+      gamesCreated:
+        type: integer
+      gamesPlayed:
+        type: integer
+      messagesSent:
+        type: integer
+      totalPlaysOnGames:
+        type: integer
+    type: object
   obj.Workshop:
     properties:
       active:
@@ -525,6 +551,11 @@ definitions:
     properties:
       message:
         type: string
+      statusFields:
+        description: Current status to pass to AI
+        items:
+          $ref: '#/definitions/obj.StatusField'
+        type: array
     type: object
   routes.SessionResponse:
     properties:
@@ -1870,6 +1901,29 @@ paths:
       security:
       - BearerAuth: []
       summary: Get current user
+      tags:
+      - users
+  /users/me/stats:
+    get:
+      description: Returns aggregated statistics for the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.UserStats'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user statistics
       tags:
       - users
   /users/new:
