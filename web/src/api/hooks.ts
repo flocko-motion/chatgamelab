@@ -12,6 +12,7 @@ import type {
   ObjGameSession,
   ObjGameSessionMessage,
   ObjUser,
+  ObjUserStats,
   ObjSystemSettings,
   HttpxErrorResponse,
   RoutesCreateApiKeyRequest,
@@ -378,6 +379,15 @@ export function useCurrentUser() {
   return useQuery<ObjUser, HttpxErrorResponse>({
     queryKey: queryKeys.currentUser,
     queryFn: () => api.users.getUsers().then(response => response.data),
+  });
+}
+
+export function useUserStats() {
+  const api = useRequiredAuthenticatedApi();
+  
+  return useQuery<ObjUserStats, HttpxErrorResponse>({
+    queryKey: [...queryKeys.currentUser, 'stats'],
+    queryFn: () => api.users.meStatsList().then(response => response.data),
   });
 }
 

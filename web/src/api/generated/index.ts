@@ -191,6 +191,7 @@ export interface ObjGameTag {
 export interface ObjGameTheme {
   background?: ObjGameThemeBackground;
   corners?: ObjGameThemeCorners;
+  gameMessage?: ObjGameThemeGameMessage;
   player?: ObjGameThemePlayer;
   statusEmojis?: Record<string, string>;
   thinking?: ObjGameThemeThinking;
@@ -211,7 +212,16 @@ export interface ObjGameThemeCorners {
   style?: string;
 }
 
+export interface ObjGameThemeGameMessage {
+  dropCap?: boolean;
+  /** amber, emerald, cyan, violet, rose, slate */
+  dropCapColor?: string;
+  monochrome?: boolean;
+}
+
 export interface ObjGameThemePlayer {
+  /** cyan, amber, violet, slate, white, emerald, rose */
+  bgColor?: string;
   /** amber, emerald, cyan, violet, rose, slate */
   color?: string;
   /** dot, arrow, chevron, diamond, none */
@@ -276,6 +286,13 @@ export interface ObjUserRole {
   userId?: string;
 }
 
+export interface ObjUserStats {
+  gamesCreated?: number;
+  gamesPlayed?: number;
+  messagesSent?: number;
+  totalPlaysOnGames?: number;
+}
+
 export interface ObjWorkshop {
   active?: boolean;
   id?: string;
@@ -333,6 +350,8 @@ export interface RoutesRolesResponse {
 
 export interface RoutesSessionActionRequest {
   message?: string;
+  /** Current status to pass to AI */
+  statusFields?: ObjStatusField[];
 }
 
 export interface RoutesSessionResponse {
@@ -1384,6 +1403,24 @@ export class Api<
     getUsers: (params: RequestParams = {}) =>
       this.request<ObjUser, HttpxErrorResponse>({
         path: `/users/me`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns aggregated statistics for the currently authenticated user
+     *
+     * @tags users
+     * @name MeStatsList
+     * @summary Get current user statistics
+     * @request GET:/users/me/stats
+     * @secure
+     */
+    meStatsList: (params: RequestParams = {}) =>
+      this.request<ObjUserStats, HttpxErrorResponse>({
+        path: `/users/me/stats`,
         method: "GET",
         secure: true,
         format: "json",
