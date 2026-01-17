@@ -162,7 +162,11 @@ CREATE TABLE game (
     -- regenerated from time to time to avoid being too static.
     first_message text NULL,
     first_status text NULL,
-    first_image bytea NULL
+    first_image bytea NULL,
+    -- Tracking: original creator (for cloned games) and usage statistics
+    originally_created_by uuid NULL REFERENCES app_user(id),
+    play_count integer NOT NULL DEFAULT 0,
+    clone_count integer NOT NULL DEFAULT 0
 );
 -- GameTag
 -- Anybody who is allowed to edit a game can also set arbitrary tags for that game.

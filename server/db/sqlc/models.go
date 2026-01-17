@@ -72,6 +72,9 @@ type Game struct {
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString
 	FirstImage               []byte
+	OriginallyCreatedBy      uuid.NullUUID
+	PlayCount                int32
+	CloneCount               int32
 }
 
 type GameSession struct {

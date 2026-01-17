@@ -137,6 +137,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 				return queries().SearchPublicGamesSortedByModifiedAtAsc(ctx, searchParam)
 			}
 			return queries().SearchPublicGamesSortedByModifiedAt(ctx, searchParam)
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByPlayCountAsc(ctx, searchParam)
+			}
+			return queries().SearchPublicGamesSortedByPlayCount(ctx, searchParam)
 		default:
 			return queries().SearchPublicGames(ctx, searchParam)
 		}
@@ -158,6 +163,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 			return queries().GetPublicGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetPublicGamesSortedByModifiedAt(ctx)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByPlayCountAsc(ctx)
+		}
+		return queries().GetPublicGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetPublicGames(ctx)
 	}
@@ -185,6 +195,16 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 				return queries().SearchOwnGamesSortedByModifiedAtAsc(ctx, db.SearchOwnGamesSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchOwnGamesSortedByModifiedAt(ctx, db.SearchOwnGamesSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByPlayCountAsc(ctx, db.SearchOwnGamesSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByPlayCount(ctx, db.SearchOwnGamesSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
+		case "visibility":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByVisibilityAsc(ctx, db.SearchOwnGamesSortedByVisibilityAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByVisibility(ctx, db.SearchOwnGamesSortedByVisibilityParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -206,6 +226,16 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 			return queries().GetOwnGamesSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetOwnGamesSortedByModifiedAt(ctx, userParam)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByPlayCountAsc(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByPlayCount(ctx, userParam)
+	case "visibility":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByVisibilityAsc(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByVisibility(ctx, userParam)
 	default:
 		return queries().GetOwnGames(ctx, userParam)
 	}
@@ -233,6 +263,16 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 				return queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchGamesVisibleToUserSortedByPlayCountAsc(ctx, db.SearchGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchGamesVisibleToUserSortedByPlayCount(ctx, db.SearchGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
+		case "creator":
+			if sortDir == "asc" {
+				return queries().SearchGamesVisibleToUserSortedByCreator(ctx, db.SearchGamesVisibleToUserSortedByCreatorParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchGamesVisibleToUserSortedByCreatorDesc(ctx, db.SearchGamesVisibleToUserSortedByCreatorDescParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -254,6 +294,16 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 			return queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, userParam)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetGamesVisibleToUserSortedByPlayCountAsc(ctx, userParam)
+		}
+		return queries().GetGamesVisibleToUserSortedByPlayCount(ctx, userParam)
+	case "creator":
+		if sortDir == "asc" {
+			return queries().GetGamesVisibleToUserSortedByCreator(ctx, userParam)
+		}
+		return queries().GetGamesVisibleToUserSortedByCreatorDesc(ctx, userParam)
 	default:
 		return queries().GetGamesVisibleToUser(ctx, userParam)
 	}
@@ -325,6 +375,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
+		OriginallyCreatedBy:      uuidPtrToNullUUID(game.OriginallyCreatedBy),
 	}
 
 	// Generate private share hash if not provided
@@ -379,6 +430,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		FirstMessage:             sql.NullString{String: ptrToString(game.FirstMessage), Valid: game.FirstMessage != nil},
 		FirstStatus:              sql.NullString{String: ptrToString(game.FirstStatus), Valid: game.FirstStatus != nil},
 		FirstImage:               game.FirstImage,
+		OriginallyCreatedBy:      existing.OriginallyCreatedBy, // Preserve original creator
 	}
 
 	_, err = queries().UpdateGame(ctx, arg)
@@ -906,7 +958,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		})
 	}
 
-	return &obj.Game{
+	game := &obj.Game{
 		ID: g.ID,
 		Meta: obj.Meta{
 			CreatedBy:  g.CreatedBy,
@@ -930,7 +982,40 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		FirstStatus:              nullStringToPtr(g.FirstStatus),
 		FirstImage:               g.FirstImage,
 		Tags:                     tags,
-	}, nil
+		OriginallyCreatedBy:      nullUUIDToPtr(g.OriginallyCreatedBy),
+		PlayCount:                int(g.PlayCount),
+		CloneCount:               int(g.CloneCount),
+	}
+
+	// Populate creator info
+	if g.CreatedBy.Valid {
+		game.CreatorID = &g.CreatedBy.UUID
+		creator, err := queries().GetUserByID(ctx, g.CreatedBy.UUID)
+		if err == nil {
+			game.CreatorName = &creator.Name
+		}
+	}
+
+	// Populate original creator info if this is a cloned game
+	if g.OriginallyCreatedBy.Valid {
+		game.OriginalCreatorID = &g.OriginallyCreatedBy.UUID
+		originalCreator, err := queries().GetUserByID(ctx, g.OriginallyCreatedBy.UUID)
+		if err == nil {
+			game.OriginalCreatorName = &originalCreator.Name
+		}
+	}
+
+	return game, nil
+}
+
+// IncrementGamePlayCount increments the play_count for a game
+func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
+	return queries().IncrementGamePlayCount(ctx, gameID)
+}
+
+// IncrementGameCloneCount increments the clone_count for a game
+func IncrementGameCloneCount(ctx context.Context, gameID uuid.UUID) error {
+	return queries().IncrementGameCloneCount(ctx, gameID)
 }
 
 func nullStringToPtr(ns sql.NullString) *string {

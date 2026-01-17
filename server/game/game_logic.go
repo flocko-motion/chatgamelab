@@ -97,6 +97,15 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("session created", "session_id", session.ID)
 
+	// Increment play count if the user is not the owner of the game
+	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == userID
+	if !isOwner {
+		if err := db.IncrementGamePlayCount(ctx, gameID); err != nil {
+			log.Debug("failed to increment play count", "error", err)
+			// Don't fail the request, just log the error
+		}
+	}
+
 	// First action is a system message containing the game instructions
 	log.Debug("executing initial system action", "session_id", session.ID)
 	startAction := obj.GameSessionMessage{

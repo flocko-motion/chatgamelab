@@ -362,6 +362,14 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Determine the original creator: use existing OriginallyCreatedBy if set, otherwise use the source game's creator
+	var originalCreator *uuid.UUID
+	if sourceGame.OriginallyCreatedBy != nil {
+		originalCreator = sourceGame.OriginallyCreatedBy
+	} else if sourceGame.Meta.CreatedBy.Valid {
+		originalCreator = &sourceGame.Meta.CreatedBy.UUID
+	}
+
 	// Create a new game based on the source
 	clonedGame := obj.Game{
 		Name:                   sourceGame.Name + " (Copy)",
@@ -374,6 +382,7 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		FirstMessage:           sourceGame.FirstMessage,
 		FirstStatus:            sourceGame.FirstStatus,
 		CSS:                    sourceGame.CSS,
+		OriginallyCreatedBy:    originalCreator,
 	}
 
 	log.Debug("creating cloned game", "user_id", user.ID, "source_game_id", gameID, "name", clonedGame.Name)
@@ -383,6 +392,12 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Debug("game cloned", "new_game_id", clonedGame.ID)
+
+	// Increment the clone count on the source game
+	if err := db.IncrementGameCloneCount(r.Context(), gameID); err != nil {
+		log.Debug("failed to increment clone count", "error", err)
+		// Don't fail the request, just log the error
+	}
 
 	created, err := db.GetGameByID(r.Context(), &user.ID, clonedGame.ID)
 	if err != nil {

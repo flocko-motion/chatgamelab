@@ -13,7 +13,8 @@ INSERT INTO game (
   private_share_hash, private_sponsored_api_key_id,
   system_message_scenario, system_message_game_start,
   image_style, css, status_fields,
-  first_message, first_status, first_image
+  first_message, first_status, first_image,
+  originally_created_by
 ) VALUES (
   $1, $2,
   $3, $4, $5,
@@ -22,7 +23,8 @@ INSERT INTO game (
   $11, $12,
   $13, $14,
   $15, $16, $17,
-  $18, $19, $20
+  $18, $19, $20,
+  $21
 )
 RETURNING *;
 
@@ -105,6 +107,30 @@ SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 ||
 -- name: SearchOwnGamesSortedByModifiedAtAsc :many
 SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
 
+-- name: GetOwnGamesSortedByPlayCount :many
+SELECT * FROM game WHERE created_by = $1 ORDER BY play_count DESC;
+
+-- name: GetOwnGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE created_by = $1 ORDER BY play_count ASC;
+
+-- name: GetOwnGamesSortedByVisibility :many
+SELECT * FROM game WHERE created_by = $1 ORDER BY public DESC, modified_at DESC;
+
+-- name: GetOwnGamesSortedByVisibilityAsc :many
+SELECT * FROM game WHERE created_by = $1 ORDER BY public ASC, modified_at DESC;
+
+-- name: SearchOwnGamesSortedByPlayCount :many
+SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
+
+-- name: SearchOwnGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
+
+-- name: SearchOwnGamesSortedByVisibility :many
+SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC;
+
+-- name: SearchOwnGamesSortedByVisibilityAsc :many
+SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC;
+
 -- name: GetPublicGames :many
 SELECT * FROM game WHERE public = true ORDER BY created_at DESC;
 
@@ -141,6 +167,44 @@ SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '
 -- name: SearchPublicGamesSortedByModifiedAtAsc :many
 SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
 
+-- name: GetPublicGamesSortedByPlayCount :many
+SELECT * FROM game WHERE public = true ORDER BY play_count DESC;
+
+-- name: GetPublicGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE public = true ORDER BY play_count ASC;
+
+-- name: SearchPublicGamesSortedByPlayCount :many
+SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
+
+-- name: SearchPublicGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC;
+
+-- Games visible to user with additional sort options
+-- name: GetGamesVisibleToUserSortedByPlayCount :many
+SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY play_count DESC;
+
+-- name: GetGamesVisibleToUserSortedByPlayCountAsc :many
+SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY play_count ASC;
+
+-- name: SearchGamesVisibleToUserSortedByPlayCount :many
+SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
+
+-- name: SearchGamesVisibleToUserSortedByPlayCountAsc :many
+SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
+
+-- Creator sorting requires joining with user table
+-- name: GetGamesVisibleToUserSortedByCreator :many
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.created_by = $1 OR g.public = true ORDER BY LOWER(COALESCE(u.name, '')) ASC;
+
+-- name: GetGamesVisibleToUserSortedByCreatorDesc :many
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.created_by = $1 OR g.public = true ORDER BY LOWER(COALESCE(u.name, '')) DESC;
+
+-- name: SearchGamesVisibleToUserSortedByCreator :many
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC;
+
+-- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC;
+
 -- name: GetGameByPrivateShareHash :one
 SELECT * FROM game WHERE private_share_hash = $1;
 
@@ -167,9 +231,16 @@ UPDATE game SET
   status_fields = $17,
   first_message = $18,
   first_status = $19,
-  first_image = $20
+  first_image = $20,
+  originally_created_by = $21
 WHERE id = $1
 RETURNING *;
+
+-- name: IncrementGamePlayCount :exec
+UPDATE game SET play_count = play_count + 1 WHERE id = $1;
+
+-- name: IncrementGameCloneCount :exec
+UPDATE game SET clone_count = clone_count + 1 WHERE id = $1;
 
 -- name: DeleteGame :exec
 DELETE FROM game WHERE id = $1;

@@ -134,6 +134,16 @@ type Game struct {
 	FirstStatus  *string   `json:"firstStatus" yaml:"-"`
 	FirstImage   []byte    `json:"firstImage" yaml:"-"`
 	Tags         []GameTag `json:"tags" yaml:"-"`
+	// Tracking: original creator (for cloned games) and usage statistics
+	OriginallyCreatedBy *uuid.UUID `json:"originallyCreatedBy" yaml:"-"`
+	PlayCount           int        `json:"playCount" yaml:"-"`
+	CloneCount          int        `json:"cloneCount" yaml:"-"`
+	// Creator info (populated when fetching games)
+	CreatorID   *uuid.UUID `json:"creatorId,omitempty" yaml:"-"`
+	CreatorName *string    `json:"creatorName,omitempty" yaml:"-"`
+	// Original creator info (populated when fetching games, if originally cloned)
+	OriginalCreatorID   *uuid.UUID `json:"originalCreatorId,omitempty" yaml:"-"`
+	OriginalCreatorName *string    `json:"originalCreatorName,omitempty" yaml:"-"`
 }
 
 // this is just a dummy example for a CSS struct that can be used to have validateable CSS definitions
