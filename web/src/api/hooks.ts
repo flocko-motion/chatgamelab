@@ -10,7 +10,6 @@ import type {
   ObjAiPlatform,
   ObjGame, 
   ObjGameSession,
-  ObjGameSessionMessage,
   ObjUser,
   ObjUserStats,
   ObjSystemSettings,
@@ -19,6 +18,7 @@ import type {
   RoutesCreateGameRequest,
   RoutesCreateSessionRequest,
   RoutesRolesResponse,
+  RoutesSessionResponse,
   RoutesUsersNewRequest,
   RoutesShareRequest,
   RoutesUserUpdateRequest,
@@ -339,7 +339,7 @@ export function useCreateGameSession() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();
   
-  return useMutation<ObjGameSessionMessage, HttpxErrorResponse, { gameId: string; request: RoutesCreateSessionRequest }>({
+  return useMutation<RoutesSessionResponse, HttpxErrorResponse, { gameId: string; request: RoutesCreateSessionRequest }>({
     mutationFn: ({ gameId, request }) => 
       api.games.sessionsCreate(gameId, request).then(response => response.data),
     onSuccess: (_, { gameId }) => {
