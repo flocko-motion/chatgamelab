@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader, useMantineTheme } from '@mantine/core';
-import { IconPlayerPlay, IconWorld, IconBuilding } from '@tabler/icons-react';
+import { IconPlayerPlay, IconWorld, IconHome } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
@@ -44,7 +44,7 @@ function RootComponent() {
   const navItems: NavItem[] = [
     { 
       label: t('dashboard'), 
-      icon: <IconBuilding size={18} />, 
+      icon: <IconHome size={18} />, 
       onClick: () => navigate({ to: ROUTES.DASHBOARD }),
       active: pathname === ROUTES.DASHBOARD,
     },

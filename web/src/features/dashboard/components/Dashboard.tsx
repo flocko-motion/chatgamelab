@@ -8,6 +8,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { ROUTES } from '@/common/routes/routes';
 import { AppLayout, type NavItem } from '@/common/components/Layout';
 import { navigationLogger } from '@/config/logger';
+import { EXTERNAL_LINKS } from '@/config/externalLinks';
 import { useGames, useUserSessions } from '@/api/hooks';
 import { 
   IconPlayerPlay, 
@@ -122,17 +123,17 @@ function ExternalLinksCard() {
 
   const links: LinkItem[] = [
     {
-      id: 'chatgamelab',
+      id: EXTERNAL_LINKS.CHATGAMELAB.id,
       title: t('cards.externalLinks.mainSite.title'),
       description: t('cards.externalLinks.mainSite.description'),
-      href: 'https://chatgamelab.eu',
+      href: EXTERNAL_LINKS.CHATGAMELAB.href,
       icon: <IconSchool size={16} />,
     },
     {
-      id: 'jff',
+      id: EXTERNAL_LINKS.JFF.id,
       title: t('cards.externalLinks.jff.title'),
       description: t('cards.externalLinks.jff.description'),
-      href: 'https://jff.de',
+      href: EXTERNAL_LINKS.JFF.href,
       icon: <IconUsers size={16} />,
     },
   ];
@@ -141,6 +142,7 @@ function ExternalLinksCard() {
     <LinksCard
       title={t('cards.externalLinks.title')}
       links={links}
+      highlighted
     />
   );
 }

@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { Container, Stack, Title, Text } from '@mantine/core';
+import { Stack, Title, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 import { SettingsForm } from '@/features/settings';
@@ -13,15 +13,13 @@ function SettingsPage() {
   const { t } = useTranslation('auth');
 
   return (
-    <Container size="sm" py={{ base: 'md', sm: 'xl' }}>
-      <Stack gap="xl">
-        <Stack gap="xs">
-          <Title order={1}>{t('settings.title')}</Title>
-          <Text c="dimmed">{t('settings.subtitle')}</Text>
-        </Stack>
-
-        <SettingsForm />
+    <Stack gap="xl">
+      <Stack gap="xs">
+        <Title order={1}>{t('settings.title')}</Title>
+        <Text c="dimmed">{t('settings.subtitle')}</Text>
       </Stack>
-    </Container>
+
+      <SettingsForm />
+    </Stack>
   );
 }

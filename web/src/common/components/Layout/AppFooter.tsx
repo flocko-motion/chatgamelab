@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HelperText } from '../typography';
 import { VersionDisplay } from '../VersionDisplay';
 import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
+import { EXTERNAL_LINKS } from '../../../config/externalLinks';
 
 export interface FooterLink {
   label: string;
@@ -16,9 +17,8 @@ export interface AppFooterProps {
 }
 
 const defaultLinks: FooterLink[] = [
-  { label: 'Auth0', href: 'https://auth0.com' },
   { label: 'omnitopos.net', href: 'https://omnitopos.net' },
-  { label: 'tausend-medien.de', href: 'https://tausend-medien.de' },
+  { label: 'JFF - Institut für Medienpädagogik', href: EXTERNAL_LINKS.JFF.href },
 ];
 
 export function AppFooter({ links = defaultLinks, showVersion = true }: AppFooterProps) {
@@ -45,23 +45,15 @@ export function AppFooter({ links = defaultLinks, showVersion = true }: AppFoote
           <Box visibleFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center" wrap="wrap">
               <HelperText c="gray.5">
-                {t('footer.loginVia')}{' '}
+                {t('footer.programmedBy')}{' '}
                 <Anchor href={links[0]?.href} target="_blank" size="sm" c="accent.8">
                   {links[0]?.label}
                 </Anchor>
               </HelperText>
               <HelperText c="gray.5">|</HelperText>
               <HelperText c="gray.5">
-                {t('footer.programmedBy')}{' '}
-                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent.8">
+                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent.8" title={t('footer.jffTitle')}>
                   {links[1]?.label}
-                </Anchor>
-              </HelperText>
-              <HelperText c="gray.5">|</HelperText>
-              <HelperText c="gray.5">
-                {t('footer.producedBy')}{' '}
-                <Anchor href={links[2]?.href} target="_blank" size="sm" c="accent.8">
-                  {links[2]?.label}
                 </Anchor>
               </HelperText>
               {showVersion && (
