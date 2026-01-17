@@ -13,6 +13,44 @@ import (
 	"github.com/google/uuid"
 )
 
+const countUserGames = `-- name: CountUserGames :one
+SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
+`
+
+func (q *Queries) CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserGames, createdBy)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserPlayerMessages = `-- name: CountUserPlayerMessages :one
+SELECT COUNT(*)::int AS count
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+WHERE s.user_id = $1 AND m.type = 'player'
+`
+
+func (q *Queries) CountUserPlayerMessages(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserPlayerMessages, userID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserSessions = `-- name: CountUserSessions :one
+
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1
+`
+
+// User Statistics queries
+func (q *Queries) CountUserSessions(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserSessions, userID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createApiKey = `-- name: CreateApiKey :one
 
 INSERT INTO api_key (
@@ -254,7 +292,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -271,6 +309,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
@@ -298,6 +337,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -326,6 +366,7 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	ShowAiModelSelector  bool
 	RoleID               uuid.NullUUID
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
@@ -346,6 +387,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
@@ -427,6 +469,17 @@ func (q *Queries) SetUserDefaultApiKeyShare(ctx context.Context, arg SetUserDefa
 	return err
 }
 
+const sumPlayCountOfUserGames = `-- name: SumPlayCountOfUserGames :one
+SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1
+`
+
+func (q *Queries) SumPlayCountOfUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, sumPlayCountOfUserGames, createdBy)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
+}
+
 const updateApiKey = `-- name: UpdateApiKey :one
 UPDATE api_key SET
   modified_by = $2,
@@ -481,5 +534,22 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserSettings = `-- name: UpdateUserSettings :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserSettingsParams struct {
+	ID                  uuid.UUID
+	ShowAiModelSelector bool
+}
+
+func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserSettings, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

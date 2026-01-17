@@ -502,6 +502,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/games/favourites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the list of games the authenticated user has marked as favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get user's favourite games",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.Game"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/new": {
             "post": {
                 "security": [
@@ -771,6 +811,114 @@ const docTemplate = `{
                 }
             }
         },
+        "/games/{id}/favourite": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a game to the authenticated user's favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Add game to favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a game from the authenticated user's favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Remove game from favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{id}/sessions": {
             "get": {
                 "security": [
@@ -831,7 +979,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a new session for a game and returns the first message (image bytes omitted)",
+                "description": "Creates a new session for a game and returns the session with first message",
                 "consumes": [
                     "application/json"
                 ],
@@ -864,7 +1012,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/obj.GameSessionMessage"
+                            "$ref": "#/definitions/routes.SessionResponse"
                         }
                     },
                     "400": {
@@ -1492,6 +1640,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/settings": {
+            "get": {
+                "description": "Returns the global system settings",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Get system settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.SystemSettings"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -1556,6 +1730,43 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns aggregated statistics for the currently authenticated user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get current user statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.UserStats"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1853,6 +2064,14 @@ const docTemplate = `{
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
                 },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
                 "userId": {
                     "type": "string"
                 },
@@ -1978,6 +2197,16 @@ const docTemplate = `{
         "obj.Game": {
             "type": "object",
             "properties": {
+                "cloneCount": {
+                    "type": "integer"
+                },
+                "creatorId": {
+                    "description": "Creator info (populated when fetching games)",
+                    "type": "string"
+                },
+                "creatorName": {
+                    "type": "string"
+                },
                 "css": {
                     "description": "Additional CSS for the game, probably generated by the LLM.\nShould be validated/parsed strictly to avoid arbitrary code execution.",
                     "type": "string"
@@ -2016,6 +2245,20 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "originalCreatorId": {
+                    "description": "Original creator info (populated when fetching games, if originally cloned)",
+                    "type": "string"
+                },
+                "originalCreatorName": {
+                    "type": "string"
+                },
+                "originallyCreatedBy": {
+                    "description": "Tracking: original creator (for cloned games) and usage statistics",
+                    "type": "string"
+                },
+                "playCount": {
+                    "type": "integer"
                 },
                 "privateShareHash": {
                     "description": "Private share links contain secret random tokens to limit access to the game.\nThey are sponsored, so invited players don't require their own API key.",
@@ -2095,6 +2338,14 @@ const docTemplate = `{
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
                 },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
                 "userId": {
                     "type": "string"
                 },
@@ -2165,6 +2416,121 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.GameTheme": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "$ref": "#/definitions/obj.GameThemeBackground"
+                },
+                "corners": {
+                    "$ref": "#/definitions/obj.GameThemeCorners"
+                },
+                "gameMessage": {
+                    "$ref": "#/definitions/obj.GameThemeGameMessage"
+                },
+                "player": {
+                    "$ref": "#/definitions/obj.GameThemePlayer"
+                },
+                "statusEmojis": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "thinking": {
+                    "$ref": "#/definitions/obj.GameThemeThinking"
+                },
+                "typography": {
+                    "$ref": "#/definitions/obj.GameThemeTypography"
+                }
+            }
+        },
+        "obj.GameThemeBackground": {
+            "type": "object",
+            "properties": {
+                "animation": {
+                    "description": "none, stars, rain, fog, particles, scanlines",
+                    "type": "string"
+                },
+                "tint": {
+                    "description": "warm, cool, neutral, dark",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeCorners": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "style": {
+                    "description": "brackets, flourish, arrows, dots, none",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeGameMessage": {
+            "type": "object",
+            "properties": {
+                "dropCap": {
+                    "type": "boolean"
+                },
+                "dropCapColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "monochrome": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "obj.GameThemePlayer": {
+            "type": "object",
+            "properties": {
+                "bgColor": {
+                    "description": "cyan, amber, violet, slate, white, emerald, rose",
+                    "type": "string"
+                },
+                "color": {
+                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "type": "string"
+                },
+                "indicator": {
+                    "description": "dot, arrow, chevron, diamond, none",
+                    "type": "string"
+                },
+                "monochrome": {
+                    "type": "boolean"
+                },
+                "showChevron": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "obj.GameThemeThinking": {
+            "type": "object",
+            "properties": {
+                "style": {
+                    "description": "dots, spinner, pulse, typewriter",
+                    "type": "string"
+                },
+                "text": {
+                    "description": "e.g. \"The story unfolds...\"",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeTypography": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "description": "serif, sans, mono, fantasy",
+                    "type": "string"
+                }
+            }
+        },
         "obj.Institution": {
             "type": "object",
             "properties": {
@@ -2220,6 +2586,23 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.SystemSettings": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "defaultAiModel": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "modifiedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "obj.User": {
             "type": "object",
             "properties": {
@@ -2243,6 +2626,9 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/obj.UserRole"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2263,6 +2649,23 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
+                }
+            }
+        },
+        "obj.UserStats": {
+            "type": "object",
+            "properties": {
+                "gamesCreated": {
+                    "type": "integer"
+                },
+                "gamesPlayed": {
+                    "type": "integer"
+                },
+                "messagesSent": {
+                    "type": "integer"
+                },
+                "totalPlaysOnGames": {
+                    "type": "integer"
                 }
             }
         },
@@ -2409,6 +2812,13 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                },
+                "statusFields": {
+                    "description": "Current status to pass to AI",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatusField"
+                    }
                 }
             }
         },
@@ -2460,6 +2870,14 @@ const docTemplate = `{
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
+                },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
                 },
                 "userId": {
                     "type": "string"
@@ -2516,6 +2934,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
                 }
             }
         },

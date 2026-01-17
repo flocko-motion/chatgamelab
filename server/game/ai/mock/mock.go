@@ -154,3 +154,14 @@ func (p *MockPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiM
 		{ID: "mock-v2", Name: "Mock Model v2", Description: "Enhanced dummy AI for testing"},
 	}, nil
 }
+
+// GenerateTheme returns a mock theme JSON for testing
+func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+	// Return a random mock theme
+	themes := []string{
+		`{"corners":{"style":"brackets","color":"cyan"},"background":{"animation":"scanlines","tint":"cool"},"player":{"color":"cyan","indicator":"dot","monochrome":true,"showChevron":true},"thinking":{"text":"Processing...","style":"dots"},"typography":{"messages":"mono"},"statusEmojis":{"Health":"❤️","Energy":"⚡"}}`,
+		`{"corners":{"style":"flourish","color":"amber"},"background":{"animation":"particles","tint":"warm"},"player":{"color":"amber","indicator":"diamond","monochrome":false,"showChevron":false},"thinking":{"text":"The tale continues...","style":"typewriter"},"typography":{"messages":"serif"},"statusEmojis":{"Health":"❤️","Gold":"🪙"}}`,
+		`{"corners":{"style":"none","color":"slate"},"background":{"animation":"fog","tint":"dark"},"player":{"color":"rose","indicator":"none","monochrome":true,"showChevron":false},"thinking":{"text":"Something stirs...","style":"pulse"},"typography":{"messages":"serif"},"statusEmojis":{"Fear":"😨","Sanity":"🧠"}}`,
+	}
+	return themes[rand.Intn(len(themes))], nil
+}

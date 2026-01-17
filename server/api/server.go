@@ -21,12 +21,17 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 	routes.DevMode = devMode
 
 	if devMode {
-		log.SetDebug(true)
-		log.Info("development mode enabled", "debug_logging", true)
+		log.Info("development mode enabled")
 	}
 
 	log.Debug("initializing database")
 	db.Init()
+
+	log.Debug("initializing system settings")
+	if err := db.InitSystemSettings(ctx); err != nil {
+		log.Fatal("failed to initialize system settings", "error", err)
+	}
+
 	log.Debug("running database preseed")
 	db.Preseed(ctx)
 

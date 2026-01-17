@@ -12,7 +12,7 @@ import {
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconEye, IconEdit, IconTrash, IconDownload } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
@@ -21,9 +21,8 @@ import type { ObjGame } from '@/api/generated';
 import { type SortField, type CreateGameFormData } from '../types';
 import { GamesTable } from './GamesTable';
 import { GameCard } from './GameCard';
-import { CreateGameModal } from './CreateGameModal';
+import { GameEditModal } from './GameEditModal';
 import { DeleteGameModal } from './DeleteGameModal';
-import { GameViewModal } from './GameViewModal';
 
 interface GamesManagementProps {
   initialGameId?: string;
@@ -41,7 +40,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] = useDisclosure(initialGameId ? true : false);
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(initialGameId ?? null);
-  const [editMode, setEditMode] = useState(initialGameId ? true : false);
   const [sortField, setSortField] = useState<SortField>('modifiedAt');
 
   const { data: games, isLoading, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc' });
@@ -64,7 +62,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
       // Open the new game in edit mode
       if (newGame.id) {
         setGameToView(newGame.id);
-        setEditMode(true);
         openViewModal();
       }
     } catch {
@@ -82,7 +79,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
   const handleEditGame = (game: ObjGame) => {
     if (game.id) {
       setGameToView(game.id);
-      setEditMode(true);
       openViewModal();
     }
   };
@@ -90,7 +86,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
   const handleViewGame = (game: ObjGame) => {
     if (game.id) {
       setGameToView(game.id);
-      setEditMode(true);
       openViewModal();
     }
   };
@@ -163,7 +158,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
           refetch();
           // Open the imported game in edit mode
           setGameToView(newGameId);
-          setEditMode(true);
           openViewModal();
         }
       } catch {
@@ -284,11 +278,15 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
                 <GameCard
                   key={game.id}
                   game={game}
-                  onView={handleViewGame}
-                  onEdit={handleEditGame}
-                  onDelete={handleDeleteClick}
-                  onExport={handleExport}
-                  onPlay={handlePlayGame}
+                  onPlay={() => handlePlayGame(game)}
+                  playLabel={t('games.actions.play')}
+                  showVisibility
+                  actions={[
+                    { key: 'view', icon: <IconEye size={16} />, label: t('games.actions.view'), onClick: () => handleViewGame(game) },
+                    { key: 'edit', icon: <IconEdit size={16} />, label: t('games.actions.edit'), onClick: () => handleEditGame(game) },
+                    { key: 'export', icon: <IconDownload size={16} />, label: t('games.actions.export'), onClick: () => handleExport(game) },
+                    { key: 'delete', icon: <IconTrash size={16} />, label: t('games.actions.delete'), onClick: () => handleDeleteClick(game) },
+                  ]}
                 />
               ))}
             </SimpleGrid>
@@ -320,11 +318,21 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
         )}
       </Stack>
 
-      <CreateGameModal
+      <GameEditModal
         opened={createModalOpened}
         onClose={handleCloseCreateModal}
-        onSubmit={handleCreateGame}
-        loading={createGame.isPending}
+        onCreate={handleCreateGame}
+        createLoading={createGame.isPending}
+      />
+
+      <GameEditModal
+        gameId={gameToView}
+        opened={viewModalOpened}
+        onClose={() => {
+          closeViewModal();
+          setGameToView(null);
+          onModalClose?.();
+        }}
       />
 
       <DeleteGameModal
@@ -336,18 +344,6 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
         onConfirm={handleConfirmDelete}
         gameName={gameToDelete?.name ?? ''}
         loading={deleteGame.isPending}
-      />
-
-      <GameViewModal
-        gameId={gameToView}
-        opened={viewModalOpened}
-        onClose={() => {
-          closeViewModal();
-          setGameToView(null);
-          setEditMode(false);
-          onModalClose?.();
-        }}
-        editMode={editMode}
       />
     </Container>
   );

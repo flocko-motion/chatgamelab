@@ -4,6 +4,7 @@ export * from './controls';
 export * from './typography';
 export * from './DataTable';
 export * from './Dropdown';
+export * from './LoadingAnimation';
 export * from './DropdownMenu';
 export * from './ErrorBoundary';
 export * from './LanguageSwitcher';

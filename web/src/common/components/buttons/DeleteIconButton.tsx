@@ -1,5 +1,6 @@
 import { ActionIcon } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
+import { forwardRef } from 'react';
 import type { IconButtonProps } from './types';
 
 /**
@@ -13,25 +14,22 @@ import type { IconButtonProps } from './types';
  * <DeleteIconButton onClick={handleDelete} aria-label="Delete item" />
  */
 
-export function DeleteIconButton({
-  onClick,
-  'aria-label': ariaLabel,
-  disabled = false,
-  loading = false,
-  size = 'md',
-}: IconButtonProps) {
-  return (
-    <ActionIcon
-      variant="subtle"
-      color="red"
-      size={size}
-      radius="md"
-      onClick={onClick}
-      disabled={disabled}
-      loading={loading}
-      aria-label={ariaLabel}
-    >
-      <IconTrash style={{ width: '70%', height: '70%' }} stroke={1.5} />
-    </ActionIcon>
-  );
-}
+export const DeleteIconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  function DeleteIconButton({ onClick, 'aria-label': ariaLabel, disabled = false, loading = false, size = 'md' }, ref) {
+    return (
+      <ActionIcon
+        ref={ref}
+        variant="subtle"
+        color="red"
+        size={size}
+        radius="md"
+        onClick={onClick}
+        disabled={disabled}
+        loading={loading}
+        aria-label={ariaLabel}
+      >
+        <IconTrash style={{ width: '70%', height: '70%' }} stroke={1.5} />
+      </ActionIcon>
+    );
+  }
+);

@@ -11,6 +11,7 @@ import {
   UnstyledButton,
   Text,
   useMantineTheme,
+  Tooltip,
 } from '@mantine/core';
 import { useDisclosure, useElementSize } from '@mantine/hooks';
 import { useEffect } from 'react';
@@ -24,12 +25,14 @@ import {
   IconUser,
   IconLogout,
   IconKey,
+  IconMessage,
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { DropdownMenu } from '../DropdownMenu';
 import { UserAvatar } from '../UserAvatar';
 import { getUserAvatarColor } from '@/common/lib/userUtils';
 import { ROUTES } from '../../routes/routes';
+import { EXTERNAL_LINKS } from '../../../config/externalLinks';
 import logoLandscapeWhite from '@/assets/logos/colorful/ChatGameLab-Logo-2025-Landscape-Colorful-White-Text-Transparent.png';
 
 export interface NavItem {
@@ -174,7 +177,43 @@ function UserActions({
 
   return (
     <Group gap="sm" wrap="nowrap">
-      <LanguageSwitcher size="sm" variant="compact" />
+      <Tooltip label={EXTERNAL_LINKS.CONTACT.description} position="bottom" withArrow>
+        <UnstyledButton
+          onClick={() => window.open(EXTERNAL_LINKS.CONTACT.href, '_blank')}
+          aria-label={t('header.contact')}
+          py="xs"
+          px="md"
+          style={{
+            borderRadius: 'var(--mantine-radius-md)',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'background-color 150ms ease, box-shadow 150ms ease',
+          }}
+          styles={{
+            root: {
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                boxShadow: 'none',
+              },
+              '&:active': {
+                backgroundColor: theme.other.layout.bgActive,
+              },
+              '&:focusVisible': {
+                outline: `2px solid ${theme.colors.accent[6]}`,
+                outlineOffset: 2,
+              },
+            },
+          }}
+        >
+          <IconMessage size={18} />
+          <Text size="sm" fw={500}>{t('header.contact')}</Text>
+        </UnstyledButton>
+      </Tooltip>
+      <Box w="lg" />
       <ActionIcon
         variant="subtle"
         size="lg"
@@ -190,6 +229,7 @@ function UserActions({
       >
         <IconBell size={20} />
       </ActionIcon>
+      <LanguageSwitcher size="sm" variant="compact" />
       <DropdownMenu
         trigger={userAvatar}
         items={userMenuItems}
@@ -257,6 +297,25 @@ function MobileNavigation({
         <Divider my="xs" color={theme.other.layout.lineLight} />
 
         <Stack gap={6}>
+          <UnstyledButton
+            onClick={() => {
+              window.open(EXTERNAL_LINKS.CHATGAMELAB.href, '_blank');
+              onClose();
+            }}
+            py="sm"
+            px="lg"
+            style={{
+              borderRadius: 'var(--mantine-radius-md)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <IconMessage size={20} />
+            <Text size="md" fw={500}>{t('header.contact')}</Text>
+          </UnstyledButton>
+
           <UnstyledButton
             onClick={() => {
               onNotificationsClick?.();

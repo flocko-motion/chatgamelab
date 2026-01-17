@@ -39,6 +39,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -75,6 +76,12 @@ WHERE k.user_id = $1;
 UPDATE app_user SET
   name = $2,
   email = $3,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserSettings :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
   modified_at = now()
 WHERE id = $1;
 
@@ -133,4 +140,21 @@ WHERE id = $1;
 
 -- name: GetUserDefaultApiKeyShare :one
 SELECT default_api_key_share_id FROM app_user WHERE id = $1;
+
+-- User Statistics queries
+
+-- name: CountUserSessions :one
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1;
+
+-- name: CountUserGames :one
+SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1;
+
+-- name: CountUserPlayerMessages :one
+SELECT COUNT(*)::int AS count
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+WHERE s.user_id = $1 AND m.type = 'player';
+
+-- name: SumPlayCountOfUserGames :one
+SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;
 

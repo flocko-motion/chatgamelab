@@ -7,6 +7,7 @@ import {
   Stack,
   TextInput,
   Alert,
+  Switch,
 } from '@mantine/core';
 import { ActionButton } from '@components/buttons';
 import { SectionTitle } from '@components/typography';
@@ -34,6 +35,7 @@ export function SettingsForm() {
       .string()
       .min(1, t('settings.errors.emailRequired'))
       .email(t('settings.errors.emailInvalid')),
+    showAiModelSelector: z.boolean(),
   });
 
   type FormData = z.infer<typeof schema>;
@@ -42,14 +44,19 @@ export function SettingsForm() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: backendUser?.name || '',
       email: backendUser?.email || '',
+      showAiModelSelector: backendUser?.showAiModelSelector || false,
     },
   });
+
+  const showAiModelSelector = watch('showAiModelSelector');
 
   // Reset form when backendUser changes
   useEffect(() => {
@@ -57,9 +64,9 @@ export function SettingsForm() {
       reset({
         name: backendUser.name || '',
         email: backendUser.email || '',
+        showAiModelSelector: backendUser.showAiModelSelector || false,
       });
-    }
-  }, [backendUser, reset]);
+    }  }, [backendUser, reset]);
 
   const onSubmit = async (data: FormData) => {
     if (!backendUser) return;
@@ -73,6 +80,7 @@ export function SettingsForm() {
       await api.users.usersCreate(backendUser.id!, {
         name: data.name.trim(),
         email: data.email.trim(),
+        showAiModelSelector: data.showAiModelSelector,
       });
       
       setSubmitSuccess(true);
@@ -134,6 +142,16 @@ export function SettingsForm() {
               {...register('email')}
               disabled={isSubmitting}
             />
+
+            <Stack gap="xs" mt="lg">
+              <Switch
+                label={t('settings.showAiModelSelectorLabel')}
+                description={t('settings.showAiModelSelectorDescription')}
+                checked={showAiModelSelector}
+                onChange={(event) => setValue('showAiModelSelector', event.currentTarget.checked, { shouldDirty: true })}
+                disabled={isSubmitting}
+              />
+            </Stack>
 
             {submitError && (
               <Alert color="red" variant="light">

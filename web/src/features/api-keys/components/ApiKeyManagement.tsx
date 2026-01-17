@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Container,
   Stack,
   Group,
   Card,
@@ -101,8 +100,7 @@ export function ApiKeyManagement() {
 
   if (isLoading) {
     return (
-      <Container size="lg" py="xl">
-        <Stack gap="xl">
+      <Stack gap="xl">
           <Skeleton height={40} width="50%" />
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
             {[1, 2].map((i) => (
@@ -117,24 +115,20 @@ export function ApiKeyManagement() {
               </Card>
             ))}
           </SimpleGrid>
-        </Stack>
-      </Container>
+      </Stack>
     );
   }
 
   if (error) {
     return (
-      <Container size="lg" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('errors.titles.error')} color="red">
+      <Alert icon={<IconAlertCircle size={16} />} title={t('errors.titles.error')} color="red">
           {t('apiKeys.errors.loadFailed')}
-        </Alert>
-      </Container>
+      </Alert>
     );
   }
 
   return (
-    <Container size="lg" py="xl">
-      <Stack gap="xl">
+    <Stack gap="xl">
         <Box>
           <PageTitle>{t('apiKeys.title')}</PageTitle>
           <Text c="dimmed" mt="xs">
@@ -260,9 +254,7 @@ export function ApiKeyManagement() {
         )
         }
 
-      </Stack>
-
-      {/* Create Modal */}
+        {/* Create Modal */}
       <Modal
         opened={createModalOpened}
         onClose={closeCreateModal}
@@ -329,6 +321,6 @@ export function ApiKeyManagement() {
           </Group>
         </Stack>
       </Modal>
-    </Container>
+    </Stack>
   );
 }

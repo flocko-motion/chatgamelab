@@ -88,6 +88,17 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		AiSession:       "{}",
 	}
 
+	// Generate visual theme for the game player UI
+	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+	theme, err := GenerateTheme(ctx, session, game)
+	if err != nil {
+		log.Warn("failed to generate theme, using default", "error", err)
+		// Don't fail - use nil theme (frontend will use defaults)
+	} else {
+		session.Theme = theme
+		log.Debug("theme generated successfully")
+	}
+
 	// Persist to database
 	log.Debug("persisting session to database")
 	session, err = db.CreateGameSession(ctx, session)
@@ -96,6 +107,15 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 	log.Debug("session created", "session_id", session.ID)
+
+	// Increment play count if the user is not the owner of the game
+	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == userID
+	if !isOwner {
+		if err := db.IncrementGamePlayCount(ctx, gameID); err != nil {
+			log.Debug("failed to increment play count", "error", err)
+			// Don't fail the request, just log the error
+		}
+	}
 
 	// First action is a system message containing the game instructions
 	log.Debug("executing initial system action", "session_id", session.ID)

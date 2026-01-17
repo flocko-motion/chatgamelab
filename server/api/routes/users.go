@@ -18,6 +18,7 @@ type UserUpdateRequest struct {
 	Name                 string     `json:"name"`
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
+	ShowAiModelSelector  *bool      `json:"showAiModelSelector,omitempty"`
 }
 
 type UsersNewRequest struct {
@@ -66,6 +67,29 @@ func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
 	httpx.WriteJSON(w, http.StatusOK, user)
+}
+
+// GetCurrentUserStats godoc
+//
+//	@Summary		Get current user statistics
+//	@Description	Returns aggregated statistics for the currently authenticated user
+//	@Tags			users
+//	@Produce		json
+//	@Success		200	{object}	obj.UserStats
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/users/me/stats [get]
+func GetCurrentUserStats(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	stats, err := db.GetUserStats(r.Context(), user.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get user stats: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, stats)
 }
 
 // GetUserByID godoc
@@ -200,6 +224,14 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	if req.DefaultApiKeyShareID != nil {
 		if err := db.SetUserDefaultApiKeyShare(r.Context(), userID, req.DefaultApiKeyShareID); err != nil {
 			httpx.WriteError(w, http.StatusBadRequest, "Failed to set default API key: "+err.Error())
+			return
+		}
+	}
+
+	// Handle show AI model selector setting update
+	if req.ShowAiModelSelector != nil {
+		if err := db.UpdateUserSettings(r.Context(), userID, *req.ShowAiModelSelector); err != nil {
+			httpx.WriteError(w, http.StatusBadRequest, "Failed to update settings: "+err.Error())
 			return
 		}
 	}

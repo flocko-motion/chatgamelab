@@ -20,6 +20,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/languages", GetLanguages)
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
 	mux.HandleFunc("GET /api/roles", GetRoles)
+	mux.HandleFunc("GET /api/system/settings", GetSystemSettings)
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
@@ -32,6 +33,9 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
 	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
 	mux.Handle("DELETE /api/games/{id}", httpx.RequireAuth(DeleteGame))
+	mux.Handle("GET /api/games/favourites", httpx.RequireAuth(GetFavouriteGames))
+	mux.Handle("POST /api/games/{id}/favourite", httpx.RequireAuth(AddFavouriteGame))
+	mux.Handle("DELETE /api/games/{id}/favourite", httpx.RequireAuth(RemoveFavouriteGame))
 
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
@@ -50,6 +54,7 @@ func NewMux() *http.ServeMux {
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
+	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
 	if DevMode {

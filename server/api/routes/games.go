@@ -362,6 +362,14 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Determine the original creator: use existing OriginallyCreatedBy if set, otherwise use the source game's creator
+	var originalCreator *uuid.UUID
+	if sourceGame.OriginallyCreatedBy != nil {
+		originalCreator = sourceGame.OriginallyCreatedBy
+	} else if sourceGame.Meta.CreatedBy.Valid {
+		originalCreator = &sourceGame.Meta.CreatedBy.UUID
+	}
+
 	// Create a new game based on the source
 	clonedGame := obj.Game{
 		Name:                   sourceGame.Name + " (Copy)",
@@ -374,6 +382,7 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		FirstMessage:           sourceGame.FirstMessage,
 		FirstStatus:            sourceGame.FirstStatus,
 		CSS:                    sourceGame.CSS,
+		OriginallyCreatedBy:    originalCreator,
 	}
 
 	log.Debug("creating cloned game", "user_id", user.ID, "source_game_id", gameID, "name", clonedGame.Name)
@@ -384,6 +393,12 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Debug("game cloned", "new_game_id", clonedGame.ID)
 
+	// Increment the clone count on the source game
+	if err := db.IncrementGameCloneCount(r.Context(), gameID); err != nil {
+		log.Debug("failed to increment clone count", "error", err)
+		// Don't fail the request, just log the error
+	}
+
 	created, err := db.GetGameByID(r.Context(), &user.ID, clonedGame.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load cloned game: "+err.Error())
@@ -391,4 +406,93 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, created)
+}
+
+// GetFavouriteGames godoc
+//
+//	@Summary		Get user's favourite games
+//	@Description	Returns the list of games the authenticated user has marked as favourites
+//	@Tags			games
+//	@Produce		json
+//	@Success		200	{array}		obj.Game
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/favourites [get]
+func GetFavouriteGames(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("getting favourite games", "user_id", user.ID)
+
+	games, err := db.GetFavouriteGames(r.Context(), user.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get favourite games: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, games)
+}
+
+// AddFavouriteGame godoc
+//
+//	@Summary		Add game to favourites
+//	@Description	Adds a game to the authenticated user's favourites
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID)"
+//	@Success		200	{object}	map[string]bool
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/favourite [post]
+func AddFavouriteGame(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("adding favourite game", "game_id", gameID, "user_id", user.ID)
+
+	if err := db.AddFavouriteGame(r.Context(), user.ID, gameID); err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to add favourite: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"favourite": true})
+}
+
+// RemoveFavouriteGame godoc
+//
+//	@Summary		Remove game from favourites
+//	@Description	Removes a game from the authenticated user's favourites
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID)"
+//	@Success		200	{object}	map[string]bool
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/favourite [delete]
+func RemoveFavouriteGame(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("removing favourite game", "game_id", gameID, "user_id", user.ID)
+
+	if err := db.RemoveFavouriteGame(r.Context(), user.ID, gameID); err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to remove favourite: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"favourite": false})
 }

@@ -38,13 +38,17 @@ export const useNavigation = () => {
     navigationLogger.debug('Navigating to logout', { path: ROUTES.AUTH_LOGOUT as string });
     navigate({ to: ROUTES.AUTH_LOGOUT as string });
   }, [navigate]);
-  const goToGames = useCallback(() => {
-    navigationLogger.debug('Navigating to games', { path: ROUTES.GAMES as string });
-    navigate({ to: ROUTES.GAMES as string });
+  const goToMyGames = useCallback(() => {
+    navigationLogger.debug('Navigating to my games', { path: ROUTES.MY_GAMES as string });
+    navigate({ to: ROUTES.MY_GAMES as string });
+  }, [navigate]);
+  const goToAllGames = useCallback(() => {
+    navigationLogger.debug('Navigating to all games', { path: ROUTES.ALL_GAMES as string });
+    navigate({ to: ROUTES.ALL_GAMES as string });
   }, [navigate]);
   const goToGameCreate = useCallback(() => {
-    navigationLogger.debug('Navigating to game create', { path: ROUTES.GAME_CREATE as string });
-    navigate({ to: ROUTES.GAME_CREATE as string });
+    navigationLogger.debug('Navigating to game create', { path: ROUTES.MY_GAME_CREATE as string });
+    navigate({ to: ROUTES.MY_GAME_CREATE as string });
   }, [navigate]);
   const goToRooms = useCallback(() => {
     navigationLogger.debug('Navigating to rooms', { path: ROUTES.ROOMS as string });
@@ -97,7 +101,8 @@ export const useNavigation = () => {
     goToSettings,
     goToLogin,
     goToLogout,
-    goToGames,
+    goToMyGames,
+    goToAllGames,
     goToGameCreate,
     goToRooms,
     goToRoomCreate,

@@ -65,6 +65,14 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
+func UpdateUserSettings(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
+	arg := db.UpdateUserSettingsParams{
+		ID:                  id,
+		ShowAiModelSelector: showAiModelSelector,
+	}
+	return queries().UpdateUserSettings(ctx, arg)
+}
+
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 	res, err := queries().GetUserDetailsByID(ctx, id)
@@ -79,10 +87,11 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:      res.Name,
-		Email:     sqlNullStringToMaybeString(res.Email),
-		DeletedAt: &res.DeletedAt.Time,
-		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
+		Name:                res.Name,
+		Email:               sqlNullStringToMaybeString(res.Email),
+		DeletedAt:           &res.DeletedAt.Time,
+		Auth0Id:             sqlNullStringToMaybeString(res.Auth0ID),
+		ShowAiModelSelector: res.ShowAiModelSelector,
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)
@@ -199,6 +208,36 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 		users = append(users, u)
 	}
 	return users, rows.Err()
+}
+
+// GetUserStats returns aggregated statistics for a user
+func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
+	gamesPlayed, err := queries().CountUserSessions(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count sessions: %w", err)
+	}
+
+	gamesCreated, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to count games: %w", err)
+	}
+
+	messagesSent, err := queries().CountUserPlayerMessages(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count messages: %w", err)
+	}
+
+	totalPlays, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to sum play counts: %w", err)
+	}
+
+	return &obj.UserStats{
+		GamesPlayed:       int(gamesPlayed),
+		GamesCreated:      int(gamesCreated),
+		MessagesSent:      int(messagesSent),
+		TotalPlaysOnGames: int(totalPlays),
+	}, nil
 }
 
 func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID) error {

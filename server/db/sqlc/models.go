@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 type ApiKey struct {
@@ -48,6 +49,7 @@ type AppUser struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	ShowAiModelSelector  bool
 }
 
 type Game struct {
@@ -71,6 +73,9 @@ type Game struct {
 	FirstMessage             sql.NullString
 	FirstStatus              sql.NullString
 	FirstImage               []byte
+	OriginallyCreatedBy      uuid.NullUUID
+	PlayCount                int32
+	CloneCount               int32
 }
 
 type GameSession struct {
@@ -87,6 +92,7 @@ type GameSession struct {
 	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
+	Theme        pqtype.NullRawMessage
 }
 
 type GameSessionMessage struct {
@@ -121,6 +127,23 @@ type Institution struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	Name       string
+}
+
+type SystemSetting struct {
+	ID             uuid.UUID
+	CreatedAt      time.Time
+	ModifiedAt     time.Time
+	DefaultAiModel string
+}
+
+type UserFavouriteGame struct {
+	ID         uuid.UUID
+	CreatedBy  uuid.NullUUID
+	CreatedAt  time.Time
+	ModifiedBy uuid.NullUUID
+	ModifiedAt time.Time
+	UserID     uuid.UUID
+	GameID     uuid.UUID
 }
 
 type UserRole struct {

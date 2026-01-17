@@ -26,10 +26,17 @@ func runServer(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
+	// Log level configuration via LOGGER_LOGLEVEL env variable (debug, info, warn, error)
+	logLevel := os.Getenv("LOGGER_LOGLEVEL")
+	if logLevel == "" {
+		logLevel = "info"
+	}
+	log.SetLevel(logLevel)
+
 	// Dev mode enabled via DEV_MODE env variable (accepts "true" or "1")
 	devModeStr := os.Getenv("DEV_MODE")
 	devMode := devModeStr == "true" || devModeStr == "1"
 
-	log.Info("starting server", "port", port, "dev_mode", devMode)
+	log.Info("starting server", "port", port, "dev_mode", devMode, "log_level", logLevel)
 	api.RunServer(cmd.Context(), port, devMode)
 }

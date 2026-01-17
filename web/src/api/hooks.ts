@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth0 } from '@auth0/auth0-react';
 import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
@@ -9,13 +10,15 @@ import type {
   ObjAiPlatform,
   ObjGame, 
   ObjGameSession,
-  ObjGameSessionMessage,
   ObjUser,
+  ObjUserStats,
+  ObjSystemSettings,
   HttpxErrorResponse,
   RoutesCreateApiKeyRequest,
   RoutesCreateGameRequest,
   RoutesCreateSessionRequest,
   RoutesRolesResponse,
+  RoutesSessionResponse,
   RoutesUsersNewRequest,
   RoutesShareRequest,
   RoutesUserUpdateRequest,
@@ -35,6 +38,7 @@ export const queryKeys = {
   currentUser: ['currentUser'] as const,
   roles: ['roles'] as const,
   version: ['version'] as const,
+  systemSettings: ['systemSettings'] as const,
 } as const;
 
 // API Keys hooks
@@ -122,7 +126,7 @@ export function useRoles() {
 // Games hooks
 export interface UseGamesParams {
   search?: string;
-  sortBy?: 'name' | 'createdAt' | 'modifiedAt';
+  sortBy?: 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator';
   sortDir?: 'asc' | 'desc';
   filter?: 'all' | 'own' | 'public' | 'organization' | 'favorites';
 }
@@ -139,6 +143,7 @@ export function useGames(params?: UseGamesParams) {
       sortDir: sortDir || undefined,
       filter: filter || undefined,
     }).then(response => response.data),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -249,6 +254,42 @@ export function useImportGameYaml() {
   });
 }
 
+// Favorite Games hooks
+export function useFavoriteGames() {
+  const api = useRequiredAuthenticatedApi();
+  
+  return useQuery<ObjGame[], HttpxErrorResponse>({
+    queryKey: [...queryKeys.games, 'favorites'],
+    queryFn: () => api.games.favouritesList().then(response => response.data),
+  });
+}
+
+export function useAddFavorite() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+    mutationFn: (gameId) => api.games.favouriteCreate(gameId).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveFavorite() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+    mutationFn: (gameId) => api.games.favouriteDelete(gameId).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
+    onError: handleApiError,
+  });
+}
+
 // Game Sessions hooks
 export function useGameSessions(gameId: string) {
   const api = useRequiredAuthenticatedApi();
@@ -276,11 +317,29 @@ export function useUserSessions(params?: UseUserSessionsParams) {
   });
 }
 
+// Hook to get a map of gameId -> session for quick lookup
+export function useGameSessionMap() {
+  const { data: sessions, isLoading, error } = useUserSessions();
+  
+  const sessionMap = useMemo(() => {
+    if (!sessions) return new Map<string, DbUserSessionWithGame>();
+    const map = new Map<string, DbUserSessionWithGame>();
+    for (const session of sessions) {
+      if (session.gameId) {
+        map.set(session.gameId, session);
+      }
+    }
+    return map;
+  }, [sessions]);
+  
+  return { sessionMap, isLoading, error };
+}
+
 export function useCreateGameSession() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();
   
-  return useMutation<ObjGameSessionMessage, HttpxErrorResponse, { gameId: string; request: RoutesCreateSessionRequest }>({
+  return useMutation<RoutesSessionResponse, HttpxErrorResponse, { gameId: string; request: RoutesCreateSessionRequest }>({
     mutationFn: ({ gameId, request }) => 
       api.games.sessionsCreate(gameId, request).then(response => response.data),
     onSuccess: (_, { gameId }) => {
@@ -323,6 +382,15 @@ export function useCurrentUser() {
   });
 }
 
+export function useUserStats() {
+  const api = useRequiredAuthenticatedApi();
+  
+  return useQuery<ObjUserStats, HttpxErrorResponse>({
+    queryKey: [...queryKeys.currentUser, 'stats'],
+    queryFn: () => api.users.meStatsList().then(response => response.data),
+  });
+}
+
 export function useUser(id: string) {
   const api = useRequiredAuthenticatedApi();
   
@@ -360,6 +428,14 @@ export function useCreateUser() {
       queryClient.invalidateQueries({ queryKey: queryKeys.users });
     },
     onError: handleApiError,
+  });
+}
+
+// System Settings hook (public endpoint, no auth needed)
+export function useSystemSettings() {
+  return useQuery<ObjSystemSettings, HttpxErrorResponse>({
+    queryKey: queryKeys.systemSettings,
+    queryFn: () => apiClient.system.settingsList().then(response => response.data),
   });
 }
 

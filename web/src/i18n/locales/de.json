@@ -53,15 +53,15 @@
       "wipHint": "Weitere Sprachen sind noch in Arbeit. Aktuell sind nur Englisch und Deutsch verfügbar."
     },
     "footer": {
-      "loginVia": "Login via",
       "programmedBy": "Programmiert von",
-      "producedBy": "Produziert von",
+      "jffTitle": "JFF - Institut für Medienpädagogik",
       "copyright": "© ChatGameLab"
     },
     "header": {
       "openNavigation": "Navigationsmenü öffnen",
       "closeNavigation": "Navigationsmenü schließen",
       "viewNotifications": "Benachrichtigungen anzeigen",
+      "contact": "Kontakt",
       "openSettings": "Einstellungen öffnen",
       "openProfile": "Profilmenü öffnen",
       "openUserMenu": "Benutzermenü öffnen",
@@ -129,6 +129,9 @@
       }
     },
     "actions": "Aktionen",
+    "editGame": "Spiel bearbeiten",
+    "copyGame": "Spiel kopieren",
+    "deleteGame": "Spiel löschen",
     "back": "Zurück",
     "close": "Schließen",
     "games": {
@@ -140,6 +143,9 @@
         "name": "Name",
         "description": "Beschreibung",
         "visibility": "Sichtbarkeit",
+        "creator": "Ersteller",
+        "playCount": "Gespielt",
+        "me": "Ich",
         "created": "Erstellt",
         "modified": "Geändert"
       },
@@ -149,9 +155,12 @@
       },
       "sort": {
         "label": "Sortieren nach",
-        "name": "Alphabetisch",
+        "name": "Name",
         "createdAt": "Erstellt",
-        "modifiedAt": "Zuletzt geändert"
+        "modifiedAt": "Zuletzt geändert",
+        "playCount": "Gespielt",
+        "visibility": "Sichtbarkeit",
+        "creator": "Ersteller"
       },
       "empty": {
         "title": "Noch keine Spiele",
@@ -159,6 +168,7 @@
       },
       "createModal": {
         "title": "Neues Spiel erstellen",
+        "info": "Fülle die Details unten aus, um ein neues Spiel zu erstellen. Du kannst diese später jederzeit bearbeiten.",
         "nameLabel": "Spielname",
         "namePlaceholder": "z.B. Weltraumabenteuer",
         "descriptionLabel": "Beschreibung",
@@ -171,7 +181,8 @@
         "title": "Spieldetails"
       },
       "editModal": {
-        "title": "Spiel bearbeiten"
+        "title": "Spiel bearbeiten",
+        "info": "Aktualisiere deine Spieleinstellungen unten. Änderungen werden gespeichert, wenn du auf Speichern klickst."
       },
       "tabs": {
         "basic": "Grundlagen",
@@ -190,10 +201,13 @@
         "imageStyleHint": "Zum Beispiel: Comic, realistisch, Pixel-Art, Aquarell...",
         "scenario": "Worum geht es im Spiel",
         "scenarioHint": "Beschreibe kurz: Wo spielt das Spiel? Wer ist die Spielfigur? Was ist das Ziel? Welche Regeln sind wichtig?",
+        "scenarioPlaceholder": "Du bist ein Entdecker in einem geheimnisvollen Wald. Dein Ziel ist es, den versteckten Schatz zu finden...",
         "gameStart": "Wie beginnt das Spiel?",
         "gameStartHint": "Was passiert am Anfang? Beschreibe die erste Szene, die der Spieler sieht.",
+        "gameStartPlaceholder": "Du erwachst am Rand eines dunklen Waldes. Ein schmaler Pfad führt tiefer in die Bäume...",
         "statusFields": "Spielwerte",
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch.",
+        "statusFieldsPlaceholder": "Gesundheit: 100\nGold: 0\nInventar: leer",
         "firstMessage": "Erste Nachricht",
         "firstMessageHint": "Vorgenerierte Eröffnungsnachricht für schnellen Spielstart.",
         "firstStatus": "Erster Status",
@@ -245,12 +259,70 @@
         "importError": "Spielkonfiguration konnte nicht importiert werden. Bitte überprüfe das YAML-Format."
       }
     },
+    "myGames": {
+      "title": "Meine Spiele",
+      "play": "Spielen",
+      "continue": "Weiterspielen",
+      "restart": "Neu starten",
+      "copyGame": "Spiel kopieren",
+      "favorite": "Zu Favoriten hinzufügen",
+      "unfavorite": "Aus Favoriten entfernen",
+      "filters": {
+        "all": "Alle",
+        "favorites": "Favoriten"
+      },
+      "empty": {
+        "title": "Noch keine Spiele",
+        "description": "Erstelle dein erstes Spiel, um mit interaktiven KI-gestützten Abenteuern zu beginnen."
+      },
+      "restartConfirm": {
+        "title": "Spiel neu starten",
+        "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
+        "confirm": "Neu starten"
+      },
+      "copyConfirm": {
+        "title": "Spiel kopieren",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
+        "confirm": "Spiel kopieren"
+      }
+    },
+    "allGames": {
+      "title": "Alle Spiele",
+      "play": "Spielen",
+      "continue": "Weiterspielen",
+      "restart": "Neu starten",
+      "copyGame": "Spiel kopieren",
+      "creator": "Ersteller",
+      "owner": "Mein",
+      "favorite": "Zu Favoriten hinzufügen",
+      "unfavorite": "Aus Favoriten entfernen",
+      "filters": {
+        "all": "Alle Spiele",
+        "favorites": "Favoriten",
+        "own": "Meine Spiele",
+        "public": "Öffentlich"
+      },
+      "empty": {
+        "title": "Keine Spiele gefunden",
+        "description": "Versuche deine Filter anzupassen oder schau später nach neuen Spielen."
+      },
+      "restartConfirm": {
+        "title": "Spiel neu starten",
+        "message": "Möchtest du \"{{game}}\" wirklich neu starten? Dein aktueller Fortschritt geht verloren.",
+        "confirm": "Neu starten"
+      },
+      "copyConfirm": {
+        "title": "Spiel kopieren",
+        "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
+        "confirm": "Spiel kopieren"
+      }
+    },
     "sessions": {
       "title": "Deine laufenden Spiele",
       "startNewGame": "Starte ein neues Spiel",
       "untitledGame": "Unbenanntes Spiel",
       "noDescription": "Keine Beschreibung",
-      "resume": "Fortsetzen",
+      "resume": "Weiterspielen",
       "continueGame": "Weiterspielen",
       "filters": {
         "all": "Alle",
@@ -315,6 +387,7 @@
     },
     "gamePlayer": {
       "unnamed": "Unbenannt",
+      "typing": "KI denkt nach...",
       "loading": {
         "game": "Spiel wird geladen...",
         "starting": "Spielsitzung wird gestartet...",
@@ -330,7 +403,10 @@
         "back": "Zurück zu deinen anderen laufenden Spielen",
         "restart": "Spiel neustarten",
         "showDebug": "Debug-Info anzeigen",
-        "hideDebug": "Debug-Info ausblenden"
+        "hideDebug": "Debug-Info ausblenden",
+        "increaseFont": "Schrift vergrößern",
+        "decreaseFont": "Schrift verkleinern",
+        "debug": "Debug"
       },
       "input": {
         "placeholder": "Was tust du?",
@@ -355,6 +431,8 @@
  "navigation": {
     "home": "Startseite",
     "dashboard": "Dashboard",
+    "myGames": "Meine Spiele",
+    "allGames": "Alle Spiele",
     "sessions": "Sitzungen",
     "games": "Spiele",
     "create": "Eigene Spiele erstellen",
@@ -366,7 +444,7 @@
   "dashboard": {
     "cards": {
       "myGames": {
-        "title": "Meine eigenen Spiele",
+        "title": "Meine Spiele",
         "empty": "Noch keine Spiele. Erstelle dein erstes Spiel!",
         "viewAll": "Meine Spiele"
       },
@@ -379,6 +457,17 @@
         "title": "Zuletzt gespielt",
         "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
         "viewAll": "Laufende Spiele"
+      },
+      "popularGames": {
+        "title": "Beliebte Spiele",
+        "empty": "Noch keine Spiele verfügbar.",
+        "viewAll": "Alle Spiele",
+        "plays": "{{count}} Mal gespielt"
+      },
+      "newGames": {
+        "title": "Neue Spiele",
+        "empty": "Noch keine Spiele verfügbar.",
+        "viewAll": "Alle Spiele"
       },
       "externalLinks": {
         "title": "Über ChatGameLab",
@@ -419,7 +508,7 @@
     "description": "Beschreibung",
     "start": "Starten",
     "pause": "Pause",
-    "resume": "Fortsetzen",
+    "resume": "Weiterspielen",
     "restart": "Neustarten",
     "score": "Punkte",
     "level": "Level",
@@ -503,6 +592,8 @@
       "emailLabel": "E-Mail-Adresse",
       "emailPlaceholder": "Gib deine E-Mail ein",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+      "showAiModelSelectorLabel": "KI-Modell-Auswahl anzeigen",
+      "showAiModelSelectorDescription": "Wenn aktiviert, kannst du bei jedem Spielstart auswählen, welches KI-Modell verwendet werden soll.",
       "saveButton": "Änderungen speichern",
       "saving": "Wird gespeichert...",
       "saved": "Änderungen erfolgreich gespeichert",
@@ -532,7 +623,7 @@
       "gamesPlayed": "Gespielte Spiele",
       "gamesCreated": "Erstellte Spiele",
       "messagesSent": "Gesendete Nachrichten",
-      "sessionsJoined": "Beigetretene Sitzungen"
+      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
     }
   }
 }

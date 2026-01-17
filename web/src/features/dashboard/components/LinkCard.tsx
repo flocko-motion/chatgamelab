@@ -58,11 +58,20 @@ export interface LinkItem {
 interface LinksCardProps {
   title: string;
   links: LinkItem[];
+  highlighted?: boolean;
 }
 
-export function LinksCard({ title, links }: LinksCardProps) {
+export function LinksCard({ title, links, highlighted = false }: LinksCardProps) {
   return (
-    <Card p="lg" withBorder shadow="sm" h="100%">
+    <Card 
+      p="lg" 
+      withBorder={!highlighted}
+      shadow="sm" 
+      h="100%"
+      style={highlighted ? {
+        background: 'var(--mantine-color-accent-1)',
+      } : undefined}
+    >
       <CardTitle>{title}</CardTitle>
       <Stack gap="xs" mt="md">
         {links.map((link) => (
@@ -73,6 +82,11 @@ export function LinksCard({ title, links }: LinksCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             className={classes.linkItem}
+            style={highlighted ? {
+              backgroundColor: '#ffffff',
+              borderRadius: 'var(--mantine-radius-sm)',
+              padding: '8px',
+            } : undefined}
           >
             <Group justify="space-between" align="center" wrap="nowrap">
               <Group gap="sm" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>

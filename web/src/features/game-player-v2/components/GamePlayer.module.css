@@ -1,0 +1,669 @@
+/* ============================================================================
+   Game Player - Custom Color Palette
+   Using warm amber/gold tones instead of the app's violet accent
+   ============================================================================ */
+
+.container {
+  /* Game-specific accent colors */
+  --game-accent-1: #fef3c7;
+  --game-accent-2: #fde68a;
+  --game-accent-3: #fcd34d;
+  --game-accent-4: #fbbf24;
+  --game-accent-5: #f59e0b;
+  --game-accent-6: #d97706;
+  --game-accent-7: #b45309;
+  --game-accent-8: #92400e;
+  --game-accent-9: #78350f;
+  
+  /* Dimmed backgrounds - soft gray, not dark mode */
+  --game-bg-dim: #e8e8ec;
+  --game-bg-header: #dddde3;
+  --game-bg-status: #e2e2e8;
+  
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  background: var(--game-bg-dim);
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: 
+    linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,248,250,0.95) 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--mantine-color-gray-8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================================
+   Status Bar - Game Stats Style
+   ============================================================================ */
+
+.statusBar {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background: var(--game-bg-status);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.statusField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.statusField::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--game-accent-5);
+  border-radius: 0 2px 2px 0;
+}
+
+.statusFieldName {
+  color: var(--mantine-color-gray-6);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusFieldEmoji {
+  font-size: var(--mantine-font-size-sm);
+  text-transform: none;
+}
+
+.statusFieldValue {
+  color: var(--mantine-color-gray-9);
+  font-weight: 700;
+}
+
+/* ============================================================================
+   Scene Area (scrollable)
+   ============================================================================ */
+
+.sceneArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: var(--mantine-spacing-md);
+  position: relative; /* Required for BackgroundAnimation absolute positioning */
+}
+
+.scenesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xl);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   Scene Card
+   ============================================================================ */
+
+.sceneCard {
+  animation: cardEnter 0.4s ease-out forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sceneCard:hover {
+  transform: translateY(-2px);
+}
+
+.sceneCard.monochrome {
+  filter: grayscale(0.7) contrast(1.1);
+}
+
+.sceneCard.monochrome img {
+  filter: grayscale(0.5);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Game scene - image left, text right */
+.gameScene {
+  display: flex;
+  gap: var(--mantine-spacing-lg);
+  padding: var(--mantine-spacing-lg);
+  background: 
+    linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(250,250,252,0.95) 100%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  border-radius: var(--mantine-radius-lg);
+  border: 1px solid var(--mantine-color-gray-2);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative corner accents - color from theme */
+.gameScene::before,
+.gameScene::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--game-corner-color, var(--game-accent-4));
+  border-style: solid;
+  opacity: 0.7;
+}
+
+.gameScene::before {
+  top: 8px;
+  left: 8px;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+
+.gameScene::after {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
+}
+
+.gameScene.noImage {
+  padding: var(--mantine-spacing-xl);
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 48em) {
+  .gameScene {
+    flex-direction: column;
+  }
+}
+
+/* ============================================================================
+   Scene Image
+   ============================================================================ */
+
+.sceneImageWrapper {
+  flex-shrink: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Decorative frame around image */
+.sceneImageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(var(--mantine-radius-md) - 2px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sceneImageWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mantine-radius-md);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sceneImageWrapper:hover {
+  transform: scale(1.03) rotate(0.5deg);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 2px var(--game-accent-4);
+}
+
+@media (max-width: 48em) {
+  .sceneImageWrapper {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+.sceneImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: imageReveal 0.5s ease-out forwards;
+}
+
+@keyframes imageReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    var(--mantine-color-gray-1) 8%,
+    var(--mantine-color-gray-2) 18%,
+    var(--mantine-color-gray-1) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================================
+   Scene Content (Narrative Text)
+   ============================================================================ */
+
+.sceneContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.narrativeText {
+  font-size: var(--mantine-font-size-md);
+  line-height: 1.8;
+  color: var(--mantine-color-gray-8);
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: textReveal 0.6s ease-out forwards;
+}
+
+@keyframes textReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Drop cap for first letter */
+.narrativeText::first-letter {
+  float: left;
+  font-size: 3.2em;
+  line-height: 0.85;
+  font-weight: 700;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--game-accent-7);
+  text-shadow: 1px 1px 0 var(--game-accent-2);
+}
+
+/* ============================================================================
+   Player Action
+   ============================================================================ */
+
+.playerAction {
+  display: flex;
+  justify-content: flex-end;
+  animation: actionEnter 0.2s ease-out forwards;
+}
+
+@keyframes actionEnter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.playerActionBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  max-width: 80%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: var(--game-player-color, #4ade80);
+  border: 1px solid #374151;
+  border-radius: var(--mantine-radius-md);
+  font-family: var(--game-message-font, 'Courier New', Consolas, monospace);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.playerActionBubble::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--game-player-color, #4ade80);
+  border-radius: 50%;
+  animation: cursorBlink 1s step-end infinite;
+  box-shadow: 0 0 8px var(--game-player-color, #4ade80);
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.playerActionPrefix {
+  color: #60a5fa;
+  font-weight: 700;
+  margin-left: var(--mantine-spacing-sm);
+}
+
+.playerActionText {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   Scene Divider
+   ============================================================================ */
+
+.sceneDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-xs) 0;
+  color: var(--mantine-color-gray-4);
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  max-width: 100px;
+}
+
+.dividerDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--game-accent-5);
+}
+
+/* ============================================================================
+   Typing Indicator
+   ============================================================================ */
+
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--mantine-radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  animation: cardEnter 0.3s ease-out forwards;
+}
+
+.typingDots {
+  display: flex;
+  gap: 4px;
+}
+
+.typingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--game-accent-5);
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.typingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.typingText {
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gray-6);
+}
+
+/* Streaming indicator (inline with text) */
+.streamingIndicator {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: var(--mantine-spacing-xs);
+  vertical-align: middle;
+}
+
+.streamingDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--game-accent-5);
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.streamingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.streamingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ============================================================================
+   Inline Input (appears as a chat message element)
+   ============================================================================ */
+
+.inlineInput {
+  animation: cardEnter 0.3s ease-out forwards;
+  padding: var(--mantine-spacing-lg);
+  background: 
+    linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(250,250,252,0.9) 100%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  border-radius: var(--mantine-radius-lg);
+  border: 2px solid var(--game-corner-color, var(--game-accent-4));
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
+}
+
+/* Decorative corner accents for input */
+.inlineInput::before,
+.inlineInput::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--game-corner-color, var(--game-accent-5));
+  border-style: solid;
+  opacity: 0.8;
+}
+
+.inlineInput::before {
+  top: 6px;
+  left: 6px;
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+
+.inlineInput::after {
+  bottom: 6px;
+  right: 6px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
+}
+
+/* ============================================================================
+   Lightbox Overlay
+   ============================================================================ */
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  animation: fadeIn 0.2s ease-out;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightboxImage {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--mantine-radius-md);
+  animation: lightboxZoom 0.2s ease-out;
+}
+
+@keyframes lightboxZoom {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lightboxClose {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  right: var(--mantine-spacing-md);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================================
+   Loading & Error States
+   ============================================================================ */
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-md);
+  height: 100%;
+  padding: var(--mantine-spacing-xl);
+  text-align: center;
+}
+
+/* ============================================================================
+   System Message
+   ============================================================================ */
+
+.systemMessage {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-gray-1);
+  border: 1px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+  font-style: italic;
+  color: var(--mantine-color-gray-6);
+  text-align: center;
+  animation: cardEnter 0.3s ease-out forwards;
+}

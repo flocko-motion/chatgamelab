@@ -7,23 +7,26 @@ import {
   Title,
   ThemeIcon,
   Badge,
+  Skeleton,
 } from '@mantine/core';
 import {
   IconBuilding,
   IconChartBar,
   IconDeviceGamepad2,
   IconMessage,
-  IconUsers,
   IconPlayerPlay,
+  IconTrophy,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { UserAvatar } from '@/common/components/UserAvatar';
+import { useUserStats } from '@/api/hooks';
 
 export function ProfileView() {
   const { t } = useTranslation('auth');
   const { backendUser } = useAuth();
+  const { data: stats, isLoading: statsLoading } = useUserStats();
 
   if (!backendUser) {
     return null;
@@ -39,12 +42,12 @@ export function ProfileView() {
     ? new Date(backendUser.meta.createdAt).toLocaleDateString()
     : '-';
 
-  // Dummy statistics for now
-  const stats = [
-    { label: t('profile.gamesPlayed'), value: 12, icon: IconPlayerPlay },
-    { label: t('profile.gamesCreated'), value: 3, icon: IconDeviceGamepad2 },
-    { label: t('profile.messagesSent'), value: 156, icon: IconMessage },
-    { label: t('profile.sessionsJoined'), value: 8, icon: IconUsers },
+  // Statistics from API
+  const statItems = [
+    { label: t('profile.gamesPlayed'), value: stats?.gamesPlayed ?? 0, icon: IconPlayerPlay },
+    { label: t('profile.gamesCreated'), value: stats?.gamesCreated ?? 0, icon: IconDeviceGamepad2 },
+    { label: t('profile.messagesSent'), value: stats?.messagesSent ?? 0, icon: IconMessage },
+    { label: t('profile.totalPlaysOnGames'), value: stats?.totalPlaysOnGames ?? 0, icon: IconTrophy },
   ];
 
   return (
@@ -112,13 +115,17 @@ export function ProfileView() {
           </Group>
           
           <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
-            {stats.map((stat) => (
+            {statItems.map((stat) => (
               <Card key={stat.label} padding="md" radius="md" bg="gray.0">
                 <Stack gap="xs" align="center" ta="center">
                   <ThemeIcon variant="light" size="xl" color="accent" radius="xl">
                     <stat.icon size={24} />
                   </ThemeIcon>
-                  <Text size="xl" fw={700}>{stat.value}</Text>
+                  {statsLoading ? (
+                    <Skeleton height={28} width={40} />
+                  ) : (
+                    <Text size="xl" fw={700}>{stat.value}</Text>
+                  )}
                   <Text size="xs" c="dimmed">{stat.label}</Text>
                 </Stack>
               </Card>

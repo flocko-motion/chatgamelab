@@ -1,10 +1,8 @@
 package stream
 
 import (
-	"cgl/functional"
 	"cgl/obj"
 	"context"
-	"log"
 	"sync"
 	"time"
 
@@ -57,7 +55,6 @@ func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage, 
 	go func() {
 		time.Sleep(streamTimeout)
 		r.Remove(message.ID)
-		log.Printf("stream %s: expired after %v", message.ID, streamTimeout)
 	}()
 
 	return stream
@@ -91,7 +88,6 @@ func (s *Stream) Send(chunk obj.GameSessionMessageChunk) {
 
 // SendText sends a text chunk, with isDone=true for the final chunk
 func (s *Stream) SendText(text string, isDone bool) {
-	log.Printf("stream %s: %s %s", s.MessageID, text, functional.BoolToString(isDone, " (DONE)", ""))
 	s.Send(obj.GameSessionMessageChunk{Text: text, TextDone: isDone})
 }
 
@@ -104,15 +100,11 @@ func (s *Stream) SendError(err string) {
 // Image data should be fetched from /api/messages/{id}/image endpoint.
 // When isDone is true, saves image to DB first, then sends imageDone signal.
 func (s *Stream) SendImage(data []byte, isDone bool) {
-	log.Printf("stream %s: %d bytes image %s", s.MessageID, len(data), functional.BoolToString(isDone, " (DONE)", ""))
-
 	if isDone {
 		// Save image to DB BEFORE signaling done, so frontend can fetch it
 		if s.ImageSaver != nil && len(data) > 0 {
 			if err := s.ImageSaver(s.MessageID, data); err != nil {
-				log.Printf("stream %s: failed to save image: %v", s.MessageID, err)
-			} else {
-				log.Printf("stream %s: image saved to DB", s.MessageID)
+				// Image save failed, but continue with signaling
 			}
 		}
 		// Now signal that image is ready to fetch

@@ -2,7 +2,7 @@ import type { ObjGame } from '@/api/generated';
 
 export type GameFilter = 'all' | 'own' | 'public' | 'organization' | 'favorites';
 
-export type GameSortField = 'name' | 'createdAt' | 'modifiedAt';
+export type GameSortField = 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator';
 
 export interface GameSortConfig {
   field: GameSortField;

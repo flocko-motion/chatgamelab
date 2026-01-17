@@ -1,20 +1,9 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { GameSelection } from '@/features/play';
-import { createGamePlayRoute } from '@/common/routes/routes';
-import type { ObjGame } from '@/api/generated';
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/sessions/new')({
-  component: NewSessionPage,
+  beforeLoad: () => {
+    throw redirect({ to: ROUTES.ALL_GAMES });
+  },
+  component: () => null,
 });
-
-function NewSessionPage() {
-  const navigate = useNavigate();
-
-  const handleSelectGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: createGamePlayRoute(game.id) as '/' });
-    }
-  };
-
-  return <GameSelection onSelectGame={handleSelectGame} />;
-}
