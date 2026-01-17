@@ -131,6 +131,16 @@ type SystemSetting struct {
 	DefaultAiModel string
 }
 
+type UserFavouriteGame struct {
+	ID         uuid.UUID
+	CreatedBy  uuid.NullUUID
+	CreatedAt  time.Time
+	ModifiedBy uuid.NullUUID
+	ModifiedAt time.Time
+	UserID     uuid.UUID
+	GameID     uuid.UUID
+}
+
 type UserRole struct {
 	ID            uuid.NullUUID
 	CreatedBy     uuid.NullUUID

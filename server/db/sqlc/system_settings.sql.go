@@ -34,8 +34,8 @@ func (q *Queries) GetSystemSettings(ctx context.Context) (SystemSetting, error) 
 }
 
 const initSystemSettings = `-- name: InitSystemSettings :exec
-INSERT INTO system_settings (default_ai_model)
-VALUES ($1)
+INSERT INTO system_settings (id, default_ai_model)
+VALUES ('00000000-0000-0000-0000-000000000001'::uuid, $1)
 ON CONFLICT DO NOTHING
 `
 

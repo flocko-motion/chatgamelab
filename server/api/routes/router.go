@@ -33,6 +33,9 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/games/{id}/sessions", httpx.RequireAuth(CreateGameSession))
 	mux.Handle("PUT /api/games/{id}/yaml", httpx.RequireAuth(UpdateGameYAML))
 	mux.Handle("DELETE /api/games/{id}", httpx.RequireAuth(DeleteGame))
+	mux.Handle("GET /api/games/favourites", httpx.RequireAuth(GetFavouriteGames))
+	mux.Handle("POST /api/games/{id}/favourite", httpx.RequireAuth(AddFavouriteGame))
+	mux.Handle("DELETE /api/games/{id}/favourite", httpx.RequireAuth(RemoveFavouriteGame))
 
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
