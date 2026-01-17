@@ -196,6 +196,7 @@ export function useGameSession(gameId: string) {
     try {
       const response = await api.sessions.sessionsCreate(state.sessionId, {
         message,
+        statusFields: state.statusFields, // Send current status for AI context
       });
 
       const gameResponse = response.data;
@@ -209,7 +210,10 @@ export function useGameSession(gameId: string) {
           isStreaming: true,
           isImageLoading: !!gameResponse.imagePrompt,
         }],
-        statusFields: gameResponse.statusFields || prev.statusFields,
+        // Preserve old status if AI returned empty array
+        statusFields: gameResponse.statusFields?.length 
+          ? gameResponse.statusFields 
+          : prev.statusFields,
       }));
 
       if (gameResponse.id && gameResponse.stream) {
@@ -231,7 +235,7 @@ export function useGameSession(gameId: string) {
         error: errorMessage,
       }));
     }
-  }, [api, state.sessionId, state.isWaitingForResponse, connectToStream]);
+  }, [api, state.sessionId, state.isWaitingForResponse, state.statusFields, connectToStream]);
 
   const loadExistingSession = useCallback(async (sessionId: string) => {
     setState(prev => ({ ...prev, phase: 'starting', error: null }));

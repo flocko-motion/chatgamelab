@@ -119,6 +119,7 @@
   overflow-y: auto;
   scroll-behavior: smooth;
   padding: var(--mantine-spacing-md);
+  position: relative; /* Required for BackgroundAnimation absolute positioning */
 }
 
 .scenesContainer {
@@ -140,6 +141,14 @@
 
 .sceneCard:hover {
   transform: translateY(-2px);
+}
+
+.sceneCard.monochrome {
+  filter: grayscale(0.7) contrast(1.1);
+}
+
+.sceneCard.monochrome img {
+  filter: grayscale(0.5);
 }
 
 @keyframes cardEnter {

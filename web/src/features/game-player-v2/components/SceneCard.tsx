@@ -1,5 +1,6 @@
 import type { SceneMessage } from '../types';
 import { useGamePlayerContext } from '../context';
+import { useGameTheme } from '../theme';
 import { SceneImage } from './SceneImage';
 import { StreamingIndicator } from './TypingIndicator';
 import classes from './GamePlayer.module.css';
@@ -21,12 +22,14 @@ const FONT_SIZE_MAP = {
 
 export function SceneCard({ message, showImages }: SceneCardProps) {
   const { fontSize } = useGamePlayerContext();
+  const { theme } = useGameTheme();
   const { text, imageUrl, imagePrompt, isStreaming, isImageLoading } = message;
 
   const hasImage = showImages && (imageUrl || isImageLoading || isStreaming);
+  const isMonochrome = theme.gameMessage?.monochrome ?? false;
 
   return (
-    <div className={classes.sceneCard}>
+    <div className={`${classes.sceneCard} ${isMonochrome ? classes.monochrome : ''}`}>
       <div className={`${classes.gameScene} ${!hasImage ? classes.noImage : ''}`}>
         {hasImage && (
           <SceneImage

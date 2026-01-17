@@ -91,6 +91,13 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     }
   }, [sessionId, state.phase, loadExistingSession]);
 
+  // Debug: Log received theme
+  useEffect(() => {
+    if (state.theme) {
+      console.log('[GamePlayer] Received theme from session:', JSON.stringify(state.theme, null, 2));
+    }
+  }, [state.theme]);
+
   const displayGame = isContinuation ? state.gameInfo : game;
   const isSessionStarting = state.phase === 'starting';
 
