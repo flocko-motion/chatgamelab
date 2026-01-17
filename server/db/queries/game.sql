@@ -286,13 +286,13 @@ INSERT INTO game_session (
   created_at, modified_by, modified_at,
   game_id, user_id, api_key_id,
   ai_platform, ai_model, ai_session,
-  image_style, status_fields
+  image_style, status_fields, theme
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, $6, $7,
   $8, $9, $10,
-  $11, $12
+  $11, $12, $13
 )
 RETURNING *;
 
@@ -375,9 +375,16 @@ UPDATE game_session SET
   ai_model = $10,
   ai_session = $11,
   image_style = $12,
-  status_fields = $13
+  status_fields = $13,
+  theme = $14
 WHERE id = $1
 RETURNING *;
+
+-- name: UpdateGameSessionTheme :exec
+UPDATE game_session SET
+  modified_at = now(),
+  theme = $2
+WHERE id = $1;
 
 -- name: DeleteGameSession :exec
 DELETE FROM game_session WHERE id = $1;

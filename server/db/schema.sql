@@ -200,7 +200,9 @@ CREATE TABLE game_session (
     ai_session jsonb NOT NULL,
     image_style text NOT NULL,
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
-    status_fields text NOT NULL
+    status_fields text NOT NULL,
+    -- AI-generated visual theme for the game player UI (JSON)
+    theme jsonb NULL
 );
 -- GameSessionMessage
 -- Messages of a game session: system message, player actions, and game responses.

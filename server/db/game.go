@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
 
@@ -483,6 +484,17 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 		return nil, fmt.Errorf("session is nil")
 	}
 	now := time.Now()
+
+	// Serialize theme to JSON if present
+	var themeJSON pqtype.NullRawMessage
+	if session.Theme != nil {
+		themeBytes, err := json.Marshal(session.Theme)
+		if err != nil {
+			return nil, fmt.Errorf("failed to serialize theme: %w", err)
+		}
+		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
+	}
+
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: session.UserID, Valid: true},
 		CreatedAt:    now,
@@ -496,6 +508,7 @@ func CreateGameSession(ctx context.Context, session *obj.GameSession) (*obj.Game
 		AiSession:    []byte(session.AiSession),
 		ImageStyle:   session.ImageStyle,
 		StatusFields: session.StatusFields,
+		Theme:        themeJSON,
 	}
 
 	result, err := queries().CreateGameSession(ctx, arg)
@@ -624,20 +637,29 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	session := &obj.GameSession{
-		ID:         s.ID,
-		GameID:     s.GameID,
-		UserID:     s.UserID,
-		ApiKeyID:   s.ApiKeyID,
-		AiPlatform: s.AiPlatform,
-		AiModel:    s.AiModel,
-		AiSession:  string(s.AiSession),
-		ImageStyle: s.ImageStyle,
+		ID:           s.ID,
+		GameID:       s.GameID,
+		UserID:       s.UserID,
+		ApiKeyID:     s.ApiKeyID,
+		AiPlatform:   s.AiPlatform,
+		AiModel:      s.AiModel,
+		AiSession:    string(s.AiSession),
+		ImageStyle:   s.ImageStyle,
+		StatusFields: s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
 			ModifiedBy: s.ModifiedBy,
 			ModifiedAt: &s.ModifiedAt,
 		},
+	}
+
+	// Deserialize theme if present
+	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
+		var theme obj.GameTheme
+		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
+			session.Theme = &theme
+		}
 	}
 
 	// Load game info

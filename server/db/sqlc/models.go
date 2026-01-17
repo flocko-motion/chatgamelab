@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 )
 
 type ApiKey struct {
@@ -91,6 +92,7 @@ type GameSession struct {
 	AiSession    json.RawMessage
 	ImageStyle   string
 	StatusFields string
+	Theme        pqtype.NullRawMessage
 }
 
 type GameSessionMessage struct {
