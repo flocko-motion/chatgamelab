@@ -49,6 +49,10 @@ type AiPlatform interface {
 
 	// ListModels - blocking, retrieves all available models from the platform API
 	ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error)
+
+	// GenerateTheme - blocking, generates a visual theme JSON based on game description
+	// Returns the raw JSON string response from the AI
+	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error)
 }
 
 func GetAiPlatformInfos() []obj.AiPlatform {
