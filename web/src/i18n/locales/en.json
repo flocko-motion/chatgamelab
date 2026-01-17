@@ -459,6 +459,17 @@
         "empty": "No play history yet. Start playing a game!",
         "viewAll": "Play History"
       },
+      "popularGames": {
+        "title": "Popular Games",
+        "empty": "No games available yet.",
+        "viewAll": "All Games",
+        "plays": "{{count}} plays"
+      },
+      "newGames": {
+        "title": "New Games",
+        "empty": "No games available yet.",
+        "viewAll": "All Games"
+      },
       "externalLinks": {
         "title": "About ChatGameLab",
         "mainSite": {

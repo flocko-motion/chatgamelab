@@ -458,6 +458,17 @@
         "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
         "viewAll": "Laufende Spiele"
       },
+      "popularGames": {
+        "title": "Beliebte Spiele",
+        "empty": "Noch keine Spiele verfügbar.",
+        "viewAll": "Alle Spiele",
+        "plays": "{{count}} Mal gespielt"
+      },
+      "newGames": {
+        "title": "Neue Spiele",
+        "empty": "Noch keine Spiele verfügbar.",
+        "viewAll": "Alle Spiele"
+      },
       "externalLinks": {
         "title": "Über ChatGameLab",
         "mainSite": {

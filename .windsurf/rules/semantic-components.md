@@ -9,7 +9,6 @@ This document defines how to use intent-based wrapper components in ChatGameLab.
 ## Button Components
 
 Import from `@components/buttons`
-
 | Component | Intent | When to Use |
 |-----------|--------|-------------|
 | `ActionButton` | Primary CTA | Main action on a page (Login, Submit, Get Started) |
