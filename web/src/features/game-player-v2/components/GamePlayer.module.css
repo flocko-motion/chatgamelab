@@ -1,12 +1,29 @@
 /* ============================================================================
-   Game Player - Main Container
+   Game Player - Custom Color Palette
+   Using warm amber/gold tones instead of the app's violet accent
    ============================================================================ */
 
 .container {
+  /* Game-specific accent colors */
+  --game-accent-1: #fef3c7;
+  --game-accent-2: #fde68a;
+  --game-accent-3: #fcd34d;
+  --game-accent-4: #fbbf24;
+  --game-accent-5: #f59e0b;
+  --game-accent-6: #d97706;
+  --game-accent-7: #b45309;
+  --game-accent-8: #92400e;
+  --game-accent-9: #78350f;
+  
+  /* Dimmed backgrounds */
+  --game-bg-dark: #1a1a1f;
+  --game-bg-medium: #252530;
+  --game-bg-light: #2a2a35;
+  
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--mantine-color-gray-0);
+  background: var(--game-bg-dark);
 }
 
 /* ============================================================================
@@ -15,8 +32,9 @@
 
 .header {
   flex-shrink: 0;
-  background: var(--mantine-color-body);
-  border-bottom: 1px solid var(--mantine-color-gray-2);
+  background: var(--game-bg-medium);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* ============================================================================
@@ -25,8 +43,8 @@
 
 .statusBar {
   flex-shrink: 0;
-  background: linear-gradient(180deg, var(--mantine-color-gray-1) 0%, var(--mantine-color-gray-0) 100%);
-  border-bottom: 2px solid var(--mantine-color-gray-2);
+  background: linear-gradient(180deg, var(--game-bg-light) 0%, var(--game-bg-medium) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   overflow-x: auto;
 }
 
@@ -35,13 +53,13 @@
   align-items: center;
   gap: var(--mantine-spacing-xs);
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
-  background: linear-gradient(135deg, var(--mantine-color-body) 0%, var(--mantine-color-gray-0) 100%);
-  border: 1px solid var(--mantine-color-gray-3);
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--mantine-radius-md);
   font-size: var(--mantine-font-size-sm);
   box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 1px 3px rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.2);
   position: relative;
 }
 
@@ -53,12 +71,12 @@
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--mantine-color-accent-5);
+  background: var(--game-accent-5);
   border-radius: 0 2px 2px 0;
 }
 
 .statusFieldName {
-  color: var(--mantine-color-gray-5);
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
   text-transform: uppercase;
   font-size: var(--mantine-font-size-xs);
@@ -66,7 +84,7 @@
 }
 
 .statusFieldValue {
-  color: var(--mantine-color-gray-9);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 700;
 }
 
@@ -139,9 +157,9 @@
   position: absolute;
   width: 24px;
   height: 24px;
-  border-color: var(--mantine-color-accent-3);
+  border-color: var(--game-accent-4);
   border-style: solid;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .gameScene::before {
@@ -211,8 +229,8 @@
 .sceneImageWrapper:hover {
   transform: scale(1.03) rotate(0.5deg);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 0 2px var(--mantine-color-accent-3);
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 2px var(--game-accent-4);
 }
 
 @media (max-width: 48em) {
@@ -303,8 +321,8 @@
   font-weight: 700;
   margin-right: 0.08em;
   margin-top: 0.05em;
-  color: var(--mantine-color-accent-7);
-  text-shadow: 1px 1px 0 var(--mantine-color-accent-2);
+  color: var(--game-accent-7);
+  text-shadow: 1px 1px 0 var(--game-accent-2);
 }
 
 /* ============================================================================
@@ -393,7 +411,7 @@
 .dividerLine {
   flex: 1;
   height: 1px;
-  background: var(--mantine-color-gray-2);
+  background: rgba(255, 255, 255, 0.15);
   max-width: 100px;
 }
 
@@ -401,7 +419,7 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: var(--mantine-color-gray-3);
+  background: var(--game-accent-5);
 }
 
 /* ============================================================================
@@ -413,9 +431,9 @@
   align-items: center;
   gap: var(--mantine-spacing-sm);
   padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
-  background: var(--mantine-color-body);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: var(--mantine-radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   animation: cardEnter 0.3s ease-out forwards;
 }
 
@@ -428,7 +446,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--mantine-color-accent-5);
+  background: var(--game-accent-5);
   animation: typingPulse 1.4s ease-in-out infinite;
 }
 
@@ -453,7 +471,7 @@
 
 .typingText {
   font-size: var(--mantine-font-size-sm);
-  color: var(--mantine-color-gray-5);
+  color: var(--mantine-color-gray-6);
 }
 
 /* Streaming indicator (inline with text) */
@@ -468,7 +486,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--mantine-color-accent-5);
+  background: var(--game-accent-5);
   animation: typingPulse 1.4s ease-in-out infinite;
 }
 
@@ -486,8 +504,8 @@
 
 .inputArea {
   flex-shrink: 0;
-  background: var(--mantine-color-body);
-  border-top: 1px solid var(--mantine-color-gray-2);
+  background: var(--game-bg-medium);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* ============================================================================
