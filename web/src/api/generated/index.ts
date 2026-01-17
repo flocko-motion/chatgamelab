@@ -33,6 +33,8 @@ export interface DbUserSessionWithGame {
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
+  /** AI-generated visual theme for the game player UI (JSON) */
+  theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
 }
@@ -156,6 +158,8 @@ export interface ObjGameSession {
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
+  /** AI-generated visual theme for the game player UI (JSON) */
+  theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
 }
@@ -182,6 +186,50 @@ export interface ObjGameTag {
   id?: string;
   meta?: ObjMeta;
   tag?: string;
+}
+
+export interface ObjGameTheme {
+  background?: ObjGameThemeBackground;
+  corners?: ObjGameThemeCorners;
+  player?: ObjGameThemePlayer;
+  statusEmojis?: Record<string, string>;
+  thinking?: ObjGameThemeThinking;
+  typography?: ObjGameThemeTypography;
+}
+
+export interface ObjGameThemeBackground {
+  /** none, stars, rain, fog, particles, scanlines */
+  animation?: string;
+  /** warm, cool, neutral, dark */
+  tint?: string;
+}
+
+export interface ObjGameThemeCorners {
+  /** amber, emerald, cyan, violet, rose, slate */
+  color?: string;
+  /** brackets, flourish, arrows, dots, none */
+  style?: string;
+}
+
+export interface ObjGameThemePlayer {
+  /** amber, emerald, cyan, violet, rose, slate */
+  color?: string;
+  /** dot, arrow, chevron, diamond, none */
+  indicator?: string;
+  monochrome?: boolean;
+  showChevron?: boolean;
+}
+
+export interface ObjGameThemeThinking {
+  /** dots, spinner, pulse, typewriter */
+  style?: string;
+  /** e.g. "The story unfolds..." */
+  text?: string;
+}
+
+export interface ObjGameThemeTypography {
+  /** serif, sans, mono, fantasy */
+  messages?: string;
 }
 
 export interface ObjInstitution {
@@ -305,6 +353,8 @@ export interface RoutesSessionResponse {
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
+  /** AI-generated visual theme for the game player UI (JSON) */
+  theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
 }
@@ -998,7 +1048,7 @@ export class Api<
       }),
 
     /**
-     * @description Creates a new session for a game and returns the first message (image bytes omitted)
+     * @description Creates a new session for a game and returns the session with first message
      *
      * @tags sessions
      * @name SessionsCreate
@@ -1011,7 +1061,7 @@ export class Api<
       request: RoutesCreateSessionRequest,
       params: RequestParams = {},
     ) =>
-      this.request<ObjGameSessionMessage, HttpxErrorResponse>({
+      this.request<RoutesSessionResponse, HttpxErrorResponse>({
         path: `/games/${id}/sessions`,
         method: "POST",
         body: request,
