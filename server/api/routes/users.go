@@ -69,6 +69,29 @@ func GetCurrentUser(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, user)
 }
 
+// GetCurrentUserStats godoc
+//
+//	@Summary		Get current user statistics
+//	@Description	Returns aggregated statistics for the currently authenticated user
+//	@Tags			users
+//	@Produce		json
+//	@Success		200	{object}	obj.UserStats
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/users/me/stats [get]
+func GetCurrentUserStats(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	stats, err := db.GetUserStats(r.Context(), user.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get user stats: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, stats)
+}
+
 // GetUserByID godoc
 //
 //	@Summary		Get user by ID

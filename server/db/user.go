@@ -210,6 +210,36 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	return users, rows.Err()
 }
 
+// GetUserStats returns aggregated statistics for a user
+func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
+	gamesPlayed, err := queries().CountUserSessions(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count sessions: %w", err)
+	}
+
+	gamesCreated, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to count games: %w", err)
+	}
+
+	messagesSent, err := queries().CountUserPlayerMessages(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count messages: %w", err)
+	}
+
+	totalPlays, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to sum play counts: %w", err)
+	}
+
+	return &obj.UserStats{
+		GamesPlayed:       int(gamesPlayed),
+		GamesCreated:      int(gamesCreated),
+		MessagesSent:      int(messagesSent),
+		TotalPlaysOnGames: int(totalPlays),
+	}, nil
+}
+
 func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID) error {
 	// Validate role name
 	if role != nil {

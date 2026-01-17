@@ -141,3 +141,20 @@ WHERE id = $1;
 -- name: GetUserDefaultApiKeyShare :one
 SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 
+-- User Statistics queries
+
+-- name: CountUserSessions :one
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1;
+
+-- name: CountUserGames :one
+SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1;
+
+-- name: CountUserPlayerMessages :one
+SELECT COUNT(*)::int AS count
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+WHERE s.user_id = $1 AND m.type = 'player';
+
+-- name: SumPlayCountOfUserGames :one
+SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;
+
