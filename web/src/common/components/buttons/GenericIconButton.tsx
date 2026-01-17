@@ -1,4 +1,5 @@
 import { ActionIcon } from '@mantine/core';
+import { forwardRef } from 'react';
 import type { ReactNode } from 'react';
 import type { IconButtonProps } from './types';
 
@@ -23,28 +24,34 @@ export interface GenericIconButtonProps extends IconButtonProps {
   variant?: 'subtle' | 'filled' | 'light' | 'outline' | 'default';
 }
 
-export function GenericIconButton({
-  icon,
-  onClick,
-  'aria-label': ariaLabel,
-  disabled = false,
-  loading = false,
-  size = 'md',
-  color = 'gray',
-  variant = 'subtle',
-}: GenericIconButtonProps) {
-  return (
-    <ActionIcon
-      variant={variant}
-      color={color}
-      size={size}
-      radius="md"
-      onClick={onClick}
-      disabled={disabled}
-      loading={loading}
-      aria-label={ariaLabel}
-    >
-      {icon}
-    </ActionIcon>
-  );
-}
+export const GenericIconButton = forwardRef<HTMLButtonElement, GenericIconButtonProps>(
+  function GenericIconButton(
+    {
+      icon,
+      onClick,
+      'aria-label': ariaLabel,
+      disabled = false,
+      loading = false,
+      size = 'md',
+      color = 'gray',
+      variant = 'subtle',
+    },
+    ref
+  ) {
+    return (
+      <ActionIcon
+        ref={ref}
+        variant={variant}
+        color={color}
+        size={size}
+        radius="md"
+        onClick={onClick}
+        disabled={disabled}
+        loading={loading}
+        aria-label={ariaLabel}
+      >
+        {icon}
+      </ActionIcon>
+    );
+  }
+);

@@ -1,5 +1,6 @@
 import { ActionIcon } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
+import { forwardRef } from 'react';
 import type { IconButtonProps } from './types';
 
 /**
@@ -18,28 +19,27 @@ export interface PlusIconButtonProps extends IconButtonProps {
   variant?: 'subtle' | 'filled' | 'light' | 'outline' | 'default';
 }
 
-export function PlusIconButton({
-  onClick,
-  'aria-label': ariaLabel,
-  disabled = false,
-  loading = false,
-  size = 'md',
-  variant = 'light',
-}: PlusIconButtonProps) {
-  const iconSize = size === 'xs' ? 12 : size === 'sm' ? 14 : 16;
-  
-  return (
-    <ActionIcon
-      variant={variant}
-      color="violet"
-      size={size}
-      radius="md"
-      onClick={onClick}
-      disabled={disabled}
-      loading={loading}
-      aria-label={ariaLabel}
-    >
-      <IconPlus size={iconSize} />
-    </ActionIcon>
-  );
-}
+export const PlusIconButton = forwardRef<HTMLButtonElement, PlusIconButtonProps>(
+  function PlusIconButton(
+    { onClick, 'aria-label': ariaLabel, disabled = false, loading = false, size = 'md', variant = 'light' },
+    ref
+  ) {
+    const iconSize = size === 'xs' ? 12 : size === 'sm' ? 14 : 16;
+
+    return (
+      <ActionIcon
+        ref={ref}
+        variant={variant}
+        color="violet"
+        size={size}
+        radius="md"
+        onClick={onClick}
+        disabled={disabled}
+        loading={loading}
+        aria-label={ariaLabel}
+      >
+        <IconPlus size={iconSize} />
+      </ActionIcon>
+    );
+  }
+);
