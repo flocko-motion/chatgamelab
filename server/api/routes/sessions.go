@@ -17,7 +17,8 @@ import (
 
 // Request/Response types for sessions
 type SessionActionRequest struct {
-	Message string `json:"message"`
+	Message      string            `json:"message"`
+	StatusFields []obj.StatusField `json:"statusFields,omitempty"` // Current status to pass to AI
 }
 
 type SessionResponse struct {
@@ -158,11 +159,12 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create player action message
+	// Create player action message with current status for AI context
 	action := obj.GameSessionMessage{
 		GameSessionID: session.ID,
 		Type:          obj.GameSessionMessageTypePlayer,
 		Message:       req.Message,
+		StatusFields:  req.StatusFields, // Pass current status to AI
 	}
 
 	// Execute the action and get streaming response
