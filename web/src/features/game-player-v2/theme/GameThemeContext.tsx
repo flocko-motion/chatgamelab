@@ -18,6 +18,7 @@ function mergeTheme(partial: PartialGameTheme | undefined): GameTheme {
     corners: { ...DEFAULT_GAME_THEME.corners, ...partial.corners } as GameTheme['corners'],
     background: { ...DEFAULT_GAME_THEME.background, ...partial.background } as GameTheme['background'],
     player: { ...DEFAULT_GAME_THEME.player, ...partial.player } as GameTheme['player'],
+    gameMessage: { ...DEFAULT_GAME_THEME.gameMessage, ...partial.gameMessage } as GameTheme['gameMessage'],
     thinking: { ...DEFAULT_GAME_THEME.thinking, ...partial.thinking } as GameTheme['thinking'],
     typography: { ...DEFAULT_GAME_THEME.typography, ...partial.typography } as GameTheme['typography'],
     statusEmojis: { ...DEFAULT_GAME_THEME.statusEmojis, ...(partial.statusEmojis || {}) },

@@ -24,6 +24,13 @@ export const DEFAULT_GAME_THEME: GameTheme = {
     indicator: 'dot',
     monochrome: true,
     showChevron: true,
+    bgColor: 'cyan',
+  },
+  
+  gameMessage: {
+    monochrome: false,
+    dropCap: false,
+    dropCapColor: 'amber',
   },
   
   thinking: {
@@ -92,7 +99,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   scifi: {
     corners: { style: 'brackets', color: 'cyan' },
     background: { animation: 'scanlines', tint: 'cool' },
-    player: { color: 'cyan', indicator: 'dot', monochrome: true, showChevron: true },
+    player: { color: 'cyan', indicator: 'dot', monochrome: true, showChevron: true, bgColor: 'cyan' },
+    gameMessage: { monochrome: false, dropCap: false, dropCapColor: 'cyan' },
     thinking: { text: 'Processing...', style: 'dots' },
     typography: { messages: 'mono' },
   },
@@ -101,7 +109,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   fantasy: {
     corners: { style: 'flourish', color: 'amber' },
     background: { animation: 'particles', tint: 'warm' },
-    player: { color: 'amber', indicator: 'diamond', monochrome: false, showChevron: false },
+    player: { color: 'amber', indicator: 'diamond', monochrome: false, showChevron: false, bgColor: 'amber' },
+    gameMessage: { monochrome: false, dropCap: true, dropCapColor: 'amber' },
     thinking: { text: 'The tale continues...', style: 'typewriter' },
     typography: { messages: 'serif' },
   },
@@ -110,7 +119,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   horror: {
     corners: { style: 'none', color: 'slate' },
     background: { animation: 'fog', tint: 'dark' },
-    player: { color: 'rose', indicator: 'none', monochrome: true, showChevron: false },
+    player: { color: 'rose', indicator: 'none', monochrome: true, showChevron: false, bgColor: 'slate' },
+    gameMessage: { monochrome: true, dropCap: false, dropCapColor: 'rose' },
     thinking: { text: 'Something stirs...', style: 'pulse' },
     typography: { messages: 'serif' },
   },
@@ -119,7 +129,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   adventure: {
     corners: { style: 'arrows', color: 'emerald' },
     background: { animation: 'particles', tint: 'neutral' },
-    player: { color: 'emerald', indicator: 'arrow', monochrome: false, showChevron: true },
+    player: { color: 'emerald', indicator: 'arrow', monochrome: false, showChevron: true, bgColor: 'emerald' },
+    gameMessage: { monochrome: false, dropCap: false, dropCapColor: 'emerald' },
     thinking: { text: 'The journey continues...', style: 'dots' },
     typography: { messages: 'sans' },
   },
@@ -128,7 +139,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   mystery: {
     corners: { style: 'dots', color: 'violet' },
     background: { animation: 'rain', tint: 'cool' },
-    player: { color: 'violet', indicator: 'chevron', monochrome: false, showChevron: true },
+    player: { color: 'violet', indicator: 'chevron', monochrome: false, showChevron: true, bgColor: 'violet' },
+    gameMessage: { monochrome: false, dropCap: false, dropCapColor: 'violet' },
     thinking: { text: 'Investigating...', style: 'spinner' },
     typography: { messages: 'sans' },
   },
@@ -137,7 +149,8 @@ export const PRESET_THEMES: Record<string, Partial<GameTheme>> = {
   space: {
     corners: { style: 'brackets', color: 'cyan' },
     background: { animation: 'stars', tint: 'dark' },
-    player: { color: 'cyan', indicator: 'dot', monochrome: true, showChevron: true },
+    player: { color: 'cyan', indicator: 'dot', monochrome: true, showChevron: true, bgColor: 'slate' },
+    gameMessage: { monochrome: false, dropCap: false, dropCapColor: 'cyan' },
     thinking: { text: 'Scanning...', style: 'spinner' },
     typography: { messages: 'mono' },
   },

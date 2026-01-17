@@ -10,6 +10,7 @@ export type {
   PartialGameTheme,
   CornerStyle,
   ThemeColor,
+  PlayerBgColor,
   BackgroundAnimation,
   BackgroundTint,
   PlayerIndicator,
@@ -18,6 +19,7 @@ export type {
   CornerConfig,
   BackgroundConfig,
   PlayerConfig,
+  GameMessageConfig,
   ThinkingConfig,
   TypographyConfig,
 } from './types';

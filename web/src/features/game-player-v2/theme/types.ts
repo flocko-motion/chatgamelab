@@ -11,6 +11,9 @@ export type CornerStyle = 'brackets' | 'flourish' | 'arrows' | 'dots' | 'none';
 /** Available accent colors */
 export type ThemeColor = 'amber' | 'emerald' | 'cyan' | 'violet' | 'rose' | 'slate';
 
+/** Player message background colors (limited palette) */
+export type PlayerBgColor = 'cyan' | 'amber' | 'violet' | 'slate' | 'white' | 'emerald' | 'rose';
+
 /** Background animation types */
 export type BackgroundAnimation = 'none' | 'stars' | 'rain' | 'fog' | 'particles' | 'scanlines';
 
@@ -44,6 +47,14 @@ export interface PlayerConfig {
   indicator: PlayerIndicator;
   monochrome: boolean;
   showChevron: boolean;
+  bgColor: PlayerBgColor;
+}
+
+/** AI/Game message styling */
+export interface GameMessageConfig {
+  monochrome: boolean;
+  dropCap: boolean;
+  dropCapColor: ThemeColor;
 }
 
 /** AI thinking state configuration */
@@ -68,6 +79,9 @@ export interface GameTheme {
   /** Player input/message styling */
   player: PlayerConfig;
   
+  /** AI/Game message styling */
+  gameMessage: GameMessageConfig;
+  
   /** AI "thinking" indicator */
   thinking: ThinkingConfig;
   
@@ -83,6 +97,7 @@ export interface PartialGameTheme {
   corners?: Partial<CornerConfig>;
   background?: Partial<BackgroundConfig>;
   player?: Partial<PlayerConfig>;
+  gameMessage?: Partial<GameMessageConfig>;
   thinking?: Partial<ThinkingConfig>;
   typography?: Partial<TypographyConfig>;
   statusEmojis?: Record<string, string>;
