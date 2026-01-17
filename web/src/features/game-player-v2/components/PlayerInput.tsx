@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Group, TextInput, ActionIcon } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import { IconSend } from '@tabler/icons-react';
+import { IconPlayerPlay } from '@tabler/icons-react';
 
 interface PlayerInputProps {
   onSend: (message: string) => void;
@@ -38,20 +38,29 @@ export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInp
         onKeyDown={handleKeyDown}
         placeholder={placeholder || t('gamePlayer.input.placeholder')}
         disabled={disabled}
-        style={{ flex: 1 }}
         size="md"
         radius="xl"
+        styles={{
+          root: { flex: 1 },
+          input: {
+            '--input-bd-focus': '#d97706',
+          },
+        }}
         rightSection={
           <ActionIcon
             variant="filled"
-            color="accent"
             size="md"
             radius="xl"
             onClick={handleSend}
             disabled={disabled || !value.trim()}
             aria-label={t('gamePlayer.input.send')}
+            style={{ 
+              background: disabled || !value.trim() 
+                ? 'var(--mantine-color-gray-4)' 
+                : '#b45309',
+            }}
           >
-            <IconSend size={16} />
+            <IconPlayerPlay size={16} />
           </ActionIcon>
         }
         rightSectionWidth={42}
