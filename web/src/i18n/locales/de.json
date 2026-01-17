@@ -623,7 +623,7 @@
       "gamesPlayed": "Gespielte Spiele",
       "gamesCreated": "Erstellte Spiele",
       "messagesSent": "Gesendete Nachrichten",
-      "sessionsJoined": "Beigetretene Sitzungen"
+      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
     }
   }
 }

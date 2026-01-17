@@ -624,7 +624,7 @@
       "gamesPlayed": "Games Played",
       "gamesCreated": "Games Created",
       "messagesSent": "Messages Sent",
-      "sessionsJoined": "Sessions Joined"
+      "totalPlaysOnGames": "Total Plays on My Games"
     }
   }
 }
