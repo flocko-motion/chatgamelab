@@ -116,7 +116,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     setDebugMode(current => !current);
   }, []);
 
-  const containerHeight = 'calc(100vh - 220px)';
+  // Use flex: 1 to fill available space between app header and footer
+  const containerHeight = undefined;
 
   const contextValue: GamePlayerContextValue = {
     state,
@@ -218,13 +219,26 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       }
     }
 
+    // Show input inline when user can type
+    if (!state.isWaitingForResponse && state.messages.length > 0) {
+      elements.push(
+        <div key="inline-input" className={classes.inlineInput}>
+          <PlayerInput
+            onSend={handleSendAction}
+            disabled={state.isWaitingForResponse}
+            placeholder={t('gamePlayer.input.placeholder')}
+          />
+        </div>
+      );
+    }
+
     return elements;
   };
 
   return (
     <GamePlayerProvider value={contextValue}>
       <Box className={classes.container} h={containerHeight}>
-        <Box className={classes.header} px={{ base: 'sm', sm: 'md' }} py="sm">
+        <Box className={classes.header} px="md" py="sm">
           <Group justify="space-between" wrap="nowrap">
             <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
               <Tooltip label={t('gamePlayer.header.back')} position="bottom">
@@ -290,18 +304,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             {renderMessages()}
             <div ref={sceneEndRef} />
           </div>
-        </Box>
-
-        <Box className={classes.inputArea} px={{ base: 'sm', sm: 'md' }} py="sm">
-          <PlayerInput
-            onSend={handleSendAction}
-            disabled={state.isWaitingForResponse}
-            placeholder={
-              state.isWaitingForResponse
-                ? t('gamePlayer.input.waiting')
-                : t('gamePlayer.input.placeholder')
-            }
-          />
         </Box>
 
         {!isContinuation && (
