@@ -23,6 +23,9 @@ function RootComponent() {
   const pathname = location.pathname;
   const isHomePage = pathname === ROUTES.HOME;
   
+  // Game player routes need special dark styling
+  const isGamePlayerRoute = pathname.includes('/play') || pathname.startsWith('/sessions/');
+  
   // Public routes that don't require authentication
   const isPublicRoute = isHomePage || pathname.startsWith(ROUTES.AUTH_LOGIN);
 
@@ -103,14 +106,21 @@ function RootComponent() {
     );
   }
 
+  // Game player uses dimmed background
+  const layoutBackground = isGamePlayerRoute 
+    ? '#e8e8ec' 
+    : theme.other.colors.bgLandingGradient;
+
   return (
     <>
       <AppLayout 
         variant={useAuthenticatedLayout ? 'authenticated' : 'public'}
         navItems={useAuthenticatedLayout ? navItems : undefined}
-        background={theme.other.colors.bgLandingGradient}
+        background={layoutBackground}
         transparentFooter={isHomePage}
         headerProps={headerProps}
+        darkMode={isGamePlayerRoute}
+        withContainer={!isGamePlayerRoute}
       >
         <Outlet />
       </AppLayout>

@@ -13,6 +13,7 @@ export interface AppLayoutProps {
   containerSize?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   background?: string;
   transparentFooter?: boolean;
+  darkMode?: boolean;
 }
 
 const HEADER_HEIGHT = { base: 60, sm: 80 } as const;
@@ -28,6 +29,7 @@ export function AppLayout({
   containerSize = 'xl',
   background = '#ffffff',
   transparentFooter = false,
+  darkMode = false,
 }: AppLayoutProps) {
   const { isMobile } = useResponsiveDesign();
   const isAuthenticated = variant === 'authenticated';
@@ -48,9 +50,18 @@ export function AppLayout({
 
       <AppShell.Main
         pt={isAuthenticated 
-          ? { base: HEADER_HEIGHT.base + 10, sm: HEADER_HEIGHT.sm + 20 } 
+          ? (darkMode 
+              ? { base: HEADER_HEIGHT.base, sm: HEADER_HEIGHT.sm } 
+              : { base: HEADER_HEIGHT.base + 10, sm: HEADER_HEIGHT.sm + 20 })
           : { base: 'sm', sm: 'md' }
         }
+        pb={darkMode ? FOOTER_HEIGHT.base : undefined}
+        style={darkMode ? { 
+          display: 'flex', 
+          flexDirection: 'column',
+          height: '100vh',
+          overflow: 'hidden',
+        } : undefined}
       >
         {withContainer ? (
           <Container 
@@ -65,7 +76,7 @@ export function AppLayout({
         )}
       </AppShell.Main>
 
-      <AppFooter {...footerProps} transparent={transparentFooter} />
+      <AppFooter {...footerProps} transparent={transparentFooter} darkMode={darkMode} />
     </AppShell>
   );
 }

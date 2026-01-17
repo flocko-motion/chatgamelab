@@ -10,7 +10,11 @@ interface BackendVersionInfo {
   gitCommit: string;
 }
 
-export function VersionDisplay() {
+interface VersionDisplayProps {
+  darkMode?: boolean;
+}
+
+export function VersionDisplay({ darkMode = false }: VersionDisplayProps) {
   const { t } = useTranslation('dashboard');
   const { data: backendData, isError } = useVersion();
 
@@ -145,7 +149,7 @@ export function VersionDisplay() {
       maw={400}
     >
       <Group gap="xs" style={{ cursor: 'help', alignItems: 'center' }}>
-        <Text size="sm" c="dimmed" span>
+        <Text size="sm" c={darkMode ? 'gray.6' : 'dimmed'} span>
           v{frontendVersion}
         </Text>
         {hasVersionMismatch && (

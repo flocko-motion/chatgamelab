@@ -14,6 +14,7 @@ export interface AppFooterProps {
   links?: FooterLink[];
   showVersion?: boolean;
   transparent?: boolean;
+  darkMode?: boolean;
 }
 
 const defaultLinks: FooterLink[] = [
@@ -21,16 +22,26 @@ const defaultLinks: FooterLink[] = [
   { label: 'JFF - Institut für Medienpädagogik', href: EXTERNAL_LINKS.JFF.href },
 ];
 
-export function AppFooter({ links = defaultLinks, showVersion = true }: AppFooterProps) {
+export function AppFooter({ links = defaultLinks, showVersion = true, darkMode = false }: AppFooterProps) {
   const { mobileBreakpoint } = useResponsiveDesign();
   const { t } = useTranslation('common');
 
+  const dimmedStyles = {
+    backgroundColor: '#dddde3',
+    borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+  };
+
+  const lightStyles = {
+    backgroundColor: 'var(--mantine-color-gray-0)',
+    borderTop: '1px solid var(--mantine-color-gray-2)',
+  };
+
+  const textColor = darkMode ? 'gray.6' : 'gray.5';
+  const linkColor = darkMode ? 'gray.7' : 'accent.8';
+
   return (
     <AppShell.Footer
-      style={{
-        backgroundColor: 'var(--mantine-color-gray-0)',
-        borderTop: '1px solid var(--mantine-color-gray-2)',
-      }}
+      style={darkMode ? dimmedStyles : lightStyles}
     >
       <Container size="xl" h="100%" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
         <Box
@@ -44,22 +55,22 @@ export function AppFooter({ links = defaultLinks, showVersion = true }: AppFoote
           {/* Desktop: Full footer with all links */}
           <Box visibleFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center" wrap="wrap">
-              <HelperText c="gray.5">
+              <HelperText c={textColor}>
                 {t('footer.programmedBy')}{' '}
-                <Anchor href={links[0]?.href} target="_blank" size="sm" c="accent.8">
+                <Anchor href={links[0]?.href} target="_blank" size="sm" c={linkColor}>
                   {links[0]?.label}
                 </Anchor>
               </HelperText>
-              <HelperText c="gray.5">|</HelperText>
-              <HelperText c="gray.5">
-                <Anchor href={links[1]?.href} target="_blank" size="sm" c="accent.8" title={t('footer.jffTitle')}>
+              <HelperText c={textColor}>|</HelperText>
+              <HelperText c={textColor}>
+                <Anchor href={links[1]?.href} target="_blank" size="sm" c={linkColor} title={t('footer.jffTitle')}>
                   {links[1]?.label}
                 </Anchor>
               </HelperText>
               {showVersion && (
                 <>
-                  <HelperText c="gray.5">|</HelperText>
-                  <VersionDisplay />
+                  <HelperText c={textColor}>|</HelperText>
+                  <VersionDisplay darkMode={darkMode} />
                 </>
               )}
             </Group>
@@ -68,13 +79,13 @@ export function AppFooter({ links = defaultLinks, showVersion = true }: AppFoote
           {/* Mobile: Condensed footer */}
           <Box hiddenFrom={mobileBreakpoint}>
             <Group gap="xs" justify="center">
-              <HelperText c="gray.5">
+              <HelperText c={textColor}>
                 {t('footer.copyright')}
               </HelperText>
               {showVersion && (
                 <>
-                  <HelperText c="gray.5">•</HelperText>
-                  <VersionDisplay />
+                  <HelperText c={textColor}>•</HelperText>
+                  <VersionDisplay darkMode={darkMode} />
                 </>
               )}
             </Group>
