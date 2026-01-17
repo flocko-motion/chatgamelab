@@ -1,0 +1,441 @@
+/* ============================================================================
+   Game Player - Main Container
+   ============================================================================ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--mantine-color-gray-0);
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.header {
+  flex-shrink: 0;
+  background: var(--mantine-color-body);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+}
+
+/* ============================================================================
+   Status Bar
+   ============================================================================ */
+
+.statusBar {
+  flex-shrink: 0;
+  background: var(--mantine-color-gray-0);
+  border-bottom: 1px solid var(--mantine-color-gray-2);
+  overflow-x: auto;
+}
+
+.statusField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.statusFieldName {
+  color: var(--mantine-color-gray-6);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusFieldValue {
+  color: var(--mantine-color-gray-8);
+  font-weight: 600;
+}
+
+/* ============================================================================
+   Scene Area (scrollable)
+   ============================================================================ */
+
+.sceneArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: var(--mantine-spacing-md);
+}
+
+.scenesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xl);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   Scene Card
+   ============================================================================ */
+
+.sceneCard {
+  animation: cardEnter 0.3s ease-out forwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Game scene - image left, text right */
+.gameScene {
+  display: flex;
+  gap: var(--mantine-spacing-lg);
+  padding: var(--mantine-spacing-lg);
+  background: var(--mantine-color-body);
+  border-radius: var(--mantine-radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.gameScene.noImage {
+  padding: var(--mantine-spacing-xl);
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 48em) {
+  .gameScene {
+    flex-direction: column;
+  }
+}
+
+/* ============================================================================
+   Scene Image
+   ============================================================================ */
+
+.sceneImageWrapper {
+  flex-shrink: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.sceneImageWrapper:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 48em) {
+  .sceneImageWrapper {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+.sceneImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    var(--mantine-color-gray-1) 8%,
+    var(--mantine-color-gray-2) 18%,
+    var(--mantine-color-gray-1) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================================
+   Scene Content (Narrative Text)
+   ============================================================================ */
+
+.sceneContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.narrativeText {
+  font-size: var(--mantine-font-size-md);
+  line-height: 1.7;
+  color: var(--mantine-color-gray-8);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   Player Action
+   ============================================================================ */
+
+.playerAction {
+  display: flex;
+  justify-content: flex-end;
+  animation: actionEnter 0.2s ease-out forwards;
+}
+
+@keyframes actionEnter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.playerActionBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  max-width: 80%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-accent-1);
+  color: var(--mantine-color-accent-9);
+  border: 1px solid var(--mantine-color-accent-2);
+  border-radius: var(--mantine-radius-lg);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+}
+
+.playerActionPrefix {
+  color: var(--mantine-color-accent-5);
+  font-weight: 600;
+}
+
+.playerActionText {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================================================
+   Scene Divider
+   ============================================================================ */
+
+.sceneDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-xs) 0;
+  color: var(--mantine-color-gray-4);
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--mantine-color-gray-2);
+  max-width: 100px;
+}
+
+.dividerDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--mantine-color-gray-3);
+}
+
+/* ============================================================================
+   Typing Indicator
+   ============================================================================ */
+
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: var(--mantine-color-body);
+  border-radius: var(--mantine-radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  animation: cardEnter 0.3s ease-out forwards;
+}
+
+.typingDots {
+  display: flex;
+  gap: 4px;
+}
+
+.typingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mantine-color-accent-5);
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.typingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.typingText {
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-gray-5);
+}
+
+/* Streaming indicator (inline with text) */
+.streamingIndicator {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: var(--mantine-spacing-xs);
+  vertical-align: middle;
+}
+
+.streamingDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mantine-color-accent-5);
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.streamingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.streamingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ============================================================================
+   Input Area
+   ============================================================================ */
+
+.inputArea {
+  flex-shrink: 0;
+  background: var(--mantine-color-body);
+  border-top: 1px solid var(--mantine-color-gray-2);
+}
+
+/* ============================================================================
+   Lightbox Overlay
+   ============================================================================ */
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  animation: fadeIn 0.2s ease-out;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightboxImage {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--mantine-radius-md);
+  animation: lightboxZoom 0.2s ease-out;
+}
+
+@keyframes lightboxZoom {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lightboxClose {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  right: var(--mantine-spacing-md);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================================
+   Loading & Error States
+   ============================================================================ */
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-md);
+  height: 100%;
+  padding: var(--mantine-spacing-xl);
+  text-align: center;
+}
+
+/* ============================================================================
+   System Message
+   ============================================================================ */
+
+.systemMessage {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-gray-1);
+  border: 1px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+  font-style: italic;
+  color: var(--mantine-color-gray-6);
+  text-align: center;
+  animation: cardEnter 0.3s ease-out forwards;
+}
