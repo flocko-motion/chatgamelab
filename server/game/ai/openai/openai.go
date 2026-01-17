@@ -577,3 +577,65 @@ func isDatedModel(modelID string) bool {
 
 	return false
 }
+
+// GenerateTheme generates a visual theme JSON for the game player UI
+func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+	log.Debug("OpenAI GenerateTheme starting", "session_id", session.ID)
+
+	if session.ApiKey == nil {
+		return "", fmt.Errorf("session has no API key")
+	}
+
+	api := p.newApi(session.ApiKey.Key)
+
+	// Use a simple request for theme generation - no need for structured output
+	reqBody := ResponsesAPIRequest{
+		Model:        session.AiModel,
+		Instructions: systemPrompt,
+		Input:        userPrompt,
+		Store:        false, // Don't store theme generation in conversation history
+	}
+
+	reqBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	resp, err := api.Post(ctx, responsesEndpoint, reqBytes)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var apiResp ResponsesAPIResponse
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return "", fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	if apiResp.Error != nil {
+		return "", fmt.Errorf("API error: %s", apiResp.Error.Message)
+	}
+
+	// Extract text from response
+	for _, output := range apiResp.Output {
+		if output.Type == "message" {
+			for _, content := range output.Content {
+				if content.Type == "output_text" || content.Type == "text" {
+					log.Debug("OpenAI GenerateTheme completed", "response_length", len(content.Text))
+					return content.Text, nil
+				}
+			}
+		}
+	}
+
+	return "", fmt.Errorf("no text content in response")
+}

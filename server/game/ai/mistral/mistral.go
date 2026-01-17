@@ -227,3 +227,35 @@ func isRelevantModel(modelID string) bool {
 
 	return true
 }
+
+// GenerateTheme generates a visual theme JSON for the game player UI
+func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+	if session.ApiKey == nil {
+		return "", fmt.Errorf("session has no API key")
+	}
+
+	client := p.newApi(session.ApiKey.Key)
+
+	requestBody := chatCompletionRequest{
+		Model: session.AiModel,
+		Messages: []message{
+			{Role: "system", Content: systemPrompt},
+			{Role: "user", Content: userPrompt},
+		},
+		Temperature: 0.7,
+		ResponseFormat: responseFormat{
+			Type: "json_object",
+		},
+	}
+
+	var response chatResponse
+	if err := client.PostJson(ctx, mistralChatEndpoint, requestBody, &response); err != nil {
+		return "", fmt.Errorf("failed to generate theme: %w", err)
+	}
+
+	if len(response.Choices) == 0 {
+		return "", fmt.Errorf("no response from Mistral")
+	}
+
+	return response.Choices[0].Message.Content, nil
+}
