@@ -10,6 +10,7 @@ import {
   Badge,
   TextInput,
   Tooltip,
+  Box,
 } from '@mantine/core';
 import { useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,7 @@ import { SortSelector, type SortOption, FilterSegmentedControl } from '@componen
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
 import { PlayGameButton, TextButton, GenericIconButton } from '@components/buttons';
+import { GameCard, type GameCardAction } from './GameCard';
 import { useGames, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
@@ -148,6 +150,15 @@ export function AllGames() {
     });
   };
 
+  const getCardActions = (game: ObjGame): GameCardAction[] => [
+    {
+      key: 'copy',
+      icon: <IconCopy size={16} />,
+      label: t('allGames.copyGame'),
+      onClick: () => handleCopyGame(game),
+    },
+  ];
+
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getGameSessionState(game);
     
@@ -246,10 +257,17 @@ export function AllGames() {
       width: 100,
       render: (game) => {
         const dateValue = sortField === 'createdAt' ? game.meta?.createdAt : game.meta?.modifiedAt;
+        const date = dateValue ? new Date(dateValue) : null;
         return (
-          <Text size="sm" c="gray.6">
-            {dateValue ? new Date(dateValue).toLocaleDateString() : '-'}
-          </Text>
+          <Tooltip 
+            label={date ? date.toLocaleString() : '-'} 
+            withArrow 
+            disabled={!date}
+          >
+            <Text size="sm" c="gray.6">
+              {date ? date.toLocaleDateString() : '-'}
+            </Text>
+          </Tooltip>
         );
       },
     },
@@ -309,33 +327,38 @@ export function AllGames() {
   }
 
   return (
-    <Stack gap="lg" h="calc(100vh - 280px)">
-        <PageTitle>{t('allGames.title')}</PageTitle>
+    <Stack gap="lg" h={{ base: 'calc(100vh - 180px)', sm: 'calc(100vh - 280px)' }} style={{ overflow: 'hidden' }}>
+        {/* Sticky header section */}
+        <Stack gap="lg" style={{ flexShrink: 0 }}>
+          <PageTitle>{t('allGames.title')}</PageTitle>
 
-        <Group justify="space-between" wrap="wrap" gap="sm">
-          <TextInput
-            placeholder={t('search')}
-            leftSection={<IconSearch size={16} />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            size={isMobile ? 'xs' : 'sm'}
-            w={{ base: 150, sm: 200 }}
-          />
-          <Group gap="sm" wrap="wrap">
-            <FilterSegmentedControl
-              value={filter}
-              onChange={setFilter}
-              options={filterOptions}
+          <Group justify="space-between" wrap="wrap" gap="sm">
+            <TextInput
+              placeholder={t('search')}
+              leftSection={<IconSearch size={16} />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.currentTarget.value)}
+              size={isMobile ? 'xs' : 'sm'}
+              w={{ base: 150, sm: 200 }}
             />
-            <SortSelector
-              options={sortOptions}
-              value={sortField}
-              onChange={(v) => setSortField(v as GameSortField)}
-              label={t('games.sort.label')}
-            />
+            <Group gap="sm" wrap="wrap">
+              <FilterSegmentedControl
+                value={filter}
+                onChange={setFilter}
+                options={filterOptions}
+              />
+              <SortSelector
+                options={sortOptions}
+                value={sortField}
+                onChange={(v) => setSortField(v as GameSortField)}
+                label={t('games.sort.label')}
+              />
+            </Group>
           </Group>
-        </Group>
+        </Stack>
 
+        {/* Scrollable content area */}
+        <Box style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         <DimmedLoader visible={isRefetching} loaderSize="lg">
         {isMobile ? (
             (games?.length ?? 0) === 0 ? (
@@ -352,58 +375,30 @@ export function AllGames() {
               </Card>
             ) : (
               <SimpleGrid cols={1} spacing="md">
-              {games?.map((game) => (
-                <Card key={game.id} shadow="sm" p="lg" radius="md" withBorder>
-                  <Stack gap="sm">
-                    <Group gap="md" align="flex-start" wrap="nowrap">
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Tooltip label={isFavorite(game) ? t('allGames.unfavorite') : t('allGames.favorite')} withArrow>
-                          <GenericIconButton
-                            icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
-                            onClick={() => handleToggleFavorite(game)}
-                            aria-label={isFavorite(game) ? t('allGames.unfavorite') : t('allGames.favorite')}
-                          />
-                        </Tooltip>
-                      </div>
-                      <div onClick={(e) => e.stopPropagation()}>
-                        {renderPlayButton(game)}
-                      </div>
-                      <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                        <Group gap="xs" wrap="nowrap">
-                          <Text fw={600} size="md" lineClamp={1} style={{ flex: 1 }}>
-                            {game.name}
-                          </Text>
-                          {isOwner(game) ? (
-                            <Badge size="xs" color="violet" variant="light">
-                              {t('games.fields.me')}
-                            </Badge>
-                          ) : (
-                            game.creatorName && (
-                              <Text size="xs" c="gray.6">
-                                {game.creatorName}
-                              </Text>
-                            )
-                          )}
-                        </Group>
-                        {game.description && (
-                          <Text size="sm" c="gray.6" lineClamp={2}>
-                            {game.description}
-                          </Text>
-                        )}
-                      </Stack>
-                      <div onClick={(e) => e.stopPropagation()}>
-                        <Tooltip label={t('allGames.copyGame')} withArrow>
-                          <GenericIconButton
-                            icon={<IconCopy size={16} />}
-                            onClick={() => handleCopyGame(game)}
-                            aria-label={t('allGames.copyGame')}
-                          />
-                        </Tooltip>
-                      </div>
-                    </Group>
-                  </Stack>
-                </Card>
-              ))}
+              {games?.map((game) => {
+                const { hasSession, session } = getGameSessionState(game);
+                return (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onPlay={() => handlePlayGame(game)}
+                    playLabel={t('allGames.play')}
+                    hasSession={hasSession}
+                    onContinue={session ? () => handleContinueGame(session) : undefined}
+                    continueLabel={t('allGames.continue')}
+                    onRestart={session ? () => handleRestartGame(game, session) : undefined}
+                    restartLabel={t('allGames.restart')}
+                    showCreator
+                    isOwner={isOwner(game)}
+                    creatorLabel={t('games.fields.me')}
+                    isFavorite={isFavorite(game)}
+                    onToggleFavorite={() => handleToggleFavorite(game)}
+                    favoriteLabel={t('allGames.favorite')}
+                    unfavoriteLabel={t('allGames.unfavorite')}
+                    actions={getCardActions(game)}
+                  />
+                );
+              })}
             </SimpleGrid>
           )
         ) : (
@@ -414,58 +409,29 @@ export function AllGames() {
             onRowClick={handlePlayGame}
             isLoading={false}
             fillHeight
-            renderMobileCard={(game) => (
-              <Card shadow="sm" p="lg" radius="md" withBorder>
-                <Stack gap="sm">
-                  <Group gap="md" align="flex-start" wrap="nowrap">
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Tooltip label={isFavorite(game) ? t('allGames.unfavorite') : t('allGames.favorite')} withArrow>
-                        <GenericIconButton
-                          icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
-                          onClick={() => handleToggleFavorite(game)}
-                          aria-label={isFavorite(game) ? t('allGames.unfavorite') : t('allGames.favorite')}
-                        />
-                      </Tooltip>
-                    </div>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      {renderPlayButton(game)}
-                    </div>
-                    <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                      <Group gap="xs" wrap="nowrap">
-                        <Text fw={600} size="md" lineClamp={1} style={{ flex: 1 }}>
-                          {game.name}
-                        </Text>
-                        {isOwner(game) ? (
-                          <Badge size="xs" color="violet" variant="light">
-                            {t('games.fields.me')}
-                          </Badge>
-                        ) : (
-                          game.creatorName && (
-                            <Text size="xs" c="gray.6">
-                              {game.creatorName}
-                            </Text>
-                          )
-                        )}
-                      </Group>
-                      {game.description && (
-                        <Text size="sm" c="gray.6" lineClamp={2}>
-                          {game.description}
-                        </Text>
-                      )}
-                    </Stack>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Tooltip label={t('allGames.copyGame')} withArrow>
-                        <GenericIconButton
-                          icon={<IconCopy size={16} />}
-                          onClick={() => handleCopyGame(game)}
-                          aria-label={t('allGames.copyGame')}
-                        />
-                      </Tooltip>
-                    </div>
-                  </Group>
-                </Stack>
-              </Card>
-            )}
+            renderMobileCard={(game) => {
+              const { hasSession, session } = getGameSessionState(game);
+              return (
+                <GameCard
+                  game={game}
+                  onPlay={() => handlePlayGame(game)}
+                  playLabel={t('allGames.play')}
+                  hasSession={hasSession}
+                  onContinue={session ? () => handleContinueGame(session) : undefined}
+                  continueLabel={t('allGames.continue')}
+                  onRestart={session ? () => handleRestartGame(game, session) : undefined}
+                  restartLabel={t('allGames.restart')}
+                  showCreator
+                  isOwner={isOwner(game)}
+                  creatorLabel={t('games.fields.me')}
+                  isFavorite={isFavorite(game)}
+                  onToggleFavorite={() => handleToggleFavorite(game)}
+                  favoriteLabel={t('allGames.favorite')}
+                  unfavoriteLabel={t('allGames.unfavorite')}
+                  actions={getCardActions(game)}
+                />
+              );
+            }}
             emptyState={
               <DataTableEmptyState
                 icon={<IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />}
@@ -476,6 +442,7 @@ export function AllGames() {
           />
         )}
         </DimmedLoader>
+        </Box>
     </Stack>
   );
 }

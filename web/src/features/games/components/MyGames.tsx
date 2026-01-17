@@ -9,11 +9,12 @@ import {
   Text,
   Badge,
   Tooltip,
+  Box,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconWorld, IconLock, IconCopy, IconStar, IconStarFilled } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
 import { TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import { SortSelector, type SortOption, FilterSegmentedControl } from '@components/controls';
 import { PageTitle } from '@components/typography';
@@ -24,7 +25,7 @@ import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
 import { type SortField, type CreateGameFormData } from '../types';
 import { GameEditModal } from './GameEditModal';
 import { DeleteGameModal } from './DeleteGameModal';
-import { IconDownload } from '@tabler/icons-react';
+import { GameCard, type GameCardAction } from './GameCard';
 import { useModals } from '@mantine/modals';
 
 interface MyGamesProps {
@@ -256,6 +257,33 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     return { hasSession: !!session, session };
   };
 
+  const getCardActions = (game: ObjGame): GameCardAction[] => [
+    {
+      key: 'edit',
+      icon: null,
+      label: t('editGame'),
+      onClick: () => handleEditGame(game),
+    },
+    {
+      key: 'copy',
+      icon: <IconCopy size={16} />,
+      label: t('copyGame'),
+      onClick: () => handleCopyGame(game),
+    },
+    {
+      key: 'export',
+      icon: <IconDownload size={16} />,
+      label: t('games.importExport.exportButton'),
+      onClick: () => handleExport(game),
+    },
+    {
+      key: 'delete',
+      icon: null,
+      label: t('deleteGame'),
+      onClick: () => handleDeleteClick(game),
+    },
+  ];
+
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getGameSessionState(game);
     
@@ -339,14 +367,14 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     {
       key: 'visibility',
       header: t('games.fields.visibility'),
-      width: 120,
+      width: 150,
       render: (game) =>
         game.public ? (
-          <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />}>
+          <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />} style={{ whiteSpace: 'nowrap' }}>
             {t('games.visibility.public')}
           </Badge>
         ) : (
-          <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />}>
+          <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />} style={{ whiteSpace: 'nowrap' }}>
             {t('games.visibility.private')}
           </Badge>
         ),
@@ -357,10 +385,17 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
       width: 100,
       render: (game) => {
         const dateValue = sortField === 'createdAt' ? game.meta?.createdAt : game.meta?.modifiedAt;
+        const date = dateValue ? new Date(dateValue) : null;
         return (
-          <Text size="sm" c="gray.6">
-            {dateValue ? new Date(dateValue).toLocaleDateString() : '-'}
-          </Text>
+          <Tooltip 
+            label={date ? date.toLocaleString() : '-'} 
+            withArrow 
+            disabled={!date}
+          >
+            <Text size="sm" c="gray.6">
+              {date ? date.toLocaleDateString() : '-'}
+            </Text>
+          </Tooltip>
         );
       },
     },
@@ -444,52 +479,57 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
 
   return (
     <>
-      <Stack gap="lg" h="calc(100vh - 280px)">
-        <PageTitle>{t('myGames.title')}</PageTitle>
+      <Stack gap="lg" h={{ base: 'calc(100vh - 180px)', sm: 'calc(100vh - 280px)' }} style={{ overflow: 'hidden' }}>
+        {/* Sticky header section */}
+        <Stack gap="lg" style={{ flexShrink: 0 }}>
+          <PageTitle>{t('myGames.title')}</PageTitle>
 
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileSelect}
-          accept=".yaml,.yml"
-          style={{ display: 'none' }}
-        />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept=".yaml,.yml"
+            style={{ display: 'none' }}
+          />
 
-        <Group justify="space-between" wrap="wrap" gap="sm">
-          <Group gap="sm">
-            <TextButton
-              leftSection={<IconPlus size={16} />}
-              onClick={openCreateModal}
-            >
-              {t('games.createButton')}
-            </TextButton>
-            <TextButton
-              leftSection={<IconUpload size={16} />}
-              onClick={handleImportClick}
-            >
-              {t('games.importExport.importButton')}
-            </TextButton>
-          </Group>
-          <Group gap="sm" wrap="wrap">
-            <FilterSegmentedControl
-              value={showFavorites}
-              onChange={setShowFavorites}
-              options={[
-                { value: 'all', label: t('myGames.filters.all') },
-                { value: 'favorites', label: t('myGames.filters.favorites') },
-              ]}
-            />
-            {(rawGames?.length ?? 0) > 0 && (
-              <SortSelector 
-                options={sortOptions} 
-                value={sortField} 
-                onChange={(v) => setSortField(v as SortField)}
-                label={t('games.sort.label')}
+          <Group justify="space-between" wrap="wrap" gap="sm">
+            <Group gap="sm">
+              <TextButton
+                leftSection={<IconPlus size={16} />}
+                onClick={openCreateModal}
+              >
+                {t('games.createButton')}
+              </TextButton>
+              <TextButton
+                leftSection={<IconUpload size={16} />}
+                onClick={handleImportClick}
+              >
+                {t('games.importExport.importButton')}
+              </TextButton>
+            </Group>
+            <Group gap="sm" wrap="wrap">
+              <FilterSegmentedControl
+                value={showFavorites}
+                onChange={setShowFavorites}
+                options={[
+                  { value: 'all', label: t('myGames.filters.all') },
+                  { value: 'favorites', label: t('myGames.filters.favorites') },
+                ]}
               />
-            )}
+              {(rawGames?.length ?? 0) > 0 && (
+                <SortSelector 
+                  options={sortOptions} 
+                  value={sortField} 
+                  onChange={(v) => setSortField(v as SortField)}
+                  label={t('games.sort.label')}
+                />
+              )}
+            </Group>
           </Group>
-        </Group>
+        </Stack>
 
+        {/* Scrollable content area */}
+        <Box style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
         <DimmedLoader visible={isRefetching} loaderSize="lg">
           {isMobile ? (
             (games?.length ?? 0) === 0 ? (
@@ -506,69 +546,29 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
               </Card>
             ) : (
               <SimpleGrid cols={1} spacing="md">
-              {games?.map((game) => (
-                  <Card key={game.id} shadow="sm" p="lg" radius="md" withBorder onClick={() => handleViewGame(game)}>
-                    <Stack gap="sm">
-                      <Group gap="md" align="flex-start" wrap="nowrap">
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <Tooltip label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')} withArrow>
-                            <GenericIconButton
-                              icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
-                              onClick={() => handleToggleFavorite(game)}
-                              aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
-                            />
-                          </Tooltip>
-                        </div>
-                        <div onClick={(e) => e.stopPropagation()}>
-                          {renderPlayButton(game)}
-                        </div>
-                        <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                          <Group gap="xs" wrap="nowrap">
-                            <Text fw={600} size="md" lineClamp={1} style={{ flex: 1 }}>
-                              {game.name}
-                            </Text>
-                            {game.public ? (
-                              <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />}>
-                                {t('games.visibility.public')}
-                              </Badge>
-                            ) : (
-                              <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />}>
-                                {t('games.visibility.private')}
-                              </Badge>
-                            )}
-                          </Group>
-                          {game.description && (
-                            <Text size="sm" c="gray.6" lineClamp={2}>
-                              {game.description}
-                            </Text>
-                          )}
-                        </Stack>
-                      </Group>
-                      <Group justify="flex-end" gap="xs" onClick={(e) => e.stopPropagation()}>
-                        <Tooltip label={t('editGame')} withArrow>
-                          <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-                        </Tooltip>
-                        <Tooltip label={t('copyGame')} withArrow>
-                          <GenericIconButton
-                            icon={<IconCopy size={16} />}
-                            onClick={() => handleCopyGame(game)}
-                            aria-label={t('myGames.copyGame')}
-                          />
-                        </Tooltip>
-                        <Tooltip label={t('games.importExport.exportButton')} withArrow>
-                          <GenericIconButton
-                            icon={<IconDownload size={16} />}
-                            onClick={() => handleExport(game)}
-                            aria-label={t('games.importExport.exportButton')}
-                          />
-                        </Tooltip>
-                        <Tooltip label={t('deleteGame')} withArrow>
-                          <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
-                        </Tooltip>
-                      </Group>
-                    </Stack>
-                  </Card>
-              ))}
+              {games?.map((game) => {
+                const { hasSession, session } = getGameSessionState(game);
+                return (
+                  <GameCard
+                    key={game.id}
+                    game={game}
+                    onClick={() => handleViewGame(game)}
+                    onPlay={() => handlePlayGame(game)}
+                    playLabel={t('myGames.play')}
+                    hasSession={hasSession}
+                    onContinue={session ? () => handleContinueGame(session) : undefined}
+                    continueLabel={t('myGames.continue')}
+                    onRestart={session ? () => handleRestartGame(game, session) : undefined}
+                    restartLabel={t('myGames.restart')}
+                    showVisibility
+                    isFavorite={isFavorite(game)}
+                    onToggleFavorite={() => handleToggleFavorite(game)}
+                    favoriteLabel={t('myGames.favorite')}
+                    unfavoriteLabel={t('myGames.unfavorite')}
+                    actions={getCardActions(game)}
+                  />
+                );
+              })}
             </SimpleGrid>
           )
         ) : (games?.length ?? 0) === 0 ? (
@@ -591,69 +591,28 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
             onRowClick={handleViewGame}
             isLoading={false}
             fillHeight
-            renderMobileCard={(game) => (
-              <Card shadow="sm" p="lg" radius="md" withBorder onClick={() => handleViewGame(game)}>
-                <Stack gap="sm">
-                  <Group gap="md" align="flex-start" wrap="nowrap">
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Tooltip label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')} withArrow>
-                        <GenericIconButton
-                          icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
-                          onClick={() => handleToggleFavorite(game)}
-                          aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
-                        />
-                      </Tooltip>
-                    </div>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      {renderPlayButton(game)}
-                    </div>
-                    <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-                      <Group gap="xs" wrap="nowrap">
-                        <Text fw={600} size="md" lineClamp={1} style={{ flex: 1 }}>
-                          {game.name}
-                        </Text>
-                        {game.public ? (
-                          <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />}>
-                            {t('games.visibility.public')}
-                          </Badge>
-                        ) : (
-                          <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />}>
-                            {t('games.visibility.private')}
-                          </Badge>
-                        )}
-                      </Group>
-                      {game.description && (
-                        <Text size="sm" c="gray.6" lineClamp={2}>
-                          {game.description}
-                        </Text>
-                      )}
-                    </Stack>
-                  </Group>
-                  <Group justify="flex-end" gap="xs" onClick={(e) => e.stopPropagation()}>
-                    <Tooltip label={t('editGame')} withArrow>
-                      <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-                    </Tooltip>
-                    <Tooltip label={t('copyGame')} withArrow>
-                      <GenericIconButton
-                        icon={<IconCopy size={16} />}
-                        onClick={() => handleCopyGame(game)}
-                        aria-label={t('myGames.copyGame')}
-                      />
-                    </Tooltip>
-                    <Tooltip label={t('games.importExport.exportButton')} withArrow>
-                      <GenericIconButton
-                        icon={<IconDownload size={16} />}
-                        onClick={() => handleExport(game)}
-                        aria-label={t('games.importExport.exportButton')}
-                      />
-                    </Tooltip>
-                    <Tooltip label={t('deleteGame')} withArrow>
-                      <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
-                    </Tooltip>
-                  </Group>
-                </Stack>
-              </Card>
-            )}
+            renderMobileCard={(game) => {
+              const { hasSession, session } = getGameSessionState(game);
+              return (
+                <GameCard
+                  game={game}
+                  onClick={() => handleViewGame(game)}
+                  onPlay={() => handlePlayGame(game)}
+                  playLabel={t('myGames.play')}
+                  hasSession={hasSession}
+                  onContinue={session ? () => handleContinueGame(session) : undefined}
+                  continueLabel={t('myGames.continue')}
+                  onRestart={session ? () => handleRestartGame(game, session) : undefined}
+                  restartLabel={t('myGames.restart')}
+                  showVisibility
+                  isFavorite={isFavorite(game)}
+                  onToggleFavorite={() => handleToggleFavorite(game)}
+                  favoriteLabel={t('myGames.favorite')}
+                  unfavoriteLabel={t('myGames.unfavorite')}
+                  actions={getCardActions(game)}
+                />
+              );
+            }}
             emptyState={
               <DataTableEmptyState
                 icon={<IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />}
@@ -664,6 +623,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
           />
         )}
         </DimmedLoader>
+        </Box>
       </Stack>
 
       <GameEditModal

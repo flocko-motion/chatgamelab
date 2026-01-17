@@ -1,99 +1,186 @@
-import { Card, Group, Badge, Stack, Text, Title, Box, Tooltip } from '@mantine/core';
-import { IconWorld, IconLock, IconDownload } from '@tabler/icons-react';
+import { Card, Group, Badge, Stack, Text, Box, Tooltip } from '@mantine/core';
+import { IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
+import { PlayGameButton, TextButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import type { ObjGame } from '@/api/generated';
+import type { ReactNode } from 'react';
 
-interface GameCardProps {
-  game: ObjGame;
-  onView: (game: ObjGame) => void;
-  onEdit: (game: ObjGame) => void;
-  onDelete: (game: ObjGame) => void;
-  onExport: (game: ObjGame) => void;
-  onPlay: (game: ObjGame) => void;
+export interface GameCardAction {
+  key: string;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
 }
 
-export function GameCard({ game, onView, onEdit, onDelete, onExport, onPlay }: GameCardProps) {
+export interface GameCardProps {
+  game: ObjGame;
+  onClick?: () => void;
+  
+  // Play actions
+  onPlay: () => void;
+  playLabel: string;
+  
+  // Continue session (optional)
+  hasSession?: boolean;
+  onContinue?: () => void;
+  continueLabel?: string;
+  onRestart?: () => void;
+  restartLabel?: string;
+  
+  // Visibility badge (optional, for owner view)
+  showVisibility?: boolean;
+  
+  // Creator info (optional, for AllGames view)
+  showCreator?: boolean;
+  isOwner?: boolean;
+  creatorLabel?: string;
+  
+  // Favorite
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  favoriteLabel?: string;
+  unfavoriteLabel?: string;
+  
+  // Action buttons (configurable)
+  actions?: GameCardAction[];
+}
+
+export function GameCard({
+  game,
+  onClick,
+  onPlay,
+  playLabel,
+  hasSession = false,
+  onContinue,
+  continueLabel,
+  onRestart,
+  restartLabel,
+  showVisibility = false,
+  showCreator = false,
+  isOwner = false,
+  creatorLabel,
+  isFavorite = false,
+  onToggleFavorite,
+  favoriteLabel,
+  unfavoriteLabel,
+  actions = [],
+}: GameCardProps) {
   const { t } = useTranslation('common');
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString();
+  const renderPlayButtons = () => {
+    if (hasSession && onContinue) {
+      return (
+        <Stack gap={4}>
+          <PlayGameButton onClick={onContinue} size="xs">
+            {continueLabel}
+          </PlayGameButton>
+          {onRestart && (
+            <TextButton onClick={onRestart} size="xs">
+              {restartLabel}
+            </TextButton>
+          )}
+        </Stack>
+      );
+    }
+    
+    return (
+      <PlayGameButton onClick={onPlay} size="xs">
+        {playLabel}
+      </PlayGameButton>
+    );
+  };
+
+  const renderTopRightBadge = () => {
+    if (showVisibility) {
+      return game.public ? (
+        <Badge size="xs" color="green" variant="light" leftSection={<IconWorld size={10} />} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {t('games.visibility.public')}
+        </Badge>
+      ) : (
+        <Badge size="xs" color="gray" variant="light" leftSection={<IconLock size={10} />} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {t('games.visibility.private')}
+        </Badge>
+      );
+    }
+    
+    if (showCreator) {
+      if (isOwner) {
+        return (
+          <Badge size="xs" color="violet" variant="light">
+            {creatorLabel || t('games.fields.me')}
+          </Badge>
+        );
+      }
+      if (game.creatorName) {
+        return (
+          <Text size="xs" c="gray.5">
+            {game.creatorName}
+          </Text>
+        );
+      }
+    }
+    
+    return null;
   };
 
   return (
     <Card 
       shadow="sm" 
-      p="lg" 
+      p="md" 
       radius="md" 
       withBorder
-      style={{ cursor: 'pointer', transition: 'box-shadow 150ms ease' }}
-      onClick={() => onView(game)}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      onClick={onClick}
     >
       <Stack gap="sm">
-        <Group gap="md" align="flex-start" wrap="nowrap">
-          <Box onClick={(e) => e.stopPropagation()}>
-            <PlayGameButton onClick={() => onPlay(game)} size="sm">
-              {t('games.playNow')}
-            </PlayGameButton>
-          </Box>
-          
-          <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-            <Group gap="xs" wrap="nowrap">
-              <Box style={{ flex: 1, minWidth: 0 }}>
-                <Title order={4}>
-                  {game.name}
-                </Title>
-              </Box>
-              {game.public ? (
-                <Badge size="sm" color="green" variant="light" leftSection={<IconWorld size={12} />}>
-                  {t('games.visibility.public')}
-                </Badge>
-              ) : (
-                <Badge size="sm" color="gray" variant="light" leftSection={<IconLock size={12} />}>
-                  {t('games.visibility.private')}
-                </Badge>
-              )}
-            </Group>
-            {game.description && (
-              <Text size="sm" c="gray.6" lineClamp={2}>
-                {game.description}
-              </Text>
-            )}
-          </Stack>
+        {/* Top row: Title (left) + Badge (right) */}
+        <Group justify="space-between" align="flex-start" wrap="nowrap">
+          <Text fw={600} size="md" lineClamp={1} style={{ flex: 1, minWidth: 0 }}>
+            {game.name}
+          </Text>
+          {renderTopRightBadge()}
         </Group>
         
-        <Group justify="space-between" align="center">
-          <Stack gap={2}>
-            <Text size="xs" c="gray.5">{t('games.fields.modified')}</Text>
-            <Text size="sm" c="gray.6">{formatDate(game.meta?.modifiedAt)}</Text>
-          </Stack>
-          <Group gap="xs" onClick={(e) => e.stopPropagation()}>
-            <Tooltip label={t('edit')} position="top" withArrow>
-              <span>
-                <EditIconButton
-                  onClick={() => onEdit(game)}
-                  aria-label={t('edit')}
-                />
-              </span>
-            </Tooltip>
-            <Tooltip label={t('games.importExport.exportButton')} position="top" withArrow>
-              <span>
+        {/* Description */}
+        {game.description && (
+          <Text size="sm" c="gray.6" lineClamp={2}>
+            {game.description}
+          </Text>
+        )}
+        
+        {/* Bottom row: Play buttons (left) + Actions (right) */}
+        <Group justify="space-between" align="flex-end" wrap="nowrap">
+          {/* Play/Continue/Restart buttons */}
+          <Box onClick={(e) => e.stopPropagation()}>
+            {renderPlayButtons()}
+          </Box>
+          
+          {/* Action buttons + Favorite */}
+          <Group gap={4} onClick={(e) => e.stopPropagation()}>
+            {actions.map((action) => (
+              <Tooltip key={action.key} label={action.label} withArrow>
+                {action.key === 'edit' ? (
+                  <EditIconButton onClick={action.onClick} aria-label={action.label} />
+                ) : action.key === 'delete' ? (
+                  <DeleteIconButton onClick={action.onClick} aria-label={action.label} />
+                ) : (
+                  <GenericIconButton
+                    icon={action.icon}
+                    onClick={action.onClick}
+                    aria-label={action.label}
+                  />
+                )}
+              </Tooltip>
+            ))}
+            {onToggleFavorite && (
+              <Tooltip label={isFavorite ? unfavoriteLabel : favoriteLabel} withArrow>
                 <GenericIconButton
-                  icon={<IconDownload size={16} />}
-                  onClick={() => onExport(game)}
-                  aria-label={t('games.importExport.exportButton')}
+                  icon={isFavorite ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
+                  onClick={onToggleFavorite}
+                  aria-label={(isFavorite ? unfavoriteLabel : favoriteLabel) || 'Toggle favorite'}
                 />
-              </span>
-            </Tooltip>
-            <Tooltip label={t('delete')} position="top" withArrow>
-              <span>
-                <DeleteIconButton
-                  onClick={() => onDelete(game)}
-                  aria-label={t('delete')}
-                />
-              </span>
-            </Tooltip>
+              </Tooltip>
+            )}
           </Group>
         </Group>
       </Stack>

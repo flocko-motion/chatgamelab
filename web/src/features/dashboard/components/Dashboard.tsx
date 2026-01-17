@@ -9,7 +9,7 @@ import { ROUTES } from '@/common/routes/routes';
 import { AppLayout, type NavItem } from '@/common/components/Layout';
 import { navigationLogger } from '@/config/logger';
 import { EXTERNAL_LINKS } from '@/config/externalLinks';
-import { useGames, useUserSessions } from '@/api/hooks';
+import { useGames, useUserSessions, useGameSessionMap } from '@/api/hooks';
 import { 
   IconPlayerPlay, 
   IconEdit, 
@@ -117,6 +117,88 @@ function LastPlayedCard() {
   );
 }
 
+// Popular Games Card - shows top 10 most played games
+function PopularGamesCard() {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { data: games, isLoading: gamesLoading } = useGames({ sortBy: 'playCount', sortDir: 'desc', filter: 'public' });
+  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+
+  const popularGames = useMemo(() => {
+    if (!games) return [];
+    return games.slice(0, 10);
+  }, [games]);
+
+  const handleGameClick = (gameId: string) => {
+    const existingSession = sessionMap.get(gameId);
+    if (existingSession?.id) {
+      navigate({ to: `/sessions/${existingSession.id}` as '/' });
+    } else {
+      navigate({ to: `/play/${gameId}` as '/' });
+    }
+  };
+
+  const items: ListItem[] = popularGames.map((game) => ({
+    id: game.id ?? '',
+    label: game.name ?? 'Untitled',
+    sublabel: t('cards.popularGames.plays', { count: game.playCount ?? 0 }),
+    onClick: () => handleGameClick(game.id ?? ''),
+  }));
+
+  return (
+    <InformationalCard
+      title={t('cards.popularGames.title')}
+      items={items}
+      emptyMessage={t('cards.popularGames.empty')}
+      viewAllLabel={t('cards.popularGames.viewAll')}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
+      isLoading={gamesLoading || sessionsLoading}
+      maxItems={10}
+    />
+  );
+}
+
+// New Games Card - shows 10 newest games
+function NewGamesCard() {
+  const { t } = useTranslation('dashboard');
+  const navigate = useNavigate();
+  const { data: games, isLoading: gamesLoading } = useGames({ sortBy: 'createdAt', sortDir: 'desc', filter: 'public' });
+  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+
+  const newGames = useMemo(() => {
+    if (!games) return [];
+    return games.slice(0, 10);
+  }, [games]);
+
+  const handleGameClick = (gameId: string) => {
+    const existingSession = sessionMap.get(gameId);
+    if (existingSession?.id) {
+      navigate({ to: `/sessions/${existingSession.id}` as '/' });
+    } else {
+      navigate({ to: `/play/${gameId}` as '/' });
+    }
+  };
+
+  const items: ListItem[] = newGames.map((game) => ({
+    id: game.id ?? '',
+    label: game.name ?? 'Untitled',
+    sublabel: formatRelativeTime(game.meta?.createdAt),
+    onClick: () => handleGameClick(game.id ?? ''),
+  }));
+
+  return (
+    <InformationalCard
+      title={t('cards.newGames.title')}
+      items={items}
+      emptyMessage={t('cards.newGames.empty')}
+      viewAllLabel={t('cards.newGames.viewAll')}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
+      isLoading={gamesLoading || sessionsLoading}
+      maxItems={10}
+    />
+  );
+}
+
 // External Links Card
 function ExternalLinksCard() {
   const { t } = useTranslation('dashboard');
@@ -204,6 +286,11 @@ export function DashboardContent() {
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
         <QuickActionsCard />
         <ExternalLinksCard />
+      </SimpleGrid>
+
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+        <PopularGamesCard />
+        <NewGamesCard />
       </SimpleGrid>
     </Stack>
   );
