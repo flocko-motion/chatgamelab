@@ -60,6 +60,11 @@ player.color: Same options as corners.color - this colors the player's input tex
 player.indicator: "dot" | "arrow" | "chevron" | "diamond" | "none" - icon before player text
 player.monochrome: true/false - whether player text is single color or gradient
 player.showChevron: true/false - show ">" prefix before player text
+player.bgColor: "cyan" | "amber" | "violet" | "slate" | "white" | "emerald" | "rose" - background color of player messages
+
+gameMessage.monochrome: true/false - whether AI/game messages are desaturated/grayscale
+gameMessage.dropCap: true/false - highlight the first letter of AI messages (decorative drop cap)
+gameMessage.dropCapColor: Same options as corners.color - color of the drop cap letter
 
 thinking.text: A short thematic phrase shown while AI generates response
   Examples: "The story unfolds...", "Processing...", "The tale continues...", "Investigating..."
@@ -92,7 +97,8 @@ JSON SCHEMA:
 {
   "corners": { "style": "string", "color": "string" },
   "background": { "animation": "string", "tint": "string" },
-  "player": { "color": "string", "indicator": "string", "monochrome": boolean, "showChevron": boolean },
+  "player": { "color": "string", "indicator": "string", "monochrome": boolean, "showChevron": boolean, "bgColor": "string" },
+  "gameMessage": { "monochrome": boolean, "dropCap": boolean, "dropCapColor": "string" },
   "thinking": { "text": "string", "style": "string" },
   "typography": { "messages": "string" },
   "statusEmojis": { "fieldName": "emoji", ... }
