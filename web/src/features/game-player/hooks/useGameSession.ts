@@ -132,13 +132,19 @@ export function useGameSession(gameId: string) {
         model: sessionConfig.model,
       });
 
-      const firstMessage = response.data;
+      const sessionResponse = response.data;
+      const firstMessage = sessionResponse.messages?.[0];
+      
+      if (!firstMessage) {
+        throw new Error('No message returned from session creation');
+      }
+
       const chatMessage = mapApiMessageToChat(firstMessage);
 
       setState(prev => ({
         ...prev,
         phase: 'playing',
-        sessionId: firstMessage.gameSessionId || null,
+        sessionId: sessionResponse.id || null,
         messages: [{ 
           ...chatMessage, 
           text: '', 
