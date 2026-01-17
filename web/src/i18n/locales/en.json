@@ -53,15 +53,15 @@
       "wipHint": "More languages are work in progress. Only English and German are available right now."
     },
     "footer": {
-      "loginVia": "Login via",
       "programmedBy": "Programmed by",
-      "producedBy": "Produced by",
+      "jffTitle": "JFF - Institute for Educational Research and Innovation",
       "copyright": "© ChatGameLab"
     },
     "header": {
       "openNavigation": "Open navigation menu",
       "closeNavigation": "Close navigation menu",
       "viewNotifications": "View notifications",
+      "contact": "Contact",
       "openSettings": "Open settings",
       "openProfile": "Open profile menu",
       "openUserMenu": "Open user menu",
@@ -129,6 +129,9 @@
       }
     },
     "actions": "Actions",
+    "editGame": "Edit Game",
+    "copyGame": "Copy Game",
+    "deleteGame": "Delete Game",
     "back": "Back",
     "close": "Close",
     "games": {
@@ -140,6 +143,9 @@
         "name": "Name",
         "description": "Description",
         "visibility": "Visibility",
+        "creator": "Creator",
+        "playCount": "Plays",
+        "me": "Me",
         "created": "Created",
         "modified": "Modified"
       },
@@ -149,9 +155,12 @@
       },
       "sort": {
         "label": "Sort by",
-        "name": "Alphabetically",
+        "name": "Name",
         "createdAt": "Created",
-        "modifiedAt": "Last Modified"
+        "modifiedAt": "Last Modified",
+        "playCount": "Play Count",
+        "visibility": "Visibility",
+        "creator": "Creator"
       },
       "empty": {
         "title": "No games yet",
@@ -159,6 +168,7 @@
       },
       "createModal": {
         "title": "Create New Game",
+        "info": "Fill in the details below to create a new game. You can always edit these later.",
         "nameLabel": "Game Name",
         "namePlaceholder": "e.g., Space Adventure",
         "descriptionLabel": "Description",
@@ -171,7 +181,8 @@
         "title": "Game Details"
       },
       "editModal": {
-        "title": "Edit Game"
+        "title": "Edit Game",
+        "info": "Update your game settings below. Changes are saved when you click Save."
       },
       "tabs": {
         "basic": "Basic",
@@ -190,10 +201,13 @@
         "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
         "scenario": "What is the game about?",
         "scenarioHint": "Briefly describe: Where does the game take place? Who are you? What is the goal? Any important rules?",
+        "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "gameStart": "How does the game begin?",
         "gameStartHint": "What happens at the start? Describe the first scene that the player sees.",
+        "gameStartPlaceholder": "You wake up at the edge of a dark forest. A narrow path leads deeper into the trees...",
         "statusFields": "Game values",
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing.",
+        "statusFieldsPlaceholder": "Health: 100\nGold: 0\nInventory: empty",
         "firstMessage": "First Message",
         "firstMessageHint": "Pre-generated opening message for quick game start.",
         "firstStatus": "First Status",
@@ -251,6 +265,12 @@
       "continue": "Continue",
       "restart": "Restart",
       "copyGame": "Copy Game",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
+      "filters": {
+        "all": "All",
+        "favorites": "Favorites"
+      },
       "empty": {
         "title": "No games yet",
         "description": "Create your first game to get started with interactive AI-powered adventures."
@@ -274,8 +294,11 @@
       "copyGame": "Copy Game",
       "creator": "Creator",
       "owner": "Mine",
+      "favorite": "Add to favorites",
+      "unfavorite": "Remove from favorites",
       "filters": {
         "all": "All Games",
+        "favorites": "Favorites",
         "own": "My Games",
         "public": "Public"
       },
@@ -364,6 +387,7 @@
     },
     "gamePlayer": {
       "unnamed": "Unnamed",
+      "typing": "AI is thinking...",
       "loading": {
         "game": "Loading game...",
         "starting": "Starting game session...",
@@ -379,7 +403,10 @@
         "back": "Back to games",
         "restart": "Restart game",
         "showDebug": "Show debug info",
-        "hideDebug": "Hide debug info"
+        "hideDebug": "Hide debug info",
+        "increaseFont": "Increase font size",
+        "decreaseFont": "Decrease font size",
+        "debug": "Debug"
       },
       "input": {
         "placeholder": "What do you do?",
@@ -418,7 +445,7 @@
   "dashboard": {
     "cards": {
       "myGames": {
-        "title": "My Game Creations",
+        "title": "My Games",
         "empty": "No games yet. Create your first game!",
         "viewAll": "All Creations"
       },
