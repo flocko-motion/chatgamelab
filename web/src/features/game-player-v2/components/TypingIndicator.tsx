@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
+import { useGameTheme } from '../theme';
 import classes from './GamePlayer.module.css';
 
 export function TypingIndicator() {
-  const { t } = useTranslation('common');
+  const { theme } = useGameTheme();
   
   return (
     <div className={classes.typingIndicator}>
@@ -11,7 +11,7 @@ export function TypingIndicator() {
         <span className={classes.typingDot} />
         <span className={classes.typingDot} />
       </div>
-      <span className={classes.typingText}>{t('gamePlayer.typing')}</span>
+      <span className={classes.typingText}>{theme.thinking.text}</span>
     </div>
   );
 }

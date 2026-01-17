@@ -14,6 +14,7 @@ const INITIAL_STATE: GamePlayerState = {
   statusFields: [],
   isWaitingForResponse: false,
   error: null,
+  theme: null,
 };
 
 export function useGameSession(gameId: string) {
@@ -128,13 +129,24 @@ export function useGameSession(gameId: string) {
         model: sessionConfig.model,
       });
 
-      const firstMessage = response.data;
+      const sessionResponse = response.data;
+      const firstMessage = sessionResponse.messages?.[0];
+      
+      if (!firstMessage) {
+        throw new Error('No message returned from session creation');
+      }
+
       const sceneMessage = mapApiMessageToScene(firstMessage);
 
       setState(prev => ({
         ...prev,
         phase: 'playing',
-        sessionId: firstMessage.gameSessionId || null,
+        sessionId: sessionResponse.id || null,
+        gameInfo: {
+          id: sessionResponse.gameId,
+          name: sessionResponse.gameName,
+          description: sessionResponse.gameDescription,
+        },
         messages: [{ 
           ...sceneMessage, 
           text: '', 
@@ -143,6 +155,7 @@ export function useGameSession(gameId: string) {
         }],
         statusFields: firstMessage.statusFields || [],
         isWaitingForResponse: true,
+        theme: sessionResponse.theme || null,
       }));
 
       if (firstMessage.id && firstMessage.stream) {
@@ -243,6 +256,7 @@ export function useGameSession(gameId: string) {
           ? (messages[messages.length - 1].statusFields || [])
           : [],
         isWaitingForResponse: false,
+        theme: session.theme || null,
       }));
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load session';

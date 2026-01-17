@@ -23,7 +23,9 @@ import { useGame } from '@/api/hooks';
 import { useGameSession } from '../hooks/useGameSession';
 import { GamePlayerProvider } from '../context';
 import type { GamePlayerContextValue, FontSize } from '../context';
-import { DEFAULT_THEME } from '../types';
+import { DEFAULT_THEME, mapApiThemeToPartial } from '../types';
+import { GameThemeProvider, useGameTheme } from '../theme';
+import { BackgroundAnimation } from '../theme/BackgroundAnimation';
 import { ApiKeySelectModal } from './ApiKeySelectModal';
 import { SceneCard } from './SceneCard';
 import { PlayerAction } from './PlayerAction';
@@ -36,6 +38,31 @@ import { ImageLightbox } from './ImageLightbox';
 import classes from './GamePlayer.module.css';
 
 const FONT_SIZES: FontSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'];
+
+/** Scene area with theme-aware background animation */
+interface SceneAreaWithThemeProps {
+  renderMessages: () => React.ReactNode[];
+  sceneEndRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function SceneAreaWithTheme({ renderMessages, sceneEndRef }: SceneAreaWithThemeProps) {
+  const { theme, cssVars } = useGameTheme();
+  
+  return (
+    <Box 
+      className={classes.sceneArea} 
+      px={{ base: 'sm', sm: 'md' }} 
+      py="md"
+      style={cssVars}
+    >
+      <BackgroundAnimation animation={theme.background.animation} />
+      <div className={classes.scenesContainer}>
+        {renderMessages()}
+        <div ref={sceneEndRef} />
+      </div>
+    </Box>
+  );
+}
 
 interface GamePlayerProps {
   gameId?: string;
@@ -236,6 +263,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   };
 
   return (
+    <GameThemeProvider theme={mapApiThemeToPartial(state.theme)}>
     <GamePlayerProvider value={contextValue}>
       <Box className={classes.container} h={containerHeight}>
         <Box className={classes.header} px="md" py="sm">
@@ -299,12 +327,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
         <StatusBar statusFields={state.statusFields} />
 
-        <Box className={classes.sceneArea} px={{ base: 'sm', sm: 'md' }} py="md">
-          <div className={classes.scenesContainer}>
-            {renderMessages()}
-            <div ref={sceneEndRef} />
-          </div>
-        </Box>
+        <SceneAreaWithTheme
+          renderMessages={renderMessages}
+          sceneEndRef={sceneEndRef}
+        />
 
         {!isContinuation && (
           <ApiKeySelectModal
@@ -319,5 +345,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         <ImageLightbox />
       </Box>
     </GamePlayerProvider>
+    </GameThemeProvider>
   );
 }

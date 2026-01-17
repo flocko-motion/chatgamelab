@@ -1,4 +1,4 @@
-import type { ObjGameSessionMessage, ObjStatusField, ObjApiKeyShare, ObjAiModel } from '@/api/generated';
+import type { ObjGameSessionMessage, ObjStatusField, ObjApiKeyShare, ObjAiModel, ObjGameTheme } from '@/api/generated';
 import { config } from '@/config/env';
 
 // ============================================================================
@@ -51,6 +51,8 @@ export interface GamePlayerState {
   statusFields: ObjStatusField[];
   isWaitingForResponse: boolean;
   error: string | null;
+  /** AI-generated visual theme from the session */
+  theme: ObjGameTheme | null;
 }
 
 // ============================================================================
@@ -99,4 +101,34 @@ export function getModelsForApiKey(
   if (!apiKey?.apiKey?.platform) return [];
   const platform = platforms.find(p => p.id === apiKey.apiKey?.platform);
   return platform?.models || [];
+}
+
+/** Maps API theme type to frontend PartialGameTheme (type-safe conversion) */
+export function mapApiThemeToPartial(apiTheme: ObjGameTheme | null | undefined): import('./theme/types').PartialGameTheme | undefined {
+  if (!apiTheme) return undefined;
+  
+  return {
+    corners: apiTheme.corners ? {
+      style: apiTheme.corners.style as import('./theme/types').CornerStyle | undefined,
+      color: apiTheme.corners.color as import('./theme/types').ThemeColor | undefined,
+    } : undefined,
+    background: apiTheme.background ? {
+      animation: apiTheme.background.animation as import('./theme/types').BackgroundAnimation | undefined,
+      tint: apiTheme.background.tint as import('./theme/types').BackgroundTint | undefined,
+    } : undefined,
+    player: apiTheme.player ? {
+      color: apiTheme.player.color as import('./theme/types').ThemeColor | undefined,
+      indicator: apiTheme.player.indicator as import('./theme/types').PlayerIndicator | undefined,
+      monochrome: apiTheme.player.monochrome,
+      showChevron: apiTheme.player.showChevron,
+    } : undefined,
+    thinking: apiTheme.thinking ? {
+      text: apiTheme.thinking.text,
+      style: apiTheme.thinking.style as import('./theme/types').ThinkingStyle | undefined,
+    } : undefined,
+    typography: apiTheme.typography ? {
+      messages: apiTheme.typography.messages as import('./theme/types').MessageFont | undefined,
+    } : undefined,
+    statusEmojis: apiTheme.statusEmojis,
+  };
 }
