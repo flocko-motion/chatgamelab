@@ -2,6 +2,7 @@ import { Table, Group, Badge, Text, Stack } from '@mantine/core';
 import { IconWorld, IconLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { PlayGameButton, EditButtonWithText, DeleteButtonWithText, ExportButtonWithText } from '@components/buttons';
+import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame } from '@/api/generated';
 
 interface GamesTableProps {
@@ -16,6 +17,7 @@ interface GamesTableProps {
 
 export function GamesTable({ games, onView, onEdit, onDelete, onExport, onPlay, fillHeight = false }: GamesTableProps) {
   const { t } = useTranslation('common');
+  const { backendUser } = useAuth();
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
@@ -32,6 +34,12 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, onPlay, 
             </Table.Th>
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('games.fields.name')}
+            </Table.Th>
+            <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {t('games.fields.creator')}
+            </Table.Th>
+            <Table.Th w={80} style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {t('games.fields.playCount')}
             </Table.Th>
             <Table.Th style={{ color: 'var(--mantine-color-gray-6)', fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               {t('games.fields.visibility')}
@@ -70,6 +78,22 @@ export function GamesTable({ games, onView, onEdit, onDelete, onExport, onPlay, 
                     </Text>
                   )}
                 </Stack>
+              </Table.Td>
+              <Table.Td>
+                {backendUser?.id && game.creatorId === backendUser.id ? (
+                  <Badge size="sm" color="violet" variant="light">
+                    {t('games.fields.me')}
+                  </Badge>
+                ) : (
+                  <Text size="sm" c="gray.6" lineClamp={1}>
+                    {game.creatorName || '-'}
+                  </Text>
+                )}
+              </Table.Td>
+              <Table.Td>
+                <Text size="sm" c="gray.6" ta="center">
+                  {game.playCount ?? 0}
+                </Text>
               </Table.Td>
               <Table.Td>
                 {game.public ? (

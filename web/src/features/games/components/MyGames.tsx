@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Container,
   Stack,
   Group,
   Card,
@@ -9,21 +8,22 @@ import {
   Skeleton,
   Text,
   Badge,
+  Tooltip,
 } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconWorld, IconLock, IconCopy } from '@tabler/icons-react';
+import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconWorld, IconLock, IconCopy, IconStar, IconStarFilled } from '@tabler/icons-react';
 import { TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
-import { SortSelector, type SortOption } from '@components/controls';
+import { SortSelector, type SortOption, FilterSegmentedControl } from '@components/controls';
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
-import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame } from '@/api/hooks';
+import { DimmedLoader } from '@components/LoadingAnimation';
+import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
 import { type SortField, type CreateGameFormData } from '../types';
-import { CreateGameModal } from './CreateGameModal';
+import { GameEditModal } from './GameEditModal';
 import { DeleteGameModal } from './DeleteGameModal';
-import { GameViewModal } from './GameViewModal';
 import { IconDownload } from '@tabler/icons-react';
 import { useModals } from '@mantine/modals';
 
@@ -44,10 +44,10 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] = useDisclosure(initialGameId ? true : false);
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(initialGameId ?? null);
-  const [editMode, setEditMode] = useState(initialGameId ? true : false);
   const [sortField, setSortField] = useState<SortField>('modifiedAt');
+  const [showFavorites, setShowFavorites] = useState<'all' | 'favorites'>('all');
 
-  const { data: games, isLoading, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc', filter: 'own' });
+  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc', filter: 'own' });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const createGame = useCreateGame();
   const deleteGame = useDeleteGame();
@@ -55,6 +55,27 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const exportGameYaml = useExportGameYaml();
   const importGameYaml = useImportGameYaml();
   const cloneGame = useCloneGame();
+  const { data: favoriteGames } = useFavoriteGames();
+  const addFavorite = useAddFavorite();
+  const removeFavorite = useRemoveFavorite();
+
+  const favoriteGameIds = new Set(favoriteGames?.map(g => g.id) ?? []);
+  
+  // Apply client-side favorites filter
+  const games = showFavorites === 'favorites' 
+    ? rawGames?.filter(game => game.id && favoriteGameIds.has(game.id))
+    : rawGames;
+
+  const isFavorite = (game: ObjGame) => game.id ? favoriteGameIds.has(game.id) : false;
+
+  const handleToggleFavorite = (game: ObjGame) => {
+    if (!game.id) return;
+    if (isFavorite(game)) {
+      removeFavorite.mutate(game.id);
+    } else {
+      addFavorite.mutate(game.id);
+    }
+  };
   
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -68,7 +89,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
       closeCreateModal();
       if (newGame.id) {
         setGameToView(newGame.id);
-        setEditMode(true);
         openViewModal();
       }
     } catch {
@@ -86,7 +106,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const handleEditGame = (game: ObjGame) => {
     if (game.id) {
       setGameToView(game.id);
-      setEditMode(true);
       openViewModal();
     }
   };
@@ -94,7 +113,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const handleViewGame = (game: ObjGame) => {
     if (game.id) {
       setGameToView(game.id);
-      setEditMode(true);
       openViewModal();
     }
   };
@@ -155,7 +173,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
         const newGame = await cloneGame.mutateAsync(game.id!);
         if (newGame.id) {
           setGameToView(newGame.id);
-          setEditMode(true);
           openViewModal();
         }
       },
@@ -216,7 +233,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
           await importGameYaml.mutateAsync({ id: newGameId, yaml: content });
           refetch();
           setGameToView(newGameId);
-          setEditMode(true);
           openViewModal();
         }
       } catch {
@@ -265,9 +281,25 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
 
   const columns: DataTableColumn<ObjGame>[] = [
     {
+      key: 'favorite',
+      header: '',
+      width: 40,
+      render: (game) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Tooltip label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')} withArrow>
+            <GenericIconButton
+              icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
+              onClick={() => handleToggleFavorite(game)}
+              aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
+            />
+          </Tooltip>
+        </div>
+      ),
+    },
+    {
       key: 'play',
       header: '',
-      width: 140,
+      width: 120,
       render: (game) => (
         <div onClick={(e) => e.stopPropagation()}>
           {renderPlayButton(game)}
@@ -293,6 +325,18 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
       ),
     },
     {
+      key: 'playCount',
+      header: t('games.fields.playCount'),
+      width: 80,
+      render: (game) => (
+        <Tooltip label={t('games.fields.playCount')} withArrow>
+          <Text size="sm" c="gray.6" ta="center">
+            {game.playCount ?? 0}
+          </Text>
+        </Tooltip>
+      ),
+    },
+    {
       key: 'visibility',
       header: t('games.fields.visibility'),
       width: 120,
@@ -308,23 +352,44 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
         ),
     },
     {
+      key: 'date',
+      header: sortField === 'createdAt' ? t('games.fields.created') : t('games.fields.modified'),
+      width: 100,
+      render: (game) => {
+        const dateValue = sortField === 'createdAt' ? game.meta?.createdAt : game.meta?.modifiedAt;
+        return (
+          <Text size="sm" c="gray.6">
+            {dateValue ? new Date(dateValue).toLocaleDateString() : '-'}
+          </Text>
+        );
+      },
+    },
+    {
       key: 'actions',
       header: t('actions'),
       width: 120,
       render: (game) => (
         <Group gap="xs" onClick={(e) => e.stopPropagation()}>
-          <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-          <GenericIconButton
-            icon={<IconCopy size={16} />}
-            onClick={() => handleCopyGame(game)}
-            aria-label={t('myGames.copyGame')}
-          />
-          <GenericIconButton
-            icon={<IconDownload size={16} />}
-            onClick={() => handleExport(game)}
-            aria-label={t('games.importExport.exportButton')}
-          />
-          <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+          <Tooltip label={t('editGame')} withArrow>
+            <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
+          </Tooltip>
+          <Tooltip label={t('copyGame')} withArrow>
+            <GenericIconButton
+              icon={<IconCopy size={16} />}
+              onClick={() => handleCopyGame(game)}
+              aria-label={t('myGames.copyGame')}
+            />
+          </Tooltip>
+          <Tooltip label={t('games.importExport.exportButton')} withArrow>
+            <GenericIconButton
+              icon={<IconDownload size={16} />}
+              onClick={() => handleExport(game)}
+              aria-label={t('games.importExport.exportButton')}
+            />
+          </Tooltip>
+          <Tooltip label={t('deleteGame')} withArrow>
+            <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+          </Tooltip>
         </Group>
       ),
     },
@@ -334,12 +399,17 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     { value: 'modifiedAt', label: t('games.sort.modifiedAt') },
     { value: 'createdAt', label: t('games.sort.createdAt') },
     { value: 'name', label: t('games.sort.name') },
+    { value: 'playCount', label: t('games.sort.playCount') },
+    { value: 'visibility', label: t('games.sort.visibility') },
   ];
 
-  if (isLoading || sessionsLoading) {
+  const hasData = rawGames !== undefined;
+  const isInitialLoading = !hasData && (isLoading || sessionsLoading);
+  const isRefetching = isFetching && hasData;
+
+  if (isInitialLoading) {
     return (
-      <Container size="lg" py="xl">
-        <Stack gap="xl">
+      <Stack gap="xl">
           <Skeleton height={40} width="50%" />
           <Skeleton height={36} width={180} />
           {isMobile ? (
@@ -360,24 +430,21 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
           ) : (
             <Skeleton height={300} />
           )}
-        </Stack>
-      </Container>
+      </Stack>
     );
   }
 
   if (error) {
     return (
-      <Container size="lg" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('errors.titles.error')} color="red">
+      <Alert icon={<IconAlertCircle size={16} />} title={t('errors.titles.error')} color="red">
           {t('games.errors.loadFailed')}
-        </Alert>
-      </Container>
+      </Alert>
     );
   }
 
   return (
-    <Container size="lg" py="xl" h="calc(100vh - 210px)">
-      <Stack gap="lg" h="100%">
+    <>
+      <Stack gap="lg" h="calc(100vh - 280px)">
         <PageTitle>{t('myGames.title')}</PageTitle>
 
         <input
@@ -388,7 +455,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
           style={{ display: 'none' }}
         />
 
-        <Group justify="space-between">
+        <Group justify="space-between" wrap="wrap" gap="sm">
           <Group gap="sm">
             <TextButton
               leftSection={<IconPlus size={16} />}
@@ -403,35 +470,55 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
               {t('games.importExport.importButton')}
             </TextButton>
           </Group>
-          {(games?.length ?? 0) > 0 && (
-            <SortSelector 
-              options={sortOptions} 
-              value={sortField} 
-              onChange={(v) => setSortField(v as SortField)}
-              label={t('games.sort.label')}
+          <Group gap="sm" wrap="wrap">
+            <FilterSegmentedControl
+              value={showFavorites}
+              onChange={setShowFavorites}
+              options={[
+                { value: 'all', label: t('myGames.filters.all') },
+                { value: 'favorites', label: t('myGames.filters.favorites') },
+              ]}
             />
-          )}
+            {(rawGames?.length ?? 0) > 0 && (
+              <SortSelector 
+                options={sortOptions} 
+                value={sortField} 
+                onChange={(v) => setSortField(v as SortField)}
+                label={t('games.sort.label')}
+              />
+            )}
+          </Group>
         </Group>
 
-        {isMobile ? (
-          (games?.length ?? 0) === 0 ? (
-            <Card shadow="sm" p="xl" radius="md" withBorder>
-              <Stack align="center" gap="md" py="xl">
-                <IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />
-                <Text c="gray.6" ta="center">
-                  {t('myGames.empty.title')}
-                </Text>
-                <Text size="sm" c="gray.5" ta="center">
-                  {t('myGames.empty.description')}
-                </Text>
-              </Stack>
-            </Card>
-          ) : (
-            <SimpleGrid cols={1} spacing="md">
+        <DimmedLoader visible={isRefetching} loaderSize="lg">
+          {isMobile ? (
+            (games?.length ?? 0) === 0 ? (
+              <Card shadow="sm" p="xl" radius="md" withBorder>
+                <Stack align="center" gap="md" py="xl">
+                  <IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />
+                  <Text c="gray.6" ta="center">
+                    {t('myGames.empty.title')}
+                  </Text>
+                  <Text size="sm" c="gray.5" ta="center">
+                    {t('myGames.empty.description')}
+                  </Text>
+                </Stack>
+              </Card>
+            ) : (
+              <SimpleGrid cols={1} spacing="md">
               {games?.map((game) => (
                   <Card key={game.id} shadow="sm" p="lg" radius="md" withBorder onClick={() => handleViewGame(game)}>
                     <Stack gap="sm">
                       <Group gap="md" align="flex-start" wrap="nowrap">
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <Tooltip label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')} withArrow>
+                            <GenericIconButton
+                              icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
+                              onClick={() => handleToggleFavorite(game)}
+                              aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
+                            />
+                          </Tooltip>
+                        </div>
                         <div onClick={(e) => e.stopPropagation()}>
                           {renderPlayButton(game)}
                         </div>
@@ -458,18 +545,26 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
                         </Stack>
                       </Group>
                       <Group justify="flex-end" gap="xs" onClick={(e) => e.stopPropagation()}>
-                        <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-                        <GenericIconButton
-                          icon={<IconCopy size={16} />}
-                          onClick={() => handleCopyGame(game)}
-                          aria-label={t('myGames.copyGame')}
-                        />
-                        <GenericIconButton
-                          icon={<IconDownload size={16} />}
-                          onClick={() => handleExport(game)}
-                          aria-label={t('games.importExport.exportButton')}
-                        />
-                        <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+                        <Tooltip label={t('editGame')} withArrow>
+                          <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
+                        </Tooltip>
+                        <Tooltip label={t('copyGame')} withArrow>
+                          <GenericIconButton
+                            icon={<IconCopy size={16} />}
+                            onClick={() => handleCopyGame(game)}
+                            aria-label={t('myGames.copyGame')}
+                          />
+                        </Tooltip>
+                        <Tooltip label={t('games.importExport.exportButton')} withArrow>
+                          <GenericIconButton
+                            icon={<IconDownload size={16} />}
+                            onClick={() => handleExport(game)}
+                            aria-label={t('games.importExport.exportButton')}
+                          />
+                        </Tooltip>
+                        <Tooltip label={t('deleteGame')} withArrow>
+                          <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+                        </Tooltip>
                       </Group>
                     </Stack>
                   </Card>
@@ -501,6 +596,15 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
                 <Stack gap="sm">
                   <Group gap="md" align="flex-start" wrap="nowrap">
                     <div onClick={(e) => e.stopPropagation()}>
+                      <Tooltip label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')} withArrow>
+                        <GenericIconButton
+                          icon={isFavorite(game) ? <IconStarFilled size={18} color="var(--mantine-color-yellow-5)" /> : <IconStar size={18} />}
+                          onClick={() => handleToggleFavorite(game)}
+                          aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
+                        />
+                      </Tooltip>
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()}>
                       {renderPlayButton(game)}
                     </div>
                     <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
@@ -526,18 +630,26 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
                     </Stack>
                   </Group>
                   <Group justify="flex-end" gap="xs" onClick={(e) => e.stopPropagation()}>
-                    <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-                    <GenericIconButton
-                      icon={<IconCopy size={16} />}
-                      onClick={() => handleCopyGame(game)}
-                      aria-label={t('myGames.copyGame')}
-                    />
-                    <GenericIconButton
-                      icon={<IconDownload size={16} />}
-                      onClick={() => handleExport(game)}
-                      aria-label={t('games.importExport.exportButton')}
-                    />
-                    <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+                    <Tooltip label={t('editGame')} withArrow>
+                      <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
+                    </Tooltip>
+                    <Tooltip label={t('copyGame')} withArrow>
+                      <GenericIconButton
+                        icon={<IconCopy size={16} />}
+                        onClick={() => handleCopyGame(game)}
+                        aria-label={t('myGames.copyGame')}
+                      />
+                    </Tooltip>
+                    <Tooltip label={t('games.importExport.exportButton')} withArrow>
+                      <GenericIconButton
+                        icon={<IconDownload size={16} />}
+                        onClick={() => handleExport(game)}
+                        aria-label={t('games.importExport.exportButton')}
+                      />
+                    </Tooltip>
+                    <Tooltip label={t('deleteGame')} withArrow>
+                      <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+                    </Tooltip>
                   </Group>
                 </Stack>
               </Card>
@@ -551,13 +663,24 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
             }
           />
         )}
+        </DimmedLoader>
       </Stack>
 
-      <CreateGameModal
+      <GameEditModal
         opened={createModalOpened}
         onClose={handleCloseCreateModal}
-        onSubmit={handleCreateGame}
-        loading={createGame.isPending}
+        onCreate={handleCreateGame}
+        createLoading={createGame.isPending}
+      />
+
+      <GameEditModal
+        gameId={gameToView}
+        opened={viewModalOpened}
+        onClose={() => {
+          closeViewModal();
+          setGameToView(null);
+          onModalClose?.();
+        }}
       />
 
       <DeleteGameModal
@@ -570,18 +693,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
         gameName={gameToDelete?.name ?? ''}
         loading={deleteGame.isPending}
       />
-
-      <GameViewModal
-        gameId={gameToView}
-        opened={viewModalOpened}
-        onClose={() => {
-          closeViewModal();
-          setGameToView(null);
-          setEditMode(false);
-          onModalClose?.();
-        }}
-        editMode={editMode}
-      />
-    </Container>
+    </>
   );
 }

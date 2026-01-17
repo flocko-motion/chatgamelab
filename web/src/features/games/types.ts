@@ -1,6 +1,6 @@
 import type { ObjGame } from '@/api/generated';
 
-export type SortField = 'name' | 'createdAt' | 'modifiedAt';
+export type SortField = 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator';
 export type SortDirection = 'asc' | 'desc';
 
 export interface SortConfig {
@@ -12,6 +12,10 @@ export interface CreateGameFormData {
   name: string;
   description: string;
   isPublic: boolean;
+  systemMessageScenario?: string;
+  systemMessageGameStart?: string;
+  imageStyle?: string;
+  statusFields?: string;
 }
 
 export function sortGames(games: ObjGame[], config: SortConfig): ObjGame[] {

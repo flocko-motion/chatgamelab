@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth0 } from '@auth0/auth0-react';
 import { handleApiError } from '../config/queryClient';
 import { useRequiredAuthenticatedApi } from './useAuthenticatedApi';
@@ -125,7 +125,7 @@ export function useRoles() {
 // Games hooks
 export interface UseGamesParams {
   search?: string;
-  sortBy?: 'name' | 'createdAt' | 'modifiedAt';
+  sortBy?: 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator';
   sortDir?: 'asc' | 'desc';
   filter?: 'all' | 'own' | 'public' | 'organization' | 'favorites';
 }
@@ -142,6 +142,7 @@ export function useGames(params?: UseGamesParams) {
       sortDir: sortDir || undefined,
       filter: filter || undefined,
     }).then(response => response.data),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -247,6 +248,42 @@ export function useImportGameYaml() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
+    },
+    onError: handleApiError,
+  });
+}
+
+// Favorite Games hooks
+export function useFavoriteGames() {
+  const api = useRequiredAuthenticatedApi();
+  
+  return useQuery<ObjGame[], HttpxErrorResponse>({
+    queryKey: [...queryKeys.games, 'favorites'],
+    queryFn: () => api.games.favouritesList().then(response => response.data),
+  });
+}
+
+export function useAddFavorite() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+    mutationFn: (gameId) => api.games.favouriteCreate(gameId).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveFavorite() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+  
+  return useMutation<Record<string, boolean>, HttpxErrorResponse, string>({
+    mutationFn: (gameId) => api.games.favouriteDelete(gameId).then(response => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
     onError: handleApiError,
   });
