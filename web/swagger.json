@@ -500,6 +500,46 @@
                 }
             }
         },
+        "/games/favourites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the list of games the authenticated user has marked as favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get user's favourite games",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.Game"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/new": {
             "post": {
                 "security": [
@@ -762,6 +802,114 @@
                     },
                     "500": {
                         "description": "Failed to clone",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/favourite": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a game to the authenticated user's favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Add game to favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a game from the authenticated user's favourites",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Remove game from favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -2002,6 +2150,16 @@
         "obj.Game": {
             "type": "object",
             "properties": {
+                "cloneCount": {
+                    "type": "integer"
+                },
+                "creatorId": {
+                    "description": "Creator info (populated when fetching games)",
+                    "type": "string"
+                },
+                "creatorName": {
+                    "type": "string"
+                },
                 "css": {
                     "description": "Additional CSS for the game, probably generated by the LLM.\nShould be validated/parsed strictly to avoid arbitrary code execution.",
                     "type": "string"
@@ -2040,6 +2198,20 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "originalCreatorId": {
+                    "description": "Original creator info (populated when fetching games, if originally cloned)",
+                    "type": "string"
+                },
+                "originalCreatorName": {
+                    "type": "string"
+                },
+                "originallyCreatedBy": {
+                    "description": "Tracking: original creator (for cloned games) and usage statistics",
+                    "type": "string"
+                },
+                "playCount": {
+                    "type": "integer"
                 },
                 "privateShareHash": {
                     "description": "Private share links contain secret random tokens to limit access to the game.\nThey are sponsored, so invited players don't require their own API key.",
