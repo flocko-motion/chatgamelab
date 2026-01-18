@@ -926,6 +926,28 @@ func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 	return nil
 }
 
+// DeleteUserGameSessions deletes all sessions for a user+game combination (used when restarting a game)
+func DeleteUserGameSessions(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
+	// First delete all messages for sessions belonging to this user+game
+	sessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
+	if err != nil {
+		return fmt.Errorf("failed to get sessions: %w", err)
+	}
+	for _, s := range sessions {
+		if s.UserID == userID {
+			if err := queries().DeleteGameSessionMessagesBySessionID(ctx, s.ID); err != nil {
+				return fmt.Errorf("failed to delete session messages: %w", err)
+			}
+		}
+	}
+
+	// Then delete the sessions
+	return queries().DeleteUserGameSessions(ctx, db.DeleteUserGameSessionsParams{
+		UserID: userID,
+		GameID: gameID,
+	})
+}
+
 // GetGameSessionsByGameID returns all sessions for a game
 func GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameSession, error) {
 	// TODO: we should consider user access rights here!

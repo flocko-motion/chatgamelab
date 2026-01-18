@@ -12,6 +12,7 @@ var (
 
 type HTTPError struct {
 	StatusCode int
+	Code       string // Machine-readable error code for frontend
 	Message    string
 }
 
@@ -21,6 +22,10 @@ func (e HTTPError) Error() string {
 
 func NewHTTPError(statusCode int, message string) *HTTPError {
 	return &HTTPError{StatusCode: statusCode, Message: message}
+}
+
+func NewHTTPErrorWithCode(statusCode int, code string, message string) *HTTPError {
+	return &HTTPError{StatusCode: statusCode, Code: code, Message: message}
 }
 
 func NewHTTPErrorf(statusCode int, format string, a ...interface{}) *HTTPError {

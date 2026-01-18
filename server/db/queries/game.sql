@@ -451,3 +451,6 @@ RETURNING *;
 
 -- name: DeleteGameSessionMessagesBySessionID :exec
 DELETE FROM game_session_message WHERE game_session_id = $1;
+
+-- name: DeleteUserGameSessions :exec
+DELETE FROM game_session WHERE user_id = $1 AND game_id = $2;

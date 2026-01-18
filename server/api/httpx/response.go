@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"bytes"
+	"cgl/obj"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -22,6 +23,11 @@ const (
 	ErrCodeInvalidInput      = "invalid_input"
 	ErrCodeServerError       = "server_error"
 	ErrCodeUserNotRegistered = "user_not_registered"
+
+	// AI-related error codes
+	ErrCodeInvalidApiKey           = "invalid_api_key"
+	ErrCodeOrgVerificationRequired = "org_verification_required"
+	ErrCodeAiError                 = "ai_error"
 )
 
 // ErrorResponse is the standard error format for the API
@@ -73,6 +79,15 @@ func WriteErrorWithCode(w http.ResponseWriter, status int, code string, message 
 		Message: message,
 		Type:    code, // For backwards compatibility
 	})
+}
+
+// WriteHTTPError writes a JSON error response from an HTTPError, using its Code if set
+func WriteHTTPError(w http.ResponseWriter, err *obj.HTTPError) {
+	code := err.Code
+	if code == "" {
+		code = ErrCodeGeneric
+	}
+	WriteErrorWithCode(w, err.StatusCode, code, err.Message)
 }
 
 // ReadJSON decodes the request body as JSON into the given struct
