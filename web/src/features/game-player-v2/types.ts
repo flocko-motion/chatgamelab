@@ -51,6 +51,8 @@ export interface GamePlayerState {
   statusFields: ObjStatusField[];
   isWaitingForResponse: boolean;
   error: string | null;
+  /** Full error object for error code extraction */
+  errorObject: unknown;
   /** AI-generated visual theme from the session */
   theme: ObjGameTheme | null;
 }

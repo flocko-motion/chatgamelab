@@ -19,6 +19,7 @@ import {
   IconTextDecrease,
 } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
+import { ErrorModal } from '@/common/components/ErrorModal';
 import { useGame } from '@/api/hooks';
 import { useGameSession } from '../hooks/useGameSession';
 import { GamePlayerProvider } from '../context';
@@ -197,16 +198,20 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   if (state.phase === 'error') {
     return (
-      <Box className={classes.container} h={containerHeight}>
-        <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
-          <IconAlertCircle size={48} color="var(--mantine-color-red-5)" />
-          <Text size="lg" fw={600}>{t('gamePlayer.error.sessionFailed')}</Text>
-          <Text c="dimmed" maw={400}>{state.error}</Text>
-          <TextButton onClick={handleBack} leftSection={<IconArrowLeft size={16} />}>
-            {t('gamePlayer.error.backToGames')}
-          </TextButton>
-        </Stack>
-      </Box>
+      <>
+        <Box className={classes.container} h={containerHeight}>
+          <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
+            <Loader size="lg" color="accent" />
+          </Stack>
+        </Box>
+        <ErrorModal
+          opened={true}
+          onClose={handleBack}
+          error={state.errorObject}
+          message={!state.errorObject ? state.error || undefined : undefined}
+          title={t('gamePlayer.error.sessionFailed')}
+        />
+      </>
     );
   }
 
