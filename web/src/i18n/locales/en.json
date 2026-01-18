@@ -457,7 +457,8 @@
       "lastPlayed": {
         "title": "Last Played",
         "empty": "No play history yet. Start playing a game!",
-        "viewAll": "Play History"
+        "viewAll": "All Games"
+
       },
       "popularGames": {
         "title": "Popular Games",
@@ -529,6 +530,12 @@
     "generic": "Something went wrong. Please try again.",
     "unexpected": "An unexpected error occurred.",
     "backendUserFetch": "Failed to load user data from server. Please try again.",
+    "conflict": "This action conflicts with existing data. Please try again.",
+    "invalidPlatform": "Invalid platform selected. Please choose a valid option.",
+    "userNotRegistered": "You need to complete registration before continuing.",
+    "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
+    "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
+    "aiError": "The AI service encountered an error. Please try again.",
     "titles": {
       "network": "Network Error",
       "server": "Server Error",
@@ -536,7 +543,8 @@
       "authentication": "Authentication Error",
       "permission": "Permission Denied",
       "notFound": "Not Found",
-      "error": "Error"
+      "error": "Error",
+      "aiError": "AI Error"
     }
   },
   "auth": {
