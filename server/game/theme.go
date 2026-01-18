@@ -12,88 +12,46 @@ import (
 )
 
 // ThemeGenerationPrompt is the system prompt for generating game themes
-const ThemeGenerationPrompt = `You are a visual theme generator for a text adventure game player interface.
-Based on the game's name, description, scenario, and status fields, generate a JSON theme configuration.
+const ThemeGenerationPrompt = `You are a visual theme generator for a text adventure game. Generate a JSON theme based on the game's name, description, and scenario.
 
-IMPORTANT: Only customize settings that fit the game's theme. Use neutral/default values for anything that doesn't have a strong thematic reason to be customized. Less is more - a clean default look is better than over-styling.
+RULES:
+1. Only customize what CLEARLY fits the game's theme. Default is better than over-styling.
+2. Include ALL fields. Do not omit any.
+3. Output ONLY valid JSON. No explanation, no markdown.
 
-IMPORTANT: Always include ALL fields from the JSON schema below. Do not omit nested objects or fields, even when using defaults.
+OPTIONS:
 
-RESPOND WITH ONLY VALID JSON. No explanation, no markdown, just the JSON object.
+corners.style: "none" (default) | "brackets" (tech/sci-fi) | "flourish" (fantasy) | "arrows" (exploration) | "dots" (mystery)
+corners.color: "amber" (default) | "emerald" (nature) | "cyan" (tech) | "violet" (magic) | "rose" (romance/horror) | "slate" (noir)
 
-Available options (use defaults unless the game strongly suggests otherwise):
+background.animation: "none" (default) | "stars" (space) | "rain" (noir) | "fog" (horror) | "particles" (magic) | "scanlines" (retro)
+background.tint: "neutral" (default) | "warm" (cozy) | "cool" (tech/cold) | "dark" (horror/noir)
 
-corners.style: "none" | "brackets" | "flourish" | "arrows" | "dots"
-  - none: No corner decorations (DEFAULT - use for most games)
-  - brackets: L-shaped corners for tech/sci-fi
-  - flourish: Ornate decorative corners for fantasy/medieval
-  - arrows: Directional arrows for adventure/exploration
-  - dots: Minimal dots for mystery/subtle themes
+player.color: Same colors as corners. Default: "cyan"
+player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond"
+player.showChevron: false (default). Only true for terminal/hacker themes.
+player.bgColor: "cyan" (default) | "amber" | "violet" | "slate" | "white" | "emerald" | "rose"
 
-corners.color: "amber" | "emerald" | "cyan" | "violet" | "rose" | "slate"
-  - amber: Warm gold/brown (DEFAULT)
-  - emerald: Green for nature, adventure
-  - cyan: Blue-green for sci-fi, technology
-  - violet: Purple for magic, mystery
-  - rose: Pink/red for romance, horror
-  - slate: Gray for noir, minimal
+gameMessage.dropCap: true (default). Set false for terminal/mono/minimal styles.
+gameMessage.dropCapColor: Same colors as corners. Default: matches corners.color.
 
-background.animation: "none" | "stars" | "rain" | "fog" | "particles" | "scanlines"
-  - none: No animation (DEFAULT - use for most games)
-  - stars: Only for space/cosmic themes
-  - rain: Only for noir/mystery/sad themes
-  - fog: Only for horror/mysterious themes
-  - particles: Only for fantasy/magical themes
-  - scanlines: Only for retro/sci-fi themes
+thinking.text: Thematic loading phrase IN THE SAME LANGUAGE as the scenario. Default: "The story unfolds..."
+  Examples: "Decrypting transmission...", "The mist clears...", "Die Geschichte entfaltet sich...", "El oráculo responde..."
+thinking.style: "dots" (default) | "spinner" | "pulse" | "typewriter"
 
-background.tint: "neutral" | "warm" | "cool" | "dark"
-  - neutral: No tint (DEFAULT)
-  - warm: Amber tint for cozy/fantasy
-  - cool: Blue tint for tech/cold settings
-  - dark: Darker for horror/noir
+typography.messages: "sans" (default) | "serif" (classic/fantasy) | "mono" (terminal) | "fantasy" (high fantasy only)
 
-player.color: Same as corners.color (DEFAULT: "cyan")
-player.indicator: "none" | "dot" | "arrow" | "chevron" | "diamond"
-  - none: No indicator (DEFAULT)
-  - dot/arrow/chevron/diamond: Only if it fits the theme
-player.showChevron: true/false - show ">" prefix (DEFAULT: false)
-  Only enable for sci-fi / hacker / terminal-style themes where the prompt-like ">" fits.
-player.bgColor: "cyan" | "amber" | "violet" | "slate" | "white" | "emerald" | "rose" (DEFAULT: "cyan")
+statusEmojis: Map status field names to emoji. Use {} if no obvious mappings.
+  Common: Health→❤️, Gold→🪙, Energy→⚡, Mana→🔮, Food→🍖, Time→⏰
 
-gameMessage.dropCap: true/false - decorative first letter (DEFAULT: true).
-   Drop caps fit many story-like games, but disable them for modern/minimal UI vibes.
-   Set dropCap = false for sci-fi / hacker / terminal themes, very short AI messages, or when typography.messages = "mono" / "sans" and you want a clean modern look.
-gameMessage.dropCapColor: Same as corners.color. Only used if dropCap is true.
-   Example (epic/classical): {"gameMessage": {"dropCap": true, "dropCapColor": "amber"}}
-
-thinking.text: A thematic phrase shown while AI generates response (DEFAULT: "The story unfolds...")
-thinking.style: "dots" | "spinner" | "pulse" | "typewriter" (DEFAULT: "dots")
-
-typography.messages: "sans" | "serif" | "mono" | "fantasy"
-  - sans: Modern clean feel (DEFAULT - use for most games)
-  - serif: Classic book feel for fantasy/historical
-  - mono: Terminal feel for tech/sci-fi
-  - fantasy: Decorative for high fantasy only
-
-statusEmojis: Object mapping status field names to emoji
-  ONLY add emojis if they fit the status field. It's fine to leave fields without emoji.
-  Leave empty {} if no obvious emoji mappings exist.
-  Examples:
-  - Health/HP/Life -> ❤️
-  - Gold/Coins/Money -> 🪙
-  - Energy/Stamina/Power -> ⚡
-  - Mana/Magic -> 🔮
-  - Food -> 🍖
-  - Time -> ⏰
-
-JSON SCHEMA:
+EXAMPLE (mostly defaults for a generic adventure):
 {
-  "corners": { "style": "string", "color": "string" },
-  "background": { "animation": "string", "tint": "string" },
-  "player": { "color": "string", "indicator": "string", "showChevron": boolean, "bgColor": "string" },
-  "gameMessage": { "dropCap": boolean, "dropCapColor": "string" },
-  "thinking": { "text": "string", "style": "string" },
-  "typography": { "messages": "string" },
+  "corners": { "style": "none", "color": "amber" },
+  "background": { "animation": "none", "tint": "neutral" },
+  "player": { "color": "cyan", "indicator": "none", "showChevron": false, "bgColor": "cyan" },
+  "gameMessage": { "dropCap": true, "dropCapColor": "amber" },
+  "thinking": { "text": "The story unfolds...", "style": "dots" },
+  "typography": { "messages": "sans" },
   "statusEmojis": {}
 }`
 

@@ -8,12 +8,10 @@ interface PlayerActionProps {
 export function PlayerAction({ text }: PlayerActionProps) {
   const { theme } = useGameTheme();
   const showChevron = theme.player.showChevron;
-  const isMonochrome = theme.player.monochrome;
 
   const bubbleClasses = [
     classes.playerActionBubble,
     !showChevron && classes.noChevron,
-    isMonochrome && classes.playerMonochrome,
   ].filter(Boolean).join(' ');
 
   return (
