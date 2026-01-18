@@ -13,95 +13,88 @@ import (
 
 // ThemeGenerationPrompt is the system prompt for generating game themes
 const ThemeGenerationPrompt = `You are a visual theme generator for a text adventure game player interface.
-Based on the game's name, description, and setting, generate a JSON theme configuration.
+Based on the game's name, description, scenario, and status fields, generate a JSON theme configuration.
 
-The theme controls the visual appearance of the game player:
-- Corner decorations on scene cards
-- Background animation effects
-- Player message styling (the text input from the player)
-- "AI thinking" indicator text
-- Typography
-- Emoji icons for status fields
+IMPORTANT: Only customize settings that fit the game's theme. Use neutral/default values for anything that doesn't have a strong thematic reason to be customized. Less is more - a clean default look is better than over-styling.
+
+IMPORTANT: Always include ALL fields from the JSON schema below. Do not omit nested objects or fields, even when using defaults.
 
 RESPOND WITH ONLY VALID JSON. No explanation, no markdown, just the JSON object.
 
-Available options:
+Available options (use defaults unless the game strongly suggests otherwise):
 
-corners.style: "brackets" | "flourish" | "arrows" | "dots" | "none"
-  - brackets: Clean tech/sci-fi look with L-shaped corners
-  - flourish: Ornate fantasy/medieval decorative corners
+corners.style: "none" | "brackets" | "flourish" | "arrows" | "dots"
+  - none: No corner decorations (DEFAULT - use for most games)
+  - brackets: L-shaped corners for tech/sci-fi
+  - flourish: Ornate decorative corners for fantasy/medieval
   - arrows: Directional arrows for adventure/exploration
   - dots: Minimal dots for mystery/subtle themes
-  - none: No corner decorations
 
 corners.color: "amber" | "emerald" | "cyan" | "violet" | "rose" | "slate"
-  - amber: Warm gold/brown for fantasy, western, historical
-  - emerald: Green for nature, adventure, exploration
-  - cyan: Blue-green for sci-fi, technology, ocean
-  - violet: Purple for magic, mystery, supernatural
-  - rose: Pink/red for romance, horror, drama
-  - slate: Gray for noir, mystery, minimal
+  - amber: Warm gold/brown (DEFAULT)
+  - emerald: Green for nature, adventure
+  - cyan: Blue-green for sci-fi, technology
+  - violet: Purple for magic, mystery
+  - rose: Pink/red for romance, horror
+  - slate: Gray for noir, minimal
 
 background.animation: "none" | "stars" | "rain" | "fog" | "particles" | "scanlines"
-  - none: Clean, no animation
-  - stars: Twinkling stars for space/cosmic themes
-  - rain: Falling rain for noir/mystery/sad themes
-  - fog: Drifting fog for horror/mysterious themes
-  - particles: Floating particles for fantasy/magical themes
-  - scanlines: CRT scanlines for retro/sci-fi themes
+  - none: No animation (DEFAULT - use for most games)
+  - stars: Only for space/cosmic themes
+  - rain: Only for noir/mystery/sad themes
+  - fog: Only for horror/mysterious themes
+  - particles: Only for fantasy/magical themes
+  - scanlines: Only for retro/sci-fi themes
 
-background.tint: "warm" | "cool" | "neutral" | "dark"
-  - warm: Amber tinted for cozy/fantasy
-  - cool: Blue tinted for tech/cold settings
-  - neutral: No tint
-  - dark: Darker background for horror/noir
+background.tint: "neutral" | "warm" | "cool" | "dark"
+  - neutral: No tint (DEFAULT)
+  - warm: Amber tint for cozy/fantasy
+  - cool: Blue tint for tech/cold settings
+  - dark: Darker for horror/noir
 
-player.color: Same options as corners.color - this colors the player's input text
-player.indicator: "dot" | "arrow" | "chevron" | "diamond" | "none" - icon before player text
-player.monochrome: true/false - whether player text is single color or gradient
-player.showChevron: true/false - show ">" prefix before player text
-player.bgColor: "cyan" | "amber" | "violet" | "slate" | "white" | "emerald" | "rose" - background color of player messages
+player.color: Same as corners.color (DEFAULT: "cyan")
+player.indicator: "none" | "dot" | "arrow" | "chevron" | "diamond"
+  - none: No indicator (DEFAULT)
+  - dot/arrow/chevron/diamond: Only if it fits the theme
+player.showChevron: true/false - show ">" prefix (DEFAULT: false)
+  Only enable for sci-fi / hacker / terminal-style themes where the prompt-like ">" fits.
+player.bgColor: "cyan" | "amber" | "violet" | "slate" | "white" | "emerald" | "rose" (DEFAULT: "cyan")
 
-gameMessage.monochrome: true/false - whether AI/game messages are desaturated/grayscale
-gameMessage.dropCap: true/false - highlight the first letter of AI messages (decorative drop cap)
-gameMessage.dropCapColor: Same options as corners.color - color of the drop cap letter
+gameMessage.dropCap: true/false - decorative first letter (DEFAULT: true).
+   Drop caps fit many story-like games, but disable them for modern/minimal UI vibes.
+   Set dropCap = false for sci-fi / hacker / terminal themes, very short AI messages, or when typography.messages = "mono" / "sans" and you want a clean modern look.
+gameMessage.dropCapColor: Same as corners.color. Only used if dropCap is true.
+   Example (epic/classical): {"gameMessage": {"dropCap": true, "dropCapColor": "amber"}}
 
-thinking.text: A short thematic phrase shown while AI generates response
-  Examples: "The story unfolds...", "Processing...", "The tale continues...", "Investigating..."
-thinking.style: "dots" | "spinner" | "pulse" | "typewriter"
+thinking.text: A thematic phrase shown while AI generates response (DEFAULT: "The story unfolds...")
+thinking.style: "dots" | "spinner" | "pulse" | "typewriter" (DEFAULT: "dots")
 
-typography.messages: "serif" | "sans" | "mono" | "fantasy"
-  - serif: Classic book feel
-  - sans: Modern clean feel
-  - mono: Terminal/tech feel
-  - fantasy: Decorative fantasy feel
+typography.messages: "sans" | "serif" | "mono" | "fantasy"
+  - sans: Modern clean feel (DEFAULT - use for most games)
+  - serif: Classic book feel for fantasy/historical
+  - mono: Terminal feel for tech/sci-fi
+  - fantasy: Decorative for high fantasy only
 
 statusEmojis: Object mapping status field names to emoji
-  Example: {"Health": "❤️", "Gold": "🪙", "Energy": "⚡"}
-  Use appropriate emoji for the game's status fields. Common mappings:
+  ONLY add emojis if they fit the status field. It's fine to leave fields without emoji.
+  Leave empty {} if no obvious emoji mappings exist.
+  Examples:
   - Health/HP/Life -> ❤️
   - Gold/Coins/Money -> 🪙
   - Energy/Stamina/Power -> ⚡
   - Mana/Magic -> 🔮
+  - Food -> 🍖
   - Time -> ⏰
-  - Reputation/Fame -> ⭐
-  - Fear/Terror -> 😨
-  - Hunger/Food -> 🍖
-  - Oxygen/Air -> 💨
-  - Ammo/Bullets -> 🔫
-  - Shield/Armor -> 🛡️
-  - Speed -> 🏃
-  - Luck -> 🍀
 
 JSON SCHEMA:
 {
   "corners": { "style": "string", "color": "string" },
   "background": { "animation": "string", "tint": "string" },
-  "player": { "color": "string", "indicator": "string", "monochrome": boolean, "showChevron": boolean, "bgColor": "string" },
-  "gameMessage": { "monochrome": boolean, "dropCap": boolean, "dropCapColor": "string" },
+  "player": { "color": "string", "indicator": "string", "showChevron": boolean, "bgColor": "string" },
+  "gameMessage": { "dropCap": boolean, "dropCapColor": "string" },
   "thinking": { "text": "string", "style": "string" },
   "typography": { "messages": "string" },
-  "statusEmojis": { "fieldName": "emoji", ... }
+  "statusEmojis": {}
 }`
 
 // GenerateTheme generates a visual theme for the game based on its description
@@ -120,25 +113,33 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 	}
 
 	// Build the user prompt with game details
-	var statusFieldsList string
-	if game.StatusFields != "" {
-		statusFieldsList = game.StatusFields
-	} else {
-		statusFieldsList = "None defined"
+	scenario := game.SystemMessageScenario
+	if scenario == "" {
+		scenario = "(No scenario defined)"
 	}
 
-	userPrompt := fmt.Sprintf(`Generate a visual theme for this game:
+	statusFields := game.StatusFields
+	if statusFields == "" {
+		statusFields = "(No status fields defined)"
+	}
 
-Game Name: %s
-Description: %s
-Setting/Scenario: %s
-Status Fields: %s
+	userPrompt := fmt.Sprintf(`Generate a visual theme for this game. Use neutral defaults unless the game clearly suggests a specific style.
 
-Generate the JSON theme that best matches this game's atmosphere and genre.`,
+GAME NAME: %s
+
+DESCRIPTION: %s
+
+SCENARIO/SETTING:
+%s
+
+STATUS FIELDS (for emoji mapping - only add emoji if it fits):
+%s
+
+Generate the JSON theme. Remember: use defaults for most options, only customize what clearly fits the theme.`,
 		game.Name,
 		game.Description,
-		truncateString(game.SystemMessageScenario, 500),
-		statusFieldsList,
+		truncateString(scenario, 800),
+		statusFields,
 	)
 
 	// Call AI to generate theme
@@ -165,15 +166,9 @@ Generate the JSON theme that best matches this game's atmosphere and genre.`,
 func parseThemeResponse(response string) (*obj.GameTheme, error) {
 	// Clean up response - remove markdown code blocks if present
 	response = strings.TrimSpace(response)
-	if strings.HasPrefix(response, "```json") {
-		response = strings.TrimPrefix(response, "```json")
-	}
-	if strings.HasPrefix(response, "```") {
-		response = strings.TrimPrefix(response, "```")
-	}
-	if strings.HasSuffix(response, "```") {
-		response = strings.TrimSuffix(response, "```")
-	}
+	response = strings.TrimPrefix(response, "```json")
+	response = strings.TrimPrefix(response, "```")
+	response = strings.TrimSuffix(response, "```")
 	response = strings.TrimSpace(response)
 
 	var theme obj.GameTheme
@@ -189,13 +184,13 @@ func parseThemeResponse(response string) (*obj.GameTheme, error) {
 
 // validateTheme ensures all theme values are valid, setting defaults for invalid ones
 func validateTheme(theme obj.GameTheme) obj.GameTheme {
-	// Validate corner style
-	validStyles := map[string]bool{"brackets": true, "flourish": true, "arrows": true, "dots": true, "none": true}
+	// Validate corner style (default: none)
+	validStyles := map[string]bool{"none": true, "brackets": true, "flourish": true, "arrows": true, "dots": true}
 	if !validStyles[theme.Corners.Style] {
-		theme.Corners.Style = "brackets"
+		theme.Corners.Style = "none"
 	}
 
-	// Validate colors
+	// Validate colors (default: amber for corners, cyan for player)
 	validColors := map[string]bool{"amber": true, "emerald": true, "cyan": true, "violet": true, "rose": true, "slate": true}
 	if !validColors[theme.Corners.Color] {
 		theme.Corners.Color = "amber"
@@ -203,23 +198,33 @@ func validateTheme(theme obj.GameTheme) obj.GameTheme {
 	if !validColors[theme.Player.Color] {
 		theme.Player.Color = "cyan"
 	}
+	if !validColors[theme.GameMessage.DropCapColor] {
+		// Default drop cap color should align with the overall accent (corners)
+		theme.GameMessage.DropCapColor = theme.Corners.Color
+	}
 
-	// Validate background animation
+	// Validate background animation (default: none)
 	validAnimations := map[string]bool{"none": true, "stars": true, "rain": true, "fog": true, "particles": true, "scanlines": true}
 	if !validAnimations[theme.Background.Animation] {
 		theme.Background.Animation = "none"
 	}
 
-	// Validate background tint
-	validTints := map[string]bool{"warm": true, "cool": true, "neutral": true, "dark": true}
+	// Validate background tint (default: neutral)
+	validTints := map[string]bool{"neutral": true, "warm": true, "cool": true, "dark": true}
 	if !validTints[theme.Background.Tint] {
-		theme.Background.Tint = "warm"
+		theme.Background.Tint = "neutral"
 	}
 
-	// Validate player indicator
-	validIndicators := map[string]bool{"dot": true, "arrow": true, "chevron": true, "diamond": true, "none": true}
+	// Validate player indicator (default: none)
+	validIndicators := map[string]bool{"none": true, "dot": true, "arrow": true, "chevron": true, "diamond": true}
 	if !validIndicators[theme.Player.Indicator] {
-		theme.Player.Indicator = "dot"
+		theme.Player.Indicator = "none"
+	}
+
+	// Validate player bg color (default: cyan)
+	validPlayerBgColors := map[string]bool{"cyan": true, "amber": true, "violet": true, "slate": true, "white": true, "emerald": true, "rose": true}
+	if !validPlayerBgColors[theme.Player.BgColor] {
+		theme.Player.BgColor = "cyan"
 	}
 
 	// Validate thinking style
@@ -245,22 +250,26 @@ func validateTheme(theme obj.GameTheme) obj.GameTheme {
 	return theme
 }
 
-// defaultTheme returns the default theme (current sci-fi/tech style)
+// defaultTheme returns the default neutral theme
 func defaultTheme() *obj.GameTheme {
 	return &obj.GameTheme{
 		Corners: obj.GameThemeCorners{
-			Style: "brackets",
+			Style: "none",
 			Color: "amber",
 		},
 		Background: obj.GameThemeBackground{
 			Animation: "none",
-			Tint:      "warm",
+			Tint:      "neutral",
 		},
 		Player: obj.GameThemePlayer{
 			Color:       "cyan",
-			Indicator:   "dot",
-			Monochrome:  true,
-			ShowChevron: true,
+			Indicator:   "none",
+			ShowChevron: false,
+			BgColor:     "cyan",
+		},
+		GameMessage: obj.GameThemeGameMessage{
+			DropCap:      true,
+			DropCapColor: "amber",
 		},
 		Thinking: obj.GameThemeThinking{
 			Text:  "The story unfolds...",

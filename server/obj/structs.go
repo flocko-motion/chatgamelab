@@ -222,13 +222,11 @@ type GameThemeBackground struct {
 type GameThemePlayer struct {
 	Color       string `json:"color"`     // amber, emerald, cyan, violet, rose, slate
 	Indicator   string `json:"indicator"` // dot, arrow, chevron, diamond, none
-	Monochrome  bool   `json:"monochrome"`
 	ShowChevron bool   `json:"showChevron"`
 	BgColor     string `json:"bgColor"` // cyan, amber, violet, slate, white, emerald, rose
 }
 
 type GameThemeGameMessage struct {
-	Monochrome   bool   `json:"monochrome"`
 	DropCap      bool   `json:"dropCap"`
 	DropCapColor string `json:"dropCapColor"` // amber, emerald, cyan, violet, rose, slate
 }
