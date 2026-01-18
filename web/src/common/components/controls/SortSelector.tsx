@@ -42,7 +42,7 @@ export function SortSelector({
       onChange={(v) => v && onChange(v)}
       data={options}
       size="sm"
-      w={{ base: '100%', xs: 180 }}
+      w={180}
       aria-label={label}
       placeholder={placeholder}
       renderOption={({ option }) => (

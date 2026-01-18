@@ -8,7 +8,6 @@ import {
   Skeleton,
   Text,
   Badge,
-  TextInput,
   Tooltip,
   Box,
 } from '@mantine/core';
@@ -19,13 +18,12 @@ import { useModals } from '@mantine/modals';
 import {
   IconAlertCircle,
   IconMoodEmpty,
-  IconSearch,
   IconCopy,
   IconStar,
   IconStarFilled,
 } from '@tabler/icons-react';
 import { PageTitle } from '@components/typography';
-import { SortSelector, type SortOption, FilterSegmentedControl } from '@components/controls';
+import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch } from '@components/controls';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
 import { PlayGameButton, TextButton, GenericIconButton } from '@components/buttons';
@@ -150,6 +148,11 @@ export function AllGames() {
     });
   };
 
+  const getDateLabel = (game: ObjGame) => {
+    const dateValue = sortField === 'createdAt' ? game.meta?.createdAt : game.meta?.modifiedAt;
+    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
+  };
+
   const getCardActions = (game: ObjGame): GameCardAction[] => [
     {
       key: 'copy',
@@ -196,16 +199,6 @@ export function AllGames() {
               aria-label={isFavorite(game) ? t('allGames.unfavorite') : t('allGames.favorite')}
             />
           </Tooltip>
-        </div>
-      ),
-    },
-    {
-      key: 'play',
-      header: '',
-      width: 120,
-      render: (game) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          {renderPlayButton(game)}
         </div>
       ),
     },
@@ -274,9 +267,10 @@ export function AllGames() {
     {
       key: 'actions',
       header: '',
-      width: 60,
+      width: 180,
       render: (game) => (
-        <div onClick={(e) => e.stopPropagation()}>
+        <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
+          {renderPlayButton(game)}
           <Tooltip label={t('allGames.copyGame')} withArrow>
             <GenericIconButton
               icon={<IconCopy size={16} />}
@@ -284,7 +278,7 @@ export function AllGames() {
               aria-label={t('allGames.copyGame')}
             />
           </Tooltip>
-        </div>
+        </Group>
       ),
     },
   ];
@@ -333,13 +327,10 @@ export function AllGames() {
           <PageTitle>{t('allGames.title')}</PageTitle>
 
           <Group justify="space-between" wrap="wrap" gap="sm">
-            <TextInput
-              placeholder={t('search')}
-              leftSection={<IconSearch size={16} />}
+            <ExpandableSearch
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              size={isMobile ? 'xs' : 'sm'}
-              w={{ base: 150, sm: 200 }}
+              onChange={setSearchQuery}
+              placeholder={t('search')}
             />
             <Group gap="sm" wrap="wrap">
               <FilterSegmentedControl
@@ -396,6 +387,7 @@ export function AllGames() {
                     favoriteLabel={t('allGames.favorite')}
                     unfavoriteLabel={t('allGames.unfavorite')}
                     actions={getCardActions(game)}
+                    dateLabel={getDateLabel(game)}
                   />
                 );
               })}
@@ -429,6 +421,7 @@ export function AllGames() {
                   favoriteLabel={t('allGames.favorite')}
                   unfavoriteLabel={t('allGames.unfavorite')}
                   actions={getCardActions(game)}
+                  dateLabel={getDateLabel(game)}
                 />
               );
             }}

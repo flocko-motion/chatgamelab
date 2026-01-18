@@ -43,6 +43,9 @@ export interface GameCardProps {
   
   // Action buttons (configurable)
   actions?: GameCardAction[];
+  
+  // Date display (optional)
+  dateLabel?: string;
 }
 
 export function GameCard({
@@ -64,13 +67,14 @@ export function GameCard({
   favoriteLabel,
   unfavoriteLabel,
   actions = [],
+  dateLabel,
 }: GameCardProps) {
   const { t } = useTranslation('common');
 
   const renderPlayButtons = () => {
     if (hasSession && onContinue) {
       return (
-        <Stack gap={4}>
+        <Group gap="xs" wrap="nowrap">
           <PlayGameButton onClick={onContinue} size="xs">
             {continueLabel}
           </PlayGameButton>
@@ -79,7 +83,7 @@ export function GameCard({
               {restartLabel}
             </TextButton>
           )}
-        </Stack>
+        </Group>
       );
     }
     
@@ -133,12 +137,19 @@ export function GameCard({
       onClick={onClick}
     >
       <Stack gap="sm">
-        {/* Top row: Title (left) + Badge (right) */}
+        {/* Top row: Title (left) + Date + Badge (right) */}
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Text fw={600} size="md" lineClamp={1} style={{ flex: 1, minWidth: 0 }}>
             {game.name}
           </Text>
-          {renderTopRightBadge()}
+          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+            {dateLabel && (
+              <Text size="xs" c="gray.5" style={{ whiteSpace: 'nowrap' }}>
+                {dateLabel}
+              </Text>
+            )}
+            {renderTopRightBadge()}
+          </Group>
         </Group>
         
         {/* Description */}
@@ -156,7 +167,7 @@ export function GameCard({
           </Box>
           
           {/* Action buttons + Favorite */}
-          <Group gap={4} onClick={(e) => e.stopPropagation()}>
+          <Group gap={4} onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0 }}>
             {actions.map((action) => (
               <Tooltip key={action.key} label={action.label} withArrow>
                 {action.key === 'edit' ? (
