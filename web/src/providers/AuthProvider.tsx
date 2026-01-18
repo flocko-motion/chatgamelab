@@ -7,6 +7,7 @@ import { Api } from '../api/generated';
 import { createAuthenticatedApiConfig, getApiConfig } from '../api/client/http';
 import { authLogger } from '../config/logger';
 import { ROUTES } from '../common/routes/routes';
+import { ErrorCodes, extractErrorCode } from '../common/types/errorCodes';
 import type { ObjUser } from '../api/generated';
 
 export interface AuthUser {
@@ -144,14 +145,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check if error is a "user not registered" response
   const isUserNotRegisteredError = (error: unknown): boolean => {
-    if (error && typeof error === 'object' && 'error' in error) {
-      const errorData = (error as { error: unknown }).error;
-      if (errorData && typeof errorData === 'object' && 'type' in errorData) {
-        const typedError = errorData as { type: string };
-        return typedError.type === 'user_not_registered';
-      }
-    }
-    return false;
+    return extractErrorCode(error) === ErrorCodes.USER_NOT_REGISTERED;
   };
 
   // Get registration data from Auth0 user - apply smart defaults for name
