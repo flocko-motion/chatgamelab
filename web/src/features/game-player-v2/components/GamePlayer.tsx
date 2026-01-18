@@ -25,9 +25,11 @@ import { useGameSession } from '../hooks/useGameSession';
 import { GamePlayerProvider } from '../context';
 import type { GamePlayerContextValue, FontSize } from '../context';
 import { DEFAULT_THEME, mapApiThemeToPartial } from '../types';
+import type { PartialGameTheme } from '../theme/types';
 import { GameThemeProvider, useGameTheme } from '../theme';
 import { BackgroundAnimation } from '../theme/BackgroundAnimation';
 import { ApiKeySelectModal } from './ApiKeySelectModal';
+import { ThemeTestPanel } from './ThemeTestPanel';
 import { SceneCard } from './SceneCard';
 import { PlayerAction } from './PlayerAction';
 import { SystemMessage } from './SystemMessage';
@@ -80,6 +82,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string } | null>(null);
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
+  const [themeOverride, setThemeOverride] = useState<PartialGameTheme | null>(null);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
@@ -274,8 +277,21 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     return elements;
   };
 
+  // Deep merge API theme with local override for testing
+  const effectiveTheme = themeOverride 
+    ? {
+        corners: { ...mapApiThemeToPartial(state.theme)?.corners, ...themeOverride.corners },
+        background: { ...mapApiThemeToPartial(state.theme)?.background, ...themeOverride.background },
+        player: { ...mapApiThemeToPartial(state.theme)?.player, ...themeOverride.player },
+        gameMessage: { ...mapApiThemeToPartial(state.theme)?.gameMessage, ...themeOverride.gameMessage },
+        thinking: { ...mapApiThemeToPartial(state.theme)?.thinking, ...themeOverride.thinking },
+        typography: { ...mapApiThemeToPartial(state.theme)?.typography, ...themeOverride.typography },
+        statusEmojis: { ...mapApiThemeToPartial(state.theme)?.statusEmojis, ...themeOverride.statusEmojis },
+      }
+    : mapApiThemeToPartial(state.theme);
+
   return (
-    <GameThemeProvider theme={mapApiThemeToPartial(state.theme)}>
+    <GameThemeProvider theme={effectiveTheme}>
     <GamePlayerProvider value={contextValue}>
       <Box className={classes.container} h={containerHeight}>
         <Box className={classes.header} px="md" py="sm">
@@ -324,6 +340,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   <IconTextIncrease size={18} />
                 </ActionIcon>
               </Tooltip>
+              <ThemeTestPanel
+                currentTheme={effectiveTheme}
+                onThemeChange={setThemeOverride}
+              />
               <Button
                 onClick={toggleDebugMode}
                 size="xs"

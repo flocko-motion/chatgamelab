@@ -8,14 +8,14 @@ interface StatusBarProps {
 }
 
 export function StatusBar({ statusFields }: StatusBarProps) {
-  const { getStatusEmoji } = useGameTheme();
+  const { getStatusEmoji, cssVars } = useGameTheme();
   
   if (!statusFields || statusFields.length === 0) {
     return null;
   }
 
   return (
-    <Box className={classes.statusBar} px={{ base: 'sm', sm: 'md' }} py="xs">
+    <Box className={classes.statusBar} px={{ base: 'sm', sm: 'md' }} py="xs" style={cssVars}>
       <Group gap="sm" wrap="nowrap">
         {statusFields.map((field, index) => {
           const emoji = field.name ? getStatusEmoji(field.name) : '';
