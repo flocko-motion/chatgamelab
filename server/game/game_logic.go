@@ -108,13 +108,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found: " + err.Error()}
 	}
 
-	// Delete any existing sessions for this user+game (restart scenario)
-	log.Debug("deleting existing sessions", "user_id", userID, "game_id", gameID)
-	if err := db.DeleteUserGameSessions(ctx, userID, gameID); err != nil {
-		log.Debug("failed to delete existing sessions", "error", err)
-		// Non-fatal - continue with session creation
-	}
-
 	// Parse game template to get system message
 	log.Debug("parsing game template", "game_id", gameID, "game_name", game.Name)
 	systemMessage, err := GetTemplate(game)
@@ -235,9 +228,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	responseStream := stream.Get().Create(ctx, response, func(messageID uuid.UUID, imageData []byte) error {
 		return db.UpdateGameSessionMessageImage(context.Background(), messageID, imageData)
 	})
-
-	// TODO: REMOVE - Simulated org verification error for testing
-	return nil, obj.NewHTTPErrorWithCode(500, httpx.ErrCodeOrgVerificationRequired, "OpenAI API error: organization_verification_required")
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)

@@ -243,12 +243,14 @@ function MobileNavigation({
   items,
   onNotificationsClick,
   onSettingsClick,
+  onProfileClick,
   onLogoutClick,
   onClose,
 }: {
   items: NavItem[];
   onNotificationsClick?: () => void;
   onSettingsClick?: () => void;
+  onProfileClick?: () => void;
   onLogoutClick?: () => void;
   onClose: () => void;
 }) {
@@ -333,6 +335,25 @@ function MobileNavigation({
           >
             <IconBell size={20} />
             <Text size="md" fw={500}>{t('notifications')}</Text>
+          </UnstyledButton>
+
+          <UnstyledButton
+            onClick={() => {
+              onProfileClick?.();
+              onClose();
+            }}
+            py="sm"
+            px="lg"
+            style={{
+              borderRadius: 'var(--mantine-radius-md)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <IconUser size={20} />
+            <Text size="md" fw={500}>{t('header.profile')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
@@ -579,6 +600,7 @@ export function AppHeader({
           items={navItems}
           onNotificationsClick={onNotificationsClick}
           onSettingsClick={onSettingsClick}
+          onProfileClick={onProfileClick}
           onLogoutClick={onLogoutClick}
           onClose={closeMobileNav}
         />
