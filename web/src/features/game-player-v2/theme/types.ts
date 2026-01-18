@@ -45,14 +45,12 @@ export interface BackgroundConfig {
 export interface PlayerConfig {
   color: ThemeColor;
   indicator: PlayerIndicator;
-  monochrome: boolean;
   showChevron: boolean;
   bgColor: PlayerBgColor;
 }
 
 /** AI/Game message styling */
 export interface GameMessageConfig {
-  monochrome: boolean;
   dropCap: boolean;
   dropCapColor: ThemeColor;
 }

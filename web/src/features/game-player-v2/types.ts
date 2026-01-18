@@ -121,12 +121,10 @@ export function mapApiThemeToPartial(apiTheme: ObjGameTheme | null | undefined):
     player: apiTheme.player ? {
       color: apiTheme.player.color as import('./theme/types').ThemeColor | undefined,
       indicator: apiTheme.player.indicator as import('./theme/types').PlayerIndicator | undefined,
-      monochrome: apiTheme.player.monochrome,
       showChevron: apiTheme.player.showChevron,
       bgColor: apiTheme.player.bgColor as import('./theme/types').PlayerBgColor | undefined,
     } : undefined,
     gameMessage: apiTheme.gameMessage ? {
-      monochrome: apiTheme.gameMessage.monochrome,
       dropCap: apiTheme.gameMessage.dropCap,
       dropCapColor: apiTheme.gameMessage.dropCapColor as import('./theme/types').ThemeColor | undefined,
     } : undefined,
