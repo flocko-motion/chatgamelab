@@ -350,6 +350,20 @@ func (q *Queries) DeleteGameTag(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteUserGameSessions = `-- name: DeleteUserGameSessions :exec
+DELETE FROM game_session WHERE user_id = $1 AND game_id = $2
+`
+
+type DeleteUserGameSessionsParams struct {
+	UserID uuid.UUID
+	GameID uuid.UUID
+}
+
+func (q *Queries) DeleteUserGameSessions(ctx context.Context, arg DeleteUserGameSessionsParams) error {
+	_, err := q.db.ExecContext(ctx, deleteUserGameSessions, arg.UserID, arg.GameID)
+	return err
+}
+
 const getAllGameSessionMessages = `-- name: GetAllGameSessionMessages :many
 SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
 `

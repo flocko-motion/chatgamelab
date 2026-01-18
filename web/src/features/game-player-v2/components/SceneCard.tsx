@@ -26,11 +26,27 @@ export function SceneCard({ message, showImages }: SceneCardProps) {
   const { text, imageUrl, imagePrompt, isStreaming, isImageLoading } = message;
 
   const hasImage = showImages && (imageUrl || isImageLoading || isStreaming);
-  const isMonochrome = theme.gameMessage?.monochrome ?? false;
+  const cornerStyle = theme.corners?.style ?? 'brackets';
+  const showDropCap = theme.gameMessage?.dropCap ?? false;
+
+  // Map corner style to CSS class
+  const cornerClassMap: Record<string, string> = {
+    brackets: classes.cornerBrackets,
+    flourish: classes.cornerFlourish,
+    arrows: classes.cornerArrows,
+    dots: classes.cornerDots,
+    none: classes.cornerNone,
+  };
+  const cornerClass = cornerClassMap[cornerStyle] || classes.cornerBrackets;
+
+  const narrativeClasses = [
+    classes.narrativeText,
+    showDropCap && classes.narrativeTextDropCap,
+  ].filter(Boolean).join(' ');
 
   return (
-    <div className={`${classes.sceneCard} ${isMonochrome ? classes.monochrome : ''}`}>
-      <div className={`${classes.gameScene} ${!hasImage ? classes.noImage : ''}`}>
+    <div className={classes.sceneCard}>
+      <div className={`${classes.gameScene} ${cornerClass} ${!hasImage ? classes.noImage : ''}`}>
         {hasImage && (
           <SceneImage
             imageUrl={imageUrl}
@@ -40,7 +56,7 @@ export function SceneCard({ message, showImages }: SceneCardProps) {
         )}
         <div className={classes.sceneContent}>
           <div 
-            className={classes.narrativeText}
+            className={narrativeClasses}
             style={{ fontSize: FONT_SIZE_MAP[fontSize] }}
           >
             {text}

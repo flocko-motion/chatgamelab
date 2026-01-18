@@ -19,14 +19,17 @@ import {
   IconTextDecrease,
 } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
+import { ErrorModal } from '@/common/components/ErrorModal';
 import { useGame } from '@/api/hooks';
 import { useGameSession } from '../hooks/useGameSession';
 import { GamePlayerProvider } from '../context';
 import type { GamePlayerContextValue, FontSize } from '../context';
 import { DEFAULT_THEME, mapApiThemeToPartial } from '../types';
+import type { PartialGameTheme } from '../theme/types';
 import { GameThemeProvider, useGameTheme } from '../theme';
 import { BackgroundAnimation } from '../theme/BackgroundAnimation';
 import { ApiKeySelectModal } from './ApiKeySelectModal';
+import { ThemeTestPanel } from './ThemeTestPanel';
 import { SceneCard } from './SceneCard';
 import { PlayerAction } from './PlayerAction';
 import { SystemMessage } from './SystemMessage';
@@ -79,6 +82,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string } | null>(null);
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
+  const [themeOverride, setThemeOverride] = useState<PartialGameTheme | null>(null);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
@@ -197,16 +201,20 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   if (state.phase === 'error') {
     return (
-      <Box className={classes.container} h={containerHeight}>
-        <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
-          <IconAlertCircle size={48} color="var(--mantine-color-red-5)" />
-          <Text size="lg" fw={600}>{t('gamePlayer.error.sessionFailed')}</Text>
-          <Text c="dimmed" maw={400}>{state.error}</Text>
-          <TextButton onClick={handleBack} leftSection={<IconArrowLeft size={16} />}>
-            {t('gamePlayer.error.backToGames')}
-          </TextButton>
-        </Stack>
-      </Box>
+      <>
+        <Box className={classes.container} h={containerHeight}>
+          <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
+            <Loader size="lg" color="accent" />
+          </Stack>
+        </Box>
+        <ErrorModal
+          opened={true}
+          onClose={handleBack}
+          error={state.errorObject}
+          message={!state.errorObject ? state.error || undefined : undefined}
+          title={t('gamePlayer.error.sessionFailed')}
+        />
+      </>
     );
   }
 
@@ -269,8 +277,21 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     return elements;
   };
 
+  // Deep merge API theme with local override for testing
+  const effectiveTheme = themeOverride 
+    ? {
+        corners: { ...mapApiThemeToPartial(state.theme)?.corners, ...themeOverride.corners },
+        background: { ...mapApiThemeToPartial(state.theme)?.background, ...themeOverride.background },
+        player: { ...mapApiThemeToPartial(state.theme)?.player, ...themeOverride.player },
+        gameMessage: { ...mapApiThemeToPartial(state.theme)?.gameMessage, ...themeOverride.gameMessage },
+        thinking: { ...mapApiThemeToPartial(state.theme)?.thinking, ...themeOverride.thinking },
+        typography: { ...mapApiThemeToPartial(state.theme)?.typography, ...themeOverride.typography },
+        statusEmojis: { ...mapApiThemeToPartial(state.theme)?.statusEmojis, ...themeOverride.statusEmojis },
+      }
+    : mapApiThemeToPartial(state.theme);
+
   return (
-    <GameThemeProvider theme={mapApiThemeToPartial(state.theme)}>
+    <GameThemeProvider theme={effectiveTheme}>
     <GamePlayerProvider value={contextValue}>
       <Box className={classes.container} h={containerHeight}>
         <Box className={classes.header} px="md" py="sm">
@@ -319,6 +340,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   <IconTextIncrease size={18} />
                 </ActionIcon>
               </Tooltip>
+              <ThemeTestPanel
+                currentTheme={effectiveTheme}
+                onThemeChange={setThemeOverride}
+              />
               <Button
                 onClick={toggleDebugMode}
                 size="xs"

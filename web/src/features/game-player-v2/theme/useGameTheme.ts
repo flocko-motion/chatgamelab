@@ -23,6 +23,8 @@ export const GameThemeContext = createContext<GameThemeContextValue | null>(null
 export function generateCssVars(theme: GameTheme): Record<string, string> {
   const cornerColor = THEME_COLORS[theme.corners.color] || THEME_COLORS.amber;
   const playerColor = THEME_COLORS[theme.player.color] || THEME_COLORS.cyan;
+  const playerBgColor = THEME_COLORS[theme.player.bgColor] || THEME_COLORS.cyan;
+  const dropCapColor = THEME_COLORS[theme.gameMessage.dropCapColor] || THEME_COLORS.amber;
   const messageFont = THEME_FONTS[theme.typography.messages] || THEME_FONTS.sans;
   
   return {
@@ -35,15 +37,18 @@ export function generateCssVars(theme: GameTheme): Record<string, string> {
     '--game-player-color': playerColor.primary,
     '--game-player-color-light': playerColor.light,
     '--game-player-color-dark': playerColor.dark,
-    '--game-player-bg': playerColor.bg,
+    '--game-player-bg': playerBgColor.bg,
+    
+    // Drop cap color
+    '--game-drop-cap-color': dropCapColor.primary,
     
     // Typography
     '--game-message-font': messageFont,
     
-    // Background tint
-    '--game-bg-tint': theme.background.tint === 'warm' ? 'rgba(251, 191, 36, 0.02)'
-      : theme.background.tint === 'cool' ? 'rgba(34, 211, 238, 0.02)'
-      : theme.background.tint === 'dark' ? 'rgba(0, 0, 0, 0.05)'
+    // Background tint (more visible)
+    '--game-bg-tint': theme.background.tint === 'warm' ? 'rgba(251, 191, 36, 0.08)'
+      : theme.background.tint === 'cool' ? 'rgba(34, 211, 238, 0.08)'
+      : theme.background.tint === 'dark' ? 'rgba(30, 30, 45, 0.25)'
       : 'transparent',
   };
 }

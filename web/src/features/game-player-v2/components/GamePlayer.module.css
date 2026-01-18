@@ -54,7 +54,9 @@
   position: sticky;
   top: 0;
   z-index: 9;
-  background: var(--game-bg-status);
+  background: 
+    linear-gradient(var(--game-bg-tint, transparent), var(--game-bg-tint, transparent)),
+    var(--game-bg-status);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   overflow-x: auto;
   display: flex;
@@ -84,7 +86,7 @@
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--game-accent-5);
+  background: var(--game-corner-color, var(--game-accent-5));
   border-radius: 0 2px 2px 0;
 }
 
@@ -120,6 +122,7 @@
   scroll-behavior: smooth;
   padding: var(--mantine-spacing-md);
   position: relative; /* Required for BackgroundAnimation absolute positioning */
+  background-color: var(--game-bg-tint, transparent);
 }
 
 .scenesContainer {
@@ -143,11 +146,11 @@
   transform: translateY(-2px);
 }
 
-.sceneCard.monochrome {
+.sceneCardMonochrome {
   filter: grayscale(0.7) contrast(1.1);
 }
 
-.sceneCard.monochrome img {
+.sceneCardMonochrome img {
   filter: grayscale(0.5);
 }
 
@@ -180,9 +183,9 @@
   overflow: hidden;
 }
 
-/* Decorative corner accents - color from theme */
-.gameScene::before,
-.gameScene::after {
+/* Decorative corner accents - brackets style (default) */
+.gameScene.cornerBrackets::before,
+.gameScene.cornerBrackets::after {
   content: '';
   position: absolute;
   width: 24px;
@@ -192,18 +195,91 @@
   opacity: 0.7;
 }
 
-.gameScene::before {
+.gameScene.cornerBrackets::before {
   top: 8px;
   left: 8px;
   border-width: 2px 0 0 2px;
   border-radius: 4px 0 0 0;
 }
 
-.gameScene::after {
+.gameScene.cornerBrackets::after {
   bottom: 8px;
   right: 8px;
   border-width: 0 2px 2px 0;
   border-radius: 0 0 4px 0;
+}
+
+/* Corner style: flourish */
+.gameScene.cornerFlourish::before,
+.gameScene.cornerFlourish::after {
+  content: '❧';
+  position: absolute;
+  font-size: 24px;
+  color: var(--game-corner-color, var(--game-accent-4));
+  opacity: 0.6;
+}
+
+.gameScene.cornerFlourish::before {
+  top: 4px;
+  left: 8px;
+}
+
+.gameScene.cornerFlourish::after {
+  bottom: 4px;
+  right: 8px;
+  transform: rotate(180deg);
+}
+
+/* Corner style: arrows */
+.gameScene.cornerArrows::before,
+.gameScene.cornerArrows::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  opacity: 0.7;
+}
+
+.gameScene.cornerArrows::before {
+  top: 8px;
+  left: 8px;
+  border-width: 12px 12px 0 0;
+  border-color: var(--game-corner-color, var(--game-accent-4)) transparent transparent transparent;
+}
+
+.gameScene.cornerArrows::after {
+  bottom: 8px;
+  right: 8px;
+  border-width: 0 0 12px 12px;
+  border-color: transparent transparent var(--game-corner-color, var(--game-accent-4)) transparent;
+}
+
+/* Corner style: dots */
+.gameScene.cornerDots::before,
+.gameScene.cornerDots::after {
+  content: '•••';
+  position: absolute;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--game-corner-color, var(--game-accent-4));
+  opacity: 0.6;
+}
+
+.gameScene.cornerDots::before {
+  top: 8px;
+  left: 8px;
+}
+
+.gameScene.cornerDots::after {
+  bottom: 8px;
+  right: 8px;
+}
+
+/* Corner style: none */
+.gameScene.cornerNone::before,
+.gameScene.cornerNone::after {
+  display: none;
 }
 
 .gameScene.noImage {
@@ -326,6 +402,7 @@
 }
 
 .narrativeText {
+  font-family: var(--game-message-font, inherit);
   font-size: var(--mantine-font-size-md);
   line-height: 1.8;
   color: var(--mantine-color-gray-8);
@@ -343,16 +420,20 @@
   }
 }
 
-/* Drop cap for first letter */
-.narrativeText::first-letter {
+/* Drop cap for first letter - only when enabled */
+.narrativeTextDropCap {
+  display: block; /* Needed for CSS Modules export and ::first-letter to work */
+}
+
+.narrativeTextDropCap::first-letter {
   float: left;
   font-size: 3.2em;
   line-height: 0.85;
   font-weight: 700;
   margin-right: 0.08em;
   margin-top: 0.05em;
-  color: var(--game-accent-7);
-  text-shadow: 1px 1px 0 var(--game-accent-2);
+  color: var(--game-drop-cap-color, var(--mantine-color-violet-6));
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================================================
@@ -382,16 +463,16 @@
   gap: var(--mantine-spacing-sm);
   max-width: 80%;
   padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: var(--game-player-color, #4ade80);
-  border: 1px solid #374151;
+  background: var(--game-player-bg, rgba(34, 211, 238, 0.1));
+  color: var(--game-player-color, #22d3ee);
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: var(--mantine-radius-md);
   font-family: var(--game-message-font, 'Courier New', Consolas, monospace);
   font-size: var(--mantine-font-size-sm);
   font-weight: 500;
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
 }
 
@@ -412,6 +493,22 @@
 @keyframes cursorBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+/* Hide chevron when disabled */
+.playerActionBubble.noChevron::before {
+  display: none;
+}
+
+/* Monochrome player action */
+.playerActionBubble.playerMonochrome {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  color: #a0a0a0;
+}
+
+.playerActionBubble.playerMonochrome::before {
+  background: #808080;
+  box-shadow: 0 0 8px #808080;
 }
 
 .playerActionPrefix {

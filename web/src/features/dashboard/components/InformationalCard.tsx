@@ -15,8 +15,8 @@ interface InformationalCardProps {
   title: string;
   items: ListItem[];
   emptyMessage: string;
-  viewAllLabel: string;
-  onViewAll: () => void;
+  viewAllLabel?: string;
+  onViewAll?: () => void;
   isLoading?: boolean;
   maxItems?: number;
 }
@@ -38,11 +38,13 @@ export function InformationalCard({
         <Box style={{ flex: '0 1 auto', minWidth: 0 }}>
           <CardTitle>{title}</CardTitle>
         </Box>
-        <Box style={{ flexShrink: 0 }}>
-          <TextButton onClick={onViewAll} rightSection={<IconChevronRight size={14} />}>
-            {viewAllLabel}
-          </TextButton>
-        </Box>
+        {viewAllLabel && onViewAll && (
+          <Box style={{ flexShrink: 0 }}>
+            <TextButton onClick={onViewAll} rightSection={<IconChevronRight size={14} />}>
+              {viewAllLabel}
+            </TextButton>
+          </Box>
+        )}
       </Group>
 
       <Stack gap="xs">

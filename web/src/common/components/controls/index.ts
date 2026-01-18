@@ -10,3 +10,4 @@
 
 export { SortSelector, type SortSelectorProps, type SortOption } from './SortSelector';
 export { FilterSegmentedControl, type FilterSegmentedControlProps, type FilterOption } from './FilterSegmentedControl';
+export { ExpandableSearch, type ExpandableSearchProps } from './ExpandableSearch';

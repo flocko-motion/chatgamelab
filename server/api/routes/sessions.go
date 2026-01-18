@@ -172,7 +172,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	response, httpErr := game.DoSessionAction(r.Context(), session, action)
 	if httpErr != nil {
 		log.Debug("session action failed", "session_id", session.ID, "error", httpErr.Message)
-		httpx.WriteError(w, httpErr.StatusCode, httpErr.Message)
+		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
 	log.Debug("session action completed", "session_id", session.ID, "response_id", response.ID)
@@ -250,7 +250,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
-		httpx.WriteError(w, httpErr.StatusCode, httpErr.Message)
+		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
 	log.Debug("session created", "game_id", gameID, "session_id", session.ID, "message_id", firstMessage.ID)

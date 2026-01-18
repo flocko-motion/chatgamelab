@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Group, TextInput, ActionIcon } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { IconPlayerPlay } from '@tabler/icons-react';
+import { useGameTheme, THEME_COLORS } from '../theme';
 
 interface PlayerInputProps {
   onSend: (message: string) => void;
@@ -11,7 +12,10 @@ interface PlayerInputProps {
 
 export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInputProps) {
   const { t } = useTranslation('common');
+  const { theme } = useGameTheme();
   const [value, setValue] = useState('');
+  
+  const accentColor = THEME_COLORS[theme.corners.color] || THEME_COLORS.amber;
 
   const handleSend = useCallback(() => {
     const trimmed = value.trim();
@@ -43,7 +47,7 @@ export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInp
         styles={{
           root: { flex: 1 },
           input: {
-            '--input-bd-focus': '#d97706',
+            '--input-bd-focus': accentColor.primary,
           },
         }}
         rightSection={
@@ -57,7 +61,7 @@ export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInp
             style={{ 
               background: disabled || !value.trim() 
                 ? 'var(--mantine-color-gray-4)' 
-                : '#b45309',
+                : accentColor.dark,
             }}
           >
             <IconPlayerPlay size={16} />

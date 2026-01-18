@@ -456,7 +456,7 @@
       "lastPlayed": {
         "title": "Zuletzt gespielt",
         "empty": "Noch kein laufendes Spiel. Spiel dein erstes Spiel!",
-        "viewAll": "Laufende Spiele"
+        "viewAll": "Alle Spiele"
       },
       "popularGames": {
         "title": "Beliebte Spiele",
@@ -528,6 +528,12 @@
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "backendUserFetch": "Benutzerdaten konnten nicht vom Server geladen werden. Bitte versuche es erneut.",
+    "conflict": "Diese Aktion steht im Konflikt mit bestehenden Daten. Bitte versuche es erneut.",
+    "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wähle eine gültige Option.",
+    "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
+    "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
+    "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
+    "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
     "titles": {
       "network": "Netzwerkfehler",
       "server": "Serverfehler",
@@ -535,7 +541,8 @@
       "authentication": "Authentifizierungsfehler",
       "permission": "Zugriff verweigert",
       "notFound": "Nicht gefunden",
-      "error": "Fehler"
+      "error": "Fehler",
+      "aiError": "KI-Fehler"
     }
   },
   "auth": {

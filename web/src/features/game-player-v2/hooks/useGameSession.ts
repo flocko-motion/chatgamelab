@@ -14,6 +14,7 @@ const INITIAL_STATE: GamePlayerState = {
   statusFields: [],
   isWaitingForResponse: false,
   error: null,
+  errorObject: null,
   theme: null,
 };
 
@@ -173,6 +174,7 @@ export function useGameSession(gameId: string) {
         ...prev,
         phase: 'error',
         error: message,
+        errorObject: error,
       }));
     }
   }, [api, gameId, connectToStream]);
@@ -231,8 +233,10 @@ export function useGameSession(gameId: string) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send action';
       setState(prev => ({
         ...prev,
+        phase: 'error',
         isWaitingForResponse: false,
         error: errorMessage,
+        errorObject: error,
       }));
     }
   }, [api, state.sessionId, state.isWaitingForResponse, state.statusFields, connectToStream]);
@@ -268,6 +272,7 @@ export function useGameSession(gameId: string) {
         ...prev,
         phase: 'error',
         error: message,
+        errorObject: error,
       }));
     }
   }, [api]);

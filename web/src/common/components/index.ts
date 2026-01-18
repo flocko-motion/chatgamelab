@@ -7,6 +7,7 @@ export * from './Dropdown';
 export * from './LoadingAnimation';
 export * from './DropdownMenu';
 export * from './ErrorBoundary';
+export * from './ErrorModal';
 export * from './LanguageSwitcher';
 export * from './TranslationExample';
 export * from './Layout';

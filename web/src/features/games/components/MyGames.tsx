@@ -11,12 +11,12 @@ import {
   Tooltip,
   Box,
 } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
 import { TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
-import { SortSelector, type SortOption, FilterSegmentedControl } from '@components/controls';
+import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch } from '@components/controls';
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
@@ -47,8 +47,10 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const [gameToView, setGameToView] = useState<string | null>(initialGameId ?? null);
   const [sortField, setSortField] = useState<SortField>('modifiedAt');
   const [showFavorites, setShowFavorites] = useState<'all' | 'favorites'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc', filter: 'own' });
+  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc', filter: 'own', search: debouncedSearch || undefined });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const createGame = useCreateGame();
   const deleteGame = useDeleteGame();
@@ -257,6 +259,11 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     return { hasSession: !!session, session };
   };
 
+  const getDateLabel = (game: ObjGame) => {
+    const dateValue = sortField === 'createdAt' ? game.meta?.createdAt : game.meta?.modifiedAt;
+    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
+  };
+
   const getCardActions = (game: ObjGame): GameCardAction[] => [
     {
       key: 'edit',
@@ -321,16 +328,6 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
               aria-label={isFavorite(game) ? t('myGames.unfavorite') : t('myGames.favorite')}
             />
           </Tooltip>
-        </div>
-      ),
-    },
-    {
-      key: 'play',
-      header: '',
-      width: 120,
-      render: (game) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          {renderPlayButton(game)}
         </div>
       ),
     },
@@ -402,9 +399,10 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     {
       key: 'actions',
       header: t('actions'),
-      width: 120,
+      width: 240,
       render: (game) => (
-        <Group gap="xs" onClick={(e) => e.stopPropagation()}>
+        <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
+          {renderPlayButton(game)}
           <Tooltip label={t('editGame')} withArrow>
             <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
           </Tooltip>
@@ -506,6 +504,11 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
               >
                 {t('games.importExport.importButton')}
               </TextButton>
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('search')}
+              />
             </Group>
             <Group gap="sm" wrap="wrap">
               <FilterSegmentedControl
@@ -566,6 +569,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
                     favoriteLabel={t('myGames.favorite')}
                     unfavoriteLabel={t('myGames.unfavorite')}
                     actions={getCardActions(game)}
+                    dateLabel={getDateLabel(game)}
                   />
                 );
               })}
@@ -610,6 +614,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
                   favoriteLabel={t('myGames.favorite')}
                   unfavoriteLabel={t('myGames.unfavorite')}
                   actions={getCardActions(game)}
+                  dateLabel={getDateLabel(game)}
                 />
               );
             }}
