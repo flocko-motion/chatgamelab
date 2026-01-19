@@ -333,8 +333,6 @@ definitions:
       dropCapColor:
         description: amber, emerald, cyan, violet, rose, slate
         type: string
-      monochrome:
-        type: boolean
     type: object
   obj.GameThemePlayer:
     properties:
@@ -347,8 +345,6 @@ definitions:
       indicator:
         description: dot, arrow, chevron, diamond, none
         type: string
-      monochrome:
-        type: boolean
       showChevron:
         type: boolean
     type: object

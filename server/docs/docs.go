@@ -2480,9 +2480,6 @@ const docTemplate = `{
                 "dropCapColor": {
                     "description": "amber, emerald, cyan, violet, rose, slate",
                     "type": "string"
-                },
-                "monochrome": {
-                    "type": "boolean"
                 }
             }
         },
@@ -2500,9 +2497,6 @@ const docTemplate = `{
                 "indicator": {
                     "description": "dot, arrow, chevron, diamond, none",
                     "type": "string"
-                },
-                "monochrome": {
-                    "type": "boolean"
                 },
                 "showChevron": {
                     "type": "boolean"

@@ -216,7 +216,6 @@ export interface ObjGameThemeGameMessage {
   dropCap?: boolean;
   /** amber, emerald, cyan, violet, rose, slate */
   dropCapColor?: string;
-  monochrome?: boolean;
 }
 
 export interface ObjGameThemePlayer {
@@ -226,7 +225,6 @@ export interface ObjGameThemePlayer {
   color?: string;
   /** dot, arrow, chevron, diamond, none */
   indicator?: string;
-  monochrome?: boolean;
   showChevron?: boolean;
 }
 
