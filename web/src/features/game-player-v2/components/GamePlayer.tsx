@@ -367,7 +367,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         {!isContinuation && (
           <ApiKeySelectModal
             opened={apiKeyModalOpened}
-            onClose={closeApiKeyModal}
+            onClose={handleBack}
             onStart={handleStartGame}
             gameName={displayGame?.name}
             isLoading={isSessionStarting}
