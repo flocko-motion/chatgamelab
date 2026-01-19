@@ -27,6 +27,7 @@ const (
 	// AI-related error codes
 	ErrCodeInvalidApiKey           = "invalid_api_key"
 	ErrCodeOrgVerificationRequired = "org_verification_required"
+	ErrCodeBillingNotActive        = "billing_not_active"
 	ErrCodeAiError                 = "ai_error"
 )
 

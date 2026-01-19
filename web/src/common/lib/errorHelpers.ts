@@ -59,6 +59,10 @@ const ERROR_CODE_I18N_MAP: Record<ErrorCode, { titleKey: string; messageKey: str
     titleKey: 'errors:titles.authentication',
     messageKey: 'errors:orgVerificationRequired',
   },
+  [ErrorCodes.BILLING_NOT_ACTIVE]: {
+    titleKey: 'errors:titles.billing',
+    messageKey: 'errors:billingNotActive',
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: 'errors:titles.aiError',
     messageKey: 'errors:aiError',
