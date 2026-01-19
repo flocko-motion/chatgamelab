@@ -1,30 +1,32 @@
-import { useMemo } from 'react';
-import { 
-  Stack, 
-  SimpleGrid,
-} from '@mantine/core';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from '@tanstack/react-router';
-import { ROUTES } from '@/common/routes/routes';
-import { AppLayout, type NavItem } from '@/common/components/Layout';
-import { navigationLogger } from '@/config/logger';
-import { EXTERNAL_LINKS } from '@/config/externalLinks';
-import { useGames, useUserSessions, useGameSessionMap } from '@/api/hooks';
-import { 
-  IconPlayerPlay, 
-  IconEdit, 
-  IconBuilding, 
-  IconUsers, 
+import { useMemo } from "react";
+import { Stack, SimpleGrid } from "@mantine/core";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import { ROUTES } from "@/common/routes/routes";
+import { AppLayout, type NavItem } from "@/common/components/Layout";
+import { navigationLogger } from "@/config/logger";
+import { EXTERNAL_LINKS } from "@/config/externalLinks";
+import {
+  useGames,
+  useUserSessions,
+  useGameSessionMap,
+  useCurrentUser,
+} from "@/api/hooks";
+import {
+  IconPlayerPlay,
+  IconEdit,
+  IconBuilding,
+  IconUsers,
   IconSchool,
   IconTools,
   IconDeviceGamepad2,
-} from '@tabler/icons-react';
-import { InformationalCard, type ListItem } from './InformationalCard';
-import { QuickActionCard } from './QuickActionCard';
-import { LinksCard, type LinkItem } from './LinkCard';
+} from "@tabler/icons-react";
+import { InformationalCard, type ListItem } from "./InformationalCard";
+import { QuickActionCard } from "./QuickActionCard";
+import { LinksCard, type LinkItem } from "./LinkCard";
 
 function formatRelativeTime(dateString?: string): string {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -32,7 +34,7 @@ function formatRelativeTime(dateString?: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'just now';
+  if (diffMins < 1) return "just now";
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   return `${diffDays}d ago`;
@@ -40,9 +42,13 @@ function formatRelativeTime(dateString?: string): string {
 
 // My Games Card - shows last edited/created games
 function MyGamesCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading } = useGames({ sortBy: 'modifiedAt', sortDir: 'desc' });
+  const { data: games, isLoading } = useGames({
+    sortBy: "modifiedAt",
+    sortDir: "desc",
+    filter: "own",
+  });
 
   const recentGames = useMemo(() => {
     if (!games) return [];
@@ -50,19 +56,19 @@ function MyGamesCard() {
   }, [games]);
 
   const items: ListItem[] = recentGames.map((game) => ({
-    id: game.id ?? '',
-    label: game.name ?? 'Untitled',
+    id: game.id ?? "",
+    label: game.name ?? "Untitled",
     sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
-    onClick: () => navigate({ to: `/my-games/${game.id}` as '/' }),
+    onClick: () => navigate({ to: `/my-games/${game.id}` as "/" }),
   }));
 
   return (
     <InformationalCard
-      title={t('cards.myGames.title')}
+      title={t("cards.myGames.title")}
       items={items}
-      emptyMessage={t('cards.myGames.empty')}
-      viewAllLabel={t('cards.myGames.viewAll')}
-      onViewAll={() => navigate({ to: ROUTES.MY_GAMES as '/' })}
+      emptyMessage={t("cards.myGames.empty")}
+      viewAllLabel={t("cards.myGames.viewAll")}
+      onViewAll={() => navigate({ to: ROUTES.MY_GAMES as "/" })}
       isLoading={isLoading}
     />
   );
@@ -70,18 +76,18 @@ function MyGamesCard() {
 
 // My Rooms Card - placeholder for rooms
 function MyRoomsCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
 
   const items: ListItem[] = [];
 
   return (
     <InformationalCard
-      title={t('cards.myRooms.title')}
+      title={t("cards.myRooms.title")}
       items={items}
-      emptyMessage={t('cards.myRooms.empty')}
-      viewAllLabel={t('cards.myRooms.viewAll')}
-      onViewAll={() => navigate({ to: '/rooms' as '/' })}
+      emptyMessage={t("cards.myRooms.empty")}
+      viewAllLabel={t("cards.myRooms.viewAll")}
+      onViewAll={() => navigate({ to: "/rooms" as "/" })}
       isLoading={false}
     />
   );
@@ -89,7 +95,7 @@ function MyRoomsCard() {
 
 // Last Played Card - shows recent play sessions
 function LastPlayedCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
   const { data: sessions, isLoading } = useUserSessions();
 
@@ -99,100 +105,118 @@ function LastPlayedCard() {
   }, [sessions]);
 
   const items: ListItem[] = recentSessions.map((session) => ({
-    id: session.id ?? '',
-    label: session.gameName ?? 'Untitled Game',
-    sublabel: formatRelativeTime(session.meta?.modifiedAt ?? session.meta?.createdAt),
-    onClick: () => navigate({ to: `/sessions/${session.id}` as '/' }),
+    id: session.id ?? "",
+    label: session.gameName ?? "Untitled Game",
+    sublabel: formatRelativeTime(
+      session.meta?.modifiedAt ?? session.meta?.createdAt,
+    ),
+    onClick: () => navigate({ to: `/sessions/${session.id}` as "/" }),
   }));
 
   return (
     <InformationalCard
-      title={t('cards.lastPlayed.title')}
+      title={t("cards.lastPlayed.title")}
       items={items}
-      emptyMessage={t('cards.lastPlayed.empty')}
-      viewAllLabel={t('cards.lastPlayed.viewAll')}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
+      emptyMessage={t("cards.lastPlayed.empty")}
+      viewAllLabel={t("cards.lastPlayed.viewAll")}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
       isLoading={isLoading}
     />
   );
 }
 
-// Popular Games Card - shows top 10 most played games
+// Popular Games Card - shows top 10 most played games (excluding user's own)
 function PopularGamesCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading: gamesLoading } = useGames({ sortBy: 'playCount', sortDir: 'desc', filter: 'public' });
+  const { data: games, isLoading: gamesLoading } = useGames({
+    sortBy: "playCount",
+    sortDir: "desc",
+    filter: "public",
+  });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { data: currentUser } = useCurrentUser();
 
   const popularGames = useMemo(() => {
     if (!games) return [];
-    return games.slice(0, 10);
-  }, [games]);
+    // Exclude user's own games
+    return games
+      .filter((game) => game.creatorId !== currentUser?.id)
+      .slice(0, 10);
+  }, [games, currentUser?.id]);
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);
     if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as '/' });
+      navigate({ to: `/sessions/${existingSession.id}` as "/" });
     } else {
-      navigate({ to: `/play/${gameId}` as '/' });
+      navigate({ to: `/play/${gameId}` as "/" });
     }
   };
 
   const items: ListItem[] = popularGames.map((game) => ({
-    id: game.id ?? '',
-    label: game.name ?? 'Untitled',
-    sublabel: t('cards.popularGames.plays', { count: game.playCount ?? 0 }),
-    onClick: () => handleGameClick(game.id ?? ''),
+    id: game.id ?? "",
+    label: game.name ?? "Untitled",
+    sublabel: t("cards.popularGames.plays", { count: game.playCount ?? 0 }),
+    onClick: () => handleGameClick(game.id ?? ""),
   }));
 
   return (
     <InformationalCard
-      title={t('cards.popularGames.title')}
+      title={t("cards.popularGames.title")}
       items={items}
-      emptyMessage={t('cards.popularGames.empty')}
-      viewAllLabel={t('cards.popularGames.viewAll')}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
+      emptyMessage={t("cards.popularGames.empty")}
+      viewAllLabel={t("cards.popularGames.viewAll")}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
       isLoading={gamesLoading || sessionsLoading}
       maxItems={10}
     />
   );
 }
 
-// New Games Card - shows 10 newest games
+// New Games Card - shows 10 newest games (excluding user's own)
 function NewGamesCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
-  const { data: games, isLoading: gamesLoading } = useGames({ sortBy: 'createdAt', sortDir: 'desc', filter: 'public' });
+  const { data: games, isLoading: gamesLoading } = useGames({
+    sortBy: "createdAt",
+    sortDir: "desc",
+    filter: "public",
+  });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { data: currentUser } = useCurrentUser();
 
   const newGames = useMemo(() => {
     if (!games) return [];
-    return games.slice(0, 10);
-  }, [games]);
+    // Exclude user's own games
+    return games
+      .filter((game) => game.creatorId !== currentUser?.id)
+      .slice(0, 10);
+  }, [games, currentUser?.id]);
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);
     if (existingSession?.id) {
-      navigate({ to: `/sessions/${existingSession.id}` as '/' });
+      navigate({ to: `/sessions/${existingSession.id}` as "/" });
     } else {
-      navigate({ to: `/play/${gameId}` as '/' });
+      navigate({ to: `/play/${gameId}` as "/" });
     }
   };
 
   const items: ListItem[] = newGames.map((game) => ({
-    id: game.id ?? '',
-    label: game.name ?? 'Untitled',
+    id: game.id ?? "",
+    label: game.name ?? "Untitled",
     sublabel: formatRelativeTime(game.meta?.createdAt),
-    onClick: () => handleGameClick(game.id ?? ''),
+    onClick: () => handleGameClick(game.id ?? ""),
   }));
 
   return (
     <InformationalCard
-      title={t('cards.newGames.title')}
+      title={t("cards.newGames.title")}
       items={items}
-      emptyMessage={t('cards.newGames.empty')}
-      viewAllLabel={t('cards.newGames.viewAll')}
-      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as '/' })}
+      emptyMessage={t("cards.newGames.empty")}
+      viewAllLabel={t("cards.newGames.viewAll")}
+      onViewAll={() => navigate({ to: ROUTES.ALL_GAMES as "/" })}
       isLoading={gamesLoading || sessionsLoading}
       maxItems={10}
     />
@@ -201,20 +225,20 @@ function NewGamesCard() {
 
 // External Links Card
 function ExternalLinksCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
 
   const links: LinkItem[] = [
     {
       id: EXTERNAL_LINKS.CHATGAMELAB.id,
-      title: t('cards.externalLinks.mainSite.title'),
-      description: t('cards.externalLinks.mainSite.description'),
+      title: t("cards.externalLinks.mainSite.title"),
+      description: t("cards.externalLinks.mainSite.description"),
       href: EXTERNAL_LINKS.CHATGAMELAB.href,
       icon: <IconSchool size={16} />,
     },
     {
       id: EXTERNAL_LINKS.JFF.id,
-      title: t('cards.externalLinks.jff.title'),
-      description: t('cards.externalLinks.jff.description'),
+      title: t("cards.externalLinks.jff.title"),
+      description: t("cards.externalLinks.jff.description"),
       href: EXTERNAL_LINKS.JFF.href,
       icon: <IconUsers size={16} />,
     },
@@ -222,7 +246,7 @@ function ExternalLinksCard() {
 
   return (
     <LinksCard
-      title={t('cards.externalLinks.title')}
+      title={t("cards.externalLinks.title")}
       links={links}
       highlighted
     />
@@ -231,44 +255,39 @@ function ExternalLinksCard() {
 
 // Quick Actions Card
 function QuickActionsCard() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
 
   const actions = [
     {
-      id: 'start-new-game',
-      label: t('quickActions.startNewGame'),
+      id: "start-new-game",
+      label: t("quickActions.startNewGame"),
       icon: <IconDeviceGamepad2 size={16} />,
-      onClick: () => navigate({ to: ROUTES.ALL_GAMES as '/' }),
-    },  
+      onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
+    },
     {
-      id: 'create-game',
-      label: t('quickActions.createNewGame'),
+      id: "create-game",
+      label: t("quickActions.createNewGame"),
       icon: <IconTools size={16} />,
-      onClick: () => navigate({ to: ROUTES.MY_GAMES + '/create' as '/' }),
+      onClick: () => navigate({ to: (ROUTES.MY_GAMES + "/create") as "/" }),
     },
     {
-      id: 'create-room',
-      label: t('quickActions.createRoom'),
+      id: "create-room",
+      label: t("quickActions.createRoom"),
       icon: <IconBuilding size={16} />,
-      onClick: () => navigate({ to: '/rooms' as '/' }),
-      disabled: true
+      onClick: () => navigate({ to: "/rooms" as "/" }),
+      disabled: true,
     },
     {
-      id: 'invite-members',
-      label: t('quickActions.inviteMembers'),
+      id: "invite-members",
+      label: t("quickActions.inviteMembers"),
       icon: <IconUsers size={16} />,
       onClick: () => {},
       disabled: true,
     },
   ];
 
-  return (
-    <QuickActionCard
-      title={t('quickActions.title')}
-      actions={actions}
-    />
-  );
+  return <QuickActionCard title={t("quickActions.title")} actions={actions} />;
 }
 
 /**
@@ -300,23 +319,24 @@ export function DashboardContent() {
  * Full Dashboard page with layout - for standalone use
  */
 export function Dashboard() {
-  const { t } = useTranslation('navigation');
+  const { t } = useTranslation("navigation");
 
   const navItems: NavItem[] = [
-    { label: t('play'), icon: <IconPlayerPlay size={18} />, onClick: () => {} },
-    { label: t('create'), icon: <IconEdit size={18} />, onClick: () => {} },
-    { label: t('rooms'), icon: <IconBuilding size={18} />, onClick: () => {} },
-    { label: t('groups'), icon: <IconUsers size={18} />, onClick: () => {} },
+    { label: t("play"), icon: <IconPlayerPlay size={18} />, onClick: () => {} },
+    { label: t("create"), icon: <IconEdit size={18} />, onClick: () => {} },
+    { label: t("rooms"), icon: <IconBuilding size={18} />, onClick: () => {} },
+    { label: t("groups"), icon: <IconUsers size={18} />, onClick: () => {} },
   ];
 
   return (
-    <AppLayout 
-      variant="authenticated" 
+    <AppLayout
+      variant="authenticated"
       navItems={navItems}
       headerProps={{
-        onNotificationsClick: () => navigationLogger.debug('Notifications clicked'),
-        onSettingsClick: () => navigationLogger.debug('Settings clicked'),
-        onProfileClick: () => navigationLogger.debug('Profile clicked'),
+        onNotificationsClick: () =>
+          navigationLogger.debug("Notifications clicked"),
+        onSettingsClick: () => navigationLogger.debug("Settings clicked"),
+        onProfileClick: () => navigationLogger.debug("Profile clicked"),
       }}
     >
       <DashboardContent />

@@ -221,16 +221,20 @@ export function AllGames() {
     {
       key: 'creator',
       header: t('games.fields.creator'),
-      width: 120,
+      width: 220,
       render: (game) => (
         isOwner(game) ? (
-          <Badge size="sm" color="violet" variant="light">
-            {t('games.fields.me')}
-          </Badge>
+          <Tooltip label={game.creatorName} withArrow disabled={!game.creatorName}>
+            <Badge size="sm" color="accent" variant="light">
+              {t('games.fields.me')}
+            </Badge>
+          </Tooltip>
         ) : (
-          <Text size="sm" c="gray.6" lineClamp={1}>
-            {game.creatorName || '-'}
-          </Text>
+          <Tooltip label={game.creatorName} withArrow disabled={!game.creatorName}>
+            <Text size="sm" c="gray.6" lineClamp={1}>
+              {game.creatorName || '-'}
+            </Text>
+          </Tooltip>
         )
       ),
     },

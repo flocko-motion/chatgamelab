@@ -535,6 +535,7 @@
     "userNotRegistered": "You need to complete registration before continuing.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
+    "billingNotActive": "Your OpenAI account is not active. Please check your billing details at https://platform.openai.com/settings/organization/billing.",
     "aiError": "The AI service encountered an error. Please try again.",
     "titles": {
       "network": "Network Error",
@@ -544,7 +545,8 @@
       "permission": "Permission Denied",
       "notFound": "Not Found",
       "error": "Error",
-      "aiError": "AI Error"
+      "aiError": "AI Error",
+      "billing": "Billing Error"
     }
   },
   "auth": {

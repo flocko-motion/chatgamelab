@@ -2,6 +2,7 @@ import { Modal, Stack, Text, Button, Group, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconX } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { translateError, translateErrorCode } from '../lib/errorHelpers';
+import { TextWithLinks } from './TextWithLinks';
 import type { ErrorCode } from '../types/errorCodes';
 
 export interface ErrorModalProps {
@@ -72,9 +73,9 @@ export function ErrorModal({
       size="md"
     >
       <Stack gap="md">
-        <Text size="sm" c="dimmed">
+        <TextWithLinks size="sm" c="dimmed">
           {displayMessage}
-        </Text>
+        </TextWithLinks>
 
         {translated?.code && (
           <Text size="xs" c="dimmed" ff="monospace">

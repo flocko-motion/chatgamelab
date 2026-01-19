@@ -3,7 +3,6 @@ package game
 import (
 	"cgl/api/httpx"
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -17,51 +16,24 @@ import (
 )
 
 // extractAIErrorCode tries to extract an error code from an AI error message.
-// OpenAI errors contain JSON with a "code" field like "invalid_api_key".
+// Uses simple keyword matching to identify common OpenAI error types.
 func extractAIErrorCode(err error) string {
 	if err == nil {
 		return ""
 	}
-	errStr := err.Error()
+	errStr := strings.ToLower(err.Error())
 
-	// Look for JSON error structure in the message
-	start := strings.Index(errStr, "{\n  \"error\"")
-	if start == -1 {
-		start = strings.Index(errStr, "{\"error\"")
-	}
-	if start == -1 {
-		return ""
-	}
-
-	// Find the end of the JSON
-	end := strings.LastIndex(errStr, "}")
-	if end == -1 || end <= start {
-		return ""
-	}
-
-	jsonStr := errStr[start : end+1]
-
-	// Parse the JSON to extract the error code
-	var apiErr struct {
-		Error struct {
-			Code string `json:"code"`
-		} `json:"error"`
-	}
-	if err := json.Unmarshal([]byte(jsonStr), &apiErr); err != nil {
-		return ""
-	}
-
-	// Map OpenAI error codes to our error codes
-	switch apiErr.Error.Code {
-	case "invalid_api_key":
+	// Map error keywords to our error codes
+	switch {
+	case strings.Contains(errStr, "invalid_api_key"):
 		return httpx.ErrCodeInvalidApiKey
-	case "organization_verification_required":
+	case strings.Contains(errStr, "organization_verification_required"):
 		return httpx.ErrCodeOrgVerificationRequired
+	case strings.Contains(errStr, "billing_not_active"):
+		return httpx.ErrCodeBillingNotActive
 	default:
-		if apiErr.Error.Code != "" {
-			return httpx.ErrCodeAiError
-		}
-		return ""
+		// For any other AI API error, return generic AI error
+		return httpx.ErrCodeAiError
 	}
 }
 

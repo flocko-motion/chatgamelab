@@ -533,6 +533,7 @@
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
+    "billingNotActive": "Dein OpenAI-Konto ist nicht aktiv. Bitte überprüfe deine Zahlungsdaten auf https://platform.openai.com/settings/organization/billing.",
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
     "titles": {
       "network": "Netzwerkfehler",
@@ -542,7 +543,8 @@
       "permission": "Zugriff verweigert",
       "notFound": "Nicht gefunden",
       "error": "Fehler",
-      "aiError": "KI-Fehler"
+      "aiError": "KI-Fehler",
+      "billing": "Zahlungsfehler"
     }
   },
   "auth": {

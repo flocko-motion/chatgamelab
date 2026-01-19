@@ -16,6 +16,7 @@ export const ErrorCodes = {
   // AI-related error codes
   INVALID_API_KEY: 'invalid_api_key',
   ORG_VERIFICATION_REQUIRED: 'org_verification_required',
+  BILLING_NOT_ACTIVE: 'billing_not_active',
   AI_ERROR: 'ai_error',
 } as const;
 
