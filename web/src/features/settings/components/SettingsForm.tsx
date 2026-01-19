@@ -1,40 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-  Card,
-  Stack,
-  TextInput,
-  Alert,
-  Switch,
-} from '@mantine/core';
-import { ActionButton } from '@components/buttons';
-import { SectionTitle } from '@components/typography';
-import { IconUser, IconMail, IconCheck } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Card, Stack, TextInput, Alert, Switch } from "@mantine/core";
+import { ActionButton } from "@components/buttons";
+import { SectionTitle } from "@components/typography";
+import { IconUser, IconMail, IconCheck } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
-import { useAuth } from '@/providers/AuthProvider';
-import { uiLogger } from '@/config/logger';
-import { Api } from '@/api/generated';
-import { createAuthenticatedApiConfig } from '@/api/client/http';
+import { useAuth } from "@/providers/AuthProvider";
+import { uiLogger } from "@/config/logger";
+import { useUpdateUser } from "@/api/hooks";
 
 export function SettingsForm() {
-  const { t } = useTranslation('auth');
-  const { backendUser, getAccessToken, retryBackendFetch } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation("auth");
+  const { backendUser, retryBackendFetch } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const updateUser = useUpdateUser();
 
   const schema = z.object({
     name: z
       .string()
-      .min(1, t('settings.errors.nameRequired'))
-      .max(24, t('settings.errors.nameTooLong')),
+      .min(1, t("settings.errors.nameRequired"))
+      .max(24, t("settings.errors.nameTooLong")),
     email: z
       .string()
-      .min(1, t('settings.errors.emailRequired'))
-      .email(t('settings.errors.emailInvalid')),
+      .min(1, t("settings.errors.emailRequired"))
+      .email(t("settings.errors.emailInvalid")),
     showAiModelSelector: z.boolean(),
   });
 
@@ -50,67 +43,72 @@ export function SettingsForm() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: backendUser?.name || '',
-      email: backendUser?.email || '',
+      name: backendUser?.name || "",
+      email: backendUser?.email || "",
       showAiModelSelector: backendUser?.showAiModelSelector || false,
     },
   });
 
-  const showAiModelSelector = watch('showAiModelSelector');
+  const showAiModelSelector = watch("showAiModelSelector");
 
   // Reset form when backendUser changes
   useEffect(() => {
     if (backendUser) {
       reset({
-        name: backendUser.name || '',
-        email: backendUser.email || '',
+        name: backendUser.name || "",
+        email: backendUser.email || "",
         showAiModelSelector: backendUser.showAiModelSelector || false,
       });
-    }  }, [backendUser, reset]);
+    }
+  }, [backendUser, reset]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = (data: FormData) => {
     if (!backendUser) return;
 
-    setIsSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
 
-    try {
-      const api = new Api(createAuthenticatedApiConfig(getAccessToken));
-      await api.users.usersCreate(backendUser.id!, {
-        name: data.name.trim(),
-        email: data.email.trim(),
-        showAiModelSelector: data.showAiModelSelector,
-      });
-      
-      setSubmitSuccess(true);
-      // Refresh backend user data
-      retryBackendFetch();
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => setSubmitSuccess(false), 3000);
-    } catch (error: unknown) {
-      uiLogger.error('Failed to update settings', { error });
-      
-      // Check for specific error types
-      if (error && typeof error === 'object' && 'error' in error) {
-        const errorData = error as { error?: { message?: string } };
-        const message = errorData.error?.message || '';
-        
-        if (message.includes('Name is already taken')) {
-          setSubmitError(t('settings.errors.nameTaken'));
-        } else if (message.includes('Email is already taken')) {
-          setSubmitError(t('settings.errors.emailTaken'));
-        } else {
-          setSubmitError(t('settings.errors.saveFailed'));
-        }
-      } else {
-        setSubmitError(t('settings.errors.saveFailed'));
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    updateUser.mutate(
+      {
+        id: backendUser.id!,
+        request: {
+          name: data.name.trim(),
+          email: data.email.trim(),
+          showAiModelSelector: data.showAiModelSelector,
+        },
+      },
+      {
+        onSuccess: () => {
+          setSubmitSuccess(true);
+          // Refresh backend user data in AuthProvider
+          retryBackendFetch();
+          // Clear success message after 3 seconds
+          setTimeout(() => setSubmitSuccess(false), 3000);
+        },
+        onError: (error: unknown) => {
+          uiLogger.error("Failed to update settings", { error });
+
+          // Check for specific error types
+          if (error && typeof error === "object" && "error" in error) {
+            const errorData = error as { error?: { message?: string } };
+            const message = errorData.error?.message || "";
+
+            if (message.includes("Name is already taken")) {
+              setSubmitError(t("settings.errors.nameTaken"));
+            } else if (message.includes("Email is already taken")) {
+              setSubmitError(t("settings.errors.emailTaken"));
+            } else {
+              setSubmitError(t("settings.errors.saveFailed"));
+            }
+          } else {
+            setSubmitError(t("settings.errors.saveFailed"));
+          }
+        },
+      },
+    );
   };
+
+  const isSubmitting = updateUser.isPending;
 
   if (!backendUser) {
     return null;
@@ -119,36 +117,40 @@ export function SettingsForm() {
   return (
     <Card shadow="sm" padding="xl" radius="md" withBorder>
       <Stack gap="lg">
-        <SectionTitle>{t('settings.accountSection')}</SectionTitle>
+        <SectionTitle>{t("settings.accountSection")}</SectionTitle>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Stack gap="md">
             <TextInput
-              label={t('settings.nameLabel')}
-              placeholder={t('settings.namePlaceholder')}
-              description={t('settings.nameDescription')}
+              label={t("settings.nameLabel")}
+              placeholder={t("settings.namePlaceholder")}
+              description={t("settings.nameDescription")}
               leftSection={<IconUser size={16} />}
               error={errors.name?.message}
-              {...register('name')}
+              {...register("name")}
               disabled={isSubmitting}
             />
 
             <TextInput
-              label={t('settings.emailLabel')}
-              placeholder={t('settings.emailPlaceholder')}
-              description={t('settings.emailDescription')}
+              label={t("settings.emailLabel")}
+              placeholder={t("settings.emailPlaceholder")}
+              description={t("settings.emailDescription")}
               leftSection={<IconMail size={16} />}
               error={errors.email?.message}
-              {...register('email')}
+              {...register("email")}
               disabled={isSubmitting}
             />
 
             <Stack gap="xs" mt="lg">
               <Switch
-                label={t('settings.showAiModelSelectorLabel')}
-                description={t('settings.showAiModelSelectorDescription')}
+                label={t("settings.showAiModelSelectorLabel")}
+                description={t("settings.showAiModelSelectorDescription")}
                 checked={showAiModelSelector}
-                onChange={(event) => setValue('showAiModelSelector', event.currentTarget.checked, { shouldDirty: true })}
+                onChange={(event) =>
+                  setValue("showAiModelSelector", event.currentTarget.checked, {
+                    shouldDirty: true,
+                  })
+                }
                 disabled={isSubmitting}
               />
             </Stack>
@@ -160,8 +162,12 @@ export function SettingsForm() {
             )}
 
             {submitSuccess && (
-              <Alert color="green" variant="light" icon={<IconCheck size={16} />}>
-                {t('settings.saved')}
+              <Alert
+                color="green"
+                variant="light"
+                icon={<IconCheck size={16} />}
+              >
+                {t("settings.saved")}
               </Alert>
             )}
 
@@ -171,7 +177,7 @@ export function SettingsForm() {
               disabled={!isDirty}
               size="md"
             >
-              {isSubmitting ? t('settings.saving') : t('settings.saveButton')}
+              {isSubmitting ? t("settings.saving") : t("settings.saveButton")}
             </ActionButton>
           </Stack>
         </form>
