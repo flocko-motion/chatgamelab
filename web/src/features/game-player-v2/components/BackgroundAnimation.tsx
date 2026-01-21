@@ -20,25 +20,17 @@ const ANIMATION_CONFIGS: Record<BackgroundAnimation, ISourceOptions | null> = {
     background: { color: { value: 'transparent' } },
     fpsLimit: 60,
     particles: {
-      number: { value: 80, density: { enable: true } },
-      color: { value: ['#ffffff', '#fef3c7', '#bfdbfe', '#fbbf24'] },
-      shape: { type: 'star' },
+      number: { value: 180, density: { enable: true } },
+      color: { value: ['#ffffff', '#f8fafc', '#e2e8f0', '#f1f5f9'] },
+      shape: { type: 'circle' },
       opacity: { 
         value: { min: 0.2, max: 0.9 },
-        animation: { enable: true, speed: 1, sync: false }
+        animation: { enable: true, speed: 0.8, sync: false }
       },
-      size: { value: { min: 2, max: 5 } },
-      move: {
-        enable: true,
-        speed: 0.5,
-        direction: 'none',
-        random: true,
-        straight: false,
-        outModes: { default: 'out' },
+      size: { 
+        value: { min: 0.5, max: 2.5 },
+        animation: { enable: true, speed: 1, sync: false, startValue: 'random' }
       },
-      twinkle: {
-        particles: { enable: true, frequency: 0.05, opacity: 1 }
-      }
     },
     detectRetina: true,
   },
@@ -102,53 +94,13 @@ const ANIMATION_CONFIGS: Record<BackgroundAnimation, ISourceOptions | null> = {
       size: { value: { min: 2, max: 6 } },
       move: {
         enable: true,
-        speed: 2,
+        speed: 1.5,
         direction: 'bottom',
-        random: false,
-        straight: false,
-        outModes: { default: 'out' },
-        drift: 1.5,
-      },
-      wobble: {
-        enable: true,
-        distance: 12,
-        speed: 4,
-      },
-      rotate: {
-        animation: {
-          enable: true,
-          speed: 5,
-          sync: false,
-        },
-      },
-    },
-    detectRetina: true,
-  },
-  
-  rain: {
-    fullScreen: false,
-    background: { color: { value: 'transparent' } },
-    fpsLimit: 60,
-    particles: {
-      number: { value: 100, density: { enable: true } },
-      color: { value: ['#3b82f6', '#60a5fa', '#93c5fd'] },
-      shape: { type: 'circle' },
-      opacity: { value: { min: 0.6, max: 1.0 } },
-      size: { value: { min: 1, max: 2 } },
-      links: {
-        enable: true,
-        distance: 50,
-        color: '#60a5fa',
-        opacity: 0.4,
-        width: 1,
-      },
-      move: {
-        enable: true,
-        speed: 8,
-        direction: 'bottom',
-        random: false,
         straight: true,
         outModes: { default: 'out' },
+        gravity: {
+          enable: false,
+        },
       },
     },
     detectRetina: true,
@@ -283,6 +235,233 @@ const ANIMATION_CONFIGS: Record<BackgroundAnimation, ISourceOptions | null> = {
       rate: {
         quantity: 15,
         delay: 0.05,
+      },
+    },
+    detectRetina: true,
+  },
+  
+  sparkles: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 50, density: { enable: true } },
+      color: { value: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'] },
+      shape: { type: 'star' },
+      opacity: { 
+        value: { min: 0.3, max: 1 },
+        animation: { enable: true, speed: 2, sync: false }
+      },
+      size: { 
+        value: { min: 3, max: 8 },
+        animation: { enable: true, speed: 3, sync: false }
+      },
+      move: {
+        enable: true,
+        speed: 0.8,
+        direction: 'none',
+        random: true,
+        straight: false,
+        outModes: { default: 'bounce' },
+      },
+      rotate: {
+        value: { min: 0, max: 360 },
+        animation: { enable: true, speed: 5, sync: false },
+      },
+    },
+    detectRetina: true,
+  },
+  
+  hearts: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 25, density: { enable: true } },
+      color: { value: ['#f43f5e', '#fb7185', '#fda4af', '#fecdd3'] },
+      shape: {
+        type: 'text',
+        options: {
+          text: {
+            value: ['♥', '♡', '❤'],
+            font: 'serif',
+            style: '',
+            weight: '400',
+          }
+        }
+      },
+      opacity: { 
+        value: { min: 0.4, max: 0.9 },
+        animation: { enable: true, speed: 1, sync: false }
+      },
+      size: { value: { min: 10, max: 20 } },
+      move: {
+        enable: true,
+        speed: 1,
+        direction: 'top',
+        random: true,
+        straight: false,
+        outModes: { default: 'out' },
+      },
+      wobble: {
+        enable: true,
+        distance: 10,
+        speed: 3,
+      },
+    },
+    detectRetina: true,
+  },
+  
+  glitch: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 80, density: { enable: true } },
+      color: { value: ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#00ffff'] },
+      shape: { type: 'square' },
+      opacity: { 
+        value: { min: 0.2, max: 0.8 },
+        animation: { enable: true, speed: 8, sync: false }
+      },
+      size: { value: { min: 1, max: 15 } },
+      move: {
+        enable: true,
+        speed: { min: 1, max: 5 },
+        direction: 'none',
+        random: true,
+        straight: true,
+        outModes: { default: 'out' },
+      },
+      twinkle: {
+        particles: { enable: true, frequency: 0.2, opacity: 1 }
+      },
+    },
+    detectRetina: true,
+  },
+  
+  circuits: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 60, density: { enable: true } },
+      color: { value: ['#06b6d4', '#22d3ee', '#67e8f9', '#a5f3fc'] },
+      shape: { type: 'circle' },
+      opacity: { value: { min: 0.4, max: 0.9 } },
+      size: { value: { min: 2, max: 4 } },
+      links: {
+        enable: true,
+        distance: 120,
+        color: '#22d3ee',
+        opacity: 0.5,
+        width: 1,
+      },
+      move: {
+        enable: true,
+        speed: 1.5,
+        direction: 'none',
+        random: false,
+        straight: false,
+        outModes: { default: 'bounce' },
+      },
+    },
+    detectRetina: true,
+  },
+  
+  leaves: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 30, density: { enable: true } },
+      color: { value: ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#a16207', '#ca8a04'] },
+      shape: {
+        type: 'text',
+        options: {
+          text: {
+            value: ['🍃', '🍂', '🌿', '☘️'],
+            font: 'serif',
+            style: '',
+            weight: '400',
+          }
+        }
+      },
+      opacity: { value: { min: 0.6, max: 0.9 } },
+      size: { value: { min: 14, max: 20 } },
+      move: {
+        enable: true,
+        speed: { min: 0.5, max: 1.5 },
+        direction: 'bottom-right',
+        straight: true,
+        outModes: { default: 'out' },
+      },
+    },
+    detectRetina: true,
+  },
+  
+  geometric: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 40, density: { enable: true } },
+      color: { value: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#06b6d4', '#22d3ee', '#f472b6'] },
+      shape: {
+        type: ['triangle', 'square', 'polygon'],
+        options: {
+          polygon: { sides: 6 }
+        }
+      },
+      opacity: { 
+        value: { min: 0.2, max: 0.6 },
+        animation: { enable: true, speed: 1, sync: false }
+      },
+      size: { 
+        value: { min: 8, max: 25 },
+        animation: { enable: true, speed: 2, sync: false }
+      },
+      move: {
+        enable: true,
+        speed: 0.8,
+        direction: 'none',
+        random: true,
+        straight: false,
+        outModes: { default: 'bounce' },
+      },
+      rotate: {
+        value: { min: 0, max: 360 },
+        animation: { enable: true, speed: 3, sync: false },
+      },
+    },
+    detectRetina: true,
+  },
+  
+  confetti: {
+    fullScreen: false,
+    background: { color: { value: 'transparent' } },
+    fpsLimit: 60,
+    particles: {
+      number: { value: 40, density: { enable: true } },
+      color: { value: ['#f472b6', '#fb923c', '#facc15', '#4ade80', '#60a5fa', '#a78bfa', '#f87171'] },
+      shape: {
+        type: ['circle', 'square', 'triangle'],
+      },
+      opacity: { value: { min: 0.7, max: 1 } },
+      size: { value: { min: 5, max: 12 } },
+      move: {
+        enable: true,
+        speed: 1.5,
+        direction: 'bottom',
+        straight: true,
+        outModes: { default: 'out' },
+        gravity: {
+          enable: false,
+        },
+      },
+      rotate: {
+        value: { min: 0, max: 360 },
+        animation: { enable: true, speed: 5, sync: false },
       },
     },
     detectRetina: true,
