@@ -142,6 +142,8 @@ const BACKGROUND_ANIMATIONS: { value: BackgroundAnimation; label: string }[] = [
   { value: 'snow', label: '❄️ Snow' },
   { value: 'rain', label: '🌧️ Rain (Horror)' },
   { value: 'matrix', label: '💻 Matrix (Hacker)' },
+  { value: 'embers', label: '🔥 Embers (Fire)' },
+  { value: 'hyperspace', label: '🚀 Hyperspace (Sci-Fi)' },
 ];
 
 const PLAYER_INDICATORS: { value: PlayerIndicator; label: string }[] = [
