@@ -28,25 +28,49 @@ export function SceneCard({ message, showImages }: SceneCardProps) {
   const hasImage = showImages && (imageUrl || isImageLoading || isStreaming);
   const cornerStyle = theme.corners?.style ?? 'brackets';
   const showDropCap = theme.gameMessage?.dropCap ?? false;
-
-  // Map corner style to CSS class
-  const cornerClassMap: Record<string, string> = {
-    brackets: classes.cornerBrackets,
-    flourish: classes.cornerFlourish,
-    arrows: classes.cornerArrows,
-    dots: classes.cornerDots,
-    none: classes.cornerNone,
+  
+  // Corner positions (default: top-left and bottom-right)
+  const positions = theme.corners?.positions ?? {
+    topLeft: true,
+    topRight: false,
+    bottomLeft: false,
+    bottomRight: true,
   };
-  const cornerClass = cornerClassMap[cornerStyle] || classes.cornerBrackets;
+  const cornerBlink = theme.corners?.blink ?? false;
+
+  // Map corner style to CSS class prefix
+  const cornerStyleClass = cornerStyle !== 'none' ? classes[`corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`] : '';
 
   const narrativeClasses = [
     classes.narrativeText,
     showDropCap && classes.narrativeTextDropCap,
   ].filter(Boolean).join(' ');
 
+  const sceneClasses = [
+    classes.gameScene,
+    !hasImage && classes.noImage,
+  ].filter(Boolean).join(' ');
+
+  // Render corner decoration element
+  const renderCorner = (position: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight') => {
+    if (cornerStyle === 'none' || !positions[position]) return null;
+    const positionClass = classes[`corner${position.charAt(0).toUpperCase() + position.slice(1)}`];
+    const blinkClass = cornerBlink ? classes.cornerBlink : '';
+    return (
+      <span 
+        className={`${classes.cornerDecor} ${cornerStyleClass} ${positionClass} ${blinkClass}`.trim()}
+        aria-hidden="true"
+      />
+    );
+  };
+
   return (
     <div className={classes.sceneCard}>
-      <div className={`${classes.gameScene} ${cornerClass} ${!hasImage ? classes.noImage : ''}`}>
+      <div className={sceneClasses}>
+        {renderCorner('topLeft')}
+        {renderCorner('topRight')}
+        {renderCorner('bottomLeft')}
+        {renderCorner('bottomRight')}
         {hasImage && (
           <SceneImage
             imageUrl={imageUrl}
