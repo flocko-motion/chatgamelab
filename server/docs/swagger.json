@@ -1148,6 +1148,554 @@
                 }
             }
         },
+        "/institutions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists all institutions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "List institutions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.Institution"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new institution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Create institution",
+                "parameters": [
+                    {
+                        "description": "Institution details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.CreateInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets an institution by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Get institution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Soft-deletes an institution (admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Delete institution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an institution",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Update institution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Institution details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateInstitutionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/institution": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a targeted invite for a user to join an institution as head or staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Create institution invite",
+                "parameters": [
+                    {
+                        "description": "Invite details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.CreateInstitutionInviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InviteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/institution/{idOrToken}/accept": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts a targeted institution invite by ID or token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Accept institution invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite ID (UUID) or token",
+                        "name": "idOrToken",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/institution/{idOrToken}/decline": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Declines a targeted institution invite by ID or token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Decline institution invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite ID (UUID) or token",
+                        "name": "idOrToken",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/workshop": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates an open invite for users to join a workshop as participants",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Create workshop invite",
+                "parameters": [
+                    {
+                        "description": "Invite details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.CreateWorkshopInviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.InviteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/workshop/{token}/accept": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts an open workshop invite by token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Accept workshop invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revokes a pending invite (creator or admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Revoke invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/languages": {
             "get": {
                 "description": "Returns a list of available languages for the application",
@@ -1997,6 +2545,120 @@
                 }
             }
         },
+        "/users/{id}/role": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets a user's role in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Set user role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetUserRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a user's role",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Remove user role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/version": {
             "get": {
                 "description": "Returns the server version and build time",
@@ -2012,6 +2674,228 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/routes.VersionResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists all workshops or workshops for a specific institution",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "List workshops",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "institutionId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.Workshop"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new workshop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Create workshop",
+                "parameters": [
+                    {
+                        "description": "Workshop details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.CreateWorkshopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets a workshop by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Get workshop",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Soft-deletes a workshop",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Delete workshop",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a workshop",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Update workshop",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Workshop details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateWorkshopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     }
                 }
@@ -2074,6 +2958,9 @@
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                },
+                "workshopId": {
                     "type": "string"
                 }
             }
@@ -2290,6 +3177,10 @@
                     "items": {
                         "$ref": "#/definitions/obj.GameTag"
                     }
+                },
+                "workshopId": {
+                    "description": "Optional workshop scope (games can be created within a workshop context)",
+                    "type": "string"
                 }
             }
         },
@@ -2348,6 +3239,9 @@
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                },
+                "workshopId": {
                     "type": "string"
                 }
             }
@@ -2642,6 +3536,12 @@
                 "id": {
                     "type": "string"
                 },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.InstitutionMember"
+                    }
+                },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
@@ -2649,6 +3549,40 @@
                     "type": "string"
                 }
             }
+        },
+        "obj.InstitutionMember": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/obj.Role"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.InviteStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "accepted",
+                "declined",
+                "expired",
+                "revoked"
+            ],
+            "x-enum-varnames": [
+                "InviteStatusPending",
+                "InviteStatusAccepted",
+                "InviteStatusDeclined",
+                "InviteStatusExpired",
+                "InviteStatusRevoked"
+            ]
         },
         "obj.Meta": {
             "type": "object",
@@ -2672,12 +3606,14 @@
             "enum": [
                 "admin",
                 "head",
-                "staff"
+                "staff",
+                "participant"
             ],
             "x-enum-varnames": [
                 "RoleAdmin",
                 "RoleHead",
-                "RoleStaff"
+                "RoleStaff",
+                "RoleParticipant"
             ]
         },
         "obj.StatusField": {
@@ -2754,6 +3690,56 @@
                 },
                 "userId": {
                     "type": "string"
+                },
+                "workshop": {
+                    "$ref": "#/definitions/obj.Workshop"
+                }
+            }
+        },
+        "obj.UserRoleInvite": {
+            "type": "object",
+            "properties": {
+                "acceptedAt": {
+                    "type": "string"
+                },
+                "acceptedBy": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "inviteToken": {
+                    "type": "string"
+                },
+                "invitedEmail": {
+                    "type": "string"
+                },
+                "invitedUserId": {
+                    "type": "string"
+                },
+                "maxUses": {
+                    "type": "integer"
+                },
+                "meta": {
+                    "$ref": "#/definitions/obj.Meta"
+                },
+                "role": {
+                    "$ref": "#/definitions/obj.Role"
+                },
+                "status": {
+                    "$ref": "#/definitions/obj.InviteStatus"
+                },
+                "usesCount": {
+                    "type": "integer"
+                },
+                "workshopId": {
+                    "type": "string"
                 }
             }
         },
@@ -2785,6 +3771,12 @@
                 },
                 "institution": {
                     "$ref": "#/definitions/obj.Institution"
+                },
+                "invites": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.UserRoleInvite"
+                    }
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -2868,6 +3860,31 @@
                 }
             }
         },
+        "routes.CreateInstitutionInviteRequest": {
+            "type": "object",
+            "properties": {
+                "institutionId": {
+                    "type": "string"
+                },
+                "invitedEmail": {
+                    "type": "string"
+                },
+                "invitedUserId": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.CreateInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.CreateSessionRequest": {
             "type": "object",
             "properties": {
@@ -2875,6 +3892,78 @@
                     "type": "string"
                 },
                 "shareId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.CreateWorkshopInviteRequest": {
+            "type": "object",
+            "properties": {
+                "expiresAt": {
+                    "type": "string"
+                },
+                "maxUses": {
+                    "type": "integer"
+                },
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.CreateWorkshopRequest": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "routes.InviteResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "expiresAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "inviteToken": {
+                    "type": "string"
+                },
+                "invitedEmail": {
+                    "type": "string"
+                },
+                "invitedUserId": {
+                    "type": "string"
+                },
+                "maxUses": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "usesCount": {
+                    "type": "integer"
+                },
+                "workshopId": {
                     "type": "string"
                 }
             }
@@ -2989,6 +4078,23 @@
                 },
                 "userName": {
                     "type": "string"
+                },
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetUserRoleRequest": {
+            "type": "object",
+            "properties": {
+                "institutionId": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "workshopId": {
+                    "type": "string"
                 }
             }
         },
@@ -3025,6 +4131,28 @@
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "routes.UpdateInstitutionRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.UpdateWorkshopRequest": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "public": {
+                    "type": "boolean"
                 }
             }
         },
