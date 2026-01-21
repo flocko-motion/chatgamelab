@@ -125,7 +125,7 @@ function LastPlayedCard() {
   );
 }
 
-// Popular Games Card - shows top 10 most played games (excluding user's own)
+// Popular Games Card - shows top 10 most played games
 function PopularGamesCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
@@ -135,15 +135,11 @@ function PopularGamesCard() {
     filter: "public",
   });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
-  const { data: currentUser } = useCurrentUser();
 
   const popularGames = useMemo(() => {
     if (!games) return [];
-    // Exclude user's own games
-    return games
-      .filter((game) => game.creatorId !== currentUser?.id)
-      .slice(0, 10);
-  }, [games, currentUser?.id]);
+    return games.slice(0, 10);
+  }, [games]);
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);

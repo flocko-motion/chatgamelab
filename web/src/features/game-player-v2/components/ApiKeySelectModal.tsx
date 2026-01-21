@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Modal,
   Stack,
@@ -16,6 +16,30 @@ import { ActionButton, TextButton } from '@components/buttons';
 import { SectionTitle } from '@components/typography';
 import { useApiKeys, usePlatforms, useCurrentUser, useSystemSettings } from '@/api/hooks';
 import { getDefaultApiKey, getModelsForApiKey } from '../types';
+
+const STORAGE_KEY = 'chatgamelab-api-key-selection';
+
+function getStoredKeyForPlatform(platform: string): string | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return null;
+    const selections = JSON.parse(stored) as Record<string, string>;
+    return selections[platform] || null;
+  } catch {
+    return null;
+  }
+}
+
+function saveKeyForPlatform(platform: string, keyId: string): void {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const selections = stored ? JSON.parse(stored) as Record<string, string> : {};
+    selections[platform] = keyId;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(selections));
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 interface ApiKeySelectModalProps {
   opened: boolean;
@@ -43,6 +67,26 @@ export function ApiKeySelectModal({
   const defaultKey = useMemo(() => getDefaultApiKey(apiKeys || []), [apiKeys]);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [initializedFromStorage, setInitializedFromStorage] = useState(false);
+
+  // Initialize selection from localStorage when apiKeys become available
+  useEffect(() => {
+    if (!apiKeys || apiKeys.length === 0 || initializedFromStorage) return;
+    
+    // Try to find a stored key for any platform the user has keys for
+    for (const key of apiKeys) {
+      const platform = key.apiKey?.platform;
+      if (!platform) continue;
+      
+      const storedKeyId = getStoredKeyForPlatform(platform);
+      if (storedKeyId && apiKeys.some(k => k.id === storedKeyId)) {
+        setSelectedKeyId(storedKeyId);
+        setInitializedFromStorage(true);
+        return;
+      }
+    }
+    setInitializedFromStorage(true);
+  }, [apiKeys, initializedFromStorage]);
 
   const selectedKey = useMemo(() => {
     if (!apiKeys) return undefined;
@@ -73,6 +117,13 @@ export function ApiKeySelectModal({
 
   const handleStart = () => {
     if (!selectedKey?.id) return;
+    
+    // Save selection to localStorage for this platform
+    const platform = selectedKey.apiKey?.platform;
+    if (platform) {
+      saveKeyForPlatform(platform, selectedKey.id);
+    }
+    
     const modelToUse = currentUser?.showAiModelSelector 
       ? (selectedModel || undefined)
       : (systemSettings?.defaultAiModel || undefined);

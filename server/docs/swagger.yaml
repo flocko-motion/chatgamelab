@@ -291,22 +291,13 @@ definitions:
     type: object
   obj.GameTheme:
     properties:
-      background:
-        $ref: '#/definitions/obj.GameThemeBackground'
-      corners:
-        $ref: '#/definitions/obj.GameThemeCorners'
-      gameMessage:
-        $ref: '#/definitions/obj.GameThemeGameMessage'
-      player:
-        $ref: '#/definitions/obj.GameThemePlayer'
-      statusEmojis:
-        additionalProperties:
-          type: string
-        type: object
-      thinking:
-        $ref: '#/definitions/obj.GameThemeThinking'
-      typography:
-        $ref: '#/definitions/obj.GameThemeTypography'
+      override:
+        allOf:
+        - $ref: '#/definitions/obj.GameThemeOverride'
+        description: fields that override the preset defaults
+      preset:
+        description: preset name (e.g., "space", "fantasy") or "custom"
+        type: string
     type: object
   obj.GameThemeBackground:
     properties:
@@ -315,6 +306,12 @@ definitions:
         type: string
       tint:
         description: warm, cool, neutral, dark
+        type: string
+    type: object
+  obj.GameThemeCards:
+    properties:
+      borderThickness:
+        description: none, thin, medium, thick
         type: string
     type: object
   obj.GameThemeCorners:
@@ -326,30 +323,127 @@ definitions:
         description: brackets, flourish, arrows, dots, none
         type: string
     type: object
+  obj.GameThemeDivider:
+    properties:
+      color:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
+      style:
+        description: dot, dots, line, diamond, star, dash, none
+        type: string
+    type: object
   obj.GameThemeGameMessage:
     properties:
+      bgColor:
+        description: white, creme, dark, black, blue, blueLight, green, greenLight,
+          red, redLight, amber, amberLight, violet, violetLight, rose, roseLight,
+          cyan, cyanLight
+        type: string
+      borderColor:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
       dropCap:
         type: boolean
       dropCapColor:
-        description: amber, emerald, cyan, violet, rose, slate
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
         type: string
+      fontColor:
+        description: dark, light, hacker, terminal
+        type: string
+    type: object
+  obj.GameThemeHeader:
+    properties:
+      accentColor:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
+      bgColor:
+        description: white, creme, dark, black, blue, blueLight, green, greenLight,
+          red, redLight, amber, amberLight, violet, violetLight, rose, roseLight,
+          cyan, cyanLight
+        type: string
+      fontColor:
+        description: dark, light, hacker, terminal
+        type: string
+    type: object
+  obj.GameThemeOverride:
+    properties:
+      background:
+        $ref: '#/definitions/obj.GameThemeBackground'
+      cards:
+        $ref: '#/definitions/obj.GameThemeCards'
+      corners:
+        $ref: '#/definitions/obj.GameThemeCorners'
+      divider:
+        $ref: '#/definitions/obj.GameThemeDivider'
+      gameMessage:
+        $ref: '#/definitions/obj.GameThemeGameMessage'
+      header:
+        $ref: '#/definitions/obj.GameThemeHeader'
+      player:
+        $ref: '#/definitions/obj.GameThemePlayer'
+      statusEmojis:
+        additionalProperties:
+          type: string
+        type: object
+      statusFields:
+        $ref: '#/definitions/obj.GameThemeStatusFields'
+      thinking:
+        $ref: '#/definitions/obj.GameThemeThinking'
+      typography:
+        $ref: '#/definitions/obj.GameThemeTypography'
     type: object
   obj.GameThemePlayer:
     properties:
       bgColor:
-        description: cyan, amber, violet, slate, white, emerald, rose
+        description: white, creme, dark, black, blue, blueLight, green, greenLight,
+          red, redLight, amber, amberLight, violet, violetLight, rose, roseLight,
+          cyan, cyanLight
+        type: string
+      borderColor:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
         type: string
       color:
-        description: amber, emerald, cyan, violet, rose, slate
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
+      fontColor:
+        description: dark, light, hacker, terminal
         type: string
       indicator:
-        description: dot, arrow, chevron, diamond, none
+        description: dot, arrow, chevron, diamond, cursor, underscore, pipe, none
         type: string
-      showChevron:
+      indicatorBlink:
         type: boolean
+    type: object
+  obj.GameThemeStatusFields:
+    properties:
+      accentColor:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
+      bgColor:
+        description: white, creme, dark, black, blue, blueLight, green, greenLight,
+          red, redLight, amber, amberLight, violet, violetLight, rose, roseLight,
+          cyan, cyanLight
+        type: string
+      borderColor:
+        description: amber, emerald, cyan, violet, rose, slate, hacker, terminal,
+          brown, pink, orange
+        type: string
+      fontColor:
+        description: dark, light, hacker, terminal
+        type: string
     type: object
   obj.GameThemeThinking:
     properties:
+      streamingCursor:
+        description: dots, block, pipe, underscore, none
+        type: string
       style:
         description: dots, spinner, pulse, typewriter
         type: string

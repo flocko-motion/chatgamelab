@@ -19,8 +19,12 @@ function mergeTheme(partial: PartialGameTheme | undefined): GameTheme {
     background: { ...DEFAULT_GAME_THEME.background, ...partial.background } as GameTheme['background'],
     player: { ...DEFAULT_GAME_THEME.player, ...partial.player } as GameTheme['player'],
     gameMessage: { ...DEFAULT_GAME_THEME.gameMessage, ...partial.gameMessage } as GameTheme['gameMessage'],
+    cards: { ...DEFAULT_GAME_THEME.cards, ...partial.cards } as GameTheme['cards'],
     thinking: { ...DEFAULT_GAME_THEME.thinking, ...partial.thinking } as GameTheme['thinking'],
     typography: { ...DEFAULT_GAME_THEME.typography, ...partial.typography } as GameTheme['typography'],
+    statusFields: { ...DEFAULT_GAME_THEME.statusFields, ...partial.statusFields } as GameTheme['statusFields'],
+    header: { ...DEFAULT_GAME_THEME.header, ...partial.header } as GameTheme['header'],
+    divider: { ...DEFAULT_GAME_THEME.divider, ...partial.divider } as GameTheme['divider'],
     statusEmojis: { ...DEFAULT_GAME_THEME.statusEmojis, ...(partial.statusEmojis || {}) },
   };
 }

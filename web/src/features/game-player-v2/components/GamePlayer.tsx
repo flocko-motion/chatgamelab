@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Group,
   Text,
@@ -27,7 +27,6 @@ import type { GamePlayerContextValue, FontSize } from '../context';
 import { DEFAULT_THEME, mapApiThemeToPartial } from '../types';
 import type { PartialGameTheme } from '../theme/types';
 import { GameThemeProvider, useGameTheme } from '../theme';
-import { BackgroundAnimation } from '../theme/BackgroundAnimation';
 import { ApiKeySelectModal } from './ApiKeySelectModal';
 import { ThemeTestPanel } from './ThemeTestPanel';
 import { SceneCard } from './SceneCard';
@@ -49,7 +48,7 @@ interface SceneAreaWithThemeProps {
 }
 
 function SceneAreaWithTheme({ renderMessages, sceneEndRef }: SceneAreaWithThemeProps) {
-  const { theme, cssVars } = useGameTheme();
+  const { cssVars } = useGameTheme();
   
   return (
     <Box 
@@ -58,11 +57,26 @@ function SceneAreaWithTheme({ renderMessages, sceneEndRef }: SceneAreaWithThemeP
       py="md"
       style={cssVars}
     >
-      <BackgroundAnimation animation={theme.background.animation} />
+      {/* BackgroundAnimation disabled - animations not working */}
       <div className={classes.scenesContainer}>
         {renderMessages()}
         <div ref={sceneEndRef} />
       </div>
+    </Box>
+  );
+}
+
+/** Header with theme-aware styling */
+interface HeaderWithThemeProps {
+  children: React.ReactNode;
+}
+
+function HeaderWithTheme({ children }: HeaderWithThemeProps) {
+  const { cssVars } = useGameTheme();
+  
+  return (
+    <Box className={classes.header} px="md" py="sm" style={cssVars}>
+      {children}
     </Box>
   );
 }
@@ -82,12 +96,22 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string } | null>(null);
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
-  const [themeOverride, setThemeOverride] = useState<PartialGameTheme | null>(null);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
   );
   const { state, startSession, sendAction, loadExistingSession, resetGame } = useGameSession(gameId || '');
+
+  const [themeOverridesBySessionId, setThemeOverridesBySessionId] = useState<Record<string, PartialGameTheme>>({});
+  const themeOverride = state.sessionId ? (themeOverridesBySessionId[state.sessionId] ?? null) : null;
+
+  const handleThemeChange = useCallback((theme: PartialGameTheme) => {
+    if (!state.sessionId) return;
+    setThemeOverridesBySessionId((prev) => ({
+      ...prev,
+      [state.sessionId as string]: theme,
+    }));
+  }, [state.sessionId]);
 
   useEffect(() => {
     if (sessionId && state.phase === 'selecting-key') {
@@ -199,6 +223,34 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     );
   }
 
+  // Validate required game fields before allowing play
+  const getMissingFields = () => {
+    if (!game || isContinuation) return [];
+    const missing: string[] = [];
+    if (!game.systemMessageScenario?.trim()) missing.push(t('games.editFields.scenario'));
+    if (!game.systemMessageGameStart?.trim()) missing.push(t('games.editFields.gameStart'));
+    if (!game.imageStyle?.trim()) missing.push(t('games.editFields.imageStyle'));
+    return missing;
+  };
+
+  const missingFields = getMissingFields();
+  if (!isContinuation && missingFields.length > 0) {
+    return (
+      <Box className={classes.container} h={containerHeight}>
+        <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
+          <IconAlertCircle size={48} color="var(--mantine-color-red-5)" />
+          <Text size="lg" fw={600}>{t('gamePlayer.error.missingFields')}</Text>
+          <Text c="dimmed" ta="center">
+            {missingFields.join(', ')}
+          </Text>
+          <TextButton onClick={handleBack} leftSection={<IconArrowLeft size={16} />}>
+            {t('gamePlayer.error.backToGames')}
+          </TextButton>
+        </Stack>
+      </Box>
+    );
+  }
+
   if (state.phase === 'error') {
     return (
       <>
@@ -263,8 +315,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
     // Show input inline when user can type
     if (!state.isWaitingForResponse && state.messages.length > 0) {
+      const inputClasses = classes.inlineInput;
       elements.push(
-        <div key="inline-input" className={classes.inlineInput}>
+        <div key="inline-input" className={inputClasses}>
           <PlayerInput
             onSend={handleSendAction}
             disabled={state.isWaitingForResponse}
@@ -284,17 +337,21 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         background: { ...mapApiThemeToPartial(state.theme)?.background, ...themeOverride.background },
         player: { ...mapApiThemeToPartial(state.theme)?.player, ...themeOverride.player },
         gameMessage: { ...mapApiThemeToPartial(state.theme)?.gameMessage, ...themeOverride.gameMessage },
+        cards: { ...mapApiThemeToPartial(state.theme)?.cards, ...themeOverride.cards },
         thinking: { ...mapApiThemeToPartial(state.theme)?.thinking, ...themeOverride.thinking },
         typography: { ...mapApiThemeToPartial(state.theme)?.typography, ...themeOverride.typography },
+        statusFields: { ...mapApiThemeToPartial(state.theme)?.statusFields, ...themeOverride.statusFields },
+        header: { ...mapApiThemeToPartial(state.theme)?.header, ...themeOverride.header },
+        divider: { ...mapApiThemeToPartial(state.theme)?.divider, ...themeOverride.divider },
         statusEmojis: { ...mapApiThemeToPartial(state.theme)?.statusEmojis, ...themeOverride.statusEmojis },
       }
     : mapApiThemeToPartial(state.theme);
-
+  
   return (
     <GameThemeProvider theme={effectiveTheme}>
     <GamePlayerProvider value={contextValue}>
       <Box className={classes.container} h={containerHeight}>
-        <Box className={classes.header} px="md" py="sm">
+        <HeaderWithTheme>
           <Group justify="space-between" wrap="nowrap">
             <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
               <Tooltip label={t('gamePlayer.header.back')} position="bottom">
@@ -311,7 +368,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               <Box style={{ minWidth: 0, flex: 1 }}>
                 <Text fw={600} truncate size="sm">{displayGame?.name || t('gamePlayer.unnamed')}</Text>
                 {displayGame?.description && (
-                  <Text size="xs" c="dimmed" truncate>{displayGame.description}</Text>
+                  <Text size="xs" truncate className={classes.headerDescription}>{displayGame.description}</Text>
                 )}
               </Box>
             </Group>
@@ -342,7 +399,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               </Tooltip>
               <ThemeTestPanel
                 currentTheme={effectiveTheme}
-                onThemeChange={setThemeOverride}
+                onThemeChange={handleThemeChange}
               />
               <Button
                 onClick={toggleDebugMode}
@@ -355,7 +412,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               </Button>
             </Group>
           </Group>
-        </Box>
+        </HeaderWithTheme>
 
         <StatusBar statusFields={state.statusFields} />
 

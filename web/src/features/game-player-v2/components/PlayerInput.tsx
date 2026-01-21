@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Group, TextInput, ActionIcon } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { IconPlayerPlay } from '@tabler/icons-react';
-import { useGameTheme, THEME_COLORS } from '../theme';
+import { useGameTheme, THEME_COLORS, CARD_BG_COLORS, FONT_COLORS } from '../theme';
 
 interface PlayerInputProps {
   onSend: (message: string) => void;
@@ -16,6 +16,9 @@ export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInp
   const [value, setValue] = useState('');
   
   const accentColor = THEME_COLORS[theme.corners.color] || THEME_COLORS.amber;
+  const playerBgColor = CARD_BG_COLORS[theme.player.bgColor] || CARD_BG_COLORS.creme;
+  const playerFontColor = FONT_COLORS[theme.player.fontColor] || FONT_COLORS.dark;
+  const playerBorderColor = THEME_COLORS[theme.player.borderColor] || THEME_COLORS.cyan;
 
   const handleSend = useCallback(() => {
     const trimmed = value.trim();
@@ -59,9 +62,10 @@ export function PlayerInput({ onSend, disabled = false, placeholder }: PlayerInp
             disabled={disabled || !value.trim()}
             aria-label={t('gamePlayer.input.send')}
             style={{ 
-              background: disabled || !value.trim() 
-                ? 'var(--mantine-color-gray-4)' 
-                : accentColor.dark,
+              background: playerBgColor.solid,
+              color: playerFontColor,
+              border: `1px solid ${playerBorderColor.primary}`,
+              opacity: disabled || !value.trim() ? 0.55 : 1,
             }}
           >
             <IconPlayerPlay size={16} />

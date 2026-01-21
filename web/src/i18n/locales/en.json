@@ -155,12 +155,18 @@
       },
       "sort": {
         "label": "Sort by",
-        "name": "Name",
-        "createdAt": "Created",
-        "modifiedAt": "Last Modified",
-        "playCount": "Play Count",
-        "visibility": "Visibility",
-        "creator": "Creator"
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "createdAt-desc": "Created (Newest)",
+        "createdAt-asc": "Created (Oldest)",
+        "modifiedAt-desc": "Modified (Newest)",
+        "modifiedAt-asc": "Modified (Oldest)",
+        "playCount-desc": "Most Played",
+        "playCount-asc": "Least Played",
+        "visibility-desc": "Public Games First",
+        "visibility-asc": "Private Games First",
+        "creator-asc": "Creator (A-Z)",
+        "creator-desc": "Creator (Z-A)"
       },
       "empty": {
         "title": "No games yet",
@@ -396,6 +402,7 @@
       "error": {
         "gameNotFound": "Game not found",
         "sessionFailed": "Failed to start game session",
+        "missingFields": "Game is missing required fields:",
         "backToGames": "Back to Games",
         "tryAgain": "Try Again"
       },

@@ -10,7 +10,10 @@ export type {
   PartialGameTheme,
   CornerStyle,
   ThemeColor,
-  PlayerBgColor,
+  CardBgColor,
+  FontColor,
+  MilkGlass,
+  CardBorderThickness,
   BackgroundAnimation,
   BackgroundTint,
   PlayerIndicator,
@@ -20,6 +23,7 @@ export type {
   BackgroundConfig,
   PlayerConfig,
   GameMessageConfig,
+  CardStyleConfig,
   ThinkingConfig,
   TypographyConfig,
 } from './types';
@@ -30,6 +34,9 @@ export {
   THEME_COLORS,
   THEME_FONTS,
   PRESET_THEMES,
+  CARD_BG_COLORS,
+  FONT_COLORS,
+  CARD_BORDER_THICKNESSES,
 } from './defaults';
 
 // Context and hook

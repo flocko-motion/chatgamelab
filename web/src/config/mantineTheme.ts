@@ -169,5 +169,49 @@ export const mantineTheme = createTheme({
       },
     },
     
+    // Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px)
+    // Setting size="md" ensures 16px font-size
+    TextInput: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    PasswordInput: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    Textarea: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    Select: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    MultiSelect: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    NumberInput: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
+    Autocomplete: {
+      defaultProps: {
+        size: 'md',
+      },
+    },
+    
   },
 });

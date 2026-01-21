@@ -22,7 +22,7 @@ import { DataTable, DataTableEmptyState, type DataTableColumn } from '@component
 import { DimmedLoader } from '@components/LoadingAnimation';
 import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
-import { type SortField, type CreateGameFormData } from '../types';
+import { type CreateGameFormData } from '../types';
 import { GameEditModal } from './GameEditModal';
 import { DeleteGameModal } from './DeleteGameModal';
 import { GameCard, type GameCardAction } from './GameCard';
@@ -45,12 +45,15 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const [viewModalOpened, { open: openViewModal, close: closeViewModal }] = useDisclosure(initialGameId ? true : false);
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(initialGameId ?? null);
-  const [sortField, setSortField] = useState<SortField>('modifiedAt');
+  const [sortValue, setSortValue] = useState('modifiedAt-desc');
   const [showFavorites, setShowFavorites] = useState<'all' | 'favorites'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc', filter: 'own', search: debouncedSearch || undefined });
+  // Parse combined sort value into field and direction
+  const [sortField, sortDir] = sortValue.split('-') as [string, 'asc' | 'desc'];
+  
+  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField as 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator', sortDir, filter: 'own', search: debouncedSearch || undefined });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const createGame = useCreateGame();
   const deleteGame = useDeleteGame();
@@ -429,11 +432,16 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   ];
 
   const sortOptions: SortOption[] = [
-    { value: 'modifiedAt', label: t('games.sort.modifiedAt') },
-    { value: 'createdAt', label: t('games.sort.createdAt') },
-    { value: 'name', label: t('games.sort.name') },
-    { value: 'playCount', label: t('games.sort.playCount') },
-    { value: 'visibility', label: t('games.sort.visibility') },
+    { value: 'modifiedAt-desc', label: t('games.sort.modifiedAt-desc') },
+    { value: 'modifiedAt-asc', label: t('games.sort.modifiedAt-asc') },
+    { value: 'createdAt-desc', label: t('games.sort.createdAt-desc') },
+    { value: 'createdAt-asc', label: t('games.sort.createdAt-asc') },
+    { value: 'name-asc', label: t('games.sort.name-asc') },
+    { value: 'name-desc', label: t('games.sort.name-desc') },
+    { value: 'playCount-desc', label: t('games.sort.playCount-desc') },
+    { value: 'playCount-asc', label: t('games.sort.playCount-asc') },
+    { value: 'visibility-desc', label: t('games.sort.visibility-desc') },
+    { value: 'visibility-asc', label: t('games.sort.visibility-asc') },
   ];
 
   const hasData = rawGames !== undefined;
@@ -522,8 +530,8 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
               {(rawGames?.length ?? 0) > 0 && (
                 <SortSelector 
                   options={sortOptions} 
-                  value={sortField} 
-                  onChange={(v) => setSortField(v as SortField)}
+                  value={sortValue} 
+                  onChange={setSortValue}
                   label={t('games.sort.label')}
                 />
               )}

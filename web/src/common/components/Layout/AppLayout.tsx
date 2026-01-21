@@ -37,8 +37,8 @@ export function AppLayout({
   return (
     <AppShell
       header={isAuthenticated ? { height: HEADER_HEIGHT } : undefined}
-      footer={{ height: FOOTER_HEIGHT }}
-      padding={{ base: 'sm', sm: 'md' }}
+      footer={darkMode ? undefined : { height: FOOTER_HEIGHT }}
+      padding={darkMode ? 0 : { base: 'sm', sm: 'md' }}
       style={{
         background,
         minHeight: '100vh',
@@ -55,7 +55,7 @@ export function AppLayout({
               : { base: HEADER_HEIGHT.base + 10, sm: HEADER_HEIGHT.sm + 20 })
           : { base: 'sm', sm: 'md' }
         }
-        pb={darkMode ? FOOTER_HEIGHT.base : undefined}
+        pb={0}
         style={darkMode ? { 
           display: 'flex', 
           flexDirection: 'column',
@@ -76,7 +76,7 @@ export function AppLayout({
         )}
       </AppShell.Main>
 
-      <AppFooter {...footerProps} transparent={transparentFooter} darkMode={darkMode} />
+      {!darkMode && <AppFooter {...footerProps} transparent={transparentFooter} />}
     </AppShell>
   );
 }

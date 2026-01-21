@@ -42,6 +42,7 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
   return (
     <AppShell.Footer
       style={darkMode ? dimmedStyles : lightStyles}
+      visibleFrom={mobileBreakpoint}
     >
       <Container size="xl" h="100%" px={{ base: 'sm', sm: 'md', lg: 'xl' }}>
         <Box
@@ -76,20 +77,7 @@ export function AppFooter({ links = defaultLinks, showVersion = true, darkMode =
             </Group>
           </Box>
 
-          {/* Mobile: Condensed footer */}
-          <Box hiddenFrom={mobileBreakpoint}>
-            <Group gap="xs" justify="center">
-              <HelperText c={textColor}>
-                {t('footer.copyright')}
-              </HelperText>
-              {showVersion && (
-                <>
-                  <HelperText c={textColor}>•</HelperText>
-                  <VersionDisplay darkMode={darkMode} />
-                </>
-              )}
-            </Group>
-          </Box>
+          {/* Mobile: Footer is hidden - version and language switcher are in burger menu */}
         </Box>
       </Container>
     </AppShell.Footer>
