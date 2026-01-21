@@ -243,7 +243,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Sci-fi / Cyberpunk */
   scifi: {
     corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'black' },
+    background: { tint: 'black', animation: 'stars' },
     player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'cyan', fontColor: 'light', borderColor: 'cyan' },
     gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'cyan', borderColor: 'cyan' },
     cards: { borderThickness: 'thin' },
@@ -257,7 +257,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Fantasy / Medieval */
   fantasy: {
     corners: { style: 'flourish', color: 'amber' },
-    background: { tint: 'warm' },
+    background: { tint: 'warm', animation: 'fireflies' },
     player: { color: 'amber', indicator: 'dot', indicatorBlink: false, bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
     gameMessage: { dropCap: true, dropCapColor: 'amber', bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
     cards: { borderThickness: 'thin' },
@@ -271,7 +271,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Horror / Mystery */
   horror: {
     corners: { style: 'none', color: 'slate' },
-    background: { tint: 'dark' },
+    background: { tint: 'dark', animation: 'rain' },
     player: { color: 'rose', indicator: 'none', indicatorBlink: false, bgColor: 'dark', fontColor: 'light', borderColor: 'rose' },
     gameMessage: { dropCap: false, dropCapColor: 'rose', bgColor: 'dark', fontColor: 'light', borderColor: 'slate' },
     cards: { borderThickness: 'none' },
@@ -299,7 +299,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Mystery / Mystic - purple, magical, ethereal */
   mystery: {
     corners: { style: 'dots', color: 'violet' },
-    background: { tint: 'darkViolet' },
+    background: { tint: 'darkViolet', animation: 'fireflies' },
     player: { color: 'violet', indicator: 'star', indicatorBlink: true, bgColor: 'violet', fontColor: 'light', borderColor: 'violet' },
     gameMessage: { dropCap: true, dropCapColor: 'violet', bgColor: 'dark', fontColor: 'violet', borderColor: 'violet' },
     cards: { borderThickness: 'medium' },
@@ -327,7 +327,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Space / Cosmic */
   space: {
     corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'dark' },
+    background: { tint: 'dark', animation: 'stars' },
     player: { color: 'cyan', indicator: 'dot', indicatorBlink: true, bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
     gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
     cards: { borderThickness: 'thin' },
@@ -341,7 +341,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Terminal - Green on black, classic */
   terminal: {
     corners: { style: 'brackets', color: 'hacker' },
-    background: { tint: 'black' },
+    background: { tint: 'black', animation: 'matrix' },
     player: { color: 'hacker', indicator: 'underscore', indicatorBlink: true, bgColor: 'black', fontColor: 'hacker', borderColor: 'hacker' },
     gameMessage: { dropCap: false, dropCapColor: 'hacker', bgColor: 'black', fontColor: 'hacker', borderColor: 'hacker' },
     cards: { borderThickness: 'thin' },
@@ -425,7 +425,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Ocean / Underwater */
   ocean: {
     corners: { style: 'arrows', color: 'cyan' },
-    background: { tint: 'cool' },
+    background: { tint: 'cool', animation: 'bubbles' },
     player: { color: 'cyan', indicator: 'dot', indicatorBlink: false, bgColor: 'cyanLight', fontColor: 'dark', borderColor: 'cyan' },
     gameMessage: { dropCap: true, dropCapColor: 'cyan', bgColor: 'blueLight', fontColor: 'dark', borderColor: 'cyan' },
     cards: { borderThickness: 'thin' },
@@ -467,7 +467,7 @@ export const PRESET_THEMES: Record<string, PartialGameTheme> = {
   /** Hacker - Aggressive (Red AI, Green User) */
   hacker: {
     corners: { style: 'brackets', color: 'terminal' },
-    background: { tint: 'black' },
+    background: { tint: 'black', animation: 'matrix' },
     player: { color: 'hacker', indicator: 'underscore', indicatorBlink: true, bgColor: 'green', fontColor: 'hacker', borderColor: 'hacker' },
     gameMessage: { dropCap: false, dropCapColor: 'terminal', bgColor: 'red', fontColor: 'terminal', borderColor: 'terminal' },
     cards: { borderThickness: 'thin' },

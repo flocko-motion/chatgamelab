@@ -227,8 +227,8 @@ type GameThemeCorners struct {
 }
 
 type GameThemeBackground struct {
-	Animation string `json:"animation"` // none, stars, rain, fog, particles, scanlines
-	Tint      string `json:"tint"`      // warm, cool, neutral, dark
+	Animation string `json:"animation"` // none, stars, bubbles, fireflies, snow, rain, matrix
+	Tint      string `json:"tint"`      // warm, cool, neutral, dark, black
 }
 
 type GameThemePlayer struct {

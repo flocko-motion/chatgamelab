@@ -18,10 +18,11 @@ export function BackgroundAnimation({ animation, className }: BackgroundAnimatio
   const animationClass = useMemo(() => {
     switch (animation) {
       case 'stars': return styles.stars;
+      case 'bubbles': return styles.particles;
+      case 'fireflies': return styles.particles;
+      case 'snow': return styles.stars;
       case 'rain': return styles.rain;
-      case 'fog': return styles.fog;
-      case 'particles': return styles.particles;
-      case 'scanlines': return styles.scanlines;
+      case 'matrix': return styles.scanlines;
       default: return '';
     }
   }, [animation]);

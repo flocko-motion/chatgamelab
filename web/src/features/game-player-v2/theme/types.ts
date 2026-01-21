@@ -29,7 +29,7 @@ export type CardBorderThickness = 'none' | 'thin' | 'medium' | 'thick';
 
 
 /** Background animation types */
-export type BackgroundAnimation = 'none' | 'stars' | 'rain' | 'fog' | 'particles' | 'scanlines';
+export type BackgroundAnimation = 'none' | 'stars' | 'bubbles' | 'fireflies' | 'snow' | 'rain' | 'matrix' | 'embers' | 'hyperspace';
 
 /** Background tint */
 export type BackgroundTint = 
@@ -68,6 +68,7 @@ export interface CornerConfig {
 /** Background configuration */
 export interface BackgroundConfig {
   tint: BackgroundTint;
+  animation?: BackgroundAnimation;
 }
 
 /** Player message styling */

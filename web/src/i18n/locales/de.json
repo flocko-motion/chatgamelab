@@ -413,6 +413,8 @@
         "hideDebug": "Debug-Info ausblenden",
         "increaseFont": "Schrift vergrößern",
         "decreaseFont": "Schrift verkleinern",
+        "enableAnimation": "Hintergrundanimation aktivieren",
+        "disableAnimation": "Hintergrundanimation deaktivieren",
         "debug": "Debug"
       },
       "input": {

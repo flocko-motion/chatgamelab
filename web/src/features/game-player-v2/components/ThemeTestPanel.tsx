@@ -28,6 +28,7 @@ import type {
   CornerStyle, 
   ThemeColor, 
   BackgroundTint, 
+  BackgroundAnimation,
   PlayerIndicator, 
   ThinkingStyle, 
   StreamingCursor,
@@ -133,6 +134,18 @@ const BACKGROUND_TINTS: { value: BackgroundTint; label: string }[] = [
   { value: 'darkRose', label: 'Dark Rose' },
 ];
 
+const BACKGROUND_ANIMATIONS: { value: BackgroundAnimation; label: string }[] = [
+  { value: 'none', label: 'None' },
+  { value: 'stars', label: '✨ Stars (Space/Sci-Fi)' },
+  { value: 'bubbles', label: '🫧 Bubbles (Ocean)' },
+  { value: 'fireflies', label: '🪲 Fireflies (Fantasy)' },
+  { value: 'snow', label: '❄️ Snow' },
+  { value: 'rain', label: '🌧️ Rain (Horror)' },
+  { value: 'matrix', label: '💻 Matrix (Hacker)' },
+  { value: 'embers', label: '🔥 Embers (Fire)' },
+  { value: 'hyperspace', label: '🚀 Hyperspace (Sci-Fi)' },
+];
+
 const PLAYER_INDICATORS: { value: PlayerIndicator; label: string }[] = [
   { value: 'dot', label: '• Dot' },
   { value: 'chevron', label: '> Chevron' },
@@ -215,6 +228,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
   const [cornerBottomRight, setCornerBottomRight] = useState(currentTheme?.corners?.positions?.bottomRight ?? true);
   const [cornerBlink, setCornerBlink] = useState(currentTheme?.corners?.blink ?? false);
   const [bgTint, setBgTint] = useState<BackgroundTint>(currentTheme?.background?.tint || 'neutral');
+  const [bgAnimation, setBgAnimation] = useState<BackgroundAnimation>(currentTheme?.background?.animation || 'none');
   
   // Player message settings
   const [playerColor, setPlayerColor] = useState<ThemeColor>(currentTheme?.player?.color || 'cyan');
@@ -280,6 +294,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
     if (currentTheme.corners?.positions?.bottomRight !== undefined) setCornerBottomRight(currentTheme.corners.positions.bottomRight);
     if (currentTheme.corners?.blink !== undefined) setCornerBlink(currentTheme.corners.blink);
     if (currentTheme.background?.tint) setBgTint(currentTheme.background.tint);
+    if (currentTheme.background?.animation) setBgAnimation(currentTheme.background.animation);
     if (currentTheme.player?.color) setPlayerColor(currentTheme.player.color);
     if (currentTheme.player?.indicator) setPlayerIndicator(currentTheme.player.indicator);
     if (currentTheme.player?.indicatorBlink !== undefined) setIndicatorBlink(currentTheme.player.indicatorBlink);
@@ -325,7 +340,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
       },
       blink: cornerBlink,
     },
-    background: { tint: bgTint },
+    background: { tint: bgTint, animation: bgAnimation },
     player: {
       color: playerColor,
       indicator: playerIndicator,
@@ -367,7 +382,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
       style: dividerStyle,
       color: dividerColor,
     },
-  }), [cornerStyle, cornerColor, cornerTopLeft, cornerTopRight, cornerBottomLeft, cornerBottomRight, cornerBlink, bgTint, playerColor, playerIndicator, indicatorBlink, playerBgColor, playerFontColor, playerBorderColor, dropCap, dropCapColor, gameBgColor, gameFontColor, gameBorderColor, borderThickness, thinkingText, thinkingStyle, streamingCursor, messageFont, statusBgColor, statusAccentColor, statusBorderColor, statusFontColor, headerBgColor, headerFontColor, headerAccentColor, dividerStyle, dividerColor]);
+  }), [cornerStyle, cornerColor, cornerTopLeft, cornerTopRight, cornerBottomLeft, cornerBottomRight, cornerBlink, bgTint, bgAnimation, playerColor, playerIndicator, indicatorBlink, playerBgColor, playerFontColor, playerBorderColor, dropCap, dropCapColor, gameBgColor, gameFontColor, gameBorderColor, borderThickness, thinkingText, thinkingStyle, streamingCursor, messageFont, statusBgColor, statusAccentColor, statusBorderColor, statusFontColor, headerBgColor, headerFontColor, headerAccentColor, dividerStyle, dividerColor]);
 
   // Skip the very first mount to prevent overriding AI theme with defaults
   const isFirstMountRef = useRef(true);
@@ -401,6 +416,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
     }
     if (preset.corners?.blink !== undefined) setCornerBlink(preset.corners.blink);
     if (preset.background?.tint) setBgTint(preset.background.tint);
+    if (preset.background?.animation) setBgAnimation(preset.background.animation);
     if (preset.player?.color) setPlayerColor(preset.player.color);
     if (preset.player?.indicator) setPlayerIndicator(preset.player.indicator);
     if (preset.player?.indicatorBlink !== undefined) setIndicatorBlink(preset.player.indicatorBlink);
@@ -472,6 +488,13 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
               data={BACKGROUND_TINTS}
               value={bgTint}
               onChange={(v) => v && setBgTint(v as BackgroundTint)}
+            />
+            <Select
+              label="Background Animation"
+              description="Animated particle effects"
+              data={BACKGROUND_ANIMATIONS}
+              value={bgAnimation}
+              onChange={(v) => v && setBgAnimation(v as BackgroundAnimation)}
             />
 
             <Divider label="Card Styling (Shared)" labelPosition="center" />
