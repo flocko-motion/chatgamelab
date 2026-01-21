@@ -116,6 +116,29 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 	}
 }
 
+// canAccessWorkshopInvites checks if user can view workshop invites
+// Only staff, heads, and admins of the institution can view workshop invites
+func canAccessWorkshopInvites(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) error {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	// Admin can view all invites
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Head or Staff of the institution can view invites
+	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
+			return nil
+		}
+	}
+
+	return obj.ErrForbidden("only admin, head, or staff can view workshop invites")
+}
+
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop
 // - operation: the type of CRUD operation (create, read, update, delete, list)
 // - institutionID: the institution the workshop belongs to

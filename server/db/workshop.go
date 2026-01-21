@@ -80,15 +80,24 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		return nil, obj.ErrNotFound("workshop not found")
 	}
 
-	// Check permission for this workshop's institution
-	if err := canAccessWorkshop(ctx, userID, OpRead, result.InstitutionID, &id, uuid.Nil); err != nil {
-		return nil, err
+	// Public workshops can be viewed by anyone
+	// Private workshops require institution membership
+	if !result.Public {
+		if err := canAccessWorkshop(ctx, userID, OpRead, result.InstitutionID, &id, uuid.Nil); err != nil {
+			return nil, err
+		}
 	}
 
-	// Fetch invites for this workshop
-	inviteRows, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: id, Valid: true})
-	if err != nil {
-		// Don't fail if we can't get invites, just return empty list
+	// Fetch invites for this workshop (only if user has permission)
+	var inviteRows []db.UserRoleInvite
+	if err := canAccessWorkshopInvites(ctx, userID, result.InstitutionID); err == nil {
+		inviteRows, err = queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: id, Valid: true})
+		if err != nil {
+			// Don't fail if we can't get invites, just return empty list
+			inviteRows = []db.UserRoleInvite{}
+		}
+	} else {
+		// User doesn't have permission to view invites, return empty list
 		inviteRows = []db.UserRoleInvite{}
 	}
 

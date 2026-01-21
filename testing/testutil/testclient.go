@@ -316,6 +316,56 @@ func (u *UserClient) RemoveMember(institutionID, userID string) error {
 	return u.Delete("institutions/" + institutionID + "/members/" + userID)
 }
 
+// CreateWorkshop creates a new workshop (composable high-level API)
+func (u *UserClient) CreateWorkshop(institutionID, name string) (obj.Workshop, error) {
+	u.t.Helper()
+	payload := map[string]interface{}{
+		"institutionId": institutionID,
+		"name":          name,
+		"active":        true,
+		"public":        false,
+	}
+	var result obj.Workshop
+	err := u.Post("workshops", payload, &result)
+	return result, err
+}
+
+// UpdateWorkshop updates a workshop (composable high-level API)
+func (u *UserClient) UpdateWorkshop(workshopID string, updates map[string]interface{}) (obj.Workshop, error) {
+	u.t.Helper()
+	var result obj.Workshop
+	err := u.Patch("workshops/"+workshopID, updates, &result)
+	return result, err
+}
+
+// GetWorkshop retrieves a workshop by ID (composable high-level API)
+func (u *UserClient) GetWorkshop(workshopID string) (obj.Workshop, error) {
+	u.t.Helper()
+	var result obj.Workshop
+	err := u.Get("workshops/"+workshopID, &result)
+	return result, err
+}
+
+// ListWorkshops lists workshops for an institution (composable high-level API)
+func (u *UserClient) ListWorkshops(institutionID string) ([]obj.Workshop, error) {
+	u.t.Helper()
+	var result []obj.Workshop
+	err := u.Get("workshops?institutionId="+institutionID, &result)
+	return result, err
+}
+
+// CreateWorkshopInvite creates a workshop invite (composable high-level API)
+func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	payload := map[string]interface{}{
+		"workshopId": workshopID,
+		"role":       role,
+	}
+	var result obj.UserRoleInvite
+	err := u.Post("invites/workshop", payload, &result)
+	return result, err
+}
+
 // MustGet performs GET and fails test on error
 func (u *UserClient) MustGet(endpoint string, out interface{}) {
 	u.t.Helper()

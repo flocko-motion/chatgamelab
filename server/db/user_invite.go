@@ -202,20 +202,24 @@ func CreateWorkshopInvite(
 	maxUses *int32,
 	expiresAt *time.Time,
 ) (obj.UserRoleInvite, error) {
-	// Check permission using centralized system
-	// Creating invites requires update permission on the workshop
-	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, uuid.Nil, &workshopID, uuid.Nil); err != nil {
-		return obj.UserRoleInvite{}, err
-	}
-
-	// Get workshop to look up institution_id
+	// Get workshop first to look up institution_id for permission check
 	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
 	if err != nil {
 		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
 	}
 
+	// Check permission using centralized system
+	// Creating invites requires update permission on the workshop
+	var createdByID uuid.UUID
+	if workshop.CreatedBy.Valid {
+		createdByID = workshop.CreatedBy.UUID
+	}
+	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, workshop.InstitutionID, &workshopID, createdByID); err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
-	inviteToken := functional.First(functional.GenerateSecureToken(32))
+	inviteToken := "ws-" + functional.First(functional.GenerateSecureToken(32))
 
 	arg := db.CreateOpenInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
