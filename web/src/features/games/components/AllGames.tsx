@@ -31,7 +31,7 @@ import { GameCard, type GameCardAction } from './GameCard';
 import { useGames, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
-import { type GameFilter, type GameSortField } from '@/features/play/types';
+import { type GameFilter } from '@/features/play/types';
 
 export function AllGames() {
   const { t } = useTranslation('common');
@@ -41,17 +41,20 @@ export function AllGames() {
   const { backendUser } = useAuth();
 
   const [filter, setFilter] = useState<GameFilter>('all');
-  const [sortField, setSortField] = useState<GameSortField>('modifiedAt');
+  const [sortValue, setSortValue] = useState('modifiedAt-desc');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
+  // Parse combined sort value into field and direction
+  const [sortField, sortDir] = sortValue.split('-') as [string, 'asc' | 'desc'];
+  
   // For favorites filter, we fetch all games and filter client-side using the favorites list
   const apiFilter = filter === 'favorites' ? 'all' : filter;
   
   const { data: rawGames, isLoading, isFetching, error } = useGames({
     search: debouncedSearch || undefined,
-    sortBy: sortField,
-    sortDir: 'desc',
+    sortBy: sortField as 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator',
+    sortDir,
     filter: apiFilter,
   });
 
@@ -295,11 +298,14 @@ export function AllGames() {
   ];
 
   const sortOptions: SortOption[] = [
-    { value: 'modifiedAt', label: t('games.sort.modifiedAt') },
-    { value: 'createdAt', label: t('games.sort.createdAt') },
-    { value: 'name', label: t('games.sort.name') },
-    { value: 'playCount', label: t('games.sort.playCount') },
-    { value: 'creator', label: t('games.sort.creator') },
+    { value: 'modifiedAt-desc', label: t('games.sort.modifiedAt-desc') },
+    { value: 'modifiedAt-asc', label: t('games.sort.modifiedAt-asc') },
+    { value: 'createdAt-desc', label: t('games.sort.createdAt-desc') },
+    { value: 'createdAt-asc', label: t('games.sort.createdAt-asc') },
+    { value: 'name-asc', label: t('games.sort.name-asc') },
+    { value: 'name-desc', label: t('games.sort.name-desc') },
+    { value: 'playCount-desc', label: t('games.sort.playCount-desc') },
+    { value: 'playCount-asc', label: t('games.sort.playCount-asc') },
   ];
 
   const hasData = rawGames !== undefined;
@@ -344,8 +350,8 @@ export function AllGames() {
               />
               <SortSelector
                 options={sortOptions}
-                value={sortField}
-                onChange={(v) => setSortField(v as GameSortField)}
+                value={sortValue}
+                onChange={setSortValue}
                 label={t('games.sort.label')}
               />
             </Group>

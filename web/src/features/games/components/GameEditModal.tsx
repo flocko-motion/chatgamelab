@@ -210,6 +210,7 @@ export function GameEditModal({
             minRows={6}
             autosize
             maxRows={12}
+            required
           />
           
           {/* Game Start */}
@@ -222,6 +223,7 @@ export function GameEditModal({
             minRows={4}
             autosize
             maxRows={8}
+            required
           />
 
           {/* Image Style */}
@@ -231,6 +233,7 @@ export function GameEditModal({
             value={imageStyle}
             onChange={(e) => setImageStyle(e.target.value)}
             placeholder="e.g., pixel art, watercolor, realistic..."
+            required
           />
 
           {/* Status Fields */}
