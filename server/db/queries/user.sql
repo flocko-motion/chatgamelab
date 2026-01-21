@@ -168,6 +168,18 @@ INSERT INTO user_role_invite (
 )
 RETURNING *;
 
+-- name: GetInvites :many
+SELECT * FROM user_role_invite 
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: GetInvitesByUser :many
+SELECT * FROM user_role_invite 
+WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
+  AND deleted_at IS NULL
+  AND status = 'pending'
+ORDER BY created_at DESC;
+
 -- name: GetInvitesByWorkshop :many
 SELECT * FROM user_role_invite 
 WHERE workshop_id = $1 AND deleted_at IS NULL

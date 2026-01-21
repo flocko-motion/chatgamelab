@@ -12,6 +12,89 @@ import (
 	"github.com/google/uuid"
 )
 
+// dbInviteToObj converts db.UserRoleInvite to obj.UserRoleInvite
+func dbInviteToObj(dbInv db.UserRoleInvite) obj.UserRoleInvite {
+	inv := obj.UserRoleInvite{
+		ID:            dbInv.ID,
+		InstitutionID: dbInv.InstitutionID,
+		Role:          obj.Role(dbInv.Role),
+		Status:        obj.InviteStatus(dbInv.Status),
+		UsesCount:     dbInv.UsesCount,
+	}
+
+	// Meta
+	inv.Meta.CreatedAt = &dbInv.CreatedAt
+	inv.Meta.ModifiedAt = &dbInv.ModifiedAt
+	if dbInv.CreatedBy.Valid {
+		inv.Meta.CreatedBy = uuid.NullUUID{UUID: dbInv.CreatedBy.UUID, Valid: true}
+	}
+	if dbInv.ModifiedBy.Valid {
+		inv.Meta.ModifiedBy = uuid.NullUUID{UUID: dbInv.ModifiedBy.UUID, Valid: true}
+	}
+
+	// Optional fields
+	if dbInv.WorkshopID.Valid {
+		inv.WorkshopID = &dbInv.WorkshopID.UUID
+	}
+	if dbInv.InvitedUserID.Valid {
+		inv.InvitedUserID = &dbInv.InvitedUserID.UUID
+	}
+	inv.InvitedEmail = sqlNullStringToMaybeString(dbInv.InvitedEmail)
+	inv.InviteToken = sqlNullStringToMaybeString(dbInv.InviteToken)
+	if dbInv.MaxUses.Valid {
+		inv.MaxUses = &dbInv.MaxUses.Int32
+	}
+	if dbInv.ExpiresAt.Valid {
+		inv.ExpiresAt = &dbInv.ExpiresAt.Time
+	}
+	if dbInv.AcceptedAt.Valid {
+		inv.AcceptedAt = &dbInv.AcceptedAt.Time
+	}
+	if dbInv.AcceptedBy.Valid {
+		inv.AcceptedBy = &dbInv.AcceptedBy.UUID
+	}
+
+	return inv
+}
+
+// GetInvites returns invites scoped by user permissions.
+// - Admins see all invites
+// - Regular users see only their own pending invites (targeted to them by user_id or email)
+func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, error) {
+	// Check permissions using centralized permission system
+	if err := canAccessInvite(ctx, userID, OpList); err != nil {
+		return nil, err
+	}
+
+	// Get user to determine scope
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	var dbInvites []db.UserRoleInvite
+
+	// Admin can see all invites
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		dbInvites, err = queries().GetInvites(ctx)
+	} else {
+		// Regular users only see their own pending invites
+		dbInvites, err = queries().GetInvitesByUser(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get invites: %w", err)
+	}
+
+	// Convert to obj.UserRoleInvite
+	invites := make([]obj.UserRoleInvite, len(dbInvites))
+	for i, dbInv := range dbInvites {
+		invites[i] = dbInviteToObj(dbInv)
+	}
+
+	return invites, nil
+}
+
 // CreateInstitutionInvite creates an invitation for a specific user (by user_id or email) to join an institution.
 // Only head and staff roles are allowed (use CreateWorkshopInvite for participant invites).
 // Either invitedUserID or invitedEmail must be provided.
@@ -24,26 +107,24 @@ func CreateInstitutionInvite(
 	role obj.Role,
 	invitedUserID *uuid.UUID,
 	invitedEmail *string,
-) (db.UserRoleInvite, error) {
+) (obj.UserRoleInvite, error) {
 	// Validate role - only head and staff allowed
 	if role != obj.RoleHead && role != obj.RoleStaff {
-		return db.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head or staff roles, got: %s", role)
+		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head or staff roles, got: %s", role)
 	}
 
 	// Validate that at least one target is provided
 	if invitedUserID == nil && invitedEmail == nil {
-		return db.UserRoleInvite{}, obj.ErrValidation("either invitedUserID or invitedEmail must be provided")
+		return obj.UserRoleInvite{}, obj.ErrValidation("either invitedUserID or invitedEmail must be provided")
 	}
 
 	// Check permission using centralized system
 	// Creating invites requires update permission on the institution
 	if err := canAccessInstitution(ctx, createdBy, OpUpdate, &institutionID); err != nil {
-		return db.UserRoleInvite{}, err
+		return obj.UserRoleInvite{}, err
 	}
 
-	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
-	inviteToken := functional.First(functional.GenerateSecureToken(32))
-
+	// Targeted invites don't use invite_token (constraint: either targeted OR open, not both)
 	arg := db.CreateTargetedInviteParams{
 		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
 		InstitutionID: institutionID,
@@ -51,15 +132,15 @@ func CreateInstitutionInvite(
 		WorkshopID:    uuid.NullUUID{}, // Institution invites don't have workshop scope
 		InvitedUserID: uuid.NullUUID{UUID: uuidPtrToUUID(invitedUserID), Valid: invitedUserID != nil},
 		InvitedEmail:  sql.NullString{String: functional.Deref(invitedEmail, ""), Valid: invitedEmail != nil},
-		InviteToken:   sql.NullString{String: inviteToken, Valid: true},
+		InviteToken:   sql.NullString{}, // NULL for targeted invites
 	}
 
 	result, err := queries().CreateTargetedInvite(ctx, arg)
 	if err != nil {
-		return db.UserRoleInvite{}, err
+		return obj.UserRoleInvite{}, err
 	}
 
-	return result, nil
+	return dbInviteToObj(result), nil
 }
 
 // CreateWorkshopInvite creates an invitation for unspecified users to join a workshop as participants.
@@ -73,17 +154,17 @@ func CreateWorkshopInvite(
 	workshopID uuid.UUID,
 	maxUses *int32,
 	expiresAt *time.Time,
-) (db.UserRoleInvite, error) {
+) (obj.UserRoleInvite, error) {
 	// Check permission using centralized system
 	// Creating invites requires update permission on the workshop
 	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, uuid.Nil, &workshopID, uuid.Nil); err != nil {
-		return db.UserRoleInvite{}, err
+		return obj.UserRoleInvite{}, err
 	}
 
 	// Get workshop to look up institution_id
 	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
 	if err != nil {
-		return db.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
+		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
 	}
 
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
@@ -101,10 +182,10 @@ func CreateWorkshopInvite(
 
 	result, err := queries().CreateOpenInvite(ctx, arg)
 	if err != nil {
-		return db.UserRoleInvite{}, err
+		return obj.UserRoleInvite{}, err
 	}
 
-	return result, nil
+	return dbInviteToObj(result), nil
 }
 
 // UpdateInviteStatus updates the status of an invite.

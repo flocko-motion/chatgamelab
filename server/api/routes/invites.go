@@ -41,6 +41,32 @@ type InviteResponse struct {
 	CreatedAt     string  `json:"createdAt"`
 }
 
+// ListInvites godoc
+//
+//	@Summary		List invites
+//	@Description	Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.
+//	@Tags			invites
+//	@Produce		json
+//	@Success		200		{array}		InviteResponse
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Security		BearerAuth
+//	@Router			/invites [get]
+func ListInvites(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	invites, err := db.GetInvites(r.Context(), user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, invites)
+}
+
 // CreateInstitutionInvite godoc
 //
 //	@Summary		Create institution invite

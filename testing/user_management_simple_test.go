@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"cgl/api/routes"
 	"cgl/obj"
 	"testing"
 
@@ -64,29 +65,38 @@ func (s *MultiUserTestSuite) TestUserManagement() {
 
 	// Step 5: Admin creates institution
 	var institution obj.Institution
-	clientAdmin.MustPost("institutions", map[string]string{
-		"name": "Test Institution",
+	clientAdmin.MustPost("institutions", routes.CreateInstitutionRequest{
+		Name: "Test Institution",
 	}, &institution)
 	s.NotEmpty(institution.ID)
 	s.Equal("Test Institution", institution.Name)
 	s.T().Logf("Created institution: %s (ID: %s)", institution.Name, institution.ID)
 
 	// Step 6: Admin invites harry to institution as head
+	harryUserID := clientHarry.ID
 	var harryInvite obj.UserRoleInvite
-	clientAdmin.MustPost("invites/institution", map[string]interface{}{
-		"institutionId": institution.ID.String(),
-		"role":          string(obj.RoleHead),
-		"invitedUserId": clientHarry.ID,
+	clientAdmin.MustPost("invites/institution", routes.CreateInstitutionInviteRequest{
+		InstitutionID: institution.ID.String(),
+		Role:          string(obj.RoleHead),
+		InvitedUserID: &harryUserID,
 	}, &harryInvite)
 	s.NotEmpty(harryInvite.ID)
 	s.Equal(obj.InviteStatusPending, harryInvite.Status)
 	s.T().Logf("Created invite for harry: %s", harryInvite.ID)
 
+	// admin can see the invite
+	var adminInvites []obj.UserRoleInvite
+	clientAdmin.MustGet("invites", &adminInvites)
+	s.Equal(1, len(adminInvites), "admin should see 1 pending invite")
+	s.Equal(harryInvite.ID, adminInvites[0].ID)
+	s.T().Logf("Admin sees %d pending invite(s)", len(adminInvites))
+
 	// Step 7: Harry sees invitation
-	// TODO: Add endpoint GET /users/me/invites to list pending invites for current user
-	// var harryInvites []obj.UserRoleInvite
-	// clientHarry.MustGet("users/me/invites", &harryInvites)
-	// s.Contains(harryInvites, harryInvite)
+	var harryInvites []obj.UserRoleInvite
+	clientHarry.MustGet("invites", &harryInvites)
+	s.Equal(1, len(harryInvites), "harry should see 1 pending invite")
+	s.Equal(harryInvite.ID, harryInvites[0].ID)
+	s.T().Logf("Harry sees %d pending invite(s)", len(harryInvites))
 
 	// Step 8: Harry accepts invitation
 	var acceptedInvite obj.UserRoleInvite
@@ -109,22 +119,31 @@ func (s *MultiUserTestSuite) TestUserManagement() {
 	s.NotNil(harryUser.Role.Institution)
 	s.Equal(institution.ID, harryUser.Role.Institution.ID)
 
+	// Verify that admin can see that harry accepted the invite
+	clientAdmin.MustGet("invites", &adminInvites)
+	s.Equal(1, len(adminInvites), "admin should still see 1 invite")
+	s.Equal(harryInvite.ID, adminInvites[0].ID)
+	s.Equal(obj.InviteStatusAccepted, adminInvites[0].Status, "invite should be accepted")
+	s.T().Logf("Admin sees invite with status: %s", adminInvites[0].Status)
+
 	// Step 10: Harry invites tanja to institution as staff
+	tanjaUserID := clientTanja.ID
 	var tanjaInvite obj.UserRoleInvite
-	clientHarry.MustPost("invites/institution", map[string]interface{}{
-		"institutionId": institution.ID.String(),
-		"role":          string(obj.RoleStaff),
-		"invitedUserId": clientTanja.ID,
+	clientHarry.MustPost("invites/institution", routes.CreateInstitutionInviteRequest{
+		InstitutionID: institution.ID.String(),
+		Role:          string(obj.RoleStaff),
+		InvitedUserID: &tanjaUserID,
 	}, &tanjaInvite)
 	s.NotEmpty(tanjaInvite.ID)
 	s.Equal(obj.InviteStatusPending, tanjaInvite.Status)
 	s.T().Logf("Harry created invite for tanja: %s", tanjaInvite.ID)
 
 	// Step 11: Tanja sees invitation
-	// TODO: Add endpoint GET /users/me/invites to list pending invites for current user
-	// var tanjaInvites []obj.UserRoleInvite
-	// clientTanja.MustGet("users/me/invites", &tanjaInvites)
-	// s.Contains(tanjaInvites, tanjaInvite)
+	var tanjaInvites []obj.UserRoleInvite
+	clientTanja.MustGet("invites", &tanjaInvites)
+	s.Equal(1, len(tanjaInvites), "tanja should see 1 pending invite")
+	s.Equal(tanjaInvite.ID, tanjaInvites[0].ID)
+	s.T().Logf("Tanja sees %d pending invite(s)", len(tanjaInvites))
 
 	// Step 12: Tanja accepts invitation
 	var tanjaAcceptedInvite obj.UserRoleInvite

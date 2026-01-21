@@ -79,6 +79,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/workshops/{id}", httpx.RequireAuth(DeleteWorkshop))
 
 	// Invites
+	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/institution/{idOrToken}/accept", httpx.RequireAuth(AcceptInstitutionInvite))
 	mux.Handle("POST /api/invites/institution/{idOrToken}/decline", httpx.RequireAuth(DeclineInstitutionInvite))

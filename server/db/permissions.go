@@ -521,3 +521,26 @@ func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
 
 	return nil
 }
+
+// canAccessInvite checks if user can perform a CRUD operation on invites
+// - operation: the type of CRUD operation (list only for now)
+func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation) error {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	// Admin can do everything
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	switch operation {
+	case OpList:
+		// Regular users can list their own pending invites (filtered in query)
+		return nil
+
+	default:
+		return obj.ErrForbidden("unknown operation")
+	}
+}
