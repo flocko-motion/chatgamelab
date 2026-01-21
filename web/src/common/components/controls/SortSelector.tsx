@@ -27,6 +27,7 @@ export interface SortSelectorProps {
   onChange: (value: string) => void;
   label?: string;
   placeholder?: string;
+  width?: number;
 }
 
 export function SortSelector({ 
@@ -35,6 +36,7 @@ export function SortSelector({
   onChange, 
   label,
   placeholder,
+  width = 200,
 }: SortSelectorProps) {
   return (
     <Select
@@ -42,9 +44,11 @@ export function SortSelector({
       onChange={(v) => v && onChange(v)}
       data={options}
       size="sm"
-      w={180}
+      w={width}
       aria-label={label}
       placeholder={placeholder}
+      maxDropdownHeight={400}
+      comboboxProps={{ position: 'bottom-end' }}
       renderOption={({ option }) => (
         <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <span style={{ fontWeight: option.value === value ? 600 : 400 }}>{option.label}</span>

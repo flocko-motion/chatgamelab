@@ -3,7 +3,6 @@ import {
   Group,
   Box,
   Burger,
-  ActionIcon,
   Drawer,
   Stack,
   Divider,
@@ -21,13 +20,13 @@ import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
 import { useAuth } from '../../../providers/AuthProvider';
 import {
   IconSettings,
-  IconBell,
   IconUser,
   IconLogout,
   IconKey,
   IconMessage,
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { VersionDisplay } from '../VersionDisplay';
 import { DropdownMenu } from '../DropdownMenu';
 import { UserAvatar } from '../UserAvatar';
 import { getUserAvatarColor } from '@/common/lib/userUtils';
@@ -45,7 +44,6 @@ export interface NavItem {
 
 export interface AppHeaderProps {
   navItems?: NavItem[];
-  onNotificationsClick?: () => void;
   onSettingsClick?: () => void;
   onProfileClick?: () => void;
   onApiKeysClick?: () => void;
@@ -97,12 +95,11 @@ function DesktopNavigation({ items }: { items: NavItem[] }) {
 }
 
 function UserActions({
-  onNotificationsClick,
   onSettingsClick,
   onProfileClick,
   onApiKeysClick,
   onLogoutClick,
-}: Pick<AppHeaderProps, 'onNotificationsClick' | 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick'>) {
+}: Pick<AppHeaderProps, 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick'>) {
   const { t } = useTranslation('common');
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
@@ -214,21 +211,6 @@ function UserActions({
         </UnstyledButton>
       </Tooltip>
       <Box w="lg" />
-      <ActionIcon
-        variant="subtle"
-        size="lg"
-        c="white"
-        onClick={onNotificationsClick}
-        aria-label={t('header.viewNotifications')}
-        styles={{
-          root: {
-            '&:hover': { backgroundColor: theme.other.layout.bgHover },
-            '&:active': { backgroundColor: theme.other.layout.bgActive },
-          },
-        }}
-      >
-        <IconBell size={20} />
-      </ActionIcon>
       <LanguageSwitcher size="sm" variant="compact" />
       <DropdownMenu
         trigger={userAvatar}
@@ -241,14 +223,12 @@ function UserActions({
 
 function MobileNavigation({
   items,
-  onNotificationsClick,
   onSettingsClick,
   onProfileClick,
   onLogoutClick,
   onClose,
 }: {
   items: NavItem[];
-  onNotificationsClick?: () => void;
   onSettingsClick?: () => void;
   onProfileClick?: () => void;
   onLogoutClick?: () => void;
@@ -320,25 +300,6 @@ function MobileNavigation({
 
           <UnstyledButton
             onClick={() => {
-              onNotificationsClick?.();
-              onClose();
-            }}
-            py="sm"
-            px="lg"
-            style={{
-              borderRadius: 'var(--mantine-radius-md)',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-            }}
-          >
-            <IconBell size={20} />
-            <Text size="md" fw={500}>{t('notifications')}</Text>
-          </UnstyledButton>
-
-          <UnstyledButton
-            onClick={() => {
               onProfileClick?.();
               onClose();
             }}
@@ -394,9 +355,10 @@ function MobileNavigation({
 
         <Divider my="xs" color={theme.other.layout.lineLight} />
 
-        <Box px="lg">
+        <Group px="lg" justify="space-between">
+          <VersionDisplay darkMode />
           <LanguageSwitcher size="sm" variant="compact" />
-        </Box>
+        </Group>
       </Box>
     </Box>
   );
@@ -404,7 +366,6 @@ function MobileNavigation({
 
 export function AppHeader({
   navItems = [],
-  onNotificationsClick,
   onSettingsClick,
   onProfileClick,
   onApiKeysClick,
@@ -469,7 +430,6 @@ export function AppHeader({
         </Box>
         <Box ref={measureActionsRef} style={{ display: 'inline-block' }}>
           <UserActions
-            onNotificationsClick={onNotificationsClick}
             onSettingsClick={onSettingsClick}
             onProfileClick={onProfileClick}
             onApiKeysClick={onApiKeysClick}
@@ -533,7 +493,6 @@ export function AppHeader({
             {/* Desktop: Full user actions */}
             {!forceMobile && (
               <UserActions
-                onNotificationsClick={onNotificationsClick}
                 onSettingsClick={onSettingsClick}
                 onProfileClick={onProfileClick}
                 onApiKeysClick={onApiKeysClick}
@@ -598,7 +557,6 @@ export function AppHeader({
       >
         <MobileNavigation
           items={navItems}
-          onNotificationsClick={onNotificationsClick}
           onSettingsClick={onSettingsClick}
           onProfileClick={onProfileClick}
           onLogoutClick={onLogoutClick}
