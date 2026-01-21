@@ -92,6 +92,19 @@ WHERE id = $1;
 -- name: DeleteUserRoles :exec
 DELETE FROM user_role WHERE user_id = $1;
 
+-- name: DeleteUserRole :exec
+DELETE FROM user_role WHERE user_id = $1;
+
+-- name: GetUsersByInstitution :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  ur.id as role_id, ur.role as role_role
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.institution_id = $1
+  AND u.deleted_at IS NULL;
+
 -- name: CreateUserRole :one
 INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
 VALUES (gen_random_uuid(), $1, $2, $3, $4)

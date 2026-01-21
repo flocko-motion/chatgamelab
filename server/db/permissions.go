@@ -47,23 +47,12 @@ func canAccessInstitution(ctx context.Context, userID uuid.UUID, operation CRUDO
 		return obj.ErrForbidden("only admins, heads, or staff can list institutions")
 
 	case OpRead:
-		// Admin can read any institution
-		// Members (head/staff/participant) can read their institution
+		// Anyone can read institution public data (name, ID, etc.)
+		// Members list is conditionally included based on canAccessInstitutionMembers
 		if institutionID == nil {
 			return obj.ErrValidation("institutionID required for read operation")
 		}
-		if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == *institutionID {
-			return nil
-		}
-		// Participants with workshop role can read the institution that owns the workshop
-		if user.Role != nil && user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil {
-			// Need to load workshop to check its institution
-			workshop, err := queries().GetWorkshopByID(ctx, user.Role.Workshop.ID)
-			if err == nil && workshop.InstitutionID == *institutionID {
-				return nil
-			}
-		}
-		return obj.ErrForbidden("not authorized to read this institution")
+		return nil
 
 	case OpUpdate:
 		// Admin can update any institution
@@ -81,6 +70,46 @@ func canAccessInstitution(ctx context.Context, userID uuid.UUID, operation CRUDO
 	case OpDelete:
 		// Only admin can delete institutions
 		return obj.ErrForbidden("only admins can delete institutions")
+
+	default:
+		return obj.ErrForbidden("unknown operation")
+	}
+}
+
+// canAccessInstitutionMembers checks if user can perform operations on institution members
+// - operation: OpRead (list members) or OpDelete (remove member)
+// - institutionID: the institution ID
+// - targetUserID: the user being accessed (for delete operations, nil for list)
+func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operation CRUDOperation, institutionID uuid.UUID, targetUserID *uuid.UUID) error {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	// Admin can do everything
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	switch operation {
+	case OpRead:
+		// Members can view other members of their institution
+		if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+			return nil
+		}
+		return obj.ErrForbidden("only members can view institution members")
+
+	case OpDelete:
+		// Only heads can remove members (admins already handled above)
+		if user.Role != nil && user.Role.Role == obj.RoleHead &&
+			user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+			// Can't remove yourself
+			if targetUserID != nil && *targetUserID == userID {
+				return obj.ErrValidation("cannot remove yourself from the institution")
+			}
+			return nil
+		}
+		return obj.ErrForbidden("only heads or admins can remove members")
 
 	default:
 		return obj.ErrForbidden("unknown operation")
@@ -487,29 +516,6 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 	default:
 		return obj.ErrForbidden("unknown operation")
 	}
-}
-
-// canViewInstitutionMembers checks if user can view members of an institution
-// Returns true if user is admin OR head/staff of this institution
-func canViewInstitutionMembers(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) bool {
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return false
-	}
-
-	// Admin can view all
-	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		return true
-	}
-
-	// Head or Staff of this institution can view
-	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
-		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
-			return true
-		}
-	}
-
-	return false
 }
 
 // canManageUserRole checks if user can manage (set/remove) roles

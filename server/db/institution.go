@@ -68,7 +68,7 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 	}
 
 	// Load members if user has permission (admin, head, or staff of this institution)
-	if canViewInstitutionMembers(ctx, userID, id) {
+	if err := canAccessInstitutionMembers(ctx, userID, OpRead, id, nil); err == nil {
 		members, err := loadInstitutionMembers(ctx, id)
 		if err == nil {
 			institution.Members = members
@@ -206,5 +206,65 @@ func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) e
 	if err != nil {
 		return obj.ErrServerError("failed to delete institution")
 	}
+	return nil
+}
+
+// GetInstitutionMembers returns all members of an institution
+func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID uuid.UUID) ([]obj.User, error) {
+	// Check permission - must be a member or admin to view members
+	if err := canAccessInstitutionMembers(ctx, userID, OpRead, institutionID, nil); err != nil {
+		return nil, err
+	}
+
+	// Get all users with roles in this institution
+	dbUsers, err := queries().GetUsersByInstitution(ctx, uuid.NullUUID{UUID: institutionID, Valid: true})
+	if err != nil {
+		return nil, obj.ErrServerError("failed to get institution members")
+	}
+
+	users := make([]obj.User, len(dbUsers))
+	for i, dbUser := range dbUsers {
+		var email *string
+		if dbUser.Email.Valid {
+			email = &dbUser.Email.String
+		}
+
+		users[i] = obj.User{
+			ID:    dbUser.ID,
+			Name:  dbUser.Name,
+			Email: email,
+			Meta: obj.Meta{
+				CreatedBy:  dbUser.CreatedBy,
+				CreatedAt:  &dbUser.CreatedAt,
+				ModifiedBy: dbUser.ModifiedBy,
+				ModifiedAt: &dbUser.ModifiedAt,
+			},
+		}
+
+		// Add role information if available
+		if dbUser.RoleID.Valid {
+			users[i].Role = &obj.UserRole{
+				ID:   dbUser.RoleID.UUID,
+				Role: obj.Role(dbUser.RoleRole.String),
+			}
+		}
+	}
+
+	return users, nil
+}
+
+// RemoveInstitutionMember removes a member from an institution
+func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, memberUserID uuid.UUID, requestingUserID uuid.UUID) error {
+	// Check permission - must be head or admin to remove members
+	if err := canAccessInstitutionMembers(ctx, requestingUserID, OpDelete, institutionID, &memberUserID); err != nil {
+		return err
+	}
+
+	// Delete the user's role (which removes them from the institution)
+	err := queries().DeleteUserRole(ctx, memberUserID)
+	if err != nil {
+		return obj.ErrServerError("failed to remove member")
+	}
+
 	return nil
 }

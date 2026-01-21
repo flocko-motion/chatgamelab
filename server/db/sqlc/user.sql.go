@@ -304,6 +304,15 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteUserRole = `-- name: DeleteUserRole :exec
+DELETE FROM user_role WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserRole(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserRole, userID)
+	return err
+}
+
 const deleteUserRoles = `-- name: DeleteUserRoles :exec
 
 DELETE FROM user_role WHERE user_id = $1
@@ -724,6 +733,62 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getUsersByInstitution = `-- name: GetUsersByInstitution :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  ur.id as role_id, ur.role as role_role
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.institution_id = $1
+  AND u.deleted_at IS NULL
+`
+
+type GetUsersByInstitutionRow struct {
+	ID         uuid.UUID
+	Name       string
+	Email      sql.NullString
+	CreatedBy  uuid.NullUUID
+	CreatedAt  time.Time
+	ModifiedBy uuid.NullUUID
+	ModifiedAt time.Time
+	RoleID     uuid.NullUUID
+	RoleRole   sql.NullString
+}
+
+func (q *Queries) GetUsersByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]GetUsersByInstitutionRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersByInstitutionRow
+	for rows.Next() {
+		var i GetUsersByInstitutionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.RoleID,
+			&i.RoleRole,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const hasWorkshopRole = `-- name: HasWorkshopRole :one

@@ -197,3 +197,80 @@ func DeleteInstitution(w http.ResponseWriter, r *http.Request) {
 		"message": "Institution deleted",
 	})
 }
+
+// GetInstitutionMembers godoc
+//
+//	@Summary		Get institution members
+//	@Description	Returns all members of an institution
+//	@Tags			institutions
+//	@Produce		json
+//	@Param			id	path		string	true	"Institution ID"
+//	@Success		200	{array}		obj.User
+//	@Failure		403	{object}	httpx.ErrorResponse
+//	@Failure		404	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/members [get]
+func GetInstitutionMembers(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	members, err := db.GetInstitutionMembers(r.Context(), institutionID, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, members)
+}
+
+// RemoveInstitutionMember godoc
+//
+//	@Summary		Remove member from institution
+//	@Description	Removes a member from an institution (head or admin only)
+//	@Tags			institutions
+//	@Produce		json
+//	@Param			id		path		string	true	"Institution ID"
+//	@Param			userID	path		string	true	"User ID"
+//	@Success		200		{object}	map[string]string
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/members/{userID} [delete]
+func RemoveInstitutionMember(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	userID, err := httpx.PathParamUUID(r, "userID")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid user ID"))
+		return
+	}
+
+	err = db.RemoveInstitutionMember(r.Context(), institutionID, userID, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Member removed",
+	})
+}

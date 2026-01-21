@@ -310,6 +310,12 @@ func (u *UserClient) GetUsers() ([]obj.User, error) {
 	return result, err
 }
 
+// RemoveMember removes a member from an institution (composable high-level API)
+func (u *UserClient) RemoveMember(institutionID, userID string) error {
+	u.t.Helper()
+	return u.Delete("institutions/" + institutionID + "/members/" + userID)
+}
+
 // MustGet performs GET and fails test on error
 func (u *UserClient) MustGet(endpoint string, out interface{}) {
 	u.t.Helper()
