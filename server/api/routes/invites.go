@@ -67,6 +67,53 @@ func ListInvites(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, invites)
 }
 
+// GetInvite godoc
+//
+//	@Summary		Get invite by ID or token
+//	@Description	Retrieves a specific invite. Auto-detects whether parameter is a UUID (ID) or string (token). Admins can see any invite, regular users can only see invites targeted to them or created by them.
+//	@Tags			invites
+//	@Produce		json
+//	@Param			idOrToken	path		string	true	"Invite ID (UUID) or token"
+//	@Success		200			{object}	obj.UserRoleInvite
+//	@Failure		401			{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403			{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404			{object}	httpx.ErrorResponse	"Not found"
+//	@Security		BearerAuth
+//	@Router			/invites/{idOrToken} [get]
+func GetInvite(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	idOrToken := httpx.PathParam(r, "idOrToken")
+	if idOrToken == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("Missing invite ID or token"))
+		return
+	}
+
+	// Try to parse as UUID first
+	var invite obj.UserRoleInvite
+	var err error
+
+	inviteID, parseErr := uuid.Parse(idOrToken)
+	if parseErr == nil {
+		// It's a UUID - get by ID
+		invite, err = db.GetInviteByID(r.Context(), user.ID, inviteID)
+	} else {
+		// Not a UUID - treat as token
+		invite, err = db.GetInviteByToken(r.Context(), user.ID, idOrToken)
+	}
+
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, invite)
+}
+
 // CreateInstitutionInvite godoc
 //
 //	@Summary		Create institution invite
@@ -177,38 +224,31 @@ func CreateWorkshopInvite(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, invite)
 }
 
-// AcceptInstitutionInvite godoc
+// AcceptInvite godoc
 //
-//	@Summary		Accept institution invite
-//	@Description	Accepts a targeted institution invite by ID or token
+//	@Summary		Accept invite
+//	@Description	Accepts an invite by ID. Use GET /invites/{token} to look up the ID first if you have a token.
 //	@Tags			invites
 //	@Produce		json
-//	@Param			idOrToken	path		string	true	"Invite ID (UUID) or token"
-//	@Success		200			{object}	map[string]string
-//	@Failure		400			{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		403			{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		404			{object}	httpx.ErrorResponse	"Not found"
+//	@Param			id	path		string	true	"Invite ID (UUID)"
+//	@Success		200	{object}	obj.UserRoleInvite
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Not found"
 //	@Security		BearerAuth
-//	@Router			/invites/institution/{idOrToken}/accept [post]
-func AcceptInstitutionInvite(w http.ResponseWriter, r *http.Request) {
+//	@Router			/invites/{id}/accept [post]
+func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	idOrToken := httpx.PathParam(r, "idOrToken")
-	if idOrToken == "" {
-		httpx.WriteAppError(w, obj.ErrValidation("Missing idOrToken parameter"))
+	idStr := httpx.PathParam(r, "id")
+	inviteID, err := uuid.Parse(idStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid invite ID"))
 		return
 	}
 
-	// Try to parse as UUID first
-	inviteID, err := uuid.Parse(idOrToken)
-	var token string
-	if err != nil {
-		// Not a UUID, treat as token
-		token = idOrToken
-		inviteID = uuid.Nil
-	}
-
-	roleID, err := db.AcceptTargetedInvite(r.Context(), inviteID, token, user.ID)
+	// First, get the invite to determine its type
+	invite, err := db.GetInviteByID(r.Context(), user.ID, inviteID)
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
@@ -218,44 +258,57 @@ func AcceptInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{
-		"roleId":  roleID.String(),
-		"message": "Invite accepted successfully",
+	// Determine invite type and accept accordingly
+	var acceptErr error
+	if invite.InviteToken != nil {
+		// Open invite (workshop) - accept by token
+		_, acceptErr = db.AcceptOpenInvite(r.Context(), *invite.InviteToken, user.ID)
+	} else {
+		// Targeted invite (institution) - accept by ID
+		_, acceptErr = db.AcceptTargetedInvite(r.Context(), inviteID, "", user.ID)
+	}
+
+	if acceptErr != nil {
+		if appErr, ok := acceptErr.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+		return
+	}
+
+	// Success - return accepted status
+	httpx.WriteJSON(w, http.StatusOK, obj.UserRoleInvite{
+		ID:     inviteID,
+		Status: obj.InviteStatusAccepted,
 	})
 }
 
-// DeclineInstitutionInvite godoc
+// DeclineInvite godoc
 //
-//	@Summary		Decline institution invite
-//	@Description	Declines a targeted institution invite by ID or token
+//	@Summary		Decline invite
+//	@Description	Declines an invite by ID
 //	@Tags			invites
 //	@Produce		json
-//	@Param			idOrToken	path		string	true	"Invite ID (UUID) or token"
-//	@Success		200			{object}	map[string]string
-//	@Failure		400			{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		403			{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		404			{object}	httpx.ErrorResponse	"Not found"
+//	@Param			id	path		string	true	"Invite ID (UUID)"
+//	@Success		200	{object}	obj.UserRoleInvite
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Not found"
 //	@Security		BearerAuth
-//	@Router			/invites/institution/{idOrToken}/decline [post]
-func DeclineInstitutionInvite(w http.ResponseWriter, r *http.Request) {
+//	@Router			/invites/{id}/decline [post]
+func DeclineInvite(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	idOrToken := httpx.PathParam(r, "idOrToken")
-	if idOrToken == "" {
-		httpx.WriteAppError(w, obj.ErrValidation("Missing idOrToken parameter"))
+	idStr := httpx.PathParam(r, "id")
+	inviteID, err := uuid.Parse(idStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid invite ID"))
 		return
 	}
 
-	// Try to parse as UUID first
-	inviteID, err := uuid.Parse(idOrToken)
-	var token string
-	if err != nil {
-		// Not a UUID, treat as token
-		token = idOrToken
-		inviteID = uuid.Nil
-	}
-
-	err = db.DeclineTargetedInvite(r.Context(), inviteID, token, user.ID)
+	// First, get the invite to validate permissions
+	_, err = db.GetInviteByID(r.Context(), user.ID, inviteID)
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
@@ -265,33 +318,8 @@ func DeclineInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{
-		"message": "Invite declined",
-	})
-}
-
-// AcceptWorkshopInvite godoc
-//
-//	@Summary		Accept workshop invite
-//	@Description	Accepts an open workshop invite by token
-//	@Tags			invites
-//	@Produce		json
-//	@Param			token	path		string	true	"Invite token"
-//	@Success		200		{object}	map[string]string
-//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		404		{object}	httpx.ErrorResponse	"Not found"
-//	@Security		BearerAuth
-//	@Router			/invites/workshop/{token}/accept [post]
-func AcceptWorkshopInvite(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
-
-	token := httpx.PathParam(r, "token")
-	if token == "" {
-		httpx.WriteAppError(w, obj.ErrValidation("Missing token parameter"))
-		return
-	}
-
-	roleID, err := db.AcceptOpenInvite(r.Context(), token, user.ID)
+	// Decline the invite (works for both targeted and open invites)
+	err = db.DeclineTargetedInvite(r.Context(), inviteID, "", user.ID)
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
@@ -301,9 +329,10 @@ func AcceptWorkshopInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, map[string]string{
-		"roleId":  roleID.String(),
-		"message": "Joined workshop successfully",
+	// Success - return declined status
+	httpx.WriteJSON(w, http.StatusOK, obj.UserRoleInvite{
+		ID:     inviteID,
+		Status: obj.InviteStatusDeclined,
 	})
 }
 

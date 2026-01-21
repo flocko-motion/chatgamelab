@@ -100,7 +100,7 @@ func (s *MultiUserTestSuite) TestUserManagement() {
 
 	// Step 8: Harry accepts invitation
 	var acceptedInvite obj.UserRoleInvite
-	clientHarry.MustPost("invites/institution/"+harryInvite.ID.String()+"/accept", nil, &acceptedInvite)
+	clientHarry.MustPost("invites/"+harryInvite.ID.String()+"/accept", nil, &acceptedInvite)
 	s.Equal(obj.InviteStatusAccepted, acceptedInvite.Status)
 	s.T().Logf("Harry accepted invite")
 
@@ -147,7 +147,7 @@ func (s *MultiUserTestSuite) TestUserManagement() {
 
 	// Step 12: Tanja accepts invitation
 	var tanjaAcceptedInvite obj.UserRoleInvite
-	clientTanja.MustPost("invites/institution/"+tanjaInvite.ID.String()+"/accept", nil, &tanjaAcceptedInvite)
+	clientTanja.MustPost("invites/"+tanjaInvite.ID.String()+"/accept", nil, &tanjaAcceptedInvite)
 	s.Equal(obj.InviteStatusAccepted, tanjaAcceptedInvite.Status)
 	s.T().Logf("Tanja accepted invite")
 

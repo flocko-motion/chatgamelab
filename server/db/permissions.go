@@ -1,6 +1,7 @@
 package db
 
 import (
+	sqlc "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
 
@@ -38,8 +39,12 @@ func canAccessInstitution(ctx context.Context, userID uuid.UUID, operation CRUDO
 		return obj.ErrForbidden("only admins can create institutions")
 
 	case OpList:
-		// Only admin can list all institutions
-		return obj.ErrForbidden("only admins can list institutions")
+		// Admin can list all institutions
+		// Heads and staff can list institutions they're members of (filtered in query)
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
+			return nil
+		}
+		return obj.ErrForbidden("only admins, heads, or staff can list institutions")
 
 	case OpRead:
 		// Admin can read any institution
@@ -523,8 +528,10 @@ func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
 }
 
 // canAccessInvite checks if user can perform a CRUD operation on invites
-// - operation: the type of CRUD operation (list only for now)
-func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation) error {
+// - operation: the type of CRUD operation
+// - inviteID: pointer to the invite (nil for list operations)
+// - dbInvite: pointer to the database invite record (for read operations)
+func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation, dbInvite *sqlc.UserRoleInvite) error {
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return obj.ErrNotFound("user not found")
@@ -539,6 +546,28 @@ func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 	case OpList:
 		// Regular users can list their own pending invites (filtered in query)
 		return nil
+
+	case OpRead:
+		// Check if user can access this specific invite
+		if dbInvite == nil {
+			return obj.ErrValidation("invite required for read operation")
+		}
+
+		// User is the invited user (by ID or email)
+		isInvitedUser := (dbInvite.InvitedUserID.Valid && dbInvite.InvitedUserID.UUID == userID) ||
+			(dbInvite.InvitedEmail.Valid && user.Email != nil && *user.Email == dbInvite.InvitedEmail.String)
+
+		// User is the creator
+		isCreator := dbInvite.CreatedBy.Valid && dbInvite.CreatedBy.UUID == userID
+
+		// For open invites (no specific user), anyone can read
+		isOpenInvite := !dbInvite.InvitedUserID.Valid && !dbInvite.InvitedEmail.Valid
+
+		if isInvitedUser || isCreator || isOpenInvite {
+			return nil
+		}
+
+		return obj.ErrForbidden("not authorized to view this invite")
 
 	default:
 		return obj.ErrForbidden("unknown operation")

@@ -57,12 +57,59 @@ func dbInviteToObj(dbInv db.UserRoleInvite) obj.UserRoleInvite {
 	return inv
 }
 
+// GetInviteByToken retrieves a specific invite by token
+// - Anyone can look up an invite by token (for open invites)
+// - For targeted invites with tokens, user must be the invited user
+func GetInviteByToken(ctx context.Context, userID uuid.UUID, token string) (obj.UserRoleInvite, error) {
+	// Get the invite by token
+	dbInvite, err := queries().GetInviteByToken(ctx, sql.NullString{String: token, Valid: true})
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrNotFound("invite not found")
+	}
+
+	// Check permissions using centralized permission system
+	if err := canAccessInvite(ctx, userID, OpRead, &dbInvite); err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+
+	return dbInviteToObj(dbInvite), nil
+}
+
+// GetInviteByID retrieves a specific invite by ID
+// - Admins can see any invite
+// - Regular users can only see invites targeted to them
+func GetInviteByID(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID) (obj.UserRoleInvite, error) {
+	// Get the invite
+	dbInvite, err := queries().GetInviteByID(ctx, inviteID)
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrNotFound("invite not found")
+	}
+
+	// Get user to check permissions
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrNotFound("user not found")
+	}
+
+	// Check if user can access this invite
+	isAdmin := user.Role != nil && user.Role.Role == obj.RoleAdmin
+	isInvitedUser := (dbInvite.InvitedUserID.Valid && dbInvite.InvitedUserID.UUID == userID) ||
+		(dbInvite.InvitedEmail.Valid && user.Email != nil && *user.Email == dbInvite.InvitedEmail.String)
+	isCreator := dbInvite.CreatedBy.Valid && dbInvite.CreatedBy.UUID == userID
+
+	if !isAdmin && !isInvitedUser && !isCreator {
+		return obj.UserRoleInvite{}, obj.ErrForbidden("not authorized to view this invite")
+	}
+
+	return dbInviteToObj(dbInvite), nil
+}
+
 // GetInvites returns invites scoped by user permissions.
 // - Admins see all invites
 // - Regular users see only their own pending invites (targeted to them by user_id or email)
 func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, error) {
 	// Check permissions using centralized permission system
-	if err := canAccessInvite(ctx, userID, OpList); err != nil {
+	if err := canAccessInvite(ctx, userID, OpList, nil); err != nil {
 		return nil, err
 	}
 

@@ -103,16 +103,39 @@ func loadInstitutionMembers(ctx context.Context, institutionID uuid.UUID) ([]obj
 	return members, nil
 }
 
-// ListInstitutions retrieves all non-deleted institutions (admin only)
+// ListInstitutions retrieves institutions based on user permissions
+// - Admins see all institutions
+// - Heads/staff see only their own institution
 func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution, error) {
 	// Check permission
 	if err := canAccessInstitution(ctx, userID, OpList, nil); err != nil {
 		return nil, err
 	}
 
-	results, err := queries().ListInstitutions(ctx)
+	// Get user to check role
+	user, err := GetUserByID(ctx, userID)
 	if err != nil {
-		return nil, obj.ErrServerError("failed to list institutions")
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	var results []db.Institution
+
+	// Admin can see all institutions
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		results, err = queries().ListInstitutions(ctx)
+		if err != nil {
+			return nil, obj.ErrServerError("failed to list institutions")
+		}
+	} else if user.Role != nil && user.Role.Institution != nil {
+		// Head/staff can only see their own institution
+		inst, err := queries().GetInstitutionByID(ctx, user.Role.Institution.ID)
+		if err != nil {
+			return nil, obj.ErrServerError("failed to get institution")
+		}
+		results = []db.Institution{inst}
+	} else {
+		// User has no institution role
+		return []obj.Institution{}, nil
 	}
 
 	institutions := make([]obj.Institution, 0, len(results))
