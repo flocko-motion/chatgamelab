@@ -12,7 +12,6 @@ export type {
   ThemeColor,
   CardBgColor,
   FontColor,
-  MilkGlass,
   CardBorderThickness,
   BackgroundAnimation,
   BackgroundTint,
