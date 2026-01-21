@@ -155,12 +155,18 @@
       },
       "sort": {
         "label": "Sortieren nach",
-        "name": "Name",
-        "createdAt": "Erstellt",
-        "modifiedAt": "Zuletzt geändert",
-        "playCount": "Gespielt",
-        "visibility": "Sichtbarkeit",
-        "creator": "Ersteller"
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "createdAt-desc": "Erstellt (Neueste)",
+        "createdAt-asc": "Erstellt (Älteste)",
+        "modifiedAt-desc": "Geändert (Neueste)",
+        "modifiedAt-asc": "Geändert (Älteste)",
+        "playCount-desc": "Meistgespielt",
+        "playCount-asc": "Wenigstgespielt",
+        "visibility-desc": "Öffentliche zuerst",
+        "visibility-asc": "Private zuerst",
+        "creator-asc": "Ersteller (A-Z)",
+        "creator-desc": "Ersteller (Z-A)"
       },
       "empty": {
         "title": "Noch keine Spiele",
@@ -396,6 +402,7 @@
       "error": {
         "gameNotFound": "Spiel nicht gefunden",
         "sessionFailed": "Spielsitzung konnte nicht gestartet werden",
+        "missingFields": "Dem Spiel fehlen erforderliche Felder:",
         "backToGames": "Zurück zu Spielen",
         "tryAgain": "Erneut versuchen"
       },
