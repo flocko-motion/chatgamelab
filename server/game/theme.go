@@ -49,7 +49,8 @@ corners.style: "none" (default) | "brackets" (tech) | "flourish" (fantasy) | "ar
 corners.color: "amber" (default) | "emerald" | "cyan" | "violet" | "rose" | "slate" | "hacker"
 
 background.tint: "neutral" (default) | "warm" | "cool" | "dark" | "black"
-background.animation: "none" (default) | "stars" (space/scifi) | "bubbles" (ocean) | "fireflies" (fantasy/mystery) | "snow" | "rain" (horror) | "matrix" (terminal/hacker)
+background.animation: "none" (default, preferred) | "stars" (space/scifi) | "bubbles" (ocean) | "fireflies" (fantasy/mystery) | "snow" | "rain" (horror) | "matrix" (terminal/hacker) | "embers" (fire/destruction) | "hyperspace" (scifi/action)
+  NOTE: Only use animations if they fit the theme. Most games work good without animation. Prefer "none" unless the theme clearly benefits (e.g., space games with stars, hacker themes with matrix, fire/destruction with embers, cold scenarios with snow, water scenarios with bubbles).
 
 player.color: Same colors as corners. Default: "cyan"
 player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond" | "cursor" | "underscore" | "pipe"
@@ -274,7 +275,7 @@ func validateOverride(override *obj.GameThemeOverride) *obj.GameThemeOverride {
 	}
 
 	// Validate background
-	validAnimations := map[string]bool{"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true, "rain": true, "matrix": true}
+	validAnimations := map[string]bool{"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true, "rain": true, "matrix": true, "embers": true, "hyperspace": true}
 	if override.Background != nil {
 		if override.Background.Tint != "" && !validTints[override.Background.Tint] {
 			override.Background.Tint = ""
