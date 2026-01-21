@@ -189,13 +189,10 @@ export interface ObjGameTag {
 }
 
 export interface ObjGameTheme {
-  background?: ObjGameThemeBackground;
-  corners?: ObjGameThemeCorners;
-  gameMessage?: ObjGameThemeGameMessage;
-  player?: ObjGameThemePlayer;
-  statusEmojis?: Record<string, string>;
-  thinking?: ObjGameThemeThinking;
-  typography?: ObjGameThemeTypography;
+  /** fields that override the preset defaults */
+  override?: ObjGameThemeOverride;
+  /** preset name (e.g., "space", "fantasy") or "custom" */
+  preset?: string;
 }
 
 export interface ObjGameThemeBackground {
@@ -205,6 +202,11 @@ export interface ObjGameThemeBackground {
   tint?: string;
 }
 
+export interface ObjGameThemeCards {
+  /** none, thin, medium, thick */
+  borderThickness?: string;
+}
+
 export interface ObjGameThemeCorners {
   /** amber, emerald, cyan, violet, rose, slate */
   color?: string;
@@ -212,23 +214,76 @@ export interface ObjGameThemeCorners {
   style?: string;
 }
 
+export interface ObjGameThemeDivider {
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  color?: string;
+  /** dot, dots, line, diamond, star, dash, none */
+  style?: string;
+}
+
 export interface ObjGameThemeGameMessage {
+  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
+  bgColor?: string;
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  borderColor?: string;
   dropCap?: boolean;
-  /** amber, emerald, cyan, violet, rose, slate */
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
   dropCapColor?: string;
+  /** dark, light, hacker, terminal */
+  fontColor?: string;
+}
+
+export interface ObjGameThemeHeader {
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  accentColor?: string;
+  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
+  bgColor?: string;
+  /** dark, light, hacker, terminal */
+  fontColor?: string;
+}
+
+export interface ObjGameThemeOverride {
+  background?: ObjGameThemeBackground;
+  cards?: ObjGameThemeCards;
+  corners?: ObjGameThemeCorners;
+  divider?: ObjGameThemeDivider;
+  gameMessage?: ObjGameThemeGameMessage;
+  header?: ObjGameThemeHeader;
+  player?: ObjGameThemePlayer;
+  statusEmojis?: Record<string, string>;
+  statusFields?: ObjGameThemeStatusFields;
+  thinking?: ObjGameThemeThinking;
+  typography?: ObjGameThemeTypography;
 }
 
 export interface ObjGameThemePlayer {
-  /** cyan, amber, violet, slate, white, emerald, rose */
+  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
   bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate */
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  borderColor?: string;
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
   color?: string;
-  /** dot, arrow, chevron, diamond, none */
+  /** dark, light, hacker, terminal */
+  fontColor?: string;
+  /** dot, arrow, chevron, diamond, cursor, underscore, pipe, none */
   indicator?: string;
-  showChevron?: boolean;
+  indicatorBlink?: boolean;
+}
+
+export interface ObjGameThemeStatusFields {
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  accentColor?: string;
+  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
+  bgColor?: string;
+  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
+  borderColor?: string;
+  /** dark, light, hacker, terminal */
+  fontColor?: string;
 }
 
 export interface ObjGameThemeThinking {
+  /** dots, block, pipe, underscore, none */
+  streamingCursor?: string;
   /** dots, spinner, pulse, typewriter */
   style?: string;
   /** e.g. "The story unfolds..." */

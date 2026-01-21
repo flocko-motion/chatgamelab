@@ -2417,29 +2417,17 @@
         "obj.GameTheme": {
             "type": "object",
             "properties": {
-                "background": {
-                    "$ref": "#/definitions/obj.GameThemeBackground"
+                "override": {
+                    "description": "fields that override the preset defaults",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameThemeOverride"
+                        }
+                    ]
                 },
-                "corners": {
-                    "$ref": "#/definitions/obj.GameThemeCorners"
-                },
-                "gameMessage": {
-                    "$ref": "#/definitions/obj.GameThemeGameMessage"
-                },
-                "player": {
-                    "$ref": "#/definitions/obj.GameThemePlayer"
-                },
-                "statusEmojis": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                },
-                "thinking": {
-                    "$ref": "#/definitions/obj.GameThemeThinking"
-                },
-                "typography": {
-                    "$ref": "#/definitions/obj.GameThemeTypography"
+                "preset": {
+                    "description": "preset name (e.g., \"space\", \"fantasy\") or \"custom\"",
+                    "type": "string"
                 }
             }
         },
@@ -2452,6 +2440,15 @@
                 },
                 "tint": {
                     "description": "warm, cool, neutral, dark",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeCards": {
+            "type": "object",
+            "properties": {
+                "borderThickness": {
+                    "description": "none, thin, medium, thick",
                     "type": "string"
                 }
             }
@@ -2469,15 +2466,98 @@
                 }
             }
         },
+        "obj.GameThemeDivider": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
+                "style": {
+                    "description": "dot, dots, line, diamond, star, dash, none",
+                    "type": "string"
+                }
+            }
+        },
         "obj.GameThemeGameMessage": {
             "type": "object",
             "properties": {
+                "bgColor": {
+                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
+                    "type": "string"
+                },
+                "borderColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
                 "dropCap": {
                     "type": "boolean"
                 },
                 "dropCapColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
                     "type": "string"
+                },
+                "fontColor": {
+                    "description": "dark, light, hacker, terminal",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeHeader": {
+            "type": "object",
+            "properties": {
+                "accentColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
+                "bgColor": {
+                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
+                    "type": "string"
+                },
+                "fontColor": {
+                    "description": "dark, light, hacker, terminal",
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameThemeOverride": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "$ref": "#/definitions/obj.GameThemeBackground"
+                },
+                "cards": {
+                    "$ref": "#/definitions/obj.GameThemeCards"
+                },
+                "corners": {
+                    "$ref": "#/definitions/obj.GameThemeCorners"
+                },
+                "divider": {
+                    "$ref": "#/definitions/obj.GameThemeDivider"
+                },
+                "gameMessage": {
+                    "$ref": "#/definitions/obj.GameThemeGameMessage"
+                },
+                "header": {
+                    "$ref": "#/definitions/obj.GameThemeHeader"
+                },
+                "player": {
+                    "$ref": "#/definitions/obj.GameThemePlayer"
+                },
+                "statusEmojis": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "statusFields": {
+                    "$ref": "#/definitions/obj.GameThemeStatusFields"
+                },
+                "thinking": {
+                    "$ref": "#/definitions/obj.GameThemeThinking"
+                },
+                "typography": {
+                    "$ref": "#/definitions/obj.GameThemeTypography"
                 }
             }
         },
@@ -2485,25 +2565,58 @@
             "type": "object",
             "properties": {
                 "bgColor": {
-                    "description": "cyan, amber, violet, slate, white, emerald, rose",
+                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
+                    "type": "string"
+                },
+                "borderColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
                     "type": "string"
                 },
                 "color": {
-                    "description": "amber, emerald, cyan, violet, rose, slate",
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
+                "fontColor": {
+                    "description": "dark, light, hacker, terminal",
                     "type": "string"
                 },
                 "indicator": {
-                    "description": "dot, arrow, chevron, diamond, none",
+                    "description": "dot, arrow, chevron, diamond, cursor, underscore, pipe, none",
                     "type": "string"
                 },
-                "showChevron": {
+                "indicatorBlink": {
                     "type": "boolean"
+                }
+            }
+        },
+        "obj.GameThemeStatusFields": {
+            "type": "object",
+            "properties": {
+                "accentColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
+                "bgColor": {
+                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
+                    "type": "string"
+                },
+                "borderColor": {
+                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
+                    "type": "string"
+                },
+                "fontColor": {
+                    "description": "dark, light, hacker, terminal",
+                    "type": "string"
                 }
             }
         },
         "obj.GameThemeThinking": {
             "type": "object",
             "properties": {
+                "streamingCursor": {
+                    "description": "dots, block, pipe, underscore, none",
+                    "type": "string"
+                },
                 "style": {
                     "description": "dots, spinner, pulse, typewriter",
                     "type": "string"
