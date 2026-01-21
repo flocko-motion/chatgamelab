@@ -413,6 +413,8 @@
         "hideDebug": "Hide debug info",
         "increaseFont": "Increase font size",
         "decreaseFont": "Decrease font size",
+        "enableAnimation": "Enable background animation",
+        "disableAnimation": "Disable background animation",
         "debug": "Debug"
       },
       "input": {

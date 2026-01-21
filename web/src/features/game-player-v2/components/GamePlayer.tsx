@@ -17,6 +17,7 @@ import {
   IconAlertCircle,
   IconTextIncrease,
   IconTextDecrease,
+  IconSparkles,
 } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
 import { ErrorModal } from '@/common/components/ErrorModal';
@@ -37,6 +38,7 @@ import { TypingIndicator } from './TypingIndicator';
 import { StatusBar } from './StatusBar';
 import { PlayerInput } from './PlayerInput';
 import { ImageLightbox } from './ImageLightbox';
+import { BackgroundAnimation } from './BackgroundAnimation';
 import classes from './GamePlayer.module.css';
 
 const FONT_SIZES: FontSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'];
@@ -45,20 +47,22 @@ const FONT_SIZES: FontSize[] = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl'];
 interface SceneAreaWithThemeProps {
   renderMessages: () => React.ReactNode[];
   sceneEndRef: React.RefObject<HTMLDivElement | null>;
+  animationEnabled: boolean;
 }
 
-function SceneAreaWithTheme({ renderMessages, sceneEndRef }: SceneAreaWithThemeProps) {
-  const { cssVars } = useGameTheme();
+function SceneAreaWithTheme({ renderMessages, sceneEndRef, animationEnabled }: SceneAreaWithThemeProps) {
+  const { cssVars, theme } = useGameTheme();
+  const animation = theme.background.animation || 'none';
   
   return (
     <Box 
       className={classes.sceneArea} 
       px={{ base: 'sm', sm: 'md' }} 
       py="md"
-      style={cssVars}
+      style={{ ...cssVars, position: 'relative' }}
     >
-      {/* BackgroundAnimation disabled - animations not working */}
-      <div className={classes.scenesContainer}>
+      <BackgroundAnimation animation={animation} disabled={!animationEnabled} />
+      <div className={classes.scenesContainer} style={{ position: 'relative', zIndex: 1 }}>
         {renderMessages()}
         <div ref={sceneEndRef} />
       </div>
@@ -96,6 +100,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string } | null>(null);
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
+  const [animationEnabled, setAnimationEnabled] = useState(true);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
@@ -397,6 +402,17 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   <IconTextIncrease size={18} />
                 </ActionIcon>
               </Tooltip>
+              <Tooltip label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')} position="bottom">
+                <ActionIcon
+                  variant={animationEnabled ? 'light' : 'subtle'}
+                  color={animationEnabled ? 'violet' : 'gray'}
+                  onClick={() => setAnimationEnabled(!animationEnabled)}
+                  aria-label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')}
+                  size="lg"
+                >
+                  <IconSparkles size={18} />
+                </ActionIcon>
+              </Tooltip>
               <ThemeTestPanel
                 currentTheme={effectiveTheme}
                 onThemeChange={handleThemeChange}
@@ -419,6 +435,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         <SceneAreaWithTheme
           renderMessages={renderMessages}
           sceneEndRef={sceneEndRef}
+          animationEnabled={animationEnabled}
         />
 
         {!isContinuation && (

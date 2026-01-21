@@ -49,6 +49,7 @@ corners.style: "none" (default) | "brackets" (tech) | "flourish" (fantasy) | "ar
 corners.color: "amber" (default) | "emerald" | "cyan" | "violet" | "rose" | "slate" | "hacker"
 
 background.tint: "neutral" (default) | "warm" | "cool" | "dark" | "black"
+background.animation: "none" (default) | "stars" (space/scifi) | "bubbles" (ocean) | "fireflies" (fantasy/mystery) | "snow" | "rain" (horror) | "matrix" (terminal/hacker)
 
 player.color: Same colors as corners. Default: "cyan"
 player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond" | "cursor" | "underscore" | "pipe"
@@ -273,9 +274,13 @@ func validateOverride(override *obj.GameThemeOverride) *obj.GameThemeOverride {
 	}
 
 	// Validate background
+	validAnimations := map[string]bool{"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true, "rain": true, "matrix": true}
 	if override.Background != nil {
 		if override.Background.Tint != "" && !validTints[override.Background.Tint] {
 			override.Background.Tint = ""
+		}
+		if override.Background.Animation != "" && !validAnimations[override.Background.Animation] {
+			override.Background.Animation = ""
 		}
 	}
 

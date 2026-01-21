@@ -9,3 +9,4 @@ export { TypingIndicator, StreamingIndicator } from './TypingIndicator';
 export { ImageLightbox } from './ImageLightbox';
 export { SceneDivider } from './SceneDivider';
 export { SystemMessage } from './SystemMessage';
+export { BackgroundAnimation } from './BackgroundAnimation';
