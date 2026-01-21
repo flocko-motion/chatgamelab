@@ -3,13 +3,17 @@ package testutil
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strings"
 	"sync"
 	"testing"
 
 	"cgl/api/client"
+	"cgl/api/routes"
 	"cgl/config"
+	"cgl/obj"
 )
 
 var (
@@ -129,52 +133,181 @@ func (u *UserClient) UploadGame(gameID, name string) {
 	u.t.Logf("User %q uploaded game %s to %s", u.Name, name, gameID)
 }
 
+// makeRequest performs an HTTP request with the user's token in the Authorization header
+// This bypasses the config storage system (which is only for CLI usage)
+func (u *UserClient) makeRequest(method, endpoint string, payload interface{}, out interface{}) error {
+	u.t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/%s", serverURL, strings.TrimPrefix(endpoint, "/"))
+
+	var bodyReader io.Reader
+	if payload != nil {
+		body, err := json.Marshal(payload)
+		if err != nil {
+			return fmt.Errorf("failed to marshal request: %w", err)
+		}
+		bodyReader = strings.NewReader(string(body))
+	}
+
+	req, err := http.NewRequest(method, url, bodyReader)
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	if payload != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	// Set Authorization header directly without touching config storage
+	if u.Token != "" {
+		req.Header.Set("Authorization", "Bearer "+u.Token)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
+	}
+
+	if out != nil && len(body) > 0 {
+		if err := json.Unmarshal(body, out); err != nil {
+			return fmt.Errorf("failed to parse response: %w", err)
+		}
+	}
+
+	return nil
+}
+
 // Get performs an authenticated GET request
 func (u *UserClient) Get(endpoint string, out interface{}) error {
 	u.t.Helper()
-
-	// Set user's token
-	if err := client.SaveJwt(u.Token); err != nil {
-		return fmt.Errorf("failed to set token: %w", err)
-	}
-
-	return client.ApiGet(endpoint, out)
+	return u.makeRequest("GET", endpoint, nil, out)
 }
 
 // Post performs an authenticated POST request
 func (u *UserClient) Post(endpoint string, payload interface{}, out interface{}) error {
 	u.t.Helper()
-
-	// Set user's token
-	if err := client.SaveJwt(u.Token); err != nil {
-		return fmt.Errorf("failed to set token: %w", err)
-	}
-
-	return client.ApiPost(endpoint, payload, out)
+	return u.makeRequest("POST", endpoint, payload, out)
 }
 
 // Patch performs an authenticated PATCH request
 func (u *UserClient) Patch(endpoint string, payload interface{}, out interface{}) error {
 	u.t.Helper()
-
-	// Set user's token
-	if err := client.SaveJwt(u.Token); err != nil {
-		return fmt.Errorf("failed to set token: %w", err)
-	}
-
-	return client.ApiPatch(endpoint, payload, out)
+	return u.makeRequest("PATCH", endpoint, payload, out)
 }
 
 // Delete performs an authenticated DELETE request
 func (u *UserClient) Delete(endpoint string) error {
 	u.t.Helper()
+	return u.makeRequest("DELETE", endpoint, nil, nil)
+}
 
-	// Set user's token
-	if err := client.SaveJwt(u.Token); err != nil {
-		return fmt.Errorf("failed to set token: %w", err)
+// GetInvites returns the user's invites (composable high-level API)
+func (u *UserClient) GetInvites() ([]obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var invites []obj.UserRoleInvite
+	err := u.Get("invites", &invites)
+	return invites, err
+}
+
+// GetInvite returns a specific invite by ID (composable high-level API)
+func (u *UserClient) GetInvite(inviteID string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var invite obj.UserRoleInvite
+	err := u.Get("invites/"+inviteID, &invite)
+	return invite, err
+}
+
+// GetInstitutions returns the user's institutions (composable high-level API)
+func (u *UserClient) GetInstitutions() ([]obj.Institution, error) {
+	u.t.Helper()
+	var institutions []obj.Institution
+	err := u.Get("institutions", &institutions)
+	return institutions, err
+}
+
+// AcceptInvite accepts an invite by ID (composable high-level API)
+func (u *UserClient) AcceptInvite(inviteID string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	err := u.Post("invites/"+inviteID+"/accept", nil, &result)
+	return result, err
+}
+
+// DeclineInvite declines an invite by ID (composable high-level API)
+func (u *UserClient) DeclineInvite(inviteID string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	err := u.Post("invites/"+inviteID+"/decline", nil, &result)
+	return result, err
+}
+
+// RevokeInvite revokes an invite by ID (composable high-level API)
+func (u *UserClient) RevokeInvite(inviteID string) error {
+	u.t.Helper()
+	return u.Delete("invites/" + inviteID)
+}
+
+// CreateInstitution creates an institution (composable high-level API)
+func (u *UserClient) CreateInstitution(name string) (obj.Institution, error) {
+	u.t.Helper()
+	var result obj.Institution
+	payload := routes.CreateInstitutionRequest{
+		Name: name,
 	}
+	err := u.Post("institutions", payload, &result)
+	return result, err
+}
 
-	return client.ApiDelete(endpoint)
+// InviteToInstitution creates an institution invite (composable high-level API)
+func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	payload := routes.CreateInstitutionInviteRequest{
+		InstitutionID: institutionID,
+		Role:          role,
+		InvitedUserID: &invitedUserID,
+	}
+	err := u.Post("invites/institution", payload, &result)
+	return result, err
+}
+
+// GetMe returns the current user's profile (composable high-level API)
+func (u *UserClient) GetMe() (obj.User, error) {
+	u.t.Helper()
+	var result obj.User
+	err := u.Get("users/me", &result)
+	return result, err
+}
+
+// GetInstitution returns a specific institution by ID (composable high-level API)
+func (u *UserClient) GetInstitution(institutionID string) (obj.Institution, error) {
+	u.t.Helper()
+	var result obj.Institution
+	err := u.Get("institutions/"+institutionID, &result)
+	return result, err
+}
+
+// GetUsers returns all users (composable high-level API)
+func (u *UserClient) GetUsers() ([]obj.User, error) {
+	u.t.Helper()
+	var result []obj.User
+	err := u.Get("users", &result)
+	return result, err
 }
 
 // MustGet performs GET and fails test on error
