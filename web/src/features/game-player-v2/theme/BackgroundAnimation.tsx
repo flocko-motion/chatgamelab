@@ -21,7 +21,6 @@ export function BackgroundAnimation({ animation, className }: BackgroundAnimatio
       case 'bubbles': return styles.particles;
       case 'fireflies': return styles.particles;
       case 'snow': return styles.stars;
-      case 'rain': return styles.rain;
       case 'matrix': return styles.scanlines;
       default: return '';
     }

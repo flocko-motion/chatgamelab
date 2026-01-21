@@ -29,7 +29,7 @@ export type CardBorderThickness = 'none' | 'thin' | 'medium' | 'thick';
 
 
 /** Background animation types */
-export type BackgroundAnimation = 'none' | 'stars' | 'bubbles' | 'fireflies' | 'snow' | 'rain' | 'matrix' | 'embers' | 'hyperspace';
+export type BackgroundAnimation = 'none' | 'stars' | 'bubbles' | 'fireflies' | 'snow' | 'matrix' | 'embers' | 'hyperspace' | 'sparkles' | 'hearts' | 'glitch' | 'circuits' | 'leaves' | 'geometric' | 'confetti';
 
 /** Background tint */
 export type BackgroundTint = 
