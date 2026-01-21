@@ -514,7 +514,6 @@ func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
 	if err != nil {
 		return obj.ErrNotFound("user not found")
 	}
-
 	// Only admin can manage roles
 	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
 		return obj.ErrForbidden("only admins can manage user roles")
