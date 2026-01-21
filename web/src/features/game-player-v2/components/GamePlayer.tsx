@@ -53,15 +53,17 @@ interface SceneAreaWithThemeProps {
 function SceneAreaWithTheme({ renderMessages, sceneEndRef, animationEnabled }: SceneAreaWithThemeProps) {
   const { cssVars, theme } = useGameTheme();
   const animation = theme.background.animation || 'none';
+  const sceneAreaRef = useRef<HTMLDivElement | null>(null);
   
   return (
     <Box 
       className={classes.sceneArea} 
+      ref={sceneAreaRef}
       px={{ base: 'sm', sm: 'md' }} 
       py="md"
       style={{ ...cssVars, position: 'relative' }}
     >
-      <BackgroundAnimation animation={animation} disabled={!animationEnabled} />
+      <BackgroundAnimation animation={animation} disabled={!animationEnabled} containerRef={sceneAreaRef} />
       <div className={classes.scenesContainer} style={{ position: 'relative', zIndex: 1 }}>
         {renderMessages()}
         <div ref={sceneEndRef} />
@@ -435,7 +437,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         <SceneAreaWithTheme
           renderMessages={renderMessages}
           sceneEndRef={sceneEndRef}
-          animationEnabled={animationEnabled}
+          animationEnabled={animationEnabled && !state.isWaitingForResponse}
         />
 
         {!isContinuation && (
