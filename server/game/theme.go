@@ -27,7 +27,7 @@ RULES:
 AVAILABLE PRESETS:
 - "default" - Neutral, warm amber accents
 - "minimal" - Clean, slate gray, no decorations
-- "fantasy" - Medieval, flourish corners, serif font, drop caps
+- "medieval" - Medieval, flourish, serif font, drop caps
 - "scifi" - Cyberpunk, brackets, cyan, mono font
 - "horror" - Dark, no decorations, rose accents
 - "adventure" - Exploration, arrows, emerald
@@ -42,6 +42,14 @@ AVAILABLE PRESETS:
 - "ocean" - Underwater, cyan, cool tint
 - "retro" - 80s, violet/cyan on dark
 - "western" - Wild West, amber, warm
+- "fire" -  dark, red accents, embers animation
+- "desert" - Arid, sandy, hot climate, warm tones
+- "tech" - Modern technology, clean digital, circuits animation
+- "greenFantasy" - Enchanted forest, nature magic, sparkles animation
+- "abstract" - Artistic, geometric shapes, geometric animation
+- "romance" - Soft, warm, romantic, hearts animation
+- "glitch" - Corrupted, digital chaos, glitch animation
+- "snowy" - Winter wonderland, snow animation
 
 OPTIONS (only needed for preset: "custom"):
 
@@ -49,8 +57,8 @@ corners.style: "none" (default) | "brackets" (tech) | "flourish" (fantasy) | "ar
 corners.color: "amber" (default) | "emerald" | "cyan" | "violet" | "rose" | "slate" | "hacker"
 
 background.tint: "neutral" (default) | "warm" | "cool" | "dark" | "black"
-background.animation: "none" (default, preferred) | "stars" (space/scifi) | "bubbles" (ocean) | "fireflies" (fantasy/mystery) | "snow" | "rain" (horror) | "matrix" (terminal/hacker) | "embers" (fire/destruction) | "hyperspace" (scifi/action)
-  NOTE: Only use animations if they fit the theme. Most games work good without animation. Prefer "none" unless the theme clearly benefits (e.g., space games with stars, hacker themes with matrix, fire/destruction with embers, cold scenarios with snow, water scenarios with bubbles).
+background.animation: "none" (default, preferred) | "stars" (space/scifi) | "bubbles" (ocean) | "fireflies" (fantasy/mystery) | "snow" | "matrix" (terminal/hacker) | "embers" (fire/destruction) | "hyperspace" (scifi/action) | "sparkles" (magic/fantasy) | "hearts" (romance) | "glitch" (corrupted/cyberpunk) | "circuits" (tech/digital) | "leaves" (nature/forest) | "geometric" (abstract/artistic) | "confetti" (playful/kids)
+  NOTE: Only use animations if they fit the theme. Most games work good without animation. Prefer "none" unless the theme clearly benefits (e.g., space games with stars, hacker themes with matrix, fire/destruction with embers, cold scenarios with snow, water scenarios with bubbles, romance with hearts, tech with circuits).
 
 player.color: Same colors as corners. Default: "cyan"
 player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond" | "cursor" | "underscore" | "pipe"
@@ -216,7 +224,8 @@ var validPresets = map[string]bool{
 	"adventure": true, "mystery": true, "detective": true, "space": true,
 	"terminal": true, "hacker": true,
 	"playful": true, "barbie": true, "nature": true, "ocean": true, "retro": true,
-	"western": true, "custom": true,
+	"western": true, "fire": true, "desert": true, "tech": true, "greenFantasy": true,
+	"abstract": true, "romance": true, "glitch": true, "snowy": true, "custom": true,
 }
 
 // validateTheme ensures all theme values are valid
@@ -275,7 +284,7 @@ func validateOverride(override *obj.GameThemeOverride) *obj.GameThemeOverride {
 	}
 
 	// Validate background
-	validAnimations := map[string]bool{"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true, "rain": true, "matrix": true, "embers": true, "hyperspace": true}
+	validAnimations := map[string]bool{"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true, "matrix": true, "embers": true, "hyperspace": true, "sparkles": true, "hearts": true, "glitch": true, "circuits": true, "leaves": true, "geometric": true, "confetti": true}
 	if override.Background != nil {
 		if override.Background.Tint != "" && !validTints[override.Background.Tint] {
 			override.Background.Tint = ""
