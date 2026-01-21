@@ -1,4 +1,5 @@
 import { Box, Group } from '@mantine/core';
+import { useEffect, useRef, useState } from 'react';
 import type { ObjStatusField } from '@/api/generated';
 import { useGameTheme } from '../theme';
 import classes from './GamePlayer.module.css';
@@ -9,6 +10,38 @@ interface StatusBarProps {
 
 export function StatusBar({ statusFields }: StatusBarProps) {
   const { getStatusEmoji, cssVars } = useGameTheme();
+  const prevValuesRef = useRef<Record<string, string>>({});
+  const [changedFields, setChangedFields] = useState<Set<string>>(new Set());
+  
+  // Detect value changes and trigger animation
+  useEffect(() => {
+    const newChangedFields = new Set<string>();
+    
+    statusFields.forEach((field) => {
+      const key = field.name || '';
+      const prevValue = prevValuesRef.current[key];
+      const currentValue = field.value || '';
+      
+      // If value changed (and we had a previous value), mark as changed
+      if (prevValue !== undefined && prevValue !== currentValue) {
+        newChangedFields.add(key);
+      }
+      
+      // Update stored value
+      prevValuesRef.current[key] = currentValue;
+    });
+    
+    if (newChangedFields.size > 0) {
+      setChangedFields(newChangedFields);
+      
+      // Clear animation after it completes
+      const timer = setTimeout(() => {
+        setChangedFields(new Set());
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [statusFields]);
   
   if (!statusFields || statusFields.length === 0) {
     return null;
@@ -19,13 +52,23 @@ export function StatusBar({ statusFields }: StatusBarProps) {
       <Group gap="sm" wrap="nowrap">
         {statusFields.map((field, index) => {
           const emoji = field.name ? getStatusEmoji(field.name) : '';
+          const key = field.name || String(index);
+          const isChanged = changedFields.has(field.name || '');
+          
           return (
-            <div key={field.name || index} className={classes.statusField}>
+            <div 
+              key={key} 
+              className={`${classes.statusField} ${isChanged ? classes.statusFieldChanged : ''}`}
+            >
               <span className={classes.statusFieldName}>
                 {emoji && <span className={classes.statusFieldEmoji}>{emoji}</span>}
                 {field.name}:
               </span>
-              <span className={classes.statusFieldValue}>{field.value}</span>
+              <span 
+                className={`${classes.statusFieldValue} ${isChanged ? classes.statusFieldValueChanged : ''}`}
+              >
+                {field.value}
+              </span>
             </div>
           );
         })}

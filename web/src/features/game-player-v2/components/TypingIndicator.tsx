@@ -44,11 +44,12 @@ export function TypingIndicator() {
 export function StreamingIndicator() {
   const { theme } = useGameTheme();
   const cursorStyle = theme.thinking.streamingCursor || 'dots';
+  const fontColor = FONT_COLORS[theme.gameMessage.fontColor] || FONT_COLORS.dark;
   
   // For dots, use animated dots
   if (cursorStyle === 'dots') {
     return (
-      <span className={classes.streamingIndicator}>
+      <span className={classes.streamingIndicator} style={{ color: fontColor }}>
         <span className={classes.streamingDot} />
         <span className={classes.streamingDot} />
         <span className={classes.streamingDot} />
@@ -64,6 +65,6 @@ export function StreamingIndicator() {
   // For character cursors (block, pipe, underscore), show blinking character
   const cursorChar = STREAMING_CURSORS[cursorStyle] || '|';
   return (
-    <span className={classes.streamingCursor}>{cursorChar}</span>
+    <span className={classes.streamingCursor} style={{ color: fontColor }}>{cursorChar}</span>
   );
 }

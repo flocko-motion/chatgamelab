@@ -89,6 +89,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--mantine-spacing-xs);
+  white-space: nowrap;
   padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
   background: var(--game-status-bg, rgba(255,255,255,0.7));
   border: 1px solid var(--game-status-border, rgba(0, 0, 0, 0.1));
@@ -129,6 +130,55 @@
 .statusFieldValue {
   color: var(--game-status-font, var(--mantine-color-gray-9));
   font-weight: 700;
+}
+
+.statusFieldValueChanged {
+  animation: statusValuePulse 2s ease-out;
+}
+
+@keyframes statusValuePulse {
+  0% {
+    transform: scale(1);
+    color: var(--game-status-accent, var(--mantine-color-amber-6));
+    text-shadow: 0 0 8px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  30% {
+    transform: scale(2);
+    color: var(--game-status-accent, var(--mantine-color-amber-6));
+    text-shadow: 0 0 12px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  60% {
+    transform: scale(1.2);
+    text-shadow: 0 0 4px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  100% {
+    transform: scale(1);
+    color: var(--game-status-font, var(--mantine-color-gray-9));
+    text-shadow: none;
+  }
+}
+
+.statusFieldChanged {
+  animation: statusBoxPulse 2s ease-out;
+}
+
+@keyframes statusBoxPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  30% {
+    transform: scale(1.5);
+    box-shadow: 0 0 12px 4px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  60% {
+    transform: scale(1.04);
+    box-shadow: 0 0 8px 2px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 /* ============================================================================
@@ -605,7 +655,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--game-accent-5);
+  background: currentColor;
   animation: typingPulse 1.4s ease-in-out infinite;
 }
 
@@ -630,7 +680,6 @@
 
 .typingText {
   font-size: var(--mantine-font-size-sm);
-  color: var(--mantine-color-gray-6);
 }
 
 /* Streaming indicator (inline with text) */
@@ -645,7 +694,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--game-accent-5);
+  background: currentColor;
   animation: typingPulse 1.4s ease-in-out infinite;
 }
 

@@ -140,10 +140,16 @@ const BACKGROUND_ANIMATIONS: { value: BackgroundAnimation; label: string }[] = [
   { value: 'bubbles', label: '🫧 Bubbles (Ocean)' },
   { value: 'fireflies', label: '🪲 Fireflies (Fantasy)' },
   { value: 'snow', label: '❄️ Snow' },
-  { value: 'rain', label: '🌧️ Rain (Horror)' },
   { value: 'matrix', label: '💻 Matrix (Hacker)' },
   { value: 'embers', label: '🔥 Embers (Fire)' },
   { value: 'hyperspace', label: '🚀 Hyperspace (Sci-Fi)' },
+  { value: 'sparkles', label: '✨ Sparkles (Magic)' },
+  { value: 'hearts', label: '💕 Hearts (Romance)' },
+  { value: 'glitch', label: '⚡ Glitch (Corrupted)' },
+  { value: 'circuits', label: '🔌 Circuits (Tech)' },
+  { value: 'leaves', label: '🍃 Leaves (Nature)' },
+  { value: 'geometric', label: '🔷 Geometric (Abstract)' },
+  { value: 'confetti', label: '🎉 Confetti (Playful)' },
 ];
 
 const PLAYER_INDICATORS: { value: PlayerIndicator; label: string }[] = [
@@ -194,7 +200,7 @@ const PRESET_OPTIONS = [
   { value: '', label: '-- Select Preset --' },
   { value: 'default', label: '⭐ Default (Neutral)' },
   { value: 'minimal', label: 'Minimal / Clean' },
-  { value: 'fantasy', label: 'Fantasy / Medieval' },
+  { value: 'medieval', label: 'Medieval' },
   { value: 'scifi', label: 'Sci-Fi / Cyberpunk' },
   { value: 'horror', label: 'Horror / Mystery' },
   { value: 'adventure', label: 'Adventure / Exploration' },
@@ -209,6 +215,14 @@ const PRESET_OPTIONS = [
   { value: 'ocean', label: 'Ocean / Underwater' },
   { value: 'retro', label: 'Retro / 80s' },
   { value: 'western', label: 'Western / Wild West' },
+  { value: 'fire', label: 'Fire / Ember' },
+  { value: 'desert', label: 'Desert / Arid' },
+  { value: 'tech', label: '💻 Tech / Digital' },
+  { value: 'greenFantasy', label: '🌿 Green Fantasy / Nature Magic' },
+  { value: 'abstract', label: '🎨 Abstract / Artistic' },
+  { value: 'romance', label: '💕 Romance / Love' },
+  { value: 'glitch', label: '⚡ Glitch / Corrupted' },
+  { value: 'snowy', label: '❄️ Snowy / Cold' },
 ];
 
 interface ThemeTestPanelProps {
@@ -416,7 +430,8 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
     }
     if (preset.corners?.blink !== undefined) setCornerBlink(preset.corners.blink);
     if (preset.background?.tint) setBgTint(preset.background.tint);
-    if (preset.background?.animation) setBgAnimation(preset.background.animation);
+    // Always set animation - use 'none' if not specified to clear previous animation
+    setBgAnimation(preset.background?.animation || 'none');
     if (preset.player?.color) setPlayerColor(preset.player.color);
     if (preset.player?.indicator) setPlayerIndicator(preset.player.indicator);
     if (preset.player?.indicatorBlink !== undefined) setIndicatorBlink(preset.player.indicatorBlink);

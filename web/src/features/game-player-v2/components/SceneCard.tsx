@@ -1,13 +1,17 @@
+import type { ObjStatusField } from '@/api/generated';
 import type { SceneMessage } from '../types';
 import { useGamePlayerContext } from '../context';
 import { useGameTheme } from '../theme';
 import { SceneImage } from './SceneImage';
 import { StreamingIndicator } from './TypingIndicator';
+import { DebugPanel } from './DebugPanel';
+import { StatusChangeIndicator } from './StatusChangeIndicator';
 import classes from './GamePlayer.module.css';
 
 interface SceneCardProps {
   message: SceneMessage;
   showImages: boolean;
+  previousStatusFields?: ObjStatusField[];
 }
 
 const FONT_SIZE_MAP = {
@@ -20,8 +24,8 @@ const FONT_SIZE_MAP = {
   '3xl': '1.625rem',
 } as const;
 
-export function SceneCard({ message, showImages }: SceneCardProps) {
-  const { fontSize } = useGamePlayerContext();
+export function SceneCard({ message, showImages, previousStatusFields }: SceneCardProps) {
+  const { fontSize, debugMode } = useGamePlayerContext();
   const { theme } = useGameTheme();
   const { text, imageUrl, imagePrompt, isStreaming, isImageLoading } = message;
 
@@ -88,6 +92,13 @@ export function SceneCard({ message, showImages }: SceneCardProps) {
           </div>
         </div>
       </div>
+      {previousStatusFields && message.statusFields && (
+        <StatusChangeIndicator 
+          currentFields={message.statusFields} 
+          previousFields={previousStatusFields} 
+        />
+      )}
+      {debugMode && <DebugPanel message={message} />}
     </div>
   );
 }
