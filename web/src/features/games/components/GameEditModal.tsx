@@ -9,16 +9,28 @@ import {
   Alert, 
   ScrollArea,
   rem,
+  Text,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { useModals } from '@mantine/modals';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ActionButton, CancelButton } from '@components/buttons';
 import { useGame, useUpdateGame } from '@/api/hooks';
 import { StatusFieldsEditor } from './StatusFieldsEditor';
 import type { CreateGameFormData } from '../types';
+
+interface FormValues {
+  name: string;
+  description: string;
+  isPublic: boolean;
+  systemMessageScenario: string;
+  systemMessageGameStart: string;
+  imageStyle: string;
+  statusFields: string;
+}
 
 interface GameEditModalProps {
   gameId?: string | null;
@@ -38,6 +50,7 @@ export function GameEditModal({
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
   const navigate = useNavigate();
+  const modals = useModals();
   
   const isCreateMode = !gameId;
   const { data: game, isLoading, error } = useGame(gameId ?? '');
@@ -55,6 +68,23 @@ export function GameEditModal({
   // Validation
   const [nameError, setNameError] = useState('');
 
+  // Track initial values for dirty checking
+  const initialValues = useRef<FormValues | null>(null);
+
+  // Check if form has unsaved changes
+  const isDirty = useCallback(() => {
+    if (!initialValues.current) return false;
+    return (
+      name !== initialValues.current.name ||
+      description !== initialValues.current.description ||
+      isPublic !== initialValues.current.isPublic ||
+      systemMessageScenario !== initialValues.current.systemMessageScenario ||
+      systemMessageGameStart !== initialValues.current.systemMessageGameStart ||
+      imageStyle !== initialValues.current.imageStyle ||
+      statusFields !== initialValues.current.statusFields
+    );
+  }, [name, description, isPublic, systemMessageScenario, systemMessageGameStart, imageStyle, statusFields]);
+
   // Track if we've initialized form values
   const hasInitialized = useRef(false);
   
@@ -62,17 +92,41 @@ export function GameEditModal({
   useEffect(() => {
     if (!isCreateMode && game && !isLoading && !hasInitialized.current) {
       hasInitialized.current = true;
-      setName(game.name ?? '');
-      setDescription(game.description ?? '');
-      setIsPublic(game.public ?? false);
-      setSystemMessageScenario(game.systemMessageScenario ?? '');
-      setSystemMessageGameStart(game.systemMessageGameStart ?? '');
-      setImageStyle(game.imageStyle ?? '');
-      setStatusFields(game.statusFields ?? '');
+      const values: FormValues = {
+        name: game.name ?? '',
+        description: game.description ?? '',
+        isPublic: game.public ?? false,
+        systemMessageScenario: game.systemMessageScenario ?? '',
+        systemMessageGameStart: game.systemMessageGameStart ?? '',
+        imageStyle: game.imageStyle ?? '',
+        statusFields: game.statusFields ?? '',
+      };
+      initialValues.current = values;
+      setName(values.name);
+      setDescription(values.description);
+      setIsPublic(values.isPublic);
+      setSystemMessageScenario(values.systemMessageScenario);
+      setSystemMessageGameStart(values.systemMessageGameStart);
+      setImageStyle(values.imageStyle);
+      setStatusFields(values.statusFields);
+    }
+    // Initialize for create mode
+    if (isCreateMode && opened && !hasInitialized.current) {
+      hasInitialized.current = true;
+      initialValues.current = {
+        name: '',
+        description: '',
+        isPublic: false,
+        systemMessageScenario: '',
+        systemMessageGameStart: '',
+        imageStyle: '',
+        statusFields: '',
+      };
     }
     // Reset when modal closes
     if (!opened) {
       hasInitialized.current = false;
+      initialValues.current = null;
       if (isCreateMode) {
         // Reset form for create mode
         setName('');
@@ -157,7 +211,24 @@ export function GameEditModal({
   };
 
   const handleModalClose = () => {
-    onClose();
+    if (isDirty()) {
+      modals.openConfirmModal({
+        title: t('games.editModal.unsavedChanges.title'),
+        children: (
+          <Text size="sm">
+            {t('games.editModal.unsavedChanges.message')}
+          </Text>
+        ),
+        labels: {
+          confirm: t('games.editModal.unsavedChanges.discard'),
+          cancel: t('games.editModal.unsavedChanges.keepEditing'),
+        },
+        confirmProps: { color: 'red' },
+        onConfirm: onClose,
+      });
+    } else {
+      onClose();
+    }
   };
 
   const isLoaderActive = !isCreateMode && isLoading;

@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import { TextButton } from '@components/buttons';
 import { ErrorModal } from '@/common/components/ErrorModal';
+import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import { useGame } from '@/api/hooks';
 import { useGameSession } from '../hooks/useGameSession';
 import { GamePlayerProvider } from '../context';
@@ -97,6 +98,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const navigate = useNavigate();
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
+  const { isMobile } = useResponsiveDesign();
 
   const [apiKeyModalOpened, { close: closeApiKeyModal }] = useDisclosure(!isContinuation);
   const [lightboxImage, setLightboxImage] = useState<{ url: string; alt?: string } | null>(null);
@@ -294,6 +296,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const renderMessages = () => {
     const elements: React.ReactNode[] = [];
     
+    // Track previous game message's status fields for showing changes
+    let previousGameStatusFields: typeof state.messages[0]['statusFields'] = undefined;
+    
     state.messages.forEach((message, index) => {
       if (message.type === 'player') {
         elements.push(
@@ -308,8 +313,17 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           elements.push(<SceneDivider key={`divider-${message.id}`} />);
         }
         elements.push(
-          <SceneCard key={message.id} message={message} showImages={showImages} />
+          <SceneCard 
+            key={message.id} 
+            message={message} 
+            showImages={showImages} 
+            previousStatusFields={previousGameStatusFields}
+          />
         );
+        // Update previous status fields for next game message
+        if (message.statusFields?.length) {
+          previousGameStatusFields = message.statusFields;
+        }
       }
     });
 
@@ -404,17 +418,19 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   <IconTextIncrease size={18} />
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')} position="bottom">
-                <ActionIcon
-                  variant={animationEnabled ? 'light' : 'subtle'}
-                  color={animationEnabled ? 'violet' : 'gray'}
-                  onClick={() => setAnimationEnabled(!animationEnabled)}
-                  aria-label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')}
-                  size="lg"
-                >
-                  <IconSparkles size={18} />
-                </ActionIcon>
-              </Tooltip>
+              {!isMobile && (
+                <Tooltip label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')} position="bottom">
+                  <ActionIcon
+                    variant={animationEnabled ? 'light' : 'subtle'}
+                    color={animationEnabled ? 'violet' : 'gray'}
+                    onClick={() => setAnimationEnabled(!animationEnabled)}
+                    aria-label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')}
+                    size="lg"
+                  >
+                    <IconSparkles size={18} />
+                  </ActionIcon>
+                </Tooltip>
+              )}
               <ThemeTestPanel
                 currentTheme={effectiveTheme}
                 onThemeChange={handleThemeChange}
@@ -437,7 +453,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         <SceneAreaWithTheme
           renderMessages={renderMessages}
           sceneEndRef={sceneEndRef}
-          animationEnabled={animationEnabled && !state.isWaitingForResponse}
+          animationEnabled={animationEnabled && !state.isWaitingForResponse && !isMobile}
         />
 
         {!isContinuation && (

@@ -188,7 +188,13 @@
       },
       "editModal": {
         "title": "Spiel bearbeiten",
-        "info": "Aktualisiere deine Spieleinstellungen unten. Änderungen werden gespeichert, wenn du auf Speichern klickst."
+        "info": "Aktualisiere deine Spieleinstellungen unten. Änderungen werden gespeichert, wenn du auf Speichern klickst.",
+        "unsavedChanges": {
+          "title": "Ungespeicherte Änderungen",
+          "message": "Du hast ungespeicherte Änderungen. Möchtest du diese wirklich verwerfen?",
+          "discard": "Änderungen verwerfen",
+          "keepEditing": "Weiter bearbeiten"
+        }
       },
       "tabs": {
         "basic": "Grundlagen",
@@ -434,6 +440,30 @@
         "startGame": "Spiel starten",
         "loadError": "API-Schlüssel konnten nicht geladen werden",
         "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu."
+      },
+      "statusChange": {
+        "effect": "Effekt:"
+      },
+      "debug": {
+        "title": "Debug-Info",
+        "fields": {
+          "id": "Nachrichten-ID",
+          "type": "Typ",
+          "seq": "Sequenz",
+          "imagePrompt": "Bild-Prompt",
+          "statusFields": "Status-Felder",
+          "isStreaming": "Streaming",
+          "timestamp": "Zeitstempel"
+        },
+        "hints": {
+          "id": "Eindeutige Kennung dieser Nachricht",
+          "type": "player = Spielereingabe, game = KI-Antwort, system = Kontext",
+          "seq": "Reihenfolge im Gespräch",
+          "imagePrompt": "Prompt für die Bildgenerierungs-KI",
+          "statusFields": "Spielzustandsvariablen, die von der KI verfolgt werden",
+          "isStreaming": "Ob noch Inhalte empfangen werden",
+          "timestamp": "Erstellungszeitpunkt dieser Nachricht"
+        }
       }
     }
   },

@@ -188,7 +188,13 @@
       },
       "editModal": {
         "title": "Edit Game",
-        "info": "Update your game settings below. Changes are saved when you click Save."
+        "info": "Update your game settings below. Changes are saved when you click Save.",
+        "unsavedChanges": {
+          "title": "Unsaved Changes",
+          "message": "You have unsaved changes. Are you sure you want to discard them?",
+          "discard": "Discard Changes",
+          "keepEditing": "Keep Editing"
+        }
       },
       "tabs": {
         "basic": "Basic",
@@ -434,6 +440,30 @@
         "startGame": "Start Game",
         "loadError": "Failed to load API keys",
         "noKeys": "You need at least one API key to play. Add one in Settings → API Keys."
+      },
+      "statusChange": {
+        "effect": "Effect:"
+      },
+      "debug": {
+        "title": "Debug Info",
+        "fields": {
+          "id": "Message ID",
+          "type": "Type",
+          "seq": "Sequence",
+          "imagePrompt": "Image Prompt",
+          "statusFields": "Status Fields",
+          "isStreaming": "Streaming",
+          "timestamp": "Timestamp"
+        },
+        "hints": {
+          "id": "Unique identifier for this message",
+          "type": "player = user input, game = AI response, system = context",
+          "seq": "Order in the conversation",
+          "imagePrompt": "Prompt sent to image generation AI",
+          "statusFields": "Game state variables tracked by AI",
+          "isStreaming": "Whether content is still being received",
+          "timestamp": "When this message was created"
+        }
       }
     }
   },
