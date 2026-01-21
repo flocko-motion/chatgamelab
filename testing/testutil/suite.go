@@ -2,15 +2,19 @@ package testutil
 
 import (
 	"cgl/api"
+	"cgl/api/client"
+	"cgl/config"
 	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 	"time"
 
+	lorem "github.com/drhodes/golorem"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -36,6 +40,8 @@ type BaseSuite struct {
 	postgresPort  int
 	backendPort   int
 	containerName string
+	devUser       *UserClient // Default dev admin user for role assignments
+	userRegistry  map[string]*UserClient
 }
 
 // SetupSuite runs once before all tests in the suite
@@ -47,6 +53,9 @@ func (s *BaseSuite) SetupSuite() {
 	if s.SuiteName == "" {
 		s.SuiteName = "Test Suite"
 	}
+
+	// Initialize user registry
+	s.userRegistry = make(map[string]*UserClient)
 
 	// Find available ports for this test suite
 	var err error
@@ -131,6 +140,33 @@ func (s *BaseSuite) SetupSuite() {
 		s.TearDownSuite()
 		s.T().Fatalf("Backend HTTP server not ready: %v", err)
 	}
+
+	// Initialize dev user for role assignments
+	// The dev user is created during preseed with UUID 00000000-0000-0000-0000-000000000000
+	devUserID := "00000000-0000-0000-0000-000000000000"
+
+	// Ensure client is configured with correct URL
+	if err := config.SetServerConfig(TestServerURL, ""); err != nil {
+		s.TearDownSuite()
+		s.T().Fatalf("Failed to set server config: %v", err)
+	}
+
+	var jwtResponse struct {
+		Token string `json:"token"`
+	}
+	if err := client.ApiGet("users/"+devUserID+"/jwt", &jwtResponse); err != nil {
+		s.TearDownSuite()
+		s.T().Fatalf("Failed to get dev user JWT: %v", err)
+	}
+
+	s.devUser = &UserClient{
+		Name:  "dev",
+		ID:    devUserID,
+		Email: "dev@chatgamelab.local",
+		Token: jwtResponse.Token,
+		t:     s.T(),
+	}
+
 	fmt.Printf("✅ [%s] Backend fully ready!\n\n", s.SuiteName)
 }
 
@@ -150,15 +186,107 @@ func (s *BaseSuite) TearDownSuite() {
 	fmt.Printf("✅ [%s] Cleanup complete (Postgres kept running)\n\n", s.SuiteName)
 }
 
-// CreateUser creates a user with optional name and email (delegates to testutil.CreateUser)
-// Example: user := s.CreateUser() or admin := s.CreateUser("alice", "alice@example.com").Role("admin")
+// CreateUser creates a user with optional name and email
+// If name is empty, generates a random name. If email is empty, generates email as <name>@test.local
+// Example: user := s.CreateUser() or admin := s.CreateUser("alice").Role("admin")
 func (s *BaseSuite) CreateUser(nameAndEmail ...string) *UserClient {
-	return CreateUser(s.T(), nameAndEmail...)
+	s.T().Helper()
+
+	// Parse optional name and email
+	var name, email string
+	if len(nameAndEmail) > 0 && nameAndEmail[0] != "" {
+		name = nameAndEmail[0]
+	} else {
+		// Generate random name
+		name = strings.ToLower(lorem.Word(1, 2))
+	}
+
+	if len(nameAndEmail) > 1 && nameAndEmail[1] != "" {
+		email = nameAndEmail[1]
+	} else {
+		// Generate email from name
+		email = name + "@test.local"
+	}
+
+	// Save current token to restore later
+	oldToken, _ := config.GetJWT()
+
+	// Clear auth temporarily to call dev endpoints
+	if err := config.SetServerConfig(TestServerURL, ""); err != nil {
+		s.T().Fatalf("failed to clear auth: %v", err)
+	}
+
+	// Create user via dev endpoint
+	createPayload := map[string]interface{}{
+		"name":  name,
+		"email": &email,
+	}
+
+	var user struct {
+		ID string `json:"id"`
+	}
+	if err := client.ApiPost("users/new", createPayload, &user); err != nil {
+		s.T().Fatalf("failed to create user %q: %v", name, err)
+	}
+
+	// Get JWT for the user
+	var jwtResponse struct {
+		Token string `json:"token"`
+	}
+	if err := client.ApiGet("users/"+user.ID+"/jwt", &jwtResponse); err != nil {
+		s.T().Fatalf("failed to get JWT for user %q: %v", name, err)
+	}
+
+	// Restore old token
+	if oldToken != "" {
+		if err := client.SaveJwt(oldToken); err != nil {
+			s.T().Fatalf("failed to restore token: %v", err)
+		}
+	}
+
+	// Create user client with suite reference
+	userClient := &UserClient{
+		Name:  name,
+		ID:    user.ID,
+		Email: email,
+		Token: jwtResponse.Token,
+		t:     s.T(),
+	}
+
+	s.T().Logf("Created user %q (ID: %s)", name, user.ID)
+	return userClient
+}
+
+// Role sets the user's role
+func (s *BaseSuite) Role(user *UserClient, role string) {
+
+	payload := map[string]string{"role": role}
+	var result interface{}
+
+	if err := s.devUser.Post(fmt.Sprintf("users/%s/role", user.ID), payload, &result); err != nil {
+		s.T().Fatalf("failed to set role %q: %v", role, err)
+	}
+
+	s.T().Logf("assigned role %q", role)
 }
 
 // Public returns a public (unauthenticated) client (delegates to testutil.Public)
 func (s *BaseSuite) Public() *PublicClient {
 	return Public(s.T())
+}
+
+// DevUser returns the default dev admin user
+func (s *BaseSuite) DevUser() *UserClient {
+	return s.devUser
+}
+
+// User retrieves a previously created user by name from the suite's registry
+func (s *BaseSuite) User(name string) *UserClient {
+	user, ok := s.userRegistry[name]
+	if !ok {
+		s.T().Fatalf("User %q not found. Create it first with CreateUser()", name)
+	}
+	return user
 }
 
 // dropAllTables drops all tables in the test database for a clean state

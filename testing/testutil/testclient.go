@@ -10,18 +10,13 @@ import (
 
 	"cgl/api/client"
 	"cgl/config"
-
-	lorem "github.com/drhodes/golorem"
 )
 
 var (
 	TestServerURL = "http://localhost:7102" // Default, will be overridden by suite
 )
 
-// userRegistry stores created users by name
 var (
-	userRegistry   = make(map[string]*UserClient)
-	registryMu     sync.RWMutex
 	testServerInit sync.Once
 )
 
@@ -48,115 +43,12 @@ func initTestServer(t *testing.T) {
 	})
 }
 
-// CreateUser creates a new user with dev mode and returns a UserClient
-// If name is empty, generates a random name. If email is empty, generates email from name.
-// Users are stored in a singleton registry and can be retrieved with User()
-// Example: user := CreateUser(t) or user := CreateUser(t, "alice", "alice@example.com")
-func CreateUser(t *testing.T, nameAndEmail ...string) *UserClient {
-	t.Helper()
-	initTestServer(t)
-
-	// Parse optional name and email
-	var name, email string
-	if len(nameAndEmail) > 0 && nameAndEmail[0] != "" {
-		name = nameAndEmail[0]
-	} else {
-		// Generate random name
-		name = strings.ToLower(lorem.Word(1, 2))
-	}
-
-	if len(nameAndEmail) > 1 && nameAndEmail[1] != "" {
-		email = nameAndEmail[1]
-	} else {
-		// Generate email from name
-		email = name + "@test.local"
-	}
-
-	registryMu.Lock()
-	defer registryMu.Unlock()
-
-	// Check if user already exists
-	if existing, ok := userRegistry[name]; ok {
-		t.Logf("User %q already exists, reusing", name)
-		return existing
-	}
-
-	// Save current token to restore later
-	oldToken, _ := config.GetJWT()
-
-	// Clear auth temporarily to call dev endpoints
-	if err := config.SetServerConfig(TestServerURL, ""); err != nil {
-		t.Fatalf("failed to clear auth: %v", err)
-	}
-
-	// Create user via dev endpoint
-	createPayload := map[string]interface{}{
-		"name":  name,
-		"email": &email,
-	}
-
-	var user struct {
-		ID string `json:"id"`
-	}
-	if err := client.ApiPost("users/new", createPayload, &user); err != nil {
-		t.Fatalf("failed to create user %q: %v", name, err)
-	}
-
-	// Get JWT for the user
-	var jwtResponse struct {
-		Token string `json:"token"`
-	}
-	if err := client.ApiGet("users/"+user.ID+"/jwt", &jwtResponse); err != nil {
-		t.Fatalf("failed to get JWT for user %q: %v", name, err)
-	}
-
-	// Restore old token
-	if oldToken != "" {
-		if err := client.SaveJwt(oldToken); err != nil {
-			t.Fatalf("failed to restore token: %v", err)
-		}
-	}
-
-	// Create and store user client
-	userClient := &UserClient{
-		Name:  name,
-		ID:    user.ID,
-		Email: email,
-		Token: jwtResponse.Token,
-		t:     t,
-	}
-
-	userRegistry[name] = userClient
-	t.Logf("Created user %q (ID: %s)", name, user.ID)
-
-	return userClient
-}
-
-// User retrieves a user from the registry by name
-// Fails the test if the user doesn't exist
-func User(t *testing.T, name string) *UserClient {
-	t.Helper()
-
-	registryMu.RLock()
-	defer registryMu.RUnlock()
-
-	user, ok := userRegistry[name]
-	if !ok {
-		t.Fatalf("User %q not found. Create it first with CreateUser()", name)
-	}
-
-	return user
-}
-
-// Public returns a client for unauthenticated API calls
+// Public returns a public (unauthenticated) client for testing
 func Public(t *testing.T) *PublicClient {
 	t.Helper()
 	initTestServer(t)
-
 	return &PublicClient{t: t}
 }
-
-// --- Error validation helpers ---
 
 // ErrorValidator is a function that validates an error
 type ErrorValidator func(error) bool
@@ -210,29 +102,6 @@ func validateError(t *testing.T, err error, context string, validators ...ErrorV
 }
 
 // --- UserClient API methods ---
-
-// Role sets the user's role and returns the UserClient for chaining
-// Example: alice := CreateUser(t, "alice", "alice@example.com").Role("admin")
-func (u *UserClient) Role(role string) *UserClient {
-	u.t.Helper()
-
-	// Set user's token
-	if err := client.SaveJwt(u.Token); err != nil {
-		u.t.Fatalf("User %q: failed to set token for role assignment: %v", u.Name, err)
-	}
-
-	// Set role via API
-	payload := map[string]interface{}{
-		"role": role,
-	}
-
-	if err := client.ApiPost("users/"+u.ID+"/role", payload, nil); err != nil {
-		u.t.Fatalf("User %q: failed to set role %q: %v", u.Name, role, err)
-	}
-
-	u.t.Logf("User %q assigned role: %s", u.Name, role)
-	return u
-}
 
 // UploadGame uploads a game YAML file from testdata/games to an existing game
 // Example: alice.UploadGame(gameID, "simple-quest")
