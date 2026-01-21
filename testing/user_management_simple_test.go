@@ -25,15 +25,14 @@ func TestMultiUserSuite(t *testing.T) {
 // TestUserManagement tests basic user operations
 func (s *MultiUserTestSuite) TestUserManagement() {
 	// List users - should have 1 (default dev user)
-	admin := s.CreateUser("admin")
-	s.Role(admin, "admin")
-
 	var initialUsers []obj.User
-	admin.MustGet("users", &initialUsers)
+	s.DevUser().MustGet("users", &initialUsers)
 	s.Equal(1, len(initialUsers), "should have 1 user (dev user)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
-	// Create admin user (already created above)
+	// Create admin user
+	admin := s.CreateUser("admin")
+	s.Role(admin, "admin")
 	s.Equal("admin", admin.Name)
 	s.Equal("admin@test.local", admin.Email)
 
