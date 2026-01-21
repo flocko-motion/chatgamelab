@@ -28,8 +28,8 @@ export type FontColor = 'dark' | 'light' | 'hacker' | 'terminal' | 'pink' | 'amb
 export type CardBorderThickness = 'none' | 'thin' | 'medium' | 'thick';
 
 
-/** Background animation types (currently disabled) */
-export type BackgroundAnimation = 'none';
+/** Background animation types */
+export type BackgroundAnimation = 'none' | 'stars' | 'rain' | 'fog' | 'particles' | 'scanlines';
 
 /** Background tint */
 export type BackgroundTint = 

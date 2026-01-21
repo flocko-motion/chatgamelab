@@ -329,8 +329,6 @@ export function Dashboard() {
       variant="authenticated"
       navItems={navItems}
       headerProps={{
-        onNotificationsClick: () =>
-          navigationLogger.debug("Notifications clicked"),
         onSettingsClick: () => navigationLogger.debug("Settings clicked"),
         onProfileClick: () => navigationLogger.debug("Profile clicked"),
       }}
