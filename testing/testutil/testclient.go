@@ -14,8 +14,8 @@ import (
 	lorem "github.com/drhodes/golorem"
 )
 
-const (
-	TestServerURL = "http://localhost:7102"
+var (
+	TestServerURL = "http://localhost:7102" // Default, will be overridden by suite
 )
 
 // userRegistry stores created users by name

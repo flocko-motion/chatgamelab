@@ -4,7 +4,6 @@ import (
 	"cgl/api"
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -33,9 +32,6 @@ type BaseSuite struct {
 	suite.Suite
 	SuiteName     string
 	backendCancel context.CancelFunc
-	postgresPort  int
-	backendPort   int
-	containerName string
 }
 
 // SetupSuite runs once before all tests in the suite
@@ -48,41 +44,38 @@ func (s *BaseSuite) SetupSuite() {
 		s.SuiteName = "Test Suite"
 	}
 
-	// Find available ports for this test suite
-	var err error
-	s.postgresPort, err = findAvailablePort()
-	if err != nil {
-		s.T().Fatalf("Failed to find available Postgres port: %v", err)
-	}
-	s.backendPort, err = findAvailablePort()
-	if err != nil {
-		s.T().Fatalf("Failed to find available backend port: %v", err)
-	}
-	s.containerName = fmt.Sprintf("chatgamelab-db-test-%d", s.postgresPort)
+	fmt.Printf("\n🚀 [%s] Starting test environment...\n", s.SuiteName)
 
-	fmt.Printf("\n🚀 [%s] Starting test environment (Postgres:%d, Backend:%d)...\n",
-		s.SuiteName, s.postgresPort, s.backendPort)
+	// Check if Postgres is already running
+	checkCmd := exec.Command("docker", "ps", "-q", "-f", "name=chatgamelab-db-test")
+	output, _ := checkCmd.Output()
 
-	// Remove any stopped container with same name
-	exec.Command("docker", "rm", "-f", s.containerName).Run()
+	if len(output) > 0 {
+		// Postgres is running, just drop all tables for clean state
+		fmt.Printf("♻️  [%s] Postgres already running, cleaning database...\n", s.SuiteName)
+		s.dropAllTables()
+	} else {
+		// Remove any stopped container with same name
+		exec.Command("docker", "rm", "-f", "chatgamelab-db-test").Run()
 
-	// Start Postgres with docker run on random port
-	fmt.Printf("🐘 [%s] Starting Postgres on port %d...\n", s.SuiteName, s.postgresPort)
-	cmd := exec.Command("docker", "run", "-d",
-		"--name", s.containerName,
-		"-e", "POSTGRES_DB=chatgamelab",
-		"-e", "POSTGRES_USER=chatgamelab",
-		"-e", "POSTGRES_PASSWORD=testpassword",
-		"-p", fmt.Sprintf("%d:5432", s.postgresPort),
-		"postgres:18")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		s.TearDownSuite()
-		s.T().Fatalf("Failed to start Postgres: %v", err)
+		// Start Postgres with docker run
+		fmt.Printf("🐘 [%s] Starting Postgres...\n", s.SuiteName)
+		cmd := exec.Command("docker", "run", "-d",
+			"--name", "chatgamelab-db-test",
+			"-e", "POSTGRES_DB=chatgamelab",
+			"-e", "POSTGRES_USER=chatgamelab",
+			"-e", "POSTGRES_PASSWORD=testpassword",
+			"-p", "7104:5432",
+			"postgres:18")
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			s.TearDownSuite()
+			s.T().Fatalf("Failed to start Postgres: %v", err)
+		}
+		// Wait for Postgres to be ready
+		time.Sleep(3 * time.Second)
 	}
-	// Wait for Postgres to be ready
-	time.Sleep(3 * time.Second)
 
 	// Start backend in-process AFTER database is cleaned
 	// This ensures backend detects empty DB and initializes schema
@@ -93,33 +86,27 @@ func (s *BaseSuite) SetupSuite() {
 	os.Setenv("DB_USER", "chatgamelab")
 	os.Setenv("DB_PASSWORD", "testpassword")
 	os.Setenv("DB_DATABASE", "chatgamelab")
-	os.Setenv("PORT_BACKEND", fmt.Sprintf("%d", s.backendPort))
-	os.Setenv("PORT_POSTGRES", fmt.Sprintf("%d", s.postgresPort))
+	os.Setenv("PORT_BACKEND", "7102")
+	os.Setenv("PORT_POSTGRES", "7104")
 	os.Setenv("DEV_MODE", "true")
 	os.Setenv("DEV_JWT_SECRET", "testsecret123")
 	os.Setenv("AUTH0_DOMAIN", "test.auth0.domain")
 	os.Setenv("AUTH0_AUDIENCE", "test.auth0.audience")
-	os.Setenv("PUBLIC_URL", fmt.Sprintf("http://localhost:%d", s.backendPort))
-
-	// Update TestServerURL for this suite's backend port
-	TestServerURL = fmt.Sprintf("http://localhost:%d", s.backendPort)
+	os.Setenv("PUBLIC_URL", "http://localhost:7102")
 
 	// Create context for backend lifecycle
 	ctx, cancel := context.WithCancel(context.Background())
 	s.backendCancel = cancel
 
-	// Create ready channel
-	readyChan := make(chan struct{})
-
 	// Start backend in goroutine
 	go func() {
-		api.RunServer(ctx, s.backendPort, true, readyChan) // dynamic port, devMode true
+		api.RunServer(ctx, 7102, true) // port 7102, devMode true
 	}()
 
 	// Wait for backend to signal it's ready (DB initialized)
 	fmt.Printf("⏳ [%s] Waiting for backend to initialize...\n", s.SuiteName)
 	select {
-	case <-readyChan:
+	case <-api.ServerReady:
 		fmt.Printf("✅ [%s] Backend initialized, waiting for HTTP server...\n", s.SuiteName)
 	case <-time.After(30 * time.Second):
 		s.TearDownSuite()
