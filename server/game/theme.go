@@ -15,44 +15,112 @@ import (
 const ThemeGenerationPrompt = `You are a visual theme generator for a text adventure game. Generate a JSON theme based on the game's name, description, and scenario.
 
 RULES:
-1. Only customize what CLEARLY fits the game's theme. Default is better than over-styling.
-2. Include ALL fields. Do not omit any.
-3. Output ONLY valid JSON. No explanation, no markdown.
+1. Choose a preset that fits the game's theme, or use "custom" for unique themes.
+2. If using a preset, you only need to specify "preset" and optionally override specific fields.
+3. Include ALL fields when using preset: "custom". Do not omit any.
+4. Output ONLY valid JSON. No explanation, no markdown.
+5. ENSURE READABILITY: Never pair similar dark colors (e.g., dark bgColor with dark fontColor). Use high contrast:
+   - Dark backgrounds (dark, black, blue, cyan, violet, rose) → use "light" fontColor
+   - Light backgrounds (white, creme, *Light variants) → use "dark" fontColor
+   - "hacker" fontColor only with black/dark backgrounds
 
-OPTIONS:
+AVAILABLE PRESETS:
+- "default" - Neutral, warm amber accents
+- "minimal" - Clean, slate gray, no decorations
+- "fantasy" - Medieval, flourish corners, serif font, drop caps
+- "scifi" - Cyberpunk, brackets, cyan, mono font
+- "horror" - Dark, no decorations, rose accents
+- "adventure" - Exploration, arrows, emerald
+- "mystery" - Mystic/supernatural, violet, ethereal
+- "detective" - Noir/investigation, dark, amber accents
+- "space" - Cosmic, dark background, cyan, stars
+- "terminal" - Classic green on black, mono font
+- "hacker" - Aggressive red AI / green user, mono font
+- "playful" - Kids, colorful, star dividers
+- "barbie" - Pink dream, rose, flourish, diamond dividers
+- "nature" - Forest, emerald, flourish
+- "ocean" - Underwater, cyan, cool tint
+- "retro" - 80s, violet/cyan on dark
+- "western" - Wild West, amber, warm
 
-corners.style: "none" (default) | "brackets" (tech/sci-fi) | "flourish" (fantasy) | "arrows" (exploration) | "dots" (mystery)
-corners.color: "amber" (default) | "emerald" (nature) | "cyan" (tech) | "violet" (magic) | "rose" (romance/horror) | "slate" (noir)
+OPTIONS (only needed for preset: "custom"):
 
-background.animation: "none" (default) | "stars" (space) | "rain" (noir) | "fog" (horror) | "particles" (magic) | "scanlines" (retro)
-background.tint: "neutral" (default) | "warm" (cozy) | "cool" (tech/cold) | "dark" (horror/noir)
+corners.style: "none" (default) | "brackets" (tech) | "flourish" (fantasy) | "arrows" (exploration) | "dots" (mystery) | "dot" | "cursor"
+corners.color: "amber" (default) | "emerald" | "cyan" | "violet" | "rose" | "slate" | "hacker"
+
+background.tint: "neutral" (default) | "warm" | "cool" | "dark" | "black"
 
 player.color: Same colors as corners. Default: "cyan"
-player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond"
-player.showChevron: false (default). Only true for terminal/hacker themes.
-player.bgColor: "cyan" (default) | "amber" | "violet" | "slate" | "white" | "emerald" | "rose"
+player.indicator: "none" (default) | "dot" | "arrow" | "chevron" | "diamond" | "cursor" | "underscore" | "pipe"
+player.bgColor: "creme" (default) | "white" | "dark" | "black" | "blue"
+player.fontColor: "dark" (default) | "light" | "hacker"
+player.borderColor: Same colors as corners. Default: "cyan"
 
 gameMessage.dropCap: true (default). Set false for terminal/mono/minimal styles.
 gameMessage.dropCapColor: Same colors as corners. Default: matches corners.color.
+gameMessage.bgColor: "white" (default) | "creme" | "dark" | "black" | "blue"
+gameMessage.fontColor: "dark" (default) | "light" | "hacker"
+gameMessage.borderColor: Same colors as corners. Default: "amber"
+
+cards.borderThickness: "thin" (default) | "none" | "medium" | "thick"
 
 thinking.text: Thematic loading phrase IN THE SAME LANGUAGE as the scenario. Default: "The story unfolds..."
-  Examples: "Decrypting transmission...", "The mist clears...", "Die Geschichte entfaltet sich...", "El oráculo responde..."
 thinking.style: "dots" (default) | "spinner" | "pulse" | "typewriter"
+thinking.streamingCursor: "dots" (default) | "block" (█) | "pipe" (| great for terminal/hacker) | "underscore" (_) | "none"
 
 typography.messages: "sans" (default) | "serif" (classic/fantasy) | "mono" (terminal) | "fantasy" (high fantasy only)
+
+statusFields.bgColor: "creme" (default) | "white" | "dark" | "black" | "blue"
+statusFields.accentColor: Same colors as corners. Default: "amber"
+statusFields.borderColor: Same colors as corners. Default: "amber"
+statusFields.fontColor: "dark" (default) | "light" | "hacker"
+
+header.bgColor: "white" (default) | "creme" | "dark" | "black"
+header.fontColor: "dark" (default) | "light" | "hacker"
+header.accentColor: Same colors as corners. Default: "amber"
+
+divider.style: "dot" (default) | "dots" | "line" | "diamond" | "star" | "dash" | "none"
+divider.color: Same colors as corners. Default: "amber"
 
 statusEmojis: Map status field names to emoji. Use {} if no obvious mappings.
   Common: Health→❤️, Gold→🪙, Energy→⚡, Mana→🔮, Food→🍖, Time→⏰
 
-EXAMPLE (mostly defaults for a generic adventure):
+STRUCTURE:
 {
-  "corners": { "style": "none", "color": "amber" },
-  "background": { "animation": "none", "tint": "neutral" },
-  "player": { "color": "cyan", "indicator": "none", "showChevron": false, "bgColor": "cyan" },
-  "gameMessage": { "dropCap": true, "dropCapColor": "amber" },
-  "thinking": { "text": "The story unfolds...", "style": "dots" },
-  "typography": { "messages": "sans" },
-  "statusEmojis": {}
+  "preset": "<preset_name>",
+  "override": { ...only fields you want to change from preset defaults... }
+}
+
+EXAMPLE 1 (preset only - PREFERRED, simplest):
+{
+  "preset": "space"
+}
+
+EXAMPLE 2 (preset with overrides):
+{
+  "preset": "fantasy",
+  "override": {
+    "thinking": { "text": "The tale continues..." },
+    "statusEmojis": { "Health": "❤️", "Gold": "🪙" }
+  }
+}
+
+EXAMPLE 3 (custom theme - all fields required in override):
+{
+  "preset": "custom",
+  "override": {
+    "corners": { "style": "none", "color": "amber" },
+    "background": { "tint": "neutral" },
+    "player": { "color": "cyan", "indicator": "none", "bgColor": "creme", "fontColor": "dark", "borderColor": "cyan" },
+    "gameMessage": { "dropCap": true, "dropCapColor": "amber", "bgColor": "white", "fontColor": "dark", "borderColor": "amber" },
+    "cards": { "borderThickness": "thin" },
+    "thinking": { "text": "The story unfolds...", "style": "dots", "streamingCursor": "dots" },
+    "typography": { "messages": "sans" },
+    "statusFields": { "bgColor": "creme", "accentColor": "amber", "borderColor": "amber", "fontColor": "dark" },
+    "header": { "bgColor": "white", "fontColor": "dark", "accentColor": "amber" },
+    "divider": { "style": "dot", "color": "amber" },
+    "statusEmojis": {}
+  }
 }`
 
 // GenerateTheme generates a visual theme for the game based on its description
@@ -140,103 +208,182 @@ func parseThemeResponse(response string) (*obj.GameTheme, error) {
 	return &theme, nil
 }
 
-// validateTheme ensures all theme values are valid, setting defaults for invalid ones
+// validPresets lists all valid preset names
+var validPresets = map[string]bool{
+	"default": true, "minimal": true, "fantasy": true, "scifi": true, "horror": true,
+	"adventure": true, "mystery": true, "detective": true, "space": true,
+	"terminal": true, "hacker": true,
+	"playful": true, "barbie": true, "nature": true, "ocean": true, "retro": true,
+	"western": true, "custom": true,
+}
+
+// validateTheme ensures all theme values are valid
 func validateTheme(theme obj.GameTheme) obj.GameTheme {
-	// Validate corner style (default: none)
-	validStyles := map[string]bool{"none": true, "brackets": true, "flourish": true, "arrows": true, "dots": true}
-	if !validStyles[theme.Corners.Style] {
-		theme.Corners.Style = "none"
+	// Validate preset name (default to "default" if invalid)
+	if !validPresets[theme.Preset] {
+		theme.Preset = "default"
 	}
 
-	// Validate colors (default: amber for corners, cyan for player)
-	validColors := map[string]bool{"amber": true, "emerald": true, "cyan": true, "violet": true, "rose": true, "slate": true}
-	if !validColors[theme.Corners.Color] {
-		theme.Corners.Color = "amber"
-	}
-	if !validColors[theme.Player.Color] {
-		theme.Player.Color = "cyan"
-	}
-	if !validColors[theme.GameMessage.DropCapColor] {
-		// Default drop cap color should align with the overall accent (corners)
-		theme.GameMessage.DropCapColor = theme.Corners.Color
-	}
-
-	// Validate background animation (default: none)
-	validAnimations := map[string]bool{"none": true, "stars": true, "rain": true, "fog": true, "particles": true, "scanlines": true}
-	if !validAnimations[theme.Background.Animation] {
-		theme.Background.Animation = "none"
-	}
-
-	// Validate background tint (default: neutral)
-	validTints := map[string]bool{"neutral": true, "warm": true, "cool": true, "dark": true}
-	if !validTints[theme.Background.Tint] {
-		theme.Background.Tint = "neutral"
-	}
-
-	// Validate player indicator (default: none)
-	validIndicators := map[string]bool{"none": true, "dot": true, "arrow": true, "chevron": true, "diamond": true}
-	if !validIndicators[theme.Player.Indicator] {
-		theme.Player.Indicator = "none"
-	}
-
-	// Validate player bg color (default: cyan)
-	validPlayerBgColors := map[string]bool{"cyan": true, "amber": true, "violet": true, "slate": true, "white": true, "emerald": true, "rose": true}
-	if !validPlayerBgColors[theme.Player.BgColor] {
-		theme.Player.BgColor = "cyan"
-	}
-
-	// Validate thinking style
-	validThinkingStyles := map[string]bool{"dots": true, "spinner": true, "pulse": true, "typewriter": true}
-	if !validThinkingStyles[theme.Thinking.Style] {
-		theme.Thinking.Style = "dots"
-	}
-	if theme.Thinking.Text == "" {
-		theme.Thinking.Text = "The story unfolds..."
-	}
-
-	// Validate typography
-	validFonts := map[string]bool{"serif": true, "sans": true, "mono": true, "fantasy": true}
-	if !validFonts[theme.Typography.Messages] {
-		theme.Typography.Messages = "sans"
-	}
-
-	// Initialize status emojis if nil
-	if theme.StatusEmojis == nil {
-		theme.StatusEmojis = make(map[string]string)
+	// Validate override fields if present
+	if theme.Override != nil {
+		theme.Override = validateOverride(theme.Override)
 	}
 
 	return theme
 }
 
+// validateOverride validates the override fields
+func validateOverride(override *obj.GameThemeOverride) *obj.GameThemeOverride {
+	validColors := map[string]bool{
+		"amber": true, "emerald": true, "cyan": true, "violet": true, "rose": true, "slate": true,
+		"hacker": true, "terminal": true,
+		"brown": true, "brownLight": true, "pink": true, "pinkLight": true, "orange": true, "orangeLight": true,
+	}
+	validBgColors := map[string]bool{
+		"white": true, "creme": true, "dark": true, "black": true,
+		"blue": true, "blueLight": true, "green": true, "greenLight": true, "red": true, "redLight": true,
+		"amber": true, "amberLight": true, "violet": true, "violetLight": true, "rose": true, "roseLight": true, "cyan": true, "cyanLight": true,
+		"pink": true, "pinkLight": true, "orange": true, "orangeLight": true,
+	}
+	validFontColors := map[string]bool{
+		"dark": true, "light": true, "hacker": true, "terminal": true,
+		"pink": true, "amber": true, "cyan": true, "violet": true,
+	}
+	validStyles := map[string]bool{"none": true, "brackets": true, "flourish": true, "arrows": true, "dots": true, "dot": true, "cursor": true}
+	validTints := map[string]bool{
+		"neutral": true, "warm": true, "cool": true, "dark": true, "black": true,
+		"pink": true, "green": true, "blue": true, "violet": true,
+		"darkCyan": true, "darkViolet": true, "darkBlue": true, "darkRose": true,
+	}
+	validIndicators := map[string]bool{"none": true, "dot": true, "arrow": true, "chevron": true, "diamond": true, "cursor": true, "underscore": true, "pipe": true, "star": true}
+	validThicknesses := map[string]bool{"none": true, "thin": true, "medium": true, "thick": true}
+	validThinkingStyles := map[string]bool{"dots": true, "spinner": true, "pulse": true, "typewriter": true}
+	validStreamingCursors := map[string]bool{"dots": true, "block": true, "pipe": true, "underscore": true, "none": true}
+	validFonts := map[string]bool{"serif": true, "sans": true, "mono": true, "fantasy": true}
+	validDividerStyles := map[string]bool{"dot": true, "dots": true, "line": true, "diamond": true, "star": true, "dash": true, "none": true}
+
+	// Validate corners
+	if override.Corners != nil {
+		if override.Corners.Style != "" && !validStyles[override.Corners.Style] {
+			override.Corners.Style = ""
+		}
+		if override.Corners.Color != "" && !validColors[override.Corners.Color] {
+			override.Corners.Color = ""
+		}
+	}
+
+	// Validate background
+	if override.Background != nil {
+		if override.Background.Tint != "" && !validTints[override.Background.Tint] {
+			override.Background.Tint = ""
+		}
+	}
+
+	// Validate player
+	if override.Player != nil {
+		if override.Player.Color != "" && !validColors[override.Player.Color] {
+			override.Player.Color = ""
+		}
+		if override.Player.Indicator != "" && !validIndicators[override.Player.Indicator] {
+			override.Player.Indicator = ""
+		}
+		if override.Player.BgColor != "" && !validBgColors[override.Player.BgColor] {
+			override.Player.BgColor = ""
+		}
+		if override.Player.FontColor != "" && !validFontColors[override.Player.FontColor] {
+			override.Player.FontColor = ""
+		}
+		if override.Player.BorderColor != "" && !validColors[override.Player.BorderColor] {
+			override.Player.BorderColor = ""
+		}
+	}
+
+	// Validate game message
+	if override.GameMessage != nil {
+		if override.GameMessage.DropCapColor != "" && !validColors[override.GameMessage.DropCapColor] {
+			override.GameMessage.DropCapColor = ""
+		}
+		if override.GameMessage.BgColor != "" && !validBgColors[override.GameMessage.BgColor] {
+			override.GameMessage.BgColor = ""
+		}
+		if override.GameMessage.FontColor != "" && !validFontColors[override.GameMessage.FontColor] {
+			override.GameMessage.FontColor = ""
+		}
+		if override.GameMessage.BorderColor != "" && !validColors[override.GameMessage.BorderColor] {
+			override.GameMessage.BorderColor = ""
+		}
+	}
+
+	// Validate cards
+	if override.Cards != nil {
+		if override.Cards.BorderThickness != "" && !validThicknesses[override.Cards.BorderThickness] {
+			override.Cards.BorderThickness = ""
+		}
+	}
+
+	// Validate thinking
+	if override.Thinking != nil {
+		if override.Thinking.Style != "" && !validThinkingStyles[override.Thinking.Style] {
+			override.Thinking.Style = ""
+		}
+		if override.Thinking.StreamingCursor != "" && !validStreamingCursors[override.Thinking.StreamingCursor] {
+			override.Thinking.StreamingCursor = ""
+		}
+	}
+
+	// Validate typography
+	if override.Typography != nil {
+		if override.Typography.Messages != "" && !validFonts[override.Typography.Messages] {
+			override.Typography.Messages = ""
+		}
+	}
+
+	// Validate status fields
+	if override.StatusFields != nil {
+		if override.StatusFields.BgColor != "" && !validBgColors[override.StatusFields.BgColor] {
+			override.StatusFields.BgColor = ""
+		}
+		if override.StatusFields.AccentColor != "" && !validColors[override.StatusFields.AccentColor] {
+			override.StatusFields.AccentColor = ""
+		}
+		if override.StatusFields.BorderColor != "" && !validColors[override.StatusFields.BorderColor] {
+			override.StatusFields.BorderColor = ""
+		}
+		if override.StatusFields.FontColor != "" && !validFontColors[override.StatusFields.FontColor] {
+			override.StatusFields.FontColor = ""
+		}
+	}
+
+	// Validate header
+	if override.Header != nil {
+		if override.Header.BgColor != "" && !validBgColors[override.Header.BgColor] {
+			override.Header.BgColor = ""
+		}
+		if override.Header.FontColor != "" && !validFontColors[override.Header.FontColor] {
+			override.Header.FontColor = ""
+		}
+		if override.Header.AccentColor != "" && !validColors[override.Header.AccentColor] {
+			override.Header.AccentColor = ""
+		}
+	}
+
+	// Validate divider
+	if override.Divider != nil {
+		if override.Divider.Style != "" && !validDividerStyles[override.Divider.Style] {
+			override.Divider.Style = ""
+		}
+		if override.Divider.Color != "" && !validColors[override.Divider.Color] {
+			override.Divider.Color = ""
+		}
+	}
+
+	return override
+}
+
 // defaultTheme returns the default neutral theme
 func defaultTheme() *obj.GameTheme {
 	return &obj.GameTheme{
-		Corners: obj.GameThemeCorners{
-			Style: "none",
-			Color: "amber",
-		},
-		Background: obj.GameThemeBackground{
-			Animation: "none",
-			Tint:      "neutral",
-		},
-		Player: obj.GameThemePlayer{
-			Color:       "cyan",
-			Indicator:   "none",
-			ShowChevron: false,
-			BgColor:     "cyan",
-		},
-		GameMessage: obj.GameThemeGameMessage{
-			DropCap:      true,
-			DropCapColor: "amber",
-		},
-		Thinking: obj.GameThemeThinking{
-			Text:  "The story unfolds...",
-			Style: "dots",
-		},
-		Typography: obj.GameThemeTypography{
-			Messages: "sans",
-		},
-		StatusEmojis: make(map[string]string),
+		Preset: "default",
 	}
 }
 
