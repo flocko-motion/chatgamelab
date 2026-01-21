@@ -16,7 +16,7 @@ import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconEye, IconEdit
 import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
-import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml } from '@/api/hooks';
+import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml, useImportGameYaml } from '@/api/hooks';
 import type { ObjGame } from '@/api/generated';
 import { type SortField, type CreateGameFormData } from '../types';
 import { GamesTable } from './GamesTable';
@@ -44,6 +44,7 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
 
   const { data: games, isLoading, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc' });
   const createGame = useCreateGame();
+  const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
   const exportGameYaml = useExportGameYaml();
   const importGameYaml = useImportGameYaml();
@@ -58,12 +59,23 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
         description: data.description,
         public: data.isPublic,
       });
-      closeCreateModal();
-      // Open the new game in edit mode
-      if (newGame.id) {
-        setGameToView(newGame.id);
-        openViewModal();
+      
+      // Update with additional fields if provided
+      const hasExtraFields = data.systemMessageScenario || data.systemMessageGameStart || data.imageStyle || data.statusFields;
+      if (newGame.id && hasExtraFields) {
+        await updateGame.mutateAsync({
+          id: newGame.id,
+          game: {
+            ...newGame,
+            systemMessageScenario: data.systemMessageScenario,
+            systemMessageGameStart: data.systemMessageGameStart,
+            imageStyle: data.imageStyle,
+            statusFields: data.statusFields,
+          },
+        });
       }
+      
+      closeCreateModal();
     } catch {
       // Error handled by mutation
     }

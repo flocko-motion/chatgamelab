@@ -20,7 +20,7 @@ import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
-import { useGames, useCreateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
+import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
 import { type CreateGameFormData } from '../types';
 import { GameEditModal } from './GameEditModal';
@@ -56,6 +56,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField as 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator', sortDir, filter: 'own', search: debouncedSearch || undefined });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const createGame = useCreateGame();
+  const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
   const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
@@ -92,11 +93,23 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
         description: data.description,
         public: data.isPublic,
       });
-      closeCreateModal();
-      if (newGame.id) {
-        setGameToView(newGame.id);
-        openViewModal();
+      
+      // Update with additional fields if provided
+      const hasExtraFields = data.systemMessageScenario || data.systemMessageGameStart || data.imageStyle || data.statusFields;
+      if (newGame.id && hasExtraFields) {
+        await updateGame.mutateAsync({
+          id: newGame.id,
+          game: {
+            ...newGame,
+            systemMessageScenario: data.systemMessageScenario,
+            systemMessageGameStart: data.systemMessageGameStart,
+            imageStyle: data.imageStyle,
+            statusFields: data.statusFields,
+          },
+        });
       }
+      
+      closeCreateModal();
     } catch {
       // Error handled by mutation
     }
