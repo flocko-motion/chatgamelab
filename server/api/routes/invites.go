@@ -321,10 +321,19 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Success - return accepted status
-	httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
-		Message: "Invite accepted",
-	})
+	// Fetch the updated invite to return it
+	updatedInvite, err := db.GetInviteByID(r.Context(), user.ID, inviteID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Success - return the updated invite
+	httpx.WriteJSON(w, http.StatusOK, updatedInvite)
 }
 
 // DeclineInvite godoc
