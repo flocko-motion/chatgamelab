@@ -216,6 +216,24 @@ func Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
+		// Check for participant token (prefixed with "participant-")
+		if strings.HasPrefix(authHeader, "Bearer participant-") {
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+
+			// Lookup user by participant token
+			// SQL query validates: user exists, has participant role, linked to active workshop
+			user, err := db.GetUserByParticipantToken(r.Context(), token)
+			if err != nil {
+				log.Debug("participant token invalid or workshop not active", "error", err)
+				WriteError(w, http.StatusUnauthorized, "Invalid token or workshop not active")
+				return
+			}
+
+			log.Debug("participant token authenticated", "user_id", user.ID, "user_name", user.Name)
+			next.ServeHTTP(w, WithUser(r, user))
+			return
+		}
+
 		// Try CGL dev JWT first (HS256, signed with JWT_SECRET)
 		if userId, valid := auth.ValidateToken(r); valid {
 			if userId == "" {

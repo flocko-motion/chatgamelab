@@ -227,23 +227,67 @@ func CreateWorkshopInvite(w http.ResponseWriter, r *http.Request) {
 // AcceptInvite godoc
 //
 //	@Summary		Accept invite
-//	@Description	Accepts an invite by ID. Use GET /invites/{token} to look up the ID first if you have a token.
+//	@Description	Accepts an invite by ID or token. For workshop invites, can be used anonymously (creates ad-hoc user). For institution invites, requires authentication.
 //	@Tags			invites
 //	@Produce		json
-//	@Param			id	path		string	true	"Invite ID (UUID)"
-//	@Success		200	{object}	obj.UserRoleInvite
-//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		404	{object}	httpx.ErrorResponse	"Not found"
+//	@Param			idOrToken	path		string	true	"Invite ID (UUID) or token"
+//	@Success		200			{object}	AcceptInviteResponse
+//	@Failure		400			{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		403			{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404			{object}	httpx.ErrorResponse	"Not found"
 //	@Security		BearerAuth
-//	@Router			/invites/{id}/accept [post]
+//	@Router			/invites/{idOrToken}/accept [post]
 func AcceptInvite(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
+	user := httpx.MaybeUserFromRequest(r) // Optional auth - may be nil for anonymous workshop invites
 
-	idStr := httpx.PathParam(r, "id")
-	inviteID, err := uuid.Parse(idStr)
-	if err != nil {
-		httpx.WriteAppError(w, obj.ErrValidation("Invalid invite ID"))
+	idOrToken := httpx.PathParam(r, "idOrToken")
+
+	// Try to parse as UUID first
+	inviteID, err := uuid.Parse(idOrToken)
+	isToken := err != nil
+
+	if isToken {
+		// It's a token - check if it's a workshop invite that can be accepted anonymously
+		if user == nil {
+			// Anonymous user accepting workshop invite
+			createdUser, authToken, err := db.AcceptWorkshopInviteAnonymously(r.Context(), idOrToken)
+			if err != nil {
+				if appErr, ok := err.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				User:      createdUser,
+				AuthToken: &authToken,
+				Message:   "Workshop invite accepted, user created",
+			})
+			return
+		}
+
+		// Authenticated user accepting open invite by token
+		_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
+		if acceptErr != nil {
+			if appErr, ok := acceptErr.(*obj.AppError); ok {
+				httpx.WriteAppError(w, appErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+			return
+		}
+
+		httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+			Message: "Invite accepted",
+		})
+		return
+	}
+
+	// It's a UUID - requires authentication
+	if user == nil {
+		httpx.WriteAppError(w, obj.ErrUnauthorized("Authentication required for targeted invites"))
 		return
 	}
 
@@ -278,9 +322,8 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Success - return accepted status
-	httpx.WriteJSON(w, http.StatusOK, obj.UserRoleInvite{
-		ID:     inviteID,
-		Status: obj.InviteStatusAccepted,
+	httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+		Message: "Invite accepted",
 	})
 }
 
@@ -408,4 +451,11 @@ func ReactivateInvite(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Invite reactivated",
 	})
+}
+
+// AcceptInviteResponse represents the response when accepting an invite
+type AcceptInviteResponse struct {
+	User      *obj.User `json:"user,omitempty"`
+	AuthToken *string   `json:"authToken,omitempty"`
+	Message   string    `json:"message"`
 }

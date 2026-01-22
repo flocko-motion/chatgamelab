@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"time"
 
+	ung "github.com/dillonstreator/go-unique-name-generator"
+	dictionaries "github.com/dillonstreator/go-unique-name-generator/dictionaries"
 	"github.com/google/uuid"
 )
 
@@ -581,4 +583,112 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		return uuid.Nil, fmt.Errorf("failed to create user role: no ID returned")
 	}
 	return roleID.UUID, nil
+}
+
+// AcceptWorkshopInviteAnonymously accepts a workshop invite token without authentication.
+// Creates an ad-hoc user account with a generated name and assigns them as a participant.
+// Returns the created user and their authentication token.
+//
+// IMPORTANT CONSTRAINTS for anonymous participants:
+// - They are bound to their workshop via the participant role and CANNOT change roles
+// - They can only acquire a JWT (short-lived) if the workshop is still active
+// - The auth token is their permanent credential stored in the auth0_id field
+func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*obj.User, string, error) {
+	// Get the invite by token
+	invite, err := queries().GetInviteByToken(ctx, sql.NullString{String: inviteToken, Valid: true})
+	if err != nil {
+		return nil, "", obj.ErrNotFound("invite not found")
+	}
+
+	// Validate this is a workshop invite
+	if !invite.WorkshopID.Valid {
+		return nil, "", obj.ErrValidation("this is not a workshop invite")
+	}
+
+	// Validate invite status
+	if invite.Status != string(obj.InviteStatusPending) {
+		return nil, "", obj.ErrValidationf("invite is not pending (status: %s)", invite.Status)
+	}
+
+	// Check expiration
+	if invite.ExpiresAt.Valid && invite.ExpiresAt.Time.Before(time.Now()) {
+		return nil, "", obj.ErrValidation("invite has expired")
+	}
+
+	// Check max uses
+	if invite.MaxUses.Valid && invite.UsesCount >= invite.MaxUses.Int32 {
+		return nil, "", obj.ErrValidation("invite has reached maximum uses")
+	}
+
+	// Generate funny readable name for anonymous participant (e.g., "red-dragon")
+	nameGenerator := ung.NewUniqueNameGenerator(
+		ung.WithDictionaries(
+			[][]string{
+				dictionaries.Colors,
+				dictionaries.Animals,
+			},
+		),
+		ung.WithSeparator("-"),
+	)
+	anonymousName := nameGenerator.Generate()
+
+	// Generate participant token for this participant (prefixed to distinguish from JWT)
+	participantToken := "participant-" + functional.First(functional.GenerateSecureToken(32))
+
+	// Use a transaction to ensure atomicity (create user + create role + increment uses)
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to begin transaction")
+	}
+	defer tx.Rollback()
+
+	txQueries := queries().WithTx(tx)
+
+	// Generate user ID
+	userID := uuid.New()
+
+	// Create anonymous user with participant token (no email, no auth0_id)
+	userArg := db.CreateUserWithParticipantTokenParams{
+		ID:               userID,
+		Name:             anonymousName,
+		Email:            sql.NullString{Valid: false},
+		Auth0ID:          sql.NullString{Valid: false},
+		ParticipantToken: sql.NullString{String: participantToken, Valid: true},
+	}
+	_, err = txQueries.CreateUserWithParticipantToken(ctx, userArg)
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to create user")
+	}
+
+	// Create participant role for the workshop
+	roleArg := db.CreateUserRoleParams{
+		UserID:        userID,
+		Role:          sql.NullString{String: string(obj.RoleParticipant), Valid: true},
+		InstitutionID: uuid.NullUUID{UUID: invite.InstitutionID, Valid: true},
+		WorkshopID:    invite.WorkshopID,
+	}
+	_, err = txQueries.CreateUserRole(ctx, roleArg)
+	if err != nil {
+		return nil, "", obj.ErrServerError("failed to create participant role")
+	}
+
+	// Increment uses count
+	if err := txQueries.IncrementInviteUses(ctx, invite.ID); err != nil {
+		return nil, "", fmt.Errorf("failed to increment invite uses: %w", err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return nil, "", obj.ErrServerError("failed to commit transaction")
+	}
+
+	// Get the created user
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, "", obj.ErrServerErrorf("failed to retrieve created user: %v", err)
+	}
+
+	// Return the user and their participant token (prefixed with "participant-")
+	// This token will be detected by auth middleware and handled via DB lookup
+	return user, participantToken, nil
 }

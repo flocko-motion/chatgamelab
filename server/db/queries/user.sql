@@ -11,8 +11,29 @@ VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
+-- name: CreateUserWithParticipantToken :one
+INSERT INTO app_user (id, name, email, auth0_id, participant_token)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
+
+-- name: GetUserByAuth0ID :one
+SELECT * FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL;
+
+-- name: GetUserByParticipantToken :one
+-- Get user by participant token, but only if they're linked to an active workshop
+SELECT u.* 
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+INNER JOIN workshop w ON ur.workshop_id = w.id
+WHERE u.participant_token = $1 
+  AND u.deleted_at IS NULL
+  AND ur.role = 'participant'
+  AND w.active = true
+  AND w.deleted_at IS NULL;
 
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
@@ -203,6 +224,31 @@ SELECT EXISTS(
     SELECT 1 FROM user_role 
     WHERE user_id = $1 AND workshop_id = $2
 ) AS has_role;
+
+-- name: GetUsersByWorkshop :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  u.deleted_at, u.auth0_id,
+  ur.id as role_id, ur.role, ur.institution_id, ur.workshop_id
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.workshop_id = $1
+  AND u.deleted_at IS NULL;
+
+-- name: GetWorkshopParticipants :many
+-- Get all participants for a workshop, including:
+-- 1. Users with RoleParticipant (anonymous participants)
+-- 2. Workshop owner/creator (staff/head who created it)
+SELECT 
+  u.id, u.name, u.auth0_id,
+  COALESCE(ur.created_at, w.created_at) as joined_at
+FROM app_user u
+LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
+INNER JOIN workshop w ON w.id = $1
+WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
+  AND u.deleted_at IS NULL
+ORDER BY joined_at ASC;
 
 -- name: GetInviteByID :one
 SELECT * FROM user_role_invite WHERE id = $1;

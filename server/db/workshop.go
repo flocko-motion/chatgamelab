@@ -144,13 +144,50 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		invites = append(invites, invite)
 	}
 
+	// Fetch workshop participants (only visible to participants, workshop owner, and institution heads)
+	var participants []obj.WorkshopParticipant
+
+	// Check if user has permission to see participants
+	createdBy := uuid.Nil
+	if result.CreatedBy.Valid {
+		createdBy = result.CreatedBy.UUID
+	}
+
+	if err := canAccessWorkshopParticipants(ctx, userID, id, createdBy, result.InstitutionID); err == nil {
+		participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: id, Valid: true})
+		if err != nil {
+			// Don't fail if we can't get participants, just return empty list
+			participantRows = []db.GetWorkshopParticipantsRow{}
+		}
+
+		// Convert participants to obj.WorkshopParticipant
+		participants = make([]obj.WorkshopParticipant, 0, len(participantRows))
+		for _, p := range participantRows {
+			participant := obj.WorkshopParticipant{
+				ID:          p.ID,
+				WorkshopID:  id,
+				Name:        p.Name,
+				AccessToken: p.Auth0ID.String, // Auth token stored in auth0_id field
+				Active:      true,
+				Meta: obj.Meta{
+					CreatedAt: &p.JoinedAt,
+				},
+			}
+			participants = append(participants, participant)
+		}
+	} else {
+		// User doesn't have permission to see participants, return empty list
+		participants = []obj.WorkshopParticipant{}
+	}
+
 	return &obj.Workshop{
-		ID:          result.ID,
-		Name:        result.Name,
-		Institution: &obj.Institution{ID: result.InstitutionID},
-		Active:      result.Active,
-		Public:      result.Public,
-		Invites:     invites,
+		ID:           result.ID,
+		Name:         result.Name,
+		Institution:  &obj.Institution{ID: result.InstitutionID},
+		Active:       result.Active,
+		Public:       result.Public,
+		Participants: participants,
+		Invites:      invites,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

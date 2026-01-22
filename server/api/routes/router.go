@@ -57,6 +57,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
+	mux.Handle("DELETE /api/users/{id}", httpx.RequireAuth(DeleteUser))
 	mux.Handle("POST /api/users/{id}/role", httpx.RequireAuth(SetUserRole))
 	mux.Handle("DELETE /api/users/{id}/role", httpx.RequireAuth(RemoveUserRole))
 	if DevMode {
@@ -83,7 +84,7 @@ func NewMux() *http.ServeMux {
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
 	mux.Handle("GET /api/invites/{idOrToken}", httpx.RequireAuth(GetInvite))
-	mux.Handle("POST /api/invites/{id}/accept", httpx.RequireAuth(AcceptInvite))
+	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.OptionalAuth(AcceptInvite)) // Optional auth - supports anonymous workshop invites
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))

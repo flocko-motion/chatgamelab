@@ -139,6 +139,93 @@ func canAccessWorkshopInvites(ctx context.Context, userID uuid.UUID, institution
 	return obj.ErrForbidden("only admin, head, or staff can view workshop invites")
 }
 
+// canAccessWorkshopParticipants checks if user can view workshop participants
+// Only participants, workshop owner, and institution heads can view the participant list
+func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, workshopID uuid.UUID, workshopCreatedBy uuid.UUID, institutionID uuid.UUID) error {
+	// Workshop owner can always see participants
+	if workshopCreatedBy == userID {
+		return nil
+	}
+
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	// Admin can view all participants
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Participant in this workshop can see other participants
+	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.ID == workshopID && user.Role.Role == obj.RoleParticipant {
+		return nil
+	}
+
+	// Head of the institution that owns this workshop can see participants
+	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && user.Role.Role == obj.RoleHead {
+		return nil
+	}
+
+	return obj.ErrForbidden("only participants, workshop owner, or institution head can view participant list")
+}
+
+// CanDeleteUser checks if user can delete another user
+// - Admins can delete any user
+// - Staff/heads can only delete anonymous participants (those with participant_token) in their institution
+func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
+	currentUser, err := GetUserByID(ctx, currentUserID)
+	if err != nil {
+		return obj.ErrNotFound("current user not found")
+	}
+
+	// Admin can delete any user
+	if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Staff/heads can only delete anonymous participants in their institution
+	if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleStaff || currentUser.Role.Role == obj.RoleHead) {
+		// Get target user
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+
+		// Must be a participant
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant {
+			return obj.ErrForbidden("can only delete anonymous participants")
+		}
+
+		// Must be in the same institution
+		if targetUser.Role.Institution == nil || currentUser.Role.Institution == nil ||
+			targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("can only delete participants in your institution")
+		}
+
+		// Must be an anonymous participant (has participant_token AND no auth0_id)
+		// Regular users with Auth0 accounts cannot be deleted by staff/heads, even if they're participants
+		rawUser, err := GetUserByIDRaw(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+
+		// Check if this is truly an anonymous user (no Auth0 account)
+		if rawUser.Auth0ID.Valid && rawUser.Auth0ID.String != "" {
+			return obj.ErrForbidden("can only delete anonymous participants, not regular users")
+		}
+
+		// Must have a participant token (anonymous participant)
+		if !rawUser.ParticipantToken.Valid || rawUser.ParticipantToken.String == "" {
+			return obj.ErrForbidden("can only delete anonymous participants")
+		}
+
+		return nil
+	}
+
+	return obj.ErrForbidden("insufficient permissions to delete users")
+}
+
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop
 // - operation: the type of CRUD operation (create, read, update, delete, list)
 // - institutionID: the institution the workshop belongs to

@@ -253,3 +253,124 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.Error(steveViewPrivateErr, "Steve should not be able to view private workshop")
 	s.T().Logf("Steve cannot view private workshop (expected)")
 }
+
+// TestWorkshopInvites tests the complete workshop invite workflow:
+// institution with one head and one staff member, creating one workshop,
+// creating public invite, anonymous users coming with such a token get a
+// ad-hoc created user account and are added to the workshop as participant - the user authenticates with a newly generated token (token can be traded for jwt anytime)
+// workshop owner(s) can list such users and deactivate them at will (user account is deleted)
+// they can revoke the invite to stop new users coming in
+func (s *MultiUserTestSuite) TestWorkshopInvites() {
+	// Create users
+	clientHead := s.CreateUser("workshop-head")
+	clientStaff := s.CreateUser("workshop-staff")
+
+	// Admin creates institution
+	institution := Must(s.clientAdmin.CreateInstitution("Workshop Invite Test Institution"))
+	s.T().Logf("Created institution: %s", institution.Name)
+
+	// Admin invites head
+	headInvite := Must(s.clientAdmin.InviteToInstitution(
+		institution.ID.String(),
+		string(obj.RoleHead),
+		clientHead.ID,
+	))
+	Must(clientHead.AcceptInvite(headInvite.ID.String()))
+	s.T().Logf("Head joined institution")
+
+	// Head invites staff
+	staffInvite := Must(clientHead.InviteToInstitution(
+		institution.ID.String(),
+		string(obj.RoleStaff),
+		clientStaff.ID,
+	))
+	Must(clientStaff.AcceptInvite(staffInvite.ID.String()))
+	s.T().Logf("Staff joined institution")
+
+	// Staff creates a workshop
+	workshop := Must(clientStaff.CreateWorkshop(institution.ID.String(), "Anonymous Participant Workshop"))
+	s.NotEmpty(workshop.ID)
+	s.Equal("Anonymous Participant Workshop", workshop.Name)
+	s.T().Logf("Created workshop: %s", workshop.Name)
+
+	// Staff creates a workshop invite (open invite with token)
+	workshopInvite := Must(clientStaff.CreateWorkshopInvite(workshop.ID.String(), string(obj.RoleParticipant)))
+	s.NotEmpty(workshopInvite.ID)
+	s.NotNil(workshopInvite.InviteToken)
+	s.T().Logf("Created workshop invite with token: %s", *workshopInvite.InviteToken)
+
+	// Anonymous user accepts invite via token (no authentication)
+	// This should create an ad-hoc user account with a funny name and return auth token
+	participant1Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	s.NoError(err, "should be able to accept workshop invite anonymously")
+	s.NotNil(participant1Response.User)
+	s.NotEmpty(participant1Response.User.Name)
+	s.NotNil(participant1Response.AuthToken)
+	s.T().Logf("Anonymous user 1 created: %s (token: %s...)", participant1Response.User.Name, (*participant1Response.AuthToken)[:10])
+
+	// Create client for participant 1 using ONLY their auth token (low-barrier login)
+	clientParticipant1 := s.CreateUserWithToken(*participant1Response.AuthToken)
+	s.Equal(participant1Response.User.Name, clientParticipant1.Name)
+	s.T().Logf("Participant 1 authenticated with token only")
+
+	// Participant 1 can see workshop
+	_ = Must(clientParticipant1.GetWorkshop(workshop.ID.String()))
+	s.T().Logf("Participant 1 can see workshop")
+
+	// Another anonymous user accepts the same invite
+	participant2Response, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	s.NoError(err, "should be able to accept workshop invite anonymously")
+	s.NotNil(participant2Response.User)
+	s.NotEmpty(participant2Response.User.Name)
+	s.NotEqual(participant1Response.User.Name, participant2Response.User.Name, "participants should have different names")
+	s.T().Logf("Anonymous user 2 created: %s", participant2Response.User.Name)
+
+	// Participant can see workshop and all other participants (they're in the same workshop!)
+	workshopFromParticipant := Must(clientParticipant1.GetWorkshop(workshop.ID.String()))
+	s.Equal(workshop.ID, workshopFromParticipant.ID)
+	// Should see: workshop owner (staff) + 2 anonymous participants = 3 total
+	s.Equal(3, len(workshopFromParticipant.Participants), "should see workshop owner + 2 anonymous participants")
+	s.T().Logf("Participant 1 can see %d participants (owner + anonymous users)", len(workshopFromParticipant.Participants))
+
+	// Staff can see workshop participants
+	_ = Must(clientStaff.GetWorkshop(workshop.ID.String()))
+	s.T().Logf("Workshop has participants (checking via workshop view)")
+
+	// Head can also see participants
+	headWorkshopView := Must(clientHead.GetWorkshop(workshop.ID.String()))
+	s.Equal(workshop.ID, headWorkshopView.ID)
+	s.T().Logf("Head can view workshop with participants")
+
+	// Staff revokes the invite to stop new users from joining
+	MustSucceed(clientStaff.RevokeInvite(workshopInvite.ID.String()))
+	s.T().Logf("Staff revoked workshop invite")
+
+	// Verify invite is revoked
+	revokedInvite := Must(clientStaff.GetInvite(workshopInvite.ID.String()))
+	s.Equal(obj.InviteStatusRevoked, revokedInvite.Status)
+	s.T().Logf("Invite status confirmed: %s", revokedInvite.Status)
+
+	// New anonymous user cannot accept revoked invite
+	_, acceptRevokedErr := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	s.Error(acceptRevokedErr, "should not be able to accept revoked invite")
+	s.T().Logf("Revoked invite correctly rejected new participant")
+
+	// Staff can deactivate/remove a participant (deletes user account)
+	MustSucceed(clientStaff.DeleteUser(participant1Response.User.ID.String()))
+	s.T().Logf("Staff removed participant 1 (user account deleted)")
+
+	// Verify participant 1 is deleted (cannot authenticate anymore)
+	_, getDeletedUserErr := clientParticipant1.GetMe()
+	s.Error(getDeletedUserErr, "deleted participant should not be able to authenticate")
+	s.T().Logf("Deleted participant cannot authenticate (expected)")
+
+	// Participant 2 should still be able to authenticate
+	clientParticipant2 := s.CreateUserWithToken(*participant2Response.AuthToken)
+	participant2Me := Must(clientParticipant2.GetMe())
+	s.Equal(participant2Response.User.Name, participant2Me.Name)
+	s.T().Logf("Participant 2 can still authenticate")
+
+	// Head can also remove participants
+	MustSucceed(clientHead.DeleteUser(participant2Response.User.ID.String()))
+	s.T().Logf("Head removed participant 2 (user account deleted)")
+}

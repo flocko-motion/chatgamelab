@@ -1,49 +1,33 @@
 -- chatgamelab PostgreSQL schema
 -- Generated from db/design conceptual model
+
 -- NOTE: we avoid using the reserved word "user" as a table name.
 -- We use app_user for the User entity.
+
 -- User
--- Application user account (backed by Auth0). Soft-deletable via deleted_at.
+-- Application user account (backed by Auth0 or participant token). Soft-deletable via deleted_at.
 CREATE TABLE app_user (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    name text NOT NULL UNIQUE,
-    email text UNIQUE,
-    deleted_at timestamptz NULL,
-    auth0_id text UNIQUE,
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    name            text NOT NULL UNIQUE,
+    email           text UNIQUE,
+    deleted_at      timestamptz NULL,
+    auth0_id        text UNIQUE,
+    -- Participant token for anonymous workshop participants (alternative auth method)
+    -- Prefixed with "participant-" to distinguish from JWT tokens
+    participant_token text UNIQUE,
     -- Default API key share to use when creating sessions without specifying one.
     -- References api_key_share instead of api_key to ensure the user has access to the key.
-    default_api_key_share_id uuid NULL,
-    -- User preference: show AI model selector when starting a game session
-    show_ai_model_selector boolean NOT NULL DEFAULT false
+    default_api_key_share_id uuid NULL
 );
--- SystemSettings
--- Global system settings (single row table)
-CREATE TABLE system_settings (
-    id uuid PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    -- Default AI model to use when user hasn't configured one
-    default_ai_model text NOT NULL,
-    -- Ensure only one row exists by enforcing a fixed ID
-    CONSTRAINT system_settings_singleton CHECK (
-        id = '00000000-0000-0000-0000-000000000001'::uuid
-    )
-);
+
 -- Institution
 -- Organization that can run workshops and own games.
 CREATE TABLE institution (
-<<<<<<< HEAD
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    name text NOT NULL UNIQUE
-=======
     id              uuid PRIMARY KEY,
     created_by      uuid NULL,
     created_at      timestamptz NOT NULL DEFAULT now(),
@@ -52,7 +36,6 @@ CREATE TABLE institution (
 
     name            text NOT NULL UNIQUE,
     deleted_at      timestamptz NULL
->>>>>>> 876746c (feat: centralized db permissions)
 );
 
 -- Workshop
@@ -60,17 +43,6 @@ CREATE TABLE institution (
 -- If not active, the workshop cannot be joined by participants.
 -- If public, it can be discovered by visitors, but they only see games marked public.
 CREATE TABLE workshop (
-<<<<<<< HEAD
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    name text NOT NULL,
-    institution_id uuid NOT NULL REFERENCES institution(id),
-    active boolean NOT NULL DEFAULT true,
-    public boolean NOT NULL DEFAULT false,
-=======
     id              uuid PRIMARY KEY,
     created_by      uuid NULL,
     created_at      timestamptz NOT NULL DEFAULT now(),
@@ -83,7 +55,6 @@ CREATE TABLE workshop (
     public          boolean NOT NULL DEFAULT false,
     deleted_at      timestamptz NULL,
 
->>>>>>> 876746c (feat: centralized db permissions)
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
 
@@ -169,32 +140,36 @@ CREATE TABLE user_role_invite (
 -- WorkshopParticipant
 -- Anonymous guest user participating in a workshop.
 CREATE TABLE workshop_participant (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    workshop_id uuid NOT NULL REFERENCES workshop(id),
-    name text NOT NULL,
-    access_token text NOT NULL,
-    active boolean NOT NULL DEFAULT true,
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    workshop_id     uuid NOT NULL REFERENCES workshop(id),
+    name            text NOT NULL,
+    access_token    text NOT NULL,
+    active          boolean NOT NULL DEFAULT true,
+
     CONSTRAINT workshop_participant_workshop_token_uniq UNIQUE (workshop_id, access_token),
     CONSTRAINT workshop_participant_workshop_name_uniq UNIQUE (workshop_id, name)
 );
+
 -- ApiKey
 -- An API key for an LLM provider (e.g. OpenAI, Anthropic) owned by a user.
 CREATE TABLE api_key (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    user_id uuid NOT NULL REFERENCES app_user(id),
-    name text NOT NULL DEFAULT '',
-    platform text NOT NULL,
-    -- e.g. 'openai', 'anthropic', ..
-    key text NOT NULL
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    user_id         uuid NOT NULL REFERENCES app_user(id),
+    name            text NOT NULL DEFAULT '',
+    platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
+    key             text NOT NULL
 );
+
 -- ApiKeyShare
 -- A unified share table for API keys. An API key can be shared with:
 -- - A user (user_id set)
@@ -202,22 +177,23 @@ CREATE TABLE api_key (
 -- - An institution (institution_id set)
 -- At least one target must be set.
 CREATE TABLE api_key_share (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    api_key_id uuid NOT NULL REFERENCES api_key(id),
-    user_id uuid NULL REFERENCES app_user(id),
-    workshop_id uuid NULL REFERENCES workshop(id),
-    institution_id uuid NULL REFERENCES institution(id),
-    allow_public_sponsored_plays boolean NOT NULL DEFAULT false,
+    id                              uuid PRIMARY KEY,
+    created_by                      uuid NULL,
+    created_at                      timestamptz NOT NULL DEFAULT now(),
+    modified_by                     uuid NULL,
+    modified_at                     timestamptz NOT NULL DEFAULT now(),
+
+    api_key_id                      uuid NOT NULL REFERENCES api_key(id),
+    user_id                         uuid NULL REFERENCES app_user(id),
+    workshop_id                     uuid NULL REFERENCES workshop(id),
+    institution_id                  uuid NULL REFERENCES institution(id),
+    allow_public_sponsored_plays    boolean NOT NULL DEFAULT false,
+
     CONSTRAINT api_key_share_target_chk CHECK (
-        user_id IS NOT NULL
-        OR workshop_id IS NOT NULL
-        OR institution_id IS NOT NULL
+        user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL
     )
 );
+
 -- Game
 -- Description and configuration of a game.
 CREATE TABLE game (
@@ -235,48 +211,50 @@ CREATE TABLE game (
     workshop_id                     uuid NULL REFERENCES workshop(id),
 
     -- Access rights and payments. public = true: discoverable on the website and playable by anyone.
-    public boolean NOT NULL DEFAULT false,
+    public                          boolean NOT NULL DEFAULT false,
     -- If public, a sponsored API key can be provided to pay for any public plays.
-    public_sponsored_api_key_id uuid NULL REFERENCES api_key(id),
+    public_sponsored_api_key_id     uuid NULL REFERENCES api_key(id),
     -- Private share links contain secret random tokens to limit access to the game.
     -- They are sponsored, so invited players don't require their own API key.
-    private_share_hash text NULL,
-    private_sponsored_api_key_id uuid NULL REFERENCES api_key(id),
+    private_share_hash              text NULL,
+    private_sponsored_api_key_id    uuid NULL REFERENCES api_key(id),
+
     -- Game details and system messages for the LLM.
     -- What is the game about? How does it work? Player role? World description?
-    system_message_scenario text NOT NULL,
+    system_message_scenario         text NOT NULL,
     -- How should the game start? First scene? How is the player welcomed?
-    system_message_game_start text NOT NULL,
+    system_message_game_start       text NOT NULL,
     -- What style should the images have?
-    image_style text NOT NULL,
+    image_style                     text NOT NULL,
     -- Additional CSS for the game, probably generated by the LLM.
     -- Should be validated/parsed strictly to avoid arbitrary code execution.
-    css text NOT NULL,
+    css                             text NOT NULL,
     -- The status fields available to the LLM, shaping the JSON format for status.
-    status_fields text NOT NULL,
+    status_fields                   text NOT NULL,
+
     -- Quick start: pre-generated first scene of the game.
     -- This is generated content (first output after the system message) and may be
     -- regenerated from time to time to avoid being too static.
-    first_message text NULL,
-    first_status text NULL,
-    first_image bytea NULL,
-    -- Tracking: original creator (for cloned games) and usage statistics
-    originally_created_by uuid NULL REFERENCES app_user(id),
-    play_count integer NOT NULL DEFAULT 0,
-    clone_count integer NOT NULL DEFAULT 0
+    first_message                   text NULL,
+    first_status                    text NULL,
+    first_image                     bytea NULL
 );
+
 -- GameTag
 -- Anybody who is allowed to edit a game can also set arbitrary tags for that game.
 CREATE TABLE game_tag (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    game_id uuid NOT NULL REFERENCES game(id),
-    tag text NOT NULL,
+    id              uuid PRIMARY KEY,
+    created_by      uuid NULL,
+    created_at      timestamptz NOT NULL DEFAULT now(),
+    modified_by     uuid NULL,
+    modified_at     timestamptz NOT NULL DEFAULT now(),
+
+    game_id         uuid NOT NULL REFERENCES game(id),
+    tag             text NOT NULL,
+
     CONSTRAINT game_tag_game_tag_uniq UNIQUE (game_id, tag)
 );
+
 -- GameSession
 -- A session is created when a user plays a game -> it's the instance of a game.
 CREATE TABLE game_session (
@@ -291,58 +269,42 @@ CREATE TABLE game_session (
     -- Optional workshop scope (sessions can be created within a workshop context)
     workshop_id     uuid NULL REFERENCES workshop(id),
     -- API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-    api_key_id uuid NOT NULL REFERENCES api_key(id),
+    api_key_id      uuid NOT NULL REFERENCES api_key(id),
     -- AI platform used for playing (e.g. 'openai', 'anthropic').
-    ai_platform text NOT NULL,
+    ai_platform     text NOT NULL,
     -- AI model used for playing (e.g. 'gpt-4o-mini').
-    ai_model text NOT NULL,
+    ai_model        text NOT NULL,
     -- JSON with arbitrary details to be used within that model and within that session.
-    ai_session jsonb NOT NULL,
-    image_style text NOT NULL,
+    ai_session      jsonb NOT NULL,
+    image_style     text NOT NULL,
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
     status_fields   text NOT NULL,
     
     deleted_at      timestamptz NULL
 );
+
 -- GameSessionMessage
 -- Messages of a game session: system message, player actions, and game responses.
 CREATE TABLE game_session_message (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    game_session_id uuid NOT NULL REFERENCES game_session(id),
+    id                  uuid PRIMARY KEY,
+    created_by          uuid NULL,
+    created_at          timestamptz NOT NULL DEFAULT now(),
+    modified_by         uuid NULL,
+    modified_at         timestamptz NOT NULL DEFAULT now(),
+
+    game_session_id     uuid NOT NULL REFERENCES game_session(id),
     -- Sequence number within the session, starting at 1
-    seq integer NOT NULL,
+    seq                 integer NOT NULL,
     -- player: user message; game: LLM/game response; system: initial system/context messages.
-    type text NOT NULL,
+    type                text NOT NULL,
     -- Plain text of the scene (system message, player action, or game response).
-    message text NOT NULL,
+    message             text NOT NULL,
     -- JSON encoded status fields.
-<<<<<<< HEAD
-    status text NULL,
-    image_prompt text NULL,
-    image bytea NULL,
-=======
     status              text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
     
     deleted_at          timestamptz NULL,
 
->>>>>>> 876746c (feat: centralized db permissions)
     CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
-);
--- UserFavouriteGame
--- A user's favourite games. Users can mark games as favourites for quick access.
-CREATE TABLE user_favourite_game (
-    id uuid PRIMARY KEY,
-    created_by uuid NULL,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    modified_by uuid NULL,
-    modified_at timestamptz NOT NULL DEFAULT now(),
-    user_id uuid NOT NULL REFERENCES app_user(id),
-    game_id uuid NOT NULL REFERENCES game(id),
-    CONSTRAINT user_favourite_game_user_game_uniq UNIQUE (user_id, game_id)
 );

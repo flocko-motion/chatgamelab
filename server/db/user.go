@@ -83,6 +83,29 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
+// GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
+func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (db.AppUser, error) {
+	return queries().GetUserByID(ctx, id)
+}
+
+// RemoveUser deletes a user (checks permissions internally)
+func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
+	if err := CanDeleteUser(ctx, currentUserID, targetUserID); err != nil {
+		return err
+	}
+	return DeleteUser(ctx, targetUserID)
+}
+
+// GetUserByParticipantToken gets a user by their participant token
+func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, error) {
+	res, err := queries().GetUserByParticipantToken(ctx, sql.NullString{String: token, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+	// Get full user details with role
+	return GetUserByID(ctx, res.ID)
+}
+
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 	res, err := queries().GetUserDetailsByID(ctx, id)

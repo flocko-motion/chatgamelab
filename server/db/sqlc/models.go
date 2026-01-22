@@ -47,6 +47,7 @@ type AppUser struct {
 	Email                sql.NullString
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
+	ParticipantToken     sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
 }
 

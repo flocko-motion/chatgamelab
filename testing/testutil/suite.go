@@ -3,7 +3,9 @@ package testutil
 import (
 	"cgl/api"
 	"cgl/api/client"
+	"cgl/api/routes"
 	"cgl/config"
+	"cgl/obj"
 	"context"
 	"fmt"
 	"net"
@@ -72,7 +74,12 @@ func (s *BaseSuite) SetupSuite() {
 	fmt.Printf("\n🚀 [%s] Starting test environment (Postgres:%d, Backend:%d)...\n",
 		s.SuiteName, s.postgresPort, s.backendPort)
 
-	// Remove any stopped container with same name
+	// Clean up all stale test containers to prevent port conflicts
+	fmt.Printf("🧹 [%s] Cleaning up stale test containers...\n", s.SuiteName)
+	cleanupCmd := exec.Command("sh", "-c", "docker ps -a --filter 'name=chatgamelab-db-test' --format '{{.Names}}' | xargs -r docker rm -f")
+	cleanupCmd.Run() // Ignore errors if no containers exist
+
+	// Remove any stopped container with same name (redundant but safe)
 	exec.Command("docker", "rm", "-f", s.containerName).Run()
 
 	// Start Postgres with docker run on random port
@@ -90,8 +97,24 @@ func (s *BaseSuite) SetupSuite() {
 		s.TearDownSuite()
 		s.T().Fatalf("Failed to start Postgres: %v", err)
 	}
-	// Wait for Postgres to be ready
-	time.Sleep(3 * time.Second)
+
+	// Wait for Postgres to be ready by pinging it
+	fmt.Printf("⏳ [%s] Waiting for Postgres to be ready...\n", s.SuiteName)
+	maxRetries := 30
+	for i := 0; i < maxRetries; i++ {
+		pingCmd := exec.Command("docker", "exec", s.containerName, "pg_isready", "-U", "chatgamelab")
+		if err := pingCmd.Run(); err == nil {
+			fmt.Printf("✅ [%s] Postgres is ready!\n", s.SuiteName)
+			// Give it a moment to fully stabilize and accept connections
+			time.Sleep(2 * time.Second)
+			break
+		}
+		if i == maxRetries-1 {
+			s.TearDownSuite()
+			s.T().Fatalf("Postgres did not become ready after %d attempts", maxRetries)
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
 
 	// Start backend in-process AFTER database is cleaned
 	// This ensures backend detects empty DB and initializes schema
@@ -331,4 +354,52 @@ func (s *BaseSuite) waitForBackend(maxRetries int) error {
 	}
 
 	return fmt.Errorf("backend not ready after %d retries", maxRetries)
+}
+
+// AcceptWorkshopInviteAnonymously accepts a workshop invite anonymously (no auth)
+func (s *BaseSuite) AcceptWorkshopInviteAnonymously(token string) (*routes.AcceptInviteResponse, error) {
+	s.T().Helper()
+
+	// Use public client (no auth)
+	publicClient := s.Public()
+
+	var response routes.AcceptInviteResponse
+	err := publicClient.Post("invites/"+token+"/accept", nil, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+// CreateUserWithToken creates a UserClient using only an auth token (for participants)
+func (s *BaseSuite) CreateUserWithToken(authToken string) *UserClient {
+	s.T().Helper()
+
+	// Create client with the token to fetch user info
+	client := &UserClient{
+		Token: authToken,
+		t:     s.T(),
+	}
+
+	// Get user info using the token
+	var user obj.User
+	if err := client.Get("users/me", &user); err != nil {
+		s.T().Fatalf("failed to get user info with token: %v", err)
+	}
+
+	// Return fully populated client
+	return &UserClient{
+		Name:  user.Name,
+		ID:    user.ID.String(),
+		Email: "", // Anonymous users don't have email
+		Token: authToken,
+		t:     s.T(),
+	}
+}
+
+// DeleteUser deletes a user by ID (for removing participants)
+func (u *UserClient) DeleteUser(userID string) error {
+	u.t.Helper()
+	return u.Delete("users/" + userID)
 }

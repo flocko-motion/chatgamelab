@@ -135,6 +135,8 @@ func stringToRole(s string) (obj.Role, error) {
 		return obj.RoleHead, nil
 	case string(obj.RoleStaff):
 		return obj.RoleStaff, nil
+	case string(obj.RoleParticipant):
+		return obj.RoleParticipant, nil
 	default:
 		return obj.Role("invalid:" + s), errors.New("invalid role")
 	}
