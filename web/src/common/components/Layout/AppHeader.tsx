@@ -147,13 +147,13 @@ function UserActions({
   const userMenuItems = [
     {
       key: 'profile',
-      label: t('header.profile'),
+      label: t('profile'),
       icon: <IconUser size={16} />,
       onClick: onProfileClick,
     },
     {
       key: 'settings',
-      label: t('header.settings'),
+      label: t('settings'),
       icon: <IconSettings size={16} />,
       onClick: onSettingsClick,
     },
@@ -165,7 +165,7 @@ function UserActions({
     },
     {
       key: 'logout',
-      label: t('header.logout'),
+      label: t('logout'),
       icon: <IconLogout size={16} />,
       onClick: handleLogout,
       danger: true,
