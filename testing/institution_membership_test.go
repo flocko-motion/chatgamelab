@@ -262,230 +262,207 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 
 }
 
-// TestWorkshopManagement creating a single institution with tony as head and timo as staff
-// timo will create a workshop and generate invite links
-// anonymous users can join the workshop - they will be assigned a random name
-func (s *MultiUserTestSuite) TestWorkshopManagement() {
-	// Create users
-	clientTony := s.CreateUser("tony")
-	s.Equal("tony", clientTony.Name)
-	s.Equal("tony@test.local", clientTony.Email)
-
-	clientTimo := s.CreateUser("timo")
-	s.Equal("timo", clientTimo.Name)
-	s.Equal("timo@test.local", clientTimo.Email)
-
-	clientToto := s.CreateUser("toto")
-	s.Equal("toto", clientToto.Name)
-	s.Equal("toto@test.local", clientToto.Email)
-
-	clientSteve := s.CreateUser("steve")
-	s.Equal("steve", clientSteve.Name)
-	s.Equal("steve@test.local", clientSteve.Email)
+// TestInstitutionManagementLeadership a head can not remove himself from the institution
+// he can though invite an existing staff to become head - once a second head exists,
+// the head can remove the other head... then reinvite the removed head to become head again
+// users can't remove themselves - they must ask another head to remove them
+// this ensures that an institution is never without head
+func (s *MultiUserTestSuite) TestInstitutionManagementLeadership() {
+	// Create users with unique names
+	clientCharlie := s.CreateUser("charlie")
+	clientDiana := s.CreateUser("diana")
 
 	// Admin creates institution
-	institution := Must(s.clientAdmin.CreateInstitution("Workshop Institution"))
-	s.NotEmpty(institution.ID)
-	s.Equal("Workshop Institution", institution.Name)
-	s.T().Logf("Created institution: %s (ID: %s)", institution.Name, institution.ID)
+	institution := Must(s.clientAdmin.CreateInstitution("Leadership Test Institution"))
+	s.T().Logf("Created institution: %s", institution.Name)
 
-	// Admin invites Tony as head
-	tonyInvite := Must(s.clientAdmin.InviteToInstitution(
+	// Admin invites Charlie as head
+	charlieInvite := Must(s.clientAdmin.InviteToInstitution(
 		institution.ID.String(),
 		string(obj.RoleHead),
-		clientTony.ID,
+		clientCharlie.ID,
 	))
-	s.Equal(obj.InviteStatusPending, tonyInvite.Status)
-	s.T().Logf("Created invite for Tony as head")
+	Must(clientCharlie.AcceptInvite(charlieInvite.ID.String()))
+	s.T().Logf("Charlie became head")
 
-	// Tony accepts
-	Must(clientTony.AcceptInvite(tonyInvite.ID.String()))
-	s.T().Logf("Tony accepted invite and became head")
-
-	// Tony invites Timo as staff
-	timoInvite := Must(clientTony.InviteToInstitution(
+	// Admin invites Diana as staff
+	dianaInvite := Must(s.clientAdmin.InviteToInstitution(
 		institution.ID.String(),
 		string(obj.RoleStaff),
-		clientTimo.ID,
+		clientDiana.ID,
 	))
-	s.Equal(obj.InviteStatusPending, timoInvite.Status)
-	s.T().Logf("Tony invited Timo as staff")
+	Must(clientDiana.AcceptInvite(dianaInvite.ID.String()))
+	s.T().Logf("Diana became staff")
 
-	// Timo accepts
-	Must(clientTimo.AcceptInvite(timoInvite.ID.String()))
-	s.T().Logf("Timo accepted invite and became staff")
+	// Charlie (head) cannot remove himself - institution must have at least one head
+	MustFail(clientCharlie.RemoveMember(institution.ID.String(), clientCharlie.ID))
+	s.T().Logf("Charlie cannot remove himself (expected - must have at least one head)")
 
-	// Tony invites Toto as staff
-	totoInvite := Must(clientTony.InviteToInstitution(
+	// Charlie invites Diana to become head (promoting staff to head)
+	dianaHeadInvite := Must(clientCharlie.InviteToInstitution(
 		institution.ID.String(),
-		string(obj.RoleStaff),
-		clientToto.ID,
+		string(obj.RoleHead),
+		clientDiana.ID,
 	))
-	s.Equal(obj.InviteStatusPending, totoInvite.Status)
-	s.T().Logf("Tony invited Toto as staff")
+	Must(clientDiana.AcceptInvite(dianaHeadInvite.ID.String()))
+	s.T().Logf("Diana promoted to head (lost staff role due to single-role enforcement)")
 
-	// Toto accepts
-	Must(clientToto.AcceptInvite(totoInvite.ID.String()))
-	s.T().Logf("Toto accepted invite and became staff")
+	// Verify both are heads now (2 members: charlie head, diana head)
+	// Note: Diana's old staff role was deleted when she accepted the head role
+	instWithHeads := Must(clientCharlie.GetInstitution(institution.ID.String()))
+	s.Equal(2, len(instWithHeads.Members), "should have 2 members")
+	headCount := 0
+	for _, member := range instWithHeads.Members {
+		if member.Role == obj.RoleHead {
+			headCount++
+		}
+	}
+	s.Equal(2, headCount, "should have 2 heads (charlie and diana)")
+	s.T().Logf("Institution now has 2 heads: charlie and diana")
 
-	// Verify institution has 3 members
-	instWithMembers := Must(clientTony.GetInstitution(institution.ID.String()))
-	s.Equal(3, len(instWithMembers.Members), "institution should have 3 members")
-	s.T().Logf("Institution has %d members", len(instWithMembers.Members))
+	// Now Charlie can remove Diana (another head)
+	MustSucceed(clientCharlie.RemoveMember(institution.ID.String(), clientDiana.ID))
+	s.T().Logf("Charlie removed Diana (head)")
 
-	// Timo creates a workshop
-	workshop := Must(clientTimo.CreateWorkshop(institution.ID.String(), "Test Workshop"))
-	s.NotEmpty(workshop.ID)
-	s.Equal("Test Workshop", workshop.Name)
-	s.NotNil(workshop.Institution)
-	s.Equal(institution.ID, workshop.Institution.ID)
-	s.True(workshop.Active, "workshop should be active by default")
-	s.False(workshop.Public, "workshop should be private by default")
-	s.T().Logf("Timo created workshop: %s (ID: %s)", workshop.Name, workshop.ID)
+	// Verify Diana was removed (1 member remains: charlie)
+	instAfterRemoval := Must(clientCharlie.GetInstitution(institution.ID.String()))
+	s.Equal(1, len(instAfterRemoval.Members), "should have 1 member (charlie)")
+	s.Equal("charlie", instAfterRemoval.Members[0].Name)
+	s.Equal(obj.RoleHead, instAfterRemoval.Members[0].Role)
+	s.T().Logf("Institution now has 1 member: charlie (head)")
 
-	// Timo updates workshop name
-	updatedName := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   "Updated Workshop Name",
-		"active": workshop.Active,
-		"public": workshop.Public,
-	}))
-	s.Equal("Updated Workshop Name", updatedName.Name)
-	s.True(updatedName.Active)
-	s.False(updatedName.Public)
-	s.T().Logf("Timo updated workshop name to: %s", updatedName.Name)
+	// Charlie re-invites Diana as head
+	dianaHeadInvite2 := Must(clientCharlie.InviteToInstitution(
+		institution.ID.String(),
+		string(obj.RoleHead),
+		clientDiana.ID,
+	))
+	Must(clientDiana.AcceptInvite(dianaHeadInvite2.ID.String()))
+	s.T().Logf("Diana re-invited and became head again")
 
-	// Timo sets workshop to inactive
-	updatedActive := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   updatedName.Name,
-		"active": false,
-		"public": updatedName.Public,
-	}))
-	s.Equal("Updated Workshop Name", updatedActive.Name)
-	s.False(updatedActive.Active, "workshop should now be inactive")
-	s.False(updatedActive.Public)
-	s.T().Logf("Timo set workshop to inactive")
+	// Verify both are heads again (2 members: charlie, diana)
+	instWithBothHeads := Must(clientCharlie.GetInstitution(institution.ID.String()))
+	s.Equal(2, len(instWithBothHeads.Members), "should have 2 members")
+	s.T().Logf("Institution has 2 heads again")
 
-	// Timo makes workshop public
-	updatedPublic := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   updatedActive.Name,
-		"active": updatedActive.Active,
-		"public": true,
-	}))
-	s.Equal("Updated Workshop Name", updatedPublic.Name)
-	s.False(updatedPublic.Active)
-	s.True(updatedPublic.Public, "workshop should now be public")
-	s.T().Logf("Timo made workshop public")
+	// Charlie cannot remove himself - the validation prevents self-removal
+	MustFail(clientCharlie.RemoveMember(institution.ID.String(), clientCharlie.ID))
+	s.T().Logf("Charlie cannot remove himself (expected - validation prevents self-removal)")
 
-	// Verify final state
-	finalWorkshop := Must(clientTimo.GetWorkshop(workshop.ID.String()))
-	s.Equal("Updated Workshop Name", finalWorkshop.Name)
-	s.False(finalWorkshop.Active)
-	s.True(finalWorkshop.Public)
-	s.T().Logf("Final workshop state verified: name=%s, active=%v, public=%v",
-		finalWorkshop.Name, finalWorkshop.Active, finalWorkshop.Public)
+	// Diana also cannot remove herself
+	MustFail(clientDiana.RemoveMember(institution.ID.String(), clientDiana.ID))
+	s.T().Logf("Diana cannot remove herself (expected - validation prevents self-removal)")
+}
 
-	// Test permissions: Toto (staff, not owner) can view but not edit
-	totoView := Must(clientToto.GetWorkshop(workshop.ID.String()))
-	s.Equal("Updated Workshop Name", totoView.Name)
-	s.T().Logf("Toto can view workshop: %s", totoView.Name)
+// TestInstitutionManagementLeadershipSteal creates two institutions with one head each
+// the head of institution 1 invites the head of institution 2 to become head of institution 1
+// when accepting, the user loses their old role and institution 2 becomes headless
+// users can only give up their had position, if this doesn't leave their old institution headless
+func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
+	// Create users with unique names
+	clientEve := s.CreateUser("eve")
+	clientFrank := s.CreateUser("frank")
 
-	// Toto cannot edit the workshop (not owner)
-	_, totoEditErr := clientToto.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   "Toto's Edit",
-		"active": true,
-		"public": false,
-	})
-	s.Error(totoEditErr, "Toto should not be able to edit workshop (not owner)")
-	s.T().Logf("Toto cannot edit workshop (expected)")
+	// Admin creates two institutions
+	institution1 := Must(s.clientAdmin.CreateInstitution("Institution Alpha"))
+	s.T().Logf("Created institution1: %s", institution1.Name)
 
-	// Tony (head) can edit the workshop even though he's not the owner
-	tonyEdit := Must(clientTony.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   "Tony's Edit",
-		"active": true,
-		"public": false,
-	}))
-	s.Equal("Tony's Edit", tonyEdit.Name)
-	s.True(tonyEdit.Active)
-	s.False(tonyEdit.Public)
-	s.T().Logf("Tony (head) can edit workshop: %s", tonyEdit.Name)
+	institution2 := Must(s.clientAdmin.CreateInstitution("Institution Beta"))
+	s.T().Logf("Created institution2: %s", institution2.Name)
 
-	// Timo (owner) can still edit
-	timoEdit := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   "Timo's Final Edit",
-		"active": false,
-		"public": true,
-	}))
-	s.Equal("Timo's Final Edit", timoEdit.Name)
-	s.False(timoEdit.Active)
-	s.True(timoEdit.Public)
-	s.T().Logf("Timo (owner) can edit workshop: %s", timoEdit.Name)
+	// Admin invites Eve as head of institution1
+	eveInvite1 := Must(s.clientAdmin.InviteToInstitution(
+		institution1.ID.String(),
+		string(obj.RoleHead),
+		clientEve.ID,
+	))
+	Must(clientEve.AcceptInvite(eveInvite1.ID.String()))
+	s.T().Logf("Eve became head of institution1")
 
-	// Verify all members can view the final state
-	tonyFinalView := Must(clientTony.GetWorkshop(workshop.ID.String()))
-	s.Equal("Timo's Final Edit", tonyFinalView.Name)
-	totoFinalView := Must(clientToto.GetWorkshop(workshop.ID.String()))
-	s.Equal("Timo's Final Edit", totoFinalView.Name)
-	s.T().Logf("All members can view final workshop state")
+	// Admin invites Frank as head of institution2
+	frankInvite2 := Must(s.clientAdmin.InviteToInstitution(
+		institution2.ID.String(),
+		string(obj.RoleHead),
+		clientFrank.ID,
+	))
+	Must(clientFrank.AcceptInvite(frankInvite2.ID.String()))
+	s.T().Logf("Frank became head of institution2")
 
-	// Test workshop listing permissions
-	// Institution members can list workshops
-	tonyWorkshops := Must(clientTony.ListWorkshops(institution.ID.String()))
-	s.Equal(1, len(tonyWorkshops), "Tony should see 1 workshop")
-	s.Equal("Timo's Final Edit", tonyWorkshops[0].Name)
-	s.T().Logf("Tony (head) can list workshops: %d found", len(tonyWorkshops))
+	// Verify each institution has one head
+	inst1Members := Must(clientEve.GetInstitution(institution1.ID.String()))
+	s.Equal(1, len(inst1Members.Members), "institution1 should have 1 member")
+	s.Equal("eve", inst1Members.Members[0].Name)
 
-	timoWorkshops := Must(clientTimo.ListWorkshops(institution.ID.String()))
-	s.Equal(1, len(timoWorkshops), "Timo should see 1 workshop")
-	s.T().Logf("Timo (owner) can list workshops: %d found", len(timoWorkshops))
+	inst2Members := Must(clientFrank.GetInstitution(institution2.ID.String()))
+	s.Equal(1, len(inst2Members.Members), "institution2 should have 1 member")
+	s.Equal("frank", inst2Members.Members[0].Name)
 
-	totoWorkshops := Must(clientToto.ListWorkshops(institution.ID.String()))
-	s.Equal(1, len(totoWorkshops), "Toto should see 1 workshop")
-	s.T().Logf("Toto (staff) can list workshops: %d found", len(totoWorkshops))
+	// Frank cannot leave institution2 because he's the last head
+	MustFail(clientFrank.RemoveMember(institution2.ID.String(), clientFrank.ID))
+	s.T().Logf("Frank cannot leave institution2 (last head)")
 
-	// Steve (not a member) cannot list workshops
-	_, steveListErr := clientSteve.ListWorkshops(institution.ID.String())
-	s.Error(steveListErr, "Steve should not be able to list workshops (not a member)")
-	s.T().Logf("Steve cannot list workshops (expected)")
+	// Solution: First introduce Grace to become head of institution2
+	// This way institution2 won't be headless when Frank leaves
+	clientGrace := s.CreateUser("grace")
+	graceInvite2 := Must(clientFrank.InviteToInstitution(
+		institution2.ID.String(),
+		string(obj.RoleHead),
+		clientGrace.ID,
+	))
+	Must(clientGrace.AcceptInvite(graceInvite2.ID.String()))
+	s.T().Logf("Grace became head of institution2")
 
-	// Create workshop invites to test invite visibility
-	workshopInvite := Must(clientTimo.CreateWorkshopInvite(workshop.ID.String(), string(obj.RoleParticipant)))
-	s.NotEmpty(workshopInvite.ID)
-	s.T().Logf("Timo created workshop invite: %s", workshopInvite.ID)
+	// Verify institution2 now has 2 heads
+	inst2With2Heads := Must(clientFrank.GetInstitution(institution2.ID.String()))
+	s.Equal(2, len(inst2With2Heads.Members), "institution2 should have 2 members")
+	s.T().Logf("Institution2 now has 2 heads: frank and grace")
 
-	// Staff members can see workshop invites
-	timoViewWithInvites := Must(clientTimo.GetWorkshop(workshop.ID.String()))
-	s.Equal(1, len(timoViewWithInvites.Invites), "Timo (staff) should see 1 invite")
-	s.T().Logf("Timo can see %d workshop invite(s)", len(timoViewWithInvites.Invites))
+	// Now Eve invites Frank to become head of institution1
+	frankInvite1 := Must(clientEve.InviteToInstitution(
+		institution1.ID.String(),
+		string(obj.RoleHead),
+		clientFrank.ID,
+	))
+	s.T().Logf("Eve invited Frank to become head of institution1")
 
-	tonyViewWithInvites := Must(clientTony.GetWorkshop(workshop.ID.String()))
-	s.Equal(1, len(tonyViewWithInvites.Invites), "Tony (head) should see 1 invite")
-	s.T().Logf("Tony can see %d workshop invite(s)", len(tonyViewWithInvites.Invites))
+	// Frank can now accept the invite (institution2 won't be headless)
+	Must(clientFrank.AcceptInvite(frankInvite1.ID.String()))
+	s.T().Logf("Frank accepted head role in institution1 (lost role in institution2)")
 
-	totoViewWithInvites := Must(clientToto.GetWorkshop(workshop.ID.String()))
-	s.Equal(1, len(totoViewWithInvites.Invites), "Toto (staff) should see 1 invite")
-	s.T().Logf("Toto can see %d workshop invite(s)", len(totoViewWithInvites.Invites))
+	// Verify Frank is now head of institution1
+	inst1WithFrank := Must(clientEve.GetInstitution(institution1.ID.String()))
+	s.Equal(2, len(inst1WithFrank.Members), "institution1 should have 2 members")
+	frankFound := false
+	for _, member := range inst1WithFrank.Members {
+		if member.Name == "frank" {
+			frankFound = true
+			s.Equal(obj.RoleHead, member.Role)
+		}
+	}
+	s.True(frankFound, "frank should be a head in institution1")
+	s.T().Logf("Institution1 now has 2 heads: eve and frank")
 
-	// Steve CAN view the public workshop by ID (to check if it's active)
-	// but CANNOT see invites (not a member)
-	steveViewPublic := Must(clientSteve.GetWorkshop(workshop.ID.String()))
-	s.Equal("Timo's Final Edit", steveViewPublic.Name)
-	s.False(steveViewPublic.Active, "steve can see workshop is inactive")
-	s.True(steveViewPublic.Public, "steve can see workshop is public")
-	s.Equal(0, len(steveViewPublic.Invites), "Steve should not see invites (not a member)")
-	s.T().Logf("Steve can view public workshop by ID: %s (active=%v, invites=%d)",
-		steveViewPublic.Name, steveViewPublic.Active, len(steveViewPublic.Invites))
+	// Institution2 now has only Grace (Frank left when accepting new role)
+	inst2AfterFrankLeft := Must(clientGrace.GetInstitution(institution2.ID.String()))
+	s.Equal(1, len(inst2AfterFrankLeft.Members), "institution2 should have 1 member")
+	s.Equal("grace", inst2AfterFrankLeft.Members[0].Name)
+	s.Equal(obj.RoleHead, inst2AfterFrankLeft.Members[0].Role)
+	s.T().Logf("Institution2 now has 1 head: grace (Frank left)")
 
-	// Make workshop private - now Steve cannot view it
-	privateWorkshop := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
-		"name":   "Timo's Final Edit",
-		"active": false,
-		"public": false,
-	}))
-	s.False(privateWorkshop.Public, "workshop should now be private")
-	s.T().Logf("Workshop is now private")
+	// Frank cannot remove himself from institution1 (self-removal validation)
+	MustFail(clientFrank.RemoveMember(institution1.ID.String(), clientFrank.ID))
+	s.T().Logf("Frank cannot remove himself from institution1 (validation prevents self-removal)")
 
-	// Steve cannot view private workshop
-	_, steveViewPrivateErr := clientSteve.GetWorkshop(workshop.ID.String())
-	s.Error(steveViewPrivateErr, "Steve should not be able to view private workshop")
-	s.T().Logf("Steve cannot view private workshop (expected)")
+	// Eve can remove Frank from institution1 (since there are 2 heads)
+	MustSucceed(clientEve.RemoveMember(institution1.ID.String(), clientFrank.ID))
+	s.T().Logf("Eve removed Frank from institution1")
+
+	// Verify Frank was removed from institution1
+	inst1AfterRemoval := Must(clientEve.GetInstitution(institution1.ID.String()))
+	s.Equal(1, len(inst1AfterRemoval.Members), "institution1 should have 1 member")
+	s.Equal("eve", inst1AfterRemoval.Members[0].Name)
+	s.T().Logf("Institution1 back to 1 head: eve")
+
+	// Frank now has no role in any institution
+	s.T().Logf("Frank has no role in any institution")
 }

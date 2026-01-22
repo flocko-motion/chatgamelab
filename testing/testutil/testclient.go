@@ -366,6 +366,12 @@ func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRole
 	return result, err
 }
 
+// ReactivateInvite reactivates a revoked invite (composable high-level API)
+func (u *UserClient) ReactivateInvite(inviteID string) error {
+	u.t.Helper()
+	return u.Post("invites/"+inviteID+"/reactivate", nil, nil)
+}
+
 // MustGet performs GET and fails test on error
 func (u *UserClient) MustGet(endpoint string, out interface{}) {
 	u.t.Helper()

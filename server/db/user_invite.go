@@ -239,6 +239,16 @@ func CreateWorkshopInvite(
 	return dbInviteToObj(result), nil
 }
 
+// updateInviteStatusUnchecked updates the status of an invite without permission checks.
+// This is an internal function used by RevokeInvite and ReactivateInvite after they've done their own permission checks.
+func updateInviteStatusUnchecked(ctx context.Context, inviteID uuid.UUID, status obj.InviteStatus) error {
+	arg := db.UpdateInviteStatusParams{
+		ID:     inviteID,
+		Status: string(status),
+	}
+	return queries().UpdateInviteStatus(ctx, arg)
+}
+
 // UpdateInviteStatus updates the status of an invite.
 // Only the creator, admin, or the invited user can update the status.
 func UpdateInviteStatus(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID, status obj.InviteStatus) error {
@@ -263,12 +273,7 @@ func UpdateInviteStatus(ctx context.Context, userID uuid.UUID, inviteID uuid.UUI
 		return obj.ErrForbidden("not authorized to update this invite")
 	}
 
-	arg := db.UpdateInviteStatusParams{
-		ID:     inviteID,
-		Status: string(status),
-	}
-
-	return queries().UpdateInviteStatus(ctx, arg)
+	return updateInviteStatusUnchecked(ctx, inviteID, status)
 }
 
 // AcceptTargetedInvite accepts a targeted invite (by invite ID or token) and creates a user role.
@@ -327,6 +332,21 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 		}
 	}
 
+	// Use a transaction to ensure atomicity (delete old role + create new role + mark invite accepted)
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return uuid.Nil, obj.ErrServerError("failed to begin transaction")
+	}
+	defer tx.Rollback() // Rollback if not committed
+
+	txQueries := queries().WithTx(tx)
+
+	// Delete existing role (enforce single-role constraint)
+	if err := txQueries.DeleteUserRole(ctx, userID); err != nil {
+		// Log but don't fail if no existing role
+		// This is expected for users accepting their first role
+	}
+
 	// Create the user role
 	arg := db.CreateUserRoleParams{
 		UserID:        userID,
@@ -335,17 +355,22 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 		WorkshopID:    invite.WorkshopID,
 	}
 
-	roleID, err := queries().CreateUserRole(ctx, arg)
+	roleID, err := txQueries.CreateUserRole(ctx, arg)
 	if err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to create user role")
 	}
 
 	// Mark invite as accepted
-	if err := queries().AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{
+	if err := txQueries.AcceptTargetedInvite(ctx, db.AcceptTargetedInviteParams{
 		ID:         inviteID,
 		AcceptedBy: uuid.NullUUID{UUID: userID, Valid: true},
 	}); err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to mark invite as accepted")
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return uuid.Nil, obj.ErrServerError("failed to commit transaction")
 	}
 
 	// Return the role ID (handle NullUUID)
@@ -408,7 +433,35 @@ func DeclineTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken 
 	return UpdateInviteStatus(ctx, userID, inviteID, obj.InviteStatusDeclined)
 }
 
-// RevokeInvite revokes an invite (can only be done by the creator or an admin).
+// canManageInvite checks if a user can manage (revoke/reactivate) an invite.
+// Returns true if the user is: admin, creator, or staff/head of the institution (for workshop invites).
+func canManageInvite(ctx context.Context, invite db.UserRoleInvite, userID uuid.UUID) error {
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("user not found: %w", err)
+	}
+
+	// Admin can manage any invite (god-mode)
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Creator can manage their own invites
+	if invite.CreatedBy.Valid && invite.CreatedBy.UUID == userID {
+		return nil
+	}
+
+	// For workshop invites, staff/heads of the institution can manage
+	if invite.WorkshopID.Valid {
+		if err := canAccessWorkshopInvites(ctx, userID, invite.InstitutionID); err == nil {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("only the invite creator, admin, or institution staff can manage invites")
+}
+
+// RevokeInvite revokes an invite (can only be done by the creator, admin, or institution staff for workshop invites).
 // This marks the invite as 'revoked' so it can no longer be accepted.
 func RevokeInvite(ctx context.Context, inviteID uuid.UUID, revokedBy uuid.UUID) error {
 	// Get the invite
@@ -422,26 +475,34 @@ func RevokeInvite(ctx context.Context, inviteID uuid.UUID, revokedBy uuid.UUID) 
 		return fmt.Errorf("only pending invites can be revoked (current status: %s)", invite.Status)
 	}
 
-	// Validate revokedBy has permission (must be creator or admin)
-	revoker, err := GetUserByID(ctx, revokedBy)
+	// Check permission
+	if err := canManageInvite(ctx, invite, revokedBy); err != nil {
+		return err
+	}
+
+	return updateInviteStatusUnchecked(ctx, inviteID, obj.InviteStatusRevoked)
+}
+
+// ReactivateInvite re-activates a revoked invite (can only be done by the creator, admin, or institution staff for workshop invites).
+// This marks the invite as 'pending' so it can be accepted again.
+func ReactivateInvite(ctx context.Context, inviteID uuid.UUID, reactivatedBy uuid.UUID) error {
+	// Get the invite
+	invite, err := queries().GetInviteByID(ctx, inviteID)
 	if err != nil {
-		return fmt.Errorf("revoker not found: %w", err)
-	}
-	if revoker.Role == nil {
-		return fmt.Errorf("revoker has no role assigned")
+		return fmt.Errorf("invite not found: %w", err)
 	}
 
-	// Admin can revoke any invite (god-mode)
-	isAdmin := revoker.Role.Role == obj.RoleAdmin
-	// Creator can revoke their own invites
-	isCreator := invite.CreatedBy.Valid && invite.CreatedBy.UUID == revokedBy
-
-	if !isAdmin && !isCreator {
-		return fmt.Errorf("only the invite creator or an admin can revoke invites")
+	// Validate the invite can be reactivated (only revoked invites)
+	if invite.Status != string(obj.InviteStatusRevoked) {
+		return fmt.Errorf("only revoked invites can be reactivated (current status: %s)", invite.Status)
 	}
 
-	// Mark invite as revoked
-	return UpdateInviteStatus(ctx, revokedBy, inviteID, obj.InviteStatusRevoked)
+	// Check permission
+	if err := canManageInvite(ctx, invite, reactivatedBy); err != nil {
+		return err
+	}
+
+	return updateInviteStatusUnchecked(ctx, inviteID, obj.InviteStatusPending)
 }
 
 // AcceptOpenInvite accepts an open invite using its token and creates a user role.
@@ -472,6 +533,21 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		return uuid.Nil, fmt.Errorf("invite has reached maximum uses")
 	}
 
+	// Use a transaction to ensure atomicity (delete old role + create new role + increment uses)
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return uuid.Nil, obj.ErrServerError("failed to begin transaction")
+	}
+	defer tx.Rollback() // Rollback if not committed
+
+	txQueries := queries().WithTx(tx)
+
+	// Delete existing role (enforce single-role constraint)
+	if err := txQueries.DeleteUserRole(ctx, userID); err != nil {
+		// Log but don't fail if no existing role
+		// This is expected for users accepting their first role
+	}
+
 	// Create the user role
 	arg := db.CreateUserRoleParams{
 		UserID:        userID,
@@ -480,14 +556,19 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		WorkshopID:    invite.WorkshopID,
 	}
 
-	roleID, err := queries().CreateUserRole(ctx, arg)
+	roleID, err := txQueries.CreateUserRole(ctx, arg)
 	if err != nil {
 		return uuid.Nil, obj.ErrServerError("failed to create user role")
 	}
 
 	// Increment uses count
-	if err := queries().IncrementInviteUses(ctx, invite.ID); err != nil {
+	if err := txQueries.IncrementInviteUses(ctx, invite.ID); err != nil {
 		return uuid.Nil, fmt.Errorf("failed to increment invite uses: %w", err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return uuid.Nil, obj.ErrServerError("failed to commit transaction")
 	}
 
 	// If max uses reached, mark as expired

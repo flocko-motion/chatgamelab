@@ -339,7 +339,7 @@ func DeclineInvite(w http.ResponseWriter, r *http.Request) {
 // RevokeInvite godoc
 //
 //	@Summary		Revoke invite
-//	@Description	Revokes a pending invite (creator or admin only)
+//	@Description	Revokes a pending invite (creator, admin, or institution staff for workshop invites)
 //	@Tags			invites
 //	@Produce		json
 //	@Param			id	path		string	true	"Invite ID (UUID)"
@@ -370,5 +370,42 @@ func RevokeInvite(w http.ResponseWriter, r *http.Request) {
 
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Invite revoked",
+	})
+}
+
+// ReactivateInvite godoc
+//
+//	@Summary		Reactivate invite
+//	@Description	Re-activates a revoked invite (creator, admin, or institution staff for workshop invites)
+//	@Tags			invites
+//	@Produce		json
+//	@Param			id	path		string	true	"Invite ID (UUID)"
+//	@Success		200	{object}	map[string]string
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Not found"
+//	@Security		BearerAuth
+//	@Router			/invites/{id}/reactivate [post]
+func ReactivateInvite(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	inviteID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid invite ID"))
+		return
+	}
+
+	err = db.ReactivateInvite(r.Context(), inviteID, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Invite reactivated",
 	})
 }
