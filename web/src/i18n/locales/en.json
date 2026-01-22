@@ -1,8 +1,5 @@
 {
   "common": {
-    "welcome": "Welcome",
-    "hello": "Hello",
-    "goodbye": "Goodbye",
     "loading": "Loading...",
     "error": "Error",
     "save": "Save",
@@ -15,13 +12,6 @@
     "profile": "Profile",
     "logout": "Logout",
     "login": "Login",
-    "register": "Register",
-    "language": "Language",
-    "theme": "Theme",
-    "dark": "Dark",
-    "light": "Light",
-    "system": "System",
-    "notifications": "Notifications",
     "home": {
       "badge": "Educational Gaming Lab",
       "title": "ChatGameLab",
@@ -60,16 +50,10 @@
     "header": {
       "openNavigation": "Open navigation menu",
       "closeNavigation": "Close navigation menu",
-      "viewNotifications": "View notifications",
       "contact": "Contact",
-      "openSettings": "Open settings",
-      "openProfile": "Open profile menu",
       "openUserMenu": "Open user menu",
       "goToDashboard": "Go to Dashboard",
-      "profile": "Profile",
-      "settings": "Settings",
-      "apiKeys": "API Keys",
-      "logout": "Logout"
+      "apiKeys": "API Keys"
     },
     "apiKeys": {
       "title": "API Key Management",
@@ -468,7 +452,6 @@
     }
   },
   "navigation": {
-    "home": "Home",
     "dashboard": "Dashboard",
     "myGames": "My Games",
     "allGames": "All Games",
@@ -478,8 +461,7 @@
     "play": "Play a Game",
     "rooms": "Rooms",
     "groups": "Groups",
-    "learn": "Learn",
-    "debug": "Debug"
+    "learn": "Learn"
   },
   "dashboard": {
     "cards": {
@@ -542,22 +524,6 @@
         "message": "Frontend version <frontendVersion>{{frontendVersion}}</frontendVersion> does not match backend version <backendVersion>{{backendVersion}}</backendVersion>. This may cause unexpected behavior. Contact support if issues persist."
       }
     }
-  },
-  "game": {
-    "createNew": "Create New Game",
-    "title": "Title",
-    "description": "Description",
-    "start": "Start",
-    "pause": "Pause",
-    "resume": "Resume",
-    "restart": "Restart",
-    "score": "Score",
-    "level": "Level",
-    "time": "Time",
-    "players": "Players",
-    "invite": "Invite",
-    "join": "Join",
-    "leave": "Leave"
   },
   "errors": {
     "network": "Network error. Please check your connection.",
