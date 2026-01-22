@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000007
+name: The Time Traveler
+description: "Fix paradoxes across different time periods"
+system_message_scenario: "You've accidentally activated your grandfather's time machine. Now history is breaking apart, and you must fix the timeline before reality collapses."
+system_message_game_start: "The machine hums to life. Your living room dissolves around you, replaced by swirling colors. When it stops, you're standing in ancient Rome."
+image_style: "time travel effects, multiple eras blending, temporal distortions"
+css: ""
+status_fields: '[{"name":"Temporal Energy","value":"100"},{"name":"Timeline Stability","value":"50"}]'

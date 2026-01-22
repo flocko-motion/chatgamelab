@@ -12,6 +12,14 @@ func Ptr[T any](v T) *T {
 	return &v
 }
 
+// Deref dereferences a pointer, returning the default value if the pointer is nil.
+func Deref[T any](ptr *T, defaultValue T) T {
+	if ptr == nil {
+		return defaultValue
+	}
+	return *ptr
+}
+
 // MustReturn returns v if err is nil, otherwise logs the error and exits.
 func MustReturn[T any](v T, err error) T {
 	if err != nil {

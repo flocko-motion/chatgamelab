@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000012
+name: Wild West Showdown
+description: "Bring justice to a lawless frontier town"
+system_message_scenario: "The town of Dusty Creek has been taken over by the notorious Rattlesnake Gang. As the new sheriff, you must restore law and order."
+system_message_game_start: "You ride into town at high noon. The streets are empty except for tumbleweeds. Your deputy's badge feels heavy on your chest."
+image_style: "western frontier, dusty streets, saloons, desert landscape"
+css: ""
+status_fields: '[{"name":"Bullets","value":"24"},{"name":"Reputation","value":"50"}]'

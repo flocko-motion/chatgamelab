@@ -1,10 +1,8 @@
 package game
 
 import (
-	"cgl/api/httpx"
 	"context"
 	"fmt"
-	"strings"
 
 	"cgl/db"
 	"cgl/game/ai"
@@ -14,28 +12,6 @@ import (
 
 	"github.com/google/uuid"
 )
-
-// extractAIErrorCode tries to extract an error code from an AI error message.
-// Uses simple keyword matching to identify common OpenAI error types.
-func extractAIErrorCode(err error) string {
-	if err == nil {
-		return ""
-	}
-	errStr := strings.ToLower(err.Error())
-
-	// Map error keywords to our error codes
-	switch {
-	case strings.Contains(errStr, "invalid_api_key"):
-		return httpx.ErrCodeInvalidApiKey
-	case strings.Contains(errStr, "organization_verification_required"):
-		return httpx.ErrCodeOrgVerificationRequired
-	case strings.Contains(errStr, "billing_not_active"):
-		return httpx.ErrCodeBillingNotActive
-	default:
-		// For any other AI API error, return generic AI error
-		return httpx.ErrCodeAiError
-	}
-}
 
 // CreateSession creates a new game session for a user.
 // If shareID is uuid.Nil, the user's default API key share will be used.
@@ -49,19 +25,12 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Resolve share: use provided share, or fall back to user's default
 	if shareID == uuid.Nil {
-		defaultShareID, err := db.GetUserDefaultApiKeyShare(ctx, userID)
-		if err != nil {
-			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get default API key: " + err.Error()}
-		}
-		if defaultShareID == nil {
-			return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided and no default set. Use 'apikey default <share-id>' to set a default."}
-		}
-		shareID = *defaultShareID
+		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided."}
 	}
 
 	// Get the share and check if user is directly included
 	log.Debug("resolving API key share", "share_id", shareID)
-	share, err := db.GetApiKeyShareByID(ctx, shareID)
+	share, err := db.GetApiKeyShareByID(ctx, userID, shareID)
 	if err != nil {
 		log.Debug("API key share not found", "share_id", shareID, "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
@@ -97,49 +66,17 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
 
-	// Create session object
-	session := &obj.GameSession{
-		GameID:          game.ID,
-		GameName:        game.Name,
-		GameDescription: game.Description,
-		UserID:          userID,
-		ApiKeyID:        share.ApiKey.ID,
-		ApiKey:          share.ApiKey,
-		AiPlatform:      share.ApiKey.Platform,
-		AiModel:         aiModel,
-		ImageStyle:      game.ImageStyle,
-		StatusFields:    game.StatusFields,
-		AiSession:       "{}",
-	}
-
-	// Generate visual theme for the game player UI
-	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-	theme, err := GenerateTheme(ctx, session, game)
-	if err != nil {
-		log.Error("failed to generate theme, using default", "error", err)
-		// Don't fail - use nil theme (frontend will use defaults)
-	} else {
-		session.Theme = theme
-		log.Debug("theme generated successfully")
-	}
-
-	// Persist to database
+	// Persist to database - CreateGameSession will load game details and construct session
 	log.Debug("persisting session to database")
-	session, err = db.CreateGameSession(ctx, session)
+	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
 	}
 	log.Debug("session created", "session_id", session.ID)
 
-	// Increment play count if the user is not the owner of the game
-	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == userID
-	if !isOwner {
-		if err := db.IncrementGamePlayCount(ctx, gameID); err != nil {
-			log.Debug("failed to increment play count", "error", err)
-			// Don't fail the request, just log the error
-		}
-	}
+	// Attach API key for response
+	session.ApiKey = share.ApiKey
 
 	// First action is a system message containing the game instructions
 	log.Debug("executing initial system action", "session_id", session.ID)
@@ -198,7 +135,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Create stream for SSE with ImageSaver to persist image before signaling done
 	responseStream := stream.Get().Create(ctx, response, func(messageID uuid.UUID, imageData []byte) error {
-		return db.UpdateGameSessionMessageImage(context.Background(), messageID, imageData)
+		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
 	})
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
@@ -209,17 +146,14 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.Type = "error"
 		response.Message = err.Error()
 		response.Stream = false
-		_ = db.UpdateGameSessionMessage(ctx, *response)
-
-		// Extract AI error code if available
-		errorCode := extractAIErrorCode(err)
-		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
+		_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
+		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err)}
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
 
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
 	// This is returned to client immediately
-	_ = db.UpdateGameSessionMessage(ctx, *response)
+	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
@@ -227,20 +161,20 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", response.ID)
 		// ExpandStory streams text and updates response.Message with full narrative
 		if err := platform.ExpandStory(context.Background(), session, response, responseStream); err != nil {
-			log.Error("ExpandStory failed", "session_id", session.ID, "error", err)
+			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
 		}
 
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
-		if err := db.UpdateGameSessionMessage(context.Background(), *response); err != nil {
-			log.Error("failed to update message after ExpandStory", "session_id", session.ID, "error", err)
+		if err := db.UpdateGameSessionMessage(context.Background(), session.UserID, *response); err != nil {
+			log.Warn("failed to update message after ExpandStory", "session_id", session.ID, "error", err)
 		}
 
 		// Update session with new AI state (response IDs for conversation continuity)
-		if err := db.UpdateGameSessionAiSession(context.Background(), session.ID, session.AiSession); err != nil {
-			log.Error("failed to update session AI state", "session_id", session.ID, "error", err)
+		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
+			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 	}()
 
@@ -249,7 +183,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		// GenerateImage streams partial images and updates response.Image with final
 		// Note: Image is saved to DB inside stream.SendImage when isDone=true
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
-			log.Error("GenerateImage failed", "session_id", session.ID, "error", err)
+			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("GenerateImage completed", "session_id", session.ID, "image_size", len(response.Image))
 		}

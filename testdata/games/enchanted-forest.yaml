@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000002
-name: The Enchanted Forest
-description: "A magical journey through an ancient woodland"
-system_message_scenario: "Deep in the Enchanted Forest, magical creatures roam freely and ancient spells linger in the air. The forest keeper has gone missing."
-system_message_game_start: "You stand at the edge of the forest. Glowing mushrooms light a winding path ahead, and you hear the distant sound of a flute."
-image_style: "fantasy art, luminous flora, mystical atmosphere, watercolor style"
-css: ""
-status_fields: '[{"name":"Magic","value":"50"},{"name":"Health","value":"100"}]'

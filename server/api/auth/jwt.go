@@ -24,13 +24,16 @@ func GenerateToken(userId string) (string, int64, error) {
 		return "", 0, fmt.Errorf("DEV_JWT_SECRET not set - dev JWT generation disabled")
 	}
 
-	expireAt := time.Now().Add(24 * time.Hour)
+	now := time.Now()
+	expireAt := now.Add(24 * time.Hour)
+	// Set iat 5 seconds in the past to handle clock skew and race conditions
+	issuedAt := now.Add(-5 * time.Second)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":   userId,
 		"iss":   "cgl",
 		"aud":   "cgl",
 		"exp":   expireAt.Unix(),
-		"iat":   time.Now().Unix(),
+		"iat":   issuedAt.Unix(),
 		"scope": "openid profile email",
 	})
 

@@ -23,6 +23,15 @@ var (
 	queriesSingleton *sqlc.Queries // sqlc-generated Queries (see db/sqlc/db.go)
 )
 
+// Reset clears the database singleton (for testing only)
+func Reset() {
+	if sqlDb != nil {
+		sqlDb.Close()
+		sqlDb = nil
+	}
+	queriesSingleton = nil
+}
+
 // Init initializes the database connection. Call this at startup.
 // If the database is empty (no tables), it will automatically initialize the schema.
 func Init() {
@@ -135,6 +144,8 @@ func stringToRole(s string) (obj.Role, error) {
 		return obj.RoleHead, nil
 	case string(obj.RoleStaff):
 		return obj.RoleStaff, nil
+	case string(obj.RoleParticipant):
+		return obj.RoleParticipant, nil
 	default:
 		return obj.Role("invalid:" + s), errors.New("invalid role")
 	}

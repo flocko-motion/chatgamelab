@@ -13,6 +13,25 @@ import (
 	"github.com/google/uuid"
 )
 
+const acceptTargetedInvite = `-- name: AcceptTargetedInvite :exec
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type AcceptTargetedInviteParams struct {
+	ID         uuid.UUID
+	AcceptedBy uuid.NullUUID
+}
+
+func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedInviteParams) error {
+	_, err := q.db.ExecContext(ctx, acceptTargetedInvite, arg.ID, arg.AcceptedBy)
+	return err
+}
+
 const countUserGames = `-- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
@@ -103,6 +122,128 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 	return i, err
 }
 
+const createOpenInvite = `-- name: CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
+`
+
+type CreateOpenInviteParams struct {
+	CreatedBy     uuid.NullUUID
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InviteToken   sql.NullString
+	MaxUses       sql.NullInt32
+	ExpiresAt     sql.NullTime
+}
+
+func (q *Queries) CreateOpenInvite(ctx context.Context, arg CreateOpenInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, createOpenInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InviteToken,
+		arg.MaxUses,
+		arg.ExpiresAt,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const createTargetedInvite = `-- name: CreateTargetedInvite :one
+
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by
+`
+
+type CreateTargetedInviteParams struct {
+	CreatedBy     uuid.NullUUID
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+	InviteToken   sql.NullString
+}
+
+// user_role_invite -------------------------------------------------------------
+func (q *Queries) CreateTargetedInvite(ctx context.Context, arg CreateTargetedInviteParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, createTargetedInvite,
+		arg.CreatedBy,
+		arg.InstitutionID,
+		arg.Role,
+		arg.WorkshopID,
+		arg.InvitedUserID,
+		arg.InvitedEmail,
+		arg.InviteToken,
+	)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 
 INSERT INTO app_user (id, name, email, auth0_id)
@@ -125,8 +266,8 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 }
 
 const createUserRole = `-- name: CreateUserRole :one
-INSERT INTO user_role (id, user_id, role, institution_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
+INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id
 `
 
@@ -134,10 +275,16 @@ type CreateUserRoleParams struct {
 	UserID        uuid.UUID
 	Role          sql.NullString
 	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
 }
 
 func (q *Queries) CreateUserRole(ctx context.Context, arg CreateUserRoleParams) (uuid.NullUUID, error) {
-	row := q.db.QueryRowContext(ctx, createUserRole, arg.UserID, arg.Role, arg.InstitutionID)
+	row := q.db.QueryRowContext(ctx, createUserRole,
+		arg.UserID,
+		arg.Role,
+		arg.InstitutionID,
+		arg.WorkshopID,
+	)
 	var id uuid.NullUUID
 	err := row.Scan(&id)
 	return id, err
@@ -169,6 +316,34 @@ func (q *Queries) CreateUserWithID(ctx context.Context, arg CreateUserWithIDPara
 	return id, err
 }
 
+const createUserWithParticipantToken = `-- name: CreateUserWithParticipantToken :one
+INSERT INTO app_user (id, name, email, auth0_id, participant_token)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (id) DO NOTHING
+RETURNING id
+`
+
+type CreateUserWithParticipantTokenParams struct {
+	ID               uuid.UUID
+	Name             string
+	Email            sql.NullString
+	Auth0ID          sql.NullString
+	ParticipantToken sql.NullString
+}
+
+func (q *Queries) CreateUserWithParticipantToken(ctx context.Context, arg CreateUserWithParticipantTokenParams) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, createUserWithParticipantToken,
+		arg.ID,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+		arg.ParticipantToken,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const deleteApiKey = `-- name: DeleteApiKey :exec
 DELETE FROM api_key WHERE id = $1 AND user_id = $2
 `
@@ -192,6 +367,15 @@ WHERE id = $1
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	return err
+}
+
+const deleteUserRole = `-- name: DeleteUserRole :exec
+DELETE FROM user_role WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserRole(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserRole, userID)
 	return err
 }
 
@@ -225,6 +409,212 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 		&i.Key,
 	)
 	return i, err
+}
+
+const getInviteByID = `-- name: GetInviteByID :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite WHERE id = $1
+`
+
+func (q *Queries) GetInviteByID(ctx context.Context, id uuid.UUID) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getInviteByID, id)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const getInviteByToken = `-- name: GetInviteByToken :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite WHERE invite_token = $1
+`
+
+func (q *Queries) GetInviteByToken(ctx context.Context, inviteToken sql.NullString) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getInviteByToken, inviteToken)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
+const getInvites = `-- name: GetInvites :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvites(ctx context.Context) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvites)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getInvitesByUser = `-- name: GetInvitesByUser :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
+  AND deleted_at IS NULL
+  AND status = 'pending'
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvitesByUser(ctx context.Context, invitedUserID uuid.NullUUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByUser, invitedUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getInvitesByWorkshop = `-- name: GetInvitesByWorkshop :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserApiKeys = `-- name: GetUserApiKeys :many
@@ -291,8 +681,31 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 	return items, nil
 }
 
+const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, getUserByAuth0ID, auth0ID)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.ParticipantToken,
+		&i.DefaultApiKeyShareID,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -308,8 +721,40 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.Email,
 		&i.DeletedAt,
 		&i.Auth0ID,
+		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
+	)
+	return i, err
+}
+
+const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id 
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+INNER JOIN workshop w ON ur.workshop_id = w.id
+WHERE u.participant_token = $1 
+  AND u.deleted_at IS NULL
+  AND ur.role = 'participant'
+  AND w.active = true
+  AND w.deleted_at IS NULL
+`
+
+// Get user by participant token, but only if they're linked to an active workshop
+func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToken sql.NullString) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, getUserByParticipantToken, participantToken)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.ParticipantToken,
+		&i.DefaultApiKeyShareID,
 	)
 	return i, err
 }
@@ -337,14 +782,15 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
-  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
-  i.name         AS institution_name
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
 FROM app_user u
 LEFT JOIN LATERAL (
-  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY ur.created_at DESC
@@ -352,6 +798,8 @@ LEFT JOIN LATERAL (
 ) r ON TRUE
 LEFT JOIN institution i
   ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
 WHERE u.id = $1
 `
 
@@ -366,11 +814,12 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
-	ShowAiModelSelector  bool
 	RoleID               uuid.NullUUID
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
 	InstitutionName      sql.NullString
+	WorkshopID           uuid.NullUUID
+	WorkshopName         sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -387,11 +836,12 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
 		&i.InstitutionName,
+		&i.WorkshopID,
+		&i.WorkshopName,
 	)
 	return i, err
 }
@@ -405,6 +855,208 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getUsersByInstitution = `-- name: GetUsersByInstitution :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  ur.id as role_id, ur.role as role_role
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.institution_id = $1
+  AND u.deleted_at IS NULL
+`
+
+type GetUsersByInstitutionRow struct {
+	ID         uuid.UUID
+	Name       string
+	Email      sql.NullString
+	CreatedBy  uuid.NullUUID
+	CreatedAt  time.Time
+	ModifiedBy uuid.NullUUID
+	ModifiedAt time.Time
+	RoleID     uuid.NullUUID
+	RoleRole   sql.NullString
+}
+
+func (q *Queries) GetUsersByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]GetUsersByInstitutionRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersByInstitutionRow
+	for rows.Next() {
+		var i GetUsersByInstitutionRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.RoleID,
+			&i.RoleRole,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUsersByWorkshop = `-- name: GetUsersByWorkshop :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  u.deleted_at, u.auth0_id,
+  ur.id as role_id, ur.role, ur.institution_id, ur.workshop_id
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.workshop_id = $1
+  AND u.deleted_at IS NULL
+`
+
+type GetUsersByWorkshopRow struct {
+	ID            uuid.UUID
+	Name          string
+	Email         sql.NullString
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	ModifiedBy    uuid.NullUUID
+	ModifiedAt    time.Time
+	DeletedAt     sql.NullTime
+	Auth0ID       sql.NullString
+	RoleID        uuid.NullUUID
+	Role          sql.NullString
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
+func (q *Queries) GetUsersByWorkshop(ctx context.Context, workshopID uuid.NullUUID) ([]GetUsersByWorkshopRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByWorkshop, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersByWorkshopRow
+	for rows.Next() {
+		var i GetUsersByWorkshopRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.DeletedAt,
+			&i.Auth0ID,
+			&i.RoleID,
+			&i.Role,
+			&i.InstitutionID,
+			&i.WorkshopID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getWorkshopParticipants = `-- name: GetWorkshopParticipants :many
+SELECT 
+  u.id, u.name, u.auth0_id,
+  COALESCE(ur.created_at, w.created_at) as joined_at
+FROM app_user u
+LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
+INNER JOIN workshop w ON w.id = $1
+WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
+  AND u.deleted_at IS NULL
+ORDER BY joined_at ASC
+`
+
+type GetWorkshopParticipantsRow struct {
+	ID       uuid.UUID
+	Name     string
+	Auth0ID  sql.NullString
+	JoinedAt time.Time
+}
+
+// Get all participants for a workshop, including:
+// 1. Users with RoleParticipant (anonymous participants)
+// 2. Workshop owner/creator (staff/head who created it)
+func (q *Queries) GetWorkshopParticipants(ctx context.Context, workshopID uuid.NullUUID) ([]GetWorkshopParticipantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkshopParticipants, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetWorkshopParticipantsRow
+	for rows.Next() {
+		var i GetWorkshopParticipantsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Auth0ID,
+			&i.JoinedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const hasWorkshopRole = `-- name: HasWorkshopRole :one
+SELECT EXISTS(
+    SELECT 1 FROM user_role 
+    WHERE user_id = $1 AND workshop_id = $2
+) AS has_role
+`
+
+type HasWorkshopRoleParams struct {
+	UserID     uuid.UUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) HasWorkshopRole(ctx context.Context, arg HasWorkshopRoleParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, hasWorkshopRole, arg.UserID, arg.WorkshopID)
+	var has_role bool
+	err := row.Scan(&has_role)
+	return has_role, err
+}
+
+const incrementInviteUses = `-- name: IncrementInviteUses :exec
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1
+`
+
+func (q *Queries) IncrementInviteUses(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, incrementInviteUses, id)
+	return err
 }
 
 const isEmailTakenByOther = `-- name: IsEmailTakenByOther :one
@@ -518,6 +1170,23 @@ func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (Api
 	return i, err
 }
 
+const updateInviteStatus = `-- name: UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateInviteStatusParams struct {
+	ID     uuid.UUID
+	Status string
+}
+
+func (q *Queries) UpdateInviteStatus(ctx context.Context, arg UpdateInviteStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateInviteStatus, arg.ID, arg.Status)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE app_user SET
   name = $2,
@@ -534,22 +1203,5 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
-	return err
-}
-
-const updateUserSettings = `-- name: UpdateUserSettings :exec
-UPDATE app_user SET
-  show_ai_model_selector = $2,
-  modified_at = now()
-WHERE id = $1
-`
-
-type UpdateUserSettingsParams struct {
-	ID                  uuid.UUID
-	ShowAiModelSelector bool
-}
-
-func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserSettings, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000018
-name: First Contact
-description: "Negotiate with an alien civilization"
-system_message_scenario: "An alien ship has entered Earth's orbit. You're humanity's chief diplomat, chosen to make first contact. One wrong move could mean war or peace for all of humanity."
-system_message_game_start: "You board the shuttle to the alien mothership. Through the window, Earth looks small and fragile. The airlock opens, revealing beings unlike anything you've imagined."
-image_style: "alien spacecraft, otherworldly beings, diplomatic chambers, space vista"
-css: ""
-status_fields: '[{"name":"Trust","value":"50"},{"name":"Understanding","value":"10"}]'

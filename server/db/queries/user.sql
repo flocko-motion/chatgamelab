@@ -1,4 +1,3 @@
-
 -- app_user -------------------------------------------------------------
 
 -- name: CreateUser :one
@@ -12,8 +11,29 @@ VALUES ($1, $2, $3, $4)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
+-- name: CreateUserWithParticipantToken :one
+INSERT INTO app_user (id, name, email, auth0_id, participant_token)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
 -- name: GetUserIDByAuth0ID :one
 SELECT id FROM app_user WHERE auth0_id = $1;
+
+-- name: GetUserByAuth0ID :one
+SELECT * FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL;
+
+-- name: GetUserByParticipantToken :one
+-- Get user by participant token, but only if they're linked to an active workshop
+SELECT u.* 
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+INNER JOIN workshop w ON ur.workshop_id = w.id
+WHERE u.participant_token = $1 
+  AND u.deleted_at IS NULL
+  AND ur.role = 'participant'
+  AND w.active = true
+  AND w.deleted_at IS NULL;
 
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
@@ -39,11 +59,12 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
-  u.show_ai_model_selector,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
-  i.name         AS institution_name
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -54,6 +75,8 @@ LEFT JOIN LATERAL (
 ) r ON TRUE
 LEFT JOIN institution i
   ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
 WHERE u.id = $1;
 
 -- name: GetUserApiKeys :many
@@ -79,12 +102,6 @@ UPDATE app_user SET
   modified_at = now()
 WHERE id = $1;
 
--- name: UpdateUserSettings :exec
-UPDATE app_user SET
-  show_ai_model_selector = $2,
-  modified_at = now()
-WHERE id = $1;
-
 -- name: DeleteUser :exec
 UPDATE app_user
 SET
@@ -96,11 +113,23 @@ WHERE id = $1;
 -- name: DeleteUserRoles :exec
 DELETE FROM user_role WHERE user_id = $1;
 
--- name: CreateUserRole :one
-INSERT INTO user_role (id, user_id, role, institution_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
-RETURNING id;
+-- name: DeleteUserRole :exec
+DELETE FROM user_role WHERE user_id = $1;
 
+-- name: GetUsersByInstitution :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  ur.id as role_id, ur.role as role_role
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.institution_id = $1
+  AND u.deleted_at IS NULL;
+
+-- name: CreateUserRole :one
+INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
+RETURNING id;
 
 -- api_key --------------------------------------------------------------
 
@@ -141,6 +170,112 @@ WHERE id = $1;
 -- name: GetUserDefaultApiKeyShare :one
 SELECT default_api_key_share_id FROM app_user WHERE id = $1;
 
+-- user_role_invite -------------------------------------------------------------
+
+-- name: CreateTargetedInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invited_user_id, invited_email,
+  invite_token,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6,
+  $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: CreateOpenInvite :one
+INSERT INTO user_role_invite (
+  id, created_by, created_at, modified_by, modified_at,
+  institution_id, role, workshop_id,
+  invite_token, max_uses, expires_at,
+  status
+) VALUES (
+  gen_random_uuid(), $1, now(), $1, now(),
+  $2, $3, $4,
+  $5, $6, $7,
+  'pending'
+)
+RETURNING *;
+
+-- name: GetInvites :many
+SELECT * FROM user_role_invite 
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: GetInvitesByUser :many
+SELECT * FROM user_role_invite 
+WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
+  AND deleted_at IS NULL
+  AND status = 'pending'
+ORDER BY created_at DESC;
+
+-- name: GetInvitesByWorkshop :many
+SELECT * FROM user_role_invite 
+WHERE workshop_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: HasWorkshopRole :one
+SELECT EXISTS(
+    SELECT 1 FROM user_role 
+    WHERE user_id = $1 AND workshop_id = $2
+) AS has_role;
+
+-- name: GetUsersByWorkshop :many
+SELECT 
+  u.id, u.name, u.email,
+  u.created_by, u.created_at, u.modified_by, u.modified_at,
+  u.deleted_at, u.auth0_id,
+  ur.id as role_id, ur.role, ur.institution_id, ur.workshop_id
+FROM app_user u
+INNER JOIN user_role ur ON u.id = ur.user_id
+WHERE ur.workshop_id = $1
+  AND u.deleted_at IS NULL;
+
+-- name: GetWorkshopParticipants :many
+-- Get all participants for a workshop, including:
+-- 1. Users with RoleParticipant (anonymous participants)
+-- 2. Workshop owner/creator (staff/head who created it)
+SELECT 
+  u.id, u.name, u.auth0_id,
+  COALESCE(ur.created_at, w.created_at) as joined_at
+FROM app_user u
+LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
+INNER JOIN workshop w ON w.id = $1
+WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
+  AND u.deleted_at IS NULL
+ORDER BY joined_at ASC;
+
+-- name: GetInviteByID :one
+SELECT * FROM user_role_invite WHERE id = $1;
+
+-- name: GetInviteByToken :one
+SELECT * FROM user_role_invite WHERE invite_token = $1;
+
+-- name: UpdateInviteStatus :exec
+UPDATE user_role_invite SET
+  status = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: AcceptTargetedInvite :exec
+UPDATE user_role_invite SET
+  status = 'accepted',
+  accepted_at = now(),
+  accepted_by = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: IncrementInviteUses :exec
+UPDATE user_role_invite SET
+  uses_count = uses_count + 1,
+  modified_at = now()
+WHERE id = $1;
+
 -- User Statistics queries
 
 -- name: CountUserSessions :one
@@ -157,4 +292,3 @@ WHERE s.user_id = $1 AND m.type = 'player';
 
 -- name: SumPlayCountOfUserGames :one
 SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;
-

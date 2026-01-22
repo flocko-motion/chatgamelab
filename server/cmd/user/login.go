@@ -32,7 +32,10 @@ Modes:
      Example: user login --local [user-id] --alias dev
   
   3. Quick login: Use a saved server alias
-     Example: user login prod`,
+     Example: user login prod
+  
+  4. Update JWT for existing alias: Provide alias and new JWT token
+     Example: user login prod --token <new-jwt>`,
 	Args: cobra.MaximumNArgs(1),
 	Run:  runLogin,
 }
@@ -46,19 +49,25 @@ func init() {
 }
 
 func runLogin(cmd *cobra.Command, args []string) {
-	// Mode 1: Quick login with alias
+	// Mode 1: Update JWT for existing alias (alias + --token)
+	if len(args) > 0 && remoteToken != "" && remoteURL == "" && !localMode {
+		runAliasUpdateJWT(args[0], remoteToken)
+		return
+	}
+
+	// Mode 2: Quick login with alias
 	if len(args) > 0 && remoteURL == "" && remoteToken == "" && !localMode {
 		runAliasLogin(args[0])
 		return
 	}
 
-	// Mode 2: Local mode
+	// Mode 3: Local mode
 	if localMode {
 		runLocalLogin(args)
 		return
 	}
 
-	// Mode 3: Remote mode
+	// Mode 4: Remote mode
 	if remoteURL != "" && remoteToken != "" {
 		runRemoteLogin()
 		return
@@ -82,6 +91,28 @@ func runAliasLogin(alias string) {
 	fmt.Printf("  Config: %s\n", configPath)
 	fmt.Printf("  Server URL: %s\n", server.URL)
 	fmt.Printf("  JWT: %s...\n", truncateToken(server.JWT))
+}
+
+func runAliasUpdateJWT(alias string, newToken string) {
+	// Get existing server by alias
+	server, err := config.GetKnownServerByAlias(alias)
+	if err != nil {
+		log.Fatalf("Failed to find server with alias '%s': %v", alias, err)
+	}
+
+	// Strip "Bearer " prefix if user included it
+	token := strings.TrimSpace(strings.TrimPrefix(newToken, "Bearer "))
+
+	// Update the server config with new JWT, keeping the same URL and alias
+	if err := config.SetServerConfigWithAlias(server.URL, token, alias); err != nil {
+		log.Fatalf("Failed to update configuration: %v", err)
+	}
+
+	configPath, _ := config.GetConfigPath()
+	fmt.Printf("✓ Updated JWT for server '%s'\n", alias)
+	fmt.Printf("  Config: %s\n", configPath)
+	fmt.Printf("  Server URL: %s\n", server.URL)
+	fmt.Printf("  JWT: %s...\n", truncateToken(token))
 }
 
 func runRemoteLogin() {

@@ -39,7 +39,7 @@ func (q *Queries) AddFavouriteGame(ctx context.Context, arg AddFavouriteGamePara
 }
 
 const getFavouriteGamesByUserID = `-- name: GetFavouriteGamesByUserID :many
-SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.public, g.public_sponsored_api_key_id, g.private_share_hash, g.private_sponsored_api_key_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count
+SELECT g.id, g.created_by, g.created_at, g.modified_by, g.modified_at, g.name, g.description, g.icon, g.workshop_id, g.public, g.public_sponsored_api_key_id, g.private_share_hash, g.private_sponsored_api_key_id, g.system_message_scenario, g.system_message_game_start, g.image_style, g.css, g.status_fields, g.first_message, g.first_status, g.first_image, g.originally_created_by, g.play_count, g.clone_count
 FROM game g
     JOIN user_favourite_game f ON f.game_id = g.id
 WHERE f.user_id = $1
@@ -64,6 +64,7 @@ func (q *Queries) GetFavouriteGamesByUserID(ctx context.Context, userID uuid.UUI
 			&i.Name,
 			&i.Description,
 			&i.Icon,
+			&i.WorkshopID,
 			&i.Public,
 			&i.PublicSponsoredApiKeyID,
 			&i.PrivateShareHash,

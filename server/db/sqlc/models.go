@@ -48,8 +48,8 @@ type AppUser struct {
 	Email                sql.NullString
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
+	ParticipantToken     sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
-	ShowAiModelSelector  bool
 }
 
 type Game struct {
@@ -61,6 +61,7 @@ type Game struct {
 	Name                     string
 	Description              string
 	Icon                     []byte
+	WorkshopID               uuid.NullUUID
 	Public                   bool
 	PublicSponsoredApiKeyID  uuid.NullUUID
 	PrivateShareHash         sql.NullString
@@ -86,6 +87,7 @@ type GameSession struct {
 	ModifiedAt   time.Time
 	GameID       uuid.UUID
 	UserID       uuid.UUID
+	WorkshopID   uuid.NullUUID
 	ApiKeyID     uuid.UUID
 	AiPlatform   string
 	AiModel      string
@@ -93,6 +95,7 @@ type GameSession struct {
 	ImageStyle   string
 	StatusFields string
 	Theme        pqtype.NullRawMessage
+	DeletedAt    sql.NullTime
 }
 
 type GameSessionMessage struct {
@@ -108,6 +111,7 @@ type GameSessionMessage struct {
 	Status        sql.NullString
 	ImagePrompt   sql.NullString
 	Image         []byte
+	DeletedAt     sql.NullTime
 }
 
 type GameTag struct {
@@ -127,6 +131,7 @@ type Institution struct {
 	ModifiedBy uuid.NullUUID
 	ModifiedAt time.Time
 	Name       string
+	DeletedAt  sql.NullTime
 }
 
 type SystemSetting struct {
@@ -155,6 +160,28 @@ type UserRole struct {
 	UserID        uuid.UUID
 	Role          sql.NullString
 	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+}
+
+type UserRoleInvite struct {
+	ID            uuid.UUID
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	ModifiedBy    uuid.NullUUID
+	ModifiedAt    time.Time
+	InstitutionID uuid.UUID
+	Role          string
+	WorkshopID    uuid.NullUUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+	InviteToken   sql.NullString
+	MaxUses       sql.NullInt32
+	UsesCount     int32
+	ExpiresAt     sql.NullTime
+	Status        string
+	DeletedAt     sql.NullTime
+	AcceptedAt    sql.NullTime
+	AcceptedBy    uuid.NullUUID
 }
 
 type Workshop struct {
@@ -167,6 +194,7 @@ type Workshop struct {
 	InstitutionID uuid.UUID
 	Active        bool
 	Public        bool
+	DeletedAt     sql.NullTime
 }
 
 type WorkshopParticipant struct {

@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000004
-name: Pirate's Cove
-description: "Sail the high seas in search of legendary treasure"
-system_message_scenario: "The Caribbean, 1715. You've inherited a ship and a cryptic map from your grandfather. Legend speaks of Captain Blackheart's treasure hidden on a cursed island."
-system_message_game_start: "You stand on the deck of your ship, the Salty Dog. Your crew awaits orders as the morning sun rises over the azure waters."
-image_style: "pirate adventure, tropical islands, wooden ships, treasure maps"
-css: ""
-status_fields: '[{"name":"Gold","value":"100"},{"name":"Crew Morale","value":"80"}]'

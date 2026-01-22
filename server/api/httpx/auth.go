@@ -1,17 +1,16 @@
 package httpx
 
 import (
+	"cgl/api/auth"
+	"cgl/db"
+	"cgl/log"
+	"cgl/obj"
 	"context"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
-
-	"cgl/api/auth"
-	"cgl/db"
-	"cgl/log"
-	"cgl/obj"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/jwks"
@@ -214,6 +213,24 @@ func Authenticate(next http.Handler) http.Handler {
 		// No Authorization header - pass through without user
 		if authHeader == "" {
 			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Check for participant token (prefixed with "participant-")
+		if strings.HasPrefix(authHeader, "Bearer participant-") {
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+
+			// Lookup user by participant token
+			// SQL query validates: user exists, has participant role, linked to active workshop
+			user, err := db.GetUserByParticipantToken(r.Context(), token)
+			if err != nil {
+				log.Debug("participant token invalid or workshop not active", "error", err)
+				WriteError(w, http.StatusUnauthorized, "Invalid token or workshop not active")
+				return
+			}
+
+			log.Debug("participant token authenticated", "user_id", user.ID, "user_name", user.Name)
+			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
 

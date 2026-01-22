@@ -13,7 +13,10 @@ INSERT INTO institution (
 RETURNING *;
 
 -- name: GetInstitutionByID :one
-SELECT * FROM institution WHERE id = $1;
+SELECT * FROM institution WHERE id = $1 AND deleted_at IS NULL;
+
+-- name: ListInstitutions :many
+SELECT * FROM institution WHERE deleted_at IS NULL ORDER BY name;
 
 -- name: UpdateInstitution :one
 UPDATE institution SET
@@ -26,7 +29,15 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteInstitution :exec
-DELETE FROM institution WHERE id = $1;
+UPDATE institution SET deleted_at = now() WHERE id = $1;
+
+-- name: GetInstitutionMembers :many
+SELECT u.id, u.name, u.email, r.role
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND u.deleted_at IS NULL
+ORDER BY r.role, u.name;
 
 
 -- workshop -------------------------------------------------------------
@@ -44,7 +55,13 @@ INSERT INTO workshop (
 RETURNING *;
 
 -- name: GetWorkshopByID :one
-SELECT * FROM workshop WHERE id = $1;
+SELECT * FROM workshop WHERE id = $1 AND deleted_at IS NULL;
+
+-- name: ListWorkshops :many
+SELECT * FROM workshop WHERE deleted_at IS NULL ORDER BY name;
+
+-- name: ListWorkshopsByInstitution :many
+SELECT * FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name;
 
 -- name: UpdateWorkshop :one
 UPDATE workshop SET
@@ -60,7 +77,7 @@ WHERE id = $1
 RETURNING *;
 
 -- name: DeleteWorkshop :exec
-DELETE FROM workshop WHERE id = $1;
+UPDATE workshop SET deleted_at = now() WHERE id = $1;
 
 
 -- workshop_participant -------------------------------------------------

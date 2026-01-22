@@ -76,16 +76,16 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateApiKeyRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeInvalidInput, "Invalid JSON: "+err.Error())
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeInvalidInput, "Invalid JSON: "+err.Error())
 		return
 	}
 
 	if req.Platform == "" {
-		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeValidation, "Platform is required")
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeValidation, "Platform is required")
 		return
 	}
 	if req.Key == "" {
-		httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeValidation, "Key is required")
+		httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeValidation, "Key is required")
 		return
 	}
 
@@ -93,10 +93,10 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// Check if it's a platform validation error
 		if strings.Contains(err.Error(), "unknown platform") {
-			httpx.WriteErrorWithCode(w, http.StatusBadRequest, httpx.ErrCodeInvalidPlatform, "Invalid platform: "+req.Platform)
+			httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeInvalidPlatform, "Invalid platform: "+req.Platform)
 			return
 		}
-		httpx.WriteErrorWithCode(w, http.StatusInternalServerError, httpx.ErrCodeServerError, "Failed to create API key: "+err.Error())
+		httpx.WriteErrorWithCode(w, http.StatusInternalServerError, obj.ErrCodeServerError, "Failed to create API key: "+err.Error())
 		return
 	}
 
@@ -178,7 +178,7 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdShare, err := db.GetApiKeyShareByID(r.Context(), *newShareID)
+	createdShare, err := db.GetApiKeyShareByID(r.Context(), user.ID, *newShareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created share: "+err.Error())
 		return
@@ -224,7 +224,7 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load updated share: "+err.Error())
 		return
@@ -260,7 +260,7 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 
 	// Capture the share before deleting so we can return an obj type.
 	// (After deletion it may no longer be loadable.)
-	share, err := db.GetApiKeyShareByID(r.Context(), shareID)
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load share: "+err.Error())
 		return

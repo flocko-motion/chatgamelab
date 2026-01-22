@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000016
+name: Vampire Hunter
+description: "Hunt the undead through Victorian London"
+system_message_scenario: "Victorian London, 1888. Vampires walk among the living, hiding in plain sight. You're part of a secret society dedicated to hunting them. The vampire lord Dracula has arrived in the city."
+system_message_game_start: "Fog rolls through the cobblestone streets. Your silver weapons feel cold against your skin. A scream echoes from a nearby alley."
+image_style: "Victorian gothic, foggy streets, gas lamps, dark alleys"
+css: ""
+status_fields: '[{"name":"Silver Bullets","value":"12"},{"name":"Health","value":"100"}]'

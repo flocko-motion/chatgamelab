@@ -6,6 +6,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,6 +28,14 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 	id, err := queries().CreateUser(ctx, arg)
 	if err != nil {
 		return nil, err
+	}
+
+	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	if email != nil && isAdminEmail(*email) {
+		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+		}
 	}
 
 	return GetUserByID(ctx, id)
@@ -49,6 +59,14 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 		return nil, err
 	}
 
+	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	if email != nil && isAdminEmail(*email) {
+		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+		}
+	}
+
 	return GetUserByID(ctx, id)
 }
 
@@ -65,12 +83,27 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
-func UpdateUserSettings(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
-	arg := db.UpdateUserSettingsParams{
-		ID:                  id,
-		ShowAiModelSelector: showAiModelSelector,
+// GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
+func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (db.AppUser, error) {
+	return queries().GetUserByID(ctx, id)
+}
+
+// RemoveUser deletes a user (checks permissions internally)
+func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
+	if err := CanDeleteUser(ctx, currentUserID, targetUserID); err != nil {
+		return err
 	}
-	return queries().UpdateUserSettings(ctx, arg)
+	return DeleteUser(ctx, targetUserID)
+}
+
+// GetUserByParticipantToken gets a user by their participant token
+func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, error) {
+	res, err := queries().GetUserByParticipantToken(ctx, sql.NullString{String: token, Valid: true})
+	if err != nil {
+		return nil, err
+	}
+	// Get full user details with role
+	return GetUserByID(ctx, res.ID)
 }
 
 // GetUserByID gets a user by ID
@@ -87,11 +120,10 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:                res.Name,
-		Email:               sqlNullStringToMaybeString(res.Email),
-		DeletedAt:           &res.DeletedAt.Time,
-		Auth0Id:             sqlNullStringToMaybeString(res.Auth0ID),
-		ShowAiModelSelector: res.ShowAiModelSelector,
+		Name:      res.Name,
+		Email:     sqlNullStringToMaybeString(res.Email),
+		DeletedAt: &res.DeletedAt.Time,
+		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)
@@ -106,6 +138,12 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			user.Role.Institution = &obj.Institution{
 				ID:   res.InstitutionID.UUID,
 				Name: res.InstitutionName.String,
+			}
+		}
+		if res.WorkshopID.Valid {
+			user.Role.Workshop = &obj.Workshop{
+				ID:   res.WorkshopID.UUID,
+				Name: res.WorkshopName.String,
 			}
 		}
 	}
@@ -181,6 +219,42 @@ func uuidPtrToUUID(id *uuid.UUID) uuid.UUID {
 	return *id
 }
 
+// isAdminEmail checks if the given email is in the ADMIN_EMAILS environment variable
+func isAdminEmail(email string) bool {
+	adminEmails := os.Getenv("ADMIN_EMAILS")
+	if adminEmails == "" {
+		return false
+	}
+
+	// Split by comma and trim whitespace
+	emails := strings.Split(adminEmails, ",")
+	for _, adminEmail := range emails {
+		if strings.TrimSpace(adminEmail) == strings.TrimSpace(email) {
+			return true
+		}
+	}
+	return false
+}
+
+// autoUpgradeUserToAdmin creates an admin role for the user
+func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
+	// Create admin role for the user
+	arg := db.CreateUserRoleParams{
+		UserID:        userID,
+		Role:          sql.NullString{String: string(obj.RoleAdmin), Valid: true},
+		InstitutionID: uuid.NullUUID{}, // Admin role has no institution
+		WorkshopID:    uuid.NullUUID{}, // Admin role has no workshop
+	}
+
+	_, err := queries().CreateUserRole(ctx, arg)
+	if err != nil {
+		return fmt.Errorf("failed to create admin role: %w", err)
+	}
+
+	fmt.Printf("Auto-upgraded user %s to admin role\n", userID)
+	return nil
+}
+
 // GetAllUsers returns all users (for admin/CLI use)
 func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	rows, err := sqlDb.QueryContext(ctx, `
@@ -210,37 +284,18 @@ func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	return users, rows.Err()
 }
 
-// GetUserStats returns aggregated statistics for a user
-func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
-	gamesPlayed, err := queries().CountUserSessions(ctx, userID)
+func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {
+	// Check permissions
+	currentUser, err := GetUserByID(ctx, currentUserID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to count sessions: %w", err)
+		return obj.ErrNotFound("current user not found")
 	}
 
-	gamesCreated, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to count games: %w", err)
+	// Only admin can set roles
+	if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
+		return obj.ErrForbidden("only admins can manage user roles")
 	}
 
-	messagesSent, err := queries().CountUserPlayerMessages(ctx, userID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to count messages: %w", err)
-	}
-
-	totalPlays, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
-	if err != nil {
-		return nil, fmt.Errorf("failed to sum play counts: %w", err)
-	}
-
-	return &obj.UserStats{
-		GamesPlayed:       int(gamesPlayed),
-		GamesCreated:      int(gamesCreated),
-		MessagesSent:      int(messagesSent),
-		TotalPlaysOnGames: int(totalPlays),
-	}, nil
-}
-
-func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institutionID *uuid.UUID) error {
 	// Validate role name
 	if role != nil {
 		if _, err := stringToRole(*role); err != nil {
@@ -248,22 +303,66 @@ func UpdateUserRole(ctx context.Context, userID uuid.UUID, role *string, institu
 		}
 	}
 
+	// Use a transaction to ensure atomicity
+	tx, err := sqlDb.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Rollback if not committed
+
+	txQueries := queries().WithTx(tx)
+
 	// Delete existing roles for this user
-	if err := queries().DeleteUserRoles(ctx, userID); err != nil {
+	if err := txQueries.DeleteUserRoles(ctx, targetUserID); err != nil {
 		return fmt.Errorf("failed to delete existing roles: %w", err)
 	}
 
-	// No new role?
+	// No new role? Commit and return
 	if role == nil {
-		return nil
+		return tx.Commit()
 	}
 
 	// Create the new role
 	arg := db.CreateUserRoleParams{
-		UserID:        userID,
+		UserID:        targetUserID,
 		Role:          sql.NullString{String: *role, Valid: *role != ""},
 		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
+		WorkshopID:    uuid.NullUUID{UUID: uuidPtrToUUID(workshopID), Valid: workshopID != nil},
 	}
-	_, err := queries().CreateUserRole(ctx, arg)
-	return err
+	if _, err := txQueries.CreateUserRole(ctx, arg); err != nil {
+		return fmt.Errorf("failed to create user role: %w", err)
+	}
+
+	// Commit the transaction
+	return tx.Commit()
+}
+
+// GetUserStats retrieves statistics for a user
+func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error) {
+	sessionsCount, err := queries().CountUserSessions(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count user sessions: %w", err)
+	}
+
+	gamesCount, err := queries().CountUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to count user games: %w", err)
+	}
+
+	messagesCount, err := queries().CountUserPlayerMessages(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to count user messages: %w", err)
+	}
+
+	playCount, err := queries().SumPlayCountOfUserGames(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, fmt.Errorf("failed to sum play count: %w", err)
+	}
+
+	return &obj.UserStats{
+		GamesPlayed:       int(sessionsCount),
+		GamesCreated:      int(gamesCount),
+		MessagesSent:      int(messagesCount),
+		TotalPlaysOnGames: int(playCount),
+	}, nil
 }

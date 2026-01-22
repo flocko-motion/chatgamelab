@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000011
-name: Atlantis Rising
-description: "Discover the secrets of an underwater civilization"
-system_message_scenario: "You're a marine biologist who has discovered the ruins of Atlantis. But the city isn't as dead as everyone thought - something ancient still dwells in its depths."
-system_message_game_start: "Your submarine settles on the ocean floor. Through the viewport, you see massive structures covered in coral. A light flickers in one of the buildings."
-image_style: "underwater ruins, bioluminescent creatures, ancient architecture, deep sea"
-css: ""
-status_fields: '[{"name":"Oxygen","value":"100"},{"name":"Depth","value":"0"}]'

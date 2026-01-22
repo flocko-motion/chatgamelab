@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000019
-name: Arctic Expedition
-description: "Survive and explore the frozen north"
-system_message_scenario: "Your research team is studying climate change in the Arctic. A blizzard has cut you off from civilization. Strange readings suggest something ancient is buried in the ice."
-system_message_game_start: "The wind howls outside your research station. The radio is dead. Your thermometer reads -40°C. Someone reports seeing lights under the ice."
-image_style: "arctic landscape, ice and snow, research station, aurora borealis"
-css: ""
-status_fields: '[{"name":"Temperature","value":"20"},{"name":"Supplies","value":"70"}]'

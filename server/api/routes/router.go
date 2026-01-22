@@ -57,10 +57,39 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
+	mux.Handle("DELETE /api/users/{id}", httpx.RequireAuth(DeleteUser))
+	mux.Handle("POST /api/users/{id}/role", httpx.RequireAuth(SetUserRole))
+	mux.Handle("DELETE /api/users/{id}/role", httpx.RequireAuth(RemoveUserRole))
 	if DevMode {
 		mux.HandleFunc("POST /api/users/new", CreateUser)
 		mux.HandleFunc("GET /api/users/{id}/jwt", GetUserJWT)
 	}
+
+	// Institutions
+	mux.Handle("POST /api/institutions", httpx.RequireAuth(CreateInstitution))
+	mux.Handle("GET /api/institutions", httpx.RequireAuth(ListInstitutions))
+	mux.Handle("GET /api/institutions/{id}", httpx.RequireAuth(GetInstitution))
+	mux.Handle("PATCH /api/institutions/{id}", httpx.RequireAuth(UpdateInstitution))
+	mux.Handle("DELETE /api/institutions/{id}", httpx.RequireAuth(DeleteInstitution))
+	mux.Handle("GET /api/institutions/{id}/members", httpx.RequireAuth(GetInstitutionMembers))
+	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
+
+	// Workshops
+	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))
+	mux.Handle("GET /api/workshops", httpx.RequireAuth(ListWorkshops))
+	mux.Handle("GET /api/workshops/{id}", httpx.RequireAuth(GetWorkshop))
+	mux.Handle("PATCH /api/workshops/{id}", httpx.RequireAuth(UpdateWorkshop))
+	mux.Handle("DELETE /api/workshops/{id}", httpx.RequireAuth(DeleteWorkshop))
+
+	// Invites
+	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
+	mux.Handle("GET /api/invites/{idOrToken}", httpx.RequireAuth(GetInvite))
+	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.OptionalAuth(AcceptInvite)) // Optional auth - supports anonymous workshop invites
+	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
+	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
+	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
+	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
+	mux.Handle("POST /api/invites/{id}/reactivate", httpx.RequireAuth(ReactivateInvite))
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))

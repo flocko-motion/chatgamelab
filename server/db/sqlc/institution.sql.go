@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +24,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
 `
 
 type CreateInstitutionParams struct {
@@ -53,6 +54,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -68,7 +70,7 @@ INSERT INTO workshop (
   $3, $4, $5,
   $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at
 `
 
 type CreateWorkshopParams struct {
@@ -107,6 +109,7 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		&i.InstitutionID,
 		&i.Active,
 		&i.Public,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -166,7 +169,7 @@ func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorks
 }
 
 const deleteInstitution = `-- name: DeleteInstitution :exec
-DELETE FROM institution WHERE id = $1
+UPDATE institution SET deleted_at = now() WHERE id = $1
 `
 
 func (q *Queries) DeleteInstitution(ctx context.Context, id uuid.UUID) error {
@@ -175,7 +178,7 @@ func (q *Queries) DeleteInstitution(ctx context.Context, id uuid.UUID) error {
 }
 
 const deleteWorkshop = `-- name: DeleteWorkshop :exec
-DELETE FROM workshop WHERE id = $1
+UPDATE workshop SET deleted_at = now() WHERE id = $1
 `
 
 func (q *Queries) DeleteWorkshop(ctx context.Context, id uuid.UUID) error {
@@ -193,7 +196,7 @@ func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) e
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name FROM institution WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
@@ -206,12 +209,57 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
+const getInstitutionMembers = `-- name: GetInstitutionMembers :many
+SELECT u.id, u.name, u.email, r.role
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND u.deleted_at IS NULL
+ORDER BY r.role, u.name
+`
+
+type GetInstitutionMembersRow struct {
+	ID    uuid.UUID
+	Name  string
+	Email sql.NullString
+	Role  sql.NullString
+}
+
+func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.NullUUID) ([]GetInstitutionMembersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getInstitutionMembers, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetInstitutionMembersRow
+	for rows.Next() {
+		var i GetInstitutionMembersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopByID = `-- name: GetWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public FROM workshop WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
@@ -227,6 +275,7 @@ func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, 
 		&i.InstitutionID,
 		&i.Active,
 		&i.Public,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -252,6 +301,117 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 	return i, err
 }
 
+const listInstitutions = `-- name: ListInstitutions :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE deleted_at IS NULL ORDER BY name
+`
+
+func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
+	rows, err := q.db.QueryContext(ctx, listInstitutions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Institution
+	for rows.Next() {
+		var i Institution
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listWorkshops = `-- name: ListWorkshops :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at FROM workshop WHERE deleted_at IS NULL ORDER BY name
+`
+
+func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
+	rows, err := q.db.QueryContext(ctx, listWorkshops)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workshop
+	for rows.Next() {
+		var i Workshop
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.InstitutionID,
+			&i.Active,
+			&i.Public,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listWorkshopsByInstitution = `-- name: ListWorkshopsByInstitution :many
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
+`
+
+func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]Workshop, error) {
+	rows, err := q.db.QueryContext(ctx, listWorkshopsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Workshop
+	for rows.Next() {
+		var i Workshop
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.InstitutionID,
+			&i.Active,
+			&i.Public,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateInstitution = `-- name: UpdateInstitution :one
 UPDATE institution SET
   created_by = $2,
@@ -260,7 +420,7 @@ UPDATE institution SET
   modified_at = $5,
   name = $6
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
 `
 
 type UpdateInstitutionParams struct {
@@ -289,6 +449,7 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.ModifiedBy,
 		&i.ModifiedAt,
 		&i.Name,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -304,7 +465,7 @@ UPDATE workshop SET
   active = $8,
   public = $9
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at
 `
 
 type UpdateWorkshopParams struct {
@@ -342,6 +503,7 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.InstitutionID,
 		&i.Active,
 		&i.Public,
+		&i.DeletedAt,
 	)
 	return i, err
 }

@@ -27,6 +27,15 @@ func Preseed(ctx context.Context) {
 		}
 	}
 
+	// Ensure dev user has admin role
+	if user.Role == nil {
+		log.Debug("assigning admin role to dev user")
+		if err := autoUpgradeUserToAdmin(ctx, DevUserID); err != nil {
+			log.Warn("failed to assign admin role to dev user", "error", err)
+			return
+		}
+	}
+
 	// Ensure dev user has a mock API key
 	if len(user.ApiKeys) == 0 {
 		log.Debug("creating mock API key for dev user")

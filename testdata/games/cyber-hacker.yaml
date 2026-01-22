@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000013
-name: Cyber Hacker
-description: "Hack the system and expose corporate corruption"
-system_message_scenario: "You're an elite hacker who has stumbled upon evidence of a massive conspiracy. MegaCorp is controlling the government. You must expose them before they find you."
-system_message_game_start: "Your screens glow in the darkness of your apartment. You've just breached MegaCorp's firewall. Suddenly, your phone rings - unknown number."
-image_style: "cyberpunk, neon terminals, digital interfaces, dark rooms with monitors"
-css: ""
-status_fields: '[{"name":"Encryption","value":"100"},{"name":"Heat Level","value":"20"}]'

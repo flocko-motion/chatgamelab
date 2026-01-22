@@ -41,6 +41,8 @@ definitions:
         type: string
       userName:
         type: string
+      workshopId:
+        type: string
     type: object
   httpx.ErrorResponse:
     properties:
@@ -202,6 +204,10 @@ definitions:
         items:
           $ref: '#/definitions/obj.GameTag'
         type: array
+      workshopId:
+        description: Optional workshop scope (games can be created within a workshop
+          context)
+        type: string
     type: object
   obj.GameSession:
     properties:
@@ -243,6 +249,8 @@ definitions:
       userId:
         type: string
       userName:
+        type: string
+      workshopId:
         type: string
     type: object
   obj.GameSessionMessage:
@@ -461,11 +469,40 @@ definitions:
     properties:
       id:
         type: string
+      members:
+        items:
+          $ref: '#/definitions/obj.InstitutionMember'
+        type: array
       meta:
         $ref: '#/definitions/obj.Meta'
       name:
         type: string
     type: object
+  obj.InstitutionMember:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      role:
+        $ref: '#/definitions/obj.Role'
+      userId:
+        type: string
+    type: object
+  obj.InviteStatus:
+    enum:
+    - pending
+    - accepted
+    - declined
+    - expired
+    - revoked
+    type: string
+    x-enum-varnames:
+    - InviteStatusPending
+    - InviteStatusAccepted
+    - InviteStatusDeclined
+    - InviteStatusExpired
+    - InviteStatusRevoked
   obj.Meta:
     properties:
       createdAt:
@@ -482,11 +519,13 @@ definitions:
     - admin
     - head
     - staff
+    - participant
     type: string
     x-enum-varnames:
     - RoleAdmin
     - RoleHead
     - RoleStaff
+    - RoleParticipant
   obj.StatusField:
     properties:
       name:
@@ -536,6 +575,39 @@ definitions:
         $ref: '#/definitions/obj.Role'
       userId:
         type: string
+      workshop:
+        $ref: '#/definitions/obj.Workshop'
+    type: object
+  obj.UserRoleInvite:
+    properties:
+      acceptedAt:
+        type: string
+      acceptedBy:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      institutionId:
+        type: string
+      inviteToken:
+        type: string
+      invitedEmail:
+        type: string
+      invitedUserId:
+        type: string
+      maxUses:
+        type: integer
+      meta:
+        $ref: '#/definitions/obj.Meta'
+      role:
+        $ref: '#/definitions/obj.Role'
+      status:
+        $ref: '#/definitions/obj.InviteStatus'
+      usesCount:
+        type: integer
+      workshopId:
+        type: string
     type: object
   obj.UserStats:
     properties:
@@ -556,6 +628,10 @@ definitions:
         type: string
       institution:
         $ref: '#/definitions/obj.Institution'
+      invites:
+        items:
+          $ref: '#/definitions/obj.UserRoleInvite'
+        type: array
       meta:
         $ref: '#/definitions/obj.Meta'
       name:
@@ -609,11 +685,74 @@ definitions:
       public:
         type: boolean
     type: object
+  routes.CreateInstitutionInviteRequest:
+    properties:
+      institutionId:
+        type: string
+      invitedEmail:
+        type: string
+      invitedUserId:
+        type: string
+      role:
+        type: string
+    type: object
+  routes.CreateInstitutionRequest:
+    properties:
+      name:
+        type: string
+    type: object
   routes.CreateSessionRequest:
     properties:
       model:
         type: string
       shareId:
+        type: string
+    type: object
+  routes.CreateWorkshopInviteRequest:
+    properties:
+      expiresAt:
+        type: string
+      maxUses:
+        type: integer
+      workshopId:
+        type: string
+    type: object
+  routes.CreateWorkshopRequest:
+    properties:
+      active:
+        type: boolean
+      institutionId:
+        type: string
+      name:
+        type: string
+      public:
+        type: boolean
+    type: object
+  routes.InviteResponse:
+    properties:
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      institutionId:
+        type: string
+      inviteToken:
+        type: string
+      invitedEmail:
+        type: string
+      invitedUserId:
+        type: string
+      maxUses:
+        type: integer
+      role:
+        type: string
+      status:
+        type: string
+      usesCount:
+        type: integer
+      workshopId:
         type: string
     type: object
   routes.Language:
@@ -692,6 +831,17 @@ definitions:
         type: string
       userName:
         type: string
+      workshopId:
+        type: string
+    type: object
+  routes.SetUserRoleRequest:
+    properties:
+      institutionId:
+        type: string
+      role:
+        type: string
+      workshopId:
+        type: string
     type: object
   routes.ShareRequest:
     properties:
@@ -715,6 +865,20 @@ definitions:
     properties:
       name:
         type: string
+    type: object
+  routes.UpdateInstitutionRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  routes.UpdateWorkshopRequest:
+    properties:
+      active:
+        type: boolean
+      name:
+        type: string
+      public:
+        type: boolean
     type: object
   routes.UserUpdateRequest:
     properties:
@@ -1500,6 +1664,354 @@ paths:
       summary: Create game
       tags:
       - games
+  /institutions:
+    get:
+      description: Lists all institutions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.Institution'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List institutions
+      tags:
+      - institutions
+    post:
+      consumes:
+      - application/json
+      description: Creates a new institution
+      parameters:
+      - description: Institution details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateInstitutionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Institution'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create institution
+      tags:
+      - institutions
+  /institutions/{id}:
+    delete:
+      description: Soft-deletes an institution (admin only)
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete institution
+      tags:
+      - institutions
+    get:
+      description: Gets an institution by ID
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Institution'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get institution
+      tags:
+      - institutions
+    patch:
+      consumes:
+      - application/json
+      description: Updates an institution
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Institution details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateInstitutionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Institution'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update institution
+      tags:
+      - institutions
+  /invites/{id}:
+    delete:
+      description: Revokes a pending invite (creator or admin only)
+      parameters:
+      - description: Invite ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke invite
+      tags:
+      - invites
+  /invites/institution:
+    post:
+      consumes:
+      - application/json
+      description: Creates a targeted invite for a user to join an institution as
+        head or staff
+      parameters:
+      - description: Invite details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateInstitutionInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.InviteResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create institution invite
+      tags:
+      - invites
+  /invites/institution/{idOrToken}/accept:
+    post:
+      description: Accepts a targeted institution invite by ID or token
+      parameters:
+      - description: Invite ID (UUID) or token
+        in: path
+        name: idOrToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Accept institution invite
+      tags:
+      - invites
+  /invites/institution/{idOrToken}/decline:
+    post:
+      description: Declines a targeted institution invite by ID or token
+      parameters:
+      - description: Invite ID (UUID) or token
+        in: path
+        name: idOrToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Decline institution invite
+      tags:
+      - invites
+  /invites/workshop:
+    post:
+      consumes:
+      - application/json
+      description: Creates an open invite for users to join a workshop as participants
+      parameters:
+      - description: Invite details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateWorkshopInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.InviteResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create workshop invite
+      tags:
+      - invites
+  /invites/workshop/{token}/accept:
+    post:
+      description: Accepts an open workshop invite by token
+      parameters:
+      - description: Invite token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Accept workshop invite
+      tags:
+      - invites
   /languages:
     get:
       description: Returns a list of available languages for the application
@@ -1974,6 +2486,79 @@ paths:
       summary: Generate JWT (dev only)
       tags:
       - users
+  /users/{id}/role:
+    delete:
+      description: Removes a user's role
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove user role
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Sets a user's role in the system
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Role details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.SetUserRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Set user role
+      tags:
+      - users
   /users/me:
     get:
       description: Returns the currently authenticated user
@@ -2063,6 +2648,146 @@ paths:
       summary: Get server version
       tags:
       - status
+  /workshops:
+    get:
+      description: Lists all workshops or workshops for a specific institution
+      parameters:
+      - description: Institution ID
+        in: query
+        name: institutionId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.Workshop'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List workshops
+      tags:
+      - workshops
+    post:
+      consumes:
+      - application/json
+      description: Creates a new workshop
+      parameters:
+      - description: Workshop details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.CreateWorkshopRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Workshop'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create workshop
+      tags:
+      - workshops
+  /workshops/{id}:
+    delete:
+      description: Soft-deletes a workshop
+      parameters:
+      - description: Workshop ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete workshop
+      tags:
+      - workshops
+    get:
+      description: Gets a workshop by ID
+      parameters:
+      - description: Workshop ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Workshop'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get workshop
+      tags:
+      - workshops
+    patch:
+      consumes:
+      - application/json
+      description: Updates a workshop
+      parameters:
+      - description: Workshop ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Workshop details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateWorkshopRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.Workshop'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update workshop
+      tags:
+      - workshops
 schemes:
 - http
 - https

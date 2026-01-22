@@ -1,8 +1,0 @@
-id: 00000000-0000-0000-0000-000000000006
-name: Wizard Academy
-description: "Learn magic at the prestigious Arcanum Institute"
-system_message_scenario: "You've just been accepted to the Arcanum Institute, the world's most prestigious school of magic. But strange things are happening - students are disappearing."
-system_message_game_start: "You arrive at the towering castle gates. Your acceptance letter glows faintly in your pocket as the headmaster welcomes the new students."
-image_style: "magical school, floating books, spell effects, gothic architecture"
-css: ""
-status_fields: '[{"name":"Spell Power","value":"10"},{"name":"Knowledge","value":"25"}]'

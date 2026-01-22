@@ -101,13 +101,13 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 	// Check ?messages= query param: none (default), latest, all
 	switch httpx.QueryParam(r, "messages") {
 	case "latest":
-		if msg, err := db.GetLatestGameSessionMessage(r.Context(), sessionID); err == nil {
+		if msg, err := db.GetLatestGameSessionMessage(r.Context(), user.ID, sessionID); err == nil {
 			resp.Messages = []obj.GameSessionMessage{*msg}
 		} else {
 			log.Debug("failed to get latest message", "session_id", sessionID, "error", err)
 		}
 	case "all":
-		if msgs, err := db.GetAllGameSessionMessages(r.Context(), sessionID); err == nil {
+		if msgs, err := db.GetAllGameSessionMessages(r.Context(), user.ID, sessionID); err == nil {
 			resp.Messages = msgs
 		} else {
 			log.Debug("failed to get all messages", "session_id", sessionID, "error", err)
@@ -202,10 +202,10 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug("getting game sessions", "game_id", gameID)
+	user := httpx.UserFromRequest(r)
+	log.Debug("getting game sessions", "game_id", gameID, "user_id", user.ID)
 
-	// TODO: we need to consider user permissions here!
-	sessions, err := db.GetGameSessionsByGameID(r.Context(), gameID)
+	sessions, err := db.GetGameSessionsByGameID(r.Context(), user.ID, gameID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get sessions: "+err.Error())
 		return
@@ -330,7 +330,8 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg, err := db.GetGameSessionMessageByID(r.Context(), messageID)
+	user := httpx.UserFromRequest(r)
+	msg, err := db.GetGameSessionMessageByID(r.Context(), user.ID, messageID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Message not found")
 		return

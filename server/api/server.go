@@ -14,24 +14,19 @@ import (
 	"time"
 )
 
-func RunServer(ctx context.Context, port int, devMode bool) {
+func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struct{}) {
 
 	auth.InitJwtGeneration()
 
 	routes.DevMode = devMode
 
 	if devMode {
-		log.Info("development mode enabled")
+		log.SetDebug(true)
+		log.Info("development mode enabled", "debug_logging", true)
 	}
 
 	log.Debug("initializing database")
 	db.Init()
-
-	log.Debug("initializing system settings")
-	if err := db.InitSystemSettings(ctx); err != nil {
-		log.Fatal("failed to initialize system settings", "error", err)
-	}
-
 	log.Debug("running database preseed")
 	db.Preseed(ctx)
 
@@ -45,9 +40,15 @@ func RunServer(ctx context.Context, port int, devMode bool) {
 		Handler: h,
 	}
 
+	log.Info("server starting", "address", bindAddr)
+
+	// Signal that server is ready (DB initialized, router set up)
+	if readyChan != nil {
+		close(readyChan)
+	}
+
 	// Start server in goroutine
 	go func() {
-		log.Info("server listening", "address", bindAddr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Error("http server error", "error", err)
 			os.Exit(1)

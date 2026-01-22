@@ -26,6 +26,42 @@
             "mode": "remote",
             "host": "127.0.0.1",
             "port": 2345
-        }
+        },
+        {
+            "name": "Debug Test Suite",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestMultiUserSuite"
+            ]
+        },
+        {
+            "name": "Debug TestInstitutionManagement",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestMultiUserSuite/TestInstitutionManagement"
+            ]
+        },
+        {
+            "name": "Debug TestWorkshopManagement",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestMultiUserSuite/TestWorkshopManagement"
+            ]
+        },
     ]
 }
