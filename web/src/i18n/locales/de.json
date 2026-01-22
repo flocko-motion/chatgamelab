@@ -1,8 +1,5 @@
 {
   "common": {
-    "welcome": "Willkommen",
-    "hello": "Hallo",
-    "goodbye": "Auf Wiedersehen",
     "loading": "Laden...",
     "error": "Fehler",
     "save": "Speichern",
@@ -15,13 +12,6 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "login": "Anmelden",
-    "register": "Registrieren",
-    "language": "Sprache",
-    "theme": "Design",
-    "dark": "Dunkel",
-    "light": "Hell",
-    "system": "System",
-    "notifications": "Benachrichtigungen",
     "home": {
       "badge": "Lernspiel-Labor",
       "title": "ChatGameLab",
@@ -60,16 +50,10 @@
     "header": {
       "openNavigation": "Navigationsmenü öffnen",
       "closeNavigation": "Navigationsmenü schließen",
-      "viewNotifications": "Benachrichtigungen anzeigen",
       "contact": "Kontakt",
-      "openSettings": "Einstellungen öffnen",
-      "openProfile": "Profilmenü öffnen",
       "openUserMenu": "Benutzermenü öffnen",
       "goToDashboard": "Zum Dashboard",
-      "profile": "Profil",
-      "settings": "Einstellungen",
-      "apiKeys": "API-Schlüssel",
-      "logout": "Abmelden"
+      "apiKeys": "API-Schlüssel"
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
@@ -467,19 +451,15 @@
       }
     }
   },
- "navigation": {
-    "home": "Startseite",
+  "navigation": {
     "dashboard": "Dashboard",
-    "myGames": "Meine Spiele",
+    "myGames": "Meine Spiele", 
     "allGames": "Alle Spiele",
-    "sessions": "Sitzungen",
-    "games": "Spiele",
     "create": "Eigene Spiele erstellen",
     "play": "Spiele spielen",
     "rooms": "Räume",
-    "groups": "Gruppen",
-    "learn": "Lernen"
- },
+    "groups": "Gruppen"
+  },
   "dashboard": {
     "cards": {
       "myGames": {
@@ -540,22 +520,6 @@
         "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen."
       }
     }
-  },
-  "game": {
-    "createNew": "Neues Spiel erstellen",
-    "title": "Titel",
-    "description": "Beschreibung",
-    "start": "Starten",
-    "pause": "Pause",
-    "resume": "Weiterspielen",
-    "restart": "Neustarten",
-    "score": "Punkte",
-    "level": "Level",
-    "time": "Zeit",
-    "players": "Spieler",
-    "invite": "Einladen",
-    "join": "Beitreten",
-    "leave": "Verlassen"
   },
   "errors": {
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
