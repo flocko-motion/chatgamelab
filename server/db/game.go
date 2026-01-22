@@ -1108,6 +1108,11 @@ func loadSessionByID(ctx context.Context, sessionID uuid.UUID) (*obj.GameSession
 	}, nil
 }
 
+// IncrementGameCloneCount increments the clone count for a game
+func IncrementGameCloneCount(ctx context.Context, gameID uuid.UUID) error {
+	return queries().IncrementGameCloneCount(ctx, gameID)
+}
+
 // Helper functions for converting between sql.Null* types and pointers
 
 func nullStringToPtr(ns sql.NullString) *string {

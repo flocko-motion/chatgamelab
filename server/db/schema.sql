@@ -237,7 +237,12 @@ CREATE TABLE game (
     -- regenerated from time to time to avoid being too static.
     first_message                   text NULL,
     first_status                    text NULL,
-    first_image                     bytea NULL
+    first_image                     bytea NULL,
+    
+    -- Tracking: original creator (for cloned games) and usage statistics
+    originally_created_by           uuid NULL REFERENCES app_user(id),
+    play_count                      integer NOT NULL DEFAULT 0,
+    clone_count                     integer NOT NULL DEFAULT 0
 );
 
 -- GameTag
@@ -279,6 +284,8 @@ CREATE TABLE game_session (
     image_style     text NOT NULL,
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
     status_fields   text NOT NULL,
+    -- AI-generated visual theme for the game player UI (JSON)
+    theme           jsonb NULL,
     
     deleted_at      timestamptz NULL
 );
@@ -307,4 +314,29 @@ CREATE TABLE game_session_message (
     deleted_at          timestamptz NULL,
 
     CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
+);
+-- SystemSettings
+-- Global system settings (single row table)
+CREATE TABLE system_settings (
+    id uuid PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    modified_at timestamptz NOT NULL DEFAULT now(),
+    -- Default AI model to use when user hasn't configured one
+    default_ai_model text NOT NULL,
+    -- Ensure only one row exists by enforcing a fixed ID
+    CONSTRAINT system_settings_singleton CHECK (
+        id = '00000000-0000-0000-0000-000000000001'::uuid
+    )
+);
+-- UserFavouriteGame
+-- A user's favourite games. Users can mark games as favourites for quick access.
+CREATE TABLE user_favourite_game (
+    id uuid PRIMARY KEY,
+    created_by uuid NULL,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    modified_by uuid NULL,
+    modified_at timestamptz NOT NULL DEFAULT now(),
+    user_id uuid NOT NULL REFERENCES app_user(id),
+    game_id uuid NOT NULL REFERENCES game(id),
+    CONSTRAINT user_favourite_game_user_game_uniq UNIQUE (user_id, game_id)
 );

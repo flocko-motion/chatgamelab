@@ -15,7 +15,7 @@ INSERT INTO game (
   system_message_scenario, system_message_game_start,
   image_style, css, status_fields,
   first_message, first_status, first_image,
-  originally_created_by
+  originally_created_by, play_count, clone_count
 ) VALUES (
   $1, $2,
   $3, $4, $5,
@@ -25,7 +25,8 @@ INSERT INTO game (
   $12, $13,
   $14, $15,
   $16, $17, $18,
-  $19, $20, $21
+  $19, $20, $21,
+  $22, $23, $24
 )
 RETURNING *;
 
@@ -291,15 +292,9 @@ INSERT INTO game_session (
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
-<<<<<<< HEAD
-  $5, $6, $7,
-  $8, $9, $10,
-  $11, $12, $13
-=======
   $5, $6, $7, $8,
   $9, $10, $11,
-  $12, $13
->>>>>>> 876746c (feat: centralized db permissions)
+  $12, $13, $14
 )
 RETURNING *;
 

@@ -32,6 +32,44 @@ func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedIn
 	return err
 }
 
+const countUserGames = `-- name: CountUserGames :one
+SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
+`
+
+func (q *Queries) CountUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserGames, createdBy)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserPlayerMessages = `-- name: CountUserPlayerMessages :one
+SELECT COUNT(*)::int AS count
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+WHERE s.user_id = $1 AND m.type = 'player'
+`
+
+func (q *Queries) CountUserPlayerMessages(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserPlayerMessages, userID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countUserSessions = `-- name: CountUserSessions :one
+
+SELECT COUNT(*)::int AS count FROM game_session WHERE user_id = $1
+`
+
+// User Statistics queries
+func (q *Queries) CountUserSessions(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countUserSessions, userID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createApiKey = `-- name: CreateApiKey :one
 
 INSERT INTO api_key (
@@ -1081,6 +1119,17 @@ type SetUserDefaultApiKeyShareParams struct {
 func (q *Queries) SetUserDefaultApiKeyShare(ctx context.Context, arg SetUserDefaultApiKeyShareParams) error {
 	_, err := q.db.ExecContext(ctx, setUserDefaultApiKeyShare, arg.ID, arg.DefaultApiKeyShareID)
 	return err
+}
+
+const sumPlayCountOfUserGames = `-- name: SumPlayCountOfUserGames :one
+SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1
+`
+
+func (q *Queries) SumPlayCountOfUserGames(ctx context.Context, createdBy uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, sumPlayCountOfUserGames, createdBy)
+	var total int32
+	err := row.Scan(&total)
+	return total, err
 }
 
 const updateApiKey = `-- name: UpdateApiKey :one
