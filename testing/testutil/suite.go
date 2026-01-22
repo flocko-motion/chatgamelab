@@ -5,6 +5,7 @@ import (
 	"cgl/api/client"
 	"cgl/api/routes"
 	"cgl/config"
+	"cgl/db"
 	"cgl/obj"
 	"context"
 	"fmt"
@@ -106,7 +107,7 @@ func (s *BaseSuite) SetupSuite() {
 		if err := pingCmd.Run(); err == nil {
 			fmt.Printf("✅ [%s] Postgres is ready!\n", s.SuiteName)
 			// Give it a moment to fully stabilize and accept connections
-			time.Sleep(2 * time.Second)
+			time.Sleep(3 * time.Second)
 			break
 		}
 		if i == maxRetries-1 {
@@ -119,6 +120,10 @@ func (s *BaseSuite) SetupSuite() {
 	// Start backend in-process AFTER database is cleaned
 	// This ensures backend detects empty DB and initializes schema
 	fmt.Printf("🚀 [%s] Starting backend in-process...\n", s.SuiteName)
+
+	// Reset database singleton to clear any stale connections from previous test runs
+	// This is critical for tests running in the same process
+	db.Reset()
 
 	// Set environment variables for backend
 	os.Setenv("DB_HOST", "localhost")
