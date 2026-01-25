@@ -16,11 +16,12 @@ func NewMux() *http.ServeMux {
 	// Public endpoints (no auth at all) - GET
 	mux.HandleFunc("GET /api/status", GetStatus)
 	mux.HandleFunc("GET /api/version", GetVersion)
-	mux.HandleFunc("GET /api/platforms", GetPlatforms)
 	mux.HandleFunc("GET /api/languages", GetLanguages)
 	mux.HandleFunc("GET /api/languages/{code}", GetLocaleFile)
-	mux.HandleFunc("GET /api/roles", GetRoles)
-	mux.HandleFunc("GET /api/system/settings", GetSystemSettings)
+
+	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
+	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
+	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
@@ -93,13 +94,16 @@ func NewMux() *http.ServeMux {
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
-	mux.Handle("GET /api/sessions/{id}", httpx.OptionalAuth(GetSession))
-	mux.Handle("POST /api/sessions/{id}", httpx.OptionalAuth(PostSessionAction))
+	mux.Handle("GET /api/sessions/{id}", httpx.RequireAuth(GetSession))
+	mux.Handle("POST /api/sessions/{id}", httpx.RequireAuth(PostSessionAction))
 	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
 
 	// Messages
-	mux.Handle("GET /api/messages/{id}/stream", httpx.OptionalAuth(GetMessageStream))
-	mux.Handle("GET /api/messages/{id}/image", httpx.OptionalAuth(GetMessageImage))
+	mux.Handle("GET /api/messages/{id}/stream", httpx.RequireAuth(GetMessageStream))
+	// Image endpoint doesn't require auth header - browser <img> tags can't send headers
+	// Access is verified internally via session ownership
+	mux.HandleFunc("GET /api/messages/{id}/image", GetMessageImage)
+	mux.HandleFunc("GET /api/messages/{id}/image/status", GetMessageImageStatus)
 
 	// Admin
 	mux.Handle("POST /api/restart", httpx.RequireAuth(PostRestart))

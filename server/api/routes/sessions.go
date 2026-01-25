@@ -8,6 +8,7 @@ import (
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/game"
+	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/log"
 	"cgl/obj"
@@ -312,10 +313,81 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
+// ImageStatusResponse is the response for the image status endpoint
+type ImageStatusResponse struct {
+	Hash                     string `json:"hash"`
+	IsComplete               bool   `json:"isComplete"`
+	HasError                 bool   `json:"hasError,omitempty"`
+	ErrorCode                string `json:"errorCode,omitempty"`
+	ErrorMsg                 string `json:"errorMsg,omitempty"`
+	Exists                   bool   `json:"exists"`
+	IsOrganisationUnverified bool   `json:"isOrganisationUnverified,omitempty"`
+}
+
+// GetMessageImageStatus godoc
+//
+//	@Summary		Get image generation status
+//	@Description	Returns the current hash and completion status of an image being generated.
+//	@Description	Frontend can poll this to detect when new partial/final images are available.
+//	@Tags			messages
+//	@Produce		json
+//	@Param			id	path		string	true	"Message ID (UUID)"
+//	@Success		200	{object}	ImageStatusResponse
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
+//	@Router			/messages/{id}/image/status [get]
+func GetMessageImageStatus(w http.ResponseWriter, r *http.Request) {
+	messageID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	// Check cache first for in-progress images
+	cache := imagecache.Get()
+	status := cache.GetStatus(messageID)
+
+	if status.Exists {
+		resp := ImageStatusResponse{
+			Hash:       status.Hash,
+			IsComplete: status.IsComplete,
+			HasError:   status.HasError,
+			ErrorCode:  status.ErrorCode,
+			ErrorMsg:   status.ErrorMsg,
+			Exists:     true,
+		}
+
+		// If there's an org verification error, also set the flag
+		if status.ErrorCode == obj.ErrCodeOrgVerificationRequired {
+			resp.IsOrganisationUnverified = true
+		}
+
+		httpx.WriteJSON(w, http.StatusOK, resp)
+		return
+	}
+
+	// Check if image exists in DB (already completed)
+	msg, err := db.GetGameSessionMessageImageByID(r.Context(), messageID)
+	if err == nil && len(msg.Image) > 0 {
+		httpx.WriteJSON(w, http.StatusOK, ImageStatusResponse{
+			Hash:       "persisted",
+			IsComplete: true,
+			Exists:     true,
+		})
+		return
+	}
+
+	// No image in cache or DB
+	httpx.WriteJSON(w, http.StatusOK, ImageStatusResponse{
+		Exists: false,
+	})
+}
+
 // GetMessageImage godoc
 //
 //	@Summary		Get message image
-//	@Description	Returns the image for a message as PNG
+//	@Description	Returns the generated image for a game session message.
+//	@Description	Checks in-memory cache first (for partial/WIP images), then database.
+//	@Description	No authentication required - message UUIDs are random and unguessable.
 //	@Tags			messages
 //	@Produce		image/png
 //	@Param			id	path		string	true	"Message ID (UUID)"
@@ -330,8 +402,18 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := httpx.UserFromRequest(r)
-	msg, err := db.GetGameSessionMessageByID(r.Context(), user.ID, messageID)
+	// Check cache first for in-progress/partial images
+	cache := imagecache.Get()
+	if imageData, exists := cache.GetImage(messageID); exists {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "no-cache") // Don't cache partial images
+		w.WriteHeader(http.StatusOK)
+		w.Write(imageData)
+		return
+	}
+
+	// Fall back to database for persisted images
+	msg, err := db.GetGameSessionMessageImageByID(r.Context(), messageID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Message not found")
 		return
