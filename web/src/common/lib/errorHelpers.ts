@@ -63,6 +63,18 @@ const ERROR_CODE_I18N_MAP: Record<ErrorCode, { titleKey: string; messageKey: str
     titleKey: 'errors:titles.billing',
     messageKey: 'errors:billingNotActive',
   },
+  [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
+    titleKey: 'errors:titles.aiError',
+    messageKey: 'errors:rateLimitExceeded',
+  },
+  [ErrorCodes.INSUFFICIENT_QUOTA]: {
+    titleKey: 'errors:titles.billing',
+    messageKey: 'errors:insufficientQuota',
+  },
+  [ErrorCodes.CONTENT_FILTERED]: {
+    titleKey: 'errors:titles.aiError',
+    messageKey: 'errors:contentFiltered',
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: 'errors:titles.aiError',
     messageKey: 'errors:aiError',

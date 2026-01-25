@@ -132,9 +132,9 @@ export function useDeleteApiKey() {
   });
 }
 
-// Platforms hook (public endpoint, no auth needed)
+// Platforms hook (requires authentication)
 export function usePlatforms() {
-  const api = apiClient;
+  const api = useRequiredAuthenticatedApi();
 
   return useQuery<ObjAiPlatform[], HttpxErrorResponse>({
     queryKey: queryKeys.platforms,
@@ -143,9 +143,9 @@ export function usePlatforms() {
   });
 }
 
-// Roles hook (public endpoint, no auth needed)
+// Roles hook (requires authentication)
 export function useRoles() {
-  const api = apiClient;
+  const api = useRequiredAuthenticatedApi();
 
   return useQuery<RoutesRolesResponse, HttpxErrorResponse>({
     queryKey: queryKeys.roles,
@@ -511,12 +511,14 @@ export function useCreateUser() {
   });
 }
 
-// System Settings hook (public endpoint, no auth needed)
+// System Settings hook (requires authentication)
 export function useSystemSettings() {
+  const api = useRequiredAuthenticatedApi();
+
   return useQuery<ObjSystemSettings, HttpxErrorResponse>({
     queryKey: queryKeys.systemSettings,
     queryFn: () =>
-      apiClient.system.settingsList().then((response) => response.data),
+      api.system.settingsList().then((response) => response.data),
   });
 }
 
