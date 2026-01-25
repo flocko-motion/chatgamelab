@@ -74,11 +74,8 @@ func (p *MockPlatform) ExpandStory(ctx context.Context, session *obj.GameSession
 }
 
 // GenerateImage simulates streaming image generation with mock images
+// Note: imagePrompt check is done in game_logic.go before calling this function
 func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
-	if response.ImagePrompt == nil || *response.ImagePrompt == "" {
-		return nil
-	}
-
 	// Send a low-res partial image first (simulates progressive refinement)
 	partialImg := generateMockImage(8, 8)
 	responseStream.SendImage(partialImg, false)

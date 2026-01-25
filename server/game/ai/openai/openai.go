@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"cgl/apiclient"
+	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/lang"
 	"cgl/log"
@@ -16,6 +17,8 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type OpenAiPlatform struct{}
@@ -27,6 +30,33 @@ const (
 	imageGenEndpoint  = "/images/generations"
 	defaultModel      = "gpt-4o-mini"
 )
+
+// extractImageErrorCode extracts an error code from OpenAI image generation errors
+func extractImageErrorCode(err error) string {
+	if err == nil {
+		return ""
+	}
+	errStr := strings.ToLower(err.Error())
+
+	switch {
+	case strings.Contains(errStr, "invalid_api_key"):
+		return obj.ErrCodeInvalidApiKey
+	case strings.Contains(errStr, "billing_not_active"):
+		return obj.ErrCodeBillingNotActive
+	case strings.Contains(errStr, "organization_verification_required"),
+		strings.Contains(errStr, "organization must be verified"),
+		strings.Contains(errStr, "must be verified"):
+		return obj.ErrCodeOrgVerificationRequired
+	case strings.Contains(errStr, "rate_limit") || strings.Contains(errStr, "rate limit"):
+		return obj.ErrCodeRateLimitExceeded
+	case strings.Contains(errStr, "insufficient_quota") || strings.Contains(errStr, "quota"):
+		return obj.ErrCodeInsufficientQuota
+	case strings.Contains(errStr, "content_policy") || strings.Contains(errStr, "content_filter"):
+		return obj.ErrCodeContentFiltered
+	default:
+		return obj.ErrCodeAiError
+	}
+}
 
 // ModelSession stores the OpenAI response ID for conversation continuity
 type ModelSession struct {
@@ -264,7 +294,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	return nil
 }
 
-// GenerateImage generates an image from the imagePrompt using streaming
+// GenerateImage generates an image from the imagePrompt using the image cache
 func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
 	log.Debug("OpenAI GenerateImage starting", "session_id", session.ID, "message_id", response.ID)
 
@@ -272,16 +302,21 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("session has no API key")
 	}
 
-	if response.ImagePrompt == nil || *response.ImagePrompt == "" {
-		log.Debug("no image prompt, skipping image generation")
-		return nil // No image to generate
-	}
+	// Note: imagePrompt check is done in game_logic.go before calling this function
+	// to avoid race conditions with the shared response pointer
 	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle)
 
-	// Build image generation request with streaming
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, responseStream)
+	// Initialize cache entry with image saver for persistence
+	cache := imagecache.Get()
+	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
+
+	// Build image generation request - writes to cache for polling
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
 	if err != nil {
 		log.Debug("image generation failed", "error", err)
+		errorCode := extractImageErrorCode(err)
+		cache.SetError(response.ID, errorCode, err.Error()) // Mark as failed so frontend knows to stop polling
+
 		return fmt.Errorf("OpenAI image generation error: %w", err)
 	}
 	log.Debug("image generation completed", "image_size", len(imageData))
@@ -362,7 +397,7 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 // callImageGenerationAPI generates an image with streaming partial images
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
-func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, responseStream *stream.Stream) ([]byte, error) {
+func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
 	imageGenURL := openaiBaseURL + imageGenEndpoint
 
 	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
@@ -438,11 +473,16 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 				continue
 			}
 
+			// Update cache for polling-based frontend
+			cache := imagecache.Get()
+
 			switch eventType {
 			case "image_generation.partial_image":
+				cache.Update(messageID, imageData, false)
 				responseStream.SendImage(imageData, false)
 			case "image_generation.completed":
 				finalImageData = imageData
+				cache.Update(messageID, imageData, true) // This also persists to DB
 				responseStream.SendImage(imageData, true)
 			}
 		}
