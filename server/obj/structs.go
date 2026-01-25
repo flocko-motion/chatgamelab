@@ -219,6 +219,8 @@ type GameSession struct {
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
 	Theme *GameTheme `json:"theme,omitempty"`
+	// Set to true when image generation fails due to organization verification required
+	IsOrganisationUnverified bool `json:"isOrganisationUnverified,omitempty"`
 }
 
 // GameTheme defines the visual theme for the game player UI.

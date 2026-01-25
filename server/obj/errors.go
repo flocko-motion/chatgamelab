@@ -14,6 +14,15 @@ const (
 	ErrCodeInvalidInput      = "invalid_input"
 	ErrCodeServerError       = "server_error"
 	ErrCodeUserNotRegistered = "user_not_registered"
+
+	// AI-specific error codes
+	ErrCodeAiError                 = "ai_error"
+	ErrCodeInvalidApiKey           = "invalid_api_key"
+	ErrCodeBillingNotActive        = "billing_not_active"
+	ErrCodeOrgVerificationRequired = "organization_verification_required"
+	ErrCodeRateLimitExceeded       = "rate_limit_exceeded"
+	ErrCodeInsufficientQuota       = "insufficient_quota"
+	ErrCodeContentFiltered         = "content_filtered"
 )
 
 // Error type constructors
