@@ -388,6 +388,12 @@ UPDATE game_session SET
   theme = $2
 WHERE id = $1;
 
+-- name: UpdateGameSessionOrganisationUnverified :exec
+UPDATE game_session SET
+  modified_at = now(),
+  is_organisation_unverified = $2
+WHERE id = $1;
+
 -- name: DeleteGameSession :exec
 DELETE FROM game_session WHERE id = $1;
 

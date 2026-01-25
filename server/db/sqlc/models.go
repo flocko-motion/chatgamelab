@@ -80,22 +80,23 @@ type Game struct {
 }
 
 type GameSession struct {
-	ID           uuid.UUID
-	CreatedBy    uuid.NullUUID
-	CreatedAt    time.Time
-	ModifiedBy   uuid.NullUUID
-	ModifiedAt   time.Time
-	GameID       uuid.UUID
-	UserID       uuid.UUID
-	WorkshopID   uuid.NullUUID
-	ApiKeyID     uuid.UUID
-	AiPlatform   string
-	AiModel      string
-	AiSession    json.RawMessage
-	ImageStyle   string
-	StatusFields string
-	Theme        pqtype.NullRawMessage
-	DeletedAt    sql.NullTime
+	ID                       uuid.UUID
+	CreatedBy                uuid.NullUUID
+	CreatedAt                time.Time
+	ModifiedBy               uuid.NullUUID
+	ModifiedAt               time.Time
+	GameID                   uuid.UUID
+	UserID                   uuid.UUID
+	WorkshopID               uuid.NullUUID
+	ApiKeyID                 uuid.UUID
+	AiPlatform               string
+	AiModel                  string
+	AiSession                json.RawMessage
+	ImageStyle               string
+	StatusFields             string
+	Theme                    pqtype.NullRawMessage
+	IsOrganisationUnverified bool
+	DeletedAt                sql.NullTime
 }
 
 type GameSessionMessage struct {
