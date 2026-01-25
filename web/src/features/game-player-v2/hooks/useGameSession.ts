@@ -105,11 +105,7 @@ export function useGameSession(gameId: string) {
                 }
 
                 if (chunk.textDone) {
-                  const imageUrl = `${config.API_BASE_URL}/messages/${messageId}/image`;
-                  updateMessage(messageId, {
-                    isStreaming: false,
-                    imageUrl,
-                  });
+                  updateMessage(messageId, { isStreaming: false });
                   setState((prev) => ({
                     ...prev,
                     isWaitingForResponse: false,
@@ -117,6 +113,7 @@ export function useGameSession(gameId: string) {
                 }
 
                 if (chunk.imageDone) {
+                  // Image generation complete - polling will detect this
                   updateMessage(messageId, { isImageLoading: false });
                   return;
                 }

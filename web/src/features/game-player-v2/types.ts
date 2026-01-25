@@ -1,5 +1,4 @@
 import type { ObjGameSessionMessage, ObjStatusField, ObjApiKeyShare, ObjAiModel, ObjGameTheme } from '@/api/generated';
-import { config } from '@/config/env';
 import { PRESET_THEMES } from './theme/defaults';
 import type { PartialGameTheme, CornerStyle, ThemeColor, BackgroundTint, PlayerIndicator, CardBgColor, FontColor, CardBorderThickness, ThinkingStyle, MessageFont, DividerStyle } from './theme/types';
 
@@ -14,7 +13,6 @@ export interface SceneMessage {
   type: MessageType;
   text: string;
   statusFields?: ObjStatusField[];
-  imageUrl?: string;
   imagePrompt?: string;
   isStreaming?: boolean;
   isImageLoading?: boolean;
@@ -25,6 +23,7 @@ export interface SceneMessage {
 export interface StreamChunk {
   text?: string;
   textDone?: boolean;
+  imageData?: string;  // Base64-encoded partial/WIP image data
   imageDone?: boolean;
 }
 
@@ -79,15 +78,12 @@ export const DEFAULT_THEME: GameTheme = {
 // ============================================================================
 
 export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
-  const hasImage = msg.imagePrompt && msg.id;
-  
   return {
     id: msg.id || crypto.randomUUID(),
     type: (msg.type as MessageType) || 'game',
     text: msg.message || '',
     statusFields: msg.statusFields,
     imagePrompt: msg.imagePrompt,
-    imageUrl: hasImage ? `${config.API_BASE_URL}/messages/${msg.id}/image` : undefined,
     isStreaming: msg.stream,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
     seq: msg.seq,

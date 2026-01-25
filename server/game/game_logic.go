@@ -3,6 +3,7 @@ package game
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"cgl/db"
 	"cgl/game/ai"
@@ -12,6 +13,34 @@ import (
 
 	"github.com/google/uuid"
 )
+
+// extractAIErrorCode tries to extract an error code from an AI error message.
+// Uses simple keyword matching to identify common OpenAI error types.
+func extractAIErrorCode(err error) string {
+	if err == nil {
+		return ""
+	}
+	errStr := strings.ToLower(err.Error())
+
+	// Map error keywords to our error codes
+	switch {
+	case strings.Contains(errStr, "invalid_api_key"):
+		return obj.ErrCodeInvalidApiKey
+	case strings.Contains(errStr, "billing_not_active"):
+		return obj.ErrCodeBillingNotActive
+	case strings.Contains(errStr, "organization_verification_required"):
+		return obj.ErrCodeOrgVerificationRequired
+	case strings.Contains(errStr, "rate_limit") || strings.Contains(errStr, "rate limit"):
+		return obj.ErrCodeRateLimitExceeded
+	case strings.Contains(errStr, "insufficient_quota") || strings.Contains(errStr, "quota"):
+		return obj.ErrCodeInsufficientQuota
+	case strings.Contains(errStr, "content_policy") || strings.Contains(errStr, "content_filter"):
+		return obj.ErrCodeContentFiltered
+	default:
+		// For any other AI API error, return generic AI error
+		return obj.ErrCodeAiError
+	}
+}
 
 // CreateSession creates a new game session for a user.
 // If shareID is uuid.Nil, the user's default API key share will be used.
@@ -49,6 +78,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found: " + err.Error()}
 	}
 
+	// Delete any existing sessions for this user+game (restart scenario)
+	log.Debug("deleting existing sessions", "user_id", userID, "game_id", gameID)
+	if err := db.DeleteUserGameSessions(ctx, userID, gameID); err != nil {
+		log.Debug("failed to delete existing sessions", "error", err)
+		// Non-fatal - continue with session creation
+	}
+
 	// Parse game template to get system message
 	log.Debug("parsing game template", "game_id", gameID, "game_name", game.Name)
 	systemMessage, err := GetTemplate(game)
@@ -66,9 +102,32 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
 
-	// Persist to database - CreateGameSession will load game details and construct session
+	// Create temporary session object for theme generation (needs ApiKey)
+	tempSession := &obj.GameSession{
+		GameID:       game.ID,
+		GameName:     game.Name,
+		UserID:       userID,
+		ApiKeyID:     share.ApiKey.ID,
+		ApiKey:       share.ApiKey,
+		AiPlatform:   share.ApiKey.Platform,
+		AiModel:      aiModel,
+		ImageStyle:   game.ImageStyle,
+		StatusFields: game.StatusFields,
+	}
+
+	// Generate visual theme for the game player UI (synchronous)
+	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+	theme, err := GenerateTheme(ctx, tempSession, game)
+	if err != nil {
+		log.Warn("failed to generate theme, using default", "error", err)
+		// Don't fail - use nil theme (frontend will use defaults)
+	} else {
+		log.Debug("theme generated successfully", "preset", theme.Preset)
+	}
+
+	// Persist to database with theme
 	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil)
+	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil, theme)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
@@ -147,7 +206,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.Message = err.Error()
 		response.Stream = false
 		_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
-		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err)}
+
+		// Extract AI error code for frontend
+		errorCode := extractAIErrorCode(err)
+		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
 
@@ -155,10 +217,14 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// This is returned to client immediately
 	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
+	// Capture values before goroutines to avoid race conditions
+	messageID := response.ID
+	imagePrompt := response.ImagePrompt
+
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
 	go func() {
-		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", response.ID)
+		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
 		if err := platform.ExpandStory(context.Background(), session, response, responseStream); err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
@@ -179,11 +245,24 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", response.ID)
+		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", imagePrompt != nil)
 		// GenerateImage streams partial images and updates response.Image with final
 		// Note: Image is saved to DB inside stream.SendImage when isDone=true
+		// Use captured imagePrompt to avoid race condition with response pointer
+		if imagePrompt == nil || *imagePrompt == "" {
+			log.Debug("no image prompt, skipping image generation")
+			return
+		}
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
 			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
+
+			// Check for organization verification error and mark session
+			errorCode := extractAIErrorCode(err)
+			if errorCode == obj.ErrCodeOrgVerificationRequired {
+				if dbErr := db.UpdateGameSessionOrganisationUnverified(context.Background(), session.ID, true); dbErr != nil {
+					log.Warn("failed to update session org unverified status", "error", dbErr)
+				}
+			}
 		} else {
 			log.Debug("GenerateImage completed", "session_id", session.ID, "image_size", len(response.Image))
 		}

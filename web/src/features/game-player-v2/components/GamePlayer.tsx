@@ -105,6 +105,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
   const [animationEnabled, setAnimationEnabled] = useState(true);
+  const [isImageGenerationDisabled, setIsImageGenerationDisabled] = useState(false);
+  const [imageErrorCode, setImageErrorCode] = useState<string | null>(null);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
@@ -187,6 +189,11 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     setDebugMode(current => !current);
   }, []);
 
+  const disableImageGeneration = useCallback((errorCode: string) => {
+    setIsImageGenerationDisabled(true);
+    setImageErrorCode(errorCode);
+  }, []);
+
   // Use flex: 1 to fill available space between app header and footer
   const containerHeight = undefined;
 
@@ -205,6 +212,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     decreaseFontSize,
     debugMode,
     toggleDebugMode,
+    isImageGenerationDisabled,
+    disableImageGeneration,
   };
 
   if (gameLoading || (isContinuation && state.phase === 'selecting-key')) {
@@ -291,7 +300,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     );
   }
 
-  const showImages = true;
+  const showImages = !isImageGenerationDisabled;
 
   const renderMessages = () => {
     const elements: React.ReactNode[] = [];
@@ -467,6 +476,13 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         )}
 
         <ImageLightbox />
+        
+        {/* Image generation error modal */}
+        <ErrorModal
+          opened={!!imageErrorCode}
+          onClose={() => setImageErrorCode(null)}
+          errorCode={imageErrorCode || undefined}
+        />
       </Box>
     </GamePlayerProvider>
     </GameThemeProvider>

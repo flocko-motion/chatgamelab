@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
 
@@ -452,7 +453,8 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // - apiKeyID: the API key to use (defines platform)
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
-func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID) (*obj.GameSession, error) {
+// - theme: optional visual theme for the game player UI
+func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
 	if err := canAccessGameSession(ctx, userID, OpCreate, nil, gameID, workshopID); err != nil {
 		return nil, err
@@ -470,6 +472,16 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		return nil, obj.ErrNotFound("api key not found")
 	}
 
+	// Serialize theme to JSON if present
+	var themeJSON pqtype.NullRawMessage
+	if theme != nil {
+		themeBytes, err := json.Marshal(theme)
+		if err != nil {
+			return nil, obj.ErrServerError("failed to serialize theme")
+		}
+		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
+	}
+
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
@@ -485,6 +497,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
 		ImageStyle:   game.ImageStyle,
 		StatusFields: game.StatusFields,
+		Theme:        themeJSON,
 	}
 
 	result, err := queries().CreateGameSession(ctx, arg)
@@ -512,6 +525,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		AiSession:       string(result.AiSession),
 		ImageStyle:      result.ImageStyle,
 		StatusFields:    result.StatusFields,
+		Theme:           theme,
 	}, nil
 }
 
@@ -631,6 +645,36 @@ func UpdateGameSessionAiSession(ctx context.Context, userID uuid.UUID, sessionID
 	return nil
 }
 
+// UpdateGameSessionTheme updates the visual theme for a game session
+func UpdateGameSessionTheme(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, theme *obj.GameTheme) error {
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, sessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
+	var themeJSON pqtype.NullRawMessage
+	if theme != nil {
+		themeBytes, err := json.Marshal(theme)
+		if err != nil {
+			return obj.ErrServerError("failed to marshal theme")
+		}
+		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
+	}
+
+	err = queries().UpdateGameSessionTheme(ctx, db.UpdateGameSessionThemeParams{
+		ID:    sessionID,
+		Theme: themeJSON,
+	})
+	if err != nil {
+		return obj.ErrServerError("failed to update session theme")
+	}
+	return nil
+}
+
 // UpdateGameSessionMessageImage updates only the image field of a message
 func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messageID uuid.UUID, image []byte) error {
 	// Get message to find session
@@ -653,6 +697,18 @@ func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messag
 	})
 	if err != nil {
 		return obj.ErrServerError("failed to update message image")
+	}
+	return nil
+}
+
+// UpdateGameSessionOrganisationUnverified marks a session as having an unverified organisation
+func UpdateGameSessionOrganisationUnverified(ctx context.Context, sessionID uuid.UUID, isUnverified bool) error {
+	err := queries().UpdateGameSessionOrganisationUnverified(ctx, db.UpdateGameSessionOrganisationUnverifiedParams{
+		ID:                       sessionID,
+		IsOrganisationUnverified: isUnverified,
+	})
+	if err != nil {
+		return obj.ErrServerError("failed to update session organisation status")
 	}
 	return nil
 }
@@ -696,6 +752,14 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		},
 	}
 
+	// Parse theme from JSON if present
+	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
+		var theme obj.GameTheme
+		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
+			session.Theme = &theme
+		}
+	}
+
 	// Load game info
 	game, err := queries().GetGameByID(ctx, s.GameID)
 	if err == nil {
@@ -717,6 +781,21 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	return session, nil
+}
+
+// GetGameSessionMessageImageByID returns just the image for a message (no auth required)
+// Used for <img> tags which cannot send Authorization headers
+// Security relies on message UUIDs being random/unguessable
+func GetGameSessionMessageImageByID(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+
+	return &obj.GameSessionMessage{
+		ID:    m.ID,
+		Image: m.Image,
+	}, nil
 }
 
 // GetGameSessionMessageByID returns a message by its ID (requires read access to session)
@@ -987,6 +1066,30 @@ func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUI
 	return nil
 }
 
+// DeleteUserGameSessions deletes all sessions for a user+game combination (used when restarting a game)
+func DeleteUserGameSessions(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
+	// First get all sessions for this game to delete their messages
+	sessions, err := queries().GetGameSessionsByGameID(ctx, gameID)
+	if err != nil {
+		return fmt.Errorf("failed to get sessions: %w", err)
+	}
+
+	// Delete messages for sessions owned by this user
+	for _, s := range sessions {
+		if s.UserID == userID {
+			if err := queries().DeleteGameSessionMessagesBySessionID(ctx, s.ID); err != nil {
+				return fmt.Errorf("failed to delete session messages: %w", err)
+			}
+		}
+	}
+
+	// Delete the sessions
+	return queries().DeleteUserGameSessions(ctx, db.DeleteUserGameSessionsParams{
+		UserID: userID,
+		GameID: gameID,
+	})
+}
+
 // GetGameSessionsByGameID returns all sessions for a game (requires read access to game)
 func GetGameSessionsByGameID(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]obj.GameSession, error) {
 	// Check if user has read access to the game
@@ -1049,7 +1152,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		})
 	}
 
-	return &obj.Game{
+	game := &obj.Game{
 		ID: g.ID,
 		Meta: obj.Meta{
 			CreatedBy:  g.CreatedBy,
@@ -1073,7 +1176,17 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		FirstStatus:              nullStringToPtr(g.FirstStatus),
 		FirstImage:               g.FirstImage,
 		Tags:                     tags,
-	}, nil
+		PlayCount:                int(g.PlayCount),
+		CloneCount:               int(g.CloneCount),
+		OriginallyCreatedBy:      nullUUIDToPtr(g.OriginallyCreatedBy),
+	}
+
+	// Populate creator info from CreatedBy
+	if g.CreatedBy.Valid {
+		game.CreatorID = &g.CreatedBy.UUID
+	}
+
+	return game, nil
 }
 
 // loadGameByID loads a game from DB and converts it to obj.Game

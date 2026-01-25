@@ -152,7 +152,12 @@ func (c CustomClaims) HasScope(expectedScope string) bool {
 }
 
 // Authenticate returns a middleware that attempts to authenticate the request.
-// It supports both CGL dev JWTs (HS256) and Auth0 JWTs (RS256).
+// It supports three authentication methods (checked in order):
+// 1. Participant tokens (Bearer participant-xxx) - for workshop participants
+// 2. CGL dev JWTs (HS256, signed with JWT_SECRET) - for development
+// 3. Auth0 JWTs (RS256) - for production users
+//
+// Behavior:
 // - If no Authorization header: passes through (user = nil)
 // - If valid token: loads user from DB and attaches to context
 // - If invalid token: returns 401

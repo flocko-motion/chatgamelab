@@ -16,7 +16,6 @@ import { useModals } from '@mantine/modals';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { ActionButton, CancelButton } from '@components/buttons';
 import { useGame, useUpdateGame } from '@/api/hooks';
 import { StatusFieldsEditor } from './StatusFieldsEditor';
@@ -49,8 +48,7 @@ export function GameEditModal({
 }: GameEditModalProps) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
-  const navigate = useNavigate();
-  const modals = useModals();
+    const modals = useModals();
   
   const isCreateMode = !gameId;
   const { data: game, isLoading, error } = useGame(gameId ?? '');
@@ -181,35 +179,7 @@ export function GameEditModal({
     }
   };
 
-  const handleSaveAndPlay = async () => {
-    if (!name.trim()) {
-      setNameError(t('games.errors.nameRequired'));
-      return;
-    }
-
-    if (!game?.id) return;
-    
-    try {
-      await updateGame.mutateAsync({
-        id: game.id,
-        game: {
-          ...game,
-          name: name.trim(),
-          description: description.trim(),
-          public: isPublic,
-          systemMessageScenario: systemMessageScenario.trim() || undefined,
-          systemMessageGameStart: systemMessageGameStart.trim() || undefined,
-          imageStyle: imageStyle.trim() || undefined,
-          statusFields: statusFields.trim() || undefined,
-        },
-      });
-      onClose();
-      navigate({ to: '/games/$gameId/play', params: { gameId: game.id } });
-    } catch {
-      // Error handled by mutation
-    }
-  };
-
+  
   const handleModalClose = () => {
     if (isDirty()) {
       modals.openConfirmModal({
@@ -233,8 +203,7 @@ export function GameEditModal({
 
   const isLoaderActive = !isCreateMode && isLoading;
   const isSaving = isCreateMode ? createLoading : updateGame.isPending;
-  const canSaveAndPlay = !isCreateMode && name && systemMessageScenario && systemMessageGameStart;
-
+  
   const modalContent = () => {
     if (isLoaderActive) {
       return (
@@ -357,15 +326,6 @@ export function GameEditModal({
           <ActionButton onClick={handleSave} loading={isSaving} size="sm">
             {isCreateMode ? t('games.createModal.submit') : t('save')}
           </ActionButton>
-          {canSaveAndPlay && (
-            <ActionButton 
-              onClick={handleSaveAndPlay} 
-              loading={isSaving}
-              size="sm"
-            >
-              {t('games.saveAndPlay')}
-            </ActionButton>
-          )}
         </Group>
       </Stack>
     </Modal>

@@ -27,9 +27,10 @@ const FONT_SIZE_MAP = {
 export function SceneCard({ message, showImages, previousStatusFields }: SceneCardProps) {
   const { fontSize, debugMode } = useGamePlayerContext();
   const { theme } = useGameTheme();
-  const { text, imageUrl, imagePrompt, isStreaming, isImageLoading } = message;
+  const { id, text, imagePrompt, isStreaming, isImageLoading } = message;
 
-  const hasImage = showImages && (imageUrl || isImageLoading || isStreaming);
+  // Show image area if we have a prompt or are generating
+  const hasImage = showImages && !!imagePrompt;
   const cornerStyle = theme.corners?.style ?? 'brackets';
   const showDropCap = theme.gameMessage?.dropCap ?? false;
   
@@ -77,9 +78,9 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
         {renderCorner('bottomRight')}
         {hasImage && (
           <SceneImage
-            imageUrl={imageUrl}
+            messageId={id}
             imagePrompt={imagePrompt}
-            isLoading={isImageLoading || (isStreaming && !imageUrl)}
+            isGenerating={isImageLoading || isStreaming}
           />
         )}
         <div className={classes.sceneContent}>

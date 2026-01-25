@@ -15,8 +15,11 @@ export const ErrorCodes = {
   USER_NOT_REGISTERED: 'user_not_registered',
   // AI-related error codes
   INVALID_API_KEY: 'invalid_api_key',
-  ORG_VERIFICATION_REQUIRED: 'org_verification_required',
+  ORG_VERIFICATION_REQUIRED: 'organization_verification_required',
   BILLING_NOT_ACTIVE: 'billing_not_active',
+  RATE_LIMIT_EXCEEDED: 'rate_limit_exceeded',
+  INSUFFICIENT_QUOTA: 'insufficient_quota',
+  CONTENT_FILTERED: 'content_filtered',
   AI_ERROR: 'ai_error',
 } as const;
 

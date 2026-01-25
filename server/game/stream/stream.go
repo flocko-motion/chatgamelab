@@ -96,18 +96,25 @@ func (s *Stream) SendError(err string) {
 	s.Send(obj.GameSessionMessageChunk{Error: err})
 }
 
-// SendImage signals image progress. Only sends imageDone signal, not image bytes.
-// Image data should be fetched from /api/messages/{id}/image endpoint.
-// When isDone is true, saves image to DB first, then sends imageDone signal.
+// SendImage streams partial or final image data to the frontend.
+// Partial images (isDone=false) are sent as base64 for immediate preview.
+// Final image (isDone=true) is saved to DB and signaled as complete.
 func (s *Stream) SendImage(data []byte, isDone bool) {
+	if len(data) == 0 {
+		return
+	}
+
 	if isDone {
 		// Save image to DB BEFORE signaling done, so frontend can fetch it
-		if s.ImageSaver != nil && len(data) > 0 {
+		if s.ImageSaver != nil {
 			if err := s.ImageSaver(s.MessageID, data); err != nil {
 				// Image save failed, but continue with signaling
 			}
 		}
-		// Now signal that image is ready to fetch
+		// Signal that image is ready to fetch (frontend uses URL endpoint)
 		s.Send(obj.GameSessionMessageChunk{ImageDone: true})
+	} else {
+		// Send partial image data for WIP preview
+		s.Send(obj.GameSessionMessageChunk{ImageData: data})
 	}
 }

@@ -28,6 +28,10 @@ export interface GamePlayerContextValue {
   decreaseFontSize: () => void;
   debugMode: boolean;
   toggleDebugMode: () => void;
+  
+  // Image generation
+  isImageGenerationDisabled: boolean;
+  disableImageGeneration: (errorCode: string) => void;
 }
 
 // ============================================================================

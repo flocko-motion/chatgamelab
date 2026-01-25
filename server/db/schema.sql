@@ -286,6 +286,8 @@ CREATE TABLE game_session (
     status_fields   text NOT NULL,
     -- AI-generated visual theme for the game player UI (JSON)
     theme           jsonb NULL,
+    -- Set to true when image generation fails due to organization verification required
+    is_organisation_unverified boolean NOT NULL DEFAULT false,
     
     deleted_at      timestamptz NULL
 );
