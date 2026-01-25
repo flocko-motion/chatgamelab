@@ -183,10 +183,10 @@ function NewGamesCard() {
   const { data: currentUser } = useCurrentUser();
 
   const newGames = useMemo(() => {
-    if (!games) return [];
+    if (!games || !currentUser?.id) return [];
     // Exclude user's own games
     return games
-      .filter((game) => game.creatorId !== currentUser?.id)
+      .filter((game) => game.creatorId !== currentUser.id)
       .slice(0, 10);
   }, [games, currentUser?.id]);
 
