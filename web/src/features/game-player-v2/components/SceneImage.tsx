@@ -1,60 +1,64 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useGamePlayerContext } from '../context';
+import { useImagePolling } from '../hooks/useImagePolling';
+import { translateErrorCode } from '@/common/lib/errorHelpers';
 import classes from './GamePlayer.module.css';
 
 interface SceneImageProps {
-  imageUrl?: string;
+  messageId: string;
   imagePrompt?: string;
-  isLoading?: boolean;
+  isGenerating?: boolean;
 }
 
-const MAX_RETRIES = 30;
-const RETRY_INTERVAL_MS = 2000;
-
-export function SceneImage({ imageUrl, imagePrompt, isLoading }: SceneImageProps) {
-  const { openLightbox } = useGamePlayerContext();
-  
+export function SceneImage({ messageId, imagePrompt, isGenerating = false }: SceneImageProps) {
+  const { openLightbox, disableImageGeneration } = useGamePlayerContext();
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const [retryState, setRetryState] = useState<{ baseUrl?: string; attempt: number; nonce: number }>({
-    baseUrl: imageUrl,
-    attempt: 0,
-    nonce: 0,
+  const [errorHandled, setErrorHandled] = useState(false);
+
+  // Poll for image updates when generating
+  const { imageUrl, isComplete, hasError, errorCode } = useImagePolling({
+    messageId,
+    enabled: isGenerating || !loadedSrc, // Poll while generating or until first load
   });
 
-  const effectiveAttempt = retryState.baseUrl === imageUrl ? retryState.attempt : 0;
-  const effectiveNonce = retryState.baseUrl === imageUrl ? retryState.nonce : 0;
+  // Notify context of image error (to disable future image generation and show modal)
+  if (hasError && errorCode && !errorHandled) {
+    setErrorHandled(true);
+    disableImageGeneration(errorCode);
+  }
 
-  const imgSrc = useMemo(() => {
-    if (!imageUrl) return undefined;
-    if (effectiveAttempt === 0) return imageUrl;
-    const join = imageUrl.includes('?') ? '&' : '?';
-    return `${imageUrl}${join}t=${effectiveNonce}&r=${effectiveAttempt}`;
-  }, [effectiveAttempt, effectiveNonce, imageUrl]);
+  const imgLoaded = !!imageUrl && loadedSrc === imageUrl;
+  const showPlaceholder = !hasError && (!imageUrl || !imgLoaded);
+  const isPartialImage = !isComplete && !!imageUrl;
 
-  const imgLoaded = !!imgSrc && loadedSrc === imgSrc;
-  const showPlaceholder = !imgSrc || !imgLoaded || isLoading;
-
-  const handleImageError = () => {
-    if (!imageUrl) return;
-    if (effectiveAttempt >= MAX_RETRIES) return;
-
-    const nextAttempt = effectiveAttempt + 1;
-    window.setTimeout(() => {
-      setRetryState({ baseUrl: imageUrl, attempt: nextAttempt, nonce: Date.now() });
-    }, RETRY_INTERVAL_MS);
-  };
+  // Get translated error message
+  const errorInfo = hasError && errorCode ? translateErrorCode(errorCode) : null;
 
   const handleImageLoad = () => {
-    if (imgSrc) {
-      setLoadedSrc(imgSrc);
+    if (imageUrl) {
+      setLoadedSrc(imageUrl);
     }
   };
 
   const handleClick = () => {
-    if (imgLoaded && imgSrc) {
-      openLightbox(imgSrc, imagePrompt);
+    if (imgLoaded && imageUrl) {
+      openLightbox(imageUrl, imagePrompt);
     }
   };
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className={classes.sceneImageWrapper}>
+        <div className={classes.imageError}>
+          <span className={classes.imageErrorIcon}>⚠️</span>
+          <span className={classes.imageErrorText}>
+            {errorInfo?.message || 'Image generation failed'}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -70,14 +74,12 @@ export function SceneImage({ imageUrl, imagePrompt, isLoading }: SceneImageProps
       }}
     >
       {showPlaceholder && <div className={classes.imagePlaceholder} />}
-      {imgSrc && (
+      {imageUrl && (
         <img
-          src={imgSrc}
-          alt={imagePrompt || 'Scene illustration'}
-          className={classes.sceneImage}
-          style={{ display: imgLoaded ? 'block' : 'none' }}
+          src={imageUrl}
+          alt={imagePrompt || (isPartialImage ? 'Generating scene...' : 'Scene illustration')}
+          className={`${classes.sceneImage} ${isPartialImage ? classes.partialImage : ''}`}
           onLoad={handleImageLoad}
-          onError={handleImageError}
         />
       )}
     </div>
