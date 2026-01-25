@@ -541,6 +541,9 @@
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "billingNotActive": "Your OpenAI account is not active. Please check your billing details at https://platform.openai.com/settings/organization/billing.",
+    "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
+    "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
+    "contentFiltered": "Your request was filtered by the AI's content policy. Please try rephrasing.",
     "aiError": "The AI service encountered an error. Please try again.",
     "titles": {
       "network": "Network Error",

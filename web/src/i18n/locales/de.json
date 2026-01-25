@@ -537,6 +537,9 @@
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
     "billingNotActive": "Dein OpenAI-Konto ist nicht aktiv. Bitte überprüfe deine Zahlungsdaten auf https://platform.openai.com/settings/organization/billing.",
+    "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
+    "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
+    "contentFiltered": "Deine Anfrage wurde von den Inhaltsrichtlinien der KI gefiltert. Bitte formuliere sie anders.",
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
     "titles": {
       "network": "Netzwerkfehler",
