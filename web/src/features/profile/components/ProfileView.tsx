@@ -15,6 +15,7 @@ import {
   IconDeviceGamepad2,
   IconMessage,
   IconPlayerPlay,
+  IconShieldStar,
   IconTrophy,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
 import { UserAvatar } from '@/common/components/UserAvatar';
 import { useUserStats } from '@/api/hooks';
+import { isAdmin, getRoleLabel, getUserRole, Role } from '@/common/lib/roles';
 
 export function ProfileView() {
   const { t } = useTranslation('auth');
@@ -32,9 +34,16 @@ export function ProfileView() {
     return null;
   }
 
-  // Get translated role name
+  const userIsAdmin = isAdmin(backendUser);
+  const userRole = getUserRole(backendUser);
+  const hasOrganization = !!backendUser.role?.institution;
+
+  // Get translated role name, fallback to English label
   const getRoleTranslation = (role: string) => {
-    return t(`profile.roles.${role}`);
+    const key = `profile.roles.${role}`;
+    const translated = t(key);
+    // If translation key not found, use the role label from our utilities
+    return translated === key ? getRoleLabel(role) : translated;
   };
 
   // Format member since date
@@ -61,7 +70,19 @@ export function ProfileView() {
           />
           
           <Stack gap="xs" style={{ flex: 1 }}>
-            <Title order={2}>{backendUser.name}</Title>
+            <Group gap="sm" align="center">
+              <Title order={2}>{backendUser.name}</Title>
+              {userIsAdmin && (
+                <Badge
+                  variant="filled"
+                  color="red"
+                  size="lg"
+                  leftSection={<IconShieldStar size={14} />}
+                >
+                  Admin
+                </Badge>
+              )}
+            </Group>
             {backendUser.email && (
               <Text c="dimmed" size="sm">{backendUser.email}</Text>
             )}
@@ -72,7 +93,7 @@ export function ProfileView() {
         </Group>
       </Card>
 
-      {/* Organization Card */}
+      {/* Organization & Role Card */}
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Stack gap="md">
           <Group gap="sm">
@@ -84,17 +105,23 @@ export function ProfileView() {
           
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
             <Stack gap="xs">
-              <Text size="sm" c="dimmed">{t('profile.organizationSection')}</Text>
+              <Text size="sm" c="dimmed">{t('profile.organization')}</Text>
               <Text fw={500}>
-                {backendUser.role?.institution?.name || t('profile.noOrganization')}
+                {hasOrganization
+                  ? backendUser.role?.institution?.name
+                  : t('profile.noOrganization')}
               </Text>
             </Stack>
             
             <Stack gap="xs">
               <Text size="sm" c="dimmed">{t('profile.role')}</Text>
-              {backendUser.role?.role ? (
-                <Badge variant="light" color="accent" size="lg">
-                  {getRoleTranslation(backendUser.role.role)}
+              {userRole !== undefined ? (
+                <Badge
+                  variant={userIsAdmin ? 'filled' : 'light'}
+                  color={userIsAdmin ? 'red' : userRole === Role.Head ? 'violet' : 'accent'}
+                  size="lg"
+                >
+                  {getRoleTranslation(backendUser.role?.role || '')}
                 </Badge>
               ) : (
                 <Text fw={500}>{t('profile.noRole')}</Text>

@@ -29,6 +29,7 @@ import { LanguageSwitcher } from '../LanguageSwitcher';
 import { VersionDisplay } from '../VersionDisplay';
 import { DropdownMenu } from '../DropdownMenu';
 import { UserAvatar } from '../UserAvatar';
+import { NotificationBell } from '../NotificationBell';
 import { getUserAvatarColor } from '@/common/lib/userUtils';
 import { ROUTES } from '../../routes/routes';
 import { EXTERNAL_LINKS } from '../../../config/externalLinks';
@@ -211,6 +212,7 @@ function UserActions({
         </UnstyledButton>
       </Tooltip>
       <Box w="lg" />
+      <NotificationBell />
       <LanguageSwitcher size="sm" variant="compact" />
       <DropdownMenu
         trigger={userAvatar}
@@ -225,12 +227,14 @@ function MobileNavigation({
   items,
   onSettingsClick,
   onProfileClick,
+  onApiKeysClick,
   onLogoutClick,
   onClose,
 }: {
   items: NavItem[];
   onSettingsClick?: () => void;
   onProfileClick?: () => void;
+  onApiKeysClick?: () => void;
   onLogoutClick?: () => void;
   onClose: () => void;
 }) {
@@ -334,6 +338,25 @@ function MobileNavigation({
           >
             <IconSettings size={20} />
             <Text size="md" fw={500}>{t('settings')}</Text>
+          </UnstyledButton>
+
+          <UnstyledButton
+            onClick={() => {
+              onApiKeysClick?.();
+              onClose();
+            }}
+            py="sm"
+            px="lg"
+            style={{
+              borderRadius: 'var(--mantine-radius-md)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}
+          >
+            <IconKey size={20} />
+            <Text size="md" fw={500}>{t('header.apiKeys')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
@@ -559,6 +582,7 @@ export function AppHeader({
           items={navItems}
           onSettingsClick={onSettingsClick}
           onProfileClick={onProfileClick}
+          onApiKeysClick={onApiKeysClick}
           onLogoutClick={onLogoutClick}
           onClose={closeMobileNav}
         />
