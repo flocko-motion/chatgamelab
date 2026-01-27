@@ -26,6 +26,8 @@ import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
+import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
@@ -115,6 +117,16 @@ const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
   path: '/auth/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
+  id: '/admin/users/',
+  path: '/admin/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOrganizationsIndexRoute = AdminOrganizationsIndexRouteImport.update({
+  id: '/admin/organizations/',
+  path: '/admin/organizations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesGameIdPlayRoute = GamesGameIdPlayRouteImport.update({
   id: '/games/$gameId/play',
   path: '/games/$gameId/play',
@@ -149,6 +161,8 @@ export interface FileRoutesByFullPath {
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/admin/organizations': typeof AdminOrganizationsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -171,6 +185,8 @@ export interface FileRoutesByTo {
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/admin/organizations': typeof AdminOrganizationsIndexRoute
+  '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -194,6 +210,8 @@ export interface FileRoutesById {
   '/play/': typeof PlayIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/admin/organizations/': typeof AdminOrganizationsIndexRoute
+  '/admin/users/': typeof AdminUsersIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
@@ -218,6 +236,8 @@ export interface FileRouteTypes {
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
+    | '/admin/organizations'
+    | '/admin/users'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -240,6 +260,8 @@ export interface FileRouteTypes {
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
+    | '/admin/organizations'
+    | '/admin/users'
     | '/auth/login'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -262,6 +284,8 @@ export interface FileRouteTypes {
     | '/play/'
     | '/sessions/'
     | '/games/$gameId/play'
+    | '/admin/organizations/'
+    | '/admin/users/'
     | '/auth/login/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
@@ -285,6 +309,8 @@ export interface RootRouteChildren {
   PlayIndexRoute: typeof PlayIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
+  AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
+  AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
@@ -411,6 +437,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/users/': {
+      id: '/admin/users/'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/organizations/': {
+      id: '/admin/organizations/'
+      path: '/admin/organizations'
+      fullPath: '/admin/organizations'
+      preLoaderRoute: typeof AdminOrganizationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/$gameId/play': {
       id: '/games/$gameId/play'
       path: '/games/$gameId/play'
@@ -453,6 +493,8 @@ const rootRouteChildren: RootRouteChildren = {
   PlayIndexRoute: PlayIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,
+  AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
+  AdminUsersIndexRoute: AdminUsersIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,
