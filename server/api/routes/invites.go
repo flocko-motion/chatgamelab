@@ -3,6 +3,7 @@ package routes
 import (
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 	"net/http"
 	"time"
@@ -39,6 +40,49 @@ type InviteResponse struct {
 	ExpiresAt     *string `json:"expiresAt,omitempty"`
 	Status        string  `json:"status"`
 	CreatedAt     string  `json:"createdAt"`
+	ModifiedAt    *string `json:"modifiedAt,omitempty"`
+}
+
+// toInviteResponse converts an obj.UserRoleInvite to InviteResponse
+func toInviteResponse(inv obj.UserRoleInvite) InviteResponse {
+	resp := InviteResponse{
+		ID:            inv.ID.String(),
+		InstitutionID: inv.InstitutionID.String(),
+		Role:          string(inv.Role),
+		UsesCount:     inv.UsesCount,
+		Status:        string(inv.Status),
+	}
+
+	if inv.WorkshopID != nil {
+		wsID := inv.WorkshopID.String()
+		resp.WorkshopID = &wsID
+	}
+	if inv.InvitedUserID != nil {
+		userID := inv.InvitedUserID.String()
+		resp.InvitedUserID = &userID
+	}
+	if inv.InvitedEmail != nil {
+		resp.InvitedEmail = inv.InvitedEmail
+	}
+	if inv.InviteToken != nil {
+		resp.InviteToken = inv.InviteToken
+	}
+	if inv.MaxUses != nil {
+		resp.MaxUses = inv.MaxUses
+	}
+	if inv.ExpiresAt != nil {
+		expiresAt := inv.ExpiresAt.Format(time.RFC3339)
+		resp.ExpiresAt = &expiresAt
+	}
+	if inv.Meta.CreatedAt != nil {
+		resp.CreatedAt = inv.Meta.CreatedAt.Format(time.RFC3339)
+	}
+	if inv.Meta.ModifiedAt != nil {
+		modifiedAt := inv.Meta.ModifiedAt.Format(time.RFC3339)
+		resp.ModifiedAt = &modifiedAt
+	}
+
+	return resp
 }
 
 // ListInvites godoc
@@ -64,7 +108,13 @@ func ListInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, invites)
+	// Convert to response format
+	responses := make([]InviteResponse, len(invites))
+	for i, inv := range invites {
+		responses[i] = toInviteResponse(inv)
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, responses)
 }
 
 // GetInvite godoc
@@ -133,18 +183,29 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateInstitutionInviteRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
+		log.Warn("failed to parse institution invite request", "user_id", user.ID, "error", err)
 		httpx.WriteAppError(w, obj.ErrInvalidInput("Invalid JSON"))
 		return
 	}
 
+	log.Debug("creating institution invite",
+		"user_id", user.ID,
+		"institution_id", req.InstitutionID,
+		"role", req.Role,
+		"invited_user_id", req.InvitedUserID,
+		"invited_email", req.InvitedEmail,
+	)
+
 	institutionID, err := uuid.Parse(req.InstitutionID)
 	if err != nil {
+		log.Warn("invalid institution ID", "user_id", user.ID, "institution_id", req.InstitutionID, "error", err)
 		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
 		return
 	}
 
 	role := obj.Role(req.Role)
 	if role != obj.RoleHead && role != obj.RoleStaff {
+		log.Warn("invalid role for institution invite", "user_id", user.ID, "role", req.Role)
 		httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head' or 'staff'"))
 		return
 	}
@@ -153,6 +214,7 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 	if req.InvitedUserID != nil {
 		uid, err := uuid.Parse(*req.InvitedUserID)
 		if err != nil {
+			log.Warn("invalid invited user ID", "user_id", user.ID, "invited_user_id", *req.InvitedUserID, "error", err)
 			httpx.WriteAppError(w, obj.ErrValidation("Invalid invited user ID"))
 			return
 		}
@@ -161,6 +223,12 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 
 	invite, err := db.CreateInstitutionInvite(r.Context(), user.ID, institutionID, role, invitedUserID, req.InvitedEmail)
 	if err != nil {
+		log.Warn("failed to create institution invite",
+			"user_id", user.ID,
+			"institution_id", institutionID,
+			"role", role,
+			"error", err,
+		)
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
 			return
@@ -169,6 +237,7 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Info("institution invite created", "user_id", user.ID, "invite_id", invite.ID, "institution_id", institutionID)
 	httpx.WriteJSON(w, http.StatusOK, invite)
 }
 
