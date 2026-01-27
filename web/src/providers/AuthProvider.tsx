@@ -89,6 +89,46 @@ interface AuthProviderProps {
 interface TokenCache {
   token: string;
   expiresAt: number;
+  userId: string;
+  role: string;
+}
+
+const DEV_TOKEN_STORAGE_KEY = 'cgl_dev_token';
+
+// Helper to get dev token from localStorage
+function getStoredDevToken(): TokenCache | null {
+  try {
+    const stored = localStorage.getItem(DEV_TOKEN_STORAGE_KEY);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored) as TokenCache;
+    // Check if token is still valid
+    if (parsed.expiresAt > Date.now()) {
+      return parsed;
+    }
+    // Token expired, clean up
+    localStorage.removeItem(DEV_TOKEN_STORAGE_KEY);
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Helper to store dev token in localStorage
+function storeDevToken(cache: TokenCache): void {
+  try {
+    localStorage.setItem(DEV_TOKEN_STORAGE_KEY, JSON.stringify(cache));
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// Helper to clear dev token from localStorage
+function clearStoredDevToken(): void {
+  try {
+    localStorage.removeItem(DEV_TOKEN_STORAGE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -111,8 +151,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
   const [isDevMode] = useState(import.meta.env.VITE_DEV_MODE === 'true' || import.meta.env.DEV);
   
-  // Token cache for dev mode tokens
-  const devTokenCache = useRef<TokenCache | null>(null);
+  // Token cache for dev mode tokens (initialize from localStorage)
+  const devTokenCache = useRef<TokenCache | null>(getStoredDevToken());
   
   // Track if we've already fetched the backend user to avoid duplicate calls
   const backendFetchAttempted = useRef(false);
@@ -249,6 +289,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         setIsLoading(false);
       }
+    } else if (isDevMode && devTokenCache.current) {
+      // Restore dev mode session from localStorage
+      const cached = devTokenCache.current;
+      authLogger.debug('Restoring dev mode session from localStorage', { userId: cached.userId, role: cached.role });
+      
+      const authUser: AuthUser = {
+        sub: cached.userId,
+        name: cached.role,
+        email: `${cached.role}@dev.local`,
+        role: cached.role,
+      };
+      setUser(authUser);
+      setIsAuthenticated(true);
+      
+      // Fetch backend user if not already attempted
+      if (!backendFetchAttempted.current) {
+        backendFetchAttempted.current = true;
+        fetchBackendUser().finally(() => {
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
     } else {
       authLogger.debug('Auth0 authentication cleared');
       setUser(null);
@@ -257,7 +320,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(false);
       backendFetchAttempted.current = false;
     }
-  }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser]);
+  }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser, isDevMode]);
 
   const loginWithAuth0 = () => {
     authLogger.debug('Initiating Auth0 login');
@@ -270,60 +333,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    authLogger.debug('Initiating dev mode login', { role });
+    // Well-known UUIDs for dev users (must match backend preseed.go)
+    const DEV_USER_IDS: Record<string, string> = {
+      admin: '00000000-0000-0000-0000-000000000001',
+      head: '00000000-0000-0000-0000-000000000002',
+      staff: '00000000-0000-0000-0000-000000000003',
+      participant: '00000000-0000-0000-0000-000000000004',
+      guest: '00000000-0000-0000-0000-000000000005',
+    };
+
+    const targetUserId = DEV_USER_IDS[role];
+    if (!targetUserId) {
+      authLogger.error('Unknown dev role', { role });
+      setBackendError(`Unknown role: ${role}`);
+      return;
+    }
+
+    authLogger.debug('Initiating dev mode login', { role, userId: targetUserId });
     setIsLoading(true);
     setBackendError(null);
 
     try {
-      // Use unauthenticated API to get users list
       const publicApi = new Api(getApiConfig());
-      
-      // Try to find an existing user or create one
-      // First, try to create a dev user (will fail if already exists, that's ok)
-      let targetUserId: string | undefined;
-      
-      try {
-        const createResponse = await publicApi.users.postUsers({
-          name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
-          email: `${role}@dev.local`,
-        });
-        targetUserId = createResponse.data.id;
-        authLogger.info('Created dev user', { userId: targetUserId, role });
-      } catch {
-        // User might already exist, try to find them
-        authLogger.debug('Could not create dev user, will try to find existing', { role });
-      }
 
-      // If we couldn't create, we need to get a user ID somehow
-      // The /users endpoint requires auth, so we need a different approach
-      // Let's try the JWT endpoint directly with a known pattern
-      if (!targetUserId) {
-        // For dev mode, the backend should have seed users
-        // We'll need to handle this case - for now show an error
-        throw new Error(`No dev user found for role '${role}'. Please seed the database with dev users.`);
-      }
-
-      // Get JWT for this user
+      // Get JWT for the well-known dev user
       const jwtResponse = await publicApi.users.getUsers2(targetUserId);
       const token = jwtResponse.data.token;
       const userId = jwtResponse.data.userId;
 
       if (!token || !userId) {
-        throw new Error('Failed to get dev JWT token');
+        throw new Error('Failed to get dev JWT token. Make sure the backend is running and seeded.');
       }
 
       // Cache the token (expires in 24h according to backend)
-      devTokenCache.current = {
+      const tokenCache: TokenCache = {
         token,
         expiresAt: Date.now() + 23 * 60 * 60 * 1000, // 23 hours to be safe
+        userId,
+        role,
       };
+      devTokenCache.current = tokenCache;
+      storeDevToken(tokenCache);
 
       authLogger.info('Dev JWT obtained', { userId, role });
 
       // Set user state
       const authUser: AuthUser = {
         sub: userId,
-        name: `Dev ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        name: role,
         email: `${role}@dev.local`,
         role,
       };
@@ -367,6 +424,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authLogger.debug('Logging out from dev mode');
       // Clear dev token cache on logout
       devTokenCache.current = null;
+      clearStoredDevToken();
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
