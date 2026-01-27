@@ -18,6 +18,7 @@ import type {
   ObjUser,
   ObjUserStats,
   ObjSystemSettings,
+  RoutesInviteResponse,
   HttpxErrorResponse,
   RoutesCreateApiKeyRequest,
   RoutesCreateGameRequest,
@@ -44,6 +45,7 @@ export const queryKeys = {
   roles: ["roles"] as const,
   version: ["version"] as const,
   systemSettings: ["systemSettings"] as const,
+  invites: ["invites"] as const,
 } as const;
 
 // API Keys hooks
@@ -529,5 +531,33 @@ export function useVersion() {
   return useQuery<RoutesVersionResponse, HttpxErrorResponse>({
     queryKey: queryKeys.version,
     queryFn: () => api.version.versionList().then((response) => response.data),
+  });
+}
+
+// Invites hooks
+export function useInvites() {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<RoutesInviteResponse[], HttpxErrorResponse>({
+    queryKey: queryKeys.invites,
+    queryFn: () => api.invites.invitesList().then((response) => response.data),
+  });
+}
+
+export function useRevokeInvite() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    Record<string, string>,
+    HttpxErrorResponse,
+    string
+  >({
+    mutationFn: (inviteId) =>
+      api.invites.invitesDelete(inviteId).then((response) => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+    },
+    onError: handleApiError,
   });
 }
