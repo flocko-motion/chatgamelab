@@ -53,7 +53,9 @@
       "contact": "Contact",
       "openUserMenu": "Open user menu",
       "goToDashboard": "Go to Dashboard",
-      "apiKeys": "API Keys"
+      "apiKeys": "API Keys",
+      "profile": "Profile",
+      "logout": "Logout"
     },
     "apiKeys": {
       "title": "API Key Management",
@@ -405,6 +407,9 @@
         "decreaseFont": "Decrease font size",
         "enableAnimation": "Enable background animation",
         "disableAnimation": "Disable background animation",
+        "settings": "Settings",
+        "disableAnimations": "Disable animations",
+        "useNeutralTheme": "Use neutral theme",
         "debug": "Debug"
       },
       "input": {
@@ -449,6 +454,117 @@
           "timestamp": "When this message was created"
         }
       }
+    },
+    "admin": {
+      "organizations": {
+        "title": "Manage Organizations",
+        "searchPlaceholder": "Search organizations...",
+        "create": "Create Organization",
+        "createTitle": "Create New Organization",
+        "editTitle": "Edit Organization",
+        "deleteTitle": "Delete Organization",
+        "inviteTitle": "Invite to Organization",
+        "name": "Name",
+        "namePlaceholder": "Enter organization name",
+        "members": "Members",
+        "membersCount": "members",
+        "actions": "Actions",
+        "empty": "No organizations yet. Create one to get started.",
+        "sendInvite": "Send Invite",
+        "email": "Email Address",
+        "emailPlaceholder": "Enter email address",
+        "inviteDescription": "Send an invitation to join {{name}} as the organization head.",
+        "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "membersList": "Members",
+        "memberName": "Name",
+        "memberEmail": "Email",
+        "memberRole": "Role",
+        "noMembers": "No members in this organization.",
+        "removeMember": "Remove member",
+        "removeMemberConfirm": "Are you sure you want to remove {{name}} from this organization?"
+      },
+      "invites": {
+        "title": "Pending Invites",
+        "empty": "No pending invites.",
+        "noResults": "No invites match your search.",
+        "searchPlaceholder": "Search by email, role, status, or organization...",
+        "organization": "Organization",
+        "role": "Role",
+        "invitedEmail": "Invited Email",
+        "status": "Status",
+        "createdAt": "Created",
+        "modifiedAt": "Modified",
+        "actions": "Actions",
+        "revokeConfirm": "Are you sure you want to revoke this invite?",
+        "sort": {
+          "label": "Sort by",
+          "modifiedAt-desc": "Modified (Newest)",
+          "modifiedAt-asc": "Modified (Oldest)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)",
+          "role-asc": "Role (A-Z)",
+          "role-desc": "Role (Z-A)",
+          "organization-asc": "Organization (A-Z)",
+          "organization-desc": "Organization (Z-A)"
+        },
+        "statuses": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "declined": "Declined",
+          "revoked": "Revoked",
+          "expired": "Expired"
+        }
+      },
+      "users": {
+        "title": "Manage Users",
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "organization": "Organization",
+        "joined": "Joined",
+        "actions": "Actions",
+        "noRole": "No role",
+        "empty": "No users found.",
+        "noResults": "No users match your search.",
+        "loadError": "Failed to load users",
+        "searchPlaceholder": "Search by name, email, role, or organization...",
+        "hideGuests": "Hide guests ({{count}})",
+        "showing": "Showing {{count}} of {{total}} users",
+        "me": "Me",
+        "makeAdmin": "Make admin",
+        "removeAdmin": "Remove admin",
+        "noEmail": "No email",
+        "deleteTitle": "Delete User",
+        "deleteConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+        "promoteTitle": "Promote to Admin",
+        "promoteConfirm": "Are you sure you want to promote \"{{name}}\" ({{email}}) to admin?",
+        "promoteWarning": "This user will gain full administrative access to the system.",
+        "removeAdminTitle": "Remove Admin Role",
+        "removeAdminConfirm": "Are you sure you want to remove admin role from \"{{name}}\" ({{email}})?",
+        "removeAdminWarning": "This user will lose all administrative privileges.",
+        "sort": {
+          "label": "Sort by",
+          "name-asc": "Name (A-Z)",
+          "name-desc": "Name (Z-A)",
+          "email-asc": "Email (A-Z)",
+          "email-desc": "Email (Z-A)",
+          "role-asc": "Role (A-Z)",
+          "role-desc": "Role (Z-A)",
+          "organization-asc": "Organization (A-Z)",
+          "organization-desc": "Organization (Z-A)",
+          "joined-asc": "Joined (Oldest)",
+          "joined-desc": "Joined (Newest)"
+        }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "empty": "No new notifications.",
+      "inviteToJoin": "Organization Invitation",
+      "inviteDescription": "You have been invited to join as {{role}}.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "declineConfirm": "Are you sure you want to decline this invitation?"
     }
   },
   "navigation": {
@@ -461,7 +577,9 @@
     "play": "Play a Game",
     "rooms": "Rooms",
     "groups": "Groups",
-    "learn": "Learn"
+    "learn": "Learn",
+    "manageOrganizations": "Manage Organizations",
+    "manageUsers": "Manage Users"
   },
   "dashboard": {
     "cards": {
@@ -629,14 +747,16 @@
     "profile": {
       "title": "Profile",
       "memberSince": "Registered since",
-      "organizationSection": "Organization",
+      "organizationSection": "Organization & Role",
+      "organization": "Organization",
       "noOrganization": "No organization",
       "role": "Role",
       "noRole": "No role assigned",
       "roles": {
         "admin": "Administrator",
         "head": "Head Teacher",
-        "staff": "Staff Member"
+        "staff": "Staff Member",
+        "participant": "Guest"
       },
       "statisticsSection": "Statistics",
       "gamesPlayed": "Games Played",

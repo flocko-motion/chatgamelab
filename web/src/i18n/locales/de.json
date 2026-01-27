@@ -53,7 +53,9 @@
       "contact": "Kontakt",
       "openUserMenu": "Benutzermenü öffnen",
       "goToDashboard": "Zum Dashboard",
-      "apiKeys": "API-Schlüssel"
+      "apiKeys": "API-Schlüssel",
+      "profile": "Profil",
+      "logout": "Abmelden"
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
@@ -405,6 +407,9 @@
         "decreaseFont": "Schrift verkleinern",
         "enableAnimation": "Hintergrundanimation aktivieren",
         "disableAnimation": "Hintergrundanimation deaktivieren",
+        "settings": "Einstellungen",
+        "disableAnimations": "Animationen deaktivieren",
+        "useNeutralTheme": "Neutrales Design verwenden",
         "debug": "Debug"
       },
       "input": {
@@ -449,6 +454,117 @@
           "timestamp": "Erstellungszeitpunkt dieser Nachricht"
         }
       }
+    },
+    "admin": {
+      "organizations": {
+        "title": "Organisationen verwalten",
+        "searchPlaceholder": "Organisationen suchen...",
+        "create": "Organisation erstellen",
+        "createTitle": "Neue Organisation erstellen",
+        "editTitle": "Organisation bearbeiten",
+        "deleteTitle": "Organisation löschen",
+        "inviteTitle": "Zur Organisation einladen",
+        "name": "Name",
+        "namePlaceholder": "Organisationsname eingeben",
+        "members": "Mitglieder",
+        "membersCount": "Mitglieder",
+        "actions": "Aktionen",
+        "empty": "Noch keine Organisationen. Erstellen Sie eine, um zu beginnen.",
+        "sendInvite": "Einladung senden",
+        "email": "E-Mail-Adresse",
+        "emailPlaceholder": "E-Mail-Adresse eingeben",
+        "inviteDescription": "Senden Sie eine Einladung, um {{name}} als Organisationsleitung beizutreten.",
+        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "membersList": "Mitglieder",
+        "memberName": "Name",
+        "memberEmail": "E-Mail",
+        "memberRole": "Rolle",
+        "noMembers": "Keine Mitglieder in dieser Organisation.",
+        "removeMember": "Mitglied entfernen",
+        "removeMemberConfirm": "Sind Sie sicher, dass Sie {{name}} aus dieser Organisation entfernen möchten?"
+      },
+      "invites": {
+        "title": "Ausstehende Einladungen",
+        "empty": "Keine ausstehenden Einladungen.",
+        "noResults": "Keine Einladungen entsprechen Ihrer Suche.",
+        "searchPlaceholder": "Nach E-Mail, Rolle, Status oder Organisation suchen...",
+        "organization": "Organisation",
+        "role": "Rolle",
+        "invitedEmail": "Eingeladene E-Mail",
+        "status": "Status",
+        "createdAt": "Erstellt",
+        "modifiedAt": "Geändert",
+        "actions": "Aktionen",
+        "revokeConfirm": "Sind Sie sicher, dass Sie diese Einladung widerrufen möchten?",
+        "sort": {
+          "label": "Sortieren nach",
+          "modifiedAt-desc": "Geändert (Neueste)",
+          "modifiedAt-asc": "Geändert (Älteste)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)"
+        },
+        "statuses": {
+          "pending": "Ausstehend",
+          "accepted": "Angenommen",
+          "declined": "Abgelehnt",
+          "revoked": "Widerrufen",
+          "expired": "Abgelaufen"
+        }
+      },
+      "users": {
+        "title": "Benutzer verwalten",
+        "name": "Name",
+        "email": "E-Mail",
+        "role": "Rolle",
+        "organization": "Organisation",
+        "joined": "Beigetreten",
+        "actions": "Aktionen",
+        "noRole": "Keine Rolle",
+        "empty": "Keine Benutzer gefunden.",
+        "noResults": "Keine Benutzer entsprechen Ihrer Suche.",
+        "loadError": "Benutzer konnten nicht geladen werden",
+        "searchPlaceholder": "Nach Name, E-Mail, Rolle oder Organisation suchen...",
+        "hideGuests": "Gäste ausblenden ({{count}})",
+        "showing": "{{count}} von {{total}} Benutzern angezeigt",
+        "me": "Ich",
+        "makeAdmin": "Zum Admin machen",
+        "removeAdmin": "Admin entfernen",
+        "noEmail": "Keine E-Mail",
+        "deleteTitle": "Benutzer löschen",
+        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "promoteTitle": "Zum Admin befördern",
+        "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Admin befördern möchten?",
+        "promoteWarning": "Dieser Benutzer erhält vollen administrativen Zugriff auf das System.",
+        "removeAdminTitle": "Admin-Rolle entfernen",
+        "removeAdminConfirm": "Sind Sie sicher, dass Sie die Admin-Rolle von \"{{name}}\" ({{email}}) entfernen möchten?",
+        "removeAdminWarning": "Dieser Benutzer verliert alle administrativen Rechte.",
+        "sort": {
+          "label": "Sortieren nach",
+          "name-asc": "Name (A-Z)",
+          "name-desc": "Name (Z-A)",
+          "email-asc": "E-Mail (A-Z)",
+          "email-desc": "E-Mail (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)",
+          "joined-asc": "Beigetreten (Älteste)",
+          "joined-desc": "Beigetreten (Neueste)"
+        }
+      }
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "empty": "Keine neuen Benachrichtigungen.",
+      "inviteToJoin": "Organisations-Einladung",
+      "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
+      "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?"
     }
   },
   "navigation": {
@@ -458,7 +574,9 @@
     "create": "Eigene Spiele erstellen",
     "play": "Spiele spielen",
     "rooms": "Räume",
-    "groups": "Gruppen"
+    "groups": "Gruppen",
+    "manageOrganizations": "Organisationen verwalten",
+    "manageUsers": "Benutzer verwalten"
   },
   "dashboard": {
     "cards": {
@@ -625,14 +743,16 @@
     "profile": {
       "title": "Profil",
       "memberSince": "Angemeldet seit",
-      "organizationSection": "Organisation",
+      "organizationSection": "Organisation & Rolle",
+      "organization": "Organisation",
       "noOrganization": "Keine Organisation",
       "role": "Rolle",
       "noRole": "Keine Rolle zugewiesen",
       "roles": {
         "admin": "Administrator",
-        "head": "Organisationsleiter",
-        "staff": "Mitarbeiter"
+        "head": "Leitung",
+        "staff": "Mitarbeiter",
+        "participant": "Teilnehmer"
       },
       "statisticsSection": "Statistiken",
       "gamesPlayed": "Gespielte Spiele",
