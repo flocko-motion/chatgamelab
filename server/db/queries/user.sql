@@ -79,6 +79,38 @@ LEFT JOIN workshop w
   ON w.id = r.workshop_id
 WHERE u.id = $1;
 
+-- name: GetAllUsersWithDetails :many
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
+FROM app_user u
+LEFT JOIN LATERAL (
+  SELECT ur.*
+  FROM user_role ur
+  WHERE ur.user_id = u.id
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+) r ON TRUE
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
+WHERE u.deleted_at IS NULL
+ORDER BY u.created_at DESC;
+
 -- name: GetUserApiKeys :many
 SELECT
   k.id,
@@ -99,6 +131,12 @@ WHERE k.user_id = $1;
 UPDATE app_user SET
   name = $2,
   email = $3,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserShowAiModelSelector :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
   modified_at = now()
 WHERE id = $1;
 

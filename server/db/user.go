@@ -2,13 +2,13 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"database/sql"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -34,7 +34,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 	if email != nil && isAdminEmail(*email) {
 		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
 			// Log error but don't fail user creation
-			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
 	}
 
@@ -63,7 +63,7 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	if email != nil && isAdminEmail(*email) {
 		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
 			// Log error but don't fail user creation
-			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
 	}
 
@@ -81,6 +81,14 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 		Email: sql.NullString{String: emailStr, Valid: email != nil},
 	}
 	return queries().UpdateUser(ctx, arg)
+}
+
+func UpdateUserShowAiModelSelector(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
+	arg := db.UpdateUserShowAiModelSelectorParams{
+		ID:                  id,
+		ShowAiModelSelector: showAiModelSelector,
+	}
+	return queries().UpdateUserShowAiModelSelector(ctx, arg)
 }
 
 // GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
@@ -251,37 +259,57 @@ func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
 		return fmt.Errorf("failed to create admin role: %w", err)
 	}
 
-	fmt.Printf("Auto-upgraded user %s to admin role\n", userID)
+	log.Info("auto-upgraded user to admin role", "user_id", userID)
 	return nil
 }
 
-// GetAllUsers returns all users (for admin/CLI use)
+// GetAllUsers returns all users with their roles (for admin/CLI use)
 func GetAllUsers(ctx context.Context) ([]obj.User, error) {
-	rows, err := sqlDb.QueryContext(ctx, `
-		SELECT id, name, email, auth0_id, created_at
-		FROM app_user
-		WHERE deleted_at IS NULL
-		ORDER BY created_at DESC
-	`)
+	rows, err := queries().GetAllUsersWithDetails(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var users []obj.User
-	for rows.Next() {
-		var u obj.User
-		var email, auth0ID sql.NullString
-		var createdAt time.Time
-		if err := rows.Scan(&u.ID, &u.Name, &email, &auth0ID, &createdAt); err != nil {
-			return nil, err
+	users := make([]obj.User, 0, len(rows))
+	for _, res := range rows {
+		user := obj.User{
+			ID: res.ID,
+			Meta: obj.Meta{
+				CreatedBy:  res.CreatedBy,
+				CreatedAt:  &res.CreatedAt,
+				ModifiedBy: res.ModifiedBy,
+				ModifiedAt: &res.ModifiedAt,
+			},
+			Name:      res.Name,
+			Email:     sqlNullStringToMaybeString(res.Email),
+			DeletedAt: &res.DeletedAt.Time,
+			Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
 		}
-		u.Email = sqlNullStringToMaybeString(email)
-		u.Auth0Id = sqlNullStringToMaybeString(auth0ID)
-		u.Meta.CreatedAt = &createdAt
-		users = append(users, u)
+		if res.RoleID.Valid {
+			role, err := stringToRole(res.Role.String)
+			if err != nil {
+				return nil, err
+			}
+			user.Role = &obj.UserRole{
+				ID:   res.RoleID.UUID,
+				Role: role,
+			}
+			if res.InstitutionID.Valid {
+				user.Role.Institution = &obj.Institution{
+					ID:   res.InstitutionID.UUID,
+					Name: res.InstitutionName.String,
+				}
+			}
+			if res.WorkshopID.Valid {
+				user.Role.Workshop = &obj.Workshop{
+					ID:   res.WorkshopID.UUID,
+					Name: res.WorkshopName.String,
+				}
+			}
+		}
+		users = append(users, user)
 	}
-	return users, rows.Err()
+	return users, nil
 }
 
 func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {

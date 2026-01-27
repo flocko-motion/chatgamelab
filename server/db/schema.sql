@@ -22,7 +22,9 @@ CREATE TABLE app_user (
     participant_token text UNIQUE,
     -- Default API key share to use when creating sessions without specifying one.
     -- References api_key_share instead of api_key to ensure the user has access to the key.
-    default_api_key_share_id uuid NULL
+    default_api_key_share_id uuid NULL,
+    -- User preference: show AI model selector when creating sessions
+    show_ai_model_selector boolean NOT NULL DEFAULT false
 );
 
 -- Institution

@@ -390,6 +390,96 @@ func (q *Queries) DeleteUserRoles(ctx context.Context, userID uuid.UUID) error {
 	return err
 }
 
+const getAllUsersWithDetails = `-- name: GetAllUsersWithDetails :many
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
+FROM app_user u
+LEFT JOIN LATERAL (
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
+  FROM user_role ur
+  WHERE ur.user_id = u.id
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+) r ON TRUE
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
+WHERE u.deleted_at IS NULL
+ORDER BY u.created_at DESC
+`
+
+type GetAllUsersWithDetailsRow struct {
+	ID              uuid.UUID
+	CreatedBy       uuid.NullUUID
+	CreatedAt       time.Time
+	ModifiedBy      uuid.NullUUID
+	ModifiedAt      time.Time
+	Name            string
+	Email           sql.NullString
+	DeletedAt       sql.NullTime
+	Auth0ID         sql.NullString
+	RoleID          uuid.NullUUID
+	Role            sql.NullString
+	InstitutionID   uuid.NullUUID
+	InstitutionName sql.NullString
+	WorkshopID      uuid.NullUUID
+	WorkshopName    sql.NullString
+}
+
+func (q *Queries) GetAllUsersWithDetails(ctx context.Context) ([]GetAllUsersWithDetailsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUsersWithDetails)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllUsersWithDetailsRow
+	for rows.Next() {
+		var i GetAllUsersWithDetailsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Email,
+			&i.DeletedAt,
+			&i.Auth0ID,
+			&i.RoleID,
+			&i.Role,
+			&i.InstitutionID,
+			&i.InstitutionName,
+			&i.WorkshopID,
+			&i.WorkshopName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getApiKeyByID = `-- name: GetApiKeyByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key FROM api_key WHERE id = $1
 `
@@ -682,7 +772,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -700,12 +790,13 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -723,12 +814,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id 
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector 
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -755,6 +847,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
@@ -1203,5 +1296,22 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserShowAiModelSelector = `-- name: UpdateUserShowAiModelSelector :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserShowAiModelSelectorParams struct {
+	ID                  uuid.UUID
+	ShowAiModelSelector bool
+}
+
+func (q *Queries) UpdateUserShowAiModelSelector(ctx context.Context, arg UpdateUserShowAiModelSelectorParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserShowAiModelSelector, arg.ID, arg.ShowAiModelSelector)
 	return err
 }
