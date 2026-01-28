@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import {
   ActionIcon,
   Indicator,
@@ -47,7 +47,7 @@ export function NotificationBell() {
   const { t } = useTranslation('common');
   const { t: tAuth } = useTranslation('auth');
   const api = useRequiredAuthenticatedApi();
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
   const hasAutoOpened = useRef(false);
@@ -72,6 +72,7 @@ export function NotificationBell() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.invites });
       queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+      retryBackendFetch(); // Refresh user's organization data
     },
   });
 
@@ -90,6 +91,47 @@ export function NotificationBell() {
     [invites]
   );
   const pendingCount = pendingInvites.length;
+
+  // Fetch organization and workshop names for invites
+  const [orgNames, setOrgNames] = useState<Record<string, string>>({});
+  const [workshopNames, setWorkshopNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchNames = async () => {
+      const newOrgNames: Record<string, string> = {};
+      const newWorkshopNames: Record<string, string> = {};
+
+      for (const invite of pendingInvites) {
+        if (invite.institutionId && !orgNames[invite.institutionId]) {
+          try {
+            const response = await api.institutions.institutionsDetail(invite.institutionId);
+            newOrgNames[invite.institutionId] = response.data.name || invite.institutionId;
+          } catch {
+            newOrgNames[invite.institutionId] = invite.institutionId;
+          }
+        }
+        if (invite.workshopId && !workshopNames[invite.workshopId]) {
+          try {
+            const response = await api.workshops.workshopsDetail(invite.workshopId);
+            newWorkshopNames[invite.workshopId] = response.data.name || invite.workshopId;
+          } catch {
+            newWorkshopNames[invite.workshopId] = invite.workshopId;
+          }
+        }
+      }
+
+      if (Object.keys(newOrgNames).length > 0) {
+        setOrgNames(prev => ({ ...prev, ...newOrgNames }));
+      }
+      if (Object.keys(newWorkshopNames).length > 0) {
+        setWorkshopNames(prev => ({ ...prev, ...newWorkshopNames }));
+      }
+    };
+
+    if (pendingInvites.length > 0) {
+      fetchNames();
+    }
+  }, [pendingInvites, api, orgNames, workshopNames]);
 
   // Check for unseen invites
   const seenIds = getSeenInviteIds();
@@ -117,6 +159,16 @@ export function NotificationBell() {
     if (!role) return '-';
     const roleKey = role.toLowerCase();
     return tAuth(`profile.roles.${roleKey}`, role);
+  };
+
+  const getInviteTarget = (invite: RoutesInviteResponse) => {
+    if (invite.workshopId) {
+      return workshopNames[invite.workshopId] || invite.workshopId;
+    }
+    if (invite.institutionId) {
+      return orgNames[invite.institutionId] || invite.institutionId;
+    }
+    return '-';
   };
 
   const handleAccept = (inviteId: string) => {
@@ -176,13 +228,15 @@ export function NotificationBell() {
             {pendingInvites.map((invite: RoutesInviteResponse) => (
               <Card key={invite.id} withBorder padding="md">
                 <Stack gap="sm">
-                  <Group justify="space-between">
-                    <Text fw={500}>{t('notifications.inviteToJoin')}</Text>
+                  <Group justify="space-between" align="flex-start">
+                    <Stack gap={4}>
+                      <Text fw={500}>{t('notifications.inviteToJoin')}</Text>
+                      <Text size="sm" fw={600}>{getInviteTarget(invite)}</Text>
+                    </Stack>
                     <Badge variant="light">{translateRole(invite.role)}</Badge>
                   </Group>
                   <Text size="sm" c="dimmed">
                     {t('notifications.inviteDescription', {
-                      organization: invite.institutionId,
                       role: translateRole(invite.role),
                     })}
                   </Text>
