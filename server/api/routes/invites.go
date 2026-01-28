@@ -203,11 +203,15 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	role := obj.Role(req.Role)
-	if role != obj.RoleHead && role != obj.RoleStaff {
-		log.Warn("invalid role for institution invite", "user_id", user.ID, "role", req.Role)
-		httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head' or 'staff'"))
-		return
+	// Role is optional - if not provided, user joins without a role
+	var role obj.Role
+	if req.Role != "" {
+		role = obj.Role(req.Role)
+		if role != obj.RoleHead && role != obj.RoleStaff {
+			log.Warn("invalid role for institution invite", "user_id", user.ID, "role", req.Role)
+			httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head', 'staff', or empty for no role"))
+			return
+		}
 	}
 
 	var invitedUserID *uuid.UUID

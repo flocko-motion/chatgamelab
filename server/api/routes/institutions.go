@@ -232,6 +232,40 @@ func GetInstitutionMembers(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, members)
 }
 
+// GetInstitutionApiKeys godoc
+//
+//	@Summary		Get institution API keys
+//	@Description	Returns all API keys shared with an institution (heads and staff only)
+//	@Tags			institutions
+//	@Produce		json
+//	@Param			id	path		string	true	"Institution ID"
+//	@Success		200	{array}		obj.ApiKeyShare
+//	@Failure		403	{object}	httpx.ErrorResponse
+//	@Failure		404	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/apikeys [get]
+func GetInstitutionApiKeys(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid institution ID"))
+		return
+	}
+
+	shares, err := db.GetApiKeySharesByInstitution(r.Context(), user.ID, institutionID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, shares)
+}
+
 // RemoveInstitutionMember godoc
 //
 //	@Summary		Remove member from institution

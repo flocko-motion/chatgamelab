@@ -37,6 +37,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/games/favourites", httpx.RequireAuth(GetFavouriteGames))
 	mux.Handle("POST /api/games/{id}/favourite", httpx.RequireAuth(AddFavouriteGame))
 	mux.Handle("DELETE /api/games/{id}/favourite", httpx.RequireAuth(RemoveFavouriteGame))
+	mux.Handle("GET /api/games/{id}/available-keys", httpx.RequireAuth(GetAvailableKeys))
 
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
@@ -74,6 +75,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/institutions/{id}", httpx.RequireAuth(DeleteInstitution))
 	mux.Handle("GET /api/institutions/{id}/members", httpx.RequireAuth(GetInstitutionMembers))
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
+	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))
