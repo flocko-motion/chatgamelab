@@ -509,6 +509,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             opened={apiKeyModalOpened}
             onClose={handleBack}
             onStart={handleStartGame}
+            gameId={gameId}
             gameName={displayGame?.name}
             isLoading={isSessionStarting}
           />
