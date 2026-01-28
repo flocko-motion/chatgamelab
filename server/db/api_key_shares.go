@@ -282,6 +282,166 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 	return result, nil
 }
 
+// GetApiKeySharesByInstitution returns all API key shares for an institution (heads/staff only)
+func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) ([]obj.ApiKeyShare, error) {
+	// Check permission - user must be head or staff of this institution
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	// User must have a role in this institution and be head or staff
+	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
+		return nil, obj.ErrForbidden("not a member of this institution")
+	}
+	if user.Role.Role != obj.RoleHead && user.Role.Role != obj.RoleStaff {
+		return nil, obj.ErrForbidden("only heads and staff can view institution API keys")
+	}
+
+	shares, err := queries().GetApiKeySharesByInstitutionID(ctx, uuid.NullUUID{UUID: institutionID, Valid: true})
+	if err != nil {
+		return nil, obj.ErrServerError("failed to get institution API key shares")
+	}
+
+	result := make([]obj.ApiKeyShare, 0, len(shares))
+	for _, s := range shares {
+		share := obj.ApiKeyShare{
+			ID: s.ID,
+			Meta: obj.Meta{
+				CreatedBy:  s.CreatedBy,
+				CreatedAt:  &s.CreatedAt,
+				ModifiedBy: s.ModifiedBy,
+				ModifiedAt: &s.ModifiedAt,
+			},
+			ApiKeyID: s.ApiKeyID,
+			ApiKey: &obj.ApiKey{
+				ID:       s.ApiKeyID,
+				UserID:   s.OwnerID,
+				UserName: s.OwnerName,
+				Name:     s.ApiKeyName,
+				Platform: s.ApiKeyPlatform,
+				// Key is never exposed
+			},
+			AllowPublicSponsoredPlays: s.AllowPublicSponsoredPlays,
+			Institution:               &obj.Institution{ID: institutionID},
+		}
+		result = append(result, share)
+	}
+
+	return result, nil
+}
+
+// GetAvailableKeysForGame returns a prioritized list of API keys available to a user for a specific game
+func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]obj.AvailableKey, error) {
+	var result []obj.AvailableKey
+
+	// Load the game to check for sponsored keys
+	game, err := queries().GetGameByID(ctx, gameID)
+	if err != nil {
+		return nil, obj.ErrNotFound("game not found")
+	}
+
+	// Load user to get institution/workshop info
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	// Get user's default share ID
+	defaultShareID, _ := GetUserDefaultApiKeyShare(ctx, userID)
+
+	// 1. Check for sponsor key (highest priority)
+	// Public sponsored key
+	if game.PublicSponsoredApiKeyID.Valid {
+		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, game.PublicSponsoredApiKeyID.UUID)
+		if err == nil && len(shares) > 0 {
+			// Find a share that allows public sponsored plays
+			for _, s := range shares {
+				if s.AllowPublicSponsoredPlays {
+					key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
+					if err == nil {
+						result = append(result, obj.AvailableKey{
+							ShareID:   s.ID,
+							Name:      key.Name,
+							Platform:  key.Platform,
+							Source:    "sponsor",
+							IsDefault: false,
+						})
+					}
+					break
+				}
+			}
+		}
+	}
+
+	// Private sponsored key (if accessing via share link - this would need share context)
+	if game.PrivateSponsoredApiKeyID.Valid {
+		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, game.PrivateSponsoredApiKeyID.UUID)
+		if err == nil && len(shares) > 0 {
+			for _, s := range shares {
+				if s.AllowPublicSponsoredPlays {
+					key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
+					if err == nil {
+						// Only add if not already added as public sponsor
+						alreadyAdded := false
+						for _, r := range result {
+							if r.ShareID == s.ID {
+								alreadyAdded = true
+								break
+							}
+						}
+						if !alreadyAdded {
+							result = append(result, obj.AvailableKey{
+								ShareID:   s.ID,
+								Name:      key.Name,
+								Platform:  key.Platform,
+								Source:    "sponsor",
+								IsDefault: false,
+							})
+						}
+					}
+					break
+				}
+			}
+		}
+	}
+
+	// 2. Check for institution keys (if user is in an institution)
+	if user.Role != nil && user.Role.Institution != nil {
+		instShares, err := queries().GetApiKeySharesByInstitutionID(ctx, uuid.NullUUID{UUID: user.Role.Institution.ID, Valid: true})
+		if err == nil {
+			for _, s := range instShares {
+				result = append(result, obj.AvailableKey{
+					ShareID:   s.ID,
+					Name:      s.ApiKeyName,
+					Platform:  s.ApiKeyPlatform,
+					Source:    "institution",
+					IsDefault: defaultShareID != nil && *defaultShareID == s.ID,
+				})
+			}
+		}
+	}
+
+	// 3. Add user's personal keys
+	personalShares, err := queries().GetApiKeySharesByUserID(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err == nil {
+		for _, s := range personalShares {
+			// Check if the user owns this key (personal key)
+			if s.OwnerID == userID {
+				result = append(result, obj.AvailableKey{
+					ShareID:   s.ID,
+					Name:      s.ApiKeyName,
+					Platform:  s.ApiKeyPlatform,
+					Source:    "personal",
+					IsDefault: defaultShareID != nil && *defaultShareID == s.ID,
+				})
+			}
+		}
+	}
+
+	return result, nil
+}
+
 // GetApiKeyShareInfo returns a share and its linked shares (if the user is the owner)
 func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) (*obj.ApiKeyShare, []obj.ApiKeyShare, error) {
 	share, err := queries().GetApiKeyShareByID(ctx, shareID)

@@ -319,9 +319,36 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 		return obj.ErrNotFound("current user not found")
 	}
 
-	// Only admin can set roles
-	if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
-		return obj.ErrForbidden("only admins can manage user roles")
+	// Admin can do anything
+	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
+
+	// Head can promote staff to head within their own institution
+	isHead := currentUser.Role != nil && currentUser.Role.Role == obj.RoleHead && currentUser.Role.Institution != nil
+
+	if !isAdmin && !isHead {
+		return obj.ErrForbidden("only admins or heads can manage user roles")
+	}
+
+	// If head (not admin), validate the operation
+	if isHead && !isAdmin {
+		// Head can only set head or staff roles
+		if role != nil && *role != string(obj.RoleHead) && *role != string(obj.RoleStaff) {
+			return obj.ErrForbidden("heads can only assign head or staff roles")
+		}
+
+		// Head can only operate within their own institution
+		if institutionID == nil || *institutionID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("heads can only manage members within their own institution")
+		}
+
+		// Verify target user is in the same institution
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+		if targetUser.Role == nil || targetUser.Role.Institution == nil || targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("target user is not in your institution")
+		}
 	}
 
 	// Validate role name

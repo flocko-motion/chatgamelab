@@ -210,10 +210,20 @@ func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) e
 }
 
 // GetInstitutionMembers returns all members of an institution
+// Email addresses are only visible to head and staff members
 func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID uuid.UUID) ([]obj.User, error) {
 	// Check permission - must be a member or admin to view members
 	if err := canAccessInstitutionMembers(ctx, userID, OpRead, institutionID, nil); err != nil {
 		return nil, err
+	}
+
+	// Determine if the requesting user can see email addresses
+	// Only head and staff (and admin) can see emails
+	canSeeEmails := false
+	currentUser, err := GetUserByID(ctx, userID)
+	if err == nil && currentUser.Role != nil {
+		role := currentUser.Role.Role
+		canSeeEmails = role == obj.RoleAdmin || role == obj.RoleHead || role == obj.RoleStaff
 	}
 
 	// Get all users with roles in this institution
@@ -225,7 +235,8 @@ func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID 
 	users := make([]obj.User, len(dbUsers))
 	for i, dbUser := range dbUsers {
 		var email *string
-		if dbUser.Email.Valid {
+		// Only include email if the requester has permission to see it
+		if canSeeEmails && dbUser.Email.Valid {
 			email = &dbUser.Email.String
 		}
 

@@ -108,6 +108,7 @@ func GetInviteByID(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID) (o
 
 // GetInvites returns invites scoped by user permissions.
 // - Admins see all invites
+// - Heads/Staff see invites for their institution + their own pending invites
 // - Regular users see only their own pending invites (targeted to them by user_id or email)
 func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, error) {
 	// Check permissions using centralized permission system
@@ -126,6 +127,9 @@ func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, er
 	// Admin can see all invites
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
 		dbInvites, err = queries().GetInvites(ctx)
+	} else if user.Role != nil && user.Role.Institution != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
+		// Heads and staff see all invites for their institution
+		dbInvites, err = queries().GetInvitesByInstitution(ctx, user.Role.Institution.ID)
 	} else {
 		// Regular users only see their own pending invites
 		dbInvites, err = queries().GetInvitesByUser(ctx, uuid.NullUUID{UUID: userID, Valid: true})
@@ -145,7 +149,7 @@ func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, er
 }
 
 // CreateInstitutionInvite creates an invitation for a specific user (by user_id or email) to join an institution.
-// Only head and staff roles are allowed (use CreateWorkshopInvite for participant invites).
+// Role can be head, staff, or empty (for users without a role).
 // Either invitedUserID or invitedEmail must be provided.
 // The creator must be a head of the institution (only heads can invite users to become staff/heads, admins can invite users to become admin/staff/heads).
 // Returns the complete invite record including the ID.
@@ -157,9 +161,9 @@ func CreateInstitutionInvite(
 	invitedUserID *uuid.UUID,
 	invitedEmail *string,
 ) (obj.UserRoleInvite, error) {
-	// Validate role - only head and staff allowed
-	if role != obj.RoleHead && role != obj.RoleStaff {
-		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head or staff roles, got: %s", role)
+	// Validate role - only head, staff, or empty allowed
+	if role != "" && role != obj.RoleHead && role != obj.RoleStaff {
+		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head, staff, or empty roles, got: %s", role)
 	}
 
 	// Validate that at least one target is provided

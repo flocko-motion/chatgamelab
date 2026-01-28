@@ -130,6 +130,15 @@ type ApiKeyShare struct {
 	IsUserDefault             bool         `json:"isUserDefault"`
 }
 
+// AvailableKey represents an API key available to a user for playing a specific game
+type AvailableKey struct {
+	ShareID   uuid.UUID `json:"shareId"`
+	Name      string    `json:"name"`
+	Platform  string    `json:"platform"`
+	Source    string    `json:"source"` // "sponsor", "workshop", "institution", "personal"
+	IsDefault bool      `json:"isDefault"`
+}
+
 type Game struct {
 	ID          uuid.UUID `json:"id" yaml:"id"`
 	Meta        Meta      `json:"meta" yaml:"-"`
