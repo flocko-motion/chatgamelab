@@ -101,7 +101,7 @@ function HomePage() {
                   router.navigate({ to: ROUTES.AUTH_LOGIN });
                 }}
                 leftSection={<IconRocket size={20} />}
-                size="lg"
+                size="md"
               >
                 {t("home.loginCta", "Get Started")}
               </ActionButton>
