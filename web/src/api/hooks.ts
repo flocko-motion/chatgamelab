@@ -134,6 +134,69 @@ export function useDeleteApiKey() {
   });
 }
 
+// Institution API Keys hooks
+export function useInstitutionApiKeys(institutionId: string) {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<ObjApiKeyShare[], HttpxErrorResponse>({
+    queryKey: ['institutionApiKeys', institutionId],
+    queryFn: () => api.institutions.apikeysList(institutionId).then((response) => response.data),
+    enabled: !!institutionId,
+  });
+}
+
+export function useShareApiKeyWithInstitution() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjApiKeyShare,
+    HttpxErrorResponse,
+    { shareId: string; institutionId: string; allowPublicSponsoredPlays?: boolean }
+  >({
+    mutationFn: ({ shareId, institutionId, allowPublicSponsoredPlays }) =>
+      api.apikeys.sharesCreate(shareId, { 
+        institutionId, 
+        allowPublicSponsoredPlays: allowPublicSponsoredPlays ?? false 
+      }).then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({ queryKey: ['institutionApiKeys', variables.institutionId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveInstitutionApiKeyShare() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjApiKeyShare,
+    HttpxErrorResponse,
+    { shareId: string; institutionId: string }
+  >({
+    mutationFn: ({ shareId }) =>
+      api.apikeys.apikeysDelete(shareId, { cascade: false }).then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({ queryKey: ['institutionApiKeys', variables.institutionId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+// Available Keys for Game hook
+export function useAvailableKeysForGame(gameId: string | undefined) {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ['availableKeys', gameId],
+    queryFn: () => api.games.availableKeysList(gameId!).then((response) => response.data),
+    enabled: !!gameId,
+  });
+}
+
 // Platforms hook (requires authentication)
 export function usePlatforms() {
   const api = useRequiredAuthenticatedApi();
