@@ -609,6 +609,54 @@ func (q *Queries) GetInvites(ctx context.Context) ([]UserRoleInvite, error) {
 	return items, nil
 }
 
+const getInvitesByInstitution = `-- name: GetInvitesByInstitution :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE institution_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvitesByInstitution(ctx context.Context, institutionID uuid.UUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getInvitesByUser = `-- name: GetInvitesByUser :many
 SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
 WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))

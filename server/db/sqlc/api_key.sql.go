@@ -226,6 +226,83 @@ func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.U
 	return items, nil
 }
 
+const getApiKeySharesByInstitutionID = `-- name: GetApiKeySharesByInstitutionID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.name AS api_key_name,
+  k.platform AS api_key_platform,
+  k.user_id AS owner_id,
+  owner.name AS owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user owner ON owner.id = k.user_id
+WHERE s.institution_id = $1
+`
+
+type GetApiKeySharesByInstitutionIDRow struct {
+	ID                        uuid.UUID
+	CreatedBy                 uuid.NullUUID
+	CreatedAt                 time.Time
+	ModifiedBy                uuid.NullUUID
+	ModifiedAt                time.Time
+	ApiKeyID                  uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
+	AllowPublicSponsoredPlays bool
+	ApiKeyName                string
+	ApiKeyPlatform            string
+	OwnerID                   uuid.UUID
+	OwnerName                 string
+}
+
+func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApiKeySharesByInstitutionID, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApiKeySharesByInstitutionIDRow
+	for rows.Next() {
+		var i GetApiKeySharesByInstitutionIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.ApiKeyID,
+			&i.UserID,
+			&i.WorkshopID,
+			&i.InstitutionID,
+			&i.AllowPublicSponsoredPlays,
+			&i.ApiKeyName,
+			&i.ApiKeyPlatform,
+			&i.OwnerID,
+			&i.OwnerName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getApiKeySharesByUserID = `-- name: GetApiKeySharesByUserID :many
 SELECT
   s.id,

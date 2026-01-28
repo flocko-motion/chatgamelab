@@ -257,6 +257,11 @@ SELECT * FROM user_role_invite
 WHERE workshop_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
 
+-- name: GetInvitesByInstitution :many
+SELECT * FROM user_role_invite 
+WHERE institution_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;
+
 -- name: HasWorkshopRole :one
 SELECT EXISTS(
     SELECT 1 FROM user_role 
