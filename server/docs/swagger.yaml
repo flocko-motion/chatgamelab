@@ -125,6 +125,20 @@ definitions:
       workshop:
         $ref: '#/definitions/obj.Workshop'
     type: object
+  obj.AvailableKey:
+    properties:
+      isDefault:
+        type: boolean
+      name:
+        type: string
+      platform:
+        type: string
+      shareId:
+        type: string
+      source:
+        description: '"sponsor", "workshop", "institution", "personal"'
+        type: string
+    type: object
   obj.Game:
     properties:
       cloneCount:
@@ -1385,6 +1399,46 @@ paths:
       summary: Update game
       tags:
       - games
+  /games/{id}/available-keys:
+    get:
+      description: Returns a prioritized list of API keys available to the user for
+        playing this game
+      parameters:
+      - description: Game ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.AvailableKey'
+            type: array
+        "400":
+          description: Invalid game ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Game not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get available API keys for a game
+      tags:
+      - games
   /games/{id}/clone:
     post:
       description: Creates a copy of a game for the authenticated user
@@ -1841,6 +1895,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Update institution
+      tags:
+      - institutions
+  /institutions/{id}/apikeys:
+    get:
+      description: Returns all API keys shared with an institution (heads and staff
+        only)
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.ApiKeyShare'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get institution API keys
       tags:
       - institutions
   /institutions/{id}/members:

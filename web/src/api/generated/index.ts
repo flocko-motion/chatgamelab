@@ -100,6 +100,15 @@ export interface ObjApiKeyShare {
   workshop?: ObjWorkshop;
 }
 
+export interface ObjAvailableKey {
+  isDefault?: boolean;
+  name?: string;
+  platform?: string;
+  shareId?: string;
+  /** "sponsor", "workshop", "institution", "personal" */
+  source?: string;
+}
+
 export interface ObjGame {
   cloneCount?: number;
   /** Creator info (populated when fetching games) */
@@ -1167,6 +1176,24 @@ export class Api<
       }),
 
     /**
+     * @description Returns a prioritized list of API keys available to the user for playing this game
+     *
+     * @tags games
+     * @name AvailableKeysList
+     * @summary Get available API keys for a game
+     * @request GET:/games/{id}/available-keys
+     * @secure
+     */
+    availableKeysList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjAvailableKey[], HttpxErrorResponse>({
+        path: `/games/${id}/available-keys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Creates a copy of a game for the authenticated user
      *
      * @tags games
@@ -1396,6 +1423,24 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns all API keys shared with an institution (heads and staff only)
+     *
+     * @tags institutions
+     * @name ApikeysList
+     * @summary Get institution API keys
+     * @request GET:/institutions/{id}/apikeys
+     * @secure
+     */
+    apikeysList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjApiKeyShare[], HttpxErrorResponse>({
+        path: `/institutions/${id}/apikeys`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
