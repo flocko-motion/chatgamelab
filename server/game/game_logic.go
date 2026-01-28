@@ -57,17 +57,12 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided."}
 	}
 
-	// Get the share and check if user is directly included
+	// Get the share - GetApiKeyShareByID already checks access permissions (including institution/workshop shares)
 	log.Debug("resolving API key share", "share_id", shareID)
 	share, err := db.GetApiKeyShareByID(ctx, userID, shareID)
 	if err != nil {
 		log.Debug("API key share not found", "share_id", shareID, "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
-	}
-
-	// Check if user is directly included in the share (not via workshop/institution for now)
-	if share.User == nil || share.User.ID != userID {
-		return nil, nil, &obj.HTTPError{StatusCode: 403, Message: "You don't have direct access to this API key share"}
 	}
 
 	// Get the game
