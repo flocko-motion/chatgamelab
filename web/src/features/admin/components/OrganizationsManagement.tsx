@@ -114,6 +114,7 @@ export function OrganizationsManagement() {
       return response.data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invites'] });
       closeInviteModal();
       setInviteOrg(null);
       setInviteEmail('');
