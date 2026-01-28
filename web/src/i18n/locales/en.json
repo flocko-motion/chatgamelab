@@ -12,6 +12,11 @@
     "profile": "Profile",
     "logout": "Logout",
     "login": "Login",
+    "unnamed": "Unnamed",
+    "labels": {
+      "yes": "Yes",
+      "no": "No"
+    },
     "home": {
       "badge": "Educational Gaming Lab",
       "title": "ChatGameLab",
@@ -428,7 +433,8 @@
         "modelPlaceholder": "Default model",
         "startGame": "Start Game",
         "loadError": "Failed to load API keys",
-        "noKeys": "You need at least one API key to play. Add one in Settings → API Keys."
+        "noKeys": "You need at least one API key to play. Add one in Settings → API Keys.",
+        "mine": "Mine"
       },
       "statusChange": {
         "effect": "Effect:"
@@ -565,6 +571,78 @@
       "accept": "Accept",
       "decline": "Decline",
       "declineConfirm": "Are you sure you want to decline this invitation?"
+    },
+    "myOrganization": {
+      "title": "My Organization",
+      "noOrganization": "No Organization",
+      "noOrganizationDescription": "You are not a member of any organization.",
+      "tabs": {
+        "members": "Members",
+        "apiKeys": "API Keys"
+      },
+      "apiKeys": {
+        "title": "Organization API Keys",
+        "aboutTitle": "Organization API Keys",
+        "aboutDescription": "API keys shared here are available to all members of your organization for playing games. Only heads and teachers can manage these keys.",
+        "comingSoon": "Organization API key management coming soon.",
+        "notAuthorized": "You don't have permission to manage organization API keys. Only heads and teachers can access this page.",
+        "loadError": "Failed to load organization API keys.",
+        "noKeys": "No API keys shared with this organization yet.",
+        "shareKey": "Share Key",
+        "shareKeyTitle": "Share API Key with Organization",
+        "selectKey": "Select API Key",
+        "selectKeyPlaceholder": "Choose a key to share...",
+        "allowPublicSponsoring": "Allow public sponsoring",
+        "allowPublicSponsoringDesc": "This key can be used to sponsor games for all users.",
+        "share": "Share",
+        "keyName": "Key Name",
+        "owner": "Owner",
+        "platform": "Platform",
+        "publicSponsoring": "Public Sponsoring",
+        "searchPlaceholder": "Search by name or owner...",
+        "filterByPlatform": "Filter by platform",
+        "noResults": "No API keys match your search."
+      },
+      "searchPlaceholder": "Search members...",
+      "showing": "{{count}} members",
+      "empty": "No members in this organization.",
+      "noResults": "No members match your search.",
+      "me": "Me",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": "Actions",
+      "noRole": "No role",
+      "noEmail": "No email",
+      "inviteTeacher": "Invite Teacher",
+      "inviteTeacherTitle": "Invite Teacher",
+      "inviteTeacherDescription": "Send an invitation to a teacher to join your organization.",
+      "inviteUser": "Invite User",
+      "inviteUserTitle": "Invite User",
+      "inviteUserDescription": "Send an invitation to a user to join your organization without a specific role.",
+      "emailPlaceholder": "Enter email address",
+      "promoteToHead": "Promote to Head",
+      "demoteToStaff": "Demote to Teacher",
+      "promoteTitle": "Promote to Head",
+      "promoteConfirm": "Are you sure you want to promote \"{{name}}\" ({{email}}) to Head?",
+      "promoteWarning": "This user will gain the ability to manage organization members and invite teachers.",
+      "demoteTitle": "Demote to Teacher",
+      "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
+      "removeMember": "Remove member",
+      "removeTitle": "Remove Member",
+      "removeConfirm": "Are you sure you want to remove \"{{name}}\" from the organization?",
+      "removeWarning": "This user will lose access to the organization.",
+      "leaveOrganization": "Leave Organization",
+      "leaveTitle": "Leave Organization",
+      "leaveConfirm": "Are you sure you want to leave \"{{name}}\"?",
+      "leaveWarning": "You will lose access to all organization resources and members.",
+      "sort": {
+        "label": "Sort by",
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "role-asc": "Role (A-Z)",
+        "role-desc": "Role (Z-A)"
+      }
     }
   },
   "navigation": {
@@ -579,7 +657,10 @@
     "groups": "Groups",
     "learn": "Learn",
     "manageOrganizations": "Manage Organizations",
-    "manageUsers": "Manage Users"
+    "manageUsers": "Manage Users",
+    "myOrganization": "My Organization",
+    "orgMembers": "Members",
+    "orgApiKeys": "API Keys"
   },
   "dashboard": {
     "cards": {

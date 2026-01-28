@@ -12,6 +12,11 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "login": "Anmelden",
+    "unnamed": "Unbenannt",
+    "labels": {
+      "yes": "Ja",
+      "no": "Nein"
+    },
     "home": {
       "badge": "Lernspiel-Labor",
       "title": "ChatGameLab",
@@ -428,7 +433,8 @@
         "modelPlaceholder": "Standard-Modell",
         "startGame": "Spiel starten",
         "loadError": "API-Schlüssel konnten nicht geladen werden",
-        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu."
+        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu.",
+        "mine": "Mein"
       },
       "statusChange": {
         "effect": "Effekt:"
@@ -565,6 +571,78 @@
       "accept": "Annehmen",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?"
+    },
+    "myOrganization": {
+      "title": "Meine Organisation",
+      "noOrganization": "Keine Organisation",
+      "noOrganizationDescription": "Sie sind kein Mitglied einer Organisation.",
+      "tabs": {
+        "members": "Mitglieder",
+        "apiKeys": "API-Schlüssel"
+      },
+      "apiKeys": {
+        "title": "Organisations-API-Schlüssel",
+        "aboutTitle": "Organisations-API-Schlüssel",
+        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung. Nur Leiter und Lehrer können diese Schlüssel verwalten.",
+        "comingSoon": "Verwaltung von Organisations-API-Schlüsseln kommt bald.",
+        "notAuthorized": "Sie haben keine Berechtigung, Organisations-API-Schlüssel zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
+        "loadError": "Fehler beim Laden der Organisations-API-Schlüssel.",
+        "noKeys": "Noch keine API-Schlüssel mit dieser Organisation geteilt.",
+        "shareKey": "Schlüssel teilen",
+        "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "selectKey": "API-Schlüssel auswählen",
+        "selectKeyPlaceholder": "Wählen Sie einen Schlüssel zum Teilen...",
+        "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
+        "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
+        "share": "Teilen",
+        "keyName": "Schlüsselname",
+        "owner": "Besitzer",
+        "platform": "Plattform",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "searchPlaceholder": "Nach Name oder Besitzer suchen...",
+        "filterByPlatform": "Nach Plattform filtern",
+        "noResults": "Keine API-Schlüssel entsprechen Ihrer Suche."
+      },
+      "searchPlaceholder": "Mitglieder suchen...",
+      "showing": "{{count}} Mitglieder",
+      "empty": "Keine Mitglieder in dieser Organisation.",
+      "noResults": "Keine Mitglieder entsprechen Ihrer Suche.",
+      "me": "Ich",
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "actions": "Aktionen",
+      "noRole": "Keine Rolle",
+      "noEmail": "Keine E-Mail",
+      "inviteTeacher": "Lehrer einladen",
+      "inviteTeacherTitle": "Lehrer einladen",
+      "inviteTeacherDescription": "Senden Sie eine Einladung an einen Lehrer, Ihrer Organisation beizutreten.",
+      "inviteUser": "Benutzer einladen",
+      "inviteUserTitle": "Benutzer einladen",
+      "inviteUserDescription": "Senden Sie eine Einladung an einen Benutzer, Ihrer Organisation ohne spezifische Rolle beizutreten.",
+      "emailPlaceholder": "E-Mail-Adresse eingeben",
+      "promoteToHead": "Zum Leiter befördern",
+      "demoteToStaff": "Zum Lehrer herabstufen",
+      "promoteTitle": "Zum Leiter befördern",
+      "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Leiter befördern möchten?",
+      "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
+      "demoteTitle": "Zum Lehrer herabstufen",
+      "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
+      "removeMember": "Mitglied entfernen",
+      "removeTitle": "Mitglied entfernen",
+      "removeConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus der Organisation entfernen möchten?",
+      "removeWarning": "Dieser Benutzer verliert den Zugriff auf die Organisation.",
+      "leaveOrganization": "Organisation verlassen",
+      "leaveTitle": "Organisation verlassen",
+      "leaveConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" verlassen möchten?",
+      "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+      "sort": {
+        "label": "Sortieren nach",
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "role-asc": "Rolle (A-Z)",
+        "role-desc": "Rolle (Z-A)"
+      }
     }
   },
   "navigation": {
@@ -576,7 +654,10 @@
     "rooms": "Räume",
     "groups": "Gruppen",
     "manageOrganizations": "Organisationen verwalten",
-    "manageUsers": "Benutzer verwalten"
+    "manageUsers": "Benutzer verwalten",
+    "myOrganization": "Meine Organisation",
+    "orgMembers": "Mitglieder",
+    "orgApiKeys": "API-Schlüssel"
   },
   "dashboard": {
     "cards": {
