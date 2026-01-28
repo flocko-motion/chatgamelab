@@ -54,6 +54,10 @@ export const ROUTES = {
   // Admin routes
   ADMIN_ORGANIZATIONS: '/admin/organizations',
   ADMIN_USERS: '/admin/users',
+
+  // Organization routes
+  MY_ORGANIZATION: '/my-organization',
+  MY_ORGANIZATION_API_KEYS: '/my-organization/api-keys',
 } as const;
 
 // Route groups for navigation menus

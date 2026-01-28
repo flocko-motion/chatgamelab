@@ -24,6 +24,7 @@ import {
   IconLogout,
   IconKey,
   IconMessage,
+  IconChevronDown,
 } from '@tabler/icons-react';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { VersionDisplay } from '../VersionDisplay';
@@ -41,6 +42,7 @@ export interface NavItem {
   onClick?: () => void;
   href?: string;
   active?: boolean;
+  children?: NavItem[];
 }
 
 export interface AppHeaderProps {
@@ -85,11 +87,64 @@ function NavButton({ item }: { item: NavItem }) {
   );
 }
 
+function NavDropdownButton({ item }: { item: NavItem }) {
+  const theme = useMantineTheme();
+  const hasActiveChild = item.children?.some(child => child.active);
+  const isActive = item.active || hasActiveChild;
+
+  const trigger = (
+    <UnstyledButton
+      py="xs"
+      px="md"
+      style={{
+        borderRadius: 'var(--mantine-radius-md)',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        transition: 'background-color 150ms ease, box-shadow 150ms ease',
+      }}
+      styles={{
+        root: {
+          backgroundColor: isActive ? theme.other.layout.bgActive : 'transparent',
+          boxShadow: isActive ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
+          '&:hover': {
+            backgroundColor: isActive ? theme.other.layout.bgActive : 'rgba(255, 255, 255, 0.2)',
+          },
+        },
+      }}
+    >
+      {item.icon}
+      <Text size="sm" fw={500}>{item.label}</Text>
+      <IconChevronDown size={14} style={{ opacity: 0.7 }} />
+    </UnstyledButton>
+  );
+
+  const menuItems = item.children?.map((child, idx) => ({
+    key: `${child.label}-${idx}`,
+    label: child.label,
+    icon: child.icon,
+    onClick: child.onClick,
+  })) || [];
+
+  return (
+    <DropdownMenu
+      trigger={trigger}
+      items={menuItems}
+      position="bottom"
+    />
+  );
+}
+
 function DesktopNavigation({ items }: { items: NavItem[] }) {
   return (
     <Group gap="xs" wrap="nowrap">
       {items.map((item, index) => (
-        <NavButton key={index} item={item} />
+        item.children ? (
+          <NavDropdownButton key={index} item={item} />
+        ) : (
+          <NavButton key={index} item={item} />
+        )
       ))}
     </Group>
   );
@@ -248,58 +303,98 @@ function MobileNavigation({
     onClose();
   };
 
+  // Flatten items with children for mobile view
+  const flattenedItems: (NavItem & { isChild?: boolean; parentLabel?: string })[] = [];
+  items.forEach((item) => {
+    if (item.children && item.children.length > 0) {
+      // Add parent as a label/header, not clickable
+      flattenedItems.push({ ...item, onClick: undefined });
+      // Add children as indented items
+      item.children.forEach((child) => {
+        flattenedItems.push({ ...child, isChild: true, parentLabel: item.label });
+      });
+    } else {
+      flattenedItems.push(item);
+    }
+  });
+
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box style={{ flex: 1, overflowY: 'auto' }}>
-        <Stack gap="xs" p="md">
-          {items.map((item, index) => (
-            <UnstyledButton
-              key={index}
-              onClick={() => {
-                item.onClick?.();
-                onClose();
-              }}
-              py="md"
-              px="lg"
-              style={{
-                borderRadius: 'var(--mantine-radius-md)',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                transition: 'background-color 150ms ease, box-shadow 150ms ease',
-                backgroundColor: item.active ? theme.other.layout.bgActive : theme.other.layout.bgSubtle,
-                boxShadow: item.active ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
-              }}
-            >
-              {item.icon}
-              <Text size="lg" fw={500}>{item.label}</Text>
-            </UnstyledButton>
-          ))}
+        <Stack gap={4} p="sm">
+          {flattenedItems.map((item, index) => {
+            const isParentWithChildren = item.children && item.children.length > 0;
+            const isChild = 'isChild' in item && item.isChild;
+
+            // Parent items with children are rendered as non-clickable headers
+            if (isParentWithChildren) {
+              return (
+                <Text
+                  key={index}
+                  size="xs"
+                  fw={600}
+                  c="dimmed"
+                  px="md"
+                  pt="sm"
+                  pb={4}
+                  style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+                >
+                  {item.label}
+                </Text>
+              );
+            }
+
+            return (
+              <UnstyledButton
+                key={index}
+                onClick={() => {
+                  item.onClick?.();
+                  onClose();
+                }}
+                py="sm"
+                px="md"
+                pl={isChild ? 'lg' : 'md'}
+                style={{
+                  borderRadius: 'var(--mantine-radius-md)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  transition: 'background-color 150ms ease, box-shadow 150ms ease',
+                  backgroundColor: item.active ? theme.other.layout.bgActive : theme.other.layout.bgSubtle,
+                  boxShadow: item.active ? '0 0 0 1px rgba(255, 255, 255, 0.3)' : 'none',
+                  marginLeft: isChild ? '12px' : 0,
+                }}
+              >
+                {item.icon}
+                <Text size={isChild ? 'sm' : 'md'} fw={500}>{item.label}</Text>
+              </UnstyledButton>
+            );
+          })}
         </Stack>
       </Box>
 
-      <Box p="md">
+      <Box p="sm">
         <Divider my="xs" color={theme.other.layout.lineLight} />
 
-        <Stack gap={6}>
+        <Stack gap={4}>
           <UnstyledButton
             onClick={() => {
               window.open(EXTERNAL_LINKS.CHATGAMELAB.href, '_blank');
               onClose();
             }}
             py="sm"
-            px="lg"
+            px="md"
             style={{
               borderRadius: 'var(--mantine-radius-md)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '8px',
             }}
           >
-            <IconMessage size={20} />
-            <Text size="md" fw={500}>{t('header.contact')}</Text>
+            <IconMessage size={18} />
+            <Text size="sm" fw={500}>{t('header.contact')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
@@ -308,17 +403,17 @@ function MobileNavigation({
               onClose();
             }}
             py="sm"
-            px="lg"
+            px="md"
             style={{
               borderRadius: 'var(--mantine-radius-md)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '8px',
             }}
           >
-            <IconUser size={20} />
-            <Text size="md" fw={500}>{t('header.profile')}</Text>
+            <IconUser size={18} />
+            <Text size="sm" fw={500}>{t('header.profile')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
@@ -327,17 +422,17 @@ function MobileNavigation({
               onClose();
             }}
             py="sm"
-            px="lg"
+            px="md"
             style={{
               borderRadius: 'var(--mantine-radius-md)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '8px',
             }}
           >
-            <IconSettings size={20} />
-            <Text size="md" fw={500}>{t('settings')}</Text>
+            <IconSettings size={18} />
+            <Text size="sm" fw={500}>{t('settings')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
@@ -346,33 +441,33 @@ function MobileNavigation({
               onClose();
             }}
             py="sm"
-            px="lg"
+            px="md"
             style={{
               borderRadius: 'var(--mantine-radius-md)',
               color: 'white',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '8px',
             }}
           >
-            <IconKey size={20} />
-            <Text size="md" fw={500}>{t('header.apiKeys')}</Text>
+            <IconKey size={18} />
+            <Text size="sm" fw={500}>{t('header.apiKeys')}</Text>
           </UnstyledButton>
 
           <UnstyledButton
             onClick={handleLogout}
             py="sm"
-            px="lg"
+            px="md"
             style={{
               borderRadius: 'var(--mantine-radius-md)',
               color: theme.colors.red[6],
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '8px',
             }}
           >
-            <IconLogout size={20} />
-            <Text size="md" fw={500}>{t('header.logout')}</Text>
+            <IconLogout size={18} />
+            <Text size="sm" fw={500}>{t('header.logout')}</Text>
           </UnstyledButton>
         </Stack>
 
