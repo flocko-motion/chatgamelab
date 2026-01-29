@@ -3190,6 +3190,30 @@ const docTemplate = `{
                         "description": "Institution ID",
                         "name": "institutionId",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field (name, createdAt, participantCount)",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction (asc, desc)",
+                        "name": "sortDir",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter to active workshops only",
+                        "name": "activeOnly",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -3046,6 +3046,22 @@ paths:
         in: query
         name: institutionId
         type: string
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Sort by field (name, createdAt, participantCount)
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort direction (asc, desc)
+        in: query
+        name: sortDir
+        type: string
+      - description: Filter to active workshops only
+        in: query
+        name: activeOnly
+        type: boolean
       produces:
       - application/json
       responses:
