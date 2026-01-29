@@ -175,6 +175,13 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		(user.Email != nil && req.Email != *user.Email)
 	nameChanged := req.Name != "" && req.Name != user.Name
 
+	// Only admins can change email addresses
+	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
+	if emailChanged && !isAdmin {
+		httpx.WriteError(w, http.StatusForbidden, "Only administrators can change email addresses")
+		return
+	}
+
 	// Validate name uniqueness if changed
 	if nameChanged {
 		nameTaken, err := db.IsNameTakenByOther(r.Context(), req.Name, userID)
