@@ -215,7 +215,15 @@ func Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 
-		// No Authorization header - pass through without user
+		// Check for session cookie as fallback if no Authorization header
+		if authHeader == "" {
+			if cookie, err := r.Cookie("cgl_session"); err == nil && cookie.Value != "" {
+				// Use cookie value as participant token
+				authHeader = "Bearer " + cookie.Value
+			}
+		}
+
+		// No Authorization header or cookie - pass through without user
 		if authHeader == "" {
 			next.ServeHTTP(w, r)
 			return
@@ -229,8 +237,16 @@ func Authenticate(next http.Handler) http.Handler {
 			// SQL query validates: user exists, has participant role, linked to active workshop
 			user, err := db.GetUserByParticipantToken(r.Context(), token)
 			if err != nil {
-				log.Debug("participant token invalid or workshop not active", "error", err)
-				WriteError(w, http.StatusUnauthorized, "Invalid token or workshop not active")
+				// Check for specific error codes
+				if authErr, ok := err.(*db.ParticipantAuthError); ok {
+					log.Debug("participant auth failed", "code", authErr.Code, "error", authErr.Message)
+					if authErr.Code == "workshop_inactive" {
+						WriteErrorWithCode(w, http.StatusForbidden, "auth_workshop_inactive", "Workshop is inactive")
+						return
+					}
+				}
+				log.Debug("participant token invalid", "error", err)
+				WriteErrorWithCode(w, http.StatusUnauthorized, "auth_invalid_token", "Invalid token")
 				return
 			}
 

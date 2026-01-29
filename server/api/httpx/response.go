@@ -143,10 +143,23 @@ func ReadJSONOrYAML(r *http.Request, v any) error {
 }
 
 // SetCORSHeaders sets CORS headers for cross-origin requests
+// Deprecated: Use SetCORSHeadersWithOrigin for credential support
 func SetCORSHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+}
+
+// SetCORSHeadersWithOrigin sets CORS headers with credential support
+// When credentials are used, Access-Control-Allow-Origin cannot be "*"
+func SetCORSHeadersWithOrigin(w http.ResponseWriter, origin string) {
+	if origin == "" {
+		origin = "*"
+	}
+	w.Header().Set("Access-Control-Allow-Origin", origin)
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 }
 
 // SetNoCacheHeaders sets headers to prevent caching
@@ -154,4 +167,32 @@ func SetNoCacheHeaders(w http.ResponseWriter) {
 	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
+}
+
+// SetSessionCookie sets an HttpOnly cookie for participant sessions
+// The cookie is used as a fallback authentication mechanism for workshop participants
+func SetSessionCookie(w http.ResponseWriter, r *http.Request, token string) {
+	// Determine if we're in a secure context (HTTPS)
+	secure := r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https"
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "cgl_session",
+		Value:    token,
+		Path:     "/api",
+		MaxAge:   86400 * 30, // 30 days
+		HttpOnly: true,
+		Secure:   secure,
+		SameSite: http.SameSiteLaxMode,
+	})
+}
+
+// ClearSessionCookie clears the session cookie (for logout)
+func ClearSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "cgl_session",
+		Value:    "",
+		Path:     "/api",
+		MaxAge:   -1,
+		HttpOnly: true,
+	})
 }

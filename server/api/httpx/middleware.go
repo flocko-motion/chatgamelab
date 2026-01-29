@@ -18,9 +18,11 @@ func Chain(h http.Handler, middlewares ...Middleware) http.Handler {
 }
 
 // CORS returns a middleware that handles CORS preflight and sets CORS headers
+// Uses the request Origin header to support credentials (cookies)
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		SetCORSHeaders(w)
+		origin := r.Header.Get("Origin")
+		SetCORSHeadersWithOrigin(w, origin)
 
 		// Handle preflight requests
 		if r.Method == http.MethodOptions {
