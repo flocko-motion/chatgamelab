@@ -358,6 +358,15 @@ func (q *Queries) DeleteApiKey(ctx context.Context, arg DeleteApiKeyParams) erro
 	return err
 }
 
+const deleteInvite = `-- name: DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1
+`
+
+func (q *Queries) DeleteInvite(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteInvite, id)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 UPDATE app_user
 SET
@@ -753,6 +762,51 @@ func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.Null
 		return nil, err
 	}
 	return items, nil
+}
+
+const getPendingInviteByTarget = `-- name: GetPendingInviteByTarget :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1
+`
+
+type GetPendingInviteByTargetParams struct {
+	InstitutionID uuid.UUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+}
+
+// Check if a pending invite already exists for the same target (user_id or email) and institution
+func (q *Queries) GetPendingInviteByTarget(ctx context.Context, arg GetPendingInviteByTargetParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getPendingInviteByTarget, arg.InstitutionID, arg.InvitedUserID, arg.InvitedEmail)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
 }
 
 const getUserApiKeys = `-- name: GetUserApiKeys :many

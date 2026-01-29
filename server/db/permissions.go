@@ -100,9 +100,13 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 		return obj.ErrForbidden("only members can view institution members")
 
 	case OpDelete:
-		// Can't remove yourself
+		// Users can remove themselves (leave the organization)
 		if targetUserID != nil && *targetUserID == userID {
-			return obj.ErrValidation("cannot remove yourself from the institution")
+			// Check that the user is actually a member of this institution
+			if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+				return nil
+			}
+			return obj.ErrForbidden("you are not a member of this institution")
 		}
 
 		// Heads can remove staff and participants

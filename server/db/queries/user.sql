@@ -319,6 +319,21 @@ UPDATE user_role_invite SET
   modified_at = now()
 WHERE id = $1;
 
+-- name: DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1;
+
+-- name: GetPendingInviteByTarget :one
+-- Check if a pending invite already exists for the same target (user_id or email) and institution
+SELECT * FROM user_role_invite 
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1;
+
 -- User Statistics queries
 
 -- name: CountUserSessions :one
