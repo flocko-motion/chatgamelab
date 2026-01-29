@@ -1515,6 +1515,24 @@ export class Api<
       }),
 
     /**
+     * @description Lists all invites. Requires admin role.
+     *
+     * @tags invites
+     * @name GetInvites
+     * @summary List all invites (admin only)
+     * @request GET:/invites/all
+     * @secure
+     */
+    getInvites: (params: RequestParams = {}) =>
+      this.request<RoutesInviteResponse[], HttpxErrorResponse>({
+        path: `/invites/all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Creates a targeted invite for a user to join an institution as head or staff
      *
      * @tags invites
@@ -1533,6 +1551,24 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Lists all invites for a specific institution. Requires head/staff role in the institution or admin.
+     *
+     * @tags invites
+     * @name InstitutionDetail
+     * @summary List invites for an institution
+     * @request GET:/invites/institution/{institutionId}
+     * @secure
+     */
+    institutionDetail: (institutionId: string, params: RequestParams = {}) =>
+      this.request<RoutesInviteResponse[], HttpxErrorResponse>({
+        path: `/invites/institution/${institutionId}`,
+        method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1626,24 +1662,6 @@ export class Api<
     declineCreate: (id: string, params: RequestParams = {}) =>
       this.request<ObjUserRoleInvite, HttpxErrorResponse>({
         path: `/invites/${id}/decline`,
-        method: "POST",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Re-activates a revoked invite (creator, admin, or institution staff for workshop invites)
-     *
-     * @tags invites
-     * @name ReactivateCreate
-     * @summary Reactivate invite
-     * @request POST:/invites/{id}/reactivate
-     * @secure
-     */
-    reactivateCreate: (id: string, params: RequestParams = {}) =>
-      this.request<Record<string, string>, HttpxErrorResponse>({
-        path: `/invites/${id}/reactivate`,
         method: "POST",
         secure: true,
         format: "json",
