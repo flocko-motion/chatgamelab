@@ -31,6 +31,7 @@ import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
+import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
 import { Route as GamesGameIdPlayRouteImport } from './routes/games/$gameId/play'
 import { Route as AuthLogoutAuth0CallbackRouteImport } from './routes/auth/logout/auth0/callback'
 import { Route as AuthLoginAuth0CallbackRouteImport } from './routes/auth/login/auth0/callback'
@@ -145,6 +146,11 @@ const AdminOrganizationsIndexRoute = AdminOrganizationsIndexRouteImport.update({
   path: '/admin/organizations/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InvitesTokenAcceptRoute = InvitesTokenAcceptRouteImport.update({
+  id: '/invites/$token/accept',
+  path: '/invites/$token/accept',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GamesGameIdPlayRoute = GamesGameIdPlayRouteImport.update({
   id: '/games/$gameId/play',
   path: '/games/$gameId/play',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/play': typeof PlayIndexRoute
   '/sessions': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/play/': typeof PlayIndexRoute
   '/sessions/': typeof SessionsIndexRoute
   '/games/$gameId/play': typeof GamesGameIdPlayRoute
+  '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
@@ -266,6 +275,7 @@ export interface FileRouteTypes {
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
+    | '/invites/$token/accept'
     | '/admin/organizations'
     | '/admin/users'
     | '/auth/login'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/play'
     | '/sessions'
     | '/games/$gameId/play'
+    | '/invites/$token/accept'
     | '/admin/organizations'
     | '/admin/users'
     | '/auth/login'
@@ -320,6 +331,7 @@ export interface FileRouteTypes {
     | '/play/'
     | '/sessions/'
     | '/games/$gameId/play'
+    | '/invites/$token/accept'
     | '/admin/organizations/'
     | '/admin/users/'
     | '/auth/login/'
@@ -348,6 +360,7 @@ export interface RootRouteChildren {
   PlayIndexRoute: typeof PlayIndexRoute
   SessionsIndexRoute: typeof SessionsIndexRoute
   GamesGameIdPlayRoute: typeof GamesGameIdPlayRoute
+  InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
   AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
@@ -511,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrganizationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invites/$token/accept': {
+      id: '/invites/$token/accept'
+      path: '/invites/$token/accept'
+      fullPath: '/invites/$token/accept'
+      preLoaderRoute: typeof InvitesTokenAcceptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/games/$gameId/play': {
       id: '/games/$gameId/play'
       path: '/games/$gameId/play'
@@ -556,6 +576,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayIndexRoute: PlayIndexRoute,
   SessionsIndexRoute: SessionsIndexRoute,
   GamesGameIdPlayRoute: GamesGameIdPlayRoute,
+  InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
   AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,

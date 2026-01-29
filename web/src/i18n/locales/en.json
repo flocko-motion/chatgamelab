@@ -799,6 +799,27 @@
       }
     }
   },
+  "invites": {
+    "goHome": "Go to Home",
+    "accept": {
+      "title": "Join Workshop",
+      "workshopInvite": "You've been invited to join {{workshop}}",
+      "displayNameLabel": "Your Name",
+      "displayNamePlaceholder": "Enter your display name",
+      "displayNameHint": "This is how other participants will see you",
+      "joinButton": "Join Workshop"
+    },
+    "success": {
+      "title": "Welcome!",
+      "message": "You've successfully joined the workshop. Redirecting..."
+    },
+    "errors": {
+      "notFound": "This invite link is invalid or has been revoked.",
+      "expired": "This invite link has expired.",
+      "loadFailed": "Failed to load invite details. Please try again.",
+      "acceptFailed": "Failed to accept invite. Please try again."
+    }
+  },
   "errors": {
     "network": "Network error. Please check your connection.",
     "server": "Server error. Please try again later.",

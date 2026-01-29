@@ -795,6 +795,27 @@
       }
     }
   },
+  "invites": {
+    "goHome": "Zur Startseite",
+    "accept": {
+      "title": "Workshop beitreten",
+      "workshopInvite": "Du wurdest eingeladen, {{workshop}} beizutreten",
+      "displayNameLabel": "Dein Name",
+      "displayNamePlaceholder": "Gib deinen Anzeigenamen ein",
+      "displayNameHint": "So werden dich andere Teilnehmer sehen",
+      "joinButton": "Workshop beitreten"
+    },
+    "success": {
+      "title": "Willkommen!",
+      "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
+    },
+    "errors": {
+      "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+      "expired": "Dieser Einladungslink ist abgelaufen.",
+      "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
+      "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
+    }
+  },
   "errors": {
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
