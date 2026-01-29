@@ -89,7 +89,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
 	mux.Handle("GET /api/invites/all", httpx.RequireAuth(ListAllInvites))
 	mux.Handle("GET /api/invites/institution/{institutionId}", httpx.RequireAuth(ListInvitesByInstitution))
-	mux.Handle("GET /api/invites/{idOrToken}", httpx.RequireAuth(GetInvite))
+	mux.Handle("GET /api/invites/{idOrToken}", httpx.OptionalAuth(GetInvite))            // Optional auth - allows anonymous to view invite details
 	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.OptionalAuth(AcceptInvite)) // Optional auth - supports anonymous workshop invites
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))

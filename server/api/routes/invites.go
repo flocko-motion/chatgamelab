@@ -204,7 +204,7 @@ func ListInvitesByInstitution(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/invites/{idOrToken} [get]
 func GetInvite(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
+	user := httpx.MaybeUserFromRequest(r) // Optional - anonymous users can view invite details by token
 
 	idOrToken := httpx.PathParam(r, "idOrToken")
 	if idOrToken == "" {
@@ -218,11 +218,19 @@ func GetInvite(w http.ResponseWriter, r *http.Request) {
 
 	inviteID, parseErr := uuid.Parse(idOrToken)
 	if parseErr == nil {
-		// It's a UUID - get by ID
+		// It's a UUID - get by ID (requires auth)
+		if user == nil {
+			httpx.WriteAppError(w, obj.ErrUnauthorized("Authentication required to view invite by ID"))
+			return
+		}
 		invite, err = db.GetInviteByID(r.Context(), user.ID, inviteID)
 	} else {
-		// Not a UUID - treat as token
-		invite, err = db.GetInviteByToken(r.Context(), user.ID, idOrToken)
+		// Not a UUID - treat as token (can be anonymous for open invites)
+		var userID uuid.UUID
+		if user != nil {
+			userID = user.ID
+		}
+		invite, err = db.GetInviteByToken(r.Context(), userID, idOrToken)
 	}
 
 	if err != nil {
