@@ -709,6 +709,26 @@
         "role-asc": "Rolle (A-Z)",
         "role-desc": "Rolle (Z-A)"
       }
+    },
+    "invites": {
+      "goHome": "Zur Startseite",
+      "accept": {
+        "title": "Workshop beitreten",
+        "titleWithWorkshop": "Workshop \"{{workshop}}\" beitreten",
+        "inviteMessage": "Du wurdest eingeladen, einem Workshop der Organisation \"{{organization}}\" beizutreten.",
+        "inviteMessageSimple": "Du wurdest eingeladen, diesem Workshop beizutreten.",
+        "joinButton": "Workshop beitreten"
+      },
+      "success": {
+        "title": "Willkommen!",
+        "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
+      },
+      "errors": {
+        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+        "expired": "Dieser Einladungslink ist abgelaufen.",
+        "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
+        "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
+      }
     }
   },
   "navigation": {
@@ -793,27 +813,6 @@
         "title": "Versionenkonflikt erkannt",
         "message": "Frontend-Version {{frontendVersion}} stimmt nicht mit Backend-Version {{backendVersion}} überein. Dies kann zu unerwartetem Verhalten führen. Kontaktiere den Support, wenn Probleme weiterhin bestehen."
       }
-    }
-  },
-  "invites": {
-    "goHome": "Zur Startseite",
-    "accept": {
-      "title": "Workshop beitreten",
-      "workshopInvite": "Du wurdest eingeladen, {{workshop}} beizutreten",
-      "displayNameLabel": "Dein Name",
-      "displayNamePlaceholder": "Gib deinen Anzeigenamen ein",
-      "displayNameHint": "So werden dich andere Teilnehmer sehen",
-      "joinButton": "Workshop beitreten"
-    },
-    "success": {
-      "title": "Willkommen!",
-      "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
-    },
-    "errors": {
-      "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
-      "expired": "Dieser Einladungslink ist abgelaufen.",
-      "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
-      "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
     }
   },
   "errors": {
