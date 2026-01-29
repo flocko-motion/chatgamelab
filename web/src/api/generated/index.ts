@@ -2177,6 +2177,14 @@ export class Api<
       query?: {
         /** Institution ID */
         institutionId?: string;
+        /** Search by name */
+        search?: string;
+        /** Sort by field (name, createdAt, participantCount) */
+        sortBy?: string;
+        /** Sort direction (asc, desc) */
+        sortDir?: string;
+        /** Filter to active workshops only */
+        activeOnly?: boolean;
       },
       params: RequestParams = {},
     ) =>

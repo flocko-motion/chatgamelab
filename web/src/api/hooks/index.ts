@@ -72,3 +72,13 @@ export {
   useAllInvites,
   useRevokeInvite,
 } from "./useInvites";
+
+// Workshops
+export {
+  useWorkshops,
+  useWorkshop,
+  useCreateWorkshop,
+  useUpdateWorkshop,
+  useDeleteWorkshop,
+  useCreateWorkshopInvite,
+} from "./useWorkshops";
