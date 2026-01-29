@@ -104,11 +104,38 @@ func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.
 	return DeleteUser(ctx, targetUserID)
 }
 
+// ParticipantAuthError represents a specific error during participant authentication
+type ParticipantAuthError struct {
+	Code    string // "invalid_token", "workshop_inactive"
+	Message string
+}
+
+func (e *ParticipantAuthError) Error() string {
+	return e.Message
+}
+
 // GetUserByParticipantToken gets a user by their participant token
+// Returns specific error codes for different failure scenarios
 func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, error) {
 	res, err := queries().GetUserByParticipantToken(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
-		return nil, err
+		// Check if the token exists but workshop is inactive
+		status, statusErr := queries().CheckParticipantTokenStatus(ctx, sql.NullString{String: token, Valid: true})
+		if statusErr == nil && status.TokenExists {
+			// Token exists but query failed - likely inactive workshop
+			workshopActive, ok := status.WorkshopActive.(bool)
+			if ok && !workshopActive {
+				return nil, &ParticipantAuthError{
+					Code:    "workshop_inactive",
+					Message: "Workshop is inactive",
+				}
+			}
+		}
+		// Token doesn't exist or other error
+		return nil, &ParticipantAuthError{
+			Code:    "invalid_token",
+			Message: "Invalid participant token",
+		}
 	}
 	// Get full user details with role
 	return GetUserByID(ctx, res.ID)

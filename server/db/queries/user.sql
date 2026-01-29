@@ -35,6 +35,29 @@ WHERE u.participant_token = $1
   AND w.active = true
   AND w.deleted_at IS NULL;
 
+-- name: CheckParticipantTokenStatus :one
+-- Check if a participant token exists and get the workshop active status
+-- Returns: exists (bool), workshop_active (bool)
+SELECT 
+  EXISTS(
+    SELECT 1 FROM app_user u
+    INNER JOIN user_role ur ON u.id = ur.user_id
+    WHERE u.participant_token = $1 
+      AND u.deleted_at IS NULL
+      AND ur.role = 'participant'
+  ) AS token_exists,
+  COALESCE(
+    (SELECT w.active FROM app_user u
+     INNER JOIN user_role ur ON u.id = ur.user_id
+     INNER JOIN workshop w ON ur.workshop_id = w.id
+     WHERE u.participant_token = $1 
+       AND u.deleted_at IS NULL
+       AND ur.role = 'participant'
+       AND w.deleted_at IS NULL
+     LIMIT 1),
+    false
+  ) AS workshop_active;
+
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
 

@@ -32,6 +32,42 @@ func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedIn
 	return err
 }
 
+const checkParticipantTokenStatus = `-- name: CheckParticipantTokenStatus :one
+SELECT 
+  EXISTS(
+    SELECT 1 FROM app_user u
+    INNER JOIN user_role ur ON u.id = ur.user_id
+    WHERE u.participant_token = $1 
+      AND u.deleted_at IS NULL
+      AND ur.role = 'participant'
+  ) AS token_exists,
+  COALESCE(
+    (SELECT w.active FROM app_user u
+     INNER JOIN user_role ur ON u.id = ur.user_id
+     INNER JOIN workshop w ON ur.workshop_id = w.id
+     WHERE u.participant_token = $1 
+       AND u.deleted_at IS NULL
+       AND ur.role = 'participant'
+       AND w.deleted_at IS NULL
+     LIMIT 1),
+    false
+  ) AS workshop_active
+`
+
+type CheckParticipantTokenStatusRow struct {
+	TokenExists    bool
+	WorkshopActive interface{}
+}
+
+// Check if a participant token exists and get the workshop active status
+// Returns: exists (bool), workshop_active (bool)
+func (q *Queries) CheckParticipantTokenStatus(ctx context.Context, participantToken sql.NullString) (CheckParticipantTokenStatusRow, error) {
+	row := q.db.QueryRowContext(ctx, checkParticipantTokenStatus, participantToken)
+	var i CheckParticipantTokenStatusRow
+	err := row.Scan(&i.TokenExists, &i.WorkshopActive)
+	return i, err
+}
+
 const countUserGames = `-- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
