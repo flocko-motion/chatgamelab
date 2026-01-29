@@ -5,6 +5,7 @@ import (
 	"cgl/db"
 	"cgl/log"
 	"cgl/obj"
+	"context"
 	"net/http"
 	"time"
 
@@ -28,23 +29,30 @@ type CreateWorkshopInviteRequest struct {
 
 // InviteResponse represents an invite response
 type InviteResponse struct {
-	ID            string  `json:"id"`
-	InstitutionID string  `json:"institutionId"`
-	Role          string  `json:"role"`
-	WorkshopID    *string `json:"workshopId,omitempty"`
-	InvitedUserID *string `json:"invitedUserId,omitempty"`
-	InvitedEmail  *string `json:"invitedEmail,omitempty"`
-	InviteToken   *string `json:"inviteToken,omitempty"`
-	MaxUses       *int32  `json:"maxUses,omitempty"`
-	UsesCount     int32   `json:"usesCount"`
-	ExpiresAt     *string `json:"expiresAt,omitempty"`
-	Status        string  `json:"status"`
-	CreatedAt     string  `json:"createdAt"`
-	ModifiedAt    *string `json:"modifiedAt,omitempty"`
+	ID              string  `json:"id"`
+	InstitutionID   string  `json:"institutionId"`
+	InstitutionName *string `json:"institutionName,omitempty"`
+	Role            string  `json:"role"`
+	WorkshopID      *string `json:"workshopId,omitempty"`
+	WorkshopName    *string `json:"workshopName,omitempty"`
+	InvitedUserID   *string `json:"invitedUserId,omitempty"`
+	InvitedEmail    *string `json:"invitedEmail,omitempty"`
+	InviteToken     *string `json:"inviteToken,omitempty"`
+	MaxUses         *int32  `json:"maxUses,omitempty"`
+	UsesCount       int32   `json:"usesCount"`
+	ExpiresAt       *string `json:"expiresAt,omitempty"`
+	Status          string  `json:"status"`
+	CreatedAt       string  `json:"createdAt"`
+	ModifiedAt      *string `json:"modifiedAt,omitempty"`
 }
 
 // toInviteResponse converts an obj.UserRoleInvite to InviteResponse
 func toInviteResponse(inv obj.UserRoleInvite) InviteResponse {
+	return toInviteResponseWithContext(context.Background(), inv)
+}
+
+// toInviteResponseWithContext converts an obj.UserRoleInvite to InviteResponse with context for fetching names
+func toInviteResponseWithContext(ctx context.Context, inv obj.UserRoleInvite) InviteResponse {
 	resp := InviteResponse{
 		ID:            inv.ID.String(),
 		InstitutionID: inv.InstitutionID.String(),
@@ -53,9 +61,18 @@ func toInviteResponse(inv obj.UserRoleInvite) InviteResponse {
 		Status:        string(inv.Status),
 	}
 
+	// Fetch institution name (no permission check - just for display)
+	if name, err := db.GetInstitutionName(ctx, inv.InstitutionID); err == nil {
+		resp.InstitutionName = &name
+	}
+
 	if inv.WorkshopID != nil {
 		wsID := inv.WorkshopID.String()
 		resp.WorkshopID = &wsID
+		// Fetch workshop name (no permission check - just for display)
+		if name, err := db.GetWorkshopName(ctx, *inv.WorkshopID); err == nil {
+			resp.WorkshopName = &name
+		}
 	}
 	if inv.InvitedUserID != nil {
 		userID := inv.InvitedUserID.String()
@@ -242,7 +259,7 @@ func GetInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, invite)
+	httpx.WriteJSON(w, http.StatusOK, toInviteResponseWithContext(r.Context(), invite))
 }
 
 // CreateInstitutionInvite godoc
