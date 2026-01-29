@@ -42,7 +42,7 @@ export interface GameInfo {
 // Player State
 // ============================================================================
 
-export type GamePhase = 'selecting-key' | 'starting' | 'playing' | 'error';
+export type GamePhase = 'selecting-key' | 'starting' | 'playing' | 'error' | 'needs-api-key';
 
 export interface GamePlayerState {
   phase: GamePhase;

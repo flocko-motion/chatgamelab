@@ -12,6 +12,8 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/hooks';
 import { useTranslation } from 'react-i18next';
 import { 
   IconArrowLeft, 
@@ -98,6 +100,7 @@ interface GamePlayerProps {
 export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
   const { isMobile } = useResponsiveDesign();
@@ -114,7 +117,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
   );
-  const { state, startSession, sendAction, loadExistingSession, resetGame } = useGameSession(gameId || '');
+  const { state, startSession, sendAction, loadExistingSession, updateSessionApiKey, resetGame } = useGameSession(gameId || '');
 
   const [themeOverridesBySessionId, setThemeOverridesBySessionId] = useState<Record<string, PartialGameTheme>>({});
   const themeOverride = state.sessionId ? (themeOverridesBySessionId[state.sessionId] ?? null) : null;
@@ -125,6 +128,19 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       ...prev,
       [state.sessionId as string]: theme,
     }));
+  }, [state.sessionId]);
+
+  const handleNeutralThemeToggle = useCallback(() => {
+    // Clear theme override when toggling neutral theme
+    // This ensures clean switch between default preset and original API theme
+    if (state.sessionId) {
+      setThemeOverridesBySessionId((prev) => {
+        const newOverrides = { ...prev };
+        delete newOverrides[state.sessionId as string];
+        return newOverrides;
+      });
+    }
+    setUseNeutralTheme((prev) => !prev);
   }, [state.sessionId]);
 
   useEffect(() => {
@@ -158,11 +174,18 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     await startSession({ shareId, model });
   };
 
+  const handleUpdateApiKey = async (shareId: string, model?: string) => {
+    await updateSessionApiKey(shareId, model);
+  };
+
   const handleSendAction = async (message: string) => {
     await sendAction(message);
   };
 
   const handleBack = () => {
+    // Invalidate queries so the games/sessions lists refresh with any new sessions
+    queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
     navigate({ to: (isContinuation ? '/sessions' : '/play') as '/' });
   };
 
@@ -286,6 +309,30 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           error={state.errorObject}
           message={!state.errorObject ? state.error || undefined : undefined}
           title={t('gamePlayer.error.sessionFailed')}
+        />
+      </>
+    );
+  }
+
+  // Session exists but API key was deleted - prompt for new key
+  if (state.phase === 'needs-api-key') {
+    return (
+      <>
+        <Box className={classes.container} h={containerHeight}>
+          <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
+            <IconAlertCircle size={48} color="var(--mantine-color-orange-5)" />
+            <Text size="lg" fw={600}>{t('gamePlayer.needsApiKey.title')}</Text>
+            <Text c="dimmed" ta="center">{t('gamePlayer.needsApiKey.description')}</Text>
+          </Stack>
+        </Box>
+        <ApiKeySelectModal
+          opened={true}
+          onClose={handleBack}
+          onStart={handleUpdateApiKey}
+          gameId={state.gameInfo?.id}
+          gameName={state.gameInfo?.name}
+          isLoading={isSessionStarting}
+          reason={t('gamePlayer.needsApiKey.reason')}
         />
       </>
     );
@@ -461,12 +508,12 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   </Menu.Item>
                   <Menu.Item
                     closeMenuOnClick={false}
-                    onClick={() => setUseNeutralTheme(!useNeutralTheme)}
+                    onClick={handleNeutralThemeToggle}
                   >
                     <Checkbox
                       label={t('gamePlayer.header.useNeutralTheme')}
                       checked={useNeutralTheme}
-                      onChange={() => setUseNeutralTheme(!useNeutralTheme)}
+                      onChange={handleNeutralThemeToggle}
                       size="sm"
                       styles={{ input: { cursor: 'pointer' }, label: { cursor: 'pointer' } }}
                     />
