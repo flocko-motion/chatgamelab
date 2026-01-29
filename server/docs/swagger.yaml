@@ -14,8 +14,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -241,8 +242,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -850,8 +852,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -923,6 +926,13 @@ definitions:
   routes.UpdateInstitutionRequest:
     properties:
       name:
+        type: string
+    type: object
+  routes.UpdateSessionRequest:
+    properties:
+      model:
+        type: string
+      shareId:
         type: string
     type: object
   routes.UpdateWorkshopRequest:
@@ -2560,6 +2570,55 @@ paths:
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
       summary: Get session
+      tags:
+      - sessions
+    patch:
+      consumes:
+      - application/json
+      description: Updates session settings, such as the API key. Used when resuming
+        a session whose API key was deleted.
+      parameters:
+      - description: Session ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update session request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.GameSession'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Session not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update session
       tags:
       - sessions
     post:

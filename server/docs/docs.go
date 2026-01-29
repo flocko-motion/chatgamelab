@@ -2502,6 +2502,80 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Update session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update session request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.GameSession"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/status": {
@@ -3303,7 +3377,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -3609,7 +3683,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -4488,7 +4562,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -4596,6 +4670,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.UpdateSessionRequest": {
+            "type": "object",
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "shareId": {
                     "type": "string"
                 }
             }

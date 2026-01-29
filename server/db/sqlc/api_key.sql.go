@@ -13,6 +13,42 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearGameSponsoredApiKey = `-- name: ClearGameSponsoredApiKey :exec
+UPDATE game
+SET
+  public_sponsored_api_key_id = CASE WHEN public_sponsored_api_key_id = $1 THEN NULL ELSE public_sponsored_api_key_id END,
+  private_sponsored_api_key_id = CASE WHEN private_sponsored_api_key_id = $1 THEN NULL ELSE private_sponsored_api_key_id END,
+  modified_at = now()
+WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1
+`
+
+func (q *Queries) ClearGameSponsoredApiKey(ctx context.Context, publicSponsoredApiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKey, publicSponsoredApiKeyID)
+	return err
+}
+
+const clearSessionApiKeyID = `-- name: ClearSessionApiKeyID :exec
+UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1
+`
+
+func (q *Queries) ClearSessionApiKeyID(ctx context.Context, apiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearSessionApiKeyID, apiKeyID)
+	return err
+}
+
+const clearUserDefaultApiKeyShareByApiKeyID = `-- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
+UPDATE app_user
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+)
+`
+
+func (q *Queries) ClearUserDefaultApiKeyShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearUserDefaultApiKeyShareByApiKeyID, apiKeyID)
+	return err
+}
+
 const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (
