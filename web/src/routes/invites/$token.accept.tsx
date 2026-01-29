@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Container, Stack, Card, Center, Loader, Alert, TextInput, Title, Text } from '@mantine/core';
+import { Container, Stack, Card, Center, Loader, Alert, Title, Text } from '@mantine/core';
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
@@ -27,7 +27,6 @@ function AcceptInvitePage() {
   const [state, setState] = useState<'loading' | 'ready' | 'accepting' | 'success' | 'error'>('loading');
   const [invite, setInvite] = useState<InviteDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState('');
 
   // Fetch invite details on mount
   useEffect(() => {
@@ -72,9 +71,7 @@ function AcceptInvitePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          displayName: displayName.trim() || undefined,
-        }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -153,26 +150,19 @@ function AcceptInvitePage() {
     <Container size="sm" py="xl">
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Stack gap="lg">
-          <Title order={2} ta="center">{t('invites.accept.title')}</Title>
+          <Title order={2} ta="center">
+            {invite?.workshopName 
+              ? t('invites.accept.titleWithWorkshop', { workshop: invite.workshopName })
+              : t('invites.accept.title')
+            }
+          </Title>
 
-          {invite?.workshopName && (
-            <Alert color="cyan" variant="light">
-              <Text size="sm">
-                {t('invites.accept.workshopInvite', {
-                  workshop: invite.workshopName,
-                  institution: invite.institutionName || '',
-                })}
-              </Text>
-            </Alert>
-          )}
-
-          <TextInput
-            label={t('invites.accept.displayNameLabel')}
-            placeholder={t('invites.accept.displayNamePlaceholder')}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.currentTarget.value)}
-            description={t('invites.accept.displayNameHint')}
-          />
+          <Text ta="center" c="dimmed">
+            {invite?.institutionName
+              ? t('invites.accept.inviteMessage', { organization: invite.institutionName })
+              : t('invites.accept.inviteMessageSimple')
+            }
+          </Text>
 
           <ActionButton
             onClick={handleAccept}
