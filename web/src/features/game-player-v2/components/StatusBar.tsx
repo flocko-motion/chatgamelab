@@ -14,6 +14,7 @@ export function StatusBar({ statusFields }: StatusBarProps) {
   const [changedFields, setChangedFields] = useState<Set<string>>(new Set());
   
   // Detect value changes and trigger animation
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: update animation state when values change */
   useEffect(() => {
     const newChangedFields = new Set<string>();
     

@@ -105,6 +105,7 @@ export function useImagePolling({
     }
   }, [messageId, enabled]);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: reset state when messageId changes */
   useEffect(() => {
     if (!enabled || !messageId) {
       return;

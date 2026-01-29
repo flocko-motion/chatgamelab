@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { apiLogger } from "@/config/logger";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { queryKeys } from "@/api/hooks";
@@ -118,7 +119,7 @@ export function useGameSession(gameId: string) {
                   return;
                 }
               } catch (e) {
-                console.error("Failed to parse stream chunk:", e);
+                apiLogger.error("Failed to parse stream chunk", { error: e });
               }
             }
           }
@@ -127,7 +128,7 @@ export function useGameSession(gameId: string) {
         setState((prev) => ({ ...prev, isWaitingForResponse: false }));
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
-          console.error("Stream error:", error);
+          apiLogger.error("Stream error", { error });
           setState((prev) => ({ ...prev, isWaitingForResponse: false }));
         }
       }

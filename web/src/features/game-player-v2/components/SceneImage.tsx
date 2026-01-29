@@ -17,6 +17,7 @@ export function SceneImage({ messageId, imagePrompt }: SceneImageProps) {
   const [pollingComplete, setPollingComplete] = useState(false);
 
   // Reset polling state when messageId changes
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: reset state when messageId changes */
   useEffect(() => {
     setPollingComplete(false);
     setLoadedSrc(null);

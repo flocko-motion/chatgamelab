@@ -178,6 +178,7 @@ export function ApiKeySelectModal({
   };
 
   // Initialize selection - prefer sponsor key, then default, then first available
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: initialize selection on mount */
   useEffect(() => {
     if (keyOptions.length === 0 || initializedFromStorage) return;
     

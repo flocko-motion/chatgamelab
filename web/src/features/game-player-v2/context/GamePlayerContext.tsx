@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- Hook and context must be co-located */
 import { createContext, useContext, type ReactNode } from 'react';
 import type { GamePlayerState, GameSessionConfig, GameTheme } from '../types';
 
