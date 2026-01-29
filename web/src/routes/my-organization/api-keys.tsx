@@ -6,6 +6,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { getUserInstitutionId, Role, hasRole } from '@/common/lib/roles';
 import { ApiKeysTab } from '@/features/my-organization/components/ApiKeysTab';
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 
 export const Route = createFileRoute('/my-organization/api-keys')({
@@ -24,7 +25,7 @@ function OrganizationApiKeysPage() {
 
   // Fetch institution details
   const { data: institution } = useQuery({
-    queryKey: ['institution', institutionId],
+    queryKey: queryKeys.institution(institutionId!),
     queryFn: async () => {
       if (!institutionId) return null;
       const response = await api.institutions.institutionsDetail(institutionId);
