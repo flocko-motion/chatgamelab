@@ -121,10 +121,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Export a wrapper that uses React's ErrorBoundary for better error catching
+// Export a wrapper that uses ErrorBoundary for better error catching
 export function ErrorBoundaryWrapper({ children, fallback, onError }: Props) {
   return (
-    <Component
+    <ErrorBoundary
       fallback={fallback}
       onError={(error: Error, errorInfo: ErrorInfo) => {
         uiLogger.error('Unhandled error', { error, errorInfo });
@@ -134,6 +134,6 @@ export function ErrorBoundaryWrapper({ children, fallback, onError }: Props) {
       }}
     >
       {children}
-    </Component>
+    </ErrorBoundary>
   );
 }

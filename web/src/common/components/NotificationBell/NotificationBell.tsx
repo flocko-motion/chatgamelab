@@ -16,6 +16,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconBell } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useAuth } from '@/providers/AuthProvider';
 import { queryKeys } from '@/api/hooks';
@@ -50,6 +51,8 @@ export function NotificationBell() {
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
+  const [declineModalOpened, { open: openDeclineModal, close: closeDeclineModal }] = useDisclosure(false);
+  const [inviteToDecline, setInviteToDecline] = useState<RoutesInviteResponse | null>(null);
   const hasAutoOpened = useRef(false);
 
   // Admins don't have invites - disable query and hide the bell
@@ -64,15 +67,28 @@ export function NotificationBell() {
     enabled: !isAdmin, // Don't fetch invites for admins
   });
 
+  const navigate = useNavigate();
+
   const acceptMutation = useMutation({
     mutationFn: async (inviteId: string) => {
       const response = await api.invites.acceptCreate(inviteId);
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
-      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+      // Mark all invites as seen to prevent auto-reopen
+      const inviteIds = pendingInvites.map((inv) => inv.id).filter(Boolean) as string[];
+      if (inviteIds.length > 0) {
+        markInvitesAsSeen(inviteIds);
+      }
+      
+      queryClient.refetchQueries({ queryKey: queryKeys.invites });
+      queryClient.refetchQueries({ queryKey: queryKeys.currentUser });
       retryBackendFetch(); // Refresh user's organization data
+      close(); // Close the notifications modal
+      // Delay navigation slightly to ensure modal closes
+      setTimeout(() => {
+        navigate({ to: '/my-organization' });
+      }, 100);
     },
   });
 
@@ -82,14 +98,22 @@ export function NotificationBell() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+      queryClient.refetchQueries({ queryKey: queryKeys.invites });
+      closeDeclineModal();
+      setInviteToDecline(null);
+      // If no more pending invites, close the main modal
+      if (pendingInvites.length <= 1) {
+        handleClose();
+      }
     },
   });
 
+  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler limitation */
   const pendingInvites = useMemo(
     () => invites?.filter((inv) => inv.status === 'pending') || [],
     [invites]
   );
+  /* eslint-enable react-hooks/preserve-manual-memoization */
   const pendingCount = pendingInvites.length;
 
   // Fetch organization and workshop names for invites
@@ -139,6 +163,7 @@ export function NotificationBell() {
   const hasUnseenInvites = unseenInvites.length > 0;
 
   // Mark invites as seen when modal closes
+  /* eslint-disable react-hooks/preserve-manual-memoization -- React Compiler limitation */
   const handleClose = useCallback(() => {
     const inviteIds = pendingInvites.map((inv) => inv.id).filter(Boolean) as string[];
     if (inviteIds.length > 0) {
@@ -146,6 +171,7 @@ export function NotificationBell() {
     }
     close();
   }, [pendingInvites, close]);
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   // Auto-open modal once if there are unseen invites
   useEffect(() => {
@@ -175,9 +201,19 @@ export function NotificationBell() {
     acceptMutation.mutate(inviteId);
   };
 
-  const handleDecline = (inviteId: string) => {
-    if (confirm(t('notifications.declineConfirm'))) {
-      declineMutation.mutate(inviteId);
+  const handleDecline = (invite: RoutesInviteResponse) => {
+    setInviteToDecline(invite);
+    openDeclineModal();
+  };
+
+  const confirmDecline = () => {
+    if (inviteToDecline?.id) {
+      declineMutation.mutate(inviteToDecline.id, {
+        onSuccess: () => {
+          closeDeclineModal();
+          setInviteToDecline(null);
+        },
+      });
     }
   };
 
@@ -245,8 +281,7 @@ export function NotificationBell() {
                       variant="subtle"
                       color="gray"
                       size="xs"
-                      onClick={() => handleDecline(invite.id!)}
-                      loading={declineMutation.isPending}
+                      onClick={() => handleDecline(invite)}
                     >
                       {t('notifications.decline')}
                     </Button>
@@ -263,6 +298,35 @@ export function NotificationBell() {
             ))}
           </Stack>
         )}
+      </Modal>
+
+      {/* Decline Confirmation Modal */}
+      <Modal
+        opened={declineModalOpened}
+        onClose={() => { closeDeclineModal(); setInviteToDecline(null); }}
+        title={t('notifications.declineTitle')}
+        size="sm"
+      >
+        <Stack gap="md">
+          <Text>
+            {t('notifications.declineConfirm')}
+          </Text>
+          <Group justify="flex-end" gap="xs">
+            <Button
+              variant="subtle"
+              onClick={() => { closeDeclineModal(); setInviteToDecline(null); }}
+            >
+              {t('cancel')}
+            </Button>
+            <Button
+              color="red"
+              onClick={confirmDecline}
+              loading={declineMutation.isPending}
+            >
+              {t('notifications.decline')}
+            </Button>
+          </Group>
+        </Stack>
       </Modal>
     </>
   );
