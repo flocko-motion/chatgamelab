@@ -4,6 +4,8 @@ import (
 	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -195,6 +197,101 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 			ModifiedAt: &result.ModifiedAt,
 		},
 	}, nil
+}
+
+// ListWorkshopsOptions contains filtering and sorting options for listing workshops
+type ListWorkshopsOptions struct {
+	Search     string
+	SortBy     string // "name", "createdAt", "participantCount"
+	SortDir    string // "asc", "desc"
+	ActiveOnly *bool
+}
+
+// ListWorkshopsWithOptions retrieves workshops with optional institution filter and options
+func ListWorkshopsWithOptions(ctx context.Context, userID uuid.UUID, institutionID *uuid.UUID, opts ListWorkshopsOptions) ([]obj.Workshop, error) {
+	// Get base list first
+	workshops, err := ListWorkshops(ctx, userID, institutionID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply search filter
+	if opts.Search != "" {
+		searchLower := strings.ToLower(opts.Search)
+		filtered := make([]obj.Workshop, 0)
+		for _, w := range workshops {
+			if strings.Contains(strings.ToLower(w.Name), searchLower) {
+				filtered = append(filtered, w)
+			}
+		}
+		workshops = filtered
+	}
+
+	// Apply active filter
+	if opts.ActiveOnly != nil && *opts.ActiveOnly {
+		filtered := make([]obj.Workshop, 0)
+		for _, w := range workshops {
+			if w.Active {
+				filtered = append(filtered, w)
+			}
+		}
+		workshops = filtered
+	}
+
+	// Apply sorting
+	sortDir := opts.SortDir
+	if sortDir == "" {
+		sortDir = "asc"
+	}
+
+	switch opts.SortBy {
+	case "name":
+		sort.Slice(workshops, func(i, j int) bool {
+			if sortDir == "desc" {
+				return workshops[i].Name > workshops[j].Name
+			}
+			return workshops[i].Name < workshops[j].Name
+		})
+	case "createdAt":
+		sort.Slice(workshops, func(i, j int) bool {
+			ti := time.Time{}
+			tj := time.Time{}
+			if workshops[i].Meta.CreatedAt != nil {
+				ti = *workshops[i].Meta.CreatedAt
+			}
+			if workshops[j].Meta.CreatedAt != nil {
+				tj = *workshops[j].Meta.CreatedAt
+			}
+			if sortDir == "desc" {
+				return ti.After(tj)
+			}
+			return ti.Before(tj)
+		})
+	case "participantCount":
+		sort.Slice(workshops, func(i, j int) bool {
+			ci := len(workshops[i].Participants)
+			cj := len(workshops[j].Participants)
+			if sortDir == "desc" {
+				return ci > cj
+			}
+			return ci < cj
+		})
+	default:
+		// Default: sort by createdAt desc
+		sort.Slice(workshops, func(i, j int) bool {
+			ti := time.Time{}
+			tj := time.Time{}
+			if workshops[i].Meta.CreatedAt != nil {
+				ti = *workshops[i].Meta.CreatedAt
+			}
+			if workshops[j].Meta.CreatedAt != nil {
+				tj = *workshops[j].Meta.CreatedAt
+			}
+			return ti.After(tj)
+		})
+	}
+
+	return workshops, nil
 }
 
 // ListWorkshops retrieves workshops with optional institution filter

@@ -307,15 +307,11 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		return obj.ErrForbidden("only admin, head, or staff can list workshops")
 
 	case OpUpdate, OpDelete:
-		// Head can update/delete any workshop in their institution
-		if user.Role.Role == obj.RoleHead {
+		// Head or Staff can update/delete any workshop in their institution
+		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
 			return nil
 		}
-		// Staff can only update/delete workshops they created
-		if user.Role.Role == obj.RoleStaff && createdBy == userID {
-			return nil
-		}
-		return obj.ErrForbidden("only admin, head of institution, or staff who created the workshop can modify it")
+		return obj.ErrForbidden("only admin, head, or staff of the institution can modify workshops")
 
 	default:
 		return obj.ErrForbidden("unknown operation")

@@ -275,14 +275,20 @@ func CreateWorkshopInvite(
 		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
 	}
 
-	// Check permission using centralized system
-	// Creating invites requires update permission on the workshop
-	var createdByID uuid.UUID
-	if workshop.CreatedBy.Valid {
-		createdByID = workshop.CreatedBy.UUID
-	}
-	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, workshop.InstitutionID, &workshopID, createdByID); err != nil {
+	// Check permission: any head or staff of the institution can create workshop invites
+	// (unlike update/delete which requires the creator for staff)
+	if err := canAccessWorkshop(ctx, createdBy, OpRead, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
 		return obj.UserRoleInvite{}, err
+	}
+
+	// Check if there's already a pending invite for this workshop - return it instead of creating a new one
+	existingInvites, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
+	if err == nil {
+		for _, inv := range existingInvites {
+			if inv.Status == string(obj.InviteStatusPending) && inv.InviteToken.Valid {
+				return dbInviteToObj(inv), nil
+			}
+		}
 	}
 
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
