@@ -32,7 +32,10 @@ export interface DbUserSessionWithGame {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
@@ -171,7 +174,10 @@ export interface ObjGameSession {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
@@ -523,7 +529,10 @@ export interface RoutesSessionResponse {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
@@ -567,6 +576,11 @@ export interface RoutesUpdateApiKeyRequest {
 
 export interface RoutesUpdateInstitutionRequest {
   name?: string;
+}
+
+export interface RoutesUpdateSessionRequest {
+  model?: string;
+  shareId?: string;
 }
 
 export interface RoutesUpdateWorkshopRequest {
@@ -1860,6 +1874,30 @@ export class Api<
         path: `/sessions/${id}`,
         method: "DELETE",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+     *
+     * @tags sessions
+     * @name SessionsPartialUpdate
+     * @summary Update session
+     * @request PATCH:/sessions/{id}
+     * @secure
+     */
+    sessionsPartialUpdate: (
+      id: string,
+      request: RoutesUpdateSessionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGameSession, HttpxErrorResponse>({
+        path: `/sessions/${id}`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

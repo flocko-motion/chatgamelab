@@ -327,13 +327,23 @@ export function useCloneGame() {
 }
 
 export function useExportGameYaml() {
-  const api = useRequiredAuthenticatedApi();
+  const { getAccessTokenSilently } = useAuth0();
 
   return useMutation<string, HttpxErrorResponse, string>({
     mutationFn: async (id) => {
-      const response = await api.games.yamlList(id);
-      // The response is text/yaml, so we need to get it as text
-      return response.data as unknown as string;
+      const token = await getAccessTokenSilently();
+      const response = await fetch(`${config.API_BASE_URL}/games/${id}/yaml`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/x-yaml",
+        },
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw error;
+      }
+      return response.text();
     },
     onError: handleApiError,
   });
