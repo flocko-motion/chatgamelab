@@ -34,181 +34,181 @@ RETURNING *;
 SELECT * FROM game WHERE id = $1;
 
 -- name: GetGamesVisibleToUser :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at DESC;
 
 -- name: GetGamesVisibleToUserSortedByName :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) ASC;
 
 -- name: GetGamesVisibleToUserSortedByNameDesc :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) DESC;
 
 -- name: GetGamesVisibleToUserSortedByCreatedAt :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at ASC;
 
 -- name: GetGamesVisibleToUserSortedByModifiedAt :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at DESC;
 
 -- name: GetGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at ASC;
 
 -- name: SearchGamesVisibleToUser :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC;
 
 -- name: SearchGamesVisibleToUserSortedByName :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC;
 
 -- name: SearchGamesVisibleToUserSortedByNameDesc :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC;
 
 -- name: SearchGamesVisibleToUserSortedByCreatedAt :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC;
 
 -- name: SearchGamesVisibleToUserSortedByModifiedAt :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC;
 
 -- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
 
 -- name: GetGameIDsVisibleToUser :many
-SELECT id FROM game WHERE created_by = $1 OR public = true;
+SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true);
 
 -- Own games (created by user) queries
 -- name: GetOwnGames :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at DESC;
 
 -- name: GetOwnGamesSortedByName :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) ASC;
 
 -- name: GetOwnGamesSortedByNameDesc :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY LOWER(name) DESC;
 
 -- name: GetOwnGamesSortedByCreatedAt :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY created_at ASC;
 
 -- name: GetOwnGamesSortedByModifiedAt :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at DESC;
 
 -- name: GetOwnGamesSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY modified_at ASC;
 
 -- name: SearchOwnGames :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC;
 
 -- name: SearchOwnGamesSortedByName :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC;
 
 -- name: SearchOwnGamesSortedByNameDesc :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC;
 
 -- name: SearchOwnGamesSortedByCreatedAt :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC;
 
 -- name: SearchOwnGamesSortedByModifiedAt :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC;
 
 -- name: SearchOwnGamesSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
 
 -- name: GetOwnGamesSortedByPlayCount :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count DESC;
 
 -- name: GetOwnGamesSortedByPlayCountAsc :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY play_count ASC;
 
 -- name: GetOwnGamesSortedByVisibility :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY public DESC, modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public DESC, modified_at DESC;
 
 -- name: GetOwnGamesSortedByVisibilityAsc :many
-SELECT * FROM game WHERE created_by = $1 ORDER BY public ASC, modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 ORDER BY public ASC, modified_at DESC;
 
 -- name: SearchOwnGamesSortedByPlayCount :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
 
 -- name: SearchOwnGamesSortedByPlayCountAsc :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
 
 -- name: SearchOwnGamesSortedByVisibility :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public DESC, modified_at DESC;
 
 -- name: SearchOwnGamesSortedByVisibilityAsc :many
-SELECT * FROM game WHERE created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND created_by = $1 AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY public ASC, modified_at DESC;
 
 -- name: GetPublicGames :many
-SELECT * FROM game WHERE public = true ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at DESC;
 
 -- name: GetPublicGamesSortedByName :many
-SELECT * FROM game WHERE public = true ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) ASC;
 
 -- name: GetPublicGamesSortedByNameDesc :many
-SELECT * FROM game WHERE public = true ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY LOWER(name) DESC;
 
 -- name: GetPublicGamesSortedByCreatedAt :many
-SELECT * FROM game WHERE public = true ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY created_at ASC;
 
 -- name: GetPublicGamesSortedByModifiedAt :many
-SELECT * FROM game WHERE public = true ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at DESC;
 
 -- name: GetPublicGamesSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE public = true ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY modified_at ASC;
 
 -- name: SearchPublicGames :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC;
 
 -- name: SearchPublicGamesSortedByName :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC;
 
 -- name: SearchPublicGamesSortedByNameDesc :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC;
 
 -- name: SearchPublicGamesSortedByCreatedAt :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC;
 
 -- name: SearchPublicGamesSortedByModifiedAt :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC;
 
 -- name: SearchPublicGamesSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
 
 -- name: GetPublicGamesSortedByPlayCount :many
-SELECT * FROM game WHERE public = true ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count DESC;
 
 -- name: GetPublicGamesSortedByPlayCountAsc :many
-SELECT * FROM game WHERE public = true ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count ASC;
 
 -- name: SearchPublicGamesSortedByPlayCount :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
 
 -- name: SearchPublicGamesSortedByPlayCountAsc :many
-SELECT * FROM game WHERE public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC;
 
 -- Games visible to user with additional sort options
 -- name: GetGamesVisibleToUserSortedByPlayCount :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY play_count DESC;
 
 -- name: GetGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT * FROM game WHERE created_by = $1 OR public = true ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY play_count ASC;
 
 -- name: SearchGamesVisibleToUserSortedByPlayCount :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
 
 -- name: SearchGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT * FROM game WHERE (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
 
 -- Creator sorting requires joining with user table
 -- name: GetGamesVisibleToUserSortedByCreator :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.created_by = $1 OR g.public = true ORDER BY LOWER(COALESCE(u.name, '')) ASC;
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) ASC;
 
 -- name: GetGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.created_by = $1 OR g.public = true ORDER BY LOWER(COALESCE(u.name, '')) DESC;
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) ORDER BY LOWER(COALESCE(u.name, '')) DESC;
 
 -- name: SearchGamesVisibleToUserSortedByCreator :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC;
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) ASC;
 
 -- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
-SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC;
+SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC;
 
 -- name: GetGameByPrivateShareHash :one
-SELECT * FROM game WHERE private_share_hash = $1;
+SELECT * FROM game WHERE deleted_at IS NULL AND private_share_hash = $1;
 
 -- name: GetGameTagsByGameID :many
 SELECT * FROM game_tag WHERE game_id = $1;
@@ -244,7 +244,10 @@ UPDATE game SET play_count = play_count + 1 WHERE id = $1;
 -- name: IncrementGameCloneCount :exec
 UPDATE game SET clone_count = clone_count + 1 WHERE id = $1;
 
--- name: DeleteGame :exec
+-- name: SoftDeleteGame :exec
+UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1;
+
+-- name: HardDeleteGame :exec
 DELETE FROM game WHERE id = $1;
 
 
@@ -394,8 +397,28 @@ UPDATE game_session SET
   is_organisation_unverified = $2
 WHERE id = $1;
 
+-- name: UpdateGameSessionApiKey :one
+UPDATE game_session SET
+  modified_at = now(),
+  api_key_id = $2,
+  ai_platform = $3,
+  ai_model = $4
+WHERE id = $1
+RETURNING *;
+
+-- name: ClearGameSessionApiKeyByID :exec
+UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE id = $1;
+
 -- name: DeleteGameSession :exec
 DELETE FROM game_session WHERE id = $1;
+
+-- name: DeleteNewlyCreatedGameSession :exec
+-- Deletes a session and its messages if it has at most 1 message (the streaming placeholder)
+-- Used to clean up sessions that failed during initial action before any real content was generated
+DELETE FROM game_session_message WHERE game_session_id = $1;
+
+-- name: DeleteEmptyGameSession :exec
+DELETE FROM game_session gs WHERE gs.id = $1;
 
 
 -- game_session_message -------------------------------------------------
