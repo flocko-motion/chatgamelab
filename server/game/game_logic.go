@@ -102,7 +102,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		GameID:       game.ID,
 		GameName:     game.Name,
 		UserID:       userID,
-		ApiKeyID:     share.ApiKey.ID,
+		ApiKeyID:     &share.ApiKey.ID,
 		ApiKey:       share.ApiKey,
 		AiPlatform:   share.ApiKey.Platform,
 		AiModel:      aiModel,
@@ -140,6 +140,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		Message:       systemMessage,
 	}
 	response, httpErr := DoSessionAction(ctx, session, startAction)
+	if httpErr != nil {
+		// Clean up: delete session if first action failed (0 messages = nothing to preserve)
+		log.Debug("initial action failed, deleting empty session", "session_id", session.ID, "error", httpErr.Message)
+		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
+			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
+		}
+	}
 	return session, response, httpErr
 }
 
@@ -170,12 +177,16 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 
 	// Store player/system action message (skip for system messages which are just prompts)
+	// Track the player message so we can delete it if the AI action fails
+	var playerMessageID *uuid.UUID
 	if action.Type == obj.GameSessionMessageTypePlayer {
 		log.Debug("storing player action message", "session_id", session.ID)
-		if _, err = db.CreateGameSessionMessage(ctx, session.UserID, action); err != nil {
+		playerMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
+		if err != nil {
 			log.Debug("failed to store player action", "session_id", session.ID, "error", err)
 			return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: failed to store player action: %v", failedAction, err)}
 		}
+		playerMessageID = &playerMsg.ID
 	}
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
@@ -197,13 +208,28 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	if err = platform.ExecuteAction(ctx, session, action, response); err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
 		responseStream.SendError(err.Error())
-		response.Type = "error"
-		response.Message = err.Error()
-		response.Stream = false
-		_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
-		// Extract AI error code for frontend
+		// Delete the placeholder message instead of saving empty/error content
+		if delErr := db.DeleteGameSessionMessage(ctx, response.ID); delErr != nil {
+			log.Warn("failed to delete placeholder message after error", "message_id", response.ID, "error", delErr)
+		}
+
+		// Delete the player message too - it was never processed by the AI
+		if playerMessageID != nil {
+			if delErr := db.DeleteGameSessionMessage(ctx, *playerMessageID); delErr != nil {
+				log.Warn("failed to delete player message after error", "message_id", *playerMessageID, "error", delErr)
+			}
+		}
+
+		// Extract AI error code and clear API key for key-related errors
 		errorCode := extractAIErrorCode(err)
+		if errorCode == obj.ErrCodeBillingNotActive || errorCode == obj.ErrCodeInvalidApiKey || errorCode == obj.ErrCodeInsufficientQuota {
+			log.Debug("clearing session API key due to key error", "session_id", session.ID, "error_code", errorCode)
+			if clearErr := db.ClearGameSessionApiKey(ctx, session.ID); clearErr != nil {
+				log.Warn("failed to clear session API key", "session_id", session.ID, "error", clearErr)
+			}
+		}
+
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
@@ -251,11 +277,19 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
 			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
 
-			// Check for organization verification error and mark session
+			// Check for errors that require action
 			errorCode := extractAIErrorCode(err)
-			if errorCode == obj.ErrCodeOrgVerificationRequired {
+			switch errorCode {
+			case obj.ErrCodeOrgVerificationRequired:
+				// Mark session as having unverified organization (user needs to verify with OpenAI)
 				if dbErr := db.UpdateGameSessionOrganisationUnverified(context.Background(), session.ID, true); dbErr != nil {
 					log.Warn("failed to update session org unverified status", "error", dbErr)
+				}
+			case obj.ErrCodeBillingNotActive, obj.ErrCodeInvalidApiKey, obj.ErrCodeInsufficientQuota:
+				// API key is no longer valid - clear it so user can select a new one
+				log.Info("clearing invalid API key from session", "session_id", session.ID, "error_code", errorCode)
+				if dbErr := db.ClearGameSessionApiKey(context.Background(), session.ID); dbErr != nil {
+					log.Warn("failed to clear session API key", "error", dbErr)
 				}
 			}
 		} else {

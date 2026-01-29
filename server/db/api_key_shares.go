@@ -91,7 +91,22 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return err
 	}
 
-	// Delete all shares first
+	// Clear session api_key_id references (sessions can continue with a new key)
+	if err := queries().ClearSessionApiKeyID(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
+		return obj.ErrServerError("failed to clear session api key references")
+	}
+
+	// Clear user default_api_key_share_id references before deleting shares
+	if err := queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
+		return obj.ErrServerError("failed to clear user default api key references")
+	}
+
+	// Clear game sponsored API key references before deleting the key
+	if err := queries().ClearGameSponsoredApiKey(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
+		return obj.ErrServerError("failed to clear game sponsored api key references")
+	}
+
+	// Delete all shares
 	if err := queries().DeleteApiKeySharesByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to delete shares")
 	}

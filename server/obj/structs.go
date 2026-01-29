@@ -215,8 +215,9 @@ type GameSession struct {
 	WorkshopID      *uuid.UUID `json:"workshopId,omitempty"`
 	UserName        string     `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-	ApiKeyID uuid.UUID `json:"apiKeyId"`
-	ApiKey   *ApiKey   `json:"apiKey"`
+	// Nullable: key may be deleted, session can continue with a new key.
+	ApiKeyID *uuid.UUID `json:"apiKeyId,omitempty"`
+	ApiKey   *ApiKey    `json:"apiKey,omitempty"`
 	// AI model used for playing.
 	AiPlatform string `json:"aiPlatform"`
 	AiModel    string `json:"aiModel"`
