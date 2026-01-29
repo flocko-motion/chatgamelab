@@ -28,7 +28,7 @@ function RootComponent() {
   const isGamePlayerRoute = pathname.includes('/play') || pathname.startsWith('/sessions/');
   
   // Public routes that don't require authentication
-  const isPublicRoute = isHomePage || pathname.startsWith(ROUTES.AUTH_LOGIN);
+  const isPublicRoute = isHomePage || pathname.startsWith(ROUTES.AUTH_LOGIN) || pathname.startsWith(ROUTES.INVITES);
 
   // Determine layout variant based on auth state
   const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;

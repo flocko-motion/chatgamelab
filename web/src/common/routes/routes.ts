@@ -26,6 +26,9 @@ export const ROUTES = {
   AUTH0_CALLBACK: '/auth/login/auth0/callback',
   AUTH0_LOGOUT_CALLBACK: '/auth/logout/auth0/callback',
 
+  // Invite routes (public - no auth required)
+  INVITES: '/invites',
+
   // My Games (user's own games - create/edit/play)
   MY_GAMES: '/my-games',
   MY_GAME_DETAIL: '/my-games/$gameId',
