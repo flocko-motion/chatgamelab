@@ -244,7 +244,10 @@ CREATE TABLE game (
     -- Tracking: original creator (for cloned games) and usage statistics
     originally_created_by           uuid NULL REFERENCES app_user(id),
     play_count                      integer NOT NULL DEFAULT 0,
-    clone_count                     integer NOT NULL DEFAULT 0
+    clone_count                     integer NOT NULL DEFAULT 0,
+    
+    -- Soft delete: games are not hard-deleted to preserve session references
+    deleted_at                      timestamptz NULL
 );
 
 -- GameTag
@@ -276,7 +279,8 @@ CREATE TABLE game_session (
     -- Optional workshop scope (sessions can be created within a workshop context)
     workshop_id     uuid NULL REFERENCES workshop(id),
     -- API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-    api_key_id      uuid NOT NULL REFERENCES api_key(id),
+    -- Nullable: key may be deleted, session can continue with a new key.
+    api_key_id      uuid NULL REFERENCES api_key(id),
     -- AI platform used for playing (e.g. 'openai', 'anthropic').
     ai_platform     text NOT NULL,
     -- AI model used for playing (e.g. 'gpt-4o-mini').
