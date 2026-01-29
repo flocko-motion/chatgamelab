@@ -76,6 +76,15 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 	}, nil
 }
 
+// GetWorkshopName retrieves just the workshop name by ID (no permission check, for display only)
+func GetWorkshopName(ctx context.Context, id uuid.UUID) (string, error) {
+	result, err := queries().GetWorkshopByID(ctx, id)
+	if err != nil {
+		return "", obj.ErrNotFound("workshop not found")
+	}
+	return result.Name, nil
+}
+
 // GetWorkshopByID retrieves a workshop by ID (admin or any member of institution)
 func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.Workshop, error) {
 	result, err := queries().GetWorkshopByID(ctx, id)
