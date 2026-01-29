@@ -406,6 +406,10 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// Set HttpOnly cookie for participant session
+			// The authToken is the participant token (starts with "participant-")
+			httpx.SetSessionCookie(w, r, authToken)
+
 			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 				User:      createdUser,
 				AuthToken: &authToken,
