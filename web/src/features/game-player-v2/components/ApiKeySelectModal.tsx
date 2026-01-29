@@ -51,6 +51,8 @@ interface ApiKeySelectModalProps {
   gameId?: string;
   gameName?: string;
   isLoading?: boolean;
+  /** Optional reason message explaining why a new API key is needed (e.g., previous key was deleted) */
+  reason?: string;
 }
 
 export function ApiKeySelectModal({
@@ -60,6 +62,7 @@ export function ApiKeySelectModal({
   gameId,
   gameName,
   isLoading = false,
+  reason,
 }: ApiKeySelectModalProps) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
@@ -281,6 +284,12 @@ export function ApiKeySelectModal({
       centered={!isMobile}
     >
       <Stack gap="lg">
+        {reason && (
+          <Alert icon={<IconAlertCircle size={16} />} color="orange">
+            {reason}
+          </Alert>
+        )}
+
         {gameName && (
           <Box>
             <Text size="sm" c="dimmed">{t('gamePlayer.selectApiKey.playing')}</Text>

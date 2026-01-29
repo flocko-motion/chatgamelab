@@ -295,9 +295,12 @@ export function useGameSession(gameId: string) {
 
         const messages = (session.messages || []).map(mapApiMessageToScene);
 
+        // Check if session has no API key (key was deleted)
+        const needsNewApiKey = !session.apiKeyId;
+
         setState((prev) => ({
           ...prev,
-          phase: "playing",
+          phase: needsNewApiKey ? "needs-api-key" : "playing",
           sessionId,
           gameInfo: {
             id: session.gameId,
@@ -326,6 +329,41 @@ export function useGameSession(gameId: string) {
     [api],
   );
 
+  const updateSessionApiKey = useCallback(
+    async (shareId: string, model?: string) => {
+      if (!state.sessionId) return;
+
+      setState((prev) => ({ ...prev, phase: "starting" }));
+
+      try {
+        // Update the session with the new API key
+        await api.sessions.sessionsPartialUpdate(state.sessionId, {
+          shareId,
+          model,
+        });
+
+        // Transition to playing
+        setState((prev) => ({
+          ...prev,
+          phase: "playing",
+        }));
+
+        // Invalidate session query to refresh data
+        queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Failed to update session";
+        setState((prev) => ({
+          ...prev,
+          phase: "error",
+          error: message,
+          errorObject: error,
+        }));
+      }
+    },
+    [api, state.sessionId, queryClient],
+  );
+
   const resetGame = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -347,6 +385,7 @@ export function useGameSession(gameId: string) {
     startSession,
     sendAction,
     loadExistingSession,
+    updateSessionApiKey,
     resetGame,
   };
 }
