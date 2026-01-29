@@ -403,6 +403,11 @@
         "backToGames": "Back to Games",
         "tryAgain": "Try Again"
       },
+      "needsApiKey": {
+        "title": "API Key Required",
+        "description": "The API key used for this session is no longer available. Please select a new one to continue playing.",
+        "reason": "Your previous API key is no longer available. To continue your game, please select a new one."
+      },
       "header": {
         "back": "Back to games",
         "restart": "Restart game",

@@ -403,6 +403,11 @@
         "backToGames": "Zurück zu Spielen",
         "tryAgain": "Erneut versuchen"
       },
+      "needsApiKey": {
+        "title": "API-Schlüssel erforderlich",
+        "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar. Bitte wähle einen neuen aus, um weiterzuspielen.",
+        "reason": "Dein vorheriger API-Schlüssel ist nicht mehr verfügbar. Um dein Spiel fortzusetzen, wähle bitte einen neuen aus."
+      },
       "header": {
         "back": "Zurück zu deinen anderen laufenden Spielen",
         "restart": "Spiel neustarten",
