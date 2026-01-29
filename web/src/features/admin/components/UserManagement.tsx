@@ -17,9 +17,10 @@ import {
   Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
-import { IconTrash, IconAlertCircle, IconSearch, IconShieldCheck, IconShieldOff } from '@tabler/icons-react';
+import { IconTrash, IconAlertCircle, IconSearch, IconShieldCheck, IconShieldOff, IconEdit } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import { SortSelector, type SortOption } from '@/common/components/controls';
@@ -58,13 +59,16 @@ export function UserManagement() {
   const [userToDelete, setUserToDelete] = useState<ObjUser | null>(null);
   const [userToPromote, setUserToPromote] = useState<ObjUser | null>(null);
   const [userToRemoveAdmin, setUserToRemoveAdmin] = useState<ObjUser | null>(null);
+  const [userToEdit, setUserToEdit] = useState<ObjUser | null>(null);
+  const [editEmail, setEditEmail] = useState('');
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [promoteModalOpened, { open: openPromoteModal, close: closePromoteModal }] = useDisclosure(false);
   const [removeAdminModalOpened, { open: openRemoveAdminModal, close: closeRemoveAdminModal }] = useDisclosure(false);
+  const [editModalOpened, { open: openEditModal, close: closeEditModal }] = useDisclosure(false);
 
   // Fetch all users
   const { data: users, isLoading, error } = useQuery({
-    queryKey: ['admin-users'],
+    queryKey: queryKeys.adminUsers,
     queryFn: async () => {
       const response = await api.users.usersList();
       return response.data;
@@ -77,7 +81,7 @@ export function UserManagement() {
       await api.users.usersDelete(userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
       closeDeleteModal();
       setUserToDelete(null);
     },
@@ -89,7 +93,7 @@ export function UserManagement() {
       await api.users.roleCreate(userId, { role: 'admin' });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
       closePromoteModal();
       setUserToPromote(null);
     },
@@ -101,9 +105,22 @@ export function UserManagement() {
       await api.users.roleDelete(userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
       closeRemoveAdminModal();
       setUserToRemoveAdmin(null);
+    },
+  });
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, email }: { userId: string; email: string }) => {
+      await api.users.usersCreate(userId, { email });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
+      closeEditModal();
+      setUserToEdit(null);
+      setEditEmail('');
     },
   });
 
@@ -156,6 +173,12 @@ export function UserManagement() {
     setUserToRemoveAdmin(user);
     openRemoveAdminModal();
   }, [openRemoveAdminModal]);
+
+  const handleEdit = useCallback((user: ObjUser) => {
+    setUserToEdit(user);
+    setEditEmail(user.email || '');
+    openEditModal();
+  }, [openEditModal]);
 
   // Parse combined sort value into field and direction
   const [sortField, sortDirection] = sortValue.split('-') as [SortField, 'asc' | 'desc'];
@@ -347,6 +370,16 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
+                          <Tooltip label={t('admin.users.editEmail')}>
+                            <ActionIcon
+                              variant="light"
+                              color="blue"
+                              size="sm"
+                              onClick={() => handleEdit(user)}
+                            >
+                              <IconEdit size={14} />
+                            </ActionIcon>
+                          </Tooltip>
                           {!isCurrentUser(user.id) && (
                             <ActionIcon
                               variant="light"
@@ -432,6 +465,15 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
+                          <Tooltip label={t('admin.users.editEmail')}>
+                            <ActionIcon
+                              variant="subtle"
+                              color="blue"
+                              onClick={() => handleEdit(user)}
+                            >
+                              <IconEdit size={16} />
+                            </ActionIcon>
+                          </Tooltip>
                           {!isCurrentUser(user.id) && (
                             <ActionIcon
                               variant="subtle"
@@ -568,6 +610,45 @@ export function UserManagement() {
               loading={removeAdminMutation.isPending}
             >
               <IconShieldOff size={16} />
+            </ActionIcon>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal 
+        opened={editModalOpened} 
+        onClose={closeEditModal} 
+        title={t('admin.users.editTitle')}
+      >
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">
+            {t('admin.users.editingUser', { name: userToEdit?.name })}
+          </Text>
+          <TextInput
+            label={t('admin.users.email')}
+            placeholder={t('admin.users.emailPlaceholder')}
+            value={editEmail}
+            onChange={(e) => setEditEmail(e.currentTarget.value)}
+          />
+          <Group justify="flex-end">
+            <Text 
+              size="sm" 
+              c="dimmed" 
+              style={{ cursor: 'pointer' }}
+              onClick={closeEditModal}
+            >
+              {t('cancel')}
+            </Text>
+            <ActionIcon
+              color="blue"
+              variant="filled"
+              size="lg"
+              onClick={() => userToEdit?.id && updateUserMutation.mutate({ userId: userToEdit.id, email: editEmail })}
+              loading={updateUserMutation.isPending}
+              disabled={editEmail === (userToEdit?.email || '')}
+            >
+              <IconEdit size={16} />
             </ActionIcon>
           </Group>
         </Stack>

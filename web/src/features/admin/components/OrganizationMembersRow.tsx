@@ -13,6 +13,7 @@ import {
 import { IconChevronDown, IconChevronRight, IconTrash, IconSend, IconEdit } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import type { ObjInstitution, ObjUser } from '@/api/generated';
 
@@ -31,7 +32,7 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
   const [expanded, setExpanded] = useState(false);
 
   const { data: members, isLoading: membersLoading } = useQuery({
-    queryKey: ['institution-members', org.id],
+    queryKey: queryKeys.institutionMembers(org.id!),
     queryFn: async () => {
       const response = await api.institutions.membersList(org.id!);
       return response.data;
@@ -44,8 +45,8 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
       await api.institutions.membersDelete(org.id!, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institution-members', org.id] });
-      queryClient.invalidateQueries({ queryKey: ['institutions'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(org.id!) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
     },
   });
 

@@ -1,9 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Table, ActionIcon, Badge, Text, Alert, Stack, Card, Group, TextInput } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { IconTrash, IconAlertCircle, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { useInvites, useRevokeInvite } from '@/api/hooks';
+import { queryKeys } from '@/api/queryKeys';
+import { useInstitutionInvites, useAllInvites, useRevokeInvite } from '@/api/hooks';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import { SortSelector, type SortOption } from '@/common/components/controls';
@@ -40,11 +42,16 @@ export function InvitesList({ institutionId, showInstitutionColumn = false }: In
   const { t: tAuth } = useTranslation('auth');
   const api = useRequiredAuthenticatedApi();
   const { isMobile } = useResponsiveDesign();
-  const { data: invites, isLoading, error } = useInvites();
+  
+  // Use institution-specific query if institutionId is provided, otherwise use all invites (admin)
+  const institutionInvitesQuery = useInstitutionInvites(institutionId);
+  const allInvitesQuery = useAllInvites();
+  
+  const { data: invites, isLoading, error } = institutionId ? institutionInvitesQuery : allInvitesQuery;
   const [sortValue, setSortValue] = useState('modifiedAt-desc');
   const [searchQuery, setSearchQuery] = useState('');
   const { data: institutions } = useQuery({
-    queryKey: ['institutions'],
+    queryKey: queryKeys.institutions,
     queryFn: async () => {
       const response = await api.institutions.institutionsList();
       return response.data;
@@ -70,9 +77,20 @@ export function InvitesList({ institutionId, showInstitutionColumn = false }: In
   }, [t]);
 
   const handleRevoke = useCallback((inviteId: string) => {
-    if (confirm(t('admin.invites.revokeConfirm'))) {
-      revokeInvite.mutate(inviteId);
-    }
+    modals.openConfirmModal({
+      title: t('admin.invites.revokeConfirm.title'),
+      children: (
+        <Text size="sm">
+          {t('admin.invites.revokeConfirm.message')}
+        </Text>
+      ),
+      labels: {
+        confirm: t('admin.invites.revokeConfirm.confirm'),
+        cancel: t('cancel'),
+      },
+      confirmProps: { color: 'red' },
+      onConfirm: () => revokeInvite.mutate(inviteId),
+    });
   }, [t, revokeInvite]);
 
   // Parse combined sort value into field and direction
@@ -96,13 +114,10 @@ export function InvitesList({ institutionId, showInstitutionColumn = false }: In
     return options;
   }, [t, showInstitutionColumn]);
 
-  // Base invites (before search filtering)
+  // Base invites (server already filters by institution if institutionId is provided)
   const baseInvites = useMemo(() => {
-    if (!invites) return [];
-    return institutionId
-      ? invites.filter((inv) => inv.institutionId === institutionId)
-      : invites;
-  }, [invites, institutionId]);
+    return invites || [];
+  }, [invites]);
 
   const filteredInvites = useMemo(() => {
     if (!searchQuery.trim()) return baseInvites;

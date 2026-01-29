@@ -19,6 +19,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import type { ObjInstitution } from '@/api/generated';
@@ -43,10 +44,24 @@ export function OrganizationsManagement() {
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
   const [orgToDelete, setOrgToDelete] = useState<ObjInstitution | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [inviteError, setInviteError] = useState<string | null>(null);
+
+  // Helper to extract error message from API error
+  const getErrorMessage = (error: unknown): string => {
+    if (error && typeof error === 'object' && 'error' in error) {
+      const apiError = error as { error?: { message?: string } };
+      const message = apiError.error?.message || '';
+      if (message.includes('pending invite already exists')) {
+        return t('myOrganization.inviteAlreadyExists');
+      }
+      return message || t('myOrganization.inviteError');
+    }
+    return t('myOrganization.inviteError');
+  };
 
   // Fetch all institutions
   const { data: organizations, isLoading, error } = useQuery({
-    queryKey: ['institutions'],
+    queryKey: queryKeys.institutions,
     queryFn: async () => {
       const response = await api.institutions.institutionsList();
       return response.data;
@@ -71,7 +86,7 @@ export function OrganizationsManagement() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institutions'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeCreateModal();
       setNewOrgName('');
     },
@@ -84,7 +99,7 @@ export function OrganizationsManagement() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institutions'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeEditModal();
       setEditingOrg(null);
       setEditName('');
@@ -97,7 +112,7 @@ export function OrganizationsManagement() {
       await api.institutions.institutionsDelete(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institutions'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
       closeDeleteModal();
       setOrgToDelete(null);
     },
@@ -114,10 +129,14 @@ export function OrganizationsManagement() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invites'] });
+      setInviteError(null);
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
       closeInviteModal();
       setInviteOrg(null);
       setInviteEmail('');
+    },
+    onError: (error) => {
+      setInviteError(getErrorMessage(error));
     },
   });
 
@@ -130,6 +149,7 @@ export function OrganizationsManagement() {
   const handleInvite = (org: ObjInstitution) => {
     setInviteOrg(org);
     setInviteEmail('');
+    setInviteError(null);
     openInviteModal();
   };
 
@@ -298,7 +318,7 @@ export function OrganizationsManagement() {
       </Modal>
 
       {/* Invite Modal */}
-      <Modal opened={inviteModalOpened} onClose={closeInviteModal} title={t('admin.organizations.inviteTitle')}>
+      <Modal opened={inviteModalOpened} onClose={() => { setInviteError(null); closeInviteModal(); }} title={t('admin.organizations.inviteTitle')}>
         <Stack gap="md">
           <Text size="sm" c="dimmed">
             {t('admin.organizations.inviteDescription', { name: inviteOrg?.name })}
@@ -310,6 +330,11 @@ export function OrganizationsManagement() {
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.currentTarget.value)}
           />
+          {inviteError && (
+            <Alert color="red" icon={<IconAlertCircle size={16} />}>
+              {inviteError}
+            </Alert>
+          )}
           <Group justify="flex-end">
             <Button variant="subtle" onClick={closeInviteModal}>
               {t('cancel')}
