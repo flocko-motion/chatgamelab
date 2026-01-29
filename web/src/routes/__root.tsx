@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader, useMantineTheme } from '@mantine/core';
-import { IconPlayerPlay, IconWorld, IconHome } from '@tabler/icons-react';
+import { IconPlayerPlay, IconWorld, IconHome, IconBuilding, IconUsers, IconKey, IconSchool } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
@@ -9,6 +9,7 @@ import { useAuth } from '../providers/AuthProvider';
 import { RegistrationForm } from '../features/auth';
 import { useLocation } from '@tanstack/react-router';
 import { ROUTES } from '../common/routes/routes';
+import { isAdmin, getUserInstitutionId, hasRole, Role } from '../common/lib/roles';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -33,8 +34,9 @@ function RootComponent() {
   const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;
   const useAuthenticatedLayout = isFullyAuthenticated && !isHomePage;
   
-  // Redirect to homepage if trying to access protected route without full authentication
-  const shouldRedirect = !isLoading && !isFullyAuthenticated && !isPublicRoute && !needsRegistration;
+  // Redirect to homepage only if NOT authenticated (not just waiting for backend user)
+  // If authenticated but backendUser is still loading, keep showing loader instead of redirecting
+  const shouldRedirect = !isLoading && !isAuthenticated && !isPublicRoute && !needsRegistration;
   
   // All hooks must be called before any early returns
   useEffect(() => {
@@ -64,6 +66,67 @@ function RootComponent() {
       active: pathname.startsWith(ROUTES.ALL_GAMES) || pathname.startsWith(ROUTES.SESSIONS),
     },
   ];
+
+  // Organization navigation - visible only if user has an organization
+  const userInstitutionId = getUserInstitutionId(backendUser);
+  const canManageOrgApiKeys = hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
+
+  if (userInstitutionId) {
+    // Build organization sub-items
+    const orgChildren: NavItem[] = [
+      {
+        label: t('orgMembers'),
+        icon: <IconUsers size={18} />,
+        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION as '/' }),
+        active: pathname === ROUTES.MY_ORGANIZATION,
+      },
+    ];
+
+    // Add Workshops for heads and staff
+    if (canManageOrgApiKeys) {
+      orgChildren.push({
+        label: t('orgWorkshops'),
+        icon: <IconSchool size={18} />,
+        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as '/' }),
+        active: pathname === ROUTES.MY_ORGANIZATION_WORKSHOPS,
+      });
+    }
+
+    // Add API Keys only for heads and staff
+    if (canManageOrgApiKeys) {
+      orgChildren.push({
+        label: t('orgApiKeys'),
+        icon: <IconKey size={18} />,
+        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION_API_KEYS as '/' }),
+        active: pathname === ROUTES.MY_ORGANIZATION_API_KEYS,
+      });
+    }
+
+    navItems.push({
+      label: t('myOrganization'),
+      icon: <IconBuilding size={18} />,
+      active: pathname.startsWith(ROUTES.MY_ORGANIZATION),
+      children: orgChildren,
+    });
+  }
+
+  // Admin-only navigation items
+  if (isAdmin(backendUser)) {
+    navItems.push(
+      { 
+        label: t('manageOrganizations'), 
+        icon: <IconBuilding size={18} />, 
+        onClick: () => navigate({ to: ROUTES.ADMIN_ORGANIZATIONS as '/' }),
+        active: pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS),
+      },
+      { 
+        label: t('manageUsers'), 
+        icon: <IconUsers size={18} />, 
+        onClick: () => navigate({ to: ROUTES.ADMIN_USERS as '/' }),
+        active: pathname.startsWith(ROUTES.ADMIN_USERS),
+      },
+    );
+  }
 
   // Header navigation callbacks
   const headerProps = useAuthenticatedLayout ? {

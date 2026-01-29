@@ -50,6 +50,15 @@ export const ROUTES = {
   // Debug routes
   DEBUG: '/debug',
   DEBUG_ERROR: '/debug/error',
+
+  // Admin routes
+  ADMIN_ORGANIZATIONS: '/admin/organizations',
+  ADMIN_USERS: '/admin/users',
+
+  // Organization routes
+  MY_ORGANIZATION: '/my-organization',
+  MY_ORGANIZATION_API_KEYS: '/my-organization/api-keys',
+  MY_ORGANIZATION_WORKSHOPS: '/my-organization/workshops',
 } as const;
 
 // Route groups for navigation menus
@@ -61,6 +70,7 @@ export const NAVIGATION_GROUPS = {
   ALL_GAMES: [ROUTES.ALL_GAMES],
   ROOMS: [ROUTES.ROOMS, ROUTES.ROOM_CREATE],
   DEBUG: [ROUTES.DEBUG],
+  ADMIN: [ROUTES.ADMIN_ORGANIZATIONS, ROUTES.ADMIN_USERS],
 } as const;
 
 // Type helpers for route params

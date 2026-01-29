@@ -286,18 +286,19 @@ func GetGameByToken(ctx context.Context, token string) (*obj.Game, error) {
 	return dbGameToObj(ctx, g)
 }
 
-// DeleteGame deletes a game. userID must be the owner.
+// DeleteGame soft-deletes a game (sets deleted_at). userID must be the owner.
+// Sessions referencing this game are preserved; they just won't show the game in listings.
 func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Load game and check permission
 	game, err := loadGameByID(ctx, gameID)
 	if err != nil {
-		return err
+		return obj.ErrNotFound("game not found")
 	}
 	if err := canAccessGame(ctx, userID, OpDelete, game, nil); err != nil {
 		return err
 	}
 
-	return queries().DeleteGame(ctx, gameID)
+	return queries().SoftDeleteGame(ctx, gameID)
 }
 
 // CreateGame creates a new game. userID is set as the owner (createdBy).
@@ -491,7 +492,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		GameID:       gameID,
 		UserID:       userID,
 		WorkshopID:   uuidPtrToNullUUID(workshopID),
-		ApiKeyID:     apiKeyID,
+		ApiKeyID:     uuid.NullUUID{UUID: apiKeyID, Valid: true},
 		AiPlatform:   apiKey.Platform,
 		AiModel:      aiModel,
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
@@ -519,7 +520,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		GameDescription: game.Description,
 		UserID:          result.UserID,
 		WorkshopID:      nullUUIDToPtr(result.WorkshopID),
-		ApiKeyID:        result.ApiKeyID,
+		ApiKeyID:        nullUUIDToPtr(result.ApiKeyID),
 		AiPlatform:      result.AiPlatform,
 		AiModel:         result.AiModel,
 		AiSession:       string(result.AiSession),
@@ -739,7 +740,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		ID:         s.ID,
 		GameID:     s.GameID,
 		UserID:     s.UserID,
-		ApiKeyID:   s.ApiKeyID,
+		ApiKeyID:   nullUUIDToPtr(s.ApiKeyID),
 		AiPlatform: s.AiPlatform,
 		AiModel:    s.AiModel,
 		AiSession:  string(s.AiSession),
@@ -767,20 +768,82 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		session.GameDescription = game.Description
 	}
 
-	// Load API key
-	key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
-	if err != nil {
-		return nil, obj.ErrServerError("failed to get API key for session")
-	}
-	session.ApiKey = &obj.ApiKey{
-		ID:       key.ID,
-		UserID:   key.UserID,
-		Name:     key.Name,
-		Platform: key.Platform,
-		Key:      key.Key,
+	// Load API key (if present - may be null if the key was deleted)
+	if s.ApiKeyID.Valid {
+		key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID.UUID)
+		if err == nil {
+			session.ApiKey = &obj.ApiKey{
+				ID:       key.ID,
+				UserID:   key.UserID,
+				Name:     key.Name,
+				Platform: key.Platform,
+				Key:      key.Key,
+			}
+		}
+		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
 	}
 
 	return session, nil
+}
+
+// UpdateGameSessionApiKey updates the API key for a session (used when resuming a session whose key was deleted)
+func UpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, shareID uuid.UUID, model string) (*obj.GameSession, error) {
+	// Load and verify session ownership
+	session, err := loadSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, obj.ErrNotFound("session not found")
+	}
+	if session.UserID != userID {
+		return nil, obj.ErrForbidden("not the owner of this session")
+	}
+
+	// Resolve the API key share
+	share, err := GetApiKeyShareByID(ctx, userID, shareID)
+	if err != nil {
+		return nil, obj.ErrValidation("invalid API key share")
+	}
+	if share.ApiKey == nil {
+		return nil, obj.ErrValidation("API key not found in share")
+	}
+
+	// Determine AI model - use provided or fall back to platform default
+	aiModel := model
+	if aiModel == "" {
+		// TODO: Get default model for platform
+		aiModel = "gpt-4o-mini"
+	}
+
+	// Update the session
+	result, err := queries().UpdateGameSessionApiKey(ctx, db.UpdateGameSessionApiKeyParams{
+		ID:         sessionID,
+		ApiKeyID:   uuid.NullUUID{UUID: share.ApiKey.ID, Valid: true},
+		AiPlatform: share.ApiKey.Platform,
+		AiModel:    aiModel,
+	})
+	if err != nil {
+		return nil, obj.ErrServerError("failed to update session: " + err.Error())
+	}
+
+	return &obj.GameSession{
+		ID:         result.ID,
+		GameID:     result.GameID,
+		UserID:     result.UserID,
+		ApiKeyID:   nullUUIDToPtr(result.ApiKeyID),
+		AiPlatform: result.AiPlatform,
+		AiModel:    result.AiModel,
+		Meta: obj.Meta{
+			CreatedBy:  result.CreatedBy,
+			CreatedAt:  &result.CreatedAt,
+			ModifiedBy: result.ModifiedBy,
+			ModifiedAt: &result.ModifiedAt,
+		},
+	}, nil
+}
+
+// ClearGameSessionApiKey clears the API key reference from a session
+// Used when an API key becomes invalid (billing not active, key revoked, etc.)
+func ClearGameSessionApiKey(ctx context.Context, sessionID uuid.UUID) error {
+	return queries().ClearGameSessionApiKeyByID(ctx, sessionID)
 }
 
 // GetGameSessionMessageImageByID returns just the image for a message (no auth required)
@@ -934,6 +997,12 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 	return result, nil
 }
 
+// DeleteGameSessionMessage deletes a single message by ID.
+// Used to clean up placeholder messages when AI actions fail.
+func DeleteGameSessionMessage(ctx context.Context, messageID uuid.UUID) error {
+	return queries().DeleteGameSessionMessage(ctx, messageID)
+}
+
 // UserSessionWithGame represents a session with its game name for display
 type UserSessionWithGame struct {
 	obj.GameSession
@@ -947,13 +1016,13 @@ type GetUserSessionsFilters struct {
 }
 
 // sessionRowToUserSession converts a db row to UserSessionWithGame
-func sessionRowToUserSession(id, gameID, userID, apiKeyID uuid.UUID, aiPlatform, aiModel string, aiSession []byte, imageStyle string, createdBy, modifiedBy uuid.NullUUID, createdAt, modifiedAt time.Time, gameName string) UserSessionWithGame {
+func sessionRowToUserSession(id, gameID, userID uuid.UUID, apiKeyID uuid.NullUUID, aiPlatform, aiModel string, aiSession []byte, imageStyle string, createdBy, modifiedBy uuid.NullUUID, createdAt, modifiedAt time.Time, gameName string) UserSessionWithGame {
 	return UserSessionWithGame{
 		GameSession: obj.GameSession{
 			ID:         id,
 			GameID:     gameID,
 			UserID:     userID,
-			ApiKeyID:   apiKeyID,
+			ApiKeyID:   nullUUIDToPtr(apiKeyID),
 			AiPlatform: aiPlatform,
 			AiModel:    aiModel,
 			AiSession:  string(aiSession),
@@ -1042,6 +1111,18 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 	return sessions, nil
 }
 
+// DeleteEmptyGameSession deletes a newly created session and its messages.
+// Used to clean up sessions that failed during initial action (has streaming placeholder but no real content).
+// No permission check - called internally after creation failure.
+func DeleteEmptyGameSession(ctx context.Context, sessionID uuid.UUID) error {
+	// Delete messages first (the streaming placeholder)
+	if err := queries().DeleteNewlyCreatedGameSession(ctx, sessionID); err != nil {
+		return fmt.Errorf("failed to delete session messages: %w", err)
+	}
+	// Then delete the session
+	return queries().DeleteEmptyGameSession(ctx, sessionID)
+}
+
 // DeleteGameSession deletes a game session and all its messages. userID must be the owner.
 func DeleteGameSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
 	// Check permission
@@ -1112,7 +1193,7 @@ func GetGameSessionsByGameID(ctx context.Context, userID uuid.UUID, gameID uuid.
 			ID:         s.ID,
 			GameID:     s.GameID,
 			UserID:     s.UserID,
-			ApiKeyID:   s.ApiKeyID,
+			ApiKeyID:   nullUUIDToPtr(s.ApiKeyID),
 			AiPlatform: s.AiPlatform,
 			AiModel:    s.AiModel,
 			AiSession:  string(s.AiSession),

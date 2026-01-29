@@ -50,6 +50,7 @@ type AppUser struct {
 	Auth0ID              sql.NullString
 	ParticipantToken     sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	ShowAiModelSelector  bool
 }
 
 type Game struct {
@@ -77,6 +78,7 @@ type Game struct {
 	OriginallyCreatedBy      uuid.NullUUID
 	PlayCount                int32
 	CloneCount               int32
+	DeletedAt                sql.NullTime
 }
 
 type GameSession struct {
@@ -88,7 +90,7 @@ type GameSession struct {
 	GameID                   uuid.UUID
 	UserID                   uuid.UUID
 	WorkshopID               uuid.NullUUID
-	ApiKeyID                 uuid.UUID
+	ApiKeyID                 uuid.NullUUID
 	AiPlatform               string
 	AiModel                  string
 	AiSession                json.RawMessage

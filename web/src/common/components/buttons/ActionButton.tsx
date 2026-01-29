@@ -30,6 +30,7 @@ export interface ActionButtonProps {
   type?: 'button' | 'submit' | 'reset';
   fullWidth?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  color?: string;
 }
 
 export function ActionButton({
@@ -41,11 +42,12 @@ export function ActionButton({
   disabled = false,
   type = 'button',
   fullWidth = false,
-  size = 'md',
+  size = 'sm',
+  color = 'accent',
 }: ActionButtonProps) {
   return (
     <MantineButton
-      color="accent"
+      color={color}
       variant="filled"
       size={size}
       radius="md"

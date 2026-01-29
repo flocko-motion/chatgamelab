@@ -2,13 +2,13 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"database/sql"
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -34,7 +34,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 	if email != nil && isAdminEmail(*email) {
 		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
 			// Log error but don't fail user creation
-			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
 	}
 
@@ -63,7 +63,7 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	if email != nil && isAdminEmail(*email) {
 		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
 			// Log error but don't fail user creation
-			fmt.Printf("Warning: failed to auto-upgrade user to admin: %v\n", err)
+			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
 	}
 
@@ -83,6 +83,14 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
+func UpdateUserShowAiModelSelector(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
+	arg := db.UpdateUserShowAiModelSelectorParams{
+		ID:                  id,
+		ShowAiModelSelector: showAiModelSelector,
+	}
+	return queries().UpdateUserShowAiModelSelector(ctx, arg)
+}
+
 // GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
 func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (db.AppUser, error) {
 	return queries().GetUserByID(ctx, id)
@@ -96,11 +104,38 @@ func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.
 	return DeleteUser(ctx, targetUserID)
 }
 
+// ParticipantAuthError represents a specific error during participant authentication
+type ParticipantAuthError struct {
+	Code    string // "invalid_token", "workshop_inactive"
+	Message string
+}
+
+func (e *ParticipantAuthError) Error() string {
+	return e.Message
+}
+
 // GetUserByParticipantToken gets a user by their participant token
+// Returns specific error codes for different failure scenarios
 func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, error) {
 	res, err := queries().GetUserByParticipantToken(ctx, sql.NullString{String: token, Valid: true})
 	if err != nil {
-		return nil, err
+		// Check if the token exists but workshop is inactive
+		status, statusErr := queries().CheckParticipantTokenStatus(ctx, sql.NullString{String: token, Valid: true})
+		if statusErr == nil && status.TokenExists {
+			// Token exists but query failed - likely inactive workshop
+			workshopActive, ok := status.WorkshopActive.(bool)
+			if ok && !workshopActive {
+				return nil, &ParticipantAuthError{
+					Code:    "workshop_inactive",
+					Message: "Workshop is inactive",
+				}
+			}
+		}
+		// Token doesn't exist or other error
+		return nil, &ParticipantAuthError{
+			Code:    "invalid_token",
+			Message: "Invalid participant token",
+		}
 	}
 	// Get full user details with role
 	return GetUserByID(ctx, res.ID)
@@ -251,37 +286,57 @@ func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
 		return fmt.Errorf("failed to create admin role: %w", err)
 	}
 
-	fmt.Printf("Auto-upgraded user %s to admin role\n", userID)
+	log.Info("auto-upgraded user to admin role", "user_id", userID)
 	return nil
 }
 
-// GetAllUsers returns all users (for admin/CLI use)
+// GetAllUsers returns all users with their roles (for admin/CLI use)
 func GetAllUsers(ctx context.Context) ([]obj.User, error) {
-	rows, err := sqlDb.QueryContext(ctx, `
-		SELECT id, name, email, auth0_id, created_at
-		FROM app_user
-		WHERE deleted_at IS NULL
-		ORDER BY created_at DESC
-	`)
+	rows, err := queries().GetAllUsersWithDetails(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var users []obj.User
-	for rows.Next() {
-		var u obj.User
-		var email, auth0ID sql.NullString
-		var createdAt time.Time
-		if err := rows.Scan(&u.ID, &u.Name, &email, &auth0ID, &createdAt); err != nil {
-			return nil, err
+	users := make([]obj.User, 0, len(rows))
+	for _, res := range rows {
+		user := obj.User{
+			ID: res.ID,
+			Meta: obj.Meta{
+				CreatedBy:  res.CreatedBy,
+				CreatedAt:  &res.CreatedAt,
+				ModifiedBy: res.ModifiedBy,
+				ModifiedAt: &res.ModifiedAt,
+			},
+			Name:      res.Name,
+			Email:     sqlNullStringToMaybeString(res.Email),
+			DeletedAt: &res.DeletedAt.Time,
+			Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
 		}
-		u.Email = sqlNullStringToMaybeString(email)
-		u.Auth0Id = sqlNullStringToMaybeString(auth0ID)
-		u.Meta.CreatedAt = &createdAt
-		users = append(users, u)
+		if res.RoleID.Valid {
+			role, err := stringToRole(res.Role.String)
+			if err != nil {
+				return nil, err
+			}
+			user.Role = &obj.UserRole{
+				ID:   res.RoleID.UUID,
+				Role: role,
+			}
+			if res.InstitutionID.Valid {
+				user.Role.Institution = &obj.Institution{
+					ID:   res.InstitutionID.UUID,
+					Name: res.InstitutionName.String,
+				}
+			}
+			if res.WorkshopID.Valid {
+				user.Role.Workshop = &obj.Workshop{
+					ID:   res.WorkshopID.UUID,
+					Name: res.WorkshopName.String,
+				}
+			}
+		}
+		users = append(users, user)
 	}
-	return users, rows.Err()
+	return users, nil
 }
 
 func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, role *string, institutionID *uuid.UUID, workshopID *uuid.UUID) error {
@@ -291,9 +346,36 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 		return obj.ErrNotFound("current user not found")
 	}
 
-	// Only admin can set roles
-	if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
-		return obj.ErrForbidden("only admins can manage user roles")
+	// Admin can do anything
+	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
+
+	// Head can promote staff to head within their own institution
+	isHead := currentUser.Role != nil && currentUser.Role.Role == obj.RoleHead && currentUser.Role.Institution != nil
+
+	if !isAdmin && !isHead {
+		return obj.ErrForbidden("only admins or heads can manage user roles")
+	}
+
+	// If head (not admin), validate the operation
+	if isHead && !isAdmin {
+		// Head can only set head or staff roles
+		if role != nil && *role != string(obj.RoleHead) && *role != string(obj.RoleStaff) {
+			return obj.ErrForbidden("heads can only assign head or staff roles")
+		}
+
+		// Head can only operate within their own institution
+		if institutionID == nil || *institutionID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("heads can only manage members within their own institution")
+		}
+
+		// Verify target user is in the same institution
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+		if targetUser.Role == nil || targetUser.Role.Institution == nil || targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("target user is not in your institution")
+		}
 	}
 
 	// Validate role name

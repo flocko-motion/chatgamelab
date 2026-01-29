@@ -130,6 +130,15 @@ type ApiKeyShare struct {
 	IsUserDefault             bool         `json:"isUserDefault"`
 }
 
+// AvailableKey represents an API key available to a user for playing a specific game
+type AvailableKey struct {
+	ShareID   uuid.UUID `json:"shareId"`
+	Name      string    `json:"name"`
+	Platform  string    `json:"platform"`
+	Source    string    `json:"source"` // "sponsor", "workshop", "institution", "personal"
+	IsDefault bool      `json:"isDefault"`
+}
+
 type Game struct {
 	ID          uuid.UUID `json:"id" yaml:"id"`
 	Meta        Meta      `json:"meta" yaml:"-"`
@@ -206,8 +215,9 @@ type GameSession struct {
 	WorkshopID      *uuid.UUID `json:"workshopId,omitempty"`
 	UserName        string     `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
-	ApiKeyID uuid.UUID `json:"apiKeyId"`
-	ApiKey   *ApiKey   `json:"apiKey"`
+	// Nullable: key may be deleted, session can continue with a new key.
+	ApiKeyID *uuid.UUID `json:"apiKeyId,omitempty"`
+	ApiKey   *ApiKey    `json:"apiKey,omitempty"`
 	// AI model used for playing.
 	AiPlatform string `json:"aiPlatform"`
 	AiModel    string `json:"aiModel"`

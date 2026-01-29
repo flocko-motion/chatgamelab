@@ -91,13 +91,14 @@ func (c *Cache) Update(messageID uuid.UUID, imageData []byte, isComplete bool) s
 	entry.IsComplete = isComplete
 	entry.UpdatedAt = time.Now()
 
-	// If complete, persist to DB and remove from cache
+	// If complete, persist to DB and remove from cache after a delay
 	if isComplete && entry.ImageSaver != nil {
 		go func(saver ImageSaverFunc, msgID uuid.UUID, data []byte) {
 			if err := saver(msgID, data); err != nil {
 				// Log error but don't block - image is still in cache for now
 			}
-			// Remove from cache after successful persist
+			// Delay removal to allow pending frontend requests to complete
+			time.Sleep(30 * time.Second)
 			c.Remove(msgID)
 		}(entry.ImageSaver, messageID, imageData)
 	}

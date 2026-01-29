@@ -496,3 +496,41 @@ func RemoveFavouriteGame(w http.ResponseWriter, r *http.Request) {
 
 	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"favourite": false})
 }
+
+// GetAvailableKeys godoc
+//
+//	@Summary		Get available API keys for a game
+//	@Description	Returns a prioritized list of API keys available to the user for playing this game
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID)"
+//	@Success		200	{array}		obj.AvailableKey
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Game not found"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/available-keys [get]
+func GetAvailableKeys(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("getting available keys for game", "game_id", gameID, "user_id", user.ID)
+
+	keys, err := db.GetAvailableKeysForGame(r.Context(), user.ID, gameID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get available keys: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, keys)
+}

@@ -83,3 +83,42 @@ DELETE FROM api_key_share WHERE id = $1;
 -- name: DeleteApiKeySharesByApiKeyID :exec
 DELETE FROM api_key_share WHERE api_key_id = $1;
 
+-- name: GetApiKeySharesByInstitutionID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.name AS api_key_name,
+  k.platform AS api_key_platform,
+  k.user_id AS owner_id,
+  owner.name AS owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user owner ON owner.id = k.user_id
+WHERE s.institution_id = $1;
+
+-- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
+UPDATE app_user
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+);
+
+-- name: ClearSessionApiKeyID :exec
+UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1;
+
+-- name: ClearGameSponsoredApiKey :exec
+UPDATE game
+SET
+  public_sponsored_api_key_id = CASE WHEN public_sponsored_api_key_id = $1 THEN NULL ELSE public_sponsored_api_key_id END,
+  private_sponsored_api_key_id = CASE WHEN private_sponsored_api_key_id = $1 THEN NULL ELSE private_sponsored_api_key_id END,
+  modified_at = now()
+WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1;
+

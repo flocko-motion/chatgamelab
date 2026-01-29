@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { isStaticLanguage, DEFAULT_LANGUAGE } from '../../i18n/config';
 import languagesData from '../../i18n/locales/languages.json';
 
@@ -8,7 +9,7 @@ export const useBackendTranslation = (namespace = 'common') => {
   
   // Load backend translations for non-static languages
   const { isLoading: isBackendLoading, error } = useQuery({
-    queryKey: ['translations', i18n.language, namespace],
+    queryKey: queryKeys.translations(i18n.language, namespace),
     queryFn: async () => {
       // Only load from backend for non-static languages
       if (isStaticLanguage(i18n.language)) {

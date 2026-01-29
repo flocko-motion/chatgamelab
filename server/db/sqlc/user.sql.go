@@ -32,6 +32,42 @@ func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedIn
 	return err
 }
 
+const checkParticipantTokenStatus = `-- name: CheckParticipantTokenStatus :one
+SELECT 
+  EXISTS(
+    SELECT 1 FROM app_user u
+    INNER JOIN user_role ur ON u.id = ur.user_id
+    WHERE u.participant_token = $1 
+      AND u.deleted_at IS NULL
+      AND ur.role = 'participant'
+  ) AS token_exists,
+  COALESCE(
+    (SELECT w.active FROM app_user u
+     INNER JOIN user_role ur ON u.id = ur.user_id
+     INNER JOIN workshop w ON ur.workshop_id = w.id
+     WHERE u.participant_token = $1 
+       AND u.deleted_at IS NULL
+       AND ur.role = 'participant'
+       AND w.deleted_at IS NULL
+     LIMIT 1),
+    false
+  ) AS workshop_active
+`
+
+type CheckParticipantTokenStatusRow struct {
+	TokenExists    bool
+	WorkshopActive interface{}
+}
+
+// Check if a participant token exists and get the workshop active status
+// Returns: exists (bool), workshop_active (bool)
+func (q *Queries) CheckParticipantTokenStatus(ctx context.Context, participantToken sql.NullString) (CheckParticipantTokenStatusRow, error) {
+	row := q.db.QueryRowContext(ctx, checkParticipantTokenStatus, participantToken)
+	var i CheckParticipantTokenStatusRow
+	err := row.Scan(&i.TokenExists, &i.WorkshopActive)
+	return i, err
+}
+
 const countUserGames = `-- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
@@ -358,6 +394,15 @@ func (q *Queries) DeleteApiKey(ctx context.Context, arg DeleteApiKeyParams) erro
 	return err
 }
 
+const deleteInvite = `-- name: DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1
+`
+
+func (q *Queries) DeleteInvite(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteInvite, id)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
 UPDATE app_user
 SET
@@ -388,6 +433,96 @@ DELETE FROM user_role WHERE user_id = $1
 func (q *Queries) DeleteUserRoles(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteUserRoles, userID)
 	return err
+}
+
+const getAllUsersWithDetails = `-- name: GetAllUsersWithDetails :many
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
+FROM app_user u
+LEFT JOIN LATERAL (
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
+  FROM user_role ur
+  WHERE ur.user_id = u.id
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+) r ON TRUE
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
+WHERE u.deleted_at IS NULL
+ORDER BY u.created_at DESC
+`
+
+type GetAllUsersWithDetailsRow struct {
+	ID              uuid.UUID
+	CreatedBy       uuid.NullUUID
+	CreatedAt       time.Time
+	ModifiedBy      uuid.NullUUID
+	ModifiedAt      time.Time
+	Name            string
+	Email           sql.NullString
+	DeletedAt       sql.NullTime
+	Auth0ID         sql.NullString
+	RoleID          uuid.NullUUID
+	Role            sql.NullString
+	InstitutionID   uuid.NullUUID
+	InstitutionName sql.NullString
+	WorkshopID      uuid.NullUUID
+	WorkshopName    sql.NullString
+}
+
+func (q *Queries) GetAllUsersWithDetails(ctx context.Context) ([]GetAllUsersWithDetailsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUsersWithDetails)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllUsersWithDetailsRow
+	for rows.Next() {
+		var i GetAllUsersWithDetailsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.Name,
+			&i.Email,
+			&i.DeletedAt,
+			&i.Auth0ID,
+			&i.RoleID,
+			&i.Role,
+			&i.InstitutionID,
+			&i.InstitutionName,
+			&i.WorkshopID,
+			&i.WorkshopName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getApiKeyByID = `-- name: GetApiKeyByID :one
@@ -479,6 +614,54 @@ ORDER BY created_at DESC
 
 func (q *Queries) GetInvites(ctx context.Context) ([]UserRoleInvite, error) {
 	rows, err := q.db.QueryContext(ctx, getInvites)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UserRoleInvite
+	for rows.Next() {
+		var i UserRoleInvite
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.InstitutionID,
+			&i.Role,
+			&i.WorkshopID,
+			&i.InvitedUserID,
+			&i.InvitedEmail,
+			&i.InviteToken,
+			&i.MaxUses,
+			&i.UsesCount,
+			&i.ExpiresAt,
+			&i.Status,
+			&i.DeletedAt,
+			&i.AcceptedAt,
+			&i.AcceptedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getInvitesByInstitution = `-- name: GetInvitesByInstitution :many
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE institution_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetInvitesByInstitution(ctx context.Context, institutionID uuid.UUID) ([]UserRoleInvite, error) {
+	rows, err := q.db.QueryContext(ctx, getInvitesByInstitution, institutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -617,6 +800,51 @@ func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.Null
 	return items, nil
 }
 
+const getPendingInviteByTarget = `-- name: GetPendingInviteByTarget :one
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1
+`
+
+type GetPendingInviteByTargetParams struct {
+	InstitutionID uuid.UUID
+	InvitedUserID uuid.NullUUID
+	InvitedEmail  sql.NullString
+}
+
+// Check if a pending invite already exists for the same target (user_id or email) and institution
+func (q *Queries) GetPendingInviteByTarget(ctx context.Context, arg GetPendingInviteByTargetParams) (UserRoleInvite, error) {
+	row := q.db.QueryRowContext(ctx, getPendingInviteByTarget, arg.InstitutionID, arg.InvitedUserID, arg.InvitedEmail)
+	var i UserRoleInvite
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.InstitutionID,
+		&i.Role,
+		&i.WorkshopID,
+		&i.InvitedUserID,
+		&i.InvitedEmail,
+		&i.InviteToken,
+		&i.MaxUses,
+		&i.UsesCount,
+		&i.ExpiresAt,
+		&i.Status,
+		&i.DeletedAt,
+		&i.AcceptedAt,
+		&i.AcceptedBy,
+	)
+	return i, err
+}
+
 const getUserApiKeys = `-- name: GetUserApiKeys :many
 SELECT
   k.id,
@@ -682,7 +910,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -700,12 +928,13 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -723,12 +952,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id 
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector 
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -755,6 +985,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
 	)
 	return i, err
 }
@@ -1203,5 +1434,22 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserShowAiModelSelector = `-- name: UpdateUserShowAiModelSelector :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserShowAiModelSelectorParams struct {
+	ID                  uuid.UUID
+	ShowAiModelSelector bool
+}
+
+func (q *Queries) UpdateUserShowAiModelSelector(ctx context.Context, arg UpdateUserShowAiModelSelectorParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserShowAiModelSelector, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

@@ -14,6 +14,15 @@ export enum ObjRole {
   RoleAdmin = "admin",
   RoleHead = "head",
   RoleStaff = "staff",
+  RoleParticipant = "participant",
+}
+
+export enum ObjInviteStatus {
+  InviteStatusPending = "pending",
+  InviteStatusAccepted = "accepted",
+  InviteStatusDeclined = "declined",
+  InviteStatusExpired = "expired",
+  InviteStatusRevoked = "revoked",
 }
 
 export interface DbUserSessionWithGame {
@@ -23,13 +32,18 @@ export interface DbUserSessionWithGame {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
   id?: string;
   imageStyle?: string;
+  /** Set to true when image generation fails due to organization verification required */
+  isOrganisationUnverified?: boolean;
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
@@ -37,6 +51,7 @@ export interface DbUserSessionWithGame {
   theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
+  workshopId?: string;
 }
 
 export interface HttpxErrorResponse {
@@ -86,6 +101,15 @@ export interface ObjApiKeyShare {
   meta?: ObjMeta;
   user?: ObjUser;
   workshop?: ObjWorkshop;
+}
+
+export interface ObjAvailableKey {
+  isDefault?: boolean;
+  name?: string;
+  platform?: string;
+  shareId?: string;
+  /** "sponsor", "workshop", "institution", "personal" */
+  source?: string;
 }
 
 export interface ObjGame {
@@ -139,6 +163,8 @@ export interface ObjGame {
    */
   systemMessageScenario?: string;
   tags?: ObjGameTag[];
+  /** Optional workshop scope (games can be created within a workshop context) */
+  workshopId?: string;
 }
 
 export interface ObjGameSession {
@@ -148,13 +174,18 @@ export interface ObjGameSession {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
   id?: string;
   imageStyle?: string;
+  /** Set to true when image generation fails due to organization verification required */
+  isOrganisationUnverified?: boolean;
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
@@ -162,6 +193,7 @@ export interface ObjGameSession {
   theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
+  workshopId?: string;
 }
 
 export interface ObjGameSessionMessage {
@@ -196,9 +228,9 @@ export interface ObjGameTheme {
 }
 
 export interface ObjGameThemeBackground {
-  /** none, stars, rain, fog, particles, scanlines */
+  /** none, stars, bubbles, fireflies, snow, rain, matrix */
   animation?: string;
-  /** warm, cool, neutral, dark */
+  /** warm, cool, neutral, dark, black */
   tint?: string;
 }
 
@@ -297,8 +329,16 @@ export interface ObjGameThemeTypography {
 
 export interface ObjInstitution {
   id?: string;
+  members?: ObjInstitutionMember[];
   meta?: ObjMeta;
   name?: string;
+}
+
+export interface ObjInstitutionMember {
+  email?: string;
+  name?: string;
+  role?: ObjRole;
+  userId?: string;
 }
 
 export interface ObjMeta {
@@ -337,6 +377,24 @@ export interface ObjUserRole {
   meta?: ObjMeta;
   role?: ObjRole;
   userId?: string;
+  workshop?: ObjWorkshop;
+}
+
+export interface ObjUserRoleInvite {
+  acceptedAt?: string;
+  acceptedBy?: string;
+  expiresAt?: string;
+  id?: string;
+  institutionId?: string;
+  inviteToken?: string;
+  invitedEmail?: string;
+  invitedUserId?: string;
+  maxUses?: number;
+  meta?: ObjMeta;
+  role?: ObjRole;
+  status?: ObjInviteStatus;
+  usesCount?: number;
+  workshopId?: string;
 }
 
 export interface ObjUserStats {
@@ -350,6 +408,7 @@ export interface ObjWorkshop {
   active?: boolean;
   id?: string;
   institution?: ObjInstitution;
+  invites?: ObjUserRoleInvite[];
   meta?: ObjMeta;
   name?: string;
   participants?: ObjWorkshopParticipant[];
@@ -363,6 +422,12 @@ export interface ObjWorkshopParticipant {
   meta?: ObjMeta;
   name?: string;
   workshopId?: string;
+}
+
+export interface RoutesAcceptInviteResponse {
+  authToken?: string;
+  message?: string;
+  user?: ObjUser;
 }
 
 export interface RoutesApiKeyInfoResponse {
@@ -382,9 +447,59 @@ export interface RoutesCreateGameRequest {
   public?: boolean;
 }
 
+export interface RoutesCreateInstitutionInviteRequest {
+  institutionId?: string;
+  invitedEmail?: string;
+  invitedUserId?: string;
+  role?: string;
+}
+
+export interface RoutesCreateInstitutionRequest {
+  name?: string;
+}
+
 export interface RoutesCreateSessionRequest {
   model?: string;
   shareId?: string;
+}
+
+export interface RoutesCreateWorkshopInviteRequest {
+  expiresAt?: string;
+  maxUses?: number;
+  workshopId?: string;
+}
+
+export interface RoutesCreateWorkshopRequest {
+  active?: boolean;
+  institutionId?: string;
+  name?: string;
+  public?: boolean;
+}
+
+export interface RoutesImageStatusResponse {
+  errorCode?: string;
+  errorMsg?: string;
+  exists?: boolean;
+  hasError?: boolean;
+  hash?: string;
+  isComplete?: boolean;
+  isOrganisationUnverified?: boolean;
+}
+
+export interface RoutesInviteResponse {
+  createdAt?: string;
+  expiresAt?: string;
+  id?: string;
+  institutionId?: string;
+  inviteToken?: string;
+  invitedEmail?: string;
+  invitedUserId?: string;
+  maxUses?: number;
+  modifiedAt?: string;
+  role?: string;
+  status?: string;
+  usesCount?: number;
+  workshopId?: string;
 }
 
 export interface RoutesLanguage {
@@ -414,13 +529,18 @@ export interface RoutesSessionResponse {
   /** JSON with arbitrary details to be used within that model and within that session. */
   aiSession?: string;
   apiKey?: ObjApiKey;
-  /** API key used to pay for this session (sponsored or user-owned), implicitly defines platform. */
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
   apiKeyId?: string;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
   id?: string;
   imageStyle?: string;
+  /** Set to true when image generation fails due to organization verification required */
+  isOrganisationUnverified?: boolean;
   messages?: ObjGameSessionMessage[];
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -429,6 +549,13 @@ export interface RoutesSessionResponse {
   theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
+  workshopId?: string;
+}
+
+export interface RoutesSetUserRoleRequest {
+  institutionId?: string;
+  role?: string;
+  workshopId?: string;
 }
 
 export interface RoutesShareRequest {
@@ -445,6 +572,21 @@ export interface RoutesStatusResponse {
 
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
+}
+
+export interface RoutesUpdateInstitutionRequest {
+  name?: string;
+}
+
+export interface RoutesUpdateSessionRequest {
+  model?: string;
+  shareId?: string;
+}
+
+export interface RoutesUpdateWorkshopRequest {
+  active?: boolean;
+  name?: string;
+  public?: boolean;
 }
 
 export interface RoutesUserUpdateRequest {
@@ -1048,6 +1190,24 @@ export class Api<
       }),
 
     /**
+     * @description Returns a prioritized list of API keys available to the user for playing this game
+     *
+     * @tags games
+     * @name AvailableKeysList
+     * @summary Get available API keys for a game
+     * @request GET:/games/{id}/available-keys
+     * @secure
+     */
+    availableKeysList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjAvailableKey[], HttpxErrorResponse>({
+        path: `/games/${id}/available-keys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Creates a copy of a game for the authenticated user
      *
      * @tags games
@@ -1179,6 +1339,335 @@ export class Api<
         ...params,
       }),
   };
+  institutions = {
+    /**
+     * @description Lists all institutions
+     *
+     * @tags institutions
+     * @name InstitutionsList
+     * @summary List institutions
+     * @request GET:/institutions
+     * @secure
+     */
+    institutionsList: (params: RequestParams = {}) =>
+      this.request<ObjInstitution[], HttpxErrorResponse>({
+        path: `/institutions`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new institution
+     *
+     * @tags institutions
+     * @name InstitutionsCreate
+     * @summary Create institution
+     * @request POST:/institutions
+     * @secure
+     */
+    institutionsCreate: (
+      request: RoutesCreateInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Gets an institution by ID
+     *
+     * @tags institutions
+     * @name InstitutionsDetail
+     * @summary Get institution
+     * @request GET:/institutions/{id}
+     * @secure
+     */
+    institutionsDetail: (id: string, params: RequestParams = {}) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Soft-deletes an institution (admin only)
+     *
+     * @tags institutions
+     * @name InstitutionsDelete
+     * @summary Delete institution
+     * @request DELETE:/institutions/{id}
+     * @secure
+     */
+    institutionsDelete: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/institutions/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates an institution
+     *
+     * @tags institutions
+     * @name InstitutionsPartialUpdate
+     * @summary Update institution
+     * @request PATCH:/institutions/{id}
+     * @secure
+     */
+    institutionsPartialUpdate: (
+      id: string,
+      request: RoutesUpdateInstitutionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns all API keys shared with an institution (heads and staff only)
+     *
+     * @tags institutions
+     * @name ApikeysList
+     * @summary Get institution API keys
+     * @request GET:/institutions/{id}/apikeys
+     * @secure
+     */
+    apikeysList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjApiKeyShare[], HttpxErrorResponse>({
+        path: `/institutions/${id}/apikeys`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns all members of an institution
+     *
+     * @tags institutions
+     * @name MembersList
+     * @summary Get institution members
+     * @request GET:/institutions/{id}/members
+     * @secure
+     */
+    membersList: (id: string, params: RequestParams = {}) =>
+      this.request<ObjUser[], HttpxErrorResponse>({
+        path: `/institutions/${id}/members`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes a member from an institution (head or admin only)
+     *
+     * @tags institutions
+     * @name MembersDelete
+     * @summary Remove member from institution
+     * @request DELETE:/institutions/{id}/members/{userID}
+     * @secure
+     */
+    membersDelete: (id: string, userId: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/institutions/${id}/members/${userId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
+  invites = {
+    /**
+     * @description Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.
+     *
+     * @tags invites
+     * @name InvitesList
+     * @summary List invites
+     * @request GET:/invites
+     * @secure
+     */
+    invitesList: (params: RequestParams = {}) =>
+      this.request<RoutesInviteResponse[], HttpxErrorResponse>({
+        path: `/invites`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Lists all invites. Requires admin role.
+     *
+     * @tags invites
+     * @name GetInvites
+     * @summary List all invites (admin only)
+     * @request GET:/invites/all
+     * @secure
+     */
+    getInvites: (params: RequestParams = {}) =>
+      this.request<RoutesInviteResponse[], HttpxErrorResponse>({
+        path: `/invites/all`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a targeted invite for a user to join an institution as head or staff
+     *
+     * @tags invites
+     * @name InstitutionCreate
+     * @summary Create institution invite
+     * @request POST:/invites/institution
+     * @secure
+     */
+    institutionCreate: (
+      request: RoutesCreateInstitutionInviteRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInviteResponse, HttpxErrorResponse>({
+        path: `/invites/institution`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Lists all invites for a specific institution. Requires head/staff role in the institution or admin.
+     *
+     * @tags invites
+     * @name InstitutionDetail
+     * @summary List invites for an institution
+     * @request GET:/invites/institution/{institutionId}
+     * @secure
+     */
+    institutionDetail: (institutionId: string, params: RequestParams = {}) =>
+      this.request<RoutesInviteResponse[], HttpxErrorResponse>({
+        path: `/invites/institution/${institutionId}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates an open invite for users to join a workshop as participants
+     *
+     * @tags invites
+     * @name WorkshopCreate
+     * @summary Create workshop invite
+     * @request POST:/invites/workshop
+     * @secure
+     */
+    workshopCreate: (
+      request: RoutesCreateWorkshopInviteRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInviteResponse, HttpxErrorResponse>({
+        path: `/invites/workshop`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Retrieves a specific invite. Auto-detects whether parameter is a UUID (ID) or string (token). Admins can see any invite, regular users can only see invites targeted to them or created by them.
+     *
+     * @tags invites
+     * @name InvitesDetail
+     * @summary Get invite by ID or token
+     * @request GET:/invites/{idOrToken}
+     * @secure
+     */
+    invitesDetail: (idOrToken: string, params: RequestParams = {}) =>
+      this.request<ObjUserRoleInvite, HttpxErrorResponse>({
+        path: `/invites/${idOrToken}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Accepts an invite by ID or token. For workshop invites, can be used anonymously (creates ad-hoc user). For institution invites, requires authentication.
+     *
+     * @tags invites
+     * @name AcceptCreate
+     * @summary Accept invite
+     * @request POST:/invites/{idOrToken}/accept
+     * @secure
+     */
+    acceptCreate: (idOrToken: string, params: RequestParams = {}) =>
+      this.request<RoutesAcceptInviteResponse, HttpxErrorResponse>({
+        path: `/invites/${idOrToken}/accept`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Revokes a pending invite (creator, admin, or institution staff for workshop invites)
+     *
+     * @tags invites
+     * @name InvitesDelete
+     * @summary Revoke invite
+     * @request DELETE:/invites/{id}
+     * @secure
+     */
+    invitesDelete: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/invites/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Declines an invite by ID
+     *
+     * @tags invites
+     * @name DeclineCreate
+     * @summary Decline invite
+     * @request POST:/invites/{id}/decline
+     * @secure
+     */
+    declineCreate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjUserRoleInvite, HttpxErrorResponse>({
+        path: `/invites/${id}/decline`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+  };
   languages = {
     /**
      * @description Returns a list of available languages for the application
@@ -1214,7 +1703,7 @@ export class Api<
   };
   messages = {
     /**
-     * @description Returns the image for a message as PNG
+     * @description Returns the generated image for a game session message. Checks in-memory cache first (for partial/WIP images), then database. No authentication required - message UUIDs are random and unguessable.
      *
      * @tags messages
      * @name ImageList
@@ -1226,6 +1715,22 @@ export class Api<
         path: `/messages/${id}/image`,
         method: "GET",
         format: "blob",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the current hash and completion status of an image being generated. Frontend can poll this to detect when new partial/final images are available.
+     *
+     * @tags messages
+     * @name ImageStatusList
+     * @summary Get image generation status
+     * @request GET:/messages/{id}/image/status
+     */
+    imageStatusList: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesImageStatusResponse, HttpxErrorResponse>({
+        path: `/messages/${id}/image/status`,
+        method: "GET",
+        format: "json",
         ...params,
       }),
 
@@ -1390,6 +1895,30 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+     *
+     * @tags sessions
+     * @name SessionsPartialUpdate
+     * @summary Update session
+     * @request PATCH:/sessions/{id}
+     * @secure
+     */
+    sessionsPartialUpdate: (
+      id: string,
+      request: RoutesUpdateSessionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGameSession, HttpxErrorResponse>({
+        path: `/sessions/${id}`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
   };
   status = {
     /**
@@ -1463,7 +1992,7 @@ export class Api<
       }),
 
     /**
-     * @description Returns aggregated statistics for the currently authenticated user
+     * @description Returns statistics for the authenticated user
      *
      * @tags users
      * @name MeStatsList
@@ -1541,6 +2070,23 @@ export class Api<
       }),
 
     /**
+     * @description Soft-deletes a user (for removing participants)
+     *
+     * @tags users
+     * @name UsersDelete
+     * @summary Delete user
+     * @request DELETE:/users/{id}
+     * @secure
+     */
+    usersDelete: (id: string, params: RequestParams = {}) =>
+      this.request<void, HttpxErrorResponse>({
+        path: `/users/${id}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
      * @description Generates a JWT token for a user. Only available in dev mode.
      *
      * @tags users
@@ -1554,6 +2100,48 @@ export class Api<
       this.request<RoutesUsersJwtResponse, HttpxErrorResponse>({
         path: `/users/${id}/jwt`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets a user's role in the system
+     *
+     * @tags users
+     * @name RoleCreate
+     * @summary Set user role
+     * @request POST:/users/{id}/role
+     * @secure
+     */
+    roleCreate: (
+      id: string,
+      request: RoutesSetUserRoleRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/${id}/role`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes a user's role
+     *
+     * @tags users
+     * @name RoleDelete
+     * @summary Remove user role
+     * @request DELETE:/users/{id}/role
+     * @secure
+     */
+    roleDelete: (id: string, params: RequestParams = {}) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/${id}/role`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1571,6 +2159,123 @@ export class Api<
       this.request<RoutesVersionResponse, any>({
         path: `/version`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  workshops = {
+    /**
+     * @description Lists all workshops or workshops for a specific institution
+     *
+     * @tags workshops
+     * @name WorkshopsList
+     * @summary List workshops
+     * @request GET:/workshops
+     * @secure
+     */
+    workshopsList: (
+      query?: {
+        /** Institution ID */
+        institutionId?: string;
+        /** Search by name */
+        search?: string;
+        /** Sort by field (name, createdAt, participantCount) */
+        sortBy?: string;
+        /** Sort direction (asc, desc) */
+        sortDir?: string;
+        /** Filter to active workshops only */
+        activeOnly?: boolean;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjWorkshop[], HttpxErrorResponse>({
+        path: `/workshops`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a new workshop
+     *
+     * @tags workshops
+     * @name WorkshopsCreate
+     * @summary Create workshop
+     * @request POST:/workshops
+     * @secure
+     */
+    workshopsCreate: (
+      request: RoutesCreateWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjWorkshop, HttpxErrorResponse>({
+        path: `/workshops`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Gets a workshop by ID
+     *
+     * @tags workshops
+     * @name WorkshopsDetail
+     * @summary Get workshop
+     * @request GET:/workshops/{id}
+     * @secure
+     */
+    workshopsDetail: (id: string, params: RequestParams = {}) =>
+      this.request<ObjWorkshop, HttpxErrorResponse>({
+        path: `/workshops/${id}`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Soft-deletes a workshop
+     *
+     * @tags workshops
+     * @name WorkshopsDelete
+     * @summary Delete workshop
+     * @request DELETE:/workshops/{id}
+     * @secure
+     */
+    workshopsDelete: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/${id}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates a workshop
+     *
+     * @tags workshops
+     * @name WorkshopsPartialUpdate
+     * @summary Update workshop
+     * @request PATCH:/workshops/{id}
+     * @secure
+     */
+    workshopsPartialUpdate: (
+      id: string,
+      request: RoutesUpdateWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjWorkshop, HttpxErrorResponse>({
+        path: `/workshops/${id}`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

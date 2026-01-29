@@ -14,8 +14,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -27,6 +28,10 @@ definitions:
         type: string
       imageStyle:
         type: string
+      isOrganisationUnverified:
+        description: Set to true when image generation fails due to organization verification
+          required
+        type: boolean
       meta:
         $ref: '#/definitions/obj.Meta'
       statusFields:
@@ -120,6 +125,20 @@ definitions:
         $ref: '#/definitions/obj.User'
       workshop:
         $ref: '#/definitions/obj.Workshop'
+    type: object
+  obj.AvailableKey:
+    properties:
+      isDefault:
+        type: boolean
+      name:
+        type: string
+      platform:
+        type: string
+      shareId:
+        type: string
+      source:
+        description: '"sponsor", "workshop", "institution", "personal"'
+        type: string
     type: object
   obj.Game:
     properties:
@@ -223,8 +242,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -236,6 +256,10 @@ definitions:
         type: string
       imageStyle:
         type: string
+      isOrganisationUnverified:
+        description: Set to true when image generation fails due to organization verification
+          required
+        type: boolean
       meta:
         $ref: '#/definitions/obj.Meta'
       statusFields:
@@ -310,10 +334,10 @@ definitions:
   obj.GameThemeBackground:
     properties:
       animation:
-        description: none, stars, rain, fog, particles, scanlines
+        description: none, stars, bubbles, fireflies, snow, rain, matrix
         type: string
       tint:
-        description: warm, cool, neutral, dark
+        description: warm, cool, neutral, dark, black
         type: string
     type: object
   obj.GameThemeCards:
@@ -658,6 +682,15 @@ definitions:
       workshopId:
         type: string
     type: object
+  routes.AcceptInviteResponse:
+    properties:
+      authToken:
+        type: string
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/obj.User'
+    type: object
   routes.ApiKeyInfoResponse:
     properties:
       linkedShares:
@@ -728,6 +761,23 @@ definitions:
       public:
         type: boolean
     type: object
+  routes.ImageStatusResponse:
+    properties:
+      errorCode:
+        type: string
+      errorMsg:
+        type: string
+      exists:
+        type: boolean
+      hasError:
+        type: boolean
+      hash:
+        type: string
+      isComplete:
+        type: boolean
+      isOrganisationUnverified:
+        type: boolean
+    type: object
   routes.InviteResponse:
     properties:
       createdAt:
@@ -746,6 +796,8 @@ definitions:
         type: string
       maxUses:
         type: integer
+      modifiedAt:
+        type: string
       role:
         type: string
       status:
@@ -800,8 +852,9 @@ definitions:
       apiKey:
         $ref: '#/definitions/obj.ApiKey'
       apiKeyId:
-        description: API key used to pay for this session (sponsored or user-owned),
-          implicitly defines platform.
+        description: |-
+          API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+          Nullable: key may be deleted, session can continue with a new key.
         type: string
       gameDescription:
         type: string
@@ -813,6 +866,10 @@ definitions:
         type: string
       imageStyle:
         type: string
+      isOrganisationUnverified:
+        description: Set to true when image generation fails due to organization verification
+          required
+        type: boolean
       messages:
         items:
           $ref: '#/definitions/obj.GameSessionMessage'
@@ -869,6 +926,13 @@ definitions:
   routes.UpdateInstitutionRequest:
     properties:
       name:
+        type: string
+    type: object
+  routes.UpdateSessionRequest:
+    properties:
+      model:
+        type: string
+      shareId:
         type: string
     type: object
   routes.UpdateWorkshopRequest:
@@ -1345,6 +1409,46 @@ paths:
       summary: Update game
       tags:
       - games
+  /games/{id}/available-keys:
+    get:
+      description: Returns a prioritized list of API keys available to the user for
+        playing this game
+      parameters:
+      - description: Game ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.AvailableKey'
+            type: array
+        "400":
+          description: Invalid game ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Game not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get available API keys for a game
+      tags:
+      - games
   /games/{id}/clone:
     post:
       description: Creates a copy of a game for the authenticated user
@@ -1803,9 +1907,131 @@ paths:
       summary: Update institution
       tags:
       - institutions
+  /institutions/{id}/apikeys:
+    get:
+      description: Returns all API keys shared with an institution (heads and staff
+        only)
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.ApiKeyShare'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get institution API keys
+      tags:
+      - institutions
+  /institutions/{id}/members:
+    get:
+      description: Returns all members of an institution
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/obj.User'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get institution members
+      tags:
+      - institutions
+  /institutions/{id}/members/{userID}:
+    delete:
+      description: Removes a member from an institution (head or admin only)
+      parameters:
+      - description: Institution ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove member from institution
+      tags:
+      - institutions
+  /invites:
+    get:
+      description: Lists invites scoped by user permissions. Admins see all invites,
+        regular users see only their own pending invites.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/routes.InviteResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List invites
+      tags:
+      - invites
   /invites/{id}:
     delete:
-      description: Revokes a pending invite (creator or admin only)
+      description: Revokes a pending invite (creator, admin, or institution staff
+        for workshop invites)
       parameters:
       - description: Invite ID (UUID)
         in: path
@@ -1836,6 +2062,134 @@ paths:
       security:
       - BearerAuth: []
       summary: Revoke invite
+      tags:
+      - invites
+  /invites/{id}/decline:
+    post:
+      description: Declines an invite by ID
+      parameters:
+      - description: Invite ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.UserRoleInvite'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Decline invite
+      tags:
+      - invites
+  /invites/{idOrToken}:
+    get:
+      description: Retrieves a specific invite. Auto-detects whether parameter is
+        a UUID (ID) or string (token). Admins can see any invite, regular users can
+        only see invites targeted to them or created by them.
+      parameters:
+      - description: Invite ID (UUID) or token
+        in: path
+        name: idOrToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.UserRoleInvite'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get invite by ID or token
+      tags:
+      - invites
+  /invites/{idOrToken}/accept:
+    post:
+      description: Accepts an invite by ID or token. For workshop invites, can be
+        used anonymously (creates ad-hoc user). For institution invites, requires
+        authentication.
+      parameters:
+      - description: Invite ID (UUID) or token
+        in: path
+        name: idOrToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.AcceptInviteResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Accept invite
+      tags:
+      - invites
+  /invites/all:
+    get:
+      description: Lists all invites. Requires admin role.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/routes.InviteResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List all invites (admin only)
       tags:
       - invites
   /invites/institution:
@@ -1875,13 +2229,14 @@ paths:
       summary: Create institution invite
       tags:
       - invites
-  /invites/institution/{idOrToken}/accept:
-    post:
-      description: Accepts a targeted institution invite by ID or token
+  /invites/institution/{institutionId}:
+    get:
+      description: Lists all invites for a specific institution. Requires head/staff
+        role in the institution or admin.
       parameters:
-      - description: Invite ID (UUID) or token
+      - description: Institution ID
         in: path
-        name: idOrToken
+        name: institutionId
         required: true
         type: string
       produces:
@@ -1890,59 +2245,20 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid request
+            items:
+              $ref: '#/definitions/routes.InviteResponse'
+            type: array
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
         "403":
           description: Forbidden
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
-        "404":
-          description: Not found
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: Accept institution invite
-      tags:
-      - invites
-  /invites/institution/{idOrToken}/decline:
-    post:
-      description: Declines a targeted institution invite by ID or token
-      parameters:
-      - description: Invite ID (UUID) or token
-        in: path
-        name: idOrToken
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-        "404":
-          description: Not found
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Decline institution invite
+      summary: List invites for an institution
       tags:
       - invites
   /invites/workshop:
@@ -1979,37 +2295,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Create workshop invite
-      tags:
-      - invites
-  /invites/workshop/{token}/accept:
-    post:
-      description: Accepts an open workshop invite by token
-      parameters:
-      - description: Invite token
-        in: path
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-        "404":
-          description: Not found
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Accept workshop invite
       tags:
       - invites
   /languages:
@@ -2055,7 +2340,10 @@ paths:
       - languages
   /messages/{id}/image:
     get:
-      description: Returns the image for a message as PNG
+      description: |-
+        Returns the generated image for a game session message.
+        Checks in-memory cache first (for partial/WIP images), then database.
+        No authentication required - message UUIDs are random and unguessable.
       parameters:
       - description: Message ID (UUID)
         in: path
@@ -2078,6 +2366,31 @@ paths:
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
       summary: Get message image
+      tags:
+      - messages
+  /messages/{id}/image/status:
+    get:
+      description: |-
+        Returns the current hash and completion status of an image being generated.
+        Frontend can poll this to detect when new partial/final images are available.
+      parameters:
+      - description: Message ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/routes.ImageStatusResponse'
+        "400":
+          description: Invalid message ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      summary: Get image generation status
       tags:
       - messages
   /messages/{id}/stream:
@@ -2280,6 +2593,55 @@ paths:
       summary: Get session
       tags:
       - sessions
+    patch:
+      consumes:
+      - application/json
+      description: Updates session settings, such as the API key. Used when resuming
+        a session whose API key was deleted.
+      parameters:
+      - description: Session ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update session request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/routes.UpdateSessionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.GameSession'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Session not found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update session
+      tags:
+      - sessions
     post:
       consumes:
       - application/json
@@ -2375,6 +2737,38 @@ paths:
       tags:
       - users
   /users/{id}:
+    delete:
+      description: Soft-deletes a user (for removing participants)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - users
     get:
       description: Returns a user by ID
       parameters:
@@ -2580,7 +2974,7 @@ paths:
       - users
   /users/me/stats:
     get:
-      description: Returns aggregated statistics for the currently authenticated user
+      description: Returns statistics for the authenticated user
       produces:
       - application/json
       responses:
@@ -2590,10 +2984,6 @@ paths:
             $ref: '#/definitions/obj.UserStats'
         "401":
           description: Unauthorized
-          schema:
-            $ref: '#/definitions/httpx.ErrorResponse'
-        "500":
-          description: Internal Server Error
           schema:
             $ref: '#/definitions/httpx.ErrorResponse'
       security:
@@ -2656,6 +3046,22 @@ paths:
         in: query
         name: institutionId
         type: string
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - description: Sort by field (name, createdAt, participantCount)
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort direction (asc, desc)
+        in: query
+        name: sortDir
+        type: string
+      - description: Filter to active workshops only
+        in: query
+        name: activeOnly
+        type: boolean
       produces:
       - application/json
       responses:

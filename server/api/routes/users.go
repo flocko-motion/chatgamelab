@@ -18,6 +18,7 @@ type UserUpdateRequest struct {
 	Name                 string     `json:"name"`
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
+	ShowAiModelSelector  *bool      `json:"showAiModelSelector,omitempty"`
 }
 
 type UsersNewRequest struct {
@@ -174,6 +175,13 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		(user.Email != nil && req.Email != *user.Email)
 	nameChanged := req.Name != "" && req.Name != user.Name
 
+	// Only admins can change email addresses
+	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
+	if emailChanged && !isAdmin {
+		httpx.WriteError(w, http.StatusForbidden, "Only administrators can change email addresses")
+		return
+	}
+
 	// Validate name uniqueness if changed
 	if nameChanged {
 		nameTaken, err := db.IsNameTakenByOther(r.Context(), req.Name, userID)
@@ -223,6 +231,14 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	if req.DefaultApiKeyShareID != nil {
 		if err := db.SetUserDefaultApiKeyShare(r.Context(), userID, req.DefaultApiKeyShareID); err != nil {
 			httpx.WriteError(w, http.StatusBadRequest, "Failed to set default API key: "+err.Error())
+			return
+		}
+	}
+
+	// Handle showAiModelSelector update
+	if req.ShowAiModelSelector != nil {
+		if err := db.UpdateUserShowAiModelSelector(r.Context(), userID, *req.ShowAiModelSelector); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update AI model selector preference")
 			return
 		}
 	}

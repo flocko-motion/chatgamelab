@@ -6,6 +6,7 @@ import { ROUTES } from "@/common/routes/routes";
 import { AppLayout, type NavItem } from "@/common/components/Layout";
 import { navigationLogger } from "@/config/logger";
 import { EXTERNAL_LINKS } from "@/config/externalLinks";
+import { formatRelativeTime } from "@/common/lib/formatters";
 import {
   useGames,
   useUserSessions,
@@ -25,21 +26,6 @@ import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
 import { LinksCard, type LinkItem } from "./LinkCard";
 
-function formatRelativeTime(dateString?: string): string {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return `${diffDays}d ago`;
-}
-
 // My Games Card - shows last edited/created games
 function MyGamesCard() {
   const { t } = useTranslation("dashboard");
@@ -57,7 +43,7 @@ function MyGamesCard() {
 
   const items: ListItem[] = recentGames.map((game) => ({
     id: game.id ?? "",
-    label: game.name ?? "Untitled",
+    label: game.name ?? t("untitled"),
     sublabel: formatRelativeTime(game.meta?.modifiedAt ?? game.meta?.createdAt),
     onClick: () => navigate({ to: `/my-games/${game.id}` as "/" }),
   }));
@@ -106,10 +92,8 @@ function LastPlayedCard() {
 
   const items: ListItem[] = recentSessions.map((session) => ({
     id: session.id ?? "",
-    label: session.gameName ?? "Untitled Game",
-    sublabel: formatRelativeTime(
-      session.meta?.modifiedAt ?? session.meta?.createdAt,
-    ),
+    label: session.gameName ?? t("untitledGame"),
+    sublabel: formatRelativeTime(session.meta?.modifiedAt ?? session.meta?.createdAt),
     onClick: () => navigate({ to: `/sessions/${session.id}` as "/" }),
   }));
 
@@ -152,7 +136,7 @@ function PopularGamesCard() {
 
   const items: ListItem[] = popularGames.map((game) => ({
     id: game.id ?? "",
-    label: game.name ?? "Untitled",
+    label: game.name ?? t("untitled"),
     sublabel: t("cards.popularGames.plays", { count: game.playCount ?? 0 }),
     onClick: () => handleGameClick(game.id ?? ""),
   }));
@@ -182,6 +166,7 @@ function NewGamesCard() {
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const { data: currentUser } = useCurrentUser();
 
+  /* eslint-disable react-hooks/preserve-manual-memoization -- Optional chaining limitation */
   const newGames = useMemo(() => {
     if (!games || !currentUser?.id) return [];
     // Exclude user's own games
@@ -189,6 +174,7 @@ function NewGamesCard() {
       .filter((game) => game.creatorId !== currentUser.id)
       .slice(0, 10);
   }, [games, currentUser?.id]);
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const handleGameClick = (gameId: string) => {
     const existingSession = sessionMap.get(gameId);
@@ -201,7 +187,7 @@ function NewGamesCard() {
 
   const items: ListItem[] = newGames.map((game) => ({
     id: game.id ?? "",
-    label: game.name ?? "Untitled",
+    label: game.name ?? t("untitled"),
     sublabel: formatRelativeTime(game.meta?.createdAt),
     onClick: () => handleGameClick(game.id ?? ""),
   }));

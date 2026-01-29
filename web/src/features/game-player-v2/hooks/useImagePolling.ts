@@ -26,7 +26,8 @@ interface UseImagePollingResult {
   isOrganisationUnverified: boolean;
 }
 
-const DEFAULT_POLLING_INTERVAL = 5000; // 5 seconds
+const DEFAULT_POLLING_INTERVAL = 2000; // 2 seconds
+const MAX_STATUS_RETRIES = 3;
 
 export function useImagePolling({
   messageId,
@@ -41,6 +42,7 @@ export function useImagePolling({
   const [isOrganisationUnverified, setIsOrganisationUnverified] = useState(false);
   const lastHashRef = useRef<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const retryCountRef = useRef(0);
 
   const checkStatus = useCallback(async () => {
     if (!messageId || !enabled) return;
@@ -88,10 +90,22 @@ export function useImagePolling({
         }
       }
     } catch (error) {
-      console.error('Failed to check image status:', error);
+      retryCountRef.current++;
+      console.error('Failed to check image status:', error, `(attempt ${retryCountRef.current}/${MAX_STATUS_RETRIES})`);
+      
+      // Stop polling after max retries
+      if (retryCountRef.current >= MAX_STATUS_RETRIES) {
+        setHasError(true);
+        setErrorCode('network_error');
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+      }
     }
   }, [messageId, enabled]);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: reset state when messageId changes */
   useEffect(() => {
     if (!enabled || !messageId) {
       return;
@@ -105,6 +119,7 @@ export function useImagePolling({
     setIsOrganisationUnverified(false);
     setImageUrl(null);
     lastHashRef.current = null;
+    retryCountRef.current = 0;
 
     // Initial check
     checkStatus();

@@ -42,11 +42,13 @@ function LoginComponent() {
     );
   }
 
+  // Dev roles matching backend preseed users
   const devRoles = [
-    { key: 'admin', label: 'Administrator' },
-    { key: 'teacher', label: 'Teacher' },
-    { key: 'student', label: 'Student' },
-    { key: 'guest', label: 'Guest' },
+    { key: 'admin', label: 'Administrator', color: 'red' },
+    { key: 'head', label: 'Head (Institution Owner)', color: 'violet' },
+    { key: 'staff', label: 'Staff', color: 'blue' },
+    { key: 'participant', label: 'Participant', color: 'teal' },
+    { key: 'guest', label: 'Guest (No Role)', color: 'gray' },
   ];
 
   return (
@@ -79,15 +81,15 @@ function LoginComponent() {
             {devRoles.map((role) => (
               <MantineButton
                 key={role.key}
-                variant="outline"
-                color="gray"
+                variant={role.key === 'admin' ? 'filled' : 'outline'}
+                color={role.color}
                 onClick={async () => {
                   await loginWithRole(role.key);
                   router.navigate({ to: ROUTES.DASHBOARD });
                 }}
                 fullWidth
               >
-                {t(`login.role.${role.key}`)} ({role.label})
+                {role.label}
               </MantineButton>
             ))}
           </Stack>

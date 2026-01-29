@@ -12,6 +12,11 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "login": "Anmelden",
+    "unnamed": "Unbenannt",
+    "labels": {
+      "yes": "Ja",
+      "no": "Nein"
+    },
     "home": {
       "badge": "Lernspiel-Labor",
       "title": "ChatGameLab",
@@ -53,7 +58,9 @@
       "contact": "Kontakt",
       "openUserMenu": "Benutzermenü öffnen",
       "goToDashboard": "Zum Dashboard",
-      "apiKeys": "API-Schlüssel"
+      "apiKeys": "API-Schlüssel",
+      "profile": "Profil",
+      "logout": "Abmelden"
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
@@ -396,6 +403,11 @@
         "backToGames": "Zurück zu Spielen",
         "tryAgain": "Erneut versuchen"
       },
+      "needsApiKey": {
+        "title": "API-Schlüssel erforderlich",
+        "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar. Bitte wähle einen neuen aus, um weiterzuspielen.",
+        "reason": "Dein vorheriger API-Schlüssel ist nicht mehr verfügbar. Um dein Spiel fortzusetzen, wähle bitte einen neuen aus."
+      },
       "header": {
         "back": "Zurück zu deinen anderen laufenden Spielen",
         "restart": "Spiel neustarten",
@@ -405,6 +417,9 @@
         "decreaseFont": "Schrift verkleinern",
         "enableAnimation": "Hintergrundanimation aktivieren",
         "disableAnimation": "Hintergrundanimation deaktivieren",
+        "settings": "Einstellungen",
+        "disableAnimations": "Animationen deaktivieren",
+        "useNeutralTheme": "Neutrales Design verwenden",
         "debug": "Debug"
       },
       "input": {
@@ -423,7 +438,8 @@
         "modelPlaceholder": "Standard-Modell",
         "startGame": "Spiel starten",
         "loadError": "API-Schlüssel konnten nicht geladen werden",
-        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu."
+        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu.",
+        "mine": "Mein"
       },
       "statusChange": {
         "effect": "Effekt:"
@@ -449,6 +465,250 @@
           "timestamp": "Erstellungszeitpunkt dieser Nachricht"
         }
       }
+    },
+    "admin": {
+      "organizations": {
+        "title": "Organisationen verwalten",
+        "searchPlaceholder": "Organisationen suchen...",
+        "create": "Organisation erstellen",
+        "createTitle": "Neue Organisation erstellen",
+        "editTitle": "Organisation bearbeiten",
+        "deleteTitle": "Organisation löschen",
+        "inviteTitle": "Zur Organisation einladen",
+        "name": "Name",
+        "namePlaceholder": "Organisationsname eingeben",
+        "members": "Mitglieder",
+        "membersCount": "Mitglieder",
+        "actions": "Aktionen",
+        "empty": "Noch keine Organisationen. Erstellen Sie eine, um zu beginnen.",
+        "sendInvite": "Einladung senden",
+        "email": "E-Mail-Adresse",
+        "emailPlaceholder": "E-Mail-Adresse eingeben",
+        "inviteDescription": "Senden Sie eine Einladung, um {{name}} als Organisationsleitung beizutreten.",
+        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "membersList": "Mitglieder",
+        "memberName": "Name",
+        "memberEmail": "E-Mail",
+        "memberRole": "Rolle",
+        "noMembers": "Keine Mitglieder in dieser Organisation.",
+        "removeMember": "Mitglied entfernen",
+        "removeMemberConfirm": "Sind Sie sicher, dass Sie {{name}} aus dieser Organisation entfernen möchten?"
+      },
+      "invites": {
+        "title": "Ausstehende Einladungen",
+        "empty": "Keine ausstehenden Einladungen.",
+        "noResults": "Keine Einladungen entsprechen Ihrer Suche.",
+        "searchPlaceholder": "Nach E-Mail, Rolle, Status oder Organisation suchen...",
+        "organization": "Organisation",
+        "role": "Rolle",
+        "invitedEmail": "Eingeladene E-Mail",
+        "status": "Status",
+        "createdAt": "Erstellt",
+        "modifiedAt": "Geändert",
+        "actions": "Aktionen",
+        "revokeConfirm": {
+          "title": "Einladung löschen",
+          "message": "Sind Sie sicher, dass Sie diese Einladung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirm": "Löschen"
+        },
+        "sort": {
+          "label": "Sortieren nach",
+          "modifiedAt-desc": "Geändert (Neueste)",
+          "modifiedAt-asc": "Geändert (Älteste)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)"
+        },
+        "statuses": {
+          "pending": "Ausstehend",
+          "accepted": "Angenommen",
+          "declined": "Abgelehnt",
+          "revoked": "Widerrufen",
+          "expired": "Abgelaufen"
+        }
+      },
+      "users": {
+        "title": "Benutzer verwalten",
+        "name": "Name",
+        "email": "E-Mail",
+        "role": "Rolle",
+        "organization": "Organisation",
+        "joined": "Beigetreten",
+        "actions": "Aktionen",
+        "noRole": "Keine Rolle",
+        "empty": "Keine Benutzer gefunden.",
+        "noResults": "Keine Benutzer entsprechen Ihrer Suche.",
+        "loadError": "Benutzer konnten nicht geladen werden",
+        "searchPlaceholder": "Nach Name, E-Mail, Rolle oder Organisation suchen...",
+        "hideGuests": "Gäste ausblenden ({{count}})",
+        "showing": "{{count}} von {{total}} Benutzern angezeigt",
+        "me": "Ich",
+        "makeAdmin": "Zum Admin machen",
+        "removeAdmin": "Admin entfernen",
+        "noEmail": "Keine E-Mail",
+        "deleteTitle": "Benutzer löschen",
+        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "promoteTitle": "Zum Admin befördern",
+        "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Admin befördern möchten?",
+        "promoteWarning": "Dieser Benutzer erhält vollen administrativen Zugriff auf das System.",
+        "removeAdminTitle": "Admin-Rolle entfernen",
+        "removeAdminConfirm": "Sind Sie sicher, dass Sie die Admin-Rolle von \"{{name}}\" ({{email}}) entfernen möchten?",
+        "removeAdminWarning": "Dieser Benutzer verliert alle administrativen Rechte.",
+        "editEmail": "E-Mail bearbeiten",
+        "editTitle": "Benutzer bearbeiten",
+        "editingUser": "Benutzer bearbeiten: {{name}}",
+        "emailPlaceholder": "E-Mail-Adresse eingeben",
+        "sort": {
+          "label": "Sortieren nach",
+          "name-asc": "Name (A-Z)",
+          "name-desc": "Name (Z-A)",
+          "email-asc": "E-Mail (A-Z)",
+          "email-desc": "E-Mail (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)",
+          "joined-asc": "Beigetreten (Älteste)",
+          "joined-desc": "Beigetreten (Neueste)"
+        }
+      }
+    },
+    "notifications": {
+      "title": "Benachrichtigungen",
+      "empty": "Keine neuen Benachrichtigungen.",
+      "inviteToJoin": "Organisations-Einladung",
+      "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
+      "declineTitle": "Einladung ablehnen",
+      "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?"
+    },
+    "myOrganization": {
+      "title": "Meine Organisation",
+      "noOrganization": "Keine Organisation",
+      "noOrganizationDescription": "Sie sind kein Mitglied einer Organisation.",
+      "tabs": {
+        "members": "Mitglieder",
+        "apiKeys": "API-Schlüssel"
+      },
+      "apiKeys": {
+        "title": "Organisations-API-Schlüssel",
+        "aboutTitle": "Organisations-API-Schlüssel",
+        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung. Nur Leiter und Lehrer können diese Schlüssel verwalten.",
+        "comingSoon": "Verwaltung von Organisations-API-Schlüsseln kommt bald.",
+        "notAuthorized": "Sie haben keine Berechtigung, Organisations-API-Schlüssel zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
+        "loadError": "Fehler beim Laden der Organisations-API-Schlüssel.",
+        "noKeys": "Noch keine API-Schlüssel mit dieser Organisation geteilt.",
+        "shareKey": "Schlüssel teilen",
+        "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "selectKey": "API-Schlüssel auswählen",
+        "selectKeyPlaceholder": "Wählen Sie einen Schlüssel zum Teilen...",
+        "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
+        "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
+        "share": "Teilen",
+        "keyName": "Schlüsselname",
+        "owner": "Besitzer",
+        "platform": "Plattform",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "searchPlaceholder": "Nach Name oder Besitzer suchen...",
+        "filterByPlatform": "Nach Plattform filtern",
+        "noResults": "Keine API-Schlüssel entsprechen Ihrer Suche."
+      },
+      "workshops": {
+        "title": "Workshops",
+        "subtitle": "Verwalten Sie Workshops und laden Sie Teilnehmer zur Zusammenarbeit an Spielen ein.",
+        "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
+        "loadError": "Fehler beim Laden der Workshops.",
+        "empty": "Noch keine Workshops.",
+        "createFirst": "Ersten Workshop erstellen",
+        "create": "Workshop erstellen",
+        "createTitle": "Workshop erstellen",
+        "name": "Name",
+        "nameLabel": "Workshop-Name",
+        "namePlaceholder": "z.B. Sommercamp 2024",
+        "createdBy": "Erstellt von",
+        "createdByUser": "Mitarbeiter",
+        "unknownCreator": "Unbekannt",
+        "status": "Status",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "activeLabel": "Aktiv",
+        "activeDescription": "Aktive Workshops ermöglichen es Teilnehmern beizutreten und Spiele zu erstellen.",
+        "participants": "Teilnehmer",
+        "noParticipants": "Noch keine Teilnehmer",
+        "anonymousParticipant": "Anonymer Teilnehmer",
+        "inviteParticipants": "Teilnehmer einladen",
+        "inviteTitle": "Teilnehmer zu {{name}} einladen",
+        "inviteDescription": "Generieren Sie einen Einladungslink, den Teilnehmer verwenden können, um diesem Workshop beizutreten.",
+        "inviteLink": "Einladungslink",
+        "inviteLinkHint": "Teilen Sie diesen Link mit Teilnehmern. Jeder mit dem Link kann dem Workshop beitreten.",
+        "generateInvite": "Einladungslink generieren",
+        "generateNewInvite": "Neuen Einladungslink generieren",
+        "existingInvites": "Bestehende Einladungslinks",
+        "newInviteLink": "Neuer Einladungslink",
+        "usedCount": "{{count}} Nutzungen",
+        "revokeInvite": "Einladungslink widerrufen",
+        "activate": "Aktivieren",
+        "deactivate": "Deaktivieren",
+        "deleteTitle": "Workshop löschen",
+        "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten?",
+        "deleteWarning": "Alle Spiele und Sitzungen in diesem Workshop werden gelöscht. Dies kann nicht rückgängig gemacht werden.",
+        "hideInactive": "Inaktive ausblenden",
+        "sort": {
+          "label": "Sortieren nach",
+          "createdAtDesc": "Neueste zuerst",
+          "createdAtAsc": "Älteste zuerst",
+          "nameAsc": "Name (A-Z)",
+          "nameDesc": "Name (Z-A)",
+          "participantsDesc": "Meiste Teilnehmer",
+          "participantsAsc": "Wenigste Teilnehmer"
+        }
+      },
+      "searchPlaceholder": "Mitglieder suchen...",
+      "showing": "{{count}} Mitglieder",
+      "empty": "Keine Mitglieder in dieser Organisation.",
+      "noResults": "Keine Mitglieder entsprechen Ihrer Suche.",
+      "me": "Ich",
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "actions": "Aktionen",
+      "noRole": "Keine Rolle",
+      "noEmail": "Keine E-Mail",
+      "inviteTeacher": "Lehrer einladen",
+      "inviteTeacherTitle": "Lehrer einladen",
+      "inviteTeacherDescription": "Senden Sie eine Einladung an einen Lehrer, Ihrer Organisation beizutreten.",
+      "inviteUser": "Benutzer einladen",
+      "inviteUserTitle": "Benutzer einladen",
+      "inviteUserDescription": "Senden Sie eine Einladung an einen Benutzer, Ihrer Organisation ohne spezifische Rolle beizutreten.",
+      "emailPlaceholder": "E-Mail-Adresse eingeben",
+      "inviteAlreadyExists": "Für diese E-Mail-Adresse existiert bereits eine ausstehende Einladung.",
+      "inviteError": "Einladung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+      "promoteToHead": "Zum Leiter befördern",
+      "demoteToStaff": "Zum Lehrer herabstufen",
+      "promoteTitle": "Zum Leiter befördern",
+      "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Leiter befördern möchten?",
+      "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
+      "demoteTitle": "Zum Lehrer herabstufen",
+      "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
+      "removeMember": "Mitglied entfernen",
+      "removeTitle": "Mitglied entfernen",
+      "removeConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus der Organisation entfernen möchten?",
+      "removeWarning": "Dieser Benutzer verliert den Zugriff auf die Organisation.",
+      "leaveOrganization": "Organisation verlassen",
+      "leaveTitle": "Organisation verlassen",
+      "leaveConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" verlassen möchten?",
+      "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+      "sort": {
+        "label": "Sortieren nach",
+        "name-asc": "Name (A-Z)",
+        "name-desc": "Name (Z-A)",
+        "role-asc": "Rolle (A-Z)",
+        "role-desc": "Rolle (Z-A)"
+      }
     }
   },
   "navigation": {
@@ -458,9 +718,23 @@
     "create": "Eigene Spiele erstellen",
     "play": "Spiele spielen",
     "rooms": "Räume",
-    "groups": "Gruppen"
+    "groups": "Gruppen",
+    "manageOrganizations": "Organisationen verwalten",
+    "manageUsers": "Benutzer verwalten",
+    "myOrganization": "Meine Organisation",
+    "orgMembers": "Mitglieder",
+    "orgWorkshops": "Workshops",
+    "orgApiKeys": "API-Schlüssel"
   },
   "dashboard": {
+    "time": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {{count}}m",
+      "hoursAgo": "vor {{count}}h",
+      "daysAgo": "vor {{count}}d"
+    },
+    "untitled": "Unbenannt",
+    "untitledGame": "Unbenanntes Spiel",
     "cards": {
       "myGames": {
         "title": "Meine Spiele",
@@ -521,6 +795,27 @@
       }
     }
   },
+  "invites": {
+    "goHome": "Zur Startseite",
+    "accept": {
+      "title": "Workshop beitreten",
+      "workshopInvite": "Du wurdest eingeladen, {{workshop}} beizutreten",
+      "displayNameLabel": "Dein Name",
+      "displayNamePlaceholder": "Gib deinen Anzeigenamen ein",
+      "displayNameHint": "So werden dich andere Teilnehmer sehen",
+      "joinButton": "Workshop beitreten"
+    },
+    "success": {
+      "title": "Willkommen!",
+      "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
+    },
+    "errors": {
+      "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+      "expired": "Dieser Einladungslink ist abgelaufen.",
+      "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
+      "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
+    }
+  },
   "errors": {
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
@@ -541,6 +836,8 @@
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "contentFiltered": "Deine Anfrage wurde von den Inhaltsrichtlinien der KI gefiltert. Bitte formuliere sie anders.",
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
     "titles": {
       "network": "Netzwerkfehler",
       "server": "Serverfehler",
@@ -550,7 +847,8 @@
       "notFound": "Nicht gefunden",
       "error": "Fehler",
       "aiError": "KI-Fehler",
-      "billing": "Zahlungsfehler"
+      "billing": "Zahlungsfehler",
+      "workshopInactive": "Workshop inaktiv"
     }
   },
   "auth": {
@@ -612,6 +910,7 @@
       "saveButton": "Änderungen speichern",
       "saving": "Wird gespeichert...",
       "saved": "Änderungen erfolgreich gespeichert",
+      "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
       "errors": {
         "nameRequired": "Name ist erforderlich",
         "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
@@ -625,14 +924,16 @@
     "profile": {
       "title": "Profil",
       "memberSince": "Angemeldet seit",
-      "organizationSection": "Organisation",
+      "organizationSection": "Organisation & Rolle",
+      "organization": "Organisation",
       "noOrganization": "Keine Organisation",
       "role": "Rolle",
       "noRole": "Keine Rolle zugewiesen",
       "roles": {
         "admin": "Administrator",
-        "head": "Organisationsleiter",
-        "staff": "Mitarbeiter"
+        "head": "Leitung",
+        "staff": "Mitarbeiter",
+        "participant": "Teilnehmer"
       },
       "statisticsSection": "Statistiken",
       "gamesPlayed": "Gespielte Spiele",

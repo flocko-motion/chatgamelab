@@ -35,6 +35,29 @@ WHERE u.participant_token = $1
   AND w.active = true
   AND w.deleted_at IS NULL;
 
+-- name: CheckParticipantTokenStatus :one
+-- Check if a participant token exists and get the workshop active status
+-- Returns: exists (bool), workshop_active (bool)
+SELECT 
+  EXISTS(
+    SELECT 1 FROM app_user u
+    INNER JOIN user_role ur ON u.id = ur.user_id
+    WHERE u.participant_token = $1 
+      AND u.deleted_at IS NULL
+      AND ur.role = 'participant'
+  ) AS token_exists,
+  COALESCE(
+    (SELECT w.active FROM app_user u
+     INNER JOIN user_role ur ON u.id = ur.user_id
+     INNER JOIN workshop w ON ur.workshop_id = w.id
+     WHERE u.participant_token = $1 
+       AND u.deleted_at IS NULL
+       AND ur.role = 'participant'
+       AND w.deleted_at IS NULL
+     LIMIT 1),
+    false
+  ) AS workshop_active;
+
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
 
@@ -79,6 +102,38 @@ LEFT JOIN workshop w
   ON w.id = r.workshop_id
 WHERE u.id = $1;
 
+-- name: GetAllUsersWithDetails :many
+SELECT
+  u.id,
+  u.created_by,
+  u.created_at,
+  u.modified_by,
+  u.modified_at,
+  u.name,
+  u.email,
+  u.deleted_at,
+  u.auth0_id,
+  r.id           AS role_id,
+  r.role         AS role,
+  r.institution_id,
+  i.name         AS institution_name,
+  r.workshop_id,
+  w.name         AS workshop_name
+FROM app_user u
+LEFT JOIN LATERAL (
+  SELECT ur.*
+  FROM user_role ur
+  WHERE ur.user_id = u.id
+  ORDER BY ur.created_at DESC
+  LIMIT 1
+) r ON TRUE
+LEFT JOIN institution i
+  ON i.id = r.institution_id
+LEFT JOIN workshop w
+  ON w.id = r.workshop_id
+WHERE u.deleted_at IS NULL
+ORDER BY u.created_at DESC;
+
 -- name: GetUserApiKeys :many
 SELECT
   k.id,
@@ -99,6 +154,12 @@ WHERE k.user_id = $1;
 UPDATE app_user SET
   name = $2,
   email = $3,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserShowAiModelSelector :exec
+UPDATE app_user SET
+  show_ai_model_selector = $2,
   modified_at = now()
 WHERE id = $1;
 
@@ -219,6 +280,11 @@ SELECT * FROM user_role_invite
 WHERE workshop_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
 
+-- name: GetInvitesByInstitution :many
+SELECT * FROM user_role_invite 
+WHERE institution_id = $1 AND deleted_at IS NULL
+ORDER BY created_at DESC;
+
 -- name: HasWorkshopRole :one
 SELECT EXISTS(
     SELECT 1 FROM user_role 
@@ -275,6 +341,21 @@ UPDATE user_role_invite SET
   uses_count = uses_count + 1,
   modified_at = now()
 WHERE id = $1;
+
+-- name: DeleteInvite :exec
+DELETE FROM user_role_invite WHERE id = $1;
+
+-- name: GetPendingInviteByTarget :one
+-- Check if a pending invite already exists for the same target (user_id or email) and institution
+SELECT * FROM user_role_invite 
+WHERE institution_id = $1
+  AND status = 'pending'
+  AND deleted_at IS NULL
+  AND (
+    (invited_user_id IS NOT NULL AND invited_user_id = $2)
+    OR (invited_email IS NOT NULL AND invited_email = $3)
+  )
+LIMIT 1;
 
 -- User Statistics queries
 

@@ -484,7 +484,7 @@ export function BackgroundAnimation({ animation, disabled = false, containerRef 
   }, []);
   
   // Initialize tsParticles engine once (pattern from official tsParticles docs)
-  /* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect -- Official tsParticles initialization pattern */
+  /* eslint-disable react-hooks/set-state-in-effect -- Official tsParticles initialization pattern */
   useEffect(() => {
     if (engineInitialized) {
       setInit(true);
@@ -504,6 +504,7 @@ export function BackgroundAnimation({ animation, disabled = false, containerRef 
 
   // Keep the particles layer visually fixed within the scroll container.
   // Without this, an absolutely positioned layer would remain at scrollTop=0 and disappear once you scroll.
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: sync scroll position from DOM */
   useEffect(() => {
     const el = containerRef?.current;
     if (!el || typeof window === 'undefined') {

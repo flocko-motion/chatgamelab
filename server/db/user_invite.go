@@ -106,31 +106,18 @@ func GetInviteByID(ctx context.Context, userID uuid.UUID, inviteID uuid.UUID) (o
 	return dbInviteToObj(dbInvite), nil
 }
 
-// GetInvites returns invites scoped by user permissions.
-// - Admins see all invites
-// - Regular users see only their own pending invites (targeted to them by user_id or email)
+// GetInvites returns pending invites targeted to the current user.
+// This is used for the notification bell - shows only invites the user needs to act on.
+// For admin/organization management views, use GetInvitesByInstitutionID instead.
 func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, error) {
 	// Check permissions using centralized permission system
 	if err := canAccessInvite(ctx, userID, OpList, nil); err != nil {
 		return nil, err
 	}
 
-	// Get user to determine scope
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, obj.ErrNotFound("user not found")
-	}
-
-	var dbInvites []db.UserRoleInvite
-
-	// Admin can see all invites
-	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		dbInvites, err = queries().GetInvites(ctx)
-	} else {
-		// Regular users only see their own pending invites
-		dbInvites, err = queries().GetInvitesByUser(ctx, uuid.NullUUID{UUID: userID, Valid: true})
-	}
-
+	// All users (including heads/staff) only see their own pending invites here
+	// This endpoint is for the notification bell, not for admin management
+	dbInvites, err := queries().GetInvitesByUser(ctx, uuid.NullUUID{UUID: userID, Valid: true})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get invites: %w", err)
 	}
@@ -144,8 +131,75 @@ func GetInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, er
 	return invites, nil
 }
 
+// GetAllInvites returns all invites (admin only)
+func GetAllInvites(ctx context.Context, userID uuid.UUID) ([]obj.UserRoleInvite, error) {
+	// Get user to check permissions
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	// Only admins can see all invites
+	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		return nil, obj.ErrForbidden("only admins can view all invites")
+	}
+
+	dbInvites, err := queries().GetInvites(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get invites: %w", err)
+	}
+
+	// Convert to obj.UserRoleInvite
+	invites := make([]obj.UserRoleInvite, len(dbInvites))
+	for i, dbInv := range dbInvites {
+		invites[i] = dbInviteToObj(dbInv)
+	}
+
+	return invites, nil
+}
+
+// GetInvitesByInstitutionID returns all invites for an institution.
+// Used for admin/organization management views.
+// Permission check: admin can see all, heads/staff can see their institution's invites.
+func GetInvitesByInstitutionID(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) ([]obj.UserRoleInvite, error) {
+	// Get user to check permissions
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.ErrNotFound("user not found")
+	}
+
+	// Check permission
+	isAdmin := user.Role != nil && user.Role.Role == obj.RoleAdmin
+	isMemberOfInstitution := user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID
+	isHeadOrStaff := user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff)
+
+	if !isAdmin && !(isMemberOfInstitution && isHeadOrStaff) {
+		return nil, obj.ErrForbidden("not authorized to view institution invites")
+	}
+
+	dbInvites, err := queries().GetInvitesByInstitution(ctx, institutionID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get invites: %w", err)
+	}
+
+	// Convert to obj.UserRoleInvite, filtering based on role
+	// Staff should not see head invites
+	isStaff := user.Role != nil && user.Role.Role == obj.RoleStaff
+	var invites []obj.UserRoleInvite
+	for _, dbInv := range dbInvites {
+		invite := dbInviteToObj(dbInv)
+		// Staff can only see non-head invites
+		if isStaff && invite.Role == obj.RoleHead {
+			continue
+		}
+		invites = append(invites, invite)
+	}
+
+	return invites, nil
+}
+
 // CreateInstitutionInvite creates an invitation for a specific user (by user_id or email) to join an institution.
-// Only head and staff roles are allowed (use CreateWorkshopInvite for participant invites).
+// Role can be head, staff, or empty (for users without a role).
 // Either invitedUserID or invitedEmail must be provided.
 // The creator must be a head of the institution (only heads can invite users to become staff/heads, admins can invite users to become admin/staff/heads).
 // Returns the complete invite record including the ID.
@@ -157,9 +211,9 @@ func CreateInstitutionInvite(
 	invitedUserID *uuid.UUID,
 	invitedEmail *string,
 ) (obj.UserRoleInvite, error) {
-	// Validate role - only head and staff allowed
-	if role != obj.RoleHead && role != obj.RoleStaff {
-		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head or staff roles, got: %s", role)
+	// Validate role - only head, staff, or empty allowed
+	if role != "" && role != obj.RoleHead && role != obj.RoleStaff {
+		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head, staff, or empty roles, got: %s", role)
 	}
 
 	// Validate that at least one target is provided
@@ -171,6 +225,17 @@ func CreateInstitutionInvite(
 	// Creating invites requires update permission on the institution
 	if err := canAccessInstitution(ctx, createdBy, OpUpdate, &institutionID); err != nil {
 		return obj.UserRoleInvite{}, err
+	}
+
+	// Check for existing pending invite for the same target
+	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+		InstitutionID: institutionID,
+		InvitedUserID: uuid.NullUUID{UUID: uuidPtrToUUID(invitedUserID), Valid: invitedUserID != nil},
+		InvitedEmail:  sql.NullString{String: functional.Deref(invitedEmail, ""), Valid: invitedEmail != nil},
+	})
+	if err == nil && existingInvite.ID != uuid.Nil {
+		// Return error - duplicate invite exists
+		return obj.UserRoleInvite{}, obj.ErrConflict("A pending invite already exists for this user")
 	}
 
 	// Targeted invites don't use invite_token (constraint: either targeted OR open, not both)
@@ -210,14 +275,20 @@ func CreateWorkshopInvite(
 		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
 	}
 
-	// Check permission using centralized system
-	// Creating invites requires update permission on the workshop
-	var createdByID uuid.UUID
-	if workshop.CreatedBy.Valid {
-		createdByID = workshop.CreatedBy.UUID
-	}
-	if err := canAccessWorkshop(ctx, createdBy, OpUpdate, workshop.InstitutionID, &workshopID, createdByID); err != nil {
+	// Check permission: any head or staff of the institution can create workshop invites
+	// (unlike update/delete which requires the creator for staff)
+	if err := canAccessWorkshop(ctx, createdBy, OpRead, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
 		return obj.UserRoleInvite{}, err
+	}
+
+	// Check if there's already a pending invite for this workshop - return it instead of creating a new one
+	existingInvites, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
+	if err == nil {
+		for _, inv := range existingInvites {
+			if inv.Status == string(obj.InviteStatusPending) && inv.InviteToken.Valid {
+				return dbInviteToObj(inv), nil
+			}
+		}
 	}
 
 	// Generate secure token (32 bytes = ~43 chars, 256 bits entropy)
@@ -464,7 +535,7 @@ func canManageInvite(ctx context.Context, invite db.UserRoleInvite, userID uuid.
 }
 
 // RevokeInvite revokes an invite (can only be done by the creator, admin, or institution staff for workshop invites).
-// This marks the invite as 'revoked' so it can no longer be accepted.
+// This permanently deletes the invite (hard delete).
 func RevokeInvite(ctx context.Context, inviteID uuid.UUID, revokedBy uuid.UUID) error {
 	// Get the invite
 	invite, err := queries().GetInviteByID(ctx, inviteID)
@@ -482,29 +553,7 @@ func RevokeInvite(ctx context.Context, inviteID uuid.UUID, revokedBy uuid.UUID) 
 		return err
 	}
 
-	return updateInviteStatusUnchecked(ctx, inviteID, obj.InviteStatusRevoked)
-}
-
-// ReactivateInvite re-activates a revoked invite (can only be done by the creator, admin, or institution staff for workshop invites).
-// This marks the invite as 'pending' so it can be accepted again.
-func ReactivateInvite(ctx context.Context, inviteID uuid.UUID, reactivatedBy uuid.UUID) error {
-	// Get the invite
-	invite, err := queries().GetInviteByID(ctx, inviteID)
-	if err != nil {
-		return fmt.Errorf("invite not found: %w", err)
-	}
-
-	// Validate the invite can be reactivated (only revoked invites)
-	if invite.Status != string(obj.InviteStatusRevoked) {
-		return fmt.Errorf("only revoked invites can be reactivated (current status: %s)", invite.Status)
-	}
-
-	// Check permission
-	if err := canManageInvite(ctx, invite, reactivatedBy); err != nil {
-		return err
-	}
-
-	return updateInviteStatusUnchecked(ctx, inviteID, obj.InviteStatusPending)
+	return queries().DeleteInvite(ctx, inviteID)
 }
 
 // AcceptOpenInvite accepts an open invite using its token and creates a user role.

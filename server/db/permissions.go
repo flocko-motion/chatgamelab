@@ -100,16 +100,46 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 		return obj.ErrForbidden("only members can view institution members")
 
 	case OpDelete:
-		// Only heads can remove members (admins already handled above)
+		// Users can remove themselves (leave the organization)
+		if targetUserID != nil && *targetUserID == userID {
+			// Check that the user is actually a member of this institution
+			if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+				return nil
+			}
+			return obj.ErrForbidden("you are not a member of this institution")
+		}
+
+		// Heads can remove staff and participants
 		if user.Role != nil && user.Role.Role == obj.RoleHead &&
 			user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
-			// Can't remove yourself
-			if targetUserID != nil && *targetUserID == userID {
-				return obj.ErrValidation("cannot remove yourself from the institution")
+			// Get target user to check their role
+			targetUser, err := GetUserByID(ctx, *targetUserID)
+			if err != nil {
+				return obj.ErrNotFound("target user not found")
+			}
+			// Heads can remove staff and participants, but not other heads
+			if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead {
+				return obj.ErrForbidden("heads cannot remove other heads")
 			}
 			return nil
 		}
-		return obj.ErrForbidden("only heads or admins can remove members")
+
+		// Staff can remove participants (no role or participant role)
+		if user.Role != nil && user.Role.Role == obj.RoleStaff &&
+			user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+			// Get target user to check their role
+			targetUser, err := GetUserByID(ctx, *targetUserID)
+			if err != nil {
+				return obj.ErrNotFound("target user not found")
+			}
+			// Staff can only remove participants
+			if targetUser.Role == nil || targetUser.Role.Role == obj.RoleParticipant {
+				return nil
+			}
+			return obj.ErrForbidden("staff can only remove participants")
+		}
+
+		return obj.ErrForbidden("only heads, staff, or admins can remove members")
 
 	default:
 		return obj.ErrForbidden("unknown operation")
@@ -277,15 +307,11 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		return obj.ErrForbidden("only admin, head, or staff can list workshops")
 
 	case OpUpdate, OpDelete:
-		// Head can update/delete any workshop in their institution
-		if user.Role.Role == obj.RoleHead {
+		// Head or Staff can update/delete any workshop in their institution
+		if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
 			return nil
 		}
-		// Staff can only update/delete workshops they created
-		if user.Role.Role == obj.RoleStaff && createdBy == userID {
-			return nil
-		}
-		return obj.ErrForbidden("only admin, head of institution, or staff who created the workshop can modify it")
+		return obj.ErrForbidden("only admin, head, or staff of the institution can modify workshops")
 
 	default:
 		return obj.ErrForbidden("unknown operation")

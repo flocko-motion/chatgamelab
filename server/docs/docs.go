@@ -753,6 +753,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/games/{id}/available-keys": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a prioritized list of API keys available to the user for playing this game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get available API keys for a game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.AvailableKey"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{id}/clone": {
             "post": {
                 "security": [
@@ -1370,6 +1431,234 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/apikeys": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all API keys shared with an institution (heads and staff only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Get institution API keys",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.ApiKeyShare"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/members": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all members of an institution",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Get institution members",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/obj.User"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/members/{userID}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a member from an institution (head or admin only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Remove member from institution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "List invites",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.InviteResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists all invites. Requires admin role.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "List all invites (admin only)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.InviteResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invites/institution": {
             "post": {
                 "security": [
@@ -1427,26 +1716,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/invites/institution/{idOrToken}/accept": {
-            "post": {
+        "/invites/institution/{institutionId}": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts a targeted institution invite by ID or token",
+                "description": "Lists all invites for a specific institution. Requires head/staff role in the institution or admin.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "Accept institution invite",
+                "summary": "List invites for an institution",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Invite ID (UUID) or token",
-                        "name": "idOrToken",
+                        "description": "Institution ID",
+                        "name": "institutionId",
                         "in": "path",
                         "required": true
                     }
@@ -1455,81 +1744,20 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.InviteResponse"
                             }
                         }
                     },
-                    "400": {
-                        "description": "Invalid request",
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not found",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/invites/institution/{idOrToken}/decline": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Declines a targeted institution invite by ID or token",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "invites"
-                ],
-                "summary": "Decline institution invite",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Invite ID (UUID) or token",
-                        "name": "idOrToken",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not found",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1594,26 +1822,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/invites/workshop/{token}/accept": {
-            "post": {
+        "/invites/{idOrToken}": {
+            "get": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Accepts an open workshop invite by token",
+                "description": "Retrieves a specific invite. Auto-detects whether parameter is a UUID (ID) or string (token). Admins can see any invite, regular users can only see invites targeted to them or created by them.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "Accept workshop invite",
+                "summary": "Get invite by ID or token",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Invite token",
-                        "name": "token",
+                        "description": "Invite ID (UUID) or token",
+                        "name": "idOrToken",
                         "in": "path",
                         "required": true
                     }
@@ -1622,14 +1850,69 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/obj.UserRoleInvite"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/{idOrToken}/accept": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Accepts an invite by ID or token. For workshop invites, can be used anonymously (creates ad-hoc user). For institution invites, requires authentication.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Accept invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite ID (UUID) or token",
+                        "name": "idOrToken",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.AcceptInviteResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -1650,7 +1933,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Revokes a pending invite (creator or admin only)",
+                "description": "Revokes a pending invite (creator, admin, or institution staff for workshop invites)",
                 "produces": [
                     "application/json"
                 ],
@@ -1675,6 +1958,58 @@ const docTemplate = `{
                             "additionalProperties": {
                                 "type": "string"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/invites/{id}/decline": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Declines an invite by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "invites"
+                ],
+                "summary": "Decline invite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Invite ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.UserRoleInvite"
                         }
                     },
                     "400": {
@@ -1762,7 +2097,7 @@ const docTemplate = `{
         },
         "/messages/{id}/image": {
             "get": {
-                "description": "Returns the image for a message as PNG",
+                "description": "Returns the generated image for a game session message.\nChecks in-memory cache first (for partial/WIP images), then database.\nNo authentication required - message UUIDs are random and unguessable.",
                 "produces": [
                     "image/png"
                 ],
@@ -1794,6 +2129,41 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Message or image not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/{id}/image/status": {
+            "get": {
+                "description": "Returns the current hash and completion status of an image being generated.\nFrontend can poll this to detect when new partial/final images are available.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get image generation status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ImageStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid message ID",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -2166,6 +2536,80 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sessions"
+                ],
+                "summary": "Update session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update session request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateSessionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.GameSession"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/status": {
@@ -2292,7 +2736,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns aggregated statistics for the currently authenticated user",
+                "description": "Returns statistics for the authenticated user",
                 "produces": [
                     "application/json"
                 ],
@@ -2309,12 +2753,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -2487,6 +2925,56 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Soft-deletes a user (for removing participants)",
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid user ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -2701,6 +3189,30 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Institution ID",
                         "name": "institutionId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search by name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field (name, createdAt, participantCount)",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction (asc, desc)",
+                        "name": "sortDir",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter to active workshops only",
+                        "name": "activeOnly",
                         "in": "query"
                     }
                 ],
@@ -2923,7 +3435,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -2940,6 +3452,10 @@ const docTemplate = `{
                 },
                 "imageStyle": {
                     "type": "string"
+                },
+                "isOrganisationUnverified": {
+                    "description": "Set to true when image generation fails due to organization verification required",
+                    "type": "boolean"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -3081,6 +3597,27 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.AvailableKey": {
+            "type": "object",
+            "properties": {
+                "isDefault": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "shareId": {
+                    "type": "string"
+                },
+                "source": {
+                    "description": "\"sponsor\", \"workshop\", \"institution\", \"personal\"",
+                    "type": "string"
+                }
+            }
+        },
         "obj.Game": {
             "type": "object",
             "properties": {
@@ -3204,7 +3741,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -3221,6 +3758,10 @@ const docTemplate = `{
                 },
                 "imageStyle": {
                     "type": "string"
+                },
+                "isOrganisationUnverified": {
+                    "description": "Set to true when image generation fails due to organization verification required",
+                    "type": "boolean"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -3331,11 +3872,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "animation": {
-                    "description": "none, stars, rain, fog, particles, scanlines",
+                    "description": "none, stars, bubbles, fireflies, snow, rain, matrix",
                     "type": "string"
                 },
                 "tint": {
-                    "description": "warm, cool, neutral, dark",
+                    "description": "warm, cool, neutral, dark, black",
                     "type": "string"
                 }
             }
@@ -3820,6 +4361,20 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.AcceptInviteResponse": {
+            "type": "object",
+            "properties": {
+                "authToken": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/obj.User"
+                }
+            }
+        },
         "routes.ApiKeyInfoResponse": {
             "type": "object",
             "properties": {
@@ -3929,6 +4484,32 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ImageStatusResponse": {
+            "type": "object",
+            "properties": {
+                "errorCode": {
+                    "type": "string"
+                },
+                "errorMsg": {
+                    "type": "string"
+                },
+                "exists": {
+                    "type": "boolean"
+                },
+                "hasError": {
+                    "type": "boolean"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "isComplete": {
+                    "type": "boolean"
+                },
+                "isOrganisationUnverified": {
+                    "type": "boolean"
+                }
+            }
+        },
         "routes.InviteResponse": {
             "type": "object",
             "properties": {
@@ -3955,6 +4536,9 @@ const docTemplate = `{
                 },
                 "maxUses": {
                     "type": "integer"
+                },
+                "modifiedAt": {
+                    "type": "string"
                 },
                 "role": {
                     "type": "string"
@@ -4036,7 +4620,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.ApiKey"
                 },
                 "apiKeyId": {
-                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.",
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
                 "gameDescription": {
@@ -4053,6 +4637,10 @@ const docTemplate = `{
                 },
                 "imageStyle": {
                     "type": "string"
+                },
+                "isOrganisationUnverified": {
+                    "description": "Set to true when image generation fails due to organization verification required",
+                    "type": "boolean"
                 },
                 "messages": {
                     "type": "array",
@@ -4140,6 +4728,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.UpdateSessionRequest": {
+            "type": "object",
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "shareId": {
                     "type": "string"
                 }
             }

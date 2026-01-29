@@ -291,7 +291,7 @@ export function ThemeTestPanel({ currentTheme, onThemeChange }: ThemeTestPanelPr
   const prevThemeJsonRef = useRef<string | null>(null);
   
   // Sync local state when currentTheme changes externally (e.g., when AI generates a theme)
-  /* eslint-disable @eslint-react/hooks-extra/no-direct-set-state-in-use-effect -- Intentional: sync external theme to local state */
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: sync external theme to local state */
   useEffect(() => {
     if (!currentTheme || currentThemeJson === prevThemeJsonRef.current) return;
     prevThemeJsonRef.current = currentThemeJson;

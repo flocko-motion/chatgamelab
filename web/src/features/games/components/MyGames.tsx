@@ -14,8 +14,8 @@ import {
 import { useDisclosure, useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
-import { TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
+import { IconAlertCircle, IconMoodEmpty, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
+import { ActionButton, TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
 import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch } from '@components/controls';
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
@@ -513,18 +513,16 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
 
           <Group justify="space-between" wrap="wrap" gap="sm">
             <Group gap="sm">
-              <TextButton
-                leftSection={<IconPlus size={16} />}
+              <ActionButton
                 onClick={openCreateModal}
               >
                 {t('games.createButton')}
-              </TextButton>
-              <TextButton
-                leftSection={<IconUpload size={16} />}
+              </ActionButton>
+              <ActionButton
                 onClick={handleImportClick}
               >
                 {t('games.importExport.importButton')}
-              </TextButton>
+              </ActionButton>
               <ExpandableSearch
                 value={searchQuery}
                 onChange={setSearchQuery}

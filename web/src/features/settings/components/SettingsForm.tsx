@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Card, Stack, TextInput, Alert, Switch } from "@mantine/core";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
-import { IconUser, IconMail, IconCheck } from "@tabler/icons-react";
+import { IconUser, IconCheck, IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
@@ -24,10 +24,6 @@ export function SettingsForm() {
       .string()
       .min(1, t("settings.errors.nameRequired"))
       .max(24, t("settings.errors.nameTooLong")),
-    email: z
-      .string()
-      .min(1, t("settings.errors.emailRequired"))
-      .email(t("settings.errors.emailInvalid")),
     showAiModelSelector: z.boolean(),
   });
 
@@ -44,7 +40,6 @@ export function SettingsForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: backendUser?.name || "",
-      email: backendUser?.email || "",
       showAiModelSelector: backendUser?.showAiModelSelector || false,
     },
   });
@@ -56,7 +51,6 @@ export function SettingsForm() {
     if (backendUser) {
       reset({
         name: backendUser.name || "",
-        email: backendUser.email || "",
         showAiModelSelector: backendUser.showAiModelSelector || false,
       });
     }
@@ -73,7 +67,6 @@ export function SettingsForm() {
         id: backendUser.id!,
         request: {
           name: data.name.trim(),
-          email: data.email.trim(),
           showAiModelSelector: data.showAiModelSelector,
         },
       },
@@ -95,8 +88,6 @@ export function SettingsForm() {
 
             if (message.includes("Name is already taken")) {
               setSubmitError(t("settings.errors.nameTaken"));
-            } else if (message.includes("Email is already taken")) {
-              setSubmitError(t("settings.errors.emailTaken"));
             } else {
               setSubmitError(t("settings.errors.saveFailed"));
             }
@@ -131,15 +122,13 @@ export function SettingsForm() {
               disabled={isSubmitting}
             />
 
-            <TextInput
-              label={t("settings.emailLabel")}
-              placeholder={t("settings.emailPlaceholder")}
-              description={t("settings.emailDescription")}
-              leftSection={<IconMail size={16} />}
-              error={errors.email?.message}
-              {...register("email")}
-              disabled={isSubmitting}
-            />
+            <Alert
+              variant="light"
+              color="gray"
+              icon={<IconInfoCircle size={16} />}
+            >
+              {t("settings.emailChangeNote")}
+            </Alert>
 
             <Stack gap="xs" mt="lg">
               <Switch

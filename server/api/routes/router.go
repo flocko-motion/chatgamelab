@@ -37,6 +37,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/games/favourites", httpx.RequireAuth(GetFavouriteGames))
 	mux.Handle("POST /api/games/{id}/favourite", httpx.RequireAuth(AddFavouriteGame))
 	mux.Handle("DELETE /api/games/{id}/favourite", httpx.RequireAuth(RemoveFavouriteGame))
+	mux.Handle("GET /api/games/{id}/available-keys", httpx.RequireAuth(GetAvailableKeys))
 
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
@@ -74,6 +75,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/institutions/{id}", httpx.RequireAuth(DeleteInstitution))
 	mux.Handle("GET /api/institutions/{id}/members", httpx.RequireAuth(GetInstitutionMembers))
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
+	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))
@@ -84,18 +86,20 @@ func NewMux() *http.ServeMux {
 
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
+	mux.Handle("GET /api/invites/all", httpx.RequireAuth(ListAllInvites))
+	mux.Handle("GET /api/invites/institution/{institutionId}", httpx.RequireAuth(ListInvitesByInstitution))
 	mux.Handle("GET /api/invites/{idOrToken}", httpx.RequireAuth(GetInvite))
 	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.OptionalAuth(AcceptInvite)) // Optional auth - supports anonymous workshop invites
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
 	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
-	mux.Handle("POST /api/invites/{id}/reactivate", httpx.RequireAuth(ReactivateInvite))
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
 	mux.Handle("GET /api/sessions/{id}", httpx.RequireAuth(GetSession))
 	mux.Handle("POST /api/sessions/{id}", httpx.RequireAuth(PostSessionAction))
+	mux.Handle("PATCH /api/sessions/{id}", httpx.RequireAuth(UpdateSession))
 	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
 
 	// Messages

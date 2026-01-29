@@ -7,18 +7,22 @@ import {
   Tooltip,
   Box,
   Stack,
-  Button,
+  Menu,
+  Checkbox,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/hooks';
 import { useTranslation } from 'react-i18next';
 import { 
   IconArrowLeft, 
   IconAlertCircle,
   IconTextIncrease,
   IconTextDecrease,
-  IconSparkles,
+  IconSettings,
 } from '@tabler/icons-react';
+import env from '@/config/env';
 import { TextButton } from '@components/buttons';
 import { ErrorModal } from '@/common/components/ErrorModal';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
@@ -28,7 +32,7 @@ import { GamePlayerProvider } from '../context';
 import type { GamePlayerContextValue, FontSize } from '../context';
 import { DEFAULT_THEME, mapApiThemeToPartial } from '../types';
 import type { PartialGameTheme } from '../theme/types';
-import { GameThemeProvider, useGameTheme } from '../theme';
+import { GameThemeProvider, useGameTheme, PRESET_THEMES } from '../theme';
 import { ApiKeySelectModal } from './ApiKeySelectModal';
 import { ThemeTestPanel } from './ThemeTestPanel';
 import { SceneCard } from './SceneCard';
@@ -96,6 +100,7 @@ interface GamePlayerProps {
 export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
   const { isMobile } = useResponsiveDesign();
@@ -105,13 +110,14 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [fontSize, setFontSize] = useState<FontSize>('md');
   const [debugMode, setDebugMode] = useState(false);
   const [animationEnabled, setAnimationEnabled] = useState(true);
+  const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] = useState(false);
   const [imageErrorCode, setImageErrorCode] = useState<string | null>(null);
 
   const { data: game, isLoading: gameLoading, error: gameError } = useGame(
     isContinuation ? undefined : gameId
   );
-  const { state, startSession, sendAction, loadExistingSession, resetGame } = useGameSession(gameId || '');
+  const { state, startSession, sendAction, loadExistingSession, updateSessionApiKey, resetGame } = useGameSession(gameId || '');
 
   const [themeOverridesBySessionId, setThemeOverridesBySessionId] = useState<Record<string, PartialGameTheme>>({});
   const themeOverride = state.sessionId ? (themeOverridesBySessionId[state.sessionId] ?? null) : null;
@@ -122,6 +128,19 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       ...prev,
       [state.sessionId as string]: theme,
     }));
+  }, [state.sessionId]);
+
+  const handleNeutralThemeToggle = useCallback(() => {
+    // Clear theme override when toggling neutral theme
+    // This ensures clean switch between default preset and original API theme
+    if (state.sessionId) {
+      setThemeOverridesBySessionId((prev) => {
+        const newOverrides = { ...prev };
+        delete newOverrides[state.sessionId as string];
+        return newOverrides;
+      });
+    }
+    setUseNeutralTheme((prev) => !prev);
   }, [state.sessionId]);
 
   useEffect(() => {
@@ -155,11 +174,18 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     await startSession({ shareId, model });
   };
 
+  const handleUpdateApiKey = async (shareId: string, model?: string) => {
+    await updateSessionApiKey(shareId, model);
+  };
+
   const handleSendAction = async (message: string) => {
     await sendAction(message);
   };
 
   const handleBack = () => {
+    // Invalidate queries so the games/sessions lists refresh with any new sessions
+    queryClient.invalidateQueries({ queryKey: queryKeys.games });
+    queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
     navigate({ to: (isContinuation ? '/sessions' : '/play') as '/' });
   };
 
@@ -288,6 +314,30 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     );
   }
 
+  // Session exists but API key was deleted - prompt for new key
+  if (state.phase === 'needs-api-key') {
+    return (
+      <>
+        <Box className={classes.container} h={containerHeight}>
+          <Stack className={classes.stateContainer} align="center" justify="center" gap="md">
+            <IconAlertCircle size={48} color="var(--mantine-color-orange-5)" />
+            <Text size="lg" fw={600}>{t('gamePlayer.needsApiKey.title')}</Text>
+            <Text c="dimmed" ta="center">{t('gamePlayer.needsApiKey.description')}</Text>
+          </Stack>
+        </Box>
+        <ApiKeySelectModal
+          opened={true}
+          onClose={handleBack}
+          onStart={handleUpdateApiKey}
+          gameId={state.gameInfo?.id}
+          gameName={state.gameInfo?.name}
+          isLoading={isSessionStarting}
+          reason={t('gamePlayer.needsApiKey.reason')}
+        />
+      </>
+    );
+  }
+
   if (state.phase === 'starting') {
     return (
       <Box className={classes.container} h={containerHeight}>
@@ -361,21 +411,23 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   };
 
   // Deep merge API theme with local override for testing
+  // If neutral theme is enabled, use the default preset
+  const baseTheme = useNeutralTheme ? PRESET_THEMES.default : mapApiThemeToPartial(state.theme);
   const effectiveTheme = themeOverride 
     ? {
-        corners: { ...mapApiThemeToPartial(state.theme)?.corners, ...themeOverride.corners },
-        background: { ...mapApiThemeToPartial(state.theme)?.background, ...themeOverride.background },
-        player: { ...mapApiThemeToPartial(state.theme)?.player, ...themeOverride.player },
-        gameMessage: { ...mapApiThemeToPartial(state.theme)?.gameMessage, ...themeOverride.gameMessage },
-        cards: { ...mapApiThemeToPartial(state.theme)?.cards, ...themeOverride.cards },
-        thinking: { ...mapApiThemeToPartial(state.theme)?.thinking, ...themeOverride.thinking },
-        typography: { ...mapApiThemeToPartial(state.theme)?.typography, ...themeOverride.typography },
-        statusFields: { ...mapApiThemeToPartial(state.theme)?.statusFields, ...themeOverride.statusFields },
-        header: { ...mapApiThemeToPartial(state.theme)?.header, ...themeOverride.header },
-        divider: { ...mapApiThemeToPartial(state.theme)?.divider, ...themeOverride.divider },
-        statusEmojis: { ...mapApiThemeToPartial(state.theme)?.statusEmojis, ...themeOverride.statusEmojis },
+        corners: { ...baseTheme?.corners, ...themeOverride.corners },
+        background: { ...baseTheme?.background, ...themeOverride.background },
+        player: { ...baseTheme?.player, ...themeOverride.player },
+        gameMessage: { ...baseTheme?.gameMessage, ...themeOverride.gameMessage },
+        cards: { ...baseTheme?.cards, ...themeOverride.cards },
+        thinking: { ...baseTheme?.thinking, ...themeOverride.thinking },
+        typography: { ...baseTheme?.typography, ...themeOverride.typography },
+        statusFields: { ...baseTheme?.statusFields, ...themeOverride.statusFields },
+        header: { ...baseTheme?.header, ...themeOverride.header },
+        divider: { ...baseTheme?.divider, ...themeOverride.divider },
+        statusEmojis: { ...baseTheme?.statusEmojis, ...themeOverride.statusEmojis },
       }
-    : mapApiThemeToPartial(state.theme);
+    : baseTheme;
   
   return (
     <GameThemeProvider theme={effectiveTheme}>
@@ -427,32 +479,66 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
                   <IconTextIncrease size={18} />
                 </ActionIcon>
               </Tooltip>
-              {!isMobile && (
-                <Tooltip label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')} position="bottom">
-                  <ActionIcon
-                    variant={animationEnabled ? 'light' : 'subtle'}
-                    color={animationEnabled ? 'violet' : 'gray'}
+              <Menu shadow="md" width={200} position="bottom-end">
+                <Menu.Target>
+                  <Tooltip label={t('gamePlayer.header.settings')} position="bottom">
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      aria-label={t('gamePlayer.header.settings')}
+                      size="lg"
+                    >
+                      <IconSettings size={18} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Label>{t('gamePlayer.header.settings')}</Menu.Label>
+                  <Menu.Item
+                    closeMenuOnClick={false}
                     onClick={() => setAnimationEnabled(!animationEnabled)}
-                    aria-label={animationEnabled ? t('gamePlayer.header.disableAnimation') : t('gamePlayer.header.enableAnimation')}
-                    size="lg"
                   >
-                    <IconSparkles size={18} />
-                  </ActionIcon>
-                </Tooltip>
+                    <Checkbox
+                      label={t('gamePlayer.header.disableAnimations')}
+                      checked={!animationEnabled}
+                      onChange={() => setAnimationEnabled(!animationEnabled)}
+                      size="sm"
+                      styles={{ input: { cursor: 'pointer' }, label: { cursor: 'pointer' } }}
+                    />
+                  </Menu.Item>
+                  <Menu.Item
+                    closeMenuOnClick={false}
+                    onClick={handleNeutralThemeToggle}
+                  >
+                    <Checkbox
+                      label={t('gamePlayer.header.useNeutralTheme')}
+                      checked={useNeutralTheme}
+                      onChange={handleNeutralThemeToggle}
+                      size="sm"
+                      styles={{ input: { cursor: 'pointer' }, label: { cursor: 'pointer' } }}
+                    />
+                  </Menu.Item>
+                  <Menu.Divider />
+                  <Menu.Item
+                    closeMenuOnClick={false}
+                    onClick={toggleDebugMode}
+                  >
+                    <Checkbox
+                      label={t('gamePlayer.header.debug')}
+                      checked={debugMode}
+                      onChange={toggleDebugMode}
+                      size="sm"
+                      styles={{ input: { cursor: 'pointer' }, label: { cursor: 'pointer' } }}
+                    />
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+              {env.DEV && (
+                <ThemeTestPanel
+                  currentTheme={effectiveTheme}
+                  onThemeChange={handleThemeChange}
+                />
               )}
-              <ThemeTestPanel
-                currentTheme={effectiveTheme}
-                onThemeChange={handleThemeChange}
-              />
-              <Button
-                onClick={toggleDebugMode}
-                size="xs"
-                variant={debugMode ? 'light' : 'subtle'}
-                color={debugMode ? 'accent' : 'gray'}
-                radius="md"
-              >
-                {t('gamePlayer.header.debug')}
-              </Button>
             </Group>
           </Group>
         </HeaderWithTheme>
@@ -470,6 +556,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             opened={apiKeyModalOpened}
             onClose={handleBack}
             onStart={handleStartGame}
+            gameId={gameId}
             gameName={displayGame?.name}
             isLoading={isSessionStarting}
           />

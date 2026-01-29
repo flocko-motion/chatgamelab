@@ -32,6 +32,11 @@ type CreateSessionRequest struct {
 	Model   string    `json:"model"`
 }
 
+type UpdateSessionRequest struct {
+	ShareID uuid.UUID `json:"shareId"`
+	Model   string    `json:"model,omitempty"`
+}
+
 // GetUserSessions godoc
 //
 //	@Summary		List user sessions
@@ -313,6 +318,54 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
+// UpdateSession godoc
+//
+//	@Summary		Update session
+//	@Description	Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+//	@Tags			sessions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"Session ID (UUID)"
+//	@Param			request	body		UpdateSessionRequest	true	"Update session request"
+//	@Success		200		{object}	obj.GameSession
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404		{object}	httpx.ErrorResponse	"Session not found"
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/sessions/{id} [patch]
+func UpdateSession(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	sessionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid session ID")
+		return
+	}
+
+	var req UpdateSessionRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	log.Debug("updating session", "session_id", sessionID, "user_id", user.ID, "share_id", req.ShareID)
+
+	session, err := db.UpdateGameSessionApiKey(r.Context(), user.ID, sessionID, req.ShareID, req.Model)
+	if err != nil {
+		if httpErr, ok := err.(*obj.HTTPError); ok {
+			httpx.WriteHTTPError(w, httpErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update session: "+err.Error())
+		return
+	}
+
+	log.Debug("session updated", "session_id", sessionID)
+	httpx.WriteJSON(w, http.StatusOK, session)
+}
+
 // ImageStatusResponse is the response for the image status endpoint
 type ImageStatusResponse struct {
 	Hash                     string `json:"hash"`
@@ -460,7 +513,13 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// Use origin from request for CORS with credentials support
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		origin = "*"
+	}
+	w.Header().Set("Access-Control-Allow-Origin", origin)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {

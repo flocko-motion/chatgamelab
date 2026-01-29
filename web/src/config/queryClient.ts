@@ -153,6 +153,31 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
     return;
   }
 
+  // Handle workshop inactive error - participant's workshop has been deactivated
+  if (errorCode === 'auth_workshop_inactive') {
+    notifications.show({
+      title: te('titles.workshopInactive'),
+      message: te('workshopInactive'),
+      color: 'orange',
+    });
+    // Clear session and redirect to a workshop inactive page or home
+    if (typeof window !== 'undefined') {
+      // Dispatch custom event for auth provider to handle
+      window.dispatchEvent(new CustomEvent('cgl:workshop_inactive'));
+    }
+    return;
+  }
+
+  // Handle invalid participant token
+  if (errorCode === 'auth_invalid_token') {
+    notifications.show({
+      title: te('titles.authentication'),
+      message: te('invalidToken'),
+      color: 'red',
+    });
+    return;
+  }
+
   // Show appropriate notification based on status code (fallback if no error code handled)
   switch (status) {
     case 401:

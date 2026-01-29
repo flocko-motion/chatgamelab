@@ -80,6 +80,10 @@ func CreateWorkshop(w http.ResponseWriter, r *http.Request) {
 //	@Tags			workshops
 //	@Produce		json
 //	@Param			institutionId	query		string	false	"Institution ID"
+//	@Param			search			query		string	false	"Search by name"
+//	@Param			sortBy			query		string	false	"Sort by field (name, createdAt, participantCount)"
+//	@Param			sortDir			query		string	false	"Sort direction (asc, desc)"
+//	@Param			activeOnly		query		bool	false	"Filter to active workshops only"
 //	@Success		200				{array}		obj.Workshop
 //	@Failure		500				{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
@@ -87,6 +91,10 @@ func CreateWorkshop(w http.ResponseWriter, r *http.Request) {
 func ListWorkshops(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 	institutionIDStr := httpx.QueryParam(r, "institutionId")
+	search := httpx.QueryParam(r, "search")
+	sortBy := httpx.QueryParam(r, "sortBy")
+	sortDir := httpx.QueryParam(r, "sortDir")
+	activeOnlyStr := httpx.QueryParam(r, "activeOnly")
 
 	var institutionID *uuid.UUID
 	if institutionIDStr != "" {
@@ -98,7 +106,22 @@ func ListWorkshops(w http.ResponseWriter, r *http.Request) {
 		institutionID = &id
 	}
 
-	workshops, err := db.ListWorkshops(r.Context(), user.ID, institutionID)
+	// Parse activeOnly filter
+	var activeOnly *bool
+	if activeOnlyStr == "true" {
+		t := true
+		activeOnly = &t
+	}
+
+	// Build filter options
+	opts := db.ListWorkshopsOptions{
+		Search:     search,
+		SortBy:     sortBy,
+		SortDir:    sortDir,
+		ActiveOnly: activeOnly,
+	}
+
+	workshops, err := db.ListWorkshopsWithOptions(r.Context(), user.ID, institutionID, opts)
 
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {

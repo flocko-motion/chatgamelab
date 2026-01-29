@@ -13,6 +13,42 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearGameSponsoredApiKey = `-- name: ClearGameSponsoredApiKey :exec
+UPDATE game
+SET
+  public_sponsored_api_key_id = CASE WHEN public_sponsored_api_key_id = $1 THEN NULL ELSE public_sponsored_api_key_id END,
+  private_sponsored_api_key_id = CASE WHEN private_sponsored_api_key_id = $1 THEN NULL ELSE private_sponsored_api_key_id END,
+  modified_at = now()
+WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1
+`
+
+func (q *Queries) ClearGameSponsoredApiKey(ctx context.Context, publicSponsoredApiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKey, publicSponsoredApiKeyID)
+	return err
+}
+
+const clearSessionApiKeyID = `-- name: ClearSessionApiKeyID :exec
+UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1
+`
+
+func (q *Queries) ClearSessionApiKeyID(ctx context.Context, apiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearSessionApiKeyID, apiKeyID)
+	return err
+}
+
+const clearUserDefaultApiKeyShareByApiKeyID = `-- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
+UPDATE app_user
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+)
+`
+
+func (q *Queries) ClearUserDefaultApiKeyShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearUserDefaultApiKeyShareByApiKeyID, apiKeyID)
+	return err
+}
+
 const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (
@@ -212,6 +248,83 @@ func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.U
 			&i.UserName,
 			&i.WorkshopName,
 			&i.InstitutionName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getApiKeySharesByInstitutionID = `-- name: GetApiKeySharesByInstitutionID :many
+SELECT
+  s.id,
+  s.created_by,
+  s.created_at,
+  s.modified_by,
+  s.modified_at,
+  s.api_key_id,
+  s.user_id,
+  s.workshop_id,
+  s.institution_id,
+  s.allow_public_sponsored_plays,
+  k.name AS api_key_name,
+  k.platform AS api_key_platform,
+  k.user_id AS owner_id,
+  owner.name AS owner_name
+FROM api_key_share s
+JOIN api_key k ON k.id = s.api_key_id
+JOIN app_user owner ON owner.id = k.user_id
+WHERE s.institution_id = $1
+`
+
+type GetApiKeySharesByInstitutionIDRow struct {
+	ID                        uuid.UUID
+	CreatedBy                 uuid.NullUUID
+	CreatedAt                 time.Time
+	ModifiedBy                uuid.NullUUID
+	ModifiedAt                time.Time
+	ApiKeyID                  uuid.UUID
+	UserID                    uuid.NullUUID
+	WorkshopID                uuid.NullUUID
+	InstitutionID             uuid.NullUUID
+	AllowPublicSponsoredPlays bool
+	ApiKeyName                string
+	ApiKeyPlatform            string
+	OwnerID                   uuid.UUID
+	OwnerName                 string
+}
+
+func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getApiKeySharesByInstitutionID, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetApiKeySharesByInstitutionIDRow
+	for rows.Next() {
+		var i GetApiKeySharesByInstitutionIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.ModifiedBy,
+			&i.ModifiedAt,
+			&i.ApiKeyID,
+			&i.UserID,
+			&i.WorkshopID,
+			&i.InstitutionID,
+			&i.AllowPublicSponsoredPlays,
+			&i.ApiKeyName,
+			&i.ApiKeyPlatform,
+			&i.OwnerID,
+			&i.OwnerName,
 		); err != nil {
 			return nil, err
 		}

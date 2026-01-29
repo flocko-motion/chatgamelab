@@ -87,6 +87,7 @@ export function GameEditModal({
   const hasInitialized = useRef(false);
   
   // Initialize form values when game loads (only once)
+  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: initialize form from game data */
   useEffect(() => {
     if (!isCreateMode && game && !isLoading && !hasInitialized.current) {
       hasInitialized.current = true;
