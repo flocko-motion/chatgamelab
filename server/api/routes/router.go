@@ -98,6 +98,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
 	mux.Handle("GET /api/sessions/{id}", httpx.RequireAuth(GetSession))
 	mux.Handle("POST /api/sessions/{id}", httpx.RequireAuth(PostSessionAction))
+	mux.Handle("PATCH /api/sessions/{id}", httpx.RequireAuth(UpdateSession))
 	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
 
 	// Messages
