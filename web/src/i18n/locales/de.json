@@ -815,6 +815,8 @@
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "contentFiltered": "Deine Anfrage wurde von den Inhaltsrichtlinien der KI gefiltert. Bitte formuliere sie anders.",
     "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
     "titles": {
       "network": "Netzwerkfehler",
       "server": "Serverfehler",
@@ -824,7 +826,8 @@
       "notFound": "Nicht gefunden",
       "error": "Fehler",
       "aiError": "KI-Fehler",
-      "billing": "Zahlungsfehler"
+      "billing": "Zahlungsfehler",
+      "workshopInactive": "Workshop inaktiv"
     }
   },
   "auth": {
