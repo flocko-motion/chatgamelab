@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Center, Loader, useMantineTheme } from '@mantine/core';
-import { IconPlayerPlay, IconWorld, IconHome, IconBuilding, IconUsers, IconKey } from '@tabler/icons-react';
+import { IconPlayerPlay, IconWorld, IconHome, IconBuilding, IconUsers, IconKey, IconSchool } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { AppLayout, type NavItem } from '../common/components/Layout';
@@ -81,6 +81,16 @@ function RootComponent() {
         active: pathname === ROUTES.MY_ORGANIZATION,
       },
     ];
+
+    // Add Workshops for heads and staff
+    if (canManageOrgApiKeys) {
+      orgChildren.push({
+        label: t('orgWorkshops'),
+        icon: <IconSchool size={18} />,
+        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as '/' }),
+        active: pathname === ROUTES.MY_ORGANIZATION_WORKSHOPS,
+      });
+    }
 
     // Add API Keys only for heads and staff
     if (canManageOrgApiKeys) {
