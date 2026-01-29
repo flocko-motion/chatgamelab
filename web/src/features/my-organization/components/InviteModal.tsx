@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Modal, Stack, Text, TextInput, Group, ActionIcon } from '@mantine/core';
-import { IconSend } from '@tabler/icons-react';
+import { Modal, Stack, Text, TextInput, Group, ActionIcon, Alert } from '@mantine/core';
+import { IconSend, IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export interface InviteModalProps {
@@ -10,6 +10,7 @@ export interface InviteModalProps {
   description: string;
   onSubmit: (email: string) => void;
   isLoading?: boolean;
+  error?: string | null;
 }
 
 export function InviteModal({
@@ -19,6 +20,7 @@ export function InviteModal({
   description,
   onSubmit,
   isLoading = false,
+  error = null,
 }: InviteModalProps) {
   const { t } = useTranslation('common');
   const [email, setEmail] = useState('');
@@ -48,6 +50,11 @@ export function InviteModal({
           value={email}
           onChange={(e) => setEmail(e.currentTarget.value)}
         />
+        {error && (
+          <Alert color="red" icon={<IconAlertCircle size={16} />}>
+            {error}
+          </Alert>
+        )}
         <Group justify="flex-end">
           <Text
             size="sm"

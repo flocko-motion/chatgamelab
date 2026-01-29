@@ -8,6 +8,7 @@ import {
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useAuth } from '@/providers/AuthProvider';
 import { getUserInstitutionId } from '@/common/lib/roles';
@@ -22,7 +23,7 @@ export function MyOrganization() {
 
   // Fetch institution members
   const { data: members = [], isLoading, error } = useQuery({
-    queryKey: ['institution-members', institutionId],
+    queryKey: queryKeys.institutionMembers(institutionId!),
     queryFn: async () => {
       if (!institutionId) return [];
       const response = await api.institutions.membersList(institutionId);
@@ -33,7 +34,7 @@ export function MyOrganization() {
 
   // Fetch institution details
   const { data: institution } = useQuery({
-    queryKey: ['institution', institutionId],
+    queryKey: queryKeys.institution(institutionId!),
     queryFn: async () => {
       if (!institutionId) return null;
       const response = await api.institutions.institutionsDetail(institutionId);

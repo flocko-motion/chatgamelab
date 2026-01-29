@@ -14,6 +14,8 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/api/queryKeys';
+import { useNavigate } from '@tanstack/react-router';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useAuth } from '@/providers/AuthProvider';
 import { isAtLeastHead, getUserInstitutionId, Role, hasRole } from '@/common/lib/roles';
@@ -34,7 +36,7 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
   const { t } = useTranslation('common');
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
 
   const [userToPromote, setUserToPromote] = useState<ObjUser | null>(null);
   const [userToDemote, setUserToDemote] = useState<ObjUser | null>(null);
@@ -42,6 +44,8 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
 
   const [inviteTeacherModalOpened, { open: openInviteTeacherModal, close: closeInviteTeacherModal }] = useDisclosure(false);
   const [inviteUserModalOpened, { open: openInviteUserModal, close: closeInviteUserModal }] = useDisclosure(false);
+  const [inviteTeacherError, setInviteTeacherError] = useState<string | null>(null);
+  const [inviteUserError, setInviteUserError] = useState<string | null>(null);
   const [promoteModalOpened, { open: openPromoteModal, close: closePromoteModal }] = useDisclosure(false);
   const [demoteModalOpened, { open: openDemoteModal, close: closeDemoteModal }] = useDisclosure(false);
   const [removeModalOpened, { open: openRemoveModal, close: closeRemoveModal }] = useDisclosure(false);
@@ -52,6 +56,19 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
   const isStaff = hasRole(backendUser, Role.Staff);
   const canSeeEmails = isAtLeastHead(backendUser) || isStaff;
 
+  // Helper to extract error message from API error
+  const getErrorMessage = (error: unknown): string => {
+    if (error && typeof error === 'object' && 'error' in error) {
+      const apiError = error as { error?: { message?: string } };
+      const message = apiError.error?.message || '';
+      if (message.includes('pending invite already exists')) {
+        return t('myOrganization.inviteAlreadyExists');
+      }
+      return message || t('myOrganization.inviteError');
+    }
+    return t('myOrganization.inviteError');
+  };
+
   // Mutations
   const inviteTeacherMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -59,8 +76,13 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.invites.institutionCreate({ institutionId, role: 'staff', invitedEmail: email });
     },
     onSuccess: () => {
+      setInviteTeacherError(null);
       closeInviteTeacherModal();
-      queryClient.invalidateQueries({ queryKey: ['invites'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionInvites(institutionId!) });
+    },
+    onError: (error) => {
+      setInviteTeacherError(getErrorMessage(error));
     },
   });
 
@@ -70,8 +92,13 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.invites.institutionCreate({ institutionId, role: '', invitedEmail: email });
     },
     onSuccess: () => {
+      setInviteUserError(null);
       closeInviteUserModal();
-      queryClient.invalidateQueries({ queryKey: ['invites'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionInvites(institutionId!) });
+    },
+    onError: (error) => {
+      setInviteUserError(getErrorMessage(error));
     },
   });
 
@@ -81,7 +108,7 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.users.roleCreate(userId, { role: 'head', institutionId });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institution-members', institutionId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(institutionId!) });
       closePromoteModal();
       setUserToPromote(null);
     },
@@ -93,7 +120,7 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.users.roleCreate(userId, { role: 'staff', institutionId });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institution-members', institutionId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(institutionId!) });
       closeDemoteModal();
       setUserToDemote(null);
     },
@@ -105,11 +132,13 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.institutions.membersDelete(institutionId, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institution-members', institutionId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(institutionId!) });
       closeRemoveModal();
       setUserToRemove(null);
     },
   });
+
+  const navigate = useNavigate();
 
   const leaveOrganizationMutation = useMutation({
     mutationFn: async () => {
@@ -117,9 +146,11 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       await api.institutions.membersDelete(institutionId, backendUser.id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['institution-members', institutionId] });
-      queryClient.invalidateQueries({ queryKey: ['backend-user'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(institutionId!) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.backendUser });
+      retryBackendFetch(); // Refresh user data to update header
       closeLeaveModal();
+      navigate({ to: '/dashboard' });
     },
   });
 
@@ -188,20 +219,22 @@ export function MembersTab({ members, isLoading, institution }: MembersTabProps)
       {/* Modals */}
       <InviteModal
         opened={inviteTeacherModalOpened}
-        onClose={closeInviteTeacherModal}
+        onClose={() => { setInviteTeacherError(null); closeInviteTeacherModal(); }}
         title={t('myOrganization.inviteTeacherTitle')}
         description={t('myOrganization.inviteTeacherDescription')}
         onSubmit={(email) => inviteTeacherMutation.mutate(email)}
         isLoading={inviteTeacherMutation.isPending}
+        error={inviteTeacherError}
       />
 
       <InviteModal
         opened={inviteUserModalOpened}
-        onClose={closeInviteUserModal}
+        onClose={() => { setInviteUserError(null); closeInviteUserModal(); }}
         title={t('myOrganization.inviteUserTitle')}
         description={t('myOrganization.inviteUserDescription')}
         onSubmit={(email) => inviteUserMutation.mutate(email)}
         isLoading={inviteUserMutation.isPending}
+        error={inviteUserError}
       />
 
       <ConfirmationModal
