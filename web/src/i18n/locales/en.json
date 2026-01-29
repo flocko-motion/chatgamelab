@@ -506,7 +506,11 @@
         "createdAt": "Created",
         "modifiedAt": "Modified",
         "actions": "Actions",
-        "revokeConfirm": "Are you sure you want to revoke this invite?",
+        "revokeConfirm": {
+          "title": "Delete Invite",
+          "message": "Are you sure you want to delete this invite? This action cannot be undone.",
+          "confirm": "Delete"
+        },
         "sort": {
           "label": "Sort by",
           "modifiedAt-desc": "Modified (Newest)",
@@ -553,6 +557,10 @@
         "removeAdminTitle": "Remove Admin Role",
         "removeAdminConfirm": "Are you sure you want to remove admin role from \"{{name}}\" ({{email}})?",
         "removeAdminWarning": "This user will lose all administrative privileges.",
+        "editEmail": "Edit email",
+        "editTitle": "Edit User",
+        "editingUser": "Editing user: {{name}}",
+        "emailPlaceholder": "Enter email address",
         "sort": {
           "label": "Sort by",
           "name-asc": "Name (A-Z)",
@@ -575,6 +583,7 @@
       "inviteDescription": "You have been invited to join as {{role}}.",
       "accept": "Accept",
       "decline": "Decline",
+      "declineTitle": "Decline Invitation",
       "declineConfirm": "Are you sure you want to decline this invitation?"
     },
     "myOrganization": {
@@ -626,6 +635,8 @@
       "inviteUserTitle": "Invite User",
       "inviteUserDescription": "Send an invitation to a user to join your organization without a specific role.",
       "emailPlaceholder": "Enter email address",
+      "inviteAlreadyExists": "A pending invitation already exists for this email address.",
+      "inviteError": "Failed to send invitation. Please try again.",
       "promoteToHead": "Promote to Head",
       "demoteToStaff": "Demote to Teacher",
       "promoteTitle": "Promote to Head",
@@ -668,6 +679,14 @@
     "orgApiKeys": "API Keys"
   },
   "dashboard": {
+    "time": {
+      "justNow": "just now",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
+    "untitled": "Untitled",
+    "untitledGame": "Untitled Game",
     "cards": {
       "myGames": {
         "title": "My Games",
@@ -820,6 +839,7 @@
       "saveButton": "Save Changes",
       "saving": "Saving...",
       "saved": "Changes saved successfully",
+      "emailChangeNote": "To change your email address, please contact the site administrator.",
       "errors": {
         "nameRequired": "Name is required",
         "nameTooLong": "Name must be at most 24 characters",

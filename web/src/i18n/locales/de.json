@@ -506,7 +506,11 @@
         "createdAt": "Erstellt",
         "modifiedAt": "Geändert",
         "actions": "Aktionen",
-        "revokeConfirm": "Sind Sie sicher, dass Sie diese Einladung widerrufen möchten?",
+        "revokeConfirm": {
+          "title": "Einladung löschen",
+          "message": "Sind Sie sicher, dass Sie diese Einladung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+          "confirm": "Löschen"
+        },
         "sort": {
           "label": "Sortieren nach",
           "modifiedAt-desc": "Geändert (Neueste)",
@@ -553,6 +557,10 @@
         "removeAdminTitle": "Admin-Rolle entfernen",
         "removeAdminConfirm": "Sind Sie sicher, dass Sie die Admin-Rolle von \"{{name}}\" ({{email}}) entfernen möchten?",
         "removeAdminWarning": "Dieser Benutzer verliert alle administrativen Rechte.",
+        "editEmail": "E-Mail bearbeiten",
+        "editTitle": "Benutzer bearbeiten",
+        "editingUser": "Benutzer bearbeiten: {{name}}",
+        "emailPlaceholder": "E-Mail-Adresse eingeben",
         "sort": {
           "label": "Sortieren nach",
           "name-asc": "Name (A-Z)",
@@ -575,6 +583,7 @@
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "accept": "Annehmen",
       "decline": "Ablehnen",
+      "declineTitle": "Einladung ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?"
     },
     "myOrganization": {
@@ -626,6 +635,8 @@
       "inviteUserTitle": "Benutzer einladen",
       "inviteUserDescription": "Senden Sie eine Einladung an einen Benutzer, Ihrer Organisation ohne spezifische Rolle beizutreten.",
       "emailPlaceholder": "E-Mail-Adresse eingeben",
+      "inviteAlreadyExists": "Für diese E-Mail-Adresse existiert bereits eine ausstehende Einladung.",
+      "inviteError": "Einladung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
       "promoteToHead": "Zum Leiter befördern",
       "demoteToStaff": "Zum Lehrer herabstufen",
       "promoteTitle": "Zum Leiter befördern",
@@ -665,6 +676,14 @@
     "orgApiKeys": "API-Schlüssel"
   },
   "dashboard": {
+    "time": {
+      "justNow": "gerade eben",
+      "minutesAgo": "vor {{count}}m",
+      "hoursAgo": "vor {{count}}h",
+      "daysAgo": "vor {{count}}d"
+    },
+    "untitled": "Unbenannt",
+    "untitledGame": "Unbenanntes Spiel",
     "cards": {
       "myGames": {
         "title": "Meine Spiele",
@@ -816,6 +835,7 @@
       "saveButton": "Änderungen speichern",
       "saving": "Wird gespeichert...",
       "saved": "Änderungen erfolgreich gespeichert",
+      "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
       "errors": {
         "nameRequired": "Name ist erforderlich",
         "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
