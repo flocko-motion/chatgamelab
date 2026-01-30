@@ -11,6 +11,7 @@ import {
   rem,
   Text,
 } from '@mantine/core';
+import { IconCopy } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
 import { IconAlertCircle } from '@tabler/icons-react';
@@ -37,6 +38,12 @@ interface GameEditModalProps {
   onClose: () => void;
   onCreate?: (data: CreateGameFormData) => void;
   createLoading?: boolean;
+  /** If true, all fields are read-only (view mode) */
+  readOnly?: boolean;
+  /** Callback when user clicks Copy button in view mode */
+  onCopy?: () => void;
+  /** Loading state for copy operation */
+  copyLoading?: boolean;
 }
 
 export function GameEditModal({ 
@@ -45,6 +52,9 @@ export function GameEditModal({
   onClose, 
   onCreate,
   createLoading = false,
+  readOnly = false,
+  onCopy,
+  copyLoading = false,
 }: GameEditModalProps) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
@@ -227,6 +237,13 @@ export function GameEditModal({
     return (
       <ScrollArea h={isMobile ? 'calc(100vh - 180px)' : 'calc(85vh - 140px)'}>
         <Stack gap="lg" pr="md">
+          {/* Read-only notice */}
+          {readOnly && (
+            <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
+              {t('games.viewModal.readOnlyNotice')}
+            </Alert>
+          )}
+          
           {/* Name */}
           <TextInput
             label={t('games.editFields.name')}
@@ -238,6 +255,7 @@ export function GameEditModal({
             }}
             error={nameError}
             required
+            readOnly={readOnly}
             data-autofocus
           />
           
@@ -252,6 +270,7 @@ export function GameEditModal({
             autosize
             maxRows={12}
             required
+            readOnly={readOnly}
           />
           
           {/* Game Start */}
@@ -265,6 +284,7 @@ export function GameEditModal({
             autosize
             maxRows={8}
             required
+            readOnly={readOnly}
           />
 
           {/* Image Style */}
@@ -275,12 +295,14 @@ export function GameEditModal({
             onChange={(e) => setImageStyle(e.target.value)}
             placeholder="e.g., pixel art, watercolor, realistic..."
             required
+            readOnly={readOnly}
           />
 
           {/* Status Fields */}
           <StatusFieldsEditor
             value={statusFields}
             onChange={setStatusFields}
+            readOnly={readOnly}
           />
 
           {/* Description - moved to end */}
@@ -290,6 +312,7 @@ export function GameEditModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minRows={3}
+            readOnly={readOnly}
           />
           
           {/* Visibility - last */}
@@ -298,6 +321,7 @@ export function GameEditModal({
             description={t('games.createModal.publicDescription')}
             checked={isPublic}
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
+            disabled={readOnly}
           />
         </Stack>
       </ScrollArea>
@@ -308,7 +332,7 @@ export function GameEditModal({
     <Modal
       opened={opened}
       onClose={handleModalClose}
-      title={isCreateMode ? t('games.createModal.title') : t('games.editModal.title')}
+      title={isCreateMode ? t('games.createModal.title') : readOnly ? t('games.viewModal.title') : t('games.editModal.title')}
       size={isMobile ? '100%' : rem(1000)}
       fullScreen={isMobile}
       centered={!isMobile}
@@ -321,12 +345,32 @@ export function GameEditModal({
         {modalContent()}
 
         <Group justify="flex-end" mt="md" gap="sm">
-          <CancelButton onClick={handleModalClose} disabled={isSaving}>
-            {t('cancel')}
-          </CancelButton>
-          <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-            {isCreateMode ? t('games.createModal.submit') : t('save')}
-          </ActionButton>
+          {readOnly ? (
+            <>
+              <CancelButton onClick={onClose}>
+                {t('close')}
+              </CancelButton>
+              {onCopy && (
+                <ActionButton 
+                  onClick={onCopy} 
+                  loading={copyLoading} 
+                  size="sm"
+                  leftSection={<IconCopy size={16} />}
+                >
+                  {t('games.copyGame')}
+                </ActionButton>
+              )}
+            </>
+          ) : (
+            <>
+              <CancelButton onClick={handleModalClose} disabled={isSaving}>
+                {t('cancel')}
+              </CancelButton>
+              <ActionButton onClick={handleSave} loading={isSaving} size="sm">
+                {isCreateMode ? t('games.createModal.submit') : t('save')}
+              </ActionButton>
+            </>
+          )}
         </Group>
       </Stack>
     </Modal>
