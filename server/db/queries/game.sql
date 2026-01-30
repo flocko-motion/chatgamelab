@@ -34,43 +34,43 @@ RETURNING *;
 SELECT * FROM game WHERE id = $1;
 
 -- name: GetGamesVisibleToUser :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at DESC;
 
 -- name: GetGamesVisibleToUserSortedByName :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) ASC;
 
 -- name: GetGamesVisibleToUserSortedByNameDesc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) DESC;
 
 -- name: GetGamesVisibleToUserSortedByCreatedAt :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at ASC;
 
 -- name: GetGamesVisibleToUserSortedByModifiedAt :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at DESC;
 
 -- name: GetGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at ASC;
 
 -- name: SearchGamesVisibleToUser :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at DESC;
 
 -- name: SearchGamesVisibleToUserSortedByName :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) ASC;
 
 -- name: SearchGamesVisibleToUserSortedByNameDesc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) DESC;
 
 -- name: SearchGamesVisibleToUserSortedByCreatedAt :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at ASC;
 
 -- name: SearchGamesVisibleToUserSortedByModifiedAt :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at DESC;
 
 -- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at ASC;
 
 -- name: GetGameIDsVisibleToUser :many
-SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true);
+SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2);
 
 -- Own games (created by user) queries
 -- name: GetOwnGames :many

@@ -3,6 +3,7 @@ import React, { createContext, useCallback, useEffect, useRef, useState } from '
 import { useAuth0 } from '@auth0/auth0-react';
 import { useTranslation } from 'react-i18next';
 import { auth0Config } from '../config/auth0';
+import { config } from '../config/env';
 import { Api } from '../api/generated';
 import { createAuthenticatedApiConfig, getApiConfig } from '../api/client/http';
 import { authLogger } from '../config/logger';
@@ -32,6 +33,8 @@ export interface AuthContextType {
   backendUser: ObjUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** True if user is authenticated via participant cookie (workshop participant) */
+  isParticipant: boolean;
   /** True if user is authenticated with Auth0 but not registered in backend */
   needsRegistration: boolean;
   /** Data from Auth0 to pre-fill registration form */
@@ -42,7 +45,7 @@ export interface AuthContextType {
   loginWithRole: (role: string) => void;
   logout: () => void;
   isDevMode: boolean;
-  /** Get the current access token for API calls. Returns null if not authenticated. */
+  /** Get the current access token for API calls. Returns null if not authenticated (participants use cookies). */
   getAccessToken: () => Promise<string | null>;
   /** Retry fetching backend user after an error */
   retryBackendFetch: () => void;
@@ -58,6 +61,7 @@ const defaultAuthContext: AuthContextType = {
   backendUser: null,
   isLoading: true,
   isAuthenticated: false,
+  isParticipant: false,
   needsRegistration: false,
   registrationData: null,
   backendError: null,
@@ -145,6 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [backendUser, setBackendUser] = useState<ObjUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isParticipant, setIsParticipant] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [backendError, setBackendError] = useState<string | null>(null);
   const [needsRegistration, setNeedsRegistration] = useState(false);
@@ -159,6 +164,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Get access token function (defined early so it can be used in effects)
   const getAccessToken = useCallback(async (): Promise<string | null> => {
+    // Participants use cookie auth, not token auth
+    if (isParticipant) {
+      return null;
+    }
+
     // Auth0 authenticated - use Auth0 SDK (handles caching internally)
     if (auth0IsAuthenticated) {
       try {
@@ -181,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // No valid token available
     return null;
-  }, [auth0IsAuthenticated, getAccessTokenSilently]);
+  }, [auth0IsAuthenticated, getAccessTokenSilently, isParticipant]);
 
   // Check if error is a "user not registered" response
   const isUserNotRegisteredError = (error: unknown): boolean => {
@@ -263,6 +273,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     authLogger.info('User registered successfully', { userId: response.data.id, name: response.data.name });
   }, [getAccessToken]);
 
+  // Try cookie-based participant authentication
+  // This is used when a workshop participant has accepted an invite and has a session cookie
+  const tryParticipantCookieAuth = useCallback(async (): Promise<boolean> => {
+    try {
+      authLogger.debug('Attempting cookie-based participant authentication');
+      // Use a simple fetch with credentials to check if session cookie authenticates us
+      const api = new Api(getApiConfig());
+      const response = await api.users.getUsers();
+      
+      if (response.data) {
+        authLogger.info('Participant cookie authentication successful', { 
+          userId: response.data.id, 
+          name: response.data.name 
+        });
+        
+        // Set up participant auth state
+        const authUser: AuthUser = {
+          sub: response.data.id || '',
+          name: response.data.name || undefined,
+          role: 'participant',
+        };
+        setUser(authUser);
+        setBackendUser(response.data);
+        setIsAuthenticated(true);
+        setIsParticipant(true);
+        return true;
+      }
+      return false;
+    } catch {
+      // Not authenticated via cookie - this is expected for most users
+      authLogger.debug('No valid participant session cookie');
+      return false;
+    }
+  }, []);
+
   // Handle Auth0 authentication state changes
   useEffect(() => {
     if (auth0IsLoading) {
@@ -278,6 +323,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
+      setIsParticipant(false);
       authLogger.info('Auth0 authentication successful', { auth0Id: auth0User.sub, name: auth0User.name });
       
       // Fetch backend user if not already attempted
@@ -302,6 +348,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
+      setIsParticipant(false);
       
       // Fetch backend user if not already attempted
       if (!backendFetchAttempted.current) {
@@ -313,14 +360,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     } else {
-      authLogger.debug('Auth0 authentication cleared');
-      setUser(null);
-      setBackendUser(null);
-      setIsAuthenticated(false);
-      setIsLoading(false);
-      backendFetchAttempted.current = false;
+      // No Auth0 or dev mode auth - try cookie-based participant auth
+      authLogger.debug('No token auth, trying cookie-based participant auth');
+      
+      if (!backendFetchAttempted.current) {
+        backendFetchAttempted.current = true;
+        tryParticipantCookieAuth().then((authenticated) => {
+          if (!authenticated) {
+            // No auth at all
+            setUser(null);
+            setBackendUser(null);
+            setIsAuthenticated(false);
+            setIsParticipant(false);
+          }
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
     }
-  }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser, isDevMode]);
+  }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser, isDevMode, tryParticipantCookieAuth]);
 
   const loginWithAuth0 = () => {
     authLogger.debug('Initiating Auth0 login');
@@ -420,6 +479,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           returnTo: auth0Config.logoutUri
         } 
       });
+    } else if (isParticipant) {
+      authLogger.debug('Logging out participant (clearing session cookie)');
+      // Clear participant state
+      setUser(null);
+      setBackendUser(null);
+      setIsAuthenticated(false);
+      setIsParticipant(false);
+      setIsLoading(false);
+      backendFetchAttempted.current = false;
+      // Call backend to clear the session cookie
+      fetch(`${config.API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      }).catch(() => {
+        // Ignore errors - cookie might already be cleared
+      });
+      // Redirect to homepage
+      authLogger.debug('Redirecting to homepage after participant logout', { path: ROUTES.HOME });
+      window.location.href = ROUTES.HOME;
     } else {
       authLogger.debug('Logging out from dev mode');
       // Clear dev token cache on logout
@@ -427,6 +505,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearStoredDevToken();
       setUser(null);
       setIsAuthenticated(false);
+      setIsParticipant(false);
       setIsLoading(false);
       // Redirect to homepage using window.location since we're outside RouterProvider
       authLogger.debug('Redirecting to homepage after logout', { path: ROUTES.HOME });
@@ -439,6 +518,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     backendUser,
     isLoading,
     isAuthenticated,
+    isParticipant,
     needsRegistration,
     registrationData,
     backendError,

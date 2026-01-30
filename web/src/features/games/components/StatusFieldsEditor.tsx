@@ -18,6 +18,7 @@ interface StatusField {
 interface StatusFieldsEditorProps {
   value: string;
   onChange: (value: string) => void;
+  readOnly?: boolean;
 }
 
 function parseStatusFields(jsonString: string): StatusField[] {
@@ -47,7 +48,7 @@ function stringifyStatusFields(fields: StatusField[]): string {
   return JSON.stringify(fields);
 }
 
-export function StatusFieldsEditor({ value, onChange }: StatusFieldsEditorProps) {
+export function StatusFieldsEditor({ value, onChange, readOnly = false }: StatusFieldsEditorProps) {
   const { t } = useTranslation('common');
   
   // Parse fields from value - fully controlled by parent
@@ -102,6 +103,7 @@ export function StatusFieldsEditor({ value, onChange }: StatusFieldsEditorProps)
                   onChange={(e) => handleFieldNameChange(index, e.target.value)}
                   size="xs"
                   style={{ flex: 1 }}
+                  readOnly={readOnly}
                 />
                 <TextInput
                   placeholder={t('games.statusFieldsEditor.valuePlaceholder')}
@@ -109,22 +111,27 @@ export function StatusFieldsEditor({ value, onChange }: StatusFieldsEditorProps)
                   onChange={(e) => handleFieldValueChange(index, e.target.value)}
                   size="xs"
                   style={{ flex: 1 }}
+                  readOnly={readOnly}
                 />
-                <DeleteIconButton
-                  onClick={() => handleRemoveField(index)}
-                  aria-label={t('delete')}
-                />
+                {!readOnly && (
+                  <DeleteIconButton
+                    onClick={() => handleRemoveField(index)}
+                    aria-label={t('delete')}
+                  />
+                )}
               </Group>
             </Paper>
           ))
         )}
-        <TextButton
-          size="xs"
-          onClick={handleAddField}
-          leftSection={<IconPlus size={14} />}
-        >
-          {t('games.statusFieldsEditor.addField')}
-        </TextButton>
+        {!readOnly && (
+          <TextButton
+            size="xs"
+            onClick={handleAddField}
+            leftSection={<IconPlus size={14} />}
+          >
+            {t('games.statusFieldsEditor.addField')}
+          </TextButton>
+        )}
       </Stack>
     </Stack>
   );

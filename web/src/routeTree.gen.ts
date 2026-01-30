@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MyWorkshopRouteImport } from './routes/my-workshop'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
@@ -44,6 +45,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyWorkshopRoute = MyWorkshopRouteImport.update({
+  id: '/my-workshop',
+  path: '/my-workshop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/my-workshop': typeof MyWorkshopRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -199,6 +206,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/my-workshop': typeof MyWorkshopRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/my-workshop': typeof MyWorkshopRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/my-workshop'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/my-workshop'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/my-workshop'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -343,6 +355,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
+  MyWorkshopRoute: typeof MyWorkshopRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   CreationsGameIdRoute: typeof CreationsGameIdRoute
@@ -382,6 +395,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-workshop': {
+      id: '/my-workshop'
+      path: '/my-workshop'
+      fullPath: '/my-workshop'
+      preLoaderRoute: typeof MyWorkshopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -559,6 +579,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
+  MyWorkshopRoute: MyWorkshopRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   CreationsGameIdRoute: CreationsGameIdRoute,
