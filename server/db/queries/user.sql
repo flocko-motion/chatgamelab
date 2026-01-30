@@ -23,6 +23,9 @@ SELECT id FROM app_user WHERE auth0_id = $1;
 -- name: GetUserByAuth0ID :one
 SELECT * FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL;
 
+-- name: GetUserByEmail :one
+SELECT * FROM app_user WHERE email = $1 AND deleted_at IS NULL;
+
 -- name: GetUserByParticipantToken :one
 -- Get user by participant token, but only if they're linked to an active workshop
 SELECT u.* 
