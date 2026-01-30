@@ -228,7 +228,7 @@ type ListWorkshopsOptions struct {
 
 // fetchWorkshopParticipants retrieves participants for a workshop (helper for list operations)
 func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.WorkshopParticipant {
-	participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
+	participantRows, err := queries().GetWorkshopParticipants(ctx, workshopID)
 	if err != nil {
 		return []obj.WorkshopParticipant{}
 	}
