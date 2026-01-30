@@ -40,22 +40,34 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	s.T().Logf("Added API key: %s", apiKeyShare.ID)
 
 	// Create and upload predictable test game
-	game := Must(s.clientAlice.UploadGame("stone-collector"))
-	s.Equal("Stone Collector", game.Name)
+	game := Must(s.clientAlice.UploadGame("stone-collector-de"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Create game session
-	session := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID, "gpt-5.2"))
-	s.T().Logf("Created game session: %s", session.ID)
+	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID, "gpt-5.2"))
+	s.T().Logf("Created game session: %s", sessionResponse.ID)
+
+	// Log initial message
+	if len(sessionResponse.Messages) > 0 {
+		initialMsg := sessionResponse.Messages[0]
+		log.Printf("\n=================================================================================================\n")
+		log.Printf("Initial Message:")
+		log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
+		log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
+		log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
+		log.Printf("  PromptImageGeneration: %s", functional.MaybeToString(initialMsg.PromptImageGeneration, "nil"))
+		log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
+		log.Printf("  AI: %s", initialMsg.Message)
+	}
 
 	playerActions := []string{
-		"I collect 5 stones",
-		"I collect 3 more stones",
-		"I collect 2 more stones",
+		"Ich sammle 5 Steine",
+		"Ich sammle 3 Steine",
+		"Ich sammle 2 Steine",
 	}
 	for i, playerAction := range playerActions {
-		// Turn 1: Collect 5 stones
-		msg1 := Must(s.clientAlice.SendGameMessage(session.ID.String(), playerAction))
+		msg1 := Must(s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction))
+		log.Printf("\n=================================================================================================\n")
 		log.Printf("Turn #%d - Player: %s", i, playerAction)
 		log.Printf("Analytics: %s", functional.MaybeToString(msg1.URLAnalytics, "nil"))
 		log.Printf("PromptStatusUpdate: %s", functional.MaybeToString(msg1.PromptStatusUpdate, "nil"))

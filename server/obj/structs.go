@@ -23,6 +23,7 @@ type User struct {
 	Role                *UserRole     `json:"role"`
 	ApiKeys             []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
 	ShowAiModelSelector bool          `json:"showAiModelSelector"`
+	Language            string        `json:"language"` // ISO 639-1 language code (e.g., "en", "de", "fr")
 }
 
 // UserStats contains aggregated statistics for a user
@@ -342,6 +343,13 @@ const (
 	GameSessionMessageTypeSystem = "system" // system/context messages
 )
 
+type GameSessionMessageAi struct {
+	Type         string        `json:"type"`
+	Message      string        `json:"message"`
+	StatusFields []StatusField `json:"statusFields"`
+	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
+}
+
 type GameSessionMessage struct {
 	ID     uuid.UUID `json:"id"`
 	Meta   Meta      `json:"meta"`
@@ -363,8 +371,8 @@ type GameSessionMessage struct {
 
 	// JSON encoded status fields.
 	StatusFields []StatusField `json:"statusFields"`
-	ImagePrompt  *string       `json:"imagePrompt"`
-	Image        []byte        `json:"image"`
+	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
+	Image        []byte        `json:"image,omitempty"`
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text or image)
@@ -399,7 +407,7 @@ var GameResponseSchema = map[string]interface{}{
 			"description": "Updated status fields after the action",
 		},
 		"imagePrompt": map[string]interface{}{
-			"type":        []string{"string", "null"},
+			"type":        "string",
 			"description": "Description for generating an image of the scene",
 		},
 	},

@@ -29,7 +29,7 @@ const (
 	responsesEndpoint = "/responses"
 	modelsEndpoint    = "/models"
 	imageGenEndpoint  = "/images/generations"
-	defaultModel      = "gpt-4o-mini"
+	defaultModel      = "gpt-5.2"
 )
 
 // extractImageErrorCode extracts an error code from OpenAI image generation errors
@@ -141,8 +141,16 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("failed to parse model session: %w", err)
 	}
 
+	// Convert to minimal AI message structure (exclude internal fields like ID, Meta, etc.)
+	actionForAI := obj.GameSessionMessageAi{
+		Type:         action.Type,
+		Message:      action.Message,
+		StatusFields: action.StatusFields,
+		ImagePrompt:  action.ImagePrompt,
+	}
+
 	// Serialize the player action as JSON input
-	actionInput, err := json.Marshal(action)
+	actionInput, err := json.Marshal(actionForAI)
 	if err != nil {
 		return fmt.Errorf("failed to marshal action: %w", err)
 	}

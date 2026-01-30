@@ -366,6 +366,12 @@ func (u *UserClient) GetMe() (obj.User, error) {
 	return result, err
 }
 
+// SetUserLanguage sets the user's language preference (composable high-level API)
+func (u *UserClient) SetUserLanguage(language string) error {
+	u.t.Helper()
+	return u.Patch("users/me/language", map[string]string{"language": language}, nil)
+}
+
 // GetInstitution returns a specific institution by ID (composable high-level API)
 func (u *UserClient) GetInstitution(institutionID string) (obj.Institution, error) {
 	u.t.Helper()
@@ -464,15 +470,16 @@ func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, 
 }
 
 // CreateGameSession creates a new game session (composable high-level API)
-func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID, model string) (obj.GameSession, error) {
+// Returns the session and the initial message
+func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID, model string) (routes.SessionResponse, error) {
 	u.t.Helper()
 
-	var session obj.GameSession
+	var response routes.SessionResponse
 	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
 		Model:   model,
 		ShareID: apiKeyShareID,
-	}, &session)
-	return session, err
+	}, &response)
+	return response, err
 }
 
 // SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)

@@ -149,6 +149,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
 		}
 	}
+	response.PromptStatusUpdate = functional.Ptr(systemMessage)
 	return session, response, httpErr
 }
 
