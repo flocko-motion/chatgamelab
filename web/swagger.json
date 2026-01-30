@@ -2750,6 +2750,62 @@
                 }
             }
         },
+        "/users/me/language": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the language preference for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user language preference",
+                "parameters": [
+                    {
+                        "description": "Language preference (ISO 639-1 code)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "language": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/stats": {
             "get": {
                 "security": [
@@ -3948,6 +4004,18 @@
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "requestExpandStory": {
+                    "type": "string"
+                },
+                "requestImageGeneration": {
+                    "type": "string"
+                },
+                "requestStatusUpdate": {
+                    "type": "string"
+                },
+                "responseRaw": {
+                    "type": "string"
+                },
                 "seq": {
                     "description": "Sequence number within the session, starting at 1",
                     "type": "integer"
@@ -3964,6 +4032,9 @@
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
+                    "type": "string"
+                },
+                "urlAnalytics": {
                     "type": "string"
                 }
             }
@@ -4336,6 +4407,10 @@
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "language": {
+                    "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
                     "type": "string"
                 },
                 "meta": {

@@ -205,6 +205,10 @@ export interface ObjGameSessionMessage {
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
   meta?: ObjMeta;
+  requestExpandStory?: string;
+  requestImageGeneration?: string;
+  requestStatusUpdate?: string;
+  responseRaw?: string;
   /** Sequence number within the session, starting at 1 */
   seq?: number;
   /** JSON encoded status fields. */
@@ -212,6 +216,7 @@ export interface ObjGameSessionMessage {
   stream?: boolean;
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
+  urlAnalytics?: string;
 }
 
 export interface ObjGameTag {
@@ -366,6 +371,8 @@ export interface ObjUser {
   deletedAt?: string;
   email?: string;
   id?: string;
+  /** ISO 639-1 language code (e.g., "en", "de", "fr") */
+  language?: string;
   meta?: ObjMeta;
   name?: string;
   role?: ObjUserRole;
@@ -2012,6 +2019,31 @@ export class Api<
         path: `/users/me`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the language preference for the authenticated user
+     *
+     * @tags users
+     * @name MeLanguagePartialUpdate
+     * @summary Update user language preference
+     * @request PATCH:/users/me/language
+     * @secure
+     */
+    meLanguagePartialUpdate: (
+      request: {
+        language?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/me/language`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
