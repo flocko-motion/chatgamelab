@@ -295,6 +295,14 @@ definitions:
         type: string
       meta:
         $ref: '#/definitions/obj.Meta'
+      requestExpandStory:
+        type: string
+      requestImageGeneration:
+        type: string
+      requestStatusUpdate:
+        type: string
+      responseRaw:
+        type: string
       seq:
         description: Sequence number within the session, starting at 1
         type: integer
@@ -308,6 +316,8 @@ definitions:
       type:
         description: 'player: user message; game: LLM/game response; system: initial
           system/context messages.'
+        type: string
+      urlAnalytics:
         type: string
     type: object
   obj.GameTag:
@@ -544,12 +554,14 @@ definitions:
     - head
     - staff
     - participant
+    - individual
     type: string
     x-enum-varnames:
     - RoleAdmin
     - RoleHead
     - RoleStaff
     - RoleParticipant
+    - RoleIndividual
   obj.StatusField:
     properties:
       name:
@@ -577,6 +589,9 @@ definitions:
       email:
         type: string
       id:
+        type: string
+      language:
+        description: ISO 639-1 language code (e.g., "en", "de", "fr")
         type: string
       meta:
         $ref: '#/definitions/obj.Meta'
@@ -679,6 +694,8 @@ definitions:
         $ref: '#/definitions/obj.Meta'
       name:
         type: string
+      role:
+        $ref: '#/definitions/obj.Role'
       workshopId:
         type: string
     type: object
@@ -2008,8 +2025,8 @@ paths:
       - institutions
   /invites:
     get:
-      description: Lists invites scoped by user permissions. Admins see all invites,
-        regular users see only their own pending invites.
+      description: Lists invites scoped by user permissions - shows invites for the
+        current user to join an institution
       produces:
       - application/json
       responses:
@@ -2025,7 +2042,7 @@ paths:
             $ref: '#/definitions/httpx.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: List invites
+      summary: List incoming invites for the current user
       tags:
       - invites
   /invites/{id}:
@@ -2231,8 +2248,8 @@ paths:
       - invites
   /invites/institution/{institutionId}:
     get:
-      description: Lists all invites for a specific institution. Requires head/staff
-        role in the institution or admin.
+      description: Lists all invites that invite users to join a specific institution.
+        Requires head/staff role in the institution or admin.
       parameters:
       - description: Institution ID
         in: path
@@ -2258,7 +2275,7 @@ paths:
             $ref: '#/definitions/httpx.ErrorResponse'
       security:
       - BearerAuth: []
-      summary: List invites for an institution
+      summary: List outgoing invites from an institution
       tags:
       - invites
   /invites/workshop:
@@ -2972,6 +2989,41 @@ paths:
       summary: Get current user
       tags:
       - users
+  /users/me/language:
+    patch:
+      consumes:
+      - application/json
+      description: Sets the language preference for the authenticated user
+      parameters:
+      - description: Language preference (ISO 639-1 code)
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            language:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/obj.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user language preference
+      tags:
+      - users
   /users/me/stats:
     get:
       description: Returns statistics for the authenticated user
@@ -3192,6 +3244,37 @@ paths:
       security:
       - BearerAuth: []
       summary: Update workshop
+      tags:
+      - workshops
+  /workshops/participants/{participantId}/token:
+    get:
+      description: Gets the access token for a workshop participant (staff/heads only)
+      parameters:
+      - description: Participant ID
+        in: path
+        name: participantId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httpx.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get participant token
       tags:
       - workshops
 schemes:

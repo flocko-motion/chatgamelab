@@ -1592,14 +1592,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.",
+                "description": "Lists invites scoped by user permissions - shows invites for the current user to join an institution",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites",
+                "summary": "List incoming invites for the current user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1723,14 +1723,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists all invites for a specific institution. Requires head/staff role in the institution or admin.",
+                "description": "Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites for an institution",
+                "summary": "List outgoing invites from an institution",
                 "parameters": [
                     {
                         "type": "string",
@@ -2729,6 +2729,62 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/me/language": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the language preference for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user language preference",
+                "parameters": [
+                    {
+                        "description": "Language preference (ISO 639-1 code)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "language": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/stats": {
             "get": {
                 "security": [
@@ -3278,6 +3334,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/workshops/participants/{participantId}/token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets the access token for a workshop participant (staff/heads only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Get participant token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/workshops/{id}": {
             "get": {
                 "security": [
@@ -3814,6 +3919,18 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "requestExpandStory": {
+                    "type": "string"
+                },
+                "requestImageGeneration": {
+                    "type": "string"
+                },
+                "requestStatusUpdate": {
+                    "type": "string"
+                },
+                "responseRaw": {
+                    "type": "string"
+                },
                 "seq": {
                     "description": "Sequence number within the session, starting at 1",
                     "type": "integer"
@@ -3830,6 +3947,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
+                    "type": "string"
+                },
+                "urlAnalytics": {
                     "type": "string"
                 }
             }
@@ -4150,13 +4270,15 @@ const docTemplate = `{
                 "admin",
                 "head",
                 "staff",
-                "participant"
+                "participant",
+                "individual"
             ],
             "x-enum-varnames": [
                 "RoleAdmin",
                 "RoleHead",
                 "RoleStaff",
-                "RoleParticipant"
+                "RoleParticipant",
+                "RoleIndividual"
             ]
         },
         "obj.StatusField": {
@@ -4200,6 +4322,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "language": {
+                    "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
                     "type": "string"
                 },
                 "meta": {
@@ -4355,6 +4481,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/obj.Role"
                 },
                 "workshopId": {
                     "type": "string"
