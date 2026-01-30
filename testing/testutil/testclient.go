@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -450,17 +451,11 @@ func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRole
 }
 
 // AddApiKey reads an API key from a file and creates it (composable high-level API)
-func (u *UserClient) AddApiKey(keyPath, name, platform string) (obj.ApiKeyShare, error) {
+func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, error) {
 	u.t.Helper()
 
-	keyBytes, err := os.ReadFile(keyPath)
-	if err != nil {
-		return obj.ApiKeyShare{}, fmt.Errorf("failed to read API key file: %w", err)
-	}
-	apiKey := strings.TrimSpace(string(keyBytes))
-
 	var result obj.ApiKeyShare
-	err = u.Post("apikeys/new", routes.CreateApiKeyRequest{
+	err := u.Post("apikeys/new", routes.CreateApiKeyRequest{
 		Name:     name,
 		Platform: platform,
 		Key:      apiKey,
@@ -469,17 +464,20 @@ func (u *UserClient) AddApiKey(keyPath, name, platform string) (obj.ApiKeyShare,
 }
 
 // CreateGameSession creates a new game session (composable high-level API)
-func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID) (obj.GameSession, error) {
+func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID, model string) (obj.GameSession, error) {
 	u.t.Helper()
 
 	var session obj.GameSession
 	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
+		Model:   model,
 		ShareID: apiKeyShareID,
 	}, &session)
 	return session, err
 }
 
 // SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
+// This returns the initial response with plot outline and status fields.
+// Use SendGameMessageWithStream to also consume the full expanded story.
 func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.GameSessionMessage, error) {
 	u.t.Helper()
 
@@ -488,6 +486,108 @@ func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.Game
 		Message: message,
 	}, &response)
 	return response, err
+}
+
+// SendGameMessageWithStream sends a message and consumes the SSE stream to get the full expanded story
+func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, error) {
+	u.t.Helper()
+
+	// Get initial response with plot outline
+	initialResponse, err := u.SendGameMessage(sessionID, message)
+	if err != nil {
+		return obj.GameSessionMessage{}, err
+	}
+
+	// If not streaming, return the initial response
+	if !initialResponse.Stream {
+		return initialResponse, nil
+	}
+
+	// Consume the SSE stream to get full expanded story
+	fullStory, imageData, err := u.consumeMessageStream(initialResponse.ID.String())
+	if err != nil {
+		return obj.GameSessionMessage{}, fmt.Errorf("failed to consume stream: %w", err)
+	}
+
+	// Update response with full content
+	initialResponse.Message = fullStory
+	initialResponse.Image = imageData
+	initialResponse.Stream = false
+
+	return initialResponse, nil
+}
+
+// consumeMessageStream connects to SSE endpoint and consumes all chunks
+func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, error) {
+	u.t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return "", nil, fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/messages/%s/stream", serverURL, messageID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+u.Token)
+	req.Header.Set("Accept", "text/event-stream")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
+	}
+
+	var fullText strings.Builder
+	var imageData []byte
+	scanner := bufio.NewScanner(resp.Body)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// SSE format: "data: {json}"
+		if !strings.HasPrefix(line, "data: ") {
+			continue
+		}
+
+		jsonData := strings.TrimPrefix(line, "data: ")
+		var chunk obj.GameSessionMessageChunk
+		if err := json.Unmarshal([]byte(jsonData), &chunk); err != nil {
+			return "", nil, fmt.Errorf("failed to parse chunk: %w", err)
+		}
+
+		// Accumulate text
+		if chunk.Text != "" {
+			fullText.WriteString(chunk.Text)
+		}
+
+		// Accumulate image data
+		if len(chunk.ImageData) > 0 {
+			imageData = append(imageData, chunk.ImageData...)
+		}
+
+		// Check for completion or error
+		if chunk.Error != "" {
+			return "", nil, fmt.Errorf("stream error: %s", chunk.Error)
+		}
+
+		if chunk.TextDone && chunk.ImageDone {
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", nil, fmt.Errorf("scanner error: %w", err)
+	}
+
+	return fullText.String(), imageData, nil
 }
 
 // ReactivateInvite reactivates a revoked invite (composable high-level API)

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"cgl/apiclient"
+	"cgl/functional"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/lang"
@@ -198,6 +199,8 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("no text response from OpenAI")
 	}
 
+	response.ResponseRaw = &responseText
+
 	// Parse the structured response into the pre-created message
 	log.Debug("parsing OpenAI response", "response_length", len(responseText))
 	if err := json.Unmarshal([]byte(responseText), response); err != nil {
@@ -207,6 +210,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID
+	response.URLAnalytics = functional.Ptr("https://platform.openai.com/logs/" + apiResponse.ID)
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
 		return fmt.Errorf("failed to marshal model session: %w", err)

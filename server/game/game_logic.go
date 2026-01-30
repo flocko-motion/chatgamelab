@@ -6,8 +6,10 @@ import (
 	"strings"
 
 	"cgl/db"
+	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/stream"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -179,7 +181,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// Store player/system action message (skip for system messages which are just prompts)
 	// Track the player message so we can delete it if the AI action fails
 	var playerMessageID *uuid.UUID
-	if action.Type == obj.GameSessionMessageTypePlayer {
+gine 	if action.Type == obj.GameSessionMessageTypePlayer {
 		log.Debug("storing player action message", "session_id", session.ID)
 		playerMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
 		if err != nil {
@@ -233,6 +235,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
+	response.PromptStatusUpdate = functional.Ptr(action.Message)
+	response.PromptExpandStory = functional.Ptr(lang.T("aiExpandPlotOutline"))
+	response.PromptImageGeneration = response.ImagePrompt
 
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
 	// This is returned to client immediately
@@ -240,7 +245,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Capture values before goroutines to avoid race conditions
 	messageID := response.ID
-	imagePrompt := response.ImagePrompt
 
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
@@ -266,11 +270,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", imagePrompt != nil)
+		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", response.ImagePrompt != nil)
 		// GenerateImage streams partial images and updates response.Image with final
 		// Note: Image is saved to DB inside stream.SendImage when isDone=true
 		// Use captured imagePrompt to avoid race condition with response pointer
-		if imagePrompt == nil || *imagePrompt == "" {
+		if response.ImagePrompt == nil || *response.ImagePrompt == "" {
 			log.Debug("no image prompt, skipping image generation")
 			return
 		}

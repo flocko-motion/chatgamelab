@@ -84,8 +84,10 @@
             "cwd": "${workspaceFolder}/testing",
             "args": [
                 "-test.run",
-                "TestGameEngineTestSuite/TestGamePlaythrough"
-            ]
+                "TestGameEngineTestSuite/TestGamePlaythrough",
+                "-test.v"
+            ],
+            "buildFlags": "-tags=ai_tests"
         },
     ]
 }

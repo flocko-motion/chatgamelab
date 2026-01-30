@@ -3,16 +3,15 @@
 package testing
 
 import (
-	"os"
-	"path/filepath"
+	"log"
 	"testing"
 
+	"cgl/functional"
+	"cgl/game/ai"
 	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
 )
-
-var apiKeyPathOpenai = filepath.Join(os.Getenv("HOME"), ".ai", "openai", "api-keys", "current")
 
 type GameEngineTestSuite struct {
 	testutil.BaseSuite
@@ -37,7 +36,7 @@ func TestGameEngineTestSuite(t *testing.T) {
 // - Send prompt and receive AI response
 // - Validate status field updates
 func (s *GameEngineTestSuite) TestGamePlaythrough() {
-	apiKeyShare := Must(s.clientAlice.AddApiKey(apiKeyPathOpenai, "Test OpenAI Key", "openai"))
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
 	s.T().Logf("Added API key: %s", apiKeyShare.ID)
 
 	// Create and upload predictable test game
@@ -46,29 +45,26 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Create game session
-	session := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID))
+	session := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID, "gpt-5.2"))
 	s.T().Logf("Created game session: %s", session.ID)
 
-	// Turn 1: Collect 5 stones
-	msg1 := Must(s.clientAlice.SendGameMessage(session.ID.String(), "I collect 5 stones"))
-	s.T().Logf("Turn 1 - Player: I collect 5 stones")
-	s.T().Logf("Turn 1 - AI: %s", msg1.Message)
-	s.Greater(len(msg1.Message), 10, "AI response should be substantial")
-	// TODO: Validate status fields show Day=2, Stones=5
-
-	// Turn 2: Collect 3 more stones
-	msg2 := Must(s.clientAlice.SendGameMessage(session.ID.String(), "I collect 3 more stones"))
-	s.T().Logf("Turn 2 - Player: I collect 3 more stones")
-	s.T().Logf("Turn 2 - AI: %s", msg2.Message)
-	s.Greater(len(msg2.Message), 10, "AI response should be substantial")
-	// TODO: Validate status fields show Day=3, Stones=8
-
-	// Turn 3: Collect 2 more stones
-	msg3 := Must(s.clientAlice.SendGameMessage(session.ID.String(), "I collect 2 more stones"))
-	s.T().Logf("Turn 3 - Player: I collect 2 more stones")
-	s.T().Logf("Turn 3 - AI: %s", msg3.Message)
-	s.Greater(len(msg3.Message), 10, "AI response should be substantial")
-	// TODO: Validate status fields show Day=4, Stones=10
-
+	playerActions := []string{
+		"I collect 5 stones",
+		"I collect 3 more stones",
+		"I collect 2 more stones",
+	}
+	for i, playerAction := range playerActions {
+		// Turn 1: Collect 5 stones
+		msg1 := Must(s.clientAlice.SendGameMessage(session.ID.String(), playerAction))
+		log.Printf("Turn #%d - Player: %s", i, playerAction)
+		log.Printf("Analytics: %s", functional.MaybeToString(msg1.URLAnalytics, "nil"))
+		log.Printf("PromptStatusUpdate: %s", functional.MaybeToString(msg1.PromptStatusUpdate, "nil"))
+		log.Printf("PromptExpandStory: %s", functional.MaybeToString(msg1.PromptExpandStory, "nil"))
+		log.Printf("PromptImageGeneration: %s", functional.MaybeToString(msg1.PromptImageGeneration, "nil"))
+		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
+		log.Printf("AI: %s", functional.MaybeToString(msg1.Message, "nil"))
+		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
+		// TODO: Validate status fields show Day=2, Stones=5
+	}
 	s.T().Logf("Game engine test completed successfully!")
 }

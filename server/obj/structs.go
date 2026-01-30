@@ -354,6 +354,13 @@ type GameSessionMessage struct {
 	Type string `json:"type"`
 	// Plain text of the scene (system message, player action, or game response).
 	Message string `json:"message"`
+
+	PromptStatusUpdate    *string `json:"requestStatusUpdate,omitempty"`
+	PromptImageGeneration *string `json:"requestImageGeneration,omitempty"`
+	PromptExpandStory     *string `json:"requestExpandStory,omitempty"`
+	ResponseRaw           *string `json:"responseRaw,omitempty"`
+	URLAnalytics          *string `json:"urlAnalytics,omitempty"`
+
 	// JSON encoded status fields.
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt"`
