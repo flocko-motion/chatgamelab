@@ -221,6 +221,16 @@ func CreateInstitutionInvite(
 		return obj.UserRoleInvite{}, obj.ErrValidation("either invitedUserID or invitedEmail must be provided")
 	}
 
+	// If inviting by email, validate that a user with that email exists
+	if invitedEmail != nil {
+		user, err := queries().GetUserByEmail(ctx, sql.NullString{String: *invitedEmail, Valid: true})
+		if err != nil {
+			return obj.UserRoleInvite{}, obj.ErrNotFound("no user found with email: " + *invitedEmail)
+		}
+		// Set invitedUserID to the found user's ID for consistency
+		invitedUserID = &user.ID
+	}
+
 	// Check permission using centralized system
 	// Creating invites requires update permission on the institution
 	if err := canAccessInstitution(ctx, createdBy, OpUpdate, &institutionID); err != nil {

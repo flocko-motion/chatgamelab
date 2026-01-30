@@ -933,6 +933,30 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 	return i, err
 }
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE email = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.Name,
+		&i.Email,
+		&i.DeletedAt,
+		&i.Auth0ID,
+		&i.ParticipantToken,
+		&i.DefaultApiKeyShareID,
+		&i.ShowAiModelSelector,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
 `

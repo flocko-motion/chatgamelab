@@ -283,7 +283,7 @@ func (u *UserClient) CreateInstitution(name string) (obj.Institution, error) {
 	return result, err
 }
 
-// InviteToInstitution creates an institution invite (composable high-level API)
+// InviteToInstitution creates an institution invite by user ID (composable high-level API)
 func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var result obj.UserRoleInvite
@@ -291,6 +291,19 @@ func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID stri
 		InstitutionID: institutionID,
 		Role:          role,
 		InvitedUserID: &invitedUserID,
+	}
+	err := u.Post("invites/institution", payload, &result)
+	return result, err
+}
+
+// InviteToInstitutionByEmail creates an institution invite by email (composable high-level API)
+func (u *UserClient) InviteToInstitutionByEmail(institutionID, role, invitedEmail string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	payload := routes.CreateInstitutionInviteRequest{
+		InstitutionID: institutionID,
+		Role:          role,
+		InvitedEmail:  &invitedEmail,
 	}
 	err := u.Post("invites/institution", payload, &result)
 	return result, err

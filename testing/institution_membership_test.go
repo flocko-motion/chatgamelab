@@ -1,6 +1,7 @@
 package testing
 
 import (
+	"cgl/api/routes"
 	"cgl/obj"
 	"testing"
 
@@ -469,4 +470,51 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
 
 	// Frank now has no role in any institution
 	s.T().Logf("Frank has no role in any institution")
+}
+
+// TestInviteByEmail tests email-based invitations
+func (s *MultiUserTestSuite) TestInviteByEmail() {
+	// Create institution
+	institution := Must(s.clientAdmin.CreateInstitution("Email Invite Test Institution"))
+	s.T().Logf("Created institution: %s", institution.Name)
+
+	// Create a user with an email
+	clientZara := s.CreateUser("zara-email-test", "zara@example.com")
+	zaraMe := Must(clientZara.GetMe())
+	s.T().Logf("Created user zara-email-test with email: zara@example.com")
+
+	// Admin tries to invite by wrong email - should fail
+	Fail(s.clientAdmin.InviteToInstitutionByEmail(
+		institution.ID.String(),
+		string(obj.RoleStaff),
+		"zara-new@example.com",
+	))
+	s.T().Logf("Invite to wrong email correctly rejected")
+
+	// Zara changes their email (using admin endpoint for simplicity)
+	MustSucceed(s.clientAdmin.Post("users/"+zaraMe.ID.String(), routes.UserUpdateRequest{
+		Name:  zaraMe.Name,
+		Email: "zara-new@example.com",
+	}, nil))
+	s.T().Logf("Zara changed email to: zara-new@example.com")
+
+	// Admin invites by the new email - should succeed
+	invite := Must(s.clientAdmin.InviteToInstitutionByEmail(
+		institution.ID.String(),
+		string(obj.RoleStaff),
+		"zara-new@example.com",
+	))
+	s.NotNil(invite.InvitedEmail)
+	s.Equal("zara-new@example.com", *invite.InvitedEmail)
+	s.T().Logf("Invite by correct email succeeded")
+
+	// Zara accepts the invite
+	Must(clientZara.AcceptInvite(invite.ID.String()))
+	s.T().Logf("Zara accepted invite and became staff")
+
+	// Verify Zara is now a member
+	institutionAfter := Must(s.clientAdmin.GetInstitution(institution.ID.String()))
+	s.Equal(1, len(institutionAfter.Members), "should have 1 member")
+	s.Equal(zaraMe.ID.String(), institutionAfter.Members[0].UserID.String())
+	s.Equal(string(obj.RoleStaff), string(institutionAfter.Members[0].Role))
 }
