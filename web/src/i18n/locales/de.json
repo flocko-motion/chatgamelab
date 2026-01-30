@@ -208,7 +208,7 @@
         "scenarioHint": "Beschreibe kurz: Wo spielt das Spiel? Wer ist die Spielfigur? Was ist das Ziel? Welche Regeln sind wichtig?",
         "scenarioPlaceholder": "Du bist ein Entdecker in einem geheimnisvollen Wald. Dein Ziel ist es, den versteckten Schatz zu finden...",
         "gameStart": "Wie beginnt das Spiel?",
-        "gameStartHint": "Was passiert am Anfang? Beschreibe die erste Szene, die der Spieler sieht.",
+        "gameStartHint": "Was passiert am Anfang? Beschreibe die erste Szene, die der Spieler sieht. Wie wird die Spielfigur begrüßt?",",
         "gameStartPlaceholder": "Du erwachst am Rand eines dunklen Waldes. Ein schmaler Pfad führt tiefer in die Bäume...",
         "statusFields": "Spielwerte",
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch.",
