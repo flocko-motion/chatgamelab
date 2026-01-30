@@ -390,6 +390,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/logout": {
+            "post": {
+                "description": "Clears the session cookie for participant users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "security": [
@@ -3519,6 +3542,70 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/workshops/{id}/api-key": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the default API key for workshop participants (staff/heads only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Set workshop default API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "API key share ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetWorkshopApiKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -4435,6 +4522,9 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
+                "defaultApiKeyShareId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4654,6 +4744,9 @@ const docTemplate = `{
                 "institutionId": {
                     "type": "string"
                 },
+                "institutionName": {
+                    "type": "string"
+                },
                 "inviteToken": {
                     "type": "string"
                 },
@@ -4679,6 +4772,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopName": {
                     "type": "string"
                 }
             }
@@ -4813,6 +4909,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetWorkshopApiKeyRequest": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
                     "type": "string"
                 }
             }

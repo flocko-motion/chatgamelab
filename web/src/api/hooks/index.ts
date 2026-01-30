@@ -81,4 +81,5 @@ export {
   useUpdateWorkshop,
   useDeleteWorkshop,
   useCreateWorkshopInvite,
+  useSetWorkshopApiKey,
 } from "./useWorkshops";

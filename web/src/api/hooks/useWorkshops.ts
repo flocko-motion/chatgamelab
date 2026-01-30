@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useRequiredAuthenticatedApi } from '../useAuthenticatedApi';
 import { queryKeys } from '../queryKeys';
+import type { ObjWorkshop } from "../generated";
 
 /**
  * Parameters for listing workshops with filtering and sorting
@@ -138,8 +139,37 @@ export function useCreateWorkshopInvite() {
       return response.data;
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['workshops'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.workshop(variables.workshopId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+    },
+  });
+}
+
+/**
+ * Hook to set workshop default API key for participants
+ */
+export function useSetWorkshopApiKey() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { workshopId: string; apiKeyShareId: string | null }) => {
+      const response = await api.workshops.apiKeyUpdate(data.workshopId, {
+        apiKeyShareId: data.apiKeyShareId || undefined,
+      });
+      return response.data;
+    },
+    onSuccess: (updatedWorkshop, variables) => {
+      // Update the workshop in the cache immediately with the new data
+      queryClient.setQueryData<ObjWorkshop[]>(['workshops'], (old) => {
+        if (!old) return old;
+        return old.map((w) => 
+          w.id === variables.workshopId ? updatedWorkshop : w
+        );
+      });
+      queryClient.invalidateQueries({ queryKey: ['workshops'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshop(variables.workshopId) });
     },
   });
 }

@@ -388,6 +388,29 @@
                 }
             }
         },
+        "/auth/logout": {
+            "post": {
+                "description": "Clears the session cookie for participant users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "security": [
@@ -1590,14 +1613,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.",
+                "description": "Lists invites scoped by user permissions - shows invites for the current user to join an institution",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites",
+                "summary": "List incoming invites for the current user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1721,14 +1744,14 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists all invites for a specific institution. Requires head/staff role in the institution or admin.",
+                "description": "Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites for an institution",
+                "summary": "List outgoing invites from an institution",
                 "parameters": [
                     {
                         "type": "string",
@@ -3276,6 +3299,55 @@
                 }
             }
         },
+        "/workshops/participants/{participantId}/token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets the access token for a workshop participant (staff/heads only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Get participant token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/workshops/{id}": {
             "get": {
                 "security": [
@@ -3400,6 +3472,70 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/{id}/api-key": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the default API key for workshop participants (staff/heads only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Set workshop default API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "API key share ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetWorkshopApiKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -4148,13 +4284,15 @@
                 "admin",
                 "head",
                 "staff",
-                "participant"
+                "participant",
+                "individual"
             ],
             "x-enum-varnames": [
                 "RoleAdmin",
                 "RoleHead",
                 "RoleStaff",
-                "RoleParticipant"
+                "RoleParticipant",
+                "RoleIndividual"
             ]
         },
         "obj.StatusField": {
@@ -4307,6 +4445,9 @@
                 "active": {
                     "type": "boolean"
                 },
+                "defaultApiKeyShareId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4353,6 +4494,9 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/obj.Role"
                 },
                 "workshopId": {
                     "type": "string"
@@ -4523,6 +4667,9 @@
                 "institutionId": {
                     "type": "string"
                 },
+                "institutionName": {
+                    "type": "string"
+                },
                 "inviteToken": {
                     "type": "string"
                 },
@@ -4548,6 +4695,9 @@
                     "type": "integer"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopName": {
                     "type": "string"
                 }
             }
@@ -4682,6 +4832,14 @@
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetWorkshopApiKeyRequest": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
                     "type": "string"
                 }
             }

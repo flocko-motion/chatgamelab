@@ -15,6 +15,7 @@ export enum ObjRole {
   RoleHead = "head",
   RoleStaff = "staff",
   RoleParticipant = "participant",
+  RoleIndividual = "individual",
 }
 
 export enum ObjInviteStatus {
@@ -406,6 +407,7 @@ export interface ObjUserStats {
 
 export interface ObjWorkshop {
   active?: boolean;
+  defaultApiKeyShareId?: string;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
@@ -421,6 +423,7 @@ export interface ObjWorkshopParticipant {
   id?: string;
   meta?: ObjMeta;
   name?: string;
+  role?: ObjRole;
   workshopId?: string;
 }
 
@@ -491,6 +494,7 @@ export interface RoutesInviteResponse {
   expiresAt?: string;
   id?: string;
   institutionId?: string;
+  institutionName?: string;
   inviteToken?: string;
   invitedEmail?: string;
   invitedUserId?: string;
@@ -500,6 +504,7 @@ export interface RoutesInviteResponse {
   status?: string;
   usesCount?: number;
   workshopId?: string;
+  workshopName?: string;
 }
 
 export interface RoutesLanguage {
@@ -556,6 +561,10 @@ export interface RoutesSetUserRoleRequest {
   institutionId?: string;
   role?: string;
   workshopId?: string;
+}
+
+export interface RoutesSetWorkshopApiKeyRequest {
+  apiKeyShareId?: string;
 }
 
 export interface RoutesShareRequest {
@@ -1045,6 +1054,22 @@ export class Api<
       }),
 
     /**
+     * @description Clears the session cookie for participant users
+     *
+     * @tags auth
+     * @name LogoutCreate
+     * @summary Logout user
+     * @request POST:/auth/logout
+     */
+    logoutCreate: (params: RequestParams = {}) =>
+      this.request<Record<string, string>, any>({
+        path: `/auth/logout`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Registers a new user after Auth0 authentication. Requires valid Auth0 token.
      *
      * @tags auth
@@ -1497,11 +1522,11 @@ export class Api<
   };
   invites = {
     /**
-     * @description Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.
+     * @description Lists invites scoped by user permissions - shows invites for the current user to join an institution
      *
      * @tags invites
      * @name InvitesList
-     * @summary List invites
+     * @summary List incoming invites for the current user
      * @request GET:/invites
      * @secure
      */
@@ -1556,11 +1581,11 @@ export class Api<
       }),
 
     /**
-     * @description Lists all invites for a specific institution. Requires head/staff role in the institution or admin.
+     * @description Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.
      *
      * @tags invites
      * @name InstitutionDetail
-     * @summary List invites for an institution
+     * @summary List outgoing invites from an institution
      * @request GET:/invites/institution/{institutionId}
      * @secure
      */
@@ -2221,6 +2246,27 @@ export class Api<
       }),
 
     /**
+     * @description Gets the access token for a workshop participant (staff/heads only)
+     *
+     * @tags workshops
+     * @name ParticipantsTokenList
+     * @summary Get participant token
+     * @request GET:/workshops/participants/{participantId}/token
+     * @secure
+     */
+    participantsTokenList: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/participants/${participantId}/token`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Gets a workshop by ID
      *
      * @tags workshops
@@ -2273,6 +2319,30 @@ export class Api<
       this.request<ObjWorkshop, HttpxErrorResponse>({
         path: `/workshops/${id}`,
         method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the default API key for workshop participants (staff/heads only)
+     *
+     * @tags workshops
+     * @name ApiKeyUpdate
+     * @summary Set workshop default API key
+     * @request PUT:/workshops/{id}/api-key
+     * @secure
+     */
+    apiKeyUpdate: (
+      id: string,
+      request: RoutesSetWorkshopApiKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjWorkshop, HttpxErrorResponse>({
+        path: `/workshops/${id}/api-key`,
+        method: "PUT",
         body: request,
         secure: true,
         type: ContentType.Json,
