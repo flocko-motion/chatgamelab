@@ -9,7 +9,7 @@ import {
   Box,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconLogout, IconSchool, IconBuilding } from '@tabler/icons-react';
+import { IconDoorExit, IconSchool, IconBuilding } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../providers/AuthProvider';
 import { UserAvatar } from '../UserAvatar';
@@ -118,7 +118,7 @@ export function ParticipantUserMenu({
 
           <Divider />
 
-          {/* Logout button */}
+          {/* Leave workshop button */}
           <UnstyledButton
             onClick={() => {
               close();
@@ -142,8 +142,8 @@ export function ParticipantUserMenu({
               },
             }}
           >
-            <IconLogout size={16} />
-            <Text size="sm" fw={500}>{t('logout')}</Text>
+            <IconDoorExit size={16} />
+            <Text size="sm" fw={500}>{tParticipant('leaveWorkshop')}</Text>
           </UnstyledButton>
         </Stack>
       </Popover.Dropdown>
