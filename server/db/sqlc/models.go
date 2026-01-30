@@ -51,6 +51,7 @@ type AppUser struct {
 	ParticipantToken     sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
 	ShowAiModelSelector  bool
+	Language             string
 }
 
 type Game struct {

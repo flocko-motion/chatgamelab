@@ -75,5 +75,19 @@
                 "TestMultiUserSuite/TestWorkshopInvites"
             ]
         },
+        {
+            "name": "Debug TestGamePlaythrough",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestGameEngineTestSuite/TestGamePlaythrough",
+                "-test.v"
+            ],
+            "buildFlags": "-tags=ai_tests"
+        },
     ]
 }

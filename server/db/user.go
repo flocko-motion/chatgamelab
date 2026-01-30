@@ -125,6 +125,19 @@ func UpdateUserShowAiModelSelector(ctx context.Context, id uuid.UUID, showAiMode
 	return queries().UpdateUserShowAiModelSelector(ctx, arg)
 }
 
+func UpdateUserLanguage(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, language string) error {
+	// Check permissions - users can only update their own language
+	if err := canAccessUser(ctx, currentUserID, OpUpdate, targetUserID); err != nil {
+		return err
+	}
+
+	arg := db.UpdateUserLanguageParams{
+		ID:       targetUserID,
+		Language: language,
+	}
+	return queries().UpdateUserLanguage(ctx, arg)
+}
+
 // GetUserByIDRaw gets the raw user record by ID (includes participant_token field)
 func GetUserByIDRaw(ctx context.Context, id uuid.UUID) (db.AppUser, error) {
 	return queries().GetUserByID(ctx, id)
@@ -193,6 +206,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 		Email:     sqlNullStringToMaybeString(res.Email),
 		DeletedAt: &res.DeletedAt.Time,
 		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
+		Language:  res.Language,
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)

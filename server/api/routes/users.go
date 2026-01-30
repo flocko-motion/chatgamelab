@@ -7,6 +7,7 @@ import (
 	"cgl/api/auth"
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -90,6 +91,57 @@ func GetCurrentUserStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, stats)
+}
+
+// UpdateUserLanguage godoc
+//
+//	@Summary		Update user language preference
+//	@Description	Sets the language preference for the authenticated user
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		object{language=string}	true	"Language preference (ISO 639-1 code)"
+//	@Success		200		{object}	obj.User
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Security		BearerAuth
+//	@Router			/users/me/language [patch]
+func UpdateUserLanguage(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+	ctx := r.Context()
+
+	var req struct {
+		Language string `json:"language"`
+	}
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	// Validate language code against supported languages
+	req.Language = strings.ToLower(strings.TrimSpace(req.Language))
+	if !lang.IsValidLanguageCode(req.Language) {
+		httpx.WriteError(w, http.StatusBadRequest, "Unsupported language code")
+		return
+	}
+
+	log.Debug("updating user language", "user_id", user.ID, "language", req.Language)
+
+	err := db.UpdateUserLanguage(ctx, user.ID, user.ID, req.Language)
+	if err != nil {
+		log.Error("failed to update user language", "user_id", user.ID, "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update language")
+		return
+	}
+
+	// Return updated user
+	updatedUser, err := db.GetUserByID(ctx, user.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated user")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updatedUser)
 }
 
 // GetUserByID godoc

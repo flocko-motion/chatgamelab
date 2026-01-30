@@ -85,6 +85,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.language,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -163,6 +164,12 @@ WHERE id = $1;
 -- name: UpdateUserShowAiModelSelector :exec
 UPDATE app_user SET
   show_ai_model_selector = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserLanguage :exec
+UPDATE app_user SET
+  language = $2,
   modified_at = now()
 WHERE id = $1;
 

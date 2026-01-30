@@ -24,7 +24,9 @@ CREATE TABLE app_user (
     -- References api_key_share instead of api_key to ensure the user has access to the key.
     default_api_key_share_id uuid NULL,
     -- User preference: show AI model selector when creating sessions
-    show_ai_model_selector boolean NOT NULL DEFAULT false
+    show_ai_model_selector boolean NOT NULL DEFAULT false,
+    -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
+    language text NOT NULL DEFAULT 'en'
 );
 
 -- Institution

@@ -165,12 +165,19 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get current status fields from the latest message in the session
+	var currentStatus []obj.StatusField
+	latestMsg, err := db.GetLatestGameSessionMessage(r.Context(), *userID, sessionID)
+	if err == nil && latestMsg != nil {
+		currentStatus = latestMsg.StatusFields
+	}
+
 	// Create player action message with current status for AI context
 	action := obj.GameSessionMessage{
 		GameSessionID: session.ID,
 		Type:          obj.GameSessionMessageTypePlayer,
 		Message:       req.Message,
-		StatusFields:  req.StatusFields, // Pass current status to AI
+		StatusFields:  currentStatus,
 	}
 
 	// Execute the action and get streaming response

@@ -910,7 +910,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -929,12 +929,13 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
 		&i.ShowAiModelSelector,
+		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -953,12 +954,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (App
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
 		&i.ShowAiModelSelector,
+		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -977,12 +979,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
 		&i.ShowAiModelSelector,
+		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector 
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector, u.language 
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -1010,6 +1013,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
 		&i.ShowAiModelSelector,
+		&i.Language,
 	)
 	return i, err
 }
@@ -1037,6 +1041,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.language,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
@@ -1069,6 +1074,7 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt            sql.NullTime
 	Auth0ID              sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
+	Language             string
 	RoleID               uuid.NullUUID
 	Role                 sql.NullString
 	InstitutionID        uuid.NullUUID
@@ -1091,6 +1097,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.Language,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
@@ -1462,6 +1469,23 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserLanguage = `-- name: UpdateUserLanguage :exec
+UPDATE app_user SET
+  language = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserLanguageParams struct {
+	ID       uuid.UUID
+	Language string
+}
+
+func (q *Queries) UpdateUserLanguage(ctx context.Context, arg UpdateUserLanguageParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserLanguage, arg.ID, arg.Language)
 	return err
 }
 
