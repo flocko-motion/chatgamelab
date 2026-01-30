@@ -36,9 +36,26 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string)
 			// Log error but don't fail user creation
 			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
+	} else {
+		// Assign default "individual" role to new users
+		log.Debug("assigning default individual role to new user", "user_id", id)
+		if err := assignDefaultIndividualRole(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			log.Warn("failed to assign default individual role", "user_id", id, "error", err)
+		}
 	}
 
-	return GetUserByID(ctx, id)
+	finalUser, err := GetUserByID(ctx, id)
+	if err != nil {
+		log.Error("failed to get user after creation", "user_id", id, "error", err)
+		return nil, err
+	}
+	if finalUser.Role == nil {
+		log.Warn("user has no role after creation", "user_id", id)
+	} else {
+		log.Debug("user created successfully", "user_id", id, "role", finalUser.Role.Role)
+	}
+	return finalUser, nil
 }
 
 // CreateUserWithID creates a new user with a specific UUID
@@ -65,9 +82,26 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 			// Log error but don't fail user creation
 			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
+	} else {
+		// Assign default "individual" role to new users
+		log.Debug("assigning default individual role to new user", "user_id", id)
+		if err := assignDefaultIndividualRole(ctx, id); err != nil {
+			// Log error but don't fail user creation
+			log.Warn("failed to assign default individual role", "user_id", id, "error", err)
+		}
 	}
 
-	return GetUserByID(ctx, id)
+	finalUser, err := GetUserByID(ctx, id)
+	if err != nil {
+		log.Error("failed to get user after creation", "user_id", id, "error", err)
+		return nil, err
+	}
+	if finalUser.Role == nil {
+		log.Warn("user has no role after creation", "user_id", id)
+	} else {
+		log.Debug("user created successfully", "user_id", id, "role", finalUser.Role.Role)
+	}
+	return finalUser, nil
 }
 
 func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *string) error {
@@ -287,6 +321,25 @@ func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
 	}
 
 	log.Info("auto-upgraded user to admin role", "user_id", userID)
+	return nil
+}
+
+// assignDefaultIndividualRole creates an "individual" role for the user
+func assignDefaultIndividualRole(ctx context.Context, userID uuid.UUID) error {
+	// Create individual role for the user
+	arg := db.CreateUserRoleParams{
+		UserID:        userID,
+		Role:          sql.NullString{String: string(obj.RoleIndividual), Valid: true},
+		InstitutionID: uuid.NullUUID{}, // Individual role has no institution
+		WorkshopID:    uuid.NullUUID{}, // Individual role has no workshop
+	}
+
+	_, err := queries().CreateUserRole(ctx, arg)
+	if err != nil {
+		return fmt.Errorf("failed to create individual role: %w", err)
+	}
+
+	log.Debug("assigned default individual role to user", "user_id", userID)
 	return nil
 }
 

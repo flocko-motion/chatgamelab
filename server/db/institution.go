@@ -267,6 +267,7 @@ func GetInstitutionMembers(ctx context.Context, institutionID uuid.UUID, userID 
 // RemoveInstitutionMember removes a member from an institution
 func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, memberUserID uuid.UUID, requestingUserID uuid.UUID) error {
 	// Check permission - must be head or admin to remove members
+	// This also validates business rules (e.g., preventing removal of last head, self-removal for heads)
 	if err := canAccessInstitutionMembers(ctx, requestingUserID, OpDelete, institutionID, &memberUserID); err != nil {
 		return err
 	}

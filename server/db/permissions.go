@@ -100,16 +100,7 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 		return obj.ErrForbidden("only members can view institution members")
 
 	case OpDelete:
-		// Users can remove themselves (leave the organization)
-		if targetUserID != nil && *targetUserID == userID {
-			// Check that the user is actually a member of this institution
-			if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
-				return nil
-			}
-			return obj.ErrForbidden("you are not a member of this institution")
-		}
-
-		// Heads can remove staff and participants
+		// Heads can remove members from their institution
 		if user.Role != nil && user.Role.Role == obj.RoleHead &&
 			user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
 			// Get target user to check their role
@@ -117,11 +108,44 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 			if err != nil {
 				return obj.ErrNotFound("target user not found")
 			}
-			// Heads can remove staff and participants, but not other heads
-			if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead {
-				return obj.ErrForbidden("heads cannot remove other heads")
+
+			// If target is a head, apply additional validations
+			if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead &&
+				targetUser.Role.Institution != nil && targetUser.Role.Institution.ID == institutionID {
+				// Heads cannot remove themselves
+				if *targetUserID == userID {
+					return obj.ErrForbidden("heads cannot remove themselves from an institution")
+				}
+
+				// Count heads in this institution
+				members, err := GetInstitutionMembers(ctx, institutionID, userID)
+				if err != nil {
+					return obj.ErrServerError("failed to get institution members")
+				}
+
+				headCount := 0
+				for _, member := range members {
+					if member.Role != nil && member.Role.Role == obj.RoleHead {
+						headCount++
+					}
+				}
+
+				// Prevent removing the last head
+				if headCount <= 1 {
+					return obj.ErrForbidden("cannot remove the last head from an institution")
+				}
 			}
+
 			return nil
+		}
+
+		// Non-head users can remove themselves (leave the organization)
+		if targetUserID != nil && *targetUserID == userID {
+			// Check that the user is actually a member of this institution
+			if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID {
+				return nil
+			}
+			return obj.ErrForbidden("you are not a member of this institution")
 		}
 
 		// Staff can remove participants (no role or participant role)
