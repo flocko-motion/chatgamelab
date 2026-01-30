@@ -44,9 +44,7 @@ function AcceptInvitePage() {
 
     async function fetchInvite() {
       try {
-        const response = await fetch(`${config.API_BASE_URL}/invites/${token}`, {
-          credentials: 'include',
-        });
+        const response = await fetch(`${config.API_BASE_URL}/invites/${token}`);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -93,6 +91,13 @@ function AcceptInvitePage() {
     setState('accepting');
 
     try {
+      // Clear old session cookie first to prevent 401 from invalid token
+      document.cookie = 'cgl_session=; path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      
+      // Small delay to ensure cookie deletion is processed
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Now accept with credentials so browser saves the new cookie
       const response = await fetch(`${config.API_BASE_URL}/invites/${token}/accept`, {
         method: 'POST',
         credentials: 'include',
