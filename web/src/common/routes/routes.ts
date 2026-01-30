@@ -29,6 +29,9 @@ export const ROUTES = {
   // Invite routes (public - no auth required)
   INVITES: '/invites',
 
+  // Participant workshop route
+  MY_WORKSHOP: '/my-workshop',
+
   // My Games (user's own games - create/edit/play)
   MY_GAMES: '/my-games',
   MY_GAME_DETAIL: '/my-games/$gameId',

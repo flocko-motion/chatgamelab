@@ -9,6 +9,7 @@ import { handleApiError } from "@/config/queryClient";
 import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import { config } from "@/config/env";
+import { useAuth } from "@/providers/AuthProvider";
 import type {
   ObjGame,
   HttpxErrorResponse,
@@ -148,20 +149,25 @@ export function useExportGameYaml() {
 
 export function useImportGameYaml() {
   const queryClient = useQueryClient();
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessToken } = useAuth();
 
   return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>(
     {
       mutationFn: async ({ id, yaml }) => {
-        const token = await getAccessTokenSilently();
+        const token = await getAccessToken();
+        const headers: Record<string, string> = {
+          "Content-Type": "application/x-yaml",
+        };
+        // Only add Authorization header if we have a token (participants use cookies)
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
         const response = await fetch(
           `${config.API_BASE_URL}/games/${id}/yaml`,
           {
             method: "PUT",
-            headers: {
-              "Content-Type": "application/x-yaml",
-              Authorization: `Bearer ${token}`,
-            },
+            headers,
+            credentials: "include", // Include cookies for participant auth
             body: yaml,
           },
         );
