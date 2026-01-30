@@ -36,8 +36,9 @@ export function createAuthenticatedApiConfig(getToken: () => Promise<string | nu
     },
     securityWorker: async () => {
       const token = await getToken();
+      // If no token, rely on cookie authentication (for participants)
       if (!token) {
-        throw new Error('No authentication token available');
+        return {};
       }
       return {
         headers: {
