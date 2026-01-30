@@ -121,6 +121,7 @@
     },
     "actions": "Actions",
     "editGame": "Edit Game",
+    "viewGame": "View Game",
     "copyGame": "Copy Game",
     "deleteGame": "Delete Game",
     "back": "Back",
@@ -175,7 +176,8 @@
         "submit": "Create Game"
       },
       "viewModal": {
-        "title": "Game Details"
+        "title": "Game Details",
+        "readOnlyNotice": "This game was created by another user. You can view the details but cannot edit. Use \"Copy\" to create your own editable version."
       },
       "editModal": {
         "title": "Edit Game",
@@ -728,6 +730,13 @@
         "expired": "This invite link has expired.",
         "loadFailed": "Failed to load invite details. Please try again.",
         "acceptFailed": "Failed to accept invite. Please try again."
+      },
+      "switchWorkshop": {
+        "title": "Switch Workshop?",
+        "warning": "You are currently in workshop \"{{currentWorkshop}}\". Joining \"{{newWorkshop}}\" will remove you from your current workshop.",
+        "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
+        "stayButton": "Stay in Current Workshop",
+        "switchButton": "Switch Workshop"
       }
     }
   },
@@ -735,6 +744,7 @@
     "dashboard": "Dashboard",
     "myGames": "My Games",
     "allGames": "All Games",
+    "myWorkshop": "My Workshop",
     "sessions": "Sessions",
     "games": "Games",
     "create": "Create Your Own Game",
@@ -897,52 +907,72 @@
         "registrationFailed": "Registration failed. Please try again."
       },
       "checkingName": "Checking availability..."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings",
+    "accountSection": "Account",
+    "nameLabel": "Display Name",
+    "namePlaceholder": "Enter your display name",
+    "nameDescription": "This is how other users will see you. Max 24 characters.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "emailDescription": "We'll use this for important notifications.",
+    "showAiModelSelectorLabel": "Show AI Model Selector",
+    "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
+    "saveButton": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Changes saved successfully",
+    "emailChangeNote": "To change your email address, please contact the site administrator.",
+    "errors": {
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name must be at most 24 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "nameTaken": "This name is already taken",
+      "emailTaken": "This email is already taken",
+      "saveFailed": "Failed to save changes. Please try again."
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "memberSince": "Registered since",
+    "organizationSection": "Organization & Role",
+    "organization": "Organization",
+    "noOrganization": "No organization",
+    "role": "Role",
+    "noRole": "No role assigned",
+    "roles": {
+      "admin": "Administrator",
+      "head": "Head Teacher",
+      "staff": "Staff Member",
+      "participant": "Guest"
     },
-    "settings": {
-      "title": "Settings",
-      "subtitle": "Manage your account settings",
-      "accountSection": "Account",
-      "nameLabel": "Display Name",
-      "namePlaceholder": "Enter your display name",
-      "nameDescription": "This is how other users will see you. Max 24 characters.",
-      "emailLabel": "Email Address",
-      "emailPlaceholder": "Enter your email",
-      "emailDescription": "We'll use this for important notifications.",
-      "showAiModelSelectorLabel": "Show AI Model Selector",
-      "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
-      "saveButton": "Save Changes",
-      "saving": "Saving...",
-      "saved": "Changes saved successfully",
-      "emailChangeNote": "To change your email address, please contact the site administrator.",
-      "errors": {
-        "nameRequired": "Name is required",
-        "nameTooLong": "Name must be at most 24 characters",
-        "emailRequired": "Email is required",
-        "emailInvalid": "Please enter a valid email address",
-        "nameTaken": "This name is already taken",
-        "emailTaken": "This email is already taken",
-        "saveFailed": "Failed to save changes. Please try again."
-      }
+    "statisticsSection": "Statistics",
+    "gamesPlayed": "Games Played",
+    "gamesCreated": "Games Created",
+    "messagesSent": "Messages Sent",
+    "totalPlaysOnGames": "Total Plays on My Games"
+  },
+  "participant": {
+    "role": "Workshop Participant",
+    "workshop": "Workshop",
+    "organization": "Organization"
+  },
+  "myWorkshop": {
+    "title": "My Workshop",
+    "you": "You",
+    "gameType": "Type",
+    "filters": {
+      "all": "All",
+      "mine": "My Games",
+      "workshop": "Workshop",
+      "public": "Public"
     },
-    "profile": {
-      "title": "Profile",
-      "memberSince": "Registered since",
-      "organizationSection": "Organization & Role",
-      "organization": "Organization",
-      "noOrganization": "No organization",
-      "role": "Role",
-      "noRole": "No role assigned",
-      "roles": {
-        "admin": "Administrator",
-        "head": "Head Teacher",
-        "staff": "Staff Member",
-        "participant": "Guest"
-      },
-      "statisticsSection": "Statistics",
-      "gamesPlayed": "Games Played",
-      "gamesCreated": "Games Created",
-      "messagesSent": "Messages Sent",
-      "totalPlaysOnGames": "Total Plays on My Games"
+    "empty": {
+      "title": "No games yet",
+      "description": "Create your first game or wait for others to share games in the workshop."
     }
   }
 }
