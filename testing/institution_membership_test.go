@@ -209,15 +209,14 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	// Verify tanja can't invite alice to institution
 	Fail(clientTanja.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
 
-	// Harry creates invitiation to alice, revokes it, alice can't accept it
+	// Harry creates invitiation to alice, revokes it (hard delete), invite no longer exists
 	invitation := Must(clientHarry.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
 	MustSucceed(clientHarry.RevokeInvite(invitation.ID.String()))
-	invitationRevoked := Must(clientHarry.GetInvite(invitation.ID.String()))
-	s.Equal(obj.InviteStatusRevoked, invitationRevoked.Status)
-	// alice can see that it's revoked..
-	invitationRevoked = Must(clientAlice.GetInvite(invitation.ID.String()))
-	s.Equal(obj.InviteStatusRevoked, invitationRevoked.Status)
-	// ..and can't accept it any more
+	// Invite is hard-deleted, so fetching it should fail
+	Fail(clientHarry.GetInvite(invitation.ID.String()))
+	// Alice also can't see it
+	Fail(clientAlice.GetInvite(invitation.ID.String()))
+	// Alice can't accept it (it doesn't exist)
 	Fail(clientAlice.AcceptInvite(invitation.ID.String()))
 
 	// Harry creates invitiation to alice, she declines it, he sees that, she can't accept it after declining
