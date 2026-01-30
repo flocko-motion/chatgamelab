@@ -181,7 +181,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// Store player/system action message (skip for system messages which are just prompts)
 	// Track the player message so we can delete it if the AI action fails
 	var playerMessageID *uuid.UUID
-gine 	if action.Type == obj.GameSessionMessageTypePlayer {
+	if action.Type == obj.GameSessionMessageTypePlayer {
 		log.Debug("storing player action message", "session_id", session.ID)
 		playerMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
 		if err != nil {
