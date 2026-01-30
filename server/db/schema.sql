@@ -58,6 +58,8 @@ CREATE TABLE workshop (
     active          boolean NOT NULL DEFAULT true,
     public          boolean NOT NULL DEFAULT false,
     deleted_at      timestamptz NULL,
+    -- Default API key share for workshop participants (set by staff/heads)
+    default_api_key_share_id uuid NULL,
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
@@ -340,6 +342,12 @@ CREATE TABLE system_settings (
         id = '00000000-0000-0000-0000-000000000001'::uuid
     )
 );
+
+-- Insert initial system_settings row
+INSERT INTO system_settings (id, default_ai_model, schema_version)
+VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'gpt-4o-mini', 0)
+ON CONFLICT (id) DO NOTHING;
+
 -- UserFavouriteGame
 -- A user's favourite games. Users can mark games as favourites for quick access.
 CREATE TABLE user_favourite_game (

@@ -1128,6 +1128,7 @@ FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 WHERE ur.institution_id = $1
   AND u.deleted_at IS NULL
+  AND ur.role IN ('individual', 'staff', 'head')
 `
 
 type GetUsersByInstitutionRow struct {

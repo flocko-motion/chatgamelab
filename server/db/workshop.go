@@ -201,14 +201,20 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		participants = []obj.WorkshopParticipant{}
 	}
 
+	var defaultApiKeyShareID *uuid.UUID
+	if result.DefaultApiKeyShareID.Valid {
+		defaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
+	}
+
 	return &obj.Workshop{
-		ID:           result.ID,
-		Name:         result.Name,
-		Institution:  &obj.Institution{ID: result.InstitutionID},
-		Active:       result.Active,
-		Public:       result.Public,
-		Participants: participants,
-		Invites:      invites,
+		ID:                   result.ID,
+		Name:                 result.Name,
+		Institution:          &obj.Institution{ID: result.InstitutionID},
+		Active:               result.Active,
+		Public:               result.Public,
+		DefaultApiKeyShareID: defaultApiKeyShareID,
+		Participants:         participants,
+		Invites:              invites,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -248,6 +254,57 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 		participants = append(participants, participant)
 	}
 	return participants
+}
+
+// fetchWorkshopInvites retrieves invites for a workshop (helper for list operations)
+func fetchWorkshopInvites(ctx context.Context, workshopID uuid.UUID) []obj.UserRoleInvite {
+	inviteRows, err := queries().GetInvitesByWorkshop(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
+	if err != nil {
+		return []obj.UserRoleInvite{}
+	}
+
+	invites := make([]obj.UserRoleInvite, 0, len(inviteRows))
+	for _, inv := range inviteRows {
+		invite := obj.UserRoleInvite{
+			ID:            inv.ID,
+			InstitutionID: inv.InstitutionID,
+			Role:          obj.Role(inv.Role),
+			UsesCount:     inv.UsesCount,
+			Status:        obj.InviteStatus(inv.Status),
+			Meta: obj.Meta{
+				CreatedBy:  inv.CreatedBy,
+				CreatedAt:  &inv.CreatedAt,
+				ModifiedBy: inv.ModifiedBy,
+				ModifiedAt: &inv.ModifiedAt,
+			},
+		}
+		if inv.WorkshopID.Valid {
+			invite.WorkshopID = &inv.WorkshopID.UUID
+		}
+		if inv.InvitedUserID.Valid {
+			invite.InvitedUserID = &inv.InvitedUserID.UUID
+		}
+		if inv.InvitedEmail.Valid {
+			invite.InvitedEmail = &inv.InvitedEmail.String
+		}
+		if inv.InviteToken.Valid {
+			invite.InviteToken = &inv.InviteToken.String
+		}
+		if inv.MaxUses.Valid {
+			invite.MaxUses = &inv.MaxUses.Int32
+		}
+		if inv.ExpiresAt.Valid {
+			invite.ExpiresAt = &inv.ExpiresAt.Time
+		}
+		if inv.AcceptedAt.Valid {
+			invite.AcceptedAt = &inv.AcceptedAt.Time
+		}
+		if inv.AcceptedBy.Valid {
+			invite.AcceptedBy = &inv.AcceptedBy.UUID
+		}
+		invites = append(invites, invite)
+	}
+	return invites
 }
 
 // ListWorkshopsWithOptions retrieves workshops with optional institution filter and options
@@ -354,12 +411,18 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 
 		workshops := make([]obj.Workshop, 0, len(results))
 		for _, r := range results {
+			var defaultApiKeyShareID *uuid.UUID
+			if r.DefaultApiKeyShareID.Valid {
+				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
+			}
+
 			workshop := obj.Workshop{
-				ID:          r.ID,
-				Name:        r.Name,
-				Institution: &obj.Institution{ID: r.InstitutionID},
-				Active:      r.Active,
-				Public:      r.Public,
+				ID:                   r.ID,
+				Name:                 r.Name,
+				Institution:          &obj.Institution{ID: r.InstitutionID},
+				Active:               r.Active,
+				Public:               r.Public,
+				DefaultApiKeyShareID: defaultApiKeyShareID,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -371,6 +434,10 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 			// Fetch participants for this workshop
 			participants := fetchWorkshopParticipants(ctx, r.ID)
 			workshop.Participants = participants
+
+			// Fetch invites for this workshop
+			invites := fetchWorkshopInvites(ctx, r.ID)
+			workshop.Invites = invites
 
 			workshops = append(workshops, workshop)
 		}
@@ -388,12 +455,18 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 
 		workshops := make([]obj.Workshop, 0, len(results))
 		for _, r := range results {
+			var defaultApiKeyShareID *uuid.UUID
+			if r.DefaultApiKeyShareID.Valid {
+				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
+			}
+
 			workshop := obj.Workshop{
-				ID:          r.ID,
-				Name:        r.Name,
-				Institution: &obj.Institution{ID: r.InstitutionID},
-				Active:      r.Active,
-				Public:      r.Public,
+				ID:                   r.ID,
+				Name:                 r.Name,
+				Institution:          &obj.Institution{ID: r.InstitutionID},
+				Active:               r.Active,
+				Public:               r.Public,
+				DefaultApiKeyShareID: defaultApiKeyShareID,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -405,6 +478,10 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 			// Fetch participants for this workshop
 			participants := fetchWorkshopParticipants(ctx, r.ID)
 			workshop.Participants = participants
+
+			// Fetch invites for this workshop
+			invites := fetchWorkshopInvites(ctx, r.ID)
+			workshop.Invites = invites
 
 			workshops = append(workshops, workshop)
 		}
@@ -452,12 +529,73 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, nam
 		return nil, obj.ErrServerError("failed to update workshop")
 	}
 
+	var updateDefaultApiKeyShareID *uuid.UUID
+	if result.DefaultApiKeyShareID.Valid {
+		updateDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
+	}
+
 	return &obj.Workshop{
-		ID:          result.ID,
-		Name:        result.Name,
-		Institution: &obj.Institution{ID: result.InstitutionID},
-		Active:      result.Active,
-		Public:      result.Public,
+		ID:                   result.ID,
+		Name:                 result.Name,
+		Institution:          &obj.Institution{ID: result.InstitutionID},
+		Active:               result.Active,
+		Public:               result.Public,
+		DefaultApiKeyShareID: updateDefaultApiKeyShareID,
+		Meta: obj.Meta{
+			CreatedBy:  result.CreatedBy,
+			CreatedAt:  &result.CreatedAt,
+			ModifiedBy: result.ModifiedBy,
+			ModifiedAt: &result.ModifiedAt,
+		},
+	}, nil
+}
+
+// SetWorkshopDefaultApiKey sets the default API key share for a workshop (staff/heads only)
+func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifiedBy uuid.UUID, apiKeyShareID *uuid.UUID) (*obj.Workshop, error) {
+	// Get existing workshop to check permission
+	existing, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return nil, obj.ErrNotFound("workshop not found")
+	}
+
+	// Check permission - need to know who created it
+	var createdByID uuid.UUID
+	if existing.CreatedBy.Valid {
+		createdByID = existing.CreatedBy.UUID
+	}
+	if err := canAccessWorkshop(ctx, modifiedBy, OpUpdate, existing.InstitutionID, &workshopID, createdByID); err != nil {
+		return nil, err
+	}
+
+	// Build params
+	arg := db.SetWorkshopDefaultApiKeyParams{
+		ID:         workshopID,
+		ModifiedBy: uuid.NullUUID{UUID: modifiedBy, Valid: true},
+	}
+	if apiKeyShareID != nil {
+		arg.DefaultApiKeyShareID = uuid.NullUUID{UUID: *apiKeyShareID, Valid: true}
+	} else {
+		// Explicitly set to NULL when clearing
+		arg.DefaultApiKeyShareID = uuid.NullUUID{Valid: false}
+	}
+
+	result, err := queries().SetWorkshopDefaultApiKey(ctx, arg)
+	if err != nil {
+		return nil, obj.ErrServerError("failed to set workshop API key")
+	}
+
+	var setDefaultApiKeyShareID *uuid.UUID
+	if result.DefaultApiKeyShareID.Valid {
+		setDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
+	}
+
+	return &obj.Workshop{
+		ID:                   result.ID,
+		Name:                 result.Name,
+		Institution:          &obj.Institution{ID: result.InstitutionID},
+		Active:               result.Active,
+		Public:               result.Public,
+		DefaultApiKeyShareID: setDefaultApiKeyShareID,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

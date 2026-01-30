@@ -2,6 +2,7 @@ package db
 
 import (
 	sqlc "cgl/db/sqlc"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 
@@ -362,6 +363,10 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 			if user.Role.Workshop != nil && user.Role.Workshop.ID == *workshopID {
 				return nil
 			}
+			log.Debug("participant workshop access denied",
+				"user_workshop_id", user.Role.Workshop,
+				"requested_workshop_id", *workshopID,
+				"user_role", user.Role.Role)
 		}
 		return obj.ErrForbidden("not authorized to read this workshop")
 
@@ -475,16 +480,31 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 			return obj.ErrNotFound("game not found")
 		}
 
+		// Public games can be played by anyone
+		if game.Public {
+			return nil
+		}
+
 		// If game belongs to a workshop, user must have read access to that workshop
 		if game.WorkshopID.Valid {
-			if err := canAccessWorkshop(ctx, userID, OpRead, uuid.Nil, &game.WorkshopID.UUID, uuid.Nil); err != nil {
+			// Get the workshop to find its institution ID
+			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
+			if err != nil {
+				return obj.ErrNotFound("workshop not found")
+			}
+			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
 				return obj.ErrForbidden("not authorized to play games in this workshop")
 			}
 		}
 
 		// If explicit workshopID is provided, validate access to it as well
 		if workshopID != nil {
-			if err := canAccessWorkshop(ctx, userID, OpRead, uuid.Nil, workshopID, uuid.Nil); err != nil {
+			// Get the workshop to find its institution ID
+			workshop, err := queries().GetWorkshopByID(ctx, *workshopID)
+			if err != nil {
+				return obj.ErrNotFound("workshop not found")
+			}
+			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, workshopID, uuid.Nil); err != nil {
 				return obj.ErrForbidden("not authorized to create sessions in this workshop")
 			}
 		}
