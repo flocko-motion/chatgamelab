@@ -226,6 +226,30 @@ type ListWorkshopsOptions struct {
 	ActiveOnly *bool
 }
 
+// fetchWorkshopParticipants retrieves participants for a workshop (helper for list operations)
+func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.WorkshopParticipant {
+	participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
+	if err != nil {
+		return []obj.WorkshopParticipant{}
+	}
+
+	participants := make([]obj.WorkshopParticipant, 0, len(participantRows))
+	for _, p := range participantRows {
+		participant := obj.WorkshopParticipant{
+			ID:          p.ID,
+			WorkshopID:  workshopID,
+			Name:        p.Name,
+			AccessToken: p.Auth0ID.String,
+			Active:      true,
+			Meta: obj.Meta{
+				CreatedAt: &p.JoinedAt,
+			},
+		}
+		participants = append(participants, participant)
+	}
+	return participants
+}
+
 // ListWorkshopsWithOptions retrieves workshops with optional institution filter and options
 func ListWorkshopsWithOptions(ctx context.Context, userID uuid.UUID, institutionID *uuid.UUID, opts ListWorkshopsOptions) ([]obj.Workshop, error) {
 	// Get base list first
@@ -330,7 +354,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 
 		workshops := make([]obj.Workshop, 0, len(results))
 		for _, r := range results {
-			workshops = append(workshops, obj.Workshop{
+			workshop := obj.Workshop{
 				ID:          r.ID,
 				Name:        r.Name,
 				Institution: &obj.Institution{ID: r.InstitutionID},
@@ -342,7 +366,13 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 					ModifiedBy: r.ModifiedBy,
 					ModifiedAt: &r.ModifiedAt,
 				},
-			})
+			}
+
+			// Fetch participants for this workshop
+			participants := fetchWorkshopParticipants(ctx, r.ID)
+			workshop.Participants = participants
+
+			workshops = append(workshops, workshop)
 		}
 		return workshops, nil
 	} else {
@@ -358,7 +388,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 
 		workshops := make([]obj.Workshop, 0, len(results))
 		for _, r := range results {
-			workshops = append(workshops, obj.Workshop{
+			workshop := obj.Workshop{
 				ID:          r.ID,
 				Name:        r.Name,
 				Institution: &obj.Institution{ID: r.InstitutionID},
@@ -370,7 +400,13 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 					ModifiedBy: r.ModifiedBy,
 					ModifiedAt: &r.ModifiedAt,
 				},
-			})
+			}
+
+			// Fetch participants for this workshop
+			participants := fetchWorkshopParticipants(ctx, r.ID)
+			workshop.Participants = participants
+
+			workshops = append(workshops, workshop)
 		}
 		return workshops, nil
 	}
