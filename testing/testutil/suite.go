@@ -171,7 +171,7 @@ func (s *BaseSuite) SetupSuite() {
 
 	// Initialize dev user for role assignments
 	// The dev user is created during preseed with UUID 00000000-0000-0000-0000-000000000000
-	devUserID := "00000000-0000-0000-0000-000000000000"
+	devUserID := "00000000-0000-0000-0000-000000000001"
 
 	// Ensure client is configured with correct URL
 	if err := config.SetServerConfig(TestServerURL, ""); err != nil {

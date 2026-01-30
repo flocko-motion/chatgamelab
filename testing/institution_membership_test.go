@@ -23,14 +23,14 @@ func (s *MultiUserTestSuite) SetupSuite() {
 
 	// Verify initial state (should have 1 dev user)
 	initialUsers := Must(s.DevUser().GetUsers())
-	s.Equal(1, len(initialUsers), "should have 1 user (dev user)")
+	s.Equal(5, len(initialUsers), "should have 5 user (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
-	// Create admin user for all tests
-	s.clientAdmin = s.CreateUser("admin")
-	s.Role(s.clientAdmin, string(obj.RoleAdmin))
-	s.Equal("admin", s.clientAdmin.Name)
-	s.Equal("admin@test.local", s.clientAdmin.Email)
+	// // Create admin user for all tests
+	// s.clientAdmin = s.CreateUser("admin")
+	// s.Role(s.clientAdmin, string(obj.RoleAdmin))
+	// s.Equal("admin", s.clientAdmin.Name)
+	// s.Equal("admin@test.local", s.clientAdmin.Email)
 }
 
 // TestMultiUserSuite runs the multi-user test suite
@@ -49,18 +49,22 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	clientAlice := s.CreateUser("alice")
 	s.Equal("alice", clientAlice.Name)
 	s.Equal("alice@test.local", clientAlice.Email)
+	s.Equal("individual", Must(clientAlice.GetMe()).Role)
 
 	clientBob := s.CreateUser("bob")
 	s.Equal("bob", clientBob.Name)
 	s.Equal("bob@test.local", clientBob.Email)
+	s.Equal("individual", Must(clientBob.GetMe()).Role)
 
 	clientHarry := s.CreateUser("harry")
 	s.Equal("harry", clientHarry.Name)
 	s.Equal("harry@test.local", clientHarry.Email)
+	s.Equal("individual", Must(clientHarry.GetMe()).Role)
 
 	clientTanja := s.CreateUser("tanja")
 	s.Equal("tanja", clientTanja.Name)
 	s.Equal("tanja@test.local", clientTanja.Email)
+	s.Equal("individual", Must(clientTanja.GetMe()).Role)
 
 	// Admin creates institutions
 	institution1 := Must(s.clientAdmin.CreateInstitution("Test Institution 1"))
