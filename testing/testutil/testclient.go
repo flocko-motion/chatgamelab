@@ -216,11 +216,19 @@ func (u *UserClient) Delete(endpoint string) error {
 	return u.makeRequest("DELETE", endpoint, nil, nil)
 }
 
-// GetInvites returns the user's invites (composable high-level API)
-func (u *UserClient) GetInvites() ([]obj.UserRoleInvite, error) {
+// GetInvitesIncoming returns the user's incoming invites (composable high-level API)
+func (u *UserClient) GetInvitesIncoming() ([]obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var invites []obj.UserRoleInvite
 	err := u.Get("invites", &invites)
+	return invites, err
+}
+
+// GetInvitesOutgoing returns all invites for a specific institution (composable high-level API)
+func (u *UserClient) GetInvitesOutgoing(institutionID string) ([]obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var invites []obj.UserRoleInvite
+	err := u.Get("invites/institution/"+institutionID, &invites)
 	return invites, err
 }
 
@@ -243,17 +251,19 @@ func (u *UserClient) GetInstitutions() ([]obj.Institution, error) {
 // AcceptInvite accepts an invite by ID (composable high-level API)
 func (u *UserClient) AcceptInvite(inviteID string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
-	var result obj.UserRoleInvite
-	err := u.Post("invites/"+inviteID+"/accept", nil, &result)
-	return result, err
+	if err := u.Post("invites/"+inviteID+"/accept", nil, nil); err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+	return u.GetInvite(inviteID)
 }
 
 // DeclineInvite declines an invite by ID (composable high-level API)
 func (u *UserClient) DeclineInvite(inviteID string) (obj.UserRoleInvite, error) {
 	u.t.Helper()
-	var result obj.UserRoleInvite
-	err := u.Post("invites/"+inviteID+"/decline", nil, &result)
-	return result, err
+	if err := u.Post("invites/"+inviteID+"/decline", nil, nil); err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+	return u.GetInvite(inviteID)
 }
 
 // RevokeInvite revokes an invite by ID (composable high-level API)
@@ -284,6 +294,18 @@ func (u *UserClient) InviteToInstitution(institutionID, role, invitedUserID stri
 	}
 	err := u.Post("invites/institution", payload, &result)
 	return result, err
+}
+
+func (u *UserClient) GetRole() string {
+	u.t.Helper()
+	me, err := u.GetMe()
+	if err != nil {
+		u.t.Fatalf("User %q: failed to get me: %v", u.Name, err)
+	}
+	if me.Role == nil {
+		u.t.Fatalf("User %q: no role", u.Name)
+	}
+	return string(me.Role.Role)
 }
 
 // GetMe returns the current user's profile (composable high-level API)

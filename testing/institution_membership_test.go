@@ -21,16 +21,13 @@ func (s *MultiUserTestSuite) SetupSuite() {
 	// Call parent SetupSuite to initialize base suite
 	s.BaseSuite.SetupSuite()
 
-	// Verify initial state (should have 1 dev user)
+	// Verify initial state (should have 5 dev users)
 	initialUsers := Must(s.DevUser().GetUsers())
-	s.Equal(5, len(initialUsers), "should have 5 user (preseeded dev users)")
+	s.Equal(5, len(initialUsers), "should have 5 users (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
-	// // Create admin user for all tests
-	// s.clientAdmin = s.CreateUser("admin")
-	// s.Role(s.clientAdmin, string(obj.RoleAdmin))
-	// s.Equal("admin", s.clientAdmin.Name)
-	// s.Equal("admin@test.local", s.clientAdmin.Email)
+	// Use preseeded admin user
+	s.clientAdmin = s.DevUser()
 }
 
 // TestMultiUserSuite runs the multi-user test suite
@@ -49,22 +46,22 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	clientAlice := s.CreateUser("alice")
 	s.Equal("alice", clientAlice.Name)
 	s.Equal("alice@test.local", clientAlice.Email)
-	s.Equal("individual", Must(clientAlice.GetMe()).Role)
+	s.Equal("individual", clientAlice.GetRole())
 
 	clientBob := s.CreateUser("bob")
 	s.Equal("bob", clientBob.Name)
 	s.Equal("bob@test.local", clientBob.Email)
-	s.Equal("individual", Must(clientBob.GetMe()).Role)
+	s.Equal("individual", clientBob.GetRole())
 
 	clientHarry := s.CreateUser("harry")
 	s.Equal("harry", clientHarry.Name)
 	s.Equal("harry@test.local", clientHarry.Email)
-	s.Equal("individual", Must(clientHarry.GetMe()).Role)
+	s.Equal("individual", clientHarry.GetRole())
 
 	clientTanja := s.CreateUser("tanja")
 	s.Equal("tanja", clientTanja.Name)
 	s.Equal("tanja@test.local", clientTanja.Email)
-	s.Equal("individual", Must(clientTanja.GetMe()).Role)
+	s.Equal("individual", clientTanja.GetRole())
 
 	// Admin creates institutions
 	institution1 := Must(s.clientAdmin.CreateInstitution("Test Institution 1"))
@@ -101,12 +98,15 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	s.T().Logf("Created invite for harry: %s", harryInvite.ID)
 
 	// admin can see the invites (bob's accepted + harry's pending)
-	adminInvites := Must(s.clientAdmin.GetInvites())
-	s.Equal(2, len(adminInvites), "admin should see 2 invites (bob's accepted + harry's pending)")
+	adminInvites := Must(s.clientAdmin.GetInvitesOutgoing(institution1.ID.String()))
+	s.Equal(1, len(adminInvites), "admin should see 1 invite (harry's pending)")
+	s.T().Logf("Admin sees %d invite(s)", len(adminInvites))
+	adminInvites = Must(s.clientAdmin.GetInvitesOutgoing(institution2.ID.String()))
+	s.Equal(1, len(adminInvites), "admin should see 1 invite (bob's accepted)")
 	s.T().Logf("Admin sees %d invite(s)", len(adminInvites))
 
 	// Harry sees invitation
-	harryInvites := Must(clientHarry.GetInvites())
+	harryInvites := Must(clientHarry.GetInvitesIncoming())
 	s.Equal(1, len(harryInvites), "harry should see 1 pending invite")
 	s.Equal(harryInvite.ID, harryInvites[0].ID)
 	s.T().Logf("Harry sees %d pending invite(s)", len(harryInvites))
@@ -144,9 +144,10 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	s.Equal(institution1.ID, harryUser.Role.Institution.ID)
 
 	// Verify that admin can see that harry accepted the invite
-	adminInvites = Must(s.clientAdmin.GetInvites())
-	s.Equal(2, len(adminInvites), "admin should see 2 invites (bob's and harry's)")
+	adminInvites = Must(s.clientAdmin.GetInvitesOutgoing(institution1.ID.String()))
+	s.Equal(1, len(adminInvites), "admin should see 1 invite (harry's)")
 	s.T().Logf("Admin sees %d invite(s)", len(adminInvites))
+	s.Equal(obj.InviteStatusAccepted, adminInvites[0].Status)
 
 	// Harry invites tanja to institution as staff
 	tanjaInvite := Must(clientHarry.InviteToInstitution(
@@ -159,7 +160,7 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	s.T().Logf("Harry created invite for tanja: %s", tanjaInvite.ID)
 
 	// Tanja sees invitation
-	tanjaInvites := Must(clientTanja.GetInvites())
+	tanjaInvites := Must(clientTanja.GetInvitesIncoming())
 	s.Equal(1, len(tanjaInvites), "tanja should see 1 pending invite")
 	s.Equal(tanjaInvite.ID, tanjaInvites[0].ID)
 	s.T().Logf("Tanja sees %d pending invite(s)", len(tanjaInvites))

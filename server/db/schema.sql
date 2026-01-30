@@ -75,7 +75,7 @@ CREATE TABLE user_role (
     institution_id  uuid NULL REFERENCES institution(id),
     workshop_id     uuid NULL REFERENCES workshop(id),
 
-    CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant')),
+    CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant', 'individual')),
     CONSTRAINT user_role_user_institution_workshop_uniq UNIQUE (user_id, role, institution_id, workshop_id)
 );
 
@@ -126,7 +126,7 @@ CREATE TABLE user_role_invite (
     accepted_at     timestamptz NULL,
     accepted_by     uuid NULL REFERENCES app_user(id),
 
-    CONSTRAINT user_role_invite_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant')),
+    CONSTRAINT user_role_invite_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant', 'individual')),
     CONSTRAINT user_role_invite_status_chk CHECK (status IN ('pending', 'accepted', 'declined', 'expired', 'revoked')),
     -- Either targeted (user_id or email) OR open (invite_token), not both
     CONSTRAINT user_role_invite_type_chk CHECK (
@@ -331,6 +331,8 @@ CREATE TABLE system_settings (
     modified_at timestamptz NOT NULL DEFAULT now(),
     -- Default AI model to use when user hasn't configured one
     default_ai_model text NOT NULL,
+    -- Schema version for tracking applied migrations
+    schema_version integer NOT NULL DEFAULT 0,
     -- Ensure only one row exists by enforcing a fixed ID
     CONSTRAINT system_settings_singleton CHECK (
         id = '00000000-0000-0000-0000-000000000001'::uuid

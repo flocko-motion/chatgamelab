@@ -61,6 +61,7 @@ const (
 	RoleHead        Role = "head"
 	RoleStaff       Role = "staff"
 	RoleParticipant Role = "participant"
+	RoleIndividual  Role = "individual"
 )
 
 type InviteStatus string

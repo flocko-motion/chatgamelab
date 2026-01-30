@@ -87,8 +87,8 @@ func toInviteResponse(inv obj.UserRoleInvite) InviteResponse {
 
 // ListInvites godoc
 //
-//	@Summary		List invites
-//	@Description	Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.
+//	@Summary		List incoming invites for the current user
+//	@Description	Lists invites scoped by user permissions - shows invites for the current user to join an institution
 //	@Tags			invites
 //	@Produce		json
 //	@Success		200		{array}		InviteResponse
@@ -152,8 +152,8 @@ func ListAllInvites(w http.ResponseWriter, r *http.Request) {
 
 // ListInvitesByInstitution godoc
 //
-//	@Summary		List invites for an institution
-//	@Description	Lists all invites for a specific institution. Requires head/staff role in the institution or admin.
+//	@Summary		List outgoing invites from an institution
+//	@Description	Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.
 //	@Tags			invites
 //	@Produce		json
 //	@Param			institutionId	path		string	true	"Institution ID"

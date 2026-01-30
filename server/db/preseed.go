@@ -41,7 +41,7 @@ func Preseed(ctx context.Context) {
 	preseedDevUser(ctx, DevHeadUserID, "head", obj.RoleHead, &DevInstitutionID)
 	preseedDevUser(ctx, DevStaffUserID, "staff", obj.RoleStaff, &DevInstitutionID)
 	preseedDevUser(ctx, DevParticipantUserID, "participant", obj.RoleParticipant, &DevInstitutionID)
-	preseedDevUser(ctx, DevGuestUserID, "guest", "", nil) // No role = guest
+	preseedDevUser(ctx, DevGuestUserID, "guest", obj.RoleIndividual, nil)
 
 	// Create mock API key for admin user
 	preseedDevApiKey(ctx, DevAdminUserID)
@@ -108,21 +108,33 @@ func preseedDevUser(ctx context.Context, userID uuid.UUID, name string, role obj
 		}
 	}
 
-	// Assign role if specified and user doesn't have one
-	if role != "" && user.Role == nil {
-		log.Debug("assigning role to dev user", "name", name, "role", role)
-		var workshopID uuid.NullUUID
-		if role == obj.RoleParticipant {
-			workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
+	// Assign role if specified
+	if role != "" {
+		// If user has an "individual" role (auto-assigned), delete it first
+		if user.Role != nil && user.Role.Role == obj.RoleIndividual {
+			log.Debug("removing auto-assigned individual role for dev user", "name", name)
+			if err := queries().DeleteUserRoles(ctx, userID); err != nil {
+				log.Warn("failed to delete individual role", "name", name, "error", err)
+				return
+			}
 		}
-		arg := db.CreateUserRoleParams{
-			UserID:        userID,
-			Role:          sql.NullString{String: string(role), Valid: true},
-			InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
-			WorkshopID:    workshopID,
-		}
-		if _, err := queries().CreateUserRole(ctx, arg); err != nil {
-			log.Warn("failed to assign role to dev user", "name", name, "role", role, "error", err)
+
+		// Only assign if user doesn't have the correct role already
+		if user.Role == nil || user.Role.Role != role {
+			log.Debug("assigning role to dev user", "name", name, "role", role)
+			var workshopID uuid.NullUUID
+			if role == obj.RoleParticipant {
+				workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
+			}
+			arg := db.CreateUserRoleParams{
+				UserID:        userID,
+				Role:          sql.NullString{String: string(role), Valid: true},
+				InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
+				WorkshopID:    workshopID,
+			}
+			if _, err := queries().CreateUserRole(ctx, arg); err != nil {
+				log.Warn("failed to assign role to dev user", "name", name, "role", role, "error", err)
+			}
 		}
 	}
 }
