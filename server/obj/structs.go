@@ -85,14 +85,15 @@ type UserRole struct {
 }
 
 type Workshop struct {
-	ID           uuid.UUID             `json:"id"`
-	Meta         Meta                  `json:"meta"`
-	Name         string                `json:"name"`
-	Institution  *Institution          `json:"institution"`
-	Active       bool                  `json:"active"`
-	Public       bool                  `json:"public"`
-	Participants []WorkshopParticipant `json:"participants,omitempty"`
-	Invites      []UserRoleInvite      `json:"invites,omitempty"`
+	ID                   uuid.UUID             `json:"id"`
+	Meta                 Meta                  `json:"meta"`
+	Name                 string                `json:"name"`
+	Institution          *Institution          `json:"institution"`
+	Active               bool                  `json:"active"`
+	Public               bool                  `json:"public"`
+	DefaultApiKeyShareID *uuid.UUID            `json:"defaultApiKeyShareId,omitempty"`
+	Participants         []WorkshopParticipant `json:"participants,omitempty"`
+	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 }
 
 type WorkshopParticipant struct {

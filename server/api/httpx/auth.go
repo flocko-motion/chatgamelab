@@ -246,7 +246,9 @@ func Authenticate(next http.Handler) http.Handler {
 					}
 				}
 				log.Debug("participant token invalid", "error", err)
-				WriteErrorWithCode(w, http.StatusUnauthorized, "auth_invalid_token", "Invalid token")
+				// For OptionalAuth, continue without user instead of returning 401
+				// This allows invite acceptance to work with invalid/old tokens
+				next.ServeHTTP(w, r)
 				return
 			}
 

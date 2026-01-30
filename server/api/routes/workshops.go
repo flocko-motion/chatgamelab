@@ -250,6 +250,64 @@ func DeleteWorkshop(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// SetWorkshopApiKeyRequest represents the request to set a workshop's default API key
+type SetWorkshopApiKeyRequest struct {
+	ApiKeyShareID *string `json:"apiKeyShareId"`
+}
+
+// SetWorkshopApiKey godoc
+//
+//	@Summary		Set workshop default API key
+//	@Description	Sets the default API key for workshop participants (staff/heads only)
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"Workshop ID"
+//	@Param			request	body		SetWorkshopApiKeyRequest	true	"API key share ID"
+//	@Success		200		{object}	obj.Workshop
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/{id}/api-key [put]
+func SetWorkshopApiKey(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	id, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	var req SetWorkshopApiKeyRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteAppError(w, obj.ErrInvalidInput("Invalid JSON"))
+		return
+	}
+
+	var apiKeyShareID *uuid.UUID
+	if req.ApiKeyShareID != nil && *req.ApiKeyShareID != "" {
+		parsed, err := uuid.Parse(*req.ApiKeyShareID)
+		if err != nil {
+			httpx.WriteAppError(w, obj.ErrValidation("Invalid API key share ID"))
+			return
+		}
+		apiKeyShareID = &parsed
+	}
+
+	workshop, err := db.SetWorkshopDefaultApiKey(r.Context(), id, user.ID, apiKeyShareID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, workshop)
+}
+
 // GetParticipantToken godoc
 //
 //	@Summary		Get participant token
