@@ -27,8 +27,8 @@ jobs:
         run: go mod download
         working-directory: ./server
 
-      - name: Run tests
-        run: ./run-test.sh
+      - name: Run tests (excluding AI tests)
+        run: ./run-test.sh --no-ai
         
       - name: Test Summary
         if: always()

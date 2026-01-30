@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -14,6 +15,8 @@ import (
 	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -107,30 +110,63 @@ func validateError(t *testing.T, err error, context string, validators ...ErrorV
 
 // --- UserClient API methods ---
 
-// UploadGame uploads a game YAML file from testdata/games to an existing game
-// Example: alice.UploadGame(gameID, "simple-quest")
-func (u *UserClient) UploadGame(gameID, name string) {
+// UploadGame creates a new game and uploads YAML content from testdata/games (composable high-level API)
+// Example: game := Must(alice.UploadGame("simple-quest"))
+func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 	u.t.Helper()
 
-	// Read YAML file from testdata/games
-	yamlPath := fmt.Sprintf("../testdata/games/%s.yaml", name)
-	yamlContent, err := os.ReadFile(yamlPath)
+	// Read YAML file from testdata/games - try multiple paths
+	relativePaths := []string{
+		fmt.Sprintf("testdata/games/%s.yaml", yamlName),
+		fmt.Sprintf("../testdata/games/%s.yaml", yamlName),
+		fmt.Sprintf("testing/testdata/games/%s.yaml", yamlName),
+	}
+
+	var yamlContent []byte
+	var err error
+	var triedPaths []string
+
+	for _, relPath := range relativePaths {
+		absPath, _ := filepath.Abs(relPath)
+		triedPaths = append(triedPaths, absPath)
+		yamlContent, err = os.ReadFile(relPath)
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
-		u.t.Fatalf("User %q: failed to read game file %s: %v", u.Name, yamlPath, err)
+		return obj.Game{}, fmt.Errorf("failed to read game file %s.yaml, tried absolute paths: %v", yamlName, triedPaths)
+	}
+
+	// Create game
+	var game obj.Game
+	err = u.Post("games/new", routes.CreateGameRequest{
+		Name: "Test Game",
+	}, &game)
+	if err != nil {
+		return obj.Game{}, fmt.Errorf("failed to create game: %w", err)
 	}
 
 	// Set user's token
 	if err := client.SaveJwt(u.Token); err != nil {
-		u.t.Fatalf("User %q: failed to set token for game upload: %v", u.Name, err)
+		return obj.Game{}, fmt.Errorf("failed to set token for game upload: %w", err)
 	}
 
 	// Upload via PUT /games/{id}/yaml
-	endpoint := fmt.Sprintf("games/%s/yaml", gameID)
+	endpoint := fmt.Sprintf("games/%s/yaml", game.ID.String())
 	if err := client.ApiPutRaw(endpoint, string(yamlContent)); err != nil {
-		u.t.Fatalf("User %q: failed to upload game %s: %v", u.Name, name, err)
+		return obj.Game{}, fmt.Errorf("failed to upload game YAML: %w", err)
 	}
 
-	u.t.Logf("User %q uploaded game %s to %s", u.Name, name, gameID)
+	// Fetch updated game to get YAML-populated fields
+	var updatedGame obj.Game
+	err = u.Get("games/"+game.ID.String(), &updatedGame)
+	if err != nil {
+		return obj.Game{}, fmt.Errorf("failed to fetch updated game: %w", err)
+	}
+
+	return updatedGame, nil
 }
 
 // makeRequest performs an HTTP request with the user's token in the Authorization header
@@ -411,6 +447,47 @@ func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRole
 	var result obj.UserRoleInvite
 	err := u.Post("invites/workshop", payload, &result)
 	return result, err
+}
+
+// AddApiKey reads an API key from a file and creates it (composable high-level API)
+func (u *UserClient) AddApiKey(keyPath, name, platform string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+
+	keyBytes, err := os.ReadFile(keyPath)
+	if err != nil {
+		return obj.ApiKeyShare{}, fmt.Errorf("failed to read API key file: %w", err)
+	}
+	apiKey := strings.TrimSpace(string(keyBytes))
+
+	var result obj.ApiKeyShare
+	err = u.Post("apikeys/new", routes.CreateApiKeyRequest{
+		Name:     name,
+		Platform: platform,
+		Key:      apiKey,
+	}, &result)
+	return result, err
+}
+
+// CreateGameSession creates a new game session (composable high-level API)
+func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID) (obj.GameSession, error) {
+	u.t.Helper()
+
+	var session obj.GameSession
+	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
+		ShareID: apiKeyShareID,
+	}, &session)
+	return session, err
+}
+
+// SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
+func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.GameSessionMessage, error) {
+	u.t.Helper()
+
+	var response obj.GameSessionMessage
+	err := u.Post("sessions/"+sessionID, routes.SessionActionRequest{
+		Message: message,
+	}, &response)
+	return response, err
 }
 
 // ReactivateInvite reactivates a revoked invite (composable high-level API)
