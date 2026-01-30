@@ -148,8 +148,9 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
 		}
+	} else {
+		response.PromptStatusUpdate = functional.Ptr(systemMessage)
 	}
-	response.PromptStatusUpdate = functional.Ptr(systemMessage)
 	return session, response, httpErr
 }
 
