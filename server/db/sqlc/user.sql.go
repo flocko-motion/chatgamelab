@@ -1212,10 +1212,12 @@ func (q *Queries) GetUsersByWorkshop(ctx context.Context, workshopID uuid.NullUU
 const getWorkshopParticipants = `-- name: GetWorkshopParticipants :many
 SELECT 
   u.id, u.name, u.auth0_id,
-  COALESCE(ur.created_at, w.created_at) as joined_at
+  COALESCE(ur.created_at, w.created_at) as joined_at,
+  COALESCE(ur.role, ur_inst.role) as role
 FROM app_user u
-LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
 INNER JOIN workshop w ON w.id = $1
+LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
+LEFT JOIN user_role ur_inst ON u.id = ur_inst.user_id AND ur_inst.workshop_id IS NULL AND u.id = w.created_by
 WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
   AND u.deleted_at IS NULL
 ORDER BY joined_at ASC
@@ -1226,13 +1228,14 @@ type GetWorkshopParticipantsRow struct {
 	Name     string
 	Auth0ID  sql.NullString
 	JoinedAt time.Time
+	Role     sql.NullString
 }
 
 // Get all participants for a workshop, including:
 // 1. Users with RoleParticipant (anonymous participants)
 // 2. Workshop owner/creator (staff/head who created it)
-func (q *Queries) GetWorkshopParticipants(ctx context.Context, workshopID uuid.NullUUID) ([]GetWorkshopParticipantsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getWorkshopParticipants, workshopID)
+func (q *Queries) GetWorkshopParticipants(ctx context.Context, id uuid.UUID) ([]GetWorkshopParticipantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkshopParticipants, id)
 	if err != nil {
 		return nil, err
 	}
@@ -1245,6 +1248,7 @@ func (q *Queries) GetWorkshopParticipants(ctx context.Context, workshopID uuid.N
 			&i.Name,
 			&i.Auth0ID,
 			&i.JoinedAt,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}

@@ -142,6 +142,7 @@ type SystemSetting struct {
 	CreatedAt      time.Time
 	ModifiedAt     time.Time
 	DefaultAiModel string
+	SchemaVersion  int32
 }
 
 type UserFavouriteGame struct {

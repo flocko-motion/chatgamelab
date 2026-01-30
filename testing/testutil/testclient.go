@@ -376,6 +376,18 @@ func (u *UserClient) ListWorkshops(institutionID string) ([]obj.Workshop, error)
 	return result, err
 }
 
+// GetParticipantToken retrieves the access token for a workshop participant (composable high-level API)
+func (u *UserClient) GetParticipantToken(participantID string) (*string, error) {
+	u.t.Helper()
+	var result map[string]string
+	err := u.Get("workshops/participants/"+participantID+"/token", &result)
+	if err != nil {
+		return nil, err
+	}
+	token := result["token"]
+	return &token, nil
+}
+
 // CreateWorkshopInvite creates a workshop invite (composable high-level API)
 func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRoleInvite, error) {
 	u.t.Helper()

@@ -63,5 +63,17 @@
                 "TestMultiUserSuite/TestWorkshopManagement"
             ]
         },
+        {
+            "name": "Debug TestWorkshopInvites",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestMultiUserSuite/TestWorkshopInvites"
+            ]
+        },
     ]
 }

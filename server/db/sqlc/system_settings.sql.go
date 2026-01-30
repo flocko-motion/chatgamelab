@@ -7,6 +7,9 @@ package db
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const getSystemSettings = `-- name: GetSystemSettings :one
@@ -20,10 +23,17 @@ FROM system_settings
 LIMIT 1
 `
 
+type GetSystemSettingsRow struct {
+	ID             uuid.UUID
+	CreatedAt      time.Time
+	ModifiedAt     time.Time
+	DefaultAiModel string
+}
+
 // System Settings queries
-func (q *Queries) GetSystemSettings(ctx context.Context) (SystemSetting, error) {
+func (q *Queries) GetSystemSettings(ctx context.Context) (GetSystemSettingsRow, error) {
 	row := q.db.QueryRowContext(ctx, getSystemSettings)
-	var i SystemSetting
+	var i GetSystemSettingsRow
 	err := row.Scan(
 		&i.ID,
 		&i.CreatedAt,
