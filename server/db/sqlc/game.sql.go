@@ -516,11 +516,16 @@ func (q *Queries) GetGameByPrivateShareHash(ctx context.Context, privateShareHas
 }
 
 const getGameIDsVisibleToUser = `-- name: GetGameIDsVisibleToUser :many
-SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true)
+SELECT id FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2)
 `
 
-func (q *Queries) GetGameIDsVisibleToUser(ctx context.Context, createdBy uuid.NullUUID) ([]uuid.UUID, error) {
-	rows, err := q.db.QueryContext(ctx, getGameIDsVisibleToUser, createdBy)
+type GetGameIDsVisibleToUserParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGameIDsVisibleToUser(ctx context.Context, arg GetGameIDsVisibleToUserParams) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGameIDsVisibleToUser, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -918,11 +923,16 @@ func (q *Queries) GetGameTagsByGameID(ctx context.Context, gameID uuid.UUID) ([]
 }
 
 const getGamesVisibleToUser = `-- name: GetGamesVisibleToUser :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at DESC
 `
 
-func (q *Queries) GetGamesVisibleToUser(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUser, createdBy)
+type GetGamesVisibleToUserParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUser(ctx context.Context, arg GetGamesVisibleToUserParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUser, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -971,11 +981,16 @@ func (q *Queries) GetGamesVisibleToUser(ctx context.Context, createdBy uuid.Null
 }
 
 const getGamesVisibleToUserSortedByCreatedAt = `-- name: GetGamesVisibleToUserSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY created_at ASC
 `
 
-func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreatedAt, createdBy)
+type GetGamesVisibleToUserSortedByCreatedAtParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUserSortedByCreatedAt(ctx context.Context, arg GetGamesVisibleToUserSortedByCreatedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -1131,11 +1146,16 @@ func (q *Queries) GetGamesVisibleToUserSortedByCreatorDesc(ctx context.Context, 
 }
 
 const getGamesVisibleToUserSortedByModifiedAt = `-- name: GetGamesVisibleToUserSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at DESC
 `
 
-func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAt, createdBy)
+type GetGamesVisibleToUserSortedByModifiedAtParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, arg GetGamesVisibleToUserSortedByModifiedAtParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAt, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -1184,11 +1204,16 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAt(ctx context.Context, c
 }
 
 const getGamesVisibleToUserSortedByModifiedAtAsc = `-- name: GetGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY modified_at ASC
 `
 
-func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAtAsc, createdBy)
+type GetGamesVisibleToUserSortedByModifiedAtAscParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context, arg GetGamesVisibleToUserSortedByModifiedAtAscParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByModifiedAtAsc, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -1237,11 +1262,16 @@ func (q *Queries) GetGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context
 }
 
 const getGamesVisibleToUserSortedByName = `-- name: GetGamesVisibleToUserSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) ASC
 `
 
-func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByName, createdBy)
+type GetGamesVisibleToUserSortedByNameParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, arg GetGamesVisibleToUserSortedByNameParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByName, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -1290,11 +1320,16 @@ func (q *Queries) GetGamesVisibleToUserSortedByName(ctx context.Context, created
 }
 
 const getGamesVisibleToUserSortedByNameDesc = `-- name: GetGamesVisibleToUserSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY LOWER(name) DESC
 `
 
-func (q *Queries) GetGamesVisibleToUserSortedByNameDesc(ctx context.Context, createdBy uuid.NullUUID) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByNameDesc, createdBy)
+type GetGamesVisibleToUserSortedByNameDescParams struct {
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGamesVisibleToUserSortedByNameDesc(ctx context.Context, arg GetGamesVisibleToUserSortedByNameDescParams) ([]Game, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesVisibleToUserSortedByNameDesc, arg.CreatedBy, arg.WorkshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -2694,16 +2729,17 @@ func (q *Queries) SearchGameSessionsByUserIDSortByModel(ctx context.Context, arg
 }
 
 const searchGamesVisibleToUser = `-- name: SearchGamesVisibleToUser :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at DESC
 `
 
 type SearchGamesVisibleToUserParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUser(ctx context.Context, arg SearchGamesVisibleToUserParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUser, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUser, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -2752,16 +2788,17 @@ func (q *Queries) SearchGamesVisibleToUser(ctx context.Context, arg SearchGamesV
 }
 
 const searchGamesVisibleToUserSortedByCreatedAt = `-- name: SearchGamesVisibleToUserSortedByCreatedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY created_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY created_at ASC
 `
 
 type SearchGamesVisibleToUserSortedByCreatedAtParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUserSortedByCreatedAt(ctx context.Context, arg SearchGamesVisibleToUserSortedByCreatedAtParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByCreatedAt, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -2926,16 +2963,17 @@ func (q *Queries) SearchGamesVisibleToUserSortedByCreatorDesc(ctx context.Contex
 }
 
 const searchGamesVisibleToUserSortedByModifiedAt = `-- name: SearchGamesVisibleToUserSortedByModifiedAt :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at DESC
 `
 
 type SearchGamesVisibleToUserSortedByModifiedAtParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAt(ctx context.Context, arg SearchGamesVisibleToUserSortedByModifiedAtParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAt, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAt, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -2984,16 +3022,17 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAt(ctx context.Context
 }
 
 const searchGamesVisibleToUserSortedByModifiedAtAsc = `-- name: SearchGamesVisibleToUserSortedByModifiedAtAsc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY modified_at ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY modified_at ASC
 `
 
 type SearchGamesVisibleToUserSortedByModifiedAtAscParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Context, arg SearchGamesVisibleToUserSortedByModifiedAtAscParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAtAsc, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByModifiedAtAsc, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -3042,16 +3081,17 @@ func (q *Queries) SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx context.Cont
 }
 
 const searchGamesVisibleToUserSortedByName = `-- name: SearchGamesVisibleToUserSortedByName :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) ASC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) ASC
 `
 
 type SearchGamesVisibleToUserSortedByNameParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUserSortedByName(ctx context.Context, arg SearchGamesVisibleToUserSortedByNameParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByName, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByName, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
@@ -3100,16 +3140,17 @@ func (q *Queries) SearchGamesVisibleToUserSortedByName(ctx context.Context, arg 
 }
 
 const searchGamesVisibleToUserSortedByNameDesc = `-- name: SearchGamesVisibleToUserSortedByNameDesc :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(name) DESC
+SELECT id, created_by, created_at, modified_by, modified_at, name, description, icon, workshop_id, public, public_sponsored_api_key_id, private_share_hash, private_sponsored_api_key_id, system_message_scenario, system_message_game_start, image_style, css, status_fields, first_message, first_status, first_image, originally_created_by, play_count, clone_count, deleted_at FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY LOWER(name) DESC
 `
 
 type SearchGamesVisibleToUserSortedByNameDescParams struct {
-	CreatedBy uuid.NullUUID
-	Column2   sql.NullString
+	CreatedBy  uuid.NullUUID
+	WorkshopID uuid.NullUUID
+	Column3    sql.NullString
 }
 
 func (q *Queries) SearchGamesVisibleToUserSortedByNameDesc(ctx context.Context, arg SearchGamesVisibleToUserSortedByNameDescParams) ([]Game, error) {
-	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByNameDesc, arg.CreatedBy, arg.Column2)
+	rows, err := q.db.QueryContext(ctx, searchGamesVisibleToUserSortedByNameDesc, arg.CreatedBy, arg.WorkshopID, arg.Column3)
 	if err != nil {
 		return nil, err
 	}
