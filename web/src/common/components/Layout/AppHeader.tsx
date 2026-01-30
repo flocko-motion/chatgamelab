@@ -31,6 +31,7 @@ import { VersionDisplay } from '../VersionDisplay';
 import { DropdownMenu } from '../DropdownMenu';
 import { UserAvatar } from '../UserAvatar';
 import { NotificationBell } from '../NotificationBell';
+import { ParticipantUserMenu } from './ParticipantUserMenu';
 import { getUserAvatarColor } from '@/common/lib/userUtils';
 import { ROUTES } from '../../routes/routes';
 import { EXTERNAL_LINKS } from '../../../config/externalLinks';
@@ -52,6 +53,8 @@ export interface AppHeaderProps {
   onApiKeysClick?: () => void;
   onLogoutClick?: () => void;
   userName?: string;
+  /** If true, shows simplified participant UI */
+  isParticipant?: boolean;
 }
 
 function NavButton({ item }: { item: NavItem }) {
@@ -155,7 +158,8 @@ function UserActions({
   onProfileClick,
   onApiKeysClick,
   onLogoutClick,
-}: Pick<AppHeaderProps, 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick'>) {
+  isParticipant = false,
+}: Pick<AppHeaderProps, 'onSettingsClick' | 'onProfileClick' | 'onApiKeysClick' | 'onLogoutClick' | 'isParticipant'>) {
   const { t } = useTranslation('common');
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
@@ -227,6 +231,48 @@ function UserActions({
       danger: true,
     },
   ];
+
+  // For participants, show simplified menu
+  if (isParticipant) {
+    return (
+      <Group gap="sm" wrap="nowrap">
+        <Tooltip label={EXTERNAL_LINKS.CONTACT.description} position="bottom" withArrow>
+          <UnstyledButton
+            onClick={() => window.open(EXTERNAL_LINKS.CONTACT.href, '_blank')}
+            aria-label={t('header.contact')}
+            py="xs"
+            px="md"
+            style={{
+              borderRadius: 'var(--mantine-radius-md)',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'background-color 150ms ease, box-shadow 150ms ease',
+            }}
+            styles={{
+              root: {
+                backgroundColor: 'transparent',
+                boxShadow: 'none',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  boxShadow: 'none',
+                },
+              },
+            }}
+          >
+            <IconMessage size={18} />
+            <Text size="sm" fw={500}>{t('header.contact')}</Text>
+          </UnstyledButton>
+        </Tooltip>
+        <LanguageSwitcher size="sm" variant="compact" />
+        <ParticipantUserMenu
+          workshopName={backendUser?.role?.workshop?.name}
+          organizationName={backendUser?.role?.institution?.name}
+        />
+      </Group>
+    );
+  }
 
   return (
     <Group gap="sm" wrap="nowrap">
@@ -488,6 +534,7 @@ export function AppHeader({
   onProfileClick,
   onApiKeysClick,
   onLogoutClick,
+  isParticipant = false,
 }: AppHeaderProps) {
   const [mobileNavOpened, { open: openMobileNav, close: closeMobileNav }] = useDisclosure(false);
   const { isMobile: isViewportMobile } = useResponsiveDesign();
@@ -552,6 +599,7 @@ export function AppHeader({
             onProfileClick={onProfileClick}
             onApiKeysClick={onApiKeysClick}
             onLogoutClick={onLogoutClick}
+            isParticipant={isParticipant}
           />
         </Box>
       </Box>
@@ -615,6 +663,7 @@ export function AppHeader({
                 onProfileClick={onProfileClick}
                 onApiKeysClick={onApiKeysClick}
                 onLogoutClick={onLogoutClick}
+                isParticipant={isParticipant}
               />
             )}
 

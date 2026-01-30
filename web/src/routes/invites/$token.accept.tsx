@@ -1,10 +1,13 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { Container, Stack, Card, Center, Loader, Alert, TextInput, Title, Text } from '@mantine/core';
-import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { Container, Stack, Card, Center, Loader, Alert, Title, Text, Group } from '@mantine/core';
+import { IconAlertCircle, IconCheck, IconArrowRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { ActionButton } from '@/common/components/buttons/ActionButton';
+import { TextButton } from '@/common/components/buttons/TextButton';
 import { config } from '@/config/env';
+import { useAuth } from '@/providers/AuthProvider';
+import { ROUTES } from '@/common/routes/routes';
 
 export const Route = createFileRoute('/invites/$token/accept')({
   component: AcceptInvitePage,
@@ -23,14 +26,22 @@ function AcceptInvitePage() {
   const { t } = useTranslation('common');
   const { token } = Route.useParams();
   const navigate = useNavigate();
+  const { isParticipant, backendUser, isLoading: authLoading } = useAuth();
 
-  const [state, setState] = useState<'loading' | 'ready' | 'accepting' | 'success' | 'error'>('loading');
+  const [state, setState] = useState<'loading' | 'ready' | 'accepting' | 'success' | 'error' | 'switch-workshop'>('loading');
   const [invite, setInvite] = useState<InviteDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [displayName, setDisplayName] = useState('');
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  // Get current workshop info if user is a participant
+  const currentWorkshopId = backendUser?.role?.workshop?.id;
+  const currentWorkshopName = backendUser?.role?.workshop?.name;
 
   // Fetch invite details on mount
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) return;
+
     async function fetchInvite() {
       try {
         const response = await fetch(`${config.API_BASE_URL}/invites/${token}`, {
@@ -52,6 +63,21 @@ function AcceptInvitePage() {
 
         const data = await response.json();
         setInvite(data);
+
+        // Check if user is already in this workshop
+        if (isParticipant && currentWorkshopId && data.workshopId === currentWorkshopId) {
+          // Already in this workshop - redirect directly
+          navigate({ to: ROUTES.MY_WORKSHOP as '/' });
+          return;
+        }
+
+        // Check if user is in a different workshop
+        if (isParticipant && currentWorkshopId && data.workshopId !== currentWorkshopId) {
+          // Different workshop - show switch confirmation
+          setState('switch-workshop');
+          return;
+        }
+
         setState('ready');
       } catch {
         setError(t('invites.errors.loadFailed'));
@@ -60,9 +86,10 @@ function AcceptInvitePage() {
     }
 
     fetchInvite();
-  }, [token, t]);
+  }, [token, t, authLoading, isParticipant, currentWorkshopId, navigate]);
 
   const handleAccept = async () => {
+    setIsAccepting(true);
     setState('accepting');
 
     try {
@@ -72,9 +99,7 @@ function AcceptInvitePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          displayName: displayName.trim() || undefined,
-        }),
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -87,12 +112,12 @@ function AcceptInvitePage() {
       await response.json();
 
       // If we got an auth token, the cookie should already be set by the server
-      // Just navigate to dashboard
       setState('success');
 
-      // Short delay to show success message, then redirect
+      // Short delay to show success message, then redirect to my-workshop
       setTimeout(() => {
-        navigate({ to: '/dashboard' });
+        // Force page reload to refresh auth state
+        window.location.href = ROUTES.MY_WORKSHOP;
       }, 1500);
     } catch {
       setError(t('invites.errors.acceptFailed'));
@@ -149,30 +174,65 @@ function AcceptInvitePage() {
     );
   }
 
+  // Show switch workshop confirmation
+  if (state === 'switch-workshop') {
+    return (
+      <Container size="sm" py="xl">
+        <Card shadow="sm" padding="xl" radius="md" withBorder>
+          <Stack gap="lg">
+            <Title order={2} ta="center">
+              {t('invites.switchWorkshop.title')}
+            </Title>
+
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              color="yellow"
+            >
+              {t('invites.switchWorkshop.warning', {
+                currentWorkshop: currentWorkshopName,
+                newWorkshop: invite?.workshopName,
+              })}
+            </Alert>
+
+            <Text ta="center" c="dimmed">
+              {t('invites.switchWorkshop.message')}
+            </Text>
+
+            <Group justify="center" gap="md">
+              <TextButton onClick={() => navigate({ to: ROUTES.MY_WORKSHOP as '/' })}>
+                {t('invites.switchWorkshop.stayButton')}
+              </TextButton>
+              <ActionButton
+                onClick={handleAccept}
+                loading={isAccepting}
+                rightSection={<IconArrowRight size={16} />}
+              >
+                {t('invites.switchWorkshop.switchButton')}
+              </ActionButton>
+            </Group>
+          </Stack>
+        </Card>
+      </Container>
+    );
+  }
+
   return (
     <Container size="sm" py="xl">
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Stack gap="lg">
-          <Title order={2} ta="center">{t('invites.accept.title')}</Title>
+          <Title order={2} ta="center">
+            {invite?.workshopName 
+              ? t('invites.accept.titleWithWorkshop', { workshop: invite.workshopName })
+              : t('invites.accept.title')
+            }
+          </Title>
 
-          {invite?.workshopName && (
-            <Alert color="cyan" variant="light">
-              <Text size="sm">
-                {t('invites.accept.workshopInvite', {
-                  workshop: invite.workshopName,
-                  institution: invite.institutionName || '',
-                })}
-              </Text>
-            </Alert>
-          )}
-
-          <TextInput
-            label={t('invites.accept.displayNameLabel')}
-            placeholder={t('invites.accept.displayNamePlaceholder')}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.currentTarget.value)}
-            description={t('invites.accept.displayNameHint')}
-          />
+          <Text ta="center" c="dimmed">
+            {invite?.institutionName
+              ? t('invites.accept.inviteMessage', { organization: invite.institutionName })
+              : t('invites.accept.inviteMessageSimple')
+            }
+          </Text>
 
           <ActionButton
             onClick={handleAccept}

@@ -739,7 +739,23 @@ func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
 // - operation: the type of CRUD operation
 // - inviteID: pointer to the invite (nil for list operations)
 // - dbInvite: pointer to the database invite record (for read operations)
+// - userID can be zero UUID for anonymous users (only allowed for reading open invites)
 func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperation, dbInvite *sqlc.UserRoleInvite) error {
+	// Handle anonymous users (zero UUID)
+	isAnonymous := userID == uuid.Nil
+
+	// For anonymous users, only allow reading open invites
+	if isAnonymous {
+		if operation == OpRead && dbInvite != nil {
+			// For open invites (no specific user), anyone can read
+			isOpenInvite := !dbInvite.InvitedUserID.Valid && !dbInvite.InvitedEmail.Valid
+			if isOpenInvite {
+				return nil
+			}
+		}
+		return obj.ErrUnauthorized("authentication required")
+	}
+
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return obj.ErrNotFound("user not found")

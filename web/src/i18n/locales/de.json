@@ -121,6 +121,7 @@
     },
     "actions": "Aktionen",
     "editGame": "Spiel bearbeiten",
+    "viewGame": "Spiel ansehen",
     "copyGame": "Spiel kopieren",
     "deleteGame": "Spiel löschen",
     "back": "Zurück",
@@ -175,7 +176,8 @@
         "submit": "Spiel erstellen"
       },
       "viewModal": {
-        "title": "Spieldetails"
+        "title": "Spieldetails",
+        "readOnlyNotice": "Dieses Spiel wurde von einem anderen Benutzer erstellt. Du kannst die Details ansehen, aber nicht bearbeiten. Verwende \"Kopieren\", um deine eigene bearbeitbare Version zu erstellen."
       },
       "editModal": {
         "title": "Spiel bearbeiten",
@@ -709,12 +711,40 @@
         "role-asc": "Rolle (A-Z)",
         "role-desc": "Rolle (Z-A)"
       }
+    },
+    "invites": {
+      "goHome": "Zur Startseite",
+      "accept": {
+        "title": "Workshop beitreten",
+        "titleWithWorkshop": "Workshop \"{{workshop}}\" beitreten",
+        "inviteMessage": "Du wurdest eingeladen, einem Workshop der Organisation \"{{organization}}\" beizutreten.",
+        "inviteMessageSimple": "Du wurdest eingeladen, diesem Workshop beizutreten.",
+        "joinButton": "Workshop beitreten"
+      },
+      "success": {
+        "title": "Willkommen!",
+        "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
+      },
+      "errors": {
+        "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
+        "expired": "Dieser Einladungslink ist abgelaufen.",
+        "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
+        "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
+      },
+      "switchWorkshop": {
+        "title": "Workshop wechseln?",
+        "warning": "Du bist derzeit im Workshop \"{{currentWorkshop}}\". Wenn du \"{{newWorkshop}}\" beitrittst, wirst du aus deinem aktuellen Workshop entfernt.",
+        "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
+        "stayButton": "Im aktuellen Workshop bleiben",
+        "switchButton": "Workshop wechseln"
+      }
     }
   },
   "navigation": {
     "dashboard": "Dashboard",
     "myGames": "Meine Spiele", 
     "allGames": "Alle Spiele",
+    "myWorkshop": "Mein Workshop",
     "create": "Eigene Spiele erstellen",
     "play": "Spiele spielen",
     "rooms": "Räume",
@@ -795,27 +825,6 @@
       }
     }
   },
-  "invites": {
-    "goHome": "Zur Startseite",
-    "accept": {
-      "title": "Workshop beitreten",
-      "workshopInvite": "Du wurdest eingeladen, {{workshop}} beizutreten",
-      "displayNameLabel": "Dein Name",
-      "displayNamePlaceholder": "Gib deinen Anzeigenamen ein",
-      "displayNameHint": "So werden dich andere Teilnehmer sehen",
-      "joinButton": "Workshop beitreten"
-    },
-    "success": {
-      "title": "Willkommen!",
-      "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung..."
-    },
-    "errors": {
-      "notFound": "Dieser Einladungslink ist ungültig oder wurde widerrufen.",
-      "expired": "Dieser Einladungslink ist abgelaufen.",
-      "loadFailed": "Einladungsdetails konnten nicht geladen werden. Bitte versuche es erneut.",
-      "acceptFailed": "Einladung konnte nicht angenommen werden. Bitte versuche es erneut."
-    }
-  },
   "errors": {
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
@@ -894,52 +903,72 @@
         "registrationFailed": "Registrierung fehlgeschlagen. Bitte versuche es erneut."
       },
       "checkingName": "Verfügbarkeit wird geprüft..."
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalte deine Kontoeinstellungen",
+    "accountSection": "Konto",
+    "nameLabel": "Anzeigename",
+    "namePlaceholder": "Gib deinen Anzeigenamen ein",
+    "nameDescription": "So werden andere Benutzer dich sehen. Maximal 24 Zeichen.",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "Gib deine E-Mail ein",
+    "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
+    "showAiModelSelectorLabel": "KI-Modell-Auswahl anzeigen",
+    "showAiModelSelectorDescription": "Wenn aktiviert, kannst du bei jedem Spielstart auswählen, welches KI-Modell verwendet werden soll.",
+    "saveButton": "Änderungen speichern",
+    "saving": "Wird gespeichert...",
+    "saved": "Änderungen erfolgreich gespeichert",
+    "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
+    "errors": {
+      "nameRequired": "Name ist erforderlich",
+      "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
+      "emailRequired": "E-Mail ist erforderlich",
+      "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
+      "nameTaken": "Dieser Name ist bereits vergeben",
+      "emailTaken": "Diese E-Mail ist bereits vergeben",
+      "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es erneut."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "memberSince": "Angemeldet seit",
+    "organizationSection": "Organisation & Rolle",
+    "organization": "Organisation",
+    "noOrganization": "Keine Organisation",
+    "role": "Rolle",
+    "noRole": "Keine Rolle zugewiesen",
+    "roles": {
+      "admin": "Administrator",
+      "head": "Leitung",
+      "staff": "Mitarbeiter",
+      "participant": "Teilnehmer"
     },
-    "settings": {
-      "title": "Einstellungen",
-      "subtitle": "Verwalte deine Kontoeinstellungen",
-      "accountSection": "Konto",
-      "nameLabel": "Anzeigename",
-      "namePlaceholder": "Gib deinen Anzeigenamen ein",
-      "nameDescription": "So werden andere Benutzer dich sehen. Maximal 24 Zeichen.",
-      "emailLabel": "E-Mail-Adresse",
-      "emailPlaceholder": "Gib deine E-Mail ein",
-      "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
-      "showAiModelSelectorLabel": "KI-Modell-Auswahl anzeigen",
-      "showAiModelSelectorDescription": "Wenn aktiviert, kannst du bei jedem Spielstart auswählen, welches KI-Modell verwendet werden soll.",
-      "saveButton": "Änderungen speichern",
-      "saving": "Wird gespeichert...",
-      "saved": "Änderungen erfolgreich gespeichert",
-      "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
-      "errors": {
-        "nameRequired": "Name ist erforderlich",
-        "nameTooLong": "Name darf maximal 24 Zeichen lang sein",
-        "emailRequired": "E-Mail ist erforderlich",
-        "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
-        "nameTaken": "Dieser Name ist bereits vergeben",
-        "emailTaken": "Diese E-Mail ist bereits vergeben",
-        "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es erneut."
-      }
+    "statisticsSection": "Statistiken",
+    "gamesPlayed": "Gespielte Spiele",
+    "gamesCreated": "Erstellte Spiele",
+    "messagesSent": "Gesendete Nachrichten",
+    "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
+  },
+  "participant": {
+    "role": "Workshop-Teilnehmer",
+    "workshop": "Workshop",
+    "organization": "Organisation"
+  },
+  "myWorkshop": {
+    "title": "Mein Workshop",
+    "you": "Du",
+    "gameType": "Typ",
+    "filters": {
+      "all": "Alle",
+      "mine": "Meine Spiele",
+      "workshop": "Workshop",
+      "public": "Öffentlich"
     },
-    "profile": {
-      "title": "Profil",
-      "memberSince": "Angemeldet seit",
-      "organizationSection": "Organisation & Rolle",
-      "organization": "Organisation",
-      "noOrganization": "Keine Organisation",
-      "role": "Rolle",
-      "noRole": "Keine Rolle zugewiesen",
-      "roles": {
-        "admin": "Administrator",
-        "head": "Leitung",
-        "staff": "Mitarbeiter",
-        "participant": "Teilnehmer"
-      },
-      "statisticsSection": "Statistiken",
-      "gamesPlayed": "Gespielte Spiele",
-      "gamesCreated": "Erstellte Spiele",
-      "messagesSent": "Gesendete Nachrichten",
-      "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
+    "empty": {
+      "title": "Noch keine Spiele",
+      "description": "Erstelle dein erstes Spiel oder warte, bis andere Spiele im Workshop teilen."
     }
   }
 }

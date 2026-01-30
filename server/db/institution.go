@@ -44,6 +44,15 @@ func CreateInstitution(ctx context.Context, createdBy uuid.UUID, name string) (*
 	}, nil
 }
 
+// GetInstitutionName retrieves just the institution name by ID (no permission check, for display only)
+func GetInstitutionName(ctx context.Context, id uuid.UUID) (string, error) {
+	result, err := queries().GetInstitutionByID(ctx, id)
+	if err != nil {
+		return "", obj.ErrNotFound("institution not found")
+	}
+	return result.Name, nil
+}
+
 // GetInstitutionByID retrieves an institution by ID (admin or member of institution)
 func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.Institution, error) {
 	// Check permission

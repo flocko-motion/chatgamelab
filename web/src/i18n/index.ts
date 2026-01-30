@@ -12,6 +12,7 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: DEFAULT_LANGUAGE,
+    load: 'languageOnly', // Strip region code (en-US → en)
     debug: import.meta.env.DEV,
     
     // Static resources for EN/DE
