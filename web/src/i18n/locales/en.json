@@ -653,6 +653,17 @@
         "newInviteLink": "New Invite Link",
         "usedCount": "{{count}} uses",
         "revokeInvite": "Revoke Invite Link",
+        "createInviteLink": "Create Invite Link",
+        "viewInviteLink": "View Invite Link",
+        "inviteLinkTitle": "Invite Link for {{name}}",
+        "noActiveInvite": "No active invite link available.",
+        "inviteCreatedAt": "Created",
+        "inviteExpiresAt": "Expires",
+        "inviteUsage": "Usage",
+        "defaultApiKey": "Default API Key",
+        "selectApiKey": "Select an API key",
+        "noDefaultApiKey": "No default key",
+        "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "activate": "Activate",
         "deactivate": "Deactivate",
         "deleteTitle": "Delete Workshop",
@@ -958,7 +969,8 @@
   "participant": {
     "role": "Workshop Participant",
     "workshop": "Workshop",
-    "organization": "Organization"
+    "organization": "Organization",
+    "leaveWorkshop": "Leave Workshop"
   },
   "myWorkshop": {
     "title": "My Workshop",

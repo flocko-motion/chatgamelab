@@ -653,6 +653,17 @@
         "newInviteLink": "Neuer Einladungslink",
         "usedCount": "{{count}} Nutzungen",
         "revokeInvite": "Einladungslink widerrufen",
+        "createInviteLink": "Einladungslink erstellen",
+        "viewInviteLink": "Einladungslink anzeigen",
+        "inviteLinkTitle": "Einladungslink für {{name}}",
+        "noActiveInvite": "Kein aktiver Einladungslink verfügbar.",
+        "inviteCreatedAt": "Erstellt",
+        "inviteExpiresAt": "Läuft ab",
+        "inviteUsage": "Nutzung",
+        "defaultApiKey": "Standard-API-Schlüssel",
+        "selectApiKey": "API-Schlüssel auswählen",
+        "noDefaultApiKey": "Kein Standard-Schlüssel",
+        "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
         "activate": "Aktivieren",
         "deactivate": "Deaktivieren",
         "deleteTitle": "Workshop löschen",
@@ -733,7 +744,7 @@
       },
       "switchWorkshop": {
         "title": "Workshop wechseln?",
-        "warning": "Du bist derzeit im Workshop \"{{currentWorkshop}}\". Wenn du \"{{newWorkshop}}\" beitrittst, wirst du aus deinem aktuellen Workshop entfernt.",
+        "warning": "Du bist derzeit im Workshop \"{{currentWorkshop}}\". Wenn du \"{{newWorkshop}}\" beitrittst, wirst du deinen aktuellen Workshop verlassen.",
         "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
         "stayButton": "Im aktuellen Workshop bleiben",
         "switchButton": "Workshop wechseln"
@@ -954,7 +965,8 @@
   "participant": {
     "role": "Workshop-Teilnehmer",
     "workshop": "Workshop",
-    "organization": "Organisation"
+    "organization": "Organisation",
+    "leaveWorkshop": "Workshop verlassen"
   },
   "myWorkshop": {
     "title": "Mein Workshop",
