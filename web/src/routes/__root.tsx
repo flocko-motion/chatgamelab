@@ -16,7 +16,7 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-  const { isLoading, needsRegistration, registrationData, isAuthenticated, backendUser } = useAuth();
+  const { isLoading, needsRegistration, registrationData, isAuthenticated, backendUser, isParticipant } = useAuth();
   const { t } = useTranslation('navigation');
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,6 +29,11 @@ function RootComponent() {
   
   // Public routes that don't require authentication
   const isPublicRoute = isHomePage || pathname.startsWith(ROUTES.AUTH_LOGIN) || pathname.startsWith(ROUTES.INVITES);
+  
+  // Routes that participants are allowed to access
+  const isParticipantAllowedRoute = pathname === ROUTES.MY_WORKSHOP || 
+    pathname.startsWith('/sessions/') || 
+    pathname.includes('/play');
 
   // Determine layout variant based on auth state
   const isFullyAuthenticated = isAuthenticated && backendUser && !needsRegistration;
@@ -38,6 +43,9 @@ function RootComponent() {
   // If authenticated but backendUser is still loading, keep showing loader instead of redirecting
   const shouldRedirect = !isLoading && !isAuthenticated && !isPublicRoute && !needsRegistration;
   
+  // Redirect participants to my-workshop if they try to access other routes
+  const shouldRedirectParticipant = !isLoading && isParticipant && !isPublicRoute && !isParticipantAllowedRoute;
+  
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
@@ -45,8 +53,23 @@ function RootComponent() {
     }
   }, [shouldRedirect, navigate]);
 
+  // Redirect participants to my-workshop
+  useEffect(() => {
+    if (shouldRedirectParticipant) {
+      navigate({ to: ROUTES.MY_WORKSHOP as '/' });
+    }
+  }, [shouldRedirectParticipant, navigate]);
+
   // Navigation items for authenticated header
-  const navItems: NavItem[] = [
+  // Participants only see "My Workshop"
+  const navItems: NavItem[] = isParticipant ? [
+    {
+      label: t('myWorkshop'),
+      icon: <IconSchool size={18} />,
+      onClick: () => navigate({ to: ROUTES.MY_WORKSHOP as '/' }),
+      active: pathname === ROUTES.MY_WORKSHOP || pathname.startsWith('/sessions/') || pathname.includes('/play'),
+    },
+  ] : [
     { 
       label: t('dashboard'), 
       icon: <IconHome size={18} />, 
@@ -67,11 +90,12 @@ function RootComponent() {
     },
   ];
 
-  // Organization navigation - visible only if user has an organization
+  // Organization navigation - visible only if user has an organization and is NOT a participant
+  // Participants are treated as guests and should not see organization details
   const userInstitutionId = getUserInstitutionId(backendUser);
   const canManageOrgApiKeys = hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
 
-  if (userInstitutionId) {
+  if (userInstitutionId && !isParticipant) {
     // Build organization sub-items
     const orgChildren: NavItem[] = [
       {
@@ -129,11 +153,16 @@ function RootComponent() {
   }
 
   // Header navigation callbacks
-  const headerProps = useAuthenticatedLayout ? {
-    onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
-    onProfileClick: () => navigate({ to: ROUTES.PROFILE }),
-    onApiKeysClick: () => navigate({ to: ROUTES.API_KEYS }),
-  } : undefined;
+  // Participants don't have settings/profile/api-keys access
+  const headerProps = useAuthenticatedLayout ? (
+    isParticipant ? {
+      isParticipant: true,
+    } : {
+      onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
+      onProfileClick: () => navigate({ to: ROUTES.PROFILE }),
+      onApiKeysClick: () => navigate({ to: ROUTES.API_KEYS }),
+    }
+  ) : undefined;
 
   // Show loading state while auth is initializing
   if (isLoading) {
