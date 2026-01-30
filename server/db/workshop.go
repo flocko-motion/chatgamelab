@@ -2,6 +2,7 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"sort"
@@ -156,19 +157,28 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}
 
 	if err := canAccessWorkshopParticipants(ctx, userID, id, createdBy, result.InstitutionID); err == nil {
-		participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: id, Valid: true})
+		participantRows, err := queries().GetWorkshopParticipants(ctx, id)
 		if err != nil {
 			// Don't fail if we can't get participants, just return empty list
+			log.Warn("failed to get workshop participants", "workshop_id", id, "error", err)
 			participantRows = []db.GetWorkshopParticipantsRow{}
 		}
 
 		// Convert participants to obj.WorkshopParticipant
 		participants = make([]obj.WorkshopParticipant, 0, len(participantRows))
 		for _, p := range participantRows {
+			// Parse role from database
+			role, err := stringToRole(p.Role.String)
+			if err != nil {
+				// Default to participant if role parsing fails
+				role = obj.RoleParticipant
+			}
+
 			participant := obj.WorkshopParticipant{
 				ID:          p.ID,
 				WorkshopID:  id,
 				Name:        p.Name,
+				Role:        role,
 				AccessToken: p.Auth0ID.String, // Auth token stored in auth0_id field
 				Active:      true,
 				Meta: obj.Meta{
@@ -434,4 +444,26 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 		return obj.ErrServerError("failed to delete workshop")
 	}
 	return nil
+}
+
+// GetWorkshopParticipantToken retrieves the access token for a workshop participant
+// Only staff and heads of the institution owning the workshop can access this
+// participantUserID is the user ID of the participant (not workshop_participant table ID)
+func GetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	// Check permission using centralized function (validates participant and checks access)
+	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
+		return "", err
+	}
+
+	// Get the raw user record to access participant_token field
+	userRecord, err := queries().GetUserByID(ctx, participantUserID)
+	if err != nil {
+		return "", obj.ErrNotFound("user not found")
+	}
+
+	if !userRecord.ParticipantToken.Valid || userRecord.ParticipantToken.String == "" {
+		return "", obj.ErrNotFound("participant has no access token")
+	}
+
+	return userRecord.ParticipantToken.String, nil
 }

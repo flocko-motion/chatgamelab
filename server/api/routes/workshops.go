@@ -249,3 +249,39 @@ func DeleteWorkshop(w http.ResponseWriter, r *http.Request) {
 		"message": "Workshop deleted",
 	})
 }
+
+// GetParticipantToken godoc
+//
+//	@Summary		Get participant token
+//	@Description	Gets the access token for a workshop participant (staff/heads only)
+//	@Tags			workshops
+//	@Produce		json
+//	@Param			participantId	path		string	true	"Participant ID"
+//	@Success		200				{object}	map[string]string
+//	@Failure		403				{object}	httpx.ErrorResponse
+//	@Failure		404				{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/participants/{participantId}/token [get]
+func GetParticipantToken(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	participantID, err := httpx.PathParamUUID(r, "participantId")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid participant ID"))
+		return
+	}
+
+	token, err := db.GetWorkshopParticipantToken(r.Context(), participantID, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"token": token,
+	})
+}

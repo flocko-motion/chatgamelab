@@ -99,6 +99,7 @@ type WorkshopParticipant struct {
 	Meta        Meta      `json:"meta"`
 	WorkshopID  uuid.UUID `json:"workshopId"`
 	Name        string    `json:"name"`
+	Role        Role      `json:"role"`
 	AccessToken string    `json:"accessToken"`
 	Active      bool      `json:"active"`
 }

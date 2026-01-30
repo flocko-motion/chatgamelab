@@ -1,6 +1,9 @@
 package testing
 
-import "cgl/obj"
+import (
+	"cgl/functional"
+	"cgl/obj"
+)
 
 // TestWorkshopManagement creating a single institution with tony as head and timo as staff
 // timo will create a workshop and generate invite links
@@ -124,19 +127,21 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.T().Logf("Final workshop state verified: name=%s, active=%v, public=%v",
 		finalWorkshop.Name, finalWorkshop.Active, finalWorkshop.Public)
 
-	// Test permissions: Toto (staff, not owner) can view but not edit
+	// Test permissions: Toto (staff) can view and edit workshops
 	totoView := Must(clientToto.GetWorkshop(workshop.ID.String()))
 	s.Equal("Updated Workshop Name", totoView.Name)
 	s.T().Logf("Toto can view workshop: %s", totoView.Name)
 
-	// Toto cannot edit the workshop (not owner)
-	_, totoEditErr := clientToto.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
+	// Toto (staff) can edit the workshop (staff can modify workshops in their institution)
+	totoEdit := Must(clientToto.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
 		"name":   "Toto's Edit",
 		"active": true,
 		"public": false,
-	})
-	s.Error(totoEditErr, "Toto should not be able to edit workshop (not owner)")
-	s.T().Logf("Toto cannot edit workshop (expected)")
+	}))
+	s.Equal("Toto's Edit", totoEdit.Name)
+	s.True(totoEdit.Active)
+	s.False(totoEdit.Public)
+	s.T().Logf("Toto (staff) can edit workshop: %s", totoEdit.Name)
 
 	// Tony (head) can edit the workshop even though he's not the owner
 	tonyEdit := Must(clientTony.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
@@ -215,29 +220,13 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.T().Logf("Steve can view public workshop by ID: %s (active=%v, invites=%d)",
 		steveViewPublic.Name, steveViewPublic.Active, len(steveViewPublic.Invites))
 
-	// Test invite management: Toto (staff) can revoke and reactivate workshop invites
+	// Test invite management: Toto (staff) can revoke workshop invites
 	MustSucceed(clientToto.RevokeInvite(workshopInvite.ID.String()))
 	s.T().Logf("Toto (staff) revoked workshop invite")
 
-	// Verify invite is revoked
-	revokedInvite := Must(clientTimo.GetInvite(workshopInvite.ID.String()))
-	s.Equal(obj.InviteStatusRevoked, revokedInvite.Status)
-	s.T().Logf("Invite status is now: %s", revokedInvite.Status)
-
-	// Toto can reactivate the invite
-	MustSucceed(clientToto.ReactivateInvite(workshopInvite.ID.String()))
-	s.T().Logf("Toto (staff) reactivated workshop invite")
-
-	// Verify invite is pending again
-	reactivatedInvite := Must(clientTimo.GetInvite(workshopInvite.ID.String()))
-	s.Equal(obj.InviteStatusPending, reactivatedInvite.Status)
-	s.T().Logf("Invite status is now: %s", reactivatedInvite.Status)
-
-	// Tony (head) can also manage invites
-	MustSucceed(clientTony.RevokeInvite(workshopInvite.ID.String()))
-	s.T().Logf("Tony (head) revoked workshop invite")
-	MustSucceed(clientTony.ReactivateInvite(workshopInvite.ID.String()))
-	s.T().Logf("Tony (head) reactivated workshop invite")
+	// Verify invite is deleted (hard delete) - fetching it should fail
+	Fail(clientTimo.GetInvite(workshopInvite.ID.String()))
+	s.T().Logf("Invite was hard-deleted (expected)")
 
 	// Make workshop private - now Steve cannot view it
 	privateWorkshop := Must(clientTimo.UpdateWorkshop(workshop.ID.String(), map[string]interface{}{
@@ -333,22 +322,37 @@ func (s *MultiUserTestSuite) TestWorkshopInvites() {
 	s.T().Logf("Participant 1 can see %d participants (owner + anonymous users)", len(workshopFromParticipant.Participants))
 
 	// Staff can see workshop participants
-	_ = Must(clientStaff.GetWorkshop(workshop.ID.String()))
-	s.T().Logf("Workshop has participants (checking via workshop view)")
+	workshopFromStaff := Must(clientStaff.GetWorkshop(workshop.ID.String()))
+	s.Equal(workshop.ID, workshopFromStaff.ID)
+	s.Equal(3, len(workshopFromStaff.Participants), "should see workshop owner + 2 anonymous participants")
+	s.T().Logf("Staff can see %d participants (owner + anonymous users)", len(workshopFromStaff.Participants))
 
-	// Head can also see participants
+	// Let's pick one of the participants..
+	participant := workshopFromStaff.Participants[1]
+	s.Equal(string(obj.RoleParticipant), string(participant.Role))
+	// ..and assume, he lost his access token by closing his browser - the workshop leader should be able to provide a new one
+	participantToken := Must(clientStaff.GetParticipantToken(participant.ID.String()))
+	s.NotEmpty(participantToken)
+	s.T().Logf("New token provided for participant: %s", functional.MaybeToString(participantToken, "nil"))
+	// ..and the participant should be able to authenticate with it
+	clientParticipantRecovered := s.CreateUserWithToken(*participantToken)
+	participantRecoveredMe := Must(clientParticipantRecovered.GetMe())
+	s.Equal(participant.Name, participantRecoveredMe.Name)
+	s.T().Logf("Participant 2 can still authenticate")
+
+	// Head can see workshop participants
 	headWorkshopView := Must(clientHead.GetWorkshop(workshop.ID.String()))
 	s.Equal(workshop.ID, headWorkshopView.ID)
-	s.T().Logf("Head can view workshop with participants")
+	s.Equal(3, len(headWorkshopView.Participants), "should see workshop owner + 2 anonymous participants")
+	s.T().Logf("Head can see %d participants (owner + anonymous users)", len(headWorkshopView.Participants))
 
 	// Staff revokes the invite to stop new users from joining
 	MustSucceed(clientStaff.RevokeInvite(workshopInvite.ID.String()))
 	s.T().Logf("Staff revoked workshop invite")
 
 	// Verify invite is revoked
-	revokedInvite := Must(clientStaff.GetInvite(workshopInvite.ID.String()))
-	s.Equal(obj.InviteStatusRevoked, revokedInvite.Status)
-	s.T().Logf("Invite status confirmed: %s", revokedInvite.Status)
+	Fail(clientStaff.GetInvite(workshopInvite.ID.String()))
+	s.T().Logf("Invite was hard-deleted (expected)")
 
 	// New anonymous user cannot accept revoked invite
 	_, acceptRevokedErr := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)

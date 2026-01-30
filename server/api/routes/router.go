@@ -83,6 +83,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/workshops/{id}", httpx.RequireAuth(GetWorkshop))
 	mux.Handle("PATCH /api/workshops/{id}", httpx.RequireAuth(UpdateWorkshop))
 	mux.Handle("DELETE /api/workshops/{id}", httpx.RequireAuth(DeleteWorkshop))
+	mux.Handle("GET /api/workshops/participants/{participantId}/token", httpx.RequireAuth(GetParticipantToken))
 
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
