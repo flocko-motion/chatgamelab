@@ -195,7 +195,8 @@ func canAccessWorkshopInvites(ctx context.Context, userID uuid.UUID, institution
 
 // canAccessWorkshopParticipantTokens checks if user can view workshop participant access tokens
 // Only staff and heads of the institution owning the workshop can access tokens
-func canAccessWorkshopParticipantTokens(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID) error {
+// targetUserID is optional - if provided, validates that the target is actually a workshop participant
+func canAccessWorkshopParticipantTokens(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, targetUserID *uuid.UUID) error {
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return obj.ErrNotFound("user not found")
@@ -204,6 +205,24 @@ func canAccessWorkshopParticipantTokens(ctx context.Context, userID uuid.UUID, i
 	// Admin can access any participant token
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
 		return nil
+	}
+
+	// If target user is specified, verify they are a workshop participant
+	if targetUserID != nil {
+		targetUser, err := GetUserByID(ctx, *targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("participant not found")
+		}
+
+		// Verify the target is a participant with a workshop role and institution
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant ||
+			targetUser.Role.Workshop == nil || targetUser.Role.Institution == nil {
+			return obj.ErrNotFound("user is not a workshop participant")
+		}
+
+		// Use the target's institution for permission check
+		// (For workshop participants, the institution in their role IS the workshop's institution)
+		institutionID = targetUser.Role.Institution.ID
 	}
 
 	// Staff or head of the institution can access participant tokens

@@ -448,23 +448,22 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 
 // GetWorkshopParticipantToken retrieves the access token for a workshop participant
 // Only staff and heads of the institution owning the workshop can access this
-func GetWorkshopParticipantToken(ctx context.Context, participantID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
-	// Get the participant record
-	participant, err := queries().GetWorkshopParticipantByID(ctx, participantID)
-	if err != nil {
-		return "", obj.ErrNotFound("participant not found")
-	}
-
-	// Get the workshop to find its institution
-	workshop, err := queries().GetWorkshopByID(ctx, participant.WorkshopID)
-	if err != nil {
-		return "", obj.ErrNotFound("workshop not found")
-	}
-
-	// Check permission using centralized function
-	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, workshop.InstitutionID); err != nil {
+// participantUserID is the user ID of the participant (not workshop_participant table ID)
+func GetWorkshopParticipantToken(ctx context.Context, participantUserID uuid.UUID, requestingUserID uuid.UUID) (string, error) {
+	// Check permission using centralized function (validates participant and checks access)
+	if err := canAccessWorkshopParticipantTokens(ctx, requestingUserID, uuid.Nil, &participantUserID); err != nil {
 		return "", err
 	}
 
-	return participant.AccessToken, nil
+	// Get the raw user record to access participant_token field
+	userRecord, err := queries().GetUserByID(ctx, participantUserID)
+	if err != nil {
+		return "", obj.ErrNotFound("user not found")
+	}
+
+	if !userRecord.ParticipantToken.Valid || userRecord.ParticipantToken.String == "" {
+		return "", obj.ErrNotFound("participant has no access token")
+	}
+
+	return userRecord.ParticipantToken.String, nil
 }
