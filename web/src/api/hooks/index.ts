@@ -1,6 +1,6 @@
 /**
  * Centralized API hooks for TanStack Query.
- * 
+ *
  * All hooks are organized by domain and re-exported from this file.
  * Import from '@/api/hooks' to use any hook.
  */
@@ -82,4 +82,6 @@ export {
   useDeleteWorkshop,
   useCreateWorkshopInvite,
   useSetWorkshopApiKey,
+  useUpdateParticipant,
+  useRemoveParticipant,
 } from "./useWorkshops";

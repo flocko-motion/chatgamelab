@@ -1,23 +1,8 @@
 {
-    "schemes": [
-        "http",
-        "https"
-    ],
     "swagger": "2.0",
     "info": {
-        "description": "API for ChatGameLab - an AI-powered interactive game platform",
-        "title": "ChatGameLab API",
-        "contact": {
-            "name": "ChatGameLab Team",
-            "url": "https://chatgamelab.com"
-        },
-        "license": {
-            "name": "MIT"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/api",
     "paths": {
         "/apikeys": {
             "get": {
@@ -4549,6 +4534,19 @@
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
                 }
             }
         },
@@ -4560,6 +4558,9 @@
                 },
                 "active": {
                     "type": "boolean"
+                },
+                "gamesCount": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -4985,6 +4986,18 @@
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "type": "string"
                 }
             }
         },
@@ -5055,14 +5068,6 @@
                     "type": "boolean"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "JWT token in format: Bearer {token}",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }

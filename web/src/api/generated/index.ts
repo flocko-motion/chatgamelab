@@ -422,11 +422,17 @@ export interface ObjWorkshop {
   name?: string;
   participants?: ObjWorkshopParticipant[];
   public?: boolean;
+  showAiModelSelector?: boolean;
+  showOtherParticipantsGames?: boolean;
+  showPublicGames?: boolean;
+  /** Workshop settings (configured by staff/heads) */
+  useSpecificAiModel?: string;
 }
 
 export interface ObjWorkshopParticipant {
   accessToken?: string;
   active?: boolean;
+  gamesCount?: number;
   id?: string;
   meta?: ObjMeta;
   name?: string;
@@ -603,6 +609,10 @@ export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   name?: string;
   public?: boolean;
+  showAiModelSelector?: boolean;
+  showOtherParticipantsGames?: boolean;
+  showPublicGames?: boolean;
+  useSpecificAiModel?: string;
 }
 
 export interface RoutesUserUpdateRequest {
@@ -688,7 +698,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8080/api";
+  public baseUrl: string = "";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -891,13 +901,8 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title ChatGameLab API
- * @version 1.0
- * @license MIT
- * @baseUrl http://localhost:8080/api
- * @contact ChatGameLab Team (https://chatgamelab.com)
- *
- * API for ChatGameLab - an AI-powered interactive game platform
+ * @title No title
+ * @contact
  */
 export class Api<
   SecurityDataType extends unknown,
