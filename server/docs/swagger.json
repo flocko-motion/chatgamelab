@@ -4549,6 +4549,19 @@
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
                 }
             }
         },
@@ -4560,6 +4573,9 @@
                 },
                 "active": {
                     "type": "boolean"
+                },
+                "gamesCount": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -4985,6 +5001,18 @@
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "type": "string"
                 }
             }
         },

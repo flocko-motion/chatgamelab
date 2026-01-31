@@ -4551,6 +4551,19 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
                 }
             }
         },
@@ -4562,6 +4575,9 @@ const docTemplate = `{
                 },
                 "active": {
                     "type": "boolean"
+                },
+                "gamesCount": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
@@ -4987,6 +5003,18 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "type": "string"
                 }
             }
         },
