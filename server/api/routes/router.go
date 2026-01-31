@@ -53,6 +53,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
+	mux.HandleFunc("POST /api/auth/participant-login", ParticipantLogin)
 
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
