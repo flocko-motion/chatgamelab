@@ -388,7 +388,14 @@ export function ApiKeySelectModal({
           <Alert icon={<IconAlertCircle size={16} />} color="red">
             {t("gamePlayer.selectApiKey.loadError")}
           </Alert>
-        ) : hasNoKeys && !isWorkshopMode ? (
+        ) : hasNoKeys && isWorkshopMode ? (
+          <Alert icon={<IconAlertCircle size={16} />} color="orange">
+            {t(
+              "gamePlayer.workshopKeyError",
+              "No API key configured for this workshop. Please contact your workshop administrator.",
+            )}
+          </Alert>
+        ) : hasNoKeys ? (
           <Alert icon={<IconAlertCircle size={16} />} color="orange">
             {t("gamePlayer.selectApiKey.noKeys")}
           </Alert>
