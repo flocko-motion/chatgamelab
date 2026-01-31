@@ -60,6 +60,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("PATCH /api/users/me/language", httpx.RequireAuth(UpdateUserLanguage))
+	mux.Handle("PUT /api/users/me/active-workshop", httpx.RequireAuth(SetActiveWorkshop))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
 	mux.Handle("DELETE /api/users/{id}", httpx.RequireAuth(DeleteUser))

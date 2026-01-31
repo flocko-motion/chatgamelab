@@ -437,3 +437,68 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+// SetActiveWorkshopRequest is the request body for setting active workshop
+type SetActiveWorkshopRequest struct {
+	WorkshopID *uuid.UUID `json:"workshopId"`
+}
+
+// SetActiveWorkshop godoc
+//
+//	@Summary		Set active workshop (workshop mode)
+//	@Description	Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		SetActiveWorkshopRequest	true	"Workshop ID (null to leave)"
+//	@Success		200		{object}	obj.User					"Updated user with workshop context"
+//	@Failure		400		{object}	httpx.ErrorResponse			"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse			"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse			"Forbidden - not allowed for this role"
+//	@Failure		404		{object}	httpx.ErrorResponse			"Workshop not found"
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/users/me/active-workshop [put]
+func SetActiveWorkshop(w http.ResponseWriter, r *http.Request) {
+	currentUser := httpx.UserFromRequest(r)
+
+	var req SetActiveWorkshopRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.WorkshopID == nil {
+		// Leave workshop mode
+		if err := db.ClearActiveWorkshop(r.Context(), currentUser.ID); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		// Enter workshop mode
+		if err := db.SetActiveWorkshop(r.Context(), currentUser.ID, *req.WorkshopID); err != nil {
+			if appErr, ok := err.(*obj.AppError); ok {
+				status := http.StatusForbidden
+				switch appErr.Code {
+				case obj.ErrCodeNotFound:
+					status = http.StatusNotFound
+				case obj.ErrCodeForbidden:
+					status = http.StatusForbidden
+				}
+				httpx.WriteError(w, status, appErr.Error())
+			} else {
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+	}
+
+	// Return updated user
+	user, err := db.GetUserByID(r.Context(), currentUser.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated user")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, user)
+}
