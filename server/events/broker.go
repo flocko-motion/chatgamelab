@@ -2,6 +2,7 @@ package events
 
 import (
 	"cgl/log"
+	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -13,6 +14,12 @@ type EventType string
 const (
 	// WorkshopUpdated is emitted when workshop settings change
 	WorkshopUpdated EventType = "workshop_updated"
+	// GameCreated is emitted when a game is created in a workshop
+	GameCreated EventType = "game_created"
+	// GameUpdated is emitted when a game in a workshop is modified
+	GameUpdated EventType = "game_updated"
+	// GameDeleted is emitted when a game in a workshop is deleted
+	GameDeleted EventType = "game_deleted"
 )
 
 // Event represents an SSE event to be sent to clients
@@ -98,4 +105,23 @@ func (b *Broker) Publish(workshopID uuid.UUID, event Event) {
 // PublishWorkshopUpdated is a convenience method to publish a workshop_updated event
 func (b *Broker) PublishWorkshopUpdated(workshopID uuid.UUID) {
 	b.Publish(workshopID, Event{Type: WorkshopUpdated})
+}
+
+// PublishGameCreated publishes a game_created event with game ID and creator ID
+// The triggeredBy field allows clients to ignore events they triggered themselves
+func (b *Broker) PublishGameCreated(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
+	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
+	b.Publish(workshopID, Event{Type: GameCreated, Data: data})
+}
+
+// PublishGameUpdated publishes a game_updated event with game ID and modifier ID
+func (b *Broker) PublishGameUpdated(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
+	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
+	b.Publish(workshopID, Event{Type: GameUpdated, Data: data})
+}
+
+// PublishGameDeleted publishes a game_deleted event with game ID and deleter ID
+func (b *Broker) PublishGameDeleted(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
+	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
+	b.Publish(workshopID, Event{Type: GameDeleted, Data: data})
 }
