@@ -411,6 +411,55 @@
                 }
             }
         },
+        "/auth/participant-login": {
+            "post": {
+                "description": "Logs in a participant using their access token and sets a session cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login with participant token",
+                "parameters": [
+                    {
+                        "description": "Participant token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ParticipantLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "security": [
@@ -2750,6 +2799,75 @@
                 }
             }
         },
+        "/users/me/active-workshop": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Set active workshop (workshop mode)",
+                "parameters": [
+                    {
+                        "description": "Workshop ID (null to leave)",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetActiveWorkshopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated user with workshop context",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - not allowed for this role",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Workshop not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me/language": {
             "patch": {
                 "security": [
@@ -3598,6 +3716,52 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/{id}/events": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Server-Sent Events endpoint for real-time workshop updates. Supports token via query param for EventSource compatibility.",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Subscribe to workshop events (SSE)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth token (for EventSource which cannot send headers)",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -4804,6 +4968,14 @@
                 }
             }
         },
+        "routes.ParticipantLoginRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.RegisterRequest": {
             "type": "object",
             "properties": {
@@ -4908,6 +5080,14 @@
                 "userName": {
                     "type": "string"
                 },
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetActiveWorkshopRequest": {
+            "type": "object",
+            "properties": {
                 "workshopId": {
                     "type": "string"
                 }

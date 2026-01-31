@@ -525,6 +525,10 @@ export interface RoutesLanguage {
   label?: string;
 }
 
+export interface RoutesParticipantLoginRequest {
+  token?: string;
+}
+
 export interface RoutesRegisterRequest {
   email?: string;
   name?: string;
@@ -567,6 +571,10 @@ export interface RoutesSessionResponse {
   theme?: ObjGameTheme;
   userId?: string;
   userName?: string;
+  workshopId?: string;
+}
+
+export interface RoutesSetActiveWorkshopRequest {
   workshopId?: string;
 }
 
@@ -698,7 +706,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "";
+  public baseUrl: string = "http://localhost:8080/api";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -901,8 +909,13 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title No title
- * @contact
+ * @title ChatGameLab API
+ * @version 1.0
+ * @license MIT
+ * @baseUrl http://localhost:8080/api
+ * @contact ChatGameLab Team (https://chatgamelab.com)
+ *
+ * API for ChatGameLab - an AI-powered interactive game platform
  */
 export class Api<
   SecurityDataType extends unknown,
@@ -1077,6 +1090,27 @@ export class Api<
       this.request<Record<string, string>, any>({
         path: `/auth/logout`,
         method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Logs in a participant using their access token and sets a session cookie
+     *
+     * @tags auth
+     * @name ParticipantLoginCreate
+     * @summary Login with participant token
+     * @request POST:/auth/participant-login
+     */
+    participantLoginCreate: (
+      request: RoutesParticipantLoginRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/auth/participant-login`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -2029,6 +2063,29 @@ export class Api<
       }),
 
     /**
+     * @description Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.
+     *
+     * @tags users
+     * @name MeActiveWorkshopUpdate
+     * @summary Set active workshop (workshop mode)
+     * @request PUT:/users/me/active-workshop
+     * @secure
+     */
+    meActiveWorkshopUpdate: (
+      body: RoutesSetActiveWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/me/active-workshop`,
+        method: "PUT",
+        body: body,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Sets the language preference for the authenticated user
      *
      * @tags users
@@ -2384,6 +2441,31 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Server-Sent Events endpoint for real-time workshop updates. Supports token via query param for EventSource compatibility.
+     *
+     * @tags workshops
+     * @name EventsList
+     * @summary Subscribe to workshop events (SSE)
+     * @request GET:/workshops/{id}/events
+     * @secure
+     */
+    eventsList: (
+      id: string,
+      query?: {
+        /** Auth token (for EventSource which cannot send headers) */
+        token?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<string, HttpxErrorResponse>({
+        path: `/workshops/${id}/events`,
+        method: "GET",
+        query: query,
+        secure: true,
         ...params,
       }),
   };
