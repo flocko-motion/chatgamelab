@@ -50,7 +50,7 @@ import {
   useDeleteWorkshop,
   useCreateWorkshopInvite,
   useRevokeInvite,
-  useApiKeys,
+  useInstitutionApiKeys,
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
@@ -141,7 +141,8 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
     sortDir,
     activeOnly: hideInactive || undefined,
   });
-  const { data: apiKeys } = useApiKeys();
+  // Use institution API keys - only keys shared with the organization should be available for workshops
+  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
   const createWorkshop = useCreateWorkshop();
   const updateWorkshop = useUpdateWorkshop();
   const deleteWorkshop = useDeleteWorkshop();
@@ -151,10 +152,10 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
 
-  // Build API key options for select
+  // Build API key options for select - only institution-shared keys
   const apiKeyOptions = [
     { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
-    ...(apiKeys?.map((key) => ({
+    ...(institutionApiKeys?.map((key) => ({
       value: key.id || "",
       label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
     })) || []),
