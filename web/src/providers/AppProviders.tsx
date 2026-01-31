@@ -1,20 +1,21 @@
-import { MantineProvider } from '@mantine/core';
-import { ModalsProvider } from '@mantine/modals';
-import { Notifications } from '@mantine/notifications';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { RouterProvider } from '@tanstack/react-router';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { ErrorBoundary } from '@/common/components/ErrorBoundary';
+import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { RouterProvider } from "@tanstack/react-router";
+import { Auth0Provider } from "@auth0/auth0-react";
+import { ErrorBoundary } from "@/common/components/ErrorBoundary";
 
-import { mantineTheme } from '../config/mantineTheme';
-import { queryClient } from '../config/queryClient';
-import { router } from '../config/router';
-import { auth0Config } from '../config/auth0';
-import { AuthProvider } from './AuthProvider';
+import { mantineTheme } from "../config/mantineTheme";
+import { queryClient } from "../config/queryClient";
+import { router } from "../config/router";
+import { auth0Config } from "../config/auth0";
+import { AuthProvider } from "./AuthProvider";
+import { WorkshopModeProvider } from "./WorkshopModeProvider";
 
 // Initialize i18n
-import '../i18n';
+import "../i18n";
 
 export function AppProviders() {
   return (
@@ -34,8 +35,10 @@ export function AppProviders() {
             <ModalsProvider>
               <Notifications />
               <AuthProvider>
-                <RouterProvider router={router} />
-                <ReactQueryDevtools initialIsOpen={false} />
+                <WorkshopModeProvider>
+                  <RouterProvider router={router} />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </WorkshopModeProvider>
               </AuthProvider>
             </ModalsProvider>
           </MantineProvider>

@@ -1,15 +1,25 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-import { useTranslation } from 'react-i18next';
-import { auth0Config } from '../config/auth0';
-import { config } from '../config/env';
-import { Api } from '../api/generated';
-import { createAuthenticatedApiConfig, getApiConfig } from '../api/client/http';
-import { authLogger } from '../config/logger';
-import { ROUTES } from '../common/routes/routes';
-import { ErrorCodes, extractErrorCode } from '../common/types/errorCodes';
-import type { ObjUser } from '../api/generated';
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useTranslation } from "react-i18next";
+import { auth0Config } from "../config/auth0";
+import { config } from "../config/env";
+import { Api } from "../api/generated";
+import { createAuthenticatedApiConfig, getApiConfig } from "../api/client/http";
+import { authLogger } from "../config/logger";
+import { ROUTES } from "../common/routes/routes";
+import {
+  ErrorCodes,
+  extractErrorCode,
+  extractRawErrorCode,
+} from "../common/types/errorCodes";
+import type { ObjUser } from "../api/generated";
 
 export interface AuthUser {
   sub: string;
@@ -41,6 +51,8 @@ export interface AuthContextType {
   registrationData: RegistrationData | null;
   /** Error fetching backend user - app is not operational */
   backendError: string | null;
+  /** True if participant's workshop is inactive */
+  isWorkshopInactive: boolean;
   loginWithAuth0: () => void;
   loginWithRole: (role: string) => void;
   logout: () => void;
@@ -53,7 +65,9 @@ export interface AuthContextType {
   register: (name: string, email: string) => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 // Default context value for error boundary recovery scenarios
 const defaultAuthContext: AuthContextType = {
@@ -65,6 +79,7 @@ const defaultAuthContext: AuthContextType = {
   needsRegistration: false,
   registrationData: null,
   backendError: null,
+  isWorkshopInactive: false,
   loginWithAuth0: () => {},
   loginWithRole: () => {},
   logout: () => {},
@@ -79,7 +94,9 @@ export function useAuth() {
   // Return default context during error boundary recovery to prevent cascading errors
   // This can happen when TanStack Router's CatchBoundaryImpl tries to re-render
   if (!context) {
-    authLogger.warning('useAuth called outside AuthProvider context, returning default (error boundary recovery)');
+    authLogger.warning(
+      "useAuth called outside AuthProvider context, returning default (error boundary recovery)",
+    );
     return defaultAuthContext;
   }
   return context;
@@ -97,7 +114,7 @@ interface TokenCache {
   role: string;
 }
 
-const DEV_TOKEN_STORAGE_KEY = 'cgl_dev_token';
+const DEV_TOKEN_STORAGE_KEY = "cgl_dev_token";
 
 // Helper to get dev token from localStorage
 function getStoredDevToken(): TokenCache | null {
@@ -153,12 +170,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [backendError, setBackendError] = useState<string | null>(null);
   const [needsRegistration, setNeedsRegistration] = useState(false);
-  const [registrationData, setRegistrationData] = useState<RegistrationData | null>(null);
-  const [isDevMode] = useState(import.meta.env.VITE_DEV_MODE === 'true' || import.meta.env.DEV);
-  
+  const [registrationData, setRegistrationData] =
+    useState<RegistrationData | null>(null);
+  const [isWorkshopInactive, setIsWorkshopInactive] = useState(false);
+  const [isDevMode] = useState(
+    import.meta.env.VITE_DEV_MODE === "true" || import.meta.env.DEV,
+  );
+
   // Token cache for dev mode tokens (initialize from localStorage)
   const devTokenCache = useRef<TokenCache | null>(getStoredDevToken());
-  
+
   // Track if we've already fetched the backend user to avoid duplicate calls
   const backendFetchAttempted = useRef(false);
 
@@ -179,7 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
         return token;
       } catch (error) {
-        authLogger.error('Failed to get Auth0 access token', { error });
+        authLogger.error("Failed to get Auth0 access token", { error });
         return null;
       }
     }
@@ -199,27 +220,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Get registration data from Auth0 user - apply smart defaults for name
-  const getRegistrationDataFromAuth0 = useCallback((): RegistrationData | null => {
-    if (!auth0User?.sub) return null;
-    
-    const email = auth0User.email || '';
-    let name = '';
-    
-    // Use nickname or name from Auth0, but skip if it looks like an email
-    const isEmailLike = (s: string) => s.includes('@') || s.includes('+') || s === email.split('@')[0];
-    
-    if (auth0User.nickname && !isEmailLike(auth0User.nickname)) {
-      name = auth0User.nickname;
-    } else if (auth0User.name && !isEmailLike(auth0User.name)) {
-      name = auth0User.name;
-    }
-    
-    return {
-      auth0Id: auth0User.sub,
-      email,
-      name,
-    };
-  }, [auth0User]);
+  const getRegistrationDataFromAuth0 =
+    useCallback((): RegistrationData | null => {
+      if (!auth0User?.sub) return null;
+
+      const email = auth0User.email || "";
+      let name = "";
+
+      // Use nickname or name from Auth0, but skip if it looks like an email
+      const isEmailLike = (s: string) =>
+        s.includes("@") || s.includes("+") || s === email.split("@")[0];
+
+      if (auth0User.nickname && !isEmailLike(auth0User.nickname)) {
+        name = auth0User.nickname;
+      } else if (auth0User.name && !isEmailLike(auth0User.name)) {
+        name = auth0User.name;
+      }
+
+      return {
+        auth0Id: auth0User.sub,
+        email,
+        name,
+      };
+    }, [auth0User]);
 
   // Fetch backend user
   const fetchBackendUser = useCallback(async () => {
@@ -230,21 +253,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
-      authLogger.debug('Backend user fetched', { userId: response.data.id, name: response.data.name });
+      authLogger.debug("Backend user fetched", {
+        userId: response.data.id,
+        name: response.data.name,
+      });
     } catch (error) {
-      authLogger.error('Failed to fetch backend user', { error });
-      
+      authLogger.error("Failed to fetch backend user", { error });
+
       // Check if this is a "user not registered" error
       if (isUserNotRegisteredError(error)) {
         const regData = getRegistrationDataFromAuth0();
-        authLogger.debug('User needs registration', { auth0Id: regData?.auth0Id });
+        authLogger.debug("User needs registration", {
+          auth0Id: regData?.auth0Id,
+        });
         setNeedsRegistration(true);
         setRegistrationData(regData);
         setBackendUser(null);
         return;
       }
-      
-      setBackendError(t('errors.backendUserFetch'));
+
+      setBackendError(t("errors.backendUserFetch"));
       setBackendUser(null);
     }
   }, [getAccessToken, t, getRegistrationDataFromAuth0]);
@@ -257,42 +285,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [isAuthenticated, fetchBackendUser]);
 
   // Register user with backend
-  const register = useCallback(async (name: string, email: string) => {
-    authLogger.debug('Starting user registration', { name });
-    
-    const api = new Api(createAuthenticatedApiConfig(getAccessToken));
-    // Auth0 ID is extracted from the token by the backend middleware
-    const response = await api.auth.registerCreate({
-      name,
-      email,
-    });
-    
-    setBackendUser(response.data);
-    setNeedsRegistration(false);
-    setRegistrationData(null);
-    authLogger.info('User registered successfully', { userId: response.data.id, name: response.data.name });
-  }, [getAccessToken]);
+  const register = useCallback(
+    async (name: string, email: string) => {
+      authLogger.debug("Starting user registration", { name });
+
+      const api = new Api(createAuthenticatedApiConfig(getAccessToken));
+      // Auth0 ID is extracted from the token by the backend middleware
+      const response = await api.auth.registerCreate({
+        name,
+        email,
+      });
+
+      setBackendUser(response.data);
+      setNeedsRegistration(false);
+      setRegistrationData(null);
+      authLogger.info("User registered successfully", {
+        userId: response.data.id,
+        name: response.data.name,
+      });
+    },
+    [getAccessToken],
+  );
 
   // Try cookie-based participant authentication
   // This is used when a workshop participant has accepted an invite and has a session cookie
   const tryParticipantCookieAuth = useCallback(async (): Promise<boolean> => {
     try {
-      authLogger.debug('Attempting cookie-based participant authentication');
+      authLogger.debug("Attempting cookie-based participant authentication");
       // Use a simple fetch with credentials to check if session cookie authenticates us
       const api = new Api(getApiConfig());
       const response = await api.users.getUsers();
-      
+
       if (response.data) {
-        authLogger.info('Participant cookie authentication successful', { 
-          userId: response.data.id, 
-          name: response.data.name 
+        authLogger.info("Participant cookie authentication successful", {
+          userId: response.data.id,
+          name: response.data.name,
         });
-        
+
         // Set up participant auth state
         const authUser: AuthUser = {
-          sub: response.data.id || '',
+          sub: response.data.id || "",
           name: response.data.name || undefined,
-          role: 'participant',
+          role: "participant",
         };
         setUser(authUser);
         setBackendUser(response.data);
@@ -301,9 +335,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return true;
       }
       return false;
-    } catch {
+    } catch (error) {
+      // Check for inactive workshop error
+      const errorCode = extractRawErrorCode(error);
+      if (errorCode === "auth_workshop_inactive") {
+        authLogger.info("Participant's workshop is inactive");
+        setIsWorkshopInactive(true);
+        setIsParticipant(true); // They are a participant, just with inactive workshop
+        return true; // Return true to prevent redirect to login
+      }
       // Not authenticated via cookie - this is expected for most users
-      authLogger.debug('No valid participant session cookie');
+      authLogger.debug("No valid participant session cookie");
       return false;
     }
   }, []);
@@ -324,8 +366,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(authUser);
       setIsAuthenticated(true);
       setIsParticipant(false);
-      authLogger.info('Auth0 authentication successful', { auth0Id: auth0User.sub, name: auth0User.name });
-      
+      authLogger.info("Auth0 authentication successful", {
+        auth0Id: auth0User.sub,
+        name: auth0User.name,
+      });
+
       // Fetch backend user if not already attempted
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
@@ -338,8 +383,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } else if (isDevMode && devTokenCache.current) {
       // Restore dev mode session from localStorage
       const cached = devTokenCache.current;
-      authLogger.debug('Restoring dev mode session from localStorage', { userId: cached.userId, role: cached.role });
-      
+      authLogger.debug("Restoring dev mode session from localStorage", {
+        userId: cached.userId,
+        role: cached.role,
+      });
+
       const authUser: AuthUser = {
         sub: cached.userId,
         name: cached.role,
@@ -349,7 +397,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(authUser);
       setIsAuthenticated(true);
       setIsParticipant(false);
-      
+
       // Fetch backend user if not already attempted
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
@@ -361,8 +409,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } else {
       // No Auth0 or dev mode auth - try cookie-based participant auth
-      authLogger.debug('No token auth, trying cookie-based participant auth');
-      
+      authLogger.debug("No token auth, trying cookie-based participant auth");
+
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
         tryParticipantCookieAuth().then((authenticated) => {
@@ -379,36 +427,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     }
-  }, [auth0User, auth0IsAuthenticated, auth0IsLoading, fetchBackendUser, isDevMode, tryParticipantCookieAuth]);
+  }, [
+    auth0User,
+    auth0IsAuthenticated,
+    auth0IsLoading,
+    fetchBackendUser,
+    isDevMode,
+    tryParticipantCookieAuth,
+  ]);
 
   const loginWithAuth0 = () => {
-    authLogger.debug('Initiating Auth0 login');
+    authLogger.debug("Initiating Auth0 login");
     auth0LoginWithRedirect();
   };
 
   const loginWithRole = async (role: string) => {
     if (!isDevMode) {
-      authLogger.warning('loginWithRole called but not in dev mode');
+      authLogger.warning("loginWithRole called but not in dev mode");
       return;
     }
 
     // Well-known UUIDs for dev users (must match backend preseed.go)
     const DEV_USER_IDS: Record<string, string> = {
-      admin: '00000000-0000-0000-0000-000000000001',
-      head: '00000000-0000-0000-0000-000000000002',
-      staff: '00000000-0000-0000-0000-000000000003',
-      participant: '00000000-0000-0000-0000-000000000004',
-      guest: '00000000-0000-0000-0000-000000000005',
+      admin: "00000000-0000-0000-0000-000000000001",
+      head: "00000000-0000-0000-0000-000000000002",
+      staff: "00000000-0000-0000-0000-000000000003",
+      participant: "00000000-0000-0000-0000-000000000004",
+      guest: "00000000-0000-0000-0000-000000000005",
     };
 
     const targetUserId = DEV_USER_IDS[role];
     if (!targetUserId) {
-      authLogger.error('Unknown dev role', { role });
+      authLogger.error("Unknown dev role", { role });
       setBackendError(`Unknown role: ${role}`);
       return;
     }
 
-    authLogger.debug('Initiating dev mode login', { role, userId: targetUserId });
+    authLogger.debug("Initiating dev mode login", {
+      role,
+      userId: targetUserId,
+    });
     setIsLoading(true);
     setBackendError(null);
 
@@ -421,7 +479,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userId = jwtResponse.data.userId;
 
       if (!token || !userId) {
-        throw new Error('Failed to get dev JWT token. Make sure the backend is running and seeded.');
+        throw new Error(
+          "Failed to get dev JWT token. Make sure the backend is running and seeded.",
+        );
       }
 
       // Cache the token (expires in 24h according to backend)
@@ -434,7 +494,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       devTokenCache.current = tokenCache;
       storeDevToken(tokenCache);
 
-      authLogger.info('Dev JWT obtained', { userId, role });
+      authLogger.info("Dev JWT obtained", { userId, role });
 
       // Set user state
       const authUser: AuthUser = {
@@ -445,15 +505,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
       setUser(authUser);
       setIsAuthenticated(true);
-      authLogger.info('Dev login successful', { role, userId });
+      authLogger.info("Dev login successful", { role, userId });
 
       // Now fetch the backend user with the new token
       backendFetchAttempted.current = true;
       await fetchBackendUser();
-
     } catch (error) {
-      authLogger.error('Dev login failed', { role, error });
-      const errorMessage = error instanceof Error ? error.message : 'Dev login failed';
+      authLogger.error("Dev login failed", { role, error });
+      const errorMessage =
+        error instanceof Error ? error.message : "Dev login failed";
       setBackendError(errorMessage);
       setUser(null);
       setIsAuthenticated(false);
@@ -463,24 +523,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    authLogger.debug('Initiating logout', { isAuth0Authenticated: auth0IsAuthenticated });
-    
+    authLogger.debug("Initiating logout", {
+      isAuth0Authenticated: auth0IsAuthenticated,
+    });
+
     // Reset backend fetch tracking
     backendFetchAttempted.current = false;
     setBackendUser(null);
     setBackendError(null);
     setNeedsRegistration(false);
     setRegistrationData(null);
-    
+
     if (auth0IsAuthenticated) {
-      authLogger.debug('Logging out from Auth0');
-      auth0Logout({ 
-        logoutParams: { 
-          returnTo: auth0Config.logoutUri
-        } 
+      authLogger.debug("Logging out from Auth0");
+      auth0Logout({
+        logoutParams: {
+          returnTo: auth0Config.logoutUri,
+        },
       });
     } else if (isParticipant) {
-      authLogger.debug('Logging out participant (clearing session cookie)');
+      authLogger.debug("Logging out participant (clearing session cookie)");
       // Clear participant state
       setUser(null);
       setBackendUser(null);
@@ -490,16 +552,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       backendFetchAttempted.current = false;
       // Call backend to clear the session cookie
       fetch(`${config.API_BASE_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       }).catch(() => {
         // Ignore errors - cookie might already be cleared
       });
       // Redirect to homepage
-      authLogger.debug('Redirecting to homepage after participant logout', { path: ROUTES.HOME });
+      authLogger.debug("Redirecting to homepage after participant logout", {
+        path: ROUTES.HOME,
+      });
       window.location.href = ROUTES.HOME;
     } else {
-      authLogger.debug('Logging out from dev mode');
+      authLogger.debug("Logging out from dev mode");
       // Clear dev token cache on logout
       devTokenCache.current = null;
       clearStoredDevToken();
@@ -508,7 +572,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsParticipant(false);
       setIsLoading(false);
       // Redirect to homepage using window.location since we're outside RouterProvider
-      authLogger.debug('Redirecting to homepage after logout', { path: ROUTES.HOME });
+      authLogger.debug("Redirecting to homepage after logout", {
+        path: ROUTES.HOME,
+      });
       window.location.href = ROUTES.HOME;
     }
   };
@@ -522,6 +588,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     needsRegistration,
     registrationData,
     backendError,
+    isWorkshopInactive,
     loginWithAuth0,
     loginWithRole,
     logout,
