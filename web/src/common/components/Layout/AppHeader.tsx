@@ -464,7 +464,7 @@ function ParticipantMobileNavigation({
   onClose: () => void;
 }) {
   const { t } = useTranslation("common");
-  const { t: tParticipant } = useTranslation("participant");
+  const { t: tAuth } = useTranslation("auth");
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
 
@@ -521,7 +521,7 @@ function ParticipantMobileNavigation({
           {workshopName && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">
-                {tParticipant("workshop")}:
+                {tAuth("participant.workshop")}:
               </Text>
               <Text size="sm" fw={500} c="white">
                 {workshopName}
@@ -531,7 +531,7 @@ function ParticipantMobileNavigation({
           {organizationName && (
             <Group gap="xs">
               <Text size="xs" c="dimmed">
-                {tParticipant("organization")}:
+                {tAuth("participant.organization")}:
               </Text>
               <Text size="sm" fw={500} c="white">
                 {organizationName}
@@ -580,7 +580,7 @@ function ParticipantMobileNavigation({
           >
             <IconLogout size={18} />
             <Text size="sm" fw={500}>
-              {tParticipant("leaveWorkshop")}
+              {tAuth("participant.leaveWorkshop")}
             </Text>
           </UnstyledButton>
         </Stack>
