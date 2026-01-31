@@ -223,7 +223,14 @@ func Authenticate(next http.Handler) http.Handler {
 			}
 		}
 
-		// No Authorization header or cookie - pass through without user
+		// Check for token query parameter (for SSE endpoints where EventSource can't send headers)
+		if authHeader == "" {
+			if token := r.URL.Query().Get("token"); token != "" {
+				authHeader = "Bearer " + token
+			}
+		}
+
+		// No Authorization header, cookie, or query param - pass through without user
 		if authHeader == "" {
 			next.ServeHTTP(w, r)
 			return
