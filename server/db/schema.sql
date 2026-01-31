@@ -83,6 +83,8 @@ CREATE TABLE user_role (
     role            text NOT NULL,
     institution_id  uuid NULL REFERENCES institution(id),
     workshop_id     uuid NULL REFERENCES workshop(id),
+    -- Active workshop for head/staff/individual when in "workshop mode"
+    active_workshop_id uuid NULL REFERENCES workshop(id),
 
     CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant', 'individual')),
     CONSTRAINT user_role_user_institution_workshop_uniq UNIQUE (user_id, role, institution_id, workshop_id)
