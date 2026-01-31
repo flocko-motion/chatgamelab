@@ -366,6 +366,15 @@ func (u *UserClient) GetMe() (obj.User, error) {
 	return result, err
 }
 
+// UpdateUserName updates a user's name by ID (composable high-level API)
+func (u *UserClient) UpdateUserName(userID string, name string) (obj.User, error) {
+	u.t.Helper()
+	var result obj.User
+	payload := map[string]string{"name": name}
+	err := u.Post("users/"+userID, payload, &result)
+	return result, err
+}
+
 // SetUserLanguage sets the user's language preference (composable high-level API)
 func (u *UserClient) SetUserLanguage(language string) error {
 	u.t.Helper()
