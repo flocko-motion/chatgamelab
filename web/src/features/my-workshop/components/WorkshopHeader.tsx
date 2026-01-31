@@ -1,5 +1,4 @@
-import { Group, Badge, Text } from "@mantine/core";
-import { IconSchool } from "@tabler/icons-react";
+import { Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
 
@@ -16,24 +15,12 @@ export function WorkshopHeader({
 
   return (
     <>
-      <PageTitle>{t("title")}</PageTitle>
-      <Group gap="md">
-        {workshopName && (
-          <Badge
-            size="lg"
-            color="accent"
-            variant="light"
-            leftSection={<IconSchool size={14} />}
-          >
-            {workshopName}
-          </Badge>
-        )}
-        {organizationName && (
-          <Text size="sm" c="dimmed">
-            {organizationName}
-          </Text>
-        )}
-      </Group>
+      <PageTitle>{workshopName || t("title")}</PageTitle>
+      {organizationName && (
+        <Text size="sm" c="dimmed">
+          {t("organizator", { name: organizationName })}
+        </Text>
+      )}
     </>
   );
 }

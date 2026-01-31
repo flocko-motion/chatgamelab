@@ -24,6 +24,7 @@ import {
 
 interface UseWorkshopGamesOptions {
   currentUserId: string | undefined;
+  currentWorkshopId: string | undefined;
   canEditAllWorkshopGames: boolean;
   workshopSettings: WorkshopSettings;
   gameFilter: GameFilter;
@@ -34,6 +35,7 @@ interface UseWorkshopGamesOptions {
 export function useWorkshopGames(options: UseWorkshopGamesOptions) {
   const {
     currentUserId,
+    currentWorkshopId,
     canEditAllWorkshopGames,
     workshopSettings,
     gameFilter,
@@ -53,7 +55,13 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     error,
     refetch,
   } = useGames({
-    sortBy: sortField as "name" | "createdAt" | "modifiedAt" | "playCount" | "visibility" | "creator",
+    sortBy: sortField as
+      | "name"
+      | "createdAt"
+      | "modifiedAt"
+      | "playCount"
+      | "visibility"
+      | "creator",
     sortDir,
     filter: "all",
     search: debouncedSearch || undefined,
@@ -77,12 +85,25 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
       workshopSettings,
       canEditAllWorkshopGames,
     );
-    return filterGamesByUserFilter(settingsFiltered, gameFilter, currentUserId);
-  }, [rawGames, gameFilter, currentUserId, canEditAllWorkshopGames, workshopSettings]);
+    return filterGamesByUserFilter(
+      settingsFiltered,
+      gameFilter,
+      currentUserId,
+      currentWorkshopId,
+    );
+  }, [
+    rawGames,
+    gameFilter,
+    currentUserId,
+    currentWorkshopId,
+    canEditAllWorkshopGames,
+    workshopSettings,
+  ]);
 
   // Permission helpers
   const getPermissions = useCallback(
-    (game: ObjGame) => getGamePermissions(game, currentUserId, canEditAllWorkshopGames),
+    (game: ObjGame) =>
+      getGamePermissions(game, currentUserId, canEditAllWorkshopGames),
     [currentUserId, canEditAllWorkshopGames],
   );
 
@@ -181,13 +202,17 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
 
           try {
             const nameMatch = content.match(/^name:\s*["']?(.+?)["']?\s*$/m);
-            const gameName = nameMatch?.[1]?.trim() || file.name.replace(/\.(yaml|yml)$/i, "");
+            const gameName =
+              nameMatch?.[1]?.trim() || file.name.replace(/\.(yaml|yml)$/i, "");
 
             const newGame = await createGame.mutateAsync({ name: gameName });
             newGameId = newGame.id;
 
             if (newGameId) {
-              await importGameYaml.mutateAsync({ id: newGameId, yaml: content });
+              await importGameYaml.mutateAsync({
+                id: newGameId,
+                yaml: content,
+              });
               refetch();
               resolve(newGameId);
             }
@@ -239,5 +264,8 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     handleDeleteSession,
     triggerImportClick,
     handleImportFile,
+
+    // Refetch (for SSE events)
+    refetchGames: refetch,
   };
 }

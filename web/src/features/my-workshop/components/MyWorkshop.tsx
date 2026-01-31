@@ -46,9 +46,13 @@ import {
 import { useModals } from "@mantine/modals";
 import { useAuth } from "@/providers/AuthProvider";
 import { hasRole, Role } from "@/common/lib/roles";
-import type { GameFilter, WorkshopSettings } from "../types";
+import {
+  isWorkshopGame,
+  type GameFilter,
+  type WorkshopSettings,
+} from "../types";
 import { useWorkshopGames } from "../hooks";
-import { useWorkshopEvents } from "@/api/hooks";
+import { useWorkshopEvents, useGamesCacheUpdater } from "@/api/hooks";
 import { WorkshopHeader } from "./WorkshopHeader";
 import { WorkshopControls } from "./WorkshopControls";
 import { WorkshopLoadingSkeleton } from "./WorkshopLoadingSkeleton";
@@ -61,6 +65,8 @@ export function MyWorkshop() {
   const navigate = useNavigate();
   const modals = useModals();
   const { backendUser, retryBackendFetch } = useAuth();
+  const { addGameToCache, updateGameInCache, removeGameFromCache } =
+    useGamesCacheUpdater();
 
   // User info
   const canEditAllWorkshopGames =
@@ -75,12 +81,6 @@ export function MyWorkshop() {
     showPublicGames: workshop?.showPublicGames ?? false,
     showOtherParticipantsGames: workshop?.showOtherParticipantsGames ?? true,
   };
-
-  // Subscribe to real-time workshop events (settings changes)
-  useWorkshopEvents({
-    workshopId: workshop?.id,
-    onSettingsUpdate: retryBackendFetch,
-  });
 
   // UI State
   const [
@@ -124,11 +124,22 @@ export function MyWorkshop() {
     handleImportFile,
   } = useWorkshopGames({
     currentUserId,
+    currentWorkshopId: workshop?.id,
     canEditAllWorkshopGames,
     workshopSettings,
     gameFilter,
     sortValue,
     searchQuery,
+  });
+
+  // Subscribe to real-time workshop events (settings changes and game updates)
+  useWorkshopEvents({
+    workshopId: workshop?.id,
+    onSettingsUpdate: retryBackendFetch,
+    // Update cache with single game instead of refetching entire list
+    onGameCreated: addGameToCache,
+    onGameUpdated: updateGameInCache,
+    onGameDeleted: removeGameFromCache,
   });
 
   // Handlers
@@ -451,12 +462,12 @@ export function MyWorkshop() {
     {
       key: "actions",
       header: t("actions"),
-      width: 280,
+      width: 320,
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
           <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
-            <Box style={{ width: 90, flexShrink: 0 }}>
+            <Box style={{ width: 100, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>
             {canEdit ? (
@@ -480,6 +491,13 @@ export function MyWorkshop() {
                 icon={<IconCopy size={16} />}
                 onClick={() => handleCopyGame(game)}
                 aria-label={t("copyGame")}
+              />
+            </Tooltip>
+            <Tooltip label={t("games.importExport.exportButton")} withArrow>
+              <GenericIconButton
+                icon={<IconDownload size={16} />}
+                onClick={() => handleExportGame(game)}
+                aria-label={t("games.importExport.exportButton")}
               />
             </Tooltip>
             {canDelete && (
@@ -537,6 +555,7 @@ export function MyWorkshop() {
         creatorLabel={tWorkshop("you")}
         actions={getCardActions(game)}
         dateLabel={getDateLabel(game)}
+        isWorkshopGame={isWorkshopGame(game, workshop?.id)}
       />
     );
   };
