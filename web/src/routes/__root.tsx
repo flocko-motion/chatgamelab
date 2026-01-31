@@ -9,6 +9,7 @@ import {
   IconUsers,
   IconKey,
   IconSchool,
+  IconSettings,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -97,20 +98,38 @@ function RootComponent() {
     }
   }, [shouldRedirectParticipant, navigate]);
 
+  // Organization/Workshop permissions - needed early for nav items
+  const userInstitutionId = getUserInstitutionId(backendUser);
+  const canManageOrgApiKeys =
+    hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
+
   // Navigation items for authenticated header
-  // Workshop mode users (participants OR staff/head in workshop mode) only see "My Workshop"
+  // Workshop mode users (participants OR staff/head in workshop mode) see "My Workshop"
+  // Staff/Head in workshop mode also see "Workshop Settings" to manage workshops
+  const workshopNavItems: NavItem[] = [
+    {
+      label: t("myWorkshop"),
+      icon: <IconSchool size={18} />,
+      onClick: () => navigate({ to: ROUTES.MY_WORKSHOP as "/" }),
+      active:
+        pathname === ROUTES.MY_WORKSHOP ||
+        pathname.startsWith("/sessions/") ||
+        pathname.includes("/play"),
+    },
+  ];
+
+  // Add Workshop Settings for Staff/Head in workshop mode (not for participants)
+  if (isInWorkshopMode && !isParticipant && canManageOrgApiKeys) {
+    workshopNavItems.push({
+      label: t("workshopSettings"),
+      icon: <IconSettings size={18} />,
+      onClick: () => navigate({ to: ROUTES.MY_WORKSHOP_SETTINGS as "/" }),
+      active: pathname === ROUTES.MY_WORKSHOP_SETTINGS,
+    });
+  }
+
   const navItems: NavItem[] = isInWorkshopUI
-    ? [
-        {
-          label: t("myWorkshop"),
-          icon: <IconSchool size={18} />,
-          onClick: () => navigate({ to: ROUTES.MY_WORKSHOP as "/" }),
-          active:
-            pathname === ROUTES.MY_WORKSHOP ||
-            pathname.startsWith("/sessions/") ||
-            pathname.includes("/play"),
-        },
-      ]
+    ? workshopNavItems
     : [
         {
           label: t("dashboard"),
@@ -136,10 +155,6 @@ function RootComponent() {
 
   // Organization navigation - visible only if user has an organization and is NOT in workshop mode
   // Workshop mode users should not see organization details
-  const userInstitutionId = getUserInstitutionId(backendUser);
-  const canManageOrgApiKeys =
-    hasRole(backendUser, Role.Head) || hasRole(backendUser, Role.Staff);
-
   if (userInstitutionId && !isInWorkshopUI) {
     // Build organization sub-items
     const orgChildren: NavItem[] = [

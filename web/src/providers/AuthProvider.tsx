@@ -115,6 +115,34 @@ interface TokenCache {
 }
 
 const DEV_TOKEN_STORAGE_KEY = "cgl_dev_token";
+const PARTICIPANT_TOKEN_STORAGE_KEY = "cgl_participant_token";
+
+// Helper to get stored participant token
+export function getStoredParticipantToken(): string | null {
+  try {
+    return localStorage.getItem(PARTICIPANT_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+// Helper to store participant token
+export function storeParticipantToken(token: string): void {
+  try {
+    localStorage.setItem(PARTICIPANT_TOKEN_STORAGE_KEY, token);
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+// Helper to clear participant token
+export function clearParticipantToken(): void {
+  try {
+    localStorage.removeItem(PARTICIPANT_TOKEN_STORAGE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+}
 
 // Helper to get dev token from localStorage
 function getStoredDevToken(): TokenCache | null {
@@ -185,9 +213,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Get access token function (defined early so it can be used in effects)
   const getAccessToken = useCallback(async (): Promise<string | null> => {
-    // Participants use cookie auth, not token auth
+    // Participants use stored token (if available) or cookie auth
     if (isParticipant) {
-      return null;
+      const storedToken = getStoredParticipantToken();
+      return storedToken; // Returns null if no stored token, which falls back to cookie
     }
 
     // Auth0 authenticated - use Auth0 SDK (handles caching internally)
@@ -307,19 +336,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [getAccessToken],
   );
 
-  // Try cookie-based participant authentication
-  // This is used when a workshop participant has accepted an invite and has a session cookie
-  const tryParticipantCookieAuth = useCallback(async (): Promise<boolean> => {
+  // Try participant authentication (via stored token or cookie)
+  // This is used when a workshop participant has accepted an invite
+  const tryParticipantAuth = useCallback(async (): Promise<boolean> => {
+    // First check for stored participant token
+    const storedToken = getStoredParticipantToken();
+
     try {
-      authLogger.debug("Attempting cookie-based participant authentication");
-      // Use a simple fetch with credentials to check if session cookie authenticates us
-      const api = new Api(getApiConfig());
+      let api: Api<unknown>;
+
+      if (storedToken) {
+        authLogger.debug(
+          "Attempting participant authentication with stored token",
+        );
+        // Use the stored token as Authorization header
+        api = new Api({
+          baseUrl: config.API_BASE_URL,
+          baseApiParams: {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${storedToken}`,
+            },
+            credentials: "include" as RequestCredentials,
+          },
+        });
+      } else {
+        authLogger.debug("Attempting cookie-based participant authentication");
+        // Fall back to cookie auth
+        api = new Api(getApiConfig());
+      }
+
       const response = await api.users.getUsers();
 
       if (response.data) {
-        authLogger.info("Participant cookie authentication successful", {
+        authLogger.info("Participant authentication successful", {
           userId: response.data.id,
           name: response.data.name,
+          method: storedToken ? "token" : "cookie",
         });
 
         // Set up participant auth state
@@ -344,8 +397,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsParticipant(true); // They are a participant, just with inactive workshop
         return true; // Return true to prevent redirect to login
       }
-      // Not authenticated via cookie - this is expected for most users
-      authLogger.debug("No valid participant session cookie");
+      // Not authenticated - clear any invalid stored token
+      if (storedToken) {
+        authLogger.debug("Stored participant token invalid, clearing");
+        clearParticipantToken();
+      }
+      authLogger.debug("No valid participant authentication");
       return false;
     }
   }, []);
@@ -413,7 +470,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
-        tryParticipantCookieAuth().then((authenticated) => {
+        tryParticipantAuth().then((authenticated) => {
           if (!authenticated) {
             // No auth at all
             setUser(null);
@@ -433,7 +490,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     auth0IsLoading,
     fetchBackendUser,
     isDevMode,
-    tryParticipantCookieAuth,
+    tryParticipantAuth,
   ]);
 
   const loginWithAuth0 = () => {
@@ -542,7 +599,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
     } else if (isParticipant) {
-      authLogger.debug("Logging out participant (clearing session cookie)");
+      authLogger.debug("Logging out participant (clearing session and token)");
       // Clear participant state
       setUser(null);
       setBackendUser(null);
@@ -550,6 +607,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsParticipant(false);
       setIsLoading(false);
       backendFetchAttempted.current = false;
+      // Clear stored participant token
+      clearParticipantToken();
       // Call backend to clear the session cookie
       fetch(`${config.API_BASE_URL}/auth/logout`, {
         method: "POST",
