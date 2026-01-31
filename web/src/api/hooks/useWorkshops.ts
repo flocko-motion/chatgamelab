@@ -231,8 +231,23 @@ export function useUpdateParticipant() {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate workshop queries to refresh participant data
+      // Invalidate all workshop-related queries to refresh participant data
       queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      queryClient.invalidateQueries({ queryKey: ["workshop"] });
+    },
+  });
+}
+
+/**
+ * Hook to get a participant's login token (for creating individual share links)
+ */
+export function useGetParticipantToken() {
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (participantId: string) => {
+      const response = await api.workshops.participantsTokenList(participantId);
+      return response.data;
     },
   });
 }

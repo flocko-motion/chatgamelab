@@ -84,6 +84,7 @@ export {
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
+  useGetParticipantToken,
 } from "./useWorkshops";
 
 // Workshop Events (SSE)
