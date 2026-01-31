@@ -265,7 +265,10 @@ export function useRemoveParticipant() {
     },
     onSuccess: () => {
       // Invalidate workshop queries to refresh participant list
-      queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      // This covers workshopsByInstitution queries (Orga -> Workshops view)
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      // This covers single workshop queries (Workshop Settings in workshop mode)
+      queryClient.invalidateQueries({ queryKey: ["workshop"] });
     },
   });
 }

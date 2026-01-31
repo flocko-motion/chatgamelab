@@ -89,3 +89,9 @@ export {
 
 // Workshop Events (SSE)
 export { useWorkshopEvents } from "./useWorkshopEvents";
+
+// Games Cache Updater (for SSE events)
+export { useGamesCacheUpdater } from "./useGamesCacheUpdater";
+
+// Active Workshop (Workshop Mode)
+export { useSetActiveWorkshop } from "./useActiveWorkshop";

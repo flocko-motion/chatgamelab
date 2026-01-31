@@ -5,11 +5,22 @@ import { queryKeys } from "../queryKeys";
 import { uiLogger } from "@/config/logger";
 import { useAuth } from "@/providers/AuthProvider";
 
+interface GameEventData {
+  gameId: string;
+  triggeredBy: string;
+}
+
 interface UseWorkshopEventsOptions {
   workshopId: string | undefined;
   enabled?: boolean;
   /** Called when workshop settings are updated - use to refresh backend user */
   onSettingsUpdate?: () => void;
+  /** Called when a game is created by another user in the workshop */
+  onGameCreated?: (gameId: string) => void;
+  /** Called when a game is updated by another user in the workshop */
+  onGameUpdated?: (gameId: string) => void;
+  /** Called when a game is deleted by another user in the workshop */
+  onGameDeleted?: (gameId: string) => void;
 }
 
 /**
@@ -19,14 +30,49 @@ interface UseWorkshopEventsOptions {
  * Connect when entering workshop view, disconnect on unmount.
  */
 export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
-  const { workshopId, enabled = true, onSettingsUpdate } = options;
+  const {
+    workshopId,
+    enabled = true,
+    onSettingsUpdate,
+    onGameCreated,
+    onGameUpdated,
+    onGameDeleted,
+  } = options;
+  const { backendUser } = useAuth();
   const queryClient = useQueryClient();
   const { getAccessToken, isParticipant } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  // Use refs for callbacks to avoid reconnecting when they change
+  const callbacksRef = useRef({
+    onSettingsUpdate,
+    onGameCreated,
+    onGameUpdated,
+    onGameDeleted,
+  });
+  // Update refs on each render
+  callbacksRef.current = {
+    onSettingsUpdate,
+    onGameCreated,
+    onGameUpdated,
+    onGameDeleted,
+  };
+  const backendUserIdRef = useRef(backendUser?.id);
+  backendUserIdRef.current = backendUser?.id;
+
   useEffect(() => {
+    uiLogger.debug("useWorkshopEvents effect", {
+      workshopId,
+      enabled,
+      isParticipant,
+    });
+
     if (!workshopId || !enabled) {
+      uiLogger.debug("useWorkshopEvents skipping - no workshopId or disabled", {
+        workshopId,
+        enabled,
+      });
       return;
     }
 
@@ -71,7 +117,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
         });
 
         // Call the callback to refresh backend user (stored in AuthProvider state, not TanStack Query)
-        onSettingsUpdate?.();
+        callbacksRef.current.onSettingsUpdate?.();
 
         // Invalidate all queries affected by workshop settings changes:
         // - games: visibility settings (showPublicGames, showOtherParticipantsGames)
@@ -80,6 +126,40 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
         queryClient.invalidateQueries({ queryKey: queryKeys.games });
         queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
         queryClient.invalidateQueries({ queryKey: ["availableKeys"] });
+      });
+
+      // Helper to parse game event data and check if we triggered it
+      const handleGameEvent = (
+        event: MessageEvent,
+        callback?: (gameId: string) => void,
+      ) => {
+        try {
+          const data = JSON.parse(event.data) as GameEventData;
+          // Ignore events triggered by ourselves
+          const currentUserId = backendUserIdRef.current;
+          if (currentUserId && data.triggeredBy === currentUserId) {
+            uiLogger.debug("Ignoring own game event", { gameId: data.gameId });
+            return;
+          }
+          callback?.(data.gameId);
+        } catch (e) {
+          uiLogger.warning("Failed to parse game event data", { error: e });
+        }
+      };
+
+      eventSource.addEventListener("game_created", (event: MessageEvent) => {
+        uiLogger.info("Game created in workshop", { workshopId });
+        handleGameEvent(event, callbacksRef.current.onGameCreated);
+      });
+
+      eventSource.addEventListener("game_updated", (event: MessageEvent) => {
+        uiLogger.info("Game updated in workshop", { workshopId });
+        handleGameEvent(event, callbacksRef.current.onGameUpdated);
+      });
+
+      eventSource.addEventListener("game_deleted", (event: MessageEvent) => {
+        uiLogger.info("Game deleted in workshop", { workshopId });
+        handleGameEvent(event, callbacksRef.current.onGameDeleted);
       });
 
       eventSource.onerror = () => {
