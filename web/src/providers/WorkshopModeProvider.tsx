@@ -1,31 +1,33 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-
-const STORAGE_KEY = 'cgl_workshop_mode';
-
-interface WorkshopModeData {
-  workshopId: string;
-  workshopName: string;
-}
+import React, { createContext, useCallback, useContext } from "react";
+import { useAuth } from "./AuthProvider";
+import { useSetActiveWorkshop } from "@/api/hooks";
 
 interface WorkshopModeContextType {
-  /** True if staff/head has entered workshop mode */
+  /** True if staff/head/individual has entered workshop mode */
   isInWorkshopMode: boolean;
   /** The workshop ID when in workshop mode */
   activeWorkshopId: string | null;
   /** The workshop name when in workshop mode */
   activeWorkshopName: string | null;
-  /** Enter workshop mode for a specific workshop */
-  enterWorkshopMode: (workshopId: string, workshopName: string) => void;
-  /** Exit workshop mode and return to normal app behavior */
-  exitWorkshopMode: () => void;
+  /** Enter workshop mode for a specific workshop (calls backend API) */
+  enterWorkshopMode: (
+    workshopId: string,
+    workshopName: string,
+  ) => Promise<void>;
+  /** Exit workshop mode and return to normal app behavior (calls backend API) */
+  exitWorkshopMode: () => Promise<void>;
+  /** True if the enter/exit operation is in progress */
+  isLoading: boolean;
 }
 
-const WorkshopModeContext = createContext<WorkshopModeContextType | undefined>(undefined);
+const WorkshopModeContext = createContext<WorkshopModeContextType | undefined>(
+  undefined,
+);
 
 export function useWorkshopMode() {
   const context = useContext(WorkshopModeContext);
   if (!context) {
-    throw new Error('useWorkshopMode must be used within WorkshopModeProvider');
+    throw new Error("useWorkshopMode must be used within WorkshopModeProvider");
   }
   return context;
 }
@@ -35,42 +37,44 @@ interface WorkshopModeProviderProps {
 }
 
 export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
-  const [workshopData, setWorkshopData] = useState<WorkshopModeData | null>(() => {
-    // Initialize from localStorage
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored) as WorkshopModeData;
-      }
-    } catch {
-      // Ignore storage errors
-    }
-    return null;
-  });
+  const { backendUser, isParticipant, retryBackendFetch } = useAuth();
+  const setActiveWorkshop = useSetActiveWorkshop();
 
-  // Persist to localStorage when workshop mode changes
-  useEffect(() => {
-    if (workshopData) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(workshopData));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [workshopData]);
+  // Workshop mode is derived from backend user data
+  // For head/staff/individual: backendUser.role.workshop is set when in workshop mode (can leave)
+  // For participants: backendUser.role.workshop is always their assigned workshop (can't leave)
+  // isInWorkshopMode only applies to non-participants who chose to enter
+  const workshop = backendUser?.role?.workshop;
+  const hasWorkshop = workshop !== undefined && workshop !== null;
+  // Participants are always in their workshop but NOT in "workshop mode" (they can't exit)
+  const isInWorkshopMode = hasWorkshop && !isParticipant;
+  const activeWorkshopId = workshop?.id ?? null;
+  const activeWorkshopName = workshop?.name ?? null;
 
-  const enterWorkshopMode = useCallback((workshopId: string, workshopName: string) => {
-    setWorkshopData({ workshopId, workshopName });
-  }, []);
+  const enterWorkshopMode = useCallback(
+    async (workshopId: string, _workshopName: string) => {
+      // Call backend API to set active workshop
+      await setActiveWorkshop.mutateAsync(workshopId);
+      // Refetch backend user to get updated workshop context
+      retryBackendFetch();
+    },
+    [setActiveWorkshop, retryBackendFetch],
+  );
 
-  const exitWorkshopMode = useCallback(() => {
-    setWorkshopData(null);
-  }, []);
+  const exitWorkshopMode = useCallback(async () => {
+    // Call backend API to clear active workshop
+    await setActiveWorkshop.mutateAsync(null);
+    // Refetch backend user to clear workshop context
+    retryBackendFetch();
+  }, [setActiveWorkshop, retryBackendFetch]);
 
   const value: WorkshopModeContextType = {
-    isInWorkshopMode: workshopData !== null,
-    activeWorkshopId: workshopData?.workshopId ?? null,
-    activeWorkshopName: workshopData?.workshopName ?? null,
+    isInWorkshopMode,
+    activeWorkshopId,
+    activeWorkshopName,
     enterWorkshopMode,
     exitWorkshopMode,
+    isLoading: setActiveWorkshop.isPending,
   };
 
   return (

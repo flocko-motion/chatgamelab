@@ -19,19 +19,19 @@ import "../i18n";
 
 export function AppProviders() {
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Auth0Provider
-          domain={auth0Config.domain}
-          clientId={auth0Config.clientId}
-          authorizationParams={{
-            audience: auth0Config.audience,
-            redirect_uri: auth0Config.redirectUri,
-          }}
-          cacheLocation="localstorage"
-          useRefreshTokens={true}
-        >
-          <MantineProvider theme={mantineTheme} forceColorScheme="light">
+    <QueryClientProvider client={queryClient}>
+      <Auth0Provider
+        domain={auth0Config.domain}
+        clientId={auth0Config.clientId}
+        authorizationParams={{
+          audience: auth0Config.audience,
+          redirect_uri: auth0Config.redirectUri,
+        }}
+        cacheLocation="localstorage"
+        useRefreshTokens={true}
+      >
+        <MantineProvider theme={mantineTheme} forceColorScheme="light">
+          <ErrorBoundary>
             <ModalsProvider>
               <Notifications />
               <AuthProvider>
@@ -41,9 +41,9 @@ export function AppProviders() {
                 </WorkshopModeProvider>
               </AuthProvider>
             </ModalsProvider>
-          </MantineProvider>
-        </Auth0Provider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+          </ErrorBoundary>
+        </MantineProvider>
+      </Auth0Provider>
+    </QueryClientProvider>
   );
 }
