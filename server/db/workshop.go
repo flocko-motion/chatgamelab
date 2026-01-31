@@ -427,13 +427,22 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
 			}
 
+			var useSpecificAiModel *string
+			if r.UseSpecificAiModel.Valid {
+				useSpecificAiModel = &r.UseSpecificAiModel.String
+			}
+
 			workshop := obj.Workshop{
-				ID:                   r.ID,
-				Name:                 r.Name,
-				Institution:          &obj.Institution{ID: r.InstitutionID},
-				Active:               r.Active,
-				Public:               r.Public,
-				DefaultApiKeyShareID: defaultApiKeyShareID,
+				ID:                         r.ID,
+				Name:                       r.Name,
+				Institution:                &obj.Institution{ID: r.InstitutionID},
+				Active:                     r.Active,
+				Public:                     r.Public,
+				DefaultApiKeyShareID:       defaultApiKeyShareID,
+				UseSpecificAiModel:         useSpecificAiModel,
+				ShowAiModelSelector:        r.ShowAiModelSelector,
+				ShowPublicGames:            r.ShowPublicGames,
+				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -471,13 +480,22 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
 			}
 
+			var useSpecificAiModel *string
+			if r.UseSpecificAiModel.Valid {
+				useSpecificAiModel = &r.UseSpecificAiModel.String
+			}
+
 			workshop := obj.Workshop{
-				ID:                   r.ID,
-				Name:                 r.Name,
-				Institution:          &obj.Institution{ID: r.InstitutionID},
-				Active:               r.Active,
-				Public:               r.Public,
-				DefaultApiKeyShareID: defaultApiKeyShareID,
+				ID:                         r.ID,
+				Name:                       r.Name,
+				Institution:                &obj.Institution{ID: r.InstitutionID},
+				Active:                     r.Active,
+				Public:                     r.Public,
+				DefaultApiKeyShareID:       defaultApiKeyShareID,
+				UseSpecificAiModel:         useSpecificAiModel,
+				ShowAiModelSelector:        r.ShowAiModelSelector,
+				ShowPublicGames:            r.ShowPublicGames,
+				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,

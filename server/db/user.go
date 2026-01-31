@@ -224,9 +224,17 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			}
 		}
 		if res.WorkshopID.Valid {
+			var useSpecificAiModel *string
+			if res.WorkshopUseSpecificAiModel.Valid {
+				useSpecificAiModel = &res.WorkshopUseSpecificAiModel.String
+			}
 			user.Role.Workshop = &obj.Workshop{
-				ID:   res.WorkshopID.UUID,
-				Name: res.WorkshopName.String,
+				ID:                         res.WorkshopID.UUID,
+				Name:                       res.WorkshopName.String,
+				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
+				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
+				ShowAiModelSelector:        res.WorkshopShowAiModelSelector.Bool,
+				UseSpecificAiModel:         useSpecificAiModel,
 			}
 		}
 	}
