@@ -26,8 +26,13 @@ import env from "@/config/env";
 import { TextButton } from "@components/buttons";
 import { ErrorModal } from "@/common/components/ErrorModal";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import { useGame, useAvailableKeysForGame } from "@/api/hooks";
+import {
+  useGame,
+  useAvailableKeysForGame,
+  useWorkshopEvents,
+} from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
+import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { useGameSession } from "../hooks/useGameSession";
 import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue, FontSize } from "../context";
@@ -116,7 +121,23 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
   const { isMobile } = useResponsiveDesign();
-  const { isParticipant } = useAuth();
+  const { isParticipant, backendUser } = useAuth();
+  const { isInWorkshopMode, activeWorkshopId } = useWorkshopMode();
+
+  // Determine workshop ID for SSE subscription:
+  // - Participants: always in a workshop, ID is in backendUser.role.workshop.id
+  // - Staff/Head in workshop mode: ID is in activeWorkshopId from WorkshopModeProvider
+  const workshopIdForEvents = isParticipant
+    ? backendUser?.role?.workshop?.id
+    : isInWorkshopMode
+      ? (activeWorkshopId ?? undefined)
+      : undefined;
+
+  // Subscribe to workshop SSE events when in workshop context
+  // This ensures real-time updates for API key changes and settings like showAiModelSelector
+  useWorkshopEvents({
+    workshopId: workshopIdForEvents,
+  });
 
   // For workshop participants, fetch available keys to auto-select the workshop key
   const { data: availableKeys, isLoading: availableKeysLoading } =
@@ -126,10 +147,17 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const workshopKey = availableKeys?.find((k) => k.source === "workshop");
   const [workshopKeyError, setWorkshopKeyError] = useState<string | null>(null);
   const [autoStartAttempted, setAutoStartAttempted] = useState(false);
+  const prevWorkshopKeyRef = useRef<string | undefined>(undefined);
 
-  const [apiKeyModalOpened, { close: closeApiKeyModal }] = useDisclosure(
-    !isContinuation && !isParticipant,
-  );
+  // Determine if model selector should be shown for participants
+  // This comes from workshop settings, not user settings
+  const workshopShowsModelSelector =
+    backendUser?.role?.workshop?.showAiModelSelector ?? false;
+
+  const [
+    apiKeyModalOpened,
+    { open: openApiKeyModal, close: closeApiKeyModal },
+  ] = useDisclosure(!isContinuation && !isParticipant);
   const [lightboxImage, setLightboxImage] = useState<{
     url: string;
     alt?: string;
@@ -193,7 +221,37 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     }
   }, [sessionId, state.phase, loadExistingSession]);
 
-  // Auto-start for workshop participants
+  // Track workshop key changes for SSE-driven updates
+  // This handles both: key added (error → retry) and key removed (clear state)
+  useEffect(() => {
+    const currentKeyId = workshopKey?.shareId;
+    const prevKeyId = prevWorkshopKeyRef.current;
+
+    // Key added after error → clear error and retry
+    if (workshopKeyError && currentKeyId && !prevKeyId) {
+      setWorkshopKeyError(null);
+      setAutoStartAttempted(false);
+    }
+
+    // Key removed → reset state so next attempt shows error
+    if (!currentKeyId && prevKeyId && !availableKeysLoading) {
+      setAutoStartAttempted(false);
+      // If not in a session, show error immediately
+      if (state.phase === "selecting-key" || state.phase === "error") {
+        setWorkshopKeyError(
+          t(
+            "gamePlayer.workshopKeyError",
+            "No API key configured for this workshop. Please contact your workshop administrator.",
+          ),
+        );
+      }
+    }
+
+    prevWorkshopKeyRef.current = currentKeyId;
+  }, [workshopKey, workshopKeyError, availableKeysLoading, state.phase, t]);
+
+  // Auto-start for workshop participants (only if model selector is disabled)
+  // If model selector is enabled, we show the modal instead
   useEffect(() => {
     if (
       !isParticipant ||
@@ -208,8 +266,13 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     if (availableKeys !== undefined) {
       setAutoStartAttempted(true);
       if (workshopKey?.shareId) {
-        // Auto-start with workshop key
-        startSession({ shareId: workshopKey.shareId });
+        if (workshopShowsModelSelector) {
+          // Show modal for model selection instead of auto-starting
+          openApiKeyModal();
+        } else {
+          // Auto-start with workshop key (no model selection)
+          startSession({ shareId: workshopKey.shareId });
+        }
       } else {
         // No workshop key configured - show error
         setWorkshopKeyError(
@@ -227,6 +290,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     availableKeysLoading,
     workshopKey,
     autoStartAttempted,
+    workshopShowsModelSelector,
+    openApiKeyModal,
     startSession,
     t,
   ]);
@@ -757,6 +822,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               gameId={gameId}
               gameName={displayGame?.name}
               isLoading={isSessionStarting}
+              workshopKeyShareId={
+                isParticipant ? workshopKey?.shareId : undefined
+              }
             />
           )}
 
