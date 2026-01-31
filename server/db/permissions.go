@@ -300,7 +300,7 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 			return obj.ErrForbidden("can only delete participants in your institution")
 		}
 
-		// Must be an anonymous participant (has participant_token AND no auth0_id)
+		// Must be an anonymous participant (no auth0_id)
 		// Regular users with Auth0 accounts cannot be deleted by staff/heads, even if they're participants
 		rawUser, err := GetUserByIDRaw(ctx, targetUserID)
 		if err != nil {
@@ -310,11 +310,6 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 		// Check if this is truly an anonymous user (no Auth0 account)
 		if rawUser.Auth0ID.Valid && rawUser.Auth0ID.String != "" {
 			return obj.ErrForbidden("can only delete anonymous participants, not regular users")
-		}
-
-		// Must have a participant token (anonymous participant)
-		if !rawUser.ParticipantToken.Valid || rawUser.ParticipantToken.String == "" {
-			return obj.ErrForbidden("can only delete anonymous participants")
 		}
 
 		return nil

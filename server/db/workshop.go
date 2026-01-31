@@ -252,12 +252,21 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 
 	participants := make([]obj.WorkshopParticipant, 0, len(participantRows))
 	for _, p := range participantRows {
+		// Parse role from database
+		role, err := stringToRole(p.Role.String)
+		if err != nil {
+			// Default to participant if role parsing fails
+			role = obj.RoleParticipant
+		}
+
 		participant := obj.WorkshopParticipant{
 			ID:          p.ID,
 			WorkshopID:  workshopID,
 			Name:        p.Name,
 			AccessToken: p.Auth0ID.String,
 			Active:      true,
+			Role:        role,
+			GamesCount:  int(p.GamesCount),
 			Meta: obj.Meta{
 				CreatedAt: &p.JoinedAt,
 			},
