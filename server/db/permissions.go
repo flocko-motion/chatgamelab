@@ -259,12 +259,12 @@ func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, worksh
 		return nil
 	}
 
-	// Head of the institution that owns this workshop can see participants
-	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && user.Role.Role == obj.RoleHead {
+	// Head or Staff of the institution that owns this workshop can see participants
+	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
 		return nil
 	}
 
-	return obj.ErrForbidden("only participants, workshop owner, or institution head can view participant list")
+	return obj.ErrForbidden("only participants, workshop owner, or institution staff/head can view participant list")
 }
 
 // CanDeleteUser checks if user can delete another user
@@ -321,6 +321,45 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 	}
 
 	return obj.ErrForbidden("insufficient permissions to delete users")
+}
+
+// CanUpdateParticipantName checks if user can update a participant's name
+// - Admins can update any user
+// - Staff/heads can only update participants in their institution's workshops
+func CanUpdateParticipantName(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
+	currentUser, err := GetUserByID(ctx, currentUserID)
+	if err != nil {
+		return obj.ErrNotFound("current user not found")
+	}
+
+	// Admin can update anyone
+	if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Staff/heads can only update participants in their institution
+	if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleStaff || currentUser.Role.Role == obj.RoleHead) {
+		// Get target user
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+
+		// Must be a participant
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant {
+			return obj.ErrForbidden("can only update participant names")
+		}
+
+		// Must be in the same institution
+		if targetUser.Role.Institution == nil || currentUser.Role.Institution == nil ||
+			targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("can only update participants in your institution")
+		}
+
+		return nil
+	}
+
+	return obj.ErrForbidden("insufficient permissions to update participant name")
 }
 
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop

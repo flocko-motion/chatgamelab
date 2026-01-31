@@ -202,12 +202,24 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug("updating user", "target_user_id", userID, "current_user_id", currentUser.ID)
 
-	// Only admins may access other users
-	if userID != currentUser.ID {
-		if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
-			httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
-			return
+	// Permission check: self, admin, or staff/head managing participants in their institution
+	canUpdate := false
+	if userID == currentUser.ID {
+		// Users can always update themselves
+		canUpdate = true
+	} else if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
+		// Admins can update anyone
+		canUpdate = true
+	} else if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleHead || currentUser.Role.Role == obj.RoleStaff) {
+		// Head/Staff can update participants in their institution's workshops
+		if err := db.CanUpdateParticipantName(r.Context(), currentUser.ID, userID); err == nil {
+			canUpdate = true
 		}
+	}
+
+	if !canUpdate {
+		httpx.WriteError(w, http.StatusForbidden, "Forbidden: cannot update this user")
+		return
 	}
 
 	var req UserUpdateRequest
@@ -223,8 +235,9 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if name or email changed
-	emailChanged := (user.Email == nil && req.Email != "") ||
-		(user.Email != nil && req.Email != *user.Email)
+	// Only consider email changed if a non-empty email is provided that differs from current
+	// (empty email in request means "don't change email", not "clear email")
+	emailChanged := req.Email != "" && (user.Email == nil || req.Email != *user.Email)
 	nameChanged := req.Name != "" && req.Name != user.Name
 
 	// Only admins can change email addresses
