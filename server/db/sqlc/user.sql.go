@@ -32,12 +32,36 @@ func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedIn
 	return err
 }
 
+const canUserAccessShareViaWorkshopDefault = `-- name: CanUserAccessShareViaWorkshopDefault :one
+SELECT EXISTS(
+  SELECT 1 FROM workshop w
+  INNER JOIN user_role ur ON ur.workshop_id = w.id
+  WHERE w.default_api_key_share_id = $1
+    AND ur.user_id = $2
+    AND w.active = true
+    AND w.deleted_at IS NULL
+) AS can_access
+`
+
+type CanUserAccessShareViaWorkshopDefaultParams struct {
+	DefaultApiKeyShareID uuid.NullUUID
+	UserID               uuid.UUID
+}
+
+// Check if a user can access an API key share because it's the default share for a workshop they're in
+func (q *Queries) CanUserAccessShareViaWorkshopDefault(ctx context.Context, arg CanUserAccessShareViaWorkshopDefaultParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, canUserAccessShareViaWorkshopDefault, arg.DefaultApiKeyShareID, arg.UserID)
+	var can_access bool
+	err := row.Scan(&can_access)
+	return can_access, err
+}
+
 const checkParticipantTokenStatus = `-- name: CheckParticipantTokenStatus :one
-SELECT 
+SELECT
   EXISTS(
     SELECT 1 FROM app_user u
     INNER JOIN user_role ur ON u.id = ur.user_id
-    WHERE u.participant_token = $1 
+    WHERE u.participant_token = $1
       AND u.deleted_at IS NULL
       AND ur.role = 'participant'
   ) AS token_exists,
@@ -45,7 +69,7 @@ SELECT
     (SELECT w.active FROM app_user u
      INNER JOIN user_role ur ON u.id = ur.user_id
      INNER JOIN workshop w ON ur.workshop_id = w.id
-     WHERE u.participant_token = $1 
+     WHERE u.participant_token = $1
        AND u.deleted_at IS NULL
        AND ur.role = 'participant'
        AND w.deleted_at IS NULL
@@ -607,7 +631,7 @@ func (q *Queries) GetInviteByToken(ctx context.Context, inviteToken sql.NullStri
 }
 
 const getInvites = `-- name: GetInvites :many
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -655,7 +679,7 @@ func (q *Queries) GetInvites(ctx context.Context) ([]UserRoleInvite, error) {
 }
 
 const getInvitesByInstitution = `-- name: GetInvitesByInstitution :many
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
 WHERE institution_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -703,7 +727,7 @@ func (q *Queries) GetInvitesByInstitution(ctx context.Context, institutionID uui
 }
 
 const getInvitesByUser = `-- name: GetInvitesByUser :many
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
 WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
   AND deleted_at IS NULL
   AND status = 'pending'
@@ -753,7 +777,7 @@ func (q *Queries) GetInvitesByUser(ctx context.Context, invitedUserID uuid.NullU
 }
 
 const getInvitesByWorkshop = `-- name: GetInvitesByWorkshop :many
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
 WHERE workshop_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -801,7 +825,7 @@ func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.Null
 }
 
 const getPendingInviteByTarget = `-- name: GetPendingInviteByTarget :one
-SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite 
+SELECT id, created_by, created_at, modified_by, modified_at, institution_id, role, workshop_id, invited_user_id, invited_email, invite_token, max_uses, uses_count, expires_at, status, deleted_at, accepted_at, accepted_by FROM user_role_invite
 WHERE institution_id = $1
   AND status = 'pending'
   AND deleted_at IS NULL
@@ -985,11 +1009,11 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector, u.language 
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector, u.language
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
-WHERE u.participant_token = $1 
+WHERE u.participant_token = $1
   AND u.deleted_at IS NULL
   AND ur.role = 'participant'
   AND w.active = true
@@ -1120,7 +1144,7 @@ func (q *Queries) GetUserIDByAuth0ID(ctx context.Context, auth0ID sql.NullString
 }
 
 const getUsersByInstitution = `-- name: GetUsersByInstitution :many
-SELECT 
+SELECT
   u.id, u.name, u.email,
   u.created_by, u.created_at, u.modified_by, u.modified_at,
   ur.id as role_id, ur.role as role_role
@@ -1177,7 +1201,7 @@ func (q *Queries) GetUsersByInstitution(ctx context.Context, institutionID uuid.
 }
 
 const getUsersByWorkshop = `-- name: GetUsersByWorkshop :many
-SELECT 
+SELECT
   u.id, u.name, u.email,
   u.created_by, u.created_at, u.modified_by, u.modified_at,
   u.deleted_at, u.auth0_id,
@@ -1242,10 +1266,11 @@ func (q *Queries) GetUsersByWorkshop(ctx context.Context, workshopID uuid.NullUU
 }
 
 const getWorkshopParticipants = `-- name: GetWorkshopParticipants :many
-SELECT 
+SELECT
   u.id, u.name, u.auth0_id,
   COALESCE(ur.created_at, w.created_at) as joined_at,
-  COALESCE(ur.role, ur_inst.role) as role
+  COALESCE(ur.role, ur_inst.role) as role,
+  (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count
 FROM app_user u
 INNER JOIN workshop w ON w.id = $1
 LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
@@ -1256,11 +1281,12 @@ ORDER BY joined_at ASC
 `
 
 type GetWorkshopParticipantsRow struct {
-	ID       uuid.UUID
-	Name     string
-	Auth0ID  sql.NullString
-	JoinedAt time.Time
-	Role     sql.NullString
+	ID         uuid.UUID
+	Name       string
+	Auth0ID    sql.NullString
+	JoinedAt   time.Time
+	Role       sql.NullString
+	GamesCount int32
 }
 
 // Get all participants for a workshop, including:
@@ -1281,6 +1307,7 @@ func (q *Queries) GetWorkshopParticipants(ctx context.Context, id uuid.UUID) ([]
 			&i.Auth0ID,
 			&i.JoinedAt,
 			&i.Role,
+			&i.GamesCount,
 		); err != nil {
 			return nil, err
 		}
@@ -1297,7 +1324,7 @@ func (q *Queries) GetWorkshopParticipants(ctx context.Context, id uuid.UUID) ([]
 
 const hasWorkshopRole = `-- name: HasWorkshopRole :one
 SELECT EXISTS(
-    SELECT 1 FROM user_role 
+    SELECT 1 FROM user_role
     WHERE user_id = $1 AND workshop_id = $2
 ) AS has_role
 `
@@ -1367,6 +1394,30 @@ func (q *Queries) IsNameTakenByOther(ctx context.Context, arg IsNameTakenByOther
 	var taken bool
 	err := row.Scan(&taken)
 	return taken, err
+}
+
+const isUserInWorkshop = `-- name: IsUserInWorkshop :one
+SELECT EXISTS(
+  SELECT 1 FROM user_role ur
+  INNER JOIN workshop w ON w.id = ur.workshop_id
+  WHERE ur.user_id = $1
+    AND ur.workshop_id = $2
+    AND w.active = true
+    AND w.deleted_at IS NULL
+) AS is_member
+`
+
+type IsUserInWorkshopParams struct {
+	UserID     uuid.UUID
+	WorkshopID uuid.NullUUID
+}
+
+// Check if a user is a member of a specific workshop (has a user_role with that workshop_id)
+func (q *Queries) IsUserInWorkshop(ctx context.Context, arg IsUserInWorkshopParams) (bool, error) {
+	row := q.db.QueryRowContext(ctx, isUserInWorkshop, arg.UserID, arg.WorkshopID)
+	var is_member bool
+	err := row.Scan(&is_member)
+	return is_member, err
 }
 
 const setUserDefaultApiKeyShare = `-- name: SetUserDefaultApiKeyShare :exec

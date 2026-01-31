@@ -64,26 +64,32 @@ const createWorkshop = `-- name: CreateWorkshop :one
 INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
-  name, institution_id, active, public, default_api_key_share_id
+  name, institution_id, active, public, default_api_key_share_id,
+  use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
 ) VALUES (
   $1, $2,
   $3, $4, $5,
-  $6, $7, $8, $9, $10
+  $6, $7, $8, $9, $10,
+  $11, $12, $13, $14
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
 `
 
 type CreateWorkshopParams struct {
-	ID                   uuid.UUID
-	CreatedBy            uuid.NullUUID
-	CreatedAt            time.Time
-	ModifiedBy           uuid.NullUUID
-	ModifiedAt           time.Time
-	Name                 string
-	InstitutionID        uuid.UUID
-	Active               bool
-	Public               bool
-	DefaultApiKeyShareID uuid.NullUUID
+	ID                         uuid.UUID
+	CreatedBy                  uuid.NullUUID
+	CreatedAt                  time.Time
+	ModifiedBy                 uuid.NullUUID
+	ModifiedAt                 time.Time
+	Name                       string
+	InstitutionID              uuid.UUID
+	Active                     bool
+	Public                     bool
+	DefaultApiKeyShareID       uuid.NullUUID
+	UseSpecificAiModel         sql.NullString
+	ShowAiModelSelector        bool
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
 }
 
 // workshop -------------------------------------------------------------
@@ -99,6 +105,10 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		arg.Active,
 		arg.Public,
 		arg.DefaultApiKeyShareID,
+		arg.UseSpecificAiModel,
+		arg.ShowAiModelSelector,
+		arg.ShowPublicGames,
+		arg.ShowOtherParticipantsGames,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -113,6 +123,10 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
+		&i.UseSpecificAiModel,
+		&i.ShowAiModelSelector,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
 	)
 	return i, err
 }
@@ -263,7 +277,7 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 }
 
 const getWorkshopByID = `-- name: GetWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id FROM workshop WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
@@ -281,6 +295,10 @@ func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
+		&i.UseSpecificAiModel,
+		&i.ShowAiModelSelector,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
 	)
 	return i, err
 }
@@ -342,7 +360,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 }
 
 const listWorkshops = `-- name: ListWorkshops :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id FROM workshop WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
@@ -366,6 +384,10 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 			&i.Public,
 			&i.DeletedAt,
 			&i.DefaultApiKeyShareID,
+			&i.UseSpecificAiModel,
+			&i.ShowAiModelSelector,
+			&i.ShowPublicGames,
+			&i.ShowOtherParticipantsGames,
 		); err != nil {
 			return nil, err
 		}
@@ -381,7 +403,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 }
 
 const listWorkshopsByInstitution = `-- name: ListWorkshopsByInstitution :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]Workshop, error) {
@@ -405,6 +427,10 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 			&i.Public,
 			&i.DeletedAt,
 			&i.DefaultApiKeyShareID,
+			&i.UseSpecificAiModel,
+			&i.ShowAiModelSelector,
+			&i.ShowPublicGames,
+			&i.ShowOtherParticipantsGames,
 		); err != nil {
 			return nil, err
 		}
@@ -425,7 +451,7 @@ UPDATE workshop SET
   modified_at = now(),
   default_api_key_share_id = $3
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
 `
 
 type SetWorkshopDefaultApiKeyParams struct {
@@ -449,6 +475,10 @@ func (q *Queries) SetWorkshopDefaultApiKey(ctx context.Context, arg SetWorkshopD
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
+		&i.UseSpecificAiModel,
+		&i.ShowAiModelSelector,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
 	)
 	return i, err
 }
@@ -505,22 +535,30 @@ UPDATE workshop SET
   institution_id = $7,
   active = $8,
   public = $9,
-  default_api_key_share_id = $10
+  default_api_key_share_id = $10,
+  use_specific_ai_model = $11,
+  show_ai_model_selector = $12,
+  show_public_games = $13,
+  show_other_participants_games = $14
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
 `
 
 type UpdateWorkshopParams struct {
-	ID                   uuid.UUID
-	CreatedBy            uuid.NullUUID
-	CreatedAt            time.Time
-	ModifiedBy           uuid.NullUUID
-	ModifiedAt           time.Time
-	Name                 string
-	InstitutionID        uuid.UUID
-	Active               bool
-	Public               bool
-	DefaultApiKeyShareID uuid.NullUUID
+	ID                         uuid.UUID
+	CreatedBy                  uuid.NullUUID
+	CreatedAt                  time.Time
+	ModifiedBy                 uuid.NullUUID
+	ModifiedAt                 time.Time
+	Name                       string
+	InstitutionID              uuid.UUID
+	Active                     bool
+	Public                     bool
+	DefaultApiKeyShareID       uuid.NullUUID
+	UseSpecificAiModel         sql.NullString
+	ShowAiModelSelector        bool
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
 }
 
 func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) (Workshop, error) {
@@ -535,6 +573,10 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		arg.Active,
 		arg.Public,
 		arg.DefaultApiKeyShareID,
+		arg.UseSpecificAiModel,
+		arg.ShowAiModelSelector,
+		arg.ShowPublicGames,
+		arg.ShowOtherParticipantsGames,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -549,6 +591,10 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
+		&i.UseSpecificAiModel,
+		&i.ShowAiModelSelector,
+		&i.ShowPublicGames,
+		&i.ShowOtherParticipantsGames,
 	)
 	return i, err
 }

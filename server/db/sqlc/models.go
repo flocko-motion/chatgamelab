@@ -190,17 +190,21 @@ type UserRoleInvite struct {
 }
 
 type Workshop struct {
-	ID                   uuid.UUID
-	CreatedBy            uuid.NullUUID
-	CreatedAt            time.Time
-	ModifiedBy           uuid.NullUUID
-	ModifiedAt           time.Time
-	Name                 string
-	InstitutionID        uuid.UUID
-	Active               bool
-	Public               bool
-	DeletedAt            sql.NullTime
-	DefaultApiKeyShareID uuid.NullUUID
+	ID                         uuid.UUID
+	CreatedBy                  uuid.NullUUID
+	CreatedAt                  time.Time
+	ModifiedBy                 uuid.NullUUID
+	ModifiedAt                 time.Time
+	Name                       string
+	InstitutionID              uuid.UUID
+	Active                     bool
+	Public                     bool
+	DeletedAt                  sql.NullTime
+	DefaultApiKeyShareID       uuid.NullUUID
+	UseSpecificAiModel         sql.NullString
+	ShowAiModelSelector        bool
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
 }
 
 type WorkshopParticipant struct {
