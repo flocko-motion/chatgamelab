@@ -1071,7 +1071,11 @@ SELECT
   r.institution_id,
   i.name         AS institution_name,
   r.workshop_id,
-  w.name         AS workshop_name
+  w.name         AS workshop_name,
+  w.show_public_games AS workshop_show_public_games,
+  w.show_other_participants_games AS workshop_show_other_participants_games,
+  w.show_ai_model_selector AS workshop_show_ai_model_selector,
+  w.use_specific_ai_model AS workshop_use_specific_ai_model
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
@@ -1088,23 +1092,27 @@ WHERE u.id = $1
 `
 
 type GetUserDetailsByIDRow struct {
-	ID                   uuid.UUID
-	CreatedBy            uuid.NullUUID
-	CreatedAt            time.Time
-	ModifiedBy           uuid.NullUUID
-	ModifiedAt           time.Time
-	Name                 string
-	Email                sql.NullString
-	DeletedAt            sql.NullTime
-	Auth0ID              sql.NullString
-	DefaultApiKeyShareID uuid.NullUUID
-	Language             string
-	RoleID               uuid.NullUUID
-	Role                 sql.NullString
-	InstitutionID        uuid.NullUUID
-	InstitutionName      sql.NullString
-	WorkshopID           uuid.NullUUID
-	WorkshopName         sql.NullString
+	ID                                 uuid.UUID
+	CreatedBy                          uuid.NullUUID
+	CreatedAt                          time.Time
+	ModifiedBy                         uuid.NullUUID
+	ModifiedAt                         time.Time
+	Name                               string
+	Email                              sql.NullString
+	DeletedAt                          sql.NullTime
+	Auth0ID                            sql.NullString
+	DefaultApiKeyShareID               uuid.NullUUID
+	Language                           string
+	RoleID                             uuid.NullUUID
+	Role                               sql.NullString
+	InstitutionID                      uuid.NullUUID
+	InstitutionName                    sql.NullString
+	WorkshopID                         uuid.NullUUID
+	WorkshopName                       sql.NullString
+	WorkshopShowPublicGames            sql.NullBool
+	WorkshopShowOtherParticipantsGames sql.NullBool
+	WorkshopShowAiModelSelector        sql.NullBool
+	WorkshopUseSpecificAiModel         sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1128,6 +1136,10 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.InstitutionName,
 		&i.WorkshopID,
 		&i.WorkshopName,
+		&i.WorkshopShowPublicGames,
+		&i.WorkshopShowOtherParticipantsGames,
+		&i.WorkshopShowAiModelSelector,
+		&i.WorkshopUseSpecificAiModel,
 	)
 	return i, err
 }

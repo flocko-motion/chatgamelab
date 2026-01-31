@@ -91,7 +91,11 @@ SELECT
   r.institution_id,
   i.name         AS institution_name,
   r.workshop_id,
-  w.name         AS workshop_name
+  w.name         AS workshop_name,
+  w.show_public_games AS workshop_show_public_games,
+  w.show_other_participants_games AS workshop_show_other_participants_games,
+  w.show_ai_model_selector AS workshop_show_ai_model_selector,
+  w.use_specific_ai_model AS workshop_use_specific_ai_model
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
