@@ -658,6 +658,7 @@
         "createInviteLink": "Einladungslink erstellen",
         "viewInviteLink": "Einladungslink anzeigen",
         "inviteLinkTitle": "Einladungslink für {{name}}",
+        "inviteLinkDescription": "Teilen Sie diesen Link mit Teilnehmern, um sie zum Workshop einzuladen.",
         "noActiveInvite": "Kein aktiver Einladungslink verfügbar.",
         "inviteCreatedAt": "Erstellt",
         "inviteExpiresAt": "Läuft ab",
@@ -665,19 +666,30 @@
         "defaultApiKey": "Standard-API-Schlüssel",
         "selectApiKey": "API-Schlüssel auswählen",
         "noDefaultApiKey": "Kein Standard-Schlüssel",
+        "selectDefaultModel": "Standardmodell auswählen",
         "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
         "activate": "Aktivieren",
         "deactivate": "Deaktivieren",
         "enterWorkshop": "Workshop-Modus starten",
+        "joined": "Beigetreten",
+        "games": "Spiele",
         "participantJoined": "Beigetreten am {{date}}",
         "participantGames": "{{count}} Spiele",
         "participantName": "Teilnehmername",
         "editParticipant": "Teilnehmername bearbeiten",
         "removeParticipant": "Teilnehmer entfernen",
+        "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
+        "linkCopied": "Link kopiert",
+        "linkCopiedMessage": "Der Einladungslink wurde in die Zwischenablage kopiert.",
+        "noParticipantToken": "Dieser Teilnehmer hat keinen Einladungslink. Nur anonyme Teilnehmer (Gäste) haben wiederverwendbare Einladungslinks.",
         "removeParticipantTitle": "Teilnehmer entfernen",
+        "removeParticipantMessage": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
         "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
         "settings": "Einstellungen",
         "showAiModelSelector": "Teilnehmer können KI-Modell auswählen",
+        "defaultAiModel": "Standard-KI-Modell",
+        "defaultAiModelHint": "Modell, das verwendet wird, wenn Teilnehmer nicht wählen können. Erfordert einen eingestellten API-Schlüssel.",
+        "noDefaultModel": "Plattform-Standard verwenden",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "deleteTitle": "Workshop löschen",
@@ -762,6 +774,33 @@
         "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
         "stayButton": "Im aktuellen Workshop bleiben",
         "switchButton": "Workshop wechseln"
+      },
+      "participant": {
+        "loggingIn": "Du wirst angemeldet...",
+        "success": "Willkommen zurück!",
+        "redirecting": "Weiterleitung zu deinem Workshop...",
+        "invalidToken": "Dieser Anmeldelink ist ungültig oder abgelaufen.",
+        "loginFailed": "Anmeldung fehlgeschlagen. Bitte versuche es erneut oder bitte um einen neuen Link."
+      }
+    },
+    "myWorkshop": {
+      "title": "Mein Workshop",
+      "settings": {
+        "title": "Workshop-Einstellungen",
+        "currentWorkshop": "Aktueller Workshop",
+        "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop."
+      },
+      "you": "Du",
+      "gameType": "Typ",
+      "filters": {
+        "all": "Alle",
+        "mine": "Meine Spiele",
+        "workshop": "Workshop",
+        "public": "Öffentlich"
+      },
+      "empty": {
+        "title": "Noch keine Spiele",
+        "description": "Erstelle dein erstes Spiel oder warte, bis andere Spiele im Workshop teilen."
       }
     }
   },
@@ -779,7 +818,8 @@
     "myOrganization": "Meine Organisation",
     "orgMembers": "Mitglieder",
     "orgWorkshops": "Workshops",
-    "orgApiKeys": "API-Schlüssel"
+    "orgApiKeys": "API-Schlüssel",
+    "workshopSettings": "Workshop-Einstellungen"
   },
   "dashboard": {
     "time": {
@@ -981,20 +1021,5 @@
     "workshop": "Workshop",
     "organization": "Organisation",
     "leaveWorkshop": "Workshop verlassen"
-  },
-  "myWorkshop": {
-    "title": "Mein Workshop",
-    "you": "Du",
-    "gameType": "Typ",
-    "filters": {
-      "all": "Alle",
-      "mine": "Meine Spiele",
-      "workshop": "Workshop",
-      "public": "Öffentlich"
-    },
-    "empty": {
-      "title": "Noch keine Spiele",
-      "description": "Erstelle dein erstes Spiel oder warte, bis andere Spiele im Workshop teilen."
-    }
   }
 }

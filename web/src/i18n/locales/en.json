@@ -658,26 +658,38 @@
         "createInviteLink": "Create Invite Link",
         "viewInviteLink": "View Invite Link",
         "inviteLinkTitle": "Invite Link for {{name}}",
+        "inviteLinkDescription": "Share this link with participants to let them join the workshop.",
         "noActiveInvite": "No active invite link available.",
         "inviteCreatedAt": "Created",
         "inviteExpiresAt": "Expires",
         "inviteUsage": "Usage",
         "defaultApiKey": "Default API Key",
         "selectApiKey": "Select an API key",
-        "noDefaultApiKey": "No default key",
+        "noDefaultApiKey": "No default API key",
+        "selectDefaultModel": "Select default model",
         "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "activate": "Activate",
         "deactivate": "Deactivate",
         "enterWorkshop": "Enter Workshop Mode",
+        "joined": "Joined",
+        "games": "Games",
         "participantJoined": "Joined {{date}}",
         "participantGames": "{{count}} games",
         "participantName": "Participant name",
         "editParticipant": "Edit participant name",
         "removeParticipant": "Remove participant",
+        "shareParticipantLink": "Copy individual invite link for this participant",
+        "linkCopied": "Link Copied",
+        "linkCopiedMessage": "The invite link has been copied to your clipboard.",
+        "noParticipantToken": "This participant doesn't have an invite link. Only anonymous participants (guests) have reusable invite links.",
         "removeParticipantTitle": "Remove Participant",
+        "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
         "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
         "settings": "Settings",
         "showAiModelSelector": "Allow participants to select AI model",
+        "defaultAiModel": "Default AI Model",
+        "defaultAiModelHint": "Model used when participants cannot choose. Requires an API key to be set.",
+        "noDefaultModel": "Use platform default",
         "showPublicGames": "Show public games to participants",
         "showOtherParticipantsGames": "Show other participants' games",
         "deleteTitle": "Delete Workshop",
@@ -762,6 +774,33 @@
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
         "stayButton": "Stay in Current Workshop",
         "switchButton": "Switch Workshop"
+      },
+      "participant": {
+        "loggingIn": "Logging you in...",
+        "success": "Welcome back!",
+        "redirecting": "Redirecting to your workshop...",
+        "invalidToken": "This login link is invalid or has expired.",
+        "loginFailed": "Failed to log in. Please try again or ask for a new link."
+      }
+    },
+    "myWorkshop": {
+      "title": "My Workshop",
+      "settings": {
+        "title": "Workshop Settings",
+        "currentWorkshop": "Current Workshop",
+        "notInWorkshopMode": "You are not in workshop mode. Please enter a workshop first."
+      },
+      "you": "You",
+      "gameType": "Type",
+      "filters": {
+        "all": "All",
+        "mine": "My Games",
+        "workshop": "Workshop",
+        "public": "Public"
+      },
+      "empty": {
+        "title": "No games yet",
+        "description": "Create your first game or wait for others to share games in the workshop."
       }
     }
   },
@@ -782,7 +821,8 @@
     "myOrganization": "My Organization",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
-    "orgApiKeys": "API Keys"
+    "orgApiKeys": "API Keys",
+    "workshopSettings": "Workshop Settings"
   },
   "dashboard": {
     "time": {
@@ -985,20 +1025,5 @@
     "workshop": "Workshop",
     "organization": "Organization",
     "leaveWorkshop": "Leave Workshop"
-  },
-  "myWorkshop": {
-    "title": "My Workshop",
-    "you": "You",
-    "gameType": "Type",
-    "filters": {
-      "all": "All",
-      "mine": "My Games",
-      "workshop": "Workshop",
-      "public": "Public"
-    },
-    "empty": {
-      "title": "No games yet",
-      "description": "Create your first game or wait for others to share games in the workshop."
-    }
   }
 }
