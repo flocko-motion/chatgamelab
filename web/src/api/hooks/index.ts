@@ -85,3 +85,6 @@ export {
   useUpdateParticipant,
   useRemoveParticipant,
 } from "./useWorkshops";
+
+// Workshop Events (SSE)
+export { useWorkshopEvents } from "./useWorkshopEvents";
