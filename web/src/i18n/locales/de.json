@@ -30,7 +30,7 @@
           "description": "Entwirf interaktive Text-Adventures mit KI"
         },
         "play": {
-          "title": "Gemeinsam spielen", 
+          "title": "Gemeinsam spielen",
           "description": "Schließ dich Freunden bei kollaborativen Geschichtensitzungen an"
         },
         "learn": {
@@ -60,7 +60,9 @@
       "goToDashboard": "Zum Dashboard",
       "apiKeys": "API-Schlüssel",
       "profile": "Profil",
-      "logout": "Abmelden"
+      "logout": "Abmelden",
+      "leaveWorkshopMode": "Workshop-Modus verlassen",
+      "leaveWorkshopModeTooltip": "Workshop-Modus beenden und zur normalen Ansicht zurückkehren"
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
@@ -666,6 +668,18 @@
         "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
         "activate": "Aktivieren",
         "deactivate": "Deaktivieren",
+        "enterWorkshop": "Workshop-Modus starten",
+        "participantJoined": "Beigetreten am {{date}}",
+        "participantGames": "{{count}} Spiele",
+        "participantName": "Teilnehmername",
+        "editParticipant": "Teilnehmername bearbeiten",
+        "removeParticipant": "Teilnehmer entfernen",
+        "removeParticipantTitle": "Teilnehmer entfernen",
+        "removeParticipantConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus diesem Workshop entfernen möchten?",
+        "settings": "Einstellungen",
+        "showAiModelSelector": "Teilnehmer können KI-Modell auswählen",
+        "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
+        "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "deleteTitle": "Workshop löschen",
         "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten?",
         "deleteWarning": "Alle Spiele und Sitzungen in diesem Workshop werden gelöscht. Dies kann nicht rückgängig gemacht werden.",
@@ -753,7 +767,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
-    "myGames": "Meine Spiele", 
+    "myGames": "Meine Spiele",
     "allGames": "Alle Spiele",
     "myWorkshop": "Mein Workshop",
     "create": "Eigene Spiele erstellen",
@@ -888,7 +902,7 @@
       },
       "role": {
         "admin": "Als Admin anmelden",
-        "teacher": "Als Lehrer anmelden", 
+        "teacher": "Als Lehrer anmelden",
         "student": "Als Schüler anmelden",
         "guest": "Als Gast anmelden"
       }

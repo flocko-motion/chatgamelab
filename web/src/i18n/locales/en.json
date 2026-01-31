@@ -30,7 +30,7 @@
           "description": "Design interactive text adventures powered by AI"
         },
         "play": {
-          "title": "Play Together", 
+          "title": "Play Together",
           "description": "Join friends in collaborative storytelling sessions"
         },
         "learn": {
@@ -60,7 +60,9 @@
       "goToDashboard": "Go to Dashboard",
       "apiKeys": "API Keys",
       "profile": "Profile",
-      "logout": "Logout"
+      "logout": "Logout",
+      "leaveWorkshopMode": "Leave Workshop-Mode",
+      "leaveWorkshopModeTooltip": "Leave workshop mode and return to normal view"
     },
     "apiKeys": {
       "title": "API Key Management",
@@ -666,6 +668,18 @@
         "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "activate": "Activate",
         "deactivate": "Deactivate",
+        "enterWorkshop": "Enter Workshop Mode",
+        "participantJoined": "Joined {{date}}",
+        "participantGames": "{{count}} games",
+        "participantName": "Participant name",
+        "editParticipant": "Edit participant name",
+        "removeParticipant": "Remove participant",
+        "removeParticipantTitle": "Remove Participant",
+        "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
+        "settings": "Settings",
+        "showAiModelSelector": "Allow participants to select AI model",
+        "showPublicGames": "Show public games to participants",
+        "showOtherParticipantsGames": "Show other participants' games",
         "deleteTitle": "Delete Workshop",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
         "deleteWarning": "All games and sessions in this workshop will be deleted. This cannot be undone.",
@@ -892,7 +906,7 @@
       },
       "role": {
         "admin": "Login as Admin",
-        "teacher": "Login as Teacher", 
+        "teacher": "Login as Teacher",
         "student": "Login as Student",
         "guest": "Login as Guest"
       }
