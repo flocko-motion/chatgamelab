@@ -18,8 +18,10 @@ import {
   Checkbox,
   Select,
   Code,
+  Table,
 } from "@mantine/core";
 import { useDisclosure, useDebouncedValue } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
   IconPlus,
   IconTrash,
@@ -54,6 +56,8 @@ import {
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
+  useGetParticipantToken,
+  usePlatforms,
 } from "@/api/hooks";
 import {
   ExpandableSearch,
@@ -64,7 +68,11 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
-import type { ObjWorkshop, ObjWorkshopParticipant } from "@/api/generated";
+import {
+  ObjRole,
+  type ObjWorkshop,
+  type ObjWorkshopParticipant,
+} from "@/api/generated";
 
 interface WorkshopsTabProps {
   institutionId: string;
@@ -74,7 +82,7 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
-  useResponsiveDesign(); // Keep hook for future responsive needs
+  const { isMobile } = useResponsiveDesign();
 
   const handleEnterWorkshop = (workshop: ObjWorkshop) => {
     if (!workshop.id || !workshop.name) return;
@@ -151,6 +159,9 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
   const setWorkshopApiKey = useSetWorkshopApiKey();
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
+  const getParticipantToken = useGetParticipantToken();
+
+  const { data: platforms } = usePlatforms();
 
   // Build API key options for select - only institution-shared keys
   const apiKeyOptions = [
@@ -160,6 +171,23 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
       label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
     })) || []),
   ];
+
+  // Helper to get model options for a specific workshop's API key
+  const getModelOptionsForWorkshop = (workshop: ObjWorkshop) => {
+    const selectedApiKey = institutionApiKeys?.find(
+      (k) => k.id === workshop.defaultApiKeyShareId,
+    );
+    const selectedPlatform = platforms?.find(
+      (p) => p.id === selectedApiKey?.apiKey?.platform,
+    );
+    return [
+      { value: "", label: t("myOrganization.workshops.noDefaultModel") },
+      ...(selectedPlatform?.models?.map((model) => ({
+        value: model.id || "",
+        label: model.name || model.id || "",
+      })) || []),
+    ];
+  };
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -245,6 +273,27 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
   const handleCancelEditParticipant = () => {
     setEditingParticipant(null);
     setParticipantNewName("");
+  };
+
+  const handleGetParticipantShareLink = async (participantId: string) => {
+    try {
+      const result = await getParticipantToken.mutateAsync(participantId);
+      if (result?.token) {
+        const shareUrl = `${window.location.origin}/invites/participant/${result.token}`;
+        await navigator.clipboard.writeText(shareUrl);
+        notifications.show({
+          title: t("myOrganization.workshops.linkCopied"),
+          message: t("myOrganization.workshops.linkCopiedMessage"),
+          color: "green",
+        });
+      }
+    } catch {
+      notifications.show({
+        title: t("error"),
+        message: t("myOrganization.workshops.noParticipantToken"),
+        color: "red",
+      });
+    }
   };
 
   const handleConfirmRemoveParticipant = async () => {
@@ -518,12 +567,12 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
                     >
                       {/* Default API Key Section */}
                       <Stack gap="xs">
-                        <Text size="sm" fw={500}>
-                          <Group gap="xs">
-                            <IconKey size={14} />
+                        <Group gap="xs">
+                          <IconKey size={14} />
+                          <Text size="sm" fw={500}>
                             {t("myOrganization.workshops.defaultApiKey")}
-                          </Group>
-                        </Text>
+                          </Text>
+                        </Group>
                         <Select
                           size="xs"
                           data={apiKeyOptions}
@@ -559,6 +608,27 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
                             })
                           }
                         />
+                        {/* Default AI Model - only show when API key is selected and model selector is disabled */}
+                        {workshop.defaultApiKeyShareId &&
+                          !workshop.showAiModelSelector && (
+                            <Select
+                              size="xs"
+                              label={t(
+                                "myOrganization.workshops.defaultAiModel",
+                              )}
+                              description={t(
+                                "myOrganization.workshops.defaultAiModelHint",
+                              )}
+                              data={getModelOptionsForWorkshop(workshop)}
+                              value={workshop.useSpecificAiModel || ""}
+                              onChange={(value) =>
+                                handleUpdateWorkshopSettings(workshop, {
+                                  useSpecificAiModel: value || null,
+                                })
+                              }
+                              disabled={updateWorkshop.isPending}
+                            />
+                          )}
                         <Switch
                           size="xs"
                           label={t("myOrganization.workshops.showPublicGames")}
@@ -594,170 +664,385 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
                         </Text>
                         {workshop.participants &&
                         workshop.participants.length > 0 ? (
-                          <Stack gap="sm">
-                            {workshop.participants.map((participant) => {
-                              const joinedDate = participant.meta?.createdAt
-                                ? new Date(
-                                    participant.meta.createdAt,
-                                  ).toLocaleDateString()
-                                : null;
-                              const isEditing =
-                                editingParticipant?.id === participant.id;
+                          isMobile ? (
+                            <Stack gap="sm">
+                              {workshop.participants.map((participant) => {
+                                const joinedDate = participant.meta?.createdAt
+                                  ? new Date(
+                                      participant.meta.createdAt,
+                                    ).toLocaleDateString()
+                                  : null;
+                                const isEditing =
+                                  editingParticipant?.id === participant.id;
 
-                              return (
-                                <Card
-                                  key={participant.id}
-                                  padding="xs"
-                                  radius="sm"
-                                  withBorder
-                                >
-                                  <Group justify="space-between" wrap="nowrap">
+                                return (
+                                  <Card
+                                    key={participant.id}
+                                    padding="xs"
+                                    radius="sm"
+                                    withBorder
+                                  >
                                     <Group
-                                      gap="xs"
-                                      style={{ flex: 1, minWidth: 0 }}
+                                      justify="space-between"
+                                      wrap="nowrap"
                                     >
-                                      <IconUser size={14} color="gray" />
-                                      {isEditing ? (
-                                        <TextInput
-                                          size="xs"
-                                          value={participantNewName}
-                                          onChange={(e) =>
-                                            setParticipantNewName(
-                                              e.currentTarget.value,
-                                            )
-                                          }
-                                          placeholder={t(
-                                            "myOrganization.workshops.participantName",
-                                          )}
-                                          style={{ flex: 1 }}
-                                          autoFocus
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Enter")
-                                              handleSaveParticipantName();
-                                            if (e.key === "Escape")
-                                              handleCancelEditParticipant();
-                                          }}
-                                        />
-                                      ) : (
-                                        <Stack gap={2} style={{ minWidth: 0 }}>
-                                          <Text size="sm" fw={500} truncate>
-                                            {participant.name ||
-                                              t(
-                                                "myOrganization.workshops.anonymousParticipant",
+                                      <Group
+                                        gap="xs"
+                                        style={{ flex: 1, minWidth: 0 }}
+                                      >
+                                        <IconUser size={14} color="gray" />
+                                        {isEditing ? (
+                                          <TextInput
+                                            size="xs"
+                                            value={participantNewName}
+                                            onChange={(e) =>
+                                              setParticipantNewName(
+                                                e.currentTarget.value,
+                                              )
+                                            }
+                                            placeholder={t(
+                                              "myOrganization.workshops.participantName",
+                                            )}
+                                            style={{ flex: 1 }}
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter")
+                                                handleSaveParticipantName();
+                                              if (e.key === "Escape")
+                                                handleCancelEditParticipant();
+                                            }}
+                                          />
+                                        ) : (
+                                          <Stack
+                                            gap={2}
+                                            style={{ minWidth: 0 }}
+                                          >
+                                            <Text size="sm" fw={500} truncate>
+                                              {participant.name ||
+                                                t(
+                                                  "myOrganization.workshops.anonymousParticipant",
+                                                )}
+                                            </Text>
+                                            <Group gap="sm">
+                                              {joinedDate && (
+                                                <Group gap={4}>
+                                                  <IconCalendar
+                                                    size={10}
+                                                    color="gray"
+                                                  />
+                                                  <Text size="xs" c="dimmed">
+                                                    {t(
+                                                      "myOrganization.workshops.participantJoined",
+                                                      { date: joinedDate },
+                                                    )}
+                                                  </Text>
+                                                </Group>
                                               )}
-                                          </Text>
-                                          <Group gap="sm">
-                                            {joinedDate && (
                                               <Group gap={4}>
-                                                <IconCalendar
+                                                <IconPlayerPlay
                                                   size={10}
                                                   color="gray"
                                                 />
                                                 <Text size="xs" c="dimmed">
                                                   {t(
-                                                    "myOrganization.workshops.participantJoined",
-                                                    { date: joinedDate },
+                                                    "myOrganization.workshops.participantGames",
+                                                    {
+                                                      count:
+                                                        participant.gamesCount ||
+                                                        0,
+                                                    },
                                                   )}
                                                 </Text>
                                               </Group>
-                                            )}
-                                            <Group gap={4}>
-                                              <IconPlayerPlay
-                                                size={10}
-                                                color="gray"
-                                              />
-                                              <Text size="xs" c="dimmed">
-                                                {t(
-                                                  "myOrganization.workshops.participantGames",
-                                                  {
-                                                    count:
-                                                      participant.gamesCount ||
-                                                      0,
-                                                  },
-                                                )}
-                                              </Text>
                                             </Group>
-                                          </Group>
-                                        </Stack>
-                                      )}
-                                    </Group>
-                                    <Group gap="xs" wrap="nowrap">
-                                      {isEditing ? (
-                                        <>
-                                          <Tooltip label={t("save")}>
-                                            <ActionIcon
-                                              variant="subtle"
-                                              color="green"
-                                              size="sm"
-                                              onClick={
-                                                handleSaveParticipantName
-                                              }
-                                              loading={
-                                                updateParticipant.isPending
-                                              }
-                                            >
-                                              <IconCheck size={14} />
-                                            </ActionIcon>
-                                          </Tooltip>
-                                          <Tooltip label={t("cancel")}>
-                                            <ActionIcon
-                                              variant="subtle"
-                                              color="gray"
-                                              size="sm"
-                                              onClick={
-                                                handleCancelEditParticipant
-                                              }
-                                            >
-                                              <IconAlertCircle size={14} />
-                                            </ActionIcon>
-                                          </Tooltip>
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Tooltip
-                                            label={t(
-                                              "myOrganization.workshops.editParticipant",
+                                          </Stack>
+                                        )}
+                                      </Group>
+                                      <Group gap="xs" wrap="nowrap">
+                                        {isEditing ? (
+                                          <>
+                                            <Tooltip label={t("save")}>
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="green"
+                                                size="sm"
+                                                onClick={
+                                                  handleSaveParticipantName
+                                                }
+                                                loading={
+                                                  updateParticipant.isPending
+                                                }
+                                              >
+                                                <IconCheck size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                            <Tooltip label={t("cancel")}>
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="gray"
+                                                size="sm"
+                                                onClick={
+                                                  handleCancelEditParticipant
+                                                }
+                                              >
+                                                <IconAlertCircle size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                          </>
+                                        ) : (
+                                          <>
+                                            {participant.role ===
+                                              ObjRole.RoleParticipant && (
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.shareParticipantLink",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="blue"
+                                                  size="sm"
+                                                  loading={
+                                                    getParticipantToken.isPending
+                                                  }
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (participant.id) {
+                                                      handleGetParticipantShareLink(
+                                                        participant.id,
+                                                      );
+                                                    }
+                                                  }}
+                                                >
+                                                  <IconLink size={14} />
+                                                </ActionIcon>
+                                              </Tooltip>
                                             )}
-                                          >
-                                            <ActionIcon
-                                              variant="subtle"
-                                              color="gray"
-                                              size="sm"
-                                              onClick={() =>
-                                                handleEditParticipant(
-                                                  participant,
-                                                )
-                                              }
+                                            <Tooltip
+                                              label={t(
+                                                "myOrganization.workshops.editParticipant",
+                                              )}
                                             >
-                                              <IconPencil size={14} />
-                                            </ActionIcon>
-                                          </Tooltip>
-                                          <Tooltip
-                                            label={t(
-                                              "myOrganization.workshops.removeParticipant",
-                                            )}
-                                          >
-                                            <ActionIcon
-                                              variant="subtle"
-                                              color="red"
-                                              size="sm"
-                                              onClick={() =>
-                                                setParticipantToRemove(
-                                                  participant,
-                                                )
-                                              }
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="gray"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleEditParticipant(
+                                                    participant,
+                                                  );
+                                                }}
+                                              >
+                                                <IconPencil size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                            <Tooltip
+                                              label={t(
+                                                "myOrganization.workshops.removeParticipant",
+                                              )}
                                             >
-                                              <IconTrash size={14} />
-                                            </ActionIcon>
-                                          </Tooltip>
-                                        </>
-                                      )}
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="red"
+                                                size="sm"
+                                                onClick={() =>
+                                                  setParticipantToRemove(
+                                                    participant,
+                                                  )
+                                                }
+                                              >
+                                                <IconTrash size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                          </>
+                                        )}
+                                      </Group>
                                     </Group>
-                                  </Group>
-                                </Card>
-                              );
-                            })}
-                          </Stack>
+                                  </Card>
+                                );
+                              })}
+                            </Stack>
+                          ) : (
+                            <Table striped highlightOnHover>
+                              <Table.Thead>
+                                <Table.Tr>
+                                  <Table.Th>
+                                    {t(
+                                      "myOrganization.workshops.participantName",
+                                    )}
+                                  </Table.Th>
+                                  <Table.Th>
+                                    {t("myOrganization.workshops.joined")}
+                                  </Table.Th>
+                                  <Table.Th>
+                                    {t("myOrganization.workshops.games")}
+                                  </Table.Th>
+                                  <Table.Th style={{ width: 100 }}>
+                                    {t("actions")}
+                                  </Table.Th>
+                                </Table.Tr>
+                              </Table.Thead>
+                              <Table.Tbody>
+                                {workshop.participants.map((participant) => {
+                                  const joinedDate = participant.meta?.createdAt
+                                    ? new Date(
+                                        participant.meta.createdAt,
+                                      ).toLocaleDateString()
+                                    : null;
+                                  const isEditing =
+                                    editingParticipant?.id === participant.id;
+
+                                  return (
+                                    <Table.Tr key={participant.id}>
+                                      <Table.Td>
+                                        {isEditing ? (
+                                          <TextInput
+                                            size="xs"
+                                            value={participantNewName}
+                                            onChange={(e) =>
+                                              setParticipantNewName(
+                                                e.currentTarget.value,
+                                              )
+                                            }
+                                            placeholder={t(
+                                              "myOrganization.workshops.participantName",
+                                            )}
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter")
+                                                handleSaveParticipantName();
+                                              if (e.key === "Escape")
+                                                handleCancelEditParticipant();
+                                            }}
+                                          />
+                                        ) : (
+                                          <Text size="sm" fw={500}>
+                                            {participant.name ||
+                                              t(
+                                                "myOrganization.workshops.anonymousParticipant",
+                                              )}
+                                          </Text>
+                                        )}
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Text size="sm" c="dimmed">
+                                          {joinedDate || "-"}
+                                        </Text>
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Text size="sm" c="dimmed">
+                                          {participant.gamesCount || 0}
+                                        </Text>
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Group gap="xs" wrap="nowrap">
+                                          {isEditing ? (
+                                            <>
+                                              <Tooltip label={t("save")}>
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="green"
+                                                  size="sm"
+                                                  onClick={
+                                                    handleSaveParticipantName
+                                                  }
+                                                  loading={
+                                                    updateParticipant.isPending
+                                                  }
+                                                >
+                                                  <IconCheck size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                              <Tooltip label={t("cancel")}>
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="gray"
+                                                  size="sm"
+                                                  onClick={
+                                                    handleCancelEditParticipant
+                                                  }
+                                                >
+                                                  <IconAlertCircle size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                            </>
+                                          ) : (
+                                            <>
+                                              {participant.role ===
+                                                ObjRole.RoleParticipant && (
+                                                <Tooltip
+                                                  label={t(
+                                                    "myOrganization.workshops.shareParticipantLink",
+                                                  )}
+                                                >
+                                                  <ActionIcon
+                                                    variant="subtle"
+                                                    color="blue"
+                                                    size="sm"
+                                                    loading={
+                                                      getParticipantToken.isPending
+                                                    }
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      if (participant.id) {
+                                                        handleGetParticipantShareLink(
+                                                          participant.id,
+                                                        );
+                                                      }
+                                                    }}
+                                                  >
+                                                    <IconLink size={16} />
+                                                  </ActionIcon>
+                                                </Tooltip>
+                                              )}
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.editParticipant",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="gray"
+                                                  size="sm"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditParticipant(
+                                                      participant,
+                                                    );
+                                                  }}
+                                                >
+                                                  <IconPencil size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.removeParticipant",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="red"
+                                                  size="sm"
+                                                  onClick={() =>
+                                                    setParticipantToRemove(
+                                                      participant,
+                                                    )
+                                                  }
+                                                >
+                                                  <IconTrash size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                            </>
+                                          )}
+                                        </Group>
+                                      </Table.Td>
+                                    </Table.Tr>
+                                  );
+                                })}
+                              </Table.Tbody>
+                            </Table>
+                          )
                         ) : (
                           <Text size="sm" c="dimmed">
                             {t("myOrganization.workshops.noParticipants")}
