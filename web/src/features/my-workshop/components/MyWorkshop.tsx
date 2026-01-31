@@ -48,6 +48,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { hasRole, Role } from "@/common/lib/roles";
 import type { GameFilter, WorkshopSettings } from "../types";
 import { useWorkshopGames } from "../hooks";
+import { useWorkshopEvents } from "@/api/hooks";
 import { WorkshopHeader } from "./WorkshopHeader";
 import { WorkshopControls } from "./WorkshopControls";
 import { WorkshopLoadingSkeleton } from "./WorkshopLoadingSkeleton";
@@ -59,7 +60,7 @@ export function MyWorkshop() {
   const isMobile = useMediaQuery("(max-width: 48em)") ?? false;
   const navigate = useNavigate();
   const modals = useModals();
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
 
   // User info
   const canEditAllWorkshopGames =
@@ -75,10 +76,23 @@ export function MyWorkshop() {
     showOtherParticipantsGames: workshop?.showOtherParticipantsGames ?? true,
   };
 
+  // Subscribe to real-time workshop events (settings changes)
+  useWorkshopEvents({
+    workshopId: workshop?.id,
+    onSettingsUpdate: retryBackendFetch,
+  });
+
   // UI State
-  const [createModalOpened, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(false);
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
-  const [viewModalOpened, { open: openViewModal, close: closeViewModal }] = useDisclosure(false);
+  const [
+    createModalOpened,
+    { open: openCreateModal, close: closeCreateModal },
+  ] = useDisclosure(false);
+  const [
+    deleteModalOpened,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
+  const [viewModalOpened, { open: openViewModal, close: closeViewModal }] =
+    useDisclosure(false);
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewReadOnly, setGameToViewReadOnly] = useState(false);
@@ -240,7 +254,9 @@ export function MyWorkshop() {
     });
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
@@ -260,14 +276,22 @@ export function MyWorkshop() {
     const { hasSession, session } = getSessionState(game);
     if (!hasSession) {
       return (
-        <PlayGameButton onClick={() => handlePlayGame(game)} size="xs" style={{ width: "100%" }}>
+        <PlayGameButton
+          onClick={() => handlePlayGame(game)}
+          size="xs"
+          style={{ width: "100%" }}
+        >
           {t("myGames.play")}
         </PlayGameButton>
       );
     }
     return (
       <Stack gap={4}>
-        <PlayGameButton onClick={() => handleContinueGame(session!)} size="xs" style={{ width: "100%" }}>
+        <PlayGameButton
+          onClick={() => handleContinueGame(session!)}
+          size="xs"
+          style={{ width: "100%" }}
+        >
           {t("myGames.continue")}
         </PlayGameButton>
         <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
@@ -278,7 +302,8 @@ export function MyWorkshop() {
   };
 
   const getDateLabel = (game: ObjGame) => {
-    const dateValue = sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
+    const dateValue =
+      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
     return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
   };
 
@@ -287,12 +312,32 @@ export function MyWorkshop() {
     const actions: GameCardAction[] = [];
 
     if (canEdit) {
-      actions.push({ key: "edit", icon: null, label: t("editGame"), onClick: () => handleEditGame(game) });
+      actions.push({
+        key: "edit",
+        icon: null,
+        label: t("editGame"),
+        onClick: () => handleEditGame(game),
+      });
     }
-    actions.push({ key: "copy", icon: <IconCopy size={16} />, label: t("copyGame"), onClick: () => handleCopyGame(game) });
-    actions.push({ key: "export", icon: <IconDownload size={16} />, label: t("games.importExport.exportButton"), onClick: () => handleExportGame(game) });
+    actions.push({
+      key: "copy",
+      icon: <IconCopy size={16} />,
+      label: t("copyGame"),
+      onClick: () => handleCopyGame(game),
+    });
+    actions.push({
+      key: "export",
+      icon: <IconDownload size={16} />,
+      label: t("games.importExport.exportButton"),
+      onClick: () => handleExportGame(game),
+    });
     if (canDelete) {
-      actions.push({ key: "delete", icon: null, label: t("deleteGame"), onClick: () => handleDeleteClick(game) });
+      actions.push({
+        key: "delete",
+        icon: null,
+        label: t("deleteGame"),
+        onClick: () => handleDeleteClick(game),
+      });
     }
     return actions;
   };
@@ -300,13 +345,40 @@ export function MyWorkshop() {
   const getGameBadge = (game: ObjGame) => {
     const { isOwner } = getPermissions(game);
     if (isOwner) {
-      return <Badge size="xs" color="violet" variant="light" leftSection={<IconUser size={10} />}>{tWorkshop("filters.mine")}</Badge>;
+      return (
+        <Badge
+          size="xs"
+          color="violet"
+          variant="light"
+          leftSection={<IconUser size={10} />}
+        >
+          {tWorkshop("filters.mine")}
+        </Badge>
+      );
     }
     if (game.public) {
-      return <Badge size="xs" color="green" variant="light" leftSection={<IconWorld size={10} />}>{t("games.visibility.public")}</Badge>;
+      return (
+        <Badge
+          size="xs"
+          color="green"
+          variant="light"
+          leftSection={<IconWorld size={10} />}
+        >
+          {t("games.visibility.public")}
+        </Badge>
+      );
     }
     if (game.workshopId) {
-      return <Badge size="xs" color="accent" variant="light" leftSection={<IconSchool size={10} />}>{tWorkshop("filters.workshop")}</Badge>;
+      return (
+        <Badge
+          size="xs"
+          color="accent"
+          variant="light"
+          leftSection={<IconSchool size={10} />}
+        >
+          {tWorkshop("filters.workshop")}
+        </Badge>
+      );
     }
     return null;
   };
@@ -319,9 +391,15 @@ export function MyWorkshop() {
       render: (game) => (
         <Stack gap={2}>
           <Group gap="xs" wrap="nowrap">
-            <Text fw={600} size="sm" c="gray.8" lineClamp={1}>{game.name}</Text>
+            <Text fw={600} size="sm" c="gray.8" lineClamp={1}>
+              {game.name}
+            </Text>
           </Group>
-          {game.description && <Text size="xs" c="gray.5" lineClamp={1}>{game.description}</Text>}
+          {game.description && (
+            <Text size="xs" c="gray.5" lineClamp={1}>
+              {game.description}
+            </Text>
+          )}
         </Stack>
       ),
     },
@@ -331,20 +409,41 @@ export function MyWorkshop() {
       width: 150,
       render: (game) => {
         const { isOwner } = getPermissions(game);
-        return <Text size="sm" c="gray.6" lineClamp={1}>{isOwner ? tWorkshop("you") : game.creatorName || "-"}</Text>;
+        return (
+          <Text size="sm" c="gray.6" lineClamp={1}>
+            {isOwner ? tWorkshop("you") : game.creatorName || "-"}
+          </Text>
+        );
       },
     },
-    { key: "type", header: tWorkshop("gameType"), width: 130, render: (game) => getGameBadge(game) },
+    {
+      key: "type",
+      header: tWorkshop("gameType"),
+      width: 130,
+      render: (game) => getGameBadge(game),
+    },
     {
       key: "date",
-      header: sortField === "createdAt" ? t("games.fields.created") : t("games.fields.modified"),
+      header:
+        sortField === "createdAt"
+          ? t("games.fields.created")
+          : t("games.fields.modified"),
       width: 100,
       render: (game) => {
-        const dateValue = sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
+        const dateValue =
+          sortField === "createdAt"
+            ? game.meta?.createdAt
+            : game.meta?.modifiedAt;
         const date = dateValue ? new Date(dateValue) : null;
         return (
-          <Tooltip label={date ? date.toLocaleString() : "-"} withArrow disabled={!date}>
-            <Text size="sm" c="gray.6">{date ? date.toLocaleDateString() : "-"}</Text>
+          <Tooltip
+            label={date ? date.toLocaleString() : "-"}
+            withArrow
+            disabled={!date}
+          >
+            <Text size="sm" c="gray.6">
+              {date ? date.toLocaleDateString() : "-"}
+            </Text>
           </Tooltip>
         );
       },
@@ -357,22 +456,38 @@ export function MyWorkshop() {
         const { canEdit, canDelete } = getPermissions(game);
         return (
           <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
-            {renderPlayButton(game)}
+            <Box style={{ width: 90, flexShrink: 0 }}>
+              {renderPlayButton(game)}
+            </Box>
             {canEdit ? (
               <Tooltip label={t("editGame")} withArrow>
-                <EditIconButton onClick={() => handleEditGame(game)} aria-label={t("edit")} />
+                <EditIconButton
+                  onClick={() => handleEditGame(game)}
+                  aria-label={t("edit")}
+                />
               </Tooltip>
             ) : (
               <Tooltip label={t("viewGame")} withArrow>
-                <GenericIconButton icon={<IconEye size={16} />} onClick={() => handleViewGame(game)} aria-label={t("viewGame")} />
+                <GenericIconButton
+                  icon={<IconEye size={16} />}
+                  onClick={() => handleViewGame(game)}
+                  aria-label={t("viewGame")}
+                />
               </Tooltip>
             )}
             <Tooltip label={t("copyGame")} withArrow>
-              <GenericIconButton icon={<IconCopy size={16} />} onClick={() => handleCopyGame(game)} aria-label={t("copyGame")} />
+              <GenericIconButton
+                icon={<IconCopy size={16} />}
+                onClick={() => handleCopyGame(game)}
+                aria-label={t("copyGame")}
+              />
             </Tooltip>
             {canDelete && (
               <Tooltip label={t("deleteGame")} withArrow>
-                <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t("delete")} />
+                <DeleteIconButton
+                  onClick={() => handleDeleteClick(game)}
+                  aria-label={t("delete")}
+                />
               </Tooltip>
             )}
           </Group>
@@ -392,7 +507,11 @@ export function MyWorkshop() {
 
   if (error) {
     return (
-      <Alert icon={<IconAlertCircle size={16} />} title={t("error")} color="red">
+      <Alert
+        icon={<IconAlertCircle size={16} />}
+        title={t("error")}
+        color="red"
+      >
         {t("games.errors.loadFailed")}
       </Alert>
     );
@@ -424,10 +543,23 @@ export function MyWorkshop() {
 
   return (
     <>
-      <Stack gap="lg" h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }} style={{ overflow: "hidden" }}>
+      <Stack
+        gap="lg"
+        h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }}
+        style={{ overflow: "hidden" }}
+      >
         <Stack gap="md" style={{ flexShrink: 0 }}>
-          <WorkshopHeader workshopName={workshopName} organizationName={organizationName} />
-          <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept=".yaml,.yml" style={{ display: "none" }} />
+          <WorkshopHeader
+            workshopName={workshopName}
+            organizationName={organizationName}
+          />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            accept=".yaml,.yml"
+            style={{ display: "none" }}
+          />
           <WorkshopControls
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -464,7 +596,12 @@ export function MyWorkshop() {
                 renderMobileCard={renderGameCard}
                 emptyState={
                   <DataTableEmptyState
-                    icon={<IconMoodEmpty size={48} color="var(--mantine-color-gray-5)" />}
+                    icon={
+                      <IconMoodEmpty
+                        size={48}
+                        color="var(--mantine-color-gray-5)"
+                      />
+                    }
                     title={tWorkshop("empty.title")}
                     description={tWorkshop("empty.description")}
                   />
@@ -475,18 +612,29 @@ export function MyWorkshop() {
         </Box>
       </Stack>
 
-      <GameEditModal opened={createModalOpened} onClose={closeCreateModal} onCreate={onCreateGame} createLoading={isCreating} />
+      <GameEditModal
+        opened={createModalOpened}
+        onClose={closeCreateModal}
+        onCreate={onCreateGame}
+        createLoading={isCreating}
+      />
       <GameEditModal
         gameId={gameToView}
         opened={viewModalOpened}
-        onClose={() => { closeViewModal(); setGameToView(null); }}
+        onClose={() => {
+          closeViewModal();
+          setGameToView(null);
+        }}
         readOnly={gameToViewReadOnly}
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
         copyLoading={isCloning}
       />
       <DeleteGameModal
         opened={deleteModalOpened}
-        onClose={() => { closeDeleteModal(); setGameToDelete(null); }}
+        onClose={() => {
+          closeDeleteModal();
+          setGameToDelete(null);
+        }}
         onConfirm={handleConfirmDelete}
         gameName={gameToDelete?.name ?? ""}
         loading={isDeleting}
