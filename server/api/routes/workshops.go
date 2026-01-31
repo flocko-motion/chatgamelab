@@ -3,6 +3,7 @@ package routes
 import (
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/events"
 	"cgl/obj"
 	"net/http"
 
@@ -226,6 +227,9 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Notify connected clients about the workshop update
+	events.GetBroker().PublishWorkshopUpdated(id)
+
 	httpx.WriteJSON(w, http.StatusOK, workshop)
 }
 
@@ -318,6 +322,9 @@ func SetWorkshopApiKey(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	// Notify connected clients about the workshop update (API key changed)
+	events.GetBroker().PublishWorkshopUpdated(id)
 
 	httpx.WriteJSON(w, http.StatusOK, workshop)
 }
