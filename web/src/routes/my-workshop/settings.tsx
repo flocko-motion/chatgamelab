@@ -12,7 +12,7 @@ export const Route = createFileRoute("/my-workshop/settings")({
 });
 
 function WorkshopSettingsPage() {
-  const { t } = useTranslation("common");
+  const { t } = useTranslation();
   const { backendUser } = useAuth();
   const { isInWorkshopMode, activeWorkshopId, activeWorkshopName } =
     useWorkshopMode();
@@ -31,7 +31,7 @@ function WorkshopSettingsPage() {
           title={t("error")}
           color="yellow"
         >
-          {t("myWorkshop.settings.notInWorkshopMode")}
+          {t("myWorkshop:settings.notInWorkshopMode")}
         </Alert>
       </Container>
     );
@@ -72,7 +72,7 @@ function WorkshopSettingsPage() {
       <Stack gap="lg">
         {/* Header */}
         <Stack gap={0}>
-          <Title order={2}>{t("myWorkshop.settings.title")}</Title>
+          <Title order={2}>{t("myWorkshop:settings.title")}</Title>
           {activeWorkshopName && (
             <Text c="dimmed" size="sm">
               {activeWorkshopName}

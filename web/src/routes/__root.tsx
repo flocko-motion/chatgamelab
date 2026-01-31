@@ -223,8 +223,8 @@ function RootComponent() {
           isInWorkshopMode: isInWorkshopMode, // Staff/head in workshop mode
           workshopName: activeWorkshopName,
           onExitWorkshopMode: isInWorkshopMode
-            ? () => {
-                exitWorkshopMode();
+            ? async () => {
+                await exitWorkshopMode();
                 navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/" });
               }
             : undefined,
