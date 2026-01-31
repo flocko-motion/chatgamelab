@@ -19,9 +19,13 @@ type CreateWorkshopRequest struct {
 
 // UpdateWorkshopRequest represents the request to update a workshop
 type UpdateWorkshopRequest struct {
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
-	Public bool   `json:"public"`
+	Name                       string  `json:"name"`
+	Active                     bool    `json:"active"`
+	Public                     bool    `json:"public"`
+	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
+	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	ShowPublicGames            bool    `json:"showPublicGames"`
+	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }
 
 // CreateWorkshop godoc
@@ -202,7 +206,17 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, req.Name, req.Active, req.Public)
+	params := db.UpdateWorkshopParams{
+		Name:                       req.Name,
+		Active:                     req.Active,
+		Public:                     req.Public,
+		UseSpecificAiModel:         req.UseSpecificAiModel,
+		ShowAiModelSelector:        req.ShowAiModelSelector,
+		ShowPublicGames:            req.ShowPublicGames,
+		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
+	}
+
+	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)

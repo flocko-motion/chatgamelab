@@ -5,6 +5,7 @@ import (
 	"cgl/log"
 	"cgl/obj"
 	"context"
+	"database/sql"
 	"sort"
 	"strings"
 	"time"
@@ -190,6 +191,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 				Role:        role,
 				AccessToken: p.Auth0ID.String, // Auth token stored in auth0_id field
 				Active:      true,
+				GamesCount:  int(p.GamesCount),
 				Meta: obj.Meta{
 					CreatedAt: &p.JoinedAt,
 				},
@@ -206,15 +208,24 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		defaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
 	}
 
+	var useSpecificAiModel *string
+	if result.UseSpecificAiModel.Valid {
+		useSpecificAiModel = &result.UseSpecificAiModel.String
+	}
+
 	return &obj.Workshop{
-		ID:                   result.ID,
-		Name:                 result.Name,
-		Institution:          &obj.Institution{ID: result.InstitutionID},
-		Active:               result.Active,
-		Public:               result.Public,
-		DefaultApiKeyShareID: defaultApiKeyShareID,
-		Participants:         participants,
-		Invites:              invites,
+		ID:                         result.ID,
+		Name:                       result.Name,
+		Institution:                &obj.Institution{ID: result.InstitutionID},
+		Active:                     result.Active,
+		Public:                     result.Public,
+		DefaultApiKeyShareID:       defaultApiKeyShareID,
+		Participants:               participants,
+		Invites:                    invites,
+		UseSpecificAiModel:         useSpecificAiModel,
+		ShowAiModelSelector:        result.ShowAiModelSelector,
+		ShowPublicGames:            result.ShowPublicGames,
+		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -489,8 +500,19 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 	}
 }
 
+// UpdateWorkshopParams contains the parameters for updating a workshop
+type UpdateWorkshopParams struct {
+	Name                       string
+	Active                     bool
+	Public                     bool
+	UseSpecificAiModel         *string
+	ShowAiModelSelector        bool
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
+}
+
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
-func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, name string, active, public bool) (*obj.Workshop, error) {
+func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, params UpdateWorkshopParams) (*obj.Workshop, error) {
 	// Get existing to preserve created fields and institution_id
 	existing, err := queries().GetWorkshopByID(ctx, id)
 	if err != nil {
@@ -513,15 +535,22 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, nam
 
 	now := time.Now()
 	arg := db.UpdateWorkshopParams{
-		ID:            id,
-		CreatedBy:     existing.CreatedBy,
-		CreatedAt:     existing.CreatedAt,
-		ModifiedBy:    uuid.NullUUID{UUID: modifiedBy, Valid: true},
-		ModifiedAt:    now,
-		Name:          name,
-		InstitutionID: existing.InstitutionID,
-		Active:        active,
-		Public:        public,
+		ID:                         id,
+		CreatedBy:                  existing.CreatedBy,
+		CreatedAt:                  existing.CreatedAt,
+		ModifiedBy:                 uuid.NullUUID{UUID: modifiedBy, Valid: true},
+		ModifiedAt:                 now,
+		Name:                       params.Name,
+		InstitutionID:              existing.InstitutionID,
+		Active:                     params.Active,
+		Public:                     params.Public,
+		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
+		ShowAiModelSelector:        params.ShowAiModelSelector,
+		ShowPublicGames:            params.ShowPublicGames,
+		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
+	}
+	if params.UseSpecificAiModel != nil {
+		arg.UseSpecificAiModel = sql.NullString{String: *params.UseSpecificAiModel, Valid: true}
 	}
 
 	result, err := queries().UpdateWorkshop(ctx, arg)
@@ -534,13 +563,22 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, nam
 		updateDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
 	}
 
+	var useSpecificAiModel *string
+	if result.UseSpecificAiModel.Valid {
+		useSpecificAiModel = &result.UseSpecificAiModel.String
+	}
+
 	return &obj.Workshop{
-		ID:                   result.ID,
-		Name:                 result.Name,
-		Institution:          &obj.Institution{ID: result.InstitutionID},
-		Active:               result.Active,
-		Public:               result.Public,
-		DefaultApiKeyShareID: updateDefaultApiKeyShareID,
+		ID:                         result.ID,
+		Name:                       result.Name,
+		Institution:                &obj.Institution{ID: result.InstitutionID},
+		Active:                     result.Active,
+		Public:                     result.Public,
+		DefaultApiKeyShareID:       updateDefaultApiKeyShareID,
+		UseSpecificAiModel:         useSpecificAiModel,
+		ShowAiModelSelector:        result.ShowAiModelSelector,
+		ShowPublicGames:            result.ShowPublicGames,
+		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

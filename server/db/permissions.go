@@ -603,25 +603,52 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 		// Check if user has access via api_key_share
 		// Users can access keys shared with them (user_id), their workshop, or their institution
 		user, err := GetUserByID(ctx, userID)
-		if err == nil && user.Role != nil {
+		if err == nil {
 			// Check for direct user share
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
+				log.Debug("checking API key shares for access",
+					"user_id", userID,
+					"api_key_id", apiKeyID,
+					"share_count", len(shares))
 				for _, share := range shares {
 					// Direct user share
 					if share.UserID.Valid && share.UserID.UUID == userID {
+						log.Debug("access granted via direct user share")
 						return nil
 					}
-					// Workshop share
-					if share.WorkshopID.Valid && user.Role.Workshop != nil && share.WorkshopID.UUID == user.Role.Workshop.ID {
-						return nil
+					// Workshop share - check if user is an active member of the workshop
+					if share.WorkshopID.Valid {
+						log.Debug("checking workshop membership",
+							"user_id", userID,
+							"workshop_id", share.WorkshopID.UUID)
+						isMember, err := queries().IsUserInWorkshop(ctx, sqlc.IsUserInWorkshopParams{
+							UserID:     userID,
+							WorkshopID: share.WorkshopID,
+						})
+						log.Debug("workshop membership check result",
+							"is_member", isMember,
+							"error", err)
+						if err == nil && isMember {
+							log.Debug("access granted via workshop membership")
+							return nil
+						}
 					}
 					// Institution share
-					if share.InstitutionID.Valid && user.Role.Institution != nil && share.InstitutionID.UUID == user.Role.Institution.ID {
+					if share.InstitutionID.Valid && user.Role != nil && user.Role.Institution != nil && share.InstitutionID.UUID == user.Role.Institution.ID {
+						log.Debug("access granted via institution share")
 						return nil
 					}
+					log.Debug("share did not match",
+						"share_user_id", share.UserID,
+						"share_workshop_id", share.WorkshopID,
+						"share_institution_id", share.InstitutionID)
 				}
+			} else {
+				log.Debug("failed to get API key shares", "error", err)
 			}
+		} else {
+			log.Debug("failed to get user", "error", err)
 		}
 
 		// Check sponsorship context

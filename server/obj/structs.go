@@ -94,6 +94,11 @@ type Workshop struct {
 	DefaultApiKeyShareID *uuid.UUID            `json:"defaultApiKeyShareId,omitempty"`
 	Participants         []WorkshopParticipant `json:"participants,omitempty"`
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
+	// Workshop settings (configured by staff/heads)
+	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
+	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	ShowPublicGames            bool    `json:"showPublicGames"`
+	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }
 
 type WorkshopParticipant struct {
@@ -104,6 +109,7 @@ type WorkshopParticipant struct {
 	Role        Role      `json:"role"`
 	AccessToken string    `json:"accessToken"`
 	Active      bool      `json:"active"`
+	GamesCount  int       `json:"gamesCount"`
 }
 
 type ApiKey struct {
