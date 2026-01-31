@@ -138,7 +138,7 @@ export function ApiKeysTab({
 
   if (isError) {
     return (
-      <Alert color="red" title={t("common.error")}>
+      <Alert color="red" title={t("error")}>
         {t("myOrganization.apiKeys.loadError")}
       </Alert>
     );
@@ -220,7 +220,7 @@ export function ApiKeysTab({
                       <Group gap="xs">
                         <IconKey size={16} />
                         <Text size="sm">
-                          {share.apiKey?.name || t("common.unnamed")}
+                          {share.apiKey?.name || t("unnamed")}
                         </Text>
                       </Group>
                     </Table.Td>
@@ -297,7 +297,7 @@ export function ApiKeysTab({
             placeholder={t("myOrganization.apiKeys.selectKeyPlaceholder")}
             data={availableKeysToShare.map((share) => ({
               value: share.id || "",
-              label: `${share.apiKey?.name || t("common.unnamed")} (${share.apiKey?.platform})`,
+              label: `${share.apiKey?.name || t("unnamed")} (${share.apiKey?.platform})`,
             }))}
             value={selectedKeyId}
             onChange={setSelectedKeyId}
@@ -312,7 +312,7 @@ export function ApiKeysTab({
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={closeShareModal}>
-              {t("common.cancel")}
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleShareKey}

@@ -84,9 +84,9 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
   const { enterWorkshopMode } = useWorkshopMode();
   const { isMobile } = useResponsiveDesign();
 
-  const handleEnterWorkshop = (workshop: ObjWorkshop) => {
+  const handleEnterWorkshop = async (workshop: ObjWorkshop) => {
     if (!workshop.id || !workshop.name) return;
-    enterWorkshopMode(workshop.id, workshop.name);
+    await enterWorkshopMode(workshop.id, workshop.name);
     navigate({ to: ROUTES.MY_WORKSHOP as "/" });
   };
 
@@ -384,8 +384,8 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
         <Group justify="space-between" wrap="wrap" gap="sm">
           <ActionButton
             onClick={openCreateModal}
-            leftSection={<IconPlus size={16} />}
-            size="sm"
+            leftSection={<IconPlus size={18} />}
+            size="md"
           >
             {t("myOrganization.workshops.create")}
           </ActionButton>
@@ -484,17 +484,14 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
                     <Group gap="xs" wrap="nowrap">
                       {/* Enter Workshop Mode button - only for active workshops */}
                       {workshop.active && (
-                        <Tooltip
-                          label={t("myOrganization.workshops.enterWorkshop")}
+                        <ActionButton
+                          onClick={() => handleEnterWorkshop(workshop)}
+                          leftSection={<IconLogin size={16} />}
+                          size="sm"
+                          color="violet"
                         >
-                          <ActionIcon
-                            variant="subtle"
-                            color="violet"
-                            onClick={() => handleEnterWorkshop(workshop)}
-                          >
-                            <IconLogin size={16} />
-                          </ActionIcon>
-                        </Tooltip>
+                          {t("myOrganization.workshops.enterWorkshop")}
+                        </ActionButton>
                       )}
                       {(() => {
                         const existingInvite = workshop.invites?.find(
