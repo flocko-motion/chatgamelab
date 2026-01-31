@@ -92,6 +92,17 @@ func (q *Queries) CheckParticipantTokenStatus(ctx context.Context, participantTo
 	return i, err
 }
 
+const clearUserActiveWorkshop = `-- name: ClearUserActiveWorkshop :exec
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
+WHERE user_id = $1
+`
+
+// Clear the active workshop for a user (leave workshop mode)
+func (q *Queries) ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearUserActiveWorkshop, userID)
+	return err
+}
+
 const countUserGames = `-- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
@@ -478,7 +489,7 @@ SELECT
   w.name         AS workshop_name
 FROM app_user u
 LEFT JOIN LATERAL (
-  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY ur.created_at DESC
@@ -869,6 +880,20 @@ func (q *Queries) GetPendingInviteByTarget(ctx context.Context, arg GetPendingIn
 	return i, err
 }
 
+const getUserActiveWorkshopID = `-- name: GetUserActiveWorkshopID :one
+SELECT active_workshop_id FROM user_role
+WHERE user_id = $1 AND active_workshop_id IS NOT NULL
+LIMIT 1
+`
+
+// Get the active workshop ID for a user (for game creation context)
+func (q *Queries) GetUserActiveWorkshopID(ctx context.Context, userID uuid.UUID) (uuid.NullUUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserActiveWorkshopID, userID)
+	var active_workshop_id uuid.NullUUID
+	err := row.Scan(&active_workshop_id)
+	return active_workshop_id, err
+}
+
 const getUserApiKeys = `-- name: GetUserApiKeys :many
 SELECT
   k.id,
@@ -1075,10 +1100,16 @@ SELECT
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.show_ai_model_selector AS workshop_show_ai_model_selector,
-  w.use_specific_ai_model AS workshop_use_specific_ai_model
+  w.use_specific_ai_model AS workshop_use_specific_ai_model,
+  r.active_workshop_id,
+  aw.name        AS active_workshop_name,
+  aw.show_public_games AS active_workshop_show_public_games,
+  aw.show_other_participants_games AS active_workshop_show_other_participants_games,
+  aw.show_ai_model_selector AS active_workshop_show_ai_model_selector,
+  aw.use_specific_ai_model AS active_workshop_use_specific_ai_model
 FROM app_user u
 LEFT JOIN LATERAL (
-  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id
+  SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
   ORDER BY ur.created_at DESC
@@ -1088,31 +1119,39 @@ LEFT JOIN institution i
   ON i.id = r.institution_id
 LEFT JOIN workshop w
   ON w.id = r.workshop_id
+LEFT JOIN workshop aw
+  ON aw.id = r.active_workshop_id
 WHERE u.id = $1
 `
 
 type GetUserDetailsByIDRow struct {
-	ID                                 uuid.UUID
-	CreatedBy                          uuid.NullUUID
-	CreatedAt                          time.Time
-	ModifiedBy                         uuid.NullUUID
-	ModifiedAt                         time.Time
-	Name                               string
-	Email                              sql.NullString
-	DeletedAt                          sql.NullTime
-	Auth0ID                            sql.NullString
-	DefaultApiKeyShareID               uuid.NullUUID
-	Language                           string
-	RoleID                             uuid.NullUUID
-	Role                               sql.NullString
-	InstitutionID                      uuid.NullUUID
-	InstitutionName                    sql.NullString
-	WorkshopID                         uuid.NullUUID
-	WorkshopName                       sql.NullString
-	WorkshopShowPublicGames            sql.NullBool
-	WorkshopShowOtherParticipantsGames sql.NullBool
-	WorkshopShowAiModelSelector        sql.NullBool
-	WorkshopUseSpecificAiModel         sql.NullString
+	ID                                       uuid.UUID
+	CreatedBy                                uuid.NullUUID
+	CreatedAt                                time.Time
+	ModifiedBy                               uuid.NullUUID
+	ModifiedAt                               time.Time
+	Name                                     string
+	Email                                    sql.NullString
+	DeletedAt                                sql.NullTime
+	Auth0ID                                  sql.NullString
+	DefaultApiKeyShareID                     uuid.NullUUID
+	Language                                 string
+	RoleID                                   uuid.NullUUID
+	Role                                     sql.NullString
+	InstitutionID                            uuid.NullUUID
+	InstitutionName                          sql.NullString
+	WorkshopID                               uuid.NullUUID
+	WorkshopName                             sql.NullString
+	WorkshopShowPublicGames                  sql.NullBool
+	WorkshopShowOtherParticipantsGames       sql.NullBool
+	WorkshopShowAiModelSelector              sql.NullBool
+	WorkshopUseSpecificAiModel               sql.NullString
+	ActiveWorkshopID                         uuid.NullUUID
+	ActiveWorkshopName                       sql.NullString
+	ActiveWorkshopShowPublicGames            sql.NullBool
+	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
+	ActiveWorkshopShowAiModelSelector        sql.NullBool
+	ActiveWorkshopUseSpecificAiModel         sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1140,6 +1179,12 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopShowOtherParticipantsGames,
 		&i.WorkshopShowAiModelSelector,
 		&i.WorkshopUseSpecificAiModel,
+		&i.ActiveWorkshopID,
+		&i.ActiveWorkshopName,
+		&i.ActiveWorkshopShowPublicGames,
+		&i.ActiveWorkshopShowOtherParticipantsGames,
+		&i.ActiveWorkshopShowAiModelSelector,
+		&i.ActiveWorkshopUseSpecificAiModel,
 	)
 	return i, err
 }
@@ -1430,6 +1475,22 @@ func (q *Queries) IsUserInWorkshop(ctx context.Context, arg IsUserInWorkshopPara
 	var is_member bool
 	err := row.Scan(&is_member)
 	return is_member, err
+}
+
+const setUserActiveWorkshop = `-- name: SetUserActiveWorkshop :exec
+UPDATE user_role SET active_workshop_id = $2, modified_at = now()
+WHERE user_id = $1 AND role IN ('head', 'staff', 'individual')
+`
+
+type SetUserActiveWorkshopParams struct {
+	UserID           uuid.UUID
+	ActiveWorkshopID uuid.NullUUID
+}
+
+// Set the active workshop for a head/staff user (workshop mode)
+func (q *Queries) SetUserActiveWorkshop(ctx context.Context, arg SetUserActiveWorkshopParams) error {
+	_, err := q.db.ExecContext(ctx, setUserActiveWorkshop, arg.UserID, arg.ActiveWorkshopID)
+	return err
 }
 
 const setUserDefaultApiKeyShare = `-- name: SetUserDefaultApiKeyShare :exec

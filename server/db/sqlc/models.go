@@ -157,15 +157,16 @@ type UserFavouriteGame struct {
 }
 
 type UserRole struct {
-	ID            uuid.NullUUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	UserID        uuid.UUID
-	Role          sql.NullString
-	InstitutionID uuid.NullUUID
-	WorkshopID    uuid.NullUUID
+	ID               uuid.NullUUID
+	CreatedBy        uuid.NullUUID
+	CreatedAt        time.Time
+	ModifiedBy       uuid.NullUUID
+	ModifiedAt       time.Time
+	UserID           uuid.UUID
+	Role             sql.NullString
+	InstitutionID    uuid.NullUUID
+	WorkshopID       uuid.NullUUID
+	ActiveWorkshopID uuid.NullUUID
 }
 
 type UserRoleInvite struct {
