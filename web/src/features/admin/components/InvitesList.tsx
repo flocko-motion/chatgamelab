@@ -226,13 +226,13 @@ export function InvitesList({
   if (error) {
     return (
       <Alert icon={<IconAlertCircle size={16} />} color="red">
-        {t("common.error")}: {error.message}
+        {t("error")}: {error.message}
       </Alert>
     );
   }
 
   if (isLoading) {
-    return <Text>{t("common.loading")}</Text>;
+    return <Text>{t("loading")}</Text>;
   }
 
   // Show empty state only if there are no invites at all (not due to search)
