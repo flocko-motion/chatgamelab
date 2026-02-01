@@ -223,10 +223,34 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name: res.InstitutionName.String,
 			}
 		}
+		// For participants: use workshop_id (their assigned workshop)
+		// For head/staff/individual: use active_workshop_id (workshop mode) or workshop_id as fallback
 		if res.WorkshopID.Valid {
+			var useSpecificAiModel *string
+			if res.WorkshopUseSpecificAiModel.Valid {
+				useSpecificAiModel = &res.WorkshopUseSpecificAiModel.String
+			}
 			user.Role.Workshop = &obj.Workshop{
-				ID:   res.WorkshopID.UUID,
-				Name: res.WorkshopName.String,
+				ID:                         res.WorkshopID.UUID,
+				Name:                       res.WorkshopName.String,
+				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
+				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
+				ShowAiModelSelector:        res.WorkshopShowAiModelSelector.Bool,
+				UseSpecificAiModel:         useSpecificAiModel,
+			}
+		} else if res.ActiveWorkshopID.Valid {
+			// Head/staff/individual in workshop mode - use active workshop
+			var useSpecificAiModel *string
+			if res.ActiveWorkshopUseSpecificAiModel.Valid {
+				useSpecificAiModel = &res.ActiveWorkshopUseSpecificAiModel.String
+			}
+			user.Role.Workshop = &obj.Workshop{
+				ID:                         res.ActiveWorkshopID.UUID,
+				Name:                       res.ActiveWorkshopName.String,
+				ShowPublicGames:            res.ActiveWorkshopShowPublicGames.Bool,
+				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
+				ShowAiModelSelector:        res.ActiveWorkshopShowAiModelSelector.Bool,
+				UseSpecificAiModel:         useSpecificAiModel,
 			}
 		}
 	}
@@ -268,8 +292,19 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 	})
 }
 
-// DeleteUser deletes a user
+// DeleteUser soft-deletes a user and cleans up their sessions
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
+	// First delete all session messages for this user's sessions
+	if err := queries().DeleteGameSessionMessagesByUserID(ctx, id); err != nil {
+		return fmt.Errorf("failed to delete user session messages: %w", err)
+	}
+
+	// Then delete all sessions for this user
+	if err := queries().DeleteAllUserSessions(ctx, id); err != nil {
+		return fmt.Errorf("failed to delete user sessions: %w", err)
+	}
+
+	// Finally soft-delete the user
 	return queries().DeleteUser(ctx, id)
 }
 
@@ -514,4 +549,62 @@ func GetUserStats(ctx context.Context, userID uuid.UUID) (*obj.UserStats, error)
 		MessagesSent:      int(messagesCount),
 		TotalPlaysOnGames: int(playCount),
 	}, nil
+}
+
+// SetActiveWorkshop sets the active workshop for a head/staff/individual user (workshop mode)
+// Validates that the user has the right role and the workshop belongs to their institution
+func SetActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID uuid.UUID) error {
+	// Get user to verify role and institution
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+
+	if user.Role == nil {
+		return obj.ErrForbidden("user has no role")
+	}
+
+	// Only head, staff, and individual can set active workshop
+	if user.Role.Role != obj.RoleHead && user.Role.Role != obj.RoleStaff && user.Role.Role != obj.RoleIndividual {
+		return obj.ErrForbidden("only head, staff, and individual users can enter workshop mode")
+	}
+
+	// Get workshop to validate it exists and check institution
+	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return obj.ErrNotFound("workshop not found")
+	}
+
+	// For head/staff: workshop must belong to their institution
+	if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
+		if user.Role.Institution == nil || user.Role.Institution.ID != workshop.InstitutionID {
+			return obj.ErrForbidden("workshop does not belong to your institution")
+		}
+	}
+
+	// For individual: they can enter any active workshop (they don't have an institution)
+	// But the workshop must be active
+	if !workshop.Active {
+		return obj.ErrForbidden("workshop is not active")
+	}
+
+	// Set the active workshop
+	err = queries().SetUserActiveWorkshop(ctx, db.SetUserActiveWorkshopParams{
+		UserID:           userID,
+		ActiveWorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to set active workshop: %w", err)
+	}
+
+	return nil
+}
+
+// ClearActiveWorkshop clears the active workshop for a user (leave workshop mode)
+func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
+	err := queries().ClearUserActiveWorkshop(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to clear active workshop: %w", err)
+	}
+	return nil
 }

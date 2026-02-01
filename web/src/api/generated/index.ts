@@ -15,6 +15,7 @@ export enum ObjRole {
   RoleHead = "head",
   RoleStaff = "staff",
   RoleParticipant = "participant",
+  RoleIndividual = "individual",
 }
 
 export enum ObjInviteStatus {
@@ -204,6 +205,10 @@ export interface ObjGameSessionMessage {
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
   meta?: ObjMeta;
+  requestExpandStory?: string;
+  requestImageGeneration?: string;
+  requestStatusUpdate?: string;
+  responseRaw?: string;
   /** Sequence number within the session, starting at 1 */
   seq?: number;
   /** JSON encoded status fields. */
@@ -211,6 +216,7 @@ export interface ObjGameSessionMessage {
   stream?: boolean;
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
+  urlAnalytics?: string;
 }
 
 export interface ObjGameTag {
@@ -365,6 +371,8 @@ export interface ObjUser {
   deletedAt?: string;
   email?: string;
   id?: string;
+  /** ISO 639-1 language code (e.g., "en", "de", "fr") */
+  language?: string;
   meta?: ObjMeta;
   name?: string;
   role?: ObjUserRole;
@@ -406,6 +414,7 @@ export interface ObjUserStats {
 
 export interface ObjWorkshop {
   active?: boolean;
+  defaultApiKeyShareId?: string;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
@@ -413,14 +422,21 @@ export interface ObjWorkshop {
   name?: string;
   participants?: ObjWorkshopParticipant[];
   public?: boolean;
+  showAiModelSelector?: boolean;
+  showOtherParticipantsGames?: boolean;
+  showPublicGames?: boolean;
+  /** Workshop settings (configured by staff/heads) */
+  useSpecificAiModel?: string;
 }
 
 export interface ObjWorkshopParticipant {
   accessToken?: string;
   active?: boolean;
+  gamesCount?: number;
   id?: string;
   meta?: ObjMeta;
   name?: string;
+  role?: ObjRole;
   workshopId?: string;
 }
 
@@ -491,6 +507,7 @@ export interface RoutesInviteResponse {
   expiresAt?: string;
   id?: string;
   institutionId?: string;
+  institutionName?: string;
   inviteToken?: string;
   invitedEmail?: string;
   invitedUserId?: string;
@@ -500,11 +517,16 @@ export interface RoutesInviteResponse {
   status?: string;
   usesCount?: number;
   workshopId?: string;
+  workshopName?: string;
 }
 
 export interface RoutesLanguage {
   iso?: string;
   label?: string;
+}
+
+export interface RoutesParticipantLoginRequest {
+  token?: string;
 }
 
 export interface RoutesRegisterRequest {
@@ -552,10 +574,18 @@ export interface RoutesSessionResponse {
   workshopId?: string;
 }
 
+export interface RoutesSetActiveWorkshopRequest {
+  workshopId?: string;
+}
+
 export interface RoutesSetUserRoleRequest {
   institutionId?: string;
   role?: string;
   workshopId?: string;
+}
+
+export interface RoutesSetWorkshopApiKeyRequest {
+  apiKeyShareId?: string;
 }
 
 export interface RoutesShareRequest {
@@ -587,6 +617,10 @@ export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   name?: string;
   public?: boolean;
+  showAiModelSelector?: boolean;
+  showOtherParticipantsGames?: boolean;
+  showPublicGames?: boolean;
+  useSpecificAiModel?: string;
 }
 
 export interface RoutesUserUpdateRequest {
@@ -1045,6 +1079,43 @@ export class Api<
       }),
 
     /**
+     * @description Clears the session cookie for participant users
+     *
+     * @tags auth
+     * @name LogoutCreate
+     * @summary Logout user
+     * @request POST:/auth/logout
+     */
+    logoutCreate: (params: RequestParams = {}) =>
+      this.request<Record<string, string>, any>({
+        path: `/auth/logout`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Logs in a participant using their access token and sets a session cookie
+     *
+     * @tags auth
+     * @name ParticipantLoginCreate
+     * @summary Login with participant token
+     * @request POST:/auth/participant-login
+     */
+    participantLoginCreate: (
+      request: RoutesParticipantLoginRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/auth/participant-login`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Registers a new user after Auth0 authentication. Requires valid Auth0 token.
      *
      * @tags auth
@@ -1497,11 +1568,11 @@ export class Api<
   };
   invites = {
     /**
-     * @description Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.
+     * @description Lists invites scoped by user permissions - shows invites for the current user to join an institution
      *
      * @tags invites
      * @name InvitesList
-     * @summary List invites
+     * @summary List incoming invites for the current user
      * @request GET:/invites
      * @secure
      */
@@ -1556,11 +1627,11 @@ export class Api<
       }),
 
     /**
-     * @description Lists all invites for a specific institution. Requires head/staff role in the institution or admin.
+     * @description Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.
      *
      * @tags invites
      * @name InstitutionDetail
-     * @summary List invites for an institution
+     * @summary List outgoing invites from an institution
      * @request GET:/invites/institution/{institutionId}
      * @secure
      */
@@ -1992,6 +2063,54 @@ export class Api<
       }),
 
     /**
+     * @description Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.
+     *
+     * @tags users
+     * @name MeActiveWorkshopUpdate
+     * @summary Set active workshop (workshop mode)
+     * @request PUT:/users/me/active-workshop
+     * @secure
+     */
+    meActiveWorkshopUpdate: (
+      body: RoutesSetActiveWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/me/active-workshop`,
+        method: "PUT",
+        body: body,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the language preference for the authenticated user
+     *
+     * @tags users
+     * @name MeLanguagePartialUpdate
+     * @summary Update user language preference
+     * @request PATCH:/users/me/language
+     * @secure
+     */
+    meLanguagePartialUpdate: (
+      request: {
+        language?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjUser, HttpxErrorResponse>({
+        path: `/users/me/language`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Returns statistics for the authenticated user
      *
      * @tags users
@@ -2221,6 +2340,27 @@ export class Api<
       }),
 
     /**
+     * @description Gets the access token for a workshop participant (staff/heads only)
+     *
+     * @tags workshops
+     * @name ParticipantsTokenList
+     * @summary Get participant token
+     * @request GET:/workshops/participants/{participantId}/token
+     * @secure
+     */
+    participantsTokenList: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/participants/${participantId}/token`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Gets a workshop by ID
      *
      * @tags workshops
@@ -2277,6 +2417,55 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the default API key for workshop participants (staff/heads only)
+     *
+     * @tags workshops
+     * @name ApiKeyUpdate
+     * @summary Set workshop default API key
+     * @request PUT:/workshops/{id}/api-key
+     * @secure
+     */
+    apiKeyUpdate: (
+      id: string,
+      request: RoutesSetWorkshopApiKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjWorkshop, HttpxErrorResponse>({
+        path: `/workshops/${id}/api-key`,
+        method: "PUT",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Server-Sent Events endpoint for real-time workshop updates. Supports token via query param for EventSource compatibility.
+     *
+     * @tags workshops
+     * @name EventsList
+     * @summary Subscribe to workshop events (SSE)
+     * @request GET:/workshops/{id}/events
+     * @secure
+     */
+    eventsList: (
+      id: string,
+      query?: {
+        /** Auth token (for EventSource which cannot send headers) */
+        token?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<string, HttpxErrorResponse>({
+        path: `/workshops/${id}/events`,
+        method: "GET",
+        query: query,
+        secure: true,
         ...params,
       }),
   };

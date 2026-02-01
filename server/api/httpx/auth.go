@@ -213,29 +213,43 @@ func Authenticate(next http.Handler) http.Handler {
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
+		// Collect token from various sources
+		var tokenString string
+		var tokenSource string
 
-		// Check for session cookie as fallback if no Authorization header
-		if authHeader == "" {
+		// 1. Check Authorization header
+		if authHeader := r.Header.Get("Authorization"); strings.HasPrefix(authHeader, "Bearer ") {
+			tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+			tokenSource = "header"
+		}
+
+		// 2. Check for session cookie as fallback
+		if tokenString == "" {
 			if cookie, err := r.Cookie("cgl_session"); err == nil && cookie.Value != "" {
-				// Use cookie value as participant token
-				authHeader = "Bearer " + cookie.Value
+				tokenString = cookie.Value
+				tokenSource = "cookie"
 			}
 		}
 
-		// No Authorization header or cookie - pass through without user
-		if authHeader == "" {
+		// 3. Check for token query parameter (for SSE endpoints where EventSource can't send headers)
+		if tokenString == "" {
+			if token := r.URL.Query().Get("token"); token != "" {
+				tokenString = token
+				tokenSource = "query"
+			}
+		}
+
+		// No token found - pass through without user
+		if tokenString == "" {
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		// Check for participant token (prefixed with "participant-")
-		if strings.HasPrefix(authHeader, "Bearer participant-") {
-			token := strings.TrimPrefix(authHeader, "Bearer ")
-
+		if strings.HasPrefix(tokenString, "participant-") {
 			// Lookup user by participant token
 			// SQL query validates: user exists, has participant role, linked to active workshop
-			user, err := db.GetUserByParticipantToken(r.Context(), token)
+			user, err := db.GetUserByParticipantToken(r.Context(), tokenString)
 			if err != nil {
 				// Check for specific error codes
 				if authErr, ok := err.(*db.ParticipantAuthError); ok {
@@ -246,7 +260,9 @@ func Authenticate(next http.Handler) http.Handler {
 					}
 				}
 				log.Debug("participant token invalid", "error", err)
-				WriteErrorWithCode(w, http.StatusUnauthorized, "auth_invalid_token", "Invalid token")
+				// For OptionalAuth, continue without user instead of returning 401
+				// This allows invite acceptance to work with invalid/old tokens
+				next.ServeHTTP(w, r)
 				return
 			}
 
@@ -256,7 +272,9 @@ func Authenticate(next http.Handler) http.Handler {
 		}
 
 		// Try CGL dev JWT first (HS256, signed with JWT_SECRET)
-		if userId, valid := auth.ValidateToken(r); valid {
+		// Use ValidateTokenString to handle tokens from any source (header, cookie, query param)
+		if userId, valid := auth.ValidateTokenString(tokenString); valid {
+			_ = tokenSource // silence unused warning in production
 			if userId == "" {
 				log.Warn("CGL JWT has empty sub claim")
 				WriteError(w, http.StatusUnauthorized, "Invalid token: missing user ID")

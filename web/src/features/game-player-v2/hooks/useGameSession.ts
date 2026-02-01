@@ -67,11 +67,17 @@ export function useGameSession(gameId: string) {
         const token = await getAccessToken();
         const streamUrl = `${config.API_BASE_URL}/messages/${messageId}/stream`;
 
+        const headers: Record<string, string> = {
+          Accept: "text/event-stream",
+        };
+        // Only add Authorization header if we have a token (participants use cookies)
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
         const response = await fetch(streamUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "text/event-stream",
-          },
+          headers,
+          credentials: "include", // Include cookies for participant auth
           signal: controller.signal,
         });
 
