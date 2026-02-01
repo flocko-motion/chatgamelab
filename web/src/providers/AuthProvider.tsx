@@ -55,7 +55,7 @@ export interface AuthContextType {
   isWorkshopInactive: boolean;
   loginWithAuth0: () => void;
   loginWithRole: (role: string) => void;
-  logout: () => void;
+  logout: () => Promise<void> | void;
   isDevMode: boolean;
   /** Get the current access token for API calls. Returns null if not authenticated (participants use cookies). */
   getAccessToken: () => Promise<string | null>;
@@ -579,7 +579,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     authLogger.debug("Initiating logout", {
       isAuth0Authenticated: auth0IsAuthenticated,
     });
@@ -609,13 +609,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       backendFetchAttempted.current = false;
       // Clear stored participant token
       clearParticipantToken();
-      // Call backend to clear the session cookie
-      fetch(`${config.API_BASE_URL}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      }).catch(() => {
+      // Call backend to clear the session cookie and wait for it
+      try {
+        await fetch(`${config.API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+        authLogger.debug("Session cookie cleared by backend");
+      } catch {
         // Ignore errors - cookie might already be cleared
-      });
+        authLogger.debug("Failed to clear session cookie (may already be cleared)");
+      }
       // Redirect to homepage
       authLogger.debug("Redirecting to homepage after participant logout", {
         path: ROUTES.HOME,

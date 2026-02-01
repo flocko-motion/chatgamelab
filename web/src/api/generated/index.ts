@@ -613,6 +613,10 @@ export interface RoutesUpdateSessionRequest {
   shareId?: string;
 }
 
+export interface RoutesUpdateSystemSettingsRequest {
+  defaultAiModel?: string;
+}
+
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   name?: string;
@@ -2021,6 +2025,27 @@ export class Api<
       this.request<ObjSystemSettings, HttpxErrorResponse>({
         path: `/system/settings`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates the global system settings (admin only)
+     *
+     * @tags system
+     * @name SettingsPartialUpdate
+     * @summary Update system settings
+     * @request PATCH:/system/settings
+     */
+    settingsPartialUpdate: (
+      request: RoutesUpdateSystemSettingsRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjSystemSettings, HttpxErrorResponse>({
+        path: `/system/settings`,
+        method: "PATCH",
+        body: request,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),

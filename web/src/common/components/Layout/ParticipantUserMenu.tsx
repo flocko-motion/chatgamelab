@@ -9,6 +9,7 @@ import {
   Box,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useModals } from "@mantine/modals";
 import { IconDoorExit, IconSchool, IconBuilding } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../providers/AuthProvider";
@@ -32,9 +33,30 @@ export function ParticipantUserMenu({
   const { t: tAuth } = useTranslation("auth");
   const { logout, backendUser } = useAuth();
   const theme = useMantineTheme();
+  const modals = useModals();
   const [opened, { close, toggle }] = useDisclosure(false);
 
   const userName = backendUser?.name || "Participant";
+
+  const handleLeaveWorkshop = () => {
+    close();
+    modals.openConfirmModal({
+      title: tAuth("participant.leaveConfirm.title"),
+      children: (
+        <Text size="sm">
+          {tAuth("participant.leaveConfirm.message")}
+        </Text>
+      ),
+      labels: {
+        confirm: tAuth("participant.leaveConfirm.confirm"),
+        cancel: t("cancel"),
+      },
+      confirmProps: { color: "red" },
+      onConfirm: async () => {
+        await logout();
+      },
+    });
+  };
 
   return (
     <Popover
@@ -134,10 +156,7 @@ export function ParticipantUserMenu({
 
           {/* Leave workshop button */}
           <UnstyledButton
-            onClick={() => {
-              close();
-              logout();
-            }}
+            onClick={handleLeaveWorkshop}
             py="xs"
             px="sm"
             style={{

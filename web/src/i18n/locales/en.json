@@ -699,10 +699,10 @@
         "empty": "No games yet. Create your first game!",
         "viewAll": "All Creations"
       },
-      "myRooms": {
-        "title": "My Rooms",
-        "empty": "No rooms yet. Create a room to play with others!",
-        "viewAll": "All Rooms"
+      "myWorkshops": {
+        "title": "My Workshops",
+        "empty": "No active workshops. Create a workshop in your organization!",
+        "viewAll": "All Workshops"
       },
       "lastPlayed": {
         "title": "Last Played",
@@ -866,7 +866,12 @@
       "role": "Workshop Participant",
       "workshop": "Workshop",
       "organization": "Organization",
-      "leaveWorkshop": "Leave Workshop"
+      "leaveWorkshop": "Leave Workshop",
+      "leaveConfirm": {
+        "title": "Leave Workshop?",
+        "message": "Are you sure you want to leave this workshop? You will need a new invite link to rejoin.",
+        "confirm": "Leave Workshop"
+      }
     }
   },
   "myWorkshop": {
