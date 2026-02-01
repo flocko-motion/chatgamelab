@@ -407,7 +407,7 @@ export function MyWorkshop() {
       render: (game) => (
         <Stack gap={2}>
           <Group gap="xs" wrap="nowrap">
-            <Text fw={600} size="sm" c="gray.8" lineClamp={1}>
+            <Text fw={600} size="sm" c="gray.8">
               {game.name}
             </Text>
           </Group>
@@ -426,7 +426,7 @@ export function MyWorkshop() {
       render: (game) => {
         const { isOwner } = getPermissions(game);
         return (
-          <Text size="sm" c="gray.6" lineClamp={1}>
+          <Text size="sm" c="gray.6">
             {isOwner ? tWorkshop("you") : game.creatorName || "-"}
           </Text>
         );
