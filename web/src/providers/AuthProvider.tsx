@@ -14,6 +14,7 @@ import { Api } from "../api/generated";
 import { createAuthenticatedApiConfig, getApiConfig } from "../api/client/http";
 import { authLogger } from "../config/logger";
 import { ROUTES } from "../common/routes/routes";
+import { buildShareUrl } from "../common/lib/url";
 import {
   ErrorCodes,
   extractErrorCode,
@@ -624,7 +625,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authLogger.debug("Redirecting to homepage after participant logout", {
         path: ROUTES.HOME,
       });
-      window.location.href = ROUTES.HOME;
+      window.location.href = buildShareUrl(ROUTES.HOME);
     } else {
       authLogger.debug("Logging out from dev mode");
       // Clear dev token cache on logout
@@ -638,7 +639,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       authLogger.debug("Redirecting to homepage after logout", {
         path: ROUTES.HOME,
       });
-      window.location.href = ROUTES.HOME;
+      window.location.href = buildShareUrl(ROUTES.HOME);
     }
   };
 

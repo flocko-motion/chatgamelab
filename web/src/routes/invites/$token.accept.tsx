@@ -8,6 +8,7 @@ import { TextButton } from '@/common/components/buttons/TextButton';
 import { config } from '@/config/env';
 import { useAuth } from '@/providers/AuthProvider';
 import { ROUTES } from '@/common/routes/routes';
+import { buildShareUrl } from '@/common/lib/url';
 
 export const Route = createFileRoute('/invites/$token/accept')({
   component: AcceptInvitePage,
@@ -122,7 +123,7 @@ function AcceptInvitePage() {
       // Short delay to show success message, then redirect to my-workshop
       setTimeout(() => {
         // Force page reload to refresh auth state
-        window.location.href = ROUTES.MY_WORKSHOP;
+        window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
       }, 1500);
     } catch {
       setError(t('invites.errors.acceptFailed'));

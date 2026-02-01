@@ -45,6 +45,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { ROUTES } from "@/common/routes/routes";
+import { buildShareUrl } from "@/common/lib/url";
 import {
   useWorkshops,
   useCreateWorkshop,
@@ -279,7 +280,7 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
     try {
       const result = await getParticipantToken.mutateAsync(participantId);
       if (result?.token) {
-        const shareUrl = `${window.location.origin}/invites/participant/${result.token}`;
+        const shareUrl = buildShareUrl(`/invites/participant/${result.token}`);
         await navigator.clipboard.writeText(shareUrl);
         notifications.show({
           title: t("myOrganization.workshops.linkCopied"),
@@ -1142,7 +1143,7 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
               </Text>
             );
           }
-          const inviteLink = `${window.location.origin}/invites/${existingInvite.inviteToken}/accept`;
+          const inviteLink = buildShareUrl(`/invites/${existingInvite.inviteToken}/accept`);
           const createdAt = existingInvite.meta?.createdAt
             ? new Date(existingInvite.meta.createdAt)
             : null;
