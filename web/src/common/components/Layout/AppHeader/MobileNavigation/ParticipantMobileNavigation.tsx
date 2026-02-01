@@ -7,6 +7,7 @@ import {
   Text,
   useMantineTheme,
 } from "@mantine/core";
+import { useModals } from "@mantine/modals";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../../../providers/AuthProvider";
 import { IconMessage, IconLogout } from "@tabler/icons-react";
@@ -32,10 +33,26 @@ export function ParticipantMobileNavigation({
   const { t: tAuth } = useTranslation("auth");
   const { logout: authLogout, backendUser } = useAuth();
   const theme = useMantineTheme();
+  const modals = useModals();
 
   const handleLeaveWorkshop = () => {
-    authLogout();
-    onClose();
+    modals.openConfirmModal({
+      title: tAuth("participant.leaveConfirm.title"),
+      children: (
+        <Text size="sm">
+          {tAuth("participant.leaveConfirm.message")}
+        </Text>
+      ),
+      labels: {
+        confirm: tAuth("participant.leaveConfirm.confirm"),
+        cancel: t("cancel"),
+      },
+      confirmProps: { color: "red" },
+      onConfirm: async () => {
+        onClose();
+        await authLogout();
+      },
+    });
   };
 
   const workshopName = backendUser?.role?.workshop?.name;
