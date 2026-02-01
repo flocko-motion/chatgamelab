@@ -1,4 +1,4 @@
-import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { getBaseUrl } from '@/common/lib/url';
 import { notifications } from '@mantine/notifications';
 import { apiLogger } from './logger';
