@@ -62,6 +62,7 @@ export {
   usePlatforms,
   useRoles,
   useSystemSettings,
+  useUpdateSystemSettings,
   useVersion,
 } from "./useSystem";
 
