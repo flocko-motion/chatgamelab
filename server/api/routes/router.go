@@ -22,6 +22,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
+	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))

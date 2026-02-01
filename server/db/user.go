@@ -392,6 +392,54 @@ func assignDefaultIndividualRole(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
+// PromoteAdminEmails checks all existing users and promotes those whose email
+// is in ADMIN_EMAILS to admin role. Called on server startup.
+func PromoteAdminEmails(ctx context.Context) {
+	adminEmails := os.Getenv("ADMIN_EMAILS")
+	if adminEmails == "" {
+		log.Debug("ADMIN_EMAILS not set, skipping admin promotion check")
+		return
+	}
+
+	log.Info("checking for admin email promotions", "admin_emails", adminEmails)
+
+	users, err := GetAllUsers(ctx)
+	if err != nil {
+		log.Warn("failed to get users for admin promotion check", "error", err)
+		return
+	}
+
+	for _, user := range users {
+		if user.Email == nil {
+			continue
+		}
+
+		if !isAdminEmail(*user.Email) {
+			continue
+		}
+
+		// Already admin?
+		if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+			log.Debug("user already has admin role", "user_id", user.ID, "email", *user.Email)
+			continue
+		}
+
+		// Promote to admin
+		log.Info("promoting user to admin", "user_id", user.ID, "email", *user.Email)
+
+		// Delete existing role first
+		if err := queries().DeleteUserRoles(ctx, user.ID); err != nil {
+			log.Warn("failed to delete existing roles for admin promotion", "user_id", user.ID, "error", err)
+			continue
+		}
+
+		// Create admin role
+		if err := autoUpgradeUserToAdmin(ctx, user.ID); err != nil {
+			log.Warn("failed to promote user to admin", "user_id", user.ID, "error", err)
+		}
+	}
+}
+
 // GetAllUsers returns all users with their roles (for admin/CLI use)
 func GetAllUsers(ctx context.Context) ([]obj.User, error) {
 	rows, err := queries().GetAllUsersWithDetails(ctx)
