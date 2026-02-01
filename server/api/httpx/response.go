@@ -6,10 +6,34 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
+	"os"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
+
+// getCookiePath returns the path for cookies based on API_BASE_URL environment variable.
+// Extracts the path component from API_BASE_URL (e.g., "/api" from "https://example.com/api").
+// Defaults to "/api" if not set or no path component.
+func getCookiePath() string {
+	apiBaseURL := os.Getenv("API_BASE_URL")
+	if apiBaseURL == "" {
+		return "/api"
+	}
+
+	// Try to parse as URL to extract path
+	if parsed, err := url.Parse(apiBaseURL); err == nil && parsed.Path != "" && parsed.Path != "/" {
+		return strings.TrimSuffix(parsed.Path, "/")
+	}
+
+	// If it's just a path (starts with /), use it directly
+	if strings.HasPrefix(apiBaseURL, "/") {
+		return strings.TrimSuffix(apiBaseURL, "/")
+	}
+
+	return "/api"
+}
 
 // ErrorResponse is the standard error format for the API
 type ErrorResponse struct {
@@ -178,7 +202,7 @@ func SetSessionCookie(w http.ResponseWriter, r *http.Request, token string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "cgl_session",
 		Value:    token,
-		Path:     "/api",
+		Path:     getCookiePath(),
 		MaxAge:   86400 * 30, // 30 days
 		HttpOnly: true,
 		Secure:   secure,
@@ -191,7 +215,7 @@ func ClearSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "cgl_session",
 		Value:    "",
-		Path:     "/api",
+		Path:     getCookiePath(),
 		MaxAge:   -1,
 		HttpOnly: true,
 	})
