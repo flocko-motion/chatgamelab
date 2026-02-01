@@ -698,10 +698,10 @@
         "empty": "Noch keine Spiele. Erstelle dein erstes Spiel!",
         "viewAll": "Meine Spiele"
       },
-      "myRooms": {
-        "title": "Meine Räume",
-        "empty": "Noch keine Räume. Erstelle einen Raum zum gemeinsamen Spielen!",
-        "viewAll": "Meine Räume"
+      "myWorkshops": {
+        "title": "Meine Workshops",
+        "empty": "Keine aktiven Workshops. Erstelle einen Workshop in deiner Organisation!",
+        "viewAll": "Alle Workshops"
       },
       "lastPlayed": {
         "title": "Zuletzt gespielt",
@@ -865,7 +865,12 @@
       "role": "Workshop-Teilnehmer",
       "workshop": "Workshop",
       "organization": "Organisation",
-      "leaveWorkshop": "Workshop verlassen"
+      "leaveWorkshop": "Workshop verlassen",
+      "leaveConfirm": {
+        "title": "Workshop verlassen?",
+        "message": "Bist du sicher, dass du diesen Workshop verlassen möchtest? Du benötigst einen neuen Einladungslink, um erneut beizutreten.",
+        "confirm": "Workshop verlassen"
+      }
     }
   },
   "myWorkshop": {
