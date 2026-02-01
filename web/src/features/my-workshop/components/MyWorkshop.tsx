@@ -259,7 +259,12 @@ export function MyWorkshop() {
       },
       confirmProps: { color: "red" },
       onConfirm: async () => {
-        await handleDeleteSession(session.id!);
+        // Delete session - if it fails (e.g., already deleted), just continue to play
+        try {
+          await handleDeleteSession(session.id!);
+        } catch {
+          // Session may have been deleted already, ignore and continue
+        }
         navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
       },
     });
@@ -462,52 +467,56 @@ export function MyWorkshop() {
     {
       key: "actions",
       header: t("actions"),
-      width: 320,
+      width: 220,
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
-          <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
+          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="nowrap" justify="flex-end">
             <Box style={{ width: 100, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>
-            {canEdit ? (
-              <Tooltip label={t("editGame")} withArrow>
-                <EditIconButton
-                  onClick={() => handleEditGame(game)}
-                  aria-label={t("edit")}
-                />
-              </Tooltip>
-            ) : (
-              <Tooltip label={t("viewGame")} withArrow>
+            <SimpleGrid cols={2} spacing={4}>
+              {canEdit ? (
+                <Tooltip label={t("editGame")} withArrow>
+                  <EditIconButton
+                    onClick={() => handleEditGame(game)}
+                    aria-label={t("edit")}
+                  />
+                </Tooltip>
+              ) : (
+                <Tooltip label={t("viewGame")} withArrow>
+                  <GenericIconButton
+                    icon={<IconEye size={16} />}
+                    onClick={() => handleViewGame(game)}
+                    aria-label={t("viewGame")}
+                  />
+                </Tooltip>
+              )}
+              <Tooltip label={t("copyGame")} withArrow>
                 <GenericIconButton
-                  icon={<IconEye size={16} />}
-                  onClick={() => handleViewGame(game)}
-                  aria-label={t("viewGame")}
+                  icon={<IconCopy size={16} />}
+                  onClick={() => handleCopyGame(game)}
+                  aria-label={t("copyGame")}
                 />
               </Tooltip>
-            )}
-            <Tooltip label={t("copyGame")} withArrow>
-              <GenericIconButton
-                icon={<IconCopy size={16} />}
-                onClick={() => handleCopyGame(game)}
-                aria-label={t("copyGame")}
-              />
-            </Tooltip>
-            <Tooltip label={t("games.importExport.exportButton")} withArrow>
-              <GenericIconButton
-                icon={<IconDownload size={16} />}
-                onClick={() => handleExportGame(game)}
-                aria-label={t("games.importExport.exportButton")}
-              />
-            </Tooltip>
-            {canDelete && (
-              <Tooltip label={t("deleteGame")} withArrow>
-                <DeleteIconButton
-                  onClick={() => handleDeleteClick(game)}
-                  aria-label={t("delete")}
+              <Tooltip label={t("games.importExport.exportButton")} withArrow>
+                <GenericIconButton
+                  icon={<IconDownload size={16} />}
+                  onClick={() => handleExportGame(game)}
+                  aria-label={t("games.importExport.exportButton")}
                 />
               </Tooltip>
-            )}
+              {canDelete ? (
+                <Tooltip label={t("deleteGame")} withArrow>
+                  <DeleteIconButton
+                    onClick={() => handleDeleteClick(game)}
+                    aria-label={t("delete")}
+                  />
+                </Tooltip>
+              ) : (
+                <Box />
+              )}
+            </SimpleGrid>
           </Group>
         );
       },
