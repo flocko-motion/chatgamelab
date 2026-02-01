@@ -30,3 +30,29 @@ export function buildShareUrl(path: string): string {
   }
   return `${base}${path}`;
 }
+
+/**
+ * Get the cookie path from API_BASE_URL.
+ * Extracts the path component (e.g., "/cgldev/api" from "https://example.com/cgldev/api").
+ * Defaults to "/api" if not set.
+ */
+export function getCookiePath(): string {
+  const apiBaseUrl = config.API_BASE_URL;
+  if (!apiBaseUrl) {
+    return '/api';
+  }
+
+  try {
+    const parsed = new URL(apiBaseUrl);
+    if (parsed.pathname && parsed.pathname !== '/') {
+      return parsed.pathname.replace(/\/$/, ''); // Remove trailing slash
+    }
+  } catch {
+    // If it's just a path (starts with /), use it directly
+    if (apiBaseUrl.startsWith('/')) {
+      return apiBaseUrl.replace(/\/$/, '');
+    }
+  }
+
+  return '/api';
+}
