@@ -124,6 +124,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { isParticipant, backendUser } = useAuth();
   const { isInWorkshopMode, activeWorkshopId } = useWorkshopMode();
 
+  // User is in workshop context if they are a participant OR staff/head/individual in workshop mode
+  const isInWorkshopContext = isParticipant || isInWorkshopMode;
+
   // Determine workshop ID for SSE subscription:
   // - Participants: always in a workshop, ID is in backendUser.role.workshop.id
   // - Staff/Head in workshop mode: ID is in activeWorkshopId from WorkshopModeProvider
@@ -139,17 +142,17 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     workshopId: workshopIdForEvents,
   });
 
-  // For workshop participants, fetch available keys to auto-select the workshop key
+  // For users in workshop context, fetch available keys to auto-select the workshop key
   const { data: availableKeys, isLoading: availableKeysLoading } =
     useAvailableKeysForGame(
-      isParticipant && !isContinuation ? gameId : undefined,
+      isInWorkshopContext && !isContinuation ? gameId : undefined,
     );
   const workshopKey = availableKeys?.find((k) => k.source === "workshop");
   const [workshopKeyError, setWorkshopKeyError] = useState<string | null>(null);
   const [autoStartAttempted, setAutoStartAttempted] = useState(false);
   const prevWorkshopKeyRef = useRef<string | undefined>(undefined);
 
-  // Determine if model selector should be shown for participants
+  // Determine if model selector should be shown in workshop context
   // This comes from workshop settings, not user settings
   const workshopShowsModelSelector =
     backendUser?.role?.workshop?.showAiModelSelector ?? false;
@@ -157,7 +160,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [
     apiKeyModalOpened,
     { open: openApiKeyModal, close: closeApiKeyModal },
-  ] = useDisclosure(!isContinuation && !isParticipant);
+  ] = useDisclosure(!isContinuation && !isInWorkshopContext);
   const [lightboxImage, setLightboxImage] = useState<{
     url: string;
     alt?: string;
@@ -250,11 +253,11 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     prevWorkshopKeyRef.current = currentKeyId;
   }, [workshopKey, workshopKeyError, availableKeysLoading, state.phase, t]);
 
-  // Auto-start for workshop participants (only if model selector is disabled)
+  // Auto-start for users in workshop context (only if model selector is disabled)
   // If model selector is enabled, we show the modal instead
   useEffect(() => {
     if (
-      !isParticipant ||
+      !isInWorkshopContext ||
       isContinuation ||
       autoStartAttempted ||
       availableKeysLoading
@@ -284,7 +287,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       }
     }
   }, [
-    isParticipant,
+    isInWorkshopContext,
     isContinuation,
     availableKeys,
     availableKeysLoading,
@@ -823,7 +826,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               gameName={displayGame?.name}
               isLoading={isSessionStarting}
               workshopKeyShareId={
-                isParticipant ? workshopKey?.shareId : undefined
+                isInWorkshopContext ? workshopKey?.shareId : undefined
               }
             />
           )}
