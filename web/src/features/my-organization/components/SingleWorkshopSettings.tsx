@@ -48,6 +48,7 @@ import {
   usePlatforms,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
+import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
@@ -174,7 +175,7 @@ export function SingleWorkshopSettings({
     try {
       const result = await getParticipantToken.mutateAsync(participantId);
       if (result?.token) {
-        const shareUrl = `${window.location.origin}/invites/participant/${result.token}`;
+        const shareUrl = buildShareUrl(`/invites/participant/${result.token}`);
         // Copy to clipboard directly
         await navigator.clipboard.writeText(shareUrl);
         notifications.show({
@@ -245,9 +246,9 @@ export function SingleWorkshopSettings({
     (inv) => inv.status === "pending" && inv.inviteToken,
   );
   const inviteLink = existingInvite?.inviteToken
-    ? `${window.location.origin}/invites/${existingInvite.inviteToken}/accept`
+    ? buildShareUrl(`/invites/${existingInvite.inviteToken}/accept`)
     : newlyCreatedInvite?.inviteToken
-      ? `${window.location.origin}/invites/${newlyCreatedInvite.inviteToken}/accept`
+      ? buildShareUrl(`/invites/${newlyCreatedInvite.inviteToken}/accept`)
       : null;
 
   return (

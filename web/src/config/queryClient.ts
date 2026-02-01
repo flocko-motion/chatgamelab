@@ -1,4 +1,5 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
+import { getBaseUrl } from '@/common/lib/url';
 import { notifications } from '@mantine/notifications';
 import { apiLogger } from './logger';
 import i18n from '../i18n';
@@ -188,7 +189,7 @@ export function handleApiError(error: HttpxErrorResponse | Error | { status?: nu
       });
       // Redirect to login page
       if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth/')) {
-        window.location.href = '/auth/login';
+        window.location.href = `${getBaseUrl()}/auth/login`;
       }
       break;
     case 403:

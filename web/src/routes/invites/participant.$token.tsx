@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { storeParticipantToken } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
+import { buildShareUrl } from "@/common/lib/url";
 
 export const Route = createFileRoute("/invites/participant/$token")({
   component: ParticipantLoginPage,
@@ -19,7 +20,7 @@ function ParticipantLoginPage() {
     storeParticipantToken(token);
 
     // Navigate to workshop - AuthProvider will pick up the stored token
-    window.location.href = ROUTES.MY_WORKSHOP;
+    window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
   }, [token]);
 
   return (
