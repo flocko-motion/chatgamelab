@@ -3,6 +3,9 @@ import { useAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type { ObjUser, HttpxErrorResponse } from "../generated";
 
+// Mutation key for deduplication
+const MUTATION_KEY = ["setActiveWorkshop"] as const;
+
 /**
  * Hook to set the active workshop for head/staff/individual users (workshop mode)
  * This persists the workshop context in the backend
@@ -12,6 +15,7 @@ export function useSetActiveWorkshop() {
   const queryClient = useQueryClient();
 
   return useMutation<ObjUser, HttpxErrorResponse, string | null>({
+    mutationKey: MUTATION_KEY,
     mutationFn: async (workshopId: string | null) => {
       if (!api) {
         throw new Error("Not authenticated");

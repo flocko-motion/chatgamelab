@@ -53,20 +53,28 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
 
   const enterWorkshopMode = useCallback(
     async (workshopId: string, _workshopName: string) => {
+      // Skip if already in this workshop or mutation is pending
+      if (activeWorkshopId === workshopId || setActiveWorkshop.isPending) {
+        return;
+      }
       // Call backend API to set active workshop
       await setActiveWorkshop.mutateAsync(workshopId);
       // Refetch backend user to get updated workshop context
       retryBackendFetch();
     },
-    [setActiveWorkshop, retryBackendFetch],
+    [activeWorkshopId, setActiveWorkshop, retryBackendFetch],
   );
 
   const exitWorkshopMode = useCallback(async () => {
+    // Skip if not in workshop mode or mutation is pending
+    if (!isInWorkshopMode || setActiveWorkshop.isPending) {
+      return;
+    }
     // Call backend API to clear active workshop
     await setActiveWorkshop.mutateAsync(null);
     // Refetch backend user to clear workshop context
     retryBackendFetch();
-  }, [setActiveWorkshop, retryBackendFetch]);
+  }, [isInWorkshopMode, setActiveWorkshop, retryBackendFetch]);
 
   const value: WorkshopModeContextType = {
     isInWorkshopMode,
