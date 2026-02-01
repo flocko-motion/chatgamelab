@@ -57,7 +57,9 @@
       "profile": "Profile",
       "logout": "Logout",
       "leaveWorkshopMode": "Leave Workshop-Mode",
-      "leaveWorkshopModeTooltip": "Leave workshop mode and return to normal view"
+      "leaveWorkshopModeTooltip": "Leave workshop mode and return to normal view",
+      "workshop": "Workshop",
+      "organization": "Organization"
     },
     "apiKeys": {
       "title": "API Key Management",

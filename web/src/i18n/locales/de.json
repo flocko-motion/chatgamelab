@@ -57,7 +57,9 @@
       "profile": "Profil",
       "logout": "Abmelden",
       "leaveWorkshopMode": "Workshop-Modus verlassen",
-      "leaveWorkshopModeTooltip": "Workshop-Modus beenden und zur normalen Ansicht zurückkehren"
+      "leaveWorkshopModeTooltip": "Workshop-Modus beenden und zur normalen Ansicht zurückkehren",
+      "workshop": "Workshop",
+      "organization": "Organisation"
     },
     "apiKeys": {
       "title": "API-Schlüssel verwalten",
