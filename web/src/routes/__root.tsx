@@ -84,6 +84,12 @@ function RootComponent() {
   const shouldRedirectParticipant =
     !isLoading && isParticipant && !isPublicRoute && !isParticipantAllowedRoute;
 
+  // Redirect workshop mode users from dashboard to my-workshop
+  const shouldRedirectWorkshopMode =
+    !isLoading &&
+    isInWorkshopMode &&
+    pathname === ROUTES.DASHBOARD;
+
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
@@ -97,6 +103,13 @@ function RootComponent() {
       navigate({ to: ROUTES.MY_WORKSHOP as "/" });
     }
   }, [shouldRedirectParticipant, navigate]);
+
+  // Redirect workshop mode users from dashboard to my-workshop
+  useEffect(() => {
+    if (shouldRedirectWorkshopMode) {
+      navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+    }
+  }, [shouldRedirectWorkshopMode, navigate]);
 
   // Organization/Workshop permissions - needed early for nav items
   const userInstitutionId = getUserInstitutionId(backendUser);
@@ -214,13 +227,12 @@ function RootComponent() {
   }
 
   // Header navigation callbacks
-  // Workshop mode users don't have settings/profile/api-keys access
-  // But staff/head in workshop mode keep their user bubble and can exit
+  // Participants have minimal access, staff/head/individual in workshop mode keep full user actions
   const headerProps = useAuthenticatedLayout
     ? isInWorkshopUI
       ? {
           isParticipant: isParticipant, // True participants show minimal header
-          isInWorkshopMode: isInWorkshopMode, // Staff/head in workshop mode
+          isInWorkshopMode: isInWorkshopMode, // Staff/head/individual in workshop mode
           workshopName: activeWorkshopName,
           onExitWorkshopMode: isInWorkshopMode
             ? async () => {
@@ -228,6 +240,12 @@ function RootComponent() {
                 navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/" });
               }
             : undefined,
+          // Staff/head/individual in workshop mode keep access to profile/settings/api-keys
+          ...(isInWorkshopMode && {
+            onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
+            onProfileClick: () => navigate({ to: ROUTES.PROFILE }),
+            onApiKeysClick: () => navigate({ to: ROUTES.API_KEYS }),
+          }),
         }
       : {
           onSettingsClick: () => navigate({ to: ROUTES.SETTINGS }),
