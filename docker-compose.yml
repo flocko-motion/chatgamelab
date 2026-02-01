@@ -37,6 +37,7 @@ services:
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
       DEV_JWT_SECRET: ${DEV_JWT_SECRET}
       PUBLIC_URL: ${PUBLIC_URL}
+      API_BASE_URL: ${API_BASE_URL}
     depends_on:
       db:
         condition: service_healthy
