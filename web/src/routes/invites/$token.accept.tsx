@@ -8,7 +8,7 @@ import { TextButton } from '@/common/components/buttons/TextButton';
 import { config } from '@/config/env';
 import { useAuth } from '@/providers/AuthProvider';
 import { ROUTES } from '@/common/routes/routes';
-import { buildShareUrl } from '@/common/lib/url';
+import { buildShareUrl, getCookiePath } from '@/common/lib/url';
 
 export const Route = createFileRoute('/invites/$token/accept')({
   component: AcceptInvitePage,
@@ -93,7 +93,7 @@ function AcceptInvitePage() {
 
     try {
       // Clear old session cookie first to prevent 401 from invalid token
-      document.cookie = 'cgl_session=; path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = `cgl_session=; path=${getCookiePath()}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
       
       // Small delay to ensure cookie deletion is processed
       await new Promise(resolve => setTimeout(resolve, 50));
