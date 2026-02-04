@@ -92,3 +92,19 @@ jobs:
             fi
             exit 1
           fi
+
+  test:
+    name: Run Tests
+    needs: [backend-tests, frontend-checks]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          if [ "${{ needs.backend-tests.result }}" == "success" ] && [ "${{ needs.frontend-checks.result }}" == "success" ]; then
+            echo "✅ All checks passed!"
+            exit 0
+          else
+            echo "❌ Some checks failed!"
+            exit 1
+          fi
