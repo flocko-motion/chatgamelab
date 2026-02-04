@@ -179,7 +179,7 @@
         "scenarioHint": "Briefly describe: Where does the game take place? Who are you? What is the goal? Any important rules?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "gameStart": "How does the game begin?",
-        "gameStartHint": "What happens at the start? Describe the first scene that the player sees.",
+        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed?",
         "gameStartPlaceholder": "You wake up at the edge of a dark forest. A narrow path leads deeper into the trees...",
         "statusFields": "Game values",
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
