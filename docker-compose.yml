@@ -8,6 +8,7 @@
 services:
   db:
     image: postgres:18
+    pull_policy: always
     container_name: chatgamelab-db
     environment:
       POSTGRES_DB: chatgamelab
@@ -25,6 +26,7 @@ services:
 
   backend:
     image: ghcr.io/flocko-motion/chatgamelab-backend:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: chatgamelab-backend
     environment:
       DB_HOST: db
@@ -56,6 +58,7 @@ services:
 
   web:
     image: ghcr.io/flocko-motion/chatgamelab-web:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: chatgamelab-web
     environment:
       API_BASE_URL: ${API_BASE_URL}
@@ -72,7 +75,7 @@ services:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
       start_period: 5s
     restart: unless-stopped
 
