@@ -49,8 +49,8 @@ services:
       test: [ "CMD", "/app/cgl", "healthcheck" ]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 10s
+      retries: 5
+      start_period: 30s
     command: [ "server" ]
     restart: unless-stopped
 
