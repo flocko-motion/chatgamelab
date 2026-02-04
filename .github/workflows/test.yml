@@ -9,8 +9,8 @@ on:
       - development
 
 jobs:
-  test:
-    name: Run Tests
+  backend-tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -35,12 +35,60 @@ jobs:
         if: always()
         run: |
           if [ "${{ steps.tests.outcome }}" == "success" ]; then
-            echo "✅ All tests passed!"
-            echo "## ✅ Test Results" >> $GITHUB_STEP_SUMMARY
-            echo "All tests passed successfully. PR can be merged." >> $GITHUB_STEP_SUMMARY
+            echo "✅ All backend tests passed!"
+            echo "## ✅ Backend Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "All backend tests passed successfully." >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Tests failed!"
-            echo "## ❌ Test Results" >> $GITHUB_STEP_SUMMARY
-            echo "Tests failed. Please fix the issues before merging." >> $GITHUB_STEP_SUMMARY
+            echo "❌ Backend tests failed!"
+            echo "## ❌ Backend Test Results" >> $GITHUB_STEP_SUMMARY
+            echo "Backend tests failed. Please fix the issues before merging." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  frontend-checks:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ./web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./web
+
+      - name: TypeScript type check
+        id: typecheck
+        run: npx tsc -b
+        working-directory: ./web
+
+      - name: Build check
+        id: build
+        run: npm run build
+        working-directory: ./web
+
+      - name: Frontend Summary
+        if: always()
+        run: |
+          if [ "${{ steps.typecheck.outcome }}" == "success" ] && [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "✅ Frontend checks passed!"
+            echo "## ✅ Frontend Check Results" >> $GITHUB_STEP_SUMMARY
+            echo "TypeScript and build checks passed successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Frontend checks failed!"
+            echo "## ❌ Frontend Check Results" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ steps.typecheck.outcome }}" != "success" ]; then
+              echo "- TypeScript type check failed" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ "${{ steps.build.outcome }}" != "success" ]; then
+              echo "- Build failed" >> $GITHUB_STEP_SUMMARY
+            fi
             exit 1
           fi
