@@ -166,6 +166,6 @@ case $MODE in
         echo ""
         echo -e "\033[1;32m✨ All services running in Docker containers\033[0m"
         echo ""
-        docker compose -f docker-compose.dev.yml up${BUILD_FLAG}
+        docker compose -f docker-compose.dev.yml --profile all_services up${BUILD_FLAG}
         ;;
 esac

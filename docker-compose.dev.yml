@@ -25,6 +25,7 @@ services:
       - db
       - backend
       - frontend
+      - all_services
 
   backend:
     build:
@@ -43,13 +44,14 @@ services:
     ports:
       - "${PORT_BACKEND}:${PORT_BACKEND}"
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT_BACKEND}/api/status" ]
+      test: [ "CMD", "/app/cgl", "healthcheck" ]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 10s
     profiles:
       - frontend
+      - all_services
     command: [ "server" ]
 
   web:
@@ -63,16 +65,18 @@ services:
       - "${PORT_EXPOSED}:${PORT_EXPOSED}" # Use same port for host and container
     volumes:
       - ./web:/app
-      - /app/node_modules # Prevent node_modules override
+      - web_node_modules:/app/node_modules
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT_EXPOSED}/" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 15s
     profiles:
       - backend
+      - all_services
     command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
 
 volumes:
   db_data:
+  web_node_modules:
