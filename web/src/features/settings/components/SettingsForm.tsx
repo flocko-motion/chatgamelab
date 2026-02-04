@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, Stack, TextInput, Alert, Switch } from "@mantine/core";
+import { Card, Stack, TextInput, Alert, Switch, Select } from "@mantine/core";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
 import { IconUser, IconCheck, IconInfoCircle } from "@tabler/icons-react";
@@ -10,7 +10,8 @@ import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { uiLogger } from "@/config/logger";
-import { useUpdateUser } from "@/api/hooks";
+import { useUpdateUser, usePlatforms, useSystemSettings, useUpdateSystemSettings } from "@/api/hooks";
+import { isAdmin } from "@/common/lib/roles";
 
 export function SettingsForm() {
   const { t } = useTranslation("auth");
@@ -18,6 +19,34 @@ export function SettingsForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const updateUser = useUpdateUser();
+
+  // Admin-only: system settings
+  const userIsAdmin = backendUser ? isAdmin(backendUser) : false;
+  const { data: platforms } = usePlatforms();
+  const { data: systemSettings } = useSystemSettings();
+  const updateSystemSettings = useUpdateSystemSettings();
+  const [selectedDefaultModel, setSelectedDefaultModel] = useState<string | null>(null);
+  const [adminSubmitSuccess, setAdminSubmitSuccess] = useState(false);
+  const [adminSubmitError, setAdminSubmitError] = useState<string | null>(null);
+
+  // Build model options from all platforms (grouped format for Mantine Select)
+  const modelOptions = useMemo(() => {
+    if (!platforms) return [];
+    return platforms.map((platform) => ({
+      group: platform.name || platform.id || "",
+      items: (platform.models || []).map((model) => ({
+        value: model.id || "",
+        label: model.name || model.id || "",
+      })),
+    }));
+  }, [platforms]);
+
+  // Initialize selected model from system settings
+  useEffect(() => {
+    if (systemSettings?.defaultAiModel && !selectedDefaultModel) {
+      setSelectedDefaultModel(systemSettings.defaultAiModel);
+    }
+  }, [systemSettings, selectedDefaultModel]);
 
   const schema = z.object({
     name: z
@@ -101,11 +130,35 @@ export function SettingsForm() {
 
   const isSubmitting = updateUser.isPending;
 
+  const handleAdminSettingsSave = () => {
+    if (!selectedDefaultModel) return;
+
+    setAdminSubmitError(null);
+    setAdminSubmitSuccess(false);
+
+    updateSystemSettings.mutate(
+      { defaultAiModel: selectedDefaultModel },
+      {
+        onSuccess: () => {
+          setAdminSubmitSuccess(true);
+          setTimeout(() => setAdminSubmitSuccess(false), 3000);
+        },
+        onError: (error: unknown) => {
+          uiLogger.error("Failed to update system settings", { error });
+          setAdminSubmitError(t("settings.errors.saveFailed"));
+        },
+      }
+    );
+  };
+
+  const isAdminSettingsDirty = selectedDefaultModel !== systemSettings?.defaultAiModel;
+
   if (!backendUser) {
     return null;
   }
 
   return (
+    <Stack gap="xl">
     <Card shadow="sm" padding="xl" radius="md" withBorder>
       <Stack gap="lg">
         <SectionTitle>{t("settings.accountSection")}</SectionTitle>
@@ -172,5 +225,53 @@ export function SettingsForm() {
         </form>
       </Stack>
     </Card>
+
+    {/* Admin Settings Section */}
+    {userIsAdmin && (
+      <Card shadow="sm" padding="xl" radius="md" withBorder>
+        <Stack gap="lg">
+          <SectionTitle>
+            {t("settings.adminSection", "System Settings")}
+          </SectionTitle>
+
+          <Select
+            label={t("settings.defaultAiModelLabel", "Default AI Model")}
+            description={t("settings.defaultAiModelDescription", "The default AI model used when users don't select a specific model")}
+            placeholder={t("settings.defaultAiModelPlaceholder", "Select a model")}
+            data={modelOptions}
+            value={selectedDefaultModel}
+            onChange={setSelectedDefaultModel}
+            searchable
+            disabled={updateSystemSettings.isPending}
+          />
+
+          {adminSubmitError && (
+            <Alert color="red" variant="light">
+              {adminSubmitError}
+            </Alert>
+          )}
+
+          {adminSubmitSuccess && (
+            <Alert
+              color="green"
+              variant="light"
+              icon={<IconCheck size={16} />}
+            >
+              {t("settings.saved")}
+            </Alert>
+          )}
+
+          <ActionButton
+            onClick={handleAdminSettingsSave}
+            loading={updateSystemSettings.isPending}
+            disabled={!isAdminSettingsDirty}
+            size="md"
+          >
+            {updateSystemSettings.isPending ? t("settings.saving") : t("settings.saveButton")}
+          </ActionButton>
+        </Stack>
+      </Card>
+    )}
+    </Stack>
   );
 }

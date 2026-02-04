@@ -56,3 +56,9 @@ func GetAllLanguageCodes() []string {
 	}
 	return codes
 }
+
+// IsValidLanguageCode checks if a language code is supported
+func IsValidLanguageCode(code string) bool {
+	_, exists := supportedLanguages[code]
+	return exists
+}

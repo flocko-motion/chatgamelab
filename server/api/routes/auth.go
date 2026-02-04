@@ -143,3 +143,47 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	log.Debug("session cookie cleared")
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"message": "Logged out"})
 }
+
+// ParticipantLoginRequest is the request body for participant token login
+type ParticipantLoginRequest struct {
+	Token string `json:"token"`
+}
+
+// ParticipantLogin godoc
+//
+//	@Summary		Login with participant token
+//	@Description	Logs in a participant using their access token and sets a session cookie
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		ParticipantLoginRequest	true	"Participant token"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Invalid token"
+//	@Router			/auth/participant-login [post]
+func ParticipantLogin(w http.ResponseWriter, r *http.Request) {
+	var req ParticipantLoginRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	if req.Token == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Token is required")
+		return
+	}
+
+	// Validate the token by looking up the user
+	user, err := db.GetUserByParticipantToken(r.Context(), req.Token)
+	if err != nil {
+		log.Debug("participant login failed: invalid token", "error", err)
+		httpx.WriteError(w, http.StatusUnauthorized, "Invalid or expired token")
+		return
+	}
+
+	// Set the session cookie with the participant token
+	httpx.SetSessionCookie(w, r, req.Token)
+
+	log.Info("participant login successful", "user_id", user.ID, "name", user.Name)
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"message": "Logged in", "userId": user.ID.String()})
+}

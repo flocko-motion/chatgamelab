@@ -243,6 +243,109 @@ func (s *MultiUserTestSuite) TestWorkshopManagement() {
 	s.T().Logf("Steve cannot view private workshop (expected)")
 }
 
+// TestUpdateParticipantName tests that Head/Staff can update participant names in their workshops
+// but cannot update names of participants in other institutions or update regular users
+func (s *MultiUserTestSuite) TestUpdateParticipantName() {
+	// Create users for institution A
+	clientHeadA := s.CreateUser("head-inst-a")
+	clientStaffA := s.CreateUser("staff-inst-a")
+
+	// Create users for institution B
+	clientHeadB := s.CreateUser("head-inst-b")
+
+	// Create a regular user (not a participant)
+	clientRegularUser := s.CreateUser("regular-user")
+
+	// Admin creates institution A
+	institutionA := Must(s.clientAdmin.CreateInstitution("Institution A"))
+	s.T().Logf("Created institution A: %s", institutionA.Name)
+
+	// Admin creates institution B
+	institutionB := Must(s.clientAdmin.CreateInstitution("Institution B"))
+	s.T().Logf("Created institution B: %s", institutionB.Name)
+
+	// Setup institution A: Head and Staff
+	headAInvite := Must(s.clientAdmin.InviteToInstitution(institutionA.ID.String(), string(obj.RoleHead), clientHeadA.ID))
+	Must(clientHeadA.AcceptInvite(headAInvite.ID.String()))
+	s.T().Logf("Head A joined institution A")
+
+	staffAInvite := Must(clientHeadA.InviteToInstitution(institutionA.ID.String(), string(obj.RoleStaff), clientStaffA.ID))
+	Must(clientStaffA.AcceptInvite(staffAInvite.ID.String()))
+	s.T().Logf("Staff A joined institution A")
+
+	// Setup institution B: Head only
+	headBInvite := Must(s.clientAdmin.InviteToInstitution(institutionB.ID.String(), string(obj.RoleHead), clientHeadB.ID))
+	Must(clientHeadB.AcceptInvite(headBInvite.ID.String()))
+	s.T().Logf("Head B joined institution B")
+
+	// Staff A creates a workshop in institution A
+	workshopA := Must(clientStaffA.CreateWorkshop(institutionA.ID.String(), "Workshop A"))
+	s.T().Logf("Created workshop A: %s", workshopA.Name)
+
+	// Create workshop invite and have an anonymous user join
+	workshopInvite := Must(clientStaffA.CreateWorkshopInvite(workshopA.ID.String(), string(obj.RoleParticipant)))
+	s.NotNil(workshopInvite.InviteToken)
+	s.T().Logf("Created workshop invite with token")
+
+	// Anonymous participant joins the workshop
+	participantResponse, err := s.AcceptWorkshopInviteAnonymously(*workshopInvite.InviteToken)
+	s.NoError(err)
+	s.NotNil(participantResponse.User)
+	participantID := participantResponse.User.ID.String()
+	originalName := participantResponse.User.Name
+	s.T().Logf("Participant joined workshop A: %s (ID: %s)", originalName, participantID)
+
+	// === Test 1: Staff A can update participant name in their workshop ===
+	newName := "Updated Participant Name"
+	updatedUser, err := clientStaffA.UpdateUserName(participantID, newName)
+	s.NoError(err, "Staff A should be able to update participant name in their workshop")
+	s.Equal(newName, updatedUser.Name)
+	s.T().Logf("✓ Staff A updated participant name to: %s", newName)
+
+	// === Test 2: Head A can update participant name in their institution's workshop ===
+	newName2 := "Head Updated Name"
+	updatedUser2, err := clientHeadA.UpdateUserName(participantID, newName2)
+	s.NoError(err, "Head A should be able to update participant name in their institution's workshop")
+	s.Equal(newName2, updatedUser2.Name)
+	s.T().Logf("✓ Head A updated participant name to: %s", newName2)
+
+	// === Test 3: Head B (different institution) CANNOT update participant name ===
+	_, err = clientHeadB.UpdateUserName(participantID, "Forbidden Name")
+	s.Error(err, "Head B should NOT be able to update participant in another institution")
+	s.Contains(err.Error(), "403", "Should get forbidden error")
+	s.T().Logf("✓ Head B correctly denied - cannot update participant in another institution")
+
+	// === Test 4: Staff A CANNOT update a regular user's name ===
+	_, err = clientStaffA.UpdateUserName(clientRegularUser.ID, "Hacked Name")
+	s.Error(err, "Staff A should NOT be able to update a regular user's name")
+	s.Contains(err.Error(), "403", "Should get forbidden error")
+	s.T().Logf("✓ Staff A correctly denied - cannot update regular user's name")
+
+	// === Test 5: Head A CANNOT update a regular user's name ===
+	_, err = clientHeadA.UpdateUserName(clientRegularUser.ID, "Hacked Name")
+	s.Error(err, "Head A should NOT be able to update a regular user's name")
+	s.Contains(err.Error(), "403", "Should get forbidden error")
+	s.T().Logf("✓ Head A correctly denied - cannot update regular user's name")
+
+	// === Test 6: Regular user CAN update their own name ===
+	_, err = clientRegularUser.UpdateUserName(clientRegularUser.ID, "My New Name")
+	s.NoError(err, "Users should be able to update their own name")
+	s.T().Logf("✓ Regular user can update their own name")
+
+	// Verify final state
+	workshop := Must(clientHeadA.GetWorkshop(workshopA.ID.String()))
+	found := false
+	for _, p := range workshop.Participants {
+		if p.ID.String() == participantID {
+			s.Equal(newName2, p.Name, "Participant name should be the last updated value")
+			found = true
+			break
+		}
+	}
+	s.True(found, "Participant should still be in workshop")
+	s.T().Logf("✓ Final verification: participant name is correct in workshop")
+}
+
 // TestWorkshopInvites tests the complete workshop invite workflow:
 // institution with one head and one staff member, creating one workshop,
 // creating public invite, anonymous users coming with such a token get a

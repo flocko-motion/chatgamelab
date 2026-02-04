@@ -390,6 +390,78 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/logout": {
+            "post": {
+                "description": "Clears the session cookie for participant users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/participant-login": {
+            "post": {
+                "description": "Logs in a participant using their access token and sets a session cookie",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login with participant token",
+                "parameters": [
+                    {
+                        "description": "Participant token",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.ParticipantLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/register": {
             "post": {
                 "security": [
@@ -1592,14 +1664,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists invites scoped by user permissions. Admins see all invites, regular users see only their own pending invites.",
+                "description": "Lists invites scoped by user permissions - shows invites for the current user to join an institution",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites",
+                "summary": "List incoming invites for the current user",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1723,14 +1795,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Lists all invites for a specific institution. Requires head/staff role in the institution or admin.",
+                "description": "Lists all invites that invite users to join a specific institution. Requires head/staff role in the institution or admin.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "invites"
                 ],
-                "summary": "List invites for an institution",
+                "summary": "List outgoing invites from an institution",
                 "parameters": [
                     {
                         "type": "string",
@@ -2656,6 +2728,56 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Updates the global system settings (admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Update system settings",
+                "parameters": [
+                    {
+                        "description": "Settings to update",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateSystemSettingsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.SystemSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/users": {
@@ -2718,6 +2840,131 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/active-workshop": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Set active workshop (workshop mode)",
+                "parameters": [
+                    {
+                        "description": "Workshop ID (null to leave)",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetActiveWorkshopRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated user with workshop context",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - not allowed for this role",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Workshop not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me/language": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the language preference for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user language preference",
+                "parameters": [
+                    {
+                        "description": "Language preference (ISO 639-1 code)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "language": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     },
                     "401": {
@@ -3278,6 +3525,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/workshops/participants/{participantId}/token": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets the access token for a workshop participant (staff/heads only)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Get participant token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Participant ID",
+                        "name": "participantId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/workshops/{id}": {
             "get": {
                 "security": [
@@ -3408,6 +3704,116 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/{id}/api-key": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the default API key for workshop participants (staff/heads only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Set workshop default API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "API key share ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetWorkshopApiKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Workshop"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workshops/{id}/events": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Server-Sent Events endpoint for real-time workshop updates. Supports token via query param for EventSource compatibility.",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Subscribe to workshop events (SSE)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Auth token (for EventSource which cannot send headers)",
+                        "name": "token",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE stream",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -3814,6 +4220,18 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "requestExpandStory": {
+                    "type": "string"
+                },
+                "requestImageGeneration": {
+                    "type": "string"
+                },
+                "requestStatusUpdate": {
+                    "type": "string"
+                },
+                "responseRaw": {
+                    "type": "string"
+                },
                 "seq": {
                     "description": "Sequence number within the session, starting at 1",
                     "type": "integer"
@@ -3830,6 +4248,9 @@ const docTemplate = `{
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
+                    "type": "string"
+                },
+                "urlAnalytics": {
                     "type": "string"
                 }
             }
@@ -4150,13 +4571,15 @@ const docTemplate = `{
                 "admin",
                 "head",
                 "staff",
-                "participant"
+                "participant",
+                "individual"
             ],
             "x-enum-varnames": [
                 "RoleAdmin",
                 "RoleHead",
                 "RoleStaff",
-                "RoleParticipant"
+                "RoleParticipant",
+                "RoleIndividual"
             ]
         },
         "obj.StatusField": {
@@ -4200,6 +4623,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
+                    "type": "string"
+                },
+                "language": {
+                    "description": "ISO 639-1 language code (e.g., \"en\", \"de\", \"fr\")",
                     "type": "string"
                 },
                 "meta": {
@@ -4309,6 +4736,9 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
+                "defaultApiKeyShareId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4335,6 +4765,19 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
                 }
             }
         },
@@ -4347,6 +4790,9 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
+                "gamesCount": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4355,6 +4801,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/obj.Role"
                 },
                 "workshopId": {
                     "type": "string"
@@ -4525,6 +4974,9 @@ const docTemplate = `{
                 "institutionId": {
                     "type": "string"
                 },
+                "institutionName": {
+                    "type": "string"
+                },
                 "inviteToken": {
                     "type": "string"
                 },
@@ -4551,6 +5003,9 @@ const docTemplate = `{
                 },
                 "workshopId": {
                     "type": "string"
+                },
+                "workshopName": {
+                    "type": "string"
                 }
             }
         },
@@ -4561,6 +5016,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "label": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.ParticipantLoginRequest": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }
@@ -4674,6 +5137,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.SetActiveWorkshopRequest": {
+            "type": "object",
+            "properties": {
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.SetUserRoleRequest": {
             "type": "object",
             "properties": {
@@ -4684,6 +5155,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetWorkshopApiKeyRequest": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
                     "type": "string"
                 }
             }
@@ -4743,6 +5222,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.UpdateSystemSettingsRequest": {
+            "type": "object",
+            "properties": {
+                "defaultAiModel": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.UpdateWorkshopRequest": {
             "type": "object",
             "properties": {
@@ -4754,6 +5241,18 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                },
+                "showAiModelSelector": {
+                    "type": "boolean"
+                },
+                "showOtherParticipantsGames": {
+                    "type": "boolean"
+                },
+                "showPublicGames": {
+                    "type": "boolean"
+                },
+                "useSpecificAiModel": {
+                    "type": "string"
                 }
             }
         },

@@ -120,6 +120,40 @@ func (q *Queries) DeleteApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uui
 	return err
 }
 
+const deleteApiKeySharesByOwnerForInstitution = `-- name: DeleteApiKeySharesByOwnerForInstitution :exec
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.institution_id = $2
+`
+
+type DeleteApiKeySharesByOwnerForInstitutionParams struct {
+	UserID        uuid.UUID
+	InstitutionID uuid.NullUUID
+}
+
+// Delete all API key shares owned by a user that target a specific institution
+func (q *Queries) DeleteApiKeySharesByOwnerForInstitution(ctx context.Context, arg DeleteApiKeySharesByOwnerForInstitutionParams) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByOwnerForInstitution, arg.UserID, arg.InstitutionID)
+	return err
+}
+
+const deleteApiKeySharesByOwnerForInstitutionWorkshops = `-- name: DeleteApiKeySharesByOwnerForInstitutionWorkshops :exec
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2)
+`
+
+type DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams struct {
+	UserID        uuid.UUID
+	InstitutionID uuid.UUID
+}
+
+// Delete all API key shares owned by a user that target any workshop in a specific institution
+func (q *Queries) DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx context.Context, arg DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByOwnerForInstitutionWorkshops, arg.UserID, arg.InstitutionID)
+	return err
+}
+
 const getApiKeyShareByID = `-- name: GetApiKeyShareByID :one
 SELECT
   s.id,
@@ -409,6 +443,33 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getWorkshopIDsByInstitution = `-- name: GetWorkshopIDsByInstitution :many
+SELECT id FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) GetWorkshopIDsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkshopIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
