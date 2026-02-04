@@ -18,15 +18,33 @@ fi
 
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 FILENAME="${DB_NAME}-${TIMESTAMP}.sql.gz"
+TEMP_FILE="/tmp/${FILENAME}"
 
 echo "Starting backup: $FILENAME"
 
-pg_dump -U "$DB_USER" "$DB_NAME" | \
-  gzip | \
-  ssh -o StrictHostKeyChecking=no \
+# Ensure remote directory exists (using SFTP batch mode)
+if [ -n "$BACKUP_PATH" ]; then
+  echo "Ensuring remote directory exists: $BACKUP_PATH"
+  sftp -o StrictHostKeyChecking=no \
     -i "$BACKUP_SSH_KEY" \
-    -p "$BACKUP_SSH_PORT" \
-    "$BACKUP_SSH_USER@$BACKUP_SSH_HOST" \
-    "cat > $BACKUP_PATH/$FILENAME"
+    -P "$BACKUP_SSH_PORT" \
+    "$BACKUP_SSH_USER@$BACKUP_SSH_HOST" << EOF
+-mkdir $BACKUP_PATH
+quit
+EOF
+fi
+
+# Create compressed backup to temp file
+pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$TEMP_FILE"
+
+# Upload via scp (works with SFTP-only servers like Hetzner Storage Box)
+scp -o StrictHostKeyChecking=no \
+  -i "$BACKUP_SSH_KEY" \
+  -P "$BACKUP_SSH_PORT" \
+  "$TEMP_FILE" \
+  "$BACKUP_SSH_USER@$BACKUP_SSH_HOST:$BACKUP_PATH/$FILENAME"
+
+# Cleanup
+rm -f "$TEMP_FILE"
 
 echo "Backup complete: $FILENAME"
