@@ -172,11 +172,11 @@
       },
       "editFields": {
         "name": "Game Name",
-        "description": "Give the game a short description. This is just for you.",
+        "description": "Give the game a short description. This is just for you and won't affect gameplay.",
         "imageStyle": "What style should the game's images have?",
         "imageStyleHint": "For example: cartoon, realistic, pixel art, watercolor...",
         "scenario": "What is the game about?",
-        "scenarioHint": "Briefly describe: Where does the game take place? Who are you? What is the goal? Any important rules?",
+        "scenarioHint": "Briefly describe: How does the game work? What's the world like? Language & Tone (e.g. Spanisch for sixth graders)?\nWhat role does the player have? Write \"The player ...\". \nIf you want the AI to take the role of a specific person write \"You are ...\".",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "gameStart": "How does the game begin?",
         "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed?",
