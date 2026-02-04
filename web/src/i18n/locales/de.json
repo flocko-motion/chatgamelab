@@ -45,7 +45,8 @@
     },
     "footer": {
       "programmedBy": "Programmiert von",
-      "jffTitle": "JFF - Institut für Medienpädagogik"
+      "jffTitle": "JFF - Institut für Medienpädagogik",
+      "copyright": "JFF - Institut für Medienpädagogik"
     },
     "header": {
       "openNavigation": "Navigationsmenü öffnen",
