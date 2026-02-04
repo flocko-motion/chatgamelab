@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"cgl/db"
 	"cgl/functional"
@@ -99,6 +100,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
 
+	// Get user to check language preference
+	user, err := db.GetUserByID(ctx, userID)
+	if err != nil {
+		log.Debug("failed to get user for language preference", "user_id", userID, "error", err)
+		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
+	}
+
 	// Create temporary session object for theme generation (needs ApiKey)
 	tempSession := &obj.GameSession{
 		GameID:       game.ID,
@@ -112,14 +120,53 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		StatusFields: game.StatusFields,
 	}
 
-	// Generate visual theme for the game player UI (synchronous)
-	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-	theme, err := GenerateTheme(ctx, tempSession, game)
-	if err != nil {
-		log.Warn("failed to generate theme, using default", "error", err)
-		// Don't fail - use nil theme (frontend will use defaults)
-	} else {
-		log.Debug("theme generated successfully", "preset", theme.Preset)
+	// Run theme generation and game translation in parallel
+	var wg sync.WaitGroup
+	var theme *obj.GameTheme
+	var translatedGame *obj.Game
+
+	// Start theme generation
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+		t, err := GenerateTheme(ctx, tempSession, game)
+		if err != nil {
+			log.Warn("failed to generate theme, using default", "error", err)
+		} else {
+			log.Debug("theme generated successfully", "preset", t.Preset)
+			theme = t
+		}
+	}()
+
+	// Start game translation if user language is not English
+	if user.Language != "" && user.Language != "en" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			log.Debug("translating game to user language", "game_id", gameID, "target_lang", user.Language)
+			translated, err := TranslateGame(ctx, tempSession, game, user.Language)
+			if err != nil {
+				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err)
+			} else {
+				log.Debug("game translated successfully", "target_lang", user.Language)
+				translatedGame = translated
+			}
+		}()
+	}
+
+	// Wait for both operations to complete
+	wg.Wait()
+
+	// Use translated game if available
+	if translatedGame != nil {
+		game = translatedGame
+		// Re-generate system message with translated game
+		systemMessage, err = GetTemplate(game)
+		if err != nil {
+			log.Debug("failed to get template from translated game", "error", err)
+			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
+		}
 	}
 
 	// Persist to database with theme
