@@ -7,16 +7,27 @@
 
 services:
   db:
-    image: postgres:18
+    image: ghcr.io/flocko-motion/chatgamelab-db:${IMAGE_TAG:-latest}
     pull_policy: always
     container_name: chatgamelab-db
     environment:
       POSTGRES_DB: chatgamelab
       POSTGRES_USER: chatgamelab
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # Backup config (optional)
+      BACKUP_ENABLED: ${BACKUP_ENABLED:-false}
+      BACKUP_SSH_HOST: ${BACKUP_SSH_HOST:-}
+      BACKUP_SSH_PORT: ${BACKUP_SSH_PORT:-22}
+      BACKUP_SSH_USER: ${BACKUP_SSH_USER:-}
+      BACKUP_SSH_KEY: /run/secrets/backup_key
+      BACKUP_PATH: ${BACKUP_PATH:-backups}
+      DB_NAME: chatgamelab
+      DB_USER: chatgamelab
     volumes:
       - db_data:/var/lib/postgresql
       - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    secrets:
+      - backup_key
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab" ]
       interval: 5s
@@ -78,6 +89,10 @@ services:
       retries: 5
       start_period: 5s
     restart: unless-stopped
+
+secrets:
+  backup_key:
+    file: ${BACKUP_SSH_KEY_PATH:-/dev/null}
 
 volumes:
   db_data:

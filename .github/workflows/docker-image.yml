@@ -110,6 +110,9 @@ jobs:
           - name: web
             context: ./web
             dockerfile: ./web/Dockerfile
+          - name: db
+            context: .
+            dockerfile: ./docker/db/Dockerfile
 
     steps:
       - name: Checkout code
