@@ -25,6 +25,7 @@ services:
       - db
       - backend
       - frontend
+      - all_services
 
   backend:
     build:
@@ -50,6 +51,7 @@ services:
       start_period: 10s
     profiles:
       - frontend
+      - all_services
     command: [ "server" ]
 
   web:
@@ -72,6 +74,7 @@ services:
       start_period: 15s
     profiles:
       - backend
+      - all_services
     command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
 
 volumes:
