@@ -2,6 +2,7 @@ package db
 
 import (
 	db "cgl/db/sqlc"
+	"cgl/events"
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
@@ -306,7 +307,19 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 		return err
 	}
 
-	return queries().SoftDeleteGame(ctx, gameID)
+	// Store workshop ID before deletion for event publishing
+	workshopID := game.WorkshopID
+
+	if err := queries().SoftDeleteGame(ctx, gameID); err != nil {
+		return err
+	}
+
+	// Publish game_deleted event if game belonged to a workshop
+	if workshopID != nil {
+		events.GetBroker().PublishGameDeleted(*workshopID, gameID, userID)
+	}
+
+	return nil
 }
 
 // CreateGame creates a new game. userID is set as the owner (createdBy).
@@ -373,7 +386,16 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	// Users must explicitly share the game after creating and writing the story
 
 	_, err := queries().CreateGame(ctx, arg)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Publish game_created event if game belongs to a workshop
+	if game.WorkshopID != nil {
+		events.GetBroker().PublishGameCreated(*game.WorkshopID, game.ID, userID)
+	}
+
+	return nil
 }
 
 // UpdateGame updates an existing game. userID must be the owner.
@@ -423,7 +445,16 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	}
 
 	_, err = queries().UpdateGame(ctx, arg)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// Publish game_updated event if game belongs to a workshop
+	if existingGame.WorkshopID != nil {
+		events.GetBroker().PublishGameUpdated(*existingGame.WorkshopID, game.ID, userID)
+	}
+
+	return nil
 }
 
 // UpdateGameYaml updates a game from YAML content. userID must be the owner.

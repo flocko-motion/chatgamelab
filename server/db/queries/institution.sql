@@ -37,6 +37,7 @@ FROM app_user u
 JOIN user_role r ON u.id = r.user_id
 WHERE r.institution_id = $1
   AND u.deleted_at IS NULL
+  AND r.role IN ('individual', 'staff', 'head')
 ORDER BY r.role, u.name;
 
 
@@ -46,11 +47,13 @@ ORDER BY r.role, u.name;
 INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
-  name, institution_id, active, public
+  name, institution_id, active, public, default_api_key_share_id,
+  use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
 ) VALUES (
   $1, $2,
   $3, $4, $5,
-  $6, $7, $8, $9
+  $6, $7, $8, $9, $10,
+  $11, $12, $13, $14
 )
 RETURNING *;
 
@@ -72,7 +75,20 @@ UPDATE workshop SET
   name = $6,
   institution_id = $7,
   active = $8,
-  public = $9
+  public = $9,
+  default_api_key_share_id = $10,
+  use_specific_ai_model = $11,
+  show_ai_model_selector = $12,
+  show_public_games = $13,
+  show_other_participants_games = $14
+WHERE id = $1
+RETURNING *;
+
+-- name: SetWorkshopDefaultApiKey :one
+UPDATE workshop SET
+  modified_by = $2,
+  modified_at = now(),
+  default_api_key_share_id = $3
 WHERE id = $1
 RETURNING *;
 

@@ -47,15 +47,24 @@ func GenerateToken(userId string) (string, int64, error) {
 // ValidateToken checks if the request has a valid CGL JWT token
 // Returns the userId from the token if valid, empty string otherwise
 func ValidateToken(r *http.Request) (userId string, valid bool) {
-	if len(secret) == 0 {
-		return "", false
-	}
-
 	authHeader := r.Header.Get("Authorization")
 	if !strings.HasPrefix(authHeader, "Bearer ") {
 		return "", false
 	}
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	return ValidateTokenString(tokenString)
+}
+
+// ValidateTokenString checks if the given token string is a valid CGL JWT token
+// Returns the userId from the token if valid, empty string otherwise
+func ValidateTokenString(tokenString string) (userId string, valid bool) {
+	if len(secret) == 0 {
+		return "", false
+	}
+
+	if tokenString == "" {
+		return "", false
+	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

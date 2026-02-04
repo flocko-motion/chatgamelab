@@ -17,7 +17,7 @@ services:
     ports:
       - "${PORT_POSTGRES}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab"]
+      test: [ "CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -42,9 +42,15 @@ services:
         condition: service_healthy
     ports:
       - "${PORT_BACKEND}:${PORT_BACKEND}"
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT_BACKEND}/api/status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     profiles:
       - frontend
-    command: ["server"]
+    command: [ "server" ]
 
   web:
     build:
@@ -54,10 +60,16 @@ services:
     env_file:
       - .env
     ports:
-      - "${PORT_EXPOSED}:${PORT_EXPOSED}"  # Use same port for host and container
+      - "${PORT_EXPOSED}:${PORT_EXPOSED}" # Use same port for host and container
     volumes:
       - ./web:/app
-      - /app/node_modules  # Prevent node_modules override
+      - /app/node_modules # Prevent node_modules override
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT_EXPOSED}/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     profiles:
       - backend
     command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}

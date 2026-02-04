@@ -122,7 +122,12 @@ export function AllGames() {
       },
       confirmProps: { color: 'red' },
       onConfirm: async () => {
-        await deleteSession.mutateAsync(session.id!);
+        // Delete session - if it fails (e.g., already deleted), just continue to play
+        try {
+          await deleteSession.mutateAsync(session.id!);
+        } catch {
+          // Session may have been deleted already, ignore and continue
+        }
         navigate({ to: '/games/$gameId/play', params: { gameId: game.id! } });
       },
     });

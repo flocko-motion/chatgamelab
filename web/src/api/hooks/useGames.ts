@@ -4,7 +4,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useAuth0 } from "@auth0/auth0-react";
 import { handleApiError } from "@/config/queryClient";
 import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
@@ -125,11 +124,11 @@ export function useCloneGame() {
 }
 
 export function useExportGameYaml() {
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessToken } = useAuth();
 
   return useMutation<string, HttpxErrorResponse, string>({
     mutationFn: async (id) => {
-      const token = await getAccessTokenSilently();
+      const token = await getAccessToken();
       const response = await fetch(`${config.API_BASE_URL}/games/${id}/yaml`, {
         method: "GET",
         headers: {
