@@ -1,90 +1,97 @@
-import i18n from '../../i18n';
+import i18n from "../../i18n";
 import {
   ErrorCodes,
   extractErrorCode,
   extractRawErrorCode,
   isKnownErrorCode,
   type ErrorCode,
-} from '../types/errorCodes';
+} from "../types/errorCodes";
 
 /**
  * Mapping from error codes to i18n keys.
  */
-const ERROR_CODE_I18N_MAP: Record<ErrorCode, { titleKey: string; messageKey: string }> = {
+const ERROR_CODE_I18N_MAP: Record<
+  ErrorCode,
+  { titleKey: string; messageKey: string }
+> = {
   [ErrorCodes.GENERIC]: {
-    titleKey: 'errors:titles.error',
-    messageKey: 'errors:generic',
+    titleKey: "errors:titles.error",
+    messageKey: "errors:generic",
   },
   [ErrorCodes.VALIDATION]: {
-    titleKey: 'errors:titles.validation',
-    messageKey: 'errors:validation',
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:validation",
   },
   [ErrorCodes.UNAUTHORIZED]: {
-    titleKey: 'errors:titles.authentication',
-    messageKey: 'errors:unauthorized',
+    titleKey: "errors:titles.authentication",
+    messageKey: "errors:unauthorized",
   },
   [ErrorCodes.FORBIDDEN]: {
-    titleKey: 'errors:titles.permission',
-    messageKey: 'errors:forbidden',
+    titleKey: "errors:titles.permission",
+    messageKey: "errors:forbidden",
   },
   [ErrorCodes.NOT_FOUND]: {
-    titleKey: 'errors:titles.notFound',
-    messageKey: 'errors:notFound',
+    titleKey: "errors:titles.notFound",
+    messageKey: "errors:notFound",
   },
   [ErrorCodes.CONFLICT]: {
-    titleKey: 'errors:titles.error',
-    messageKey: 'errors:conflict',
+    titleKey: "errors:titles.error",
+    messageKey: "errors:conflict",
   },
   [ErrorCodes.INVALID_PLATFORM]: {
-    titleKey: 'errors:titles.validation',
-    messageKey: 'errors:invalidPlatform',
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:invalidPlatform",
   },
   [ErrorCodes.INVALID_INPUT]: {
-    titleKey: 'errors:titles.validation',
-    messageKey: 'errors:validation',
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:validation",
   },
   [ErrorCodes.SERVER_ERROR]: {
-    titleKey: 'errors:titles.server',
-    messageKey: 'errors:server',
+    titleKey: "errors:titles.server",
+    messageKey: "errors:server",
   },
   [ErrorCodes.USER_NOT_REGISTERED]: {
-    titleKey: 'errors:titles.authentication',
-    messageKey: 'errors:userNotRegistered',
+    titleKey: "errors:titles.authentication",
+    messageKey: "errors:userNotRegistered",
   },
   [ErrorCodes.INVALID_API_KEY]: {
-    titleKey: 'errors:titles.authentication',
-    messageKey: 'errors:invalidApiKey',
+    titleKey: "errors:titles.authentication",
+    messageKey: "errors:invalidApiKey",
   },
   [ErrorCodes.ORG_VERIFICATION_REQUIRED]: {
-    titleKey: 'errors:titles.authentication',
-    messageKey: 'errors:orgVerificationRequired',
+    titleKey: "errors:titles.authentication",
+    messageKey: "errors:orgVerificationRequired",
   },
   [ErrorCodes.BILLING_NOT_ACTIVE]: {
-    titleKey: 'errors:titles.billing',
-    messageKey: 'errors:billingNotActive',
+    titleKey: "errors:titles.billing",
+    messageKey: "errors:billingNotActive",
   },
   [ErrorCodes.RATE_LIMIT_EXCEEDED]: {
-    titleKey: 'errors:titles.aiError',
-    messageKey: 'errors:rateLimitExceeded',
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:rateLimitExceeded",
   },
   [ErrorCodes.INSUFFICIENT_QUOTA]: {
-    titleKey: 'errors:titles.billing',
-    messageKey: 'errors:insufficientQuota',
+    titleKey: "errors:titles.billing",
+    messageKey: "errors:insufficientQuota",
   },
   [ErrorCodes.CONTENT_FILTERED]: {
-    titleKey: 'errors:titles.aiError',
-    messageKey: 'errors:contentFiltered',
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:contentFiltered",
   },
   [ErrorCodes.AI_ERROR]: {
-    titleKey: 'errors:titles.aiError',
-    messageKey: 'errors:aiError',
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:aiError",
+  },
+  [ErrorCodes.AUTH_WORKSHOP_INACTIVE]: {
+    titleKey: "errors:titles.authentication",
+    messageKey: "errors:workshopInactive",
   },
 };
 
 export interface TranslatedError {
   title: string;
   message: string;
-  color: 'red' | 'orange';
+  color: "red" | "orange";
   code: string | null;
   isKnown: boolean;
 }
@@ -92,8 +99,8 @@ export interface TranslatedError {
 /**
  * Get the color for an error code.
  */
-function getErrorColor(errorCode: string | null): 'red' | 'orange' {
-  if (!errorCode) return 'red';
+function getErrorColor(errorCode: string | null): "red" | "orange" {
+  if (!errorCode) return "red";
 
   switch (errorCode) {
     case ErrorCodes.VALIDATION:
@@ -101,9 +108,9 @@ function getErrorColor(errorCode: string | null): 'red' | 'orange' {
     case ErrorCodes.NOT_FOUND:
     case ErrorCodes.CONFLICT:
     case ErrorCodes.INVALID_PLATFORM:
-      return 'orange';
+      return "orange";
     default:
-      return 'red';
+      return "red";
   }
 }
 
@@ -127,9 +134,9 @@ export function translateErrorCode(code: string): TranslatedError {
 
   // Unknown error code - show generic message with code hint
   return {
-    title: i18n.t('errors:titles.error'),
-    message: `${i18n.t('errors:generic')} (${code})`,
-    color: 'red',
+    title: i18n.t("errors:titles.error"),
+    message: `${i18n.t("errors:generic")} (${code})`,
+    color: "red",
     code,
     isKnown: false,
   };
@@ -150,9 +157,9 @@ export function translateError(error: unknown): TranslatedError {
   if (rawCode) {
     // Unknown code - show generic with hint
     return {
-      title: i18n.t('errors:titles.error'),
-      message: `${i18n.t('errors:generic')} (${rawCode})`,
-      color: 'red',
+      title: i18n.t("errors:titles.error"),
+      message: `${i18n.t("errors:generic")} (${rawCode})`,
+      color: "red",
       code: rawCode,
       isKnown: false,
     };
@@ -160,9 +167,9 @@ export function translateError(error: unknown): TranslatedError {
 
   // No error code at all
   return {
-    title: i18n.t('errors:titles.error'),
-    message: i18n.t('errors:generic'),
-    color: 'red',
+    title: i18n.t("errors:titles.error"),
+    message: i18n.t("errors:generic"),
+    color: "red",
     code: null,
     isKnown: false,
   };
@@ -171,7 +178,10 @@ export function translateError(error: unknown): TranslatedError {
 /**
  * Get translated error for a known ErrorCode constant.
  */
-export function getErrorText(code: ErrorCode): { title: string; message: string } {
+export function getErrorText(code: ErrorCode): {
+  title: string;
+  message: string;
+} {
   const keys = ERROR_CODE_I18N_MAP[code];
   return {
     title: i18n.t(keys.titleKey),

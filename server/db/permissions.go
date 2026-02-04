@@ -2,6 +2,7 @@ package db
 
 import (
 	sqlc "cgl/db/sqlc"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 
@@ -258,12 +259,12 @@ func canAccessWorkshopParticipants(ctx context.Context, userID uuid.UUID, worksh
 		return nil
 	}
 
-	// Head of the institution that owns this workshop can see participants
-	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && user.Role.Role == obj.RoleHead {
+	// Head or Staff of the institution that owns this workshop can see participants
+	if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == institutionID && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
 		return nil
 	}
 
-	return obj.ErrForbidden("only participants, workshop owner, or institution head can view participant list")
+	return obj.ErrForbidden("only participants, workshop owner, or institution staff/head can view participant list")
 }
 
 // CanDeleteUser checks if user can delete another user
@@ -299,7 +300,7 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 			return obj.ErrForbidden("can only delete participants in your institution")
 		}
 
-		// Must be an anonymous participant (has participant_token AND no auth0_id)
+		// Must be an anonymous participant (no auth0_id)
 		// Regular users with Auth0 accounts cannot be deleted by staff/heads, even if they're participants
 		rawUser, err := GetUserByIDRaw(ctx, targetUserID)
 		if err != nil {
@@ -311,15 +312,49 @@ func CanDeleteUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uu
 			return obj.ErrForbidden("can only delete anonymous participants, not regular users")
 		}
 
-		// Must have a participant token (anonymous participant)
-		if !rawUser.ParticipantToken.Valid || rawUser.ParticipantToken.String == "" {
-			return obj.ErrForbidden("can only delete anonymous participants")
+		return nil
+	}
+
+	return obj.ErrForbidden("insufficient permissions to delete users")
+}
+
+// CanUpdateParticipantName checks if user can update a participant's name
+// - Admins can update any user
+// - Staff/heads can only update participants in their institution's workshops
+func CanUpdateParticipantName(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID) error {
+	currentUser, err := GetUserByID(ctx, currentUserID)
+	if err != nil {
+		return obj.ErrNotFound("current user not found")
+	}
+
+	// Admin can update anyone
+	if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
+		return nil
+	}
+
+	// Staff/heads can only update participants in their institution
+	if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleStaff || currentUser.Role.Role == obj.RoleHead) {
+		// Get target user
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+
+		// Must be a participant
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleParticipant {
+			return obj.ErrForbidden("can only update participant names")
+		}
+
+		// Must be in the same institution
+		if targetUser.Role.Institution == nil || currentUser.Role.Institution == nil ||
+			targetUser.Role.Institution.ID != currentUser.Role.Institution.ID {
+			return obj.ErrForbidden("can only update participants in your institution")
 		}
 
 		return nil
 	}
 
-	return obj.ErrForbidden("insufficient permissions to delete users")
+	return obj.ErrForbidden("insufficient permissions to update participant name")
 }
 
 // canAccessWorkshop checks if user can perform a CRUD operation on a workshop
@@ -362,6 +397,10 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 			if user.Role.Workshop != nil && user.Role.Workshop.ID == *workshopID {
 				return nil
 			}
+			log.Debug("participant workshop access denied",
+				"user_workshop_id", user.Role.Workshop,
+				"requested_workshop_id", *workshopID,
+				"user_role", user.Role.Role)
 		}
 		return obj.ErrForbidden("not authorized to read this workshop")
 
@@ -475,16 +514,31 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 			return obj.ErrNotFound("game not found")
 		}
 
+		// Public games can be played by anyone
+		if game.Public {
+			return nil
+		}
+
 		// If game belongs to a workshop, user must have read access to that workshop
 		if game.WorkshopID.Valid {
-			if err := canAccessWorkshop(ctx, userID, OpRead, uuid.Nil, &game.WorkshopID.UUID, uuid.Nil); err != nil {
+			// Get the workshop to find its institution ID
+			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
+			if err != nil {
+				return obj.ErrNotFound("workshop not found")
+			}
+			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
 				return obj.ErrForbidden("not authorized to play games in this workshop")
 			}
 		}
 
 		// If explicit workshopID is provided, validate access to it as well
 		if workshopID != nil {
-			if err := canAccessWorkshop(ctx, userID, OpRead, uuid.Nil, workshopID, uuid.Nil); err != nil {
+			// Get the workshop to find its institution ID
+			workshop, err := queries().GetWorkshopByID(ctx, *workshopID)
+			if err != nil {
+				return obj.ErrNotFound("workshop not found")
+			}
+			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, workshopID, uuid.Nil); err != nil {
 				return obj.ErrForbidden("not authorized to create sessions in this workshop")
 			}
 		}
@@ -583,25 +637,52 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 		// Check if user has access via api_key_share
 		// Users can access keys shared with them (user_id), their workshop, or their institution
 		user, err := GetUserByID(ctx, userID)
-		if err == nil && user.Role != nil {
+		if err == nil {
 			// Check for direct user share
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
+				log.Debug("checking API key shares for access",
+					"user_id", userID,
+					"api_key_id", apiKeyID,
+					"share_count", len(shares))
 				for _, share := range shares {
 					// Direct user share
 					if share.UserID.Valid && share.UserID.UUID == userID {
+						log.Debug("access granted via direct user share")
 						return nil
 					}
-					// Workshop share
-					if share.WorkshopID.Valid && user.Role.Workshop != nil && share.WorkshopID.UUID == user.Role.Workshop.ID {
-						return nil
+					// Workshop share - check if user is an active member of the workshop
+					if share.WorkshopID.Valid {
+						log.Debug("checking workshop membership",
+							"user_id", userID,
+							"workshop_id", share.WorkshopID.UUID)
+						isMember, err := queries().IsUserInWorkshop(ctx, sqlc.IsUserInWorkshopParams{
+							UserID:     userID,
+							WorkshopID: share.WorkshopID,
+						})
+						log.Debug("workshop membership check result",
+							"is_member", isMember,
+							"error", err)
+						if err == nil && isMember {
+							log.Debug("access granted via workshop membership")
+							return nil
+						}
 					}
 					// Institution share
-					if share.InstitutionID.Valid && user.Role.Institution != nil && share.InstitutionID.UUID == user.Role.Institution.ID {
+					if share.InstitutionID.Valid && user.Role != nil && user.Role.Institution != nil && share.InstitutionID.UUID == user.Role.Institution.ID {
+						log.Debug("access granted via institution share")
 						return nil
 					}
+					log.Debug("share did not match",
+						"share_user_id", share.UserID,
+						"share_workshop_id", share.WorkshopID,
+						"share_institution_id", share.InstitutionID)
 				}
+			} else {
+				log.Debug("failed to get API key shares", "error", err)
 			}
+		} else {
+			log.Debug("failed to get user", "error", err)
 		}
 
 		// Check sponsorship context

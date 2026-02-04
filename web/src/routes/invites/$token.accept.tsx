@@ -8,6 +8,7 @@ import { TextButton } from '@/common/components/buttons/TextButton';
 import { config } from '@/config/env';
 import { useAuth } from '@/providers/AuthProvider';
 import { ROUTES } from '@/common/routes/routes';
+import { buildShareUrl, getCookiePath } from '@/common/lib/url';
 
 export const Route = createFileRoute('/invites/$token/accept')({
   component: AcceptInvitePage,
@@ -44,9 +45,7 @@ function AcceptInvitePage() {
 
     async function fetchInvite() {
       try {
-        const response = await fetch(`${config.API_BASE_URL}/invites/${token}`, {
-          credentials: 'include',
-        });
+        const response = await fetch(`${config.API_BASE_URL}/invites/${token}`);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
@@ -93,6 +92,13 @@ function AcceptInvitePage() {
     setState('accepting');
 
     try {
+      // Clear old session cookie first to prevent 401 from invalid token
+      document.cookie = `cgl_session=; path=${getCookiePath()}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      
+      // Small delay to ensure cookie deletion is processed
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Now accept with credentials so browser saves the new cookie
       const response = await fetch(`${config.API_BASE_URL}/invites/${token}/accept`, {
         method: 'POST',
         credentials: 'include',
@@ -117,7 +123,7 @@ function AcceptInvitePage() {
       // Short delay to show success message, then redirect to my-workshop
       setTimeout(() => {
         // Force page reload to refresh auth state
-        window.location.href = ROUTES.MY_WORKSHOP;
+        window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
       }, 1500);
     } catch {
       setError(t('invites.errors.acceptFailed'));

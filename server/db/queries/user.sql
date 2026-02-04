@@ -28,11 +28,11 @@ SELECT * FROM app_user WHERE email = $1 AND deleted_at IS NULL;
 
 -- name: GetUserByParticipantToken :one
 -- Get user by participant token, but only if they're linked to an active workshop
-SELECT u.* 
+SELECT u.*
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
-WHERE u.participant_token = $1 
+WHERE u.participant_token = $1
   AND u.deleted_at IS NULL
   AND ur.role = 'participant'
   AND w.active = true
@@ -41,11 +41,11 @@ WHERE u.participant_token = $1
 -- name: CheckParticipantTokenStatus :one
 -- Check if a participant token exists and get the workshop active status
 -- Returns: exists (bool), workshop_active (bool)
-SELECT 
+SELECT
   EXISTS(
     SELECT 1 FROM app_user u
     INNER JOIN user_role ur ON u.id = ur.user_id
-    WHERE u.participant_token = $1 
+    WHERE u.participant_token = $1
       AND u.deleted_at IS NULL
       AND ur.role = 'participant'
   ) AS token_exists,
@@ -53,7 +53,7 @@ SELECT
     (SELECT w.active FROM app_user u
      INNER JOIN user_role ur ON u.id = ur.user_id
      INNER JOIN workshop w ON ur.workshop_id = w.id
-     WHERE u.participant_token = $1 
+     WHERE u.participant_token = $1
        AND u.deleted_at IS NULL
        AND ur.role = 'participant'
        AND w.deleted_at IS NULL
@@ -91,7 +91,11 @@ SELECT
   r.institution_id,
   i.name         AS institution_name,
   r.workshop_id,
-  w.name         AS workshop_name
+  w.name         AS workshop_name,
+  w.show_public_games AS workshop_show_public_games,
+  w.show_other_participants_games AS workshop_show_other_participants_games,
+  w.show_ai_model_selector AS workshop_show_ai_model_selector,
+  w.use_specific_ai_model AS workshop_use_specific_ai_model
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -188,19 +192,42 @@ DELETE FROM user_role WHERE user_id = $1;
 DELETE FROM user_role WHERE user_id = $1;
 
 -- name: GetUsersByInstitution :many
-SELECT 
+SELECT
   u.id, u.name, u.email,
   u.created_by, u.created_at, u.modified_by, u.modified_at,
   ur.id as role_id, ur.role as role_role
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 WHERE ur.institution_id = $1
-  AND u.deleted_at IS NULL;
+  AND u.deleted_at IS NULL
+  AND ur.role IN ('individual', 'staff', 'head');
 
 -- name: CreateUserRole :one
 INSERT INTO user_role (id, user_id, role, institution_id, workshop_id)
 VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id;
+
+-- name: IsUserInWorkshop :one
+-- Check if a user is a member of a specific workshop (has a user_role with that workshop_id)
+SELECT EXISTS(
+  SELECT 1 FROM user_role ur
+  INNER JOIN workshop w ON w.id = ur.workshop_id
+  WHERE ur.user_id = $1
+    AND ur.workshop_id = $2
+    AND w.active = true
+    AND w.deleted_at IS NULL
+) AS is_member;
+
+-- name: CanUserAccessShareViaWorkshopDefault :one
+-- Check if a user can access an API key share because it's the default share for a workshop they're in
+SELECT EXISTS(
+  SELECT 1 FROM workshop w
+  INNER JOIN user_role ur ON ur.workshop_id = w.id
+  WHERE w.default_api_key_share_id = $1
+    AND ur.user_id = $2
+    AND w.active = true
+    AND w.deleted_at IS NULL
+) AS can_access;
 
 -- api_key --------------------------------------------------------------
 
@@ -274,35 +301,35 @@ INSERT INTO user_role_invite (
 RETURNING *;
 
 -- name: GetInvites :many
-SELECT * FROM user_role_invite 
+SELECT * FROM user_role_invite
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC;
 
 -- name: GetInvitesByUser :many
-SELECT * FROM user_role_invite 
+SELECT * FROM user_role_invite
 WHERE (invited_user_id = $1 OR invited_email = (SELECT email FROM app_user WHERE id = $1))
   AND deleted_at IS NULL
   AND status = 'pending'
 ORDER BY created_at DESC;
 
 -- name: GetInvitesByWorkshop :many
-SELECT * FROM user_role_invite 
+SELECT * FROM user_role_invite
 WHERE workshop_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
 
 -- name: GetInvitesByInstitution :many
-SELECT * FROM user_role_invite 
+SELECT * FROM user_role_invite
 WHERE institution_id = $1 AND deleted_at IS NULL
 ORDER BY created_at DESC;
 
 -- name: HasWorkshopRole :one
 SELECT EXISTS(
-    SELECT 1 FROM user_role 
+    SELECT 1 FROM user_role
     WHERE user_id = $1 AND workshop_id = $2
 ) AS has_role;
 
 -- name: GetUsersByWorkshop :many
-SELECT 
+SELECT
   u.id, u.name, u.email,
   u.created_by, u.created_at, u.modified_by, u.modified_at,
   u.deleted_at, u.auth0_id,
@@ -316,10 +343,11 @@ WHERE ur.workshop_id = $1
 -- Get all participants for a workshop, including:
 -- 1. Users with RoleParticipant (anonymous participants)
 -- 2. Workshop owner/creator (staff/head who created it)
-SELECT 
+SELECT
   u.id, u.name, u.auth0_id,
   COALESCE(ur.created_at, w.created_at) as joined_at,
-  COALESCE(ur.role, ur_inst.role) as role
+  COALESCE(ur.role, ur_inst.role) as role,
+  (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count
 FROM app_user u
 INNER JOIN workshop w ON w.id = $1
 LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
@@ -359,7 +387,7 @@ DELETE FROM user_role_invite WHERE id = $1;
 
 -- name: GetPendingInviteByTarget :one
 -- Check if a pending invite already exists for the same target (user_id or email) and institution
-SELECT * FROM user_role_invite 
+SELECT * FROM user_role_invite
 WHERE institution_id = $1
   AND status = 'pending'
   AND deleted_at IS NULL

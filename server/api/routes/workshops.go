@@ -3,6 +3,7 @@ package routes
 import (
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/events"
 	"cgl/obj"
 	"net/http"
 
@@ -19,9 +20,13 @@ type CreateWorkshopRequest struct {
 
 // UpdateWorkshopRequest represents the request to update a workshop
 type UpdateWorkshopRequest struct {
-	Name   string `json:"name"`
-	Active bool   `json:"active"`
-	Public bool   `json:"public"`
+	Name                       string  `json:"name"`
+	Active                     bool    `json:"active"`
+	Public                     bool    `json:"public"`
+	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
+	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	ShowPublicGames            bool    `json:"showPublicGames"`
+	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }
 
 // CreateWorkshop godoc
@@ -202,7 +207,17 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, req.Name, req.Active, req.Public)
+	params := db.UpdateWorkshopParams{
+		Name:                       req.Name,
+		Active:                     req.Active,
+		Public:                     req.Public,
+		UseSpecificAiModel:         req.UseSpecificAiModel,
+		ShowAiModelSelector:        req.ShowAiModelSelector,
+		ShowPublicGames:            req.ShowPublicGames,
+		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
+	}
+
+	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)
 	if err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
@@ -211,6 +226,9 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	// Notify connected clients about the workshop update
+	events.GetBroker().PublishWorkshopUpdated(id)
 
 	httpx.WriteJSON(w, http.StatusOK, workshop)
 }
@@ -248,6 +266,67 @@ func DeleteWorkshop(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Workshop deleted",
 	})
+}
+
+// SetWorkshopApiKeyRequest represents the request to set a workshop's default API key
+type SetWorkshopApiKeyRequest struct {
+	ApiKeyShareID *string `json:"apiKeyShareId"`
+}
+
+// SetWorkshopApiKey godoc
+//
+//	@Summary		Set workshop default API key
+//	@Description	Sets the default API key for workshop participants (staff/heads only)
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string						true	"Workshop ID"
+//	@Param			request	body		SetWorkshopApiKeyRequest	true	"API key share ID"
+//	@Success		200		{object}	obj.Workshop
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/{id}/api-key [put]
+func SetWorkshopApiKey(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	id, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	var req SetWorkshopApiKeyRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteAppError(w, obj.ErrInvalidInput("Invalid JSON"))
+		return
+	}
+
+	var apiKeyShareID *uuid.UUID
+	if req.ApiKeyShareID != nil && *req.ApiKeyShareID != "" {
+		parsed, err := uuid.Parse(*req.ApiKeyShareID)
+		if err != nil {
+			httpx.WriteAppError(w, obj.ErrValidation("Invalid API key share ID"))
+			return
+		}
+		apiKeyShareID = &parsed
+	}
+
+	workshop, err := db.SetWorkshopDefaultApiKey(r.Context(), id, user.ID, apiKeyShareID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	// Notify connected clients about the workshop update (API key changed)
+	events.GetBroker().PublishWorkshopUpdated(id)
+
+	httpx.WriteJSON(w, http.StatusOK, workshop)
 }
 
 // GetParticipantToken godoc

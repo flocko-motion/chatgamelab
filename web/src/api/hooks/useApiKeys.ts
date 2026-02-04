@@ -101,7 +101,10 @@ export function useInstitutionApiKeys(institutionId: string) {
 
   return useQuery<ObjApiKeyShare[], HttpxErrorResponse>({
     queryKey: queryKeys.institutionApiKeys(institutionId),
-    queryFn: () => api.institutions.apikeysList(institutionId).then((response) => response.data),
+    queryFn: () =>
+      api.institutions
+        .apikeysList(institutionId)
+        .then((response) => response.data),
     enabled: !!institutionId,
   });
 }
@@ -113,16 +116,24 @@ export function useShareApiKeyWithInstitution() {
   return useMutation<
     ObjApiKeyShare,
     HttpxErrorResponse,
-    { shareId: string; institutionId: string; allowPublicSponsoredPlays?: boolean }
+    {
+      shareId: string;
+      institutionId: string;
+      allowPublicSponsoredPlays?: boolean;
+    }
   >({
     mutationFn: ({ shareId, institutionId, allowPublicSponsoredPlays }) =>
-      api.apikeys.sharesCreate(shareId, { 
-        institutionId, 
-        allowPublicSponsoredPlays: allowPublicSponsoredPlays ?? false 
-      }).then((response) => response.data),
+      api.apikeys
+        .sharesCreate(shareId, {
+          institutionId,
+          allowPublicSponsoredPlays: allowPublicSponsoredPlays ?? false,
+        })
+        .then((response) => response.data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutionApiKeys(variables.institutionId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+      });
     },
     onError: handleApiError,
   });
@@ -138,10 +149,14 @@ export function useRemoveInstitutionApiKeyShare() {
     { shareId: string; institutionId: string }
   >({
     mutationFn: ({ shareId }) =>
-      api.apikeys.apikeysDelete(shareId, { cascade: false }).then((response) => response.data),
+      api.apikeys
+        .apikeysDelete(shareId, { cascade: false })
+        .then((response) => response.data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutionApiKeys(variables.institutionId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+      });
     },
     onError: handleApiError,
   });
@@ -153,7 +168,8 @@ export function useAvailableKeysForGame(gameId: string | undefined) {
 
   return useQuery({
     queryKey: queryKeys.availableKeys(gameId!),
-    queryFn: () => api.games.availableKeysList(gameId!).then((response) => response.data),
+    queryFn: () =>
+      api.games.availableKeysList(gameId!).then((response) => response.data),
     enabled: !!gameId,
   });
 }

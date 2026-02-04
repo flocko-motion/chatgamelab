@@ -1,26 +1,26 @@
-import { 
-  Modal, 
-  Stack, 
-  Group, 
-  TextInput, 
-  Textarea, 
-  Switch, 
-  Skeleton, 
-  Alert, 
+import {
+  Modal,
+  Stack,
+  Group,
+  TextInput,
+  Textarea,
+  Switch,
+  Skeleton,
+  Alert,
   ScrollArea,
   rem,
   Text,
-} from '@mantine/core';
-import { IconCopy } from '@tabler/icons-react';
-import { useMediaQuery } from '@mantine/hooks';
-import { useModals } from '@mantine/modals';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { ActionButton, CancelButton } from '@components/buttons';
-import { useGame, useUpdateGame } from '@/api/hooks';
-import { StatusFieldsEditor } from './StatusFieldsEditor';
-import type { CreateGameFormData } from '../types';
+} from "@mantine/core";
+import { IconCopy } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
+import { useModals } from "@mantine/modals";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ActionButton, CancelButton } from "@components/buttons";
+import { useGame, useUpdateGame } from "@/api/hooks";
+import { StatusFieldsEditor } from "./StatusFieldsEditor";
+import type { CreateGameFormData } from "../types";
 
 interface FormValues {
   name: string;
@@ -46,35 +46,35 @@ interface GameEditModalProps {
   copyLoading?: boolean;
 }
 
-export function GameEditModal({ 
-  gameId, 
-  opened, 
-  onClose, 
+export function GameEditModal({
+  gameId,
+  opened,
+  onClose,
   onCreate,
   createLoading = false,
   readOnly = false,
   onCopy,
   copyLoading = false,
 }: GameEditModalProps) {
-  const { t } = useTranslation('common');
-  const isMobile = useMediaQuery('(max-width: 48em)');
-    const modals = useModals();
-  
+  const { t } = useTranslation("common");
+  const isMobile = useMediaQuery("(max-width: 48em)");
+  const modals = useModals();
+
   const isCreateMode = !gameId;
-  const { data: game, isLoading, error } = useGame(gameId ?? '');
+  const { data: game, isLoading, error } = useGame(gameId ?? "");
   const updateGame = useUpdateGame();
 
   // Form fields
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(false);
-  const [systemMessageScenario, setSystemMessageScenario] = useState('');
-  const [systemMessageGameStart, setSystemMessageGameStart] = useState('');
-  const [imageStyle, setImageStyle] = useState('');
-  const [statusFields, setStatusFields] = useState('');
-  
+  const [systemMessageScenario, setSystemMessageScenario] = useState("");
+  const [systemMessageGameStart, setSystemMessageGameStart] = useState("");
+  const [imageStyle, setImageStyle] = useState("");
+  const [statusFields, setStatusFields] = useState("");
+
   // Validation
-  const [nameError, setNameError] = useState('');
+  const [nameError, setNameError] = useState("");
 
   // Track initial values for dirty checking
   const initialValues = useRef<FormValues | null>(null);
@@ -91,24 +91,32 @@ export function GameEditModal({
       imageStyle !== initialValues.current.imageStyle ||
       statusFields !== initialValues.current.statusFields
     );
-  }, [name, description, isPublic, systemMessageScenario, systemMessageGameStart, imageStyle, statusFields]);
+  }, [
+    name,
+    description,
+    isPublic,
+    systemMessageScenario,
+    systemMessageGameStart,
+    imageStyle,
+    statusFields,
+  ]);
 
   // Track if we've initialized form values
   const hasInitialized = useRef(false);
-  
+
   // Initialize form values when game loads (only once)
   /* eslint-disable react-hooks/set-state-in-effect -- Intentional: initialize form from game data */
   useEffect(() => {
     if (!isCreateMode && game && !isLoading && !hasInitialized.current) {
       hasInitialized.current = true;
       const values: FormValues = {
-        name: game.name ?? '',
-        description: game.description ?? '',
+        name: game.name ?? "",
+        description: game.description ?? "",
         isPublic: game.public ?? false,
-        systemMessageScenario: game.systemMessageScenario ?? '',
-        systemMessageGameStart: game.systemMessageGameStart ?? '',
-        imageStyle: game.imageStyle ?? '',
-        statusFields: game.statusFields ?? '',
+        systemMessageScenario: game.systemMessageScenario ?? "",
+        systemMessageGameStart: game.systemMessageGameStart ?? "",
+        imageStyle: game.imageStyle ?? "",
+        statusFields: game.statusFields ?? "",
       };
       initialValues.current = values;
       setName(values.name);
@@ -123,13 +131,13 @@ export function GameEditModal({
     if (isCreateMode && opened && !hasInitialized.current) {
       hasInitialized.current = true;
       initialValues.current = {
-        name: '',
-        description: '',
+        name: "",
+        description: "",
         isPublic: false,
-        systemMessageScenario: '',
-        systemMessageGameStart: '',
-        imageStyle: '',
-        statusFields: '',
+        systemMessageScenario: "",
+        systemMessageGameStart: "",
+        imageStyle: "",
+        statusFields: "",
       };
     }
     // Reset when modal closes
@@ -138,21 +146,21 @@ export function GameEditModal({
       initialValues.current = null;
       if (isCreateMode) {
         // Reset form for create mode
-        setName('');
-        setDescription('');
+        setName("");
+        setDescription("");
         setIsPublic(false);
-        setSystemMessageScenario('');
-        setSystemMessageGameStart('');
-        setImageStyle('');
-        setStatusFields('');
-        setNameError('');
+        setSystemMessageScenario("");
+        setSystemMessageGameStart("");
+        setImageStyle("");
+        setStatusFields("");
+        setNameError("");
       }
     }
   }, [isCreateMode, game, isLoading, opened]);
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setNameError(t('games.errors.nameRequired'));
+      setNameError(t("games.errors.nameRequired"));
       return;
     }
 
@@ -190,21 +198,18 @@ export function GameEditModal({
     }
   };
 
-  
   const handleModalClose = () => {
     if (isDirty()) {
       modals.openConfirmModal({
-        title: t('games.editModal.unsavedChanges.title'),
+        title: t("games.editModal.unsavedChanges.title"),
         children: (
-          <Text size="sm">
-            {t('games.editModal.unsavedChanges.message')}
-          </Text>
+          <Text size="sm">{t("games.editModal.unsavedChanges.message")}</Text>
         ),
         labels: {
-          confirm: t('games.editModal.unsavedChanges.discard'),
-          cancel: t('games.editModal.unsavedChanges.keepEditing'),
+          confirm: t("games.editModal.unsavedChanges.discard"),
+          cancel: t("games.editModal.unsavedChanges.keepEditing"),
         },
-        confirmProps: { color: 'red' },
+        confirmProps: { color: "red" },
         onConfirm: onClose,
       });
     } else {
@@ -214,7 +219,7 @@ export function GameEditModal({
 
   const isLoaderActive = !isCreateMode && isLoading;
   const isSaving = isCreateMode ? createLoading : updateGame.isPending;
-  
+
   const modalContent = () => {
     if (isLoaderActive) {
       return (
@@ -229,41 +234,45 @@ export function GameEditModal({
     if (!isCreateMode && (error || !game)) {
       return (
         <Alert icon={<IconAlertCircle size={16} />} color="red">
-          {t('games.errors.loadFailed')}
+          {t("games.errors.loadFailed")}
         </Alert>
       );
     }
 
     return (
-      <ScrollArea h={isMobile ? 'calc(100vh - 180px)' : 'calc(85vh - 140px)'}>
+      <ScrollArea h={isMobile ? "calc(100vh - 180px)" : "calc(85vh - 140px)"}>
         <Stack gap="lg" pr="md">
           {/* Read-only notice */}
           {readOnly && (
-            <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
-              {t('games.viewModal.readOnlyNotice')}
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              color="blue"
+              variant="light"
+            >
+              {t("games.viewModal.readOnlyNotice")}
             </Alert>
           )}
-          
+
           {/* Name */}
           <TextInput
-            label={t('games.editFields.name')}
-            placeholder={t('games.createModal.namePlaceholder')}
+            label={t("games.editFields.name")}
+            placeholder={t("games.createModal.namePlaceholder")}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-              if (nameError) setNameError('');
+              if (nameError) setNameError("");
             }}
             error={nameError}
             required
             readOnly={readOnly}
             data-autofocus
           />
-          
+
           {/* Scenario */}
           <Textarea
-            label={t('games.editFields.scenario')}
-            description={t('games.editFields.scenarioHint')}
-            placeholder={t('games.editFields.scenarioPlaceholder')}
+            label={t("games.editFields.scenario")}
+            description={t("games.editFields.scenarioHint")}
+            placeholder={t("games.editFields.scenarioPlaceholder")}
             value={systemMessageScenario}
             onChange={(e) => setSystemMessageScenario(e.target.value)}
             minRows={6}
@@ -272,12 +281,12 @@ export function GameEditModal({
             required
             readOnly={readOnly}
           />
-          
+
           {/* Game Start */}
           <Textarea
-            label={t('games.editFields.gameStart')}
-            description={t('games.editFields.gameStartHint')}
-            placeholder={t('games.editFields.gameStartPlaceholder')}
+            label={t("games.editFields.gameStart")}
+            description={t("games.editFields.gameStartHint")}
+            placeholder={t("games.editFields.gameStartPlaceholder")}
             value={systemMessageGameStart}
             onChange={(e) => setSystemMessageGameStart(e.target.value)}
             minRows={4}
@@ -289,8 +298,8 @@ export function GameEditModal({
 
           {/* Image Style */}
           <TextInput
-            label={t('games.editFields.imageStyle')}
-            description={t('games.editFields.imageStyleHint')}
+            label={t("games.editFields.imageStyle")}
+            description={t("games.editFields.imageStyleHint")}
             value={imageStyle}
             onChange={(e) => setImageStyle(e.target.value)}
             placeholder="e.g., pixel art, watercolor, realistic..."
@@ -307,18 +316,18 @@ export function GameEditModal({
 
           {/* Description - moved to end */}
           <Textarea
-            label={t('games.editFields.description')}
-            placeholder={t('games.createModal.descriptionPlaceholder')}
+            label={t("games.editFields.description")}
+            placeholder={t("games.createModal.descriptionPlaceholder")}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minRows={3}
             readOnly={readOnly}
           />
-          
+
           {/* Visibility - last */}
           <Switch
-            label={t('games.createModal.publicLabel')}
-            description={t('games.createModal.publicDescription')}
+            label={t("games.createModal.publicLabel")}
+            description={t("games.createModal.publicDescription")}
             checked={isPublic}
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
             disabled={readOnly}
@@ -332,13 +341,19 @@ export function GameEditModal({
     <Modal
       opened={opened}
       onClose={handleModalClose}
-      title={isCreateMode ? t('games.createModal.title') : readOnly ? t('games.viewModal.title') : t('games.editModal.title')}
-      size={isMobile ? '100%' : rem(1000)}
+      title={
+        isCreateMode
+          ? t("games.createModal.title")
+          : readOnly
+            ? t("games.viewModal.title")
+            : t("games.editModal.title")
+      }
+      size={isMobile ? "100%" : rem(1000)}
       fullScreen={isMobile}
       centered={!isMobile}
       styles={{
-        content: { maxHeight: isMobile ? undefined : '85vh' },
-        body: { maxHeight: isMobile ? undefined : 'calc(85vh - 60px)' },
+        content: { maxHeight: isMobile ? undefined : "85vh" },
+        body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
       }}
     >
       <Stack gap="md">
@@ -347,27 +362,25 @@ export function GameEditModal({
         <Group justify="flex-end" mt="md" gap="sm">
           {readOnly ? (
             <>
-              <CancelButton onClick={onClose}>
-                {t('close')}
-              </CancelButton>
+              <CancelButton onClick={onClose}>{t("close")}</CancelButton>
               {onCopy && (
-                <ActionButton 
-                  onClick={onCopy} 
-                  loading={copyLoading} 
+                <ActionButton
+                  onClick={onCopy}
+                  loading={copyLoading}
                   size="sm"
                   leftSection={<IconCopy size={16} />}
                 >
-                  {t('games.copyGame')}
+                  {t("copyGame")}
                 </ActionButton>
               )}
             </>
           ) : (
             <>
               <CancelButton onClick={handleModalClose} disabled={isSaving}>
-                {t('cancel')}
+                {t("cancel")}
               </CancelButton>
               <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-                {isCreateMode ? t('games.createModal.submit') : t('save')}
+                {isCreateMode ? t("games.createModal.submit") : t("save")}
               </ActionButton>
             </>
           )}

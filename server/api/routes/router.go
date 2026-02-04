@@ -22,6 +22,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
+	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
@@ -53,12 +54,14 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
+	mux.HandleFunc("POST /api/auth/participant-login", ParticipantLogin)
 
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
 	mux.Handle("GET /api/users/me", httpx.RequireAuth(GetCurrentUser))
 	mux.Handle("GET /api/users/me/stats", httpx.RequireAuth(GetCurrentUserStats))
 	mux.Handle("PATCH /api/users/me/language", httpx.RequireAuth(UpdateUserLanguage))
+	mux.Handle("PUT /api/users/me/active-workshop", httpx.RequireAuth(SetActiveWorkshop))
 	mux.Handle("GET /api/users/{id}", httpx.RequireAuth(GetUserByID))
 	mux.Handle("POST /api/users/{id}", httpx.RequireAuth(UpdateUserByID))
 	mux.Handle("DELETE /api/users/{id}", httpx.RequireAuth(DeleteUser))
@@ -85,6 +88,8 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/workshops/{id}", httpx.RequireAuth(GetWorkshop))
 	mux.Handle("PATCH /api/workshops/{id}", httpx.RequireAuth(UpdateWorkshop))
 	mux.Handle("DELETE /api/workshops/{id}", httpx.RequireAuth(DeleteWorkshop))
+	mux.Handle("PUT /api/workshops/{id}/api-key", httpx.RequireAuth(SetWorkshopApiKey))
+	mux.Handle("GET /api/workshops/{id}/events", httpx.RequireAuth(WorkshopEvents))
 	mux.Handle("GET /api/workshops/participants/{participantId}/token", httpx.RequireAuth(GetParticipantToken))
 
 	// Invites

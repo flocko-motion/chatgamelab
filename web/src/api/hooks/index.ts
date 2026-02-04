@@ -1,6 +1,6 @@
 /**
  * Centralized API hooks for TanStack Query.
- * 
+ *
  * All hooks are organized by domain and re-exported from this file.
  * Import from '@/api/hooks' to use any hook.
  */
@@ -62,6 +62,7 @@ export {
   usePlatforms,
   useRoles,
   useSystemSettings,
+  useUpdateSystemSettings,
   useVersion,
 } from "./useSystem";
 
@@ -81,4 +82,17 @@ export {
   useUpdateWorkshop,
   useDeleteWorkshop,
   useCreateWorkshopInvite,
+  useSetWorkshopApiKey,
+  useUpdateParticipant,
+  useRemoveParticipant,
+  useGetParticipantToken,
 } from "./useWorkshops";
+
+// Workshop Events (SSE)
+export { useWorkshopEvents } from "./useWorkshopEvents";
+
+// Games Cache Updater (for SSE events)
+export { useGamesCacheUpdater } from "./useGamesCacheUpdater";
+
+// Active Workshop (Workshop Mode)
+export { useSetActiveWorkshop } from "./useActiveWorkshop";

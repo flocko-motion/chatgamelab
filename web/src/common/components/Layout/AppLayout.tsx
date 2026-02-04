@@ -1,5 +1,5 @@
 import { AppShell, Container } from '@mantine/core';
-import { AppHeader, type AppHeaderProps, type NavItem } from './AppHeader';
+import { AppHeader, type AppHeaderProps, type NavItem } from './AppHeader/index';
 import { AppFooter, type AppFooterProps } from './AppFooter';
 import { useResponsiveDesign } from '../../hooks/useResponsiveDesign';
 

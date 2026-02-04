@@ -122,3 +122,17 @@ SET
   modified_at = now()
 WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1;
 
+-- name: DeleteApiKeySharesByOwnerForInstitution :exec
+-- Delete all API key shares owned by a user that target a specific institution
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.institution_id = $2;
+
+-- name: DeleteApiKeySharesByOwnerForInstitutionWorkshops :exec
+-- Delete all API key shares owned by a user that target any workshop in a specific institution
+DELETE FROM api_key_share s
+WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
+  AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2);
+
+-- name: GetWorkshopIDsByInstitution :many
+SELECT id FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL;

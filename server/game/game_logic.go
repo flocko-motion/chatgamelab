@@ -67,6 +67,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		log.Debug("API key share not found", "share_id", shareID, "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
 	}
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", shareID)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -195,9 +196,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
 		}
+		return nil, nil, httpErr
 	}
 	response.PromptStatusUpdate = functional.Ptr(systemMessage)
-	return session, response, httpErr
+	return session, response, nil
 }
 
 // DoSessionAction orchestrates the AI response generation:

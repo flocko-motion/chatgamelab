@@ -45,6 +45,7 @@ export function useRevokeInvite() {
     mutationFn: (inviteId) =>
       api.invites.invitesDelete(inviteId).then((response) => response.data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workshops'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.invites });
       queryClient.invalidateQueries({ queryKey: queryKeys.institutionInvitesBase });
       queryClient.invalidateQueries({ queryKey: queryKeys.allInvites });
