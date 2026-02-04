@@ -209,11 +209,11 @@ jobs:
               -f \
               "https://omnitopos.net/dashctl/cgl-dev/restart" || echo "⚠️ Omnitopos webhook failed"
             
-            # echo "Triggering Coolify dev webhook..."
-            # curl -X POST \
-            #   -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
-            #   -f \
-            #   "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify webhook failed"
+            echo "Triggering Coolify dev webhook..."
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
+              -f \
+              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify webhook failed"
           fi
 
   summary:
