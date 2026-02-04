@@ -1,17 +1,5 @@
 import { config } from './env';
-
-function getBaseUrl(): string {
-  const publicUrl = config.PUBLIC_URL;
-  if (publicUrl && publicUrl.startsWith('http')) {
-    return publicUrl;
-  }
-  if (typeof window !== 'undefined') {
-    return publicUrl === '/' 
-      ? window.location.origin 
-      : `${window.location.origin}${publicUrl}`;
-  }
-  return publicUrl || '/';
-}
+import { getBaseUrl } from '@/common/lib/url';
 
 export const auth0Config = {
   domain: config.AUTH0_DOMAIN,

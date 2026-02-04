@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   Stack,
@@ -9,18 +9,27 @@ import {
   Skeleton,
   Box,
   Badge,
-} from '@mantine/core';
-import type { ComboboxItem, ComboboxLikeRenderOptionInput } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-import { useTranslation } from 'react-i18next';
-import { IconAlertCircle, IconKey } from '@tabler/icons-react';
-import { ActionButton, TextButton } from '@components/buttons';
-import { SectionTitle } from '@components/typography';
-import { useApiKeys, usePlatforms, useCurrentUser, useSystemSettings, useAvailableKeysForGame } from '@/api/hooks';
-import { getDefaultApiKey, getModelsForApiKey } from '../types';
-import type { ObjAvailableKey } from '@/api/generated';
+} from "@mantine/core";
+import type {
+  ComboboxItem,
+  ComboboxLikeRenderOptionInput,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { useTranslation } from "react-i18next";
+import { IconAlertCircle, IconKey } from "@tabler/icons-react";
+import { ActionButton, TextButton } from "@components/buttons";
+import { SectionTitle } from "@components/typography";
+import {
+  useApiKeys,
+  usePlatforms,
+  useCurrentUser,
+  useSystemSettings,
+  useAvailableKeysForGame,
+} from "@/api/hooks";
+import { getDefaultApiKey, getModelsForApiKey } from "../types";
+import type { ObjAvailableKey } from "@/api/generated";
 
-const STORAGE_KEY = 'chatgamelab-api-key-selection';
+const STORAGE_KEY = "chatgamelab-api-key-selection";
 
 function getStoredKeyForPlatform(platform: string): string | null {
   try {
@@ -36,7 +45,9 @@ function getStoredKeyForPlatform(platform: string): string | null {
 function saveKeyForPlatform(platform: string, keyId: string): void {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    const selections = stored ? JSON.parse(stored) as Record<string, string> : {};
+    const selections = stored
+      ? (JSON.parse(stored) as Record<string, string>)
+      : {};
     selections[platform] = keyId;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(selections));
   } catch {
@@ -53,6 +64,8 @@ interface ApiKeySelectModalProps {
   isLoading?: boolean;
   /** Optional reason message explaining why a new API key is needed (e.g., previous key was deleted) */
   reason?: string;
+  /** Workshop mode: hide API key selector, only show model picker. Pass the pre-selected key shareId. */
+  workshopKeyShareId?: string;
 }
 
 export function ApiKeySelectModal({
@@ -63,17 +76,33 @@ export function ApiKeySelectModal({
   gameName,
   isLoading = false,
   reason,
+  workshopKeyShareId,
 }: ApiKeySelectModalProps) {
-  const { t } = useTranslation('common');
-  const isMobile = useMediaQuery('(max-width: 48em)');
+  const isWorkshopMode = !!workshopKeyShareId;
+  const { t } = useTranslation("common");
+  const isMobile = useMediaQuery("(max-width: 48em)");
 
   // Use available keys for the specific game (includes sponsor, institution, personal keys)
-  const { data: availableKeys, isLoading: availableKeysLoading, error: availableKeysError } = useAvailableKeysForGame(gameId);
+  const {
+    data: availableKeys,
+    isLoading: availableKeysLoading,
+    error: availableKeysError,
+  } = useAvailableKeysForGame(gameId);
   // Fallback to user's own API keys if no gameId provided
-  const { data: apiKeys, isLoading: apiKeysLoading, error: apiKeysError } = useApiKeys();
+  const {
+    data: apiKeys,
+    isLoading: apiKeysLoading,
+    error: apiKeysError,
+  } = useApiKeys();
   const { data: platforms, isLoading: platformsLoading } = usePlatforms();
   const { data: currentUser } = useCurrentUser();
   const { data: systemSettings } = useSystemSettings();
+
+  // Determine if AI model selector should be shown
+  // For workshop participants, use workshop setting; otherwise use user's personal setting
+  const showModelSelector = currentUser?.role?.workshop
+    ? currentUser.role.workshop.showAiModelSelector
+    : currentUser?.showAiModelSelector;
 
   // Determine which keys to show - prefer available keys for the game
   const keysLoading = gameId ? availableKeysLoading : apiKeysLoading;
@@ -98,7 +127,16 @@ export function ApiKeySelectModal({
       }
 
       // Build options, preferring personal keys but showing all sources
-      const options: { value: string; label: string; source: string; isDefault: boolean; hasSponsor: boolean; hasPersonal: boolean; hasInstitution: boolean; hasPublic: boolean }[] = [];
+      const options: {
+        value: string;
+        label: string;
+        source: string;
+        isDefault: boolean;
+        hasSponsor: boolean;
+        hasPersonal: boolean;
+        hasInstitution: boolean;
+        hasPublic: boolean;
+      }[] = [];
       const seenKeys = new Set<string>();
 
       for (const key of availableKeys) {
@@ -107,23 +145,26 @@ export function ApiKeySelectModal({
         seenKeys.add(keyId);
 
         const allSources = keyMap.get(keyId) || [key];
-        
+
         // Determine badges based on sources
-        const hasPersonal = allSources.some(k => k.source === 'personal');
-        const hasInstitution = allSources.some(k => k.source === 'institution');
-        const hasSponsor = allSources.some(k => k.source === 'sponsor');
-        const hasPublic = allSources.some(k => k.source === 'public');
-        
+        const hasPersonal = allSources.some((k) => k.source === "personal");
+        const hasInstitution = allSources.some(
+          (k) => k.source === "institution",
+        );
+        const hasSponsor = allSources.some((k) => k.source === "sponsor");
+        const hasPublic = allSources.some((k) => k.source === "public");
+
         // Prefer personal share ID, then institution, then sponsor
-        const preferredKey = allSources.find(k => k.source === 'personal') 
-          || allSources.find(k => k.source === 'institution')
-          || key;
+        const preferredKey =
+          allSources.find((k) => k.source === "personal") ||
+          allSources.find((k) => k.source === "institution") ||
+          key;
 
         options.push({
-          value: preferredKey.shareId || '',
-          label: `${key.name || t('gamePlayer.unnamed')} (${key.platform || 'unknown'})`,
-          source: preferredKey.source || 'unknown',
-          isDefault: allSources.some(k => k.isDefault),
+          value: preferredKey.shareId || "",
+          label: `${key.name || t("gamePlayer.unnamed")} (${key.platform || "unknown"})`,
+          source: preferredKey.source || "unknown",
+          isDefault: allSources.some((k) => k.isDefault),
           hasSponsor,
           hasPersonal,
           hasInstitution,
@@ -134,10 +175,10 @@ export function ApiKeySelectModal({
       return options;
     }
     if (!apiKeys) return [];
-    return apiKeys.map(key => ({
-      value: key.id || '',
-      label: `${key.apiKey?.name || t('gamePlayer.unnamed')} (${key.apiKey?.platform || 'unknown'})`,
-      source: 'personal',
+    return apiKeys.map((key) => ({
+      value: key.id || "",
+      label: `${key.apiKey?.name || t("gamePlayer.unnamed")} (${key.apiKey?.platform || "unknown"})`,
+      source: "personal",
       isDefault: key.isUserDefault,
       hasSponsor: false,
       hasPersonal: true,
@@ -147,43 +188,72 @@ export function ApiKeySelectModal({
   }, [gameId, availableKeys, apiKeys, t]);
 
   // Render badges for a key option
-  const renderKeyBadges = (keyOption: typeof keyOptions[0], size: 'xs' | 'sm' = 'xs') => (
+  const renderKeyBadges = (
+    keyOption: (typeof keyOptions)[0],
+    size: "xs" | "sm" = "xs",
+  ) => (
     <Group gap={4} wrap="nowrap">
       {keyOption.hasSponsor && (
-        <Badge size={size} variant="filled" color="yellow">⭐</Badge>
+        <Badge size={size} variant="filled" color="yellow">
+          ⭐
+        </Badge>
       )}
       {keyOption.hasPersonal && (
-        <Badge size={size} variant="filled" color="violet">{t('gamePlayer.selectApiKey.mine')}</Badge>
+        <Badge size={size} variant="filled" color="violet">
+          {t("gamePlayer.selectApiKey.mine")}
+        </Badge>
       )}
       {keyOption.hasInstitution && (
-        <Badge size={size} variant="light" color="cyan">🏛️</Badge>
+        <Badge size={size} variant="light" color="cyan">
+          🏛️
+        </Badge>
       )}
       {keyOption.hasPublic && (
-        <Badge size={size} variant="light" color="green">�</Badge>
+        <Badge size={size} variant="light" color="green">
+          �
+        </Badge>
       )}
     </Group>
   );
 
   // Custom render function for Select options with badges
-  const renderSelectOption = ({ option }: ComboboxLikeRenderOptionInput<ComboboxItem>) => {
-    const keyOption = keyOptions.find(k => k.value === option.value);
+  const renderSelectOption = ({
+    option,
+  }: ComboboxLikeRenderOptionInput<ComboboxItem>) => {
+    const keyOption = keyOptions.find((k) => k.value === option.value);
     if (!keyOption) return option.label;
-    
+
     return (
-      <Group gap="xs" wrap="nowrap" justify="space-between" style={{ width: '100%' }}>
-        <Text size="sm" truncate>{option.label}</Text>
+      <Group
+        gap="xs"
+        wrap="nowrap"
+        justify="space-between"
+        style={{ width: "100%" }}
+      >
+        <Text size="sm" truncate>
+          {option.label}
+        </Text>
         {renderKeyBadges(keyOption)}
       </Group>
     );
   };
 
-  // Initialize selection - prefer sponsor key, then default, then first available
+  // Initialize selection - in workshop mode use provided key, otherwise prefer sponsor/default/stored
   /* eslint-disable react-hooks/set-state-in-effect -- Intentional: initialize selection on mount */
   useEffect(() => {
-    if (keyOptions.length === 0 || initializedFromStorage) return;
-    
+    if (initializedFromStorage) return;
+
+    // Workshop mode: use the provided workshop key
+    if (isWorkshopMode && workshopKeyShareId) {
+      setSelectedKeyId(workshopKeyShareId);
+      setInitializedFromStorage(true);
+      return;
+    }
+
+    if (keyOptions.length === 0) return;
+
     // First priority: sponsor key
-    const sponsorKey = keyOptions.find(k => k.source === 'sponsor');
+    const sponsorKey = keyOptions.find((k) => k.source === "sponsor");
     if (sponsorKey) {
       setSelectedKeyId(sponsorKey.value);
       setInitializedFromStorage(true);
@@ -191,7 +261,7 @@ export function ApiKeySelectModal({
     }
 
     // Second priority: default key (institution or user default)
-    const defaultOpt = keyOptions.find(k => k.isDefault);
+    const defaultOpt = keyOptions.find((k) => k.isDefault);
     if (defaultOpt) {
       setSelectedKeyId(defaultOpt.value);
       setInitializedFromStorage(true);
@@ -202,9 +272,9 @@ export function ApiKeySelectModal({
     for (const key of keyOptions) {
       const platform = key.label.match(/\(([^)]+)\)/)?.[1];
       if (!platform) continue;
-      
+
       const storedKeyId = getStoredKeyForPlatform(platform);
-      if (storedKeyId && keyOptions.some(k => k.value === storedKeyId)) {
+      if (storedKeyId && keyOptions.some((k) => k.value === storedKeyId)) {
         setSelectedKeyId(storedKeyId);
         setInitializedFromStorage(true);
         return;
@@ -216,29 +286,32 @@ export function ApiKeySelectModal({
       setSelectedKeyId(keyOptions[0].value);
     }
     setInitializedFromStorage(true);
-  }, [keyOptions, initializedFromStorage]);
+  }, [keyOptions, initializedFromStorage, isWorkshopMode, workshopKeyShareId]);
 
   const selectedKey = useMemo(() => {
     if (!apiKeys) return undefined;
     if (selectedKeyId) {
-      return apiKeys.find(k => k.id === selectedKeyId);
+      return apiKeys.find((k) => k.id === selectedKeyId);
     }
     return defaultKey;
   }, [apiKeys, selectedKeyId, defaultKey]);
 
-  // For available keys (institution/sponsor), we need to get the platform from the selected option
+  // For available keys (institution/sponsor/workshop), we need to get the platform from the selected option
   const selectedKeyPlatform = useMemo(() => {
-    if (gameId && availableKeys && selectedKeyId) {
-      const availableKey = availableKeys.find(k => k.shareId === selectedKeyId);
+    // In workshop mode or with available keys, look up from availableKeys
+    if ((isWorkshopMode || gameId) && availableKeys && selectedKeyId) {
+      const availableKey = availableKeys.find(
+        (k) => k.shareId === selectedKeyId,
+      );
       return availableKey?.platform;
     }
     return selectedKey?.apiKey?.platform;
-  }, [gameId, availableKeys, selectedKeyId, selectedKey]);
+  }, [isWorkshopMode, gameId, availableKeys, selectedKeyId, selectedKey]);
 
   const availableModels = useMemo(() => {
     // If using available keys (game-specific), get models from platform
     if (gameId && selectedKeyPlatform && platforms) {
-      const platform = platforms.find(p => p.id === selectedKeyPlatform);
+      const platform = platforms.find((p) => p.id === selectedKeyPlatform);
       return platform?.models || [];
     }
     // Otherwise use personal key
@@ -246,26 +319,32 @@ export function ApiKeySelectModal({
   }, [gameId, selectedKeyPlatform, selectedKey, platforms]);
 
   const modelOptions = useMemo(() => {
-    return availableModels.map(model => ({
-      value: model.id || '',
-      label: model.name || model.id || '',
+    return availableModels.map((model) => ({
+      value: model.id || "",
+      label: model.name || model.id || "",
     }));
   }, [availableModels]);
 
   const handleStart = () => {
-    if (!selectedKeyId) return;
-    
-    // Save selection to localStorage for this platform
-    const selectedOption = keyOptions.find(k => k.value === selectedKeyId);
-    const platform = selectedOption?.label.match(/\(([^)]+)\)/)?.[1];
-    if (platform) {
-      saveKeyForPlatform(platform, selectedKeyId);
+    // In workshop mode, use the workshop key; otherwise use selected key
+    const keyToUse = isWorkshopMode ? workshopKeyShareId : selectedKeyId;
+    if (!keyToUse) return;
+
+    // Save selection to localStorage for this platform (not in workshop mode)
+    if (!isWorkshopMode) {
+      const selectedOption = keyOptions.find((k) => k.value === selectedKeyId);
+      const platform = selectedOption?.label.match(/\(([^)]+)\)/)?.[1];
+      if (platform && selectedKeyId) {
+        saveKeyForPlatform(platform, selectedKeyId);
+      }
     }
-    
-    const modelToUse = currentUser?.showAiModelSelector 
-      ? (selectedModel || undefined)
-      : (systemSettings?.defaultAiModel || undefined);
-    onStart(selectedKeyId, modelToUse);
+
+    // In workshop mode, always use selected model; otherwise check showModelSelector
+    const modelToUse =
+      isWorkshopMode || showModelSelector
+        ? selectedModel || undefined
+        : systemSettings?.defaultAiModel || undefined;
+    onStart(keyToUse, modelToUse);
   };
 
   const hasNoKeys = !keysLoading && keyOptions.length === 0;
@@ -277,10 +356,10 @@ export function ApiKeySelectModal({
       title={
         <Group gap="xs">
           <IconKey size={20} />
-          <Text fw={600}>{t('gamePlayer.selectApiKey.title')}</Text>
+          <Text fw={600}>{t("gamePlayer.selectApiKey.title")}</Text>
         </Group>
       }
-      size={isMobile ? '100%' : 'md'}
+      size={isMobile ? "100%" : "md"}
       fullScreen={isMobile}
       centered={!isMobile}
     >
@@ -293,7 +372,9 @@ export function ApiKeySelectModal({
 
         {gameName && (
           <Box>
-            <Text size="sm" c="dimmed">{t('gamePlayer.selectApiKey.playing')}</Text>
+            <Text size="sm" c="dimmed">
+              {t("gamePlayer.selectApiKey.playing")}
+            </Text>
             <SectionTitle>{gameName}</SectionTitle>
           </Box>
         )}
@@ -305,61 +386,78 @@ export function ApiKeySelectModal({
           </Stack>
         ) : keysError ? (
           <Alert icon={<IconAlertCircle size={16} />} color="red">
-            {t('gamePlayer.selectApiKey.loadError')}
+            {t("gamePlayer.selectApiKey.loadError")}
+          </Alert>
+        ) : hasNoKeys && isWorkshopMode ? (
+          <Alert icon={<IconAlertCircle size={16} />} color="orange">
+            {t(
+              "gamePlayer.workshopKeyError",
+              "No API key configured for this workshop. Please contact your workshop administrator.",
+            )}
           </Alert>
         ) : hasNoKeys ? (
           <Alert icon={<IconAlertCircle size={16} />} color="orange">
-            {t('gamePlayer.selectApiKey.noKeys')}
+            {t("gamePlayer.selectApiKey.noKeys")}
           </Alert>
         ) : (
           <>
-            <Box>
-              <Select
-                label={t('gamePlayer.selectApiKey.keyLabel')}
-                description={t('gamePlayer.selectApiKey.keyDescription')}
-                placeholder={t('gamePlayer.selectApiKey.keyPlaceholder')}
-                data={keyOptions.map(k => ({ value: k.value, label: k.label }))}
-                value={selectedKeyId}
-                onChange={setSelectedKeyId}
-                renderOption={renderSelectOption}
-                searchable
-                clearable={false}
-              />
-              {selectedKeyId && (() => {
-                const selected = keyOptions.find(k => k.value === selectedKeyId);
-                return selected ? (
-                  <Group gap="xs" mt="xs">
-                    {renderKeyBadges(selected, 'sm')}
-                  </Group>
-                ) : null;
-              })()}
-            </Box>
-
-            {currentUser?.showAiModelSelector && availableModels.length > 0 && (
-              <Select
-                label={t('gamePlayer.selectApiKey.modelLabel')}
-                description={t('gamePlayer.selectApiKey.modelDescription')}
-                placeholder={t('gamePlayer.selectApiKey.modelPlaceholder')}
-                data={modelOptions}
-                value={selectedModel}
-                onChange={setSelectedModel}
-                searchable
-                clearable
-              />
+            {/* Hide API key selector in workshop mode - only show model picker */}
+            {!isWorkshopMode && (
+              <Box>
+                <Select
+                  label={t("gamePlayer.selectApiKey.keyLabel")}
+                  description={t("gamePlayer.selectApiKey.keyDescription")}
+                  placeholder={t("gamePlayer.selectApiKey.keyPlaceholder")}
+                  data={keyOptions.map((k) => ({
+                    value: k.value,
+                    label: k.label,
+                  }))}
+                  value={selectedKeyId}
+                  onChange={setSelectedKeyId}
+                  renderOption={renderSelectOption}
+                  searchable
+                  clearable={false}
+                />
+                {selectedKeyId &&
+                  (() => {
+                    const selected = keyOptions.find(
+                      (k) => k.value === selectedKeyId,
+                    );
+                    return selected ? (
+                      <Group gap="xs" mt="xs">
+                        {renderKeyBadges(selected, "sm")}
+                      </Group>
+                    ) : null;
+                  })()}
+              </Box>
             )}
+
+            {(showModelSelector || isWorkshopMode) &&
+              availableModels.length > 0 && (
+                <Select
+                  label={t("gamePlayer.selectApiKey.modelLabel")}
+                  description={t("gamePlayer.selectApiKey.modelDescription")}
+                  placeholder={t("gamePlayer.selectApiKey.modelPlaceholder")}
+                  data={modelOptions}
+                  value={selectedModel}
+                  onChange={setSelectedModel}
+                  searchable
+                  clearable
+                />
+              )}
           </>
         )}
 
         <Group justify="flex-end" mt="md">
           <TextButton onClick={onClose} disabled={isLoading}>
-            {t('cancel')}
+            {t("cancel")}
           </TextButton>
           <ActionButton
             onClick={handleStart}
             loading={isLoading}
             disabled={hasNoKeys || !selectedKeyId}
           >
-            {t('gamePlayer.selectApiKey.startGame')}
+            {t("gamePlayer.selectApiKey.startGame")}
           </ActionButton>
         </Group>
       </Stack>

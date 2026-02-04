@@ -157,15 +157,16 @@ type UserFavouriteGame struct {
 }
 
 type UserRole struct {
-	ID            uuid.NullUUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	UserID        uuid.UUID
-	Role          sql.NullString
-	InstitutionID uuid.NullUUID
-	WorkshopID    uuid.NullUUID
+	ID               uuid.NullUUID
+	CreatedBy        uuid.NullUUID
+	CreatedAt        time.Time
+	ModifiedBy       uuid.NullUUID
+	ModifiedAt       time.Time
+	UserID           uuid.UUID
+	Role             sql.NullString
+	InstitutionID    uuid.NullUUID
+	WorkshopID       uuid.NullUUID
+	ActiveWorkshopID uuid.NullUUID
 }
 
 type UserRoleInvite struct {
@@ -190,16 +191,21 @@ type UserRoleInvite struct {
 }
 
 type Workshop struct {
-	ID            uuid.UUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	Name          string
-	InstitutionID uuid.UUID
-	Active        bool
-	Public        bool
-	DeletedAt     sql.NullTime
+	ID                         uuid.UUID
+	CreatedBy                  uuid.NullUUID
+	CreatedAt                  time.Time
+	ModifiedBy                 uuid.NullUUID
+	ModifiedAt                 time.Time
+	Name                       string
+	InstitutionID              uuid.UUID
+	Active                     bool
+	Public                     bool
+	DeletedAt                  sql.NullTime
+	DefaultApiKeyShareID       uuid.NullUUID
+	UseSpecificAiModel         sql.NullString
+	ShowAiModelSelector        bool
+	ShowPublicGames            bool
+	ShowOtherParticipantsGames bool
 }
 
 type WorkshopParticipant struct {

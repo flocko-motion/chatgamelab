@@ -308,37 +308,37 @@ SELECT * FROM game_session WHERE id = $1;
 SELECT * FROM game_session WHERE game_id = $1 ORDER BY created_at DESC;
 
 -- name: GetGameSessionsByUserID :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY gs.modified_at DESC
 LIMIT 20;
 
 -- name: GetGameSessionsByUserIDSortByGame :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY LOWER(g.name) ASC, gs.modified_at DESC
 LIMIT 20;
 
 -- name: GetGameSessionsByUserIDSortByModel :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY gs.ai_model ASC, gs.modified_at DESC
 LIMIT 20;
 
 -- name: SearchGameSessionsByUserID :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
@@ -348,7 +348,7 @@ ORDER BY gs.modified_at DESC
 LIMIT 20;
 
 -- name: SearchGameSessionsByUserIDSortByGame :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
@@ -358,7 +358,7 @@ ORDER BY LOWER(g.name) ASC, gs.modified_at DESC
 LIMIT 20;
 
 -- name: SearchGameSessionsByUserIDSortByModel :many
-SELECT 
+SELECT
   gs.*,
   g.name as game_name
 FROM game_session gs
@@ -485,3 +485,14 @@ DELETE FROM game_session_message WHERE game_session_id = $1;
 
 -- name: DeleteUserGameSessions :exec
 DELETE FROM game_session WHERE user_id = $1 AND game_id = $2;
+
+-- name: GetSessionIDsByUserID :many
+SELECT id FROM game_session WHERE user_id = $1;
+
+-- name: DeleteAllUserSessions :exec
+DELETE FROM game_session WHERE user_id = $1;
+
+-- name: DeleteGameSessionMessagesByUserID :exec
+DELETE FROM game_session_message WHERE game_session_id IN (
+  SELECT id FROM game_session WHERE user_id = $1
+);

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   Stack,
   Text,
@@ -15,42 +15,56 @@ import {
   Checkbox,
   TextInput,
   Button,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { IconKey, IconInfoCircle, IconTrash, IconPlus, IconSearch } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import { useAuth } from '@/providers/AuthProvider';
-import { ActionButton } from '@/common/components/buttons';
-import { 
-  useInstitutionApiKeys, 
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import {
+  IconKey,
+  IconInfoCircle,
+  IconTrash,
+  IconPlus,
+  IconSearch,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { useAuth } from "@/providers/AuthProvider";
+import { ActionButton } from "@/common/components/buttons";
+import {
+  useInstitutionApiKeys,
   useApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
-} from '@/api/hooks';
-import type { ObjApiKeyShare } from '@/api/generated';
+} from "@/api/hooks";
+import type { ObjApiKeyShare } from "@/api/generated";
 
 interface ApiKeysTabProps {
   institutionId: string;
   institutionName?: string;
 }
 
-export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) {
-  const { t } = useTranslation('common');
+export function ApiKeysTab({
+  institutionId,
+  institutionName,
+}: ApiKeysTabProps) {
+  const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
   const { backendUser } = useAuth();
-  const [shareModalOpened, { open: openShareModal, close: closeShareModal }] = useDisclosure(false);
+  const [shareModalOpened, { open: openShareModal, close: closeShareModal }] =
+    useDisclosure(false);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
   const [allowPublicSponsored, setAllowPublicSponsored] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
 
   // Fetch institution API keys
-  const { data: institutionKeys, isLoading, isError } = useInstitutionApiKeys(institutionId);
-  
+  const {
+    data: institutionKeys,
+    isLoading,
+    isError,
+  } = useInstitutionApiKeys(institutionId);
+
   // Fetch user's own keys (for sharing)
   const { data: userKeys } = useApiKeys();
-  
+
   // Mutations
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
@@ -58,42 +72,49 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
   // Get unique platforms for filter
   const platforms = useMemo(() => {
     if (!institutionKeys) return [];
-    const unique = new Set(institutionKeys.map(s => s.apiKey?.platform).filter(Boolean));
+    const unique = new Set(
+      institutionKeys.map((s) => s.apiKey?.platform).filter(Boolean),
+    );
     return Array.from(unique) as string[];
   }, [institutionKeys]);
 
   // Filter institution keys by search and platform
   const filteredKeys = useMemo(() => {
     if (!institutionKeys) return [];
-    return institutionKeys.filter(share => {
-      const matchesSearch = !searchQuery || 
+    return institutionKeys.filter((share) => {
+      const matchesSearch =
+        !searchQuery ||
         share.apiKey?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        share.apiKey?.userName?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesPlatform = !platformFilter || share.apiKey?.platform === platformFilter;
+        share.apiKey?.userName
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
+      const matchesPlatform =
+        !platformFilter || share.apiKey?.platform === platformFilter;
       return matchesSearch && matchesPlatform;
     });
   }, [institutionKeys, searchQuery, platformFilter]);
 
   // Filter user's own keys that aren't already shared with the institution
-  const availableKeysToShare = userKeys?.filter(share => {
-    // Only show keys the user owns (compare with current user's ID)
-    if (share.apiKey?.userId !== backendUser?.id) return false;
-    // Don't show keys already shared with this institution
-    const alreadyShared = institutionKeys?.some(
-      instShare => instShare.apiKeyId === share.apiKeyId
-    );
-    return !alreadyShared;
-  }) ?? [];
+  const availableKeysToShare =
+    userKeys?.filter((share) => {
+      // Only show keys the user owns (compare with current user's ID)
+      if (share.apiKey?.userId !== backendUser?.id) return false;
+      // Don't show keys already shared with this institution
+      const alreadyShared = institutionKeys?.some(
+        (instShare) => instShare.apiKeyId === share.apiKeyId,
+      );
+      return !alreadyShared;
+    }) ?? [];
 
   const handleShareKey = async () => {
     if (!selectedKeyId) return;
-    
+
     await shareApiKey.mutateAsync({
       shareId: selectedKeyId,
       institutionId,
       allowPublicSponsoredPlays: allowPublicSponsored,
     });
-    
+
     closeShareModal();
     setSelectedKeyId(null);
     setAllowPublicSponsored(false);
@@ -117,8 +138,8 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
 
   if (isError) {
     return (
-      <Alert color="red" title={t('common.error')}>
-        {t('myOrganization.apiKeys.loadError')}
+      <Alert color="red" title={t("error")}>
+        {t("myOrganization.apiKeys.loadError")}
       </Alert>
     );
   }
@@ -130,12 +151,10 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
       {/* Info block */}
       <Alert
         icon={<IconInfoCircle size={16} />}
-        title={t('myOrganization.apiKeys.aboutTitle')}
+        title={t("myOrganization.apiKeys.aboutTitle")}
         color="cyan"
       >
-        <Text size="sm">
-          {t('myOrganization.apiKeys.aboutDescription')}
-        </Text>
+        <Text size="sm">{t("myOrganization.apiKeys.aboutDescription")}</Text>
       </Alert>
 
       {/* Actions and filters */}
@@ -145,13 +164,13 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
           onClick={openShareModal}
           disabled={availableKeysToShare.length === 0}
         >
-          {t('myOrganization.apiKeys.shareKey')}
+          {t("myOrganization.apiKeys.shareKey")}
         </ActionButton>
 
         {hasKeys && (
           <Group gap="sm" wrap="wrap">
             <TextInput
-              placeholder={t('myOrganization.apiKeys.searchPlaceholder')}
+              placeholder={t("myOrganization.apiKeys.searchPlaceholder")}
               leftSection={<IconSearch size={16} />}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -159,8 +178,8 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
               style={{ minWidth: 200 }}
             />
             <Select
-              placeholder={t('myOrganization.apiKeys.filterByPlatform')}
-              data={platforms.map(p => ({ value: p, label: p }))}
+              placeholder={t("myOrganization.apiKeys.filterByPlatform")}
+              data={platforms.map((p) => ({ value: p, label: p }))}
               value={platformFilter}
               onChange={setPlatformFilter}
               clearable
@@ -173,16 +192,25 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
 
       {/* Keys list */}
       {hasKeys ? (
-        <Card shadow="sm" padding={isMobile ? 'md' : 'lg'} radius="md" withBorder>
+        <Card
+          shadow="sm"
+          padding={isMobile ? "md" : "lg"}
+          radius="md"
+          withBorder
+        >
           {filteredKeys.length > 0 ? (
             <Table striped={!isMobile} highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>{t('myOrganization.apiKeys.keyName')}</Table.Th>
-                  <Table.Th>{t('myOrganization.apiKeys.owner')}</Table.Th>
-                  <Table.Th>{t('myOrganization.apiKeys.platform')}</Table.Th>
-                  {!isMobile && <Table.Th>{t('myOrganization.apiKeys.publicSponsoring')}</Table.Th>}
-                  <Table.Th>{t('myOrganization.actions')}</Table.Th>
+                  <Table.Th>{t("myOrganization.apiKeys.keyName")}</Table.Th>
+                  <Table.Th>{t("myOrganization.apiKeys.owner")}</Table.Th>
+                  <Table.Th>{t("myOrganization.apiKeys.platform")}</Table.Th>
+                  {!isMobile && (
+                    <Table.Th>
+                      {t("myOrganization.apiKeys.publicSponsoring")}
+                    </Table.Th>
+                  )}
+                  <Table.Th>{t("myOrganization.actions")}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
@@ -191,7 +219,9 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
                     <Table.Td>
                       <Group gap="xs">
                         <IconKey size={16} />
-                        <Text size="sm">{share.apiKey?.name || t('common.unnamed')}</Text>
+                        <Text size="sm">
+                          {share.apiKey?.name || t("unnamed")}
+                        </Text>
                       </Group>
                     </Table.Td>
                     <Table.Td>
@@ -202,16 +232,16 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
                     </Table.Td>
                     {!isMobile && (
                       <Table.Td>
-                      {share.allowPublicSponsoredPlays ? (
-                        <Badge color="red" variant="light" size="sm">
-                          {t('labels.yes')}
-                        </Badge>
-                      ) : (
-                        <Badge color="green" variant="light" size="sm">
-                          {t('labels.no')}
-                        </Badge>
-                      )}
-                    </Table.Td>
+                        {share.allowPublicSponsoredPlays ? (
+                          <Badge color="red" variant="light" size="sm">
+                            {t("labels.yes")}
+                          </Badge>
+                        ) : (
+                          <Badge color="green" variant="light" size="sm">
+                            {t("labels.no")}
+                          </Badge>
+                        )}
+                      </Table.Td>
                     )}
                     <Table.Td>
                       <ActionIcon
@@ -231,17 +261,22 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
             <Stack gap="md" align="center" py="xl">
               <IconSearch size={48} color="var(--mantine-color-dimmed)" />
               <Text c="dimmed" ta="center">
-                {t('myOrganization.apiKeys.noResults')}
+                {t("myOrganization.apiKeys.noResults")}
               </Text>
             </Stack>
           )}
         </Card>
       ) : (
-        <Card shadow="sm" padding={isMobile ? 'md' : 'lg'} radius="md" withBorder>
+        <Card
+          shadow="sm"
+          padding={isMobile ? "md" : "lg"}
+          radius="md"
+          withBorder
+        >
           <Stack gap="md" align="center" py="xl">
             <IconKey size={48} color="var(--mantine-color-dimmed)" />
             <Text c="dimmed" ta="center">
-              {t('myOrganization.apiKeys.noKeys')}
+              {t("myOrganization.apiKeys.noKeys")}
             </Text>
             <Badge color="cyan" variant="light">
               {institutionName || institutionId}
@@ -254,37 +289,37 @@ export function ApiKeysTab({ institutionId, institutionName }: ApiKeysTabProps) 
       <Modal
         opened={shareModalOpened}
         onClose={closeShareModal}
-        title={t('myOrganization.apiKeys.shareKeyTitle')}
+        title={t("myOrganization.apiKeys.shareKeyTitle")}
       >
         <Stack gap="md">
           <Select
-            label={t('myOrganization.apiKeys.selectKey')}
-            placeholder={t('myOrganization.apiKeys.selectKeyPlaceholder')}
-            data={availableKeysToShare.map(share => ({
-              value: share.id || '',
-              label: `${share.apiKey?.name || t('common.unnamed')} (${share.apiKey?.platform})`,
+            label={t("myOrganization.apiKeys.selectKey")}
+            placeholder={t("myOrganization.apiKeys.selectKeyPlaceholder")}
+            data={availableKeysToShare.map((share) => ({
+              value: share.id || "",
+              label: `${share.apiKey?.name || t("unnamed")} (${share.apiKey?.platform})`,
             }))}
             value={selectedKeyId}
             onChange={setSelectedKeyId}
           />
-          
+
           <Checkbox
-            label={t('myOrganization.apiKeys.allowPublicSponsoring')}
-            description={t('myOrganization.apiKeys.allowPublicSponsoringDesc')}
+            label={t("myOrganization.apiKeys.allowPublicSponsoring")}
+            description={t("myOrganization.apiKeys.allowPublicSponsoringDesc")}
             checked={allowPublicSponsored}
             onChange={(e) => setAllowPublicSponsored(e.currentTarget.checked)}
           />
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={closeShareModal}>
-              {t('common.cancel')}
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleShareKey}
               loading={shareApiKey.isPending}
               disabled={!selectedKeyId}
             >
-              {t('myOrganization.apiKeys.share')}
+              {t("myOrganization.apiKeys.share")}
             </Button>
           </Group>
         </Stack>
