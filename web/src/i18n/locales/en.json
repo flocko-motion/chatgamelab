@@ -11,26 +11,22 @@
     "settings": "Settings",
     "profile": "Profile",
     "logout": "Logout",
-    "login": "Login",
     "unnamed": "Unnamed",
     "labels": {
       "yes": "Yes",
       "no": "No"
     },
     "home": {
-      "badge": "Educational Gaming Lab",
-      "title": "ChatGameLab",
       "splashDescription": "An educational platform for creating and playing AI-powered text-adventure games. Perfect for teachers, students, and creative storytellers.",
       "loginCta": "Login and Explore",
       "features": {
         "title": "Why Choose ChatGameLab?",
-        "subtitle": "Discover the perfect blend of education and entertainment",
         "create": {
           "title": "Create Adventures",
           "description": "Design interactive text adventures powered by AI"
         },
         "play": {
-          "title": "Play Together", 
+          "title": "Play Together",
           "description": "Join friends in collaborative storytelling sessions"
         },
         "learn": {
@@ -49,8 +45,7 @@
     },
     "footer": {
       "programmedBy": "Programmed by",
-      "jffTitle": "JFF - Institute for Educational Research and Innovation",
-      "copyright": "© ChatGameLab"
+      "jffTitle": "JFF - Institute for Educational Research and Innovation"
     },
     "header": {
       "openNavigation": "Open navigation menu",
@@ -60,28 +55,20 @@
       "goToDashboard": "Go to Dashboard",
       "apiKeys": "API Keys",
       "profile": "Profile",
-      "logout": "Logout"
+      "logout": "Logout",
+      "leaveWorkshopMode": "Leave Workshop-Mode",
+      "leaveWorkshopModeTooltip": "Leave workshop mode and return to normal view",
+      "workshop": "Workshop",
+      "organization": "Organization"
     },
     "apiKeys": {
       "title": "API Key Management",
       "subtitle": "Manage your API keys for AI platforms.",
       "addKey": "Add Key",
-      "addFirstKey": "Add Your First API Key",
-      "noKeys": "You don't have any API keys yet.",
-      "yourKeys": "Your API Keys",
       "key": "key",
       "keys": "keys",
       "addedOn": "Added",
       "unnamed": "Unnamed Key",
-      "default": "Default",
-      "active": "Active",
-      "table": {
-        "name": "Name",
-        "platform": "Platform",
-        "key": "Key",
-        "status": "Status",
-        "actions": "Actions"
-      },
       "aboutSection": {
         "title": "About API Keys",
         "description": "API keys are used to connect to AI platforms for generating game content."
@@ -96,11 +83,6 @@
         "keyPlaceholder": "Enter your API key",
         "keyDescription": "Your key will be encrypted and stored securely.",
         "submit": "Add Key"
-      },
-      "editModal": {
-        "title": "Edit API Key",
-        "nameLabel": "Key Name",
-        "namePlaceholder": "Enter a name for this key"
       },
       "deleteModal": {
         "title": "Delete API Key",
@@ -127,13 +109,16 @@
     "back": "Back",
     "close": "Close",
     "games": {
+      "badges": {
+        "myGame": "My Game",
+        "workshop": "Workshop",
+        "public": "Public"
+      },
       "title": "My Created Games",
       "createButton": "Create Game",
       "playNow": "Play Now",
-      "saveAndPlay": "Save & Play",
       "fields": {
         "name": "Name",
-        "description": "Description",
         "visibility": "Visibility",
         "creator": "Creator",
         "playCount": "Plays",
@@ -166,10 +151,7 @@
       },
       "createModal": {
         "title": "Create New Game",
-        "info": "Fill in the details below to create a new game. You can always edit these later.",
-        "nameLabel": "Game Name",
         "namePlaceholder": "e.g., Space Adventure",
-        "descriptionLabel": "Description",
         "descriptionPlaceholder": "What is your game about?",
         "publicLabel": "Make this game public",
         "publicDescription": "Public games are discoverable by everyone.",
@@ -181,23 +163,12 @@
       },
       "editModal": {
         "title": "Edit Game",
-        "info": "Update your game settings below. Changes are saved when you click Save.",
         "unsavedChanges": {
           "title": "Unsaved Changes",
           "message": "You have unsaved changes. Are you sure you want to discard them?",
           "discard": "Discard Changes",
           "keepEditing": "Keep Editing"
         }
-      },
-      "tabs": {
-        "basic": "Basic",
-        "basicInfo": "General info about the game. This is just for you and won't affect gameplay.",
-        "story": "Story & AI",
-        "storyInfo": "Everything here is sent to the AI to set up your game world and story.",
-        "style": "Style",
-        "styleInfo": "Optional visual settings for how the game looks when playing.",
-        "quickStart": "Quick Start",
-        "importExport": "Import/Export"
       },
       "editFields": {
         "name": "Game Name",
@@ -208,38 +179,16 @@
         "scenarioHint": "Briefly describe: Where does the game take place? Who are you? What is the goal? Any important rules?",
         "scenarioPlaceholder": "You are an explorer in a mysterious forest. Your goal is to find the hidden treasure...",
         "gameStart": "How does the game begin?",
-        "gameStartHint": "What happens at the start? Describe the first scene that the player sees.",
+        "gameStartHint": "What happens at the start? Describe the first scene that the player sees. How is the player welcomed?",
         "gameStartPlaceholder": "You wake up at the edge of a dark forest. A narrow path leads deeper into the trees...",
         "statusFields": "Game values",
-        "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing.",
-        "statusFieldsPlaceholder": "Health: 100\nGold: 0\nInventory: empty",
-        "firstMessage": "First Message",
-        "firstMessageHint": "Pre-generated opening message for quick game start.",
-        "firstStatus": "First Status",
-        "firstStatusHint": "Initial status values for the quick start.",
-        "quickStartInfo": "Quick start content is pre-generated to allow instant game starts."
-      },
-      "quickStart": {
-        "regenerate": "Regenerate",
-        "noContent": "Not generated yet"
+        "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
       },
       "statusFieldsEditor": {
-        "visual": "Visual",
-        "raw": "Raw JSON",
         "noFields": "No values yet. Click + to add a new value.",
         "namePlaceholder": "Name (e.g., Health)",
         "valuePlaceholder": "Starting value (e.g., 100)",
-        "subNamePlaceholder": "Detail (e.g., armor)",
-        "addField": "Add new value",
-        "addSubFields": "Add details",
-        "addSubField": "Add details",
-        "subFields": "details",
-        "convertToSimple": "Remove details",
-        "invalidJson": "Invalid JSON format. Fix errors before switching to Visual mode."
-      },
-      "view": {
-        "noScenario": "No scenario defined yet.",
-        "noGameStart": "No game start message defined yet."
+        "addField": "Add new value"
       },
       "deleteModal": {
         "title": "Delete Game",
@@ -251,17 +200,8 @@
         "loadFailed": "Failed to load games. Please try again."
       },
       "importExport": {
-        "description": "Export your game configuration to share with others, or import a configuration to update this game.",
-        "exportTitle": "Export Game",
-        "exportDescription": "Download the game configuration as a YAML file.",
         "exportButton": "Export Game",
-        "importTitle": "Import Game",
-        "importDescription": "Upload a YAML file to update this game's configuration.",
-        "selectFile": "Select YAML File",
-        "yamlPreview": "YAML Content",
-        "importButton": "Import Game",
-        "importSuccess": "Game configuration imported successfully!",
-        "importError": "Failed to import game configuration. Please check the YAML format."
+        "importButton": "Import Game"
       }
     },
     "myGames": {
@@ -297,8 +237,6 @@
       "continue": "Continue",
       "restart": "Restart",
       "copyGame": "Copy Game",
-      "creator": "Creator",
-      "owner": "Mine",
       "favorite": "Add to favorites",
       "unfavorite": "Remove from favorites",
       "filters": {
@@ -327,12 +265,7 @@
       "startNewGame": "Start New Game",
       "untitledGame": "Untitled Game",
       "noDescription": "No description",
-      "resume": "Continue",
       "continueGame": "Continue Game",
-      "filters": {
-        "all": "All",
-        "organization": "Organization"
-      },
       "fields": {
         "game": "Game",
         "model": "Model",
@@ -352,7 +285,6 @@
       "errors": {
         "loadFailed": "Failed to load your games. Please try again."
       },
-      "delete": "Delete session",
       "deleteConfirm": {
         "title": "Delete Session",
         "message": "Are you sure you want to delete this session for \"{{game}}\"? This action cannot be undone."
@@ -361,14 +293,12 @@
     "play": {
       "title": "Select a Game",
       "selectGameTitle": "Select a Game",
-      "selectGame": "Select this game",
       "playNow": "Play now",
       "owner": "Mine",
       "favorite": "Add to favorites",
       "unfavorite": "Remove from favorites",
       "playGame": "Play this game",
       "cloneGame": "Clone to my games",
-      "unknownAuthor": "Unknown author",
       "filters": {
         "all": "All Games",
         "own": "My Games",
@@ -379,20 +309,10 @@
       "empty": {
         "title": "No games found",
         "description": "Try adjusting your filters or check back later for new games."
-      },
-      "cloneModal": {
-        "title": "Clone Game",
-        "message": "This will create a copy of \"{{name}}\" in your games.",
-        "confirm": "Clone Game"
-      },
-      "cloneSuccess": {
-        "title": "Game Cloned",
-        "message": "\"{{name}}\" has been added to your games."
       }
     },
     "gamePlayer": {
       "unnamed": "Unnamed",
-      "typing": "AI is thinking...",
       "loading": {
         "game": "Loading game...",
         "starting": "Starting game session...",
@@ -402,8 +322,7 @@
         "gameNotFound": "Game not found",
         "sessionFailed": "Failed to start game session",
         "missingFields": "Game is missing required fields:",
-        "backToGames": "Back to Games",
-        "tryAgain": "Try Again"
+        "backToGames": "Back to Games"
       },
       "needsApiKey": {
         "title": "API Key Required",
@@ -412,13 +331,8 @@
       },
       "header": {
         "back": "Back to games",
-        "restart": "Restart game",
-        "showDebug": "Show debug info",
-        "hideDebug": "Hide debug info",
         "increaseFont": "Increase font size",
         "decreaseFont": "Decrease font size",
-        "enableAnimation": "Enable background animation",
-        "disableAnimation": "Disable background animation",
         "settings": "Settings",
         "disableAnimations": "Disable animations",
         "useNeutralTheme": "Use neutral theme",
@@ -426,7 +340,6 @@
       },
       "input": {
         "placeholder": "What do you do?",
-        "waiting": "Waiting for response...",
         "send": "Send action"
       },
       "selectApiKey": {
@@ -505,9 +418,15 @@
         "role": "Role",
         "invitedEmail": "Invited Email",
         "status": "Status",
-        "createdAt": "Created",
         "modifiedAt": "Modified",
         "actions": "Actions",
+        "statuses": {
+          "pending": "Pending",
+          "accepted": "Accepted",
+          "declined": "Declined",
+          "expired": "Expired",
+          "revoked": "Revoked"
+        },
         "revokeConfirm": {
           "title": "Delete Invite",
           "message": "Are you sure you want to delete this invite? This action cannot be undone.",
@@ -523,13 +442,6 @@
           "role-desc": "Role (Z-A)",
           "organization-asc": "Organization (A-Z)",
           "organization-desc": "Organization (Z-A)"
-        },
-        "statuses": {
-          "pending": "Pending",
-          "accepted": "Accepted",
-          "declined": "Declined",
-          "revoked": "Revoked",
-          "expired": "Expired"
         }
       },
       "users": {
@@ -592,15 +504,10 @@
       "title": "My Organization",
       "noOrganization": "No Organization",
       "noOrganizationDescription": "You are not a member of any organization.",
-      "tabs": {
-        "members": "Members",
-        "apiKeys": "API Keys"
-      },
       "apiKeys": {
         "title": "Organization API Keys",
         "aboutTitle": "Organization API Keys",
         "aboutDescription": "API keys shared here are available to all members of your organization for playing games. Only heads and teachers can manage these keys.",
-        "comingSoon": "Organization API key management coming soon.",
         "notAuthorized": "You don't have permission to manage organization API keys. Only heads and teachers can access this page.",
         "loadError": "Failed to load organization API keys.",
         "noKeys": "No API keys shared with this organization yet.",
@@ -628,13 +535,8 @@
         "createFirst": "Create Your First Workshop",
         "create": "Create Workshop",
         "createTitle": "Create Workshop",
-        "name": "Name",
         "nameLabel": "Workshop Name",
         "namePlaceholder": "e.g., Summer Camp 2024",
-        "createdBy": "Created By",
-        "createdByUser": "Staff member",
-        "unknownCreator": "Unknown",
-        "status": "Status",
         "active": "Active",
         "inactive": "Inactive",
         "activeLabel": "Active",
@@ -642,19 +544,46 @@
         "participants": "Participants",
         "noParticipants": "No participants yet",
         "anonymousParticipant": "Anonymous participant",
-        "inviteParticipants": "Invite Participants",
-        "inviteTitle": "Invite Participants to {{name}}",
         "inviteDescription": "Generate an invite link that participants can use to join this workshop.",
         "inviteLink": "Invite Link",
-        "inviteLinkHint": "Share this link with participants. Anyone with the link can join the workshop.",
-        "generateInvite": "Generate Invite Link",
-        "generateNewInvite": "Generate New Invite Link",
-        "existingInvites": "Existing Invite Links",
-        "newInviteLink": "New Invite Link",
         "usedCount": "{{count}} uses",
         "revokeInvite": "Revoke Invite Link",
+        "createInviteLink": "Create Invite Link",
+        "viewInviteLink": "View Invite Link",
+        "inviteLinkTitle": "Invite Link for {{name}}",
+        "inviteLinkDescription": "Share this link with participants to let them join the workshop.",
+        "noActiveInvite": "No active invite link available.",
+        "inviteCreatedAt": "Created",
+        "inviteExpiresAt": "Expires",
+        "inviteUsage": "Usage",
+        "defaultApiKey": "Default API Key",
+        "selectApiKey": "Select an API key",
+        "noDefaultApiKey": "No default API key",
+        "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "activate": "Activate",
         "deactivate": "Deactivate",
+        "enterWorkshop": "Enter Workshop Mode",
+        "joined": "Joined",
+        "games": "Games",
+        "participantJoined": "Joined {{date}}",
+        "participantGames": "{{count}} games",
+        "participantName": "Participant name",
+        "editParticipant": "Edit name",
+        "removeParticipant": "Remove participant",
+        "shareParticipantLink": "Copy individual invite link for this participant",
+        "linkCopied": "Link Copied",
+        "linkCopiedMessage": "The invite link has been copied to your clipboard.",
+        "noParticipantToken": "This participant doesn't have an invite link. Only anonymous participants (guests) have reusable invite links.",
+        "removeParticipantTitle": "Remove Participant",
+        "removeParticipantMessage": "Are you sure you want to remove \"{{name}}\" from this workshop? This action cannot be undone.",
+        "removeParticipantConfirm": "Are you sure you want to remove \"{{name}}\" from this workshop?",
+        "settings": "Settings",
+        "showAiModelSelector": "Allow participants to select AI model",
+        "defaultAiModel": "Default AI Model",
+        "defaultAiModelHint": "Model used when participants cannot choose. Requires an API key to be set.",
+        "noDefaultModel": "Use platform default",
+        "showPublicGames": "Show public games to participants",
+        "showOtherParticipantsGames": "Show other participants' games",
         "deleteTitle": "Delete Workshop",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
         "deleteWarning": "All games and sessions in this workshop will be deleted. This cannot be undone.",
@@ -737,6 +666,9 @@
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
         "stayButton": "Stay in Current Workshop",
         "switchButton": "Switch Workshop"
+      },
+      "participant": {
+        "loggingIn": "Logging you in..."
       }
     }
   },
@@ -745,27 +677,20 @@
     "myGames": "My Games",
     "allGames": "All Games",
     "myWorkshop": "My Workshop",
-    "sessions": "Sessions",
     "games": "Games",
     "create": "Create Your Own Game",
     "play": "Play a Game",
     "rooms": "Rooms",
     "groups": "Groups",
-    "learn": "Learn",
     "manageOrganizations": "Manage Organizations",
     "manageUsers": "Manage Users",
     "myOrganization": "My Organization",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
-    "orgApiKeys": "API Keys"
+    "orgApiKeys": "API Keys",
+    "workshopSettings": "Workshop Settings"
   },
   "dashboard": {
-    "time": {
-      "justNow": "just now",
-      "minutesAgo": "{{count}}m ago",
-      "hoursAgo": "{{count}}h ago",
-      "daysAgo": "{{count}}d ago"
-    },
     "untitled": "Untitled",
     "untitledGame": "Untitled Game",
     "cards": {
@@ -774,16 +699,15 @@
         "empty": "No games yet. Create your first game!",
         "viewAll": "All Creations"
       },
-      "myRooms": {
-        "title": "My Rooms",
-        "empty": "No rooms yet. Create a room to play with others!",
-        "viewAll": "All Rooms"
+      "myWorkshops": {
+        "title": "My Workshops",
+        "empty": "No active workshops. Create a workshop in your organization!",
+        "viewAll": "All Workshops"
       },
       "lastPlayed": {
         "title": "Last Played",
         "empty": "No play history yet. Start playing a game!",
         "viewAll": "All Games"
-
       },
       "popularGames": {
         "title": "Popular Games",
@@ -816,13 +740,6 @@
       "inviteMembers": "Invite Members"
     },
     "version": {
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "unknown": "Unknown",
-      "loading": "Loading...",
-      "version": "Version",
-      "built": "Built",
-      "commit": "Commit",
       "mismatch": {
         "title": "Version Mismatch Detected",
         "message": "Frontend version <frontendVersion>{{frontendVersion}}</frontendVersion> does not match backend version <backendVersion>{{backendVersion}}</backendVersion>. This may cause unexpected behavior. Contact support if issues persist."
@@ -866,8 +783,6 @@
   },
   "auth": {
     "login": {
-      "title": "Welcome to ChatGameLab",
-      "subtitle": "Choose how you want to sign in",
       "auth0Button": "Login with Auth0",
       "devMode": "Development Mode",
       "devModeDescription": "Quick login for development and testing",
@@ -881,7 +796,7 @@
       },
       "role": {
         "admin": "Login as Admin",
-        "teacher": "Login as Teacher", 
+        "teacher": "Login as Teacher",
         "student": "Login as Student",
         "guest": "Login as Guest"
       }
@@ -905,74 +820,79 @@
         "emailInvalid": "Please enter a valid email address",
         "nameTaken": "This name is already taken",
         "registrationFailed": "Registration failed. Please try again."
-      },
-      "checkingName": "Checking availability..."
-    }
-  },
-  "settings": {
-    "title": "Settings",
-    "subtitle": "Manage your account settings",
-    "accountSection": "Account",
-    "nameLabel": "Display Name",
-    "namePlaceholder": "Enter your display name",
-    "nameDescription": "This is how other users will see you. Max 24 characters.",
-    "emailLabel": "Email Address",
-    "emailPlaceholder": "Enter your email",
-    "emailDescription": "We'll use this for important notifications.",
-    "showAiModelSelectorLabel": "Show AI Model Selector",
-    "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
-    "saveButton": "Save Changes",
-    "saving": "Saving...",
-    "saved": "Changes saved successfully",
-    "emailChangeNote": "To change your email address, please contact the site administrator.",
-    "errors": {
-      "nameRequired": "Name is required",
-      "nameTooLong": "Name must be at most 24 characters",
-      "emailRequired": "Email is required",
-      "emailInvalid": "Please enter a valid email address",
-      "nameTaken": "This name is already taken",
-      "emailTaken": "This email is already taken",
-      "saveFailed": "Failed to save changes. Please try again."
-    }
-  },
-  "profile": {
-    "title": "Profile",
-    "memberSince": "Registered since",
-    "organizationSection": "Organization & Role",
-    "organization": "Organization",
-    "noOrganization": "No organization",
-    "role": "Role",
-    "noRole": "No role assigned",
-    "roles": {
-      "admin": "Administrator",
-      "head": "Head Teacher",
-      "staff": "Staff Member",
-      "participant": "Guest"
+      }
     },
-    "statisticsSection": "Statistics",
-    "gamesPlayed": "Games Played",
-    "gamesCreated": "Games Created",
-    "messagesSent": "Messages Sent",
-    "totalPlaysOnGames": "Total Plays on My Games"
-  },
-  "participant": {
-    "role": "Workshop Participant",
-    "workshop": "Workshop",
-    "organization": "Organization"
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Manage your account settings",
+      "accountSection": "Account",
+      "nameLabel": "Display Name",
+      "namePlaceholder": "Enter your display name",
+      "nameDescription": "This is how other users will see you. Max 24 characters.",
+      "showAiModelSelectorLabel": "Show AI Model Selector",
+      "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
+      "saveButton": "Save Changes",
+      "saving": "Saving...",
+      "saved": "Changes saved successfully",
+      "emailChangeNote": "To change your email address, please contact the site administrator.",
+      "errors": {
+        "nameRequired": "Name is required",
+        "nameTooLong": "Name must be at most 24 characters",
+        "nameTaken": "This name is already taken",
+        "saveFailed": "Failed to save changes. Please try again."
+      }
+    },
+    "profile": {
+      "title": "Profile",
+      "memberSince": "Registered since",
+      "organizationSection": "Organization & Role",
+      "organization": "Organization",
+      "noOrganization": "No organization",
+      "role": "Role",
+      "noRole": "No role assigned",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Head Teacher",
+        "staff": "Staff Member",
+        "participant": "Guest"
+      },
+      "statisticsSection": "Statistics",
+      "gamesPlayed": "Games Played",
+      "gamesCreated": "Games Created",
+      "messagesSent": "Messages Sent",
+      "totalPlaysOnGames": "Total Plays on My Games"
+    },
+    "participant": {
+      "role": "Workshop Participant",
+      "workshop": "Workshop",
+      "organization": "Organization",
+      "leaveWorkshop": "Leave Workshop",
+      "leaveConfirm": {
+        "title": "Leave Workshop?",
+        "message": "Are you sure you want to leave this workshop? You will need a new invite link to rejoin.",
+        "confirm": "Leave Workshop"
+      }
+    }
   },
   "myWorkshop": {
     "title": "My Workshop",
+    "organizator": "Organizator: {{name}}",
     "you": "You",
-    "gameType": "Type",
-    "filters": {
-      "all": "All",
-      "mine": "My Games",
-      "workshop": "Workshop",
-      "public": "Public"
-    },
+    "gameType": "Game",
     "empty": {
       "title": "No games yet",
-      "description": "Create your first game or wait for others to share games in the workshop."
+      "description": "Start playing games to see them here, or create your own!"
+    },
+    "filters": {
+      "all": "All Games",
+      "mine": "My Games",
+      "workshop": "Workshop Games",
+      "public": "Public Games"
+    },
+    "settings": {
+      "title": "Workshop Settings",
+      "currentWorkshop": "Current Workshop",
+      "notInWorkshopMode": "You are not in workshop mode. Please enter a workshop first."
     }
   }
 }

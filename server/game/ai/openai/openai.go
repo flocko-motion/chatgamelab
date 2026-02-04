@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"cgl/apiclient"
+	"cgl/functional"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/lang"
@@ -28,7 +29,7 @@ const (
 	responsesEndpoint = "/responses"
 	modelsEndpoint    = "/models"
 	imageGenEndpoint  = "/images/generations"
-	defaultModel      = "gpt-4o-mini"
+	defaultModel      = "gpt-5.2"
 )
 
 // extractImageErrorCode extracts an error code from OpenAI image generation errors
@@ -140,8 +141,16 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("failed to parse model session: %w", err)
 	}
 
+	// Convert to minimal AI message structure (exclude internal fields like ID, Meta, etc.)
+	actionForAI := obj.GameSessionMessageAi{
+		Type:         action.Type,
+		Message:      action.Message,
+		StatusFields: action.StatusFields,
+		ImagePrompt:  action.ImagePrompt,
+	}
+
 	// Serialize the player action as JSON input
-	actionInput, err := json.Marshal(action)
+	actionInput, err := json.Marshal(actionForAI)
 	if err != nil {
 		return fmt.Errorf("failed to marshal action: %w", err)
 	}
@@ -198,6 +207,8 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("no text response from OpenAI")
 	}
 
+	response.ResponseRaw = &responseText
+
 	// Parse the structured response into the pre-created message
 	log.Debug("parsing OpenAI response", "response_length", len(responseText))
 	if err := json.Unmarshal([]byte(responseText), response); err != nil {
@@ -207,6 +218,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID
+	response.URLAnalytics = functional.Ptr("https://platform.openai.com/logs/" + apiResponse.ID)
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
 		return fmt.Errorf("failed to marshal model session: %w", err)

@@ -330,6 +330,15 @@ func (q *Queries) CreateGameTag(ctx context.Context, arg CreateGameTagParams) (G
 	return i, err
 }
 
+const deleteAllUserSessions = `-- name: DeleteAllUserSessions :exec
+DELETE FROM game_session WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAllUserSessions(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAllUserSessions, userID)
+	return err
+}
+
 const deleteEmptyGameSession = `-- name: DeleteEmptyGameSession :exec
 DELETE FROM game_session gs WHERE gs.id = $1
 `
@@ -363,6 +372,17 @@ DELETE FROM game_session_message WHERE game_session_id = $1
 
 func (q *Queries) DeleteGameSessionMessagesBySessionID(ctx context.Context, gameSessionID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteGameSessionMessagesBySessionID, gameSessionID)
+	return err
+}
+
+const deleteGameSessionMessagesByUserID = `-- name: DeleteGameSessionMessagesByUserID :exec
+DELETE FROM game_session_message WHERE game_session_id IN (
+  SELECT id FROM game_session WHERE user_id = $1
+)
+`
+
+func (q *Queries) DeleteGameSessionMessagesByUserID(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGameSessionMessagesByUserID, userID)
 	return err
 }
 
@@ -647,12 +667,12 @@ func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID)
 }
 
 const getGameSessionsByUserID = `-- name: GetGameSessionsByUserID :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY gs.modified_at DESC
 LIMIT 20
 `
@@ -721,12 +741,12 @@ func (q *Queries) GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID)
 }
 
 const getGameSessionsByUserIDSortByGame = `-- name: GetGameSessionsByUserIDSortByGame :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY LOWER(g.name) ASC, gs.modified_at DESC
 LIMIT 20
 `
@@ -795,12 +815,12 @@ func (q *Queries) GetGameSessionsByUserIDSortByGame(ctx context.Context, userID 
 }
 
 const getGameSessionsByUserIDSortByModel = `-- name: GetGameSessionsByUserIDSortByModel :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
-WHERE gs.user_id = $1 
+WHERE gs.user_id = $1
 ORDER BY gs.ai_model ASC, gs.modified_at DESC
 LIMIT 20
 `
@@ -2464,6 +2484,33 @@ func (q *Queries) GetPublicGamesSortedByPlayCountAsc(ctx context.Context) ([]Gam
 	return items, nil
 }
 
+const getSessionIDsByUserID = `-- name: GetSessionIDsByUserID :many
+SELECT id FROM game_session WHERE user_id = $1
+`
+
+func (q *Queries) GetSessionIDsByUserID(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getSessionIDsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const hardDeleteGame = `-- name: HardDeleteGame :exec
 DELETE FROM game WHERE id = $1
 `
@@ -2492,7 +2539,7 @@ func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) erro
 }
 
 const searchGameSessionsByUserID = `-- name: SearchGameSessionsByUserID :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
@@ -2571,7 +2618,7 @@ func (q *Queries) SearchGameSessionsByUserID(ctx context.Context, arg SearchGame
 }
 
 const searchGameSessionsByUserIDSortByGame = `-- name: SearchGameSessionsByUserIDSortByGame :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
@@ -2650,7 +2697,7 @@ func (q *Queries) SearchGameSessionsByUserIDSortByGame(ctx context.Context, arg 
 }
 
 const searchGameSessionsByUserIDSortByModel = `-- name: SearchGameSessionsByUserIDSortByModel :many
-SELECT 
+SELECT
   gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
   g.name as game_name
 FROM game_session gs

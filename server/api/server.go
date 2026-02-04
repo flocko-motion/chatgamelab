@@ -30,6 +30,9 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 	log.Debug("running database preseed")
 	db.Preseed(ctx)
 
+	log.Debug("checking admin email promotions")
+	db.PromoteAdminEmails(ctx)
+
 	log.Debug("setting up HTTP router")
 	// Use new stdlib-based router
 	h := routes.Handler()

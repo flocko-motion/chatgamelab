@@ -1,1 +1,1 @@
-export { MyWorkshop } from './MyWorkshop';
+export { MyWorkshop } from "./MyWorkshop";

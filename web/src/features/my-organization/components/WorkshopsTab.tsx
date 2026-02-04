@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Stack,
   Card,
@@ -16,12 +16,15 @@ import {
   Text,
   Collapse,
   Checkbox,
-} from '@mantine/core';
-import { useDisclosure, useDebouncedValue } from '@mantine/hooks';
+  Select,
+  Code,
+  Table,
+} from "@mantine/core";
+import { useDisclosure, useDebouncedValue } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
   IconPlus,
   IconTrash,
-  IconUserPlus,
   IconCopy,
   IconCheck,
   IconAlertCircle,
@@ -31,57 +34,161 @@ import {
   IconChevronRight,
   IconUser,
   IconCalendar,
-} from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import { useWorkshops, useWorkshop, useCreateWorkshop, useUpdateWorkshop, useDeleteWorkshop, useCreateWorkshopInvite, useRevokeInvite } from '@/api/hooks';
-import { ExpandableSearch, SortSelector, type SortOption } from '@/common/components/controls';
-import { ActionButton } from '@/common/components/buttons/ActionButton';
-import { TextButton } from '@/common/components/buttons/TextButton';
-import { DangerButton } from '@/common/components/buttons/DangerButton';
-import { ConfirmationModal } from './ConfirmationModal';
-import type { ObjWorkshop } from '@/api/generated';
+  IconKey,
+  IconLink,
+  IconClock,
+  IconLogin,
+  IconPencil,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
+import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
+import { ROUTES } from "@/common/routes/routes";
+import { buildShareUrl } from "@/common/lib/url";
+import {
+  useWorkshops,
+  useCreateWorkshop,
+  useUpdateWorkshop,
+  useDeleteWorkshop,
+  useCreateWorkshopInvite,
+  useRevokeInvite,
+  useInstitutionApiKeys,
+  useSetWorkshopApiKey,
+  useUpdateParticipant,
+  useRemoveParticipant,
+  useGetParticipantToken,
+  usePlatforms,
+} from "@/api/hooks";
+import {
+  ExpandableSearch,
+  SortSelector,
+  type SortOption,
+} from "@/common/components/controls";
+import { ActionButton } from "@/common/components/buttons/ActionButton";
+import { TextButton } from "@/common/components/buttons/TextButton";
+import { DangerButton } from "@/common/components/buttons/DangerButton";
+import { ConfirmationModal } from "./ConfirmationModal";
+import {
+  ObjRole,
+  type ObjWorkshop,
+  type ObjWorkshopParticipant,
+} from "@/api/generated";
 
 interface WorkshopsTabProps {
   institutionId: string;
 }
 
 export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
-  const { t } = useTranslation('common');
-  useResponsiveDesign(); // Keep hook for future responsive needs
+  const { t } = useTranslation("common");
+  const navigate = useNavigate();
+  const { enterWorkshopMode } = useWorkshopMode();
+  const { isMobile } = useResponsiveDesign();
 
-  const [createModalOpened, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(false);
-  const [inviteModalOpened, { open: openInviteModal, close: closeInviteModal }] = useDisclosure(false);
-  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] = useDisclosure(false);
+  const handleEnterWorkshop = async (workshop: ObjWorkshop) => {
+    if (!workshop.id || !workshop.name) return;
+    await enterWorkshopMode(workshop.id, workshop.name);
+    navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+  };
 
-  const [newWorkshopName, setNewWorkshopName] = useState('');
+  const [
+    createModalOpened,
+    { open: openCreateModal, close: closeCreateModal },
+  ] = useDisclosure(false);
+  const [
+    deleteModalOpened,
+    { open: openDeleteModal, close: closeDeleteModal },
+  ] = useDisclosure(false);
+  const [
+    inviteLinkModalOpened,
+    { open: openInviteLinkModal, close: closeInviteLinkModal },
+  ] = useDisclosure(false);
+
+  const [newWorkshopName, setNewWorkshopName] = useState("");
   const [newWorkshopActive, setNewWorkshopActive] = useState(true);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<ObjWorkshop | null>(null);
-  const [generatedInviteLink, setGeneratedInviteLink] = useState<string | null>(null);
-  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<string>>(new Set());
+  const [selectedWorkshop, setSelectedWorkshop] = useState<ObjWorkshop | null>(
+    null,
+  );
+  const [newlyCreatedInvite, setNewlyCreatedInvite] = useState<{
+    id?: string;
+    inviteToken?: string;
+    expiresAt?: string;
+    usesCount?: number;
+    meta?: { createdAt?: string };
+  } | null>(null);
+  const [expandedWorkshops, setExpandedWorkshops] = useState<Set<string>>(
+    new Set(),
+  );
+
+  // Participant editing state
+  const [editingParticipant, setEditingParticipant] =
+    useState<ObjWorkshopParticipant | null>(null);
+  const [participantNewName, setParticipantNewName] = useState("");
+  const [participantToRemove, setParticipantToRemove] =
+    useState<ObjWorkshopParticipant | null>(null);
 
   // Search, filter, and sort state
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [hideInactive, setHideInactive] = useState(false);
-  const [sortValue, setSortValue] = useState('createdAt-desc');
+  const [sortValue, setSortValue] = useState("createdAt-desc");
 
   // Parse sort value
-  const [sortField, sortDir] = sortValue.split('-') as ['name' | 'createdAt' | 'participantCount', 'asc' | 'desc'];
+  const [sortField, sortDir] = sortValue.split("-") as [
+    "name" | "createdAt" | "participantCount",
+    "asc" | "desc",
+  ];
 
-  const { data: workshops, isLoading, isError } = useWorkshops({
+  const {
+    data: workshops,
+    isLoading,
+    isError,
+  } = useWorkshops({
     institutionId,
     search: debouncedSearch || undefined,
     sortBy: sortField,
     sortDir,
     activeOnly: hideInactive || undefined,
   });
-  const { data: selectedWorkshopDetails } = useWorkshop(selectedWorkshop?.id);
+  // Use institution API keys - only keys shared with the organization should be available for workshops
+  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
   const createWorkshop = useCreateWorkshop();
   const updateWorkshop = useUpdateWorkshop();
   const deleteWorkshop = useDeleteWorkshop();
   const createInvite = useCreateWorkshopInvite();
   const revokeInvite = useRevokeInvite();
+  const setWorkshopApiKey = useSetWorkshopApiKey();
+  const updateParticipant = useUpdateParticipant();
+  const removeParticipant = useRemoveParticipant();
+  const getParticipantToken = useGetParticipantToken();
+
+  const { data: platforms } = usePlatforms();
+
+  // Build API key options for select - only institution-shared keys
+  const apiKeyOptions = [
+    { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
+    ...(institutionApiKeys?.map((key) => ({
+      value: key.id || "",
+      label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
+    })) || []),
+  ];
+
+  // Helper to get model options for a specific workshop's API key
+  const getModelOptionsForWorkshop = (workshop: ObjWorkshop) => {
+    const selectedApiKey = institutionApiKeys?.find(
+      (k) => k.id === workshop.defaultApiKeyShareId,
+    );
+    const selectedPlatform = platforms?.find(
+      (p) => p.id === selectedApiKey?.apiKey?.platform,
+    );
+    return [
+      { value: "", label: t("myOrganization.workshops.noDefaultModel") },
+      ...(selectedPlatform?.models?.map((model) => ({
+        value: model.id || "",
+        label: model.name || model.id || "",
+      })) || []),
+    ];
+  };
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -93,38 +200,46 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
       public: false,
     });
 
-    setNewWorkshopName('');
+    setNewWorkshopName("");
     setNewWorkshopActive(true);
     closeCreateModal();
-  };
-
-  const handleOpenInviteModal = (workshop: ObjWorkshop) => {
-    setSelectedWorkshop(workshop);
-    setGeneratedInviteLink(null);
-    openInviteModal();
   };
 
   const handleToggleActive = async (workshop: ObjWorkshop) => {
     if (!workshop.id) return;
     await updateWorkshop.mutateAsync({
       id: workshop.id,
-      name: workshop.name || '',
+      name: workshop.name || "",
       active: !workshop.active,
       public: workshop.public,
     });
   };
 
-  const handleGenerateInvite = async () => {
-    if (!selectedWorkshop?.id) return;
+  const handleViewInviteLink = (workshop: ObjWorkshop) => {
+    setNewlyCreatedInvite(null);
+    setSelectedWorkshop(workshop);
+    openInviteLinkModal();
+  };
 
-    const invite = await createInvite.mutateAsync({
-      workshopId: selectedWorkshop.id,
-    });
+  const handleCreateAndViewInvite = async (workshop: ObjWorkshop) => {
+    if (!workshop.id) return;
+    const invite = await createInvite.mutateAsync({ workshopId: workshop.id });
+    setNewlyCreatedInvite(invite);
+    setSelectedWorkshop(workshop);
+    openInviteLinkModal();
+  };
 
-    if (invite.inviteToken) {
-      const baseUrl = window.location.origin;
-      setGeneratedInviteLink(`${baseUrl}/invites/${invite.inviteToken}/accept`);
-    }
+  const handleRevokeInviteAndClose = async (inviteId: string) => {
+    await revokeInvite.mutateAsync(inviteId);
+    setNewlyCreatedInvite(null);
+    closeInviteLinkModal();
+  };
+
+  const handleSetApiKey = async (
+    workshopId: string,
+    apiKeyShareId: string | null,
+  ) => {
+    await setWorkshopApiKey.mutateAsync({ workshopId, apiKeyShareId });
   };
 
   const handleOpenDeleteModal = (workshop: ObjWorkshop) => {
@@ -140,6 +255,82 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
     setSelectedWorkshop(null);
   };
 
+  // Participant handlers
+  const handleEditParticipant = (participant: ObjWorkshopParticipant) => {
+    setEditingParticipant(participant);
+    setParticipantNewName(participant.name || "");
+  };
+
+  const handleSaveParticipantName = async () => {
+    if (!editingParticipant?.id || !participantNewName.trim()) return;
+    await updateParticipant.mutateAsync({
+      participantId: editingParticipant.id,
+      name: participantNewName.trim(),
+    });
+    setEditingParticipant(null);
+    setParticipantNewName("");
+  };
+
+  const handleCancelEditParticipant = () => {
+    setEditingParticipant(null);
+    setParticipantNewName("");
+  };
+
+  const handleGetParticipantShareLink = async (participantId: string) => {
+    try {
+      const result = await getParticipantToken.mutateAsync(participantId);
+      if (result?.token) {
+        const shareUrl = buildShareUrl(`/invites/participant/${result.token}`);
+        await navigator.clipboard.writeText(shareUrl);
+        notifications.show({
+          title: t("myOrganization.workshops.linkCopied"),
+          message: t("myOrganization.workshops.linkCopiedMessage"),
+          color: "green",
+        });
+      }
+    } catch {
+      notifications.show({
+        title: t("error"),
+        message: t("myOrganization.workshops.noParticipantToken"),
+        color: "red",
+      });
+    }
+  };
+
+  const handleConfirmRemoveParticipant = async () => {
+    if (!participantToRemove?.id) return;
+    await removeParticipant.mutateAsync(participantToRemove.id);
+    setParticipantToRemove(null);
+  };
+
+  // Workshop settings handler
+  const handleUpdateWorkshopSettings = async (
+    workshop: ObjWorkshop,
+    settings: Partial<{
+      showAiModelSelector: boolean;
+      showPublicGames: boolean;
+      showOtherParticipantsGames: boolean;
+      useSpecificAiModel: string | null;
+    }>,
+  ) => {
+    if (!workshop.id) return;
+    await updateWorkshop.mutateAsync({
+      id: workshop.id,
+      name: workshop.name || "",
+      active: workshop.active || false,
+      public: workshop.public || false,
+      showAiModelSelector:
+        settings.showAiModelSelector ?? workshop.showAiModelSelector ?? false,
+      showPublicGames:
+        settings.showPublicGames ?? workshop.showPublicGames ?? false,
+      showOtherParticipantsGames:
+        settings.showOtherParticipantsGames ??
+        workshop.showOtherParticipantsGames ??
+        true,
+      useSpecificAiModel:
+        settings.useSpecificAiModel ?? workshop.useSpecificAiModel ?? undefined,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -151,125 +342,206 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
 
   if (isError) {
     return (
-      <Alert color="red" icon={<IconAlertCircle size={16} />} title={t('error')}>
-        {t('myOrganization.workshops.loadError')}
+      <Alert
+        color="red"
+        icon={<IconAlertCircle size={16} />}
+        title={t("error")}
+      >
+        {t("myOrganization.workshops.loadError")}
       </Alert>
     );
   }
 
   const sortOptions: SortOption[] = [
-    { value: 'createdAt-desc', label: t('myOrganization.workshops.sort.createdAtDesc') },
-    { value: 'createdAt-asc', label: t('myOrganization.workshops.sort.createdAtAsc') },
-    { value: 'name-asc', label: t('myOrganization.workshops.sort.nameAsc') },
-    { value: 'name-desc', label: t('myOrganization.workshops.sort.nameDesc') },
-    { value: 'participantCount-desc', label: t('myOrganization.workshops.sort.participantsDesc') },
-    { value: 'participantCount-asc', label: t('myOrganization.workshops.sort.participantsAsc') },
+    {
+      value: "createdAt-desc",
+      label: t("myOrganization.workshops.sort.createdAtDesc"),
+    },
+    {
+      value: "createdAt-asc",
+      label: t("myOrganization.workshops.sort.createdAtAsc"),
+    },
+    { value: "name-asc", label: t("myOrganization.workshops.sort.nameAsc") },
+    { value: "name-desc", label: t("myOrganization.workshops.sort.nameDesc") },
+    {
+      value: "participantCount-desc",
+      label: t("myOrganization.workshops.sort.participantsDesc"),
+    },
+    {
+      value: "participantCount-asc",
+      label: t("myOrganization.workshops.sort.participantsAsc"),
+    },
   ];
 
   return (
     <>
       <Stack gap="lg">
-        {/* Header with create button */}
-        <Group justify="space-between" align="center" wrap="wrap" gap="sm">
-          <Text size="sm" c="dimmed">
-            {t('myOrganization.workshops.subtitle')}
-          </Text>
+        {/* Subtitle */}
+        <Text size="sm" c="dimmed">
+          {t("myOrganization.workshops.subtitle")}
+        </Text>
+
+        {/* Controls row: Create button on left, Search, Hide inactive, Sort on right */}
+        <Group justify="space-between" wrap="wrap" gap="sm">
           <ActionButton
             onClick={openCreateModal}
-            leftSection={<IconPlus size={16} />}
-            size="sm"
+            leftSection={<IconPlus size={18} />}
+            size="md"
           >
-            {t('myOrganization.workshops.create')}
+            {t("myOrganization.workshops.create")}
           </ActionButton>
-        </Group>
-
-        {/* Search, filter, and sort controls */}
-        <Group justify="space-between" wrap="wrap" gap="sm">
           <Group gap="sm">
             <ExpandableSearch
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder={t('search')}
+              placeholder={t("search")}
             />
             <Checkbox
-              label={t('myOrganization.workshops.hideInactive')}
+              label={t("myOrganization.workshops.hideInactive")}
               checked={hideInactive}
               onChange={(e) => setHideInactive(e.currentTarget.checked)}
               size="sm"
             />
+            <SortSelector
+              options={sortOptions}
+              value={sortValue}
+              onChange={setSortValue}
+              label={t("myOrganization.workshops.sort.label")}
+            />
           </Group>
-          <SortSelector
-            options={sortOptions}
-            value={sortValue}
-            onChange={setSortValue}
-            label={t('myOrganization.workshops.sort.label')}
-          />
         </Group>
 
         {/* Workshops list */}
         {workshops && workshops.length > 0 ? (
           <Stack gap="md">
             {workshops.map((workshop) => {
-              const isExpanded = expandedWorkshops.has(workshop.id || '');
+              const isExpanded = expandedWorkshops.has(workshop.id || "");
               const toggleExpand = () => {
                 const newSet = new Set(expandedWorkshops);
                 if (isExpanded) {
-                  newSet.delete(workshop.id || '');
+                  newSet.delete(workshop.id || "");
                 } else {
-                  newSet.add(workshop.id || '');
+                  newSet.add(workshop.id || "");
                 }
                 setExpandedWorkshops(newSet);
               };
-              const createdDate = workshop.meta?.createdAt ? new Date(workshop.meta.createdAt).toLocaleDateString() : '';
+              const createdDate = workshop.meta?.createdAt
+                ? new Date(workshop.meta.createdAt).toLocaleDateString()
+                : "";
 
               return (
-                <Card key={workshop.id} shadow="sm" padding="md" radius="md" withBorder>
+                <Card
+                  key={workshop.id}
+                  shadow="sm"
+                  padding="md"
+                  radius="md"
+                  withBorder
+                >
                   {/* Workshop header - always visible */}
                   <Group justify="space-between" wrap="nowrap" gap="sm">
                     <Group gap="sm" style={{ flex: 1, minWidth: 0 }}>
-                      <ActionIcon variant="subtle" onClick={toggleExpand} size="sm">
-                        {isExpanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+                      <ActionIcon
+                        variant="subtle"
+                        onClick={toggleExpand}
+                        size="sm"
+                      >
+                        {isExpanded ? (
+                          <IconChevronDown size={16} />
+                        ) : (
+                          <IconChevronRight size={16} />
+                        )}
                       </ActionIcon>
                       <Stack gap={2} style={{ minWidth: 0 }}>
-                        <Text size="sm" fw={500} truncate>{workshop.name}</Text>
+                        <Text size="sm" fw={500} truncate>
+                          {workshop.name}
+                        </Text>
                         <Group gap="xs">
-                          <Badge color={workshop.active ? 'green' : 'gray'} variant="light" size="xs">
-                            {workshop.active ? t('myOrganization.workshops.active') : t('myOrganization.workshops.inactive')}
+                          <Badge
+                            color={workshop.active ? "green" : "gray"}
+                            variant="light"
+                            size="xs"
+                          >
+                            {workshop.active
+                              ? t("myOrganization.workshops.active")
+                              : t("myOrganization.workshops.inactive")}
                           </Badge>
                           <Group gap={4}>
                             <IconUser size={12} color="gray" />
-                            <Text size="xs" c="dimmed">{workshop.participants?.length || 0}</Text>
+                            <Text size="xs" c="dimmed">
+                              {workshop.participants?.length || 0}
+                            </Text>
                           </Group>
                           {createdDate && (
                             <Group gap={4}>
                               <IconCalendar size={12} color="gray" />
-                              <Text size="xs" c="dimmed">{createdDate}</Text>
+                              <Text size="xs" c="dimmed">
+                                {createdDate}
+                              </Text>
                             </Group>
                           )}
                         </Group>
                       </Stack>
                     </Group>
                     <Group gap="xs" wrap="nowrap">
-                      <Tooltip label={workshop.active ? t('myOrganization.workshops.deactivate') : t('myOrganization.workshops.activate')}>
+                      {/* Enter Workshop Mode button - only for active workshops */}
+                      {workshop.active && (
+                        <ActionButton
+                          onClick={() => handleEnterWorkshop(workshop)}
+                          leftSection={<IconLogin size={16} />}
+                          size="sm"
+                          color="violet"
+                        >
+                          {t("myOrganization.workshops.enterWorkshop")}
+                        </ActionButton>
+                      )}
+                      {(() => {
+                        const existingInvite = workshop.invites?.find(
+                          (inv) => inv.status === "pending" && inv.inviteToken,
+                        );
+                        return (
+                          <Tooltip
+                            label={
+                              existingInvite
+                                ? t("myOrganization.workshops.viewInviteLink")
+                                : t("myOrganization.workshops.createInviteLink")
+                            }
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              color={existingInvite ? "blue" : "gray"}
+                              onClick={() =>
+                                existingInvite
+                                  ? handleViewInviteLink(workshop)
+                                  : handleCreateAndViewInvite(workshop)
+                              }
+                              loading={createInvite.isPending}
+                            >
+                              <IconLink size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        );
+                      })()}
+                      <Tooltip
+                        label={
+                          workshop.active
+                            ? t("myOrganization.workshops.deactivate")
+                            : t("myOrganization.workshops.activate")
+                        }
+                      >
                         <ActionIcon
                           variant="subtle"
-                          color={workshop.active ? 'orange' : 'green'}
+                          color={workshop.active ? "orange" : "green"}
                           onClick={() => handleToggleActive(workshop)}
                           loading={updateWorkshop.isPending}
                         >
-                          {workshop.active ? <IconPlayerPause size={16} /> : <IconPlayerPlay size={16} />}
+                          {workshop.active ? (
+                            <IconPlayerPause size={16} />
+                          ) : (
+                            <IconPlayerPlay size={16} />
+                          )}
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label={t('myOrganization.workshops.inviteParticipants')}>
-                        <ActionIcon
-                          variant="subtle"
-                          color="blue"
-                          onClick={() => handleOpenInviteModal(workshop)}
-                        >
-                          <IconUserPlus size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label={t('delete')}>
+                      <Tooltip label={t("delete")}>
                         <ActionIcon
                           variant="subtle"
                           color="red"
@@ -281,22 +553,500 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
                     </Group>
                   </Group>
 
-                  {/* Expandable participants section */}
+                  {/* Expandable settings section */}
                   <Collapse in={isExpanded}>
-                    <Stack gap="sm" mt="md" pt="md" style={{ borderTop: '1px solid var(--mantine-color-gray-3)' }}>
-                      <Text size="sm" fw={500}>{t('myOrganization.workshops.participants')}</Text>
-                      {workshop.participants && workshop.participants.length > 0 ? (
-                        <Stack gap="xs">
-                          {workshop.participants.map((participant) => (
-                            <Group key={participant.id} gap="xs">
-                              <IconUser size={14} />
-                              <Text size="sm">{participant.name || t('myOrganization.workshops.anonymousParticipant')}</Text>
-                            </Group>
-                          ))}
-                        </Stack>
-                      ) : (
-                        <Text size="sm" c="dimmed">{t('myOrganization.workshops.noParticipants')}</Text>
-                      )}
+                    <Stack
+                      gap="md"
+                      mt="md"
+                      pt="md"
+                      style={{
+                        borderTop: "1px solid var(--mantine-color-gray-3)",
+                      }}
+                    >
+                      {/* Default API Key Section */}
+                      <Stack gap="xs">
+                        <Group gap="xs">
+                          <IconKey size={14} />
+                          <Text size="sm" fw={500}>
+                            {t("myOrganization.workshops.defaultApiKey")}
+                          </Text>
+                        </Group>
+                        <Select
+                          size="xs"
+                          data={apiKeyOptions}
+                          value={workshop.defaultApiKeyShareId || ""}
+                          onChange={(value) =>
+                            handleSetApiKey(workshop.id!, value || null)
+                          }
+                          placeholder={t(
+                            "myOrganization.workshops.selectApiKey",
+                          )}
+                          clearable
+                          disabled={setWorkshopApiKey.isPending}
+                        />
+                        <Text size="xs" c="dimmed">
+                          {t("myOrganization.workshops.defaultApiKeyHint")}
+                        </Text>
+                      </Stack>
+
+                      {/* Workshop Settings Section */}
+                      <Stack gap="xs">
+                        <Text size="sm" fw={500}>
+                          {t("myOrganization.workshops.settings")}
+                        </Text>
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.showAiModelSelector",
+                          )}
+                          checked={workshop.showAiModelSelector || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              showAiModelSelector: e.currentTarget.checked,
+                            })
+                          }
+                        />
+                        {/* Default AI Model - only show when API key is selected and model selector is disabled */}
+                        {workshop.defaultApiKeyShareId &&
+                          !workshop.showAiModelSelector && (
+                            <Select
+                              size="xs"
+                              label={t(
+                                "myOrganization.workshops.defaultAiModel",
+                              )}
+                              description={t(
+                                "myOrganization.workshops.defaultAiModelHint",
+                              )}
+                              data={getModelOptionsForWorkshop(workshop)}
+                              value={workshop.useSpecificAiModel || ""}
+                              onChange={(value) =>
+                                handleUpdateWorkshopSettings(workshop, {
+                                  useSpecificAiModel: value || null,
+                                })
+                              }
+                              disabled={updateWorkshop.isPending}
+                            />
+                          )}
+                        <Switch
+                          size="xs"
+                          label={t("myOrganization.workshops.showPublicGames")}
+                          checked={workshop.showPublicGames || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              showPublicGames: e.currentTarget.checked,
+                            })
+                          }
+                        />
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.showOtherParticipantsGames",
+                          )}
+                          checked={
+                            workshop.showOtherParticipantsGames !== false
+                          }
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              showOtherParticipantsGames:
+                                e.currentTarget.checked,
+                            })
+                          }
+                        />
+                      </Stack>
+
+                      {/* Participants Section */}
+                      <Stack gap="xs">
+                        <Text size="sm" fw={500}>
+                          {t("myOrganization.workshops.participants")} (
+                          {workshop.participants?.length || 0})
+                        </Text>
+                        {workshop.participants &&
+                        workshop.participants.length > 0 ? (
+                          isMobile ? (
+                            <Stack gap="sm">
+                              {workshop.participants.map((participant) => {
+                                const joinedDate = participant.meta?.createdAt
+                                  ? new Date(
+                                      participant.meta.createdAt,
+                                    ).toLocaleDateString()
+                                  : null;
+                                const isEditing =
+                                  editingParticipant?.id === participant.id;
+
+                                return (
+                                  <Card
+                                    key={participant.id}
+                                    padding="xs"
+                                    radius="sm"
+                                    withBorder
+                                  >
+                                    <Group
+                                      justify="space-between"
+                                      wrap="nowrap"
+                                    >
+                                      <Group
+                                        gap="xs"
+                                        style={{ flex: 1, minWidth: 0 }}
+                                      >
+                                        <IconUser size={14} color="gray" />
+                                        {isEditing ? (
+                                          <TextInput
+                                            size="xs"
+                                            value={participantNewName}
+                                            onChange={(e) =>
+                                              setParticipantNewName(
+                                                e.currentTarget.value,
+                                              )
+                                            }
+                                            placeholder={t(
+                                              "myOrganization.workshops.participantName",
+                                            )}
+                                            style={{ flex: 1 }}
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter")
+                                                handleSaveParticipantName();
+                                              if (e.key === "Escape")
+                                                handleCancelEditParticipant();
+                                            }}
+                                          />
+                                        ) : (
+                                          <Stack
+                                            gap={2}
+                                            style={{ minWidth: 0 }}
+                                          >
+                                            <Text size="sm" fw={500} truncate>
+                                              {participant.name ||
+                                                t(
+                                                  "myOrganization.workshops.anonymousParticipant",
+                                                )}
+                                            </Text>
+                                            <Group gap="sm">
+                                              {joinedDate && (
+                                                <Group gap={4}>
+                                                  <IconCalendar
+                                                    size={10}
+                                                    color="gray"
+                                                  />
+                                                  <Text size="xs" c="dimmed">
+                                                    {t(
+                                                      "myOrganization.workshops.participantJoined",
+                                                      { date: joinedDate },
+                                                    )}
+                                                  </Text>
+                                                </Group>
+                                              )}
+                                              <Group gap={4}>
+                                                <IconPlayerPlay
+                                                  size={10}
+                                                  color="gray"
+                                                />
+                                                <Text size="xs" c="dimmed">
+                                                  {t(
+                                                    "myOrganization.workshops.participantGames",
+                                                    {
+                                                      count:
+                                                        participant.gamesCount ||
+                                                        0,
+                                                    },
+                                                  )}
+                                                </Text>
+                                              </Group>
+                                            </Group>
+                                          </Stack>
+                                        )}
+                                      </Group>
+                                      <Group gap="xs" wrap="nowrap">
+                                        {isEditing ? (
+                                          <>
+                                            <Tooltip label={t("save")}>
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="green"
+                                                size="sm"
+                                                onClick={
+                                                  handleSaveParticipantName
+                                                }
+                                                loading={
+                                                  updateParticipant.isPending
+                                                }
+                                              >
+                                                <IconCheck size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                            <Tooltip label={t("cancel")}>
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="gray"
+                                                size="sm"
+                                                onClick={
+                                                  handleCancelEditParticipant
+                                                }
+                                              >
+                                                <IconAlertCircle size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                          </>
+                                        ) : (
+                                          <>
+                                            {participant.role ===
+                                              ObjRole.RoleParticipant && (
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.shareParticipantLink",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="blue"
+                                                  size="sm"
+                                                  loading={
+                                                    getParticipantToken.isPending
+                                                  }
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (participant.id) {
+                                                      handleGetParticipantShareLink(
+                                                        participant.id,
+                                                      );
+                                                    }
+                                                  }}
+                                                >
+                                                  <IconLink size={14} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                            )}
+                                            <Tooltip
+                                              label={t(
+                                                "myOrganization.workshops.editParticipant",
+                                              )}
+                                            >
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="gray"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  handleEditParticipant(
+                                                    participant,
+                                                  );
+                                                }}
+                                              >
+                                                <IconPencil size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                            <Tooltip
+                                              label={t(
+                                                "myOrganization.workshops.removeParticipant",
+                                              )}
+                                            >
+                                              <ActionIcon
+                                                variant="subtle"
+                                                color="red"
+                                                size="sm"
+                                                onClick={() =>
+                                                  setParticipantToRemove(
+                                                    participant,
+                                                  )
+                                                }
+                                              >
+                                                <IconTrash size={14} />
+                                              </ActionIcon>
+                                            </Tooltip>
+                                          </>
+                                        )}
+                                      </Group>
+                                    </Group>
+                                  </Card>
+                                );
+                              })}
+                            </Stack>
+                          ) : (
+                            <Table striped highlightOnHover>
+                              <Table.Thead>
+                                <Table.Tr>
+                                  <Table.Th>
+                                    {t(
+                                      "myOrganization.workshops.participantName",
+                                    )}
+                                  </Table.Th>
+                                  <Table.Th>
+                                    {t("myOrganization.workshops.joined")}
+                                  </Table.Th>
+                                  <Table.Th>
+                                    {t("myOrganization.workshops.games")}
+                                  </Table.Th>
+                                  <Table.Th style={{ width: 100 }}>
+                                    {t("actions")}
+                                  </Table.Th>
+                                </Table.Tr>
+                              </Table.Thead>
+                              <Table.Tbody>
+                                {workshop.participants.map((participant) => {
+                                  const joinedDate = participant.meta?.createdAt
+                                    ? new Date(
+                                        participant.meta.createdAt,
+                                      ).toLocaleDateString()
+                                    : null;
+                                  const isEditing =
+                                    editingParticipant?.id === participant.id;
+
+                                  return (
+                                    <Table.Tr key={participant.id}>
+                                      <Table.Td>
+                                        {isEditing ? (
+                                          <TextInput
+                                            size="xs"
+                                            value={participantNewName}
+                                            onChange={(e) =>
+                                              setParticipantNewName(
+                                                e.currentTarget.value,
+                                              )
+                                            }
+                                            placeholder={t(
+                                              "myOrganization.workshops.participantName",
+                                            )}
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                              if (e.key === "Enter")
+                                                handleSaveParticipantName();
+                                              if (e.key === "Escape")
+                                                handleCancelEditParticipant();
+                                            }}
+                                          />
+                                        ) : (
+                                          <Text size="sm" fw={500}>
+                                            {participant.name ||
+                                              t(
+                                                "myOrganization.workshops.anonymousParticipant",
+                                              )}
+                                          </Text>
+                                        )}
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Text size="sm" c="dimmed">
+                                          {joinedDate || "-"}
+                                        </Text>
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Text size="sm" c="dimmed">
+                                          {participant.gamesCount || 0}
+                                        </Text>
+                                      </Table.Td>
+                                      <Table.Td>
+                                        <Group gap="xs" wrap="nowrap">
+                                          {isEditing ? (
+                                            <>
+                                              <Tooltip label={t("save")}>
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="green"
+                                                  size="sm"
+                                                  onClick={
+                                                    handleSaveParticipantName
+                                                  }
+                                                  loading={
+                                                    updateParticipant.isPending
+                                                  }
+                                                >
+                                                  <IconCheck size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                              <Tooltip label={t("cancel")}>
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="gray"
+                                                  size="sm"
+                                                  onClick={
+                                                    handleCancelEditParticipant
+                                                  }
+                                                >
+                                                  <IconAlertCircle size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                            </>
+                                          ) : (
+                                            <>
+                                              {participant.role ===
+                                                ObjRole.RoleParticipant && (
+                                                <Tooltip
+                                                  label={t(
+                                                    "myOrganization.workshops.shareParticipantLink",
+                                                  )}
+                                                >
+                                                  <ActionIcon
+                                                    variant="subtle"
+                                                    color="blue"
+                                                    size="sm"
+                                                    loading={
+                                                      getParticipantToken.isPending
+                                                    }
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      if (participant.id) {
+                                                        handleGetParticipantShareLink(
+                                                          participant.id,
+                                                        );
+                                                      }
+                                                    }}
+                                                  >
+                                                    <IconLink size={16} />
+                                                  </ActionIcon>
+                                                </Tooltip>
+                                              )}
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.editParticipant",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="gray"
+                                                  size="sm"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleEditParticipant(
+                                                      participant,
+                                                    );
+                                                  }}
+                                                >
+                                                  <IconPencil size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                              <Tooltip
+                                                label={t(
+                                                  "myOrganization.workshops.removeParticipant",
+                                                )}
+                                              >
+                                                <ActionIcon
+                                                  variant="subtle"
+                                                  color="red"
+                                                  size="sm"
+                                                  onClick={() =>
+                                                    setParticipantToRemove(
+                                                      participant,
+                                                    )
+                                                  }
+                                                >
+                                                  <IconTrash size={16} />
+                                                </ActionIcon>
+                                              </Tooltip>
+                                            </>
+                                          )}
+                                        </Group>
+                                      </Table.Td>
+                                    </Table.Tr>
+                                  );
+                                })}
+                              </Table.Tbody>
+                            </Table>
+                          )
+                        ) : (
+                          <Text size="sm" c="dimmed">
+                            {t("myOrganization.workshops.noParticipants")}
+                          </Text>
+                        )}
+                      </Stack>
                     </Stack>
                   </Collapse>
                 </Card>
@@ -307,13 +1057,13 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
           <Card shadow="sm" padding="xl" radius="md" withBorder>
             <Stack align="center" gap="md">
               <Text c="dimmed" ta="center">
-                {t('myOrganization.workshops.empty')}
+                {t("myOrganization.workshops.empty")}
               </Text>
               <ActionButton
                 onClick={openCreateModal}
                 leftSection={<IconPlus size={16} />}
               >
-                {t('myOrganization.workshops.createFirst')}
+                {t("myOrganization.workshops.createFirst")}
               </ActionButton>
             </Stack>
           </Card>
@@ -324,118 +1074,32 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
       <Modal
         opened={createModalOpened}
         onClose={closeCreateModal}
-        title={t('myOrganization.workshops.createTitle')}
+        title={t("myOrganization.workshops.createTitle")}
         size="md"
       >
         <Stack gap="md">
           <TextInput
-            label={t('myOrganization.workshops.nameLabel')}
-            placeholder={t('myOrganization.workshops.namePlaceholder')}
+            label={t("myOrganization.workshops.nameLabel")}
+            placeholder={t("myOrganization.workshops.namePlaceholder")}
             value={newWorkshopName}
             onChange={(e) => setNewWorkshopName(e.currentTarget.value)}
             required
           />
           <Switch
-            label={t('myOrganization.workshops.activeLabel')}
-            description={t('myOrganization.workshops.activeDescription')}
+            label={t("myOrganization.workshops.activeLabel")}
+            description={t("myOrganization.workshops.activeDescription")}
             checked={newWorkshopActive}
             onChange={(e) => setNewWorkshopActive(e.currentTarget.checked)}
           />
           <Group justify="flex-end" mt="md">
-            <TextButton onClick={closeCreateModal}>
-              {t('cancel')}
-            </TextButton>
+            <TextButton onClick={closeCreateModal}>{t("cancel")}</TextButton>
             <ActionButton
               onClick={handleCreateWorkshop}
               loading={createWorkshop.isPending}
               disabled={!newWorkshopName.trim()}
             >
-              {t('myOrganization.workshops.create')}
+              {t("myOrganization.workshops.create")}
             </ActionButton>
-          </Group>
-        </Stack>
-      </Modal>
-
-      {/* Invite Participants Modal */}
-      <Modal
-        opened={inviteModalOpened}
-        onClose={closeInviteModal}
-        title={t('myOrganization.workshops.inviteTitle', { name: selectedWorkshop?.name })}
-        size="md"
-      >
-        <Stack gap="md">
-          <Text size="sm" c="dimmed">
-            {t('myOrganization.workshops.inviteDescription')}
-          </Text>
-
-          {/* Show invite link (existing or newly generated) */}
-          {(() => {
-            const existingInvite = selectedWorkshopDetails?.invites?.find(inv => inv.status === 'pending' && inv.inviteToken);
-            const inviteLink = generatedInviteLink || (existingInvite ? `${window.location.origin}/invites/${existingInvite.inviteToken}/accept` : null);
-            const usesCount = existingInvite?.usesCount;
-
-            const handleRevokeInvite = async () => {
-              if (!existingInvite?.id) return;
-              await revokeInvite.mutateAsync(existingInvite.id);
-              setGeneratedInviteLink(null);
-            };
-
-            if (inviteLink) {
-              return (
-                <Stack gap="sm">
-                  <Text size="sm" fw={500}>{t('myOrganization.workshops.inviteLink')}</Text>
-                  <Group gap="xs">
-                    <TextInput
-                      value={inviteLink}
-                      readOnly
-                      style={{ flex: 1 }}
-                    />
-                    <CopyButton value={inviteLink}>
-                      {({ copied, copy }) => (
-                        <Tooltip label={copied ? t('copied') : t('copy')}>
-                          <ActionIcon color={copied ? 'teal' : 'gray'} onClick={copy}>
-                            {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                          </ActionIcon>
-                        </Tooltip>
-                      )}
-                    </CopyButton>
-                  </Group>
-                  {usesCount !== undefined && usesCount > 0 && (
-                    <Badge size="sm" variant="light">
-                      {t('myOrganization.workshops.usedCount', { count: usesCount })}
-                    </Badge>
-                  )}
-                  <Text size="xs" c="dimmed">
-                    {t('myOrganization.workshops.inviteLinkHint')}
-                  </Text>
-                  {existingInvite && (
-                    <DangerButton
-                      onClick={handleRevokeInvite}
-                      loading={revokeInvite.isPending}
-                      leftSection={<IconTrash size={14} />}
-                    >
-                      {t('myOrganization.workshops.revokeInvite')}
-                    </DangerButton>
-                  )}
-                </Stack>
-              );
-            }
-
-            return (
-              <ActionButton
-                onClick={handleGenerateInvite}
-                loading={createInvite.isPending}
-                leftSection={<IconUserPlus size={16} />}
-              >
-                {t('myOrganization.workshops.generateInvite')}
-              </ActionButton>
-            );
-          })()}
-
-          <Group justify="flex-end" mt="md">
-            <TextButton onClick={closeInviteModal}>
-              {t('close')}
-            </TextButton>
           </Group>
         </Stack>
       </Modal>
@@ -444,14 +1108,164 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
       <ConfirmationModal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={t('myOrganization.workshops.deleteTitle')}
-        message={t('myOrganization.workshops.deleteConfirm', { name: selectedWorkshop?.name })}
-        warning={t('myOrganization.workshops.deleteWarning')}
+        title={t("myOrganization.workshops.deleteTitle")}
+        message={t("myOrganization.workshops.deleteConfirm", {
+          name: selectedWorkshop?.name,
+        })}
+        warning={t("myOrganization.workshops.deleteWarning")}
         warningColor="red"
         confirmIcon={<IconTrash size={16} />}
         confirmColor="red"
         onConfirm={handleDeleteWorkshop}
         isLoading={deleteWorkshop.isPending}
+      />
+
+      {/* View Invite Link Modal */}
+      <Modal
+        opened={inviteLinkModalOpened}
+        onClose={closeInviteLinkModal}
+        title={t("myOrganization.workshops.inviteLinkTitle", {
+          name: selectedWorkshop?.name,
+        })}
+        size="md"
+      >
+        {(() => {
+          // Use newly created invite if available, otherwise look for existing one
+          const existingInvite =
+            newlyCreatedInvite ||
+            selectedWorkshop?.invites?.find(
+              (inv) => inv.status === "pending" && inv.inviteToken,
+            );
+          if (!existingInvite?.inviteToken) {
+            return (
+              <Text c="dimmed">
+                {t("myOrganization.workshops.noActiveInvite")}
+              </Text>
+            );
+          }
+          const inviteLink = buildShareUrl(`/invites/${existingInvite.inviteToken}/accept`);
+          const createdAt = existingInvite.meta?.createdAt
+            ? new Date(existingInvite.meta.createdAt)
+            : null;
+          const expiresAt = existingInvite.expiresAt
+            ? new Date(existingInvite.expiresAt)
+            : null;
+
+          return (
+            <Stack gap="md">
+              <Text size="sm" c="dimmed">
+                {t("myOrganization.workshops.inviteDescription")}
+              </Text>
+
+              <Stack gap="xs">
+                <Text size="sm" fw={500}>
+                  {t("myOrganization.workshops.inviteLink")}
+                </Text>
+                <Group gap="xs">
+                  <Code
+                    style={{
+                      flex: 1,
+                      padding: "8px 12px",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {inviteLink}
+                  </Code>
+                  <CopyButton value={inviteLink}>
+                    {({ copied, copy }) => (
+                      <Tooltip label={copied ? t("copied") : t("copy")}>
+                        <ActionIcon
+                          color={copied ? "teal" : "gray"}
+                          onClick={copy}
+                          size="lg"
+                        >
+                          {copied ? (
+                            <IconCheck size={18} />
+                          ) : (
+                            <IconCopy size={18} />
+                          )}
+                        </ActionIcon>
+                      </Tooltip>
+                    )}
+                  </CopyButton>
+                </Group>
+              </Stack>
+
+              <Group gap="xl">
+                {createdAt && (
+                  <Stack gap={2}>
+                    <Text size="xs" c="dimmed">
+                      {t("myOrganization.workshops.inviteCreatedAt")}
+                    </Text>
+                    <Group gap="xs">
+                      <IconCalendar size={14} />
+                      <Text size="sm">{createdAt.toLocaleDateString()}</Text>
+                    </Group>
+                  </Stack>
+                )}
+                {expiresAt && (
+                  <Stack gap={2}>
+                    <Text size="xs" c="dimmed">
+                      {t("myOrganization.workshops.inviteExpiresAt")}
+                    </Text>
+                    <Group gap="xs">
+                      <IconClock size={14} />
+                      <Text size="sm">{expiresAt.toLocaleDateString()}</Text>
+                    </Group>
+                  </Stack>
+                )}
+                {existingInvite.usesCount !== undefined &&
+                  existingInvite.usesCount > 0 && (
+                    <Stack gap={2}>
+                      <Text size="xs" c="dimmed">
+                        {t("myOrganization.workshops.inviteUsage")}
+                      </Text>
+                      <Badge size="sm" variant="light">
+                        {t("myOrganization.workshops.usedCount", {
+                          count: existingInvite.usesCount,
+                        })}
+                      </Badge>
+                    </Stack>
+                  )}
+              </Group>
+
+              <Group justify="space-between" mt="md">
+                <DangerButton
+                  onClick={() => {
+                    const invite =
+                      newlyCreatedInvite ||
+                      selectedWorkshop?.invites?.find(
+                        (inv) => inv.status === "pending" && inv.inviteToken,
+                      );
+                    if (invite?.id) handleRevokeInviteAndClose(invite.id);
+                  }}
+                  loading={revokeInvite.isPending}
+                >
+                  {t("myOrganization.workshops.revokeInvite")}
+                </DangerButton>
+                <TextButton onClick={closeInviteLinkModal}>
+                  {t("close")}
+                </TextButton>
+              </Group>
+            </Stack>
+          );
+        })()}
+      </Modal>
+
+      {/* Remove Participant Confirmation Modal */}
+      <ConfirmationModal
+        opened={!!participantToRemove}
+        onClose={() => setParticipantToRemove(null)}
+        onConfirm={handleConfirmRemoveParticipant}
+        title={t("myOrganization.workshops.removeParticipantTitle")}
+        message={t("myOrganization.workshops.removeParticipantConfirm", {
+          name:
+            participantToRemove?.name ||
+            t("myOrganization.workshops.anonymousParticipant"),
+        })}
+        confirmIcon={<IconTrash size={16} />}
+        confirmColor="red"
+        isLoading={removeParticipant.isPending}
       />
     </>
   );
