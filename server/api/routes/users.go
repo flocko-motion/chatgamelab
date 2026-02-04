@@ -7,6 +7,7 @@ import (
 	"cgl/api/auth"
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -92,6 +93,57 @@ func GetCurrentUserStats(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, stats)
 }
 
+// UpdateUserLanguage godoc
+//
+//	@Summary		Update user language preference
+//	@Description	Sets the language preference for the authenticated user
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		object{language=string}	true	"Language preference (ISO 639-1 code)"
+//	@Success		200		{object}	obj.User
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Security		BearerAuth
+//	@Router			/users/me/language [patch]
+func UpdateUserLanguage(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+	ctx := r.Context()
+
+	var req struct {
+		Language string `json:"language"`
+	}
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	// Validate language code against supported languages
+	req.Language = strings.ToLower(strings.TrimSpace(req.Language))
+	if !lang.IsValidLanguageCode(req.Language) {
+		httpx.WriteError(w, http.StatusBadRequest, "Unsupported language code")
+		return
+	}
+
+	log.Debug("updating user language", "user_id", user.ID, "language", req.Language)
+
+	err := db.UpdateUserLanguage(ctx, user.ID, user.ID, req.Language)
+	if err != nil {
+		log.Error("failed to update user language", "user_id", user.ID, "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update language")
+		return
+	}
+
+	// Return updated user
+	updatedUser, err := db.GetUserByID(ctx, user.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated user")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updatedUser)
+}
+
 // GetUserByID godoc
 //
 //	@Summary		Get user by ID
@@ -150,12 +202,24 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug("updating user", "target_user_id", userID, "current_user_id", currentUser.ID)
 
-	// Only admins may access other users
-	if userID != currentUser.ID {
-		if currentUser.Role == nil || currentUser.Role.Role != obj.RoleAdmin {
-			httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
-			return
+	// Permission check: self, admin, or staff/head managing participants in their institution
+	canUpdate := false
+	if userID == currentUser.ID {
+		// Users can always update themselves
+		canUpdate = true
+	} else if currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin {
+		// Admins can update anyone
+		canUpdate = true
+	} else if currentUser.Role != nil && (currentUser.Role.Role == obj.RoleHead || currentUser.Role.Role == obj.RoleStaff) {
+		// Head/Staff can update participants in their institution's workshops
+		if err := db.CanUpdateParticipantName(r.Context(), currentUser.ID, userID); err == nil {
+			canUpdate = true
 		}
+	}
+
+	if !canUpdate {
+		httpx.WriteError(w, http.StatusForbidden, "Forbidden: cannot update this user")
+		return
 	}
 
 	var req UserUpdateRequest
@@ -171,8 +235,9 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if name or email changed
-	emailChanged := (user.Email == nil && req.Email != "") ||
-		(user.Email != nil && req.Email != *user.Email)
+	// Only consider email changed if a non-empty email is provided that differs from current
+	// (empty email in request means "don't change email", not "clear email")
+	emailChanged := req.Email != "" && (user.Email == nil || req.Email != *user.Email)
 	nameChanged := req.Name != "" && req.Name != user.Name
 
 	// Only admins can change email addresses
@@ -371,4 +436,69 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+// SetActiveWorkshopRequest is the request body for setting active workshop
+type SetActiveWorkshopRequest struct {
+	WorkshopID *uuid.UUID `json:"workshopId"`
+}
+
+// SetActiveWorkshop godoc
+//
+//	@Summary		Set active workshop (workshop mode)
+//	@Description	Sets the active workshop for head/staff/individual users to enter workshop mode. Pass null workshopId to leave workshop mode.
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		SetActiveWorkshopRequest	true	"Workshop ID (null to leave)"
+//	@Success		200		{object}	obj.User					"Updated user with workshop context"
+//	@Failure		400		{object}	httpx.ErrorResponse			"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse			"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse			"Forbidden - not allowed for this role"
+//	@Failure		404		{object}	httpx.ErrorResponse			"Workshop not found"
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/users/me/active-workshop [put]
+func SetActiveWorkshop(w http.ResponseWriter, r *http.Request) {
+	currentUser := httpx.UserFromRequest(r)
+
+	var req SetActiveWorkshopRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.WorkshopID == nil {
+		// Leave workshop mode
+		if err := db.ClearActiveWorkshop(r.Context(), currentUser.ID); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
+		// Enter workshop mode
+		if err := db.SetActiveWorkshop(r.Context(), currentUser.ID, *req.WorkshopID); err != nil {
+			if appErr, ok := err.(*obj.AppError); ok {
+				status := http.StatusForbidden
+				switch appErr.Code {
+				case obj.ErrCodeNotFound:
+					status = http.StatusNotFound
+				case obj.ErrCodeForbidden:
+					status = http.StatusForbidden
+				}
+				httpx.WriteError(w, status, appErr.Error())
+			} else {
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+	}
+
+	// Return updated user
+	user, err := db.GetUserByID(r.Context(), currentUser.ID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated user")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, user)
 }

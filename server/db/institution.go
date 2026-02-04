@@ -281,6 +281,22 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 		return err
 	}
 
+	// Clean up API key shares owned by this user that target the institution
+	if err := queries().DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+		UserID:        memberUserID,
+		InstitutionID: uuid.NullUUID{UUID: institutionID, Valid: true},
+	}); err != nil {
+		return obj.ErrServerError("failed to clean up institution API key shares")
+	}
+
+	// Clean up API key shares owned by this user that target any workshop in this institution
+	if err := queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+		UserID:        memberUserID,
+		InstitutionID: institutionID,
+	}); err != nil {
+		return obj.ErrServerError("failed to clean up workshop API key shares")
+	}
+
 	// Delete the user's role (which removes them from the institution)
 	err := queries().DeleteUserRole(ctx, memberUserID)
 	if err != nil {

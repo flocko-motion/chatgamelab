@@ -12,7 +12,9 @@ import {
   useUserSessions,
   useGameSessionMap,
   useCurrentUser,
+  useWorkshops,
 } from "@/api/hooks";
+import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import {
   IconPlayerPlay,
   IconEdit,
@@ -60,21 +62,59 @@ function MyGamesCard() {
   );
 }
 
-// My Rooms Card - placeholder for rooms
-function MyRoomsCard() {
+// My Workshops Card - shows active workshops
+function MyWorkshopsCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
+  const { data: currentUser } = useCurrentUser();
+  const { enterWorkshopMode } = useWorkshopMode();
 
-  const items: ListItem[] = [];
+  const institutionId = currentUser?.role?.institution?.id;
+
+  const { data: workshops, isLoading } = useWorkshops({
+    institutionId,
+    activeOnly: true,
+    sortBy: "createdAt",
+    sortDir: "desc",
+  });
+
+  // Sort by modifiedAt (fallback to createdAt) and take top 5
+  const recentWorkshops = useMemo(() => {
+    if (!workshops) return [];
+    return [...workshops]
+      .sort((a, b) => {
+        const dateA = a.meta?.modifiedAt ?? a.meta?.createdAt ?? "";
+        const dateB = b.meta?.modifiedAt ?? b.meta?.createdAt ?? "";
+        return dateB.localeCompare(dateA);
+      })
+      .slice(0, 5);
+  }, [workshops]);
+
+  const handleWorkshopClick = async (workshopId: string, workshopName: string) => {
+    await enterWorkshopMode(workshopId, workshopName);
+    navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+  };
+
+  const items: ListItem[] = recentWorkshops.map((workshop) => ({
+    id: workshop.id ?? "",
+    label: workshop.name ?? t("untitled"),
+    sublabel: formatRelativeTime(workshop.meta?.modifiedAt ?? workshop.meta?.createdAt),
+    onClick: () => handleWorkshopClick(workshop.id ?? "", workshop.name ?? ""),
+  }));
+
+  // Don't show card if user has no institution (individual users, etc.)
+  if (!institutionId) {
+    return null;
+  }
 
   return (
     <InformationalCard
-      title={t("cards.myRooms.title")}
+      title={t("cards.myWorkshops.title")}
       items={items}
-      emptyMessage={t("cards.myRooms.empty")}
-      viewAllLabel={t("cards.myRooms.viewAll")}
-      onViewAll={() => navigate({ to: "/rooms" as "/" })}
-      isLoading={false}
+      emptyMessage={t("cards.myWorkshops.empty")}
+      viewAllLabel={t("cards.myWorkshops.viewAll")}
+      onViewAll={() => navigate({ to: ROUTES.MY_ORGANIZATION as "/" })}
+      isLoading={isLoading}
     />
   );
 }
@@ -280,7 +320,7 @@ export function DashboardContent() {
     <Stack gap="xl">
       <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
         <MyGamesCard />
-        <MyRoomsCard />
+        <MyWorkshopsCard />
         <LastPlayedCard />
       </SimpleGrid>
 

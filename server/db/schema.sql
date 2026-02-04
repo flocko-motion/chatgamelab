@@ -24,7 +24,9 @@ CREATE TABLE app_user (
     -- References api_key_share instead of api_key to ensure the user has access to the key.
     default_api_key_share_id uuid NULL,
     -- User preference: show AI model selector when creating sessions
-    show_ai_model_selector boolean NOT NULL DEFAULT false
+    show_ai_model_selector boolean NOT NULL DEFAULT false,
+    -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
+    language text NOT NULL DEFAULT 'en'
 );
 
 -- Institution
@@ -56,6 +58,13 @@ CREATE TABLE workshop (
     active          boolean NOT NULL DEFAULT true,
     public          boolean NOT NULL DEFAULT false,
     deleted_at      timestamptz NULL,
+    -- Default API key share for workshop participants (set by staff/heads)
+    default_api_key_share_id uuid NULL,
+    -- Workshop settings (configured by staff/heads)
+    use_specific_ai_model text NULL,  -- If set, use this AI model instead of system default
+    show_ai_model_selector boolean NOT NULL DEFAULT false,  -- If true, participants can select AI model
+    show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
+    show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
@@ -74,6 +83,8 @@ CREATE TABLE user_role (
     role            text NOT NULL,
     institution_id  uuid NULL REFERENCES institution(id),
     workshop_id     uuid NULL REFERENCES workshop(id),
+    -- Active workshop for head/staff/individual when in "workshop mode"
+    active_workshop_id uuid NULL REFERENCES workshop(id),
 
     CONSTRAINT user_role_role_chk CHECK (role IN ('admin', 'head', 'staff', 'participant', 'individual')),
     CONSTRAINT user_role_user_institution_workshop_uniq UNIQUE (user_id, role, institution_id, workshop_id)
@@ -119,7 +130,7 @@ CREATE TABLE user_role_invite (
     -- expired: past expiration date or max uses reached
     -- revoked: manually cancelled by creator
     status          text NOT NULL DEFAULT 'pending',
-    
+
     deleted_at      timestamptz NULL,
 
     -- When the invite was accepted (only for targeted invites)
@@ -208,7 +219,7 @@ CREATE TABLE game (
     name                            text NOT NULL UNIQUE,
     description                     text NOT NULL,
     icon                            bytea NULL,
-    
+
     -- Optional workshop scope (games can be created within a workshop context)
     workshop_id                     uuid NULL REFERENCES workshop(id),
 
@@ -240,12 +251,12 @@ CREATE TABLE game (
     first_message                   text NULL,
     first_status                    text NULL,
     first_image                     bytea NULL,
-    
+
     -- Tracking: original creator (for cloned games) and usage statistics
     originally_created_by           uuid NULL REFERENCES app_user(id),
     play_count                      integer NOT NULL DEFAULT 0,
     clone_count                     integer NOT NULL DEFAULT 0,
-    
+
     -- Soft delete: games are not hard-deleted to preserve session references
     deleted_at                      timestamptz NULL
 );
@@ -294,7 +305,7 @@ CREATE TABLE game_session (
     theme           jsonb NULL,
     -- Set to true when image generation fails due to organization verification required
     is_organisation_unverified boolean NOT NULL DEFAULT false,
-    
+
     deleted_at      timestamptz NULL
 );
 
@@ -318,7 +329,7 @@ CREATE TABLE game_session_message (
     status              text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
-    
+
     deleted_at          timestamptz NULL,
 
     CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
@@ -338,6 +349,12 @@ CREATE TABLE system_settings (
         id = '00000000-0000-0000-0000-000000000001'::uuid
     )
 );
+
+-- Insert initial system_settings row
+INSERT INTO system_settings (id, default_ai_model, schema_version)
+VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'gpt-4o-mini', 0)
+ON CONFLICT (id) DO NOTHING;
+
 -- UserFavouriteGame
 -- A user's favourite games. Users can mark games as favourites for quick access.
 CREATE TABLE user_favourite_game (

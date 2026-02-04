@@ -1,11 +1,13 @@
 package testutil
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -14,6 +16,8 @@ import (
 	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -107,30 +111,63 @@ func validateError(t *testing.T, err error, context string, validators ...ErrorV
 
 // --- UserClient API methods ---
 
-// UploadGame uploads a game YAML file from testdata/games to an existing game
-// Example: alice.UploadGame(gameID, "simple-quest")
-func (u *UserClient) UploadGame(gameID, name string) {
+// UploadGame creates a new game and uploads YAML content from testdata/games (composable high-level API)
+// Example: game := Must(alice.UploadGame("simple-quest"))
+func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 	u.t.Helper()
 
-	// Read YAML file from testdata/games
-	yamlPath := fmt.Sprintf("../testdata/games/%s.yaml", name)
-	yamlContent, err := os.ReadFile(yamlPath)
+	// Read YAML file from testdata/games - try multiple paths
+	relativePaths := []string{
+		fmt.Sprintf("testdata/games/%s.yaml", yamlName),
+		fmt.Sprintf("../testdata/games/%s.yaml", yamlName),
+		fmt.Sprintf("testing/testdata/games/%s.yaml", yamlName),
+	}
+
+	var yamlContent []byte
+	var err error
+	var triedPaths []string
+
+	for _, relPath := range relativePaths {
+		absPath, _ := filepath.Abs(relPath)
+		triedPaths = append(triedPaths, absPath)
+		yamlContent, err = os.ReadFile(relPath)
+		if err == nil {
+			break
+		}
+	}
+
 	if err != nil {
-		u.t.Fatalf("User %q: failed to read game file %s: %v", u.Name, yamlPath, err)
+		return obj.Game{}, fmt.Errorf("failed to read game file %s.yaml, tried absolute paths: %v", yamlName, triedPaths)
+	}
+
+	// Create game
+	var game obj.Game
+	err = u.Post("games/new", routes.CreateGameRequest{
+		Name: "Test Game",
+	}, &game)
+	if err != nil {
+		return obj.Game{}, fmt.Errorf("failed to create game: %w", err)
 	}
 
 	// Set user's token
 	if err := client.SaveJwt(u.Token); err != nil {
-		u.t.Fatalf("User %q: failed to set token for game upload: %v", u.Name, err)
+		return obj.Game{}, fmt.Errorf("failed to set token for game upload: %w", err)
 	}
 
 	// Upload via PUT /games/{id}/yaml
-	endpoint := fmt.Sprintf("games/%s/yaml", gameID)
+	endpoint := fmt.Sprintf("games/%s/yaml", game.ID.String())
 	if err := client.ApiPutRaw(endpoint, string(yamlContent)); err != nil {
-		u.t.Fatalf("User %q: failed to upload game %s: %v", u.Name, name, err)
+		return obj.Game{}, fmt.Errorf("failed to upload game YAML: %w", err)
 	}
 
-	u.t.Logf("User %q uploaded game %s to %s", u.Name, name, gameID)
+	// Fetch updated game to get YAML-populated fields
+	var updatedGame obj.Game
+	err = u.Get("games/"+game.ID.String(), &updatedGame)
+	if err != nil {
+		return obj.Game{}, fmt.Errorf("failed to fetch updated game: %w", err)
+	}
+
+	return updatedGame, nil
 }
 
 // makeRequest performs an HTTP request with the user's token in the Authorization header
@@ -329,6 +366,21 @@ func (u *UserClient) GetMe() (obj.User, error) {
 	return result, err
 }
 
+// UpdateUserName updates a user's name by ID (composable high-level API)
+func (u *UserClient) UpdateUserName(userID string, name string) (obj.User, error) {
+	u.t.Helper()
+	var result obj.User
+	payload := map[string]string{"name": name}
+	err := u.Post("users/"+userID, payload, &result)
+	return result, err
+}
+
+// SetUserLanguage sets the user's language preference (composable high-level API)
+func (u *UserClient) SetUserLanguage(language string) error {
+	u.t.Helper()
+	return u.Patch("users/me/language", map[string]string{"language": language}, nil)
+}
+
 // GetInstitution returns a specific institution by ID (composable high-level API)
 func (u *UserClient) GetInstitution(institutionID string) (obj.Institution, error) {
 	u.t.Helper()
@@ -411,6 +463,147 @@ func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRole
 	var result obj.UserRoleInvite
 	err := u.Post("invites/workshop", payload, &result)
 	return result, err
+}
+
+// AddApiKey reads an API key from a file and creates it (composable high-level API)
+func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+
+	var result obj.ApiKeyShare
+	err := u.Post("apikeys/new", routes.CreateApiKeyRequest{
+		Name:     name,
+		Platform: platform,
+		Key:      apiKey,
+	}, &result)
+	return result, err
+}
+
+// CreateGameSession creates a new game session (composable high-level API)
+// Returns the session and the initial message
+func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID, model string) (routes.SessionResponse, error) {
+	u.t.Helper()
+
+	var response routes.SessionResponse
+	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
+		Model:   model,
+		ShareID: apiKeyShareID,
+	}, &response)
+	return response, err
+}
+
+// SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
+// This returns the initial response with plot outline and status fields.
+// Use SendGameMessageWithStream to also consume the full expanded story.
+func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.GameSessionMessage, error) {
+	u.t.Helper()
+
+	var response obj.GameSessionMessage
+	err := u.Post("sessions/"+sessionID, routes.SessionActionRequest{
+		Message: message,
+	}, &response)
+	return response, err
+}
+
+// SendGameMessageWithStream sends a message and consumes the SSE stream to get the full expanded story
+func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, error) {
+	u.t.Helper()
+
+	// Get initial response with plot outline
+	initialResponse, err := u.SendGameMessage(sessionID, message)
+	if err != nil {
+		return obj.GameSessionMessage{}, err
+	}
+
+	// If not streaming, return the initial response
+	if !initialResponse.Stream {
+		return initialResponse, nil
+	}
+
+	// Consume the SSE stream to get full expanded story
+	fullStory, imageData, err := u.consumeMessageStream(initialResponse.ID.String())
+	if err != nil {
+		return obj.GameSessionMessage{}, fmt.Errorf("failed to consume stream: %w", err)
+	}
+
+	// Update response with full content
+	initialResponse.Message = fullStory
+	initialResponse.Image = imageData
+	initialResponse.Stream = false
+
+	return initialResponse, nil
+}
+
+// consumeMessageStream connects to SSE endpoint and consumes all chunks
+func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, error) {
+	u.t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return "", nil, fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/messages/%s/stream", serverURL, messageID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+u.Token)
+	req.Header.Set("Accept", "text/event-stream")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
+	}
+
+	var fullText strings.Builder
+	var imageData []byte
+	scanner := bufio.NewScanner(resp.Body)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// SSE format: "data: {json}"
+		if !strings.HasPrefix(line, "data: ") {
+			continue
+		}
+
+		jsonData := strings.TrimPrefix(line, "data: ")
+		var chunk obj.GameSessionMessageChunk
+		if err := json.Unmarshal([]byte(jsonData), &chunk); err != nil {
+			return "", nil, fmt.Errorf("failed to parse chunk: %w", err)
+		}
+
+		// Accumulate text
+		if chunk.Text != "" {
+			fullText.WriteString(chunk.Text)
+		}
+
+		// Accumulate image data
+		if len(chunk.ImageData) > 0 {
+			imageData = append(imageData, chunk.ImageData...)
+		}
+
+		// Check for completion or error
+		if chunk.Error != "" {
+			return "", nil, fmt.Errorf("stream error: %s", chunk.Error)
+		}
+
+		if chunk.TextDone && chunk.ImageDone {
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", nil, fmt.Errorf("scanner error: %w", err)
+	}
+
+	return fullText.String(), imageData, nil
 }
 
 // ReactivateInvite reactivates a revoked invite (composable high-level API)

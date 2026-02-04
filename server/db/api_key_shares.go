@@ -4,6 +4,7 @@ import (
 	db "cgl/db/sqlc"
 	"cgl/functional"
 	"cgl/game/ai"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"time"
@@ -215,8 +216,18 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 	}
 
 	// Check permission - user must have read access to the API key
+	// First check via standard canAccessApiKey
 	if err := canAccessApiKey(ctx, userID, OpRead, s.ApiKeyID, s.KeyOwnerID, nil, nil, nil); err != nil {
-		return nil, err
+		// If standard check fails, also check if this share is a workshop's default API key
+		// and the user is a member of that workshop
+		canAccess, checkErr := queries().CanUserAccessShareViaWorkshopDefault(ctx, db.CanUserAccessShareViaWorkshopDefaultParams{
+			DefaultApiKeyShareID: uuid.NullUUID{UUID: shareID, Valid: true},
+			UserID:               userID,
+		})
+		if checkErr != nil || !canAccess {
+			return nil, err // Return original error
+		}
+		log.Debug("access granted via workshop default API key", "share_id", shareID, "user_id", userID)
 	}
 	share := &obj.ApiKeyShare{
 		ID: s.ID,
@@ -360,6 +371,52 @@ func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.
 	user, err := GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, obj.ErrNotFound("user not found")
+	}
+
+	// Workshop participants ONLY get the workshop's default API key
+	// They should not see personal keys or other options
+	if user.Role != nil && user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil {
+		log.Debug("user is workshop participant, checking for workshop default API key",
+			"user_id", userID, "workshop_id", user.Role.Workshop.ID)
+
+		// Get the workshop to check for default API key
+		workshop, err := queries().GetWorkshopByID(ctx, user.Role.Workshop.ID)
+		if err != nil {
+			log.Warn("failed to get workshop for participant", "workshop_id", user.Role.Workshop.ID, "error", err)
+			return result, nil // Return empty - no keys available
+		}
+
+		if !workshop.DefaultApiKeyShareID.Valid {
+			log.Debug("workshop has no default API key set", "workshop_id", user.Role.Workshop.ID)
+			return result, nil // Return empty - workshop has no default key
+		}
+
+		// Get the API key share details
+		share, err := queries().GetApiKeyShareByID(ctx, workshop.DefaultApiKeyShareID.UUID)
+		if err != nil {
+			log.Warn("failed to get workshop default API key share", "share_id", workshop.DefaultApiKeyShareID.UUID, "error", err)
+			return result, nil // Return empty - share not found
+		}
+
+		// Get the actual API key to get name/platform
+		key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+		if err != nil {
+			log.Warn("failed to get API key for workshop default share", "api_key_id", share.ApiKeyID, "error", err)
+			return result, nil // Return empty - key not found
+		}
+
+		log.Info("workshop participant using workshop default API key",
+			"user_id", userID, "workshop_id", user.Role.Workshop.ID,
+			"key_name", key.Name, "key_platform", key.Platform, "share_id", share.ID)
+
+		result = append(result, obj.AvailableKey{
+			ShareID:   share.ID,
+			Name:      key.Name,
+			Platform:  key.Platform,
+			Source:    "workshop",
+			IsDefault: true,
+		})
+		return result, nil
 	}
 
 	// Get user's default share ID

@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"cgl/db"
+	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/stream"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -64,6 +67,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		log.Debug("API key share not found", "share_id", shareID, "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
 	}
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", shareID)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -97,6 +101,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
 
+	// Get user to check language preference
+	user, err := db.GetUserByID(ctx, userID)
+	if err != nil {
+		log.Debug("failed to get user for language preference", "user_id", userID, "error", err)
+		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
+	}
+
 	// Create temporary session object for theme generation (needs ApiKey)
 	tempSession := &obj.GameSession{
 		GameID:       game.ID,
@@ -110,14 +121,53 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		StatusFields: game.StatusFields,
 	}
 
-	// Generate visual theme for the game player UI (synchronous)
-	log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-	theme, err := GenerateTheme(ctx, tempSession, game)
-	if err != nil {
-		log.Warn("failed to generate theme, using default", "error", err)
-		// Don't fail - use nil theme (frontend will use defaults)
-	} else {
-		log.Debug("theme generated successfully", "preset", theme.Preset)
+	// Run theme generation and game translation in parallel
+	var wg sync.WaitGroup
+	var theme *obj.GameTheme
+	var translatedGame *obj.Game
+
+	// Start theme generation
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+		t, err := GenerateTheme(ctx, tempSession, game)
+		if err != nil {
+			log.Warn("failed to generate theme, using default", "error", err)
+		} else {
+			log.Debug("theme generated successfully", "preset", t.Preset)
+			theme = t
+		}
+	}()
+
+	// Start game translation if user language is not English
+	if user.Language != "" && user.Language != "en" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			log.Debug("translating game to user language", "game_id", gameID, "target_lang", user.Language)
+			translated, err := TranslateGame(ctx, tempSession, game, user.Language)
+			if err != nil {
+				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err)
+			} else {
+				log.Debug("game translated successfully", "target_lang", user.Language)
+				translatedGame = translated
+			}
+		}()
+	}
+
+	// Wait for both operations to complete
+	wg.Wait()
+
+	// Use translated game if available
+	if translatedGame != nil {
+		game = translatedGame
+		// Re-generate system message with translated game
+		systemMessage, err = GetTemplate(game)
+		if err != nil {
+			log.Debug("failed to get template from translated game", "error", err)
+			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
+		}
 	}
 
 	// Persist to database with theme
@@ -146,8 +196,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
 		}
+		return nil, nil, httpErr
 	}
-	return session, response, httpErr
+	response.PromptStatusUpdate = functional.Ptr(systemMessage)
+	return session, response, nil
 }
 
 // DoSessionAction orchestrates the AI response generation:
@@ -233,6 +285,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
+	response.PromptStatusUpdate = functional.Ptr(action.Message)
+	response.PromptExpandStory = functional.Ptr(lang.T("aiExpandPlotOutline"))
+	response.PromptImageGeneration = response.ImagePrompt
 
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
 	// This is returned to client immediately
@@ -240,7 +295,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Capture values before goroutines to avoid race conditions
 	messageID := response.ID
-	imagePrompt := response.ImagePrompt
 
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
@@ -266,11 +320,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", imagePrompt != nil)
+		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", response.ImagePrompt != nil)
 		// GenerateImage streams partial images and updates response.Image with final
 		// Note: Image is saved to DB inside stream.SendImage when isDone=true
 		// Use captured imagePrompt to avoid race condition with response pointer
-		if imagePrompt == nil || *imagePrompt == "" {
+		if response.ImagePrompt == nil || *response.ImagePrompt == "" {
 			log.Debug("no image prompt, skipping image generation")
 			return
 		}
