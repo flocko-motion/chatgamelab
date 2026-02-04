@@ -46,7 +46,7 @@ services:
     ports:
       - "${PORT_BACKEND:-3000}:3000"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/status"]
+      test: [ "CMD", "/app/cgl", "healthcheck" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -69,7 +69,7 @@ services:
     ports:
       - "${PORT_FRONTEND:-80}:80"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
       interval: 10s
       timeout: 5s
       retries: 3

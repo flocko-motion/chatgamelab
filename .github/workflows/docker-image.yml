@@ -192,21 +192,29 @@ jobs:
     steps:
       - name: Trigger deployment webhook
         run: |
-          # Determine webhook URL based on branch
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            WEBHOOK_URL="https://omnitopos.net/dashctl/cgl-prod/restart"
-          else
-            WEBHOOK_URL="https://omnitopos.net/dashctl/cgl-dev/restart"
-          fi
-          
-          echo "Triggering webhook: $WEBHOOK_URL"
           echo "Release version: ${{ needs.semantic-release.outputs.version }}"
           
-          # Call webhook with htpasswd authentication
-          curl -X POST \
-            -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
-            -f \
-            "$WEBHOOK_URL"
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            # Production: trigger omnitopos only
+            echo "Triggering production webhook..."
+            curl -X POST \
+              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+              -f \
+              "https://omnitopos.net/dashctl/cgl-prod/restart"
+          else
+            # Development: trigger both omnitopos and coolify
+            echo "Triggering omnitopos dev webhook..."
+            curl -X POST \
+              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+              -f \
+              "https://omnitopos.net/dashctl/cgl-dev/restart" || echo "⚠️ Omnitopos webhook failed"
+            
+            echo "Triggering Coolify dev webhook..."
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
+              -f \
+              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify webhook failed"
+          fi
 
   summary:
     needs: [build-and-push, semantic-release, webhook]
