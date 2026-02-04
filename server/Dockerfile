@@ -21,10 +21,11 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
 # Runtime image (slim with shell for debugging)
 FROM debian:13-slim
 
-# Install bash and curl for debugging and testing
+# Install bash, curl, and ca-certificates for debugging and SSL verification
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Set bash as default shell
