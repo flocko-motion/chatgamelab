@@ -18,8 +18,8 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
     -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME}" \
     -o cgl ./
 
-# Runtime image (slim, no shell, based on Debian)
-FROM gcr.io/distroless/base-debian13
+# Runtime image (slim with shell for debugging)
+FROM debian:13-slim
 
 WORKDIR /app
 
