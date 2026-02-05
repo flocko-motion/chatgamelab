@@ -13,6 +13,7 @@ export const ErrorCodes = {
   INVALID_INPUT: "invalid_input",
   SERVER_ERROR: "server_error",
   USER_NOT_REGISTERED: "user_not_registered",
+  DUPLICATE_NAME: "duplicate_name",
   // Auth-related error codes
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // AI-related error codes
