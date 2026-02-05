@@ -849,6 +849,12 @@
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
+    "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
+    "contentFiltered": "Your request was filtered by the AI's content policy. Please try rephrasing.",
+    "duplicateName": "An item with this name already exists. Please choose a different name.",
+    "aiError": "The AI service encountered an error. Please try again.",
+    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
+    "invalidToken": "Your session has expired or is invalid. Please use your invite link again.",
     "titles": {
       "aiError": "AI Error",
       "authentication": "Authentication Error",

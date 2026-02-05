@@ -848,6 +848,12 @@
     "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
+    "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
+    "contentFiltered": "Deine Anfrage wurde von den Inhaltsrichtlinien der KI gefiltert. Bitte formuliere sie anders.",
+    "duplicateName": "Ein Eintrag mit diesem Namen existiert bereits. Bitte wähle einen anderen Namen.",
+    "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
+    "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
     "titles": {
       "aiError": "KI-Fehler",

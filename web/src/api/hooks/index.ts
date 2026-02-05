@@ -54,6 +54,7 @@ export {
   useUserStats,
   useUser,
   useUpdateUser,
+  useUpdateUserLanguage,
   useCreateUser,
 } from "./useUsers";
 
