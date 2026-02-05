@@ -428,6 +428,7 @@ type GameSessionMessageChunk struct {
 	ImageData []byte `json:"imageData,omitempty"` // Partial/final image data
 	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
 	Error     string `json:"error,omitempty"`     // Error message if failed
+	ErrorCode string `json:"errorCode,omitempty"` // Machine-readable error code (maps to frontend i18n)
 }
 
 // GameResponseSchema is the JSON schema for LLM responses, shared across all AI platforms.

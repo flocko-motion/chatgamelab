@@ -58,7 +58,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Resolve share: use provided share, or fall back to user's default
 	if shareID == uuid.Nil {
-		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: "No API key share provided."}
+		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeValidation, "No API key share provided.")
 	}
 
 	// Get the share - GetApiKeyShareByID already checks access permissions (including institution/workshop shares)
@@ -66,7 +66,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	share, err := db.GetApiKeyShareByID(ctx, userID, shareID)
 	if err != nil {
 		log.Debug("API key share not found", "share_id", shareID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "API key share not found: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "API key share not found")
 	}
 	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", shareID)
 
@@ -75,7 +75,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	game, err := db.GetGameByID(ctx, &userID, gameID)
 	if err != nil {
 		log.Debug("game not found", "game_id", gameID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 404, Message: "Game not found: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Game not found")
 	}
 
 	// Delete any existing sessions for this user+game (restart scenario)
@@ -90,7 +90,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	systemMessage, err := templates.GetTemplate(game)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
 	}
 
 	// Validate AI platform
@@ -98,7 +98,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	_, err = ai.GetAiPlatform(share.ApiKey.Platform)
 	if err != nil {
 		log.Debug("failed to get AI platform", "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeInvalidPlatform, err.Error())
 	}
 	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform)
 
@@ -203,7 +203,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil, theme)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to create session: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
 	}
 	log.Debug("session created", "session_id", session.ID)
 
@@ -249,18 +249,18 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	if session == nil {
 		log.Error("session action failed: session is nil")
-		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: session is nil", failedAction)}
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, fmt.Sprintf("%s: session is nil", failedAction))
 	}
 	if session.ApiKey == nil {
 		log.Error("session action failed: no API key", "session_id", session.ID)
-		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s %s: session has no api key object", failedAction, session.ID)}
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidApiKey, "Session has no API key. Please select a new API key.")
 	}
 
 	log.Debug("getting AI platform", "platform", session.AiPlatform, "model", session.AiModel)
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform", "session_id", session.ID, "error", err)
-		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s %s: %v", failedAction, session.ID, err)}
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
 	}
 
 	// Store player/system action message (skip for system messages which are just prompts)
@@ -271,7 +271,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		playerMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
 		if err != nil {
 			log.Debug("failed to store player action", "session_id", session.ID, "error", err)
-			return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: failed to store player action: %v", failedAction, err)}
+			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store player action")
 		}
 		playerMessageID = &playerMsg.ID
 	}
@@ -281,7 +281,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
 	if err != nil {
 		log.Debug("failed to create streaming message", "session_id", session.ID, "error", err)
-		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s: failed to create streaming message: %v", failedAction, err)}
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
 	}
 	log.Debug("streaming message created", "message_id", response.ID)
 
@@ -295,7 +295,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	usage, err := platform.ExecuteAction(ctx, session, action, response)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
-		responseStream.SendError(err.Error())
+		// Extract AI error code and clear API key for key-related errors
+		errorCode := extractAIErrorCode(err)
+		responseStream.SendError(errorCode, err.Error())
 
 		// Delete the placeholder message instead of saving empty/error content
 		if delErr := db.DeleteGameSessionMessage(ctx, response.ID); delErr != nil {
@@ -308,9 +310,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 				log.Warn("failed to delete player message after error", "message_id", *playerMessageID, "error", delErr)
 			}
 		}
-
-		// Extract AI error code and clear API key for key-related errors
-		errorCode := extractAIErrorCode(err)
 		if errorCode == obj.ErrCodeBillingNotActive || errorCode == obj.ErrCodeInvalidApiKey || errorCode == obj.ErrCodeInsufficientQuota {
 			log.Debug("clearing session API key due to key error", "session_id", session.ID, "error_code", errorCode)
 			if clearErr := db.ClearGameSessionApiKey(ctx, session.ID); clearErr != nil {

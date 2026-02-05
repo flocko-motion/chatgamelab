@@ -91,9 +91,9 @@ func (s *Stream) SendText(text string, isDone bool) {
 	s.Send(obj.GameSessionMessageChunk{Text: text, TextDone: isDone})
 }
 
-// SendError signals an error
-func (s *Stream) SendError(err string) {
-	s.Send(obj.GameSessionMessageChunk{Error: err})
+// SendError signals an error with an optional machine-readable error code
+func (s *Stream) SendError(errorCode string, err string) {
+	s.Send(obj.GameSessionMessageChunk{Error: err, ErrorCode: errorCode})
 }
 
 // SendImage streams partial or final image data to the frontend.

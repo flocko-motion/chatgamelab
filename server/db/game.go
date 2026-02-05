@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
@@ -387,6 +388,9 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err := queries().CreateGame(ctx, arg)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
+		}
 		return err
 	}
 
@@ -446,6 +450,9 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err = queries().UpdateGame(ctx, arg)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
+		}
 		return err
 	}
 
