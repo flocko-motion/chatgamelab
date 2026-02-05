@@ -6,6 +6,7 @@ import { queryKeys } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { config } from "@/config/env";
 import type { RoutesSessionResponse } from "@/api/generated";
+import { extractRawErrorCode } from "@/common/types/errorCodes";
 import type {
   SceneMessage,
   StreamChunk,
@@ -23,6 +24,7 @@ const INITIAL_STATE: GamePlayerState = {
   isWaitingForResponse: false,
   error: null,
   errorObject: null,
+  streamError: null,
   theme: null,
 };
 
@@ -106,6 +108,28 @@ export function useGameSession(gameId: string) {
               try {
                 const data = line.slice(6);
                 const chunk: StreamChunk = JSON.parse(data);
+
+                if (chunk.error) {
+                  // Backend sent an error via SSE - handle as recoverable
+                  apiLogger.error("Stream error from backend", {
+                    errorCode: chunk.errorCode,
+                    error: chunk.error,
+                    messageId,
+                  });
+                  // Remove the streaming placeholder message
+                  setState((prev) => ({
+                    ...prev,
+                    messages: prev.messages.filter(
+                      (msg) => msg.id !== messageId,
+                    ),
+                    isWaitingForResponse: false,
+                    streamError: {
+                      code: chunk.errorCode || null,
+                      message: chunk.error || "Unknown error",
+                    },
+                  }));
+                  return;
+                }
 
                 if (chunk.text) {
                   appendTextToMessage(messageId, chunk.text);
@@ -270,14 +294,19 @@ export function useGameSession(gameId: string) {
           }));
         }
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to send action";
+        apiLogger.error("sendAction failed", { error });
+        // Extract error code from the API response for i18n translation
+        const errorCode = extractRawErrorCode(error);
+        // Remove the player message that was never processed
         setState((prev) => ({
           ...prev,
-          phase: "error",
           isWaitingForResponse: false,
-          error: errorMessage,
-          errorObject: error,
+          messages: prev.messages.filter((msg) => msg.id !== playerMessage.id),
+          streamError: {
+            code: errorCode,
+            message:
+              error instanceof Error ? error.message : "Failed to send action",
+          },
         }));
       }
     },
@@ -371,6 +400,10 @@ export function useGameSession(gameId: string) {
     [api, state.sessionId, queryClient],
   );
 
+  const clearStreamError = useCallback(() => {
+    setState((prev) => ({ ...prev, streamError: null }));
+  }, []);
+
   const resetGame = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -393,6 +426,7 @@ export function useGameSession(gameId: string) {
     sendAction,
     loadExistingSession,
     updateSessionApiKey,
+    clearStreamError,
     resetGame,
   };
 }

@@ -1,12 +1,30 @@
-import type { ObjGameSessionMessage, ObjStatusField, ObjApiKeyShare, ObjAiModel, ObjGameTheme } from '@/api/generated';
-import { PRESET_THEMES } from './theme/defaults';
-import type { PartialGameTheme, CornerStyle, ThemeColor, BackgroundTint, PlayerIndicator, CardBgColor, FontColor, CardBorderThickness, ThinkingStyle, MessageFont, DividerStyle } from './theme/types';
+import type {
+  ObjGameSessionMessage,
+  ObjStatusField,
+  ObjApiKeyShare,
+  ObjAiModel,
+  ObjGameTheme,
+} from "@/api/generated";
+import { PRESET_THEMES } from "./theme/defaults";
+import type {
+  PartialGameTheme,
+  CornerStyle,
+  ThemeColor,
+  BackgroundTint,
+  PlayerIndicator,
+  CardBgColor,
+  FontColor,
+  CardBorderThickness,
+  ThinkingStyle,
+  MessageFont,
+  DividerStyle,
+} from "./theme/types";
 
 // ============================================================================
 // Core Types
 // ============================================================================
 
-export type MessageType = 'system' | 'player' | 'game';
+export type MessageType = "system" | "player" | "game";
 
 export interface SceneMessage {
   id: string;
@@ -23,8 +41,10 @@ export interface SceneMessage {
 export interface StreamChunk {
   text?: string;
   textDone?: boolean;
-  imageData?: string;  // Base64-encoded partial/WIP image data
+  imageData?: string; // Base64-encoded partial/WIP image data
   imageDone?: boolean;
+  error?: string; // Error message from the backend
+  errorCode?: string; // Machine-readable error code (maps to frontend i18n)
 }
 
 export interface GameSessionConfig {
@@ -42,7 +62,17 @@ export interface GameInfo {
 // Player State
 // ============================================================================
 
-export type GamePhase = 'selecting-key' | 'starting' | 'playing' | 'error' | 'needs-api-key';
+export type GamePhase =
+  | "selecting-key"
+  | "starting"
+  | "playing"
+  | "error"
+  | "needs-api-key";
+
+export interface StreamError {
+  code: string | null;
+  message: string;
+}
 
 export interface GamePlayerState {
   phase: GamePhase;
@@ -54,6 +84,8 @@ export interface GamePlayerState {
   error: string | null;
   /** Full error object for error code extraction */
   errorObject: unknown;
+  /** Recoverable error from SSE stream (mid-game AI errors) — player can dismiss and retry */
+  streamError: StreamError | null;
   /** AI-generated visual theme from the session */
   theme: ObjGameTheme | null;
 }
@@ -62,7 +94,7 @@ export interface GamePlayerState {
 // Theme System
 // ============================================================================
 
-export type ThemePreset = 'classic' | 'modern' | 'dark' | 'playful' | 'minimal';
+export type ThemePreset = "classic" | "modern" | "dark" | "playful" | "minimal";
 
 export interface GameTheme {
   preset: ThemePreset;
@@ -70,7 +102,7 @@ export interface GameTheme {
 }
 
 export const DEFAULT_THEME: GameTheme = {
-  preset: 'modern',
+  preset: "modern",
 };
 
 // ============================================================================
@@ -80,8 +112,8 @@ export const DEFAULT_THEME: GameTheme = {
 export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
   return {
     id: msg.id || crypto.randomUUID(),
-    type: (msg.type as MessageType) || 'game',
-    text: msg.message || '',
+    type: (msg.type as MessageType) || "game",
+    text: msg.message || "",
     statusFields: msg.statusFields,
     imagePrompt: msg.imagePrompt,
     isStreaming: msg.stream,
@@ -90,39 +122,43 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
   };
 }
 
-export function getDefaultApiKey(apiKeys: ObjApiKeyShare[]): ObjApiKeyShare | undefined {
-  return apiKeys.find(k => k.isUserDefault) || apiKeys[0];
+export function getDefaultApiKey(
+  apiKeys: ObjApiKeyShare[],
+): ObjApiKeyShare | undefined {
+  return apiKeys.find((k) => k.isUserDefault) || apiKeys[0];
 }
 
 export function getModelsForApiKey(
-  apiKey: ObjApiKeyShare | undefined, 
-  platforms: { id?: string; models?: ObjAiModel[] }[]
+  apiKey: ObjApiKeyShare | undefined,
+  platforms: { id?: string; models?: ObjAiModel[] }[],
 ): ObjAiModel[] {
   if (!apiKey?.apiKey?.platform) return [];
-  const platform = platforms.find(p => p.id === apiKey.apiKey?.platform);
+  const platform = platforms.find((p) => p.id === apiKey.apiKey?.platform);
   return platform?.models || [];
 }
 
 /** Maps API theme type to frontend PartialGameTheme (type-safe conversion)
- * 
+ *
  * New structure: { preset: "space", override: { ...fields to override... } }
  * 1. Load the preset (if specified)
  * 2. Apply any overrides on top
  */
-export function mapApiThemeToPartial(apiTheme: ObjGameTheme | null | undefined): PartialGameTheme | undefined {
+export function mapApiThemeToPartial(
+  apiTheme: ObjGameTheme | null | undefined,
+): PartialGameTheme | undefined {
   if (!apiTheme) return undefined;
-  
+
   // Start with preset if specified
   let result: PartialGameTheme = {};
-  
-  if (apiTheme.preset && apiTheme.preset !== 'custom') {
+
+  if (apiTheme.preset && apiTheme.preset !== "custom") {
     const preset = PRESET_THEMES[apiTheme.preset];
     if (preset) {
       // Deep clone preset
       result = JSON.parse(JSON.stringify(preset));
     }
   }
-  
+
   // Apply overrides if present
   const override = apiTheme.override;
   if (override) {
@@ -130,25 +166,43 @@ export function mapApiThemeToPartial(apiTheme: ObjGameTheme | null | undefined):
       result.corners = { ...result.corners, ...mapCorners(override.corners) };
     }
     if (override.background) {
-      result.background = { ...result.background, tint: override.background.tint as BackgroundTint };
+      result.background = {
+        ...result.background,
+        tint: override.background.tint as BackgroundTint,
+      };
     }
     if (override.player) {
       result.player = { ...result.player, ...mapPlayer(override.player) };
     }
     if (override.gameMessage) {
-      result.gameMessage = { ...result.gameMessage, ...mapGameMessage(override.gameMessage) };
+      result.gameMessage = {
+        ...result.gameMessage,
+        ...mapGameMessage(override.gameMessage),
+      };
     }
     if (override.cards) {
-      result.cards = { ...result.cards, borderThickness: override.cards.borderThickness as CardBorderThickness };
+      result.cards = {
+        ...result.cards,
+        borderThickness: override.cards.borderThickness as CardBorderThickness,
+      };
     }
     if (override.thinking) {
-      result.thinking = { ...result.thinking, ...mapThinking(override.thinking) };
+      result.thinking = {
+        ...result.thinking,
+        ...mapThinking(override.thinking),
+      };
     }
     if (override.typography) {
-      result.typography = { ...result.typography, messages: override.typography.messages as MessageFont };
+      result.typography = {
+        ...result.typography,
+        messages: override.typography.messages as MessageFont,
+      };
     }
     if (override.statusFields) {
-      result.statusFields = { ...result.statusFields, ...mapStatusFields(override.statusFields) };
+      result.statusFields = {
+        ...result.statusFields,
+        ...mapStatusFields(override.statusFields),
+      };
     }
     if (override.header) {
       result.header = { ...result.header, ...mapHeader(override.header) };
@@ -157,22 +211,29 @@ export function mapApiThemeToPartial(apiTheme: ObjGameTheme | null | undefined):
       result.divider = { ...result.divider, ...mapDivider(override.divider) };
     }
     if (override.statusEmojis) {
-      result.statusEmojis = { ...result.statusEmojis, ...override.statusEmojis };
+      result.statusEmojis = {
+        ...result.statusEmojis,
+        ...override.statusEmojis,
+      };
     }
   }
-  
+
   return result;
 }
 
 // Helper functions for type-safe mapping
-function mapCorners(c: NonNullable<ObjGameTheme['override']>['corners']): Partial<PartialGameTheme['corners']> {
+function mapCorners(
+  c: NonNullable<ObjGameTheme["override"]>["corners"],
+): Partial<PartialGameTheme["corners"]> {
   return {
     style: c?.style as CornerStyle,
     color: c?.color as ThemeColor,
   };
 }
 
-function mapPlayer(p: NonNullable<ObjGameTheme['override']>['player']): Partial<PartialGameTheme['player']> {
+function mapPlayer(
+  p: NonNullable<ObjGameTheme["override"]>["player"],
+): Partial<PartialGameTheme["player"]> {
   return {
     color: p?.color as ThemeColor,
     indicator: p?.indicator as PlayerIndicator,
@@ -183,7 +244,9 @@ function mapPlayer(p: NonNullable<ObjGameTheme['override']>['player']): Partial<
   };
 }
 
-function mapGameMessage(g: NonNullable<ObjGameTheme['override']>['gameMessage']): Partial<PartialGameTheme['gameMessage']> {
+function mapGameMessage(
+  g: NonNullable<ObjGameTheme["override"]>["gameMessage"],
+): Partial<PartialGameTheme["gameMessage"]> {
   return {
     dropCap: g?.dropCap,
     dropCapColor: g?.dropCapColor as ThemeColor,
@@ -193,14 +256,18 @@ function mapGameMessage(g: NonNullable<ObjGameTheme['override']>['gameMessage'])
   };
 }
 
-function mapThinking(t: NonNullable<ObjGameTheme['override']>['thinking']): Partial<PartialGameTheme['thinking']> {
+function mapThinking(
+  t: NonNullable<ObjGameTheme["override"]>["thinking"],
+): Partial<PartialGameTheme["thinking"]> {
   return {
     text: t?.text,
     style: t?.style as ThinkingStyle,
   };
 }
 
-function mapStatusFields(s: NonNullable<ObjGameTheme['override']>['statusFields']): Partial<PartialGameTheme['statusFields']> {
+function mapStatusFields(
+  s: NonNullable<ObjGameTheme["override"]>["statusFields"],
+): Partial<PartialGameTheme["statusFields"]> {
   return {
     bgColor: s?.bgColor as CardBgColor,
     accentColor: s?.accentColor as ThemeColor,
@@ -209,7 +276,9 @@ function mapStatusFields(s: NonNullable<ObjGameTheme['override']>['statusFields'
   };
 }
 
-function mapHeader(h: NonNullable<ObjGameTheme['override']>['header']): Partial<PartialGameTheme['header']> {
+function mapHeader(
+  h: NonNullable<ObjGameTheme["override"]>["header"],
+): Partial<PartialGameTheme["header"]> {
   return {
     bgColor: h?.bgColor as CardBgColor,
     fontColor: h?.fontColor as FontColor,
@@ -217,7 +286,9 @@ function mapHeader(h: NonNullable<ObjGameTheme['override']>['header']): Partial<
   };
 }
 
-function mapDivider(d: NonNullable<ObjGameTheme['override']>['divider']): Partial<PartialGameTheme['divider']> {
+function mapDivider(
+  d: NonNullable<ObjGameTheme["override"]>["divider"],
+): Partial<PartialGameTheme["divider"]> {
   return {
     style: d?.style as DividerStyle,
     color: d?.color as ThemeColor,

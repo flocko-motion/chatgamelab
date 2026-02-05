@@ -11,7 +11,7 @@ import {
   Checkbox,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/api/hooks";
 import { useTranslation } from "react-i18next";
@@ -34,6 +34,7 @@ import {
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { useGameSession } from "../hooks/useGameSession";
+import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue, FontSize } from "../context";
 import { DEFAULT_THEME, mapApiThemeToPartial } from "../types";
@@ -116,6 +117,7 @@ interface GamePlayerProps {
 
 export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const sceneEndRef = useRef<HTMLDivElement>(null);
@@ -171,7 +173,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] =
     useState(false);
-  const [imageErrorCode, setImageErrorCode] = useState<string | null>(null);
 
   const {
     data: game,
@@ -184,6 +185,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     sendAction,
     loadExistingSession,
     updateSessionApiKey,
+    clearStreamError,
     resetGame,
   } = useGameSession(gameId || "");
 
@@ -322,6 +324,19 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     scrollToBottom();
   }, [state.messages, scrollToBottom]);
 
+  // Show global error modal for recoverable mid-game errors (AI errors, send failures)
+  useEffect(() => {
+    if (state.streamError) {
+      showErrorModal({
+        code: state.streamError.code ?? undefined,
+        message: !state.streamError.code
+          ? state.streamError.message
+          : undefined,
+        onDismiss: clearStreamError,
+      });
+    }
+  }, [state.streamError, clearStreamError]);
+
   const handleStartGame = async (shareId: string, model?: string) => {
     closeApiKeyModal();
     await startSession({ shareId, model });
@@ -339,7 +354,13 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     // Invalidate queries so the games/sessions lists refresh with any new sessions
     queryClient.invalidateQueries({ queryKey: queryKeys.games });
     queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-    navigate({ to: (isContinuation ? "/sessions" : "/play") as "/" });
+    // Navigate back to wherever the user came from (My Games, All Games, Sessions, etc.)
+    if (window.history.length > 1) {
+      router.history.back();
+    } else {
+      // Fallback if there's no history (e.g. direct URL access)
+      navigate({ to: "/" });
+    }
   };
 
   const openLightbox = useCallback((url: string, alt?: string) => {
@@ -370,7 +391,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   const disableImageGeneration = useCallback((errorCode: string) => {
     setIsImageGenerationDisabled(true);
-    setImageErrorCode(errorCode);
+    showErrorModal({ code: errorCode });
   }, []);
 
   // Use flex: 1 to fill available space between app header and footer
@@ -832,13 +853,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           )}
 
           <ImageLightbox />
-
-          {/* Image generation error modal */}
-          <ErrorModal
-            opened={!!imageErrorCode}
-            onClose={() => setImageErrorCode(null)}
-            errorCode={imageErrorCode || undefined}
-          />
         </Box>
       </GamePlayerProvider>
     </GameThemeProvider>
