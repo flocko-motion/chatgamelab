@@ -75,7 +75,7 @@ services:
     profiles:
       - backend
       - all_services
-    command: npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}"
 
 volumes:
   db_data:
