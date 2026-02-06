@@ -163,7 +163,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		Model:           session.AiModel,
 		Input:           string(actionInput),
 		Store:           true,
-		MaxOutputTokens: 500, // Keep responses concise
+		MaxOutputTokens: 5000,
 		Text: &TextConfig{
 			Format: FormatConfig{
 				Type:   "json_schema",
@@ -308,7 +308,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 		Input:              lang.T("aiExpandPlotOutline"),
 		Store:              true,
 		Stream:             true,
-		MaxOutputTokens:    400, // Keep expanded text concise
+		MaxOutputTokens:    5000,
 		PreviousResponseID: modelSession.ResponseID,
 	}
 
@@ -316,12 +316,22 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
-		log.Error("OpenAI streaming API failed",
-			"error", err,
-			"session_id", session.ID,
-			"model", session.AiModel,
-		)
-		return fmt.Errorf("OpenAI streaming API error: %w", err)
+		// For story expansion, partial text is still usable — don't fail if we got some output
+		if len(fullText) > 0 {
+			log.Warn("OpenAI streaming API incomplete, using partial text",
+				"error", err,
+				"session_id", session.ID,
+				"model", session.AiModel,
+				"text_length", len(fullText),
+			)
+		} else {
+			log.Error("OpenAI streaming API failed",
+				"error", err,
+				"session_id", session.ID,
+				"model", session.AiModel,
+			)
+			return fmt.Errorf("OpenAI streaming API error: %w", err)
+		}
 	}
 	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
 
