@@ -1,4 +1,4 @@
-package game
+package templates
 
 import (
 	"cgl/functional"
@@ -8,7 +8,26 @@ import (
 	"strings"
 )
 
-const template = `You are a text-adventure game master API. You receive player actions and respond as the game world.
+const (
+	// ImageStyleNoImage disables image generation for a game session
+	ImageStyleNoImage = "NO_IMAGE"
+	// DefaultImageStyle is the fallback when no image style is configured
+	DefaultImageStyle = "simple illustration, minimalist"
+
+	// PromptMessageStart is sent as the first player input to kick off the game
+	PromptMessageStart = "Start the game. Generate the opening scene."
+	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
+	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 1-3 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
+)
+
+func ImageStyleOrDefault(style string) string {
+	if style == "" {
+		return DefaultImageStyle
+	}
+	return style
+}
+
+const systemTemplate = `You are a text-adventure game master API. You receive player actions and respond as the game world.
 
 Your role:
 - You decide what happens - not the player
@@ -21,7 +40,7 @@ Your role:
 RESPONSE PHASES:
 We communicate in alternating phases:
 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status fields + image prompt)
-2. I ask you to expand → You respond with plain text prose (2-3 paragraphs)
+2. I ask you to NARRATE → You respond with plain text prose (1-3 sentences MAXIMUM, be brief)
 
 ---
 PHASE 1: JSON RESPONSE
@@ -41,12 +60,12 @@ Rules for Phase 1:
 - JSON structure is fixed. Do not modify field names or add fields.
 
 ---
-PHASE 2: PROSE EXPANSION
+PHASE 2: NARRATION
 ---
-When I give you the EXPAND command, I ask you to expand the prose. Plain text only (no JSON). Write the output in the same language as the scenario.
+When I give you the NARRATE command, turn the summary into prose. Plain text only (no JSON). Write the output in the same language as the scenario.
 
 Rules for Phase 2:
-- 2-3 short paragraphs maximum
+- 1-3 short sentences maximum
 - No headers, no markdown, no lists
 - Describe the scene, not a story structure
 - DON'T repeat the status fields, only write the story content (status fields are reported in Phase 1 only!)
@@ -84,7 +103,7 @@ func GetTemplate(game *obj.Game) (string, error) {
 	}
 	actionOutputStr, _ := json.Marshal(actionOutput)
 
-	instructions := template
+	instructions := systemTemplate
 	instructions = strings.ReplaceAll(instructions, "{{INPUT_EXAMPLE}}", string(actionInputStr))
 	instructions = strings.ReplaceAll(instructions, "{{OUTPUT_EXAMPLE}}", string(actionOutputStr))
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_PLAYER}}", obj.GameSessionMessageTypePlayer)

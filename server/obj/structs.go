@@ -1,6 +1,7 @@
 package obj
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -362,6 +363,20 @@ type GameSessionMessageAi struct {
 	Message      string        `json:"message"`
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
+}
+
+// ToAiJSON converts a GameSessionMessage to its AI-facing JSON representation
+func (m *GameSessionMessage) ToAiJSON() string {
+	data, err := json.Marshal(GameSessionMessageAi{
+		Type:         m.Type,
+		Message:      m.Message,
+		StatusFields: m.StatusFields,
+		ImagePrompt:  m.ImagePrompt,
+	})
+	if err != nil {
+		return "{}"
+	}
+	return string(data)
 }
 
 type GameSessionMessage struct {

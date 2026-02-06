@@ -7,6 +7,7 @@ import (
 	"cgl/functional"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
+	"cgl/game/templates"
 	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
@@ -29,7 +30,7 @@ const (
 	responsesEndpoint = "/responses"
 	modelsEndpoint    = "/models"
 	imageGenEndpoint  = "/images/generations"
-	defaultModel      = "gpt-5.2"
+	translateModel    = "gpt-5.1-codex"
 )
 
 // extractImageErrorCode extracts an error code from OpenAI image generation errors
@@ -156,24 +157,13 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		return fmt.Errorf("failed to parse model session: %w", err)
 	}
 
-	// Convert to minimal AI message structure (exclude internal fields like ID, Meta, etc.)
-	actionForAI := obj.GameSessionMessageAi{
-		Type:         action.Type,
-		Message:      action.Message,
-		StatusFields: action.StatusFields,
-		ImagePrompt:  action.ImagePrompt,
-	}
-
-	// Serialize the player action as JSON input
-	actionInput, err := json.Marshal(actionForAI)
-	if err != nil {
-		return fmt.Errorf("failed to marshal action: %w", err)
-	}
+	// Serialize the player action as JSON input (minimal AI-facing structure)
+	actionInput := action.ToAiJSON()
 
 	// Build the request
 	req := ResponsesAPIRequest{
 		Model:           model,
-		Input:           string(actionInput),
+		Input:           actionInput,
 		Store:           true,
 		MaxOutputTokens: 5000,
 		Text: &TextConfig{
@@ -189,7 +179,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// System messages become instructions, otherwise use previous_response_id for continuity
 	if action.Type == obj.GameSessionMessageTypeSystem {
 		req.Instructions = action.Message
-		req.Input = lang.T("aiMessageStart")
+		req.Input = templates.PromptMessageStart
 	} else if modelSession.ResponseID != "" {
 		req.PreviousResponseID = modelSession.ResponseID
 	}
@@ -318,7 +308,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	model := p.ResolveModel(session.AiModel)
 	req := ResponsesAPIRequest{
 		Model:              model,
-		Input:              lang.T("aiExpandPlotOutline"),
+		Input:              templates.PromptNarratePlotOutline,
 		Store:              true,
 		Stream:             true,
 		MaxOutputTokens:    5000,
@@ -569,8 +559,6 @@ func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []s
 	for i, original := range input {
 		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
 	}
-
-	const translateModel = "gpt-5-nano"
 
 	req := ResponsesAPIRequest{
 		Model:        translateModel,

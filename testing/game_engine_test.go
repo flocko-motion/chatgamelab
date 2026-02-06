@@ -39,11 +39,21 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
 	s.T().Logf("Added API key: %s", apiKeyShare.ID)
 
+	// Set preferred language to French
+	err := s.clientAlice.SetUserLanguage("fr")
+	s.Require().NoError(err, "Failed to set language to French")
+	s.T().Logf("Set language preference to French")
+
+	// Verify language was set
+	me := Must(s.clientAlice.GetMe())
+	s.Equal("fr", me.Language, "Language should be set to French")
+	s.T().Logf("Verified language preference: %s", me.Language)
+
 	// Create and upload predictable test game
 	game := Must(s.clientAlice.UploadGame("stone-collector-de"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
-	// Create game session
+	// Create game session - game should be auto-translated to French
 	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID, "gpt-5.2"))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
@@ -51,7 +61,7 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	if len(sessionResponse.Messages) > 0 {
 		initialMsg := sessionResponse.Messages[0]
 		log.Printf("\n=================================================================================================\n")
-		log.Printf("Initial Message:")
+		log.Printf("Initial Message (should be in FRENCH):")
 		log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
 		log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
 		log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
@@ -60,11 +70,13 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 		log.Printf("  AI: %s", initialMsg.Message)
 	}
 
+	// Player actions in French (game is translated to French)
 	playerActions := []string{
-		"Ich sammle 5 Steine",
-		"Ich sammle 3 Steine",
-		"Ich sammle 2 Steine",
+		"Je ramasse 5 pierres",
+		"Je ramasse 3 pierres",
+		"Je ramasse 2 pierres",
 	}
+	messageLens := []int{}
 	for i, playerAction := range playerActions {
 		msg1 := Must(s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction))
 		log.Printf("\n=================================================================================================\n")
@@ -74,9 +86,10 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 		log.Printf("PromptExpandStory: %s", functional.MaybeToString(msg1.PromptExpandStory, "nil"))
 		log.Printf("PromptImageGeneration: %s", functional.MaybeToString(msg1.PromptImageGeneration, "nil"))
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
-		log.Printf("AI: %s", functional.MaybeToString(msg1.Message, "nil"))
+		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
-		// TODO: Validate status fields show Day=2, Stones=5
+		messageLens = append(messageLens, len(msg1.Message))
 	}
-	s.T().Logf("Game engine test completed successfully!")
+	log.Printf("Game engine test completed successfully! Review terminal output to verify French translation.")
+	log.Printf("Message lengths: %v", messageLens)
 }
