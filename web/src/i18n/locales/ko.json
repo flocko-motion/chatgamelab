@@ -1,1 +1,910 @@
-{"auth":{"login":{"auth0Button":"Auth0로 로그인","devMode":"개발 모드","devModeAlert":{"message":"이 페이지는 개발자 로그인 페이지입니다. 운영 환경에서는 Auth0로 직접 리디렉션됩니다.","title":"개발 모드"},"devModeDescription":"개발 및 테스트를 위한 빠른 로그인","redirecting":{"message":"로그인 페이지로 리디렉션되는 동안 잠시 기다려 주세요.","title":"Auth0로 리디렉션 중..."},"role":{"admin":"관리자 로그인","guest":"게스트 로그인","student":"학생 로그인","teacher":"교사 로그인"},"subtitle":"로그인 방법을 선택하세요","title":"ChatGameLab에 오신 것을 환영합니다"},"profile":{"gamesCreated":"생성한 게임","gamesPlayed":"플레이한 게임","memberSince":"가입일","messagesSent":"보낸 메시지","noOrganization":"소속 조직 없음","noRole":"지정된 역할 없음","organizationSection":"조직","role":"역할","sessionsJoined":"참여한 세션","statisticsSection":"통계","title":"프로필"},"register":{"cancelButton":"취소","checkingName":"사용 가능 여부 확인 중...","emailDescription":"중요한 알림을 위해 사용됩니다.","emailLabel":"이메일 주소","emailPlaceholder":"이메일을 입력하세요","errors":{"emailInvalid":"유효한 이메일 주소를 입력해 주세요","emailRequired":"이메일은 필수입니다","nameRequired":"이름은 필수입니다","nameTaken":"이 이름은 이미 사용 중입니다","nameTooLong":"이름은 최대 24자까지 가능합니다","registrationFailed":"회원가입에 실패했습니다. 다시 시도해 주세요."},"nameDescription":"다른 사용자가 당신을 볼 이름입니다. 최대 24자까지 가능합니다.","nameLabel":"표시 이름","namePlaceholder":"표시 이름을 입력하세요","submitButton":"계정 생성","submitting":"계정 생성 중...","subtitle":"시작하기 위해 몇 가지 정보만 더 입력하세요","title":"프로필 완성하기"},"settings":{"accountSection":"계정","emailDescription":"중요한 알림을 위해 사용됩니다.","emailLabel":"이메일 주소","emailPlaceholder":"이메일을 입력하세요","errors":{"emailInvalid":"유효한 이메일 주소를 입력해 주세요","emailRequired":"이메일은 필수입니다","emailTaken":"이 이메일은 이미 사용 중입니다","nameRequired":"이름은 필수입니다","nameTaken":"이 이름은 이미 사용 중입니다","nameTooLong":"이름은 최대 24자까지 가능합니다","saveFailed":"변경 사항을 저장하지 못했습니다. 다시 시도해 주세요."},"nameDescription":"다른 사용자가 당신을 볼 이름입니다. 최대 24자까지 가능합니다.","nameLabel":"표시 이름","namePlaceholder":"표시 이름을 입력하세요","saveButton":"변경 사항 저장","saved":"변경 사항이 성공적으로 저장되었습니다","saving":"저장 중...","subtitle":"계정 설정을 관리하세요","title":"설정"}},"common":{"cancel":"취소","create":"생성","dark":"다크","delete":"삭제","edit":"편집","error":"오류","footer":{"copyright":"© ChatGameLab","loginVia":"다음으로 로그인","producedBy":"제작자","programmedBy":"개발자"},"goodbye":"안녕히 가세요","header":{"closeNavigation":"내비게이션 메뉴 닫기","logout":"로그아웃","openNavigation":"내비게이션 메뉴 열기","openProfile":"프로필 메뉴 열기","openSettings":"설정 열기","openUserMenu":"사용자 메뉴 열기","profile":"프로필","settings":"설정","viewNotifications":"알림 보기"},"hello":"안녕하세요","home":{"badge":"교육 게임 연구소","features":{"create":{"description":"AI 기반의 인터랙티브 텍스트 어드벤처를 디자인하세요","title":"모험 만들기"},"learn":{"description":"교육 워크숍 및 교실 활동에 완벽합니다","title":"배우기 \u0026 가르치기"},"play":{"description":"친구들과 협력 스토리텔링 세션에 참여하세요","title":"함께 플레이"},"subtitle":"교육과 엔터테인먼트의 완벽한 조화를 발견하세요","title":"왜 ChatGameLab을 선택하나요?","understand":{"description":"AI 모델이 이야기를 만드는 방법과 그 작동 원리를 탐구하세요","title":"AI 이해하기"}},"loginCta":"시작하기","splashDescription":"AI 기반 텍스트 어드벤처 게임을 만들고 플레이할 수 있는 교육 플랫폼입니다. 교사, 학생, 창의적인 스토리텔러에게 완벽합니다.","title":"ChatGameLab"},"language":"언어","languageSwitcher":{"wipHint":"더 많은 언어가 개발 중입니다. 현재는 영어와 독일어만 사용 가능합니다.","wipLabel":"개발 중"},"light":"라이트","loading":"로딩 중...","login":"로그인","logout":"로그아웃","notifications":"알림","profile":"프로필","register":"회원가입","save":"저장","search":"검색","settings":"설정","system":"시스템","theme":"테마","welcome":"환영합니다"},"dashboard":{"quickActions":{"createNewGame":"새 게임 만들기","createRoom":"방 만들기","inviteMembers":"멤버 초대","title":"빠른 작업","viewAnalytics":"분석 보기"},"recentActivity":{"continuedPlaying":"게임을 계속 플레이했습니다","createdNewGame":"새 게임을 만들었습니다","invitedStudents":"{{count}}명의 학생을 초대했습니다","title":"최근 활동","viewAll":"모두 보기"},"stats":{"activeAdventures":"진행 중인 모험","availableSessions":"사용 가능한 세션","onlineNow":"현재 온라인","readyForPlayers":"플레이어 준비 완료","storiesInProgress":"진행 중인 스토리 {{count}}개","storyDrafts":"스토리 초안","storyRooms":"스토리 방","storytellers":"스토리텔러"}},"errors":{"backendUserFetch":"서버에서 사용자 데이터를 불러오지 못했습니다. 다시 시도해 주세요.","forbidden":"이 작업을 수행할 권한이 없습니다.","generic":"문제가 발생했습니다. 다시 시도해 주세요.","network":"네트워크 오류입니다. 연결을 확인해 주세요.","notFound":"요청한 리소스를 찾을 수 없습니다.","server":"서버 오류입니다. 나중에 다시 시도해 주세요.","titles":{"authentication":"인증 오류","error":"오류","network":"네트워크 오류","notFound":"찾을 수 없음","permission":"권한 거부","server":"서버 오류","validation":"유효성 검사 오류"},"unauthorized":"계속하려면 로그인해 주세요.","unexpected":"예기치 않은 오류가 발생했습니다.","validation":"입력을 확인하고 다시 시도해 주세요."},"game":{"createNew":"새 게임 만들기","description":"설명","invite":"초대","join":"참여","leave":"나가기","level":"레벨","pause":"일시정지","players":"플레이어","restart":"재시작","resume":"재개","score":"점수","start":"시작","time":"시간","title":"제목"},"navigation":{"create":"생성","dashboard":"대시보드","debug":"디버그","games":"게임","groups":"그룹","home":"홈","learn":"학습","play":"플레이","rooms":"방"}}
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Auth0로 로그인",
+      "devMode": "개발 모드",
+      "devModeAlert": {
+        "message": "이 페이지는 개발용 로그인 페이지입니다. 운영 환경에서는 바로 Auth0로 리디렉션됩니다.",
+        "title": "개발 모드"
+      },
+      "devModeDescription": "개발 및 테스트를 위한 빠른 로그인",
+      "redirecting": {
+        "message": "로그인 페이지로 리디렉션하는 동안 잠시 기다려 주세요.",
+        "title": "Auth0로 리디렉션 중..."
+      },
+      "role": {
+        "admin": "관리자로 로그인",
+        "guest": "게스트로 로그인",
+        "student": "학생으로 로그인",
+        "teacher": "교사로 로그인"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "워크숍 떠나기",
+        "message": "이 워크숍을 떠나시겠습니까? 다시 참여하려면 새 초대 링크가 필요합니다.",
+        "title": "워크숍을 떠나시겠습니까?"
+      },
+      "leaveWorkshop": "워크숍 떠나기",
+      "organization": "조직",
+      "role": "워크숍 참가자",
+      "workshop": "워크숍"
+    },
+    "profile": {
+      "gamesCreated": "생성한 게임",
+      "gamesPlayed": "플레이한 게임",
+      "memberSince": "등록일",
+      "messagesSent": "전송한 메시지",
+      "noOrganization": "소속 없음",
+      "noRole": "역할 없음",
+      "organization": "조직",
+      "organizationSection": "조직 \u00026 역할",
+      "role": "역할",
+      "roles": {
+        "admin": "관리자",
+        "head": "책임자",
+        "participant": "참가자",
+        "staff": "직원"
+      },
+      "statisticsSection": "통계",
+      "title": "프로필",
+      "totalPlaysOnGames": "내 게임의 총 플레이 횟수"
+    },
+    "register": {
+      "cancelButton": "취소",
+      "emailDescription": "중요한 알림에 사용됩니다.",
+      "emailLabel": "이메일 주소",
+      "emailPlaceholder": "이메일을 입력하세요",
+      "errors": {
+        "emailInvalid": "유효한 이메일 주소를 입력하세요",
+        "emailRequired": "이메일은 필수입니다",
+        "nameRequired": "이름은 필수입니다",
+        "nameTaken": "이 이름은 이미 사용 중입니다",
+        "nameTooLong": "이름은 최대 24자여야 합니다",
+        "registrationFailed": "등록에 실패했습니다. 다시 시도하세요."
+      },
+      "nameDescription": "다른 사용자가 볼 이름입니다. 최대 24자.",
+      "nameLabel": "표시 이름",
+      "namePlaceholder": "표시할 이름을 입력하세요",
+      "submitButton": "계정 만들기",
+      "submitting": "계정 생성 중...",
+      "subtitle": "시작하려면 몇 가지 세부 정보만 더 필요합니다",
+      "title": "프로필 완성"
+    },
+    "settings": {
+      "accountSection": "계정",
+      "emailChangeNote": "이메일 주소를 변경하려면 사이트 관리자에게 문의하세요.",
+      "errors": {
+        "nameRequired": "이름은 필수입니다",
+        "nameTaken": "이 이름은 이미 사용 중입니다",
+        "nameTooLong": "이름은 최대 24자여야 합니다",
+        "saveFailed": "변경사항 저장에 실패했습니다. 다시 시도하세요."
+      },
+      "nameDescription": "다른 사용자가 볼 이름입니다. 최대 24자.",
+      "nameLabel": "표시 이름",
+      "namePlaceholder": "표시할 이름을 입력하세요",
+      "saveButton": "변경사항 저장",
+      "saved": "변경사항이 성공적으로 저장되었습니다",
+      "saving": "저장 중...",
+      "showAiModelSelectorDescription": "활성화하면 게임 세션을 시작할 때마다 사용할 AI 모델을 선택할 수 있습니다.",
+      "showAiModelSelectorLabel": "AI 모델 선택 표시",
+      "subtitle": "계정 설정 관리",
+      "title": "설정"
+    }
+  },
+  "common": {
+    "actions": "작업",
+    "admin": {
+      "invites": {
+        "actions": "작업",
+        "empty": "보류 중인 초대가 없습니다.",
+        "invitedEmail": "초대된 이메일",
+        "modifiedAt": "수정됨",
+        "noResults": "검색과 일치하는 초대가 없습니다.",
+        "organization": "조직",
+        "revokeConfirm": {
+          "confirm": "삭제",
+          "message": "이 초대를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+          "title": "초대 삭제"
+        },
+        "role": "역할",
+        "searchPlaceholder": "이메일, 역할, 상태 또는 조직으로 검색...",
+        "sort": {
+          "label": "정렬 기준",
+          "modifiedAt-asc": "수정일 (오래된 순)",
+          "modifiedAt-desc": "수정일 (최신순)",
+          "organization-asc": "조직 (A-Z)",
+          "organization-desc": "조직 (Z-A)",
+          "role-asc": "역할 (A-Z)",
+          "role-desc": "역할 (Z-A)",
+          "status-asc": "상태 (A-Z)",
+          "status-desc": "상태 (Z-A)"
+        },
+        "status": "상태",
+        "statuses": {
+          "accepted": "수락됨",
+          "declined": "거부됨",
+          "expired": "만료됨",
+          "pending": "대기 중",
+          "revoked": "취소됨"
+        },
+        "title": "보류 중인 초대"
+      },
+      "organizations": {
+        "actions": "작업",
+        "create": "조직 생성",
+        "createTitle": "새 조직 생성",
+        "deleteConfirm": "정말 \"{{name}}\"을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "deleteTitle": "조직 삭제",
+        "editTitle": "조직 편집",
+        "email": "이메일 주소",
+        "emailPlaceholder": "이메일 주소 입력",
+        "empty": "아직 조직이 없습니다. 시작하려면 하나를 만드세요.",
+        "inviteDescription": "{{name}}에 조직장으로 초대장을 보내세요.",
+        "inviteTitle": "조직에 초대",
+        "memberEmail": "이메일",
+        "memberName": "이름",
+        "memberRole": "역할",
+        "members": "구성원",
+        "membersCount": "명",
+        "membersList": "구성원",
+        "name": "이름",
+        "namePlaceholder": "조직 이름 입력",
+        "noMembers": "이 조직에 구성원이 없습니다.",
+        "removeMember": "구성원 제거",
+        "removeMemberConfirm": "정말 {{name}}을(를) 이 조직에서 제거하시겠습니까?",
+        "searchPlaceholder": "조직 검색...",
+        "sendInvite": "초대 보내기",
+        "title": "조직 관리"
+      },
+      "users": {
+        "actions": "작업",
+        "deleteConfirm": "정말 \"{{name}}\"을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "deleteTitle": "사용자 삭제",
+        "editEmail": "이메일 편집",
+        "editTitle": "사용자 편집",
+        "editingUser": "사용자 편집: {{name}}",
+        "email": "이메일",
+        "emailPlaceholder": "이메일 주소 입력",
+        "empty": "사용자를 찾을 수 없습니다.",
+        "hideGuests": "게스트 숨기기 ({{count}})",
+        "joined": "가입일",
+        "loadError": "사용자 불러오기 실패",
+        "makeAdmin": "관리자로 지정",
+        "me": "나",
+        "name": "이름",
+        "noEmail": "이메일 없음",
+        "noResults": "검색과 일치하는 사용자가 없습니다.",
+        "noRole": "역할 없음",
+        "organization": "조직",
+        "promoteConfirm": "정말 \"{{name}}\" ({{email}})을(를) 관리자 권한으로 승격하시겠습니까?",
+        "promoteTitle": "관리자로 승격",
+        "promoteWarning": "이 사용자는 시스템에 대한 전체 관리자 권한을 갖게 됩니다.",
+        "removeAdmin": "관리자 권한 해제",
+        "removeAdminConfirm": "정말 \"{{name}}\" ({{email}})의 관리자 권한을 해제하시겠습니까?",
+        "removeAdminTitle": "관리자 권한 해제",
+        "removeAdminWarning": "이 사용자는 모든 관리자 권한을 잃게 됩니다.",
+        "role": "역할",
+        "searchPlaceholder": "이름, 이메일, 역할 또는 조직으로 검색...",
+        "showing": "총 {{total}}명 중 {{count}}명 표시",
+        "sort": {
+          "email-asc": "이메일 (A-Z)",
+          "email-desc": "이메일 (Z-A)",
+          "joined-asc": "가입일 (오래된 순)",
+          "joined-desc": "가입일 (최신순)",
+          "label": "정렬 기준",
+          "name-asc": "이름 (A-Z)",
+          "name-desc": "이름 (Z-A)",
+          "organization-asc": "조직 (A-Z)",
+          "organization-desc": "조직 (Z-A)",
+          "role-asc": "역할 (A-Z)",
+          "role-desc": "역할 (Z-A)"
+        },
+        "title": "사용자 관리"
+      }
+    },
+    "allGames": {
+      "continue": "계속하기",
+      "copyConfirm": {
+        "confirm": "게임 복사",
+        "message": "이 작업은 \"{{name}}\"의 복사본을 내 게임에 생성합니다.",
+        "title": "게임 복사"
+      },
+      "copyGame": "게임 복사",
+      "empty": {
+        "description": "필터를 조정해 보거나 나중에 새 게임을 확인해 보세요.",
+        "title": "게임을 찾을 수 없습니다"
+      },
+      "favorite": "즐겨찾기에 추가",
+      "filters": {
+        "all": "모든 게임",
+        "favorites": "즐겨찾기",
+        "own": "내 게임",
+        "public": "공개"
+      },
+      "play": "플레이",
+      "restart": "재시작",
+      "restartConfirm": {
+        "confirm": "재시작",
+        "message": "정말 \"{{game}}\"을(를) 재시작하시겠습니까? 현재 진행 상황이 사라집니다.",
+        "title": "게임 재시작"
+      },
+      "title": "모든 게임",
+      "unfavorite": "즐겨찾기에서 제거"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API 키는 게임 콘텐츠 생성을 위해 AI 플랫폼에 연결하는 데 사용됩니다.",
+        "title": "API 키 정보"
+      },
+      "addKey": "키 추가",
+      "addedOn": "추가일",
+      "createModal": {
+        "keyDescription": "키는 암호화되어 안전하게 저장됩니다.",
+        "keyLabel": "API 키",
+        "keyPlaceholder": "API 키를 입력하세요",
+        "nameLabel": "키 이름",
+        "namePlaceholder": "예: 내 OpenAI 키",
+        "platformLabel": "플랫폼",
+        "platformPlaceholder": "플랫폼 선택",
+        "submit": "키 추가",
+        "title": "새 API 키 추가"
+      },
+      "deleteModal": {
+        "message": "정말 \"{{name}}\"을(를) 삭제하시겠습니까?",
+        "title": "API 키 삭제",
+        "warning": "이 작업은 취소할 수 없습니다. 키가 영구적으로 삭제됩니다."
+      },
+      "errors": {
+        "invalidPlatform": "선택한 플랫폼이 유효하지 않습니다. 유효한 AI 플랫폼을 선택하세요.",
+        "keyRequired": "API 키는 필수입니다",
+        "loadFailed": "API 키를 불러오는 데 실패했습니다. 다시 시도하세요.",
+        "nameRequired": "이름은 필수입니다",
+        "platformRequired": "플랫폼은 필수입니다"
+      },
+      "key": "키",
+      "keys": "키들",
+      "subtitle": "AI 플랫폼용 API 키를 관리하세요.",
+      "title": "API 키 관리",
+      "unnamed": "이름 없음",
+      "unsupportedPlatform": {
+        "badge": "지원되지 않음",
+        "hint": "이 플랫폼은 현재 지원되지 않습니다. 기존 키만 제거할 수 있습니다."
+      }
+    },
+    "back": "뒤로",
+    "cancel": "취소",
+    "close": "닫기",
+    "copyGame": "게임 복사",
+    "create": "생성",
+    "delete": "삭제",
+    "deleteGame": "게임 삭제",
+    "edit": "편집",
+    "editGame": "게임 편집",
+    "error": "오류",
+    "footer": {
+      "copyright": "JFF - 미디어교육연구소",
+      "jffTitle": "JFF - 교육 연구 및 혁신 연구소",
+      "programmedBy": "개발"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "메시지 ID",
+          "imagePrompt": "이미지 프롬프트",
+          "isStreaming": "스트리밍 중",
+          "seq": "시퀀스",
+          "statusFields": "상태 필드",
+          "timestamp": "타임스탬프",
+          "type": "유형"
+        },
+        "hints": {
+          "id": "이 메시지의 고유 식별자",
+          "imagePrompt": "이미지 생성 AI에 보낸 프롬프트",
+          "isStreaming": "콘텐츠가 아직 수신 중인지 여부",
+          "seq": "대화에서의 순서",
+          "statusFields": "AI가 추적하는 게임 상태 변수",
+          "timestamp": "이 메시지가 생성된 시간",
+          "type": "player = 사용자 입력, game = AI 응답, system = 컨텍스트"
+        },
+        "title": "디버그 정보"
+      },
+      "error": {
+        "backToGames": "게임으로 돌아가기",
+        "gameNotFound": "게임을 찾을 수 없습니다",
+        "missingFields": "게임에 필수 필드가 없습니다:",
+        "sessionFailed": "게임 세션 시작 실패"
+      },
+      "header": {
+        "back": "게임 목록으로 돌아가기",
+        "debug": "디버그",
+        "decreaseFont": "글꼴 크기 줄이기",
+        "disableAnimations": "애니메이션 비활성화",
+        "increaseFont": "글꼴 크기 늘리기",
+        "settings": "설정",
+        "useNeutralTheme": "중립 테마 사용"
+      },
+      "input": {
+        "placeholder": "무엇을 하시겠어요?",
+        "send": "행동 전송"
+      },
+      "loading": {
+        "game": "게임 로드 중...",
+        "starting": "게임 세션 시작 중...",
+        "startingHint": "AI가 모험을 준비하고 있습니다"
+      },
+      "needsApiKey": {
+        "description": "이 세션에 사용된 API 키를 더 이상 사용할 수 없습니다. 계속하려면 새 키를 선택하세요.",
+        "reason": "이전 API 키를 더 이상 사용할 수 없습니다. 게임을 계속하려면 새 키를 선택하세요.",
+        "title": "API 키 필요"
+      },
+      "selectApiKey": {
+        "keyDescription": "이 게임 세션에 사용할 API 키를 선택하세요",
+        "keyLabel": "API 키",
+        "keyPlaceholder": "API 키 선택",
+        "loadError": "API 키를 불러오는 데 실패했습니다",
+        "mine": "내 것",
+        "modelDescription": "선택적으로 특정 AI 모델을 선택하세요",
+        "modelLabel": "AI 모델",
+        "modelPlaceholder": "기본 모델",
+        "noKeys": "플레이하려면 최소 하나의 API 키가 필요합니다. 설정 → API 키에서 추가하세요.",
+        "playing": "플레이 중",
+        "startGame": "게임 시작",
+        "title": "API 키 선택"
+      },
+      "statusChange": {
+        "effect": "효과:"
+      },
+      "unnamed": "이름 없음"
+    },
+    "games": {
+      "badges": {
+        "myGame": "내 게임",
+        "public": "공개",
+        "workshop": "워크숍"
+      },
+      "createButton": "게임 생성",
+      "createModal": {
+        "descriptionPlaceholder": "게임은 어떤 내용인가요?",
+        "namePlaceholder": "예: 우주 모험",
+        "publicDescription": "공개 게임은 모두가 검색할 수 있습니다.",
+        "publicLabel": "이 게임을 공개로 설정",
+        "submit": "게임 생성",
+        "title": "새 게임 생성"
+      },
+      "deleteModal": {
+        "message": "정말 \"{{name}}\"을(를) 삭제하시겠습니까?",
+        "title": "게임 삭제",
+        "warning": "이 작업은 취소할 수 없습니다. 모든 게임 데이터가 영구적으로 삭제됩니다."
+      },
+      "editFields": {
+        "description": "게임에 대한 간단한 설명을 작성하세요. 이는 당신을 위한 것이며 게임 플레이에 영향을 주지 않습니다.",
+        "gameStart": "게임은 어떻게 시작되나요?",
+        "gameStartHint": "시작 시 어떤 일이 발생하나요? 플레이어가 보는 첫 장면을 설명하세요. 플레이어는 어떻게 환영받나요?",
+        "gameStartPlaceholder": "당신은 어두운 숲 가장자리에서 깨어납니다. 좁은 오솔길이 나무 속으로 이어집니다...",
+        "imageStyle": "게임 이미지의 스타일은 무엇인가요?",
+        "imageStyleHint": "예: 만화, 사실적, 픽셀 아트, 수채화...",
+        "name": "게임 이름",
+        "scenario": "게임의 내용은 무엇인가요?",
+        "scenarioHint": "간단히 설명하세요: 게임은 어떻게 진행되나요? 세계관은 어떠한가요? 언어 및 어조(예: 6학년 스페인어)?\n플레이어는 어떤 역할을 하나요? \"플레이어는 ...\" 형태로 작성하세요.\nAI가 특정 인물 역할을 맡아야 한다면 \"당신은 ...\"으로 시작하세요.",
+        "scenarioPlaceholder": "당신은 신비한 숲의 탐험가입니다. 목표는 숨겨진 보물을 찾는 것입니다...",
+        "statusFields": "게임 값",
+        "statusFieldsHint": "게임이 추적해야 하는 값은 무엇인가요? 예: 체력, 점수, 탄약 등. 게임은 이 값을 기억하고 플레이 중에 업데이트합니다."
+      },
+      "editModal": {
+        "title": "게임 편집",
+        "unsavedChanges": {
+          "discard": "변경사항 버리기",
+          "keepEditing": "편집 계속",
+          "message": "저장되지 않은 변경사항이 있습니다. 정말 버리시겠습니까?",
+          "title": "저장되지 않은 변경사항"
+        }
+      },
+      "empty": {
+        "description": "첫 게임을 만들어 AI 기반의 인터랙티브 어드벤처를 시작하세요.",
+        "title": "아직 게임이 없습니다"
+      },
+      "errors": {
+        "loadFailed": "게임을 불러오는 데 실패했습니다. 다시 시도하세요.",
+        "nameRequired": "게임 이름은 필수입니다"
+      },
+      "fields": {
+        "created": "생성일",
+        "creator": "생성자",
+        "me": "나",
+        "modified": "수정일",
+        "name": "이름",
+        "playCount": "플레이 횟수",
+        "visibility": "공개 여부"
+      },
+      "importExport": {
+        "exportButton": "게임 내보내기",
+        "importButton": "게임 가져오기"
+      },
+      "playNow": "지금 플레이",
+      "sort": {
+        "createdAt-asc": "생성일 (오래된 순)",
+        "createdAt-desc": "생성일 (최신순)",
+        "creator-asc": "생성자 (A-Z)",
+        "creator-desc": "생성자 (Z-A)",
+        "label": "정렬 기준",
+        "modifiedAt-asc": "수정일 (오래된 순)",
+        "modifiedAt-desc": "수정일 (최신순)",
+        "name-asc": "이름 (A-Z)",
+        "name-desc": "이름 (Z-A)",
+        "playCount-asc": "가장 덜 플레이된",
+        "playCount-desc": "가장 많이 플레이된",
+        "visibility-asc": "비공개 우선",
+        "visibility-desc": "공개 우선"
+      },
+      "statusFieldsEditor": {
+        "addField": "새 값 추가",
+        "namePlaceholder": "이름 (예: 체력)",
+        "noFields": "아직 값이 없습니다. + 를 눌러 새 값을 추가하세요.",
+        "valuePlaceholder": "시작 값 (예: 100)"
+      },
+      "tabs": {
+        "basic": "기본",
+        "basicInfo": "게임에 대한 일반 정보입니다. 이는 당신을 위한 것이며 게임 플레이에 영향을 주지 않습니다.",
+        "importExport": "가져오기/내보내기",
+        "quickStart": "빠른 시작",
+        "story": "이야기 \u00026 AI",
+        "storyInfo": "여기에 입력한 모든 내용은 AI로 전송되어 게임 세계와 이야기를 만듭니다.",
+        "style": "디자인",
+        "styleInfo": "플레이 중 게임의 외형에 대한 선택적 설정입니다."
+      },
+      "title": "내가 만든 게임",
+      "viewModal": {
+        "readOnlyNotice": "이 게임은 다른 사용자가 만든 것입니다. 세부 정보를 볼 수는 있지만 편집할 수는 없습니다. \"복사\"를 사용하여 편집 가능한 본인을 위한 버전을 만드세요.",
+        "title": "게임 상세"
+      },
+      "visibility": {
+        "private": "비공개",
+        "public": "공개"
+      }
+    },
+    "header": {
+      "apiKeys": "API 키",
+      "closeNavigation": "탐색 메뉴 닫기",
+      "contact": "문의",
+      "goToDashboard": "대시보드로 이동",
+      "leaveWorkshopMode": "워크숍 모드 종료",
+      "leaveWorkshopModeTooltip": "워크숍 모드를 종료하고 일반 보기로 돌아갑니다",
+      "logout": "로그아웃",
+      "openNavigation": "탐색 메뉴 열기",
+      "openUserMenu": "사용자 메뉴 열기",
+      "organization": "조직",
+      "profile": "프로필",
+      "workshop": "워크숍"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "AI로 구동되는 인터랙티브 텍스트 어드벤처를 디자인하세요",
+          "title": "모험 만들기"
+        },
+        "learn": {
+          "description": "교육 워크숍과 교실 활동에 적합합니다",
+          "title": "학습 \u00026 가르치기"
+        },
+        "play": {
+          "description": "친구들과 함께 공동 스토리텔링 세션에 참여하세요",
+          "title": "함께 플레이"
+        },
+        "title": "왜 ChatGameLab을 선택하나요?",
+        "understand": {
+          "description": "AI 모델이 어떻게 이야기를 만드는지 탐구하고 그 작동 방식을 배워보세요",
+          "title": "AI 이해하기"
+        }
+      },
+      "loginCta": "로그인하고 둘러보기",
+      "splashDescription": "AI 기반 텍스트 어드벤처를 만들고 플레이하는 교육 플랫폼입니다. 교사, 학생 및 창의적 이야기꾼에게 적합합니다."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "당신은 \"{{organization}}\" 조직의 워크숍에 초대되었습니다.",
+        "inviteMessageSimple": "이 워크숍에 초대되었습니다.",
+        "joinButton": "워크숍 참가",
+        "title": "워크숍 참가",
+        "titleWithWorkshop": "\"{{workshop}}\" 워크숍 참가"
+      },
+      "errors": {
+        "acceptFailed": "초대 수락에 실패했습니다. 다시 시도하세요.",
+        "expired": "이 초대 링크는 만료되었습니다.",
+        "loadFailed": "초대 세부 정보를 불러오지 못했습니다. 다시 시도하세요.",
+        "notFound": "이 초대 링크는 유효하지 않거나 취소되었습니다."
+      },
+      "goHome": "홈으로 이동",
+      "participant": {
+        "loggingIn": "로그인 중..."
+      },
+      "success": {
+        "message": "워크숍에 성공적으로 참가했습니다. 리디렉션 중...",
+        "title": "환영합니다!"
+      },
+      "switchWorkshop": {
+        "message": "현재 워크숍의 게임과 진행 상황은 유지되지만, 다시 가입할 때까지 접근할 수 없습니다.",
+        "stayButton": "현재 워크숍에 남기",
+        "switchButton": "워크숍 변경",
+        "title": "워크숍을 변경하시겠습니까?",
+        "warning": "현재 \"{{currentWorkshop}}\" 워크숍에 있습니다. \"{{newWorkshop}}\"에 가입하면 현재 워크숍에서 나가게 됩니다."
+      }
+    },
+    "labels": {
+      "no": "아니오",
+      "yes": "예"
+    },
+    "languageSwitcher": {
+      "wipHint": "다른 언어들은 작업 중입니다. 현재 영어와 독일어만 제공됩니다.",
+      "wipLabel": "WIP"
+    },
+    "loading": "로드 중...",
+    "logout": "로그아웃",
+    "myGames": {
+      "continue": "계속하기",
+      "copyConfirm": {
+        "confirm": "게임 복사",
+        "message": "이 작업은 \"{{name}}\"의 복사본을 내 게임에 생성합니다.",
+        "title": "게임 복사"
+      },
+      "copyGame": "게임 복사",
+      "empty": {
+        "description": "첫 게임을 만들어 AI 기반의 인터랙티브 어드벤처를 시작하세요.",
+        "title": "아직 게임이 없습니다"
+      },
+      "favorite": "즐겨찾기에 추가",
+      "filters": {
+        "all": "모두",
+        "favorites": "즐겨찾기"
+      },
+      "play": "플레이",
+      "restart": "재시작",
+      "restartConfirm": {
+        "confirm": "재시작",
+        "message": "정말 \"{{game}}\"을(를) 재시작하시겠습니까? 현재 진행 상황이 사라집니다.",
+        "title": "게임 재시작"
+      },
+      "title": "내 게임",
+      "unfavorite": "즐겨찾기에서 제거"
+    },
+    "myOrganization": {
+      "actions": "작업",
+      "apiKeys": {
+        "aboutDescription": "여기 공유된 API 키는 조직의 모든 구성원이 게임 플레이에 사용할 수 있습니다. 키는 책임자와 교사만 관리할 수 있습니다.",
+        "aboutTitle": "조직 API 키",
+        "allowPublicSponsoring": "공개 스폰서링 허용",
+        "allowPublicSponsoringDesc": "이 키는 모든 사용자를 위해 게임을 후원하는 데 사용될 수 있습니다.",
+        "filterByPlatform": "플랫폼별 필터",
+        "keyName": "키 이름",
+        "loadError": "조직 API 키를 불러오는 데 실패했습니다.",
+        "noKeys": "아직 이 조직과 공유된 API 키가 없습니다.",
+        "noResults": "검색과 일치하는 API 키가 없습니다.",
+        "notAuthorized": "조직 API 키를 관리할 권한이 없습니다. 책임자와 교사만 접근할 수 있습니다.",
+        "owner": "소유자",
+        "platform": "플랫폼",
+        "publicSponsoring": "공개 스폰서링",
+        "searchPlaceholder": "이름 또는 소유자로 검색...",
+        "selectKey": "API 키 선택",
+        "selectKeyPlaceholder": "공유할 키를 선택하세요...",
+        "share": "공유",
+        "shareKey": "키 공유",
+        "shareKeyTitle": "조직과 API 키 공유",
+        "title": "조직 API 키"
+      },
+      "demoteConfirm": "정말 \"{{name}}\" ({{email}})을(를) 교사로 강등하시겠습니까?",
+      "demoteTitle": "교사로 강등",
+      "demoteToStaff": "교사로 강등",
+      "email": "이메일",
+      "emailPlaceholder": "이메일 주소 입력",
+      "empty": "이 조직에 구성원이 없습니다.",
+      "inviteAlreadyExists": "이 이메일 주소에 대한 보류 중인 초대가 이미 있습니다.",
+      "inviteError": "초대장을 보내지 못했습니다. 다시 시도하세요.",
+      "inviteTeacher": "교사 초대",
+      "inviteTeacherDescription": "교사를 조직에 초대하는 초대장을 보냅니다.",
+      "inviteTeacherTitle": "교사 초대",
+      "inviteUser": "사용자 초대",
+      "inviteUserDescription": "특정 역할 없이 사용자를 조직에 초대하는 초대장을 보냅니다.",
+      "inviteUserTitle": "사용자 초대",
+      "leaveConfirm": "정말 \"{{name}}\"을(를) 떠나시겠습니까?",
+      "leaveOrganization": "조직 탈퇴",
+      "leaveTitle": "조직 탈퇴",
+      "leaveWarning": "조직의 모든 리소스와 구성원에 대한 접근 권한을 잃게 됩니다.",
+      "me": "나",
+      "name": "이름",
+      "noEmail": "이메일 없음",
+      "noOrganization": "소속 없음",
+      "noOrganizationDescription": "현재 어떤 조직의 구성원도 아닙니다.",
+      "noResults": "검색과 일치하는 구성원이 없습니다.",
+      "noRole": "역할 없음",
+      "promoteConfirm": "정말 \"{{name}}\" ({{email}})을(를) 책임자로 승격하시겠습니까?",
+      "promoteTitle": "책임자로 승격",
+      "promoteToHead": "책임자로 승격",
+      "promoteWarning": "이 사용자는 조직 구성원을 관리하고 교사를 초대할 수 있는 권한을 얻게 됩니다.",
+      "removeConfirm": "정말 \"{{name}}\"을(를) 조직에서 제거하시겠습니까?",
+      "removeMember": "구성원 제거",
+      "removeTitle": "구성원 제거",
+      "removeWarning": "이 사용자는 조직에 대한 접근 권한을 잃게 됩니다.",
+      "role": "역할",
+      "searchPlaceholder": "구성원 검색...",
+      "showing": "{{count}}명",
+      "sort": {
+        "label": "정렬 기준",
+        "name-asc": "이름 (A-Z)",
+        "name-desc": "이름 (Z-A)",
+        "role-asc": "역할 (A-Z)",
+        "role-desc": "역할 (Z-A)"
+      },
+      "title": "내 조직",
+      "workshops": {
+        "activate": "활성화",
+        "active": "활성",
+        "activeDescription": "활성 워크숍은 참가자가 참여하고 게임을 만들 수 있게 합니다.",
+        "activeLabel": "활성",
+        "anonymousParticipant": "익명 참가자",
+        "create": "워크숍 생성",
+        "createFirst": "첫 워크숍 생성",
+        "createInviteLink": "초대 링크 생성",
+        "createTitle": "워크숍 생성",
+        "deactivate": "비활성화",
+        "defaultAiModel": "기본 AI 모델",
+        "defaultAiModelHint": "참가자가 선택할 수 없을 때 사용되는 모델입니다. API 키가 설정되어 있어야 합니다.",
+        "defaultApiKey": "기본 API 키",
+        "defaultApiKeyHint": "참가자는 게임 플레이 시 이 API 키를 사용합니다.",
+        "deleteConfirm": "정말 \"{{name}}\"을(를) 삭제하시겠습니까?",
+        "deleteTitle": "워크숍 삭제",
+        "deleteWarning": "이 워크숍에 있는 모든 게임과 세션이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+        "editParticipant": "이름 편집",
+        "empty": "아직 워크숍이 없습니다.",
+        "enterWorkshop": "워크숍 모드 진입",
+        "games": "게임",
+        "hideInactive": "비활성 숨기기",
+        "inactive": "비활성",
+        "inviteCreatedAt": "생성일",
+        "inviteDescription": "참가자가 이 워크숍에 참여할 수 있도록 할 초대 링크를 생성하세요.",
+        "inviteExpiresAt": "만료일",
+        "inviteLink": "초대 링크",
+        "inviteLinkDescription": "참가자가 워크숍에 참여하도록 이 링크를 공유하세요.",
+        "inviteLinkTitle": "{{name}}용 초대 링크",
+        "inviteUsage": "사용량",
+        "joined": "참가",
+        "linkCopied": "링크 복사됨",
+        "linkCopiedMessage": "초대 링크가 클립보드에 복사되었습니다.",
+        "loadError": "워크숍을 불러오는 데 실패했습니다.",
+        "nameLabel": "워크숍 이름",
+        "namePlaceholder": "예: 여름 캠프 2024",
+        "noActiveInvite": "활성 초대 링크가 없습니다.",
+        "noDefaultApiKey": "기본 API 키가 없습니다",
+        "noDefaultModel": "플랫폼 기본값 사용",
+        "noParticipantToken": "이 참가자에게는 초대 링크가 없습니다. 익명 참가자(게스트)만 재사용 가능한 초대 링크를 가집니다.",
+        "noParticipants": "참가자가 아직 없습니다",
+        "notAuthorized": "워크숍을 관리할 권한이 없습니다. 책임자와 교사만 접근할 수 있습니다.",
+        "participantGames": "{{count}} 게임",
+        "participantJoined": "{{date}}에 참가",
+        "participantName": "참가자 이름",
+        "participants": "참가자",
+        "removeParticipant": "참가자 제거",
+        "removeParticipantConfirm": "정말 \"{{name}}\"을(를) 이 워크숍에서 제거하시겠습니까?",
+        "removeParticipantMessage": "정말 \"{{name}}\"을(를) 이 워크숍에서 제거하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "removeParticipantTitle": "참가자 제거",
+        "revokeInvite": "초대 링크 취소",
+        "selectApiKey": "API 키 선택",
+        "settings": "설정",
+        "shareParticipantLink": "이 참가자용 개별 초대 링크 복사",
+        "showAiModelSelector": "참가자가 AI 모델 선택 가능",
+        "showOtherParticipantsGames": "다른 참가자의 게임 보기",
+        "showPublicGames": "참가자에게 공개 게임 표시",
+        "sort": {
+          "createdAtAsc": "오래된 것부터",
+          "createdAtDesc": "최신 것부터",
+          "label": "정렬 기준",
+          "nameAsc": "이름 (A-Z)",
+          "nameDesc": "이름 (Z-A)",
+          "participantsAsc": "참가자 수 적은 순",
+          "participantsDesc": "참가자 수 많은 순"
+        },
+        "subtitle": "워크숍을 관리하고 참가자를 초대하여 게임을 함께 만들게 하세요.",
+        "title": "워크숍",
+        "usedCount": "{{count}}번 사용됨",
+        "viewInviteLink": "초대 링크 보기"
+      }
+    },
+    "notifications": {
+      "accept": "수락",
+      "decline": "거절",
+      "declineConfirm": "정말 이 초대를 거절하시겠습니까?",
+      "declineTitle": "초대 거절",
+      "empty": "새 알림이 없습니다.",
+      "inviteDescription": "당신은 {{role}}로 초대되었습니다.",
+      "inviteToJoin": "조직 초대",
+      "title": "알림"
+    },
+    "play": {
+      "cloneGame": "내 게임으로 복제",
+      "empty": {
+        "description": "필터를 조정해 보거나 나중에 새 게임을 확인해 보세요.",
+        "title": "게임을 찾을 수 없습니다"
+      },
+      "favorite": "즐겨찾기에 추가",
+      "filters": {
+        "all": "모든 게임",
+        "favorites": "즐겨찾기",
+        "organization": "조직",
+        "own": "내 게임",
+        "public": "공개"
+      },
+      "owner": "내 것",
+      "playGame": "이 게임 플레이",
+      "playNow": "지금 플레이",
+      "selectGameTitle": "게임 선택",
+      "title": "게임 선택",
+      "unfavorite": "즐겨찾기에서 제거"
+    },
+    "profile": "프로필",
+    "save": "저장",
+    "search": "검색",
+    "sessions": {
+      "continueGame": "계속하기",
+      "deleteConfirm": {
+        "message": "정말 \"{{game}}\"의 이 세션을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "title": "세션 삭제"
+      },
+      "empty": {
+        "description": "새 게임을 시작하여 모험을 시작하세요!",
+        "noResults": "일치하는 게임이 없습니다",
+        "title": "아직 플레이한 게임이 없습니다"
+      },
+      "errors": {
+        "loadFailed": "내 게임을 불러오지 못했습니다. 다시 시도하세요."
+      },
+      "fields": {
+        "game": "게임",
+        "lastPlayed": "마지막 플레이",
+        "model": "모델"
+      },
+      "noDescription": "설명 없음",
+      "sort": {
+        "game": "게임",
+        "label": "정렬 기준",
+        "lastPlayed": "마지막 플레이",
+        "model": "모델"
+      },
+      "startNewGame": "새 게임 시작",
+      "title": "계속 플레이하기",
+      "untitledGame": "제목 없음 게임"
+    },
+    "settings": "설정",
+    "unnamed": "이름 없음",
+    "viewGame": "게임 보기"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "프로젝트 코디네이터이자 주관 기관입니다.",
+          "title": "JFF – 미디어교육연구소"
+        },
+        "mainSite": {
+          "description": "이 플랫폼 뒤에 있는 교육 프로젝트에 대해 자세히 알아보세요.",
+          "title": "ChatGameLab 프로젝트"
+        },
+        "title": "ChatGameLab 정보"
+      },
+      "lastPlayed": {
+        "empty": "아직 재생 기록이 없습니다. 게임을 시작하세요!",
+        "title": "최근 플레이",
+        "viewAll": "모든 게임"
+      },
+      "myGames": {
+        "empty": "아직 게임이 없습니다. 첫 게임을 만들어보세요!",
+        "title": "내 게임",
+        "viewAll": "내 모든 창작물"
+      },
+      "myWorkshops": {
+        "empty": "활성 워크숍이 없습니다. 조직에서 워크숍을 생성하세요!",
+        "title": "내 워크숍",
+        "viewAll": "모든 워크숍"
+      },
+      "newGames": {
+        "empty": "아직 이용 가능한 게임이 없습니다.",
+        "title": "새 게임",
+        "viewAll": "모든 게임"
+      },
+      "popularGames": {
+        "empty": "아직 이용 가능한 게임이 없습니다.",
+        "plays": "{{count}}회 플레이",
+        "title": "인기 게임",
+        "viewAll": "모든 게임"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "새 게임 만들기",
+      "createRoom": "방 만들기",
+      "inviteMembers": "회원 초대",
+      "startNewGame": "새 게임 시작",
+      "title": "빠른 작업"
+    },
+    "untitled": "제목 없음",
+    "untitledGame": "제목 없음 게임",
+    "version": {
+      "mismatch": {
+        "message": "프론트엔드 버전 {{frontendVersion}}이(가) 백엔드 버전 {{backendVersion}}과(와) 일치하지 않습니다. 이로 인해 예기치 않은 동작이 발생할 수 있습니다. 문제가 지속되면 지원팀에 문의하세요.",
+        "title": "버전 불일치 감지됨"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "AI 서비스에서 오류가 발생했습니다. 다시 시도하세요.",
+    "backendUserFetch": "서버에서 사용자 데이터를 불러오지 못했습니다. 다시 시도하세요.",
+    "billingNotActive": "귀하의 OpenAI 계정이 활성화되어 있지 않습니다. https://platform.openai.com/settings/organization/billing 에서 결제 정보를 확인하세요.",
+    "conflict": "이 작업이 기존 데이터와 충돌합니다. 다시 시도하세요.",
+    "contentFiltered": "요청이 AI의 콘텐츠 정책에 의해 필터링되었습니다. 문구를 바꿔 다시 시도하세요.",
+    "forbidden": "이 작업을 수행할 권한이 없습니다.",
+    "generic": "문제가 발생했습니다. 다시 시도하세요.",
+    "insufficientQuota": "API 키의 크레딧이 부족합니다. 크레딧을 추가하거나 다른 API 키를 사용하세요.",
+    "invalidApiKey": "API 키가 유효하지 않거나 만료되었습니다. 설정에서 API 키를 확인하세요.",
+    "invalidPlatform": "유효하지 않은 플랫폼이 선택되었습니다. 올바른 옵션을 선택하세요.",
+    "invalidToken": "세션이 만료되었거나 유효하지 않습니다. 초대 링크를 다시 사용하세요.",
+    "network": "네트워크 오류입니다. 연결을 확인하세요.",
+    "notFound": "요청한 리소스를 찾을 수 없습니다.",
+    "orgVerificationRequired": "이미지 생성 기능을 사용하려면 OpenAI 조직을 인증해야 합니다. https://platform.openai.com/settings/organization/general 에서 인증하세요.",
+    "rateLimitExceeded": "요청이 너무 많습니다. 잠시 기다린 후 다시 시도하세요.",
+    "server": "서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.",
+    "titles": {
+      "aiError": "AI 오류",
+      "authentication": "인증 오류",
+      "billing": "결제 오류",
+      "error": "오류",
+      "network": "네트워크 오류",
+      "notFound": "찾을 수 없음",
+      "permission": "권한 거부",
+      "server": "서버 오류",
+      "validation": "검증 오류",
+      "workshopInactive": "워크숍 비활성"
+    },
+    "unauthorized": "계속하려면 로그인하세요.",
+    "unexpected": "예기치 않은 오류가 발생했습니다.",
+    "userNotRegistered": "계속하려면 등록을 완료해야 합니다.",
+    "validation": "입력을 확인하고 다시 시도하세요.",
+    "workshopInactive": "이 워크숍은 비활성화되었습니다. 교사나 워크숍 주최자에게 문의하세요."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "여기에 표시하려면 게임을 플레이하거나 직접 만들어 보세요!",
+      "title": "아직 게임이 없습니다"
+    },
+    "filters": {
+      "all": "모든 게임",
+      "mine": "내 게임",
+      "public": "공개 게임",
+      "workshop": "워크숍 게임"
+    },
+    "gameType": "게임",
+    "organizator": "주최자: {{name}}",
+    "settings": {
+      "currentWorkshop": "현재 워크숍",
+      "notInWorkshopMode": "현재 워크숍 모드가 아닙니다. 먼저 워크숍에 참여하세요.",
+      "title": "워크숍 설정"
+    },
+    "title": "내 워크숍",
+    "you": "당신"
+  },
+  "navigation": {
+    "allGames": "모든 게임",
+    "create": "직접 게임 만들기",
+    "dashboard": "대시보드",
+    "games": "게임",
+    "groups": "그룹",
+    "manageOrganizations": "조직 관리",
+    "manageUsers": "사용자 관리",
+    "myGames": "내 게임",
+    "myOrganization": "내 조직",
+    "myWorkshop": "내 워크숍",
+    "orgApiKeys": "API 키",
+    "orgMembers": "구성원",
+    "orgWorkshops": "워크숍",
+    "play": "게임 플레이",
+    "rooms": "방",
+    "workshopSettings": "워크숍 설정"
+  }
+}

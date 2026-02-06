@@ -565,7 +565,54 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 
 // Translate translates language files to a target language using OpenAI API
 func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
-	return "", fmt.Errorf("translation not yet implemented for openai - use mistral instead")
+	originals := ""
+	for i, original := range input {
+		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
+	}
+
+	const translateModel = "gpt-5-nano"
+
+	req := ResponsesAPIRequest{
+		Model:        translateModel,
+		Instructions: lang.TranslateInstruction,
+		Input:        fmt.Sprintf("Translate this JSON to %s:\n\n%s", lang.GetLanguageName(targetLang), originals),
+		Store:        false,
+		Text: &TextConfig{
+			Format: FormatConfig{
+				Type: "json_object",
+			},
+		},
+	}
+
+	apiResponse, err := callResponsesAPI(ctx, apiKey, req)
+	if err != nil {
+		return "", fmt.Errorf("failed to translate: %w", err)
+	}
+
+	// Check for API-level errors (HTTP 200 but failed response)
+	if apiResponse.Error != nil {
+		return "", fmt.Errorf("OpenAI error: %s", apiResponse.Error.Message)
+	}
+	if apiResponse.Status != "" && apiResponse.Status != "completed" {
+		reason := apiResponse.Status
+		if apiResponse.IncompleteDetails != nil {
+			reason += ": " + apiResponse.IncompleteDetails.Reason
+		}
+		return "", fmt.Errorf("OpenAI response not completed: %s", reason)
+	}
+
+	responseText := extractResponseText(apiResponse)
+	if responseText == "" {
+		return "", fmt.Errorf("no text response from OpenAI (status: %s)", apiResponse.Status)
+	}
+
+	// Validate it's valid JSON
+	var translated map[string]interface{}
+	if err := json.Unmarshal([]byte(responseText), &translated); err != nil {
+		return "", fmt.Errorf("failed to parse translated JSON: %w", err)
+	}
+
+	return functional.MustAnyToJson(translated), nil
 }
 
 // ListModels retrieves all available models from OpenAI API

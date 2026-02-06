@@ -109,13 +109,15 @@ func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []
 		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
 	}
 
+	const translateModel = "mistral-small-latest"
+
 	// Create the request for translation
 	requestBody := chatCompletionRequest{
-		Model: "mistral-large-latest",
+		Model: translateModel,
 		Messages: []message{
 			{
 				Role:    "system",
-				Content: "You are an expert in translation of json structured language files for games. Translate the given JSON object to the target language while preserving the exact same structure and keys. Only translate the string values. Return a valid JSON object. You get the original already in two languages, so that you have more context to understand the intention of each field.",
+				Content: lang.TranslateInstruction,
 			},
 			{
 				Role:    "user",

@@ -1,1 +1,910 @@
-{"auth":{"login":{"auth0Button":"Auth0でログイン","devMode":"開発モード","devModeAlert":{"message":"これは開発用ログインページです。本番環境では直接Auth0にリダイレクトされます。","title":"開発モード"},"devModeDescription":"開発およびテスト用の簡易ログイン","redirecting":{"message":"ログインページにリダイレクトするまでお待ちください。","title":"Auth0にリダイレクトしています..."},"role":{"admin":"管理者としてログイン","guest":"ゲストとしてログイン","student":"生徒としてログイン","teacher":"教師としてログイン"},"subtitle":"ログイン方法を選択してください","title":"ChatGameLabへようこそ"},"profile":{"gamesCreated":"作成したゲーム","gamesPlayed":"プレイしたゲーム","memberSince":"登録日","messagesSent":"送信したメッセージ","noOrganization":"組織なし","noRole":"役割が割り当てられていません","organizationSection":"組織","role":"役割","sessionsJoined":"参加したセッション","statisticsSection":"統計","title":"プロフィール"},"register":{"cancelButton":"キャンセル","checkingName":"利用可能か確認中...","emailDescription":"重要な通知に使用します。","emailLabel":"メールアドレス","emailPlaceholder":"メールアドレスを入力してください","errors":{"emailInvalid":"有効なメールアドレスを入力してください","emailRequired":"メールアドレスは必須です","nameRequired":"名前は必須です","nameTaken":"この名前は既に使用されています","nameTooLong":"名前は最大24文字までです","registrationFailed":"登録に失敗しました。もう一度お試しください。"},"nameDescription":"他のユーザーに表示される名前です。最大24文字。","nameLabel":"表示名","namePlaceholder":"表示名を入力してください","submitButton":"アカウントを作成","submitting":"アカウントを作成中...","subtitle":"始めるためにもう少し詳細を入力してください","title":"プロフィールを完成させる"},"settings":{"accountSection":"アカウント","emailDescription":"重要な通知に使用します。","emailLabel":"メールアドレス","emailPlaceholder":"メールアドレスを入力してください","errors":{"emailInvalid":"有効なメールアドレスを入力してください","emailRequired":"メールアドレスは必須です","emailTaken":"このメールアドレスは既に使用されています","nameRequired":"名前は必須です","nameTaken":"この名前は既に使用されています","nameTooLong":"名前は最大24文字までです","saveFailed":"変更の保存に失敗しました。もう一度お試しください。"},"nameDescription":"他のユーザーに表示される名前です。最大24文字。","nameLabel":"表示名","namePlaceholder":"表示名を入力してください","saveButton":"変更を保存","saved":"変更が正常に保存されました","saving":"保存中...","subtitle":"アカウント設定を管理","title":"設定"}},"common":{"cancel":"キャンセル","create":"作成","dark":"ダーク","delete":"削除","edit":"編集","error":"エラー","footer":{"copyright":"© ChatGameLab","loginVia":"ログイン方法","producedBy":"制作","programmedBy":"プログラム作成"},"goodbye":"さようなら","header":{"closeNavigation":"ナビゲーションメニューを閉じる","logout":"ログアウト","openNavigation":"ナビゲーションメニューを開く","openProfile":"プロフィールメニューを開く","openSettings":"設定を開く","openUserMenu":"ユーザーメニューを開く","profile":"プロフィール","settings":"設定","viewNotifications":"通知を表示"},"hello":"こんにちは","home":{"badge":"教育ゲームラボ","features":{"create":{"description":"AIを活用したインタラクティブなテキストアドベンチャーをデザイン","title":"アドベンチャーを作成"},"learn":{"description":"教育ワークショップや教室活動に最適","title":"学習＆教育"},"play":{"description":"友達と協力してストーリーテリングセッションに参加","title":"一緒にプレイ"},"subtitle":"教育とエンターテイメントの完璧な融合を発見","title":"ChatGameLabを選ぶ理由","understand":{"description":"AIモデルがどのようにストーリーを作成するかを探り、その仕組みを学ぶ","title":"AIを理解"}},"loginCta":"始める","splashDescription":"AIを活用したテキストアドベンチャーゲームを作成・プレイできる教育プラットフォーム。教師、学生、クリエイティブなストーリーテラーに最適です。","title":"ChatGameLab"},"language":"言語","languageSwitcher":{"wipHint":"他の言語は開発中です。現在利用可能なのは英語とドイツ語のみです。","wipLabel":"作業中"},"light":"ライト","loading":"読み込み中...","login":"ログイン","logout":"ログアウト","notifications":"通知","profile":"プロフィール","register":"登録","save":"保存","search":"検索","settings":"設定","system":"システム","theme":"テーマ","welcome":"ようこそ"},"dashboard":{"quickActions":{"createNewGame":"新しいゲームを作成","createRoom":"ルームを作成","inviteMembers":"メンバーを招待","title":"クイックアクション","viewAnalytics":"分析を表示"},"recentActivity":{"continuedPlaying":"プレイを続けました","createdNewGame":"新しいゲームを作成しました","invitedStudents":"{{count}} 人の生徒を招待しました","title":"最近のアクティビティ","viewAll":"すべて表示"},"stats":{"activeAdventures":"アクティブなアドベンチャー","availableSessions":"利用可能なセッション","onlineNow":"現在オンライン","readyForPlayers":"プレイヤー準備完了","storiesInProgress":"進行中のストーリー {{count}} 件","storyDrafts":"ストーリーの下書き","storyRooms":"ストーリーの部屋","storytellers":"ストーリーテラー"}},"errors":{"backendUserFetch":"サーバーからユーザーデータを読み込めませんでした。もう一度お試しください。","forbidden":"この操作を実行する権限がありません。","generic":"問題が発生しました。もう一度お試しください。","network":"ネットワークエラー。接続を確認してください。","notFound":"要求されたリソースが見つかりませんでした。","server":"サーバーエラー。後でもう一度お試しください。","titles":{"authentication":"認証エラー","error":"エラー","network":"ネットワークエラー","notFound":"見つかりません","permission":"権限がありません","server":"サーバーエラー","validation":"検証エラー"},"unauthorized":"続行するにはログインしてください。","unexpected":"予期しないエラーが発生しました。","validation":"入力内容を確認して、もう一度お試しください。"},"game":{"createNew":"新しいゲームを作成","description":"説明","invite":"招待","join":"参加","leave":"退出","level":"レベル","pause":"一時停止","players":"プレイヤー","restart":"再起動","resume":"再開","score":"スコア","start":"開始","time":"時間","title":"タイトル"},"navigation":{"create":"作成","dashboard":"ダッシュボード","debug":"デバッグ","games":"ゲーム","groups":"グループ","home":"ホーム","learn":"学習","play":"プレイ","rooms":"ルーム"}}
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Auth0でログイン",
+      "devMode": "開発モード",
+      "devModeAlert": {
+        "message": "これは開発用のログインページです。本番環境では直接Auth0にリダイレクトされます。",
+        "title": "開発モード"
+      },
+      "devModeDescription": "開発とテスト用のクイックログイン",
+      "redirecting": {
+        "message": "ログインページにリダイレクトしています。しばらくお待ちください。",
+        "title": "Auth0にリダイレクトしています..."
+      },
+      "role": {
+        "admin": "管理者としてログイン",
+        "guest": "ゲストとしてログイン",
+        "student": "生徒としてログイン",
+        "teacher": "教師としてログイン"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "ワークショップを退出する",
+        "message": "本当にこのワークショップを退出しますか？再参加するには新しい招待リンクが必要になります。",
+        "title": "ワークショップを退出しますか？"
+      },
+      "leaveWorkshop": "ワークショップを退出する",
+      "organization": "組織",
+      "role": "ワークショップ参加者",
+      "workshop": "ワークショップ"
+    },
+    "profile": {
+      "gamesCreated": "作成したゲーム",
+      "gamesPlayed": "プレイしたゲーム",
+      "memberSince": "登録日",
+      "messagesSent": "送信したメッセージ",
+      "noOrganization": "組織なし",
+      "noRole": "役割が割り当てられていません",
+      "organization": "組織",
+      "organizationSection": "組織 \u00026 役割",
+      "role": "役割",
+      "roles": {
+        "admin": "管理者",
+        "head": "校長／代表",
+        "participant": "参加者",
+        "staff": "スタッフ"
+      },
+      "statisticsSection": "統計",
+      "title": "プロフィール",
+      "totalPlaysOnGames": "自分のゲームの総プレイ回数"
+    },
+    "register": {
+      "cancelButton": "キャンセル",
+      "emailDescription": "重要な通知にこのメールを使用します。",
+      "emailLabel": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "errors": {
+        "emailInvalid": "有効なメールアドレスを入力してください",
+        "emailRequired": "メールは必須です",
+        "nameRequired": "名前は必須です",
+        "nameTaken": "この名前は既に使用されています",
+        "nameTooLong": "名前は最大24文字までです",
+        "registrationFailed": "登録に失敗しました。再度お試しください。"
+      },
+      "nameDescription": "他のユーザーに表示される名前です。最大24文字。",
+      "nameLabel": "表示名",
+      "namePlaceholder": "表示名を入力してください",
+      "submitButton": "アカウントを作成",
+      "submitting": "アカウントを作成しています...",
+      "subtitle": "始める前にあと少し情報を入力してください",
+      "title": "プロフィールを完成させる"
+    },
+    "settings": {
+      "accountSection": "アカウント",
+      "emailChangeNote": "メールアドレスを変更するにはサイト管理者に連絡してください。",
+      "errors": {
+        "nameRequired": "名前は必須です",
+        "nameTaken": "この名前は既に使用されています",
+        "nameTooLong": "名前は最大24文字までです",
+        "saveFailed": "変更の保存に失敗しました。再度お試しください。"
+      },
+      "nameDescription": "他のユーザーに表示される名前です。最大24文字。",
+      "nameLabel": "表示名",
+      "namePlaceholder": "表示名を入力してください",
+      "saveButton": "変更を保存",
+      "saved": "変更が保存されました",
+      "saving": "保存中...",
+      "showAiModelSelectorDescription": "有効にすると、ゲームセッション開始時に使用するAIモデルを選択できます。",
+      "showAiModelSelectorLabel": "AIモデル選択を表示する",
+      "subtitle": "アカウント設定を管理する",
+      "title": "設定"
+    }
+  },
+  "common": {
+    "actions": "操作",
+    "admin": {
+      "invites": {
+        "actions": "操作",
+        "empty": "保留中の招待はありません。",
+        "invitedEmail": "招待先メール",
+        "modifiedAt": "更新日時",
+        "noResults": "検索に一致する招待はありません。",
+        "organization": "組織",
+        "revokeConfirm": {
+          "confirm": "削除",
+          "message": "この招待を削除してもよろしいですか？この操作は取り消せません。",
+          "title": "招待を削除"
+        },
+        "role": "役割",
+        "searchPlaceholder": "メール、役割、ステータス、組織で検索...",
+        "sort": {
+          "label": "並び替え",
+          "modifiedAt-asc": "更新日時（古い順）",
+          "modifiedAt-desc": "更新日時（新しい順）",
+          "organization-asc": "組織（A-Z）",
+          "organization-desc": "組織（Z-A）",
+          "role-asc": "役割（A-Z）",
+          "role-desc": "役割（Z-A）",
+          "status-asc": "ステータス（A-Z）",
+          "status-desc": "ステータス（Z-A）"
+        },
+        "status": "ステータス",
+        "statuses": {
+          "accepted": "承認済み",
+          "declined": "拒否済み",
+          "expired": "期限切れ",
+          "pending": "保留中",
+          "revoked": "取り消し済み"
+        },
+        "title": "保留中の招待"
+      },
+      "organizations": {
+        "actions": "操作",
+        "create": "組織を作成",
+        "createTitle": "新しい組織を作成",
+        "deleteConfirm": "「{{name}}」を本当に削除しますか？この操作は取り消せません。",
+        "deleteTitle": "組織を削除",
+        "editTitle": "組織を編集",
+        "email": "メールアドレス",
+        "emailPlaceholder": "メールアドレスを入力してください",
+        "empty": "まだ組織がありません。まずは作成してください。",
+        "inviteDescription": "組織代表として{{name}}に参加する招待を送信します。",
+        "inviteTitle": "組織に招待",
+        "memberEmail": "メール",
+        "memberName": "名前",
+        "memberRole": "役割",
+        "members": "メンバー",
+        "membersCount": "メンバー",
+        "membersList": "メンバー",
+        "name": "名前",
+        "namePlaceholder": "組織名を入力してください",
+        "noMembers": "この組織にメンバーはいません。",
+        "removeMember": "メンバーを削除",
+        "removeMemberConfirm": "{{name}}をこの組織から削除してもよろしいですか？",
+        "searchPlaceholder": "組織を検索...",
+        "sendInvite": "招待を送る",
+        "title": "組織の管理"
+      },
+      "users": {
+        "actions": "操作",
+        "deleteConfirm": "「{{name}}」を本当に削除しますか？この操作は取り消せません。",
+        "deleteTitle": "ユーザーを削除",
+        "editEmail": "メールを編集",
+        "editTitle": "ユーザーを編集",
+        "editingUser": "編集中のユーザー：{{name}}",
+        "email": "メール",
+        "emailPlaceholder": "メールアドレスを入力してください",
+        "empty": "ユーザーが見つかりません。",
+        "hideGuests": "ゲストを非表示（{{count}}）",
+        "joined": "参加日",
+        "loadError": "ユーザーの読み込みに失敗しました",
+        "makeAdmin": "管理者にする",
+        "me": "自分",
+        "name": "名前",
+        "noEmail": "メールなし",
+        "noResults": "検索に一致するユーザーはありません。",
+        "noRole": "役割なし",
+        "organization": "組織",
+        "promoteConfirm": "「{{name}}」（{{email}}）を管理者に昇格してもよろしいですか？",
+        "promoteTitle": "管理者に昇格",
+        "promoteWarning": "このユーザーはシステムのすべての管理権限を得ます。",
+        "removeAdmin": "管理者権限を削除",
+        "removeAdminConfirm": "「{{name}}」（{{email}}）から管理者権限を削除してもよろしいですか？",
+        "removeAdminTitle": "管理者権限を削除",
+        "removeAdminWarning": "このユーザーはすべての管理権限を失います。",
+        "role": "役割",
+        "searchPlaceholder": "名前、メール、役割、組織で検索...",
+        "showing": "{{count}} / 全 {{total}} ユーザーを表示",
+        "sort": {
+          "email-asc": "メール（A-Z）",
+          "email-desc": "メール（Z-A）",
+          "joined-asc": "参加日（古い順）",
+          "joined-desc": "参加日（新しい順）",
+          "label": "並び替え",
+          "name-asc": "名前（A-Z）",
+          "name-desc": "名前（Z-A）",
+          "organization-asc": "組織（A-Z）",
+          "organization-desc": "組織（Z-A）",
+          "role-asc": "役割（A-Z）",
+          "role-desc": "役割（Z-A）"
+        },
+        "title": "ユーザー管理"
+      }
+    },
+    "allGames": {
+      "continue": "続ける",
+      "copyConfirm": {
+        "confirm": "ゲームをコピー",
+        "message": "これにより「{{name}}」のコピーがあなたのゲームに作成されます。",
+        "title": "ゲームをコピー"
+      },
+      "copyGame": "ゲームをコピー",
+      "empty": {
+        "description": "フィルターを調整するか、後で新しいゲームを確認してください。",
+        "title": "ゲームが見つかりません"
+      },
+      "favorite": "お気に入りに追加",
+      "filters": {
+        "all": "すべてのゲーム",
+        "favorites": "お気に入り",
+        "own": "自分のゲーム",
+        "public": "公開"
+      },
+      "play": "プレイ",
+      "restart": "再開（リスタート）",
+      "restartConfirm": {
+        "confirm": "リスタート",
+        "message": "「{{game}}」を本当にリスタートしますか？現在の進行状況は失われます。",
+        "title": "ゲームをリスタート"
+      },
+      "title": "すべてのゲーム",
+      "unfavorite": "お気に入りから削除"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "APIキーは、ゲームコンテンツ生成のためにAIプラットフォームと接続するために使用されます。",
+        "title": "APIキーについて"
+      },
+      "addKey": "キーを追加",
+      "addedOn": "追加日",
+      "createModal": {
+        "keyDescription": "キーは暗号化されて安全に保存されます。",
+        "keyLabel": "APIキー",
+        "keyPlaceholder": "APIキーを入力してください",
+        "nameLabel": "キー名",
+        "namePlaceholder": "例: My OpenAI Key",
+        "platformLabel": "プラットフォーム",
+        "platformPlaceholder": "プラットフォームを選択",
+        "submit": "キーを追加",
+        "title": "新しいAPIキーを追加"
+      },
+      "deleteModal": {
+        "message": "「{{name}}」を本当に削除しますか？",
+        "title": "APIキーを削除",
+        "warning": "この操作は取り消せません。キーは完全に削除されます。"
+      },
+      "errors": {
+        "invalidPlatform": "無効なプラットフォームが選択されました。有効なAIプラットフォームを選択してください。",
+        "keyRequired": "APIキーは必須です",
+        "loadFailed": "APIキーの読み込みに失敗しました。再度お試しください。",
+        "nameRequired": "名前は必須です",
+        "platformRequired": "プラットフォームは必須です"
+      },
+      "key": "キー",
+      "keys": "キー",
+      "subtitle": "AIプラットフォーム用のAPIキーを管理します。",
+      "title": "APIキー管理",
+      "unnamed": "名前未設定のキー",
+      "unsupportedPlatform": {
+        "badge": "サポート外",
+        "hint": "このプラットフォームは現在サポートされていません。既存のキーを削除することのみ可能です。"
+      }
+    },
+    "back": "戻る",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "copyGame": "ゲームをコピー",
+    "create": "作成",
+    "delete": "削除",
+    "deleteGame": "ゲームを削除",
+    "edit": "編集",
+    "editGame": "ゲームを編集",
+    "error": "エラー",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institute for Educational Research and Innovation",
+      "programmedBy": "プログラム作成"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "メッセージID",
+          "imagePrompt": "画像プロンプト",
+          "isStreaming": "ストリーミング中",
+          "seq": "シーケンス",
+          "statusFields": "ステータスフィールド",
+          "timestamp": "タイムスタンプ",
+          "type": "タイプ"
+        },
+        "hints": {
+          "id": "このメッセージの一意の識別子",
+          "imagePrompt": "画像生成AIに送られたプロンプト",
+          "isStreaming": "コンテンツがまだ受信中かどうか",
+          "seq": "会話内の順序",
+          "statusFields": "AIが追跡するゲーム状態の変数",
+          "timestamp": "このメッセージが作成された時刻",
+          "type": "player = ユーザー入力、game = AIの応答、system = コンテキスト"
+        },
+        "title": "デバッグ情報"
+      },
+      "error": {
+        "backToGames": "ゲーム一覧に戻る",
+        "gameNotFound": "ゲームが見つかりません",
+        "missingFields": "ゲームに必要なフィールドが不足しています：",
+        "sessionFailed": "ゲームセッションの開始に失敗しました"
+      },
+      "header": {
+        "back": "他のゲームに戻る",
+        "debug": "デバッグ",
+        "decreaseFont": "フォントサイズを小さくする",
+        "disableAnimations": "アニメーションを無効にする",
+        "increaseFont": "フォントサイズを大きくする",
+        "settings": "設定",
+        "useNeutralTheme": "中立的なテーマを使用する"
+      },
+      "input": {
+        "placeholder": "あなたはどうしますか？",
+        "send": "アクションを送信"
+      },
+      "loading": {
+        "game": "ゲームを読み込み中...",
+        "starting": "ゲームセッションを開始しています...",
+        "startingHint": "AIがあなたの冒険を準備しています"
+      },
+      "needsApiKey": {
+        "description": "このセッションで使用されているAPIキーが利用できなくなりました。続行するには新しいキーを選択してください。",
+        "reason": "前回のAPIキーが利用できなくなりました。ゲームを続けるには新しいキーを選択してください。",
+        "title": "APIキーが必要です"
+      },
+      "selectApiKey": {
+        "keyDescription": "このゲームセッションで使用するAPIキーを選択してください",
+        "keyLabel": "APIキー",
+        "keyPlaceholder": "APIキーを選択",
+        "loadError": "APIキーの読み込みに失敗しました",
+        "mine": "自分の",
+        "modelDescription": "オプションで特定のAIモデルを選択",
+        "modelLabel": "AIモデル",
+        "modelPlaceholder": "デフォルトモデル",
+        "noKeys": "プレイするには少なくとも1つのAPIキーが必要です。設定 → APIキーで追加してください。",
+        "playing": "プレイ中",
+        "startGame": "ゲームを開始",
+        "title": "APIキーを選択"
+      },
+      "statusChange": {
+        "effect": "効果："
+      },
+      "unnamed": "名前なし"
+    },
+    "games": {
+      "badges": {
+        "myGame": "自分のゲーム",
+        "public": "公開",
+        "workshop": "ワークショップ"
+      },
+      "createButton": "ゲームを作成",
+      "createModal": {
+        "descriptionPlaceholder": "あなたのゲームはどんな内容ですか？",
+        "namePlaceholder": "例: 宇宙の冒険",
+        "publicDescription": "公開ゲームは誰でも見つけられます。",
+        "publicLabel": "このゲームを公開する",
+        "submit": "ゲームを作成",
+        "title": "新しいゲームを作成"
+      },
+      "deleteModal": {
+        "message": "「{{name}}」を本当に削除しますか？",
+        "title": "ゲームを削除",
+        "warning": "この操作は取り消せません。すべてのゲームデータが永久に削除されます。"
+      },
+      "editFields": {
+        "description": "ゲームの簡単な説明を入力してください。これはあなたの参考用で、ゲームプレイには影響しません。",
+        "gameStart": "ゲームはどのように始まりますか？",
+        "gameStartHint": "開始時に何が起こるかを記述してください。プレイヤーが最初に見るシーンは？どのようにプレイヤーに挨拶しますか？",
+        "gameStartPlaceholder": "あなたは暗い森の縁で目を覚ます。細い道が木々の奥へ続いている...",
+        "imageStyle": "ゲームの画像はどんなスタイルにしますか？",
+        "imageStyleHint": "例：カートゥーン、リアル、ピクセルアート、水彩画...",
+        "name": "ゲーム名",
+        "scenario": "ゲームの内容は？",
+        "scenarioHint": "簡潔に説明してください：ゲームはどのように進行しますか？世界観はどんな感じですか？言語と口調（例：6年生向けのスペイン語）？\nプレイヤーはどんな役割ですか？「プレイヤーは...」と書いてください。\nAIに特定の人物役を任せたい場合は「あなたは...」と書いてください。",
+        "scenarioPlaceholder": "あなたは謎めいた森の探検家です。目的は隠された宝を見つけること...",
+        "statusFields": "ゲーム値",
+        "statusFieldsHint": "ゲームが追跡すべき値は何ですか？例えば体力、ポイント、弾薬など。ゲームはこれらの値を記憶し、プレイ中に更新します。"
+      },
+      "editModal": {
+        "title": "ゲームを編集",
+        "unsavedChanges": {
+          "discard": "変更を破棄",
+          "keepEditing": "編集を続ける",
+          "message": "保存されていない変更があります。本当に破棄しますか？",
+          "title": "未保存の変更"
+        }
+      },
+      "empty": {
+        "description": "最初のゲームを作成して、AIが支えるインタラクティブな冒険を始めましょう。",
+        "title": "まだゲームがありません"
+      },
+      "errors": {
+        "loadFailed": "ゲームの読み込みに失敗しました。再度お試しください。",
+        "nameRequired": "ゲーム名は必須です"
+      },
+      "fields": {
+        "created": "作成日",
+        "creator": "作成者",
+        "me": "自分",
+        "modified": "更新日",
+        "name": "名前",
+        "playCount": "プレイ回数",
+        "visibility": "公開設定"
+      },
+      "importExport": {
+        "exportButton": "ゲームをエクスポート",
+        "importButton": "ゲームをインポート"
+      },
+      "playNow": "今すぐプレイ",
+      "sort": {
+        "createdAt-asc": "作成日（古い順）",
+        "createdAt-desc": "作成日（新しい順）",
+        "creator-asc": "作成者（A-Z）",
+        "creator-desc": "作成者（Z-A）",
+        "label": "並び替え",
+        "modifiedAt-asc": "更新日（古い順）",
+        "modifiedAt-desc": "更新日（新しい順）",
+        "name-asc": "名前（A-Z）",
+        "name-desc": "名前（Z-A）",
+        "playCount-asc": "プレイ回数（少ない順）",
+        "playCount-desc": "プレイ回数（多い順）",
+        "visibility-asc": "非公開を優先",
+        "visibility-desc": "公開を優先"
+      },
+      "statusFieldsEditor": {
+        "addField": "新しい値を追加",
+        "namePlaceholder": "名前（例：体力）",
+        "noFields": "まだ値がありません。+ をクリックして新しい値を追加してください。",
+        "valuePlaceholder": "開始値（例：100）"
+      },
+      "tabs": {
+        "basic": "基本",
+        "basicInfo": "ゲームの一般情報。これはあなたのためのもので、ゲームプレイには影響しません。",
+        "importExport": "インポート/エクスポート",
+        "quickStart": "クイックスタート",
+        "story": "ストーリー \u00026 AI",
+        "storyInfo": "ここにあるすべての内容はAIに送信され、ゲーム世界や物語を形作ります。",
+        "style": "デザイン",
+        "styleInfo": "プレイ中の見た目に関する任意の設定です。"
+      },
+      "title": "作成したゲーム",
+      "viewModal": {
+        "readOnlyNotice": "このゲームは別のユーザーが作成しました。詳細は閲覧できますが編集はできません。「コピー」を使って自分用の編集可能なバージョンを作成してください。",
+        "title": "ゲームの詳細"
+      },
+      "visibility": {
+        "private": "非公開",
+        "public": "公開"
+      }
+    },
+    "header": {
+      "apiKeys": "APIキー",
+      "closeNavigation": "ナビゲーションメニューを閉じる",
+      "contact": "お問い合わせ",
+      "goToDashboard": "ダッシュボードへ",
+      "leaveWorkshopMode": "ワークショップモードを終了",
+      "leaveWorkshopModeTooltip": "ワークショップモードを抜けて通常表示に戻ります",
+      "logout": "ログアウト",
+      "openNavigation": "ナビゲーションメニューを開く",
+      "openUserMenu": "ユーザーメニューを開く",
+      "organization": "組織",
+      "profile": "プロフィール",
+      "workshop": "ワークショップ"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "AIで動くインタラクティブなテキストアドベンチャーを作成",
+          "title": "冒険を作る"
+        },
+        "learn": {
+          "description": "教育ワークショップや授業活動に最適",
+          "title": "学ぶ \u00026 教える"
+        },
+        "play": {
+          "description": "友達と一緒に協力してストーリーを作る",
+          "title": "一緒に遊ぶ"
+        },
+        "title": "なぜChatGameLabを選ぶのか？",
+        "understand": {
+          "description": "AIモデルがどのように物語を作るかを探り、その仕組みを学びましょう",
+          "title": "AIを理解する"
+        }
+      },
+      "loginCta": "ログインして始めよう",
+      "splashDescription": "AI駆動のテキストアドベンチャーを作成・プレイするための教育プラットフォーム。教師、学生、創作好きに最適です。"
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "あなたは組織「{{organization}}」のワークショップに招待されました。",
+        "inviteMessageSimple": "このワークショップに招待されました。",
+        "joinButton": "ワークショップに参加する",
+        "title": "ワークショップに参加",
+        "titleWithWorkshop": "ワークショップ「{{workshop}}」に参加"
+      },
+      "errors": {
+        "acceptFailed": "招待の承認に失敗しました。再度お試しください。",
+        "expired": "この招待リンクは期限切れです。",
+        "loadFailed": "招待の詳細を読み込めませんでした。再度お試しください。",
+        "notFound": "この招待リンクは無効であるか、取り消されています。"
+      },
+      "goHome": "ホームに戻る",
+      "participant": {
+        "loggingIn": "ログインしています..."
+      },
+      "success": {
+        "message": "ワークショップに参加しました。リダイレクトしています…",
+        "title": "ようこそ！"
+      },
+      "switchWorkshop": {
+        "message": "現在のワークショップ内のゲームと進行は保持されますが、再参加するまでアクセスできなくなります。",
+        "stayButton": "現在のワークショップに留まる",
+        "switchButton": "ワークショップを切り替える",
+        "title": "ワークショップを切り替えますか？",
+        "warning": "現在「{{currentWorkshop}}」に参加しています。「{{newWorkshop}}」に参加すると現在のワークショップを退出します。"
+      }
+    },
+    "labels": {
+      "no": "いいえ",
+      "yes": "はい"
+    },
+    "languageSwitcher": {
+      "wipHint": "他の言語は開発中です。現在は英語とドイツ語のみ利用可能です。",
+      "wipLabel": "WIP"
+    },
+    "loading": "読み込み中...",
+    "logout": "ログアウト",
+    "myGames": {
+      "continue": "続ける",
+      "copyConfirm": {
+        "confirm": "ゲームをコピー",
+        "message": "これにより「{{name}}」のコピーがあなたのゲームに作成されます。",
+        "title": "ゲームをコピー"
+      },
+      "copyGame": "ゲームをコピー",
+      "empty": {
+        "description": "最初のゲームを作成して、AI支援のインタラクティブな冒険を始めましょう。",
+        "title": "まだゲームがありません"
+      },
+      "favorite": "お気に入りに追加",
+      "filters": {
+        "all": "すべて",
+        "favorites": "お気に入り"
+      },
+      "play": "プレイ",
+      "restart": "再開（リスタート）",
+      "restartConfirm": {
+        "confirm": "リスタート",
+        "message": "「{{game}}」を本当にリスタートしますか？現在の進行は失われます。",
+        "title": "ゲームをリスタート"
+      },
+      "title": "自分のゲーム",
+      "unfavorite": "お気に入りから削除"
+    },
+    "myOrganization": {
+      "actions": "操作",
+      "apiKeys": {
+        "aboutDescription": "ここで共有されたAPIキーは組織の全メンバーがゲームをプレイするために使用できます。キーの管理は代表と教師のみ可能です。",
+        "aboutTitle": "組織のAPIキー",
+        "allowPublicSponsoring": "公開スポンサーを許可する",
+        "allowPublicSponsoringDesc": "このキーは全ユーザー向けのゲームのスポンサーに使うことができます。",
+        "filterByPlatform": "プラットフォームでフィルタ",
+        "keyName": "キー名",
+        "loadError": "組織のAPIキーの読み込みに失敗しました。",
+        "noKeys": "まだこの組織と共有されたAPIキーはありません。",
+        "noResults": "検索に一致するAPIキーはありません。",
+        "notAuthorized": "組織のAPIキーを管理する権限がありません。代表と教師のみこのページにアクセスできます。",
+        "owner": "所有者",
+        "platform": "プラットフォーム",
+        "publicSponsoring": "公開スポンサー",
+        "searchPlaceholder": "名前または所有者で検索...",
+        "selectKey": "APIキーを選択",
+        "selectKeyPlaceholder": "共有するキーを選んでください...",
+        "share": "共有",
+        "shareKey": "キーを共有",
+        "shareKeyTitle": "組織とAPIキーを共有",
+        "title": "組織のAPIキー"
+      },
+      "demoteConfirm": "「{{name}}」（{{email}}）を教師に降格してもよろしいですか？",
+      "demoteTitle": "教師に降格",
+      "demoteToStaff": "教師に降格",
+      "email": "メール",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "empty": "この組織にメンバーはいません。",
+      "inviteAlreadyExists": "このメールアドレスには既に保留中の招待があります。",
+      "inviteError": "招待の送信に失敗しました。再度お試しください。",
+      "inviteTeacher": "教師を招待",
+      "inviteTeacherDescription": "教師を組織に招待するメールを送信します。",
+      "inviteTeacherTitle": "教師を招待",
+      "inviteUser": "ユーザーを招待",
+      "inviteUserDescription": "特定の役割を割り当てずにユーザーを組織に招待します。",
+      "inviteUserTitle": "ユーザーを招待",
+      "leaveConfirm": "「{{name}}」を本当に退会しますか？",
+      "leaveOrganization": "組織を退会",
+      "leaveTitle": "組織を退会",
+      "leaveWarning": "組織のリソースやメンバーへのアクセスを失います。",
+      "me": "自分",
+      "name": "名前",
+      "noEmail": "メールなし",
+      "noOrganization": "組織なし",
+      "noOrganizationDescription": "あなたはどの組織のメンバーでもありません。",
+      "noResults": "検索に一致するメンバーはありません。",
+      "noRole": "役割なし",
+      "promoteConfirm": "「{{name}}」（{{email}}）を代表に昇格してもよろしいですか？",
+      "promoteTitle": "代表に昇格",
+      "promoteToHead": "代表に昇格",
+      "promoteWarning": "このユーザーは組織メンバーの管理や教師招待の権限を得ます。",
+      "removeConfirm": "「{{name}}」を組織から削除してもよろしいですか？",
+      "removeMember": "メンバーを削除",
+      "removeTitle": "メンバーを削除",
+      "removeWarning": "このユーザーは組織へのアクセスを失います。",
+      "role": "役割",
+      "searchPlaceholder": "メンバーを検索...",
+      "showing": "{{count}} メンバー",
+      "sort": {
+        "label": "並び替え",
+        "name-asc": "名前（A-Z）",
+        "name-desc": "名前（Z-A）",
+        "role-asc": "役割（A-Z）",
+        "role-desc": "役割（Z-A）"
+      },
+      "title": "自分の組織",
+      "workshops": {
+        "activate": "有効化",
+        "active": "有効",
+        "activeDescription": "有効なワークショップでは参加者が参加してゲームを作成できます。",
+        "activeLabel": "有効",
+        "anonymousParticipant": "匿名参加者",
+        "create": "ワークショップを作成",
+        "createFirst": "最初のワークショップを作成",
+        "createInviteLink": "招待リンクを作成",
+        "createTitle": "ワークショップを作成",
+        "deactivate": "無効化",
+        "defaultAiModel": "デフォルトAIモデル",
+        "defaultAiModelHint": "参加者が選べない場合に使用されるモデルです。APIキーの設定が必要です。",
+        "defaultApiKey": "デフォルトAPIキー",
+        "defaultApiKeyHint": "参加者はゲームプレイ時にこのAPIキーを使用します。",
+        "deleteConfirm": "「{{name}}」を本当に削除しますか？",
+        "deleteTitle": "ワークショップを削除",
+        "deleteWarning": "このワークショップ内のすべてのゲームとセッションが削除されます。取り消せません。",
+        "editParticipant": "名前を編集",
+        "empty": "まだワークショップがありません。",
+        "enterWorkshop": "ワークショップモードに入る",
+        "games": "ゲーム",
+        "hideInactive": "非アクティブを非表示",
+        "inactive": "非アクティブ",
+        "inviteCreatedAt": "作成日",
+        "inviteDescription": "参加者がこのワークショップに参加するための招待リンクを生成します。",
+        "inviteExpiresAt": "有効期限",
+        "inviteLink": "招待リンク",
+        "inviteLinkDescription": "参加者をワークショップに招待するためにこのリンクを共有してください。",
+        "inviteLinkTitle": "{{name}} の招待リンク",
+        "inviteUsage": "使用状況",
+        "joined": "参加済み",
+        "linkCopied": "リンクをコピーしました",
+        "linkCopiedMessage": "招待リンクがクリップボードにコピーされました。",
+        "loadError": "ワークショップの読み込みに失敗しました。",
+        "nameLabel": "ワークショップ名",
+        "namePlaceholder": "例：Summer Camp 2024",
+        "noActiveInvite": "有効な招待リンクはありません。",
+        "noDefaultApiKey": "デフォルトAPIキーなし",
+        "noDefaultModel": "プラットフォームのデフォルトを使用",
+        "noParticipantToken": "この参加者は招待リンクを持っていません。匿名参加者（ゲスト）のみ再利用可能な招待リンクを持ちます。",
+        "noParticipants": "まだ参加者がいません",
+        "notAuthorized": "ワークショップを管理する権限がありません。代表と教師のみこのページにアクセスできます。",
+        "participantGames": "{{count}} ゲーム",
+        "participantJoined": "{{date}} に参加",
+        "participantName": "参加者名",
+        "participants": "参加者",
+        "removeParticipant": "参加者を削除",
+        "removeParticipantConfirm": "「{{name}}」をこのワークショップから削除してもよろしいですか？",
+        "removeParticipantMessage": "「{{name}}」をこのワークショップから削除してもよろしいですか？この操作は取り消せません。",
+        "removeParticipantTitle": "参加者を削除",
+        "revokeInvite": "招待リンクを取り消す",
+        "selectApiKey": "APIキーを選択",
+        "settings": "設定",
+        "shareParticipantLink": "この参加者用の個別招待リンクをコピー",
+        "showAiModelSelector": "参加者がAIモデルを選択できるようにする",
+        "showOtherParticipantsGames": "他の参加者のゲームを表示する",
+        "showPublicGames": "公開ゲームを参加者に表示する",
+        "sort": {
+          "createdAtAsc": "古い順",
+          "createdAtDesc": "新しい順",
+          "label": "並び替え",
+          "nameAsc": "名前（A-Z）",
+          "nameDesc": "名前（Z-A）",
+          "participantsAsc": "参加者少ない順",
+          "participantsDesc": "参加者多い順"
+        },
+        "subtitle": "ワークショップを管理し、参加者を招待してゲームで共同作業させましょう。",
+        "title": "ワークショップ",
+        "usedCount": "{{count}} 回使用",
+        "viewInviteLink": "招待リンクを表示"
+      }
+    },
+    "notifications": {
+      "accept": "承認",
+      "decline": "拒否",
+      "declineConfirm": "この招待を拒否してもよろしいですか？",
+      "declineTitle": "招待を拒否",
+      "empty": "新しい通知はありません。",
+      "inviteDescription": "{{role}}として参加するよう招待されています。",
+      "inviteToJoin": "組織からの招待",
+      "title": "通知"
+    },
+    "play": {
+      "cloneGame": "自分のゲームに複製",
+      "empty": {
+        "description": "フィルターを調整するか、後で新しいゲームを確認してください。",
+        "title": "ゲームが見つかりません"
+      },
+      "favorite": "お気に入りに追加",
+      "filters": {
+        "all": "すべてのゲーム",
+        "favorites": "お気に入り",
+        "organization": "組織",
+        "own": "自分のゲーム",
+        "public": "公開"
+      },
+      "owner": "自分の",
+      "playGame": "このゲームをプレイ",
+      "playNow": "今すぐプレイ",
+      "selectGameTitle": "ゲームを選択",
+      "title": "ゲームを選択",
+      "unfavorite": "お気に入りから削除"
+    },
+    "profile": "プロフィール",
+    "save": "保存",
+    "search": "検索",
+    "sessions": {
+      "continueGame": "ゲームを続ける",
+      "deleteConfirm": {
+        "message": "「{{game}}」のこのセッションを本当に削除しますか？この操作は取り消せません。",
+        "title": "セッションを削除"
+      },
+      "empty": {
+        "description": "新しいゲームを始めて冒険を始めましょう！",
+        "noResults": "一致するゲームはありません",
+        "title": "まだプレイしたゲームがありません"
+      },
+      "errors": {
+        "loadFailed": "あなたのゲームを読み込めませんでした。再度お試しください。"
+      },
+      "fields": {
+        "game": "ゲーム",
+        "lastPlayed": "最終プレイ",
+        "model": "モデル"
+      },
+      "noDescription": "説明なし",
+      "sort": {
+        "game": "ゲーム",
+        "label": "並び替え",
+        "lastPlayed": "最終プレイ",
+        "model": "モデル"
+      },
+      "startNewGame": "新しいゲームを開始",
+      "title": "プレイを続ける",
+      "untitledGame": "タイトル未設定のゲーム"
+    },
+    "settings": "設定",
+    "unnamed": "名前なし",
+    "viewGame": "ゲームを表示"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "プロジェクトの調整機関および主導組織。",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "このプラットフォームの背景にある教育プロジェクトについて詳しく知る。",
+          "title": "ChatGameLab プロジェクト"
+        },
+        "title": "ChatGameLabについて"
+      },
+      "lastPlayed": {
+        "empty": "まだプレイ履歴がありません。ゲームを始めてみましょう！",
+        "title": "最近プレイしたゲーム",
+        "viewAll": "すべてのゲーム"
+      },
+      "myGames": {
+        "empty": "まだゲームがありません。最初のゲームを作成しましょう！",
+        "title": "自分のゲーム",
+        "viewAll": "自作一覧"
+      },
+      "myWorkshops": {
+        "empty": "有効なワークショップがありません。組織でワークショップを作成しましょう！",
+        "title": "自分のワークショップ",
+        "viewAll": "すべてのワークショップ"
+      },
+      "newGames": {
+        "empty": "まだゲームはありません。",
+        "title": "新着ゲーム",
+        "viewAll": "すべてのゲーム"
+      },
+      "popularGames": {
+        "empty": "まだゲームはありません。",
+        "plays": "{{count}} 回プレイ",
+        "title": "人気のゲーム",
+        "viewAll": "すべてのゲーム"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "新しいゲームを作成",
+      "createRoom": "ルームを作成",
+      "inviteMembers": "メンバーを招待",
+      "startNewGame": "新しいゲームを開始",
+      "title": "クイックアクション"
+    },
+    "untitled": "タイトル未設定",
+    "untitledGame": "タイトル未設定のゲーム",
+    "version": {
+      "mismatch": {
+        "message": "Frontend version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e が backend version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e と一致しません。これにより予期しない動作が発生する可能性があります。問題が続く場合はサポートに連絡してください。",
+        "title": "バージョン不一致が検出されました"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "AIサービスでエラーが発生しました。再度お試しください。",
+    "backendUserFetch": "サーバーからユーザーデータの読み込みに失敗しました。再度お試しください。",
+    "billingNotActive": "あなたのOpenAIアカウントはアクティブではありません。請求情報を https://platform.openai.com/settings/organization/billing で確認してください。",
+    "conflict": "この操作は既存のデータと競合しています。再度お試しください。",
+    "contentFiltered": "あなたのリクエストはAIのコンテンツポリシーでフィルタリングされました。言い換えて再試行してください。",
+    "forbidden": "この操作を行う権限がありません。",
+    "generic": "問題が発生しました。再度お試しください。",
+    "insufficientQuota": "あなたのAPIキーのクレジットが尽きています。クレジットを追加するか、別のAPIキーを使用してください。",
+    "invalidApiKey": "APIキーが無効または期限切れです。設定でAPIキーを確認してください。",
+    "invalidPlatform": "無効なプラットフォームが選択されました。有効なオプションを選んでください。",
+    "invalidToken": "セッションの有効期限が切れているか無効です。招待リンクを再度使用してください。",
+    "network": "ネットワークエラーです。接続を確認してください。",
+    "notFound": "要求したリソースが見つかりませんでした。",
+    "orgVerificationRequired": "画像生成機能を使用するには、あなたのOpenAI組織の検証が必要です。https://platform.openai.com/settings/organization/general で検証してください。",
+    "rateLimitExceeded": "リクエストが多すぎます。しばらく待ってから再度お試しください。",
+    "server": "サーバーエラーです。後でもう一度お試しください。",
+    "titles": {
+      "aiError": "AIエラー",
+      "authentication": "認証エラー",
+      "billing": "請求エラー",
+      "error": "エラー",
+      "network": "ネットワークエラー",
+      "notFound": "見つかりません",
+      "permission": "アクセスが拒否されました",
+      "server": "サーバーエラー",
+      "validation": "検証エラー",
+      "workshopInactive": "ワークショップが非アクティブです"
+    },
+    "unauthorized": "続行するにはログインしてください。",
+    "unexpected": "予期しないエラーが発生しました。",
+    "userNotRegistered": "続行するには登録を完了する必要があります。",
+    "validation": "入力を確認して、もう一度お試しください。",
+    "workshopInactive": "このワークショップは無効化されています。教師またはワークショップの主催者に連絡してください。"
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "ここに表示するにはゲームをプレイするか、自分で作成してください！",
+      "title": "まだゲームがありません"
+    },
+    "filters": {
+      "all": "すべてのゲーム",
+      "mine": "自分のゲーム",
+      "public": "公開ゲーム",
+      "workshop": "ワークショップゲーム"
+    },
+    "gameType": "ゲーム",
+    "organizator": "主催者：{{name}}",
+    "settings": {
+      "currentWorkshop": "現在のワークショップ",
+      "notInWorkshopMode": "現在ワークショップモードではありません。まずワークショップに入ってください。",
+      "title": "ワークショップ設定"
+    },
+    "title": "マイワークショップ",
+    "you": "あなた"
+  },
+  "navigation": {
+    "allGames": "すべてのゲーム",
+    "create": "自分のゲームを作成",
+    "dashboard": "ダッシュボード",
+    "games": "ゲーム",
+    "groups": "グループ",
+    "manageOrganizations": "組織を管理",
+    "manageUsers": "ユーザーを管理",
+    "myGames": "自分のゲーム",
+    "myOrganization": "自分の組織",
+    "myWorkshop": "自分のワークショップ",
+    "orgApiKeys": "APIキー",
+    "orgMembers": "メンバー",
+    "orgWorkshops": "ワークショップ",
+    "play": "ゲームをプレイ",
+    "rooms": "ルーム",
+    "workshopSettings": "ワークショップ設定"
+  }
+}

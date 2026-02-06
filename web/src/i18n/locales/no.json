@@ -1,1 +1,910 @@
-{"auth":{"login":{"auth0Button":"Logg inn med Auth0","devMode":"Utviklingsmodus","devModeAlert":{"message":"Dette er p\u00e5loggingssiden for utvikling. I produksjon vil du bli videresendt direkte til Auth0.","title":"Utviklingsmodus"},"devModeDescription":"Rask p\u00e5logging for utvikling og testing","redirecting":{"message":"Vennligst vent mens vi videresender deg til p\u00e5loggingssiden.","title":"Videresender til Auth0..."},"role":{"admin":"Logg inn som administrator","guest":"Logg inn som gjest","student":"Logg inn som elev","teacher":"Logg inn som l\u00e6rer"},"subtitle":"Velg hvordan du vil logge inn","title":"Velkommen til ChatGameLab"},"profile":{"gamesCreated":"Spill opprettet","gamesPlayed":"Spill spilt","memberSince":"Registrert siden","messagesSent":"Meldinger sendt","noOrganization":"Ingen organisasjon","noRole":"Ingen rolle tildelt","organizationSection":"Organisasjon","role":"Rolle","sessionsJoined":"\u00d8kter deltatt i","statisticsSection":"Statistikk","title":"Profil"},"register":{"cancelButton":"Avbryt","checkingName":"Sjekker tilgjengelighet...","emailDescription":"Vi vil bruke denne til viktige varsler.","emailLabel":"E-postadresse","emailPlaceholder":"Skriv inn e-postadressen din","errors":{"emailInvalid":"Vennligst skriv inn en gyldig e-postadresse","emailRequired":"E-post er p\u00e5krevd","nameRequired":"Navn er p\u00e5krevd","nameTaken":"Dette navnet er allerede tatt","nameTooLong":"Navn kan v\u00e6re maksimalt 24 tegn","registrationFailed":"Registrering mislyktes. Vennligst pr\u00f8v igjen."},"nameDescription":"Slik vil andre brukere se deg. Maks 24 tegn.","nameLabel":"Visningsnavn","namePlaceholder":"Skriv inn visningsnavnet ditt","submitButton":"Opprett konto","submitting":"Oppretter konto...","subtitle":"Bare noen f\u00e5 detaljer for \u00e5 komme i gang","title":"Fullf\u00f8r profilen din"},"settings":{"accountSection":"Konto","emailDescription":"Vi vil bruke denne til viktige varsler.","emailLabel":"E-postadresse","emailPlaceholder":"Skriv inn e-postadressen din","errors":{"emailInvalid":"Vennligst skriv inn en gyldig e-postadresse","emailRequired":"E-post er p\u00e5krevd","emailTaken":"Denne e-postadressen er allerede i bruk","nameRequired":"Navn er p\u00e5krevd","nameTaken":"Dette navnet er allerede tatt","nameTooLong":"Navn kan v\u00e6re maksimalt 24 tegn","saveFailed":"Kunne ikke lagre endringer. Vennligst pr\u00f8v igjen."},"nameDescription":"Slik vil andre brukere se deg. Maks 24 tegn.","nameLabel":"Visningsnavn","namePlaceholder":"Skriv inn visningsnavnet ditt","saveButton":"Lagre endringer","saved":"Endringer lagret","saving":"Lagrer...","subtitle":"Administrer kontoinnstillingene dine","title":"Innstillinger"}},"common":{"cancel":"Avbryt","create":"Opprett","dark":"M\u00f8rk","delete":"Slett","edit":"Rediger","error":"Feil","footer":{"copyright":"\u00a9 ChatGameLab","loginVia":"Logg inn via","producedBy":"Produsert av","programmedBy":"Programmert av"},"goodbye":"Farvel","header":{"closeNavigation":"Lukk navigasjonsmeny","logout":"Logg ut","openNavigation":"\u00c5pne navigasjonsmeny","openProfile":"\u00c5pne profilmeny","openSettings":"\u00c5pne innstillinger","openUserMenu":"\u00c5pne brukermeny","profile":"Profil","settings":"Innstillinger","viewNotifications":"Vis varsler"},"hello":"Hei","home":{"badge":"Pedagogisk spillaboratorium","features":{"create":{"description":"Design interaktive tekst-eventyr drevet av AI","title":"Lag eventyr"},"learn":{"description":"Perfekt for pedagogiske workshops og klasseromsaktiviteter","title":"L\u00e6r og undervis"},"play":{"description":"Bli med venner i samarbeidende historiefortellingssesjoner","title":"Spill sammen"},"subtitle":"Oppdag den perfekte blandingen av utdanning og underholdning","title":"Hvorfor velge ChatGameLab?","understand":{"description":"Utforsk hvordan AI-modeller lager historier og l\u00e6r hvordan de fungerer","title":"Forst\u00e5 AI"}},"loginCta":"Kom i gang","splashDescription":"En pedagogisk plattform for \u00e5 lage og spille AI-drevne tekst-eventyrspill. Perfekt for l\u00e6rere, elever og kreative historiefortellere.","title":"ChatGameLab"},"language":"Spr\u00e5k","languageSwitcher":{"wipHint":"Flere spr\u00e5k er under arbeid. Bare engelsk og tysk er tilgjengelig akkurat n\u00e5.","wipLabel":"WIP"},"light":"Lys","loading":"Laster...","login":"Logg inn","logout":"Logg ut","notifications":"Varsler","profile":"Profil","register":"Registrer","save":"Lagre","search":"S\u00f8k","settings":"Innstillinger","system":"System","theme":"Tema","welcome":"Velkommen","labels":{"yes":"Ja","no":"Nei"}},"dashboard":{"quickActions":{"createNewGame":"Opprett nytt spill","createRoom":"Opprett rom","inviteMembers":"Inviter medlemmer","title":"Hurtighandlinger","viewAnalytics":"Vis analyser"},"recentActivity":{"continuedPlaying":"fortsatte \u00e5 spille","createdNewGame":"opprettet nytt spill","invitedStudents":"inviterte {{count}} elever","title":"Nylig aktivitet","viewAll":"Vis alle"},"stats":{"activeAdventures":"Aktive eventyr","availableSessions":"Tilgjengelige \u00f8kter","onlineNow":"P\u00e5logget n\u00e5","readyForPlayers":"Klar for spillere","storiesInProgress":"{{count}} historier p\u00e5g\u00e5r","storyDrafts":"Historiskisser","storyRooms":"Historierom","storytellers":"Historiefortellere"}},"errors":{"backendUserFetch":"Kunne ikke laste brukerdata fra serveren. Vennligst pr\u00f8v igjen.","forbidden":"Du har ikke tillatelse til \u00e5 utf\u00f8re denne handlingen.","generic":"Noe gikk galt. Vennligst pr\u00f8v igjen.","network":"Nettverksfeil. Vennligst sjekk tilkoblingen din.","notFound":"Den forespurte ressursen ble ikke funnet.","server":"Serverfeil. Vennligst pr\u00f8v igjen senere.","titles":{"authentication":"Autentiseringsfeil","error":"Feil","network":"Nettverksfeil","notFound":"Ikke funnet","permission":"Tilgang nektet","server":"Serverfeil","validation":"Valideringsfeil"},"unauthorized":"Vennligst logg inn for \u00e5 fortsette.","unexpected":"En uventet feil oppstod.","validation":"Vennligst sjekk inndataene dine og pr\u00f8v igjen."},"game":{"createNew":"Opprett nytt spill","description":"Beskrivelse","invite":"Inviter","join":"Bli med","leave":"Forlat","level":"Niv\u00e5","pause":"Pause","players":"Spillere","restart":"Start p\u00e5 nytt","resume":"Fortsett","score":"Poeng","start":"Start","time":"Tid","title":"Tittel"},"navigation":{"create":"Opprett","dashboard":"Dashbord","debug":"Feils\u00f8k","games":"Spill","groups":"Grupper","home":"Hjem","learn":"L\u00e6r","play":"Spill","rooms":"Rom"}}
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Logg inn med Auth0",
+      "devMode": "Utviklingsmodus",
+      "devModeAlert": {
+        "message": "Dette er utviklerens påloggingsside. I produksjon blir du omdirigert direkte til Auth0.",
+        "title": "Utviklingsmodus"
+      },
+      "devModeDescription": "Rask pålogging for utvikling og testing",
+      "redirecting": {
+        "message": "Vennligst vent mens vi omdirigerer deg til påloggingssiden.",
+        "title": "Omdirigerer til Auth0..."
+      },
+      "role": {
+        "admin": "Logg inn som administrator",
+        "guest": "Logg inn som gjest",
+        "student": "Logg inn som elev",
+        "teacher": "Logg inn som lærer"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Forlat workshop",
+        "message": "Er du sikker på at du vil forlate denne workshoppen? Du trenger en ny invitasjonslenke for å bli med igjen.",
+        "title": "Forlate workshop?"
+      },
+      "leaveWorkshop": "Forlat workshop",
+      "organization": "Organisasjon",
+      "role": "Workshop-deltaker",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Opprettede spill",
+      "gamesPlayed": "Spilte spill",
+      "memberSince": "Medlem siden",
+      "messagesSent": "Sendte meldinger",
+      "noOrganization": "Ingen organisasjon",
+      "noRole": "Ingen rolle tildelt",
+      "organization": "Organisasjon",
+      "organizationSection": "Organisasjon \u0006 Rolle",
+      "role": "Rolle",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Leder",
+        "participant": "Deltaker",
+        "staff": "Ansatt"
+      },
+      "statisticsSection": "Statistikk",
+      "title": "Profil",
+      "totalPlaysOnGames": "Totalt antall spillrunder på mine spill"
+    },
+    "register": {
+      "cancelButton": "Avbryt",
+      "emailDescription": "Vi bruker denne til viktige varsler.",
+      "emailLabel": "E-postadresse",
+      "emailPlaceholder": "Skriv inn e-posten din",
+      "errors": {
+        "emailInvalid": "Vennligst oppgi en gyldig e-postadresse",
+        "emailRequired": "E-post er påkrevd",
+        "nameRequired": "Navn er påkrevd",
+        "nameTaken": "Dette navnet er allerede tatt",
+        "nameTooLong": "Navnet kan være maks 24 tegn",
+        "registrationFailed": "Registreringen mislyktes. Vennligst prøv igjen."
+      },
+      "nameDescription": "Slik vil andre brukere se deg. Maks 24 tegn.",
+      "nameLabel": "Visningsnavn",
+      "namePlaceholder": "Skriv inn visningsnavnet ditt",
+      "submitButton": "Opprett konto",
+      "submitting": "Oppretter konto...",
+      "subtitle": "Bare noen få detaljer til før du starter",
+      "title": "Fullfør profilen"
+    },
+    "settings": {
+      "accountSection": "Konto",
+      "emailChangeNote": "For å endre e-postadressen, kontakt nettstedets administrator.",
+      "errors": {
+        "nameRequired": "Navn er påkrevd",
+        "nameTaken": "Dette navnet er allerede tatt",
+        "nameTooLong": "Navnet kan være maks 24 tegn",
+        "saveFailed": "Kunne ikke lagre endringene. Vennligst prøv igjen."
+      },
+      "nameDescription": "Slik vil andre brukere se deg. Maks 24 tegn.",
+      "nameLabel": "Visningsnavn",
+      "namePlaceholder": "Skriv inn visningsnavnet ditt",
+      "saveButton": "Lagre endringer",
+      "saved": "Endringer lagret",
+      "saving": "Lagrer...",
+      "showAiModelSelectorDescription": "Når aktivert, kan du velge hvilken KI-modell som skal brukes hver gang du starter en spillsesjon.",
+      "showAiModelSelectorLabel": "Vis valg for KI-modell",
+      "subtitle": "Administrer kontoinnstillingene dine",
+      "title": "Innstillinger"
+    }
+  },
+  "common": {
+    "actions": "Handlinger",
+    "admin": {
+      "invites": {
+        "actions": "Handlinger",
+        "empty": "Ingen ventende invitasjoner.",
+        "invitedEmail": "Invitert e-post",
+        "modifiedAt": "Endret",
+        "noResults": "Ingen invitasjoner matcher søket ditt.",
+        "organization": "Organisasjon",
+        "revokeConfirm": {
+          "confirm": "Slett",
+          "message": "Er du sikker på at du vil slette denne invitasjonen? Denne handlingen kan ikke angres.",
+          "title": "Slett invitasjon"
+        },
+        "role": "Rolle",
+        "searchPlaceholder": "Søk etter e-post, rolle, status eller organisasjon...",
+        "sort": {
+          "label": "Sorter etter",
+          "modifiedAt-asc": "Endret (eldste)",
+          "modifiedAt-desc": "Endret (nyeste)",
+          "organization-asc": "Organisasjon (A-Z)",
+          "organization-desc": "Organisasjon (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)"
+        },
+        "status": "Status",
+        "statuses": {
+          "accepted": "Akseptert",
+          "declined": "Avslått",
+          "expired": "Utløpt",
+          "pending": "Avventer",
+          "revoked": "Tilbakekalt"
+        },
+        "title": "Ventende invitasjoner"
+      },
+      "organizations": {
+        "actions": "Handlinger",
+        "create": "Opprett organisasjon",
+        "createTitle": "Opprett ny organisasjon",
+        "deleteConfirm": "Er du sikker på at du vil slette \"{{name}}\"? Denne handlingen kan ikke angres.",
+        "deleteTitle": "Slett organisasjon",
+        "editTitle": "Rediger organisasjon",
+        "email": "E-postadresse",
+        "emailPlaceholder": "Skriv inn e-postadresse",
+        "empty": "Ingen organisasjoner ennå. Opprett en for å komme i gang.",
+        "inviteDescription": "Send en invitasjon for å bli med i {{name}} som organisasjonsleder.",
+        "inviteTitle": "Inviter til organisasjon",
+        "memberEmail": "E-post",
+        "memberName": "Navn",
+        "memberRole": "Rolle",
+        "members": "Medlemmer",
+        "membersCount": "medlemmer",
+        "membersList": "Medlemmer",
+        "name": "Navn",
+        "namePlaceholder": "Skriv inn organisasjonsnavn",
+        "noMembers": "Ingen medlemmer i denne organisasjonen.",
+        "removeMember": "Fjern medlem",
+        "removeMemberConfirm": "Er du sikker på at du vil fjerne {{name}} fra denne organisasjonen?",
+        "searchPlaceholder": "Søk i organisasjoner...",
+        "sendInvite": "Send invitasjon",
+        "title": "Administrer organisasjoner"
+      },
+      "users": {
+        "actions": "Handlinger",
+        "deleteConfirm": "Er du sikker på at du vil slette \"{{name}}\"? Denne handlingen kan ikke angres.",
+        "deleteTitle": "Slett bruker",
+        "editEmail": "Rediger e-post",
+        "editTitle": "Rediger bruker",
+        "editingUser": "Redigerer bruker: {{name}}",
+        "email": "E-post",
+        "emailPlaceholder": "Skriv inn e-postadresse",
+        "empty": "Ingen brukere funnet.",
+        "hideGuests": "Skjul gjester ({{count}})",
+        "joined": "Ble med",
+        "loadError": "Kunne ikke laste brukere",
+        "makeAdmin": "Gjør til administrator",
+        "me": "Meg",
+        "name": "Navn",
+        "noEmail": "Ingen e-post",
+        "noResults": "Ingen brukere matcher søket ditt.",
+        "noRole": "Ingen rolle",
+        "organization": "Organisasjon",
+        "promoteConfirm": "Er du sikker på at du vil gjøre \"{{name}}\" ({{email}}) til administrator?",
+        "promoteTitle": "Gjør til administrator",
+        "promoteWarning": "Denne brukeren vil få full administrativ tilgang til systemet.",
+        "removeAdmin": "Fjern administrator",
+        "removeAdminConfirm": "Er du sikker på at du vil fjerne administratorrollen fra \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Fjern administratorrolle",
+        "removeAdminWarning": "Denne brukeren mister alle administrative rettigheter.",
+        "role": "Rolle",
+        "searchPlaceholder": "Søk etter navn, e-post, rolle eller organisasjon...",
+        "showing": "Viser {{count}} av {{total}} brukere",
+        "sort": {
+          "email-asc": "E-post (A-Z)",
+          "email-desc": "E-post (Z-A)",
+          "joined-asc": "Ble med (eldste)",
+          "joined-desc": "Ble med (nyeste)",
+          "label": "Sorter etter",
+          "name-asc": "Navn (A-Z)",
+          "name-desc": "Navn (Z-A)",
+          "organization-asc": "Organisasjon (A-Z)",
+          "organization-desc": "Organisasjon (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)"
+        },
+        "title": "Administrer brukere"
+      }
+    },
+    "allGames": {
+      "continue": "Fortsett",
+      "copyConfirm": {
+        "confirm": "Kopier spill",
+        "message": "Dette vil opprette en kopi av \"{{name}}\" i dine spill.",
+        "title": "Kopier spill"
+      },
+      "copyGame": "Kopier spill",
+      "empty": {
+        "description": "Prøv å justere filtrene dine eller kom tilbake senere for nye spill.",
+        "title": "Ingen spill funnet"
+      },
+      "favorite": "Legg til i favoritter",
+      "filters": {
+        "all": "Alle spill",
+        "favorites": "Favoritter",
+        "own": "Mine spill",
+        "public": "Offentlig"
+      },
+      "play": "Spill",
+      "restart": "Start på nytt",
+      "restartConfirm": {
+        "confirm": "Start på nytt",
+        "message": "Er du sikker på at du vil starte \"{{game}}\" på nytt? Fremdriften din vil gå tapt.",
+        "title": "Start spill på nytt"
+      },
+      "title": "Alle spill",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API-nøkler brukes for å koble til KI-plattformer for å generere spillinnhold.",
+        "title": "Om API-nøkler"
+      },
+      "addKey": "Legg til nøkkel",
+      "addedOn": "Lagt til",
+      "createModal": {
+        "keyDescription": "Nøkkelen din vil bli kryptert og lagret sikkert.",
+        "keyLabel": "API-nøkkel",
+        "keyPlaceholder": "Skriv inn API-nøkkelen din",
+        "nameLabel": "Nøkkelnavn",
+        "namePlaceholder": "f.eks. Min OpenAI-nøkkel",
+        "platformLabel": "Plattform",
+        "platformPlaceholder": "Velg en plattform",
+        "submit": "Legg til nøkkel",
+        "title": "Legg til ny API-nøkkel"
+      },
+      "deleteModal": {
+        "message": "Er du sikker på at du vil slette \"{{name}}\"?",
+        "title": "Slett API-nøkkel",
+        "warning": "Denne handlingen kan ikke angres. Nøkkelen vil bli permanent slettet."
+      },
+      "errors": {
+        "invalidPlatform": "Ugyldig plattform valgt. Vennligst velg en gyldig KI-plattform.",
+        "keyRequired": "API-nøkkel er påkrevd",
+        "loadFailed": "Kunne ikke laste API-nøkler. Vennligst prøv igjen.",
+        "nameRequired": "Navn er påkrevd",
+        "platformRequired": "Plattform er påkrevd"
+      },
+      "key": "nøkkel",
+      "keys": "nøkler",
+      "subtitle": "Administrer dine API-nøkler for KI-plattformer.",
+      "title": "Administrer API-nøkler",
+      "unnamed": "Uten navn",
+      "unsupportedPlatform": {
+        "badge": "ikke støttet",
+        "hint": "Denne plattformen støttes ikke for øyeblikket. Du kan bare fjerne eksisterende nøkler."
+      }
+    },
+    "back": "Tilbake",
+    "cancel": "Avbryt",
+    "close": "Lukk",
+    "copyGame": "Kopier spill",
+    "create": "Opprett",
+    "delete": "Slett",
+    "deleteGame": "Slett spill",
+    "edit": "Rediger",
+    "editGame": "Rediger spill",
+    "error": "Feil",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institutt for mediepedagogikk",
+      "programmedBy": "Utviklet av"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Meldings-ID",
+          "imagePrompt": "Bilde-prompt",
+          "isStreaming": "Streaming",
+          "seq": "Sekvens",
+          "statusFields": "Statusfelt",
+          "timestamp": "Tidsstempel",
+          "type": "Type"
+        },
+        "hints": {
+          "id": "Entydig identifikator for denne meldingen",
+          "imagePrompt": "Prompt sendt til bilde-genererende KI",
+          "isStreaming": "Om innhold fortsatt blir mottatt",
+          "seq": "Rekkefølge i samtalen",
+          "statusFields": "Spilltilstandsvariabler som KI sporer",
+          "timestamp": "Når denne meldingen ble opprettet",
+          "type": "player = spillerens inndata, game = KI-svar, system = kontekst"
+        },
+        "title": "Debug-info"
+      },
+      "error": {
+        "backToGames": "Tilbake til spill",
+        "gameNotFound": "Spill ikke funnet",
+        "missingFields": "Spillet mangler nødvendige felt:",
+        "sessionFailed": "Kunne ikke starte spillsesjon"
+      },
+      "header": {
+        "back": "Tilbake til spill",
+        "debug": "Debug",
+        "decreaseFont": "Reduser skriftstørrelse",
+        "disableAnimations": "Deaktiver animasjoner",
+        "increaseFont": "Øk skriftstørrelse",
+        "settings": "Innstillinger",
+        "useNeutralTheme": "Bruk nøytralt tema"
+      },
+      "input": {
+        "placeholder": "Hva gjør du?",
+        "send": "Send handling"
+      },
+      "loading": {
+        "game": "Laster spill...",
+        "starting": "Starter spillsesjon...",
+        "startingHint": "KI forbereder eventyret ditt"
+      },
+      "needsApiKey": {
+        "description": "API-nøkkelen som ble brukt for denne økten er ikke lenger tilgjengelig. Velg en ny for å fortsette å spille.",
+        "reason": "Din forrige API-nøkkel er ikke lenger tilgjengelig. For å fortsette spillet, velg en ny.",
+        "title": "API-nøkkel påkrevd"
+      },
+      "selectApiKey": {
+        "keyDescription": "Velg API-nøkkelen som skal brukes for denne spillsesjonen",
+        "keyLabel": "API-nøkkel",
+        "keyPlaceholder": "Velg en API-nøkkel",
+        "loadError": "Kunne ikke laste API-nøkler",
+        "mine": "Mine",
+        "modelDescription": "Valgfritt: velg en spesifikk KI-modell",
+        "modelLabel": "KI-modell",
+        "modelPlaceholder": "Standardmodell",
+        "noKeys": "Du trenger minst én API-nøkkel for å spille. Legg til en under Innstillinger → API-nøkler.",
+        "playing": "Spiller",
+        "startGame": "Start spill",
+        "title": "Velg API-nøkkel"
+      },
+      "statusChange": {
+        "effect": "Effekt:"
+      },
+      "unnamed": "Uten navn"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Mitt spill",
+        "public": "Offentlig",
+        "workshop": "Workshop"
+      },
+      "createButton": "Opprett spill",
+      "createModal": {
+        "descriptionPlaceholder": "Hva handler spillet ditt om?",
+        "namePlaceholder": "f.eks. Romeventyr",
+        "publicDescription": "Offentlige spill kan bli funnet av alle.",
+        "publicLabel": "Gjør dette spillet offentlig",
+        "submit": "Opprett spill",
+        "title": "Opprett nytt spill"
+      },
+      "deleteModal": {
+        "message": "Er du sikker på at du vil slette \"{{name}}\"?",
+        "title": "Slett spill",
+        "warning": "Denne handlingen kan ikke angres. Alle spildata vil bli permanent slettet."
+      },
+      "editFields": {
+        "description": "Gi spillet en kort beskrivelse. Dette er bare for deg og påvirker ikke spillet.",
+        "gameStart": "Hvordan begynner spillet?",
+        "gameStartHint": "Hva skjer i starten? Beskriv den første scenen spilleren ser. Hvordan blir spilleren ønsket velkommen?",
+        "gameStartPlaceholder": "Du våkner ved kanten av en mørk skog. En smal sti fører dypere inn mellom trærne...",
+        "imageStyle": "Hvilken stil skal spillbildene ha?",
+        "imageStyleHint": "For eksempel: tegneserie, realistisk, pixelkunst, akvarell...",
+        "name": "Spillnavn",
+        "scenario": "Hva handler spillet om?",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan ser spillverdenen ut? Språk \u0006 Tone (f.eks. spansk for 6. klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\".\nHvis du vil at KI skal ta rollen til en bestemt person, skriv \"Du er ...\".",
+        "scenarioPlaceholder": "Du er en oppdager i en mystisk skog. Målet ditt er å finne den skjulte skatten...",
+        "statusFields": "Spillverdier",
+        "statusFieldsHint": "Hvilke verdier skal spillet holde orden på? For eksempel helse, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spilling."
+      },
+      "editModal": {
+        "title": "Rediger spill",
+        "unsavedChanges": {
+          "discard": "Forkast endringer",
+          "keepEditing": "Fortsett å redigere",
+          "message": "Du har endringer som ikke er lagret. Er du sikker på at du vil forkaste dem?",
+          "title": "Ulagrede endringer"
+        }
+      },
+      "empty": {
+        "description": "Lag ditt første spill for å komme i gang med interaktive KI-drevne eventyr.",
+        "title": "Ingen spill enda"
+      },
+      "errors": {
+        "loadFailed": "Kunne ikke laste spill. Vennligst prøv igjen.",
+        "nameRequired": "Spillnavn er påkrevd"
+      },
+      "fields": {
+        "created": "Opprettet",
+        "creator": "Opprettet av",
+        "me": "Meg",
+        "modified": "Endret",
+        "name": "Navn",
+        "playCount": "Spillrunder",
+        "visibility": "Synlighet"
+      },
+      "importExport": {
+        "exportButton": "Eksporter spill",
+        "importButton": "Importer spill"
+      },
+      "playNow": "Spill nå",
+      "sort": {
+        "createdAt-asc": "Opprettet (eldste)",
+        "createdAt-desc": "Opprettet (nyeste)",
+        "creator-asc": "Opprettet av (A-Z)",
+        "creator-desc": "Opprettet av (Z-A)",
+        "label": "Sorter etter",
+        "modifiedAt-asc": "Endret (eldste)",
+        "modifiedAt-desc": "Endret (nyeste)",
+        "name-asc": "Navn (A-Z)",
+        "name-desc": "Navn (Z-A)",
+        "playCount-asc": "Minst spilt",
+        "playCount-desc": "Mest spilt",
+        "visibility-asc": "Private først",
+        "visibility-desc": "Offentlige først"
+      },
+      "statusFieldsEditor": {
+        "addField": "Legg til ny verdi",
+        "namePlaceholder": "Navn (f.eks. Helse)",
+        "noFields": "Ingen verdier ennå. Klikk på + for å legge til en ny verdi.",
+        "valuePlaceholder": "Startverdi (f.eks. 100)"
+      },
+      "tabs": {
+        "basic": "Grunnleggende",
+        "basicInfo": "Generell info om spillet. Dette er kun for deg og påvirker ikke spillet.",
+        "importExport": "Import/Export",
+        "quickStart": "Hurtigstart",
+        "story": "Historie \u0006 KI",
+        "storyInfo": "Alt her sendes til KI for å forme spillverdenen og historien.",
+        "style": "Design",
+        "styleInfo": "Valgfrie innstillinger for spillets utseende under spilling."
+      },
+      "title": "Mine opprettede spill",
+      "viewModal": {
+        "readOnlyNotice": "Dette spillet ble opprettet av en annen bruker. Du kan se detaljene, men ikke redigere. Bruk \"Kopier\" for å lage din egen redigerbare versjon.",
+        "title": "Spilldetaljer"
+      },
+      "visibility": {
+        "private": "Privat",
+        "public": "Offentlig"
+      }
+    },
+    "header": {
+      "apiKeys": "API-nøkler",
+      "closeNavigation": "Lukk navigasjonsmeny",
+      "contact": "Kontakt",
+      "goToDashboard": "Gå til dashbordet",
+      "leaveWorkshopMode": "Forlat workshop-modus",
+      "leaveWorkshopModeTooltip": "Forlat workshop-modus og gå tilbake til normal visning",
+      "logout": "Logg ut",
+      "openNavigation": "Åpne navigasjonsmeny",
+      "openUserMenu": "Åpne brukermeny",
+      "organization": "Organisasjon",
+      "profile": "Profil",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Design interaktive tekstbaserte eventyr drevet av KI",
+          "title": "Lag eventyr"
+        },
+        "learn": {
+          "description": "Perfekt for undervisningsworkshops og klasseaktiviteter",
+          "title": "Lær \u0006 undervise"
+        },
+        "play": {
+          "description": "Bli med venner i samarbeidende historiefortelling",
+          "title": "Spill sammen"
+        },
+        "title": "Hvorfor velge ChatGameLab?",
+        "understand": {
+          "description": "Utforsk hvordan KI-modeller skaper historier og lær hvordan de fungerer",
+          "title": "Forstå KI"
+        }
+      },
+      "loginCta": "Logg inn og utforsk",
+      "splashDescription": "En læringsplattform for å lage og spille KI-drevne tekstbaserte eventyr. Perfekt for lærere, elever og kreative historiefortellere."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Du er invitert til å bli med i en workshop for organisasjonen \"{{organization}}\".",
+        "inviteMessageSimple": "Du er invitert til å bli med i denne workshoppen.",
+        "joinButton": "Bli med i workshop",
+        "title": "Bli med i workshop",
+        "titleWithWorkshop": "Bli med i workshop \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Kunne ikke godta invitasjonen. Vennligst prøv igjen.",
+        "expired": "Denne invitasjonslenken er utløpt.",
+        "loadFailed": "Kunne ikke laste invitasjonsdetaljer. Vennligst prøv igjen.",
+        "notFound": "Denne invitasjonslenken er ugyldig eller er blitt tilbakekalt."
+      },
+      "goHome": "Gå til startsiden",
+      "participant": {
+        "loggingIn": "Logger deg inn..."
+      },
+      "success": {
+        "message": "Du har blitt med i workshoppen. Omdirigerer...",
+        "title": "Velkommen!"
+      },
+      "switchWorkshop": {
+        "message": "Dine spill og fremgang i nåværende workshop blir beholdt, men du vil ikke få tilgang til dem før du blir med igjen.",
+        "stayButton": "Bli i nåværende workshop",
+        "switchButton": "Bytt workshop",
+        "title": "Bytt workshop?",
+        "warning": "Du er for øyeblikket i workshop \"{{currentWorkshop}}\". Hvis du blir med i \"{{newWorkshop}}\", vil du forlate din nåværende workshop."
+      }
+    },
+    "labels": {
+      "no": "Nei",
+      "yes": "Ja"
+    },
+    "languageSwitcher": {
+      "wipHint": "Flere språk er under utvikling. Foreløpig er bare engelsk og tysk tilgjengelig.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Laster...",
+    "logout": "Logg ut",
+    "myGames": {
+      "continue": "Fortsett",
+      "copyConfirm": {
+        "confirm": "Kopier spill",
+        "message": "Dette vil opprette en kopi av \"{{name}}\" i dine spill.",
+        "title": "Kopier spill"
+      },
+      "copyGame": "Kopier spill",
+      "empty": {
+        "description": "Lag ditt første spill for å komme i gang med interaktive KI-drevne eventyr.",
+        "title": "Ingen spill enda"
+      },
+      "favorite": "Legg til i favoritter",
+      "filters": {
+        "all": "Alle",
+        "favorites": "Favoritter"
+      },
+      "play": "Spill",
+      "restart": "Start på nytt",
+      "restartConfirm": {
+        "confirm": "Start på nytt",
+        "message": "Er du sikker på at du vil starte \"{{game}}\" på nytt? Fremdriften din vil gå tapt.",
+        "title": "Start spill på nytt"
+      },
+      "title": "Mine spill",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "myOrganization": {
+      "actions": "Handlinger",
+      "apiKeys": {
+        "aboutDescription": "API-nøkler delt her er tilgjengelige for alle medlemmer av organisasjonen din til å bruke for å spille spill. Bare ledere og lærere kan administrere disse nøklene.",
+        "aboutTitle": "Organisasjonens API-nøkler",
+        "allowPublicSponsoring": "Tillat offentlig sponsing",
+        "allowPublicSponsoringDesc": "Denne nøkkelen kan brukes til å sponse spill for alle brukere.",
+        "filterByPlatform": "Filtrer etter plattform",
+        "keyName": "Nøkkelnavn",
+        "loadError": "Kunne ikke laste organisasjonens API-nøkler.",
+        "noKeys": "Ingen API-nøkler delt med denne organisasjonen ennå.",
+        "noResults": "Ingen API-nøkler matcher søket ditt.",
+        "notAuthorized": "Du har ikke tillatelse til å administrere organisasjonens API-nøkler. Bare ledere og lærere kan få tilgang til denne siden.",
+        "owner": "Eier",
+        "platform": "Plattform",
+        "publicSponsoring": "Offentlig sponsing",
+        "searchPlaceholder": "Søk etter navn eller eier...",
+        "selectKey": "Velg API-nøkkel",
+        "selectKeyPlaceholder": "Velg en nøkkel å dele...",
+        "share": "Del",
+        "shareKey": "Del nøkkel",
+        "shareKeyTitle": "Del API-nøkkel med organisasjon",
+        "title": "Organisasjonens API-nøkler"
+      },
+      "demoteConfirm": "Er du sikker på at du vil nedgradere \"{{name}}\" ({{email}}) til lærer?",
+      "demoteTitle": "Nedgrader til lærer",
+      "demoteToStaff": "Nedgrader til lærer",
+      "email": "E-post",
+      "emailPlaceholder": "Skriv inn e-postadresse",
+      "empty": "Ingen medlemmer i denne organisasjonen.",
+      "inviteAlreadyExists": "Det finnes allerede en ventende invitasjon for denne e-postadressen.",
+      "inviteError": "Kunne ikke sende invitasjonen. Vennligst prøv igjen.",
+      "inviteTeacher": "Inviter lærer",
+      "inviteTeacherDescription": "Send en invitasjon til en lærer om å bli med i organisasjonen din.",
+      "inviteTeacherTitle": "Inviter lærer",
+      "inviteUser": "Inviter bruker",
+      "inviteUserDescription": "Send en invitasjon til en bruker for å bli med i organisasjonen uten en spesifikk rolle.",
+      "inviteUserTitle": "Inviter bruker",
+      "leaveConfirm": "Er du sikker på at du vil forlate \"{{name}}\"?",
+      "leaveOrganization": "Forlat organisasjonen",
+      "leaveTitle": "Forlat organisasjon",
+      "leaveWarning": "Du vil miste tilgang til alle organisasjonsressurser og medlemmer.",
+      "me": "Meg",
+      "name": "Navn",
+      "noEmail": "Ingen e-post",
+      "noOrganization": "Ingen organisasjon",
+      "noOrganizationDescription": "Du er ikke medlem av noen organisasjon.",
+      "noResults": "Ingen medlemmer matcher søket ditt.",
+      "noRole": "Ingen rolle",
+      "promoteConfirm": "Er du sikker på at du vil forfremme \"{{name}}\" ({{email}}) til leder?",
+      "promoteTitle": "Forfrem til leder",
+      "promoteToHead": "Forfrem til leder",
+      "promoteWarning": "Denne brukeren vil få mulighet til å administrere organisasjonsmedlemmer og invitere lærere.",
+      "removeConfirm": "Er du sikker på at du vil fjerne \"{{name}}\" fra organisasjonen?",
+      "removeMember": "Fjern medlem",
+      "removeTitle": "Fjern medlem",
+      "removeWarning": "Denne brukeren mister tilgangen til organisasjonen.",
+      "role": "Rolle",
+      "searchPlaceholder": "Søk etter medlemmer...",
+      "showing": "{{count}} medlemmer",
+      "sort": {
+        "label": "Sorter etter",
+        "name-asc": "Navn (A-Z)",
+        "name-desc": "Navn (Z-A)",
+        "role-asc": "Rolle (A-Z)",
+        "role-desc": "Rolle (Z-A)"
+      },
+      "title": "Min organisasjon",
+      "workshops": {
+        "activate": "Aktiver",
+        "active": "Aktiv",
+        "activeDescription": "Aktive workshops lar deltakere bli med og opprette spill.",
+        "activeLabel": "Aktiv",
+        "anonymousParticipant": "Anonym deltaker",
+        "create": "Opprett workshop",
+        "createFirst": "Opprett din første workshop",
+        "createInviteLink": "Opprett invitasjonslenke",
+        "createTitle": "Opprett workshop",
+        "deactivate": "Deaktiver",
+        "defaultAiModel": "Standard-KI-modell",
+        "defaultAiModelHint": "Modell som brukes når deltakere ikke kan velge. Krever at en API-nøkkel er satt.",
+        "defaultApiKey": "Standard-API-nøkkel",
+        "defaultApiKeyHint": "Deltakerne vil bruke denne API-nøkkelen når de spiller spill.",
+        "deleteConfirm": "Er du sikker på at du vil slette \"{{name}}\"?",
+        "deleteTitle": "Slett workshop",
+        "deleteWarning": "Alle spill og økter i denne workshoppen vil bli slettet. Dette kan ikke angres.",
+        "editParticipant": "Endre navn",
+        "empty": "Ingen workshops ennå.",
+        "enterWorkshop": "Gå inn i workshop-modus",
+        "games": "Spill",
+        "hideInactive": "Skjul inaktive",
+        "inactive": "Inaktiv",
+        "inviteCreatedAt": "Opprettet",
+        "inviteDescription": "Generer en invitasjonslenke som deltakere kan bruke for å bli med i denne workshoppen.",
+        "inviteExpiresAt": "Utløper",
+        "inviteLink": "Invitasjonslenke",
+        "inviteLinkDescription": "Del denne lenken med deltakere for å la dem bli med i workshoppen.",
+        "inviteLinkTitle": "Invitasjonslenke for {{name}}",
+        "inviteUsage": "Bruk",
+        "joined": "Ble med",
+        "linkCopied": "Lenke kopiert",
+        "linkCopiedMessage": "Invitasjonslenken er kopiert til utklippstavlen.",
+        "loadError": "Kunne ikke laste workshops.",
+        "nameLabel": "Workshop-navn",
+        "namePlaceholder": "f.eks. Sommercamp 2024",
+        "noActiveInvite": "Ingen aktiv invitasjonslenke tilgjengelig.",
+        "noDefaultApiKey": "Ingen standard-API-nøkkel",
+        "noDefaultModel": "Bruk plattformstandard",
+        "noParticipantToken": "Denne deltakeren har ingen invitasjonslenke. Bare anonyme deltakere (gjester) har gjenbrukbare invitasjonslenker.",
+        "noParticipants": "Ingen deltakere ennå",
+        "notAuthorized": "Du har ikke tillatelse til å administrere workshops. Bare ledere og lærere kan få tilgang til denne siden.",
+        "participantGames": "{{count}} spill",
+        "participantJoined": "Ble med {{date}}",
+        "participantName": "Deltakernavn",
+        "participants": "Deltakere",
+        "removeParticipant": "Fjern deltaker",
+        "removeParticipantConfirm": "Er du sikker på at du vil fjerne \"{{name}}\" fra denne workshoppen?",
+        "removeParticipantMessage": "Er du sikker på at du vil fjerne \"{{name}}\" fra denne workshoppen? Denne handlingen kan ikke angres.",
+        "removeParticipantTitle": "Fjern deltaker",
+        "revokeInvite": "Tilbakekall invitasjonslenke",
+        "selectApiKey": "Velg en API-nøkkel",
+        "settings": "Innstillinger",
+        "shareParticipantLink": "Kopier individuell invitasjonslenke for denne deltakeren",
+        "showAiModelSelector": "La deltakere velge KI-modell",
+        "showOtherParticipantsGames": "Vis andre deltakeres spill",
+        "showPublicGames": "Vis offentlige spill for deltakere",
+        "sort": {
+          "createdAtAsc": "Eldste først",
+          "createdAtDesc": "Nyeste først",
+          "label": "Sorter etter",
+          "nameAsc": "Navn (A-Z)",
+          "nameDesc": "Navn (Z-A)",
+          "participantsAsc": "Færrest deltakere",
+          "participantsDesc": "Flest deltakere"
+        },
+        "subtitle": "Administrer workshops og inviter deltakere til samarbeid om spill.",
+        "title": "Workshops",
+        "usedCount": "{{count}} bruk",
+        "viewInviteLink": "Vis invitasjonslenke"
+      }
+    },
+    "notifications": {
+      "accept": "Godta",
+      "decline": "Avslå",
+      "declineConfirm": "Er du sikker på at du vil avslå denne invitasjonen?",
+      "declineTitle": "Avslå invitasjon",
+      "empty": "Ingen nye varsler.",
+      "inviteDescription": "Du er invitert til å bli med som {{role}}.",
+      "inviteToJoin": "Organisasjonsinvitasjon",
+      "title": "Varsler"
+    },
+    "play": {
+      "cloneGame": "Kopier til mine spill",
+      "empty": {
+        "description": "Prøv å justere filtrene dine eller kom tilbake senere for nye spill.",
+        "title": "Ingen spill funnet"
+      },
+      "favorite": "Legg til i favoritter",
+      "filters": {
+        "all": "Alle spill",
+        "favorites": "Favoritter",
+        "organization": "Organisasjon",
+        "own": "Mine spill",
+        "public": "Offentlig"
+      },
+      "owner": "Mine",
+      "playGame": "Spill dette spillet",
+      "playNow": "Spill nå",
+      "selectGameTitle": "Velg et spill",
+      "title": "Velg et spill",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "profile": "Profil",
+    "save": "Lagre",
+    "search": "Søk",
+    "sessions": {
+      "continueGame": "Fortsett spill",
+      "deleteConfirm": {
+        "message": "Er du sikker på at du vil slette denne økten for \"{{game}}\"? Denne handlingen kan ikke angres.",
+        "title": "Slett økt"
+      },
+      "empty": {
+        "description": "Start et nytt spill for å begynne eventyret ditt!",
+        "noResults": "Ingen matchende spill funnet",
+        "title": "Ingen spill spilt ennå"
+      },
+      "errors": {
+        "loadFailed": "Kunne ikke laste spillene dine. Vennligst prøv igjen."
+      },
+      "fields": {
+        "game": "Spill",
+        "lastPlayed": "Sist spilt",
+        "model": "Modell"
+      },
+      "noDescription": "Ingen beskrivelse",
+      "sort": {
+        "game": "Spill",
+        "label": "Sorter etter",
+        "lastPlayed": "Sist spilt",
+        "model": "Modell"
+      },
+      "startNewGame": "Start nytt spill",
+      "title": "Fortsett å spille",
+      "untitledGame": "Uten navn"
+    },
+    "settings": "Innstillinger",
+    "unnamed": "Uten navn",
+    "viewGame": "Se spill"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Prosjektkoordinator og ledende organisasjon.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Lær mer om utdanningsprosjektet bak denne plattformen.",
+          "title": "ChatGameLab-prosjektet"
+        },
+        "title": "Om ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Ingen spillhistorikk ennå. Begynn å spille!",
+        "title": "Sist spilt",
+        "viewAll": "Alle spill"
+      },
+      "myGames": {
+        "empty": "Ingen spill ennå. Lag ditt første spill!",
+        "title": "Mine spill",
+        "viewAll": "Alle opprettelser"
+      },
+      "myWorkshops": {
+        "empty": "Ingen aktive workshops. Opprett en workshop i organisasjonen din!",
+        "title": "Mine workshops",
+        "viewAll": "Alle workshops"
+      },
+      "newGames": {
+        "empty": "Ingen spill tilgjengelig ennå.",
+        "title": "Nye spill",
+        "viewAll": "Alle spill"
+      },
+      "popularGames": {
+        "empty": "Ingen spill tilgjengelig ennå.",
+        "plays": "{{count}} spillrunder",
+        "title": "Populære spill",
+        "viewAll": "Alle spill"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Opprett nytt spill",
+      "createRoom": "Opprett rom",
+      "inviteMembers": "Inviter medlemmer",
+      "startNewGame": "Start nytt spill",
+      "title": "Hurtighandlinger"
+    },
+    "untitled": "Uten navn",
+    "untitledGame": "Uten navn",
+    "version": {
+      "mismatch": {
+        "message": "Frontend-versjon \u0003frontendVersion\u0004{{frontendVersion}}\u0004/frontendVersion\u0003 stemmer ikke overens med backend-versjon \u0003backendVersion\u0004{{backendVersion}}\u0004/backendVersion\u0003. Dette kan føre til uventet oppførsel. Kontakt support hvis problemene vedvarer.",
+        "title": "Versjonskonflikt oppdaget"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "KI-tjenesten støtte på en feil. Vennligst prøv igjen.",
+    "backendUserFetch": "Kunne ikke hente brukerdata fra serveren. Vennligst prøv igjen.",
+    "billingNotActive": "Din OpenAI-konto er ikke aktiv. Vennligst sjekk betalingsinformasjonen på https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Denne handlingen er i konflikt med eksisterende data. Vennligst prøv igjen.",
+    "contentFiltered": "Forespørselen din ble filtrert av KIs innholdspolicy. Vennligst prøv å omformulere.",
+    "forbidden": "Du har ikke tillatelse til å utføre denne handlingen.",
+    "generic": "Noe gikk galt. Vennligst prøv igjen.",
+    "insufficientQuota": "API-nøkkelen din har gått tom for kreditter. Vennligst fyll på kreditter eller bruk en annen API-nøkkel.",
+    "invalidApiKey": "API-nøkkelen din er ugyldig eller utløpt. Vennligst sjekk API-nøkkelen i Innstillinger.",
+    "invalidPlatform": "Ugyldig plattform valgt. Vennligst velg et gyldig alternativ.",
+    "invalidToken": "Økten din er utløpt eller ugyldig. Vennligst bruk invitasjonslenken igjen.",
+    "network": "Nettverksfeil. Vennligst sjekk tilkoblingen din.",
+    "notFound": "Den forespurte ressursen ble ikke funnet.",
+    "orgVerificationRequired": "OpenAI-organisasjonen din må verifiseres for å bruke bildegenerering. Vennligst verifiser på https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "For mange forespørsler. Vennligst vent litt og prøv igjen.",
+    "server": "Serverfeil. Vennligst prøv igjen senere.",
+    "titles": {
+      "aiError": "KI-feil",
+      "authentication": "Autentiseringsfeil",
+      "billing": "Betalingsfeil",
+      "error": "Feil",
+      "network": "Nettverksfeil",
+      "notFound": "Ikke funnet",
+      "permission": "Ingen tilgang",
+      "server": "Serverfeil",
+      "validation": "Valideringsfeil",
+      "workshopInactive": "Workshop inaktiv"
+    },
+    "unauthorized": "Vennligst logg inn for å fortsette.",
+    "unexpected": "En uventet feil oppstod.",
+    "userNotRegistered": "Du må fullføre registreringen før du kan fortsette.",
+    "validation": "Vennligst sjekk inndataene og prøv igjen.",
+    "workshopInactive": "Denne workshoppen er deaktivert. Vennligst kontakt læreren din eller workshoparrangøren."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Begynn å spille spill for å se dem her, eller lag ditt eget!",
+      "title": "Ingen spill enda"
+    },
+    "filters": {
+      "all": "Alle spill",
+      "mine": "Mine spill",
+      "public": "Offentlige spill",
+      "workshop": "Workshop-spill"
+    },
+    "gameType": "Spill",
+    "organizator": "Arrangør: {{name}}",
+    "settings": {
+      "currentWorkshop": "Aktuell workshop",
+      "notInWorkshopMode": "Du er ikke i workshop-modus. Vennligst gå inn i en workshop først.",
+      "title": "Workshop-innstillinger"
+    },
+    "title": "Min workshop",
+    "you": "Du"
+  },
+  "navigation": {
+    "allGames": "Alle spill",
+    "create": "Lag ditt eget spill",
+    "dashboard": "Dashboard",
+    "games": "Spill",
+    "groups": "Grupper",
+    "manageOrganizations": "Administrer organisasjoner",
+    "manageUsers": "Administrer brukere",
+    "myGames": "Mine spill",
+    "myOrganization": "Min organisasjon",
+    "myWorkshop": "Min workshop",
+    "orgApiKeys": "API-nøkler",
+    "orgMembers": "Medlemmer",
+    "orgWorkshops": "Workshops",
+    "play": "Spill et spill",
+    "rooms": "Rom",
+    "workshopSettings": "Workshop-innstillinger"
+  }
+}
