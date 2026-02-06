@@ -1,8 +1,13 @@
 package log
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"time"
+
+	"github.com/getsentry/sentry-go"
 )
 
 var (
@@ -79,5 +84,54 @@ func Error(msg string, args ...any) {
 // Fatal logs at error level and exits with status code 1
 func Fatal(msg string, args ...any) {
 	logger.Error(msg, args...)
+	sentry.Flush(2 * time.Second)
 	os.Exit(1)
+}
+
+// EnableSentry wraps the current slog handler so that Warn/Error messages
+// are also forwarded to Sentry. Call this after sentry.Init() succeeds.
+func EnableSentry() {
+	logger = slog.New(&sentryHandler{inner: logger.Handler()})
+	slog.SetDefault(logger)
+}
+
+// sentryHandler wraps an slog.Handler and forwards Warn+ records to Sentry.
+type sentryHandler struct {
+	inner slog.Handler
+}
+
+func (h *sentryHandler) Enabled(ctx context.Context, l slog.Level) bool {
+	return h.inner.Enabled(ctx, l)
+}
+
+func (h *sentryHandler) Handle(ctx context.Context, r slog.Record) error {
+	// Always delegate to the inner handler first
+	err := h.inner.Handle(ctx, r)
+
+	// Forward warnings and errors to Sentry
+	if r.Level >= slog.LevelWarn {
+		sentryLevel := sentry.LevelWarning
+		if r.Level >= slog.LevelError {
+			sentryLevel = sentry.LevelError
+		}
+
+		sentry.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentryLevel)
+			r.Attrs(func(a slog.Attr) bool {
+				scope.SetExtra(a.Key, a.Value.String())
+				return true
+			})
+			sentry.CaptureMessage(fmt.Sprintf("%s: %s", r.Level, r.Message))
+		})
+	}
+
+	return err
+}
+
+func (h *sentryHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &sentryHandler{inner: h.inner.WithAttrs(attrs)}
+}
+
+func (h *sentryHandler) WithGroup(name string) slog.Handler {
+	return &sentryHandler{inner: h.inner.WithGroup(name)}
 }

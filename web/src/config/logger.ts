@@ -1,5 +1,31 @@
+import * as Sentry from '@sentry/react';
 import { Logger, LogLevel, ConsoleTransport } from '../common/lib/logger';
+import type { LogEntry, LogTransport } from '../common/lib/logger';
+import { config } from './env';
 import env from './env';
+
+// SentryTransport forwards Warning/Error/Fatal log entries to Sentry/GlitchTip
+class SentryTransport implements LogTransport {
+  send(entry: LogEntry): void {
+    if (entry.level < LogLevel.Warning) {
+      return;
+    }
+
+    const level = entry.level >= LogLevel.Error ? 'error' : 'warning';
+    const message = entry.scope ? `[${entry.scope}] ${entry.message}` : entry.message;
+
+    Sentry.withScope((scope) => {
+      if (entry.data) {
+        scope.setExtras(entry.data);
+      }
+      if (entry.scope) {
+        scope.setTag('logger.scope', entry.scope);
+      }
+      scope.setLevel(level);
+      Sentry.captureMessage(message, level);
+    });
+  }
+}
 
 // Helper function to parse log level from string
 function parseLogLevel(level: string): LogLevel {
@@ -29,7 +55,7 @@ function getMinLogLevel(): LogLevel {
   if (logLevelEnv) {
     return parseLogLevel(logLevelEnv);
   }
-  
+
   // Fall back to DEV setting
   return env.DEV ? LogLevel.Debug : LogLevel.Info;
 }
@@ -39,7 +65,7 @@ export const logger = Logger.create({
   minLevel: getMinLogLevel(),
   transports: [
     new ConsoleTransport(),
-    // Future: Add remote transport for production
+    ...(config.SENTRY_DSN_FRONTEND ? [new SentryTransport()] : []),
   ],
 });
 

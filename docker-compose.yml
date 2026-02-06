@@ -51,6 +51,7 @@ services:
       DEV_JWT_SECRET: ${DEV_JWT_SECRET}
       PUBLIC_URL: ${PUBLIC_URL}
       API_BASE_URL: ${API_BASE_URL}
+      SENTRY_DSN_BACKEND: ${SENTRY_DSN_BACKEND:-}
     depends_on:
       db:
         condition: service_healthy
@@ -77,6 +78,7 @@ services:
       AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
       PUBLIC_URL: ${PUBLIC_URL}
+      SENTRY_DSN_FRONTEND: ${SENTRY_DSN_FRONTEND:-}
     depends_on:
       backend:
         condition: service_healthy
