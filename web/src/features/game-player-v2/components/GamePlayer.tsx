@@ -320,8 +320,13 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     }, 100);
   }, []);
 
+  const prevMessageCountRef = useRef(state.messages.length);
   useEffect(() => {
-    scrollToBottom();
+    // Only auto-scroll when a new message is added, not on streaming text updates
+    if (state.messages.length !== prevMessageCountRef.current) {
+      prevMessageCountRef.current = state.messages.length;
+      scrollToBottom();
+    }
   }, [state.messages, scrollToBottom]);
 
   // Show global error modal for recoverable mid-game errors (AI errors, send failures)
