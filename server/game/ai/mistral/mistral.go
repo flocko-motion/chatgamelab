@@ -87,14 +87,14 @@ func (p *MistralPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
+func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
 	// TODO: implement Mistral action execution
-	return fmt.Errorf("Mistral ExecuteAction not implemented")
+	return obj.TokenUsage{}, fmt.Errorf("Mistral ExecuteAction not implemented")
 }
 
-func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
+func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error) {
 	// TODO: implement Mistral story expansion
-	return fmt.Errorf("Mistral ExpandStory not implemented")
+	return obj.TokenUsage{}, fmt.Errorf("Mistral ExpandStory not implemented")
 }
 
 func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
@@ -103,7 +103,7 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 }
 
 // Translate translates the given JSON objects (stringified) to the target in a single API call
-func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
+func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error) {
 	originals := ""
 	for i, original := range input {
 		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
@@ -136,16 +136,16 @@ func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []
 	var response chatResponse
 
 	if err := client.PostJson(ctx, mistralChatEndpoint, requestBody, &response); err != nil {
-		return "", fmt.Errorf("failed to translate: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to translate: %w", err)
 	}
 
 	// Parse the translated JSON
 	var translated map[string]any
 	if err := response.parseContent(&translated); err != nil {
-		return "", fmt.Errorf("failed to parse translated JSON: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to parse translated JSON: %w", err)
 	}
 
-	return functional.MustAnyToJson(translated), nil
+	return functional.MustAnyToJson(translated), obj.TokenUsage{}, nil
 }
 
 func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error) {
@@ -243,9 +243,9 @@ func isRelevantModel(modelID string) bool {
 }
 
 // GenerateTheme generates a visual theme JSON for the game player UI
-func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
 	if session.ApiKey == nil {
-		return "", fmt.Errorf("session has no API key")
+		return "", obj.TokenUsage{}, fmt.Errorf("session has no API key")
 	}
 
 	client := p.newApi(session.ApiKey.Key)
@@ -264,12 +264,12 @@ func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSe
 
 	var response chatResponse
 	if err := client.PostJson(ctx, mistralChatEndpoint, requestBody, &response); err != nil {
-		return "", fmt.Errorf("failed to generate theme: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to generate theme: %w", err)
 	}
 
 	if len(response.Choices) == 0 {
-		return "", fmt.Errorf("no response from Mistral")
+		return "", obj.TokenUsage{}, fmt.Errorf("no response from Mistral")
 	}
 
-	return response.Choices[0].Message.Content, nil
+	return response.Choices[0].Message.Content, obj.TokenUsage{}, nil
 }

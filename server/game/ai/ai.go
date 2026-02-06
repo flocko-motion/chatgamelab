@@ -33,26 +33,26 @@ type AiPlatform interface {
 
 	// ExecuteAction - blocking, returns structured JSON (plotOutline in Message, statusFields, imagePrompt)
 	// For system messages (first call), action.Message contains the system prompt/instructions
-	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error
+	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error)
 
 	// ExpandStory - async/streaming, expands plotOutline to full narrative text
 	// Streams text chunks to responseStream, updates response.Message with full text when done
-	ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
+	ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error)
 
 	// GenerateImage - async/streaming, generates image from response.ImagePrompt
 	// Streams partial images to responseStream, updates response.Image with final image when done
 	GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
 
 	// Translate - blocking, translates a set of language files to a target language
-	// Returns the translated JSON as a stringified object
-	Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error)
+	// Returns the translated JSON as a stringified object and token usage
+	Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error)
 
 	// ListModels - blocking, retrieves all available models from the platform API
 	ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error)
 
 	// GenerateTheme - blocking, generates a visual theme JSON based on game description
-	// Returns the raw JSON string response from the AI
-	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error)
+	// Returns the raw JSON string response from the AI and token usage
+	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error)
 }
 
 func GetAiPlatformInfos() []obj.AiPlatform {

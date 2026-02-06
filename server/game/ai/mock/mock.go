@@ -42,12 +42,12 @@ func (p *MockPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
+func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
 	// Parse status fields from session to generate mock status
 	var statusFields []obj.StatusField
 	if session != nil && session.StatusFields != "" {
 		if err := json.Unmarshal([]byte(session.StatusFields), &statusFields); err != nil {
-			return fmt.Errorf("failed to parse status fields: %w", err)
+			return obj.TokenUsage{}, fmt.Errorf("failed to parse status fields: %w", err)
 		}
 	}
 
@@ -67,11 +67,11 @@ func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSessi
 	response.GameSessionID = session.ID
 	response.Type = obj.GameSessionMessageTypeGame
 
-	return nil
+	return obj.TokenUsage{}, nil
 }
 
 // ExpandStory simulates streaming text expansion with mock lorem ipsum
-func (p *MockPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
+func (p *MockPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error) {
 	// Generate lorem ipsum text and stream it word by word
 	fullText := lorem.Paragraph(5, 8)
 	words := splitIntoChunks(fullText, 3) // Stream 3 words at a time
@@ -83,7 +83,7 @@ func (p *MockPlatform) ExpandStory(ctx context.Context, session *obj.GameSession
 	}
 
 	response.Message = fullText
-	return nil
+	return obj.TokenUsage{}, nil
 }
 
 // GenerateImage simulates streaming image generation with mock images
@@ -103,7 +103,7 @@ func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSessi
 }
 
 // Translate provides a mock translation implementation
-func (p *MockPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
+func (p *MockPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error) {
 	// Mock implementation: generate pseudo-translations by adding "[MOCK]" prefix
 	fmt.Printf("MOCK: Translating %d files to %s\n", len(input), targetLang)
 	for _, file := range input {
@@ -112,7 +112,7 @@ func (p *MockPlatform) Translate(ctx context.Context, apiKey string, input []str
 
 	// Return mock translated JSON
 	mockTranslation := `{"mock": "translation", "language": "` + targetLang + `"}`
-	return mockTranslation, nil
+	return mockTranslation, obj.TokenUsage{}, nil
 }
 
 // splitIntoChunks splits text into chunks of n words
@@ -166,12 +166,12 @@ func (p *MockPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiM
 }
 
 // GenerateTheme returns a mock theme JSON for testing
-func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
 	// Return a random mock theme
 	themes := []string{
 		`{"corners":{"style":"brackets","color":"cyan"},"background":{"animation":"scanlines","tint":"cool"},"player":{"color":"cyan","indicator":"dot","monochrome":true,"showChevron":true},"thinking":{"text":"Processing...","style":"dots"},"typography":{"messages":"mono"},"statusEmojis":{"Health":"❤️","Energy":"⚡"}}`,
 		`{"corners":{"style":"flourish","color":"amber"},"background":{"animation":"particles","tint":"warm"},"player":{"color":"amber","indicator":"diamond","monochrome":false,"showChevron":false},"thinking":{"text":"The tale continues...","style":"typewriter"},"typography":{"messages":"serif"},"statusEmojis":{"Health":"❤️","Gold":"🪙"}}`,
 		`{"corners":{"style":"none","color":"slate"},"background":{"animation":"fog","tint":"dark"},"player":{"color":"rose","indicator":"none","monochrome":true,"showChevron":false},"thinking":{"text":"Something stirs...","style":"pulse"},"typography":{"messages":"serif"},"statusEmojis":{"Fear":"😨","Sanity":"🧠"}}`,
 	}
-	return themes[rand.Intn(len(themes))], nil
+	return themes[rand.Intn(len(themes))], obj.TokenUsage{}, nil
 }

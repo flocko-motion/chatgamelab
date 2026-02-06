@@ -134,9 +134,9 @@ EXAMPLE 3 (custom theme - all fields required in override):
 }`
 
 // GenerateTheme generates a visual theme for the game based on its description
-func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game) (*obj.GameTheme, error) {
+func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game) (*obj.GameTheme, obj.TokenUsage, error) {
 	if session == nil || session.ApiKey == nil {
-		return nil, fmt.Errorf("session or API key is nil")
+		return nil, obj.TokenUsage{}, fmt.Errorf("session or API key is nil")
 	}
 
 	log.Debug("generating theme for game", "game_id", game.ID, "game_name", game.Name)
@@ -145,7 +145,7 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform for theme generation", "error", err)
-		return nil, fmt.Errorf("failed to get AI platform: %w", err)
+		return nil, obj.TokenUsage{}, fmt.Errorf("failed to get AI platform: %w", err)
 	}
 
 	// Build the user prompt with game details
@@ -180,10 +180,10 @@ Generate the JSON theme. Remember: use defaults for most options, only customize
 
 	// Call AI to generate theme
 	log.Debug("calling AI to generate theme")
-	response, err := platform.GenerateTheme(ctx, session, ThemeGenerationPrompt, userPrompt)
+	response, usage, err := platform.GenerateTheme(ctx, session, ThemeGenerationPrompt, userPrompt)
 	if err != nil {
 		log.Debug("AI theme generation failed", "error", err)
-		return nil, fmt.Errorf("failed to generate theme: %w", err)
+		return nil, usage, fmt.Errorf("failed to generate theme: %w", err)
 	}
 
 	// Parse the JSON response
@@ -191,11 +191,11 @@ Generate the JSON theme. Remember: use defaults for most options, only customize
 	if err != nil {
 		log.Debug("failed to parse theme response", "error", err, "response", response)
 		// Return default theme on parse error
-		return defaultTheme(), nil
+		return defaultTheme(), usage, nil
 	}
 
 	log.Debug("theme generated successfully", "theme", theme)
-	return theme, nil
+	return theme, usage, nil
 }
 
 // parseThemeResponse parses the AI response into a GameTheme

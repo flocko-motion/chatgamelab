@@ -88,6 +88,37 @@ type FormatConfig struct {
 	Strict bool        `json:"strict,omitempty"`
 }
 
+// apiTokenUsage matches OpenAI's snake_case JSON format
+type apiTokenUsage struct {
+	InputTokens  int `json:"input_tokens"`
+	OutputTokens int `json:"output_tokens"`
+	TotalTokens  int `json:"total_tokens"`
+}
+
+func (u apiTokenUsage) toTokenUsage() obj.TokenUsage {
+	return obj.TokenUsage{
+		InputTokens:  u.InputTokens,
+		OutputTokens: u.OutputTokens,
+		TotalTokens:  u.TotalTokens,
+	}
+}
+
+// SSE event types for streaming responses
+type sseEvent struct {
+	Type string `json:"type"`
+}
+
+type sseTextDelta struct {
+	Delta string `json:"delta"`
+}
+
+type sseResponseCompleted struct {
+	Response struct {
+		ID    string        `json:"id"`
+		Usage apiTokenUsage `json:"usage"`
+	} `json:"response"`
+}
+
 // ResponsesAPIResponse is the response from the Responses API
 type ResponsesAPIResponse struct {
 	ID     string `json:"id"`
@@ -98,7 +129,8 @@ type ResponsesAPIResponse struct {
 	IncompleteDetails *struct {
 		Reason string `json:"reason"`
 	} `json:"incomplete_details"`
-	Output []OutputItem `json:"output"`
+	Output []OutputItem  `json:"output"`
+	Usage  apiTokenUsage `json:"usage"`
 }
 
 type OutputItem struct {
@@ -142,19 +174,19 @@ func (p *OpenAiPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
+func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
 	if session.ApiKey == nil {
-		return fmt.Errorf("session has no API key")
+		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
 	}
 
 	// Parse the model session
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
 		log.Debug("failed to parse model session", "error", err)
-		return fmt.Errorf("failed to parse model session: %w", err)
+		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
 	}
 
 	// Serialize the player action as JSON input (minimal AI-facing structure)
@@ -186,19 +218,19 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	responseStream := stream.Get().Lookup(response.ID)
 	if responseStream == nil {
-		return fmt.Errorf("stream not found for message %s", response.ID)
+		return obj.TokenUsage{}, fmt.Errorf("stream not found for message %s", response.ID)
 	}
 
 	// Make the API call
 	log.Debug("calling OpenAI Responses API", "model", req.Model, "has_previous_response", req.PreviousResponseID != "")
-	apiResponse, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
+	apiResponse, usage, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
 		log.Error("OpenAI API call failed",
 			"error", err,
 			"session_id", session.ID,
 			"model", req.Model,
 		)
-		return fmt.Errorf("OpenAI API error: %w", err)
+		return obj.TokenUsage{}, fmt.Errorf("OpenAI API error: %w", err)
 	}
 	log.Debug("OpenAI API call completed", "response_id", apiResponse.ID, "status", apiResponse.Status)
 
@@ -229,13 +261,13 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			"session_id", session.ID,
 			"model", req.Model,
 		)
-		return fmt.Errorf("%s", errMsg)
+		return usage, fmt.Errorf("%s", errMsg)
 	}
 
 	// Extract the text response
 	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
-		return fmt.Errorf("no text response from OpenAI")
+		return usage, fmt.Errorf("no text response from OpenAI")
 	}
 
 	response.ResponseRaw = &responseText
@@ -244,7 +276,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	log.Debug("parsing OpenAI response", "response_length", len(responseText))
 	if err := json.Unmarshal([]byte(responseText), response); err != nil {
 		log.Debug("failed to parse game response", "error", err, "response_text", responseText[:min(200, len(responseText))])
-		return fmt.Errorf("failed to parse game response: %w", err)
+		return usage, fmt.Errorf("failed to parse game response: %w", err)
 	}
 
 	// Update model session with new response ID
@@ -252,7 +284,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	response.URLAnalytics = functional.Ptr("https://platform.openai.com/logs/" + apiResponse.ID)
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return fmt.Errorf("failed to marshal model session: %w", err)
+		return usage, fmt.Errorf("failed to marshal model session: %w", err)
 	}
 	session.AiSession = string(sessionJSON)
 
@@ -260,7 +292,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	response.GameSessionID = session.ID
 	response.Type = obj.GameSessionMessageTypeGame
 
-	return nil
+	return usage, nil
 }
 
 // extractResponseText extracts the text content from an OpenAI Responses API response
@@ -277,31 +309,33 @@ func extractResponseText(apiResponse *ResponsesAPIResponse) string {
 	return ""
 }
 
-func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest) (*ResponsesAPIResponse, error) {
+func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest) (*ResponsesAPIResponse, obj.TokenUsage, error) {
 	client := apiclient.NewApi(openaiBaseURL, map[string]string{
 		"Authorization": "Bearer " + apiKey,
 	})
 
 	var apiResp ResponsesAPIResponse
 	if err := client.PostJson(ctx, responsesEndpoint, req, &apiResp); err != nil {
-		return nil, err
+		return nil, obj.TokenUsage{}, err
 	}
 
-	return &apiResp, nil
+	usage := apiResp.Usage.toTokenUsage()
+	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
+	return &apiResp, usage, nil
 }
 
 // ExpandStory expands the plot outline to full narrative text using streaming
-func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
+func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error) {
 	log.Debug("OpenAI ExpandStory starting", "session_id", session.ID, "message_id", response.ID)
 
 	if session.ApiKey == nil {
-		return fmt.Errorf("session has no API key")
+		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
 	}
 
 	// Parse the model session to get previous response ID
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
-		return fmt.Errorf("failed to parse model session: %w", err)
+		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
 	}
 
 	// Build streaming request - plain text, no JSON schema
@@ -317,7 +351,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 
 	// Make streaming API call
 	log.Debug("calling OpenAI streaming API for story expansion")
-	fullText, newResponseID, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
+	fullText, newResponseID, usage, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
 		// For story expansion, partial text is still usable — don't fail if we got some output
 		if len(fullText) > 0 {
@@ -333,7 +367,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 				"session_id", session.ID,
 				"model", model,
 			)
-			return fmt.Errorf("OpenAI streaming API error: %w", err)
+			return usage, fmt.Errorf("OpenAI streaming API error: %w", err)
 		}
 	}
 	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
@@ -345,11 +379,11 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	modelSession.ResponseID = newResponseID
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return fmt.Errorf("failed to marshal model session: %w", err)
+		return usage, fmt.Errorf("failed to marshal model session: %w", err)
 	}
 	session.AiSession = string(sessionJSON)
 
-	return nil
+	return usage, nil
 }
 
 // GenerateImage generates an image from the imagePrompt using the image cache
@@ -392,16 +426,16 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 // callStreamingResponsesAPI makes a streaming call to the Responses API
 // Note: Uses direct HTTP instead of apiclient because it requires SSE (Server-Sent Events) streaming
 // with line-by-line processing and keeping the connection open for incremental responses
-func callStreamingResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest, responseStream *stream.Stream) (fullText string, responseID string, err error) {
+func callStreamingResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest, responseStream *stream.Stream) (fullText string, responseID string, usage obj.TokenUsage, err error) {
 	reqBody, err := json.Marshal(req)
 	if err != nil {
-		return "", "", fmt.Errorf("failed to marshal request: %w", err)
+		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
 	responsesURL := openaiBaseURL + responsesEndpoint
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", responsesURL, bytes.NewReader(reqBody))
 	if err != nil {
-		return "", "", fmt.Errorf("failed to create request: %w", err)
+		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -409,13 +443,13 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return "", "", fmt.Errorf("request failed: %w", err)
+		return "", "", obj.TokenUsage{}, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", "", fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return "", "", obj.TokenUsage{}, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	// Parse SSE stream
@@ -431,29 +465,31 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 			break
 		}
 
-		var event map[string]interface{}
+		var event sseEvent
 		if err := json.Unmarshal([]byte(data), &event); err != nil {
 			continue
 		}
 
-		eventType, _ := event["type"].(string)
-
-		switch eventType {
+		switch event.Type {
 		case "response.output_text.delta":
-			if delta, ok := event["delta"].(string); ok {
-				textBuilder.WriteString(delta)
-				responseStream.SendText(delta, false)
+			var delta sseTextDelta
+			if json.Unmarshal([]byte(data), &delta) == nil {
+				textBuilder.WriteString(delta.Delta)
+				responseStream.SendText(delta.Delta, false)
 			}
 		case "response.completed":
-			if respObj, ok := event["response"].(map[string]interface{}); ok {
-				responseID, _ = respObj["id"].(string)
+			var completed sseResponseCompleted
+			if json.Unmarshal([]byte(data), &completed) == nil {
+				responseID = completed.Response.ID
+				usage = completed.Response.Usage.toTokenUsage()
 			}
 		}
 	}
 
+	log.Debug("streaming API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	// Signal text streaming complete
 	responseStream.SendText("", true)
-	return textBuilder.String(), responseID, nil
+	return textBuilder.String(), responseID, usage, nil
 }
 
 // callImageGenerationAPI generates an image with streaming partial images
@@ -554,7 +590,7 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 }
 
 // Translate translates language files to a target language using OpenAI API
-func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, error) {
+func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error) {
 	originals := ""
 	for i, original := range input {
 		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
@@ -572,35 +608,35 @@ func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []s
 		},
 	}
 
-	apiResponse, err := callResponsesAPI(ctx, apiKey, req)
+	apiResponse, usage, err := callResponsesAPI(ctx, apiKey, req)
 	if err != nil {
-		return "", fmt.Errorf("failed to translate: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to translate: %w", err)
 	}
 
 	// Check for API-level errors (HTTP 200 but failed response)
 	if apiResponse.Error != nil {
-		return "", fmt.Errorf("OpenAI error: %s", apiResponse.Error.Message)
+		return "", usage, fmt.Errorf("OpenAI error: %s", apiResponse.Error.Message)
 	}
 	if apiResponse.Status != "" && apiResponse.Status != "completed" {
 		reason := apiResponse.Status
 		if apiResponse.IncompleteDetails != nil {
 			reason += ": " + apiResponse.IncompleteDetails.Reason
 		}
-		return "", fmt.Errorf("OpenAI response not completed: %s", reason)
+		return "", usage, fmt.Errorf("OpenAI response not completed: %s", reason)
 	}
 
 	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
-		return "", fmt.Errorf("no text response from OpenAI (status: %s)", apiResponse.Status)
+		return "", usage, fmt.Errorf("no text response from OpenAI (status: %s)", apiResponse.Status)
 	}
 
 	// Validate it's valid JSON
 	var translated map[string]interface{}
 	if err := json.Unmarshal([]byte(responseText), &translated); err != nil {
-		return "", fmt.Errorf("failed to parse translated JSON: %w", err)
+		return "", usage, fmt.Errorf("failed to parse translated JSON: %w", err)
 	}
 
-	return functional.MustAnyToJson(translated), nil
+	return functional.MustAnyToJson(translated), usage, nil
 }
 
 // ListModels retrieves all available models from OpenAI API
@@ -726,11 +762,11 @@ func isDatedModel(modelID string) bool {
 }
 
 // GenerateTheme generates a visual theme JSON for the game player UI
-func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, error) {
+func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
 	log.Debug("OpenAI GenerateTheme starting", "session_id", session.ID)
 
 	if session.ApiKey == nil {
-		return "", fmt.Errorf("session has no API key")
+		return "", obj.TokenUsage{}, fmt.Errorf("session has no API key")
 	}
 
 	api := p.newApi(session.ApiKey.Key)
@@ -746,31 +782,33 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal request: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
 	resp, err := api.Post(ctx, responsesEndpoint, reqBytes)
 	if err != nil {
-		return "", fmt.Errorf("API request failed: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("API request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("failed to read response: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to read response: %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(body))
+		return "", obj.TokenUsage{}, fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	var apiResp ResponsesAPIResponse
 	if err := json.Unmarshal(body, &apiResp); err != nil {
-		return "", fmt.Errorf("failed to parse response: %w", err)
+		return "", obj.TokenUsage{}, fmt.Errorf("failed to parse response: %w", err)
 	}
 
+	usage := apiResp.Usage.toTokenUsage()
+
 	if apiResp.Error != nil {
-		return "", fmt.Errorf("API error: %s", apiResp.Error.Message)
+		return "", usage, fmt.Errorf("API error: %s", apiResp.Error.Message)
 	}
 
 	// Extract text from response
@@ -779,11 +817,11 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 			for _, content := range output.Content {
 				if content.Type == "output_text" || content.Type == "text" {
 					log.Debug("OpenAI GenerateTheme completed", "response_length", len(content.Text))
-					return content.Text, nil
+					return content.Text, usage, nil
 				}
 			}
 		}
 	}
 
-	return "", fmt.Errorf("no text content in response")
+	return "", usage, fmt.Errorf("no text content in response")
 }

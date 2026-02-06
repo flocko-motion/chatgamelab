@@ -58,17 +58,23 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
 	// Log initial message
-	if len(sessionResponse.Messages) > 0 {
-		initialMsg := sessionResponse.Messages[0]
-		log.Printf("\n=================================================================================================\n")
-		log.Printf("Initial Message (should be in FRENCH):")
-		log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
-		log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
-		log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
-		log.Printf("  PromptImageGeneration: %s", functional.MaybeToString(initialMsg.PromptImageGeneration, "nil"))
-		log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
-		log.Printf("  AI: %s", initialMsg.Message)
-	}
+	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
+	initialMsg := sessionResponse.Messages[0]
+	log.Printf("\n=================================================================================================\n")
+	log.Printf("Initial Message (should be in FRENCH):")
+	log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
+	log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
+	log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
+	log.Printf("  PromptImageGeneration: %s", functional.MaybeToString(initialMsg.PromptImageGeneration, "nil"))
+	log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
+	log.Printf("  AI: %s", initialMsg.Message)
+
+	// Verify token usage from session creation (includes theme + translation + initial action)
+	s.Require().NotNil(initialMsg.TokenUsage, "Initial message should have token usage")
+	s.Greater(initialMsg.TokenUsage.InputTokens, 0, "Initial message should have input tokens > 0")
+	s.Greater(initialMsg.TokenUsage.OutputTokens, 0, "Initial message should have output tokens > 0")
+	s.Greater(initialMsg.TokenUsage.TotalTokens, 0, "Initial message should have total tokens > 0")
+	log.Printf("  TokenUsage: input=%d, output=%d, total=%d", initialMsg.TokenUsage.InputTokens, initialMsg.TokenUsage.OutputTokens, initialMsg.TokenUsage.TotalTokens)
 
 	// Player actions in French (game is translated to French)
 	playerActions := []string{
@@ -89,6 +95,13 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
 		messageLens = append(messageLens, len(msg1.Message))
+
+		// Verify token usage for each action
+		s.Require().NotNil(msg1.TokenUsage, "Action response should have token usage")
+		s.Greater(msg1.TokenUsage.InputTokens, 0, "Action should have input tokens > 0")
+		s.Greater(msg1.TokenUsage.OutputTokens, 0, "Action should have output tokens > 0")
+		s.Greater(msg1.TokenUsage.TotalTokens, 0, "Action should have total tokens > 0")
+		log.Printf("TokenUsage: input=%d, output=%d, total=%d", msg1.TokenUsage.InputTokens, msg1.TokenUsage.OutputTokens, msg1.TokenUsage.TotalTokens)
 	}
 	log.Printf("Game engine test completed successfully! Review terminal output to verify French translation.")
 	log.Printf("Message lengths: %v", messageLens)

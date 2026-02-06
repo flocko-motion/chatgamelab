@@ -124,8 +124,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Run theme generation and game translation in parallel
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	var theme *obj.GameTheme
 	var translatedGame *obj.Game
+	var sessionUsage obj.TokenUsage
 
 	// Start theme generation
 	wg.Add(1)
@@ -133,7 +135,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		defer wg.Done()
 		start := time.Now()
 		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-		t, err := GenerateTheme(ctx, tempSession, game)
+		t, themeUsage, err := GenerateTheme(ctx, tempSession, game)
+		mu.Lock()
+		sessionUsage = sessionUsage.Add(themeUsage)
+		mu.Unlock()
 		if err != nil {
 			log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
 		} else {
@@ -150,7 +155,10 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 			defer wg.Done()
 			start := time.Now()
 			log.Debug("translating game to user language", "game_id", gameID, "target_lang", user.Language)
-			translated, fnMap, err := TranslateGame(ctx, tempSession, game, user.Language)
+			translated, fnMap, translateUsage, err := TranslateGame(ctx, tempSession, game, user.Language)
+			mu.Lock()
+			sessionUsage = sessionUsage.Add(translateUsage)
+			mu.Unlock()
 			if err != nil {
 				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err, "seconds", time.Since(start).Seconds())
 			} else {
@@ -163,6 +171,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Wait for both operations to complete
 	wg.Wait()
+	log.Debug("session setup token usage", "input_tokens", sessionUsage.InputTokens, "output_tokens", sessionUsage.OutputTokens, "total_tokens", sessionUsage.TotalTokens)
 
 	// Use translated game if available
 	if translatedGame != nil {
@@ -218,6 +227,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, httpErr
 	}
 	response.PromptStatusUpdate = functional.Ptr(systemMessage)
+	// Accumulate setup usage (theme + translation) with action usage
+	if response.TokenUsage != nil {
+		totalUsage := sessionUsage.Add(*response.TokenUsage)
+		response.TokenUsage = &totalUsage
+	} else {
+		response.TokenUsage = &sessionUsage
+	}
 	return session, response, nil
 }
 
@@ -276,7 +292,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
-	if err = platform.ExecuteAction(ctx, session, action, response); err != nil {
+	usage, err := platform.ExecuteAction(ctx, session, action, response)
+	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
 		responseStream.SendError(err.Error())
 
@@ -304,6 +321,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
+	response.TokenUsage = &usage
 	// Set PromptStatusUpdate to the full JSON input sent to the AI
 	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
@@ -321,11 +339,13 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	go func() {
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
-		if err := platform.ExpandStory(context.Background(), session, response, responseStream); err != nil {
+		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
+		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
 		}
+		log.Debug("ExpandStory token usage", "session_id", session.ID, "input_tokens", expandUsage.InputTokens, "output_tokens", expandUsage.OutputTokens, "total_tokens", expandUsage.TotalTokens)
 
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false

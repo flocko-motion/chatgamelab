@@ -5,6 +5,7 @@ import (
 	"cgl/functional"
 	"cgl/game/ai"
 	langutil "cgl/lang"
+	"cgl/obj"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -205,6 +206,8 @@ Supported platforms:
 		}
 		fmt.Printf("\n⏳ Translating %d language(s)...\n\n", len(langsToTranslate))
 
+		var totalUsage obj.TokenUsage
+
 		for _, currentLang := range langsToTranslate {
 			wg.Add(1)
 
@@ -228,8 +231,12 @@ Supported platforms:
 
 				for attempt := 1; attempt <= maxRetries; attempt++ {
 					// Call the AI platform's Translate method
-					translatedJSON, err = aiPlatform.Translate(cmd.Context(), apiKey, inputContents, lang)
+					var usage obj.TokenUsage
+					translatedJSON, usage, err = aiPlatform.Translate(cmd.Context(), apiKey, inputContents, lang)
 					if err == nil {
+						mu.Lock()
+						totalUsage = totalUsage.Add(usage)
+						mu.Unlock()
 						break // Success, exit retry loop
 					}
 
@@ -283,7 +290,8 @@ Supported platforms:
 		// Wait for all translations to complete
 		wg.Wait()
 
-		fmt.Printf("\n✓ Translation complete: %d/%d successful\n", successCount, len(targetLangs))
+		fmt.Printf("\n✓ Translation complete: %d/%d successful (tokens: %d in, %d out, %d total)\n",
+			successCount, len(targetLangs), totalUsage.InputTokens, totalUsage.OutputTokens, totalUsage.TotalTokens)
 	},
 }
 
