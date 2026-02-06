@@ -123,15 +123,27 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
-			{ID: "gpt-4o-mini", Name: "GPT-4o Mini", Description: "Fast and cost-effective for most tasks"},
-			{ID: "gpt-4o", Name: "GPT-4o", Description: "Most capable model for complex tasks"},
-			{ID: "gpt-4.1-nano", Name: "GPT-4.1 Nano", Description: "Cheapest option for simple tasks"},
+			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium"},
+			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced"},
+			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy"},
 		},
 	}
 }
 
+func (p *OpenAiPlatform) ResolveModel(model string) string {
+	models := p.GetPlatformInfo().Models
+	for _, m := range models {
+		if m.ID == model {
+			return m.Model
+		}
+	}
+	// fallback: medium tier
+	return models[1].Model
+}
+
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {
-	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", session.AiModel)
+	model := p.ResolveModel(session.AiModel)
+	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
 	if session.ApiKey == nil {
 		return fmt.Errorf("session has no API key")
@@ -160,7 +172,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Build the request
 	req := ResponsesAPIRequest{
-		Model:           session.AiModel,
+		Model:           model,
 		Input:           string(actionInput),
 		Store:           true,
 		MaxOutputTokens: 5000,
@@ -303,8 +315,9 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	}
 
 	// Build streaming request - plain text, no JSON schema
+	model := p.ResolveModel(session.AiModel)
 	req := ResponsesAPIRequest{
-		Model:              session.AiModel,
+		Model:              model,
 		Input:              lang.T("aiExpandPlotOutline"),
 		Store:              true,
 		Stream:             true,
@@ -321,14 +334,14 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 			log.Warn("OpenAI streaming API incomplete, using partial text",
 				"error", err,
 				"session_id", session.ID,
-				"model", session.AiModel,
+				"model", model,
 				"text_length", len(fullText),
 			)
 		} else {
 			log.Error("OpenAI streaming API failed",
 				"error", err,
 				"session_id", session.ID,
-				"model", session.AiModel,
+				"model", model,
 			)
 			return fmt.Errorf("OpenAI streaming API error: %w", err)
 		}
@@ -688,8 +701,9 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 	api := p.newApi(session.ApiKey.Key)
 
 	// Use a simple request for theme generation - no need for structured output
+	model := p.ResolveModel(session.AiModel)
 	reqBody := ResponsesAPIRequest{
-		Model:        session.AiModel,
+		Model:        model,
 		Instructions: systemPrompt,
 		Input:        userPrompt,
 		Store:        false, // Don't store theme generation in conversation history

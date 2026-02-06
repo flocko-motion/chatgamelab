@@ -142,7 +142,7 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 	log.Debug("generating theme for game", "game_id", game.ID, "game_name", game.Name)
 
 	// Get AI platform
-	platform, _, err := ai.GetAiPlatform(session.AiPlatform, session.AiModel)
+	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform for theme generation", "error", err)
 		return nil, fmt.Errorf("failed to get AI platform: %w", err)

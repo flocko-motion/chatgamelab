@@ -865,8 +865,7 @@ func UpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uu
 	// Determine AI model - use provided or fall back to platform default
 	aiModel := model
 	if aiModel == "" {
-		// TODO: Get default model for platform
-		aiModel = "gpt-4o-mini"
+		aiModel = obj.AiModelBalanced
 	}
 
 	// Update the session

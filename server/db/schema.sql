@@ -352,7 +352,7 @@ CREATE TABLE system_settings (
 
 -- Insert initial system_settings row
 INSERT INTO system_settings (id, default_ai_model, schema_version)
-VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'gpt-4o-mini', 0)
+VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'medium', 0)
 ON CONFLICT (id) DO NOTHING;
 
 -- UserFavouriteGame

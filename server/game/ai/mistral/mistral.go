@@ -69,10 +69,22 @@ func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "mistral",
 		Name: "Mistral",
 		Models: []obj.AiModel{
-			{ID: "mistral-large-latest", Name: "Mistral Large Latest", Description: "Most capable Mistral model"},
-			{ID: "mistral-medium-latest", Name: "Mistral Medium Latest", Description: "Balanced performance"},
+			{ID: obj.AiModelPremium, Name: "Mistral Large", Model: "mistral-large-latest", Description: "Premium"},
+			{ID: obj.AiModelBalanced, Name: "Mistral Medium", Model: "mistral-medium-latest", Description: "Balanced"},
+			{ID: obj.AiModelEconomy, Name: "Mistral Small", Model: "mistral-small-latest", Description: "Economy"},
 		},
 	}
+}
+
+func (p *MistralPlatform) ResolveModel(model string) string {
+	models := p.GetPlatformInfo().Models
+	for _, m := range models {
+		if m.ID == model {
+			return m.Model
+		}
+	}
+	// fallback: medium tier
+	return models[1].Model
 }
 
 func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {

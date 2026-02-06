@@ -334,10 +334,17 @@ type AiPlatform struct {
 }
 
 type AiModel struct {
-	ID          string `json:"id"`   // technical name without spaces, e.g. "gpt-4-nano"
-	Name        string `json:"name"` // display name e.g. "GPT 4 Nano"
-	Description string `json:"description"`
+	ID          string `json:"id"`          // generic tier: "high", "medium", "low"
+	Name        string `json:"name"`        // display name e.g. "GPT-5.2"
+	Model       string `json:"model"`       // concrete model ID e.g. "gpt-5.2"
+	Description string `json:"description"` // tier label e.g. "Premium"
 }
+
+const (
+	AiModelPremium  = "high"
+	AiModelBalanced = "medium"
+	AiModelEconomy  = "low"
+)
 
 type StatusField struct {
 	Name  string `json:"name"`
