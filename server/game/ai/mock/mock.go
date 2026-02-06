@@ -24,9 +24,22 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "mock",
 		Name: "Mock (Testing)",
 		Models: []obj.AiModel{
-			{ID: "mock-v1", Name: "Mock Model", Description: "Dummy AI for testing purposes only"},
+			{ID: obj.AiModelPremium, Name: "Mock Premium", Model: "mock-v1", Description: "Premium"},
+			{ID: obj.AiModelBalanced, Name: "Mock Balanced", Model: "mock-v1", Description: "Balanced"},
+			{ID: obj.AiModelEconomy, Name: "Mock Economy", Model: "mock-v1", Description: "Economy"},
 		},
 	}
+}
+
+func (p *MockPlatform) ResolveModel(model string) string {
+	models := p.GetPlatformInfo().Models
+	for _, m := range models {
+		if m.ID == model {
+			return m.Model
+		}
+	}
+	// fallback: balanced tier
+	return models[1].Model
 }
 
 func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) error {

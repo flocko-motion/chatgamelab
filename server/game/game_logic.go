@@ -92,14 +92,14 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
 	}
 
-	// Get AI platform and resolve model
+	// Validate AI platform
 	log.Debug("resolving AI platform", "platform", share.ApiKey.Platform, "requested_model", aiModel)
-	_, aiModel, err = ai.GetAiPlatform(share.ApiKey.Platform, aiModel)
+	_, err = ai.GetAiPlatform(share.ApiKey.Platform)
 	if err != nil {
 		log.Debug("failed to get AI platform", "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 400, Message: err.Error()}
 	}
-	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform, "model", aiModel)
+	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform)
 
 	// Get user to check language preference
 	user, err := db.GetUserByID(ctx, userID)
@@ -222,7 +222,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 
 	log.Debug("getting AI platform", "platform", session.AiPlatform, "model", session.AiModel)
-	platform, _, err := ai.GetAiPlatform(session.AiPlatform, session.AiModel)
+	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform", "session_id", session.ID, "error", err)
 		return nil, &obj.HTTPError{StatusCode: 500, Message: fmt.Sprintf("%s %s: %v", failedAction, session.ID, err)}

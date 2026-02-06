@@ -72,7 +72,7 @@ Supported platforms:
 		}
 
 		// Get AI platform
-		aiPlatform, _, err := ai.GetAiPlatform(platform, model)
+		aiPlatform, err := ai.GetAiPlatform(platform)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error getting AI platform: %v\n", err)
 			os.Exit(1)

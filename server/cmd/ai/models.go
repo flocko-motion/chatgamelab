@@ -51,7 +51,7 @@ The API key will be read from ~/.chatgamelab/config.yaml unless --api-key is pro
 		}
 
 		// Get AI platform
-		aiPlatform, _, err := ai.GetAiPlatform(platform, "")
+		aiPlatform, err := ai.GetAiPlatform(platform)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error getting AI platform: %v\n", err)
 			os.Exit(1)
