@@ -39,32 +39,50 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
 	s.T().Logf("Added API key: %s", apiKeyShare.ID)
 
+	// Set preferred language to French
+	err := s.clientAlice.SetUserLanguage("fr")
+	s.Require().NoError(err, "Failed to set language to French")
+	s.T().Logf("Set language preference to French")
+
+	// Verify language was set
+	me := Must(s.clientAlice.GetMe())
+	s.Equal("fr", me.Language, "Language should be set to French")
+	s.T().Logf("Verified language preference: %s", me.Language)
+
 	// Create and upload predictable test game
 	game := Must(s.clientAlice.UploadGame("stone-collector-de"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
-	// Create game session
+	// Create game session - game should be auto-translated to French
 	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String(), apiKeyShare.ID, "gpt-5.2"))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
 	// Log initial message
-	if len(sessionResponse.Messages) > 0 {
-		initialMsg := sessionResponse.Messages[0]
-		log.Printf("\n=================================================================================================\n")
-		log.Printf("Initial Message:")
-		log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
-		log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
-		log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
-		log.Printf("  PromptImageGeneration: %s", functional.MaybeToString(initialMsg.PromptImageGeneration, "nil"))
-		log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
-		log.Printf("  AI: %s", initialMsg.Message)
-	}
+	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
+	initialMsg := sessionResponse.Messages[0]
+	log.Printf("\n=================================================================================================\n")
+	log.Printf("Initial Message (should be in FRENCH):")
+	log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
+	log.Printf("  PromptStatusUpdate: %s", functional.MaybeToString(initialMsg.PromptStatusUpdate, "nil"))
+	log.Printf("  PromptExpandStory: %s", functional.MaybeToString(initialMsg.PromptExpandStory, "nil"))
+	log.Printf("  PromptImageGeneration: %s", functional.MaybeToString(initialMsg.PromptImageGeneration, "nil"))
+	log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
+	log.Printf("  AI: %s", initialMsg.Message)
 
+	// Verify token usage from session creation (includes theme + translation + initial action)
+	s.Require().NotNil(initialMsg.TokenUsage, "Initial message should have token usage")
+	s.Greater(initialMsg.TokenUsage.InputTokens, 0, "Initial message should have input tokens > 0")
+	s.Greater(initialMsg.TokenUsage.OutputTokens, 0, "Initial message should have output tokens > 0")
+	s.Greater(initialMsg.TokenUsage.TotalTokens, 0, "Initial message should have total tokens > 0")
+	log.Printf("  TokenUsage: input=%d, output=%d, total=%d", initialMsg.TokenUsage.InputTokens, initialMsg.TokenUsage.OutputTokens, initialMsg.TokenUsage.TotalTokens)
+
+	// Player actions in French (game is translated to French)
 	playerActions := []string{
-		"Ich sammle 5 Steine",
-		"Ich sammle 3 Steine",
-		"Ich sammle 2 Steine",
+		"Je ramasse 5 pierres",
+		"Je ramasse 3 pierres",
+		"Je ramasse 2 pierres",
 	}
+	messageLens := []int{}
 	for i, playerAction := range playerActions {
 		msg1 := Must(s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction))
 		log.Printf("\n=================================================================================================\n")
@@ -74,9 +92,17 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 		log.Printf("PromptExpandStory: %s", functional.MaybeToString(msg1.PromptExpandStory, "nil"))
 		log.Printf("PromptImageGeneration: %s", functional.MaybeToString(msg1.PromptImageGeneration, "nil"))
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
-		log.Printf("AI: %s", functional.MaybeToString(msg1.Message, "nil"))
+		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
-		// TODO: Validate status fields show Day=2, Stones=5
+		messageLens = append(messageLens, len(msg1.Message))
+
+		// Verify token usage for each action
+		s.Require().NotNil(msg1.TokenUsage, "Action response should have token usage")
+		s.Greater(msg1.TokenUsage.InputTokens, 0, "Action should have input tokens > 0")
+		s.Greater(msg1.TokenUsage.OutputTokens, 0, "Action should have output tokens > 0")
+		s.Greater(msg1.TokenUsage.TotalTokens, 0, "Action should have total tokens > 0")
+		log.Printf("TokenUsage: input=%d, output=%d, total=%d", msg1.TokenUsage.InputTokens, msg1.TokenUsage.OutputTokens, msg1.TokenUsage.TotalTokens)
 	}
-	s.T().Logf("Game engine test completed successfully!")
+	log.Printf("Game engine test completed successfully! Review terminal output to verify French translation.")
+	log.Printf("Message lengths: %v", messageLens)
 }

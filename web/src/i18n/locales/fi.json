@@ -1,1 +1,910 @@
-{"auth":{"login":{"auth0Button":"Kirjaudu sisään Auth0:lla","devMode":"Kehitystila","devModeAlert":{"message":"Tämä on kehittäjän kirjautumissivu. Tuotannossa sinut ohjataan suoraan Auth0:lle.","title":"Kehitystila"},"devModeDescription":"Nopea kirjautuminen kehitystä ja testausta varten","redirecting":{"message":"Odota, kunnes sinut ohjataan kirjautumissivulle.","title":"Ohjataan Auth0:lle..."},"role":{"admin":"Kirjaudu sisään ylläpitäjänä","guest":"Kirjaudu sisään vieraana","student":"Kirjaudu sisään oppilaana","teacher":"Kirjaudu sisään opettajana"},"subtitle":"Valitse, miten haluat kirjautua sisään","title":"Tervetuloa ChatGameLabiin"},"profile":{"gamesCreated":"Luodut pelit","gamesPlayed":"Pelatut pelit","memberSince":"Rekisteröitynyt","messagesSent":"Lähetetyt viestit","noOrganization":"Ei organisaatiota","noRole":"Ei roolia määritetty","organizationSection":"Organisaatio","role":"Rooli","sessionsJoined":"Liittyneet sessiot","statisticsSection":"Tilastot","title":"Profiili"},"register":{"cancelButton":"Peruuta","checkingName":"Tarkistetaan saatavuutta...","emailDescription":"Käytämme tätä tärkeisiin ilmoituksiin.","emailLabel":"Sähköpostiosoite","emailPlaceholder":"Syötä sähköpostiosoitteesi","errors":{"emailInvalid":"Syötä kelvollinen sähköpostiosoite","emailRequired":"Sähköposti vaaditaan","nameRequired":"Nimi vaaditaan","nameTaken":"Tämä nimi on jo käytössä","nameTooLong":"Nimi saa olla enintään 24 merkkiä","registrationFailed":"Rekisteröinti epäonnistui. Yritä uudelleen."},"nameDescription":"Näin muut käyttäjät näkevät sinut. Enintään 24 merkkiä.","nameLabel":"Näyttönimi","namePlaceholder":"Syötä näyttönimesi","submitButton":"Luo tili","submitting":"Luodaan tiliä...","subtitle":"Vain muutama lisätieto aloittamista varten","title":"Täydennä profiilisi"},"settings":{"accountSection":"Tili","emailDescription":"Käytämme tätä tärkeisiin ilmoituksiin.","emailLabel":"Sähköpostiosoite","emailPlaceholder":"Syötä sähköpostiosoitteesi","errors":{"emailInvalid":"Syötä kelvollinen sähköpostiosoite","emailRequired":"Sähköposti vaaditaan","emailTaken":"Tämä sähköposti on jo käytössä","nameRequired":"Nimi vaaditaan","nameTaken":"Tämä nimi on jo käytössä","nameTooLong":"Nimi saa olla enintään 24 merkkiä","saveFailed":"Muutosten tallentaminen epäonnistui. Yritä uudelleen."},"nameDescription":"Näin muut käyttäjät näkevät sinut. Enintään 24 merkkiä.","nameLabel":"Näyttönimi","namePlaceholder":"Syötä näyttönimesi","saveButton":"Tallenna muutokset","saved":"Muutokset tallennettu onnistuneesti","saving":"Tallennetaan...","subtitle":"Hallinnoi tilisi asetuksia","title":"Asetukset"}},"common":{"cancel":"Peruuta","create":"Luo","dark":"Tumma","delete":"Poista","edit":"Muokkaa","error":"Virhe","footer":{"copyright":"© ChatGameLab","loginVia":"Kirjaudu sisään kautta","producedBy":"Tuottanut","programmedBy":"Ohjelmoinut"},"goodbye":"Näkemiin","header":{"closeNavigation":"Sulje navigointivalikko","logout":"Kirjaudu ulos","openNavigation":"Avaa navigointivalikko","openProfile":"Avaa profiilivalikko","openSettings":"Avaa asetukset","openUserMenu":"Avaa käyttäjävalikko","profile":"Profiili","settings":"Asetukset","viewNotifications":"Näytä ilmoitukset"},"hello":"Hei","home":{"badge":"Oppimispelilaboratorio","features":{"create":{"description":"Suunnittele interaktiivisia tekstiseikkailuja tekoälyn avulla","title":"Luo seikkailuja"},"learn":{"description":"Täydellinen koulutustyöpajoihin ja luokkahuoneaktiviteetteihin","title":"Opi ja opeta"},"play":{"description":"Liity ystävien kanssa yhteisiin tarinankerrontasessioihin","title":"Pelaa yhdessä"},"subtitle":"Löydä täydellinen yhdistelmä oppimista ja viihdettä","title":"Miksi valita ChatGameLab?","understand":{"description":"Tutki, miten tekoälymallit luovat tarinoita ja opi niiden toimintaa","title":"Ymmärrä tekoälyä"}},"loginCta":"Aloita","splashDescription":"Koulutusplatformi interaktiivisten, tekoälyllä toimivien tekstiseikkailupelien luomiseen ja pelaamiseen. Täydellinen opettajille, oppilaille ja luoville tarinankertojille.","title":"ChatGameLab"},"language":"Kieli","languageSwitcher":{"wipHint":"Lisää kieliä on työn alla. Tällä hetkellä vain englanti ja saksa ovat saatavilla.","wipLabel":"TYÖ"},"light":"Vaalea","loading":"Ladataan...","login":"Kirjaudu sisään","logout":"Kirjaudu ulos","notifications":"Ilmoitukset","profile":"Profiili","register":"Rekisteröidy","save":"Tallenna","search":"Haku","settings":"Asetukset","system":"Järjestelmä","theme":"Teema","welcome":"Tervetuloa"},"dashboard":{"quickActions":{"createNewGame":"Luo uusi peli","createRoom":"Luo huone","inviteMembers":"Kutsu jäseniä","title":"Pikatoiminnot","viewAnalytics":"Näytä analytiikka"},"recentActivity":{"continuedPlaying":"jatkoi pelaamista","createdNewGame":"loi uuden pelin","invitedStudents":"kutsui {{count}} oppilasta","title":"Viimeaikainen toiminta","viewAll":"Näytä kaikki"},"stats":{"activeAdventures":"Aktiiviset seikkailut","availableSessions":"Saatavilla olevat sessiot","onlineNow":"Paikalla nyt","readyForPlayers":"Valmiina pelaajille","storiesInProgress":"{{count}} tarinaa kesken","storyDrafts":"Tarinaluonnokset","storyRooms":"Tarinahuoneet","storytellers":"Tarinankertojat"}},"errors":{"backendUserFetch":"Käyttäjätietojen lataaminen palvelimelta epäonnistui. Yritä uudelleen.","forbidden":"Sinulla ei ole oikeutta suorittaa tätä toimintoa.","generic":"Jotain meni pieleen. Yritä uudelleen.","network":"Verkkovirhe. Tarkista yhteytesi.","notFound":"Pyydettyä resurssia ei löytynyt.","server":"Palvelinvirhe. Yritä myöhemmin uudelleen.","titles":{"authentication":"Todennusvirhe","error":"Virhe","network":"Verkkovirhe","notFound":"Ei löytynyt","permission":"Pääsy evätty","server":"Palvelinvirhe","validation":"Validointivirhe"},"unauthorized":"Kirjaudu sisään jatkaaksesi.","unexpected":"Tapahtui odottamaton virhe.","validation":"Tarkista syötteesi ja yritä uudelleen."},"game":{"createNew":"Luo uusi peli","description":"Kuvaus","invite":"Kutsu","join":"Liity","leave":"Poistu","level":"Taso","pause":"Tauota","players":"Pelaajat","restart":"Aloita alusta","resume":"Jatka","score":"Pisteet","start":"Aloita","time":"Aika","title":"Otsikko"},"navigation":{"create":"Luo","dashboard":"Hallintapaneeli","debug":"Debug","games":"Pelit","groups":"Ryhmät","home":"Etusivu","learn":"Opi","play":"Pelaa","rooms":"Huoneet"}}
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Kirjaudu Auth0:lla",
+      "devMode": "Kehitystila",
+      "devModeAlert": {
+        "message": "Tämä on kehittäjän kirjautumissivu. Tuotannossa sinut ohjataan suoraan Auth0:een.",
+        "title": "Kehitystila"
+      },
+      "devModeDescription": "Nopea kirjautuminen kehitystä ja testausta varten",
+      "redirecting": {
+        "message": "Odota hetki, kun ohjaamme sinut kirjautumissivulle.",
+        "title": "Uudelleenohjataan Auth0:aan..."
+      },
+      "role": {
+        "admin": "Kirjaudu ylläpitäjänä",
+        "guest": "Kirjaudu vieraana",
+        "student": "Kirjaudu oppilaana",
+        "teacher": "Kirjaudu opettajana"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Poistu työpajasta",
+        "message": "Haluatko varmasti poistua tästä työpajasta? Tarvitset uuden kutsulinkin liittyäksesi uudelleen.",
+        "title": "Poistutaanko työpajasta?"
+      },
+      "leaveWorkshop": "Poistu työpajasta",
+      "organization": "Organisaatio",
+      "role": "Työpajan osallistuja",
+      "workshop": "Työpaja"
+    },
+    "profile": {
+      "gamesCreated": "Luodut pelit",
+      "gamesPlayed": "Pelatut pelit",
+      "memberSince": "Jäsenestä lähtien",
+      "messagesSent": "Lähetetyt viestit",
+      "noOrganization": "Ei organisaatiota",
+      "noRole": "Ei roolia määritetty",
+      "organization": "Organisaatio",
+      "organizationSection": "Organisaatio \\u0026 Rooli",
+      "role": "Rooli",
+      "roles": {
+        "admin": "Ylläpitäjä",
+        "head": "Pääopettaja",
+        "participant": "Osallistuja",
+        "staff": "Henkilökunnan jäsen"
+      },
+      "statisticsSection": "Tilastot",
+      "title": "Profiili",
+      "totalPlaysOnGames": "Kaikki pelaukset omissa peleissä"
+    },
+    "register": {
+      "cancelButton": "Peruuta",
+      "emailDescription": "Käytämme tätä tärkeisiin ilmoituksiin.",
+      "emailLabel": "Sähköpostiosoite",
+      "emailPlaceholder": "Syötä sähköpostisi",
+      "errors": {
+        "emailInvalid": "Anna kelvollinen sähköpostiosoite",
+        "emailRequired": "Sähköposti vaaditaan",
+        "nameRequired": "Nimi vaaditaan",
+        "nameTaken": "Tämä nimi on jo käytössä",
+        "nameTooLong": "Nimen pituus saa olla enintään 24 merkkiä",
+        "registrationFailed": "Rekisteröinti epäonnistui. Yritä uudelleen."
+      },
+      "nameDescription": "Näin muut käyttäjät näkevät sinut. Enintään 24 merkkiä.",
+      "nameLabel": "Näyttönimi",
+      "namePlaceholder": "Syötä näyttönimesi",
+      "submitButton": "Luo tili",
+      "submitting": "Luodaan tiliä...",
+      "subtitle": "Vain muutama lisätieto ennen aloittamista",
+      "title": "Täydennä profiilisi"
+    },
+    "settings": {
+      "accountSection": "Tili",
+      "emailChangeNote": "Sähköpostiosoitteen muuttamiseksi ota yhteyttä sivuston ylläpitäjään.",
+      "errors": {
+        "nameRequired": "Nimi vaaditaan",
+        "nameTaken": "Tämä nimi on jo käytössä",
+        "nameTooLong": "Nimen pituus saa olla enintään 24 merkkiä",
+        "saveFailed": "Muutosten tallentaminen epäonnistui. Yritä uudelleen."
+      },
+      "nameDescription": "Näin muut käyttäjät näkevät sinut. Enintään 24 merkkiä.",
+      "nameLabel": "Näyttönimi",
+      "namePlaceholder": "Syötä näyttönimesi",
+      "saveButton": "Tallenna muutokset",
+      "saved": "Muutokset tallennettu",
+      "saving": "Tallennetaan...",
+      "showAiModelSelectorDescription": "Kun tämä on käytössä, voit valita käytettävän tekoälymallin aina pelisession alkaessa.",
+      "showAiModelSelectorLabel": "Näytä tekoälymallin valitsin",
+      "subtitle": "Hallitse tilisi asetuksia",
+      "title": "Asetukset"
+    }
+  },
+  "common": {
+    "actions": "Toiminnot",
+    "admin": {
+      "invites": {
+        "actions": "Toiminnot",
+        "empty": "Ei odottavia kutsuja.",
+        "invitedEmail": "Kutsuttu sähköposti",
+        "modifiedAt": "Muokattu",
+        "noResults": "Kutsuja ei löydy hakuehdoillasi.",
+        "organization": "Organisaatio",
+        "revokeConfirm": {
+          "confirm": "Poista",
+          "message": "Haluatko varmasti poistaa tämän kutsun? Tätä toimintoa ei voi perua.",
+          "title": "Poista kutsu"
+        },
+        "role": "Rooli",
+        "searchPlaceholder": "Hae sähköpostilla, roolilla, tilalla tai organisaatiolla...",
+        "sort": {
+          "label": "Järjestä",
+          "modifiedAt-asc": "Muokattu (Vanhin)",
+          "modifiedAt-desc": "Muokattu (Uusin)",
+          "organization-asc": "Organisaatio (A-Z)",
+          "organization-desc": "Organisaatio (Z-A)",
+          "role-asc": "Rooli (A-Z)",
+          "role-desc": "Rooli (Z-A)",
+          "status-asc": "Tila (A-Z)",
+          "status-desc": "Tila (Z-A)"
+        },
+        "status": "Tila",
+        "statuses": {
+          "accepted": "Hyväksytty",
+          "declined": "Hylätty",
+          "expired": "Vanhentunut",
+          "pending": "Odottaa",
+          "revoked": "Peruutettu"
+        },
+        "title": "Odotavat kutsut"
+      },
+      "organizations": {
+        "actions": "Toiminnot",
+        "create": "Luo organisaatio",
+        "createTitle": "Luo uusi organisaatio",
+        "deleteConfirm": "Haluatko varmasti poistaa \"{{name}}\"? Tätä toimintoa ei voi perua.",
+        "deleteTitle": "Poista organisaatio",
+        "editTitle": "Muokkaa organisaatiota",
+        "email": "Sähköpostiosoite",
+        "emailPlaceholder": "Syötä sähköpostiosoite",
+        "empty": "Ei organisaatioita vielä. Luo yksi aloittaaksesi.",
+        "inviteDescription": "Lähetä kutsu liittyä {{name}} organisaation johtajaksi.",
+        "inviteTitle": "Kutsu organisaatioon",
+        "memberEmail": "Sähköposti",
+        "memberName": "Nimi",
+        "memberRole": "Rooli",
+        "members": "Jäsenet",
+        "membersCount": "jäseniä",
+        "membersList": "Jäsenet",
+        "name": "Nimi",
+        "namePlaceholder": "Anna organisaation nimi",
+        "noMembers": "Tässä organisaatiossa ei ole jäseniä.",
+        "removeMember": "Poista jäsen",
+        "removeMemberConfirm": "Haluatko varmasti poistaa {{name}} tästä organisaatiosta?",
+        "searchPlaceholder": "Etsi organisaatioita...",
+        "sendInvite": "Lähetä kutsu",
+        "title": "Hallitse organisaatioita"
+      },
+      "users": {
+        "actions": "Toiminnot",
+        "deleteConfirm": "Haluatko varmasti poistaa \"{{name}}\"? Tätä toimintoa ei voi perua.",
+        "deleteTitle": "Poista käyttäjä",
+        "editEmail": "Muokkaa sähköpostia",
+        "editTitle": "Muokkaa käyttäjää",
+        "editingUser": "Muokataan käyttäjää: {{name}}",
+        "email": "Sähköposti",
+        "emailPlaceholder": "Syötä sähköpostiosoite",
+        "empty": "Käyttäjiä ei löytynyt.",
+        "hideGuests": "Piilota vieraat ({{count}})",
+        "joined": "Liittynyt",
+        "loadError": "Käyttäjien lataus epäonnistui",
+        "makeAdmin": "Tee ylläpitäjäksi",
+        "me": "Minä",
+        "name": "Nimi",
+        "noEmail": "Ei sähköpostia",
+        "noResults": "Ei käyttäjiä hakuehdoilla.",
+        "noRole": "Ei roolia",
+        "organization": "Organisaatio",
+        "promoteConfirm": "Haluatko varmasti ylentää \"{{name}}\" ({{email}}) ylläpitäjäksi?",
+        "promoteTitle": "Ylenna ylläpitäjäksi",
+        "promoteWarning": "Tällä käyttäjällä tulee olla täydet hallinnolliset oikeudet järjestelmään.",
+        "removeAdmin": "Poista ylläpitäjä",
+        "removeAdminConfirm": "Haluatko varmasti poistaa ylläpitäjän roolin käyttäjältä \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Poista ylläpitäjän rooli",
+        "removeAdminWarning": "Tämä käyttäjä menettää kaikki hallinnolliset oikeudet.",
+        "role": "Rooli",
+        "searchPlaceholder": "Hae nimen, sähköpostin, roolin tai organisaation mukaan...",
+        "showing": "Näytetään {{count}} / {{total}} käyttäjästä",
+        "sort": {
+          "email-asc": "Sähköposti (A-Z)",
+          "email-desc": "Sähköposti (Z-A)",
+          "joined-asc": "Liittynyt (Vanhin)",
+          "joined-desc": "Liittynyt (Uusin)",
+          "label": "Järjestä",
+          "name-asc": "Nimi (A-Z)",
+          "name-desc": "Nimi (Z-A)",
+          "organization-asc": "Organisaatio (A-Z)",
+          "organization-desc": "Organisaatio (Z-A)",
+          "role-asc": "Rooli (A-Z)",
+          "role-desc": "Rooli (Z-A)"
+        },
+        "title": "Hallitse käyttäjiä"
+      }
+    },
+    "allGames": {
+      "continue": "Jatka",
+      "copyConfirm": {
+        "confirm": "Kopioi peli",
+        "message": "Tämä luo kopion \"{{name}}\" peleihisi.",
+        "title": "Kopioi peli"
+      },
+      "copyGame": "Kopioi peli",
+      "empty": {
+        "description": "Kokeile muuttaa suodattimia tai palaa myöhemmin katsomaan uusia pelejä.",
+        "title": "Ei pelejä löytynyt"
+      },
+      "favorite": "Lisää suosikkeihin",
+      "filters": {
+        "all": "Kaikki pelit",
+        "favorites": "Suosikit",
+        "own": "Omat pelit",
+        "public": "Julkinen"
+      },
+      "play": "Pelaa",
+      "restart": "Käynnistä uudelleen",
+      "restartConfirm": {
+        "confirm": "Käynnistä uudelleen",
+        "message": "Haluatko varmasti käynnistää \"{{game}}\" uudelleen? Nykyinen edistymisesi katoaa.",
+        "title": "Käynnistä peli uudelleen"
+      },
+      "title": "Kaikki pelit",
+      "unfavorite": "Poista suosikeista"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API-avaimia käytetään yhdistämään tekoälyalustoihin pelisisällön luomiseksi.",
+        "title": "Tietoja API-avaimista"
+      },
+      "addKey": "Lisää avain",
+      "addedOn": "Lisätty",
+      "createModal": {
+        "keyDescription": "Avaimesi salataan ja tallennetaan turvallisesti.",
+        "keyLabel": "API-avain",
+        "keyPlaceholder": "Anna API-avaimesi",
+        "nameLabel": "Avaimen nimi",
+        "namePlaceholder": "esim. Oma OpenAI-avaimeni",
+        "platformLabel": "Alusta",
+        "platformPlaceholder": "Valitse alusta",
+        "submit": "Lisää avain",
+        "title": "Lisää uusi API-avain"
+      },
+      "deleteModal": {
+        "message": "Haluatko varmasti poistaa \"{{name}}\"?",
+        "title": "Poista API-avain",
+        "warning": "Tätä toimintoa ei voi perua. Avain poistetaan pysyvästi."
+      },
+      "errors": {
+        "invalidPlatform": "Valittu alusta on virheellinen. Valitse kelvollinen tekoälyalusta.",
+        "keyRequired": "API-avain vaaditaan",
+        "loadFailed": "API-avaimia ei voitu ladata. Yritä uudelleen.",
+        "nameRequired": "Nimi vaaditaan",
+        "platformRequired": "Alusta vaaditaan"
+      },
+      "key": "avain",
+      "keys": "avaimet",
+      "subtitle": "Hallitse API-avaimiasi tekoälyalustoille.",
+      "title": "API-avainten hallinta",
+      "unnamed": "Nimetön avain",
+      "unsupportedPlatform": {
+        "badge": "ei tuettu",
+        "hint": "Tätä alustaa ei tueta tällä hetkellä. Voit vain poistaa olemassa olevia avaimia."
+      }
+    },
+    "back": "Takaisin",
+    "cancel": "Peruuta",
+    "close": "Sulje",
+    "copyGame": "Kopioi peli",
+    "create": "Luo",
+    "delete": "Poista",
+    "deleteGame": "Poista peli",
+    "edit": "Muokkaa",
+    "editGame": "Muokkaa peliä",
+    "error": "Virhe",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institute for Educational Research and Innovation",
+      "programmedBy": "Ohjelmoinut"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Viesti-ID",
+          "imagePrompt": "Kuvakehote",
+          "isStreaming": "Suoratoisto",
+          "seq": "Järjestys",
+          "statusFields": "Tilakentät",
+          "timestamp": "Aikaleima",
+          "type": "Tyyppi"
+        },
+        "hints": {
+          "id": "Tämän viestin yksilöivä tunniste",
+          "imagePrompt": "Kuva-generoinnin tekoälylle lähetetty kehote",
+          "isStreaming": "Onko sisältöä vielä vastaanotettavana",
+          "seq": "Järjestys keskustelussa",
+          "statusFields": "Pelin tilamuuttujat, joita tekoäly seuraa",
+          "timestamp": "Milloin tämä viesti luotiin",
+          "type": "player = pelaajan syöte, game = tekoälyn vastaus, system = konteksti"
+        },
+        "title": "Vianmääritystiedot"
+      },
+      "error": {
+        "backToGames": "Takaisin peleihin",
+        "gameNotFound": "Peliä ei löytynyt",
+        "missingFields": "Peliltä puuttuu vaadittavat kentät:",
+        "sessionFailed": "Pelisessiota ei voitu aloittaa"
+      },
+      "header": {
+        "back": "Takaisin peleihin",
+        "debug": "Vianmääritys",
+        "decreaseFont": "Pienennä fonttia",
+        "disableAnimations": "Poista animaatiot käytöstä",
+        "increaseFont": "Suurenna fonttia",
+        "settings": "Asetukset",
+        "useNeutralTheme": "Käytä neutraalia teemaa"
+      },
+      "input": {
+        "placeholder": "Mitä teet?",
+        "send": "Lähetä toiminto"
+      },
+      "loading": {
+        "game": "Ladataan peliä...",
+        "starting": "Käynnistetään pelisessiota...",
+        "startingHint": "Tekoäly valmistaa seikkailuasi"
+      },
+      "needsApiKey": {
+        "description": "Tämän session API-avain ei ole enää saatavilla. Valitse uusi jatkaaksesi pelaamista.",
+        "reason": "Edellinen API-avaimesi ei ole enää käytettävissä. Jatkaaksesi peliä, valitse uusi.",
+        "title": "Vaaditaan API-avain"
+      },
+      "selectApiKey": {
+        "keyDescription": "Valitse API-avain, jota käytetään tässä pelisessiossa",
+        "keyLabel": "API-avain",
+        "keyPlaceholder": "Valitse API-avain",
+        "loadError": "API-avaimia ei voitu ladata",
+        "mine": "Omat",
+        "modelDescription": "Halutessasi voit valita tietyn tekoälymallin",
+        "modelLabel": "Tekoälymalli",
+        "modelPlaceholder": "Oletusmalli",
+        "noKeys": "Tarvitset vähintään yhden API-avaimen pelataksesi. Lisää sellainen Asetukset → API-avaimet.",
+        "playing": "Pelaaminen",
+        "startGame": "Aloita peli",
+        "title": "Valitse API-avain"
+      },
+      "statusChange": {
+        "effect": "Vaikutus:"
+      },
+      "unnamed": "Nimetön"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Oma peli",
+        "public": "Julkinen",
+        "workshop": "Työpaja"
+      },
+      "createButton": "Luo peli",
+      "createModal": {
+        "descriptionPlaceholder": "Mistä pelisi kertoo?",
+        "namePlaceholder": "esim. Avaruusseikkailu",
+        "publicDescription": "Julkiset pelit ovat kaikille löydettävissä.",
+        "publicLabel": "Tee tästä pelistä julkinen",
+        "submit": "Luo peli",
+        "title": "Luo uusi peli"
+      },
+      "deleteModal": {
+        "message": "Haluatko varmasti poistaa \"{{name}}\"?",
+        "title": "Poista peli",
+        "warning": "Tätä toimintoa ei voi perua. Kaikki pelin tiedot poistetaan pysyvästi."
+      },
+      "editFields": {
+        "description": "Anna pelille lyhyt kuvaus. Tämä on vain sinulle eikä vaikuta pelattavuuteen.",
+        "gameStart": "Miten peli alkaa?",
+        "gameStartHint": "Miten peli alkaa? Kuvaile ensimmäinen kohtaus, jonka pelaaja näkee. Miten pelaaja otetaan vastaan?",
+        "gameStartPlaceholder": "Heräät synkän metsän reunalla. Kapea polku johtaa syvemmälle puihin...",
+        "imageStyle": "Minkä tyylisiä kuvia pelissä tulisi olla?",
+        "imageStyleHint": "Esimerkiksi: sarjakuva, realistinen, pikselitaide, vesiväri...",
+        "name": "Pelin nimi",
+        "scenario": "Mistä peli kertoo?",
+        "scenarioHint": "Kuvaile lyhyesti: Miten peli toimii? Millainen pelimaailma on? Kieli \u00026 sävy (esim. espanja kuudennen luokan oppilaille)?\nMikä rooli pelaajalla on? Kirjoita \"Pelaaja ...\".\nJos haluat, että tekoäly ottaa tietyn henkilön roolin, kirjoita \"Sinä olet ...\".",
+        "scenarioPlaceholder": "Olet tutkimusmatkailija salaperäisessä metsässä. Tavoitteesi on löytää piilotettu aarre...",
+        "statusFields": "Peliarvot",
+        "statusFieldsHint": "Mitkä arvot pelin pitäisi seurata? Esim. terveys, pisteet tai ammukset. Peli muistaa nämä arvot ja päivittää niitä pelin aikana."
+      },
+      "editModal": {
+        "title": "Muokkaa peliä",
+        "unsavedChanges": {
+          "discard": "Hylkää muutokset",
+          "keepEditing": "Jatka muokkaamista",
+          "message": "Sinulla on tallentamattomia muutoksia. Haluatko varmasti hylätä ne?",
+          "title": "Tallentamattomat muutokset"
+        }
+      },
+      "empty": {
+        "description": "Luo ensimmäinen pelisi ja aloita interaktiiviset tekoälyavusteiset seikkailut.",
+        "title": "Ei pelejä vielä"
+      },
+      "errors": {
+        "loadFailed": "Pelejä ei voitu ladata. Yritä uudelleen.",
+        "nameRequired": "Pelin nimi vaaditaan"
+      },
+      "fields": {
+        "created": "Luotu",
+        "creator": "Luoja",
+        "me": "Minä",
+        "modified": "Muokattu",
+        "name": "Nimi",
+        "playCount": "Pelaukset",
+        "visibility": "Näkyvyys"
+      },
+      "importExport": {
+        "exportButton": "Vie peli",
+        "importButton": "Tuo peli"
+      },
+      "playNow": "Pelaa nyt",
+      "sort": {
+        "createdAt-asc": "Luotu (Vanhin)",
+        "createdAt-desc": "Luotu (Uusin)",
+        "creator-asc": "Luoja (A-Z)",
+        "creator-desc": "Luoja (Z-A)",
+        "label": "Järjestä",
+        "modifiedAt-asc": "Muokattu (Vanhin)",
+        "modifiedAt-desc": "Muokattu (Uusin)",
+        "name-asc": "Nimi (A-Z)",
+        "name-desc": "Nimi (Z-A)",
+        "playCount-asc": "Vähiten pelatut",
+        "playCount-desc": "Eniten pelatut",
+        "visibility-asc": "Yksityiset ensin",
+        "visibility-desc": "Julkiset ensin"
+      },
+      "statusFieldsEditor": {
+        "addField": "Lisää uusi arvo",
+        "namePlaceholder": "Nimi (esim. Terveys)",
+        "noFields": "Ei vielä arvoja. Klikkaa + lisätäksesi uuden arvon.",
+        "valuePlaceholder": "Alkuarvo (esim. 100)"
+      },
+      "tabs": {
+        "basic": "Perusteet",
+        "basicInfo": "Yleiset tiedot pelistä. Nämä ovat vain sinulle eivätkä vaikuta pelattavuuteen.",
+        "importExport": "Import/Export",
+        "quickStart": "Pikaopas",
+        "story": "Tarinan \u00026 tekoäly",
+        "storyInfo": "Kaikki tässä lähetetään tekoälylle, jotta se muokkaa pelimaailmaasi ja tarinaa.",
+        "style": "Tyyli",
+        "styleInfo": "Valinnaiset asetukset pelin ulkoasulle pelattaessa."
+      },
+      "title": "Minun luomani pelit",
+      "viewModal": {
+        "readOnlyNotice": "Tämä peli on luotu toisen käyttäjän toimesta. Voit tarkastella tietoja, mutta et voi muokata. Käytä \"Kopioi\" luodaksesi oman muokattavan version.",
+        "title": "Pelitiedot"
+      },
+      "visibility": {
+        "private": "Yksityinen",
+        "public": "Julkinen"
+      }
+    },
+    "header": {
+      "apiKeys": "API-avaimet",
+      "closeNavigation": "Sulje navigaatiovalikko",
+      "contact": "Yhteystiedot",
+      "goToDashboard": "Siirry kojelautaan",
+      "leaveWorkshopMode": "Poistu työpajatilasta",
+      "leaveWorkshopModeTooltip": "Poistu työpajatilasta ja palaa normaaliin näkymään",
+      "logout": "Kirjaudu ulos",
+      "openNavigation": "Avaa navigaatiovalikko",
+      "openUserMenu": "Avaa käyttäjävalikko",
+      "organization": "Organisaatio",
+      "profile": "Profiili",
+      "workshop": "Työpaja"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Suunnittele interaktiivisia teksti-seikkailuja tekoälyn avulla",
+          "title": "Luo seikkailuja"
+        },
+        "learn": {
+          "description": "Erinomainen koulutustyöpajoihin ja luokkahuoneaktiviteetteihin",
+          "title": "Opiskele \u00026 opeta"
+        },
+        "play": {
+          "description": "Liity ystävien kanssa yhteisiin tarinankerrontasessioihin",
+          "title": "Pelaa yhdessä"
+        },
+        "title": "Miksi valita ChatGameLab?",
+        "understand": {
+          "description": "Tutki, miten tekoälymallit luovat tarinoita ja opi, miten ne toimivat",
+          "title": "Ymmärrä tekoäly"
+        }
+      },
+      "loginCta": "Kirjaudu ja tutustu",
+      "splashDescription": "Oppimisalusta tekoälyllä tuotettujen tekstiseikkailujen luomiseen ja pelaamiseen. Erinomainen opettajille, oppilaille ja luoville tarinankertojille."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Sinut on kutsuttu liittymään työpajaan organisaatiosta \"{{organization}}\".",
+        "inviteMessageSimple": "Sinut on kutsuttu liittymään tähän työpajaan.",
+        "joinButton": "Liity työpajaan",
+        "title": "Liity työpajaan",
+        "titleWithWorkshop": "Liity työpajaan \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Kutsun hyväksyminen epäonnistui. Yritä uudelleen.",
+        "expired": "Tämä kutsulinkki on vanhentunut.",
+        "loadFailed": "Kutsun tiedot eivät latautuneet. Yritä uudelleen.",
+        "notFound": "Tämä kutsulinkki on virheellinen tai peruutettu."
+      },
+      "goHome": "Siirry etusivulle",
+      "participant": {
+        "loggingIn": "Kirjaudutaan sisään..."
+      },
+      "success": {
+        "message": "Olet liittynyt työpajaan onnistuneesti. Uudelleenohjataan...",
+        "title": "Tervetuloa!"
+      },
+      "switchWorkshop": {
+        "message": "Pelit ja edistymisesi nykyisessä työpajassa säilyvät, mutta et pääse niihin ennen kuin liityt uudelleen.",
+        "stayButton": "Pysy nykyisessä työpajassa",
+        "switchButton": "Vaihda työpajaa",
+        "title": "Vaihda työpajaa?",
+        "warning": "Olet tällä hetkellä työpajassa \"{{currentWorkshop}}\". Liittyessäsi \"{{newWorkshop}}\" poistut nykyisestä työpajastasi."
+      }
+    },
+    "labels": {
+      "no": "Ei",
+      "yes": "Kyllä"
+    },
+    "languageSwitcher": {
+      "wipHint": "Lisää kieliä on työn alla. Tällä hetkellä vain englanti ja saksa ovat saatavilla.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Ladataan...",
+    "logout": "Kirjaudu ulos",
+    "myGames": {
+      "continue": "Jatka",
+      "copyConfirm": {
+        "confirm": "Kopioi peli",
+        "message": "Tämä luo kopion \"{{name}}\" peleihisi.",
+        "title": "Kopioi peli"
+      },
+      "copyGame": "Kopioi peli",
+      "empty": {
+        "description": "Luo ensimmäinen pelisi aloittaaksesi interaktiiviset tekoälyavusteiset seikkailut.",
+        "title": "Ei pelejä vielä"
+      },
+      "favorite": "Lisää suosikkeihin",
+      "filters": {
+        "all": "Kaikki",
+        "favorites": "Suosikit"
+      },
+      "play": "Pelaa",
+      "restart": "Käynnistä uudelleen",
+      "restartConfirm": {
+        "confirm": "Käynnistä uudelleen",
+        "message": "Haluatko varmasti käynnistää \"{{game}}\" uudelleen? Nykyinen edistymisesi katoaa.",
+        "title": "Käynnistä peli uudelleen"
+      },
+      "title": "Omat pelit",
+      "unfavorite": "Poista suosikeista"
+    },
+    "myOrganization": {
+      "actions": "Toiminnot",
+      "apiKeys": {
+        "aboutDescription": "Täällä jaetut API-avaimet ovat organisaation kaikkien jäsenten käytettävissä peleissä. Vain johtajat ja opettajat voivat hallita näitä avaimia.",
+        "aboutTitle": "Organisaation API-avaimet",
+        "allowPublicSponsoring": "Salli julkinen sponsorointi",
+        "allowPublicSponsoringDesc": "Tätä avainta voi käyttää pelien sponsoroimiseen kaikille käyttäjille.",
+        "filterByPlatform": "Suodata alustojen mukaan",
+        "keyName": "Avaimen nimi",
+        "loadError": "Organisaation API-avaimia ei voitu ladata.",
+        "noKeys": "Tälle organisaatiolle ei ole jaettu API-avaimia.",
+        "noResults": "Ei API-avaimia hakuehdoilla.",
+        "notAuthorized": "Sinulla ei ole oikeutta hallita organisaation API-avaimia. Vain johtajat ja opettajat pääsevät tälle sivulle.",
+        "owner": "Omistaja",
+        "platform": "Alusta",
+        "publicSponsoring": "Julkinen sponsorointi",
+        "searchPlaceholder": "Hae nimen tai omistajan mukaan...",
+        "selectKey": "Valitse API-avain",
+        "selectKeyPlaceholder": "Valitse avain jaettavaksi...",
+        "share": "Jaa",
+        "shareKey": "Jaa avain",
+        "shareKeyTitle": "Jaa API-avain organisaation kanssa",
+        "title": "Organisaation API-avaimet"
+      },
+      "demoteConfirm": "Haluatko varmasti alentaa käyttäjän \"{{name}}\" ({{email}}) opettajaksi?",
+      "demoteTitle": "Alenna opettajaksi",
+      "demoteToStaff": "Alenna opettajaksi",
+      "email": "Sähköposti",
+      "emailPlaceholder": "Syötä sähköpostiosoite",
+      "empty": "Ei jäseniä tässä organisaatiossa.",
+      "inviteAlreadyExists": "Tälle sähköpostiosoitteelle on jo olemassa odottava kutsu.",
+      "inviteError": "Kutsun lähettäminen epäonnistui. Yritä uudelleen.",
+      "inviteTeacher": "Kutsu opettaja",
+      "inviteTeacherDescription": "Lähetä kutsu opettajalle liittyä organisaatioosi.",
+      "inviteTeacherTitle": "Kutsu opettaja",
+      "inviteUser": "Kutsu käyttäjä",
+      "inviteUserDescription": "Lähetä kutsu käyttäjälle liittyä organisaatioon ilman tiettyä roolia.",
+      "inviteUserTitle": "Kutsu käyttäjä",
+      "leaveConfirm": "Haluatko varmasti poistua \"{{name}}\"?",
+      "leaveOrganization": "Poistu organisaatiosta",
+      "leaveTitle": "Poistu organisaatiosta",
+      "leaveWarning": "Menetät pääsyn kaikkiin organisaation resursseihin ja jäseniin.",
+      "me": "Minä",
+      "name": "Nimi",
+      "noEmail": "Ei sähköpostia",
+      "noOrganization": "Ei organisaatiota",
+      "noOrganizationDescription": "Et ole minkään organisaation jäsen.",
+      "noResults": "Ei jäseniä hakuehdoilla.",
+      "noRole": "Ei roolia",
+      "promoteConfirm": "Haluatko varmasti ylentää \"{{name}}\" ({{email}}) johtajaksi?",
+      "promoteTitle": "Ylenna johtajaksi",
+      "promoteToHead": "Ylenna johtajaksi",
+      "promoteWarning": "Tämä käyttäjä saa oikeuden hallita organisaation jäseniä ja kutsua opettajia.",
+      "removeConfirm": "Haluatko varmasti poistaa \"{{name}}\" organisaatiosta?",
+      "removeMember": "Poista jäsen",
+      "removeTitle": "Poista jäsen",
+      "removeWarning": "Tämä käyttäjä menettää pääsyn organisaatioon.",
+      "role": "Rooli",
+      "searchPlaceholder": "Hae jäseniä...",
+      "showing": "{{count}} jäsentä",
+      "sort": {
+        "label": "Järjestä",
+        "name-asc": "Nimi (A-Z)",
+        "name-desc": "Nimi (Z-A)",
+        "role-asc": "Rooli (A-Z)",
+        "role-desc": "Rooli (Z-A)"
+      },
+      "title": "Oma organisaatio",
+      "workshops": {
+        "activate": "Ota käyttöön",
+        "active": "Aktiivinen",
+        "activeDescription": "Aktiiviset työpajat sallivat osallistujien liittyä ja luoda pelejä.",
+        "activeLabel": "Aktiivinen",
+        "anonymousParticipant": "Anonyymi osallistuja",
+        "create": "Luo työpaja",
+        "createFirst": "Luo ensimmäinen työpajasi",
+        "createInviteLink": "Luo kutsulinkki",
+        "createTitle": "Luo työpaja",
+        "deactivate": "Poista käytöstä",
+        "defaultAiModel": "Oletus-KI-malli",
+        "defaultAiModelHint": "Malli, jota käytetään, kun osallistujat eivät voi valita. Vaatii API-avaimen asettamisen.",
+        "defaultApiKey": "Oletus-API-avain",
+        "defaultApiKeyHint": "Osallistujat käyttävät tätä API-avainta pelatessaan.",
+        "deleteConfirm": "Haluatko varmasti poistaa \"{{name}}\"?",
+        "deleteTitle": "Poista työpaja",
+        "deleteWarning": "Kaikki pelit ja istunnot tässä työpajassa poistetaan. Tätä ei voi peruuttaa.",
+        "editParticipant": "Muokkaa nimeä",
+        "empty": "Ei vielä työpajoja.",
+        "enterWorkshop": "Siirry työpajatilaan",
+        "games": "Pelit",
+        "hideInactive": "Piilota ei-aktiiviset",
+        "inactive": "Ei aktiivinen",
+        "inviteCreatedAt": "Luotu",
+        "inviteDescription": "Luo kutsulinkki, jota osallistujat voivat käyttää liittyäkseen tähän työpajaan.",
+        "inviteExpiresAt": "Vanhenee",
+        "inviteLink": "Kutsulinkki",
+        "inviteLinkDescription": "Jaa tämä linkki osallistujille liittymistä varten.",
+        "inviteLinkTitle": "Kutsulinkki kohteelle {{name}}",
+        "inviteUsage": "Käyttö",
+        "joined": "Liittynyt",
+        "linkCopied": "Linkki kopioitu",
+        "linkCopiedMessage": "Kutsulinkki kopioitiin leikepöydälle.",
+        "loadError": "Työpajojen lataus epäonnistui.",
+        "nameLabel": "Työpajan nimi",
+        "namePlaceholder": "esim. Kesäleiri 2024",
+        "noActiveInvite": "Ei aktiivista kutsulinkkiä saatavilla.",
+        "noDefaultApiKey": "Ei oletus-API-avainta",
+        "noDefaultModel": "Käytä alustan oletusta",
+        "noParticipantToken": "Tällä osallistujalla ei ole kutsulinkkiä. Vain anonyymeillä osallistujilla (vieraat) on uudelleenkäytettäviä kutsulinkkejä.",
+        "noParticipants": "Ei osallistujia vielä",
+        "notAuthorized": "Sinulla ei ole oikeutta hallita työpajoja. Vain johtajat ja opettajat voivat käyttää tätä sivua.",
+        "participantGames": "{{count}} peliä",
+        "participantJoined": "Liittynyt {{date}}",
+        "participantName": "Osallistujan nimi",
+        "participants": "Osallistujat",
+        "removeParticipant": "Poista osallistuja",
+        "removeParticipantConfirm": "Haluatko varmasti poistaa \"{{name}}\" tästä työpajasta?",
+        "removeParticipantMessage": "Haluatko varmasti poistaa \"{{name}}\" tästä työpajasta? Tätä toimintoa ei voi perua.",
+        "removeParticipantTitle": "Poista osallistuja",
+        "revokeInvite": "Peru kutsulinkki",
+        "selectApiKey": "Valitse API-avain",
+        "settings": "Asetukset",
+        "shareParticipantLink": "Kopioi yksilöllinen kutsulinkki tälle osallistujalle",
+        "showAiModelSelector": "Salli osallistujien valita tekoälymalli",
+        "showOtherParticipantsGames": "Näytä muiden osallistujien pelit",
+        "showPublicGames": "Näytä osallistujille julkiset pelit",
+        "sort": {
+          "createdAtAsc": "Vanhimmat ensin",
+          "createdAtDesc": "Uusimmat ensin",
+          "label": "Järjestä",
+          "nameAsc": "Nimi (A-Z)",
+          "nameDesc": "Nimi (Z-A)",
+          "participantsAsc": "Vähiten osallistujia",
+          "participantsDesc": "Eniten osallistujia"
+        },
+        "subtitle": "Hallitse työpajoja ja kutsu osallistujia yhteistyöhön pelien parissa.",
+        "title": "Työpajat",
+        "usedCount": "{{count}} käyttöä",
+        "viewInviteLink": "Näytä kutsulinkki"
+      }
+    },
+    "notifications": {
+      "accept": "Hyväksy",
+      "decline": "Hylkää",
+      "declineConfirm": "Haluatko varmasti hylätä tämän kutsun?",
+      "declineTitle": "Hylkää kutsu",
+      "empty": "Ei uusia ilmoituksia.",
+      "inviteDescription": "Sinut on kutsuttu liittymään roolissa {{role}}.",
+      "inviteToJoin": "Organisaation kutsu",
+      "title": "Ilmoitukset"
+    },
+    "play": {
+      "cloneGame": "Kopioi omiin peleihini",
+      "empty": {
+        "description": "Kokeile muuttaa suodattimia tai palaa myöhemmin katsomaan uusia pelejä.",
+        "title": "Ei pelejä löytynyt"
+      },
+      "favorite": "Lisää suosikkeihin",
+      "filters": {
+        "all": "Kaikki pelit",
+        "favorites": "Suosikit",
+        "organization": "Organisaatio",
+        "own": "Omat pelit",
+        "public": "Julkinen"
+      },
+      "owner": "Oma",
+      "playGame": "Pelaa tätä peliä",
+      "playNow": "Pelaa nyt",
+      "selectGameTitle": "Valitse peli",
+      "title": "Valitse peli",
+      "unfavorite": "Poista suosikeista"
+    },
+    "profile": "Profiili",
+    "save": "Tallenna",
+    "search": "Hae",
+    "sessions": {
+      "continueGame": "Jatka peliä",
+      "deleteConfirm": {
+        "message": "Haluatko varmasti poistaa tämän istunnon pelille \"{{game}}\"? Tätä toimintoa ei voi perua.",
+        "title": "Poista istunto"
+      },
+      "empty": {
+        "description": "Aloita uusi peli aloittaaksesi seikkailusi!",
+        "noResults": "Ei vastaavia pelejä löydetty",
+        "title": "Ei vielä pelattuja pelejä"
+      },
+      "errors": {
+        "loadFailed": "Peliesi lataaminen epäonnistui. Yritä uudelleen."
+      },
+      "fields": {
+        "game": "Peli",
+        "lastPlayed": "Viimeksi pelattu",
+        "model": "Malli"
+      },
+      "noDescription": "Ei kuvausta",
+      "sort": {
+        "game": "Peli",
+        "label": "Järjestä",
+        "lastPlayed": "Viimeksi pelattu",
+        "model": "Malli"
+      },
+      "startNewGame": "Aloita uusi peli",
+      "title": "Jatka pelaamista",
+      "untitledGame": "Nimetön peli"
+    },
+    "settings": "Asetukset",
+    "unnamed": "Nimetön",
+    "viewGame": "Katso peli"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Projektin koordinaattori ja johtava organisaatio.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Lisätietoja koulutusprojektista, joka on tämän alustan takana.",
+          "title": "ChatGameLab-projekti"
+        },
+        "title": "Tietoa ChatGameLabistä"
+      },
+      "lastPlayed": {
+        "empty": "Ei pelihistoriaa vielä. Ala pelaamaan!",
+        "title": "Viimeksi pelattu",
+        "viewAll": "Kaikki pelit"
+      },
+      "myGames": {
+        "empty": "Ei pelejä vielä. Luo ensimmäinen pelisi!",
+        "title": "Omat pelit",
+        "viewAll": "Kaikki luomukset"
+      },
+      "myWorkshops": {
+        "empty": "Ei aktiivisia työpajoja. Luo työpaja organisaatiossasi!",
+        "title": "Omat työpajat",
+        "viewAll": "Kaikki työpajat"
+      },
+      "newGames": {
+        "empty": "Ei pelejä saatavilla.",
+        "title": "Uudet pelit",
+        "viewAll": "Kaikki pelit"
+      },
+      "popularGames": {
+        "empty": "Ei pelejä saatavilla.",
+        "plays": "{{count}} pelikertaa",
+        "title": "Suositut pelit",
+        "viewAll": "Kaikki pelit"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Luo uusi peli",
+      "createRoom": "Luo huone",
+      "inviteMembers": "Kutsu jäseniä",
+      "startNewGame": "Aloita uusi peli",
+      "title": "Pikatoiminnot"
+    },
+    "untitled": "Nimetön",
+    "untitledGame": "Nimetön peli",
+    "version": {
+      "mismatch": {
+        "message": "Frontend-versio \\u003cfrontendVersion\\u003e{{frontendVersion}}\\u003c/frontendVersion\\u003e ei vastaa backend-version \\u003cbackendVersion\\u003e{{backendVersion}}\\u003c/backendVersion\\u003e. Tämä saattaa aiheuttaa odottamatonta käyttäytymistä. Ota yhteyttä tukeen, jos ongelmat jatkuvat.",
+        "title": "Versioiden epäyhtenäisyys havaittu"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "Tekoälypalvelussa tapahtui virhe. Yritä uudelleen.",
+    "backendUserFetch": "Käyttäjätietoja ei voitu ladata palvelimelta. Yritä uudelleen.",
+    "billingNotActive": "OpenAI-tilisi ei ole aktiivinen. Tarkista laskutustietosi osoitteessa https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Tämä toiminto on ristiriidassa olemassa olevien tietojen kanssa. Yritä uudelleen.",
+    "contentFiltered": "Pyyntösi suodatettiin tekoälyn sisältökäytännön vuoksi. Yritä muotoilla se uudelleen.",
+    "forbidden": "Sinulla ei ole oikeutta suorittaa tätä toimintoa.",
+    "generic": "Jokin meni pieleen. Yritä uudelleen.",
+    "insufficientQuota": "API-avaimellasi ei ole enää saldoa. Lisää saldoa tai käytä toista API-avainta.",
+    "invalidApiKey": "API-avaimesi on virheellinen tai vanhentunut. Tarkista API-avaimesi asetuksissa.",
+    "invalidPlatform": "Valittu alusta on virheellinen. Valitse kelvollinen vaihtoehto.",
+    "invalidToken": "Istuntosi on vanhentunut tai virheellinen. Käytä kutsulinkkiä uudelleen.",
+    "network": "Verkkovirhe. Tarkista yhteytesi.",
+    "notFound": "Pyydettyä resurssia ei löytynyt.",
+    "orgVerificationRequired": "OpenAI-organisaatiosi tarvitsee varmennuksen kuvanluontiominaisuuden käyttöä varten. Varmista organisaatiosi osoitteessa https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "Liian monta pyyntöä. Odota hetki ja yritä uudelleen.",
+    "server": "Palvelinvirhe. Yritä myöhemmin uudelleen.",
+    "titles": {
+      "aiError": "Tekoälyvirhe",
+      "authentication": "Autentikointivirhe",
+      "billing": "Maksuvirhe",
+      "error": "Virhe",
+      "network": "Verkkovirhe",
+      "notFound": "Ei löydy",
+      "permission": "Pääsy evätty",
+      "server": "Palvelinvirhe",
+      "validation": "Validointivirhe",
+      "workshopInactive": "Työpaja ei aktiivinen"
+    },
+    "unauthorized": "Kirjaudu sisään jatkaaksesi.",
+    "unexpected": "Tapahtui odottamaton virhe.",
+    "userNotRegistered": "Sinun tulee täydentää rekisteröinti ennen jatkamista.",
+    "validation": "Tarkista syötteesi ja yritä uudelleen.",
+    "workshopInactive": "Tämä työpaja on deaktivoitu. Ota yhteyttä opettajaasi tai työpajan järjestäjään."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Aloita pelaaminen nähdäksesi pelit täällä tai luo oma!",
+      "title": "Ei pelejä vielä"
+    },
+    "filters": {
+      "all": "Kaikki pelit",
+      "mine": "Omat pelit",
+      "public": "Julkiset pelit",
+      "workshop": "Työpajapelit"
+    },
+    "gameType": "Peli",
+    "organizator": "Järjestäjä: {{name}}",
+    "settings": {
+      "currentWorkshop": "Nykyinen työpaja",
+      "notInWorkshopMode": "Et ole työpajatilassa. Liity ensin työpajaan.",
+      "title": "Työpaja-asetukset"
+    },
+    "title": "Oma työpaja",
+    "you": "Sinä"
+  },
+  "navigation": {
+    "allGames": "Kaikki pelit",
+    "create": "Luo oma pelisi",
+    "dashboard": "Kojelauta",
+    "games": "Pelit",
+    "groups": "Ryhmät",
+    "manageOrganizations": "Hallitse organisaatioita",
+    "manageUsers": "Hallitse käyttäjiä",
+    "myGames": "Omat pelit",
+    "myOrganization": "Oma organisaatio",
+    "myWorkshop": "Oma työpaja",
+    "orgApiKeys": "API-avaimet",
+    "orgMembers": "Jäsenet",
+    "orgWorkshops": "Työpajat",
+    "play": "Pelaa peliä",
+    "rooms": "Huoneet",
+    "workshopSettings": "Työpaja-asetukset"
+  }
+}

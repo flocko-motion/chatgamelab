@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"cgl/db"
 	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/stream"
-	"cgl/lang"
+	"cgl/game/templates"
 	"cgl/log"
 	"cgl/obj"
 
@@ -86,7 +87,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 
 	// Parse game template to get system message
 	log.Debug("parsing game template", "game_id", gameID, "game_name", game.Name)
-	systemMessage, err := GetTemplate(game)
+	systemMessage, err := templates.GetTemplate(game)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
@@ -117,56 +118,83 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		ApiKey:       share.ApiKey,
 		AiPlatform:   share.ApiKey.Platform,
 		AiModel:      aiModel,
-		ImageStyle:   game.ImageStyle,
+		ImageStyle:   templates.ImageStyleOrDefault(game.ImageStyle),
 		StatusFields: game.StatusFields,
 	}
 
 	// Run theme generation and game translation in parallel
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	var theme *obj.GameTheme
 	var translatedGame *obj.Game
+	var sessionUsage obj.TokenUsage
 
 	// Start theme generation
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		start := time.Now()
 		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-		t, err := GenerateTheme(ctx, tempSession, game)
+		t, themeUsage, err := GenerateTheme(ctx, tempSession, game)
+		mu.Lock()
+		sessionUsage = sessionUsage.Add(themeUsage)
+		mu.Unlock()
 		if err != nil {
-			log.Warn("failed to generate theme, using default", "error", err)
+			log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
 		} else {
-			log.Debug("theme generated successfully", "preset", t.Preset)
+			log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
 			theme = t
 		}
 	}()
 
 	// Start game translation if user language is not English
+	var fieldNameMap map[string]string
 	if user.Language != "" && user.Language != "en" {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			start := time.Now()
 			log.Debug("translating game to user language", "game_id", gameID, "target_lang", user.Language)
-			translated, err := TranslateGame(ctx, tempSession, game, user.Language)
+			translated, fnMap, translateUsage, err := TranslateGame(ctx, tempSession, game, user.Language)
+			mu.Lock()
+			sessionUsage = sessionUsage.Add(translateUsage)
+			mu.Unlock()
 			if err != nil {
-				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err)
+				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err, "seconds", time.Since(start).Seconds())
 			} else {
-				log.Debug("game translated successfully", "target_lang", user.Language)
+				log.Debug("game translated successfully", "target_lang", user.Language, "seconds", time.Since(start).Seconds())
 				translatedGame = translated
+				fieldNameMap = fnMap
 			}
 		}()
 	}
 
 	// Wait for both operations to complete
 	wg.Wait()
+	log.Debug("session setup token usage", "input_tokens", sessionUsage.InputTokens, "output_tokens", sessionUsage.OutputTokens, "total_tokens", sessionUsage.TotalTokens)
 
 	// Use translated game if available
 	if translatedGame != nil {
 		game = translatedGame
 		// Re-generate system message with translated game
-		systemMessage, err = GetTemplate(game)
+		systemMessage, err = templates.GetTemplate(game)
 		if err != nil {
 			log.Debug("failed to get template from translated game", "error", err)
 			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
+		}
+
+		// Rewrite theme statusEmojis keys from original to translated field names
+		if theme != nil && theme.Override != nil && len(theme.Override.StatusEmojis) > 0 && len(fieldNameMap) > 0 {
+			translatedEmojis := make(map[string]string, len(theme.Override.StatusEmojis))
+			for originalName, emoji := range theme.Override.StatusEmojis {
+				if translatedName, ok := fieldNameMap[originalName]; ok {
+					translatedEmojis[translatedName] = emoji
+				} else {
+					translatedEmojis[originalName] = emoji
+				}
+			}
+			theme.Override.StatusEmojis = translatedEmojis
+			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", fieldNameMap)
 		}
 	}
 
@@ -199,6 +227,13 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shar
 		return nil, nil, httpErr
 	}
 	response.PromptStatusUpdate = functional.Ptr(systemMessage)
+	// Accumulate setup usage (theme + translation) with action usage
+	if response.TokenUsage != nil {
+		totalUsage := sessionUsage.Add(*response.TokenUsage)
+		response.TokenUsage = &totalUsage
+	} else {
+		response.TokenUsage = &sessionUsage
+	}
 	return session, response, nil
 }
 
@@ -257,7 +292,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
-	if err = platform.ExecuteAction(ctx, session, action, response); err != nil {
+	usage, err := platform.ExecuteAction(ctx, session, action, response)
+	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
 		responseStream.SendError(err.Error())
 
@@ -285,8 +321,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
-	response.PromptStatusUpdate = functional.Ptr(action.Message)
-	response.PromptExpandStory = functional.Ptr(lang.T("aiExpandPlotOutline"))
+	response.TokenUsage = &usage
+	// Set PromptStatusUpdate to the full JSON input sent to the AI
+	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
 
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
@@ -301,11 +339,13 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	go func() {
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
-		if err := platform.ExpandStory(context.Background(), session, response, responseStream); err != nil {
+		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
+		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
 		}
+		log.Debug("ExpandStory token usage", "session_id", session.ID, "input_tokens", expandUsage.InputTokens, "output_tokens", expandUsage.OutputTokens, "total_tokens", expandUsage.TotalTokens)
 
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
@@ -326,6 +366,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		// Use captured imagePrompt to avoid race condition with response pointer
 		if response.ImagePrompt == nil || *response.ImagePrompt == "" {
 			log.Debug("no image prompt, skipping image generation")
+			return
+		}
+		if session.ImageStyle == templates.ImageStyleNoImage {
+			log.Debug("image generation disabled (NO_IMAGE)")
 			return
 		}
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {

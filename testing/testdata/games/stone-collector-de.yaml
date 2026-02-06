@@ -15,6 +15,6 @@ system_message_game_start: |
   Du hast 0 Steine.
   Du stehst auf einem Feld voller Steine. Du kannst jeden Tag so viele sammeln, wie du möchtest.
 
-image_style: "simple flat illustration, minimalist"
+image_style: "NO_IMAGE"
 css: ""
-status_fields: '[{"name":"Tag","value":"1"},{"name":"Steine","value":"0"}]'
+status_fields: '[{"name":"Gold","value":"100"},{"name":"Score","value":"77"},{"name":"Tag","value":"1"},{"name":"Steine","value":"0"}]'

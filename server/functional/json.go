@@ -1,11 +1,54 @@
 package functional
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"reflect"
 	"sort"
 )
+
+// ComputeHash computes a short SHA256 hex hash from the concatenation of the given strings.
+func ComputeHash(parts ...string) string {
+	h := sha256.New()
+	for _, p := range parts {
+		h.Write([]byte(p))
+	}
+	return hex.EncodeToString(h.Sum(nil))[:16]
+}
+
+// InjectJsonField injects a top-level field into a JSON string and returns the updated JSON.
+func InjectJsonField(jsonStr, key, value string) (string, error) {
+	var obj map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+	obj[key] = value
+	out, err := json.MarshalIndent(obj, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+	return string(out) + "\n", nil
+}
+
+// ReadJsonField reads a top-level string field from a JSON string.
+// Returns empty string and no error if the field doesn't exist.
+func ReadJsonField(jsonStr, key string) (string, error) {
+	var obj map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+	val, ok := obj[key]
+	if !ok {
+		return "", nil
+	}
+	str, ok := val.(string)
+	if !ok {
+		return "", nil
+	}
+	return str, nil
+}
 
 // IsSameJsonStructure compares two JSON strings and returns an error if they have different structures.
 // It checks that both JSONs have the exact same fields (keys) at all nesting levels.
@@ -132,4 +175,135 @@ func difference(a, b []string) []string {
 		}
 	}
 	return diff
+}
+
+// SyncJsonStructures compares two JSON strings and adds missing keys to each
+// using a placeholder value. It returns the patched JSON strings and a list of
+// fields that were added to each. If both are already in sync, the added lists
+// will be empty.
+func SyncJsonStructures(json1, json2 string, placeholder string) (patched1, patched2 string, added1, added2 []string, err error) {
+	var obj1, obj2 interface{}
+
+	if err := json.Unmarshal([]byte(json1), &obj1); err != nil {
+		return "", "", nil, nil, fmt.Errorf("failed to parse first JSON: %w", err)
+	}
+
+	if err := json.Unmarshal([]byte(json2), &obj2); err != nil {
+		return "", "", nil, nil, fmt.Errorf("failed to parse second JSON: %w", err)
+	}
+
+	syncStructure(obj1, obj2, "", placeholder, &added1, &added2)
+
+	out1, err := json.MarshalIndent(obj1, "", "  ")
+	if err != nil {
+		return "", "", nil, nil, fmt.Errorf("failed to marshal first JSON: %w", err)
+	}
+
+	out2, err := json.MarshalIndent(obj2, "", "  ")
+	if err != nil {
+		return "", "", nil, nil, fmt.Errorf("failed to marshal second JSON: %w", err)
+	}
+
+	return string(out1) + "\n", string(out2) + "\n", added1, added2, nil
+}
+
+// syncStructure recursively syncs two JSON objects by adding missing keys from each other.
+// Missing leaf values get the placeholder string; missing sub-trees are deep-copied with
+// all leaf values replaced by the placeholder.
+func syncStructure(obj1, obj2 interface{}, path, placeholder string, added1, added2 *[]string) {
+	m1, ok1 := obj1.(map[string]interface{})
+	m2, ok2 := obj2.(map[string]interface{})
+	if !ok1 || !ok2 {
+		return
+	}
+
+	// Keys in m2 missing from m1
+	for _, key := range getSortedKeys(m2) {
+		newPath := key
+		if path != "" {
+			newPath = path + "." + key
+		}
+		if _, exists := m1[key]; !exists {
+			m1[key] = deepCopyWithPlaceholder(m2[key], placeholder)
+			*added1 = append(*added1, newPath)
+		}
+	}
+
+	// Keys in m1 missing from m2
+	for _, key := range getSortedKeys(m1) {
+		newPath := key
+		if path != "" {
+			newPath = path + "." + key
+		}
+		if _, exists := m2[key]; !exists {
+			m2[key] = deepCopyWithPlaceholder(m1[key], placeholder)
+			*added2 = append(*added2, newPath)
+		}
+	}
+
+	// Recurse into shared keys
+	for _, key := range getSortedKeys(m1) {
+		if _, exists := m2[key]; exists {
+			newPath := key
+			if path != "" {
+				newPath = path + "." + key
+			}
+			syncStructure(m1[key], m2[key], newPath, placeholder, added1, added2)
+		}
+	}
+}
+
+// FindPlaceholders scans a JSON string for leaf values that match the placeholder
+// and returns a list of dotted field paths where the placeholder was found.
+func FindPlaceholders(jsonStr string, placeholder string) ([]string, error) {
+	var obj interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
+	}
+	var results []string
+	findPlaceholders(obj, "", placeholder, &results)
+	return results, nil
+}
+
+func findPlaceholders(v interface{}, path, placeholder string, results *[]string) {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		for _, key := range getSortedKeys(val) {
+			newPath := key
+			if path != "" {
+				newPath = path + "." + key
+			}
+			findPlaceholders(val[key], newPath, placeholder, results)
+		}
+	case []interface{}:
+		for i, child := range val {
+			newPath := fmt.Sprintf("%s[%d]", path, i)
+			findPlaceholders(child, newPath, placeholder, results)
+		}
+	case string:
+		if val == placeholder {
+			*results = append(*results, path)
+		}
+	}
+}
+
+// deepCopyWithPlaceholder creates a deep copy of a JSON value, replacing all
+// leaf string values with the placeholder.
+func deepCopyWithPlaceholder(v interface{}, placeholder string) interface{} {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		result := make(map[string]interface{}, len(val))
+		for k, child := range val {
+			result[k] = deepCopyWithPlaceholder(child, placeholder)
+		}
+		return result
+	case []interface{}:
+		result := make([]interface{}, len(val))
+		for i, child := range val {
+			result[i] = deepCopyWithPlaceholder(child, placeholder)
+		}
+		return result
+	default:
+		return placeholder
+	}
 }

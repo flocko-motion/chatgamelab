@@ -1,10 +1,27 @@
 package obj
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+// TokenUsage tracks token consumption from an API call
+type TokenUsage struct {
+	InputTokens  int `json:"inputTokens"`
+	OutputTokens int `json:"outputTokens"`
+	TotalTokens  int `json:"totalTokens"`
+}
+
+// Add returns a new TokenUsage with the sum of both usages
+func (u TokenUsage) Add(other TokenUsage) TokenUsage {
+	return TokenUsage{
+		InputTokens:  u.InputTokens + other.InputTokens,
+		OutputTokens: u.OutputTokens + other.OutputTokens,
+		TotalTokens:  u.TotalTokens + other.TotalTokens,
+	}
+}
 
 type Meta struct {
 	CreatedBy  uuid.NullUUID `json:"createdBy"`
@@ -364,6 +381,20 @@ type GameSessionMessageAi struct {
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 }
 
+// ToAiJSON converts a GameSessionMessage to its AI-facing JSON representation
+func (m *GameSessionMessage) ToAiJSON() string {
+	data, err := json.Marshal(GameSessionMessageAi{
+		Type:         m.Type,
+		Message:      m.Message,
+		StatusFields: m.StatusFields,
+		ImagePrompt:  m.ImagePrompt,
+	})
+	if err != nil {
+		return "{}"
+	}
+	return string(data)
+}
+
 type GameSessionMessage struct {
 	ID     uuid.UUID `json:"id"`
 	Meta   Meta      `json:"meta"`
@@ -387,6 +418,7 @@ type GameSessionMessage struct {
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
+	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text or image)

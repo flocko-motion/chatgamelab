@@ -1,1 +1,910 @@
-{"auth":{"login":{"auth0Button":"Log ind med Auth0","devMode":"Udviklingstilstand","devModeAlert":{"message":"Dette er login-siden til udvikling. I produktion vil du blive omdirigeret direkte til Auth0.","title":"Udviklingstilstand"},"devModeDescription":"Hurtig login til udvikling og test","redirecting":{"message":"Vent venligst, mens vi omdirigerer dig til login-siden.","title":"Omdirigerer til Auth0..."},"role":{"admin":"Log ind som administrator","guest":"Log ind som gæst","student":"Log ind som elev","teacher":"Log ind som lærer"},"subtitle":"Vælg hvordan du vil logge ind","title":"Velkommen til ChatGameLab"},"profile":{"gamesCreated":"Oprettede spil","gamesPlayed":"Spillede spil","memberSince":"Registreret siden","messagesSent":"Sendte beskeder","noOrganization":"Ingen organisation","noRole":"Ingen rolle tildelt","organizationSection":"Organisation","role":"Rolle","sessionsJoined":"Deltagne sessioner","statisticsSection":"Statistik","title":"Profil"},"register":{"cancelButton":"Annuller","checkingName":"Tjekker tilgængelighed...","emailDescription":"Vi bruger denne til vigtige notifikationer.","emailLabel":"E-mailadresse","emailPlaceholder":"Indtast din e-mail","errors":{"emailInvalid":"Indtast venligst en gyldig e-mailadresse","emailRequired":"E-mail er påkrævet","nameRequired":"Navn er påkrævet","nameTaken":"Dette navn er allerede taget","nameTooLong":"Navn må højst være 24 tegn","registrationFailed":"Registrering mislykkedes. Prøv venligst igen."},"nameDescription":"Sådan vil andre brugere se dig. Maks. 24 tegn.","nameLabel":"Vist navn","namePlaceholder":"Indtast dit viste navn","submitButton":"Opret konto","submitting":"Opretter konto...","subtitle":"Bare et par flere detaljer for at komme i gang","title":"Færdiggør din profil"},"settings":{"accountSection":"Konto","emailDescription":"Vi bruger denne til vigtige notifikationer.","emailLabel":"E-mailadresse","emailPlaceholder":"Indtast din e-mail","errors":{"emailInvalid":"Indtast venligst en gyldig e-mailadresse","emailRequired":"E-mail er påkrævet","emailTaken":"Denne e-mail er allerede i brug","nameRequired":"Navn er påkrævet","nameTaken":"Dette navn er allerede taget","nameTooLong":"Navn må højst være 24 tegn","saveFailed":"Kunne ikke gemme ændringer. Prøv venligst igen."},"nameDescription":"Sådan vil andre brugere se dig. Maks. 24 tegn.","nameLabel":"Vist navn","namePlaceholder":"Indtast dit viste navn","saveButton":"Gem ændringer","saved":"Ændringer gemt med succes","saving":"Gemmer...","subtitle":"Administrer dine kontoindstillinger","title":"Indstillinger"}},"common":{"cancel":"Annuller","create":"Opret","dark":"Mørk","delete":"Slet","edit":"Rediger","error":"Fejl","footer":{"copyright":"© ChatGameLab","loginVia":"Log ind via","producedBy":"Produceret af","programmedBy":"Programmeret af"},"goodbye":"Farvel","header":{"closeNavigation":"Luk navigationsmenu","logout":"Log ud","openNavigation":"Åbn navigationsmenu","openProfile":"Åbn profilmenu","openSettings":"Åbn indstillinger","openUserMenu":"Åbn brugermenu","profile":"Profil","settings":"Indstillinger","viewNotifications":"Se notifikationer"},"hello":"Hej","home":{"badge":"Uddannelseslegelaboratorium","features":{"create":{"description":"Design interaktive tekst-eventyr drevet af AI","title":"Skab eventyr"},"learn":{"description":"Perfekt til uddannelsesworkshops og klasseaktiviteter","title":"Lær og undervis"},"play":{"description":"Deltag med venner i samarbejdende historiefortællingssessioner","title":"Spil sammen"},"subtitle":"Oplev den perfekte blanding af uddannelse og underholdning","title":"Hvorfor vælge ChatGameLab?","understand":{"description":"Udforsk hvordan AI-modeller skaber historier og lær hvordan de fungerer","title":"Forstå AI"}},"loginCta":"Kom i gang","splashDescription":"En uddannelsesplatform til at skabe og spille AI-drevne tekst-eventyrspil. Perfekt til lærere, elever og kreative historiefortællere.","title":"ChatGameLab"},"language":"Sprog","languageSwitcher":{"wipHint":"Flere sprog er under udarbejdelse. Kun engelsk og tysk er tilgængelige i øjeblikket.","wipLabel":"WIP"},"light":"Lys","loading":"Indlæser...","login":"Log ind","logout":"Log ud","notifications":"Notifikationer","profile":"Profil","register":"Registrer","save":"Gem","search":"Søg","settings":"Indstillinger","system":"System","theme":"Tema","welcome":"Velkommen"},"dashboard":{"quickActions":{"createNewGame":"Opret nyt spil","createRoom":"Opret rum","inviteMembers":"Inviter medlemmer","title":"Hurtige handlinger","viewAnalytics":"Se analyser"},"recentActivity":{"continuedPlaying":"fortsatte med at spille","createdNewGame":"oprettede nyt spil","invitedStudents":"inviterede {{count}} elever","title":"Seneste aktivitet","viewAll":"Se alle"},"stats":{"activeAdventures":"Aktive eventyr","availableSessions":"Tilgængelige sessioner","onlineNow":"Online nu","readyForPlayers":"Klar til spillere","storiesInProgress":"{{count}} historier undervejs","storyDrafts":"Historikkladder","storyRooms":"Historierum","storytellers":"Historiefortællere"}},"errors":{"backendUserFetch":"Kunne ikke indlæse brugerdata fra serveren. Prøv venligst igen.","forbidden":"Du har ikke tilladelse til at udføre denne handling.","generic":"Noget gik galt. Prøv venligst igen.","network":"Netværksfejl. Tjek venligst din forbindelse.","notFound":"Den ønskede ressource blev ikke fundet.","server":"Serverfejl. Prøv venligst igen senere.","titles":{"authentication":"Autentificeringsfejl","error":"Fejl","network":"Netværksfejl","notFound":"Ikke fundet","permission":"Adgang nægtet","server":"Serverfejl","validation":"Valideringsfejl"},"unauthorized":"Log venligst ind for at fortsætte.","unexpected":"Der opstod en uventet fejl.","validation":"Tjek venligst din indtastning og prøv igen."},"game":{"createNew":"Opret nyt spil","description":"Beskrivelse","invite":"Inviter","join":"Deltag","leave":"Forlad","level":"Niveau","pause":"Pause","players":"Spillere","restart":"Genstart","resume":"Fortsæt","score":"Point","start":"Start","time":"Tid","title":"Titel"},"navigation":{"create":"Opret","dashboard":"Dashboard","debug":"Fejlfinding","games":"Spil","groups":"Grupper","home":"Hjem","learn":"Lær","play":"Spil","rooms":"Rum"}}
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Log ind med Auth0",
+      "devMode": "Udviklingstilstand",
+      "devModeAlert": {
+        "message": "Dette er udviklings-login-siden. I produktion vil du blive omdirigeret direkte til Auth0.",
+        "title": "Udviklingstilstand"
+      },
+      "devModeDescription": "Hurtig login til udvikling og tests",
+      "redirecting": {
+        "message": "Vent venligst, mens vi omdirigerer dig til login-siden.",
+        "title": "Omdirigerer til Auth0..."
+      },
+      "role": {
+        "admin": "Log ind som admin",
+        "guest": "Log ind som gæst",
+        "student": "Log ind som elev",
+        "teacher": "Log ind som lærer"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Forlad workshop",
+        "message": "Er du sikker på, at du vil forlade denne workshop? Du får brug for et nyt inviteringslink for at genindtaste.",
+        "title": "Forlade workshop?"
+      },
+      "leaveWorkshop": "Forlad workshop",
+      "organization": "Organisation",
+      "role": "Workshopdeltager",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Oprettede spil",
+      "gamesPlayed": "Afspillede spil",
+      "memberSince": "Medlem siden",
+      "messagesSent": "Sendte beskeder",
+      "noOrganization": "Ingen organisation",
+      "noRole": "Ingen rolle tildelt",
+      "organization": "Organisation",
+      "organizationSection": "Organisation \u00026 Rolle",
+      "role": "Rolle",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Leder",
+        "participant": "Deltager",
+        "staff": "Medarbejder"
+      },
+      "statisticsSection": "Statistik",
+      "title": "Profil",
+      "totalPlaysOnGames": "Samlede spilrunder på mine spil"
+    },
+    "register": {
+      "cancelButton": "Annuller",
+      "emailDescription": "Vi bruger dette til vigtige meddelelser.",
+      "emailLabel": "E-mailadresse",
+      "emailPlaceholder": "Indtast din e-mail",
+      "errors": {
+        "emailInvalid": "Indtast en gyldig e-mailadresse",
+        "emailRequired": "E-mail er påkrævet",
+        "nameRequired": "Navn er påkrævet",
+        "nameTaken": "Dette navn er allerede taget",
+        "nameTooLong": "Navn må højst være 24 tegn",
+        "registrationFailed": "Registrering mislykkedes. Prøv igen."
+      },
+      "nameDescription": "Sådan vil andre brugere se dig. Maks 24 tegn.",
+      "nameLabel": "Visningsnavn",
+      "namePlaceholder": "Indtast dit visningsnavn",
+      "submitButton": "Opret konto",
+      "submitting": "Opretter konto...",
+      "subtitle": "Bare et par flere detaljer for at komme i gang",
+      "title": "Udfyld din profil"
+    },
+    "settings": {
+      "accountSection": "Konto",
+      "emailChangeNote": "For at ændre din e-mailadresse, kontakt venligst webstedets administrator.",
+      "errors": {
+        "nameRequired": "Navn er påkrævet",
+        "nameTaken": "Dette navn er allerede taget",
+        "nameTooLong": "Navn må højst være 24 tegn",
+        "saveFailed": "Kunne ikke gemme ændringer. Prøv igen."
+      },
+      "nameDescription": "Sådan vil andre brugere se dig. Maks 24 tegn.",
+      "nameLabel": "Visningsnavn",
+      "namePlaceholder": "Indtast dit visningsnavn",
+      "saveButton": "Gem ændringer",
+      "saved": "Ændringer gemt succesfuldt",
+      "saving": "Gemmer...",
+      "showAiModelSelectorDescription": "Når aktiveret, kan du vælge hvilket AI-model der skal bruges, hver gang du starter en spilsession.",
+      "showAiModelSelectorLabel": "Vis AI-modelvælger",
+      "subtitle": "Administrer dine kontoindstillinger",
+      "title": "Indstillinger"
+    }
+  },
+  "common": {
+    "actions": "Handlinger",
+    "admin": {
+      "invites": {
+        "actions": "Handlinger",
+        "empty": "Ingen afventende invitationer.",
+        "invitedEmail": "Inviteret e-mail",
+        "modifiedAt": "Ændret",
+        "noResults": "Ingen invitationer matcher din søgning.",
+        "organization": "Organisation",
+        "revokeConfirm": {
+          "confirm": "Slet",
+          "message": "Er du sikker på, at du vil slette denne invitation? Denne handling kan ikke fortrydes.",
+          "title": "Slet invitation"
+        },
+        "role": "Rolle",
+        "searchPlaceholder": "Søg efter e-mail, rolle, status eller organisation...",
+        "sort": {
+          "label": "Sorter efter",
+          "modifiedAt-asc": "Ændret (Ældst)",
+          "modifiedAt-desc": "Ændret (Nyeste)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)"
+        },
+        "status": "Status",
+        "statuses": {
+          "accepted": "Accepteret",
+          "declined": "Afvist",
+          "expired": "Udløbet",
+          "pending": "Afventer",
+          "revoked": "Tilbagekaldt"
+        },
+        "title": "Afventende invitationer"
+      },
+      "organizations": {
+        "actions": "Handlinger",
+        "create": "Opret organisation",
+        "createTitle": "Opret ny organisation",
+        "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"? Denne handling kan ikke fortrydes.",
+        "deleteTitle": "Slet organisation",
+        "editTitle": "Rediger organisation",
+        "email": "E-mailadresse",
+        "emailPlaceholder": "Indtast e-mailadresse",
+        "empty": "Ingen organisationer endnu. Opret en for at starte.",
+        "inviteDescription": "Send en invitation for at få nogen til at tilslutte sig {{name}} som organisationens leder.",
+        "inviteTitle": "Inviter til organisation",
+        "memberEmail": "E-mail",
+        "memberName": "Navn",
+        "memberRole": "Rolle",
+        "members": "Medlemmer",
+        "membersCount": "medlemmer",
+        "membersList": "Medlemmer",
+        "name": "Navn",
+        "namePlaceholder": "Indtast organisationsnavn",
+        "noMembers": "Ingen medlemmer i denne organisation.",
+        "removeMember": "Fjern medlem",
+        "removeMemberConfirm": "Er du sikker på, at du vil fjerne {{name}} fra denne organisation?",
+        "searchPlaceholder": "Søg organisationer...",
+        "sendInvite": "Send invitation",
+        "title": "Administrer organisationer"
+      },
+      "users": {
+        "actions": "Handlinger",
+        "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"? Denne handling kan ikke fortrydes.",
+        "deleteTitle": "Slet bruger",
+        "editEmail": "Rediger e-mail",
+        "editTitle": "Rediger bruger",
+        "editingUser": "Redigerer bruger: {{name}}",
+        "email": "E-mail",
+        "emailPlaceholder": "Indtast e-mailadresse",
+        "empty": "Ingen brugere fundet.",
+        "hideGuests": "Skjul gæster ({{count}})",
+        "joined": "Tilmeldt",
+        "loadError": "Kunne ikke indlæse brugere",
+        "makeAdmin": "Gør til admin",
+        "me": "Mig",
+        "name": "Navn",
+        "noEmail": "Ingen e-mail",
+        "noResults": "Ingen brugere matcher din søgning.",
+        "noRole": "Ingen rolle",
+        "organization": "Organisation",
+        "promoteConfirm": "Er du sikker på, at du vil forfremme \"{{name}}\" ({{email}}) til admin?",
+        "promoteTitle": "Forfrem til admin",
+        "promoteWarning": "Denne bruger får fuld administrativ adgang til systemet.",
+        "removeAdmin": "Fjern admin",
+        "removeAdminConfirm": "Er du sikker på, at du vil fjerne admin-rollen fra \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Fjern admin-rolle",
+        "removeAdminWarning": "Denne bruger mister alle administrative privilegier.",
+        "role": "Rolle",
+        "searchPlaceholder": "Søg efter navn, e-mail, rolle eller organisation...",
+        "showing": "Viser {{count}} af {{total}} brugere",
+        "sort": {
+          "email-asc": "E-mail (A-Z)",
+          "email-desc": "E-mail (Z-A)",
+          "joined-asc": "Tilmeldt (Ældste)",
+          "joined-desc": "Tilmeldt (Nyeste)",
+          "label": "Sorter efter",
+          "name-asc": "Navn (A-Z)",
+          "name-desc": "Navn (Z-A)",
+          "organization-asc": "Organisation (A-Z)",
+          "organization-desc": "Organisation (Z-A)",
+          "role-asc": "Rolle (A-Z)",
+          "role-desc": "Rolle (Z-A)"
+        },
+        "title": "Administrer brugere"
+      }
+    },
+    "allGames": {
+      "continue": "Fortsæt",
+      "copyConfirm": {
+        "confirm": "Kopier spil",
+        "message": "Dette vil lave en kopi af \"{{name}}\" i dine spil.",
+        "title": "Kopier spil"
+      },
+      "copyGame": "Kopier spil",
+      "empty": {
+        "description": "Prøv at justere dine filtre eller tjek senere for nye spil.",
+        "title": "Ingen spil fundet"
+      },
+      "favorite": "Tilføj til favoritter",
+      "filters": {
+        "all": "Alle spil",
+        "favorites": "Favoritter",
+        "own": "Mine spil",
+        "public": "Offentlige"
+      },
+      "play": "Spil",
+      "restart": "Genstart",
+      "restartConfirm": {
+        "confirm": "Genstart",
+        "message": "Er du sikker på, at du vil genstarte \"{{game}}\"? Din nuværende fremgang går tabt.",
+        "title": "Genstart spil"
+      },
+      "title": "Alle spil",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API-nøgler bruges til at forbinde til AI-platforme for at generere spilindhold.",
+        "title": "Om API-nøgler"
+      },
+      "addKey": "Tilføj nøgle",
+      "addedOn": "Tilføjet",
+      "createModal": {
+        "keyDescription": "Din nøgle vil blive krypteret og gemt sikkert.",
+        "keyLabel": "API-nøgle",
+        "keyPlaceholder": "Indtast din API-nøgle",
+        "nameLabel": "Nøglens navn",
+        "namePlaceholder": "f.eks. Min OpenAI-nøgle",
+        "platformLabel": "Platform",
+        "platformPlaceholder": "Vælg en platform",
+        "submit": "Tilføj nøgle",
+        "title": "Tilføj ny API-nøgle"
+      },
+      "deleteModal": {
+        "message": "Er du sikker på, at du vil slette \"{{name}}\"?",
+        "title": "Slet API-nøgle",
+        "warning": "Denne handling kan ikke fortrydes. Nøglen vil blive slettet permanent."
+      },
+      "errors": {
+        "invalidPlatform": "Ugyldig platform valgt. Vælg venligst en gyldig AI-platform.",
+        "keyRequired": "API-nøgle er påkrævet",
+        "loadFailed": "Kunne ikke indlæse API-nøgler. Prøv igen.",
+        "nameRequired": "Navn er påkrævet",
+        "platformRequired": "Platform er påkrævet"
+      },
+      "key": "nøgle",
+      "keys": "nøgler",
+      "subtitle": "Administrer dine API-nøgler til AI-platforme.",
+      "title": "API-nøgleadministration",
+      "unnamed": "Unavngivet nøgle",
+      "unsupportedPlatform": {
+        "badge": "ikke understøttet",
+        "hint": "Denne platform understøttes i øjeblikket ikke. Du kan kun fjerne eksisterende nøgler."
+      }
+    },
+    "back": "Tilbage",
+    "cancel": "Annuller",
+    "close": "Luk",
+    "copyGame": "Kopier spil",
+    "create": "Opret",
+    "delete": "Slet",
+    "deleteGame": "Slet spil",
+    "edit": "Rediger",
+    "editGame": "Rediger spil",
+    "error": "Fejl",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institut für Medienpädagogik",
+      "programmedBy": "Udviklet af"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Meddelelses-ID",
+          "imagePrompt": "Billedprompt",
+          "isStreaming": "Streaming",
+          "seq": "Sekvens",
+          "statusFields": "Statusfelter",
+          "timestamp": "Tidsstempel",
+          "type": "Type"
+        },
+        "hints": {
+          "id": "Entydig identifikator for denne meddelelse",
+          "imagePrompt": "Prompt sendt til billedgenererings-AI",
+          "isStreaming": "Om indhold stadig modtages",
+          "seq": "Rækkefølge i samtalen",
+          "statusFields": "Spiltilstandsvariabler, der spores af AI",
+          "timestamp": "Hvornår denne besked blev oprettet",
+          "type": "player = brugerinput, game = AI-svar, system = kontekst"
+        },
+        "title": "Debug-info"
+      },
+      "error": {
+        "backToGames": "Tilbage til spil",
+        "gameNotFound": "Spil ikke fundet",
+        "missingFields": "Spillet mangler krævede felter:",
+        "sessionFailed": "Spilsession kunne ikke startes"
+      },
+      "header": {
+        "back": "Tilbage til spil",
+        "debug": "Debug",
+        "decreaseFont": "Formindsk skriftstørrelse",
+        "disableAnimations": "Deaktivér animationer",
+        "increaseFont": "Forøg skriftstørrelse",
+        "settings": "Indstillinger",
+        "useNeutralTheme": "Brug neutralt tema"
+      },
+      "input": {
+        "placeholder": "Hvad gør du?",
+        "send": "Send handling"
+      },
+      "loading": {
+        "game": "Indlæser spil...",
+        "starting": "Starter spilsession...",
+        "startingHint": "AI'en forbereder dit eventyr"
+      },
+      "needsApiKey": {
+        "description": "API-nøglen, der blev brugt til denne session, er ikke længere tilgængelig. Vælg venligst en ny for at fortsætte spillet.",
+        "reason": "Din tidligere API-nøgle er ikke længere tilgængelig. For at fortsætte dit spil skal du vælge en ny.",
+        "title": "API-nøgle kræves"
+      },
+      "selectApiKey": {
+        "keyDescription": "Vælg den API-nøgle, der skal bruges til denne spilsession",
+        "keyLabel": "API-nøgle",
+        "keyPlaceholder": "Vælg en API-nøgle",
+        "loadError": "Kunne ikke indlæse API-nøgler",
+        "mine": "Mine",
+        "modelDescription": "Valgfrit: vælg en specifik AI-model",
+        "modelLabel": "AI-model",
+        "modelPlaceholder": "Standardmodel",
+        "noKeys": "Du skal bruge mindst én API-nøgle for at spille. Tilføj en under Indstillinger → API-nøgler.",
+        "playing": "Spiller",
+        "startGame": "Start spil",
+        "title": "Vælg API-nøgle"
+      },
+      "statusChange": {
+        "effect": "Effekt:"
+      },
+      "unnamed": "Unavngivet"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Mit spil",
+        "public": "Offentlig",
+        "workshop": "Workshop"
+      },
+      "createButton": "Opret spil",
+      "createModal": {
+        "descriptionPlaceholder": "Hvad handler dit spil om?",
+        "namePlaceholder": "f.eks. Rumfartseventyr",
+        "publicDescription": "Offentlige spil er synlige for alle.",
+        "publicLabel": "Gør dette spil offentligt",
+        "submit": "Opret spil",
+        "title": "Opret nyt spil"
+      },
+      "deleteModal": {
+        "message": "Er du sikker på, at du vil slette \"{{name}}\"?",
+        "title": "Slet spil",
+        "warning": "Denne handling kan ikke fortrydes. Alle spildata vil blive slettet permanent."
+      },
+      "editFields": {
+        "description": "Giv spillet en kort beskrivelse. Dette er kun til dig og påvirker ikke spillet.",
+        "gameStart": "Hvordan begynder spillet?",
+        "gameStartHint": "Hvordan starter spillet? Hvad er den første scene? Hvordan bliver spilleren budt velkommen?",
+        "gameStartPlaceholder": "Du vågner ved kanten af en mørk skov. En smal sti fører dybere ind mellem træerne...",
+        "imageStyle": "Hvilken stil skal spillets billeder have?",
+        "imageStyleHint": "For eksempel: tegneserie, realistisk, pixel-art, akvarel...",
+        "name": "Spilnavn",
+        "scenario": "Hvad handler spillet om?",
+        "scenarioHint": "Beskriv kort: Hvordan fungerer spillet? Hvordan ser spilverdenen ud? Sprog \u00026 tone (f.eks. spansk for 6. klasse)?\nHvilken rolle har spilleren? Skriv \"Spilleren ...\".\nHvis du vil have AI'en til at indtage rollen som en bestemt person, skriv \"Du er ...\".",
+        "scenarioPlaceholder": "Du er en opdagelsesrejsende i en mystisk skov. Dit mål er at finde den skjulte skat...",
+        "statusFields": "Spilværdier",
+        "statusFieldsHint": "Hvilke værdier skal spillet holde styr på? For eksempel liv, point eller ammunition. Spillet husker disse værdier og opdaterer dem under spillet."
+      },
+      "editModal": {
+        "title": "Rediger spil",
+        "unsavedChanges": {
+          "discard": "Forkast ændringer",
+          "keepEditing": "Fortsæt redigering",
+          "message": "Du har ikke-gemte ændringer. Er du sikker på, at du vil forkaste dem?",
+          "title": "Ikke-gemte ændringer"
+        }
+      },
+      "empty": {
+        "description": "Opret dit første spil for at komme i gang med interaktive AI-drevne eventyr.",
+        "title": "Ingen spil endnu"
+      },
+      "errors": {
+        "loadFailed": "Kunne ikke indlæse spil. Prøv igen.",
+        "nameRequired": "Spilnavn er påkrævet"
+      },
+      "fields": {
+        "created": "Oprettet",
+        "creator": "Ophavsmand",
+        "me": "Mig",
+        "modified": "Ændret",
+        "name": "Navn",
+        "playCount": "Afspilninger",
+        "visibility": "Synlighed"
+      },
+      "importExport": {
+        "exportButton": "Eksporter spil",
+        "importButton": "Importer spil"
+      },
+      "playNow": "Spil nu",
+      "sort": {
+        "createdAt-asc": "Oprettet (Ældst)",
+        "createdAt-desc": "Oprettet (Nyeste)",
+        "creator-asc": "Ophavsmand (A-Z)",
+        "creator-desc": "Ophavsmand (Z-A)",
+        "label": "Sorter efter",
+        "modifiedAt-asc": "Ændret (Ældst)",
+        "modifiedAt-desc": "Ændret (Nyeste)",
+        "name-asc": "Navn (A-Z)",
+        "name-desc": "Navn (Z-A)",
+        "playCount-asc": "Mindst spillede",
+        "playCount-desc": "Mest spillede",
+        "visibility-asc": "Private først",
+        "visibility-desc": "Offentlige først"
+      },
+      "statusFieldsEditor": {
+        "addField": "Tilføj ny værdi",
+        "namePlaceholder": "Navn (f.eks. Liv)",
+        "noFields": "Ingen værdier endnu. Klik på + for at tilføje en ny.",
+        "valuePlaceholder": "Startværdi (f.eks. 100)"
+      },
+      "tabs": {
+        "basic": "Grundlæggende",
+        "basicInfo": "Generelle oplysninger om spillet. Dette er kun til dig og påvirker ikke spillet.",
+        "importExport": "Import/Eksport",
+        "quickStart": "Hurtigstart",
+        "story": "Historie \u00026 AI",
+        "storyInfo": "Alt her sendes til AI'en for at forme din spilleverden og historie.",
+        "style": "Design",
+        "styleInfo": "Valgfrie indstillinger for spillets udseende under afvikling."
+      },
+      "title": "Mine oprettede spil",
+      "viewModal": {
+        "readOnlyNotice": "Dette spil blev oprettet af en anden bruger. Du kan se detaljerne, men ikke redigere. Brug \"Kopier\" for at lave din egen redigerbare version.",
+        "title": "Spildetaljer"
+      },
+      "visibility": {
+        "private": "Privat",
+        "public": "Offentlig"
+      }
+    },
+    "header": {
+      "apiKeys": "API-nøgler",
+      "closeNavigation": "Luk navigationsmenu",
+      "contact": "Kontakt",
+      "goToDashboard": "Gå til dashboard",
+      "leaveWorkshopMode": "Forlad workshop-tilstand",
+      "leaveWorkshopModeTooltip": "Forlad workshop-tilstand og vend tilbage til normal visning",
+      "logout": "Log ud",
+      "openNavigation": "Åbn navigationsmenu",
+      "openUserMenu": "Åbn brugermenu",
+      "organization": "Organisation",
+      "profile": "Profil",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Design interaktive tekstadventures drevet af AI",
+          "title": "Skab eventyr"
+        },
+        "learn": {
+          "description": "Perfekt til undervisningsworkshops og klasseaktiviteter",
+          "title": "Lær \u00026 undervis"
+        },
+        "play": {
+          "description": "Deltag med venner i samarbejdende fortællesessioner",
+          "title": "Spil sammen"
+        },
+        "title": "Hvorfor vælge ChatGameLab?",
+        "understand": {
+          "description": "Undersøg, hvordan AI-modeller skaber historier, og lær, hvordan de fungerer",
+          "title": "Forstå AI"
+        }
+      },
+      "loginCta": "Log ind og udforsk",
+      "splashDescription": "En læringsplatform til at skabe og spille AI-drevne tekst-adventures. Perfekt til lærere, elever og kreative fortællere."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Du er blevet inviteret til at deltage i en workshop i organisationen \"{{organization}}\".",
+        "inviteMessageSimple": "Du er blevet inviteret til at deltage i denne workshop.",
+        "joinButton": "Deltag i workshop",
+        "title": "Deltag i workshop",
+        "titleWithWorkshop": "Deltag i workshop \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Kunne ikke acceptere invitation. Prøv igen.",
+        "expired": "Dette invitelink er udløbet.",
+        "loadFailed": "Kunne ikke indlæse invite-detaljer. Prøv igen.",
+        "notFound": "Dette invitelink er ugyldigt eller er blevet tilbagekaldt."
+      },
+      "goHome": "Gå til start",
+      "participant": {
+        "loggingIn": "Logger dig ind..."
+      },
+      "success": {
+        "message": "Du er nu tilmeldt workshoppen. Omdirigerer...",
+        "title": "Velkommen!"
+      },
+      "switchWorkshop": {
+        "message": "Dine spil og fremskridt i den aktuelle workshop forbliver, men du kan ikke få adgang til dem, før du genindtaster.",
+        "stayButton": "Bliv i nuværende workshop",
+        "switchButton": "Skift workshop",
+        "title": "Skift workshop?",
+        "warning": "Du er i øjeblikket i workshoppen \"{{currentWorkshop}}\". Hvis du tilslutter \"{{newWorkshop}}\", forlader du din nuværende workshop."
+      }
+    },
+    "labels": {
+      "no": "Nej",
+      "yes": "Ja"
+    },
+    "languageSwitcher": {
+      "wipHint": "Flere sprog er under udvikling. Kun engelsk og tysk er tilgængelige lige nu.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Indlæser...",
+    "logout": "Log ud",
+    "myGames": {
+      "continue": "Fortsæt",
+      "copyConfirm": {
+        "confirm": "Kopier spil",
+        "message": "Dette vil lave en kopi af \"{{name}}\" i dine spil.",
+        "title": "Kopier spil"
+      },
+      "copyGame": "Kopier spil",
+      "empty": {
+        "description": "Opret dit første spil for at komme i gang med interaktive AI-drevne eventyr.",
+        "title": "Ingen spil endnu"
+      },
+      "favorite": "Tilføj til favoritter",
+      "filters": {
+        "all": "Alle",
+        "favorites": "Favoritter"
+      },
+      "play": "Spil",
+      "restart": "Genstart",
+      "restartConfirm": {
+        "confirm": "Genstart",
+        "message": "Er du sikker på, at du vil genstarte \"{{game}}\"? Din nuværende fremgang går tabt.",
+        "title": "Genstart spil"
+      },
+      "title": "Mine spil",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "myOrganization": {
+      "actions": "Handlinger",
+      "apiKeys": {
+        "aboutDescription": "API-nøgler delt her er tilgængelige for alle medlemmer af din organisation til at spille spil. Kun ledere og lærere kan administrere disse nøgler.",
+        "aboutTitle": "Organisations-API-nøgler",
+        "allowPublicSponsoring": "Tillad offentlig sponsring",
+        "allowPublicSponsoringDesc": "Denne nøgle kan bruges til at sponsorere spil for alle brugere.",
+        "filterByPlatform": "Filtrer efter platform",
+        "keyName": "Nøglens navn",
+        "loadError": "Fejl ved indlæsning af organisations-API-nøgler.",
+        "noKeys": "Ingen API-nøgler er delt med denne organisation endnu.",
+        "noResults": "Ingen API-nøgler matcher din søgning.",
+        "notAuthorized": "Du har ikke tilladelse til at administrere organisations-API-nøgler. Kun ledere og lærere kan få adgang til denne side.",
+        "owner": "Ejer",
+        "platform": "Platform",
+        "publicSponsoring": "Offentlig sponsring",
+        "searchPlaceholder": "Søg efter navn eller ejer...",
+        "selectKey": "Vælg API-nøgle",
+        "selectKeyPlaceholder": "Vælg en nøgle at dele...",
+        "share": "Del",
+        "shareKey": "Del nøgle",
+        "shareKeyTitle": "Del API-nøgle med organisation",
+        "title": "Organisations-API-nøgler"
+      },
+      "demoteConfirm": "Er du sikker på, at du vil nedgradere \"{{name}}\" ({{email}}) til lærer?",
+      "demoteTitle": "Nedgrader til lærer",
+      "demoteToStaff": "Nedgrader til lærer",
+      "email": "E-mail",
+      "emailPlaceholder": "Indtast e-mailadresse",
+      "empty": "Ingen medlemmer i denne organisation.",
+      "inviteAlreadyExists": "Der findes allerede en afventende invitation til denne e-mailadresse.",
+      "inviteError": "Kunne ikke sende invitation. Prøv igen.",
+      "inviteTeacher": "Inviter lærer",
+      "inviteTeacherDescription": "Send en invitation til en lærer for at deltage i din organisation.",
+      "inviteTeacherTitle": "Inviter lærer",
+      "inviteUser": "Inviter bruger",
+      "inviteUserDescription": "Send en invitation til en bruger for at deltage i din organisation uden en specifik rolle.",
+      "inviteUserTitle": "Inviter bruger",
+      "leaveConfirm": "Er du sikker på, at du vil forlade \"{{name}}\"?",
+      "leaveOrganization": "Forlad organisation",
+      "leaveTitle": "Forlad organisation",
+      "leaveWarning": "Du mister adgang til alle organisationsressourcer og medlemmer.",
+      "me": "Mig",
+      "name": "Navn",
+      "noEmail": "Ingen e-mail",
+      "noOrganization": "Ingen organisation",
+      "noOrganizationDescription": "Du er ikke medlem af nogen organisation.",
+      "noResults": "Ingen medlemmer matcher din søgning.",
+      "noRole": "Ingen rolle",
+      "promoteConfirm": "Er du sikker på, at du vil forfremme \"{{name}}\" ({{email}}) til leder?",
+      "promoteTitle": "Forfrem til leder",
+      "promoteToHead": "Forfrem til leder",
+      "promoteWarning": "Denne bruger får mulighed for at administrere organisationsmedlemmer og invitere lærere.",
+      "removeConfirm": "Er du sikker på, at du vil fjerne \"{{name}}\" fra organisationen?",
+      "removeMember": "Fjern medlem",
+      "removeTitle": "Fjern medlem",
+      "removeWarning": "Denne bruger mister adgangen til organisationen.",
+      "role": "Rolle",
+      "searchPlaceholder": "Søg medlemmer...",
+      "showing": "{{count}} medlemmer",
+      "sort": {
+        "label": "Sorter efter",
+        "name-asc": "Navn (A-Z)",
+        "name-desc": "Navn (Z-A)",
+        "role-asc": "Rolle (A-Z)",
+        "role-desc": "Rolle (Z-A)"
+      },
+      "title": "Min organisation",
+      "workshops": {
+        "activate": "Aktivér",
+        "active": "Aktiv",
+        "activeDescription": "Aktive workshops tillader deltagerne at tilslutte sig og oprette spil.",
+        "activeLabel": "Aktiv",
+        "anonymousParticipant": "Anonym deltager",
+        "create": "Opret workshop",
+        "createFirst": "Opret din første workshop",
+        "createInviteLink": "Opret invitelink",
+        "createTitle": "Opret workshop",
+        "deactivate": "Deaktivér",
+        "defaultAiModel": "Standard-AI-model",
+        "defaultAiModelHint": "Model, der bruges, når deltagere ikke kan vælge. Kræver en indstillet API-nøgle.",
+        "defaultApiKey": "Standard API-nøgle",
+        "defaultApiKeyHint": "Deltagere vil bruge denne API-nøgle, når de spiller.",
+        "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"?",
+        "deleteTitle": "Slet workshop",
+        "deleteWarning": "Alle spil og sessioner i denne workshop vil blive slettet. Dette kan ikke fortrydes.",
+        "editParticipant": "Rediger navn",
+        "empty": "Ingen workshops endnu.",
+        "enterWorkshop": "Gå ind i workshop-tilstand",
+        "games": "Spil",
+        "hideInactive": "Skjul inaktive",
+        "inactive": "Inaktiv",
+        "inviteCreatedAt": "Oprettet",
+        "inviteDescription": "Generer et invitelink, som deltagerne kan bruge for at tilslutte sig denne workshop.",
+        "inviteExpiresAt": "Udløber",
+        "inviteLink": "Invitelink",
+        "inviteLinkDescription": "Del dette link med deltagerne for at lade dem tilmelde sig workshoppen.",
+        "inviteLinkTitle": "Invitelink for {{name}}",
+        "inviteUsage": "Brug",
+        "joined": "Tilmeldt",
+        "linkCopied": "Link kopieret",
+        "linkCopiedMessage": "Invitelinket er blevet kopieret til din udklipsholder.",
+        "loadError": "Kunne ikke indlæse workshops.",
+        "nameLabel": "Workshopnavn",
+        "namePlaceholder": "f.eks. Sommerlejr 2024",
+        "noActiveInvite": "Intet aktivt invitelink tilgængeligt.",
+        "noDefaultApiKey": "Ingen standard API-nøgle",
+        "noDefaultModel": "Brug platformens standard",
+        "noParticipantToken": "Denne deltager har ikke et invitelink. Kun anonyme deltagere (gæster) har genanvendelige invitelinks.",
+        "noParticipants": "Ingen deltagere endnu",
+        "notAuthorized": "Du har ikke tilladelse til at administrere workshops. Kun ledere og lærere kan få adgang til denne side.",
+        "participantGames": "{{count}} spil",
+        "participantJoined": "Tilmeldt {{date}}",
+        "participantName": "Deltagernavn",
+        "participants": "Deltagere",
+        "removeParticipant": "Fjern deltager",
+        "removeParticipantConfirm": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop?",
+        "removeParticipantMessage": "Er du sikker på, at du vil fjerne \"{{name}}\" fra denne workshop? Denne handling kan ikke fortrydes.",
+        "removeParticipantTitle": "Fjern deltager",
+        "revokeInvite": "Tilbagekald invitelink",
+        "selectApiKey": "Vælg en API-nøgle",
+        "settings": "Indstillinger",
+        "shareParticipantLink": "Kopier individuelt invitelink for denne deltager",
+        "showAiModelSelector": "Tillad deltagere at vælge AI-model",
+        "showOtherParticipantsGames": "Vis andre deltageres spil",
+        "showPublicGames": "Vis offentlige spil for deltagerne",
+        "sort": {
+          "createdAtAsc": "Ældst først",
+          "createdAtDesc": "Nyest først",
+          "label": "Sorter efter",
+          "nameAsc": "Navn (A-Z)",
+          "nameDesc": "Navn (Z-A)",
+          "participantsAsc": "Færrest deltagere",
+          "participantsDesc": "Flest deltagere"
+        },
+        "subtitle": "Administrer workshops og inviter deltagere til at samarbejde om spil.",
+        "title": "Workshops",
+        "usedCount": "{{count}} anvendelser",
+        "viewInviteLink": "Vis invitelink"
+      }
+    },
+    "notifications": {
+      "accept": "Accepter",
+      "decline": "Afvis",
+      "declineConfirm": "Er du sikker på, at du vil afvise denne invitation?",
+      "declineTitle": "Afvis invitation",
+      "empty": "Ingen nye notifikationer.",
+      "inviteDescription": "Du er blevet inviteret til at deltage som {{role}}.",
+      "inviteToJoin": "Organisationsinvitation",
+      "title": "Notifikationer"
+    },
+    "play": {
+      "cloneGame": "Klon til mine spil",
+      "empty": {
+        "description": "Prøv at justere dine filtre eller tjek senere efter nye spil.",
+        "title": "Ingen spil fundet"
+      },
+      "favorite": "Tilføj til favoritter",
+      "filters": {
+        "all": "Alle spil",
+        "favorites": "Favoritter",
+        "organization": "Organisation",
+        "own": "Mine spil",
+        "public": "Offentlige"
+      },
+      "owner": "Mine",
+      "playGame": "Spil dette spil",
+      "playNow": "Spil nu",
+      "selectGameTitle": "Vælg et spil",
+      "title": "Vælg et spil",
+      "unfavorite": "Fjern fra favoritter"
+    },
+    "profile": "Profil",
+    "save": "Gem",
+    "search": "Søg",
+    "sessions": {
+      "continueGame": "Fortsæt spil",
+      "deleteConfirm": {
+        "message": "Er du sikker på, at du vil slette denne session for \"{{game}}\"? Denne handling kan ikke fortrydes.",
+        "title": "Slet session"
+      },
+      "empty": {
+        "description": "Start et nyt spil for at begynde dit eventyr!",
+        "noResults": "Ingen matchende spil fundet",
+        "title": "Ingen spil spillet endnu"
+      },
+      "errors": {
+        "loadFailed": "Dine spil kunne ikke indlæses. Prøv igen."
+      },
+      "fields": {
+        "game": "Spil",
+        "lastPlayed": "Sidst spillet",
+        "model": "Model"
+      },
+      "noDescription": "Ingen beskrivelse",
+      "sort": {
+        "game": "Spil",
+        "label": "Sorter efter",
+        "lastPlayed": "Sidst spillet",
+        "model": "Model"
+      },
+      "startNewGame": "Start nyt spil",
+      "title": "Fortsæt spil",
+      "untitledGame": "Unavngivet spil"
+    },
+    "settings": "Indstillinger",
+    "unnamed": "Unavngivet",
+    "viewGame": "Vis spil"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Projektkoordinator og førende organisation.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Lær mere om uddannelsesprojektet bag denne platform.",
+          "title": "ChatGameLab-projektet"
+        },
+        "title": "Om ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Ingen spillehistorik endnu. Begynd at spille!",
+        "title": "Sidst spillet",
+        "viewAll": "Alle spil"
+      },
+      "myGames": {
+        "empty": "Ingen spil endnu. Opret dit første spil!",
+        "title": "Mine spil",
+        "viewAll": "Alle kreationer"
+      },
+      "myWorkshops": {
+        "empty": "Ingen aktive workshops. Opret en workshop i din organisation!",
+        "title": "Mine workshops",
+        "viewAll": "Alle workshops"
+      },
+      "newGames": {
+        "empty": "Ingen spil tilgængelige endnu.",
+        "title": "Nye spil",
+        "viewAll": "Alle spil"
+      },
+      "popularGames": {
+        "empty": "Ingen spil tilgængelige endnu.",
+        "plays": "{{count}} afspilninger",
+        "title": "Populære spil",
+        "viewAll": "Alle spil"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Opret nyt spil",
+      "createRoom": "Opret rum",
+      "inviteMembers": "Inviter medlemmer",
+      "startNewGame": "Start nyt spil",
+      "title": "Hurtige handlinger"
+    },
+    "untitled": "Unavngivet",
+    "untitledGame": "Unavngivet spil",
+    "version": {
+      "mismatch": {
+        "message": "Frontend-version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e stemmer ikke overens med backend-version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Dette kan forårsage uventet opførsel. Kontakt support, hvis problemerne fortsætter.",
+        "title": "Versionskonflikt opdaget"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "AI-tjenesten oplevede en fejl. Prøv igen.",
+    "backendUserFetch": "Kunne ikke indlæse brugerdata fra serveren. Prøv igen.",
+    "billingNotActive": "Din OpenAI-konto er ikke aktiv. Tjek dine betalingsoplysninger på https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Denne handling er i konflikt med eksisterende data. Prøv igen.",
+    "contentFiltered": "Din forespørgsel blev filtreret af AI'ens indholdspolitik. Prøv at omformulere.",
+    "forbidden": "Du har ikke tilladelse til at udføre denne handling.",
+    "generic": "Noget gik galt. Prøv igen.",
+    "insufficientQuota": "Din API-nøgle har ikke flere credits. Tilføj flere credits eller brug en anden API-nøgle.",
+    "invalidApiKey": "Din API-nøgle er ugyldig eller udløbet. Kontroller din API-nøgle i Indstillinger.",
+    "invalidPlatform": "Ugyldig platform valgt. Vælg en gyldig mulighed.",
+    "invalidToken": "Din session er udløbet eller ugyldig. Brug venligst dit invitelink igen.",
+    "network": "Netværksfejl. Kontroller din forbindelse.",
+    "notFound": "Den forespurgte ressource blev ikke fundet.",
+    "orgVerificationRequired": "Din OpenAI-organisation skal verificeres for at bruge billedegenerering. Verificer på https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "For mange forespørgsler. Vent et øjeblik og prøv igen.",
+    "server": "Serverfejl. Prøv igen senere.",
+    "titles": {
+      "aiError": "AI-fejl",
+      "authentication": "Autentificeringsfejl",
+      "billing": "Betalingsfejl",
+      "error": "Fejl",
+      "network": "Netværksfejl",
+      "notFound": "Ikke fundet",
+      "permission": "Adgang nægtet",
+      "server": "Serverfejl",
+      "validation": "Valideringsfejl",
+      "workshopInactive": "Workshop inaktiv"
+    },
+    "unauthorized": "Log ind for at fortsætte.",
+    "unexpected": "Der opstod en uventet fejl.",
+    "userNotRegistered": "Du skal færdiggøre registreringen, før du kan fortsætte.",
+    "validation": "Kontroller venligst din indtastning og prøv igen.",
+    "workshopInactive": "Denne workshop er blevet deaktiveret. Kontakt din lærer eller workshoparrangør."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Begynd at spille spil for at se dem her, eller skab dit eget!",
+      "title": "Ingen spil endnu"
+    },
+    "filters": {
+      "all": "Alle spil",
+      "mine": "Mine spil",
+      "public": "Offentlige spil",
+      "workshop": "Workshop-spil"
+    },
+    "gameType": "Spil",
+    "organizator": "Organisator: {{name}}",
+    "settings": {
+      "currentWorkshop": "Aktuel workshop",
+      "notInWorkshopMode": "Du er ikke i workshop-tilstand. Gå ind i en workshop først.",
+      "title": "Workshop-indstillinger"
+    },
+    "title": "Min workshop",
+    "you": "Du"
+  },
+  "navigation": {
+    "allGames": "Alle spil",
+    "create": "Opret dit eget spil",
+    "dashboard": "Dashboard",
+    "games": "Spil",
+    "groups": "Grupper",
+    "manageOrganizations": "Administrer organisationer",
+    "manageUsers": "Administrer brugere",
+    "myGames": "Mine spil",
+    "myOrganization": "Min organisation",
+    "myWorkshop": "Min workshop",
+    "orgApiKeys": "API-nøgler",
+    "orgMembers": "Medlemmer",
+    "orgWorkshops": "Workshops",
+    "play": "Spil et spil",
+    "rooms": "Rum",
+    "workshopSettings": "Workshop-indstillinger"
+  }
+}

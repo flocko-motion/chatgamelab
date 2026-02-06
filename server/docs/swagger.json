@@ -3908,14 +3908,19 @@
             "type": "object",
             "properties": {
                 "description": {
+                    "description": "tier label e.g. \"Premium\"",
                     "type": "string"
                 },
                 "id": {
-                    "description": "technical name without spaces, e.g. \"gpt-4-nano\"",
+                    "description": "generic tier: \"high\", \"medium\", \"low\"",
+                    "type": "string"
+                },
+                "model": {
+                    "description": "concrete model ID e.g. \"gpt-5.2\"",
                     "type": "string"
                 },
                 "name": {
-                    "description": "display name e.g. \"GPT 4 Nano\"",
+                    "description": "display name e.g. \"GPT-5.2\"",
                     "type": "string"
                 }
             }
