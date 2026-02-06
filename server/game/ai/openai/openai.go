@@ -94,6 +94,9 @@ type ResponsesAPIResponse struct {
 	Error  *struct {
 		Message string `json:"message"`
 	} `json:"error"`
+	IncompleteDetails *struct {
+		Reason string `json:"reason"`
+	} `json:"incomplete_details"`
 	Output []OutputItem `json:"output"`
 }
 
@@ -188,17 +191,43 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	log.Debug("calling OpenAI Responses API", "model", req.Model, "has_previous_response", req.PreviousResponseID != "")
 	apiResponse, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
-		log.Debug("OpenAI API call failed", "error", err)
+		log.Error("OpenAI API call failed",
+			"error", err,
+			"session_id", session.ID,
+			"model", req.Model,
+		)
 		return fmt.Errorf("OpenAI API error: %w", err)
 	}
 	log.Debug("OpenAI API call completed", "response_id", apiResponse.ID, "status", apiResponse.Status)
 
 	if apiResponse.Status != "completed" {
-		errMsg := "unknown error"
-		if apiResponse.Error != nil {
-			errMsg = apiResponse.Error.Message
+		incompleteReason := ""
+		if apiResponse.IncompleteDetails != nil {
+			incompleteReason = apiResponse.IncompleteDetails.Reason
 		}
-		return fmt.Errorf("response failed: %s", errMsg)
+
+		// Build a user-friendly error message
+		var errMsg string
+		switch {
+		case apiResponse.Error != nil:
+			errMsg = apiResponse.Error.Message
+		case incompleteReason != "":
+			errMsg = fmt.Sprintf("the AI response was incomplete (reason: %s)", incompleteReason)
+		case apiResponse.Status == "failed":
+			errMsg = "the AI failed to generate a response"
+		default:
+			errMsg = fmt.Sprintf("the AI returned an unexpected status: %s", apiResponse.Status)
+		}
+
+		log.Error("OpenAI response not completed",
+			"status", apiResponse.Status,
+			"error_message", errMsg,
+			"incomplete_reason", incompleteReason,
+			"response_id", apiResponse.ID,
+			"session_id", session.ID,
+			"model", req.Model,
+		)
+		return fmt.Errorf("%s", errMsg)
 	}
 
 	// Extract the text response
@@ -287,7 +316,11 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
-		log.Debug("OpenAI streaming API failed", "error", err)
+		log.Error("OpenAI streaming API failed",
+			"error", err,
+			"session_id", session.ID,
+			"model", session.AiModel,
+		)
 		return fmt.Errorf("OpenAI streaming API error: %w", err)
 	}
 	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
@@ -325,7 +358,11 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	// Build image generation request - writes to cache for polling
 	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
 	if err != nil {
-		log.Debug("image generation failed", "error", err)
+		log.Error("image generation failed",
+			"error", err,
+			"session_id", session.ID,
+			"style", session.ImageStyle,
+		)
 		errorCode := extractImageErrorCode(err)
 		cache.SetError(response.ID, errorCode, err.Error()) // Mark as failed so frontend knows to stop polling
 
