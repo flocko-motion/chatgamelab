@@ -14,6 +14,7 @@ type AppConfig = {
   AUTH0_AUDIENCE: string;
   AUTH0_REDIRECT_URI?: string;
   PUBLIC_URL?: string;
+  SENTRY_DSN_FRONTEND?: string;
 };
 
 declare global {
@@ -38,6 +39,7 @@ export const config: AppConfig = {
   AUTH0_AUDIENCE: must(runtime.AUTH0_AUDIENCE ?? import.meta.env.VITE_AUTH0_AUDIENCE, 'AUTH0_AUDIENCE'),
   AUTH0_REDIRECT_URI: runtime.AUTH0_REDIRECT_URI ?? import.meta.env.VITE_AUTH0_REDIRECT_URI,
   PUBLIC_URL: runtime.PUBLIC_URL || import.meta.env.PUBLIC_URL || '/',
+  SENTRY_DSN_FRONTEND: runtime.SENTRY_DSN_FRONTEND ?? import.meta.env.VITE_SENTRY_DSN_FRONTEND,
 };
 
 const env = {

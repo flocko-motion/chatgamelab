@@ -5,6 +5,7 @@ import (
 	"cgl/api/routes"
 	"cgl/db"
 	"cgl/log"
+	"cgl/telemetry"
 	"context"
 	"fmt"
 	"net/http"
@@ -15,6 +16,8 @@ import (
 )
 
 func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struct{}) {
+
+	telemetry.Init(routes.Version)
 
 	auth.InitJwtGeneration()
 
@@ -79,5 +82,6 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 		os.Exit(1)
 	}
 
+	telemetry.Flush(2 * time.Second)
 	log.Info("server stopped")
 }

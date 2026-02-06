@@ -16,6 +16,7 @@ NGINX_CONF="/etc/nginx/conf.d/default.conf"
 
 # Optional
 AUTH0_REDIRECT_URI="${AUTH0_REDIRECT_URI:-}"
+SENTRY_DSN_FRONTEND="${SENTRY_DSN_FRONTEND:-}"
 
 # Extract path from PUBLIC_URL (e.g., "https://example.com/foo" -> "/foo")
 # Remove protocol and domain, keep only the path
@@ -82,7 +83,8 @@ window.__APP_CONFIG__ = {
   AUTH0_CLIENT_ID: "$(printf '%s' "$AUTH0_CLIENT_ID" | sed 's/"/\\"/g')",
   AUTH0_AUDIENCE: "$(printf '%s' "$AUTH0_AUDIENCE" | sed 's/"/\\"/g')",
   AUTH0_REDIRECT_URI: "$(printf '%s' "$AUTH0_REDIRECT_URI" | sed 's/"/\\"/g')",
-  PUBLIC_URL: "$(printf '%s' "$PUBLIC_URL" | sed 's/"/\\"/g')"
+  PUBLIC_URL: "$(printf '%s' "$PUBLIC_URL" | sed 's/"/\\"/g')",
+  SENTRY_DSN_FRONTEND: "$(printf '%s' "$SENTRY_DSN_FRONTEND" | sed 's/"/\\"/g')"
 };
 EOF
 
