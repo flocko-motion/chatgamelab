@@ -585,35 +585,11 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     return elements;
   };
 
-  // Deep merge API theme with local override for testing
-  // If neutral theme is enabled, use the default preset
+  // Resolve theme: test override > neutral default > AI-generated
   const baseTheme = useNeutralTheme
     ? PRESET_THEMES.default
     : mapApiThemeToPartial(state.theme);
-  const effectiveTheme = themeOverride
-    ? {
-        corners: { ...baseTheme?.corners, ...themeOverride.corners },
-        background: { ...baseTheme?.background, ...themeOverride.background },
-        player: { ...baseTheme?.player, ...themeOverride.player },
-        gameMessage: {
-          ...baseTheme?.gameMessage,
-          ...themeOverride.gameMessage,
-        },
-        cards: { ...baseTheme?.cards, ...themeOverride.cards },
-        thinking: { ...baseTheme?.thinking, ...themeOverride.thinking },
-        typography: { ...baseTheme?.typography, ...themeOverride.typography },
-        statusFields: {
-          ...baseTheme?.statusFields,
-          ...themeOverride.statusFields,
-        },
-        header: { ...baseTheme?.header, ...themeOverride.header },
-        divider: { ...baseTheme?.divider, ...themeOverride.divider },
-        statusEmojis: {
-          ...baseTheme?.statusEmojis,
-          ...themeOverride.statusEmojis,
-        },
-      }
-    : baseTheme;
+  const effectiveTheme = themeOverride ?? baseTheme;
 
   return (
     <GameThemeProvider theme={effectiveTheme}>
