@@ -37,6 +37,7 @@ import {
 import { DimmedLoader } from "@components/LoadingAnimation";
 import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
+import { gameToFormData } from "@/features/games/lib";
 import {
   GameEditModal,
   DeleteGameModal,
@@ -111,17 +112,16 @@ export function MyWorkshop() {
     error,
     isCreating,
     isDeleting,
-    isCloning,
     getPermissions,
     getSessionState,
     fileInputRef,
     handleCreateGame,
     handleDeleteGame,
     handleExportGame,
-    handleCloneGame,
+    getGameFormDataForCopy,
     handleDeleteSession,
     triggerImportClick,
-    handleImportFile,
+    parseImportFile,
   } = useWorkshopGames({
     currentUserId,
     currentWorkshopId: workshop?.id,
@@ -147,6 +147,7 @@ export function MyWorkshop() {
     try {
       await handleCreateGame(data);
       closeCreateModal();
+      setCreateInitialData(null);
     } catch {
       // Error handled by mutation
     }
@@ -170,19 +171,17 @@ export function MyWorkshop() {
     }
   };
 
-  const handleCopyFromModal = async () => {
+  // Pre-populated data for create modal (from YAML import or game copy)
+  const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);
+
+  const handleCopyFromModal = () => {
     if (!gameToView) return;
-    try {
-      const newGame = await handleCloneGame(gameToView);
+    const formData = getGameFormDataForCopy(gameToView);
+    if (formData) {
       closeViewModal();
       setGameToView(null);
-      if (newGame.id) {
-        setGameToView(newGame.id);
-        setGameToViewReadOnly(false);
-        openViewModal();
-      }
-    } catch {
-      // Error handled by mutation
+      setCreateInitialData(formData);
+      openCreateModal();
     }
   };
 
@@ -207,27 +206,8 @@ export function MyWorkshop() {
 
   const handleCopyGame = (game: ObjGame) => {
     if (!game.id) return;
-    modals.openConfirmModal({
-      title: t("myGames.copyConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("myGames.copyConfirm.message", {
-            name: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("myGames.copyConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      onConfirm: async () => {
-        const newGame = await handleCloneGame(game.id!);
-        if (newGame.id) {
-          setGameToView(newGame.id);
-          openViewModal();
-        }
-      },
-    });
+    setCreateInitialData(gameToFormData(game));
+    openCreateModal();
   };
 
   const handlePlayGame = (game: ObjGame) => {
@@ -276,11 +256,9 @@ export function MyWorkshop() {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      const newGameId = await handleImportFile(file);
-      if (newGameId) {
-        setGameToView(newGameId);
-        openViewModal();
-      }
+      const formData = await parseImportFile(file);
+      setCreateInitialData(formData);
+      openCreateModal();
     } catch {
       // Error handled
     }
@@ -467,12 +445,12 @@ export function MyWorkshop() {
     {
       key: "actions",
       header: t("actions"),
-      width: 220,
+      width: 260,
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
-          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="nowrap" justify="flex-end">
-            <Box style={{ width: 100, flexShrink: 0 }}>
+          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="wrap" justify="flex-end">
+            <Box style={{ width: 140, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>
             <SimpleGrid cols={2} spacing={4}>
@@ -642,9 +620,13 @@ export function MyWorkshop() {
 
       <GameEditModal
         opened={createModalOpened}
-        onClose={closeCreateModal}
+        onClose={() => {
+          closeCreateModal();
+          setCreateInitialData(null);
+        }}
         onCreate={onCreateGame}
         createLoading={isCreating}
+        initialData={createInitialData}
       />
       <GameEditModal
         gameId={gameToView}
@@ -655,7 +637,6 @@ export function MyWorkshop() {
         }}
         readOnly={gameToViewReadOnly}
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
-        copyLoading={isCloning}
       />
       <DeleteGameModal
         opened={deleteModalOpened}

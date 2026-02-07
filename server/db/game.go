@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/sqlc-dev/pqtype"
 	"gopkg.in/yaml.v3"
 )
@@ -387,6 +388,9 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err := queries().CreateGame(ctx, arg)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
+		}
 		return err
 	}
 
@@ -446,6 +450,9 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	_, err = queries().UpdateGame(ctx, arg)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			return obj.ErrDuplicateNamef("A game with the name %q already exists", game.Name)
+		}
 		return err
 	}
 
@@ -813,6 +820,10 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
 		var theme obj.GameTheme
 		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
+			// Default preset for old sessions that predate the preset-only model
+			if theme.Preset == "" {
+				theme.Preset = "default"
+			}
 			session.Theme = &theme
 		}
 	}
@@ -829,11 +840,13 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID.UUID)
 		if err == nil {
 			session.ApiKey = &obj.ApiKey{
-				ID:       key.ID,
-				UserID:   key.UserID,
-				Name:     key.Name,
-				Platform: key.Platform,
-				Key:      key.Key,
+				ID:               key.ID,
+				UserID:           key.UserID,
+				Name:             key.Name,
+				Platform:         key.Platform,
+				Key:              key.Key,
+				IsDefault:        key.IsDefault,
+				LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
 			}
 		}
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
@@ -842,8 +855,10 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	return session, nil
 }
 
-// UpdateGameSessionApiKey updates the API key for a session (used when resuming a session whose key was deleted)
-func UpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, shareID uuid.UUID, model string) (*obj.GameSession, error) {
+// ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
+// priority chain (workshop → user default) and updates the session.
+// Used when resuming a session whose API key was deleted.
+func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	// Load and verify session ownership
 	session, err := loadSessionByID(ctx, sessionID)
 	if err != nil {
@@ -853,17 +868,33 @@ func UpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uu
 		return nil, obj.ErrForbidden("not the owner of this session")
 	}
 
-	// Resolve the API key share
-	share, err := GetApiKeyShareByID(ctx, userID, shareID)
-	if err != nil {
-		return nil, obj.ErrValidation("invalid API key share")
-	}
-	if share.ApiKey == nil {
-		return nil, obj.ErrValidation("API key not found in share")
+	// Resolve the API key using the same priority chain as session creation:
+	// 1. Workshop key → 2. User default key
+	var share *obj.ApiKeyShare
+
+	// 1. Check for workshop key
+	user, userErr := GetUserByID(ctx, userID)
+	if userErr == nil && user.Role != nil && user.Role.Workshop != nil {
+		workshop, wsErr := GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
+		if wsErr == nil && workshop.DefaultApiKeyShareID != nil {
+			share, _ = GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
+		}
 	}
 
-	// Determine AI model - use provided or fall back to platform default
-	aiModel := model
+	// 2. Check user's default API key (is_default=true on api_key table)
+	if share == nil {
+		defaultKey, _ := GetDefaultApiKeyForUser(ctx, userID)
+		if defaultKey != nil {
+			share, _ = GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
+		}
+	}
+
+	if share == nil || share.ApiKey == nil {
+		return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available. Please configure an API key in your settings."}
+	}
+
+	// Keep the existing model, just update the key
+	aiModel := session.AiModel
 	if aiModel == "" {
 		aiModel = obj.AiModelBalanced
 	}
@@ -914,6 +945,34 @@ func GetGameSessionMessageImageByID(ctx context.Context, messageID uuid.UUID) (*
 		ID:    m.ID,
 		Image: m.Image,
 	}, nil
+}
+
+// GetGameSessionMessageByIDPublic returns message fields needed for the status endpoint (no auth required).
+// Security relies on message UUIDs being random/unguessable, same as image endpoint.
+func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:      m.ID,
+		Type:    m.Type,
+		Message: m.Message,
+		Image:   m.Image,
+	}
+
+	// Parse status fields from JSON
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+
+	// Set image prompt
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+
+	return msg, nil
 }
 
 // GetGameSessionMessageByID returns a message by its ID (requires read access to session)

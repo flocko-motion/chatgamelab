@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
+import { browserLogs } from './plugins/browser-logs';
 import path from 'path';
 
 // https://vite.dev/config/
@@ -14,6 +15,7 @@ export default defineConfig({
       generatedRouteTree: './src/routeTree.gen.ts',
     }),
     react(),
+    browserLogs(),
   ],
   resolve: {
     dedupe: ['react', 'react-dom'],

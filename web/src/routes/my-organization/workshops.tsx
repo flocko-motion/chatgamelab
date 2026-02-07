@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useSearch } from '@tanstack/react-router';
 import { Container, Title, Text, Stack, Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -9,14 +9,22 @@ import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 
+type WorkshopsSearch = {
+  action?: 'create';
+};
+
 export const Route = createFileRoute('/my-organization/workshops')({
   component: OrganizationWorkshopsPage,
+  validateSearch: (search: Record<string, unknown>): WorkshopsSearch => ({
+    action: search.action === 'create' ? 'create' : undefined,
+  }),
 });
 
 function OrganizationWorkshopsPage() {
   const { t } = useTranslation('common');
   const { backendUser } = useAuth();
   const api = useRequiredAuthenticatedApi();
+  const { action } = useSearch({ from: '/my-organization/workshops' });
 
   const institutionId = getUserInstitutionId(backendUser);
   const isHead = hasRole(backendUser, Role.Head);
@@ -68,7 +76,7 @@ function OrganizationWorkshopsPage() {
         </Stack>
 
         {/* Workshops content */}
-        <WorkshopsTab institutionId={institutionId} />
+        <WorkshopsTab institutionId={institutionId} autoCreate={action === 'create'} />
       </Stack>
     </Container>
   );

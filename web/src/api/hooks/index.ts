@@ -15,6 +15,7 @@ export {
   useShareApiKey,
   useUpdateApiKeyName,
   useDeleteApiKey,
+  useSetDefaultApiKey,
   useInstitutionApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
@@ -54,6 +55,7 @@ export {
   useUserStats,
   useUser,
   useUpdateUser,
+  useUpdateUserLanguage,
   useCreateUser,
 } from "./useUsers";
 

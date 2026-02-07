@@ -23,7 +23,9 @@ import {
   IconSchool,
   IconTools,
   IconDeviceGamepad2,
+  IconDownload,
 } from "@tabler/icons-react";
+import { hasRole, Role } from "@/common/lib/roles";
 import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
 import { LinksCard, type LinkItem } from "./LinkCard";
@@ -279,6 +281,10 @@ function ExternalLinksCard() {
 function QuickActionsCard() {
   const { t } = useTranslation("dashboard");
   const navigate = useNavigate();
+  const { data: currentUser } = useCurrentUser();
+
+  const canManageWorkshops =
+    hasRole(currentUser, Role.Head) || hasRole(currentUser, Role.Staff);
 
   const actions = [
     {
@@ -291,15 +297,25 @@ function QuickActionsCard() {
       id: "create-game",
       label: t("quickActions.createNewGame"),
       icon: <IconTools size={16} />,
-      onClick: () => navigate({ to: (ROUTES.MY_GAMES + "/create") as "/" }),
+      onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
     },
     {
-      id: "create-room",
-      label: t("quickActions.createRoom"),
-      icon: <IconBuilding size={16} />,
-      onClick: () => navigate({ to: "/rooms" as "/" }),
-      disabled: true,
+      id: "import-game",
+      label: t("quickActions.importGame"),
+      icon: <IconDownload size={16} />,
+      onClick: () => navigate({ to: ROUTES.MY_GAMES as "/", search: { action: 'import' } }),
     },
+    ...(canManageWorkshops
+      ? [
+          {
+            id: "create-workshop",
+            label: t("quickActions.createWorkshop"),
+            icon: <IconSchool size={16} />,
+            onClick: () =>
+              navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/", search: { action: 'create' } }),
+          },
+        ]
+      : []),
     {
       id: "invite-members",
       label: t("quickActions.inviteMembers"),

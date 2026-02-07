@@ -69,6 +69,22 @@ export function useUpdateUser() {
   });
 }
 
+export function useUpdateUserLanguage() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<ObjUser, HttpxErrorResponse, string>({
+    mutationFn: (language) =>
+      api.users
+        .meLanguagePartialUpdate({ language })
+        .then((response) => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+    },
+    // Silently fail - language is stored locally too, so backend sync is best-effort
+  });
+}
+
 export function useCreateUser() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();

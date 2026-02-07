@@ -234,11 +234,16 @@
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "API keys are used to connect to AI platforms for generating game content.",
+        "description": "API keys are used to connect to AI platforms for generating game content. The selected key (marked with a checkmark) will be used by default when creating new game sessions.",
         "title": "About API Keys"
       },
       "addKey": "Add Key",
       "addedOn": "Added",
+      "currentDefault": {
+        "label": "Active API Key",
+        "none": "No default key configured. Add a key to get started."
+      },
+      "default": "Default",
       "createModal": {
         "keyDescription": "Your key will be encrypted and stored securely.",
         "keyLabel": "API Key",
@@ -264,6 +269,13 @@
       },
       "key": "key",
       "keys": "keys",
+      "platform": "Platform",
+      "setDefault": "Set as default",
+      "status": {
+        "failed": "Key is not working",
+        "unknown": "Key not yet used",
+        "working": "Key is working"
+      },
       "subtitle": "Manage your API keys for AI platforms.",
       "title": "API Key Management",
       "unnamed": "Unnamed Key",
@@ -313,6 +325,12 @@
         "backToGames": "Back to Games",
         "gameNotFound": "Game not found",
         "missingFields": "Game is missing required fields:",
+        "noApiKey": {
+          "goToSettings": "API Key Settings",
+          "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
+          "title": "No API Key Available",
+          "workshop": "No API key is configured for this workshop. Please contact your workshop administrator."
+        },
         "sessionFailed": "Failed to start game session"
       },
       "header": {
@@ -330,27 +348,13 @@
       },
       "loading": {
         "game": "Loading game...",
+        "resolvingKey": "Resolving API key...",
         "starting": "Starting game session...",
         "startingHint": "The AI is preparing your adventure"
       },
       "needsApiKey": {
-        "description": "The API key used for this session is no longer available. Please select a new one to continue playing.",
-        "reason": "Your previous API key is no longer available. To continue your game, please select a new one.",
+        "description": "The API key used for this session is no longer available.",
         "title": "API Key Required"
-      },
-      "selectApiKey": {
-        "keyDescription": "Select the API key to use for this game session",
-        "keyLabel": "API Key",
-        "keyPlaceholder": "Select an API key",
-        "loadError": "Failed to load API keys",
-        "mine": "Mine",
-        "modelDescription": "Optionally select a specific AI model",
-        "modelLabel": "AI Model",
-        "modelPlaceholder": "Default model",
-        "noKeys": "You need at least one API key to play. Add one in Settings → API Keys.",
-        "playing": "Playing",
-        "startGame": "Start Game",
-        "title": "Select API Key"
       },
       "statusChange": {
         "effect": "Effect:"
@@ -818,7 +822,8 @@
     },
     "quickActions": {
       "createNewGame": "Create New Game",
-      "createRoom": "Create Room",
+      "createWorkshop": "Create Workshop",
+      "importGame": "Import Game",
       "inviteMembers": "Invite Members",
       "startNewGame": "Start New Game",
       "title": "Quick Actions"
@@ -849,6 +854,8 @@
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
+    "duplicateName": "The name for this game is already in use. Please choose a different name.",
+    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
     "titles": {
       "aiError": "AI Error",
       "authentication": "Authentication Error",
@@ -864,8 +871,7 @@
     "unauthorized": "Please log in to continue.",
     "unexpected": "An unexpected error occurred.",
     "userNotRegistered": "You need to complete registration before continuing.",
-    "validation": "Please check your input and try again.",
-    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer."
+    "validation": "Please check your input and try again."
   },
   "myWorkshop": {
     "empty": {
@@ -891,6 +897,7 @@
   "navigation": {
     "allGames": "All Games",
     "create": "Create Your Own Game",
+    "createGame": "Create Game",
     "dashboard": "Dashboard",
     "games": "Games",
     "groups": "Groups",

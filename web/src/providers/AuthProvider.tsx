@@ -21,6 +21,7 @@ import {
   extractRawErrorCode,
 } from "../common/types/errorCodes";
 import type { ObjUser } from "../api/generated";
+import i18n from "../i18n";
 
 export interface AuthUser {
   sub: string;
@@ -283,6 +284,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
       const response = await api.users.getUsers();
       setBackendUser(response.data);
+      // Apply user's stored language preference on login
+      if (response.data.language && response.data.language !== i18n.language) {
+        authLogger.debug("Applying user language preference", {
+          stored: response.data.language,
+          current: i18n.language,
+        });
+        i18n.changeLanguage(response.data.language);
+      }
       authLogger.debug("Backend user fetched", {
         userId: response.data.id,
         name: response.data.name,
@@ -619,7 +628,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         authLogger.debug("Session cookie cleared by backend");
       } catch {
         // Ignore errors - cookie might already be cleared
-        authLogger.debug("Failed to clear session cookie (may already be cleared)");
+        authLogger.debug(
+          "Failed to clear session cookie (may already be cleared)",
+        );
       }
       // Redirect to homepage
       authLogger.debug("Redirecting to homepage after participant logout", {

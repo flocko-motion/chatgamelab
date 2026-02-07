@@ -10,10 +10,13 @@ import {
   Menu,
   Checkbox,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@/api/hooks";
+import {
+  queryKeys,
+  useGame,
+  useWorkshopEvents,
+} from "@/api/hooks";
 import { useTranslation } from "react-i18next";
 import {
   IconArrowLeft,
@@ -21,25 +24,21 @@ import {
   IconTextIncrease,
   IconTextDecrease,
   IconSettings,
+  IconKey,
 } from "@tabler/icons-react";
 import env from "@/config/env";
-import { TextButton } from "@components/buttons";
+import { ActionButton, TextButton } from "@components/buttons";
 import { ErrorModal } from "@/common/components/ErrorModal";
-import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
-import {
-  useGame,
-  useAvailableKeysForGame,
-  useWorkshopEvents,
-} from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
+import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { useGameSession } from "../hooks/useGameSession";
+import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue, FontSize } from "../context";
-import { DEFAULT_THEME, mapApiThemeToPartial } from "../types";
+import { mapApiThemeToPartial } from "../types";
 import type { PartialGameTheme } from "../theme/types";
-import { GameThemeProvider, useGameTheme, PRESET_THEMES } from "../theme";
-import { ApiKeySelectModal } from "./ApiKeySelectModal";
+import { GameThemeProvider, useGameTheme, PRESETS } from "../theme";
 import { ThemeTestPanel } from "./ThemeTestPanel";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
@@ -66,29 +65,30 @@ function SceneAreaWithTheme({
   sceneEndRef,
   animationEnabled,
 }: SceneAreaWithThemeProps) {
-  const { cssVars, theme } = useGameTheme();
+  const { cssVars, theme, BackgroundComponent: CustomBg } = useGameTheme();
   const animation = theme.background.animation || "none";
-  const sceneAreaRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Box
       className={classes.sceneArea}
-      ref={sceneAreaRef}
-      px={{ base: "sm", sm: "md" }}
-      py="md"
-      style={{ ...cssVars, position: "relative" }}
+      style={{ ...cssVars }}
     >
-      <BackgroundAnimation
-        animation={animation}
-        disabled={!animationEnabled}
-        containerRef={sceneAreaRef}
-      />
-      <div
-        className={classes.scenesContainer}
-        style={{ position: "relative", zIndex: 1 }}
-      >
-        {renderMessages()}
-        <div ref={sceneEndRef} />
+      {CustomBg && animationEnabled ? (
+        <CustomBg />
+      ) : (
+        <BackgroundAnimation
+          animation={animation}
+          disabled={!animationEnabled}
+        />
+      )}
+      <div className={classes.messagesScroll}>
+        <div
+          className={classes.scenesContainer}
+          style={{ padding: 'var(--mantine-spacing-md)' }}
+        >
+          {renderMessages()}
+          <div ref={sceneEndRef} />
+        </div>
       </div>
     </Box>
   );
@@ -116,20 +116,18 @@ interface GamePlayerProps {
 
 export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
-  const { isMobile } = useResponsiveDesign();
   const { isParticipant, backendUser } = useAuth();
   const { isInWorkshopMode, activeWorkshopId } = useWorkshopMode();
 
   // User is in workshop context if they are a participant OR staff/head/individual in workshop mode
   const isInWorkshopContext = isParticipant || isInWorkshopMode;
 
-  // Determine workshop ID for SSE subscription:
-  // - Participants: always in a workshop, ID is in backendUser.role.workshop.id
-  // - Staff/Head in workshop mode: ID is in activeWorkshopId from WorkshopModeProvider
+  // Determine workshop ID for SSE subscription
   const workshopIdForEvents = isParticipant
     ? backendUser?.role?.workshop?.id
     : isInWorkshopMode
@@ -137,30 +135,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       : undefined;
 
   // Subscribe to workshop SSE events when in workshop context
-  // This ensures real-time updates for API key changes and settings like showAiModelSelector
   useWorkshopEvents({
     workshopId: workshopIdForEvents,
   });
 
-  // For users in workshop context, fetch available keys to auto-select the workshop key
-  const { data: availableKeys, isLoading: availableKeysLoading } =
-    useAvailableKeysForGame(
-      isInWorkshopContext && !isContinuation ? gameId : undefined,
-    );
-  const workshopKey = availableKeys?.find((k) => k.source === "workshop");
-  const [workshopKeyError, setWorkshopKeyError] = useState<string | null>(null);
-  const [autoStartAttempted, setAutoStartAttempted] = useState(false);
-  const prevWorkshopKeyRef = useRef<string | undefined>(undefined);
-
-  // Determine if model selector should be shown in workshop context
-  // This comes from workshop settings, not user settings
-  const workshopShowsModelSelector =
-    backendUser?.role?.workshop?.showAiModelSelector ?? false;
-
-  const [
-    apiKeyModalOpened,
-    { open: openApiKeyModal, close: closeApiKeyModal },
-  ] = useDisclosure(!isContinuation && !isInWorkshopContext);
   const [lightboxImage, setLightboxImage] = useState<{
     url: string;
     alt?: string;
@@ -171,7 +149,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] =
     useState(false);
-  const [imageErrorCode, setImageErrorCode] = useState<string | null>(null);
 
   const {
     data: game,
@@ -182,8 +159,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     state,
     startSession,
     sendAction,
+    retryLastAction,
     loadExistingSession,
     updateSessionApiKey,
+    clearStreamError,
     resetGame,
   } = useGameSession(gameId || "");
 
@@ -218,86 +197,28 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     setUseNeutralTheme((prev) => !prev);
   }, [state.sessionId]);
 
+  // Load existing session (continuation)
   useEffect(() => {
-    if (sessionId && state.phase === "selecting-key") {
+    if (sessionId && state.phase === "idle") {
       loadExistingSession(sessionId);
     }
   }, [sessionId, state.phase, loadExistingSession]);
 
-  // Track workshop key changes for SSE-driven updates
-  // This handles both: key added (error → retry) and key removed (clear state)
+  // Auto-start new sessions: API key is resolved server-side
+  const autoStartAttemptedRef = useRef(false);
   useEffect(() => {
-    const currentKeyId = workshopKey?.shareId;
-    const prevKeyId = prevWorkshopKeyRef.current;
+    if (isContinuation || state.phase !== "idle" || autoStartAttemptedRef.current) return;
+    if (gameLoading || gameError || !game) return;
+    autoStartAttemptedRef.current = true;
+    startSession();
+  }, [isContinuation, state.phase, gameLoading, gameError, game, startSession]);
 
-    // Key added after error → clear error and retry
-    if (workshopKeyError && currentKeyId && !prevKeyId) {
-      setWorkshopKeyError(null);
-      setAutoStartAttempted(false);
-    }
-
-    // Key removed → reset state so next attempt shows error
-    if (!currentKeyId && prevKeyId && !availableKeysLoading) {
-      setAutoStartAttempted(false);
-      // If not in a session, show error immediately
-      if (state.phase === "selecting-key" || state.phase === "error") {
-        setWorkshopKeyError(
-          t(
-            "gamePlayer.workshopKeyError",
-            "No API key configured for this workshop. Please contact your workshop administrator.",
-          ),
-        );
-      }
-    }
-
-    prevWorkshopKeyRef.current = currentKeyId;
-  }, [workshopKey, workshopKeyError, availableKeysLoading, state.phase, t]);
-
-  // Auto-start for users in workshop context (only if model selector is disabled)
-  // If model selector is enabled, we show the modal instead
+  // Auto-resolve API key for sessions that lost their key (needs-api-key phase)
   useEffect(() => {
-    if (
-      !isInWorkshopContext ||
-      isContinuation ||
-      autoStartAttempted ||
-      availableKeysLoading
-    ) {
-      return;
+    if (state.phase === "needs-api-key") {
+      updateSessionApiKey();
     }
-
-    // Keys have loaded, check if we have a workshop key
-    if (availableKeys !== undefined) {
-      setAutoStartAttempted(true);
-      if (workshopKey?.shareId) {
-        if (workshopShowsModelSelector) {
-          // Show modal for model selection instead of auto-starting
-          openApiKeyModal();
-        } else {
-          // Auto-start with workshop key (no model selection)
-          startSession({ shareId: workshopKey.shareId });
-        }
-      } else {
-        // No workshop key configured - show error
-        setWorkshopKeyError(
-          t(
-            "gamePlayer.workshopKeyError",
-            "No API key configured for this workshop. Please contact your workshop administrator.",
-          ),
-        );
-      }
-    }
-  }, [
-    isInWorkshopContext,
-    isContinuation,
-    availableKeys,
-    availableKeysLoading,
-    workshopKey,
-    autoStartAttempted,
-    workshopShowsModelSelector,
-    openApiKeyModal,
-    startSession,
-    t,
-  ]);
+  }, [state.phase, updateSessionApiKey]);
 
   // Debug: Log received theme
   useEffect(() => {
@@ -310,7 +231,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   }, [state.theme]);
 
   const displayGame = isContinuation ? state.gameInfo : game;
-  const isSessionStarting = state.phase === "starting";
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => {
@@ -318,18 +238,27 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     }, 100);
   }, []);
 
+  const prevMessageCountRef = useRef(state.messages.length);
   useEffect(() => {
-    scrollToBottom();
+    // Only auto-scroll when a new message is added, not on streaming text updates
+    if (state.messages.length !== prevMessageCountRef.current) {
+      prevMessageCountRef.current = state.messages.length;
+      scrollToBottom();
+    }
   }, [state.messages, scrollToBottom]);
 
-  const handleStartGame = async (shareId: string, model?: string) => {
-    closeApiKeyModal();
-    await startSession({ shareId, model });
-  };
-
-  const handleUpdateApiKey = async (shareId: string, model?: string) => {
-    await updateSessionApiKey(shareId, model);
-  };
+  // Show global error modal for recoverable mid-game errors (AI errors, send failures)
+  useEffect(() => {
+    if (state.streamError) {
+      showErrorModal({
+        code: state.streamError.code ?? undefined,
+        message: !state.streamError.code
+          ? state.streamError.message
+          : undefined,
+        onDismiss: clearStreamError,
+      });
+    }
+  }, [state.streamError, clearStreamError]);
 
   const handleSendAction = async (message: string) => {
     await sendAction(message);
@@ -339,8 +268,18 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     // Invalidate queries so the games/sessions lists refresh with any new sessions
     queryClient.invalidateQueries({ queryKey: queryKeys.games });
     queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-    navigate({ to: (isContinuation ? "/sessions" : "/play") as "/" });
+    // Navigate back to wherever the user came from (My Games, All Games, Sessions, etc.)
+    if (window.history.length > 1) {
+      router.history.back();
+    } else {
+      // Fallback if there's no history (e.g. direct URL access)
+      navigate({ to: "/" });
+    }
   };
+
+  // Check if the error is a "no API key" error
+  const isNoApiKeyError =
+    state.phase === "error" && extractRawErrorCode(state.errorObject) === "no_api_key";
 
   const openLightbox = useCallback((url: string, alt?: string) => {
     setLightboxImage({ url, alt });
@@ -370,7 +309,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   const disableImageGeneration = useCallback((errorCode: string) => {
     setIsImageGenerationDisabled(true);
-    setImageErrorCode(errorCode);
+    showErrorModal({ code: errorCode });
   }, []);
 
   // Use flex: 1 to fill available space between app header and footer
@@ -378,9 +317,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   const contextValue: GamePlayerContextValue = {
     state,
-    theme: DEFAULT_THEME,
     startSession,
     sendAction,
+    retryLastAction,
     loadExistingSession,
     resetGame,
     openLightbox,
@@ -395,7 +334,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     disableImageGeneration,
   };
 
-  if (gameLoading || (isContinuation && state.phase === "selecting-key")) {
+  if (gameLoading || (isContinuation && state.phase === "idle")) {
     return (
       <Box className={classes.container} h={containerHeight}>
         <Stack
@@ -476,8 +415,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     );
   }
 
-  // Workshop participant but no workshop API key configured
-  if (workshopKeyError) {
+  // "No API key" error — show specific UX depending on context
+  if (isNoApiKeyError) {
     return (
       <Box className={classes.container} h={containerHeight}>
         <Stack
@@ -488,22 +427,41 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
         >
           <IconAlertCircle size={48} color="var(--mantine-color-red-5)" />
           <Text size="lg" fw={600}>
-            {t("gamePlayer.error.noWorkshopKey", "No API Key Available")}
+            {t("gamePlayer.error.noApiKey.title", "No API Key Available")}
           </Text>
           <Text c="dimmed" ta="center" maw={400}>
-            {workshopKeyError}
+            {isInWorkshopContext
+              ? t(
+                  "gamePlayer.error.noApiKey.workshop",
+                  "No API key is configured for this workshop. Please contact your workshop administrator.",
+                )
+              : t(
+                  "gamePlayer.error.noApiKey.personal",
+                  "You need to configure an API key before you can play. Go to your API Key settings to add one.",
+                )}
           </Text>
-          <TextButton
-            onClick={handleBack}
-            leftSection={<IconArrowLeft size={16} />}
-          >
-            {t("gamePlayer.error.backToGames")}
-          </TextButton>
+          <Group gap="sm">
+            <TextButton
+              onClick={handleBack}
+              leftSection={<IconArrowLeft size={16} />}
+            >
+              {t("gamePlayer.error.backToGames")}
+            </TextButton>
+            {!isInWorkshopContext && (
+              <ActionButton
+                leftSection={<IconKey size={16} />}
+                onClick={() => navigate({ to: "/api-keys" })}
+              >
+                {t("gamePlayer.error.noApiKey.goToSettings", "API Key Settings")}
+              </ActionButton>
+            )}
+          </Group>
         </Stack>
       </Box>
     );
   }
 
+  // Generic error state
   if (state.phase === "error") {
     return (
       <>
@@ -528,40 +486,24 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     );
   }
 
-  // Session exists but API key was deleted - prompt for new key
+  // Session exists but API key was deleted — auto-resolving server-side
   if (state.phase === "needs-api-key") {
     return (
-      <>
-        <Box className={classes.container} h={containerHeight}>
-          <Stack
-            className={classes.stateContainer}
-            align="center"
-            justify="center"
-            gap="md"
-          >
-            <IconAlertCircle size={48} color="var(--mantine-color-orange-5)" />
-            <Text size="lg" fw={600}>
-              {t("gamePlayer.needsApiKey.title")}
-            </Text>
-            <Text c="dimmed" ta="center">
-              {t("gamePlayer.needsApiKey.description")}
-            </Text>
-          </Stack>
-        </Box>
-        <ApiKeySelectModal
-          opened={true}
-          onClose={handleBack}
-          onStart={handleUpdateApiKey}
-          gameId={state.gameInfo?.id}
-          gameName={state.gameInfo?.name}
-          isLoading={isSessionStarting}
-          reason={t("gamePlayer.needsApiKey.reason")}
-        />
-      </>
+      <Box className={classes.container} h={containerHeight}>
+        <Stack
+          className={classes.stateContainer}
+          align="center"
+          justify="center"
+          gap="md"
+        >
+          <Loader size="lg" color="accent" />
+          <Text fw={600}>{t("gamePlayer.loading.resolvingKey", "Resolving API key...")}</Text>
+        </Stack>
+      </Box>
     );
   }
 
-  if (state.phase === "starting") {
+  if (state.phase === "idle" || state.phase === "starting") {
     return (
       <Box className={classes.container} h={containerHeight}>
         <Stack
@@ -591,7 +533,15 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
     state.messages.forEach((message, index) => {
       if (message.type === "player") {
-        elements.push(<PlayerAction key={message.id} text={message.text} />);
+        elements.push(
+          <PlayerAction
+            key={message.id}
+            text={message.text}
+            error={message.error}
+            errorCode={message.errorCode}
+            onRetry={message.error ? retryLastAction : undefined}
+          />,
+        );
       } else if (message.type === "system") {
         elements.push(<SystemMessage key={message.id} message={message} />);
       } else {
@@ -637,38 +587,19 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     return elements;
   };
 
-  // Deep merge API theme with local override for testing
-  // If neutral theme is enabled, use the default preset
+  // Resolve theme: test override > neutral default > AI-generated
   const baseTheme = useNeutralTheme
-    ? PRESET_THEMES.default
+    ? PRESETS.default.theme
     : mapApiThemeToPartial(state.theme);
-  const effectiveTheme = themeOverride
-    ? {
-        corners: { ...baseTheme?.corners, ...themeOverride.corners },
-        background: { ...baseTheme?.background, ...themeOverride.background },
-        player: { ...baseTheme?.player, ...themeOverride.player },
-        gameMessage: {
-          ...baseTheme?.gameMessage,
-          ...themeOverride.gameMessage,
-        },
-        cards: { ...baseTheme?.cards, ...themeOverride.cards },
-        thinking: { ...baseTheme?.thinking, ...themeOverride.thinking },
-        typography: { ...baseTheme?.typography, ...themeOverride.typography },
-        statusFields: {
-          ...baseTheme?.statusFields,
-          ...themeOverride.statusFields,
-        },
-        header: { ...baseTheme?.header, ...themeOverride.header },
-        divider: { ...baseTheme?.divider, ...themeOverride.divider },
-        statusEmojis: {
-          ...baseTheme?.statusEmojis,
-          ...themeOverride.statusEmojis,
-        },
-      }
-    : baseTheme;
+  const effectiveTheme = themeOverride ?? baseTheme;
+
+  // Resolve custom BackgroundComponent from preset (if any)
+  const presetName = useNeutralTheme ? 'default' : state.theme?.preset;
+  const activePreset = presetName ? PRESETS[presetName] : undefined;
+  const BackgroundComponent = activePreset?.BackgroundComponent;
 
   return (
-    <GameThemeProvider theme={effectiveTheme}>
+    <GameThemeProvider theme={effectiveTheme} BackgroundComponent={BackgroundComponent}>
       <GamePlayerProvider value={contextValue}>
         <Box className={classes.container} h={containerHeight}>
           <HeaderWithTheme>
@@ -812,33 +743,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           <SceneAreaWithTheme
             renderMessages={renderMessages}
             sceneEndRef={sceneEndRef}
-            animationEnabled={
-              animationEnabled && !state.isWaitingForResponse && !isMobile
-            }
+            animationEnabled={animationEnabled}
           />
-
-          {!isContinuation && (
-            <ApiKeySelectModal
-              opened={apiKeyModalOpened}
-              onClose={handleBack}
-              onStart={handleStartGame}
-              gameId={gameId}
-              gameName={displayGame?.name}
-              isLoading={isSessionStarting}
-              workshopKeyShareId={
-                isInWorkshopContext ? workshopKey?.shareId : undefined
-              }
-            />
-          )}
 
           <ImageLightbox />
-
-          {/* Image generation error modal */}
-          <ErrorModal
-            opened={!!imageErrorCode}
-            onClose={() => setImageErrorCode(null)}
-            errorCode={imageErrorCode || undefined}
-          />
         </Box>
       </GamePlayerProvider>
     </GameThemeProvider>

@@ -256,15 +256,15 @@ export function GameCard({
         )}
 
         {/* Bottom row: Play buttons (left) + Actions (right) */}
-        <Group justify="space-between" align="flex-end" wrap="nowrap">
+        <Group justify="space-between" align="flex-end" wrap="wrap">
           {/* Play/Continue/Restart buttons */}
           <Box onClick={(e) => e.stopPropagation()}>{renderPlayButtons()}</Box>
 
           {/* Action buttons + Favorite */}
           <Group
             gap={4}
+            wrap="wrap"
             onClick={(e) => e.stopPropagation()}
-            style={{ flexShrink: 0 }}
           >
             {actions.map((action) => (
               <Tooltip key={action.key} label={action.label} withArrow>

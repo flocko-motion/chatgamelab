@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider } from "@tanstack/react-router";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ErrorBoundary } from "@/common/components/ErrorBoundary";
+import { GlobalErrorModal } from "@/common/components/GlobalErrorModal";
 
 import { mantineTheme } from "../config/mantineTheme";
 import { queryClient } from "../config/queryClient";
@@ -34,6 +35,7 @@ export function AppProviders() {
           <ErrorBoundary>
             <ModalsProvider>
               <Notifications />
+              <GlobalErrorModal />
               <AuthProvider>
                 <WorkshopModeProvider>
                   <RouterProvider router={router} />

@@ -65,10 +65,13 @@ export interface HttpxErrorResponse {
 }
 
 export interface ObjAiModel {
+  /** tier label e.g. "Premium" */
   description?: string;
-  /** technical name without spaces, e.g. "gpt-4-nano" */
+  /** generic tier: "high", "medium", "low" */
   id?: string;
-  /** display name e.g. "GPT 4 Nano" */
+  /** concrete model ID e.g. "gpt-5.2" */
+  model?: string;
+  /** display name e.g. "GPT-5.2" */
   name?: string;
 }
 
@@ -84,7 +87,9 @@ export interface ObjAiPlatform {
 
 export interface ObjApiKey {
   id?: string;
+  isDefault?: boolean;
   keyShortened?: string;
+  lastUsageSuccess?: boolean;
   meta?: ObjMeta;
   name?: string;
   platform?: string;
@@ -214,6 +219,7 @@ export interface ObjGameSessionMessage {
   /** JSON encoded status fields. */
   statusFields?: ObjStatusField[];
   stream?: boolean;
+  tokenUsage?: ObjTokenUsage;
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
   urlAnalytics?: string;
@@ -227,110 +233,14 @@ export interface ObjGameTag {
 }
 
 export interface ObjGameTheme {
-  /** fields that override the preset defaults */
-  override?: ObjGameThemeOverride;
-  /** preset name (e.g., "space", "fantasy") or "custom" */
-  preset?: string;
-}
-
-export interface ObjGameThemeBackground {
-  /** none, stars, bubbles, fireflies, snow, rain, matrix */
+  /** optional animation override: "none", "stars", "bubbles", etc. Empty = use preset default. */
   animation?: string;
-  /** warm, cool, neutral, dark, black */
-  tint?: string;
-}
-
-export interface ObjGameThemeCards {
-  /** none, thin, medium, thick */
-  borderThickness?: string;
-}
-
-export interface ObjGameThemeCorners {
-  /** amber, emerald, cyan, violet, rose, slate */
-  color?: string;
-  /** brackets, flourish, arrows, dots, none */
-  style?: string;
-}
-
-export interface ObjGameThemeDivider {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  color?: string;
-  /** dot, dots, line, diamond, star, dash, none */
-  style?: string;
-}
-
-export interface ObjGameThemeGameMessage {
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  dropCap?: boolean;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  dropCapColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeHeader {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  accentColor?: string;
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeOverride {
-  background?: ObjGameThemeBackground;
-  cards?: ObjGameThemeCards;
-  corners?: ObjGameThemeCorners;
-  divider?: ObjGameThemeDivider;
-  gameMessage?: ObjGameThemeGameMessage;
-  header?: ObjGameThemeHeader;
-  player?: ObjGameThemePlayer;
+  /** preset name (e.g., "space", "medieval", "pirate") */
+  preset?: string;
+  /** maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"} */
   statusEmojis?: Record<string, string>;
-  statusFields?: ObjGameThemeStatusFields;
-  thinking?: ObjGameThemeThinking;
-  typography?: ObjGameThemeTypography;
-}
-
-export interface ObjGameThemePlayer {
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  color?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-  /** dot, arrow, chevron, diamond, cursor, underscore, pipe, none */
-  indicator?: string;
-  indicatorBlink?: boolean;
-}
-
-export interface ObjGameThemeStatusFields {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  accentColor?: string;
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeThinking {
-  /** dots, block, pipe, underscore, none */
-  streamingCursor?: string;
-  /** dots, spinner, pulse, typewriter */
-  style?: string;
-  /** e.g. "The story unfolds..." */
-  text?: string;
-}
-
-export interface ObjGameThemeTypography {
-  /** serif, sans, mono, fantasy */
-  messages?: string;
+  /** optional loading phrase override, e.g. "The tale continues..." Empty = use preset default. */
+  thinkingText?: string;
 }
 
 export interface ObjInstitution {
@@ -364,6 +274,12 @@ export interface ObjSystemSettings {
   defaultAiModel?: string;
   id?: string;
   modifiedAt?: string;
+}
+
+export interface ObjTokenUsage {
+  inputTokens?: number;
+  outputTokens?: number;
+  totalTokens?: number;
 }
 
 export interface ObjUser {
@@ -476,7 +392,6 @@ export interface RoutesCreateInstitutionRequest {
 
 export interface RoutesCreateSessionRequest {
   model?: string;
-  shareId?: string;
 }
 
 export interface RoutesCreateWorkshopInviteRequest {
@@ -523,6 +438,25 @@ export interface RoutesInviteResponse {
 export interface RoutesLanguage {
   iso?: string;
   label?: string;
+}
+
+export interface RoutesMessageStatusResponse {
+  /** Fatal error message (AI failure) */
+  error?: string;
+  /** Machine-readable error code */
+  errorCode?: string;
+  /** Machine-readable image error code */
+  imageError?: string;
+  /** Hash for cache-busting image URL */
+  imageHash?: string;
+  /** "none" | "generating" | "complete" | "error" */
+  imageStatus?: string;
+  /** Current status fields */
+  statusFields?: ObjStatusField[];
+  /** Current full text of the message */
+  text?: string;
+  /** True when text streaming is complete (Stream=false in DB) */
+  textDone?: boolean;
 }
 
 export interface RoutesParticipantLoginRequest {
@@ -606,11 +540,6 @@ export interface RoutesUpdateApiKeyRequest {
 
 export interface RoutesUpdateInstitutionRequest {
   name?: string;
-}
-
-export interface RoutesUpdateSessionRequest {
-  model?: string;
-  shareId?: string;
 }
 
 export interface RoutesUpdateSystemSettingsRequest {
@@ -1030,6 +959,24 @@ export class Api<
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets the given API key as the user's default key for session creation
+     *
+     * @tags apikeys
+     * @name DefaultUpdate
+     * @summary Set default API key
+     * @request PUT:/apikeys/{id}/default
+     * @secure
+     */
+    defaultUpdate: (id: string, params: RequestParams = {}) =>
+      this.request<ObjApiKeyShare, HttpxErrorResponse>({
+        path: `/apikeys/${id}/default`,
+        method: "PUT",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1810,6 +1757,22 @@ export class Api<
       }),
 
     /**
+     * @description Returns the current state of a message: text, image status, errors. Frontend polls this as a safety net when SSE drops, on reload, or for image progress. No authentication required - message UUIDs are random and unguessable.
+     *
+     * @tags messages
+     * @name StatusList
+     * @summary Get message completion status
+     * @request GET:/messages/{id}/status
+     */
+    statusList: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesMessageStatusResponse, HttpxErrorResponse>({
+        path: `/messages/${id}/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Server-Sent Events endpoint for streaming message chunks.
      *
      * @tags messages
@@ -1972,25 +1935,19 @@ export class Api<
       }),
 
     /**
-     * @description Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+     * @description Re-resolves the API key for a session. Used when resuming a session whose API key was deleted. The API key is resolved server-side using the same priority as session creation.
      *
      * @tags sessions
      * @name SessionsPartialUpdate
-     * @summary Update session
+     * @summary Update session API key
      * @request PATCH:/sessions/{id}
      * @secure
      */
-    sessionsPartialUpdate: (
-      id: string,
-      request: RoutesUpdateSessionRequest,
-      params: RequestParams = {},
-    ) =>
+    sessionsPartialUpdate: (id: string, params: RequestParams = {}) =>
       this.request<ObjGameSession, HttpxErrorResponse>({
         path: `/sessions/${id}`,
         method: "PATCH",
-        body: request,
         secure: true,
-        type: ContentType.Json,
         format: "json",
         ...params,
       }),

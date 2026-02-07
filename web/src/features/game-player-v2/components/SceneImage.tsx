@@ -1,67 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useGamePlayerContext } from '../context';
-import { useImagePolling } from '../hooks/useImagePolling';
 import { translateErrorCode } from '@/common/lib/errorHelpers';
+import { config } from '@/config/env';
+import type { ImageStatus } from '../types';
 import classes from './GamePlayer.module.css';
 
 interface SceneImageProps {
   messageId: string;
   imagePrompt?: string;
-  isGenerating?: boolean;
+  imageStatus?: ImageStatus;
+  imageHash?: string;
+  imageErrorCode?: string;
 }
 
-export function SceneImage({ messageId, imagePrompt }: SceneImageProps) {
+/**
+ * Renders the image for a game message.
+ * Image status and hash are provided by the parent (via useGameSession polling).
+ * This component just derives the image URL and handles load/error states.
+ * Parent should use key={messageId} to reset state when the message changes.
+ */
+export function SceneImage({ messageId, imagePrompt, imageStatus, imageHash, imageErrorCode }: SceneImageProps) {
   const { openLightbox, disableImageGeneration } = useGamePlayerContext();
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const [errorHandled, setErrorHandled] = useState(false);
-  const [pollingComplete, setPollingComplete] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Reset polling state when messageId changes
-  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: reset state when messageId changes */
+  // Build image URL:
+  // - During generation: stable URL (no hash) so the <img> element stays mounted
+  //   and the browser just refreshes it without restarting CSS animations.
+  // - On complete: use hash for cache-busting to ensure final image is shown.
+  const baseImageUrl = `${config.API_BASE_URL}/messages/${messageId}/image`;
+  const imageUrl = imageHash
+    ? (imageStatus === 'generating' ? baseImageUrl : `${baseImageUrl}?v=${imageHash}`)
+    : null;
+
+  // Notify context of image error
   useEffect(() => {
-    setPollingComplete(false);
-    setLoadedSrc(null);
-    setErrorHandled(false);
-  }, [messageId]);
+    if (imageStatus === 'error' && imageErrorCode) {
+      disableImageGeneration(imageErrorCode);
+    }
+  }, [imageStatus, imageErrorCode, disableImageGeneration]);
 
-  // Poll for image updates until complete (not just until first partial image loads)
-  const { imageUrl, isComplete, hasError, errorCode } = useImagePolling({
-    messageId,
-    enabled: !pollingComplete, // Keep polling until we mark it complete
-  });
+  const showPlaceholder = imageStatus !== 'error' && (!imageUrl || !hasLoaded);
+  const isPartialImage = imageStatus === 'generating' && !!imageUrl;
 
-  // Stop polling when image is complete or has error
-  if ((isComplete || hasError) && !pollingComplete) {
-    setPollingComplete(true);
-  }
-
-  // Notify context of image error (to disable future image generation and show modal)
-  if (hasError && errorCode && !errorHandled) {
-    setErrorHandled(true);
-    disableImageGeneration(errorCode);
-  }
-
-  const imgLoaded = !!imageUrl && loadedSrc === imageUrl;
-  const showPlaceholder = !hasError && (!imageUrl || !imgLoaded);
-  const isPartialImage = !isComplete && !!imageUrl;
-
-  // Get translated error message
-  const errorInfo = hasError && errorCode ? translateErrorCode(errorCode) : null;
+  const errorInfo = imageStatus === 'error' && imageErrorCode ? translateErrorCode(imageErrorCode) : null;
 
   const handleImageLoad = () => {
-    if (imageUrl) {
-      setLoadedSrc(imageUrl);
-    }
+    setHasLoaded(true);
   };
 
   const handleClick = () => {
-    if (imgLoaded && imageUrl) {
+    if (hasLoaded && imageUrl) {
       openLightbox(imageUrl, imagePrompt);
     }
   };
 
-  // Show error state
-  if (hasError) {
+  if (imageStatus === 'error') {
     return (
       <div className={classes.sceneImageWrapper}>
         <div className={classes.imageError}>
@@ -78,10 +71,10 @@ export function SceneImage({ messageId, imagePrompt }: SceneImageProps) {
     <div 
       className={classes.sceneImageWrapper}
       onClick={handleClick}
-      role={imgLoaded ? 'button' : undefined}
-      tabIndex={imgLoaded ? 0 : undefined}
+      role={hasLoaded ? 'button' : undefined}
+      tabIndex={hasLoaded ? 0 : undefined}
       onKeyDown={(e) => {
-        if (imgLoaded && (e.key === 'Enter' || e.key === ' ')) {
+        if (hasLoaded && (e.key === 'Enter' || e.key === ' ')) {
           e.preventDefault();
           handleClick();
         }

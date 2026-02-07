@@ -78,6 +78,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.aiError",
     messageKey: "errors:contentFiltered",
   },
+  [ErrorCodes.DUPLICATE_NAME]: {
+    titleKey: "errors:titles.error",
+    messageKey: "errors:duplicateName",
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:aiError",
@@ -108,6 +112,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.NOT_FOUND:
     case ErrorCodes.CONFLICT:
     case ErrorCodes.INVALID_PLATFORM:
+    case ErrorCodes.DUPLICATE_NAME:
       return "orange";
     default:
       return "red";

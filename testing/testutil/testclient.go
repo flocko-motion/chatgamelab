@@ -16,8 +16,6 @@ import (
 	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
-
-	"github.com/google/uuid"
 )
 
 var (
@@ -479,14 +477,14 @@ func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, 
 }
 
 // CreateGameSession creates a new game session (composable high-level API)
-// Returns the session and the initial message
-func (u *UserClient) CreateGameSession(gameID string, apiKeyShareID uuid.UUID, model string) (routes.SessionResponse, error) {
+// Returns the session and the initial message.
+// API key is resolved server-side (sponsor → workshop → user default).
+func (u *UserClient) CreateGameSession(gameID string, model string) (routes.SessionResponse, error) {
 	u.t.Helper()
 
 	var response routes.SessionResponse
 	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
-		Model:   model,
-		ShareID: apiKeyShareID,
+		Model: model,
 	}, &response)
 	return response, err
 }

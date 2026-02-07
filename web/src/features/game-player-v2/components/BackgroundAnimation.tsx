@@ -1,18 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import Particles, { initParticlesEngine } from '@tsparticles/react';
 import { loadFull } from 'tsparticles';
 import type { ISourceOptions } from '@tsparticles/engine';
-import type { BackgroundAnimation } from '../theme/types';
+import type { BackgroundAnimation as BackgroundAnimationType } from '../theme/types';
 
 interface BackgroundAnimationProps {
-  animation: BackgroundAnimation;
+  animation: BackgroundAnimationType;
   disabled?: boolean;
-  /** The scroll container that the background should visually stick to */
-  containerRef?: React.RefObject<HTMLElement | null>;
 }
 
 /** Particle configurations for each animation type */
-const ANIMATION_CONFIGS: Record<BackgroundAnimation, ISourceOptions | null> = {
+const ANIMATION_CONFIGS: Record<BackgroundAnimationType, ISourceOptions | null> = {
   none: null,
   
   stars: {
@@ -473,9 +471,8 @@ const ANIMATION_CONFIGS: Record<BackgroundAnimation, ISourceOptions | null> = {
 let engineInitialized = false;
 let engineInitPromise: Promise<void> | null = null;
 
-export function BackgroundAnimation({ animation, disabled = false, containerRef }: BackgroundAnimationProps) {
+export const BackgroundAnimation = memo(function BackgroundAnimation({ animation, disabled = false }: BackgroundAnimationProps) {
   const [init, setInit] = useState(engineInitialized);
-  const [scrollTop, setScrollTop] = useState(0);
   
   // Respect prefers-reduced-motion
   const prefersReducedMotion = useMemo(() => {
@@ -502,44 +499,6 @@ export function BackgroundAnimation({ animation, disabled = false, containerRef 
     engineInitPromise.then(() => setInit(true));
   }, []);
 
-  // Keep the particles layer visually fixed within the scroll container.
-  // Without this, an absolutely positioned layer would remain at scrollTop=0 and disappear once you scroll.
-  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: sync scroll position from DOM */
-  useEffect(() => {
-    const el = containerRef?.current;
-    if (!el || typeof window === 'undefined') {
-      setScrollTop(0);
-      return;
-    }
-
-    let raf = 0;
-    let lastScrollTime = 0;
-
-    const update = () => {
-      raf = 0;
-      const now = performance.now();
-      // Throttle updates to prevent excessive re-renders during fast scrolling
-      if (now - lastScrollTime > 16) { // ~60fps
-        setScrollTop(el.scrollTop);
-        lastScrollTime = now;
-      }
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    };
-
-    // Initialize and subscribe
-    setScrollTop(el.scrollTop);
-    el.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      el.removeEventListener('scroll', onScroll);
-    };
-  }, [containerRef]);
-  
   // Don't render if not initialized, disabled, no animation, or user prefers reduced motion
   if (!init || disabled || animation === 'none' || prefersReducedMotion) {
     return null;
@@ -548,6 +507,8 @@ export function BackgroundAnimation({ animation, disabled = false, containerRef 
   const config = ANIMATION_CONFIGS[animation];
   if (!config) return null;
   
+  // Positioned absolutely within the non-scrolling sceneArea container.
+  // Messages scroll independently in a sibling layer on top.
   return (
     <div
       aria-hidden="true"
@@ -557,15 +518,13 @@ export function BackgroundAnimation({ animation, disabled = false, containerRef 
         pointerEvents: 'none',
         zIndex: 0,
         overflow: 'hidden',
-        transform: `translateY(${scrollTop}px)`,
-        willChange: 'transform',
       }}
     >
       <Particles
         id="game-bg-particles"
         options={config}
-        style={{ width: '100%', height: '100%' }}
+        style={{ position: 'absolute', inset: 0 }}
       />
     </div>
   );
-}
+});

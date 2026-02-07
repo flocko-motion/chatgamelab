@@ -28,13 +28,7 @@ type SessionResponse struct {
 }
 
 type CreateSessionRequest struct {
-	ShareID uuid.UUID `json:"shareId"`
-	Model   string    `json:"model"`
-}
-
-type UpdateSessionRequest struct {
-	ShareID uuid.UUID `json:"shareId"`
-	Model   string    `json:"model,omitempty"`
+	Model string `json:"model"`
 }
 
 // GetUserSessions godoc
@@ -259,8 +253,8 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug("creating session with model", "game_id", gameID, "share_id", req.ShareID, "model", req.Model)
-	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
+	log.Debug("creating session with model", "game_id", gameID, "model", req.Model)
+	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.Model)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
@@ -327,19 +321,18 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 
 // UpdateSession godoc
 //
-//	@Summary		Update session
-//	@Description	Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+//	@Summary		Update session API key
+//	@Description	Re-resolves the API key for a session. Used when resuming a session whose API key was deleted.
+//	@Description	The API key is resolved server-side using the same priority as session creation.
 //	@Tags			sessions
-//	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string					true	"Session ID (UUID)"
-//	@Param			request	body		UpdateSessionRequest	true	"Update session request"
-//	@Success		200		{object}	obj.GameSession
-//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
-//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		404		{object}	httpx.ErrorResponse	"Session not found"
-//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Param			id	path		string	true	"Session ID (UUID)"
+//	@Success		200	{object}	obj.GameSession
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request or no API key available"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Session not found"
+//	@Failure		500	{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/sessions/{id} [patch]
 func UpdateSession(w http.ResponseWriter, r *http.Request) {
@@ -351,15 +344,9 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req UpdateSessionRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
+	log.Debug("updating session API key", "session_id", sessionID, "user_id", user.ID)
 
-	log.Debug("updating session", "session_id", sessionID, "user_id", user.ID, "share_id", req.ShareID)
-
-	session, err := db.UpdateGameSessionApiKey(r.Context(), user.ID, sessionID, req.ShareID, req.Model)
+	session, err := db.ResolveAndUpdateGameSessionApiKey(r.Context(), user.ID, sessionID)
 	if err != nil {
 		if httpErr, ok := err.(*obj.HTTPError); ok {
 			httpx.WriteHTTPError(w, httpErr)
@@ -371,6 +358,91 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug("session updated", "session_id", sessionID)
 	httpx.WriteJSON(w, http.StatusOK, session)
+}
+
+// MessageStatusResponse is the unified response for polling message completion.
+// Frontend polls this to catch up after SSE drops, on reload, or for image progress.
+type MessageStatusResponse struct {
+	Text         string            `json:"text"`                   // Current full text of the message
+	TextDone     bool              `json:"textDone"`               // True when text streaming is complete (Stream=false in DB)
+	ImageStatus  string            `json:"imageStatus"`            // "none" | "generating" | "complete" | "error"
+	ImageHash    string            `json:"imageHash,omitempty"`    // Hash for cache-busting image URL
+	ImageError   string            `json:"imageError,omitempty"`   // Machine-readable image error code
+	StatusFields []obj.StatusField `json:"statusFields,omitempty"` // Current status fields
+	Error        string            `json:"error,omitempty"`        // Fatal error message (AI failure)
+	ErrorCode    string            `json:"errorCode,omitempty"`    // Machine-readable error code
+}
+
+// GetMessageStatus godoc
+//
+//	@Summary		Get message completion status
+//	@Description	Returns the current state of a message: text, image status, errors.
+//	@Description	Frontend polls this as a safety net when SSE drops, on reload, or for image progress.
+//	@Description	No authentication required - message UUIDs are random and unguessable.
+//	@Tags			messages
+//	@Produce		json
+//	@Param			id	path		string	true	"Message ID (UUID)"
+//	@Success		200	{object}	MessageStatusResponse
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Message not found"
+//	@Router			/messages/{id}/status [get]
+func GetMessageStatus(w http.ResponseWriter, r *http.Request) {
+	messageID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	// Get message from DB (no auth - relies on UUID unguessability, same as image endpoint)
+	msg, err := db.GetGameSessionMessageByIDPublic(r.Context(), messageID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Message not found")
+		return
+	}
+
+	// Determine text completion: if stream registry has an active stream, text is still in progress
+	registry := stream.Get()
+	textStreaming := registry.Lookup(messageID) != nil
+
+	resp := MessageStatusResponse{
+		Text:         msg.Message,
+		TextDone:     !textStreaming,
+		StatusFields: msg.StatusFields,
+	}
+
+	// Determine image status
+	if msg.ImagePrompt == nil || *msg.ImagePrompt == "" {
+		resp.ImageStatus = "none"
+	} else {
+		// Check image cache first (in-progress generation)
+		cache := imagecache.Get()
+		imgStatus := cache.GetStatus(messageID)
+
+		if imgStatus.Exists {
+			if imgStatus.HasError {
+				resp.ImageStatus = "error"
+				resp.ImageError = imgStatus.ErrorCode
+			} else if imgStatus.IsComplete {
+				resp.ImageStatus = "complete"
+				resp.ImageHash = imgStatus.Hash
+			} else {
+				resp.ImageStatus = "generating"
+				resp.ImageHash = imgStatus.Hash
+			}
+		} else if len(msg.Image) > 0 {
+			// Image already persisted to DB
+			resp.ImageStatus = "complete"
+			resp.ImageHash = "persisted"
+		} else if textStreaming {
+			// Stream still active, image generation hasn't started yet
+			resp.ImageStatus = "generating"
+		} else {
+			// Stream finished but no image — generation failed silently or was skipped
+			resp.ImageStatus = "none"
+		}
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, resp)
 }
 
 // ImageStatusResponse is the response for the image status endpoint

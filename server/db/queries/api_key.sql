@@ -28,6 +28,8 @@ SELECT
   k.name AS key_name,
   k.platform AS key_platform,
   k.key AS key_key,
+  k.is_default AS key_is_default,
+  k.last_usage_success AS key_last_usage_success,
   o.name AS key_owner_name
 FROM api_key_share s
 JOIN api_key k ON k.id = s.api_key_id
@@ -70,6 +72,8 @@ SELECT
   k.name AS api_key_name,
   k.platform AS api_key_platform,
   k.key AS api_key_key,
+  k.is_default AS api_key_is_default,
+  k.last_usage_success AS api_key_last_usage_success,
   k.user_id AS owner_id,
   owner.name AS owner_name
 FROM api_key_share s

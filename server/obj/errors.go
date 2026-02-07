@@ -14,6 +14,8 @@ const (
 	ErrCodeInvalidInput      = "invalid_input"
 	ErrCodeServerError       = "server_error"
 	ErrCodeUserNotRegistered = "user_not_registered"
+	ErrCodeDuplicateName     = "duplicate_name"
+	ErrCodeNoApiKey          = "no_api_key"
 
 	// AI-specific error codes
 	ErrCodeAiError                 = "ai_error"
@@ -97,6 +99,14 @@ func ErrUserNotRegistered(message string) *AppError {
 
 func ErrUserNotRegisteredf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeUserNotRegistered, fmt.Sprintf(format, args...))
+}
+
+func ErrDuplicateName(message string) *AppError {
+	return NewAppError(ErrCodeDuplicateName, message)
+}
+
+func ErrDuplicateNamef(format string, args ...any) *AppError {
+	return NewAppError(ErrCodeDuplicateName, fmt.Sprintf(format, args...))
 }
 
 // AppError is a custom error type that carries an HTTP error code.

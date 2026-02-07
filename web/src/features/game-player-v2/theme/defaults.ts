@@ -5,7 +5,7 @@
  * All customizations are optional overrides on top of this.
  */
 
-import type { GameTheme, PartialGameTheme } from './types';
+import type { GameTheme } from './types';
 
 /** Default theme - clean, minimal, neutral */
 export const DEFAULT_GAME_THEME: GameTheme = {
@@ -40,6 +40,7 @@ export const DEFAULT_GAME_THEME: GameTheme = {
     bgColor: 'white',
     fontColor: 'dark',
     borderColor: 'slate',
+    textEffect: 'none',
   },
   
   cards: {
@@ -171,6 +172,55 @@ export const THEME_COLORS: Record<string, { primary: string; light: string; dark
     dark: '#ea580c',
     bg: 'rgba(249, 115, 22, 0.1)',
   },
+  // Sky blue (friendly, school)
+  sky: {
+    primary: '#0284c7',
+    light: '#38bdf8',
+    dark: '#0369a1',
+    bg: 'rgba(56, 189, 248, 0.1)',
+  },
+  // Indigo (deep blue-violet)
+  indigo: {
+    primary: '#4f46e5',
+    light: '#818cf8',
+    dark: '#4338ca',
+    bg: 'rgba(129, 140, 248, 0.1)',
+  },
+  // Lime (bright green)
+  lime: {
+    primary: '#65a30d',
+    light: '#a3e635',
+    dark: '#4d7c0f',
+    bg: 'rgba(163, 230, 53, 0.1)',
+  },
+  // Sunshine (warm yellow)
+  sunshine: {
+    primary: '#ca8a04',
+    light: '#facc15',
+    dark: '#a16207',
+    bg: 'rgba(250, 204, 21, 0.1)',
+  },
+  // Coral (warm pink-orange)
+  coral: {
+    primary: '#f43f5e',
+    light: '#fb7185',
+    dark: '#e11d48',
+    bg: 'rgba(251, 113, 133, 0.1)',
+  },
+  // Lavender (soft purple)
+  lavender: {
+    primary: '#a78bfa',
+    light: '#c4b5fd',
+    dark: '#8b5cf6',
+    bg: 'rgba(196, 181, 253, 0.1)',
+  },
+  // Teal (blue-green)
+  teal: {
+    primary: '#0d9488',
+    light: '#2dd4bf',
+    dark: '#0f766e',
+    bg: 'rgba(45, 212, 191, 0.1)',
+  },
 };
 
 /** Font family mappings */
@@ -215,6 +265,20 @@ export const CARD_BG_COLORS: Record<string, { solid: string; alpha: string }> = 
   // Orange
   orange: { solid: '#7c2d12', alpha: 'rgba(124, 45, 18, 0.95)' },
   orangeLight: { solid: '#ffedd5', alpha: 'rgba(255, 237, 213, 0.95)' },
+  // Sky
+  skyLight: { solid: '#e0f2fe', alpha: 'rgba(224, 242, 254, 0.95)' },
+  // Indigo
+  indigoLight: { solid: '#e0e7ff', alpha: 'rgba(224, 231, 255, 0.95)' },
+  // Lime
+  limeLight: { solid: '#ecfccb', alpha: 'rgba(236, 252, 203, 0.95)' },
+  // Sunshine / Yellow
+  sunshineLight: { solid: '#fef9c3', alpha: 'rgba(254, 249, 195, 0.95)' },
+  // Coral
+  coralLight: { solid: '#ffe4e6', alpha: 'rgba(255, 228, 230, 0.95)' },
+  // Lavender
+  lavenderLight: { solid: '#ede9fe', alpha: 'rgba(237, 233, 254, 0.95)' },
+  // Teal
+  tealLight: { solid: '#ccfbf1', alpha: 'rgba(204, 251, 241, 0.95)' },
 };
 
 /** Font color definitions */
@@ -227,6 +291,13 @@ export const FONT_COLORS: Record<string, string> = {
   amber: '#f59e0b',
   cyan: '#06b6d4',
   violet: '#8b5cf6',
+  sky: '#0284c7',
+  indigo: '#4f46e5',
+  lime: '#65a30d',
+  sunshine: '#ca8a04',
+  coral: '#f43f5e',
+  lavender: '#a78bfa',
+  teal: '#0d9488',
 };
 
 
@@ -238,355 +309,3 @@ export const CARD_BORDER_THICKNESSES: Record<string, string> = {
   thick: '3px',
 };
 
-/** Preset themes for common game genres */
-export const PRESET_THEMES: Record<string, PartialGameTheme> = {
-  /** Sci-fi / Cyberpunk */
-  scifi: {
-    corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'black', animation: 'stars' },
-    player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'cyan', fontColor: 'light', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'cyan', borderColor: 'cyan' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Processing...', style: 'dots' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'cyan' },
-    header: { bgColor: 'black', fontColor: 'cyan', accentColor: 'cyan' },
-    divider: { style: 'line', color: 'cyan' },
-  },
-  
-  /** Medieval */
-  medieval: {
-    corners: { style: 'flourish', color: 'amber' },
-    background: { tint: 'warm', animation: 'fireflies' },
-    player: { color: 'amber', indicator: 'dot', indicatorBlink: false, bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
-    gameMessage: { dropCap: true, dropCapColor: 'amber', bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'The tale continues...', style: 'typewriter' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'creme', accentColor: 'amber', borderColor: 'amber', fontColor: 'dark' },
-    header: { bgColor: 'creme', fontColor: 'dark', accentColor: 'amber' },
-    divider: { style: 'diamond', color: 'amber' },
-  },
-  
-  /** Horror / Mystery */
-  horror: {
-    corners: { style: 'none', color: 'slate' },
-    background: { tint: 'dark' },
-    player: { color: 'rose', indicator: 'none', indicatorBlink: false, bgColor: 'dark', fontColor: 'light', borderColor: 'rose' },
-    gameMessage: { dropCap: false, dropCapColor: 'rose', bgColor: 'dark', fontColor: 'light', borderColor: 'slate' },
-    cards: { borderThickness: 'none' },
-    thinking: { text: 'Something stirs...', style: 'pulse' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'dark', accentColor: 'rose', borderColor: 'slate', fontColor: 'light' },
-    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'rose' },
-    divider: { style: 'none', color: 'slate' },
-  },
-  
-  /** Adventure / Exploration */
-  adventure: {
-    corners: { style: 'arrows', color: 'emerald' },
-    background: { tint: 'neutral' },
-    player: { color: 'emerald', indicator: 'chevron', indicatorBlink: false, bgColor: 'creme', fontColor: 'dark', borderColor: 'emerald' },
-    gameMessage: { dropCap: false, dropCapColor: 'emerald', bgColor: 'white', fontColor: 'dark', borderColor: 'emerald' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'The journey continues...', style: 'dots' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'creme', accentColor: 'emerald', borderColor: 'emerald', fontColor: 'dark' },
-    header: { bgColor: 'white', fontColor: 'dark', accentColor: 'emerald' },
-    divider: { style: 'dot', color: 'emerald' },
-  },
-  
-  /** Mystery / Mystic - purple, magical, ethereal */
-  mystery: {
-    corners: { style: 'dots', color: 'violet' },
-    background: { tint: 'darkViolet', animation: 'fireflies' },
-    player: { color: 'violet', indicator: 'star', indicatorBlink: true, bgColor: 'violet', fontColor: 'light', borderColor: 'violet' },
-    gameMessage: { dropCap: true, dropCapColor: 'violet', bgColor: 'dark', fontColor: 'violet', borderColor: 'violet' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'The veil thins...', style: 'pulse' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'dark', accentColor: 'violet', borderColor: 'violet', fontColor: 'violet' },
-    header: { bgColor: 'dark', fontColor: 'violet', accentColor: 'violet' },
-    divider: { style: 'star', color: 'violet' },
-  },
-  
-  /** Detective / Noir - grounded, stylish, classic */
-  detective: {
-    corners: { style: 'none', color: 'slate' },
-    background: { tint: 'dark' },
-    player: { color: 'amber', indicator: 'pipe', indicatorBlink: false, bgColor: 'dark', fontColor: 'light', borderColor: 'amber' },
-    gameMessage: { dropCap: false, dropCapColor: 'amber', bgColor: 'black', fontColor: 'light', borderColor: 'slate' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Investigating...', style: 'dots' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'black', accentColor: 'amber', borderColor: 'slate', fontColor: 'light' },
-    header: { bgColor: 'black', fontColor: 'light', accentColor: 'amber' },
-    divider: { style: 'line', color: 'slate' },
-  },
-  
-  /** Space / Cosmic */
-  space: {
-    corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'dark', animation: 'hyperspace' },
-    player: { color: 'cyan', indicator: 'dot', indicatorBlink: true, bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Scanning...', style: 'spinner' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'light' },
-    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'cyan' },
-    divider: { style: 'star', color: 'cyan' },
-  },
-  
-  /** Terminal - Green on black, classic */
-  terminal: {
-    corners: { style: 'brackets', color: 'hacker' },
-    background: { tint: 'black', animation: 'matrix' },
-    player: { color: 'hacker', indicator: 'underscore', indicatorBlink: true, bgColor: 'black', fontColor: 'hacker', borderColor: 'hacker' },
-    gameMessage: { dropCap: false, dropCapColor: 'hacker', bgColor: 'black', fontColor: 'hacker', borderColor: 'hacker' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Loading...', style: 'dots', streamingCursor: 'pipe' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'black', accentColor: 'hacker', borderColor: 'hacker', fontColor: 'hacker' },
-    header: { bgColor: 'black', fontColor: 'hacker', accentColor: 'hacker' },
-    divider: { style: 'dash', color: 'hacker' },
-  },
-  
-  /** Default / Neutral - clean, minimal */
-  default: {
-    corners: { style: 'none', color: 'slate' },
-    background: { tint: 'neutral' },
-    player: { color: 'slate', indicator: 'chevron', indicatorBlink: false, bgColor: 'white', fontColor: 'dark', borderColor: 'slate' },
-    gameMessage: { dropCap: false, dropCapColor: 'slate', bgColor: 'white', fontColor: 'dark', borderColor: 'slate' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'The story unfolds...', style: 'dots' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'white', accentColor: 'slate', borderColor: 'slate', fontColor: 'dark' },
-    header: { bgColor: 'white', fontColor: 'dark', accentColor: 'slate' },
-    divider: { style: 'none', color: 'slate' },
-  },
-  
-  /** Clean / Minimal */
-  minimal: {
-    corners: { style: 'none', color: 'slate' },
-    background: { tint: 'neutral' },
-    player: { color: 'slate', indicator: 'none', indicatorBlink: false, bgColor: 'white', fontColor: 'dark', borderColor: 'slate' },
-    gameMessage: { dropCap: false, dropCapColor: 'slate', bgColor: 'white', fontColor: 'dark', borderColor: 'slate' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Loading...', style: 'dots' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'white', accentColor: 'slate', borderColor: 'slate', fontColor: 'dark' },
-    header: { bgColor: 'white', fontColor: 'dark', accentColor: 'slate' },
-    divider: { style: 'line', color: 'slate' },
-  },
-  
-  /** Playful / Kids - Rainbow colorful theme */
-  playful: {
-    corners: { style: 'dots', color: 'orange' },
-    background: { tint: 'blue', animation: 'confetti' },
-    player: { color: 'orange', indicator: 'star', indicatorBlink: true, bgColor: 'orangeLight', fontColor: 'dark', borderColor: 'orange' },
-    gameMessage: { dropCap: true, dropCapColor: 'violet', bgColor: 'violetLight', fontColor: 'dark', borderColor: 'violet' },
-    cards: { borderThickness: 'thick' },
-    thinking: { text: 'Magic is happening...', style: 'pulse' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'cyanLight', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'dark' },
-    header: { bgColor: 'greenLight', fontColor: 'dark', accentColor: 'emerald' },
-    divider: { style: 'star', color: 'pink' },
-  },
-  
-  /** Barbie / Pink Dream */
-  barbie: {
-    corners: { style: 'flourish', color: 'pink' },
-    background: { tint: 'pink' },
-    player: { color: 'pink', indicator: 'diamond', indicatorBlink: false, bgColor: 'pinkLight', fontColor: 'pink', borderColor: 'pink' },
-    gameMessage: { dropCap: true, dropCapColor: 'pink', bgColor: 'pinkLight', fontColor: 'dark', borderColor: 'pink' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'Fabulous things await...', style: 'pulse' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'pinkLight', accentColor: 'pink', borderColor: 'pink', fontColor: 'pink' },
-    header: { bgColor: 'pinkLight', fontColor: 'pink', accentColor: 'pink' },
-    divider: { style: 'diamond', color: 'pink' },
-  },
-  
-  /** Nature / Forest */
-  nature: {
-    corners: { style: 'flourish', color: 'emerald' },
-    background: { tint: 'warm', animation: 'leaves' },
-    player: { color: 'emerald', indicator: 'chevron', indicatorBlink: false, bgColor: 'creme', fontColor: 'dark', borderColor: 'emerald' },
-    gameMessage: { dropCap: true, dropCapColor: 'emerald', bgColor: 'creme', fontColor: 'dark', borderColor: 'emerald' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'The forest whispers...', style: 'typewriter' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'creme', accentColor: 'emerald', borderColor: 'emerald', fontColor: 'dark' },
-    header: { bgColor: 'creme', fontColor: 'dark', accentColor: 'emerald' },
-    divider: { style: 'dot', color: 'emerald' },
-  },
-  
-  /** Ocean / Underwater */
-  ocean: {
-    corners: { style: 'arrows', color: 'cyan' },
-    background: { tint: 'cool', animation: 'bubbles' },
-    player: { color: 'cyan', indicator: 'dot', indicatorBlink: false, bgColor: 'cyanLight', fontColor: 'dark', borderColor: 'cyan' },
-    gameMessage: { dropCap: true, dropCapColor: 'cyan', bgColor: 'blueLight', fontColor: 'dark', borderColor: 'cyan' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Bubbles rise...', style: 'dots' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'blueLight', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'dark' },
-    header: { bgColor: 'blueLight', fontColor: 'dark', accentColor: 'cyan' },
-    divider: { style: 'dots', color: 'cyan' },
-  },
-  
-  /** Retro / 80s */
-  retro: {
-    corners: { style: 'brackets', color: 'violet' },
-    background: { tint: 'dark' },
-    player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'violet', bgColor: 'dark', fontColor: 'light', borderColor: 'violet' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'Loading...', style: 'spinner' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'dark', accentColor: 'violet', borderColor: 'violet', fontColor: 'light' },
-    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'violet' },
-    divider: { style: 'line', color: 'violet' },
-  },
-  
-  /** Western / Wild West */
-  western: {
-    corners: { style: 'arrows', color: 'amber' },
-    background: { tint: 'warm' },
-    player: { color: 'amber', indicator: 'dot', indicatorBlink: false, bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
-    gameMessage: { dropCap: true, dropCapColor: 'amber', bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'Dust settles...', style: 'typewriter' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'creme', accentColor: 'amber', borderColor: 'amber', fontColor: 'dark' },
-    header: { bgColor: 'creme', fontColor: 'dark', accentColor: 'amber' },
-    divider: { style: 'star', color: 'amber' },
-  },
-  
-  /** Hacker - Aggressive (Red AI, Green User) */
-  hacker: {
-    corners: { style: 'brackets', color: 'terminal' },
-    background: { tint: 'black', animation: 'matrix' },
-    player: { color: 'hacker', indicator: 'underscore', indicatorBlink: true, bgColor: 'green', fontColor: 'hacker', borderColor: 'hacker' },
-    gameMessage: { dropCap: false, dropCapColor: 'terminal', bgColor: 'red', fontColor: 'terminal', borderColor: 'terminal' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'EXECUTING...', style: 'dots', streamingCursor: 'pipe' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'black', accentColor: 'terminal', borderColor: 'terminal', fontColor: 'terminal' },
-    header: { bgColor: 'black', fontColor: 'terminal', accentColor: 'terminal' },
-    divider: { style: 'dash', color: 'terminal' },
-  },
-  
-  /** Fire / Ember - Destruction, firefighting, volcanic */
-  fire: {
-    corners: { style: 'none', color: 'orange' },
-    background: { tint: 'dark', animation: 'embers' },
-    player: { color: 'orange', indicator: 'chevron', indicatorBlink: false, bgColor: 'dark', fontColor: 'light', borderColor: 'orange' },
-    gameMessage: { dropCap: false, dropCapColor: 'orange', bgColor: 'dark', fontColor: 'light', borderColor: 'orange' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Flames crackle...', style: 'pulse' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'dark', accentColor: 'orange', borderColor: 'orange', fontColor: 'light' },
-    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'orange' },
-    divider: { style: 'line', color: 'orange' },
-  },
-  
-  /** Desert - Arid, sandy, hot climate */
-  desert: {
-    corners: { style: 'arrows', color: 'amber' },
-    background: { tint: 'warm' },
-    player: { color: 'amber', indicator: 'chevron', indicatorBlink: false, bgColor: 'amberLight', fontColor: 'dark', borderColor: 'amber' },
-    gameMessage: { dropCap: false, dropCapColor: 'amber', bgColor: 'creme', fontColor: 'dark', borderColor: 'amber' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Heat shimmers...', style: 'dots' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'amberLight', accentColor: 'amber', borderColor: 'amber', fontColor: 'dark' },
-    header: { bgColor: 'amberLight', fontColor: 'dark', accentColor: 'amber' },
-    divider: { style: 'dot', color: 'amber' },
-  },
-  
-  /** Tech - Modern technology, clean digital, shiny */
-  tech: {
-    corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'cool', animation: 'circuits' },
-    player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'cyanLight', fontColor: 'dark', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'white', fontColor: 'dark', borderColor: 'cyan' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Processing...', style: 'spinner' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'cyanLight', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'dark' },
-    header: { bgColor: 'white', fontColor: 'dark', accentColor: 'cyan' },
-    divider: { style: 'line', color: 'cyan' },
-  },
-  
-  /** Green Fantasy - Enchanted forest, nature magic */
-  greenFantasy: {
-    corners: { style: 'flourish', color: 'emerald' },
-    background: { tint: 'green', animation: 'sparkles' },
-    player: { color: 'emerald', indicator: 'star', indicatorBlink: true, bgColor: 'greenLight', fontColor: 'dark', borderColor: 'emerald' },
-    gameMessage: { dropCap: true, dropCapColor: 'emerald', bgColor: 'greenLight', fontColor: 'dark', borderColor: 'emerald' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'Magic awakens...', style: 'pulse' },
-    typography: { messages: 'fantasy' },
-    statusFields: { bgColor: 'greenLight', accentColor: 'emerald', borderColor: 'emerald', fontColor: 'dark' },
-    header: { bgColor: 'greenLight', fontColor: 'dark', accentColor: 'emerald' },
-    divider: { style: 'star', color: 'emerald' },
-  },
-  
-  /** Abstract - Artistic, geometric, creative */
-  abstract: {
-    corners: { style: 'dots', color: 'violet' },
-    background: { tint: 'darkViolet', animation: 'geometric' },
-    player: { color: 'cyan', indicator: 'diamond', indicatorBlink: false, bgColor: 'violet', fontColor: 'light', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'violet', bgColor: 'dark', fontColor: 'light', borderColor: 'violet' },
-    cards: { borderThickness: 'thick' },
-    thinking: { text: 'Creating...', style: 'spinner' },
-    typography: { messages: 'sans' },
-    statusFields: { bgColor: 'dark', accentColor: 'violet', borderColor: 'violet', fontColor: 'light' },
-    header: { bgColor: 'violet', fontColor: 'light', accentColor: 'cyan' },
-    divider: { style: 'diamond', color: 'violet' },
-  },
-  
-  /** Romance - Soft, warm, romantic */
-  romance: {
-    corners: { style: 'flourish', color: 'rose' },
-    background: { tint: 'pink', animation: 'hearts' },
-    player: { color: 'rose', indicator: 'diamond', indicatorBlink: false, bgColor: 'roseLight', fontColor: 'dark', borderColor: 'rose' },
-    gameMessage: { dropCap: true, dropCapColor: 'rose', bgColor: 'roseLight', fontColor: 'dark', borderColor: 'rose' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Hearts flutter...', style: 'pulse' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'roseLight', accentColor: 'rose', borderColor: 'rose', fontColor: 'dark' },
-    header: { bgColor: 'roseLight', fontColor: 'dark', accentColor: 'rose' },
-    divider: { style: 'diamond', color: 'rose' },
-  },
-  
-  /** Glitch - Corrupted, digital chaos, cyberpunk error */
-  glitch: {
-    corners: { style: 'cursor', color: 'terminal', blink: true },
-    background: { tint: 'black', animation: 'glitch' },
-    player: { color: 'cyan', indicator: 'underscore', indicatorBlink: true, bgColor: 'dark', fontColor: 'cyan', borderColor: 'terminal' },
-    gameMessage: { dropCap: false, dropCapColor: 'terminal', bgColor: 'black', fontColor: 'terminal', borderColor: 'hacker' },
-    cards: { borderThickness: 'medium' },
-    thinking: { text: 'ERR0R...', style: 'dots', streamingCursor: 'block' },
-    typography: { messages: 'mono' },
-    statusFields: { bgColor: 'black', accentColor: 'terminal', borderColor: 'hacker', fontColor: 'terminal' },
-    header: { bgColor: 'black', fontColor: 'terminal', accentColor: 'hacker' },
-    divider: { style: 'dash', color: 'terminal' },
-  },
-  
-  /** Snowy / Cold - Winter wonderland */
-  snowy: {
-    corners: { style: 'flourish', color: 'slate' },
-    background: { tint: 'cool', animation: 'snow' },
-    player: { color: 'cyan', indicator: 'diamond', indicatorBlink: false, bgColor: 'cyanLight', fontColor: 'dark', borderColor: 'cyan' },
-    gameMessage: { dropCap: true, dropCapColor: 'cyan', bgColor: 'white', fontColor: 'dark', borderColor: 'slate' },
-    cards: { borderThickness: 'thin' },
-    thinking: { text: 'Snowflakes falling...', style: 'dots' },
-    typography: { messages: 'serif' },
-    statusFields: { bgColor: 'white', accentColor: 'cyan', borderColor: 'slate', fontColor: 'dark' },
-    header: { bgColor: 'white', fontColor: 'dark', accentColor: 'cyan' },
-    divider: { style: 'star', color: 'slate' },
-  },
-};

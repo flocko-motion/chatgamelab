@@ -103,6 +103,10 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 	log.Debug("creating game", "user_id", user.ID, "name", game.Name)
 	if err := db.CreateGame(r.Context(), user.ID, &game); err != nil {
 		log.Debug("game creation failed", "error", err)
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
 		return
 	}
@@ -186,6 +190,10 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 	updatedGame.ID = gameID
 
 	if err := db.UpdateGame(r.Context(), user.ID, &updatedGame); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update game: "+err.Error())
 		return
 	}

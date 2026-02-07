@@ -4,7 +4,7 @@
  * Separated from context file for fast refresh compatibility.
  */
 
-import { useContext, createContext } from 'react';
+import { useContext, createContext, type ComponentType } from 'react';
 import type { GameTheme } from './types';
 import { 
   DEFAULT_GAME_THEME, 
@@ -22,6 +22,8 @@ export interface GameThemeContextValue {
   cssVars: Record<string, string>;
   /** Get emoji for a status field (returns empty string if not configured) */
   getStatusEmoji: (fieldName: string) => string;
+  /** Optional custom background component from preset (replaces tsparticles) */
+  BackgroundComponent?: ComponentType<{ className?: string }>;
 }
 
 export const GameThemeContext = createContext<GameThemeContextValue | null>(null);

@@ -44,6 +44,8 @@ interface GameEditModalProps {
   onCopy?: () => void;
   /** Loading state for copy operation */
   copyLoading?: boolean;
+  /** Pre-populate form fields in create mode (e.g. from YAML import or game copy) */
+  initialData?: Partial<CreateGameFormData> | null;
 }
 
 export function GameEditModal({
@@ -55,6 +57,7 @@ export function GameEditModal({
   readOnly = false,
   onCopy,
   copyLoading = false,
+  initialData,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -127,18 +130,26 @@ export function GameEditModal({
       setImageStyle(values.imageStyle);
       setStatusFields(values.statusFields);
     }
-    // Initialize for create mode
+    // Initialize for create mode (optionally with pre-populated data)
     if (isCreateMode && opened && !hasInitialized.current) {
       hasInitialized.current = true;
-      initialValues.current = {
-        name: "",
-        description: "",
-        isPublic: false,
-        systemMessageScenario: "",
-        systemMessageGameStart: "",
-        imageStyle: "",
-        statusFields: "",
+      const values: FormValues = {
+        name: initialData?.name ?? "",
+        description: initialData?.description ?? "",
+        isPublic: initialData?.isPublic ?? false,
+        systemMessageScenario: initialData?.systemMessageScenario ?? "",
+        systemMessageGameStart: initialData?.systemMessageGameStart ?? "",
+        imageStyle: initialData?.imageStyle ?? "",
+        statusFields: initialData?.statusFields ?? "",
       };
+      initialValues.current = values;
+      setName(values.name);
+      setDescription(values.description);
+      setIsPublic(values.isPublic);
+      setSystemMessageScenario(values.systemMessageScenario);
+      setSystemMessageGameStart(values.systemMessageGameStart);
+      setImageStyle(values.imageStyle);
+      setStatusFields(values.statusFields);
     }
     // Reset when modal closes
     if (!opened) {
@@ -156,7 +167,7 @@ export function GameEditModal({
         setNameError("");
       }
     }
-  }, [isCreateMode, game, isLoading, opened]);
+  }, [isCreateMode, game, isLoading, opened, initialData]);
 
   const handleSave = async () => {
     if (!name.trim()) {

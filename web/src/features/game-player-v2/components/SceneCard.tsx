@@ -6,6 +6,7 @@ import { SceneImage } from './SceneImage';
 import { StreamingIndicator } from './TypingIndicator';
 import { DebugPanel } from './DebugPanel';
 import { StatusChangeIndicator } from './StatusChangeIndicator';
+import { DecryptedText, GlitchText } from './text-effects';
 import classes from './GamePlayer.module.css';
 
 interface SceneCardProps {
@@ -27,7 +28,7 @@ const FONT_SIZE_MAP = {
 export function SceneCard({ message, showImages, previousStatusFields }: SceneCardProps) {
   const { fontSize, debugMode } = useGamePlayerContext();
   const { theme } = useGameTheme();
-  const { id, text, imagePrompt, isStreaming, isImageLoading } = message;
+  const { id, text, imagePrompt, isStreaming } = message;
 
   // Show image area if we have a prompt or are generating
   const hasImage = showImages && !!imagePrompt;
@@ -42,6 +43,7 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
     bottomRight: true,
   };
   const cornerBlink = theme.corners?.blink ?? false;
+  const textEffect = theme.gameMessage?.textEffect ?? 'none';
 
   // Map corner style to CSS class prefix
   const cornerStyleClass = cornerStyle !== 'none' ? classes[`corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`] : '';
@@ -78,9 +80,12 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
         {renderCorner('bottomRight')}
         {hasImage && (
           <SceneImage
+            key={id}
             messageId={id}
             imagePrompt={imagePrompt}
-            isGenerating={isImageLoading || isStreaming}
+            imageStatus={message.imageStatus}
+            imageHash={message.imageHash}
+            imageErrorCode={message.imageErrorCode}
           />
         )}
         <div className={classes.sceneContent}>
@@ -88,7 +93,13 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
             className={narrativeClasses}
             style={{ fontSize: FONT_SIZE_MAP[fontSize] }}
           >
-            {text}
+            {textEffect === 'decrypted' ? (
+              <DecryptedText text={text} />
+            ) : textEffect === 'glitch' ? (
+              <GlitchText text={text} />
+            ) : (
+              text
+            )}
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>

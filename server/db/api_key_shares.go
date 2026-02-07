@@ -7,6 +7,7 @@ import (
 	"cgl/log"
 	"cgl/obj"
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +20,13 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 		return uuid.Nil, uuid.Nil, obj.ErrInvalidPlatformf("unknown platform: %s", platform)
 	}
 
+	// Auto-set as default if this is the user's first key
+	count, err := queries().CountApiKeysByUser(ctx, userID)
+	if err != nil {
+		return uuid.Nil, uuid.Nil, obj.ErrServerError("failed to count user keys")
+	}
+	isDefault := count == 0
+
 	now := time.Now()
 	arg := db.CreateApiKeyParams{
 		CreatedBy:  uuid.NullUUID{UUID: userID, Valid: true},
@@ -29,6 +37,7 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 		Name:       name,
 		Platform:   platform,
 		Key:        key,
+		IsDefault:  isDefault,
 	}
 	result, err := queries().CreateApiKey(ctx, arg)
 	if err != nil {
@@ -107,15 +116,107 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to clear game sponsored api key references")
 	}
 
+	wasDefault := key.IsDefault
+
 	// Delete all shares
 	if err := queries().DeleteApiKeySharesByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to delete shares")
 	}
 
-	return queries().DeleteApiKey(ctx, db.DeleteApiKeyParams{
+	if err := queries().DeleteApiKey(ctx, db.DeleteApiKeyParams{
 		ID:     key.ID,
 		UserID: userID,
+	}); err != nil {
+		return err
+	}
+
+	// If the deleted key was the default, promote the next key
+	if wasDefault {
+		promoteNextDefaultKey(ctx, userID)
+	}
+
+	return nil
+}
+
+// promoteNextDefaultKey sets the oldest remaining key as default for a user.
+// Best-effort: errors are logged but not returned.
+func promoteNextDefaultKey(ctx context.Context, userID uuid.UUID) {
+	// Find the user's remaining keys via their self-shares
+	shares, err := queries().GetApiKeySharesByUserID(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil || len(shares) == 0 {
+		return
+	}
+	// Pick the first one (oldest by share creation) that the user owns
+	for _, s := range shares {
+		if s.OwnerID == userID {
+			_ = queries().SetDefaultApiKey(ctx, db.SetDefaultApiKeyParams{
+				ID:     s.ApiKeyID,
+				UserID: userID,
+			})
+			return
+		}
+	}
+}
+
+// SetDefaultApiKey sets the given API key as the user's default (clears any previous default).
+func SetDefaultApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID) error {
+	// Verify the key belongs to this user
+	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
+	if err != nil {
+		return obj.ErrNotFound("api key not found")
+	}
+	if key.UserID != userID {
+		return obj.ErrForbidden("not the owner of this key")
+	}
+
+	// Clear existing default, then set the new one
+	if err := queries().ClearDefaultApiKey(ctx, userID); err != nil {
+		return obj.ErrServerError("failed to clear default key")
+	}
+	return queries().SetDefaultApiKey(ctx, db.SetDefaultApiKeyParams{
+		ID:     apiKeyID,
+		UserID: userID,
 	})
+}
+
+// GetDefaultApiKey returns the user's default API key, or nil if none is set.
+func GetDefaultApiKeyForUser(ctx context.Context, userID uuid.UUID) (*obj.ApiKey, error) {
+	key, err := queries().GetDefaultApiKey(ctx, userID)
+	if err != nil {
+		return nil, nil // No default key
+	}
+	return &obj.ApiKey{
+		ID:               key.ID,
+		UserID:           key.UserID,
+		Name:             key.Name,
+		Platform:         key.Platform,
+		Key:              key.Key,
+		IsDefault:        key.IsDefault,
+		LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+	}, nil
+}
+
+// UpdateApiKeyLastUsageSuccess updates the last_usage_success flag on an API key.
+func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, success bool) {
+	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, db.UpdateApiKeyLastUsageSuccessParams{
+		ID:               apiKeyID,
+		LastUsageSuccess: sql.NullBool{Bool: success, Valid: true},
+	})
+}
+
+// GetSelfShareForApiKey returns the user's self-share for a given API key.
+// A self-share is a share where the share's user_id matches the key owner.
+func GetSelfShareForApiKey(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID) (*obj.ApiKeyShare, error) {
+	shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
+	if err != nil {
+		return nil, obj.ErrNotFound("no shares found for API key")
+	}
+	for _, s := range shares {
+		if s.UserID.Valid && s.UserID.UUID == userID {
+			return GetApiKeyShareByID(ctx, userID, s.ID)
+		}
+	}
+	return nil, obj.ErrNotFound("self-share not found for API key")
 }
 
 // UpdateApiKeyName updates an API key's name (owner only).
@@ -240,13 +341,15 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 		ApiKeyID:                  s.ApiKeyID,
 		AllowPublicSponsoredPlays: s.AllowPublicSponsoredPlays,
 		ApiKey: &obj.ApiKey{
-			ID:           s.KeyID,
-			UserID:       s.KeyOwnerID,
-			UserName:     s.KeyOwnerName,
-			Name:         s.KeyName,
-			Platform:     s.KeyPlatform,
-			Key:          s.KeyKey,
-			KeyShortened: functional.ShortenLeft(s.KeyKey, apiKeyShortenLength),
+			ID:               s.KeyID,
+			UserID:           s.KeyOwnerID,
+			UserName:         s.KeyOwnerName,
+			Name:             s.KeyName,
+			Platform:         s.KeyPlatform,
+			Key:              s.KeyKey,
+			KeyShortened:     functional.ShortenLeft(s.KeyKey, apiKeyShortenLength),
+			IsDefault:        s.KeyIsDefault,
+			LastUsageSuccess: sqlNullBoolToMaybeBool(s.KeyLastUsageSuccess),
 		},
 	}
 	if s.UserID.Valid {
@@ -273,12 +376,6 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 		return nil, obj.ErrServerError("failed to get api key shares")
 	}
 
-	// Get the user's default API key share ID
-	defaultShareID, err := GetUserDefaultApiKeyShare(ctx, userID)
-	if err != nil {
-		return nil, obj.ErrServerError("failed to get default api key share")
-	}
-
 	result := make([]obj.ApiKeyShare, 0, len(sharedKeys))
 	for _, s := range sharedKeys {
 		share := obj.ApiKeyShare{
@@ -291,16 +388,17 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 			},
 			ApiKeyID: s.ApiKeyID,
 			ApiKey: &obj.ApiKey{
-				ID:           s.ApiKeyID,
-				UserID:       s.OwnerID,
-				UserName:     s.OwnerName,
-				Name:         s.ApiKeyName,
-				Platform:     s.ApiKeyPlatform,
-				Key:          s.ApiKeyKey,
-				KeyShortened: functional.ShortenLeft(s.ApiKeyKey, apiKeyShortenLength),
+				ID:               s.ApiKeyID,
+				UserID:           s.OwnerID,
+				UserName:         s.OwnerName,
+				Name:             s.ApiKeyName,
+				Platform:         s.ApiKeyPlatform,
+				Key:              s.ApiKeyKey,
+				KeyShortened:     functional.ShortenLeft(s.ApiKeyKey, apiKeyShortenLength),
+				IsDefault:        s.ApiKeyIsDefault,
+				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
 			},
 			AllowPublicSponsoredPlays: s.AllowPublicSponsoredPlays,
-			IsUserDefault:             defaultShareID != nil && *defaultShareID == s.ID,
 		}
 		result = append(result, share)
 	}
@@ -542,11 +640,13 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			ModifiedAt: &share.ModifiedAt,
 		},
 		ApiKey: &obj.ApiKey{
-			ID:           key.ID,
-			UserID:       key.UserID,
-			Name:         key.Name,
-			Platform:     key.Platform,
-			KeyShortened: functional.ShortenLeft(key.Key, apiKeyShortenLength),
+			ID:               key.ID,
+			UserID:           key.UserID,
+			Name:             key.Name,
+			Platform:         key.Platform,
+			KeyShortened:     functional.ShortenLeft(key.Key, apiKeyShortenLength),
+			IsDefault:        key.IsDefault,
+			LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
 		},
 		AllowPublicSponsoredPlays: share.AllowPublicSponsoredPlays,
 	}
