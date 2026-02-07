@@ -6,13 +6,12 @@ import {
   useUpdateGame,
   useDeleteGame,
   useExportGameYaml,
-  useImportGameYaml,
   useGameSessionMap,
   useDeleteSession,
-  useCloneGame,
 } from "@/api/hooks";
 import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
+import { parseGameYaml, gameToFormData } from "@/features/games/lib";
 import {
   type GameFilter,
   type WorkshopSettings,
@@ -73,8 +72,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
   const deleteGame = useDeleteGame();
   const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
-  const importGameYaml = useImportGameYaml();
-  const cloneGame = useCloneGame();
 
   // Apply filters
   const games = useMemo(() => {
@@ -174,11 +171,13 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     [exportGameYaml],
   );
 
-  const handleCloneGame = useCallback(
-    async (gameId: string) => {
-      return await cloneGame.mutateAsync(gameId);
+  const getGameFormDataForCopy = useCallback(
+    (gameId: string): Partial<CreateGameFormData> | null => {
+      const game = rawGames?.find((g) => g.id === gameId);
+      if (!game) return null;
+      return gameToFormData(game);
     },
-    [cloneGame],
+    [rawGames],
   );
 
   const handleDeleteSession = useCallback(
@@ -192,46 +191,23 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     fileInputRef.current?.click();
   }, []);
 
-  const handleImportFile = useCallback(
-    async (file: File): Promise<string | undefined> => {
+  const parseImportFile = useCallback(
+    (file: File): Promise<Partial<CreateGameFormData>> => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-          const content = e.target?.result as string;
-          let newGameId: string | undefined;
-
+        reader.onload = (e) => {
           try {
-            const nameMatch = content.match(/^name:\s*["']?(.+?)["']?\s*$/m);
-            const gameName =
-              nameMatch?.[1]?.trim() || file.name.replace(/\.(yaml|yml)$/i, "");
-
-            const newGame = await createGame.mutateAsync({ name: gameName });
-            newGameId = newGame.id;
-
-            if (newGameId) {
-              await importGameYaml.mutateAsync({
-                id: newGameId,
-                yaml: content,
-              });
-              refetch();
-              resolve(newGameId);
-            }
+            const content = e.target?.result as string;
+            resolve(parseGameYaml(content));
           } catch (err) {
-            if (newGameId) {
-              try {
-                await deleteGame.mutateAsync(newGameId);
-                refetch();
-              } catch {
-                // Ignore cleanup errors
-              }
-            }
             reject(err);
           }
         };
+        reader.onerror = () => reject(new Error("Failed to read file"));
         reader.readAsText(file);
       });
     },
-    [createGame, importGameYaml, deleteGame, refetch],
+    [],
   );
 
   return {
@@ -249,7 +225,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     // Mutation states
     isCreating: createGame.isPending,
     isDeleting: deleteGame.isPending,
-    isCloning: cloneGame.isPending,
 
     // Helpers
     getPermissions,
@@ -260,10 +235,10 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     handleCreateGame,
     handleDeleteGame,
     handleExportGame,
-    handleCloneGame,
+    getGameFormDataForCopy,
     handleDeleteSession,
     triggerImportClick,
-    handleImportFile,
+    parseImportFile,
 
     // Refetch (for SSE events)
     refetchGames: refetch,

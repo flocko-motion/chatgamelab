@@ -11,7 +11,7 @@ import {
   Tooltip,
   Box,
 } from '@mantine/core';
-import { useMediaQuery, useDebouncedValue } from '@mantine/hooks';
+import { useMediaQuery, useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
 import { useModals } from '@mantine/modals';
@@ -27,11 +27,14 @@ import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
 import { PlayGameButton, TextButton, GenericIconButton } from '@components/buttons';
+import { GameEditModal } from './GameEditModal';
 import { GameCard, type GameCardAction } from './GameCard';
-import { useGames, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
+import { useGames, useCreateGame, useUpdateGame, useGameSessionMap, useDeleteSession, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
 import { type GameFilter } from '@/features/play/types';
+import type { CreateGameFormData } from '../types';
+import { gameToFormData } from '../lib';
 
 export function AllGames() {
   const { t } = useTranslation('common');
@@ -59,8 +62,12 @@ export function AllGames() {
   });
 
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const createGame = useCreateGame();
+  const updateGame = useUpdateGame();
   const deleteSession = useDeleteSession();
-  const cloneGame = useCloneGame();
+
+  const [createModalOpened, { open: openCreateModal, close: closeCreateModal }] = useDisclosure(false);
+  const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);
   const { data: favoriteGames } = useFavoriteGames();
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
@@ -135,25 +142,45 @@ export function AllGames() {
 
   const handleCopyGame = (game: ObjGame) => {
     if (!game.id) return;
-    
-    modals.openConfirmModal({
-      title: t('allGames.copyConfirm.title'),
-      children: (
-        <Text size="sm">
-          {t('allGames.copyConfirm.message', { name: game.name || t('sessions.untitledGame') })}
-        </Text>
-      ),
-      labels: {
-        confirm: t('allGames.copyConfirm.confirm'),
-        cancel: t('cancel'),
-      },
-      onConfirm: async () => {
-        const newGame = await cloneGame.mutateAsync(game.id!);
-        if (newGame.id) {
-          navigate({ to: `/my-games/${newGame.id}` as '/' });
-        }
-      },
-    });
+    setCreateInitialData(gameToFormData(game));
+    openCreateModal();
+  };
+
+  const handleCloseCreateModal = () => {
+    closeCreateModal();
+    setCreateInitialData(null);
+  };
+
+  const handleCreateGame = async (data: CreateGameFormData) => {
+    try {
+      const newGame = await createGame.mutateAsync({
+        name: data.name,
+        description: data.description,
+        public: data.isPublic,
+      });
+
+      const hasExtraFields = data.systemMessageScenario || data.systemMessageGameStart || data.imageStyle || data.statusFields;
+      if (newGame.id && hasExtraFields) {
+        await updateGame.mutateAsync({
+          id: newGame.id,
+          game: {
+            ...newGame,
+            systemMessageScenario: data.systemMessageScenario,
+            systemMessageGameStart: data.systemMessageGameStart,
+            imageStyle: data.imageStyle,
+            statusFields: data.statusFields,
+          },
+        });
+      }
+
+      closeCreateModal();
+      setCreateInitialData(null);
+      if (newGame.id) {
+        navigate({ to: `/my-games/${newGame.id}` as '/' });
+      }
+    } catch {
+      // Error handled by mutation
+    }
   };
 
   const getDateLabel = (game: ObjGame) => {
@@ -336,6 +363,7 @@ export function AllGames() {
   }
 
   return (
+    <>
     <Stack gap="lg" h={{ base: 'calc(100vh - 180px)', sm: 'calc(100vh - 280px)' }} style={{ overflow: 'hidden' }}>
         {/* Sticky header section */}
         <Stack gap="lg" style={{ flexShrink: 0 }}>
@@ -452,5 +480,14 @@ export function AllGames() {
         </DimmedLoader>
         </Box>
     </Stack>
+
+    <GameEditModal
+      opened={createModalOpened}
+      onClose={handleCloseCreateModal}
+      onCreate={handleCreateGame}
+      createLoading={createGame.isPending}
+      initialData={createInitialData}
+    />
+    </>
   );
 }

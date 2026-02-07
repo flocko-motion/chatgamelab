@@ -16,9 +16,10 @@ import { IconPlus, IconAlertCircle, IconMoodEmpty, IconUpload, IconEye, IconEdit
 import { TextButton } from '@components/buttons';
 import { SortSelector, type SortOption } from '@components/controls';
 import { PageTitle } from '@components/typography';
-import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml, useImportGameYaml } from '@/api/hooks';
+import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml } from '@/api/hooks';
 import type { ObjGame } from '@/api/generated';
 import { type SortField, type CreateGameFormData } from '../types';
+import { parseGameYaml } from '../lib';
 import { GamesTable } from './GamesTable';
 import { GameCard } from './GameCard';
 import { GameEditModal } from './GameEditModal';
@@ -42,15 +43,16 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
   const [gameToView, setGameToView] = useState<string | null>(initialGameId ?? null);
   const [sortField, setSortField] = useState<SortField>('modifiedAt');
 
-  const { data: games, isLoading, error, refetch } = useGames({ sortBy: sortField, sortDir: 'desc' });
+  const { data: games, isLoading, error } = useGames({ sortBy: sortField, sortDir: 'desc' });
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
   const exportGameYaml = useExportGameYaml();
-  const importGameYaml = useImportGameYaml();
   
   // Import file input ref
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // Pre-populated data for create modal (from YAML import)
+  const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);
 
   const handleCreateGame = async (data: CreateGameFormData) => {
     try {
@@ -83,6 +85,7 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
 
   const handleCloseCreateModal = () => {
     closeCreateModal();
+    setCreateInitialData(null);
     if (initialMode === 'create') {
       onModalClose?.();
     }
@@ -146,43 +149,16 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
     }
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       const content = e.target?.result as string;
-      let newGameId: string | undefined;
-      
-      try {
-        // Parse YAML to extract the name
-        const nameMatch = content.match(/^name:\s*["']?(.+?)["']?\s*$/m);
-        const gameName = nameMatch?.[1]?.trim() || file.name.replace(/\.(yaml|yml)$/i, '');
-        
-        // Create a new game with the extracted name
-        const newGame = await createGame.mutateAsync({ name: gameName });
-        newGameId = newGame.id;
-        
-        if (newGameId) {
-          // Update the game with the full YAML content
-          await importGameYaml.mutateAsync({ id: newGameId, yaml: content });
-          refetch();
-          // Open the imported game in edit mode
-          setGameToView(newGameId);
-          openViewModal();
-        }
-      } catch {
-        // If import failed and we created a game, delete it
-        if (newGameId) {
-          try {
-            await deleteGame.mutateAsync(newGameId);
-            refetch();
-          } catch {
-            // Ignore cleanup errors
-          }
-        }
-      }
+      const formData = parseGameYaml(content);
+      setCreateInitialData(formData);
+      openCreateModal();
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -335,6 +311,7 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
         onClose={handleCloseCreateModal}
         onCreate={handleCreateGame}
         createLoading={createGame.isPending}
+        initialData={createInitialData}
       />
 
       <GameEditModal

@@ -20,9 +20,10 @@ import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
 import { DimmedLoader } from '@components/LoadingAnimation';
-import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml, useImportGameYaml, useGameSessionMap, useDeleteSession, useCloneGame, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
+import { useGames, useCreateGame, useUpdateGame, useDeleteGame, useExportGameYaml, useGameSessionMap, useDeleteSession, useFavoriteGames, useAddFavorite, useRemoveFavorite } from '@/api/hooks';
 import type { ObjGame, DbUserSessionWithGame } from '@/api/generated';
 import { type CreateGameFormData } from '../types';
+import { parseGameYaml, gameToFormData } from '../lib';
 import { GameEditModal } from './GameEditModal';
 import { DeleteGameModal } from './DeleteGameModal';
 import { GameCard, type GameCardAction } from './GameCard';
@@ -53,15 +54,13 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   // Parse combined sort value into field and direction
   const [sortField, sortDir] = sortValue.split('-') as [string, 'asc' | 'desc'];
   
-  const { data: rawGames, isLoading, isFetching, error, refetch } = useGames({ sortBy: sortField as 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator', sortDir, filter: 'own', search: debouncedSearch || undefined });
+  const { data: rawGames, isLoading, isFetching, error } = useGames({ sortBy: sortField as 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator', sortDir, filter: 'own', search: debouncedSearch || undefined });
   const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
   const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
-  const importGameYaml = useImportGameYaml();
-  const cloneGame = useCloneGame();
   const { data: favoriteGames } = useFavoriteGames();
   const addFavorite = useAddFavorite();
   const removeFavorite = useRemoveFavorite();
@@ -117,6 +116,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
 
   const handleCloseCreateModal = () => {
     closeCreateModal();
+    setCreateInitialData(null);
     if (initialMode === 'create') {
       onModalClose?.();
     }
@@ -174,28 +174,13 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     fileInputRef.current?.click();
   };
 
+  // Pre-populated data for create modal (from YAML import or game copy)
+  const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);
+
   const handleCopyGame = (game: ObjGame) => {
     if (!game.id) return;
-    
-    modals.openConfirmModal({
-      title: t('myGames.copyConfirm.title'),
-      children: (
-        <Text size="sm">
-          {t('myGames.copyConfirm.message', { name: game.name || t('sessions.untitledGame') })}
-        </Text>
-      ),
-      labels: {
-        confirm: t('myGames.copyConfirm.confirm'),
-        cancel: t('cancel'),
-      },
-      onConfirm: async () => {
-        const newGame = await cloneGame.mutateAsync(game.id!);
-        if (newGame.id) {
-          setGameToView(newGame.id);
-          openViewModal();
-        }
-      },
-    });
+    setCreateInitialData(gameToFormData(game));
+    openCreateModal();
   };
 
   const handlePlayGame = (game: ObjGame) => {
@@ -237,38 +222,16 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
     });
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
       const content = e.target?.result as string;
-      let newGameId: string | undefined;
-      
-      try {
-        const nameMatch = content.match(/^name:\s*["']?(.+?)["']?\s*$/m);
-        const gameName = nameMatch?.[1]?.trim() || file.name.replace(/\.(yaml|yml)$/i, '');
-        
-        const newGame = await createGame.mutateAsync({ name: gameName });
-        newGameId = newGame.id;
-        
-        if (newGameId) {
-          await importGameYaml.mutateAsync({ id: newGameId, yaml: content });
-          refetch();
-          setGameToView(newGameId);
-          openViewModal();
-        }
-      } catch {
-        if (newGameId) {
-          try {
-            await deleteGame.mutateAsync(newGameId);
-            refetch();
-          } catch {
-            // Ignore cleanup errors
-          }
-        }
-      }
+      const formData = parseGameYaml(content);
+      setCreateInitialData(formData);
+      openCreateModal();
     };
     reader.readAsText(file);
     event.target.value = '';
@@ -660,6 +623,7 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
         onClose={handleCloseCreateModal}
         onCreate={handleCreateGame}
         createLoading={createGame.isPending}
+        initialData={createInitialData}
       />
 
       <GameEditModal
