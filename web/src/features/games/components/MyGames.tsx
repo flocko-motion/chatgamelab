@@ -386,27 +386,31 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
       width: 240,
       render: (game) => (
         <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
-          {renderPlayButton(game)}
-          <Tooltip label={t('editGame')} withArrow>
-            <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
-          </Tooltip>
-          <Tooltip label={t('copyGame')} withArrow>
-            <GenericIconButton
-              icon={<IconCopy size={16} />}
-              onClick={() => handleCopyGame(game)}
-              aria-label={t('myGames.copyGame')}
-            />
-          </Tooltip>
-          <Tooltip label={t('games.importExport.exportButton')} withArrow>
-            <GenericIconButton
-              icon={<IconDownload size={16} />}
-              onClick={() => handleExport(game)}
-              aria-label={t('games.importExport.exportButton')}
-            />
-          </Tooltip>
-          <Tooltip label={t('deleteGame')} withArrow>
-            <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
-          </Tooltip>
+          <Box style={{ width: 100, flexShrink: 0 }}>
+            {renderPlayButton(game)}
+          </Box>
+          <Group gap={4} wrap="wrap">
+            <Tooltip label={t('editGame')} withArrow>
+              <EditIconButton onClick={() => handleEditGame(game)} aria-label={t('edit')} />
+            </Tooltip>
+            <Tooltip label={t('copyGame')} withArrow>
+              <GenericIconButton
+                icon={<IconCopy size={16} />}
+                onClick={() => handleCopyGame(game)}
+                aria-label={t('myGames.copyGame')}
+              />
+            </Tooltip>
+            <Tooltip label={t('games.importExport.exportButton')} withArrow>
+              <GenericIconButton
+                icon={<IconDownload size={16} />}
+                onClick={() => handleExport(game)}
+                aria-label={t('games.importExport.exportButton')}
+              />
+            </Tooltip>
+            <Tooltip label={t('deleteGame')} withArrow>
+              <DeleteIconButton onClick={() => handleDeleteClick(game)} aria-label={t('delete')} />
+            </Tooltip>
+          </Group>
         </Group>
       ),
     },

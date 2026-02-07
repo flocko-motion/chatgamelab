@@ -449,7 +449,7 @@ export function MyWorkshop() {
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
-          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="nowrap" justify="flex-end">
+          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="wrap" justify="flex-end">
             <Box style={{ width: 100, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>

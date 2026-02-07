@@ -309,14 +309,18 @@ export function AllGames() {
       width: 180,
       render: (game) => (
         <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
-          {renderPlayButton(game)}
-          <Tooltip label={t('allGames.copyGame')} withArrow>
-            <GenericIconButton
-              icon={<IconCopy size={16} />}
-              onClick={() => handleCopyGame(game)}
-              aria-label={t('allGames.copyGame')}
-            />
-          </Tooltip>
+          <Box style={{ width: 100, flexShrink: 0 }}>
+            {renderPlayButton(game)}
+          </Box>
+          <Group gap={4} wrap="wrap">
+            <Tooltip label={t('allGames.copyGame')} withArrow>
+              <GenericIconButton
+                icon={<IconCopy size={16} />}
+                onClick={() => handleCopyGame(game)}
+                aria-label={t('allGames.copyGame')}
+              />
+            </Tooltip>
+          </Group>
         </Group>
       ),
     },
