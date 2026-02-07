@@ -41,6 +41,7 @@ export function useGameSession(gameId: string) {
   const [state, setState] = useState<GamePlayerState>(INITIAL_STATE);
   const abortControllerRef = useRef<AbortController | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollDelayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pollErrorCountRef = useRef(0);
   // Track the message ID currently being polled
   const activePollingIdRef = useRef<string | null>(null);
@@ -78,6 +79,10 @@ export function useGameSession(gameId: string) {
   );
 
   const stopPolling = useCallback(() => {
+    if (pollDelayRef.current) {
+      clearTimeout(pollDelayRef.current);
+      pollDelayRef.current = null;
+    }
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
@@ -193,12 +198,17 @@ export function useGameSession(gameId: string) {
 
   const startPolling = useCallback(
     (messageId: string) => {
+      // Already polling this message — don't create duplicate intervals
+      if (activePollingIdRef.current === messageId && pollIntervalRef.current) {
+        return;
+      }
       stopPolling();
       activePollingIdRef.current = messageId;
       pollErrorCountRef.current = 0;
 
       // Initial poll after a short delay (give SSE a head start)
-      const initialDelay = setTimeout(() => {
+      pollDelayRef.current = setTimeout(() => {
+        pollDelayRef.current = null;
         if (activePollingIdRef.current === messageId) {
           pollMessageStatus(messageId);
         }
@@ -212,13 +222,6 @@ export function useGameSession(gameId: string) {
           stopPolling();
         }
       }, POLL_INTERVAL);
-
-      // Clean up initial delay if polling is stopped
-      const origStop = pollIntervalRef.current;
-      return () => {
-        clearTimeout(initialDelay);
-        if (origStop) clearInterval(origStop);
-      };
     },
     [pollMessageStatus, stopPolling],
   );
@@ -627,12 +630,56 @@ export function useGameSession(gameId: string) {
           theme: session.theme || null,
         }));
 
-        // If last message is still in-progress, start polling to catch up
+        // If last message is still streaming, start polling to catch up
         if (isInProgress && lastMessage?.id) {
           apiLogger.debug("Session has in-progress message, starting poll", {
             messageId: lastMessage.id,
           });
           startPolling(lastMessage.id);
+        } else if (!isInProgress && lastMessage?.id && lastMessage.imagePrompt) {
+          // Text is done but image might still be generating, failed, or skipped.
+          // mapApiMessageToScene optimistically sets imageStatus="complete", but
+          // the image may not be persisted yet. Use the status endpoint as source of truth.
+          try {
+            const statusResp = await fetch(
+              `${config.API_BASE_URL}/messages/${lastMessage.id}/status`,
+            );
+            if (statusResp.ok) {
+              const status: MessageStatus = await statusResp.json();
+              if (status.imageStatus === "generating") {
+                apiLogger.debug("Session has in-progress image, starting poll", {
+                  messageId: lastMessage.id,
+                });
+                updateMessage(lastMessage.id, {
+                  imageStatus: "generating",
+                  imageHash: status.imageHash || undefined,
+                  isImageLoading: true,
+                });
+                startPolling(lastMessage.id);
+              } else if (status.imageStatus === "complete" && status.imageHash) {
+                updateMessage(lastMessage.id, {
+                  imageStatus: "complete",
+                  imageHash: status.imageHash,
+                });
+              } else if (status.imageStatus === "error") {
+                updateMessage(lastMessage.id, {
+                  imageStatus: "error",
+                  imageErrorCode: status.imageError,
+                  isImageLoading: false,
+                });
+              } else if (status.imageStatus === "none") {
+                updateMessage(lastMessage.id, {
+                  imageStatus: "none",
+                  isImageLoading: false,
+                });
+              }
+            }
+          } catch {
+            // Status check failed — leave optimistic "complete" status, image will 404 gracefully
+            apiLogger.debug("Failed to check image status on rejoin", {
+              messageId: lastMessage.id,
+            });
+          }
         }
       } catch (error) {
         const message =
@@ -645,7 +692,7 @@ export function useGameSession(gameId: string) {
         }));
       }
     },
-    [api, startPolling],
+    [api, startPolling, updateMessage],
   );
 
   const updateSessionApiKey = useCallback(
