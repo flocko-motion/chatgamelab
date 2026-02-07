@@ -31,6 +31,8 @@ const INITIAL_STATE: GamePlayerState = {
 
 const POLL_INTERVAL = 1500;
 const MAX_POLL_ERRORS = 5;
+/** If no SSE data arrives within this window, activate polling as fallback */
+const SSE_SILENCE_TIMEOUT = 10_000;
 
 export function useGameSession(gameId: string) {
   const api = useRequiredAuthenticatedApi();
@@ -44,6 +46,10 @@ export function useGameSession(gameId: string) {
   const activePollingIdRef = useRef<string | null>(null);
   // True while SSE is actively connected and streaming text
   const sseActiveRef = useRef(false);
+  // Silence timer: activates polling if no SSE chunk arrives within the timeout
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref to break circular dependency between resetSilenceTimer and startPolling
+  const startPollingRef = useRef<(messageId: string) => void>(() => {});
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -78,6 +84,13 @@ export function useGameSession(gameId: string) {
     }
     activePollingIdRef.current = null;
     pollErrorCountRef.current = 0;
+  }, []);
+
+  const clearSilenceTimer = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
   }, []);
 
   // ── Message Status Polling (safety net) ─────────────────────────────
@@ -210,6 +223,24 @@ export function useGameSession(gameId: string) {
     [pollMessageStatus, stopPolling],
   );
 
+  // Keep ref in sync
+  startPollingRef.current = startPolling;
+
+  /** Start (or restart) the silence timer for the given message. */
+  const resetSilenceTimer = useCallback(
+    (messageId: string) => {
+      clearSilenceTimer();
+      silenceTimerRef.current = setTimeout(() => {
+        // No SSE data for SSE_SILENCE_TIMEOUT — activate polling fallback
+        if (!pollIntervalRef.current) {
+          apiLogger.debug("SSE silence timeout, activating polling fallback", { messageId });
+          startPollingRef.current(messageId);
+        }
+      }, SSE_SILENCE_TIMEOUT);
+    },
+    [clearSilenceTimer],
+  );
+
   // ── SSE Streaming (real-time text) ──────────────────────────────────
 
   const connectToStream = useCallback(
@@ -220,9 +251,6 @@ export function useGameSession(gameId: string) {
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
-
-      // Start polling as safety net alongside SSE
-      startPolling(messageId);
 
       try {
         const token = await getAccessToken();
@@ -242,11 +270,12 @@ export function useGameSession(gameId: string) {
         });
 
         if (!response.ok) {
-          // SSE failed to connect — polling will handle it
-          apiLogger.error("SSE connection failed", {
+          // SSE failed to connect — activate polling as fallback
+          apiLogger.error("SSE connection failed, activating polling", {
             status: response.status,
             messageId,
           });
+          startPolling(messageId);
           return;
         }
 
@@ -254,6 +283,8 @@ export function useGameSession(gameId: string) {
         if (!reader) return;
 
         sseActiveRef.current = true;
+        // Start silence timer — if no data arrives within the timeout, polling kicks in
+        resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
 
@@ -271,6 +302,9 @@ export function useGameSession(gameId: string) {
                 const data = line.slice(6);
                 const chunk: StreamChunk = JSON.parse(data);
 
+                // SSE is alive — reset silence timer
+                resetSilenceTimer(messageId);
+
                 if (chunk.error) {
                   apiLogger.error("Stream error from backend", {
                     errorCode: chunk.errorCode,
@@ -278,6 +312,7 @@ export function useGameSession(gameId: string) {
                     messageId,
                   });
                   sseActiveRef.current = false;
+                  clearSilenceTimer();
                   // Remove the game placeholder message
                   // Mark the PLAYER message as failed (red + retry)
                   setState((prev) => ({
@@ -303,6 +338,15 @@ export function useGameSession(gameId: string) {
                   appendTextToMessage(messageId, chunk.text);
                 }
 
+                // Partial image received — bump imageHash to trigger SceneImage re-fetch
+                // (the backend caches partial images, served via /messages/{id}/image)
+                if (chunk.imageData) {
+                  updateMessage(messageId, {
+                    imageStatus: "generating",
+                    imageHash: `partial-${Date.now()}`,
+                  });
+                }
+
                 if (chunk.textDone) {
                   sseActiveRef.current = false;
                   updateMessage(messageId, { isStreaming: false });
@@ -318,7 +362,9 @@ export function useGameSession(gameId: string) {
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
-                  // SSE is done — polling will also stop when it sees completion
+                  // SSE delivered everything — stop polling (if active) and silence timer
+                  clearSilenceTimer();
+                  stopPolling();
                   return;
                 }
               } catch (e) {
@@ -330,15 +376,18 @@ export function useGameSession(gameId: string) {
 
         // Stream ended normally
         sseActiveRef.current = false;
+        clearSilenceTimer();
         setState((prev) => ({ ...prev, isWaitingForResponse: false }));
       } catch (error) {
         sseActiveRef.current = false;
+        clearSilenceTimer();
         if ((error as Error).name !== "AbortError") {
-          // SSE dropped — polling safety net will catch up
-          apiLogger.error("SSE connection lost, polling will recover", {
+          // SSE dropped — activate polling as fallback
+          apiLogger.error("SSE connection lost, activating polling", {
             error,
             messageId,
           });
+          startPolling(messageId);
         }
       }
     },
@@ -348,6 +397,8 @@ export function useGameSession(gameId: string) {
       updateMessage,
       startPolling,
       stopPolling,
+      resetSilenceTimer,
+      clearSilenceTimer,
     ],
   );
 
@@ -636,8 +687,9 @@ export function useGameSession(gameId: string) {
       abortControllerRef.current = null;
     }
     stopPolling();
+    clearSilenceTimer();
     setState(INITIAL_STATE);
-  }, [stopPolling]);
+  }, [stopPolling, clearSilenceTimer]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -646,8 +698,9 @@ export function useGameSession(gameId: string) {
         abortControllerRef.current.abort();
       }
       stopPolling();
+      clearSilenceTimer();
     };
-  }, [stopPolling]);
+  }, [stopPolling, clearSilenceTimer]);
 
   return {
     state,
