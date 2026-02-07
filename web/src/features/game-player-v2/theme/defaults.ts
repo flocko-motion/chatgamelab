@@ -40,6 +40,7 @@ export const DEFAULT_GAME_THEME: GameTheme = {
     bgColor: 'white',
     fontColor: 'dark',
     borderColor: 'slate',
+    textEffect: 'none',
   },
   
   cards: {

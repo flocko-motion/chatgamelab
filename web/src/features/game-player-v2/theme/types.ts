@@ -84,6 +84,9 @@ export interface PlayerConfig {
   borderColor: ThemeColor;
 }
 
+/** Text effect applied to AI message text */
+export type TextEffect = 'none' | 'decrypted' | 'glitch';
+
 /** AI/Game message styling */
 export interface GameMessageConfig {
   dropCap: boolean;
@@ -91,6 +94,7 @@ export interface GameMessageConfig {
   bgColor: CardBgColor;
   fontColor: FontColor;
   borderColor: ThemeColor;
+  textEffect: TextEffect;
 }
 
 /** Status field styling */

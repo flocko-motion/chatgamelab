@@ -445,12 +445,12 @@ export function MyWorkshop() {
     {
       key: "actions",
       header: t("actions"),
-      width: 220,
+      width: 260,
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
           <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="wrap" justify="flex-end">
-            <Box style={{ width: 100, flexShrink: 0 }}>
+            <Box style={{ width: 140, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>
             <SimpleGrid cols={2} spacing={4}>

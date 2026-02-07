@@ -6,6 +6,7 @@ import { SceneImage } from './SceneImage';
 import { StreamingIndicator } from './TypingIndicator';
 import { DebugPanel } from './DebugPanel';
 import { StatusChangeIndicator } from './StatusChangeIndicator';
+import { DecryptedText, GlitchText } from './text-effects';
 import classes from './GamePlayer.module.css';
 
 interface SceneCardProps {
@@ -42,6 +43,7 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
     bottomRight: true,
   };
   const cornerBlink = theme.corners?.blink ?? false;
+  const textEffect = theme.gameMessage?.textEffect ?? 'none';
 
   // Map corner style to CSS class prefix
   const cornerStyleClass = cornerStyle !== 'none' ? classes[`corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`] : '';
@@ -91,7 +93,13 @@ export function SceneCard({ message, showImages, previousStatusFields }: SceneCa
             className={narrativeClasses}
             style={{ fontSize: FONT_SIZE_MAP[fontSize] }}
           >
-            {text}
+            {textEffect === 'decrypted' ? (
+              <DecryptedText text={text} />
+            ) : textEffect === 'glitch' ? (
+              <GlitchText text={text} />
+            ) : (
+              text
+            )}
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>

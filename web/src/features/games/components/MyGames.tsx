@@ -394,10 +394,10 @@ export function MyGames({ initialGameId, initialMode, onModalClose, autoImport }
     {
       key: 'actions',
       header: t('actions'),
-      width: 240,
+      width: 260,
       render: (game) => (
         <Group gap="xs" onClick={(e) => e.stopPropagation()} wrap="nowrap">
-          <Box style={{ width: 100, flexShrink: 0 }}>
+          <Box style={{ width: 140, flexShrink: 0 }}>
             {renderPlayButton(game)}
           </Box>
           <Group gap={4} wrap="wrap">
