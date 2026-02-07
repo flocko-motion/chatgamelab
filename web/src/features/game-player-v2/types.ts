@@ -3,7 +3,7 @@ import type {
   ObjStatusField,
   ObjGameTheme,
 } from "@/api/generated";
-import { PRESET_THEMES } from "./theme/defaults";
+import { PRESETS } from "./theme/presets";
 import type {
   PartialGameTheme,
   BackgroundAnimation as BackgroundAnimationType,
@@ -147,10 +147,10 @@ export function mapApiThemeToPartial(
   if (!apiTheme) return undefined;
 
   // Load preset (deep clone to avoid mutating the original)
-  const preset = apiTheme.preset ? PRESET_THEMES[apiTheme.preset] : undefined;
-  const result: PartialGameTheme = preset
-    ? JSON.parse(JSON.stringify(preset))
-    : {};
+  // Fall back to 'default' when preset is empty or unknown
+  const presetKey = apiTheme.preset && PRESETS[apiTheme.preset] ? apiTheme.preset : 'default';
+  const presetDef = PRESETS[presetKey];
+  const result: PartialGameTheme = JSON.parse(JSON.stringify(presetDef.theme));
 
   // Apply animation override
   if (apiTheme.animation) {

@@ -39,7 +39,7 @@ import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue, FontSize } from "../context";
 import { mapApiThemeToPartial } from "../types";
 import type { PartialGameTheme } from "../theme/types";
-import { GameThemeProvider, useGameTheme, PRESET_THEMES } from "../theme";
+import { GameThemeProvider, useGameTheme, PRESETS } from "../theme";
 import { ThemeTestPanel } from "./ThemeTestPanel";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
@@ -66,7 +66,7 @@ function SceneAreaWithTheme({
   sceneEndRef,
   animationEnabled,
 }: SceneAreaWithThemeProps) {
-  const { cssVars, theme } = useGameTheme();
+  const { cssVars, theme, BackgroundComponent: CustomBg } = useGameTheme();
   const animation = theme.background.animation || "none";
 
   return (
@@ -74,10 +74,14 @@ function SceneAreaWithTheme({
       className={classes.sceneArea}
       style={{ ...cssVars }}
     >
-      <BackgroundAnimation
-        animation={animation}
-        disabled={!animationEnabled}
-      />
+      {CustomBg && animationEnabled ? (
+        <CustomBg />
+      ) : (
+        <BackgroundAnimation
+          animation={animation}
+          disabled={!animationEnabled}
+        />
+      )}
       <div className={classes.messagesScroll}>
         <div
           className={classes.scenesContainer}
@@ -587,12 +591,17 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   // Resolve theme: test override > neutral default > AI-generated
   const baseTheme = useNeutralTheme
-    ? PRESET_THEMES.default
+    ? PRESETS.default.theme
     : mapApiThemeToPartial(state.theme);
   const effectiveTheme = themeOverride ?? baseTheme;
 
+  // Resolve custom BackgroundComponent from preset (if any)
+  const presetName = useNeutralTheme ? 'default' : state.theme?.preset;
+  const activePreset = presetName ? PRESETS[presetName] : undefined;
+  const BackgroundComponent = activePreset?.BackgroundComponent;
+
   return (
-    <GameThemeProvider theme={effectiveTheme}>
+    <GameThemeProvider theme={effectiveTheme} BackgroundComponent={BackgroundComponent}>
       <GamePlayerProvider value={contextValue}>
         <Box className={classes.container} h={containerHeight}>
           <HeaderWithTheme>

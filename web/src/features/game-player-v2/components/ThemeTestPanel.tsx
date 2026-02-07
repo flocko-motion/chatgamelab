@@ -23,7 +23,7 @@ import type {
   PartialGameTheme, 
   BackgroundAnimation,
 } from '../theme/types';
-import { PRESET_THEMES } from '../theme/defaults';
+import { PRESETS } from '../theme/presets';
 
 const BACKGROUND_ANIMATIONS: { value: BackgroundAnimation | 'preset'; label: string }[] = [
   { value: 'preset', label: '(Use Preset Default)' },
@@ -85,11 +85,11 @@ export function ThemeTestPanel({ onThemeChange }: ThemeTestPanelProps) {
   const [animationOverride, setAnimationOverride] = useState<BackgroundAnimation | 'preset'>('preset');
 
   const applyTheme = useCallback((presetName: string, animation: BackgroundAnimation | 'preset') => {
-    const preset = PRESET_THEMES[presetName];
-    if (!preset) return;
+    const presetDef = PRESETS[presetName];
+    if (!presetDef) return;
 
-    // Deep clone preset
-    const theme: PartialGameTheme = JSON.parse(JSON.stringify(preset));
+    // Deep clone preset theme
+    const theme: PartialGameTheme = JSON.parse(JSON.stringify(presetDef.theme));
 
     // Apply animation override
     if (animation !== 'preset') {
@@ -115,11 +115,11 @@ export function ThemeTestPanel({ onThemeChange }: ThemeTestPanelProps) {
   };
 
   const logCurrentTheme = () => {
-    const preset = selectedPreset ? PRESET_THEMES[selectedPreset] : undefined;
+    const presetDef = selectedPreset ? PRESETS[selectedPreset] : undefined;
     console.log('[ThemeTestPanel] Preset:', selectedPreset || '(none)');
     console.log('[ThemeTestPanel] Animation override:', animationOverride);
-    if (preset) {
-      console.log('[ThemeTestPanel] Resolved theme:', JSON.stringify(preset, null, 2));
+    if (presetDef) {
+      console.log('[ThemeTestPanel] Resolved theme:', JSON.stringify(presetDef.theme, null, 2));
     }
   };
 

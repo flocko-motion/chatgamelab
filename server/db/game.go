@@ -820,6 +820,10 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
 		var theme obj.GameTheme
 		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
+			// Default preset for old sessions that predate the preset-only model
+			if theme.Preset == "" {
+				theme.Preset = "default"
+			}
 			session.Theme = &theme
 		}
 	}

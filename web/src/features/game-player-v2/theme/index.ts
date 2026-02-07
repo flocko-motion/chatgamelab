@@ -27,16 +27,19 @@ export type {
   TypographyConfig,
 } from './types';
 
-// Defaults and presets
+// Defaults
 export {
   DEFAULT_GAME_THEME,
   THEME_COLORS,
   THEME_FONTS,
-  PRESET_THEMES,
   CARD_BG_COLORS,
   FONT_COLORS,
   CARD_BORDER_THICKNESSES,
 } from './defaults';
+
+// Presets
+export { PRESETS } from './presets';
+export type { PresetDefinition } from './presets';
 
 // Context and hook
 export { GameThemeProvider } from './GameThemeContext';

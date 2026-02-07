@@ -5,7 +5,7 @@
  * Falls back to defaults for any missing values.
  */
 
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode, type ComponentType } from 'react';
 import type { GameTheme, PartialGameTheme } from './types';
 import { DEFAULT_GAME_THEME } from './defaults';
 import { GameThemeContext, generateCssVars, type GameThemeContextValue } from './useGameTheme';
@@ -33,9 +33,11 @@ interface GameThemeProviderProps {
   children: ReactNode;
   /** Partial theme to merge with defaults */
   theme?: PartialGameTheme;
+  /** Optional custom background component from preset */
+  BackgroundComponent?: ComponentType<{ className?: string }>;
 }
 
-export function GameThemeProvider({ children, theme: partialTheme }: GameThemeProviderProps) {
+export function GameThemeProvider({ children, theme: partialTheme, BackgroundComponent }: GameThemeProviderProps) {
   const value = useMemo<GameThemeContextValue>(() => {
     const theme = mergeTheme(partialTheme);
     const cssVars = generateCssVars(theme);
@@ -55,8 +57,8 @@ export function GameThemeProvider({ children, theme: partialTheme }: GameThemePr
       return '';
     };
     
-    return { theme, cssVars, getStatusEmoji };
-  }, [partialTheme]);
+    return { theme, cssVars, getStatusEmoji, BackgroundComponent };
+  }, [partialTheme, BackgroundComponent]);
   
   return (
     <GameThemeContext.Provider value={value}>
