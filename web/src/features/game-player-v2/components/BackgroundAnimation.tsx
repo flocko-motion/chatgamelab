@@ -523,7 +523,7 @@ export const BackgroundAnimation = memo(function BackgroundAnimation({ animation
       <Particles
         id="game-bg-particles"
         options={config}
-        style={{ width: '100%', height: '100%' }}
+        style={{ position: 'absolute', inset: 0 }}
       />
     </div>
   );

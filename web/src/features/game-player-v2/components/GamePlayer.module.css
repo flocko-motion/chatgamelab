@@ -81,6 +81,28 @@
     var(--game-bg-status);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   overflow-x: auto;
+
+  /* Themed scrollbar — Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-corner-color, rgba(0, 0, 0, 0.2)) transparent;
+}
+
+/* Themed scrollbar — WebKit (Chrome, Safari, Edge) */
+.statusBar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.statusBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.statusBar::-webkit-scrollbar-thumb {
+  background: var(--game-corner-color, rgba(0, 0, 0, 0.2));
+  border-radius: 3px;
+}
+
+.statusBar::-webkit-scrollbar-thumb:hover {
+  background: var(--game-corner-color-light, rgba(0, 0, 0, 0.3));
 }
 
 .statusField {
@@ -189,6 +211,13 @@
   position: relative;
   overflow: hidden;
   background-color: var(--game-bg-tint, transparent);
+}
+
+/* Force tsParticles container and canvas to fill the scene area */
+.sceneArea :global(#game-bg-particles),
+.sceneArea :global(#game-bg-particles) canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .messagesScroll {

@@ -29,7 +29,6 @@ import {
 import env from "@/config/env";
 import { ActionButton, TextButton } from "@components/buttons";
 import { ErrorModal } from "@/common/components/ErrorModal";
-import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
@@ -122,7 +121,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
   const queryClient = useQueryClient();
   const sceneEndRef = useRef<HTMLDivElement>(null);
   const isContinuation = !!sessionId;
-  const { isMobile } = useResponsiveDesign();
   const { isParticipant, backendUser } = useAuth();
   const { isInWorkshopMode, activeWorkshopId } = useWorkshopMode();
 
@@ -745,7 +743,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           <SceneAreaWithTheme
             renderMessages={renderMessages}
             sceneEndRef={sceneEndRef}
-            animationEnabled={animationEnabled && !isMobile}
+            animationEnabled={animationEnabled}
           />
 
           <ImageLightbox />
