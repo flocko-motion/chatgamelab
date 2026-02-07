@@ -15,6 +15,7 @@ export {
   useShareApiKey,
   useUpdateApiKeyName,
   useDeleteApiKey,
+  useSetDefaultApiKey,
   useInstitutionApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,

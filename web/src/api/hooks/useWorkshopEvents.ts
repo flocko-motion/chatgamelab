@@ -69,10 +69,6 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     });
 
     if (!workshopId || !enabled) {
-      uiLogger.debug("useWorkshopEvents skipping - no workshopId or disabled", {
-        workshopId,
-        enabled,
-      });
       return;
     }
 

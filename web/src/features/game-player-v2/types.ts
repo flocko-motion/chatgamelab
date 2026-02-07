@@ -1,8 +1,6 @@
 import type {
   ObjGameSessionMessage,
   ObjStatusField,
-  ObjApiKeyShare,
-  ObjAiModel,
   ObjGameTheme,
 } from "@/api/generated";
 import { PRESET_THEMES } from "./theme/defaults";
@@ -48,7 +46,6 @@ export interface StreamChunk {
 }
 
 export interface GameSessionConfig {
-  shareId: string;
   model?: string;
 }
 
@@ -63,7 +60,7 @@ export interface GameInfo {
 // ============================================================================
 
 export type GamePhase =
-  | "selecting-key"
+  | "idle"
   | "starting"
   | "playing"
   | "error"
@@ -120,21 +117,6 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
     seq: msg.seq,
   };
-}
-
-export function getDefaultApiKey(
-  apiKeys: ObjApiKeyShare[],
-): ObjApiKeyShare | undefined {
-  return apiKeys.find((k) => k.isUserDefault) || apiKeys[0];
-}
-
-export function getModelsForApiKey(
-  apiKey: ObjApiKeyShare | undefined,
-  platforms: { id?: string; models?: ObjAiModel[] }[],
-): ObjAiModel[] {
-  if (!apiKey?.apiKey?.platform) return [];
-  const platform = platforms.find((p) => p.id === apiKey.apiKey?.platform);
-  return platform?.models || [];
 }
 
 /** Maps API theme type to frontend PartialGameTheme (type-safe conversion)

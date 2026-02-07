@@ -95,6 +95,20 @@ export function useDeleteApiKey() {
   });
 }
 
+export function useSetDefaultApiKey() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<ObjApiKeyShare, HttpxErrorResponse, { id: string }>({
+    mutationFn: ({ id }) =>
+      api.apikeys.defaultUpdate(id).then((response) => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
 // Institution API Keys hooks
 export function useInstitutionApiKeys(institutionId: string) {
   const api = useRequiredAuthenticatedApi();

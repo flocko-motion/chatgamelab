@@ -234,11 +234,16 @@
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "API-Schlüssel werden verwendet, um sich mit KI-Plattformen für die Generierung von Spielinhalten zu verbinden.",
+        "description": "API-Schlüssel werden verwendet, um sich mit KI-Plattformen für die Generierung von Spielinhalten zu verbinden. Der ausgewählte Schlüssel (mit einem Häkchen markiert) wird standardmäßig beim Erstellen neuer Spielsitzungen verwendet.",
         "title": "Über API-Schlüssel"
       },
       "addKey": "Schlüssel hinzufügen",
       "addedOn": "Hinzugefügt",
+      "currentDefault": {
+        "label": "Aktiver API-Schlüssel",
+        "none": "Kein Standard-Schlüssel konfiguriert. Füge einen Schlüssel hinzu, um loszulegen."
+      },
+      "default": "Standard",
       "createModal": {
         "keyDescription": "Dein Schlüssel wird verschlüsselt und sicher gespeichert.",
         "keyLabel": "API-Schlüssel",
@@ -264,6 +269,13 @@
       },
       "key": "Schlüssel",
       "keys": "Schlüssel",
+      "platform": "Plattform",
+      "setDefault": "Als Standard festlegen",
+      "status": {
+        "failed": "Schlüssel funktioniert nicht",
+        "unknown": "Schlüssel noch nicht verwendet",
+        "working": "Schlüssel funktioniert"
+      },
       "subtitle": "Verwalte deine API-Schlüssel für KI-Plattformen.",
       "title": "API-Schlüssel verwalten",
       "unnamed": "Unbenannter Schlüssel",
@@ -313,6 +325,12 @@
         "backToGames": "Zurück zu Spielen",
         "gameNotFound": "Spiel nicht gefunden",
         "missingFields": "Dem Spiel fehlen erforderliche Felder:",
+        "noApiKey": {
+          "goToSettings": "API-Schlüssel Einstellungen",
+          "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
+          "title": "Kein API-Schlüssel verfügbar",
+          "workshop": "Für diesen Workshop ist kein API-Schlüssel konfiguriert. Bitte kontaktiere deinen Workshop-Administrator."
+        },
         "sessionFailed": "Spielsitzung konnte nicht gestartet werden"
       },
       "header": {
@@ -330,27 +348,13 @@
       },
       "loading": {
         "game": "Spiel wird geladen...",
+        "resolvingKey": "API-Schlüssel wird aufgelöst...",
         "starting": "Spielsitzung wird gestartet...",
         "startingHint": "Die KI bereitet dein Abenteuer vor"
       },
       "needsApiKey": {
-        "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar. Bitte wähle einen neuen aus, um weiterzuspielen.",
-        "reason": "Dein vorheriger API-Schlüssel ist nicht mehr verfügbar. Um dein Spiel fortzusetzen, wähle bitte einen neuen aus.",
+        "description": "Der API-Schlüssel für diese Sitzung ist nicht mehr verfügbar.",
         "title": "API-Schlüssel erforderlich"
-      },
-      "selectApiKey": {
-        "keyDescription": "Wähle den API-Schlüssel für diese Spielsitzung",
-        "keyLabel": "API-Schlüssel",
-        "keyPlaceholder": "API-Schlüssel auswählen",
-        "loadError": "API-Schlüssel konnten nicht geladen werden",
-        "mine": "Mein",
-        "modelDescription": "Optional ein bestimmtes KI-Modell auswählen",
-        "modelLabel": "KI-Modell",
-        "modelPlaceholder": "Standard-Modell",
-        "noKeys": "Du brauchst mindestens einen API-Schlüssel zum Spielen. Füge einen unter Einstellungen → API-Schlüssel hinzu.",
-        "playing": "Spiel",
-        "startGame": "Spiel starten",
-        "title": "API-Schlüssel auswählen"
       },
       "statusChange": {
         "effect": "Effekt:"
@@ -848,13 +852,9 @@
     "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
-    "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
-    "contentFiltered": "Deine Anfrage wurde von den Inhaltsrichtlinien der KI gefiltert. Bitte formuliere sie anders.",
-    "duplicateName": "Ein Eintrag mit diesem Namen existiert bereits. Bitte wähle einen anderen Namen.",
-    "aiError": "Der KI-Dienst hat einen Fehler festgestellt. Bitte versuche es erneut.",
-    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
-    "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
+    "duplicateName": "Ein Eintrag mit diesem Namen existiert bereits. Bitte wähle einen anderen Namen.",
+    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
     "titles": {
       "aiError": "KI-Fehler",
       "authentication": "Authentifizierungsfehler",
@@ -870,8 +870,7 @@
     "unauthorized": "Bitte melde dich an, um fortzufahren.",
     "unexpected": "Ein unerwarteter Fehler ist aufgetreten.",
     "userNotRegistered": "Du musst die Registrierung abschließen, bevor du fortfahren kannst.",
-    "validation": "Bitte überprüfe deine Eingabe und versuche es erneut.",
-    "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator."
+    "validation": "Bitte überprüfe deine Eingabe und versuche es erneut."
   },
   "myWorkshop": {
     "empty": {

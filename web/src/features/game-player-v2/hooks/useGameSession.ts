@@ -16,7 +16,7 @@ import type {
 import { mapApiMessageToScene } from "../types";
 
 const INITIAL_STATE: GamePlayerState = {
-  phase: "selecting-key",
+  phase: "idle",
   sessionId: null,
   gameInfo: null,
   messages: [],
@@ -167,13 +167,12 @@ export function useGameSession(gameId: string) {
   );
 
   const startSession = useCallback(
-    async (sessionConfig: GameSessionConfig) => {
+    async (sessionConfig?: GameSessionConfig) => {
       setState((prev) => ({ ...prev, phase: "starting", error: null }));
 
       try {
         const response = await api.games.sessionsCreate(gameId, {
-          shareId: sessionConfig.shareId,
-          model: sessionConfig.model,
+          model: sessionConfig?.model,
         });
 
         const sessionResponse = response.data;
@@ -366,17 +365,14 @@ export function useGameSession(gameId: string) {
   );
 
   const updateSessionApiKey = useCallback(
-    async (shareId: string, model?: string) => {
+    async () => {
       if (!state.sessionId) return;
 
       setState((prev) => ({ ...prev, phase: "starting" }));
 
       try {
-        // Update the session with the new API key
-        await api.sessions.sessionsPartialUpdate(state.sessionId, {
-          shareId,
-          model,
-        });
+        // Re-resolve the API key server-side
+        await api.sessions.sessionsPartialUpdate(state.sessionId);
 
         // Transition to playing
         setState((prev) => ({
