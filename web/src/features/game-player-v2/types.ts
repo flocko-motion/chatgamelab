@@ -24,6 +24,8 @@ import type {
 
 export type MessageType = "system" | "player" | "game";
 
+export type ImageStatus = "none" | "generating" | "complete" | "error";
+
 export interface SceneMessage {
   id: string;
   type: MessageType;
@@ -32,8 +34,15 @@ export interface SceneMessage {
   imagePrompt?: string;
   isStreaming?: boolean;
   isImageLoading?: boolean;
+  imageStatus?: ImageStatus;
+  imageHash?: string;
+  imageErrorCode?: string;
   timestamp: Date;
   seq?: number;
+  /** Set when a player message failed (AI error) — shows red with retry */
+  error?: string;
+  /** Machine-readable error code for i18n */
+  errorCode?: string;
 }
 
 export interface StreamChunk {
@@ -43,6 +52,18 @@ export interface StreamChunk {
   imageDone?: boolean;
   error?: string; // Error message from the backend
   errorCode?: string; // Machine-readable error code (maps to frontend i18n)
+}
+
+/** Response from GET /messages/{id}/status — unified polling endpoint */
+export interface MessageStatus {
+  text: string;
+  textDone: boolean;
+  imageStatus: ImageStatus;
+  imageHash?: string;
+  imageError?: string;
+  statusFields?: ObjStatusField[];
+  error?: string;
+  errorCode?: string;
 }
 
 export interface GameSessionConfig {
@@ -107,6 +128,20 @@ export const DEFAULT_THEME: GameTheme = {
 // ============================================================================
 
 export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
+  // Determine image status for non-streaming messages loaded from DB
+  let imageStatus: ImageStatus | undefined;
+  let imageHash: string | undefined;
+  if (msg.imagePrompt) {
+    if (msg.stream) {
+      // Still streaming — polling will determine actual status
+      imageStatus = "generating";
+    } else {
+      // Completed message with image prompt — image is persisted
+      imageStatus = "complete";
+      imageHash = "persisted";
+    }
+  }
+
   return {
     id: msg.id || crypto.randomUUID(),
     type: (msg.type as MessageType) || "game",
@@ -114,6 +149,9 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     statusFields: msg.statusFields,
     imagePrompt: msg.imagePrompt,
     isStreaming: msg.stream,
+    isImageLoading: msg.stream && !!msg.imagePrompt,
+    imageStatus,
+    imageHash,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
     seq: msg.seq,
   };

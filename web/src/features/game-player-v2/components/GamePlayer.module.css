@@ -180,17 +180,23 @@
 }
 
 /* ============================================================================
-   Scene Area (scrollable)
+   Scene Area (layered: fixed background + scrollable messages)
    ============================================================================ */
 
 .sceneArea {
   flex: 1;
   min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--game-bg-tint, transparent);
+}
+
+.messagesScroll {
+  position: absolute;
+  inset: 0;
   overflow-y: auto;
   scroll-behavior: smooth;
-  padding: var(--mantine-spacing-md);
-  position: relative; /* Required for BackgroundAnimation absolute positioning */
-  background-color: var(--game-bg-tint, transparent);
+  z-index: 1;
 }
 
 .scenesContainer {
@@ -630,6 +636,43 @@
 .playerActionText {
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+/* Error state for failed player messages */
+.playerActionBubble.playerActionError {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.playerActionErrorInfo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--mantine-spacing-sm);
+  margin-top: 4px;
+  padding-right: 4px;
+}
+
+.playerActionErrorText {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-red-7);
+}
+
+.playerActionRetryButton {
+  background: none;
+  border: 1px solid var(--mantine-color-red-4);
+  border-radius: var(--mantine-radius-sm);
+  color: var(--mantine-color-red-7);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 28px;
+}
+
+.playerActionRetryButton:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* ============================================================================

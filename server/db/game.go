@@ -943,6 +943,34 @@ func GetGameSessionMessageImageByID(ctx context.Context, messageID uuid.UUID) (*
 	}, nil
 }
 
+// GetGameSessionMessageByIDPublic returns message fields needed for the status endpoint (no auth required).
+// Security relies on message UUIDs being random/unguessable, same as image endpoint.
+func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:      m.ID,
+		Type:    m.Type,
+		Message: m.Message,
+		Image:   m.Image,
+	}
+
+	// Parse status fields from JSON
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+
+	// Set image prompt
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+
+	return msg, nil
+}
+
 // GetGameSessionMessageByID returns a message by its ID (requires read access to session)
 func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
 	m, err := queries().GetGameSessionMessageByID(ctx, messageID)

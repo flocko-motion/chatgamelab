@@ -68,27 +68,24 @@ function SceneAreaWithTheme({
 }: SceneAreaWithThemeProps) {
   const { cssVars, theme } = useGameTheme();
   const animation = theme.background.animation || "none";
-  const sceneAreaRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Box
       className={classes.sceneArea}
-      ref={sceneAreaRef}
-      px={{ base: "sm", sm: "md" }}
-      py="md"
-      style={{ ...cssVars, position: "relative" }}
+      style={{ ...cssVars }}
     >
       <BackgroundAnimation
         animation={animation}
         disabled={!animationEnabled}
-        containerRef={sceneAreaRef}
       />
-      <div
-        className={classes.scenesContainer}
-        style={{ position: "relative", zIndex: 1 }}
-      >
-        {renderMessages()}
-        <div ref={sceneEndRef} />
+      <div className={classes.messagesScroll}>
+        <div
+          className={classes.scenesContainer}
+          style={{ padding: 'var(--mantine-spacing-md)' }}
+        >
+          {renderMessages()}
+          <div ref={sceneEndRef} />
+        </div>
       </div>
     </Box>
   );
@@ -160,6 +157,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     state,
     startSession,
     sendAction,
+    retryLastAction,
     loadExistingSession,
     updateSessionApiKey,
     clearStreamError,
@@ -320,6 +318,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     theme: DEFAULT_THEME,
     startSession,
     sendAction,
+    retryLastAction,
     loadExistingSession,
     resetGame,
     openLightbox,
@@ -533,7 +532,15 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
     state.messages.forEach((message, index) => {
       if (message.type === "player") {
-        elements.push(<PlayerAction key={message.id} text={message.text} />);
+        elements.push(
+          <PlayerAction
+            key={message.id}
+            text={message.text}
+            error={message.error}
+            errorCode={message.errorCode}
+            onRetry={message.error ? retryLastAction : undefined}
+          />,
+        );
       } else if (message.type === "system") {
         elements.push(<SystemMessage key={message.id} message={message} />);
       } else {
@@ -754,9 +761,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           <SceneAreaWithTheme
             renderMessages={renderMessages}
             sceneEndRef={sceneEndRef}
-            animationEnabled={
-              animationEnabled && !state.isWaitingForResponse && !isMobile
-            }
+            animationEnabled={animationEnabled && !isMobile}
           />
 
           <ImageLightbox />

@@ -16,6 +16,7 @@ export interface GamePlayerContextValue {
   startSession: (config: GameSessionConfig) => Promise<void>;
   sendAction: (message: string) => Promise<void>;
   loadExistingSession: (sessionId: string) => Promise<void>;
+  retryLastAction: () => void;
   resetGame: () => void;
   
   // Image lightbox

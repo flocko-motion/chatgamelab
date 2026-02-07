@@ -360,6 +360,91 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, session)
 }
 
+// MessageStatusResponse is the unified response for polling message completion.
+// Frontend polls this to catch up after SSE drops, on reload, or for image progress.
+type MessageStatusResponse struct {
+	Text         string            `json:"text"`                   // Current full text of the message
+	TextDone     bool              `json:"textDone"`               // True when text streaming is complete (Stream=false in DB)
+	ImageStatus  string            `json:"imageStatus"`            // "none" | "generating" | "complete" | "error"
+	ImageHash    string            `json:"imageHash,omitempty"`    // Hash for cache-busting image URL
+	ImageError   string            `json:"imageError,omitempty"`   // Machine-readable image error code
+	StatusFields []obj.StatusField `json:"statusFields,omitempty"` // Current status fields
+	Error        string            `json:"error,omitempty"`        // Fatal error message (AI failure)
+	ErrorCode    string            `json:"errorCode,omitempty"`    // Machine-readable error code
+}
+
+// GetMessageStatus godoc
+//
+//	@Summary		Get message completion status
+//	@Description	Returns the current state of a message: text, image status, errors.
+//	@Description	Frontend polls this as a safety net when SSE drops, on reload, or for image progress.
+//	@Description	No authentication required - message UUIDs are random and unguessable.
+//	@Tags			messages
+//	@Produce		json
+//	@Param			id	path		string	true	"Message ID (UUID)"
+//	@Success		200	{object}	MessageStatusResponse
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Message not found"
+//	@Router			/messages/{id}/status [get]
+func GetMessageStatus(w http.ResponseWriter, r *http.Request) {
+	messageID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	// Get message from DB (no auth - relies on UUID unguessability, same as image endpoint)
+	msg, err := db.GetGameSessionMessageByIDPublic(r.Context(), messageID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Message not found")
+		return
+	}
+
+	// Determine text completion: if stream registry has an active stream, text is still in progress
+	registry := stream.Get()
+	textStreaming := registry.Lookup(messageID) != nil
+
+	resp := MessageStatusResponse{
+		Text:         msg.Message,
+		TextDone:     !textStreaming,
+		StatusFields: msg.StatusFields,
+	}
+
+	// Determine image status
+	if msg.ImagePrompt == nil || *msg.ImagePrompt == "" {
+		resp.ImageStatus = "none"
+	} else {
+		// Check image cache first (in-progress generation)
+		cache := imagecache.Get()
+		imgStatus := cache.GetStatus(messageID)
+
+		if imgStatus.Exists {
+			if imgStatus.HasError {
+				resp.ImageStatus = "error"
+				resp.ImageError = imgStatus.ErrorCode
+			} else if imgStatus.IsComplete {
+				resp.ImageStatus = "complete"
+				resp.ImageHash = imgStatus.Hash
+			} else {
+				resp.ImageStatus = "generating"
+				resp.ImageHash = imgStatus.Hash
+			}
+		} else if len(msg.Image) > 0 {
+			// Image already persisted to DB
+			resp.ImageStatus = "complete"
+			resp.ImageHash = "persisted"
+		} else if textStreaming {
+			// Stream still active, image generation hasn't started yet
+			resp.ImageStatus = "generating"
+		} else {
+			// Stream finished but no image — generation failed silently or was skipped
+			resp.ImageStatus = "none"
+		}
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, resp)
+}
+
 // ImageStatusResponse is the response for the image status endpoint
 type ImageStatusResponse struct {
 	Hash                     string `json:"hash"`
