@@ -288,6 +288,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/apikeys/{id}/default": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets the given API key as the user's default key for session creation",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apikeys"
+                ],
+                "summary": "Set default API key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Share ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.ApiKeyShare"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid share ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/apikeys/{id}/shares": {
             "post": {
                 "security": [
@@ -2615,17 +2667,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Re-resolves the API key for a session. Used when resuming a session whose API key was deleted.\nThe API key is resolved server-side using the same priority as session creation.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "sessions"
                 ],
-                "summary": "Update session",
+                "summary": "Update session API key",
                 "parameters": [
                     {
                         "type": "string",
@@ -2633,15 +2682,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Update session request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.UpdateSessionRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -2652,7 +2692,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request",
+                        "description": "Invalid request or no API key available",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -3956,8 +3996,14 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "isDefault": {
+                    "type": "boolean"
+                },
                 "keyShortened": {
                     "type": "string"
+                },
+                "lastUsageSuccess": {
+                    "type": "boolean"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -4250,6 +4296,9 @@ const docTemplate = `{
                 },
                 "stream": {
                     "type": "boolean"
+                },
+                "tokenUsage": {
+                    "$ref": "#/definitions/obj.TokenUsage"
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
@@ -4615,6 +4664,20 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.TokenUsage": {
+            "type": "object",
+            "properties": {
+                "inputTokens": {
+                    "type": "integer"
+                },
+                "outputTokens": {
+                    "type": "integer"
+                },
+                "totalTokens": {
+                    "type": "integer"
+                }
+            }
+        },
         "obj.User": {
             "type": "object",
             "properties": {
@@ -4900,9 +4963,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "model": {
-                    "type": "string"
-                },
-                "shareId": {
                     "type": "string"
                 }
             }
@@ -5212,17 +5272,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.UpdateSessionRequest": {
-            "type": "object",
-            "properties": {
-                "model": {
-                    "type": "string"
-                },
-                "shareId": {
                     "type": "string"
                 }
             }

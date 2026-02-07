@@ -14,15 +14,17 @@ import (
 )
 
 type ApiKey struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	UserID     uuid.UUID
-	Name       string
-	Platform   string
-	Key        string
+	ID               uuid.UUID
+	CreatedBy        uuid.NullUUID
+	CreatedAt        time.Time
+	ModifiedBy       uuid.NullUUID
+	ModifiedAt       time.Time
+	UserID           uuid.UUID
+	Name             string
+	Platform         string
+	Key              string
+	IsDefault        bool
+	LastUsageSuccess sql.NullBool
 }
 
 type ApiKeyShare struct {

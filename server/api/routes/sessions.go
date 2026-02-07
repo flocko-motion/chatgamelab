@@ -28,13 +28,7 @@ type SessionResponse struct {
 }
 
 type CreateSessionRequest struct {
-	ShareID uuid.UUID `json:"shareId"`
-	Model   string    `json:"model"`
-}
-
-type UpdateSessionRequest struct {
-	ShareID uuid.UUID `json:"shareId"`
-	Model   string    `json:"model,omitempty"`
+	Model string `json:"model"`
 }
 
 // GetUserSessions godoc
@@ -259,8 +253,8 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug("creating session with model", "game_id", gameID, "share_id", req.ShareID, "model", req.Model)
-	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.ShareID, req.Model)
+	log.Debug("creating session with model", "game_id", gameID, "model", req.Model)
+	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.Model)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
@@ -327,19 +321,18 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 
 // UpdateSession godoc
 //
-//	@Summary		Update session
-//	@Description	Updates session settings, such as the API key. Used when resuming a session whose API key was deleted.
+//	@Summary		Update session API key
+//	@Description	Re-resolves the API key for a session. Used when resuming a session whose API key was deleted.
+//	@Description	The API key is resolved server-side using the same priority as session creation.
 //	@Tags			sessions
-//	@Accept			json
 //	@Produce		json
-//	@Param			id		path		string					true	"Session ID (UUID)"
-//	@Param			request	body		UpdateSessionRequest	true	"Update session request"
-//	@Success		200		{object}	obj.GameSession
-//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
-//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		404		{object}	httpx.ErrorResponse	"Session not found"
-//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Param			id	path		string	true	"Session ID (UUID)"
+//	@Success		200	{object}	obj.GameSession
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid request or no API key available"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Session not found"
+//	@Failure		500	{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
 //	@Router			/sessions/{id} [patch]
 func UpdateSession(w http.ResponseWriter, r *http.Request) {
@@ -351,15 +344,9 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req UpdateSessionRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
+	log.Debug("updating session API key", "session_id", sessionID, "user_id", user.ID)
 
-	log.Debug("updating session", "session_id", sessionID, "user_id", user.ID, "share_id", req.ShareID)
-
-	session, err := db.UpdateGameSessionApiKey(r.Context(), user.ID, sessionID, req.ShareID, req.Model)
+	session, err := db.ResolveAndUpdateGameSessionApiKey(r.Context(), user.ID, sessionID)
 	if err != nil {
 		if httpErr, ok := err.(*obj.HTTPError); ok {
 			httpx.WriteHTTPError(w, httpErr)

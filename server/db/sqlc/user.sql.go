@@ -92,15 +92,35 @@ func (q *Queries) CheckParticipantTokenStatus(ctx context.Context, participantTo
 	return i, err
 }
 
+const clearDefaultApiKey = `-- name: ClearDefaultApiKey :exec
+UPDATE api_key SET is_default = false, modified_at = now()
+WHERE user_id = $1 AND is_default = true
+`
+
+func (q *Queries) ClearDefaultApiKey(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearDefaultApiKey, userID)
+	return err
+}
+
 const clearUserActiveWorkshop = `-- name: ClearUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
 WHERE user_id = $1
 `
 
-// Clear the active workshop for a user (leave workshop mode)
 func (q *Queries) ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, clearUserActiveWorkshop, userID)
 	return err
+}
+
+const countApiKeysByUser = `-- name: CountApiKeysByUser :one
+SELECT COUNT(*) FROM api_key WHERE user_id = $1
+`
+
+func (q *Queries) CountApiKeysByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countApiKeysByUser, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const countUserGames = `-- name: CountUserGames :one
@@ -146,13 +166,13 @@ const createApiKey = `-- name: CreateApiKey :one
 INSERT INTO api_key (
   id, created_by,
   created_at, modified_by, modified_at,
-  user_id, name, platform, key
+  user_id, name, platform, key, is_default
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
-  $5, $6, $7, $8
+  $5, $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success
 `
 
 type CreateApiKeyParams struct {
@@ -164,6 +184,7 @@ type CreateApiKeyParams struct {
 	Name       string
 	Platform   string
 	Key        string
+	IsDefault  bool
 }
 
 // api_key --------------------------------------------------------------
@@ -177,6 +198,7 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 		arg.Name,
 		arg.Platform,
 		arg.Key,
+		arg.IsDefault,
 	)
 	var i ApiKey
 	err := row.Scan(
@@ -189,6 +211,8 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 		&i.Name,
 		&i.Platform,
 		&i.Key,
+		&i.IsDefault,
+		&i.LastUsageSuccess,
 	)
 	return i, err
 }
@@ -561,7 +585,7 @@ func (q *Queries) GetAllUsersWithDetails(ctx context.Context) ([]GetAllUsersWith
 }
 
 const getApiKeyByID = `-- name: GetApiKeyByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key FROM api_key WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success FROM api_key WHERE id = $1
 `
 
 func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, error) {
@@ -577,6 +601,31 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 		&i.Name,
 		&i.Platform,
 		&i.Key,
+		&i.IsDefault,
+		&i.LastUsageSuccess,
+	)
+	return i, err
+}
+
+const getDefaultApiKey = `-- name: GetDefaultApiKey :one
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success FROM api_key WHERE user_id = $1 AND is_default = true
+`
+
+func (q *Queries) GetDefaultApiKey(ctx context.Context, userID uuid.UUID) (ApiKey, error) {
+	row := q.db.QueryRowContext(ctx, getDefaultApiKey, userID)
+	var i ApiKey
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.ModifiedBy,
+		&i.ModifiedAt,
+		&i.UserID,
+		&i.Name,
+		&i.Platform,
+		&i.Key,
+		&i.IsDefault,
+		&i.LastUsageSuccess,
 	)
 	return i, err
 }
@@ -1477,9 +1526,25 @@ func (q *Queries) IsUserInWorkshop(ctx context.Context, arg IsUserInWorkshopPara
 	return is_member, err
 }
 
+const setDefaultApiKey = `-- name: SetDefaultApiKey :exec
+UPDATE api_key SET is_default = true, modified_at = now()
+WHERE id = $1 AND user_id = $2
+`
+
+type SetDefaultApiKeyParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) SetDefaultApiKey(ctx context.Context, arg SetDefaultApiKeyParams) error {
+	_, err := q.db.ExecContext(ctx, setDefaultApiKey, arg.ID, arg.UserID)
+	return err
+}
+
 const setUserActiveWorkshop = `-- name: SetUserActiveWorkshop :exec
+
 UPDATE user_role SET active_workshop_id = $2, modified_at = now()
-WHERE user_id = $1 AND role IN ('head', 'staff', 'individual')
+WHERE user_id = $1
 `
 
 type SetUserActiveWorkshopParams struct {
@@ -1487,7 +1552,7 @@ type SetUserActiveWorkshopParams struct {
 	ActiveWorkshopID uuid.NullUUID
 }
 
-// Set the active workshop for a head/staff user (workshop mode)
+// active_workshop ------------------------------------------------------
 func (q *Queries) SetUserActiveWorkshop(ctx context.Context, arg SetUserActiveWorkshopParams) error {
 	_, err := q.db.ExecContext(ctx, setUserActiveWorkshop, arg.UserID, arg.ActiveWorkshopID)
 	return err
@@ -1529,7 +1594,7 @@ UPDATE api_key SET
   modified_at = $3,
   name = $4
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success
 `
 
 type UpdateApiKeyParams struct {
@@ -1557,8 +1622,25 @@ func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (Api
 		&i.Name,
 		&i.Platform,
 		&i.Key,
+		&i.IsDefault,
+		&i.LastUsageSuccess,
 	)
 	return i, err
+}
+
+const updateApiKeyLastUsageSuccess = `-- name: UpdateApiKeyLastUsageSuccess :exec
+UPDATE api_key SET last_usage_success = $2, modified_at = now()
+WHERE id = $1
+`
+
+type UpdateApiKeyLastUsageSuccessParams struct {
+	ID               uuid.UUID
+	LastUsageSuccess sql.NullBool
+}
+
+func (q *Queries) UpdateApiKeyLastUsageSuccess(ctx context.Context, arg UpdateApiKeyLastUsageSuccessParams) error {
+	_, err := q.db.ExecContext(ctx, updateApiKeyLastUsageSuccess, arg.ID, arg.LastUsageSuccess)
+	return err
 }
 
 const updateInviteStatus = `-- name: UpdateInviteStatus :exec

@@ -128,6 +128,13 @@ func sqlNullStringToMaybeString(ns sql.NullString) *string {
 	return nil
 }
 
+func sqlNullBoolToMaybeBool(nb sql.NullBool) *bool {
+	if nb.Valid {
+		return &nb.Bool
+	}
+	return nil
+}
+
 // isDatabaseEmpty checks if the database has any tables.
 func isDatabaseEmpty() (bool, error) {
 	var count int

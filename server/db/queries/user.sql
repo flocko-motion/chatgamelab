@@ -95,7 +95,13 @@ SELECT
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.show_ai_model_selector AS workshop_show_ai_model_selector,
-  w.use_specific_ai_model AS workshop_use_specific_ai_model
+  w.use_specific_ai_model AS workshop_use_specific_ai_model,
+  r.active_workshop_id,
+  aw.name        AS active_workshop_name,
+  aw.show_public_games AS active_workshop_show_public_games,
+  aw.show_other_participants_games AS active_workshop_show_other_participants_games,
+  aw.show_ai_model_selector AS active_workshop_show_ai_model_selector,
+  aw.use_specific_ai_model AS active_workshop_use_specific_ai_model
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -108,6 +114,8 @@ LEFT JOIN institution i
   ON i.id = r.institution_id
 LEFT JOIN workshop w
   ON w.id = r.workshop_id
+LEFT JOIN workshop aw
+  ON aw.id = r.active_workshop_id
 WHERE u.id = $1;
 
 -- name: GetAllUsersWithDetails :many
@@ -229,19 +237,53 @@ SELECT EXISTS(
     AND w.deleted_at IS NULL
 ) AS can_access;
 
+-- active_workshop ------------------------------------------------------
+
+-- name: SetUserActiveWorkshop :exec
+UPDATE user_role SET active_workshop_id = $2, modified_at = now()
+WHERE user_id = $1;
+
+-- name: ClearUserActiveWorkshop :exec
+UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
+WHERE user_id = $1;
+
+-- name: GetUserActiveWorkshopID :one
+-- Get the active workshop ID for a user (for game creation context)
+SELECT active_workshop_id FROM user_role
+WHERE user_id = $1 AND active_workshop_id IS NOT NULL
+LIMIT 1;
+
 -- api_key --------------------------------------------------------------
 
 -- name: CreateApiKey :one
 INSERT INTO api_key (
   id, created_by,
   created_at, modified_by, modified_at,
-  user_id, name, platform, key
+  user_id, name, platform, key, is_default
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
-  $5, $6, $7, $8
+  $5, $6, $7, $8, $9
 )
 RETURNING *;
+
+-- name: CountApiKeysByUser :one
+SELECT COUNT(*) FROM api_key WHERE user_id = $1;
+
+-- name: ClearDefaultApiKey :exec
+UPDATE api_key SET is_default = false, modified_at = now()
+WHERE user_id = $1 AND is_default = true;
+
+-- name: SetDefaultApiKey :exec
+UPDATE api_key SET is_default = true, modified_at = now()
+WHERE id = $1 AND user_id = $2;
+
+-- name: GetDefaultApiKey :one
+SELECT * FROM api_key WHERE user_id = $1 AND is_default = true;
+
+-- name: UpdateApiKeyLastUsageSuccess :exec
+UPDATE api_key SET last_usage_success = $2, modified_at = now()
+WHERE id = $1;
 
 -- name: GetApiKeyByID :one
 SELECT * FROM api_key WHERE id = $1;

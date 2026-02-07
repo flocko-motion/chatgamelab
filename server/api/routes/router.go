@@ -48,6 +48,7 @@ func NewMux() *http.ServeMux {
 	// Backward compatibility: previously used POST /api/apikeys/{id} for sharing
 	mux.Handle("POST /api/apikeys/{id}", httpx.RequireAuth(ShareApiKey))
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
+	mux.Handle("PUT /api/apikeys/{id}/default", httpx.RequireAuth(SetDefaultApiKey))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
 	// Auth

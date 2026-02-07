@@ -130,14 +130,16 @@ type WorkshopParticipant struct {
 }
 
 type ApiKey struct {
-	ID           uuid.UUID `json:"id"`
-	Meta         Meta      `json:"meta"`
-	Name         string    `json:"name"`
-	UserID       uuid.UUID `json:"userId"`
-	UserName     string    `json:"userName"`
-	Platform     string    `json:"platform"`
-	Key          string    `json:"-"`
-	KeyShortened string    `json:"keyShortened"`
+	ID               uuid.UUID `json:"id"`
+	Meta             Meta      `json:"meta"`
+	Name             string    `json:"name"`
+	UserID           uuid.UUID `json:"userId"`
+	UserName         string    `json:"userName"`
+	Platform         string    `json:"platform"`
+	Key              string    `json:"-"`
+	KeyShortened     string    `json:"keyShortened"`
+	IsDefault        bool      `json:"isDefault"`
+	LastUsageSuccess *bool     `json:"lastUsageSuccess"`
 }
 
 // ApiKeyShare represents how an API key is shared with a user, workshop, or institution.

@@ -16,7 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var shareID string
 var modelID string
 
 const imageOutputDir = "/tmp/cgl"
@@ -30,7 +29,6 @@ var gamePlayCmd = &cobra.Command{
 }
 
 func init() {
-	gamePlayCmd.Flags().StringVarP(&shareID, "share", "s", "", "API key share ID to use (optional, uses default if not provided)")
 	gamePlayCmd.Flags().StringVarP(&modelID, "model", "m", "", "AI model to use (optional, uses platform default if not provided)")
 	Cmd.AddCommand(gamePlayCmd)
 }
@@ -71,15 +69,9 @@ func tryGetSession(id string) (uuid.UUID, error) {
 
 // createNewSession creates a new session for the given game ID
 func createNewSession(gameID string) uuid.UUID {
-	var req routes.CreateSessionRequest
-	if shareID != "" {
-		id, err := uuid.Parse(shareID)
-		if err != nil {
-			log.Fatalf("Invalid share ID: %v", err)
-		}
-		req.ShareID = id
+	req := routes.CreateSessionRequest{
+		Model: modelID,
 	}
-	req.Model = modelID
 
 	startTime := time.Now()
 	var resp obj.GameSessionMessage

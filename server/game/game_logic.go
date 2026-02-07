@@ -46,29 +46,67 @@ func extractAIErrorCode(err error) string {
 	}
 }
 
+// resolveApiKeyForSession resolves the API key for a new game session using priority:
+//  1. Workshop key (if user is in a workshop with a configured default key)
+//  2. User's default API key share
+//
+// The resolved key determines the AI platform used for the session.
+// Returns the resolved share or an HTTPError if no key is available.
+func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.ApiKeyShare, *obj.HTTPError) {
+	// Load user for workshop/default key resolution
+	user, err := db.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
+	}
+
+	// 1. Check for workshop key (if user is a workshop participant)
+	if user.Role != nil && user.Role.Workshop != nil {
+		workshop, err := db.GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
+		if err == nil && workshop.DefaultApiKeyShareID != nil {
+			share, err := db.GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
+			if err == nil {
+				log.Debug("resolved workshop key", "workshop_id", user.Role.Workshop.ID, "share_id", share.ID, "platform", share.ApiKey.Platform)
+				return share, nil
+			}
+			log.Warn("workshop default API key share not accessible", "share_id", *workshop.DefaultApiKeyShareID, "error", err)
+		}
+	}
+
+	// 2. Check user's default API key (is_default=true on api_key table)
+	defaultKey, _ := db.GetDefaultApiKeyForUser(ctx, userID)
+	if defaultKey != nil {
+		// Find the self-share for this key so we can return an ApiKeyShare
+		share, err := db.GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
+		if err == nil {
+			log.Debug("resolved user default key", "key_id", defaultKey.ID, "share_id", share.ID, "platform", defaultKey.Platform)
+			return share, nil
+		}
+		log.Warn("user default API key self-share not found", "key_id", defaultKey.ID, "error", err)
+	}
+
+	// No key found
+	log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
+	return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
+}
+
 // CreateSession creates a new game session for a user.
-// If shareID is uuid.Nil, the user's default API key share will be used.
+// The API key is resolved server-side using the following priority:
+//  1. Sponsor key (game-level public/private sponsored key)
+//  2. Workshop key (if user is a workshop participant)
+//  3. User's default API key share
+//
+// If no key can be resolved, returns ErrCodeNoApiKey.
 // If model is empty, the platform's default model will be used.
 // Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, shareID uuid.UUID, aiModel string) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	log.Debug("creating session", "user_id", userID, "game_id", gameID, "share_id", shareID, "ai_model", aiModel)
+func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, aiModel string) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
+	log.Debug("creating session", "user_id", userID, "game_id", gameID, "ai_model", aiModel)
 
-	// TODO: resolving keys is more complex - we also have sponsored public keys, workshop keys, institution keys... so we need more logic to figure out which key to use
-	// For now, we'll just use the provided share or default, but in the future we should implement proper key resolution logic
-
-	// Resolve share: use provided share, or fall back to user's default
-	if shareID == uuid.Nil {
-		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeValidation, "No API key share provided.")
+	// Resolve API key using priority chain
+	share, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
+	if httpErr != nil {
+		return nil, nil, httpErr
 	}
-
-	// Get the share - GetApiKeyShareByID already checks access permissions (including institution/workshop shares)
-	log.Debug("resolving API key share", "share_id", shareID)
-	share, err := db.GetApiKeyShareByID(ctx, userID, shareID)
-	if err != nil {
-		log.Debug("API key share not found", "share_id", shareID, "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "API key share not found")
-	}
-	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", shareID)
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -295,6 +333,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	usage, err := platform.ExecuteAction(ctx, session, action, response)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
+		// Track API key usage failure
+		if session.ApiKey != nil {
+			db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, false)
+		}
 		// Extract AI error code and clear API key for key-related errors
 		errorCode := extractAIErrorCode(err)
 		responseStream.SendError(errorCode, err.Error())
@@ -320,6 +362,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
 	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
+	// Track API key usage success
+	if session.ApiKey != nil {
+		db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, true)
+	}
 	response.TokenUsage = &usage
 	// Set PromptStatusUpdate to the full JSON input sent to the AI
 	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())

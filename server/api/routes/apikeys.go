@@ -233,6 +233,50 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, share)
 }
 
+// SetDefaultApiKey godoc
+//
+//	@Summary		Set default API key
+//	@Description	Sets the given API key as the user's default key for session creation
+//	@Tags			apikeys
+//	@Produce		json
+//	@Param			id	path		string	true	"Share ID (UUID)"
+//	@Success		200	{object}	obj.ApiKeyShare
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid share ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/apikeys/{id}/default [put]
+func SetDefaultApiKey(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	shareID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
+		return
+	}
+
+	// Look up the share to get the underlying API key ID
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Share not found")
+		return
+	}
+
+	if err := db.SetDefaultApiKey(r.Context(), user.ID, share.ApiKey.ID); err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to set default: "+err.Error())
+		return
+	}
+
+	// Reload the share to get updated IsDefault
+	updated, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to reload share: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updated)
+}
+
 // DeleteApiKey godoc
 //
 //	@Summary		Delete or unshare API key

@@ -15,6 +15,7 @@ const (
 	ErrCodeServerError       = "server_error"
 	ErrCodeUserNotRegistered = "user_not_registered"
 	ErrCodeDuplicateName     = "duplicate_name"
+	ErrCodeNoApiKey          = "no_api_key"
 
 	// AI-specific error codes
 	ErrCodeAiError                 = "ai_error"

@@ -180,8 +180,13 @@ CREATE TABLE api_key (
     user_id         uuid NOT NULL REFERENCES app_user(id),
     name            text NOT NULL DEFAULT '',
     platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
-    key             text NOT NULL
+    key             text NOT NULL,
+    is_default      boolean NOT NULL DEFAULT false,
+    last_usage_success boolean NULL -- null=unknown, true=last usage succeeded, false=last usage failed
 );
+
+-- Only one default key per user (partial unique index on true values only)
+CREATE UNIQUE INDEX api_key_user_default_uniq ON api_key (user_id) WHERE is_default = true;
 
 -- ApiKeyShare
 -- A unified share table for API keys. An API key can be shared with:
