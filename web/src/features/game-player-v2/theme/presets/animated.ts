@@ -6,19 +6,35 @@
 
 import type { PresetDefinition } from './types';
 
-/** Sci-fi / Cyberpunk */
+/** Sci-fi - Clean futuristic, Star Trek / space station feel */
 const scifiPreset: PresetDefinition = {
   theme: {
     corners: { style: 'brackets', color: 'cyan' },
-    background: { tint: 'black', animation: 'stars' },
-    player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'cyan', fontColor: 'light', borderColor: 'cyan' },
-    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'cyan', borderColor: 'cyan' },
+    background: { tint: 'darkBlue', animation: 'stars' },
+    player: { color: 'cyan', indicator: 'cursor', indicatorBlink: true, bgColor: 'blue', fontColor: 'light', borderColor: 'cyan' },
+    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
     cards: { borderThickness: 'thin' },
-    thinking: { text: 'Processing...', style: 'dots' },
+    thinking: { text: 'Analyzing...', style: 'spinner' },
     typography: { messages: 'mono' },
-    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'cyan' },
-    header: { bgColor: 'black', fontColor: 'cyan', accentColor: 'cyan' },
+    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'light' },
+    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'cyan' },
     divider: { style: 'line', color: 'cyan' },
+  },
+};
+
+/** Cyberpunk - Neon-soaked, gritty, rain-slicked streets */
+const cyberpunkPreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'brackets', color: 'pink' },
+    background: { tint: 'black', animation: 'glitch' },
+    player: { color: 'cyan', indicator: 'underscore', indicatorBlink: true, bgColor: 'dark', fontColor: 'cyan', borderColor: 'cyan' },
+    gameMessage: { dropCap: false, dropCapColor: 'pink', bgColor: 'black', fontColor: 'pink', borderColor: 'pink' },
+    cards: { borderThickness: 'medium' },
+    thinking: { text: 'Jacking in...', style: 'dots', streamingCursor: 'pipe' },
+    typography: { messages: 'mono' },
+    statusFields: { bgColor: 'black', accentColor: 'pink', borderColor: 'pink', fontColor: 'pink' },
+    header: { bgColor: 'black', fontColor: 'pink', accentColor: 'cyan' },
+    divider: { style: 'dash', color: 'pink' },
   },
 };
 
@@ -38,16 +54,32 @@ const medievalPreset: PresetDefinition = {
   },
 };
 
-/** Mystery / Mystic - purple, magical, ethereal */
+/** Mystery - Whodunit, suspenseful, dark blue atmosphere */
 const mysteryPreset: PresetDefinition = {
   theme: {
+    corners: { style: 'none', color: 'slate' },
+    background: { tint: 'darkBlue', animation: 'fireflies' },
+    player: { color: 'slate', indicator: 'dot', indicatorBlink: false, bgColor: 'dark', fontColor: 'light', borderColor: 'slate' },
+    gameMessage: { dropCap: false, dropCapColor: 'slate', bgColor: 'dark', fontColor: 'light', borderColor: 'slate' },
+    cards: { borderThickness: 'thin' },
+    thinking: { text: 'Clues emerge...', style: 'dots' },
+    typography: { messages: 'serif' },
+    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'slate', fontColor: 'light' },
+    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'cyan' },
+    divider: { style: 'dot', color: 'slate' },
+  },
+};
+
+/** Mystic - Occult, arcane, ethereal purple magic */
+const mysticPreset: PresetDefinition = {
+  theme: {
     corners: { style: 'dots', color: 'violet' },
-    background: { tint: 'darkViolet', animation: 'fireflies' },
+    background: { tint: 'darkViolet', animation: 'sparkles' },
     player: { color: 'violet', indicator: 'star', indicatorBlink: true, bgColor: 'violet', fontColor: 'light', borderColor: 'violet' },
     gameMessage: { dropCap: true, dropCapColor: 'violet', bgColor: 'dark', fontColor: 'violet', borderColor: 'violet' },
     cards: { borderThickness: 'medium' },
     thinking: { text: 'The veil thins...', style: 'pulse' },
-    typography: { messages: 'serif' },
+    typography: { messages: 'fantasy' },
     statusFields: { bgColor: 'dark', accentColor: 'violet', borderColor: 'violet', fontColor: 'violet' },
     header: { bgColor: 'dark', fontColor: 'violet', accentColor: 'violet' },
     divider: { style: 'star', color: 'violet' },
@@ -134,7 +166,7 @@ const naturePreset: PresetDefinition = {
   },
 };
 
-/** Ocean / Underwater */
+/** Ocean - Surface, bright, coastal, sailing */
 const oceanPreset: PresetDefinition = {
   theme: {
     corners: { style: 'arrows', color: 'cyan' },
@@ -142,11 +174,43 @@ const oceanPreset: PresetDefinition = {
     player: { color: 'cyan', indicator: 'dot', indicatorBlink: false, bgColor: 'cyanLight', fontColor: 'dark', borderColor: 'cyan' },
     gameMessage: { dropCap: true, dropCapColor: 'cyan', bgColor: 'blueLight', fontColor: 'dark', borderColor: 'cyan' },
     cards: { borderThickness: 'thin' },
-    thinking: { text: 'Bubbles rise...', style: 'dots' },
+    thinking: { text: 'Waves crash...', style: 'dots' },
     typography: { messages: 'sans' },
     statusFields: { bgColor: 'blueLight', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'dark' },
     header: { bgColor: 'blueLight', fontColor: 'dark', accentColor: 'cyan' },
     divider: { style: 'dots', color: 'cyan' },
+  },
+};
+
+/** Underwater - Deep sea, dark, bioluminescent, eerie */
+const underwaterPreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'dots', color: 'cyan' },
+    background: { tint: 'darkCyan', animation: 'bubbles' },
+    player: { color: 'cyan', indicator: 'dot', indicatorBlink: true, bgColor: 'dark', fontColor: 'light', borderColor: 'cyan' },
+    gameMessage: { dropCap: false, dropCapColor: 'cyan', bgColor: 'dark', fontColor: 'cyan', borderColor: 'cyan' },
+    cards: { borderThickness: 'thin' },
+    thinking: { text: 'Bubbles rise from the deep...', style: 'pulse' },
+    typography: { messages: 'sans' },
+    statusFields: { bgColor: 'dark', accentColor: 'cyan', borderColor: 'cyan', fontColor: 'cyan' },
+    header: { bgColor: 'dark', fontColor: 'cyan', accentColor: 'cyan' },
+    divider: { style: 'dots', color: 'cyan' },
+  },
+};
+
+/** Pirate - Nautical adventure, treasure maps, rum */
+const piratePreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'arrows', color: 'amber' },
+    background: { tint: 'darkBlue', animation: 'stars' },
+    player: { color: 'amber', indicator: 'chevron', indicatorBlink: false, bgColor: 'amber', fontColor: 'dark', borderColor: 'amber' },
+    gameMessage: { dropCap: true, dropCapColor: 'amber', bgColor: 'dark', fontColor: 'light', borderColor: 'amber' },
+    cards: { borderThickness: 'medium' },
+    thinking: { text: 'Charting course...', style: 'typewriter' },
+    typography: { messages: 'serif' },
+    statusFields: { bgColor: 'dark', accentColor: 'amber', borderColor: 'amber', fontColor: 'light' },
+    header: { bgColor: 'dark', fontColor: 'light', accentColor: 'amber' },
+    divider: { style: 'star', color: 'amber' },
   },
 };
 
@@ -262,16 +326,84 @@ const snowyPreset: PresetDefinition = {
   },
 };
 
+/** Fairy - Light magical, pastel, enchanted */
+const fairyPreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'flourish', color: 'pinkLight' },
+    background: { tint: 'pink', animation: 'sparkles' },
+    player: { color: 'violet', indicator: 'star', indicatorBlink: true, bgColor: 'violetLight', fontColor: 'dark', borderColor: 'violet' },
+    gameMessage: { dropCap: true, dropCapColor: 'pink', bgColor: 'pinkLight', fontColor: 'dark', borderColor: 'pinkLight' },
+    cards: { borderThickness: 'thin' },
+    thinking: { text: 'Fairy dust settles...', style: 'pulse' },
+    typography: { messages: 'fantasy' },
+    statusFields: { bgColor: 'violetLight', accentColor: 'violet', borderColor: 'pinkLight', fontColor: 'dark' },
+    header: { bgColor: 'violetLight', fontColor: 'dark', accentColor: 'violet' },
+    divider: { style: 'star', color: 'pink' },
+  },
+};
+
+/** Jungle - Tropical, lush, vibrant greens and warm accents */
+const junglePreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'flourish', color: 'lime' },
+    background: { tint: 'green', animation: 'leaves' },
+    player: { color: 'lime', indicator: 'chevron', indicatorBlink: false, bgColor: 'limeLight', fontColor: 'dark', borderColor: 'lime' },
+    gameMessage: { dropCap: true, dropCapColor: 'lime', bgColor: 'limeLight', fontColor: 'dark', borderColor: 'emerald' },
+    cards: { borderThickness: 'medium' },
+    thinking: { text: 'The jungle stirs...', style: 'typewriter' },
+    typography: { messages: 'sans' },
+    statusFields: { bgColor: 'limeLight', accentColor: 'lime', borderColor: 'emerald', fontColor: 'dark' },
+    header: { bgColor: 'limeLight', fontColor: 'dark', accentColor: 'emerald' },
+    divider: { style: 'dot', color: 'lime' },
+  },
+};
+
+/** Garden - Blooming flowers, soft teal/coral, peaceful */
+const gardenPreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'flourish', color: 'teal' },
+    background: { tint: 'warm', animation: 'sparkles' },
+    player: { color: 'teal', indicator: 'dot', indicatorBlink: false, bgColor: 'tealLight', fontColor: 'dark', borderColor: 'teal' },
+    gameMessage: { dropCap: true, dropCapColor: 'coral', bgColor: 'coralLight', fontColor: 'dark', borderColor: 'coral' },
+    cards: { borderThickness: 'thin' },
+    thinking: { text: 'Flowers bloom...', style: 'dots' },
+    typography: { messages: 'serif' },
+    statusFields: { bgColor: 'tealLight', accentColor: 'teal', borderColor: 'teal', fontColor: 'dark' },
+    header: { bgColor: 'tealLight', fontColor: 'dark', accentColor: 'teal' },
+    divider: { style: 'diamond', color: 'coral' },
+  },
+};
+
+/** Circus - Bright, bold, showtime energy */
+const circusPreset: PresetDefinition = {
+  theme: {
+    corners: { style: 'dots', color: 'coral' },
+    background: { tint: 'warm', animation: 'confetti' },
+    player: { color: 'indigo', indicator: 'star', indicatorBlink: true, bgColor: 'indigoLight', fontColor: 'dark', borderColor: 'indigo' },
+    gameMessage: { dropCap: true, dropCapColor: 'coral', bgColor: 'sunshineLight', fontColor: 'dark', borderColor: 'sunshine' },
+    cards: { borderThickness: 'thick' },
+    thinking: { text: 'The show goes on...', style: 'pulse' },
+    typography: { messages: 'sans' },
+    statusFields: { bgColor: 'coralLight', accentColor: 'coral', borderColor: 'coral', fontColor: 'dark' },
+    header: { bgColor: 'sunshineLight', fontColor: 'dark', accentColor: 'coral' },
+    divider: { style: 'star', color: 'sunshine' },
+  },
+};
+
 export const ANIMATED_PRESETS: Record<string, PresetDefinition> = {
   scifi: scifiPreset,
+  cyberpunk: cyberpunkPreset,
   medieval: medievalPreset,
   mystery: mysteryPreset,
+  mystic: mysticPreset,
   space: spacePreset,
   terminal: terminalPreset,
   hacker: hackerPreset,
   playful: playfulPreset,
   nature: naturePreset,
   ocean: oceanPreset,
+  underwater: underwaterPreset,
+  pirate: piratePreset,
   fire: firePreset,
   tech: techPreset,
   greenFantasy: greenFantasyPreset,
@@ -279,4 +411,8 @@ export const ANIMATED_PRESETS: Record<string, PresetDefinition> = {
   romance: romancePreset,
   glitch: glitchPreset,
   snowy: snowyPreset,
+  fairy: fairyPreset,
+  jungle: junglePreset,
+  garden: gardenPreset,
+  circus: circusPreset,
 };

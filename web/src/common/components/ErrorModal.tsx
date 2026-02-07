@@ -71,6 +71,7 @@ export function ErrorModal({
       }
       centered
       size="md"
+      zIndex={300}
     >
       <Stack gap="md">
         <TextWithLinks size="sm" c="dimmed">

@@ -12,17 +12,20 @@ export type CornerStyle = 'brackets' | 'flourish' | 'arrows' | 'dots' | 'dot' | 
 export type ThemeColor = 
   | 'amber' | 'emerald' | 'cyan' | 'violet' | 'rose' | 'slate' 
   | 'hacker' | 'terminal'
-  | 'brown' | 'brownLight' | 'pink' | 'pinkLight' | 'orange' | 'orangeLight';
+  | 'brown' | 'brownLight' | 'pink' | 'pinkLight' | 'orange' | 'orangeLight'
+  | 'sky' | 'indigo' | 'lime' | 'sunshine' | 'coral' | 'lavender' | 'teal';
 
 /** Message card background colors */
 export type CardBgColor = 
   | 'white' | 'creme' | 'dark' | 'black' 
   | 'blue' | 'blueLight' | 'green' | 'greenLight' | 'red' | 'redLight'
   | 'amber' | 'amberLight' | 'violet' | 'violetLight' | 'rose' | 'roseLight' | 'cyan' | 'cyanLight'
-  | 'pink' | 'pinkLight' | 'orange' | 'orangeLight';
+  | 'pink' | 'pinkLight' | 'orange' | 'orangeLight'
+  | 'skyLight' | 'indigoLight' | 'limeLight' | 'sunshineLight' | 'coralLight' | 'lavenderLight' | 'tealLight';
 
 /** Font colors for messages */
-export type FontColor = 'dark' | 'light' | 'hacker' | 'terminal' | 'pink' | 'amber' | 'cyan' | 'violet';
+export type FontColor = 'dark' | 'light' | 'hacker' | 'terminal' | 'pink' | 'amber' | 'cyan' | 'violet'
+  | 'sky' | 'indigo' | 'lime' | 'sunshine' | 'coral' | 'lavender' | 'teal';
 
 /** Card border thickness */
 export type CardBorderThickness = 'none' | 'thin' | 'medium' | 'thick';

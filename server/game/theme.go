@@ -20,31 +20,47 @@ RULES:
 3. The "thinkingText" MUST be in the SAME LANGUAGE as the game scenario.
 
 AVAILABLE PRESETS:
-- "default" - Neutral, clean, warm amber accents
-- "minimal" - Clean, slate gray, no decorations
+- "default" - Neutral, clean, slate accents, no animation
+- "minimal" - Clean, slate gray, no decorations, no animation
+- "scifi" - Clean futuristic (Star Trek), blue/cyan, mono font, stars animation
+- "cyberpunk" - Neon-soaked gritty streets, pink/cyan on black, glitch animation
 - "medieval" - Medieval fantasy, flourish corners, serif font, drop caps, fireflies
-- "scifi" - Cyberpunk, brackets, cyan, mono font, stars
 - "horror" - Dark, minimal, rose accents, no animation
-- "adventure" - Exploration, arrows, emerald, nature feel
-- "mystery" - Mystic/supernatural, violet, ethereal, fireflies
-- "detective" - Noir/investigation, dark, amber accents
+- "adventure" - Exploration, arrows, emerald, nature feel, no animation
+- "mystery" - Whodunit/suspense, dark blue atmosphere, fireflies
+- "mystic" - Occult/arcane, ethereal purple magic, sparkles
+- "detective" - Classic whodunit, warm amber tones, serif, no animation
+- "noir" - Dark moody, black & white stark contrast, no animation
 - "space" - Cosmic, dark background, cyan, hyperspace animation
 - "terminal" - Classic green on black, mono font, matrix rain
 - "hacker" - Aggressive red AI / green user, mono font, matrix rain
 - "playful" - Kids, colorful, confetti animation
-- "barbie" - Pink dream, flourish, diamond dividers
+- "barbie" - Pink dream, flourish, diamond dividers, no animation
 - "nature" - Forest, emerald, flourish, falling leaves
-- "ocean" - Underwater, cyan, cool tint, bubbles
-- "retro" - 80s, violet/cyan on dark
-- "western" - Wild West, amber, warm tones
+- "ocean" - Surface/coastal, bright cyan, cool tint, bubbles
+- "underwater" - Deep sea, dark, bioluminescent cyan, bubbles
+- "pirate" - Nautical adventure, amber on dark blue, stars
+- "retro" - 80s, violet/cyan on dark, no animation
+- "western" - Wild West, amber, warm tones, no animation
 - "fire" - Dark, orange/red accents, embers animation
-- "desert" - Arid, sandy, warm tones
+- "desert" - Arid, sandy, warm tones, no animation
 - "tech" - Modern technology, clean digital, circuits animation
 - "greenFantasy" - Enchanted forest, nature magic, sparkles
 - "abstract" - Artistic, geometric shapes, geometric animation
 - "romance" - Soft, warm, romantic, hearts animation
 - "glitch" - Corrupted, digital chaos, glitch animation
 - "snowy" - Winter wonderland, snow animation
+- "fairy" - Light magical, pastel pink/violet, sparkles
+- "steampunk" - Brass, gears, Victorian industrial, no animation
+- "zombie" - Post-apocalyptic, decayed, eerie green, no animation
+- "school" - Friendly, educational, clean sky blue/white, no animation
+- "candy" - Sweet, colorful pastels, coral/lavender, no animation
+- "superhero" - Bold, comic book, indigo/coral, no animation
+- "sunshine" - Warm, bright, cheerful yellow, no animation
+- "storybook" - Classic children's book, teal/coral, warm, no animation
+- "jungle" - Tropical, lush, vibrant lime/green, falling leaves
+- "garden" - Blooming flowers, soft teal/coral, sparkles
+- "circus" - Bright, bold, showtime energy, confetti
 
 AVAILABLE ANIMATIONS (for optional override):
 "none", "stars", "bubbles", "fireflies", "snow", "matrix", "embers", "hyperspace", "sparkles", "hearts", "glitch", "circuits", "leaves", "geometric", "confetti"
@@ -70,6 +86,12 @@ Example 3 - Horror with snow override:
 
 Example 4 - Simple kids game (no status fields):
 { "preset": "playful", "thinkingText": "Magic is happening..." }
+
+Example 5 - Cyberpunk game:
+{ "preset": "cyberpunk", "thinkingText": "Jacking in...", "statusEmojis": { "Credits": "💰", "Rep": "📡" } }
+
+Example 6 - Pirate game in German:
+{ "preset": "pirate", "thinkingText": "Kurs wird berechnet...", "statusEmojis": { "Gold": "🪙", "Rum": "🍺" } }
 
 COMMON EMOJI MAPPINGS:
 Health/Leben→❤️, Gold/Münzen→🪙, Energy/Energie→⚡, Mana→🔮, Food/Essen→🍖, Time/Zeit→⏰, Armor/Rüstung→🛡️, Strength/Stärke→💪, Luck/Glück→🍀, Score/Punkte→⭐`
@@ -161,12 +183,15 @@ func parseThemeResponse(response string) (*obj.GameTheme, error) {
 
 // validPresets lists all valid preset names
 var validPresets = map[string]bool{
-	"default": true, "minimal": true, "scifi": true, "horror": true,
-	"adventure": true, "mystery": true, "detective": true, "space": true,
-	"terminal": true, "hacker": true, "medieval": true,
-	"playful": true, "barbie": true, "nature": true, "ocean": true, "retro": true,
-	"western": true, "fire": true, "desert": true, "tech": true, "greenFantasy": true,
-	"abstract": true, "romance": true, "glitch": true, "snowy": true,
+	"default": true, "minimal": true, "scifi": true, "cyberpunk": true, "horror": true,
+	"adventure": true, "mystery": true, "mystic": true, "detective": true, "noir": true,
+	"space": true, "terminal": true, "hacker": true, "medieval": true,
+	"playful": true, "barbie": true, "nature": true, "ocean": true, "underwater": true,
+	"pirate": true, "retro": true, "western": true, "fire": true, "desert": true,
+	"tech": true, "greenFantasy": true, "abstract": true, "romance": true,
+	"glitch": true, "snowy": true, "fairy": true, "steampunk": true, "zombie": true,
+	"school": true, "candy": true, "superhero": true, "sunshine": true, "storybook": true,
+	"jungle": true, "garden": true, "circus": true,
 }
 
 // validAnimations lists all valid animation names

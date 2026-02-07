@@ -95,20 +95,31 @@ export function handleApiError(
       errorType = "HTTP Error";
     }
 
-    // Handle structured API errors
-    if ("message" in error && typeof error.message === "string") {
-      message = error.message;
+    // The generated API client throws the HttpResponse object on error.
+    // The parsed error body is in the `.error` property — extract it first.
+    const errorObj = error as Record<string, unknown>;
+    const nested =
+      errorObj.error && typeof errorObj.error === "object"
+        ? (errorObj.error as Record<string, unknown>)
+        : null;
+
+    // Handle structured API errors (prefer nested body, fall back to top-level)
+    const rawMessage = nested?.message ?? errorObj.message;
+    if (typeof rawMessage === "string") {
+      message = rawMessage;
     }
 
     // Handle error type from API response
-    if ("type" in error && typeof error.type === "string") {
-      errorType = error.type;
+    const rawType = nested?.type ?? errorObj.type;
+    if (typeof rawType === "string") {
+      errorType = rawType;
     }
 
     // Handle error code from API response (new structured errors)
-    if ("code" in error && typeof error.code === "string") {
-      errorCode = error.code;
-      errorType = error.code; // Use code as type if available
+    const rawCode = nested?.code ?? errorObj.code;
+    if (typeof rawCode === "string" && rawCode) {
+      errorCode = rawCode;
+      errorType = rawCode; // Use code as type if available
     }
 
     // Handle network errors
@@ -119,7 +130,6 @@ export function handleApiError(
     }
 
     // Collect additional error details for logging
-    const errorObj = error as Record<string, unknown>;
     errorDetails = {
       status,
       message: errorObj.message || message,

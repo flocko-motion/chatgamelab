@@ -171,6 +171,55 @@ export const THEME_COLORS: Record<string, { primary: string; light: string; dark
     dark: '#ea580c',
     bg: 'rgba(249, 115, 22, 0.1)',
   },
+  // Sky blue (friendly, school)
+  sky: {
+    primary: '#0284c7',
+    light: '#38bdf8',
+    dark: '#0369a1',
+    bg: 'rgba(56, 189, 248, 0.1)',
+  },
+  // Indigo (deep blue-violet)
+  indigo: {
+    primary: '#4f46e5',
+    light: '#818cf8',
+    dark: '#4338ca',
+    bg: 'rgba(129, 140, 248, 0.1)',
+  },
+  // Lime (bright green)
+  lime: {
+    primary: '#65a30d',
+    light: '#a3e635',
+    dark: '#4d7c0f',
+    bg: 'rgba(163, 230, 53, 0.1)',
+  },
+  // Sunshine (warm yellow)
+  sunshine: {
+    primary: '#ca8a04',
+    light: '#facc15',
+    dark: '#a16207',
+    bg: 'rgba(250, 204, 21, 0.1)',
+  },
+  // Coral (warm pink-orange)
+  coral: {
+    primary: '#f43f5e',
+    light: '#fb7185',
+    dark: '#e11d48',
+    bg: 'rgba(251, 113, 133, 0.1)',
+  },
+  // Lavender (soft purple)
+  lavender: {
+    primary: '#a78bfa',
+    light: '#c4b5fd',
+    dark: '#8b5cf6',
+    bg: 'rgba(196, 181, 253, 0.1)',
+  },
+  // Teal (blue-green)
+  teal: {
+    primary: '#0d9488',
+    light: '#2dd4bf',
+    dark: '#0f766e',
+    bg: 'rgba(45, 212, 191, 0.1)',
+  },
 };
 
 /** Font family mappings */
@@ -215,6 +264,20 @@ export const CARD_BG_COLORS: Record<string, { solid: string; alpha: string }> = 
   // Orange
   orange: { solid: '#7c2d12', alpha: 'rgba(124, 45, 18, 0.95)' },
   orangeLight: { solid: '#ffedd5', alpha: 'rgba(255, 237, 213, 0.95)' },
+  // Sky
+  skyLight: { solid: '#e0f2fe', alpha: 'rgba(224, 242, 254, 0.95)' },
+  // Indigo
+  indigoLight: { solid: '#e0e7ff', alpha: 'rgba(224, 231, 255, 0.95)' },
+  // Lime
+  limeLight: { solid: '#ecfccb', alpha: 'rgba(236, 252, 203, 0.95)' },
+  // Sunshine / Yellow
+  sunshineLight: { solid: '#fef9c3', alpha: 'rgba(254, 249, 195, 0.95)' },
+  // Coral
+  coralLight: { solid: '#ffe4e6', alpha: 'rgba(255, 228, 230, 0.95)' },
+  // Lavender
+  lavenderLight: { solid: '#ede9fe', alpha: 'rgba(237, 233, 254, 0.95)' },
+  // Teal
+  tealLight: { solid: '#ccfbf1', alpha: 'rgba(204, 251, 241, 0.95)' },
 };
 
 /** Font color definitions */
@@ -227,6 +290,13 @@ export const FONT_COLORS: Record<string, string> = {
   amber: '#f59e0b',
   cyan: '#06b6d4',
   violet: '#8b5cf6',
+  sky: '#0284c7',
+  indigo: '#4f46e5',
+  lime: '#65a30d',
+  sunshine: '#ca8a04',
+  coral: '#f43f5e',
+  lavender: '#a78bfa',
+  teal: '#0d9488',
 };
 
 

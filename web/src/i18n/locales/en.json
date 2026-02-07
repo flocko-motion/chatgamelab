@@ -822,7 +822,8 @@
     },
     "quickActions": {
       "createNewGame": "Create New Game",
-      "createRoom": "Create Room",
+      "createWorkshop": "Create Workshop",
+      "importGame": "Import Game",
       "inviteMembers": "Invite Members",
       "startNewGame": "Start New Game",
       "title": "Quick Actions"
@@ -853,7 +854,7 @@
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
-    "duplicateName": "An item with this name already exists. Please choose a different name.",
+    "duplicateName": "The name for this game is already in use. Please choose a different name.",
     "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
     "titles": {
       "aiError": "AI Error",
@@ -896,6 +897,7 @@
   "navigation": {
     "allGames": "All Games",
     "create": "Create Your Own Game",
+    "createGame": "Create Game",
     "dashboard": "Dashboard",
     "games": "Games",
     "groups": "Groups",

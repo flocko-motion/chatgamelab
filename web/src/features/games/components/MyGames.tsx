@@ -33,9 +33,11 @@ interface MyGamesProps {
   initialGameId?: string;
   initialMode?: 'create' | 'view';
   onModalClose?: () => void;
+  /** Auto-trigger the import file dialog on mount */
+  autoImport?: boolean;
 }
 
-export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesProps = {}) {
+export function MyGames({ initialGameId, initialMode, onModalClose, autoImport }: MyGamesProps = {}) {
   const { t } = useTranslation('common');
   const isMobile = useMediaQuery('(max-width: 48em)');
   const navigate = useNavigate();
@@ -173,6 +175,15 @@ export function MyGames({ initialGameId, initialMode, onModalClose }: MyGamesPro
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
+
+  // Auto-trigger import file dialog when navigated with ?action=import
+  React.useEffect(() => {
+    if (autoImport) {
+      // Small delay to ensure the file input is mounted
+      const timer = setTimeout(() => fileInputRef.current?.click(), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [autoImport]);
 
   // Pre-populated data for create modal (from YAML import or game copy)
   const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);

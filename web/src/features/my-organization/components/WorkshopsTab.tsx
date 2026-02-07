@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Stack,
   Card,
@@ -77,9 +77,11 @@ import {
 
 interface WorkshopsTabProps {
   institutionId: string;
+  /** Auto-open the create workshop modal on mount */
+  autoCreate?: boolean;
 }
 
-export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
+export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
@@ -95,6 +97,13 @@ export function WorkshopsTab({ institutionId }: WorkshopsTabProps) {
     createModalOpened,
     { open: openCreateModal, close: closeCreateModal },
   ] = useDisclosure(false);
+
+  // Auto-open create modal when navigated with ?action=create
+  useEffect(() => {
+    if (autoCreate) {
+      openCreateModal();
+    }
+  }, [autoCreate, openCreateModal]);
   const [
     deleteModalOpened,
     { open: openDeleteModal, close: closeDeleteModal },

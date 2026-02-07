@@ -10,6 +10,7 @@ import {
   IconKey,
   IconSchool,
   IconSettings,
+  IconTools,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -131,6 +132,16 @@ function RootComponent() {
     },
   ];
 
+  // Add Create Game for Staff/Head in workshop mode (not for participants)
+  if (!isParticipant) {
+    workshopNavItems.push({
+      label: t("createGame"),
+      icon: <IconTools size={18} />,
+      onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+      active: false,
+    });
+  }
+
   // Add Workshop Settings for Staff/Head in workshop mode (not for participants)
   if (isInWorkshopMode && !isParticipant && canManageOrgApiKeys) {
     workshopNavItems.push({
@@ -151,10 +162,18 @@ function RootComponent() {
           active: pathname === ROUTES.DASHBOARD,
         },
         {
+          label: t("createGame"),
+          icon: <IconTools size={18} />,
+          onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
+          active: false,
+        },
+        {
           label: t("myGames"),
           icon: <IconPlayerPlay size={18} />,
           onClick: () => navigate({ to: ROUTES.MY_GAMES as "/" }),
-          active: pathname.startsWith(ROUTES.MY_GAMES),
+          active:
+            pathname.startsWith(ROUTES.MY_GAMES) &&
+            pathname !== ROUTES.MY_GAME_CREATE,
         },
         {
           label: t("allGames"),
