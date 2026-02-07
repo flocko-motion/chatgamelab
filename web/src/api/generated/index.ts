@@ -233,110 +233,14 @@ export interface ObjGameTag {
 }
 
 export interface ObjGameTheme {
-  /** fields that override the preset defaults */
-  override?: ObjGameThemeOverride;
-  /** preset name (e.g., "space", "fantasy") or "custom" */
-  preset?: string;
-}
-
-export interface ObjGameThemeBackground {
-  /** none, stars, bubbles, fireflies, snow, rain, matrix */
+  /** optional animation override: "none", "stars", "bubbles", etc. Empty = use preset default. */
   animation?: string;
-  /** warm, cool, neutral, dark, black */
-  tint?: string;
-}
-
-export interface ObjGameThemeCards {
-  /** none, thin, medium, thick */
-  borderThickness?: string;
-}
-
-export interface ObjGameThemeCorners {
-  /** amber, emerald, cyan, violet, rose, slate */
-  color?: string;
-  /** brackets, flourish, arrows, dots, none */
-  style?: string;
-}
-
-export interface ObjGameThemeDivider {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  color?: string;
-  /** dot, dots, line, diamond, star, dash, none */
-  style?: string;
-}
-
-export interface ObjGameThemeGameMessage {
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  dropCap?: boolean;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  dropCapColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeHeader {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  accentColor?: string;
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeOverride {
-  background?: ObjGameThemeBackground;
-  cards?: ObjGameThemeCards;
-  corners?: ObjGameThemeCorners;
-  divider?: ObjGameThemeDivider;
-  gameMessage?: ObjGameThemeGameMessage;
-  header?: ObjGameThemeHeader;
-  player?: ObjGameThemePlayer;
+  /** preset name (e.g., "space", "medieval", "pirate") */
+  preset?: string;
+  /** maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"} */
   statusEmojis?: Record<string, string>;
-  statusFields?: ObjGameThemeStatusFields;
-  thinking?: ObjGameThemeThinking;
-  typography?: ObjGameThemeTypography;
-}
-
-export interface ObjGameThemePlayer {
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  color?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-  /** dot, arrow, chevron, diamond, cursor, underscore, pipe, none */
-  indicator?: string;
-  indicatorBlink?: boolean;
-}
-
-export interface ObjGameThemeStatusFields {
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  accentColor?: string;
-  /** white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight */
-  bgColor?: string;
-  /** amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange */
-  borderColor?: string;
-  /** dark, light, hacker, terminal */
-  fontColor?: string;
-}
-
-export interface ObjGameThemeThinking {
-  /** dots, block, pipe, underscore, none */
-  streamingCursor?: string;
-  /** dots, spinner, pulse, typewriter */
-  style?: string;
-  /** e.g. "The story unfolds..." */
-  text?: string;
-}
-
-export interface ObjGameThemeTypography {
-  /** serif, sans, mono, fantasy */
-  messages?: string;
+  /** optional loading phrase override, e.g. "The tale continues..." Empty = use preset default. */
+  thinkingText?: string;
 }
 
 export interface ObjInstitution {
@@ -534,6 +438,25 @@ export interface RoutesInviteResponse {
 export interface RoutesLanguage {
   iso?: string;
   label?: string;
+}
+
+export interface RoutesMessageStatusResponse {
+  /** Fatal error message (AI failure) */
+  error?: string;
+  /** Machine-readable error code */
+  errorCode?: string;
+  /** Machine-readable image error code */
+  imageError?: string;
+  /** Hash for cache-busting image URL */
+  imageHash?: string;
+  /** "none" | "generating" | "complete" | "error" */
+  imageStatus?: string;
+  /** Current status fields */
+  statusFields?: ObjStatusField[];
+  /** Current full text of the message */
+  text?: string;
+  /** True when text streaming is complete (Stream=false in DB) */
+  textDone?: boolean;
 }
 
 export interface RoutesParticipantLoginRequest {
@@ -1828,6 +1751,22 @@ export class Api<
     imageStatusList: (id: string, params: RequestParams = {}) =>
       this.request<RoutesImageStatusResponse, HttpxErrorResponse>({
         path: `/messages/${id}/image/status`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns the current state of a message: text, image status, errors. Frontend polls this as a safety net when SSE drops, on reload, or for image progress. No authentication required - message UUIDs are random and unguessable.
+     *
+     * @tags messages
+     * @name StatusList
+     * @summary Get message completion status
+     * @request GET:/messages/{id}/status
+     */
+    statusList: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesMessageStatusResponse, HttpxErrorResponse>({
+        path: `/messages/${id}/status`,
         method: "GET",
         format: "json",
         ...params,

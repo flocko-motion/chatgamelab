@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- Hook and context must be co-located */
 import { createContext, useContext, type ReactNode } from 'react';
-import type { GamePlayerState, GameSessionConfig, GameTheme } from '../types';
+import type { GamePlayerState, GameSessionConfig } from '../types';
 
 // ============================================================================
 // Context Types
@@ -10,7 +10,6 @@ export type FontSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
 
 export interface GamePlayerContextValue {
   state: GamePlayerState;
-  theme: GameTheme;
   
   // Actions
   startSession: (config: GameSessionConfig) => Promise<void>;

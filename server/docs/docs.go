@@ -2295,6 +2295,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/messages/{id}/status": {
+            "get": {
+                "description": "Returns the current state of a message: text, image status, errors.\nFrontend polls this as a safety net when SSE drops, on reload, or for image progress.\nNo authentication required - message UUIDs are random and unguessable.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get message completion status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.MessageStatusResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid message ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Message not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/messages/{id}/stream": {
             "get": {
                 "description": "Server-Sent Events endpoint for streaming message chunks.",
@@ -4329,221 +4370,23 @@ const docTemplate = `{
         "obj.GameTheme": {
             "type": "object",
             "properties": {
-                "override": {
-                    "description": "fields that override the preset defaults",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/obj.GameThemeOverride"
-                        }
-                    ]
+                "animation": {
+                    "description": "optional animation override: \"none\", \"stars\", \"bubbles\", etc. Empty = use preset default.",
+                    "type": "string"
                 },
                 "preset": {
-                    "description": "preset name (e.g., \"space\", \"fantasy\") or \"custom\"",
+                    "description": "preset name (e.g., \"space\", \"medieval\", \"pirate\")",
                     "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeBackground": {
-            "type": "object",
-            "properties": {
-                "animation": {
-                    "description": "none, stars, bubbles, fireflies, snow, rain, matrix",
-                    "type": "string"
-                },
-                "tint": {
-                    "description": "warm, cool, neutral, dark, black",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeCards": {
-            "type": "object",
-            "properties": {
-                "borderThickness": {
-                    "description": "none, thin, medium, thick",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeCorners": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "description": "amber, emerald, cyan, violet, rose, slate",
-                    "type": "string"
-                },
-                "style": {
-                    "description": "brackets, flourish, arrows, dots, none",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeDivider": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "style": {
-                    "description": "dot, dots, line, diamond, star, dash, none",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeGameMessage": {
-            "type": "object",
-            "properties": {
-                "bgColor": {
-                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
-                    "type": "string"
-                },
-                "borderColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "dropCap": {
-                    "type": "boolean"
-                },
-                "dropCapColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "fontColor": {
-                    "description": "dark, light, hacker, terminal",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeHeader": {
-            "type": "object",
-            "properties": {
-                "accentColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "bgColor": {
-                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
-                    "type": "string"
-                },
-                "fontColor": {
-                    "description": "dark, light, hacker, terminal",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeOverride": {
-            "type": "object",
-            "properties": {
-                "background": {
-                    "$ref": "#/definitions/obj.GameThemeBackground"
-                },
-                "cards": {
-                    "$ref": "#/definitions/obj.GameThemeCards"
-                },
-                "corners": {
-                    "$ref": "#/definitions/obj.GameThemeCorners"
-                },
-                "divider": {
-                    "$ref": "#/definitions/obj.GameThemeDivider"
-                },
-                "gameMessage": {
-                    "$ref": "#/definitions/obj.GameThemeGameMessage"
-                },
-                "header": {
-                    "$ref": "#/definitions/obj.GameThemeHeader"
-                },
-                "player": {
-                    "$ref": "#/definitions/obj.GameThemePlayer"
                 },
                 "statusEmojis": {
+                    "description": "maps status field names to emoji, e.g. {\"Health\": \"❤️\", \"Gold\": \"🪙\"}",
                     "type": "object",
                     "additionalProperties": {
                         "type": "string"
                     }
                 },
-                "statusFields": {
-                    "$ref": "#/definitions/obj.GameThemeStatusFields"
-                },
-                "thinking": {
-                    "$ref": "#/definitions/obj.GameThemeThinking"
-                },
-                "typography": {
-                    "$ref": "#/definitions/obj.GameThemeTypography"
-                }
-            }
-        },
-        "obj.GameThemePlayer": {
-            "type": "object",
-            "properties": {
-                "bgColor": {
-                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
-                    "type": "string"
-                },
-                "borderColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "color": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "fontColor": {
-                    "description": "dark, light, hacker, terminal",
-                    "type": "string"
-                },
-                "indicator": {
-                    "description": "dot, arrow, chevron, diamond, cursor, underscore, pipe, none",
-                    "type": "string"
-                },
-                "indicatorBlink": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "obj.GameThemeStatusFields": {
-            "type": "object",
-            "properties": {
-                "accentColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "bgColor": {
-                    "description": "white, creme, dark, black, blue, blueLight, green, greenLight, red, redLight, amber, amberLight, violet, violetLight, rose, roseLight, cyan, cyanLight",
-                    "type": "string"
-                },
-                "borderColor": {
-                    "description": "amber, emerald, cyan, violet, rose, slate, hacker, terminal, brown, pink, orange",
-                    "type": "string"
-                },
-                "fontColor": {
-                    "description": "dark, light, hacker, terminal",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeThinking": {
-            "type": "object",
-            "properties": {
-                "streamingCursor": {
-                    "description": "dots, block, pipe, underscore, none",
-                    "type": "string"
-                },
-                "style": {
-                    "description": "dots, spinner, pulse, typewriter",
-                    "type": "string"
-                },
-                "text": {
-                    "description": "e.g. \"The story unfolds...\"",
-                    "type": "string"
-                }
-            }
-        },
-        "obj.GameThemeTypography": {
-            "type": "object",
-            "properties": {
-                "messages": {
-                    "description": "serif, sans, mono, fantasy",
+                "thinkingText": {
+                    "description": "optional loading phrase override, e.g. \"The tale continues...\" Empty = use preset default.",
                     "type": "string"
                 }
             }
@@ -5082,6 +4925,46 @@ const docTemplate = `{
                 },
                 "label": {
                     "type": "string"
+                }
+            }
+        },
+        "routes.MessageStatusResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "Fatal error message (AI failure)",
+                    "type": "string"
+                },
+                "errorCode": {
+                    "description": "Machine-readable error code",
+                    "type": "string"
+                },
+                "imageError": {
+                    "description": "Machine-readable image error code",
+                    "type": "string"
+                },
+                "imageHash": {
+                    "description": "Hash for cache-busting image URL",
+                    "type": "string"
+                },
+                "imageStatus": {
+                    "description": "\"none\" | \"generating\" | \"complete\" | \"error\"",
+                    "type": "string"
+                },
+                "statusFields": {
+                    "description": "Current status fields",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatusField"
+                    }
+                },
+                "text": {
+                    "description": "Current full text of the message",
+                    "type": "string"
+                },
+                "textDone": {
+                    "description": "True when text streaming is complete (Stream=false in DB)",
+                    "type": "boolean"
                 }
             }
         },

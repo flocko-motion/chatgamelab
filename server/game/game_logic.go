@@ -222,16 +222,16 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, aiMo
 		}
 
 		// Rewrite theme statusEmojis keys from original to translated field names
-		if theme != nil && theme.Override != nil && len(theme.Override.StatusEmojis) > 0 && len(fieldNameMap) > 0 {
-			translatedEmojis := make(map[string]string, len(theme.Override.StatusEmojis))
-			for originalName, emoji := range theme.Override.StatusEmojis {
+		if theme != nil && len(theme.StatusEmojis) > 0 && len(fieldNameMap) > 0 {
+			translatedEmojis := make(map[string]string, len(theme.StatusEmojis))
+			for originalName, emoji := range theme.StatusEmojis {
 				if translatedName, ok := fieldNameMap[originalName]; ok {
 					translatedEmojis[translatedName] = emoji
 				} else {
 					translatedEmojis[originalName] = emoji
 				}
 			}
-			theme.Override.StatusEmojis = translatedEmojis
+			theme.StatusEmojis = translatedEmojis
 			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", fieldNameMap)
 		}
 	}

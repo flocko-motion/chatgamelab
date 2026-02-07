@@ -37,7 +37,7 @@ import { useGameSession } from "../hooks/useGameSession";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { GamePlayerProvider } from "../context";
 import type { GamePlayerContextValue, FontSize } from "../context";
-import { DEFAULT_THEME, mapApiThemeToPartial } from "../types";
+import { mapApiThemeToPartial } from "../types";
 import type { PartialGameTheme } from "../theme/types";
 import { GameThemeProvider, useGameTheme, PRESET_THEMES } from "../theme";
 import { ThemeTestPanel } from "./ThemeTestPanel";
@@ -315,7 +315,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   const contextValue: GamePlayerContextValue = {
     state,
-    theme: DEFAULT_THEME,
     startSession,
     sendAction,
     retryLastAction,
