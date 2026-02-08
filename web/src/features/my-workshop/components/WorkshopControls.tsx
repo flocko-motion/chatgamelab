@@ -20,7 +20,6 @@ interface WorkshopControlsProps {
   onSortChange: (value: string) => void;
   onCreateClick: () => void;
   onImportClick: () => void;
-  hasGames: boolean;
 }
 
 export function WorkshopControls({
@@ -32,7 +31,6 @@ export function WorkshopControls({
   onSortChange,
   onCreateClick,
   onImportClick,
-  hasGames,
 }: WorkshopControlsProps) {
   const { t } = useTranslation("common");
   const { t: tWorkshop } = useTranslation("myWorkshop");
@@ -110,14 +108,12 @@ export function WorkshopControls({
           onChange={(val) => onFilterChange(val as GameFilter)}
           options={filterOptions}
         />
-        {hasGames && (
-          <SortSelector
-            options={sortOptions}
-            value={sortValue}
-            onChange={onSortChange}
-            label={t("games.sort.label")}
-          />
-        )}
+        <SortSelector
+          options={sortOptions}
+          value={sortValue}
+          onChange={onSortChange}
+          label={t("games.sort.label")}
+        />
       </Group>
     </Group>
   );

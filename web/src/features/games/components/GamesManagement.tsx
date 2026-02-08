@@ -237,14 +237,12 @@ export function GamesManagement({ initialGameId, initialMode, onModalClose }: Ga
               {t('games.importExport.importButton')}
             </TextButton>
           </Group>
-          {(games?.length ?? 0) > 0 && (
-            <SortSelector 
-              options={sortOptions} 
-              value={sortField} 
-              onChange={(v) => setSortField(v as SortField)}
-              label={t('games.sort.label')}
-            />
-          )}
+          <SortSelector 
+            options={sortOptions} 
+            value={sortField} 
+            onChange={(v) => setSortField(v as SortField)}
+            label={t('games.sort.label')}
+          />
         </Group>
 
         {isMobile ? (

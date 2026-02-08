@@ -552,14 +552,12 @@ export function MyGames({ initialGameId, initialMode, onModalClose, autoImport }
                     { value: 'favorites', label: t('myGames.filters.favorites') },
                   ]}
                 />
-                {(rawGames?.length ?? 0) > 0 && (
-                  <SortSelector
-                    options={sortOptions}
-                    value={sortValue}
-                    onChange={setSortValue}
-                    label={t('games.sort.label')}
-                  />
-                )}
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
+                  onChange={setSortValue}
+                  label={t('games.sort.label')}
+                />
               </Group>
             </Group>
           )}
