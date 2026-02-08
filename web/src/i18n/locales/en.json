@@ -531,6 +531,16 @@
         "message": "You've successfully joined the workshop. Redirecting...",
         "title": "Welcome!"
       },
+      "alreadyLoggedIn": {
+        "logoutButton": "Log Out & Try Again",
+        "message": "You are already logged in with an account. Workshop invite links are for new participants. Please log out first if you want to join as a participant.",
+        "title": "Already Logged In"
+      },
+      "alreadyMember": {
+        "enterButton": "Enter Workshop",
+        "message": "You are already a member of the organization that manages this workshop. You can enter it directly.",
+        "title": "Already a Member"
+      },
       "switchWorkshop": {
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
         "stayButton": "Stay in Current Workshop",

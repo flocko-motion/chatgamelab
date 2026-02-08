@@ -531,6 +531,16 @@
         "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung...",
         "title": "Willkommen!"
       },
+      "alreadyLoggedIn": {
+        "logoutButton": "Abmelden & erneut versuchen",
+        "message": "Du bist bereits mit einem Konto angemeldet. Workshop-Einladungslinks sind für neue Teilnehmer. Bitte melde dich zuerst ab, wenn du als Teilnehmer beitreten möchtest.",
+        "title": "Bereits angemeldet"
+      },
+      "alreadyMember": {
+        "enterButton": "Workshop betreten",
+        "message": "Du bist bereits Mitglied der Organisation, die diesen Workshop verwaltet. Du kannst ihn direkt betreten.",
+        "title": "Bereits Mitglied"
+      },
       "switchWorkshop": {
         "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
         "stayButton": "Im aktuellen Workshop bleiben",
