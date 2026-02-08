@@ -6,6 +6,7 @@ import (
 
 	"cgl/api/auth"
 	"cgl/api/httpx"
+	"cgl/constants"
 	"cgl/db"
 	"cgl/lang"
 	"cgl/log"
@@ -244,6 +245,12 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 	isAdmin := currentUser.Role != nil && currentUser.Role.Role == obj.RoleAdmin
 	if emailChanged && !isAdmin {
 		httpx.WriteError(w, http.StatusForbidden, "Only administrators can change email addresses")
+		return
+	}
+
+	// Check for profanity if name changed
+	if nameChanged && constants.IsProfane(req.Name) {
+		httpx.WriteAppError(w, obj.ErrProfaneName("This name is not allowed"))
 		return
 	}
 

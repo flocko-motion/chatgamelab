@@ -43,6 +43,7 @@
       "roles": {
         "admin": "Administrator",
         "head": "Head Teacher",
+        "individual": "User",
         "participant": "Guest",
         "staff": "Staff Member"
       },
@@ -168,6 +169,7 @@
         "emailPlaceholder": "Enter email address",
         "empty": "No users found.",
         "hideGuests": "Hide guests ({{count}})",
+        "hideGuestsShort": "Guests ({{count}})",
         "joined": "Joined",
         "loadError": "Failed to load users",
         "makeAdmin": "Make admin",
@@ -204,7 +206,7 @@
       }
     },
     "allGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -336,9 +338,11 @@
       "header": {
         "back": "Back to games",
         "debug": "Debug",
-        "decreaseFont": "Decrease font size",
+        "decreaseFont": "Smaller",
         "disableAnimations": "Disable animations",
-        "increaseFont": "Increase font size",
+        "fontSize": "Font size",
+        "increaseFont": "Larger",
+        "resetFont": "Reset",
         "settings": "Settings",
         "useNeutralTheme": "Use neutral theme"
       },
@@ -410,7 +414,8 @@
       },
       "errors": {
         "loadFailed": "Failed to load games. Please try again.",
-        "nameRequired": "Game name is required"
+        "nameRequired": "Game name is required",
+        "nameTooLong": "Game name must be 70 characters or less"
       },
       "fields": {
         "created": "Created",
@@ -526,6 +531,16 @@
         "message": "You've successfully joined the workshop. Redirecting...",
         "title": "Welcome!"
       },
+      "alreadyLoggedIn": {
+        "logoutButton": "Log Out & Try Again",
+        "message": "You are already logged in with an account. Workshop invite links are for new participants. Please log out first if you want to join as a participant.",
+        "title": "Already Logged In"
+      },
+      "alreadyMember": {
+        "enterButton": "Enter Workshop",
+        "message": "You are already a member of the organization that manages this workshop. You can enter it directly.",
+        "title": "Already a Member"
+      },
       "switchWorkshop": {
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
         "stayButton": "Stay in Current Workshop",
@@ -545,7 +560,7 @@
     "loading": "Loading...",
     "logout": "Logout",
     "myGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -855,6 +870,8 @@
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
     "duplicateName": "The name for this game is already in use. Please choose a different name.",
+    "nameProfane": "This name is not allowed. Please choose a different name.",
+    "nameTooLong": "The name is too long. Please choose a shorter name.",
     "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
     "titles": {
       "aiError": "AI Error",

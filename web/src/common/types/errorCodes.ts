@@ -14,6 +14,8 @@ export const ErrorCodes = {
   SERVER_ERROR: "server_error",
   USER_NOT_REGISTERED: "user_not_registered",
   DUPLICATE_NAME: "duplicate_name",
+  NAME_TOO_LONG: "name_too_long",
+  PROFANE_NAME: "profane_name",
   // Auth-related error codes
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
   // AI-related error codes

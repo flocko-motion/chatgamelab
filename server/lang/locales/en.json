@@ -204,7 +204,7 @@
       }
     },
     "allGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -406,7 +406,8 @@
       },
       "errors": {
         "loadFailed": "Failed to load games. Please try again.",
-        "nameRequired": "Game name is required"
+        "nameRequired": "Game name is required",
+        "nameTooLong": "Game name must be 70 characters or less"
       },
       "fields": {
         "created": "Created",
@@ -541,7 +542,7 @@
     "loading": "Loading...",
     "logout": "Logout",
     "myGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -849,6 +850,8 @@
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
+    "nameProfane": "This name is not allowed. Please choose a different name.",
+    "nameTooLong": "The name is too long. Please choose a shorter name.",
     "titles": {
       "aiError": "AI Error",
       "authentication": "Authentication Error",

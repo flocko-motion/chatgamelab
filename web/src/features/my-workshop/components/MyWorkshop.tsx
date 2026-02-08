@@ -575,7 +575,7 @@ export function MyWorkshop() {
             onSortChange={setSortValue}
             onCreateClick={openCreateModal}
             onImportClick={triggerImportClick}
-            hasGames={(rawGames?.length ?? 0) > 0}
+
           />
         </Stack>
 

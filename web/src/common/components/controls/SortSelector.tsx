@@ -1,5 +1,6 @@
-import { Select, Box } from '@mantine/core';
-import { IconCheck } from '@tabler/icons-react';
+import { Select, Box, Menu, ActionIcon } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconCheck, IconArrowsSort } from '@tabler/icons-react';
 
 /**
  * SortSelector - Configurable sort dropdown for lists and tables
@@ -38,6 +39,32 @@ export function SortSelector({
   placeholder,
   width = 200,
 }: SortSelectorProps) {
+  const isMobile = useMediaQuery('(max-width: 48em)');
+
+  if (isMobile) {
+    return (
+      <Menu position="bottom-end" withinPortal>
+        <Menu.Target>
+          <ActionIcon variant="light" color="gray" size="md" aria-label={label || 'Sort'} style={{ flexShrink: 0 }}>
+            <IconArrowsSort size={18} />
+          </ActionIcon>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {options.map((option) => (
+            <Menu.Item
+              key={option.value}
+              onClick={() => onChange(option.value)}
+              fw={option.value === value ? 600 : 400}
+              rightSection={option.value === value ? <IconCheck size={14} color="var(--mantine-color-green-5)" /> : null}
+            >
+              {option.label}
+            </Menu.Item>
+          ))}
+        </Menu.Dropdown>
+      </Menu>
+    );
+  }
+
   return (
     <Select
       value={value}

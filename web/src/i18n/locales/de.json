@@ -43,6 +43,7 @@
       "roles": {
         "admin": "Administrator",
         "head": "Leitung",
+        "individual": "Benutzer",
         "participant": "Teilnehmer",
         "staff": "Mitarbeiter"
       },
@@ -168,6 +169,7 @@
         "emailPlaceholder": "E-Mail-Adresse eingeben",
         "empty": "Keine Benutzer gefunden.",
         "hideGuests": "Gäste ausblenden ({{count}})",
+        "hideGuestsShort": "Gäste ({{count}})",
         "joined": "Beigetreten",
         "loadError": "Benutzer konnten nicht geladen werden",
         "makeAdmin": "Zum Admin machen",
@@ -204,7 +206,7 @@
       }
     },
     "allGames": {
-      "continue": "Weiterspielen",
+      "continue": "Spielen",
       "copyConfirm": {
         "confirm": "Spiel kopieren",
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
@@ -336,9 +338,11 @@
       "header": {
         "back": "Zurück zu deinen anderen laufenden Spielen",
         "debug": "Debug",
-        "decreaseFont": "Schrift verkleinern",
+        "decreaseFont": "Kleiner",
         "disableAnimations": "Animationen deaktivieren",
-        "increaseFont": "Schrift vergrößern",
+        "fontSize": "Schriftgröße",
+        "increaseFont": "Größer",
+        "resetFont": "Zurücksetzen",
         "settings": "Einstellungen",
         "useNeutralTheme": "Neutrales Design verwenden"
       },
@@ -410,7 +414,8 @@
       },
       "errors": {
         "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuche es erneut.",
-        "nameRequired": "Spielname ist erforderlich"
+        "nameRequired": "Spielname ist erforderlich",
+        "nameTooLong": "Spielname darf maximal 70 Zeichen lang sein"
       },
       "fields": {
         "created": "Erstellt",
@@ -526,6 +531,16 @@
         "message": "Du bist dem Workshop erfolgreich beigetreten. Weiterleitung...",
         "title": "Willkommen!"
       },
+      "alreadyLoggedIn": {
+        "logoutButton": "Abmelden & erneut versuchen",
+        "message": "Du bist bereits mit einem Konto angemeldet. Workshop-Einladungslinks sind für neue Teilnehmer. Bitte melde dich zuerst ab, wenn du als Teilnehmer beitreten möchtest.",
+        "title": "Bereits angemeldet"
+      },
+      "alreadyMember": {
+        "enterButton": "Workshop betreten",
+        "message": "Du bist bereits Mitglied der Organisation, die diesen Workshop verwaltet. Du kannst ihn direkt betreten.",
+        "title": "Bereits Mitglied"
+      },
       "switchWorkshop": {
         "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleiben erhalten, aber du kannst nicht mehr darauf zugreifen, bis du wieder beitrittst.",
         "stayButton": "Im aktuellen Workshop bleiben",
@@ -545,7 +560,7 @@
     "loading": "Laden...",
     "logout": "Abmelden",
     "myGames": {
-      "continue": "Weiterspielen",
+      "continue": "Spielen",
       "copyConfirm": {
         "confirm": "Spiel kopieren",
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
@@ -747,7 +762,7 @@
     "save": "Speichern",
     "search": "Suchen",
     "sessions": {
-      "continueGame": "Weiterspielen",
+      "continueGame": "Spielen",
       "deleteConfirm": {
         "message": "Möchtest du diese Sitzung für \"{{game}}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
         "title": "Sitzung löschen"
@@ -855,6 +870,8 @@
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",
+    "nameProfane": "Dieser Name ist nicht erlaubt. Bitte wähle einen anderen Namen.",
+    "nameTooLong": "Der Name ist zu lang. Bitte wähle einen kürzeren Namen.",
     "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
     "titles": {
       "aiError": "KI-Fehler",

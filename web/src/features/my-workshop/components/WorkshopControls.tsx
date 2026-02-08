@@ -1,6 +1,8 @@
-import { Group } from "@mantine/core";
+import { Group, Tooltip } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { ActionButton } from "@components/buttons";
+import { IconFileImport } from "@tabler/icons-react";
+import { ActionButton, PlusIconButton, GenericIconButton } from "@components/buttons";
 import {
   SortSelector,
   type SortOption,
@@ -18,7 +20,6 @@ interface WorkshopControlsProps {
   onSortChange: (value: string) => void;
   onCreateClick: () => void;
   onImportClick: () => void;
-  hasGames: boolean;
 }
 
 export function WorkshopControls({
@@ -30,10 +31,10 @@ export function WorkshopControls({
   onSortChange,
   onCreateClick,
   onImportClick,
-  hasGames,
 }: WorkshopControlsProps) {
   const { t } = useTranslation("common");
   const { t: tWorkshop } = useTranslation("myWorkshop");
+  const isMobile = useMediaQuery("(max-width: 48em)");
 
   const sortOptions: SortOption[] = [
     { value: "modifiedAt-desc", label: t("games.sort.modifiedAt-desc") },
@@ -51,6 +52,41 @@ export function WorkshopControls({
     { value: "public", label: tWorkshop("filters.public") },
   ];
 
+  if (isMobile) {
+    return (
+      <Group gap="sm" wrap="nowrap">
+        <Tooltip label={t("games.createButton")} withArrow>
+          <PlusIconButton onClick={onCreateClick} variant="filled" aria-label={t("games.createButton")} />
+        </Tooltip>
+        <Tooltip label={t("games.importExport.importButton")} withArrow>
+          <GenericIconButton
+            icon={<IconFileImport size={16} />}
+            onClick={onImportClick}
+            aria-label={t("games.importExport.importButton")}
+          />
+        </Tooltip>
+        <ExpandableSearch
+          value={searchQuery}
+          onChange={onSearchChange}
+          placeholder={t("search")}
+        />
+        <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+          <FilterSegmentedControl
+            value={gameFilter}
+            onChange={(val) => onFilterChange(val as GameFilter)}
+            options={filterOptions}
+          />
+          <SortSelector
+            options={sortOptions}
+            value={sortValue}
+            onChange={onSortChange}
+            label={t("games.sort.label")}
+          />
+        </Group>
+      </Group>
+    );
+  }
+
   return (
     <Group justify="space-between" wrap="wrap" gap="sm">
       <Group gap="sm">
@@ -60,26 +96,24 @@ export function WorkshopControls({
         <ActionButton onClick={onImportClick}>
           {t("games.importExport.importButton")}
         </ActionButton>
+      </Group>
+      <Group gap="sm" wrap="wrap">
         <ExpandableSearch
           value={searchQuery}
           onChange={onSearchChange}
           placeholder={t("search")}
         />
-      </Group>
-      <Group gap="sm" wrap="wrap">
         <FilterSegmentedControl
           value={gameFilter}
           onChange={(val) => onFilterChange(val as GameFilter)}
           options={filterOptions}
         />
-        {hasGames && (
-          <SortSelector
-            options={sortOptions}
-            value={sortValue}
-            onChange={onSortChange}
-            label={t("games.sort.label")}
-          />
-        )}
+        <SortSelector
+          options={sortOptions}
+          value={sortValue}
+          onChange={onSortChange}
+          label={t("games.sort.label")}
+        />
       </Group>
     </Group>
   );

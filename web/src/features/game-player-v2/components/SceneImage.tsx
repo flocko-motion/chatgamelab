@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useGamePlayerContext } from '../context';
 import { translateErrorCode } from '@/common/lib/errorHelpers';
+import { apiLogger } from '@/config/logger';
 import { config } from '@/config/env';
-import type { ImageStatus } from '../types';
+import type { ImageStatus, MessageStatus } from '../types';
 import classes from './GamePlayer.module.css';
+
+const IMAGE_RETRY_POLL_INTERVAL = 2000;
+const IMAGE_RETRY_MAX_POLLS = 15;
 
 interface SceneImageProps {
   messageId: string;
@@ -22,6 +26,10 @@ interface SceneImageProps {
 export function SceneImage({ messageId, imagePrompt, imageStatus, imageHash, imageErrorCode }: SceneImageProps) {
   const { openLightbox, disableImageGeneration } = useGamePlayerContext();
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryHash, setRetryHash] = useState<string | null>(null);
+  const retryPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasRetriedRef = useRef(false);
 
   // Build image URL:
   // - During generation: stable URL (no hash) so the <img> element stays mounted
@@ -39,18 +47,79 @@ export function SceneImage({ messageId, imagePrompt, imageStatus, imageHash, ima
     }
   }, [imageStatus, imageErrorCode, disableImageGeneration]);
 
-  const showPlaceholder = imageStatus !== 'error' && (!imageUrl || !hasLoaded);
+  // Use retryHash to override the image URL after successful re-generation
+  const effectiveImageUrl = retryHash
+    ? `${baseImageUrl}?v=${retryHash}`
+    : imageUrl;
+
+  const showPlaceholder = imageStatus !== 'error' && (!effectiveImageUrl || !hasLoaded || isRetrying);
   const isPartialImage = imageStatus === 'generating' && !!imageUrl;
 
   const errorInfo = imageStatus === 'error' && imageErrorCode ? translateErrorCode(imageErrorCode) : null;
+
+  // Clean up retry polling on unmount
+  useEffect(() => {
+    return () => {
+      if (retryPollRef.current) {
+        clearInterval(retryPollRef.current);
+      }
+    };
+  }, []);
+
+  // Poll status endpoint to detect backend image re-generation
+  const startRetryPolling = useCallback(() => {
+    if (retryPollRef.current) return;
+    setIsRetrying(true);
+    let pollCount = 0;
+
+    retryPollRef.current = setInterval(async () => {
+      pollCount++;
+      if (pollCount > IMAGE_RETRY_MAX_POLLS) {
+        apiLogger.debug('Image retry polling timed out', { messageId });
+        if (retryPollRef.current) clearInterval(retryPollRef.current);
+        retryPollRef.current = null;
+        setIsRetrying(false);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${config.API_BASE_URL}/messages/${messageId}/status`);
+        if (!resp.ok) return;
+        const status: MessageStatus = await resp.json();
+
+        if (status.imageStatus === 'complete' && status.imageHash) {
+          apiLogger.debug('Image retry: generation complete', { messageId, hash: status.imageHash });
+          if (retryPollRef.current) clearInterval(retryPollRef.current);
+          retryPollRef.current = null;
+          setRetryHash(status.imageHash);
+          setIsRetrying(false);
+        } else if (status.imageStatus === 'error') {
+          apiLogger.debug('Image retry: generation failed', { messageId, error: status.imageError });
+          if (retryPollRef.current) clearInterval(retryPollRef.current);
+          retryPollRef.current = null;
+          setIsRetrying(false);
+        }
+      } catch {
+        // Ignore fetch errors during polling
+      }
+    }, IMAGE_RETRY_POLL_INTERVAL);
+  }, [messageId]);
 
   const handleImageLoad = () => {
     setHasLoaded(true);
   };
 
+  const handleImageError = () => {
+    // Only retry once per component lifecycle
+    if (hasRetriedRef.current || imageStatus === 'generating') return;
+    hasRetriedRef.current = true;
+    apiLogger.debug('Image load failed, starting retry polling', { messageId });
+    startRetryPolling();
+  };
+
   const handleClick = () => {
-    if (hasLoaded && imageUrl) {
-      openLightbox(imageUrl, imagePrompt);
+    if (hasLoaded && effectiveImageUrl) {
+      openLightbox(effectiveImageUrl, imagePrompt);
     }
   };
 
@@ -81,12 +150,13 @@ export function SceneImage({ messageId, imagePrompt, imageStatus, imageHash, ima
       }}
     >
       {showPlaceholder && <div className={classes.imagePlaceholder} />}
-      {imageUrl && (
+      {effectiveImageUrl && (
         <img
-          src={imageUrl}
+          src={effectiveImageUrl}
           alt={imagePrompt || (isPartialImage ? 'Generating scene...' : 'Scene illustration')}
           className={`${classes.sceneImage} ${isPartialImage ? classes.partialImage : ''}`}
           onLoad={handleImageLoad}
+          onError={handleImageError}
         />
       )}
     </div>

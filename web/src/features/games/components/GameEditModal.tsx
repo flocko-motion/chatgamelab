@@ -174,6 +174,10 @@ export function GameEditModal({
       setNameError(t("games.errors.nameRequired"));
       return;
     }
+    if (name.trim().length > 70) {
+      setNameError(t("games.errors.nameTooLong"));
+      return;
+    }
 
     if (isCreateMode) {
       // Create mode - use onCreate callback
@@ -276,6 +280,8 @@ export function GameEditModal({
             error={nameError}
             required
             readOnly={readOnly}
+            maxLength={70}
+            description={!readOnly ? `${name.length}/70` : undefined}
             data-autofocus
           />
 

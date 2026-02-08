@@ -79,13 +79,16 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
       try {
         const api = new Api(createAuthenticatedApiConfig(getAccessToken));
         const response = await api.auth.checkNameList({ name: debouncedName });
-        const available = response.data.available ?? false;
+        const data = response.data as { available?: boolean; profane?: boolean };
+        const available = data.available ?? false;
         setNameAvailable(available);
         
         if (!available) {
           setError('name', { 
             type: 'manual', 
-            message: t('register.errors.nameTaken') 
+            message: data.profane
+              ? t('errors:nameProfane')
+              : t('register.errors.nameTaken'),
           });
         } else {
           clearErrors('name');
@@ -112,9 +115,18 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     try {
       await registerUser(data.name.trim(), data.email.trim());
       navigate({ to: '/dashboard' });
-    } catch (error) {
+    } catch (error: unknown) {
       authLogger.error('Registration failed', { error });
-      setSubmitError(t('register.errors.registrationFailed'));
+      // Check for profane_name error code from backend
+      const apiError = error as { error?: { data?: { code?: string } } };
+      if (apiError?.error?.data?.code === 'profane_name') {
+        setError('name', {
+          type: 'manual',
+          message: t('errors:nameProfane'),
+        });
+      } else {
+        setSubmitError(t('register.errors.registrationFailed'));
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -14,7 +14,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconCrown, IconCrownOff, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { SortSelector, type SortOption } from '@/common/components/controls';
+import { SortSelector, type SortOption, ExpandableSearch } from '@/common/components/controls';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
 import type { ObjUser } from '@/api/generated';
 
@@ -147,22 +147,38 @@ export function MembersList({
       <LoadingOverlay visible={isLoading} />
 
       <Stack gap="md">
-        <Group justify="space-between" gap="md">
-          <TextInput
-            placeholder={t('myOrganization.searchPlaceholder')}
-            leftSection={<IconSearch size={16} />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            style={{ flex: 1, maxWidth: isMobile ? undefined : 400 }}
-          />
-          <SortSelector
-            options={sortOptions}
-            value={sortValue}
-            onChange={setSortValue}
-            label={t('myOrganization.sort.label')}
-            width={isMobile ? 150 : 200}
-          />
-        </Group>
+        {isMobile ? (
+          <Group gap="sm" wrap="nowrap">
+            <ExpandableSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={t('myOrganization.searchPlaceholder')}
+            />
+            <SortSelector
+              options={sortOptions}
+              value={sortValue}
+              onChange={setSortValue}
+              label={t('myOrganization.sort.label')}
+            />
+          </Group>
+        ) : (
+          <Group justify="space-between" gap="md">
+            <TextInput
+              placeholder={t('myOrganization.searchPlaceholder')}
+              leftSection={<IconSearch size={16} />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.currentTarget.value)}
+              style={{ flex: 1, maxWidth: 400 }}
+            />
+            <SortSelector
+              options={sortOptions}
+              value={sortValue}
+              onChange={setSortValue}
+              label={t('myOrganization.sort.label')}
+              width={200}
+            />
+          </Group>
+        )}
 
         <Text size="sm" c="dimmed">
           {t('myOrganization.showing', { count: sortedMembers.length })}

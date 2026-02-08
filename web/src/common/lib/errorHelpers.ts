@@ -82,6 +82,14 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.error",
     messageKey: "errors:duplicateName",
   },
+  [ErrorCodes.NAME_TOO_LONG]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:nameTooLong",
+  },
+  [ErrorCodes.PROFANE_NAME]: {
+    titleKey: "errors:titles.validation",
+    messageKey: "errors:nameProfane",
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:aiError",

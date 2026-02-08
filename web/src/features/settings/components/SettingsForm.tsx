@@ -1,52 +1,27 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, Stack, TextInput, Alert, Switch, Select } from "@mantine/core";
+import { Card, Stack, TextInput, Alert, Switch, Loader } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
-import { IconUser, IconCheck, IconInfoCircle } from "@tabler/icons-react";
+import { IconUser, IconCheck, IconX, IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { uiLogger } from "@/config/logger";
-import { useUpdateUser, usePlatforms, useSystemSettings, useUpdateSystemSettings } from "@/api/hooks";
-import { isAdmin } from "@/common/lib/roles";
+import { useUpdateUser } from "@/api/hooks";
+import { Api } from "@/api/generated";
+import { createAuthenticatedApiConfig } from "@/api/client/http";
 
 export function SettingsForm() {
   const { t } = useTranslation("auth");
-  const { backendUser, retryBackendFetch } = useAuth();
+  const { backendUser, retryBackendFetch, getAccessToken } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const updateUser = useUpdateUser();
 
-  // Admin-only: system settings
-  const userIsAdmin = backendUser ? isAdmin(backendUser) : false;
-  const { data: platforms } = usePlatforms();
-  const { data: systemSettings } = useSystemSettings();
-  const updateSystemSettings = useUpdateSystemSettings();
-  const [selectedDefaultModel, setSelectedDefaultModel] = useState<string | null>(null);
-  const [adminSubmitSuccess, setAdminSubmitSuccess] = useState(false);
-  const [adminSubmitError, setAdminSubmitError] = useState<string | null>(null);
-
-  // Build model options from all platforms (grouped format for Mantine Select)
-  const modelOptions = useMemo(() => {
-    if (!platforms) return [];
-    return platforms.map((platform) => ({
-      group: platform.name || platform.id || "",
-      items: (platform.models || []).map((model) => ({
-        value: model.id || "",
-        label: model.name || model.id || "",
-      })),
-    }));
-  }, [platforms]);
-
-  // Initialize selected model from system settings
-  useEffect(() => {
-    if (systemSettings?.defaultAiModel && !selectedDefaultModel) {
-      setSelectedDefaultModel(systemSettings.defaultAiModel);
-    }
-  }, [systemSettings, selectedDefaultModel]);
 
   const schema = z.object({
     name: z
@@ -64,6 +39,8 @@ export function SettingsForm() {
     reset,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -74,6 +51,60 @@ export function SettingsForm() {
   });
 
   const showAiModelSelector = watch("showAiModelSelector");
+  const nameValue = watch("name");
+  const [debouncedName] = useDebouncedValue(nameValue, 500);
+  const [isCheckingName, setIsCheckingName] = useState(false);
+  const [nameAvailable, setNameAvailable] = useState<boolean | null>(null);
+
+  // Debounced name availability + profanity check
+  useEffect(() => {
+    const checkName = async () => {
+      // Skip if name is empty, too long, or unchanged from current
+      if (
+        !debouncedName ||
+        debouncedName.length === 0 ||
+        debouncedName.length > 24 ||
+        debouncedName === backendUser?.name
+      ) {
+        setNameAvailable(null);
+        return;
+      }
+
+      setIsCheckingName(true);
+      try {
+        const api = new Api(createAuthenticatedApiConfig(getAccessToken));
+        const response = await api.auth.checkNameList({ name: debouncedName });
+        const data = response.data as { available?: boolean; profane?: boolean };
+        const available = data.available ?? false;
+        setNameAvailable(available);
+
+        if (!available) {
+          setError("name", {
+            type: "manual",
+            message: data.profane
+              ? t("errors:nameProfane")
+              : t("settings.errors.nameTaken"),
+          });
+        } else {
+          clearErrors("name");
+        }
+      } catch (error) {
+        uiLogger.error("Failed to check name availability", { error });
+        setNameAvailable(null);
+      } finally {
+        setIsCheckingName(false);
+      }
+    };
+
+    checkName();
+  }, [debouncedName, backendUser?.name, getAccessToken, setError, clearErrors, t]);
+
+  const getNameRightSection = () => {
+    if (isCheckingName) return <Loader size="xs" />;
+    if (nameAvailable === true && !errors.name) return <IconCheck size={16} color="green" />;
+    if (nameAvailable === false || errors.name) return <IconX size={16} color="red" />;
+    return null;
+  };
 
   // Reset form when backendUser changes
   useEffect(() => {
@@ -87,6 +118,7 @@ export function SettingsForm() {
 
   const onSubmit = (data: FormData) => {
     if (!backendUser) return;
+    if (nameAvailable === false) return;
 
     setSubmitError(null);
     setSubmitSuccess(false);
@@ -112,10 +144,13 @@ export function SettingsForm() {
 
           // Check for specific error types
           if (error && typeof error === "object" && "error" in error) {
-            const errorData = error as { error?: { message?: string } };
+            const errorData = error as { error?: { data?: { code?: string }; message?: string } };
+            const code = errorData.error?.data?.code || "";
             const message = errorData.error?.message || "";
 
-            if (message.includes("Name is already taken")) {
+            if (code === "profane_name") {
+              setSubmitError(t("errors:nameProfane"));
+            } else if (message.includes("Name is already taken")) {
               setSubmitError(t("settings.errors.nameTaken"));
             } else {
               setSubmitError(t("settings.errors.saveFailed"));
@@ -130,28 +165,6 @@ export function SettingsForm() {
 
   const isSubmitting = updateUser.isPending;
 
-  const handleAdminSettingsSave = () => {
-    if (!selectedDefaultModel) return;
-
-    setAdminSubmitError(null);
-    setAdminSubmitSuccess(false);
-
-    updateSystemSettings.mutate(
-      { defaultAiModel: selectedDefaultModel },
-      {
-        onSuccess: () => {
-          setAdminSubmitSuccess(true);
-          setTimeout(() => setAdminSubmitSuccess(false), 3000);
-        },
-        onError: (error: unknown) => {
-          uiLogger.error("Failed to update system settings", { error });
-          setAdminSubmitError(t("settings.errors.saveFailed"));
-        },
-      }
-    );
-  };
-
-  const isAdminSettingsDirty = selectedDefaultModel !== systemSettings?.defaultAiModel;
 
   if (!backendUser) {
     return null;
@@ -170,6 +183,7 @@ export function SettingsForm() {
               placeholder={t("settings.namePlaceholder")}
               description={t("settings.nameDescription")}
               leftSection={<IconUser size={16} />}
+              rightSection={getNameRightSection()}
               error={errors.name?.message}
               {...register("name")}
               disabled={isSubmitting}
@@ -216,7 +230,7 @@ export function SettingsForm() {
             <ActionButton
               type="submit"
               loading={isSubmitting}
-              disabled={!isDirty}
+              disabled={!isDirty || isCheckingName || nameAvailable === false}
               size="md"
             >
               {isSubmitting ? t("settings.saving") : t("settings.saveButton")}
@@ -226,52 +240,6 @@ export function SettingsForm() {
       </Stack>
     </Card>
 
-    {/* Admin Settings Section */}
-    {userIsAdmin && (
-      <Card shadow="sm" padding="xl" radius="md" withBorder>
-        <Stack gap="lg">
-          <SectionTitle>
-            {t("settings.adminSection", "System Settings")}
-          </SectionTitle>
-
-          <Select
-            label={t("settings.defaultAiModelLabel", "Default AI Model")}
-            description={t("settings.defaultAiModelDescription", "The default AI model used when users don't select a specific model")}
-            placeholder={t("settings.defaultAiModelPlaceholder", "Select a model")}
-            data={modelOptions}
-            value={selectedDefaultModel}
-            onChange={setSelectedDefaultModel}
-            searchable
-            disabled={updateSystemSettings.isPending}
-          />
-
-          {adminSubmitError && (
-            <Alert color="red" variant="light">
-              {adminSubmitError}
-            </Alert>
-          )}
-
-          {adminSubmitSuccess && (
-            <Alert
-              color="green"
-              variant="light"
-              icon={<IconCheck size={16} />}
-            >
-              {t("settings.saved")}
-            </Alert>
-          )}
-
-          <ActionButton
-            onClick={handleAdminSettingsSave}
-            loading={updateSystemSettings.isPending}
-            disabled={!isAdminSettingsDirty}
-            size="md"
-          >
-            {updateSystemSettings.isPending ? t("settings.saving") : t("settings.saveButton")}
-          </ActionButton>
-        </Stack>
-      </Card>
-    )}
     </Stack>
   );
 }

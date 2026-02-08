@@ -7,8 +7,10 @@ import (
 	"unicode/utf8"
 
 	"cgl/api/httpx"
+	"cgl/constants"
 	"cgl/db"
 	"cgl/log"
+	"cgl/obj"
 )
 
 // RegisterRequest is the request body for user registration
@@ -53,6 +55,12 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if utf8.RuneCountInString(name) > 24 {
 		httpx.WriteError(w, http.StatusBadRequest, "Name must be at most 24 characters")
+		return
+	}
+
+	// Check for profanity
+	if constants.IsProfane(name) {
+		httpx.WriteAppError(w, obj.ErrProfaneName("This name is not allowed"))
 		return
 	}
 
@@ -117,6 +125,12 @@ func CheckNameAvailability(w http.ResponseWriter, r *http.Request) {
 
 	if utf8.RuneCountInString(name) > 24 {
 		httpx.WriteJSON(w, http.StatusOK, map[string]bool{"available": false})
+		return
+	}
+
+	// Check for profanity
+	if constants.IsProfane(name) {
+		httpx.WriteJSON(w, http.StatusOK, map[string]bool{"available": false, "profane": true})
 		return
 	}
 

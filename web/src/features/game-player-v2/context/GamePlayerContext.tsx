@@ -27,6 +27,7 @@ export interface GamePlayerContextValue {
   fontSize: FontSize;
   increaseFontSize: () => void;
   decreaseFontSize: () => void;
+  resetFontSize: () => void;
   debugMode: boolean;
   toggleDebugMode: () => void;
   

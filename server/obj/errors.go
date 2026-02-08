@@ -15,6 +15,8 @@ const (
 	ErrCodeServerError       = "server_error"
 	ErrCodeUserNotRegistered = "user_not_registered"
 	ErrCodeDuplicateName     = "duplicate_name"
+	ErrCodeNameTooLong       = "name_too_long"
+	ErrCodeProfaneName       = "profane_name"
 	ErrCodeNoApiKey          = "no_api_key"
 
 	// AI-specific error codes
@@ -107,6 +109,18 @@ func ErrDuplicateName(message string) *AppError {
 
 func ErrDuplicateNamef(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeDuplicateName, fmt.Sprintf(format, args...))
+}
+
+func ErrNameTooLong(message string) *AppError {
+	return NewAppError(ErrCodeNameTooLong, message)
+}
+
+func ErrNameTooLongf(format string, args ...any) *AppError {
+	return NewAppError(ErrCodeNameTooLong, fmt.Sprintf(format, args...))
+}
+
+func ErrProfaneName(message string) *AppError {
+	return NewAppError(ErrCodeProfaneName, message)
 }
 
 // AppError is a custom error type that carries an HTTP error code.

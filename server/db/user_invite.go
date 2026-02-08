@@ -594,6 +594,26 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 		return uuid.Nil, fmt.Errorf("invite has reached maximum uses")
 	}
 
+	// Check if user is already associated with this workshop or organization
+	user, err := GetUserByID(ctx, userID)
+	if err != nil {
+		return uuid.Nil, obj.ErrNotFound("user not found")
+	}
+
+	if user.Role != nil {
+		// Check if user is already a participant of this specific workshop
+		if invite.WorkshopID.Valid && user.Role.Workshop != nil && user.Role.Workshop.ID == invite.WorkshopID.UUID {
+			return uuid.Nil, obj.ErrConflict("you are already a member of this workshop")
+		}
+
+		// Check if user is head/staff of the organization that owns this workshop
+		if user.Role.Institution != nil && user.Role.Institution.ID == invite.InstitutionID {
+			if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
+				return uuid.Nil, obj.ErrConflict("you are already a member of the organization that owns this workshop")
+			}
+		}
+	}
+
 	// Use a transaction to ensure atomicity (delete old role + create new role + increment uses)
 	tx, err := sqlDb.BeginTx(ctx, nil)
 	if err != nil {

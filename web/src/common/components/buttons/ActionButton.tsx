@@ -29,7 +29,7 @@ export interface ActionButtonProps {
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
   fullWidth?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'compact-xs' | 'compact-sm' | 'compact-md' | 'compact-lg' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   color?: string;
 }
 
