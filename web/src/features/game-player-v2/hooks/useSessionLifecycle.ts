@@ -103,6 +103,21 @@ export function useSessionLifecycle({
     startSession();
   }, [isContinuation, state.phase, gameLoading, gameError, game, startSession]);
 
+  // Replace URL with /sessions/$sessionId once a new session is created,
+  // so that F5 resumes the same session instead of creating a new one.
+  const urlReplacedRef = useRef(false);
+  useEffect(() => {
+    if (isContinuation || urlReplacedRef.current) return;
+    if (state.sessionId && state.phase === "playing") {
+      urlReplacedRef.current = true;
+      navigate({
+        to: "/sessions/$sessionId",
+        params: { sessionId: state.sessionId },
+        replace: true,
+      });
+    }
+  }, [isContinuation, state.sessionId, state.phase, navigate]);
+
   // Auto-resolve API key for sessions that lost their key (needs-api-key phase)
   useEffect(() => {
     if (state.phase === "needs-api-key") {
