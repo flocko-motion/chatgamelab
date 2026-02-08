@@ -406,7 +406,8 @@
       },
       "errors": {
         "loadFailed": "Failed to load games. Please try again.",
-        "nameRequired": "Game name is required"
+        "nameRequired": "Game name is required",
+        "nameTooLong": "Game name must be 70 characters or less"
       },
       "fields": {
         "created": "Created",

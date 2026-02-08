@@ -412,7 +412,8 @@
       },
       "errors": {
         "loadFailed": "Spiele konnten nicht geladen werden. Bitte versuche es erneut.",
-        "nameRequired": "Spielname ist erforderlich"
+        "nameRequired": "Spielname ist erforderlich",
+        "nameTooLong": "Spielname darf maximal 70 Zeichen lang sein"
       },
       "fields": {
         "created": "Erstellt",
