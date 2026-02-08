@@ -223,17 +223,17 @@ export function GameCard({
       onClick={onClick}
     >
       <Stack gap="sm">
-        {/* Top row: Title (left) + Date + Visibility (right) */}
+        {/* Top row: Title (left, wraps up to 3 lines) + Date + Visibility (right, pinned top) */}
         <Group justify="space-between" align="flex-start" wrap="nowrap">
           <Text
             fw={600}
             size="md"
-            lineClamp={1}
+            lineClamp={3}
             style={{ flex: 1, minWidth: 0 }}
           >
             {game.name}
           </Text>
-          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0, alignSelf: "flex-start" }}>
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
                 {dateLabel}

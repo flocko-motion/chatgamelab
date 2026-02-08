@@ -91,6 +91,12 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate name length
+	if len(strings.TrimSpace(req.Name)) > 70 {
+		httpx.WriteAppError(w, obj.ErrNameTooLong("Game name must be 70 characters or less"))
+		return
+	}
+
 	// Build game object from request
 	game := obj.Game{
 		Name:        req.Name,
@@ -188,6 +194,12 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	updatedGame.ID = gameID
+
+	// Validate name length
+	if len(strings.TrimSpace(updatedGame.Name)) > 70 {
+		httpx.WriteAppError(w, obj.ErrNameTooLong("Game name must be 70 characters or less"))
+		return
+	}
 
 	if err := db.UpdateGame(r.Context(), user.ID, &updatedGame); err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
