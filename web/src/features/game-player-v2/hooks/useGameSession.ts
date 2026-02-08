@@ -630,12 +630,17 @@ export function useGameSession(gameId: string) {
           theme: session.theme || null,
         }));
 
-        // If last message is still streaming, start polling to catch up
+        // If last message is still streaming, try to reconnect to SSE.
+        // The backend stream may still be in the registry (no client consumed it yet).
+        // connectToStream falls back to polling if SSE returns 404 (stream finished).
+        // Reset text to "" because SSE sends incremental deltas that get appended.
         if (isInProgress && lastMessage?.id) {
-          apiLogger.debug("Session has in-progress message, starting poll", {
+          apiLogger.debug("Session has in-progress message, connecting to stream", {
             messageId: lastMessage.id,
           });
-          startPolling(lastMessage.id);
+          // Reset text so SSE deltas append cleanly (avoids plotOutline + narrative duplication)
+          updateMessage(lastMessage.id, { text: "" });
+          connectToStream(lastMessage.id);
         } else if (!isInProgress && lastMessage?.id && lastMessage.imagePrompt) {
           // Text is done but image might still be generating, failed, or skipped.
           // mapApiMessageToScene optimistically sets imageStatus="complete", but
@@ -692,7 +697,7 @@ export function useGameSession(gameId: string) {
         }));
       }
     },
-    [api, startPolling, updateMessage],
+    [api, connectToStream, startPolling, updateMessage],
   );
 
   const updateSessionApiKey = useCallback(
