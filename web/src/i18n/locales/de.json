@@ -43,6 +43,7 @@
       "roles": {
         "admin": "Administrator",
         "head": "Leitung",
+        "individual": "Benutzer",
         "participant": "Teilnehmer",
         "staff": "Mitarbeiter"
       },
@@ -168,6 +169,7 @@
         "emailPlaceholder": "E-Mail-Adresse eingeben",
         "empty": "Keine Benutzer gefunden.",
         "hideGuests": "Gäste ausblenden ({{count}})",
+        "hideGuestsShort": "Gäste ({{count}})",
         "joined": "Beigetreten",
         "loadError": "Benutzer konnten nicht geladen werden",
         "makeAdmin": "Zum Admin machen",
@@ -858,6 +860,8 @@
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",
+    "nameProfane": "Dieser Name ist nicht erlaubt. Bitte wähle einen anderen Namen.",
+    "nameTooLong": "Der Name ist zu lang. Bitte wähle einen kürzeren Namen.",
     "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
     "titles": {
       "aiError": "KI-Fehler",

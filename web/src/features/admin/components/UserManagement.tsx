@@ -23,7 +23,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useResponsiveDesign } from '@/common/hooks/useResponsiveDesign';
-import { SortSelector, type SortOption } from '@/common/components/controls';
+import { SortSelector, type SortOption, ExpandableSearch } from '@/common/components/controls';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ObjUser, ObjRole } from '@/api/generated';
 
@@ -285,29 +285,53 @@ export function UserManagement() {
 
         {/* Filters */}
         <Card withBorder p="md">
-          <Group justify="space-between" wrap="wrap" gap="md">
-            <TextInput
-              placeholder={t('admin.users.searchPlaceholder')}
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              style={{ flex: 1, minWidth: 200 }}
-            />
-            <Group gap="md" wrap="wrap">
-              <Switch
-                label={t('admin.users.hideGuests', { count: guestCount })}
-                checked={hideGuests}
-                onChange={(e) => setHideGuests(e.currentTarget.checked)}
+          {isMobile ? (
+            <Group gap="sm" wrap="nowrap">
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('admin.users.searchPlaceholder')}
               />
-              <SortSelector
-                options={sortOptions}
-                value={sortValue}
-                onChange={setSortValue}
-                label={t('admin.users.sort.label')}
-                width={200}
-              />
+              <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+                <Switch
+                  label={t('admin.users.hideGuestsShort', { count: guestCount })}
+                  checked={hideGuests}
+                  onChange={(e) => setHideGuests(e.currentTarget.checked)}
+                  size="xs"
+                />
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
+                  onChange={setSortValue}
+                  label={t('admin.users.sort.label')}
+                />
+              </Group>
             </Group>
-          </Group>
+          ) : (
+            <Group justify="space-between" wrap="wrap" gap="md">
+              <TextInput
+                placeholder={t('admin.users.searchPlaceholder')}
+                leftSection={<IconSearch size={16} />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
+                style={{ flex: 1, minWidth: 200 }}
+              />
+              <Group gap="md" wrap="wrap">
+                <Switch
+                  label={t('admin.users.hideGuests', { count: guestCount })}
+                  checked={hideGuests}
+                  onChange={(e) => setHideGuests(e.currentTarget.checked)}
+                />
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
+                  onChange={setSortValue}
+                  label={t('admin.users.sort.label')}
+                  width={200}
+                />
+              </Group>
+            </Group>
+          )}
         </Card>
 
         {/* Users Table/Cards */}
@@ -349,7 +373,7 @@ export function UserManagement() {
                           {canPromoteToAdmin(user) && (
                             <Tooltip label={t('admin.users.makeAdmin')}>
                               <ActionIcon
-                                variant="light"
+                                variant="subtle"
                                 color="green"
                                 size="sm"
                                 onClick={() => handlePromote(user)}
@@ -361,7 +385,7 @@ export function UserManagement() {
                           {canRemoveAdmin(user) && (
                             <Tooltip label={t('admin.users.removeAdmin')}>
                               <ActionIcon
-                                variant="light"
+                                variant="subtle"
                                 color="red"
                                 size="sm"
                                 onClick={() => handleRemoveAdmin(user)}
@@ -372,7 +396,7 @@ export function UserManagement() {
                           )}
                           <Tooltip label={t('admin.users.editEmail')}>
                             <ActionIcon
-                              variant="light"
+                              variant="subtle"
                               color="blue"
                               size="sm"
                               onClick={() => handleEdit(user)}
@@ -382,7 +406,7 @@ export function UserManagement() {
                           </Tooltip>
                           {!isCurrentUser(user.id) && (
                             <ActionIcon
-                              variant="light"
+                              variant="subtle"
                               color="red"
                               size="sm"
                               onClick={() => handleDelete(user)}

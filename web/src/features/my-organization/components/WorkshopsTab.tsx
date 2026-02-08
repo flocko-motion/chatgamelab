@@ -66,6 +66,7 @@ import {
   type SortOption,
 } from "@/common/components/controls";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
+import { PlusIconButton } from "@/common/components/buttons";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
@@ -390,35 +391,62 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
           {t("myOrganization.workshops.subtitle")}
         </Text>
 
-        {/* Controls row: Create button on left, Search, Hide inactive, Sort on right */}
-        <Group justify="space-between" wrap="wrap" gap="sm">
-          <ActionButton
-            onClick={openCreateModal}
-            leftSection={<IconPlus size={18} />}
-            size="md"
-          >
-            {t("myOrganization.workshops.create")}
-          </ActionButton>
-          <Group gap="sm">
+        {/* Controls row */}
+        {isMobile ? (
+          <Group gap="sm" wrap="nowrap">
+            <Tooltip label={t("myOrganization.workshops.create")} withArrow>
+              <PlusIconButton onClick={openCreateModal} variant="filled" aria-label={t("myOrganization.workshops.create")} />
+            </Tooltip>
             <ExpandableSearch
               value={searchQuery}
               onChange={setSearchQuery}
               placeholder={t("search")}
             />
-            <Checkbox
-              label={t("myOrganization.workshops.hideInactive")}
-              checked={hideInactive}
-              onChange={(e) => setHideInactive(e.currentTarget.checked)}
-              size="sm"
-            />
-            <SortSelector
-              options={sortOptions}
-              value={sortValue}
-              onChange={setSortValue}
-              label={t("myOrganization.workshops.sort.label")}
-            />
+            <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+              <Checkbox
+                label={t("myOrganization.workshops.hideInactive")}
+                checked={hideInactive}
+                onChange={(e) => setHideInactive(e.currentTarget.checked)}
+                size="xs"
+              />
+              <SortSelector
+                options={sortOptions}
+                value={sortValue}
+                onChange={setSortValue}
+                label={t("myOrganization.workshops.sort.label")}
+              />
+            </Group>
           </Group>
-        </Group>
+        ) : (
+          <Group justify="space-between" wrap="wrap" gap="sm">
+            <ActionButton
+              onClick={openCreateModal}
+              leftSection={<IconPlus size={18} />}
+              size="md"
+            >
+              {t("myOrganization.workshops.create")}
+            </ActionButton>
+            <Group gap="sm">
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t("search")}
+              />
+              <Checkbox
+                label={t("myOrganization.workshops.hideInactive")}
+                checked={hideInactive}
+                onChange={(e) => setHideInactive(e.currentTarget.checked)}
+                size="sm"
+              />
+              <SortSelector
+                options={sortOptions}
+                value={sortValue}
+                onChange={setSortValue}
+                label={t("myOrganization.workshops.sort.label")}
+              />
+            </Group>
+          </Group>
+        )}
 
         {/* Workshops list */}
         {workshops && workshops.length > 0 ? (
@@ -447,120 +475,241 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                   withBorder
                 >
                   {/* Workshop header - always visible */}
-                  <Group justify="space-between" wrap="nowrap" gap="sm">
-                    <Group gap="sm" style={{ flex: 1, minWidth: 0 }}>
-                      <ActionIcon
-                        variant="subtle"
-                        onClick={toggleExpand}
-                        size="sm"
-                      >
-                        {isExpanded ? (
-                          <IconChevronDown size={16} />
-                        ) : (
-                          <IconChevronRight size={16} />
-                        )}
-                      </ActionIcon>
-                      <Stack gap={2} style={{ minWidth: 0 }}>
-                        <Text size="sm" fw={500} truncate>
-                          {workshop.name}
-                        </Text>
-                        <Group gap="xs">
-                          <Badge
-                            color={workshop.active ? "green" : "gray"}
-                            variant="light"
-                            size="xs"
-                          >
-                            {workshop.active
-                              ? t("myOrganization.workshops.active")
-                              : t("myOrganization.workshops.inactive")}
-                          </Badge>
-                          <Group gap={4}>
-                            <IconUser size={12} color="gray" />
-                            <Text size="xs" c="dimmed">
-                              {workshop.participants?.length || 0}
-                            </Text>
-                          </Group>
-                          {createdDate && (
+                  {isMobile ? (
+                    <Stack gap="xs">
+                      {/* Row 1: name + info */}
+                      <Group gap="sm" wrap="nowrap">
+                        <ActionIcon
+                          variant="subtle"
+                          onClick={toggleExpand}
+                          size="sm"
+                        >
+                          {isExpanded ? (
+                            <IconChevronDown size={16} />
+                          ) : (
+                            <IconChevronRight size={16} />
+                          )}
+                        </ActionIcon>
+                        <Stack gap={2} style={{ minWidth: 0 }}>
+                          <Text size="sm" fw={500} truncate>
+                            {workshop.name}
+                          </Text>
+                          <Group gap="xs">
+                            <Badge
+                              color={workshop.active ? "green" : "gray"}
+                              variant="light"
+                              size="xs"
+                            >
+                              {workshop.active
+                                ? t("myOrganization.workshops.active")
+                                : t("myOrganization.workshops.inactive")}
+                            </Badge>
                             <Group gap={4}>
-                              <IconCalendar size={12} color="gray" />
+                              <IconUser size={12} color="gray" />
                               <Text size="xs" c="dimmed">
-                                {createdDate}
+                                {workshop.participants?.length || 0}
                               </Text>
                             </Group>
-                          )}
-                        </Group>
-                      </Stack>
-                    </Group>
-                    <Group gap="xs" wrap="nowrap">
-                      {/* Enter Workshop Mode button - only for active workshops */}
-                      {workshop.active && (
-                        <ActionButton
-                          onClick={() => handleEnterWorkshop(workshop)}
-                          leftSection={<IconLogin size={16} />}
-                          size="sm"
-                          color="violet"
-                        >
-                          {t("myOrganization.workshops.enterWorkshop")}
-                        </ActionButton>
-                      )}
-                      {(() => {
-                        const existingInvite = workshop.invites?.find(
-                          (inv) => inv.status === "pending" && inv.inviteToken,
-                        );
-                        return (
+                            {createdDate && (
+                              <Group gap={4}>
+                                <IconCalendar size={12} color="gray" />
+                                <Text size="xs" c="dimmed">
+                                  {createdDate}
+                                </Text>
+                              </Group>
+                            )}
+                          </Group>
+                        </Stack>
+                      </Group>
+                      {/* Row 2: Enter Workshop left, action icons right */}
+                      <Group justify="space-between" wrap="nowrap">
+                        {workshop.active ? (
+                          <ActionButton
+                            onClick={() => handleEnterWorkshop(workshop)}
+                            leftSection={<IconLogin size={14} />}
+                            size="compact-sm"
+                            color="accent"
+                          >
+                            {t("myOrganization.workshops.enterWorkshop")}
+                          </ActionButton>
+                        ) : (
+                          <div />
+                        )}
+                        <Group gap="xs" wrap="nowrap">
+                          {(() => {
+                            const existingInvite = workshop.invites?.find(
+                              (inv) => inv.status === "pending" && inv.inviteToken,
+                            );
+                            return (
+                              <Tooltip
+                                label={
+                                  existingInvite
+                                    ? t("myOrganization.workshops.viewInviteLink")
+                                    : t("myOrganization.workshops.createInviteLink")
+                                }
+                              >
+                                <ActionIcon
+                                  variant="subtle"
+                                  color={existingInvite ? "blue" : "gray"}
+                                  onClick={() =>
+                                    existingInvite
+                                      ? handleViewInviteLink(workshop)
+                                      : handleCreateAndViewInvite(workshop)
+                                  }
+                                  loading={createInvite.isPending}
+                                >
+                                  <IconLink size={16} />
+                                </ActionIcon>
+                              </Tooltip>
+                            );
+                          })()}
                           <Tooltip
                             label={
-                              existingInvite
-                                ? t("myOrganization.workshops.viewInviteLink")
-                                : t("myOrganization.workshops.createInviteLink")
+                              workshop.active
+                                ? t("myOrganization.workshops.deactivate")
+                                : t("myOrganization.workshops.activate")
                             }
                           >
                             <ActionIcon
                               variant="subtle"
-                              color={existingInvite ? "blue" : "gray"}
-                              onClick={() =>
-                                existingInvite
-                                  ? handleViewInviteLink(workshop)
-                                  : handleCreateAndViewInvite(workshop)
-                              }
-                              loading={createInvite.isPending}
+                              color={workshop.active ? "orange" : "green"}
+                              onClick={() => handleToggleActive(workshop)}
+                              loading={updateWorkshop.isPending}
                             >
-                              <IconLink size={16} />
+                              {workshop.active ? (
+                                <IconPlayerPause size={16} />
+                              ) : (
+                                <IconPlayerPlay size={16} />
+                              )}
                             </ActionIcon>
                           </Tooltip>
-                        );
-                      })()}
-                      <Tooltip
-                        label={
-                          workshop.active
-                            ? t("myOrganization.workshops.deactivate")
-                            : t("myOrganization.workshops.activate")
-                        }
-                      >
+                          <Tooltip label={t("delete")}>
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              onClick={() => handleOpenDeleteModal(workshop)}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Group>
+                    </Stack>
+                  ) : (
+                    <Group justify="space-between" wrap="nowrap" gap="sm">
+                      <Group gap="sm" style={{ flex: 1, minWidth: 0 }}>
                         <ActionIcon
                           variant="subtle"
-                          color={workshop.active ? "orange" : "green"}
-                          onClick={() => handleToggleActive(workshop)}
-                          loading={updateWorkshop.isPending}
+                          onClick={toggleExpand}
+                          size="sm"
                         >
-                          {workshop.active ? (
-                            <IconPlayerPause size={16} />
+                          {isExpanded ? (
+                            <IconChevronDown size={16} />
                           ) : (
-                            <IconPlayerPlay size={16} />
+                            <IconChevronRight size={16} />
                           )}
                         </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label={t("delete")}>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() => handleOpenDeleteModal(workshop)}
+                        <Stack gap={2} style={{ minWidth: 0 }}>
+                          <Text size="sm" fw={500} truncate>
+                            {workshop.name}
+                          </Text>
+                          <Group gap="xs">
+                            <Badge
+                              color={workshop.active ? "green" : "gray"}
+                              variant="light"
+                              size="xs"
+                            >
+                              {workshop.active
+                                ? t("myOrganization.workshops.active")
+                                : t("myOrganization.workshops.inactive")}
+                            </Badge>
+                            <Group gap={4}>
+                              <IconUser size={12} color="gray" />
+                              <Text size="xs" c="dimmed">
+                                {workshop.participants?.length || 0}
+                              </Text>
+                            </Group>
+                            {createdDate && (
+                              <Group gap={4}>
+                                <IconCalendar size={12} color="gray" />
+                                <Text size="xs" c="dimmed">
+                                  {createdDate}
+                                </Text>
+                              </Group>
+                            )}
+                          </Group>
+                        </Stack>
+                      </Group>
+                      <Group gap="xs" wrap="nowrap">
+                        {workshop.active && (
+                          <ActionButton
+                            onClick={() => handleEnterWorkshop(workshop)}
+                            leftSection={<IconLogin size={16} />}
+                            size="sm"
+                            color="accent"
+                          >
+                            {t("myOrganization.workshops.enterWorkshop")}
+                          </ActionButton>
+                        )}
+                        {(() => {
+                          const existingInvite = workshop.invites?.find(
+                            (inv) => inv.status === "pending" && inv.inviteToken,
+                          );
+                          return (
+                            <Tooltip
+                              label={
+                                existingInvite
+                                  ? t("myOrganization.workshops.viewInviteLink")
+                                  : t("myOrganization.workshops.createInviteLink")
+                              }
+                            >
+                              <ActionIcon
+                                variant="subtle"
+                                color={existingInvite ? "blue" : "gray"}
+                                onClick={() =>
+                                  existingInvite
+                                    ? handleViewInviteLink(workshop)
+                                    : handleCreateAndViewInvite(workshop)
+                                }
+                                loading={createInvite.isPending}
+                              >
+                                <IconLink size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          );
+                        })()}
+                        <Tooltip
+                          label={
+                            workshop.active
+                              ? t("myOrganization.workshops.deactivate")
+                              : t("myOrganization.workshops.activate")
+                          }
                         >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Tooltip>
+                          <ActionIcon
+                            variant="subtle"
+                            color={workshop.active ? "orange" : "green"}
+                            onClick={() => handleToggleActive(workshop)}
+                            loading={updateWorkshop.isPending}
+                          >
+                            {workshop.active ? (
+                              <IconPlayerPause size={16} />
+                            ) : (
+                              <IconPlayerPlay size={16} />
+                            )}
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label={t("delete")}>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => handleOpenDeleteModal(workshop)}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
                     </Group>
-                  </Group>
+                  )}
 
                   {/* Expandable settings section */}
                   <Collapse in={isExpanded}>

@@ -98,13 +98,13 @@ export function WorkshopControls({
         <ActionButton onClick={onImportClick}>
           {t("games.importExport.importButton")}
         </ActionButton>
+      </Group>
+      <Group gap="sm" wrap="wrap">
         <ExpandableSearch
           value={searchQuery}
           onChange={onSearchChange}
           placeholder={t("search")}
         />
-      </Group>
-      <Group gap="sm" wrap="wrap">
         <FilterSegmentedControl
           value={gameFilter}
           onChange={(val) => onFilterChange(val as GameFilter)}

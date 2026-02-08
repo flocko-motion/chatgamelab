@@ -395,13 +395,13 @@ export function AllGames() {
               </Group>
             </Group>
           ) : (
-            <Group justify="space-between" wrap="wrap" gap="sm">
-              <ExpandableSearch
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder={t('search')}
-              />
+            <Group justify="flex-end" wrap="wrap" gap="sm">
               <Group gap="sm" wrap="wrap">
+                <ExpandableSearch
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder={t('search')}
+                />
                 <FilterSegmentedControl
                   value={filter}
                   onChange={setFilter}

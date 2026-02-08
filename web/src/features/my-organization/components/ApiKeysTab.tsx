@@ -15,6 +15,7 @@ import {
   Checkbox,
   TextInput,
   Button,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -27,7 +28,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useAuth } from "@/providers/AuthProvider";
-import { ActionButton } from "@/common/components/buttons";
+import { ActionButton, PlusIconButton } from "@/common/components/buttons";
+import { ExpandableSearch, FilterSegmentedControl } from "@/common/components/controls";
 import {
   useInstitutionApiKeys,
   useApiKeys,
@@ -158,37 +160,65 @@ export function ApiKeysTab({
       </Alert>
 
       {/* Actions and filters */}
-      <Group justify="space-between" wrap="wrap" gap="sm">
-        <ActionButton
-          leftSection={<IconPlus size={16} />}
-          onClick={openShareModal}
-          disabled={availableKeysToShare.length === 0}
-        >
-          {t("myOrganization.apiKeys.shareKey")}
-        </ActionButton>
+      {isMobile ? (
+        <Group gap="sm" wrap="nowrap">
+          <Tooltip label={t("myOrganization.apiKeys.shareKey")} withArrow>
+            <PlusIconButton
+              onClick={openShareModal}
+              variant="filled"
+              disabled={availableKeysToShare.length === 0}
+              aria-label={t("myOrganization.apiKeys.shareKey")}
+            />
+          </Tooltip>
+          <ExpandableSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder={t("myOrganization.apiKeys.searchPlaceholder")}
+          />
+          {hasKeys && platforms.length > 1 && (
+            <FilterSegmentedControl
+              value={platformFilter || 'all'}
+              onChange={(v) => setPlatformFilter(v === 'all' ? null : v)}
+              options={[
+                { value: 'all', label: t('myOrganization.apiKeys.allPlatforms', 'All') },
+                ...platforms.map((p) => ({ value: p, label: p })),
+              ]}
+            />
+          )}
+        </Group>
+      ) : (
+        <Group justify="space-between" wrap="wrap" gap="sm">
+          <ActionButton
+            leftSection={<IconPlus size={16} />}
+            onClick={openShareModal}
+            disabled={availableKeysToShare.length === 0}
+          >
+            {t("myOrganization.apiKeys.shareKey")}
+          </ActionButton>
 
-        {hasKeys && (
-          <Group gap="sm" wrap="wrap">
-            <TextInput
-              placeholder={t("myOrganization.apiKeys.searchPlaceholder")}
-              leftSection={<IconSearch size={16} />}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.currentTarget.value)}
-              size="sm"
-              style={{ minWidth: 200 }}
-            />
-            <Select
-              placeholder={t("myOrganization.apiKeys.filterByPlatform")}
-              data={platforms.map((p) => ({ value: p, label: p }))}
-              value={platformFilter}
-              onChange={setPlatformFilter}
-              clearable
-              size="sm"
-              style={{ minWidth: 150 }}
-            />
-          </Group>
-        )}
-      </Group>
+          {hasKeys && (
+            <Group gap="sm" wrap="wrap">
+              <TextInput
+                placeholder={t("myOrganization.apiKeys.searchPlaceholder")}
+                leftSection={<IconSearch size={16} />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.currentTarget.value)}
+                size="sm"
+                style={{ minWidth: 200 }}
+              />
+              <Select
+                placeholder={t("myOrganization.apiKeys.filterByPlatform")}
+                data={platforms.map((p) => ({ value: p, label: p }))}
+                value={platformFilter}
+                onChange={setPlatformFilter}
+                clearable
+                size="sm"
+                style={{ minWidth: 150 }}
+              />
+            </Group>
+          )}
+        </Group>
+      )}
 
       {/* Keys list */}
       {hasKeys ? (

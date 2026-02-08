@@ -850,6 +850,8 @@
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
+    "nameProfane": "Dieser Name ist nicht erlaubt. Bitte wähle einen anderen Namen.",
+    "nameTooLong": "Der Name ist zu lang. Bitte wähle einen kürzeren Namen.",
     "titles": {
       "aiError": "KI-Fehler",
       "authentication": "Authentifizierungsfehler",

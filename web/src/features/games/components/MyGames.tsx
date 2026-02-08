@@ -537,13 +537,13 @@ export function MyGames({ initialGameId, initialMode, onModalClose, autoImport }
                 <ActionButton onClick={handleImportClick}>
                   {t('games.importExport.importButton')}
                 </ActionButton>
+              </Group>
+              <Group gap="sm" wrap="wrap">
                 <ExpandableSearch
                   value={searchQuery}
                   onChange={setSearchQuery}
                   placeholder={t('search')}
                 />
-              </Group>
-              <Group gap="sm" wrap="wrap">
                 <FilterSegmentedControl
                   value={showFavorites}
                   onChange={setShowFavorites}

@@ -850,6 +850,8 @@
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
+    "nameProfane": "This name is not allowed. Please choose a different name.",
+    "nameTooLong": "The name is too long. Please choose a shorter name.",
     "titles": {
       "aiError": "AI Error",
       "authentication": "Authentication Error",

@@ -14,9 +14,12 @@ import {
   Alert,
   Badge,
   ActionIcon,
+  Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconAlertCircle, IconSend, IconEdit, IconTrash, IconSearch } from '@tabler/icons-react';
+import { ExpandableSearch } from '@/common/components/controls';
+import { PlusIconButton } from '@/common/components/buttons';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
@@ -173,21 +176,37 @@ export function OrganizationsManagement() {
       <Stack gap="lg">
         <Group justify="space-between" align="center">
           <Title order={2}>{t('admin.organizations.title')}</Title>
-          <Button leftSection={<IconPlus size={16} />} onClick={openCreateModal}>
-            {t('admin.organizations.create')}
-          </Button>
+          {isMobile ? (
+            <Tooltip label={t('admin.organizations.create')} withArrow>
+              <PlusIconButton onClick={openCreateModal} variant="filled" aria-label={t('admin.organizations.create')} />
+            </Tooltip>
+          ) : (
+            <Button leftSection={<IconPlus size={16} />} onClick={openCreateModal}>
+              {t('admin.organizations.create')}
+            </Button>
+          )}
         </Group>
 
         <Card withBorder pos="relative" p={isMobile ? 'sm' : undefined}>
           <LoadingOverlay visible={isLoading} />
           
-          <TextInput
-            placeholder={t('admin.organizations.searchPlaceholder')}
-            leftSection={<IconSearch size={16} />}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            mb="md"
-          />
+          {isMobile ? (
+            <Group gap="sm" wrap="nowrap" mb="md">
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('admin.organizations.searchPlaceholder')}
+              />
+            </Group>
+          ) : (
+            <TextInput
+              placeholder={t('admin.organizations.searchPlaceholder')}
+              leftSection={<IconSearch size={16} />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.currentTarget.value)}
+              mb="md"
+            />
+          )}
           
           {filteredOrganizations && filteredOrganizations.length > 0 ? (
             isMobile ? (
@@ -201,9 +220,9 @@ export function OrganizationsManagement() {
                           {org.members?.length || 0} {t('admin.organizations.membersCount')}
                         </Badge>
                       </Group>
-                      <Group gap="xs">
+                      <Group gap="xs" justify="flex-end">
                         <ActionIcon
-                          variant="light"
+                          variant="subtle"
                           color="blue"
                           size="sm"
                           onClick={() => handleInvite(org)}
@@ -212,7 +231,7 @@ export function OrganizationsManagement() {
                           <IconSend size={14} />
                         </ActionIcon>
                         <ActionIcon
-                          variant="light"
+                          variant="subtle"
                           color="gray"
                           size="sm"
                           onClick={() => handleEdit(org)}
@@ -221,7 +240,7 @@ export function OrganizationsManagement() {
                           <IconEdit size={14} />
                         </ActionIcon>
                         <ActionIcon
-                          variant="light"
+                          variant="subtle"
                           color="red"
                           size="sm"
                           onClick={() => handleDelete(org)}
