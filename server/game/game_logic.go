@@ -10,6 +10,7 @@ import (
 	"cgl/db"
 	"cgl/functional"
 	"cgl/game/ai"
+	"cgl/game/imagecache"
 	"cgl/game/stream"
 	"cgl/game/templates"
 	"cgl/log"
@@ -441,4 +442,58 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	return response, nil
+}
+
+// RetryImageGeneration re-triggers image generation for a message that has an imagePrompt
+// but no persisted image. Called when loading a session and detecting a missing image.
+// Runs asynchronously — the frontend will poll /messages/{id}/status to track progress.
+// Only retries if images are enabled on the session and the message is not already generating.
+func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMessage) {
+	if session == nil || message == nil {
+		return
+	}
+	if session.ApiKey == nil {
+		log.Debug("skip image retry: no API key", "message_id", message.ID)
+		return
+	}
+	if message.ImagePrompt == nil || *message.ImagePrompt == "" {
+		return
+	}
+	if session.ImageStyle == templates.ImageStyleNoImage {
+		log.Debug("skip image retry: images disabled", "session_id", session.ID)
+		return
+	}
+
+	// Check if already generating (in cache)
+	cache := imagecache.Get()
+	status := cache.GetStatus(message.ID)
+	if status.Exists {
+		log.Debug("skip image retry: already in cache", "message_id", message.ID, "complete", status.IsComplete)
+		return
+	}
+
+	log.Info("retrying image generation for message", "session_id", session.ID, "message_id", message.ID)
+
+	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	if err != nil {
+		log.Warn("skip image retry: failed to get AI platform", "error", err)
+		return
+	}
+
+	// Create a stream for the image generation (no SSE consumer — just for the ImageSaver)
+	responseStream := stream.Get().Create(context.Background(), message, func(messageID uuid.UUID, imageData []byte) error {
+		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
+	})
+
+	go func() {
+		if err := platform.GenerateImage(context.Background(), session, message, responseStream); err != nil {
+			log.Warn("image retry failed", "session_id", session.ID, "message_id", message.ID, "error", err)
+			errorCode := extractAIErrorCode(err)
+			cache.SetError(message.ID, errorCode, err.Error())
+		} else {
+			log.Info("image retry completed", "session_id", session.ID, "message_id", message.ID, "image_size", len(message.Image))
+		}
+		// Clean up the stream (no SSE consumer will drain it)
+		stream.Get().Remove(message.ID)
+	}()
 }

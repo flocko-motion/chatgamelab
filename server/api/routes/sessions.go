@@ -114,6 +114,20 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Check for messages with imagePrompt but no persisted image — retry generation once.
+	// Only for non-streaming (text-complete) messages where the image was lost or never generated.
+	for i := range resp.Messages {
+		msg := &resp.Messages[i]
+		if msg.ImagePrompt != nil && *msg.ImagePrompt != "" && len(msg.Image) == 0 && !msg.Stream {
+			cache := imagecache.Get()
+			status := cache.GetStatus(msg.ID)
+			if !status.Exists {
+				log.Debug("detected missing image, triggering retry", "session_id", sessionID, "message_id", msg.ID)
+				game.RetryImageGeneration(session, msg)
+			}
+		}
+	}
+
 	httpx.WriteJSON(w, http.StatusOK, resp)
 }
 
