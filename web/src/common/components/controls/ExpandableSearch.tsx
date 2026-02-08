@@ -46,7 +46,8 @@ export function ExpandableSearch({ value, onChange, placeholder }: ExpandableSea
           value={value}
           onChange={(e) => onChange(e.currentTarget.value)}
           placeholder={placeholder}
-          size="xs"
+          size="sm"
+          styles={{ input: { fontSize: 16 } }}
           style={{ flex: 1, minWidth: 0 }}
           onBlur={handleBlur}
           rightSection={
