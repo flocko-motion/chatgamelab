@@ -204,7 +204,7 @@
       }
     },
     "allGames": {
-      "continue": "Weiterspielen",
+      "continue": "Spielen",
       "copyConfirm": {
         "confirm": "Spiel kopieren",
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
@@ -336,9 +336,11 @@
       "header": {
         "back": "Zurück zu deinen anderen laufenden Spielen",
         "debug": "Debug",
-        "decreaseFont": "Schrift verkleinern",
+        "decreaseFont": "Kleiner",
         "disableAnimations": "Animationen deaktivieren",
-        "increaseFont": "Schrift vergrößern",
+        "fontSize": "Schriftgröße",
+        "increaseFont": "Größer",
+        "resetFont": "Zurücksetzen",
         "settings": "Einstellungen",
         "useNeutralTheme": "Neutrales Design verwenden"
       },
@@ -545,7 +547,7 @@
     "loading": "Laden...",
     "logout": "Abmelden",
     "myGames": {
-      "continue": "Weiterspielen",
+      "continue": "Spielen",
       "copyConfirm": {
         "confirm": "Spiel kopieren",
         "message": "Dies erstellt eine Kopie von \"{{name}}\" in deinen Spielen.",
@@ -747,7 +749,7 @@
     "save": "Speichern",
     "search": "Suchen",
     "sessions": {
-      "continueGame": "Weiterspielen",
+      "continueGame": "Spielen",
       "deleteConfirm": {
         "message": "Möchtest du diese Sitzung für \"{{game}}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
         "title": "Sitzung löschen"

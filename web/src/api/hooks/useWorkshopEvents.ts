@@ -62,12 +62,6 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
   backendUserIdRef.current = backendUser?.id;
 
   useEffect(() => {
-    uiLogger.debug("useWorkshopEvents effect", {
-      workshopId,
-      enabled,
-      isParticipant,
-    });
-
     if (!workshopId || !enabled) {
       return;
     }

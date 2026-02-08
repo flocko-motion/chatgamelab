@@ -204,7 +204,7 @@
       }
     },
     "allGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -541,7 +541,7 @@
     "loading": "Loading...",
     "logout": "Logout",
     "myGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",

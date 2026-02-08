@@ -204,7 +204,7 @@
       }
     },
     "allGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
@@ -336,9 +336,11 @@
       "header": {
         "back": "Back to games",
         "debug": "Debug",
-        "decreaseFont": "Decrease font size",
+        "decreaseFont": "Smaller",
         "disableAnimations": "Disable animations",
-        "increaseFont": "Increase font size",
+        "fontSize": "Font size",
+        "increaseFont": "Larger",
+        "resetFont": "Reset",
         "settings": "Settings",
         "useNeutralTheme": "Use neutral theme"
       },
@@ -545,7 +547,7 @@
     "loading": "Loading...",
     "logout": "Logout",
     "myGames": {
-      "continue": "Continue",
+      "continue": "Play",
       "copyConfirm": {
         "confirm": "Copy Game",
         "message": "This will create a copy of \"{{name}}\" in your games.",
