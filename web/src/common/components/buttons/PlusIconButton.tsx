@@ -30,7 +30,7 @@ export const PlusIconButton = forwardRef<HTMLButtonElement, PlusIconButtonProps>
       <ActionIcon
         ref={ref}
         variant={variant}
-        color="violet"
+        color="accent"
         size={size}
         radius="md"
         onClick={onClick}

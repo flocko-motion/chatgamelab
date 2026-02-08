@@ -14,8 +14,8 @@ import {
 import { useDisclosure, useMediaQuery, useDebouncedValue } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from '@tanstack/react-router';
-import { IconAlertCircle, IconMoodEmpty, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled } from '@tabler/icons-react';
-import { ActionButton, TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton } from '@components/buttons';
+import { IconAlertCircle, IconMoodEmpty, IconCopy, IconDownload, IconWorld, IconLock, IconStar, IconStarFilled, IconFileImport } from '@tabler/icons-react';
+import { ActionButton, TextButton, PlayGameButton, EditIconButton, DeleteIconButton, GenericIconButton, PlusIconButton } from '@components/buttons';
 import { SortSelector, type SortOption, FilterSegmentedControl, ExpandableSearch } from '@components/controls';
 import { PageTitle } from '@components/typography';
 import { DataTable, DataTableEmptyState, type DataTableColumn } from '@components/DataTable';
@@ -494,43 +494,75 @@ export function MyGames({ initialGameId, initialMode, onModalClose, autoImport }
             style={{ display: 'none' }}
           />
 
-          <Group justify="space-between" wrap="wrap" gap="sm">
-            <Group gap="sm">
-              <ActionButton
-                onClick={openCreateModal}
-              >
-                {t('games.createButton')}
-              </ActionButton>
-              <ActionButton
-                onClick={handleImportClick}
-              >
-                {t('games.importExport.importButton')}
-              </ActionButton>
+          {isMobile ? (
+            <Group gap="sm" wrap="nowrap">
+              <Tooltip label={t('games.createButton')} withArrow>
+                <PlusIconButton onClick={openCreateModal} variant="filled" aria-label={t('games.createButton')} />
+              </Tooltip>
+              <Tooltip label={t('games.importExport.importButton')} withArrow>
+                <GenericIconButton
+                  icon={<IconFileImport size={16} />}
+                  onClick={handleImportClick}
+                  aria-label={t('games.importExport.importButton')}
+                />
+              </Tooltip>
               <ExpandableSearch
                 value={searchQuery}
                 onChange={setSearchQuery}
                 placeholder={t('search')}
               />
-            </Group>
-            <Group gap="sm" wrap="wrap">
-              <FilterSegmentedControl
-                value={showFavorites}
-                onChange={setShowFavorites}
-                options={[
-                  { value: 'all', label: t('myGames.filters.all') },
-                  { value: 'favorites', label: t('myGames.filters.favorites') },
-                ]}
-              />
-              {(rawGames?.length ?? 0) > 0 && (
-                <SortSelector 
-                  options={sortOptions} 
-                  value={sortValue} 
+              <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+                <FilterSegmentedControl
+                  value={showFavorites}
+                  onChange={setShowFavorites}
+                  options={[
+                    { value: 'all', label: t('myGames.filters.all') },
+                    { value: 'favorites', label: t('myGames.filters.favorites') },
+                  ]}
+                />
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
                   onChange={setSortValue}
                   label={t('games.sort.label')}
                 />
-              )}
+              </Group>
             </Group>
-          </Group>
+          ) : (
+            <Group justify="space-between" wrap="wrap" gap="sm">
+              <Group gap="sm">
+                <ActionButton onClick={openCreateModal}>
+                  {t('games.createButton')}
+                </ActionButton>
+                <ActionButton onClick={handleImportClick}>
+                  {t('games.importExport.importButton')}
+                </ActionButton>
+                <ExpandableSearch
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder={t('search')}
+                />
+              </Group>
+              <Group gap="sm" wrap="wrap">
+                <FilterSegmentedControl
+                  value={showFavorites}
+                  onChange={setShowFavorites}
+                  options={[
+                    { value: 'all', label: t('myGames.filters.all') },
+                    { value: 'favorites', label: t('myGames.filters.favorites') },
+                  ]}
+                />
+                {(rawGames?.length ?? 0) > 0 && (
+                  <SortSelector
+                    options={sortOptions}
+                    value={sortValue}
+                    onChange={setSortValue}
+                    label={t('games.sort.label')}
+                  />
+                )}
+              </Group>
+            </Group>
+          )}
         </Stack>
 
         {/* Scrollable content area */}

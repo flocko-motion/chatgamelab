@@ -373,26 +373,49 @@ export function AllGames() {
         <Stack gap="lg" style={{ flexShrink: 0 }}>
           <PageTitle>{t('allGames.title')}</PageTitle>
 
-          <Group justify="space-between" wrap="wrap" gap="sm">
-            <ExpandableSearch
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder={t('search')}
-            />
-            <Group gap="sm" wrap="wrap">
-              <FilterSegmentedControl
-                value={filter}
-                onChange={setFilter}
-                options={filterOptions}
+          {isMobile ? (
+            <Group gap="sm" wrap="nowrap">
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('search')}
               />
-              <SortSelector
-                options={sortOptions}
-                value={sortValue}
-                onChange={setSortValue}
-                label={t('games.sort.label')}
-              />
+              <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
+                <FilterSegmentedControl
+                  value={filter}
+                  onChange={setFilter}
+                  options={filterOptions}
+                />
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
+                  onChange={setSortValue}
+                  label={t('games.sort.label')}
+                />
+              </Group>
             </Group>
-          </Group>
+          ) : (
+            <Group justify="space-between" wrap="wrap" gap="sm">
+              <ExpandableSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={t('search')}
+              />
+              <Group gap="sm" wrap="wrap">
+                <FilterSegmentedControl
+                  value={filter}
+                  onChange={setFilter}
+                  options={filterOptions}
+                />
+                <SortSelector
+                  options={sortOptions}
+                  value={sortValue}
+                  onChange={setSortValue}
+                  label={t('games.sort.label')}
+                />
+              </Group>
+            </Group>
+          )}
         </Stack>
 
         {/* Scrollable content area */}

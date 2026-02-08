@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { TextInput, ActionIcon, Transition } from '@mantine/core';
+import { TextInput, ActionIcon } from '@mantine/core';
 import { IconSearch, IconX } from '@tabler/icons-react';
 
 export interface ExpandableSearchProps {
@@ -32,32 +32,38 @@ export function ExpandableSearch({ value, onChange, placeholder }: ExpandableSea
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-      <Transition mounted={expanded} transition="scale-x" duration={150}>
-        {(styles) => (
-          <TextInput
-            ref={inputRef}
-            value={value}
-            onChange={(e) => onChange(e.currentTarget.value)}
-            placeholder={placeholder}
-            size="xs"
-            style={{ ...styles, width: 150 }}
-            onBlur={handleBlur}
-            rightSection={
-              value ? (
-                <ActionIcon size="xs" variant="subtle" onClick={() => onChange('')}>
-                  <IconX size={14} />
-                </ActionIcon>
-              ) : null
-            }
-          />
-        )}
-      </Transition>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: 4,
+      flex: 1,
+      minWidth: 0,
+    }}>
+      {expanded && (
+        <TextInput
+          ref={inputRef}
+          value={value}
+          onChange={(e) => onChange(e.currentTarget.value)}
+          placeholder={placeholder}
+          size="xs"
+          style={{ flex: 1, minWidth: 0 }}
+          onBlur={handleBlur}
+          rightSection={
+            value ? (
+              <ActionIcon size="xs" variant="subtle" onClick={() => onChange('')}>
+                <IconX size={14} />
+              </ActionIcon>
+            ) : null
+          }
+        />
+      )}
       <ActionIcon
         variant={expanded || value ? 'light' : 'subtle'}
-        color={value ? 'violet' : 'gray'}
+        color={value ? 'accent' : 'gray'}
         onClick={handleToggle}
         aria-label={placeholder || 'Search'}
+        style={{ flexShrink: 0 }}
       >
         <IconSearch size={18} />
       </ActionIcon>
