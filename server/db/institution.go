@@ -82,6 +82,9 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 	if result.FreeUseApiKeyShareID.Valid {
 		institution.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
 	}
+	if result.FreeUseAiQualityTier.Valid {
+		institution.FreeUseAiQualityTier = &result.FreeUseAiQualityTier.String
+	}
 
 	// Load members if user has permission (admin, head, or staff of this institution)
 	if err := canAccessInstitutionMembers(ctx, userID, OpRead, id, nil); err == nil {
@@ -230,6 +233,17 @@ func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, ins
 	return queries().SetInstitutionFreeUseApiKeyShare(ctx, db.SetInstitutionFreeUseApiKeyShareParams{
 		ID:                   institutionID,
 		FreeUseApiKeyShareID: uuidPtrToNullUUID(shareID),
+	})
+}
+
+// UpdateInstitutionFreeUseAiQualityTier sets or clears the AI quality tier for the institution free-use key.
+func UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, tier *string) error {
+	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
+		return err
+	}
+	return queries().UpdateInstitutionFreeUseAiQualityTier(ctx, db.UpdateInstitutionFreeUseAiQualityTierParams{
+		ID:                   institutionID,
+		FreeUseAiQualityTier: stringPtrToNullString(tier),
 	})
 }
 

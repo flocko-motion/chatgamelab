@@ -31,16 +31,16 @@ type Meta struct {
 }
 
 type User struct {
-	ID                  uuid.UUID     `json:"id"`
-	Meta                Meta          `json:"meta"`
-	Name                string        `json:"name"`
-	Email               *string       `json:"email"`
-	DeletedAt           *time.Time    `json:"deletedAt"`
-	Auth0Id             *string       `json:"auth0Id"`
-	Role                *UserRole     `json:"role"`
-	ApiKeys             []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
-	ShowAiModelSelector bool          `json:"showAiModelSelector"`
-	Language            string        `json:"language"` // ISO 639-1 language code (e.g., "en", "de", "fr")
+	ID            uuid.UUID     `json:"id"`
+	Meta          Meta          `json:"meta"`
+	Name          string        `json:"name"`
+	Email         *string       `json:"email"`
+	DeletedAt     *time.Time    `json:"deletedAt"`
+	Auth0Id       *string       `json:"auth0Id"`
+	Role          *UserRole     `json:"role"`
+	ApiKeys       []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
+	AiQualityTier *string       `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
+	Language      string        `json:"language"`                // ISO 639-1 language code (e.g., "en", "de", "fr")
 }
 
 // UserStats contains aggregated statistics for a user
@@ -57,6 +57,7 @@ type Institution struct {
 	Name                 string              `json:"name"`
 	Members              []InstitutionMember `json:"members,omitempty"`
 	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
+	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
 }
 
 type InstitutionMember struct {
@@ -67,11 +68,12 @@ type InstitutionMember struct {
 }
 
 type SystemSettings struct {
-	ID              uuid.UUID  `json:"id"`
-	CreatedAt       *time.Time `json:"createdAt"`
-	ModifiedAt      *time.Time `json:"modifiedAt"`
-	DefaultAiModel  string     `json:"defaultAiModel"`
-	FreeUseApiKeyID *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
+	ID                   uuid.UUID  `json:"id"`
+	CreatedAt            *time.Time `json:"createdAt"`
+	ModifiedAt           *time.Time `json:"modifiedAt"`
+	DefaultAiQualityTier string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
+	FreeUseAiQualityTier *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
+	FreeUseApiKeyID      *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 }
 
 type Role string
@@ -114,8 +116,7 @@ type Workshop struct {
 	Participants         []WorkshopParticipant `json:"participants,omitempty"`
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 	// Workshop settings (configured by staff/heads)
-	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
-	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }

@@ -23,8 +23,8 @@ CREATE TABLE app_user (
     -- Default API key share to use when creating sessions without specifying one.
     -- References api_key_share instead of api_key to ensure the user has access to the key.
     default_api_key_share_id uuid NULL,
-    -- User preference: show AI model selector when creating sessions
-    show_ai_model_selector boolean NOT NULL DEFAULT false,
+    -- User's preferred AI quality tier for their own default key (high/medium/low, NULL = server default)
+    ai_quality_tier text NULL,
     -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
     language text NOT NULL DEFAULT 'en'
 );
@@ -41,7 +41,9 @@ CREATE TABLE institution (
     name            text NOT NULL UNIQUE,
     deleted_at      timestamptz NULL,
     -- Free-use API key share for institution members (any member can use this key to play)
-    free_use_api_key_share_id uuid NULL REFERENCES api_key_share(id)
+    free_use_api_key_share_id uuid NULL REFERENCES api_key_share(id),
+    -- AI quality tier for the institution free-use key (high/medium/low, NULL = server default)
+    free_use_ai_quality_tier text NULL
 );
 
 -- Workshop
@@ -63,8 +65,7 @@ CREATE TABLE workshop (
     -- Default API key share for workshop participants (set by staff/heads)
     default_api_key_share_id uuid NULL,
     -- Workshop settings (configured by staff/heads)
-    use_specific_ai_model text NULL,  -- If set, use this AI model instead of system default
-    show_ai_model_selector boolean NOT NULL DEFAULT false,  -- If true, participants can select AI model
+    ai_quality_tier text NULL,  -- AI quality tier for workshop key (high/medium/low, NULL = server default)
     show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
 
@@ -347,8 +348,10 @@ CREATE TABLE system_settings (
     id uuid PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
     created_at timestamptz NOT NULL DEFAULT now(),
     modified_at timestamptz NOT NULL DEFAULT now(),
-    -- Default AI model to use when user hasn't configured one
-    default_ai_model text NOT NULL,
+    -- Server-wide default AI quality tier (high/medium/low), the ultimate fallback
+    default_ai_quality_tier text NOT NULL DEFAULT 'medium',
+    -- AI quality tier for the system free-use key (NULL = use default_ai_quality_tier)
+    free_use_ai_quality_tier text NULL,
     -- Schema version for tracking applied migrations
     schema_version integer NOT NULL DEFAULT 0,
     -- Free-use API key for all users (admin-configured, references api_key directly)
@@ -360,7 +363,7 @@ CREATE TABLE system_settings (
 );
 
 -- Insert initial system_settings row
-INSERT INTO system_settings (id, default_ai_model, schema_version)
+INSERT INTO system_settings (id, default_ai_quality_tier, schema_version)
 VALUES ('00000000-0000-0000-0000-000000000001'::uuid, 'medium', 0)
 ON CONFLICT (id) DO NOTHING;
 

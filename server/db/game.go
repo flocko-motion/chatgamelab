@@ -868,44 +868,62 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		return nil, obj.ErrForbidden("not the owner of this session")
 	}
 
-	// Resolve the API key using the same priority chain as session creation:
-	// 1. Workshop key → 2. Institution free-use key → 3. System free-use key → 4. User default key
+	// Resolve the API key and AI quality tier using the same priority chain as session creation:
+	// 1. Workshop key + tier → 2. Institution free-use key + tier → 3. System free-use key + tier → 4. User default key + tier
 	var share *obj.ApiKeyShare
+	var sourceTier *string
 
 	user, userErr := GetUserByID(ctx, userID)
+
+	// Load system settings for default tier fallback
+	settings, _ := GetSystemSettings(ctx)
+	defaultTier := obj.AiModelBalanced
+	if settings != nil && settings.DefaultAiQualityTier != "" {
+		defaultTier = settings.DefaultAiQualityTier
+	}
 
 	// 1. Check for workshop key
 	if userErr == nil && user.Role != nil && user.Role.Workshop != nil {
 		workshop, wsErr := GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
 		if wsErr == nil && workshop.DefaultApiKeyShareID != nil {
 			share, _ = GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
+			if share != nil {
+				sourceTier = workshop.AiQualityTier
+			}
 		}
 	}
 
 	// 2. Check institution free-use key
 	if share == nil && userErr == nil && user.Role != nil && user.Role.Institution != nil && user.Role.Institution.FreeUseApiKeyShareID != nil {
 		share, _ = GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
-	}
-
-	// 3. Check system free-use key (stored as api_key_id, not a share)
-	if share == nil {
-		settings, settingsErr := GetSystemSettings(ctx)
-		if settingsErr == nil && settings.FreeUseApiKeyID != nil {
-			apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
-			if keyErr == nil {
-				share = &obj.ApiKeyShare{
-					ApiKeyID: apiKey.ID,
-					ApiKey:   apiKey,
-				}
+		if share != nil {
+			institution, instErr := GetInstitutionByID(ctx, userID, user.Role.Institution.ID)
+			if instErr == nil {
+				sourceTier = institution.FreeUseAiQualityTier
 			}
 		}
 	}
 
+	// 3. Check system free-use key (stored as api_key_id, not a share)
+	if share == nil && settings != nil && settings.FreeUseApiKeyID != nil {
+		apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
+		if keyErr == nil {
+			share = &obj.ApiKeyShare{
+				ApiKeyID: apiKey.ID,
+				ApiKey:   apiKey,
+			}
+			sourceTier = settings.FreeUseAiQualityTier
+		}
+	}
+
 	// 4. Check user's default API key (is_default=true on api_key table)
-	if share == nil {
+	if share == nil && userErr == nil {
 		defaultKey, _ := GetDefaultApiKeyForUser(ctx, userID)
 		if defaultKey != nil {
 			share, _ = GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
+			if share != nil {
+				sourceTier = user.AiQualityTier
+			}
 		}
 	}
 
@@ -913,10 +931,10 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available. Please configure an API key in your settings."}
 	}
 
-	// Keep the existing model, just update the key
-	aiModel := session.AiModel
-	if aiModel == "" {
-		aiModel = obj.AiModelBalanced
+	// Resolve the AI model tier: source tier → system default → hardcoded fallback
+	aiModel := defaultTier
+	if sourceTier != nil && *sourceTier != "" {
+		aiModel = *sourceTier
 	}
 
 	// Update the session
@@ -1479,4 +1497,11 @@ func uuidPtrToNullUUID(id *uuid.UUID) uuid.NullUUID {
 		return uuid.NullUUID{}
 	}
 	return uuid.NullUUID{UUID: *id, Valid: true}
+}
+
+func stringPtrToNullString(s *string) sql.NullString {
+	if s == nil {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: *s, Valid: true}
 }

@@ -19,10 +19,13 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	}
 
 	settings := &obj.SystemSettings{
-		ID:             row.ID,
-		CreatedAt:      &row.CreatedAt,
-		ModifiedAt:     &row.ModifiedAt,
-		DefaultAiModel: row.DefaultAiModel,
+		ID:                   row.ID,
+		CreatedAt:            &row.CreatedAt,
+		ModifiedAt:           &row.ModifiedAt,
+		DefaultAiQualityTier: row.DefaultAiQualityTier,
+	}
+	if row.FreeUseAiQualityTier.Valid {
+		settings.FreeUseAiQualityTier = &row.FreeUseAiQualityTier.String
 	}
 	if row.FreeUseApiKeyID.Valid {
 		settings.FreeUseApiKeyID = &row.FreeUseApiKeyID.UUID
@@ -30,9 +33,14 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	return settings, nil
 }
 
-// UpdateDefaultAiModel updates the default AI model setting
-func UpdateDefaultAiModel(ctx context.Context, model string) error {
-	return queries().UpdateDefaultAiModel(ctx, model)
+// UpdateDefaultAiQualityTier updates the server-wide default AI quality tier
+func UpdateDefaultAiQualityTier(ctx context.Context, tier string) error {
+	return queries().UpdateDefaultAiQualityTier(ctx, tier)
+}
+
+// UpdateFreeUseAiQualityTier sets or clears the AI quality tier for the system free-use key
+func UpdateFreeUseAiQualityTier(ctx context.Context, tier *string) error {
+	return queries().UpdateFreeUseAiQualityTier(ctx, stringPtrToNullString(tier))
 }
 
 // UpdateSystemSettingsFreeUseApiKey sets or clears the free-use API key (admin only).

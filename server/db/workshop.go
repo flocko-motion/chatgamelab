@@ -208,9 +208,9 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		defaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
 	}
 
-	var useSpecificAiModel *string
-	if result.UseSpecificAiModel.Valid {
-		useSpecificAiModel = &result.UseSpecificAiModel.String
+	var aiQualityTier *string
+	if result.AiQualityTier.Valid {
+		aiQualityTier = &result.AiQualityTier.String
 	}
 
 	return &obj.Workshop{
@@ -222,8 +222,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		DefaultApiKeyShareID:       defaultApiKeyShareID,
 		Participants:               participants,
 		Invites:                    invites,
-		UseSpecificAiModel:         useSpecificAiModel,
-		ShowAiModelSelector:        result.ShowAiModelSelector,
+		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		Meta: obj.Meta{
@@ -436,9 +435,9 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
 			}
 
-			var useSpecificAiModel *string
-			if r.UseSpecificAiModel.Valid {
-				useSpecificAiModel = &r.UseSpecificAiModel.String
+			var aiQualityTier *string
+			if r.AiQualityTier.Valid {
+				aiQualityTier = &r.AiQualityTier.String
 			}
 
 			workshop := obj.Workshop{
@@ -448,8 +447,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				Active:                     r.Active,
 				Public:                     r.Public,
 				DefaultApiKeyShareID:       defaultApiKeyShareID,
-				UseSpecificAiModel:         useSpecificAiModel,
-				ShowAiModelSelector:        r.ShowAiModelSelector,
+				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				Meta: obj.Meta{
@@ -489,9 +487,9 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				defaultApiKeyShareID = &r.DefaultApiKeyShareID.UUID
 			}
 
-			var useSpecificAiModel *string
-			if r.UseSpecificAiModel.Valid {
-				useSpecificAiModel = &r.UseSpecificAiModel.String
+			var aiQualityTier *string
+			if r.AiQualityTier.Valid {
+				aiQualityTier = &r.AiQualityTier.String
 			}
 
 			workshop := obj.Workshop{
@@ -501,8 +499,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				Active:                     r.Active,
 				Public:                     r.Public,
 				DefaultApiKeyShareID:       defaultApiKeyShareID,
-				UseSpecificAiModel:         useSpecificAiModel,
-				ShowAiModelSelector:        r.ShowAiModelSelector,
+				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				Meta: obj.Meta{
@@ -532,8 +529,7 @@ type UpdateWorkshopParams struct {
 	Name                       string
 	Active                     bool
 	Public                     bool
-	UseSpecificAiModel         *string
-	ShowAiModelSelector        bool
+	AiQualityTier              *string
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 }
@@ -572,12 +568,11 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		Active:                     params.Active,
 		Public:                     params.Public,
 		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
-		ShowAiModelSelector:        params.ShowAiModelSelector,
 		ShowPublicGames:            params.ShowPublicGames,
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
 	}
-	if params.UseSpecificAiModel != nil {
-		arg.UseSpecificAiModel = sql.NullString{String: *params.UseSpecificAiModel, Valid: true}
+	if params.AiQualityTier != nil {
+		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
 	}
 
 	result, err := queries().UpdateWorkshop(ctx, arg)
@@ -590,9 +585,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		updateDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
 	}
 
-	var useSpecificAiModel *string
-	if result.UseSpecificAiModel.Valid {
-		useSpecificAiModel = &result.UseSpecificAiModel.String
+	var aiQualityTier *string
+	if result.AiQualityTier.Valid {
+		aiQualityTier = &result.AiQualityTier.String
 	}
 
 	return &obj.Workshop{
@@ -602,8 +597,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		Active:                     result.Active,
 		Public:                     result.Public,
 		DefaultApiKeyShareID:       updateDefaultApiKeyShareID,
-		UseSpecificAiModel:         useSpecificAiModel,
-		ShowAiModelSelector:        result.ShowAiModelSelector,
+		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		Meta: obj.Meta{

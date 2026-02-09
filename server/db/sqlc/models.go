@@ -52,7 +52,7 @@ type AppUser struct {
 	Auth0ID              sql.NullString
 	ParticipantToken     sql.NullString
 	DefaultApiKeyShareID uuid.NullUUID
-	ShowAiModelSelector  bool
+	AiQualityTier        sql.NullString
 	Language             string
 }
 
@@ -139,15 +139,17 @@ type Institution struct {
 	Name                 string
 	DeletedAt            sql.NullTime
 	FreeUseApiKeyShareID uuid.NullUUID
+	FreeUseAiQualityTier sql.NullString
 }
 
 type SystemSetting struct {
-	ID              uuid.UUID
-	CreatedAt       time.Time
-	ModifiedAt      time.Time
-	DefaultAiModel  string
-	SchemaVersion   int32
-	FreeUseApiKeyID uuid.NullUUID
+	ID                   uuid.UUID
+	CreatedAt            time.Time
+	ModifiedAt           time.Time
+	DefaultAiQualityTier string
+	FreeUseAiQualityTier sql.NullString
+	SchemaVersion        int32
+	FreeUseApiKeyID      uuid.NullUUID
 }
 
 type UserFavouriteGame struct {
@@ -206,8 +208,7 @@ type Workshop struct {
 	Public                     bool
 	DeletedAt                  sql.NullTime
 	DefaultApiKeyShareID       uuid.NullUUID
-	UseSpecificAiModel         sql.NullString
-	ShowAiModelSelector        bool
+	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 }

@@ -117,12 +117,12 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 	return queries().UpdateUser(ctx, arg)
 }
 
-func UpdateUserShowAiModelSelector(ctx context.Context, id uuid.UUID, showAiModelSelector bool) error {
-	arg := db.UpdateUserShowAiModelSelectorParams{
-		ID:                  id,
-		ShowAiModelSelector: showAiModelSelector,
+func UpdateUserAiQualityTier(ctx context.Context, id uuid.UUID, tier *string) error {
+	arg := db.UpdateUserAiQualityTierParams{
+		ID:            id,
+		AiQualityTier: stringPtrToNullString(tier),
 	}
-	return queries().UpdateUserShowAiModelSelector(ctx, arg)
+	return queries().UpdateUserAiQualityTier(ctx, arg)
 }
 
 func UpdateUserLanguage(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.UUID, language string) error {
@@ -202,11 +202,12 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			ModifiedBy: res.ModifiedBy,
 			ModifiedAt: &res.CreatedAt,
 		},
-		Name:      res.Name,
-		Email:     sqlNullStringToMaybeString(res.Email),
-		DeletedAt: &res.DeletedAt.Time,
-		Auth0Id:   sqlNullStringToMaybeString(res.Auth0ID),
-		Language:  res.Language,
+		Name:          res.Name,
+		Email:         sqlNullStringToMaybeString(res.Email),
+		DeletedAt:     &res.DeletedAt.Time,
+		Auth0Id:       sqlNullStringToMaybeString(res.Auth0ID),
+		AiQualityTier: sqlNullStringToMaybeString(res.AiQualityTier),
+		Language:      res.Language,
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)
@@ -226,31 +227,29 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 		// For participants: use workshop_id (their assigned workshop)
 		// For head/staff/individual: use active_workshop_id (workshop mode) or workshop_id as fallback
 		if res.WorkshopID.Valid {
-			var useSpecificAiModel *string
-			if res.WorkshopUseSpecificAiModel.Valid {
-				useSpecificAiModel = &res.WorkshopUseSpecificAiModel.String
+			var aiQualityTier *string
+			if res.WorkshopAiQualityTier.Valid {
+				aiQualityTier = &res.WorkshopAiQualityTier.String
 			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.WorkshopID.UUID,
 				Name:                       res.WorkshopName.String,
 				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
-				ShowAiModelSelector:        res.WorkshopShowAiModelSelector.Bool,
-				UseSpecificAiModel:         useSpecificAiModel,
+				AiQualityTier:              aiQualityTier,
 			}
 		} else if res.ActiveWorkshopID.Valid {
 			// Head/staff/individual in workshop mode - use active workshop
-			var useSpecificAiModel *string
-			if res.ActiveWorkshopUseSpecificAiModel.Valid {
-				useSpecificAiModel = &res.ActiveWorkshopUseSpecificAiModel.String
+			var aiQualityTier *string
+			if res.ActiveWorkshopAiQualityTier.Valid {
+				aiQualityTier = &res.ActiveWorkshopAiQualityTier.String
 			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.ActiveWorkshopID.UUID,
 				Name:                       res.ActiveWorkshopName.String,
 				ShowPublicGames:            res.ActiveWorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
-				ShowAiModelSelector:        res.ActiveWorkshopShowAiModelSelector.Bool,
-				UseSpecificAiModel:         useSpecificAiModel,
+				AiQualityTier:              aiQualityTier,
 			}
 		}
 	}

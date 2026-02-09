@@ -85,6 +85,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.ai_quality_tier,
   u.language,
   r.id           AS role_id,
   r.role         AS role,
@@ -94,14 +95,12 @@ SELECT
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
-  w.show_ai_model_selector AS workshop_show_ai_model_selector,
-  w.use_specific_ai_model AS workshop_use_specific_ai_model,
+  w.ai_quality_tier AS workshop_ai_quality_tier,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
-  aw.show_ai_model_selector AS active_workshop_show_ai_model_selector,
-  aw.use_specific_ai_model AS active_workshop_use_specific_ai_model
+  aw.ai_quality_tier AS active_workshop_ai_quality_tier
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -173,9 +172,9 @@ UPDATE app_user SET
   modified_at = now()
 WHERE id = $1;
 
--- name: UpdateUserShowAiModelSelector :exec
+-- name: UpdateUserAiQualityTier :exec
 UPDATE app_user SET
-  show_ai_model_selector = $2,
+  ai_quality_tier = $2,
   modified_at = now()
 WHERE id = $1;
 
