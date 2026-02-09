@@ -4,6 +4,7 @@ import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type {
   ObjApiKeyShare,
+  ObjInstitution,
   HttpxErrorResponse,
   RoutesCreateApiKeyRequest,
   RoutesShareRequest,
@@ -133,14 +134,14 @@ export function useShareApiKeyWithInstitution() {
     {
       shareId: string;
       institutionId: string;
-      allowPublicSponsoredPlays?: boolean;
+      allowPublicGameSponsoring?: boolean;
     }
   >({
-    mutationFn: ({ shareId, institutionId, allowPublicSponsoredPlays }) =>
+    mutationFn: ({ shareId, institutionId, allowPublicGameSponsoring }) =>
       api.apikeys
         .sharesCreate(shareId, {
           institutionId,
-          allowPublicSponsoredPlays: allowPublicSponsoredPlays ?? false,
+          allowPublicGameSponsoring: allowPublicGameSponsoring ?? false,
         })
         .then((response) => response.data),
     onSuccess: (_data, variables) => {
@@ -168,6 +169,34 @@ export function useRemoveInstitutionApiKeyShare() {
         .then((response) => response.data),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+      });
+    },
+    onError: handleApiError,
+  });
+}
+
+// Institution Free-Use Key hook
+export function useSetInstitutionFreeUseKey() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjInstitution,
+    HttpxErrorResponse,
+    { institutionId: string; shareId: string | null }
+  >({
+    mutationFn: ({ institutionId, shareId }) =>
+      api.institutions
+        .freeUseKeyPartialUpdate(institutionId, {
+          shareId: shareId ?? undefined,
+        })
+        .then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institution(variables.institutionId),
+      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.institutionApiKeys(variables.institutionId),
       });

@@ -19,6 +19,7 @@ export {
   useInstitutionApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
+  useSetInstitutionFreeUseKey,
   useAvailableKeysForGame,
 } from "./useApiKeys";
 
@@ -65,6 +66,7 @@ export {
   useRoles,
   useSystemSettings,
   useUpdateSystemSettings,
+  useSetSystemFreeUseKey,
   useVersion,
 } from "./useSystem";
 
