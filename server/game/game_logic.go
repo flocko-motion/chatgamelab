@@ -48,24 +48,26 @@ func extractAIErrorCode(err error) string {
 }
 
 // CreateSession creates a new game session for a user.
-// The API key is resolved server-side using the following priority:
-//  1. Workshop key (if user is a workshop participant)
-//  2. Institution free-use key (if user's institution has one configured)
-//  3. System free-use key (if an admin has configured a global free-use key)
-//  4. User's default API key share
+// The API key and AI quality tier are resolved server-side using the following priority:
+//  1. Workshop key + workshop.aiQualityTier
+//  2. Institution free-use key + institution.freeUseAiQualityTier
+//  3. System free-use key + system_settings.freeUseAiQualityTier
+//  4. User's default API key + user.aiQualityTier
 //
 // If no key can be resolved, returns ErrCodeNoApiKey.
-// If model is empty, the platform's default model will be used.
+// If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
 // Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, aiModel string) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	log.Debug("creating session", "user_id", userID, "game_id", gameID, "ai_model", aiModel)
+func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
+	log.Debug("creating session", "user_id", userID, "game_id", gameID)
 
-	// Resolve API key using priority chain
-	share, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
+	// Resolve API key and AI quality tier using priority chain
+	resolved, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
 	if httpErr != nil {
 		return nil, nil, httpErr
 	}
-	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID)
+	share := resolved.Share
+	aiModel := resolved.AiQualityTier
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID, "ai_quality_tier", aiModel)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
