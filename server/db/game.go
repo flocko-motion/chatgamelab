@@ -360,27 +360,27 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	game.ID = uuid.New()
 
 	arg := db.CreateGameParams{
-		ID:                       game.ID,
-		CreatedBy:                uuid.NullUUID{UUID: userID, Valid: true},
-		CreatedAt:                now,
-		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
-		ModifiedAt:               now,
-		Name:                     game.Name,
-		Description:              game.Description,
-		Icon:                     game.Icon,
-		WorkshopID:               uuidPtrToNullUUID(game.WorkshopID),
-		Public:                   game.Public,
-		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
-		PrivateShareHash:         sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil},
-		PrivateSponsoredApiKeyID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyID),
-		SystemMessageScenario:    game.SystemMessageScenario,
-		SystemMessageGameStart:   game.SystemMessageGameStart,
-		ImageStyle:               game.ImageStyle,
-		Css:                      game.CSS,
-		StatusFields:             game.StatusFields,
-		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
-		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
-		FirstImage:               game.FirstImage,
+		ID:                            game.ID,
+		CreatedBy:                     uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:                     now,
+		ModifiedBy:                    uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:                    now,
+		Name:                          game.Name,
+		Description:                   game.Description,
+		Icon:                          game.Icon,
+		WorkshopID:                    uuidPtrToNullUUID(game.WorkshopID),
+		Public:                        game.Public,
+		PublicSponsoredApiKeyShareID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyShareID),
+		PrivateShareHash:              sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil},
+		PrivateSponsoredApiKeyShareID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyShareID),
+		SystemMessageScenario:         game.SystemMessageScenario,
+		SystemMessageGameStart:        game.SystemMessageGameStart,
+		ImageStyle:                    game.ImageStyle,
+		Css:                           game.CSS,
+		StatusFields:                  game.StatusFields,
+		FirstMessage:                  sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
+		FirstStatus:                   sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
+		FirstImage:                    game.FirstImage,
 	}
 
 	// Note: Private share hash is not generated at creation
@@ -425,27 +425,32 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		}
 	}
 
+	// If game is being set to private, clear public sponsorship
+	if !game.Public {
+		game.PublicSponsoredApiKeyShareID = nil
+	}
+
 	arg := db.UpdateGameParams{
-		ID:                       game.ID,
-		CreatedBy:                existingGameRaw.CreatedBy,
-		CreatedAt:                existingGameRaw.CreatedAt,
-		ModifiedBy:               uuid.NullUUID{UUID: userID, Valid: true},
-		ModifiedAt:               now,
-		Name:                     game.Name,
-		Description:              game.Description,
-		Icon:                     game.Icon,
-		Public:                   game.Public,
-		PublicSponsoredApiKeyID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyID),
-		PrivateShareHash:         privateShareHash,
-		PrivateSponsoredApiKeyID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyID),
-		SystemMessageScenario:    game.SystemMessageScenario,
-		SystemMessageGameStart:   game.SystemMessageGameStart,
-		ImageStyle:               game.ImageStyle,
-		Css:                      game.CSS,
-		StatusFields:             game.StatusFields,
-		FirstMessage:             sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
-		FirstStatus:              sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
-		FirstImage:               game.FirstImage,
+		ID:                            game.ID,
+		CreatedBy:                     existingGameRaw.CreatedBy,
+		CreatedAt:                     existingGameRaw.CreatedAt,
+		ModifiedBy:                    uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:                    now,
+		Name:                          game.Name,
+		Description:                   game.Description,
+		Icon:                          game.Icon,
+		Public:                        game.Public,
+		PublicSponsoredApiKeyShareID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyShareID),
+		PrivateShareHash:              privateShareHash,
+		PrivateSponsoredApiKeyShareID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyShareID),
+		SystemMessageScenario:         game.SystemMessageScenario,
+		SystemMessageGameStart:        game.SystemMessageGameStart,
+		ImageStyle:                    game.ImageStyle,
+		Css:                           game.CSS,
+		StatusFields:                  game.StatusFields,
+		FirstMessage:                  sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
+		FirstStatus:                   sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
+		FirstImage:                    game.FirstImage,
 	}
 
 	_, err = queries().UpdateGame(ctx, arg)
@@ -1362,6 +1367,118 @@ func GetGameSessionsByGameID(ctx context.Context, userID uuid.UUID, gameID uuid.
 	return sessions, nil
 }
 
+// SetGamePublicSponsorship sets a public sponsorship on a game.
+// Creates a game-scoped API key share and links it to the game.
+// The user must own the API key and have permission to update the game.
+func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyShareID uuid.UUID) error {
+	// Load game and check update permission
+	game, err := loadGameByID(ctx, gameID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGame(ctx, userID, OpUpdate, game, nil); err != nil {
+		return err
+	}
+
+	// Verify the share exists and the user owns the underlying key
+	share, err := queries().GetApiKeyShareByID(ctx, apiKeyShareID)
+	if err != nil {
+		return obj.ErrNotFound("api key share not found")
+	}
+	if share.KeyOwnerID != userID {
+		return obj.ErrForbidden("only the key owner can sponsor a game")
+	}
+
+	// Verify the key has been proven to work (last_usage_success must be true)
+	if share.KeyLastUsageSuccess.Valid && !share.KeyLastUsageSuccess.Bool {
+		return obj.ErrValidation("api key must be proven to work before sponsoring")
+	}
+
+	// Verify the share allows public game sponsoring
+	if !share.AllowPublicGameSponsoring {
+		return obj.ErrValidation("api key share must allow public game sponsoring")
+	}
+
+	// Create a game-scoped share for this sponsorship
+	sponsorShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID, true)
+	if err != nil {
+		return obj.ErrServerError("failed to create sponsorship share")
+	}
+
+	// Set the sponsor share on the game
+	if err := queries().SetGamePublicSponsor(ctx, db.SetGamePublicSponsorParams{
+		ID:                           gameID,
+		PublicSponsoredApiKeyShareID: uuid.NullUUID{UUID: *sponsorShareID, Valid: true},
+	}); err != nil {
+		return obj.ErrServerError("failed to set game sponsorship")
+	}
+
+	return nil
+}
+
+// ClearGamePublicSponsorship removes the public sponsorship from a game.
+// Also deletes the game-scoped API key share.
+// Allowed by: game owner (OpUpdate) OR the API key owner who sponsors the game.
+func ClearGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
+	game, err := loadGameByID(ctx, gameID)
+	if err != nil {
+		return err
+	}
+
+	if game.PublicSponsoredApiKeyShareID == nil {
+		return nil // Already no sponsorship
+	}
+
+	// Allow if user can update the game (game owner / higher role)
+	accessErr := canAccessGame(ctx, userID, OpUpdate, game, nil)
+	if accessErr != nil {
+		// Also allow if user owns the API key behind the sponsorship
+		share, shareErr := queries().GetApiKeyShareByID(ctx, *game.PublicSponsoredApiKeyShareID)
+		if shareErr != nil {
+			return accessErr
+		}
+		key, keyErr := queries().GetApiKeyByID(ctx, share.ApiKeyID)
+		if keyErr != nil || key.UserID != userID {
+			return accessErr
+		}
+	}
+
+	// Clear the sponsor on the game
+	if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
+		return obj.ErrServerError("failed to clear game sponsorship")
+	}
+
+	// Delete game-scoped shares for this game
+	if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
+		log.Debug("failed to delete game-scoped shares", "game_id", gameID, "error", err)
+	}
+
+	return nil
+}
+
+// ClearGamePublicSponsorshipByShareID removes sponsorship if the given share is the sponsor.
+// Used when auto-removing sponsorship on key failure.
+func ClearGamePublicSponsorshipByShareID(ctx context.Context, gameID uuid.UUID, shareID uuid.UUID) error {
+	game, err := loadGameByID(ctx, gameID)
+	if err != nil {
+		return err
+	}
+	if game.PublicSponsoredApiKeyShareID == nil || *game.PublicSponsoredApiKeyShareID != shareID {
+		return nil // Not the sponsor
+	}
+
+	if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
+		return err
+	}
+
+	// Delete game-scoped shares for this game
+	if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
+		log.Debug("failed to delete game-scoped shares", "game_id", gameID, "error", err)
+	}
+
+	return nil
+}
+
 // dbGameToObj converts a sqlc Game to obj.Game, including tags
 func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 	// Get tags for this game
@@ -1393,25 +1510,25 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 			ModifiedBy: g.ModifiedBy,
 			ModifiedAt: &g.ModifiedAt,
 		},
-		Name:                     g.Name,
-		Description:              g.Description,
-		Icon:                     g.Icon,
-		Public:                   g.Public,
-		PublicSponsoredApiKeyID:  nullUUIDToPtr(g.PublicSponsoredApiKeyID),
-		PrivateShareHash:         nullStringToPtr(g.PrivateShareHash),
-		PrivateSponsoredApiKeyID: nullUUIDToPtr(g.PrivateSponsoredApiKeyID),
-		SystemMessageScenario:    g.SystemMessageScenario,
-		SystemMessageGameStart:   g.SystemMessageGameStart,
-		ImageStyle:               g.ImageStyle,
-		CSS:                      g.Css,
-		StatusFields:             g.StatusFields,
-		FirstMessage:             nullStringToPtr(g.FirstMessage),
-		FirstStatus:              nullStringToPtr(g.FirstStatus),
-		FirstImage:               g.FirstImage,
-		Tags:                     tags,
-		PlayCount:                int(g.PlayCount),
-		CloneCount:               int(g.CloneCount),
-		OriginallyCreatedBy:      nullUUIDToPtr(g.OriginallyCreatedBy),
+		Name:                          g.Name,
+		Description:                   g.Description,
+		Icon:                          g.Icon,
+		Public:                        g.Public,
+		PublicSponsoredApiKeyShareID:  nullUUIDToPtr(g.PublicSponsoredApiKeyShareID),
+		PrivateShareHash:              nullStringToPtr(g.PrivateShareHash),
+		PrivateSponsoredApiKeyShareID: nullUUIDToPtr(g.PrivateSponsoredApiKeyShareID),
+		SystemMessageScenario:         g.SystemMessageScenario,
+		SystemMessageGameStart:        g.SystemMessageGameStart,
+		ImageStyle:                    g.ImageStyle,
+		CSS:                           g.Css,
+		StatusFields:                  g.StatusFields,
+		FirstMessage:                  nullStringToPtr(g.FirstMessage),
+		FirstStatus:                   nullStringToPtr(g.FirstStatus),
+		FirstImage:                    g.FirstImage,
+		Tags:                          tags,
+		PlayCount:                     int(g.PlayCount),
+		CloneCount:                    int(g.CloneCount),
+		OriginallyCreatedBy:           nullUUIDToPtr(g.OriginallyCreatedBy),
 	}
 
 	// Populate creator info from CreatedBy

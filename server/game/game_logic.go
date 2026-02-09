@@ -50,9 +50,10 @@ func extractAIErrorCode(err error) string {
 // CreateSession creates a new game session for a user.
 // The API key and AI quality tier are resolved server-side using the following priority:
 //  1. Workshop key + workshop.aiQualityTier
-//  2. Institution free-use key + institution.freeUseAiQualityTier
-//  3. System free-use key + system_settings.freeUseAiQualityTier
-//  4. User's default API key + user.aiQualityTier
+//  2. Sponsored game key (public sponsor on the game)
+//  3. Institution free-use key + institution.freeUseAiQualityTier
+//  4. System free-use key + system_settings.freeUseAiQualityTier
+//  5. User's default API key + user.aiQualityTier
 //
 // If no key can be resolved, returns ErrCodeNoApiKey.
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
@@ -318,6 +319,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			if clearErr := db.ClearGameSessionApiKey(ctx, session.ID); clearErr != nil {
 				log.Warn("failed to clear session API key", "session_id", session.ID, "error", clearErr)
 			}
+
+			// Auto-remove sponsorship if the failing key was a sponsored game key
+			if removed := autoRemoveSponsorshipOnKeyFailure(ctx, session.GameID, session.ApiKey.ID); removed {
+				return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeSponsoredApiKeyNotWorking, fmt.Sprintf("Sponsored API key is not working: %v", err))
+			}
 		}
 
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
@@ -404,9 +410,33 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	return response, nil
 }
 
+// autoRemoveSponsorshipOnKeyFailure checks if the failing API key is the game's public sponsor
+// and auto-removes the sponsorship if so. Returns true if sponsorship was removed.
+func autoRemoveSponsorshipOnKeyFailure(ctx context.Context, gameID uuid.UUID, apiKeyID uuid.UUID) bool {
+	game, err := db.GetGameByID(ctx, nil, gameID)
+	if err != nil || game.PublicSponsoredApiKeyShareID == nil {
+		return false
+	}
+
+	// Check if the sponsored share uses the failing API key
+	share, err := db.GetApiKeyShareByID(ctx, uuid.Nil, *game.PublicSponsoredApiKeyShareID)
+	if err != nil || share.ApiKey == nil || share.ApiKey.ID != apiKeyID {
+		return false
+	}
+
+	// The failing key is the sponsor - remove the sponsorship
+	if clearErr := db.ClearGamePublicSponsorshipByShareID(ctx, gameID, *game.PublicSponsoredApiKeyShareID); clearErr != nil {
+		log.Warn("failed to auto-remove game sponsorship", "game_id", gameID, "share_id", *game.PublicSponsoredApiKeyShareID, "error", clearErr)
+		return false
+	}
+
+	log.Info("auto-removed game sponsorship due to key failure", "game_id", gameID, "api_key_id", apiKeyID)
+	return true
+}
+
 // RetryImageGeneration re-triggers image generation for a message that has an imagePrompt
 // but no persisted image. Called when loading a session and detecting a missing image.
-// Runs asynchronously — the frontend will poll /messages/{id}/status to track progress.
+// Runs asynchronously - the frontend will poll /messages/{id}/status to track progress.
 // Only retries if images are enabled on the session and the message is not already generating.
 func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMessage) {
 	if session == nil || message == nil {
@@ -440,7 +470,7 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 		return
 	}
 
-	// Create a stream for the image generation (no SSE consumer — just for the ImageSaver)
+	// Create a stream for the image generation (no SSE consumer - just for the ImageSaver)
 	responseStream := stream.Get().Create(context.Background(), message, func(messageID uuid.UUID, imageData []byte) error {
 		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
 	})

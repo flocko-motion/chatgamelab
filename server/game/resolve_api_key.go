@@ -19,9 +19,10 @@ type resolvedKey struct {
 // resolveApiKeyForSession resolves the API key and AI quality tier for a new game session.
 // Priority chain:
 //  1. Workshop key + workshop.aiQualityTier
-//  2. Institution free-use key + institution.freeUseAiQualityTier
-//  3. System free-use key + system_settings.freeUseAiQualityTier
-//  4. User's default API key + user.aiQualityTier
+//  2. Sponsored game key (public sponsor on the game)
+//  3. Institution free-use key + institution.freeUseAiQualityTier
+//  4. System free-use key + system_settings.freeUseAiQualityTier
+//  5. User's default API key + user.aiQualityTier
 //
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
 func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
@@ -39,6 +40,10 @@ func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
 		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
+	}
+
+	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
+		return &resolvedKey{Share: share, AiQualityTier: defaultTier}, nil
 	}
 
 	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
@@ -84,6 +89,23 @@ func resolveWorkshopKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, 
 
 	log.Debug("resolved workshop key", "workshop_id", user.Role.Workshop.ID, "share_id", share.ID, "platform", share.ApiKey.Platform, "tier", workshop.AiQualityTier)
 	return share, workshop.AiQualityTier
+}
+
+// resolveSponsoredGameKey checks if the game has a public sponsored API key share.
+func resolveSponsoredGameKey(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) *obj.ApiKeyShare {
+	game, err := db.GetGameByID(ctx, nil, gameID)
+	if err != nil || game.PublicSponsoredApiKeyShareID == nil {
+		return nil
+	}
+
+	share, err := db.GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
+	if err != nil {
+		log.Warn("sponsored game key share not accessible", "game_id", gameID, "share_id", *game.PublicSponsoredApiKeyShareID, "error", err)
+		return nil
+	}
+
+	log.Debug("resolved sponsored game key", "game_id", gameID, "share_id", share.ID, "platform", share.ApiKey.Platform)
+	return share
 }
 
 // resolveInstitutionFreeUseKey checks if the user's institution has a free-use API key configured.

@@ -534,6 +534,26 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 		}
 	}
 
+	// If removing role (role == nil) or changing institution, clean up API key shares
+	// with the user's current institution before the role change
+	if role == nil || institutionID != nil {
+		targetUser, lookupErr := GetUserByID(ctx, targetUserID)
+		if lookupErr == nil && targetUser.Role != nil && targetUser.Role.Institution != nil {
+			oldInstID := targetUser.Role.Institution.ID
+			// Only clean up if actually leaving the institution (removing role or moving to different institution)
+			if role == nil || (institutionID != nil && *institutionID != oldInstID) {
+				_ = queries().DeleteApiKeySharesByOwnerForInstitution(ctx, db.DeleteApiKeySharesByOwnerForInstitutionParams{
+					UserID:        targetUserID,
+					InstitutionID: uuid.NullUUID{UUID: oldInstID, Valid: true},
+				})
+				_ = queries().DeleteApiKeySharesByOwnerForInstitutionWorkshops(ctx, db.DeleteApiKeySharesByOwnerForInstitutionWorkshopsParams{
+					UserID:        targetUserID,
+					InstitutionID: oldInstID,
+				})
+			}
+		}
+	}
+
 	// Use a transaction to ensure atomicity
 	tx, err := sqlDb.BeginTx(ctx, nil)
 	if err != nil {

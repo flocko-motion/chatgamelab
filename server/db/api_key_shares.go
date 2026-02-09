@@ -59,7 +59,7 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 	}
 
 	// Create a self-share so the user can access their own key via the shares API
-	selfShareID, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, true)
+	selfShareID, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, nil, true)
 	if err != nil {
 		return uuid.Nil, uuid.Nil, obj.ErrServerError("failed to create self-share")
 	}
@@ -126,7 +126,7 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 	}
 
 	// Clear game sponsored API key references before deleting the key
-	if err := queries().ClearGameSponsoredApiKey(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
+	if err := queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to clear game sponsored api key references")
 	}
 
@@ -276,11 +276,11 @@ func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID,
 		return nil, obj.ErrForbidden("only the owner can share this key")
 	}
 
-	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, allowPublic)
+	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, nil, allowPublic)
 }
 
 // createApiKeyShareInternal creates a share without ownership verification (for internal use)
-func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID *uuid.UUID, allowPublic bool) (*uuid.UUID, error) {
+func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID, gameID *uuid.UUID, allowPublic bool) (*uuid.UUID, error) {
 	now := time.Now()
 	arg := db.CreateApiKeyShareParams{
 		CreatedBy:                 uuid.NullUUID{UUID: userID, Valid: true},
@@ -291,6 +291,7 @@ func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID u
 		UserID:                    uuidPtrToNullUUID(targetUserID),
 		WorkshopID:                uuidPtrToNullUUID(workshopID),
 		InstitutionID:             uuidPtrToNullUUID(institutionID),
+		GameID:                    uuidPtrToNullUUID(gameID),
 		AllowPublicGameSponsoring: allowPublic,
 	}
 
@@ -375,6 +376,9 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 	if s.InstitutionID.Valid {
 		share.Institution = &obj.Institution{ID: s.InstitutionID.UUID}
 	}
+	if s.GameID.Valid {
+		share.Game = &obj.Game{ID: s.GameID.UUID}
+	}
 	return share, nil
 }
 
@@ -392,6 +396,10 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 
 	result := make([]obj.ApiKeyShare, 0, len(sharedKeys))
 	for _, s := range sharedKeys {
+		// Skip game sponsorship shares — they are shown via linkedShares in the detail view
+		if s.GameID.Valid {
+			continue
+		}
 		share := obj.ApiKeyShare{
 			ID: s.ID,
 			Meta: obj.Meta{
@@ -418,6 +426,86 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 	}
 
 	return result, nil
+}
+
+// GetApiKeysWithShares returns the user's API keys and all their linked shares (org, sponsorship, etc.)
+// This is the combined endpoint: apiKeys are deduplicated actual keys, shares are all non-self sharing relationships.
+func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, []obj.ApiKeyShare, error) {
+	if err := canAccessApiKey(ctx, userID, OpList, uuid.Nil, uuid.Nil, nil, nil, nil); err != nil {
+		return nil, nil, err
+	}
+
+	// Get all shares where user_id = userID (these are the user's personal key shares)
+	userShares, err := queries().GetApiKeySharesByUserID(ctx, uuid.NullUUID{UUID: userID, Valid: true})
+	if err != nil {
+		return nil, nil, obj.ErrServerError("failed to get api key shares")
+	}
+
+	// Deduplicate keys and collect owned key IDs
+	seenKeys := make(map[uuid.UUID]bool)
+	var apiKeys []obj.ApiKey
+	var ownedKeyIDs []uuid.UUID
+
+	for _, s := range userShares {
+		// Skip game sponsorship self-shares (these are shares, not keys)
+		if s.GameID.Valid {
+			continue
+		}
+		if !seenKeys[s.ApiKeyID] {
+			seenKeys[s.ApiKeyID] = true
+			apiKeys = append(apiKeys, obj.ApiKey{
+				ID:               s.ApiKeyID,
+				UserID:           s.OwnerID,
+				UserName:         s.OwnerName,
+				Name:             s.ApiKeyName,
+				Platform:         s.ApiKeyPlatform,
+				KeyShortened:     functional.ShortenLeft(s.ApiKeyKey, apiKeyShortenLength),
+				IsDefault:        s.ApiKeyIsDefault,
+				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
+			})
+			// Track keys owned by this user
+			if s.OwnerID == userID {
+				ownedKeyIDs = append(ownedKeyIDs, s.ApiKeyID)
+			}
+		}
+	}
+
+	// For each owned key, get all shares (self-shares, org shares, sponsorships, etc.)
+	var allShares []obj.ApiKeyShare
+	for _, keyID := range ownedKeyIDs {
+		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, keyID)
+		if err != nil {
+			continue
+		}
+		for _, s := range shares {
+			ls := obj.ApiKeyShare{
+				ID:       s.ID,
+				ApiKeyID: s.ApiKeyID,
+				Meta: obj.Meta{
+					CreatedBy:  s.CreatedBy,
+					CreatedAt:  &s.CreatedAt,
+					ModifiedBy: s.ModifiedBy,
+					ModifiedAt: &s.ModifiedAt,
+				},
+				AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
+			}
+			if s.UserID.Valid {
+				ls.User = &obj.User{ID: s.UserID.UUID, Name: s.UserName.String}
+			}
+			if s.WorkshopID.Valid {
+				ls.Workshop = &obj.Workshop{ID: s.WorkshopID.UUID, Name: s.WorkshopName.String}
+			}
+			if s.InstitutionID.Valid {
+				ls.Institution = &obj.Institution{ID: s.InstitutionID.UUID, Name: s.InstitutionName.String}
+			}
+			if s.GameID.Valid {
+				ls.Game = &obj.Game{ID: s.GameID.UUID, Name: s.GameName.String}
+			}
+			allShares = append(allShares, ls)
+		}
+	}
+
+	return apiKeys, allShares, nil
 }
 
 // GetApiKeySharesByInstitution returns all API key shares for an institution (heads/staff only)
@@ -535,58 +623,31 @@ func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.
 	defaultShareID, _ := GetUserDefaultApiKeyShare(ctx, userID)
 
 	// 1. Check for sponsor key (highest priority)
-	// Public sponsored key
-	if game.PublicSponsoredApiKeyID.Valid {
-		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, game.PublicSponsoredApiKeyID.UUID)
-		if err == nil && len(shares) > 0 {
-			// Find a share that allows public sponsored plays
-			for _, s := range shares {
-				if s.AllowPublicGameSponsoring {
-					key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
-					if err == nil {
-						result = append(result, obj.AvailableKey{
-							ShareID:   s.ID,
-							Name:      key.Name,
-							Platform:  key.Platform,
-							Source:    "sponsor",
-							IsDefault: false,
-						})
-					}
-					break
-				}
-			}
+	// Public sponsored key share
+	if game.PublicSponsoredApiKeyShareID.Valid {
+		share, err := queries().GetApiKeyShareByID(ctx, game.PublicSponsoredApiKeyShareID.UUID)
+		if err == nil {
+			result = append(result, obj.AvailableKey{
+				ShareID:   share.ID,
+				Name:      share.KeyName,
+				Platform:  share.KeyPlatform,
+				Source:    "sponsor",
+				IsDefault: false,
+			})
 		}
 	}
 
-	// Private sponsored key (if accessing via share link - this would need share context)
-	if game.PrivateSponsoredApiKeyID.Valid {
-		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, game.PrivateSponsoredApiKeyID.UUID)
-		if err == nil && len(shares) > 0 {
-			for _, s := range shares {
-				if s.AllowPublicGameSponsoring {
-					key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID)
-					if err == nil {
-						// Only add if not already added as public sponsor
-						alreadyAdded := false
-						for _, r := range result {
-							if r.ShareID == s.ID {
-								alreadyAdded = true
-								break
-							}
-						}
-						if !alreadyAdded {
-							result = append(result, obj.AvailableKey{
-								ShareID:   s.ID,
-								Name:      key.Name,
-								Platform:  key.Platform,
-								Source:    "sponsor",
-								IsDefault: false,
-							})
-						}
-					}
-					break
-				}
-			}
+	// Private sponsored key share (if accessing via share link)
+	if game.PrivateSponsoredApiKeyShareID.Valid && game.PrivateSponsoredApiKeyShareID != game.PublicSponsoredApiKeyShareID {
+		share, err := queries().GetApiKeyShareByID(ctx, game.PrivateSponsoredApiKeyShareID.UUID)
+		if err == nil {
+			result = append(result, obj.AvailableKey{
+				ShareID:   share.ID,
+				Name:      share.KeyName,
+				Platform:  share.KeyPlatform,
+				Source:    "sponsor",
+				IsDefault: false,
+			})
 		}
 	}
 
@@ -697,6 +758,9 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 	if share.InstitutionID.Valid {
 		result.Institution = &obj.Institution{ID: share.InstitutionID.UUID}
 	}
+	if share.GameID.Valid {
+		result.Game = &obj.Game{ID: share.GameID.UUID}
+	}
 
 	// If owner, get all linked shares for this API key
 	var linkedShares []obj.ApiKeyShare
@@ -726,6 +790,9 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			}
 			if s.InstitutionID.Valid {
 				ls.Institution = &obj.Institution{ID: s.InstitutionID.UUID, Name: s.InstitutionName.String}
+			}
+			if s.GameID.Valid {
+				ls.Game = &obj.Game{ID: s.GameID.UUID, Name: s.GameName.String}
 			}
 			linkedShares = append(linkedShares, ls)
 		}

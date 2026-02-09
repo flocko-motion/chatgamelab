@@ -145,11 +145,12 @@ type ApiKey struct {
 	LastUsageSuccess *bool     `json:"lastUsageSuccess"`
 }
 
-// ApiKeyShare represents how an API key is shared with a user, workshop, or institution.
+// ApiKeyShare represents how an API key is shared with a user, workshop, institution, or game.
 // The ApiKey contains owner info (UserID, UserName). The share target is one of:
 // - User (for direct user-to-user sharing)
 // - Workshop (for workshop-scoped sharing)
 // - Institution (for institution-wide sharing)
+// - Game (for game sponsoring)
 type ApiKeyShare struct {
 	ID                        uuid.UUID    `json:"id"`
 	Meta                      Meta         `json:"meta"`
@@ -158,6 +159,7 @@ type ApiKeyShare struct {
 	User                      *User        `json:"user,omitempty"`
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
+	Game                      *Game        `json:"game,omitempty"`
 	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 }
@@ -181,12 +183,12 @@ type Game struct {
 	WorkshopID *uuid.UUID `json:"workshopId,omitempty" yaml:"-"`
 	// Access rights and payments. public = true: discoverable on the website and playable by anyone.
 	Public bool `json:"public" yaml:"-"`
-	// If public, a sponsored API key can be provided to pay for any public plays.
-	PublicSponsoredApiKeyID *uuid.UUID `json:"publicSponsoredApiKeyId" yaml:"-"`
+	// If public, a sponsored API key share can be provided to pay for any public plays.
+	PublicSponsoredApiKeyShareID *uuid.UUID `json:"publicSponsoredApiKeyShareId" yaml:"-"`
 	// Private share links contain secret random tokens to limit access to the game.
 	// They are sponsored, so invited players don't require their own API key.
-	PrivateShareHash         *string    `json:"privateShareHash" yaml:"-"`
-	PrivateSponsoredApiKeyID *uuid.UUID `json:"privateSponsoredApiKeyId" yaml:"-"`
+	PrivateShareHash              *string    `json:"privateShareHash" yaml:"-"`
+	PrivateSponsoredApiKeyShareID *uuid.UUID `json:"privateSponsoredApiKeyShareId" yaml:"-"`
 	// Game details and system messages for the LLM.
 	// What is the game about? How does it work? Player role? World description?
 	SystemMessageScenario string `json:"systemMessageScenario" yaml:"system_message_scenario"`
