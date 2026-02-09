@@ -354,6 +354,8 @@
           "title": "Kein API-Schlüssel verfügbar",
           "workshop": "Für diesen Workshop ist kein API-Schlüssel konfiguriert. Bitte kontaktiere deinen Workshop-Administrator."
         },
+        "retry": "Erneut versuchen",
+        "sendFailed": "Nachricht konnte nicht gesendet werden. Bitte versuche es erneut.",
         "sessionFailed": "Spielsitzung konnte nicht gestartet werden"
       },
       "header": {
@@ -496,7 +498,7 @@
         "back": "Zurück",
         "confirm": "Sponsoring bestätigen",
         "confirmExplanation": "Wenn du dieses Spiel sponserst, wird dein API-Schlüssel für alle öffentlichen Spiele verwendet. Jeder, der dieses Spiel spielt, nutzt deinen Schlüssel - die Kosten jedes Spiels werden deinem Konto belastet.",
-        "confirmNote": "Du kannst das Sponsoring jederzeit in den Spieleinstellungen entfernen.",
+        "confirmNote": "Du kannst das Sponsoring jederzeit in den Spieleinstellungen oder der API-Schlüssel-Verwaltung entfernen.",
         "currentlySponsored": "Dieses Spiel wird derzeit gesponsert. Der API-Schlüssel des Sponsors bezahlt alle öffentlichen Spiele.",
         "description": "Sponsere dieses Spiel, damit jeder es kostenlos spielen kann. Dein API-Schlüssel wird für alle öffentlichen Spiele verwendet.",
         "gameName": "Spiel:",

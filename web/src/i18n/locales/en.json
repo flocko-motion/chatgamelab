@@ -354,6 +354,8 @@
           "title": "No API Key Available",
           "workshop": "No API key is configured for this workshop. Please contact your workshop administrator."
         },
+        "retry": "Retry",
+        "sendFailed": "Failed to send message. Please try again.",
         "sessionFailed": "Failed to start game session"
       },
       "header": {
@@ -496,7 +498,7 @@
         "back": "Back",
         "confirm": "Confirm Sponsoring",
         "confirmExplanation": "By sponsoring this game, your API key will be used to pay for all public plays. Anyone who plays this game will use your key - the cost of each play will be charged to your account.",
-        "confirmNote": "You can remove the sponsoring at any time from the game settings.",
+        "confirmNote": "You can remove the sponsoring at any time from the game settings or the API key management.",
         "currentlySponsored": "This game is currently sponsored. The sponsor's API key pays for all public plays.",
         "description": "Sponsor this game so that anyone can play it for free. Your API key will be used to pay for all public plays.",
         "gameName": "Game:",
