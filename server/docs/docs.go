@@ -28,7 +28,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns all API key shares accessible to the current user",
+                "description": "Returns the user's API keys and all their linked shares (org shares, sponsorships)",
                 "produces": [
                     "application/json"
                 ],
@@ -40,10 +40,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/obj.ApiKeyShare"
-                            }
+                            "$ref": "#/definitions/routes.ApiKeysResponse"
                         }
                     },
                     "401": {
@@ -1252,15 +1249,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Create session request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.CreateSessionRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1284,6 +1272,126 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/sponsor": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets a public sponsorship on a game using an API key share",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Sponsor a game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Sponsor request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SponsorGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Game"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes the public sponsorship from a game",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Remove game sponsorship",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Game"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid game ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -4266,6 +4374,9 @@ const docTemplate = `{
                 "apiKeyId": {
                     "type": "string"
                 },
+                "game": {
+                    "$ref": "#/definitions/obj.Game"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4377,15 +4488,15 @@ const docTemplate = `{
                     "description": "Private share links contain secret random tokens to limit access to the game.\nThey are sponsored, so invited players don't require their own API key.",
                     "type": "string"
                 },
-                "privateSponsoredApiKeyId": {
+                "privateSponsoredApiKeyShareId": {
                     "type": "string"
                 },
                 "public": {
                     "description": "Access rights and payments. public = true: discoverable on the website and playable by anyone.",
                     "type": "boolean"
                 },
-                "publicSponsoredApiKeyId": {
-                    "description": "If public, a sponsored API key can be provided to pay for any public plays.",
+                "publicSponsoredApiKeyShareId": {
+                    "description": "If public, a sponsored API key share can be provided to pay for any public plays.",
                     "type": "string"
                 },
                 "statusFields": {
@@ -4953,6 +5064,23 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.ApiKeysResponse": {
+            "type": "object",
+            "properties": {
+                "apiKeys": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.ApiKey"
+                    }
+                },
+                "shares": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.ApiKeyShare"
+                    }
+                }
+            }
+        },
         "routes.CreateApiKeyRequest": {
             "type": "object",
             "properties": {
@@ -5002,14 +5130,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "routes.CreateSessionRequest": {
-            "type": "object",
-            "properties": {
-                "model": {
                     "type": "string"
                 }
             }
@@ -5348,6 +5468,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SponsorGameRequest": {
+            "type": "object",
+            "properties": {
+                "shareId": {
                     "type": "string"
                 }
             }

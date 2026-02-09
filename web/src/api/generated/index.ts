@@ -101,6 +101,7 @@ export interface ObjApiKeyShare {
   allowPublicGameSponsoring?: boolean;
   apiKey?: ObjApiKey;
   apiKeyId?: string;
+  game?: ObjGame;
   id?: string;
   institution?: ObjInstitution;
   isUserDefault?: boolean;
@@ -154,11 +155,11 @@ export interface ObjGame {
    * They are sponsored, so invited players don't require their own API key.
    */
   privateShareHash?: string;
-  privateSponsoredApiKeyId?: string;
+  privateSponsoredApiKeyShareId?: string;
   /** Access rights and payments. public = true: discoverable on the website and playable by anyone. */
   public?: boolean;
-  /** If public, a sponsored API key can be provided to pay for any public plays. */
-  publicSponsoredApiKeyId?: string;
+  /** If public, a sponsored API key share can be provided to pay for any public plays. */
+  publicSponsoredApiKeyShareId?: string;
   /** The status fields available to the LLM, shaping the JSON format for status. */
   statusFields?: string;
   /** How should the game start? First scene? How is the player welcomed? */
@@ -374,6 +375,11 @@ export interface RoutesApiKeyInfoResponse {
   share?: ObjApiKeyShare;
 }
 
+export interface RoutesApiKeysResponse {
+  apiKeys?: ObjApiKey[];
+  shares?: ObjApiKeyShare[];
+}
+
 export interface RoutesCreateApiKeyRequest {
   key?: string;
   name?: string;
@@ -395,10 +401,6 @@ export interface RoutesCreateInstitutionInviteRequest {
 
 export interface RoutesCreateInstitutionRequest {
   name?: string;
-}
-
-export interface RoutesCreateSessionRequest {
-  model?: string;
 }
 
 export interface RoutesCreateWorkshopInviteRequest {
@@ -544,6 +546,10 @@ export interface RoutesShareRequest {
   workshopId?: string;
 }
 
+export interface RoutesSponsorGameRequest {
+  shareId?: string;
+}
+
 export interface RoutesStatusResponse {
   status?: string;
   uptime?: string;
@@ -641,8 +647,10 @@ export interface ApiConfig<SecurityDataType = unknown> {
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<
+  D extends unknown,
+  E extends unknown = unknown,
+> extends Response {
   data: D;
   error: E;
 }
@@ -883,7 +891,7 @@ export class Api<
      * @secure
      */
     apikeysList: (params: RequestParams = {}) =>
-      this.request<ObjApiKeyShare[], HttpxErrorResponse>({
+      this.request<RoutesApiKeysResponse, HttpxErrorResponse>({
         path: `/apikeys`,
         method: "GET",
         secure: true,
@@ -1353,17 +1361,54 @@ export class Api<
      * @request POST:/games/{id}/sessions
      * @secure
      */
-    sessionsCreate: (
-      id: string,
-      request: RoutesCreateSessionRequest,
-      params: RequestParams = {},
-    ) =>
+    sessionsCreate: (id: string, params: RequestParams = {}) =>
       this.request<RoutesSessionResponse, HttpxErrorResponse>({
         path: `/games/${id}/sessions`,
         method: "POST",
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets a public sponsorship on a game using an API key share
+     *
+     * @tags games
+     * @name SponsorUpdate
+     * @summary Sponsor a game
+     * @request PUT:/games/{id}/sponsor
+     * @secure
+     */
+    sponsorUpdate: (
+      id: string,
+      request: RoutesSponsorGameRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/sponsor`,
+        method: "PUT",
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes the public sponsorship from a game
+     *
+     * @tags games
+     * @name SponsorDelete
+     * @summary Remove game sponsorship
+     * @request DELETE:/games/{id}/sponsor
+     * @secure
+     */
+    sponsorDelete: (id: string, params: RequestParams = {}) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/sponsor`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
