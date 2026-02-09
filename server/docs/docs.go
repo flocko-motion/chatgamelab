@@ -404,6 +404,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/apikeys/{id}/sponsoring": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apikeys"
+                ],
+                "summary": "Update API key share",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Share ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateApiKeyShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.ApiKeyShare"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/check-name": {
             "get": {
                 "description": "Checks if a username is available for registration",
@@ -1597,6 +1667,70 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/institutions/{id}/free-use-key": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets or clears the free-use API key share for an institution.\nAny institution member can use this key to play for free.\nPass null shareId to clear.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Set institution free-use API key share",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Share ID to set (null to clear)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetInstitutionFreeUseKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -2861,6 +2995,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/settings/free-use-key": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets or clears the global free-use API key (admin only).\nThe admin's own API key will be used directly.\nPass null apiKeyId to clear.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Set system free-use API key",
+                "parameters": [
+                    {
+                        "description": "API Key ID to set (null to clear)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SetFreeUseApiKeyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.SystemSettings"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "security": [
@@ -4066,7 +4257,7 @@ const docTemplate = `{
         "obj.ApiKeyShare": {
             "type": "object",
             "properties": {
-                "allowPublicSponsoredPlays": {
+                "allowPublicGameSponsoring": {
                     "type": "boolean"
                 },
                 "apiKey": {
@@ -4394,6 +4585,9 @@ const docTemplate = `{
         "obj.Institution": {
             "type": "object",
             "properties": {
+                "freeUseApiKeyShareId": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4497,6 +4691,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "defaultAiModel": {
+                    "type": "string"
+                },
+                "freeUseApiKeyId": {
                     "type": "string"
                 },
                 "id": {
@@ -5093,6 +5290,22 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.SetFreeUseApiKeyRequest": {
+            "type": "object",
+            "properties": {
+                "apiKeyId": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SetInstitutionFreeUseKeyRequest": {
+            "type": "object",
+            "properties": {
+                "shareId": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.SetUserRoleRequest": {
             "type": "object",
             "properties": {
@@ -5118,7 +5331,7 @@ const docTemplate = `{
         "routes.ShareRequest": {
             "type": "object",
             "properties": {
-                "allowPublicSponsoredPlays": {
+                "allowPublicGameSponsoring": {
                     "type": "boolean"
                 },
                 "institutionId": {
@@ -5148,6 +5361,14 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "routes.UpdateApiKeyShareRequest": {
+            "type": "object",
+            "properties": {
+                "allowPublicGameSponsoring": {
+                    "type": "boolean"
                 }
             }
         },

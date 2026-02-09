@@ -98,7 +98,7 @@ export interface ObjApiKey {
 }
 
 export interface ObjApiKeyShare {
-  allowPublicSponsoredPlays?: boolean;
+  allowPublicGameSponsoring?: boolean;
   apiKey?: ObjApiKey;
   apiKeyId?: string;
   id?: string;
@@ -244,6 +244,7 @@ export interface ObjGameTheme {
 }
 
 export interface ObjInstitution {
+  freeUseApiKeyShareId?: string;
   id?: string;
   members?: ObjInstitutionMember[];
   meta?: ObjMeta;
@@ -272,6 +273,7 @@ export interface ObjStatusField {
 export interface ObjSystemSettings {
   createdAt?: string;
   defaultAiModel?: string;
+  freeUseApiKeyId?: string;
   id?: string;
   modifiedAt?: string;
 }
@@ -512,6 +514,14 @@ export interface RoutesSetActiveWorkshopRequest {
   workshopId?: string;
 }
 
+export interface RoutesSetFreeUseApiKeyRequest {
+  apiKeyId?: string;
+}
+
+export interface RoutesSetInstitutionFreeUseKeyRequest {
+  shareId?: string;
+}
+
 export interface RoutesSetUserRoleRequest {
   institutionId?: string;
   role?: string;
@@ -523,7 +533,7 @@ export interface RoutesSetWorkshopApiKeyRequest {
 }
 
 export interface RoutesShareRequest {
-  allowPublicSponsoredPlays?: boolean;
+  allowPublicGameSponsoring?: boolean;
   institutionId?: string;
   userId?: string;
   workshopId?: string;
@@ -536,6 +546,10 @@ export interface RoutesStatusResponse {
 
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
+}
+
+export interface RoutesUpdateApiKeyShareRequest {
+  allowPublicGameSponsoring?: boolean;
 }
 
 export interface RoutesUpdateInstitutionRequest {
@@ -998,6 +1012,30 @@ export class Api<
       this.request<ObjApiKeyShare, HttpxErrorResponse>({
         path: `/apikeys/${id}/shares`,
         method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
+     *
+     * @tags apikeys
+     * @name SponsoringPartialUpdate
+     * @summary Update API key share
+     * @request PATCH:/apikeys/{id}/sponsoring
+     * @secure
+     */
+    sponsoringPartialUpdate: (
+      id: string,
+      request: RoutesUpdateApiKeyShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjApiKeyShare, HttpxErrorResponse>({
+        path: `/apikeys/${id}/sponsoring`,
+        method: "PATCH",
         body: request,
         secure: true,
         type: ContentType.Json,
@@ -1477,6 +1515,30 @@ export class Api<
         path: `/institutions/${id}/apikeys`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets or clears the free-use API key share for an institution. Any institution member can use this key to play for free. Pass null shareId to clear.
+     *
+     * @tags institutions
+     * @name FreeUseKeyPartialUpdate
+     * @summary Set institution free-use API key share
+     * @request PATCH:/institutions/{id}/free-use-key
+     * @secure
+     */
+    freeUseKeyPartialUpdate: (
+      id: string,
+      request: RoutesSetInstitutionFreeUseKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -2002,6 +2064,29 @@ export class Api<
         path: `/system/settings`,
         method: "PATCH",
         body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets or clears the global free-use API key (admin only). The admin's own API key will be used directly. Pass null apiKeyId to clear.
+     *
+     * @tags system
+     * @name SettingsFreeUseKeyPartialUpdate
+     * @summary Set system free-use API key
+     * @request PATCH:/system/settings/free-use-key
+     * @secure
+     */
+    settingsFreeUseKeyPartialUpdate: (
+      request: RoutesSetFreeUseApiKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjSystemSettings, HttpxErrorResponse>({
+        path: `/system/settings/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,
