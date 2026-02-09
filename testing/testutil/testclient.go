@@ -479,13 +479,11 @@ func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, 
 // CreateGameSession creates a new game session (composable high-level API)
 // Returns the session and the initial message.
 // API key is resolved server-side (sponsor → workshop → user default).
-func (u *UserClient) CreateGameSession(gameID string, model string) (routes.SessionResponse, error) {
+func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, error) {
 	u.t.Helper()
 
 	var response routes.SessionResponse
-	err := u.Post("games/"+gameID+"/sessions", routes.CreateSessionRequest{
-		Model: model,
-	}, &response)
+	err := u.Post("games/"+gameID+"/sessions", nil, &response)
 	return response, err
 }
 
