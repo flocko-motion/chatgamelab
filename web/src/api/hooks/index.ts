@@ -33,6 +33,8 @@ export {
   useCloneGame,
   useExportGameYaml,
   useImportGameYaml,
+  useSponsorGame,
+  useRemoveGameSponsor,
   useFavoriteGames,
   useAddFavorite,
   useRemoveFavorite,

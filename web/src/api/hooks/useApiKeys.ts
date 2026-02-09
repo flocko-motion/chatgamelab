@@ -6,6 +6,7 @@ import type {
   ObjApiKeyShare,
   ObjInstitution,
   HttpxErrorResponse,
+  RoutesApiKeysResponse,
   RoutesCreateApiKeyRequest,
   RoutesShareRequest,
 } from "../generated";
@@ -14,7 +15,7 @@ import type {
 export function useApiKeys() {
   const api = useRequiredAuthenticatedApi();
 
-  return useQuery<ObjApiKeyShare[], HttpxErrorResponse>({
+  return useQuery<RoutesApiKeysResponse, HttpxErrorResponse>({
     queryKey: queryKeys.apiKeys,
     queryFn: () => api.apikeys.apikeysList().then((response) => response.data),
   });

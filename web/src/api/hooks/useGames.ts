@@ -189,6 +189,44 @@ export function useImportGameYaml() {
   );
 }
 
+// Game Sponsoring hooks
+export function useSponsorGame() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjGame,
+    HttpxErrorResponse,
+    { gameId: string; shareId: string }
+  >({
+    mutationFn: ({ gameId, shareId }) =>
+      api.games
+        .sponsorUpdate(gameId, { shareId })
+        .then((response) => response.data),
+    onSuccess: (_, { gameId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveGameSponsor() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<ObjGame, HttpxErrorResponse, string>({
+    mutationFn: (gameId) =>
+      api.games.sponsorDelete(gameId).then((response) => response.data),
+    onSuccess: (_, gameId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
 // Favorite Games hooks
 export function useFavoriteGames() {
   const api = useRequiredAuthenticatedApi();

@@ -6,7 +6,6 @@ import { queryKeys } from "../queryKeys";
 import type {
   ObjGameSession,
   HttpxErrorResponse,
-  RoutesCreateSessionRequest,
   RoutesSessionResponse,
   DbUserSessionWithGame,
 } from "../generated";
@@ -64,16 +63,10 @@ export function useCreateGameSession() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();
 
-  return useMutation<
-    RoutesSessionResponse,
-    HttpxErrorResponse,
-    { gameId: string; request: RoutesCreateSessionRequest }
-  >({
-    mutationFn: ({ gameId, request }) =>
-      api.games
-        .sessionsCreate(gameId, request)
-        .then((response) => response.data),
-    onSuccess: (_, { gameId }) => {
+  return useMutation<RoutesSessionResponse, HttpxErrorResponse, string>({
+    mutationFn: (gameId) =>
+      api.games.sessionsCreate(gameId).then((response) => response.data),
+    onSuccess: (_, gameId) => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.gameSessions, gameId],
       });
