@@ -4585,6 +4585,10 @@ const docTemplate = `{
         "obj.Institution": {
             "type": "object",
             "properties": {
+                "freeUseAiQualityTier": {
+                    "description": "high/medium/low, nil = server default",
+                    "type": "string"
+                },
                 "freeUseApiKeyShareId": {
                     "type": "string"
                 },
@@ -4690,7 +4694,12 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
-                "defaultAiModel": {
+                "defaultAiQualityTier": {
+                    "description": "ultimate server-wide fallback (e.g. \"medium\")",
+                    "type": "string"
+                },
+                "freeUseAiQualityTier": {
+                    "description": "tier for system free-use key, nil = use default",
                     "type": "string"
                 },
                 "freeUseApiKeyId": {
@@ -4721,6 +4730,10 @@ const docTemplate = `{
         "obj.User": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "description": "high/medium/low, nil = server default",
+                    "type": "string"
+                },
                 "auth0Id": {
                     "type": "string"
                 },
@@ -4745,9 +4758,6 @@ const docTemplate = `{
                 },
                 "role": {
                     "$ref": "#/definitions/obj.UserRole"
-                },
-                "showAiModelSelector": {
-                    "type": "boolean"
                 }
             }
         },
@@ -4844,6 +4854,10 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
+                "aiQualityTier": {
+                    "description": "Workshop settings (configured by staff/heads)",
+                    "type": "string"
+                },
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
@@ -4874,18 +4888,11 @@ const docTemplate = `{
                 "public": {
                     "type": "boolean"
                 },
-                "showAiModelSelector": {
-                    "type": "boolean"
-                },
                 "showOtherParticipantsGames": {
                     "type": "boolean"
                 },
                 "showPublicGames": {
                     "type": "boolean"
-                },
-                "useSpecificAiModel": {
-                    "description": "Workshop settings (configured by staff/heads)",
-                    "type": "string"
                 }
             }
         },
@@ -5383,7 +5390,10 @@ const docTemplate = `{
         "routes.UpdateSystemSettingsRequest": {
             "type": "object",
             "properties": {
-                "defaultAiModel": {
+                "defaultAiQualityTier": {
+                    "type": "string"
+                },
+                "freeUseAiQualityTier": {
                     "type": "string"
                 }
             }
@@ -5394,13 +5404,13 @@ const docTemplate = `{
                 "active": {
                     "type": "boolean"
                 },
+                "aiQualityTier": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
                 "public": {
-                    "type": "boolean"
-                },
-                "showAiModelSelector": {
                     "type": "boolean"
                 },
                 "showOtherParticipantsGames": {
@@ -5408,15 +5418,15 @@ const docTemplate = `{
                 },
                 "showPublicGames": {
                     "type": "boolean"
-                },
-                "useSpecificAiModel": {
-                    "type": "string"
                 }
             }
         },
         "routes.UserUpdateRequest": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "type": "string"
+                },
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
@@ -5425,9 +5435,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "showAiModelSelector": {
-                    "type": "boolean"
                 }
             }
         },

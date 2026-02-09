@@ -244,6 +244,8 @@ export interface ObjGameTheme {
 }
 
 export interface ObjInstitution {
+  /** high/medium/low, nil = server default */
+  freeUseAiQualityTier?: string;
   freeUseApiKeyShareId?: string;
   id?: string;
   members?: ObjInstitutionMember[];
@@ -272,7 +274,10 @@ export interface ObjStatusField {
 
 export interface ObjSystemSettings {
   createdAt?: string;
-  defaultAiModel?: string;
+  /** ultimate server-wide fallback (e.g. "medium") */
+  defaultAiQualityTier?: string;
+  /** tier for system free-use key, nil = use default */
+  freeUseAiQualityTier?: string;
   freeUseApiKeyId?: string;
   id?: string;
   modifiedAt?: string;
@@ -285,6 +290,8 @@ export interface ObjTokenUsage {
 }
 
 export interface ObjUser {
+  /** high/medium/low, nil = server default */
+  aiQualityTier?: string;
   auth0Id?: string;
   deletedAt?: string;
   email?: string;
@@ -294,7 +301,6 @@ export interface ObjUser {
   meta?: ObjMeta;
   name?: string;
   role?: ObjUserRole;
-  showAiModelSelector?: boolean;
 }
 
 export interface ObjUserRole {
@@ -332,6 +338,8 @@ export interface ObjUserStats {
 
 export interface ObjWorkshop {
   active?: boolean;
+  /** Workshop settings (configured by staff/heads) */
+  aiQualityTier?: string;
   defaultApiKeyShareId?: string;
   id?: string;
   institution?: ObjInstitution;
@@ -340,11 +348,8 @@ export interface ObjWorkshop {
   name?: string;
   participants?: ObjWorkshopParticipant[];
   public?: boolean;
-  showAiModelSelector?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
-  /** Workshop settings (configured by staff/heads) */
-  useSpecificAiModel?: string;
 }
 
 export interface ObjWorkshopParticipant {
@@ -557,24 +562,24 @@ export interface RoutesUpdateInstitutionRequest {
 }
 
 export interface RoutesUpdateSystemSettingsRequest {
-  defaultAiModel?: string;
+  defaultAiQualityTier?: string;
+  freeUseAiQualityTier?: string;
 }
 
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
+  aiQualityTier?: string;
   name?: string;
   public?: boolean;
-  showAiModelSelector?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
-  useSpecificAiModel?: string;
 }
 
 export interface RoutesUserUpdateRequest {
+  aiQualityTier?: string;
   defaultApiKeyShareId?: string;
   email?: string;
   name?: string;
-  showAiModelSelector?: boolean;
 }
 
 export interface RoutesUsersJwtResponse {
