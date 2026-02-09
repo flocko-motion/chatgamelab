@@ -269,21 +269,20 @@ export function AllGames() {
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
     const actions: GameCardAction[] = [
-      {
-        key: "view",
-        icon: <IconEye size={16} />,
-        label: t("games.actions.view"),
-        onClick: () => handleViewGame(game),
-      },
+      isOwner(game)
+        ? {
+            key: "edit",
+            icon: <IconEdit size={16} />,
+            label: t("games.actions.edit"),
+            onClick: () => handleViewGame(game),
+          }
+        : {
+            key: "view",
+            icon: <IconEye size={16} />,
+            label: t("games.actions.view"),
+            onClick: () => handleViewGame(game),
+          },
     ];
-    if (isOwner(game)) {
-      actions.push({
-        key: "edit",
-        icon: <IconEdit size={16} />,
-        label: t("games.actions.edit"),
-        onClick: () => handleViewGame(game),
-      });
-    }
     actions.push({
       key: "copy",
       icon: <IconCopy size={16} />,
@@ -470,19 +469,20 @@ export function AllGames() {
             {renderPlayButton(game)}
           </Box>
           <Group gap={4} wrap="nowrap">
-            <Tooltip label={t("games.actions.view")} withArrow>
-              <GenericIconButton
-                icon={<IconEye size={16} />}
-                onClick={() => handleViewGame(game)}
-                aria-label={t("games.actions.view")}
-              />
-            </Tooltip>
-            {isOwner(game) && (
+            {isOwner(game) ? (
               <Tooltip label={t("games.actions.edit")} withArrow>
                 <GenericIconButton
                   icon={<IconEdit size={16} />}
                   onClick={() => handleViewGame(game)}
                   aria-label={t("games.actions.edit")}
+                />
+              </Tooltip>
+            ) : (
+              <Tooltip label={t("games.actions.view")} withArrow>
+                <GenericIconButton
+                  icon={<IconEye size={16} />}
+                  onClick={() => handleViewGame(game)}
+                  aria-label={t("games.actions.view")}
                 />
               </Tooltip>
             )}

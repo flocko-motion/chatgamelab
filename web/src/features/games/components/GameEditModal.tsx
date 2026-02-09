@@ -12,7 +12,7 @@ import {
   Text,
   Badge,
 } from "@mantine/core";
-import { IconCopy, IconCoin } from "@tabler/icons-react";
+import { IconCopy, IconHeartFilled } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
@@ -379,9 +379,9 @@ export function GameEditModal({
           {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
             <Badge
               size="sm"
-              color="green"
+              color="pink"
               variant="light"
-              leftSection={<IconCoin size={12} />}
+              leftSection={<IconHeartFilled size={12} />}
             >
               {t("games.sponsor.sponsored")}
             </Badge>
@@ -406,7 +406,7 @@ export function GameEditModal({
               <ActionButton
                 onClick={onSponsor}
                 size="sm"
-                leftSection={<IconCoin size={16} />}
+                leftSection={<IconHeartFilled size={16} />}
               >
                 {game?.publicSponsoredApiKeyShareId
                   ? t("games.sponsor.manageSponsor")

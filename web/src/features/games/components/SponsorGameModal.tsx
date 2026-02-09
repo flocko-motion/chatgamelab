@@ -8,7 +8,11 @@ import {
   Badge,
   rem,
 } from "@mantine/core";
-import { IconAlertCircle, IconCoin, IconCheck } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconHeartFilled,
+  IconCheck,
+} from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -155,7 +159,7 @@ export function SponsorGameModal({
                 onClick={handleNext}
                 disabled={!selectedShareId}
                 size="sm"
-                leftSection={<IconCoin size={16} />}
+                leftSection={<IconHeartFilled size={16} />}
               >
                 {t("games.sponsor.next")}
               </ActionButton>
@@ -203,7 +207,7 @@ export function SponsorGameModal({
                 onClick={handleConfirm}
                 loading={sponsorGame.isPending}
                 size="sm"
-                leftSection={<IconCoin size={16} />}
+                leftSection={<IconHeartFilled size={16} />}
               >
                 {t("games.sponsor.confirm")}
               </ActionButton>
