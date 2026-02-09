@@ -32,6 +32,7 @@ import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
+import { Route as AdminServerSettingsIndexRouteImport } from './routes/admin/server-settings/index'
 import { Route as AdminOrganizationsIndexRouteImport } from './routes/admin/organizations/index'
 import { Route as InvitesParticipantTokenRouteImport } from './routes/invites/participant.$token'
 import { Route as InvitesTokenAcceptRouteImport } from './routes/invites/$token.accept'
@@ -154,6 +155,12 @@ const AdminUsersIndexRoute = AdminUsersIndexRouteImport.update({
   path: '/admin/users/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminServerSettingsIndexRoute =
+  AdminServerSettingsIndexRouteImport.update({
+    id: '/admin/server-settings/',
+    path: '/admin/server-settings/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminOrganizationsIndexRoute = AdminOrganizationsIndexRouteImport.update({
   id: '/admin/organizations/',
   path: '/admin/organizations/',
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
+  '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
@@ -242,6 +250,7 @@ export interface FileRoutesByTo {
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations': typeof AdminOrganizationsIndexRoute
+  '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
@@ -274,6 +283,7 @@ export interface FileRoutesById {
   '/invites/$token/accept': typeof InvitesTokenAcceptRoute
   '/invites/participant/$token': typeof InvitesParticipantTokenRoute
   '/admin/organizations/': typeof AdminOrganizationsIndexRoute
+  '/admin/server-settings/': typeof AdminServerSettingsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/invites/$token/accept'
     | '/invites/participant/$token'
     | '/admin/organizations'
+    | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
     | '/auth/login/auth0/callback'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/invites/$token/accept'
     | '/invites/participant/$token'
     | '/admin/organizations'
+    | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
     | '/auth/login/auth0/callback'
@@ -369,6 +381,7 @@ export interface FileRouteTypes {
     | '/invites/$token/accept'
     | '/invites/participant/$token'
     | '/admin/organizations/'
+    | '/admin/server-settings/'
     | '/admin/users/'
     | '/auth/login/'
     | '/auth/login/auth0/callback'
@@ -401,6 +414,7 @@ export interface RootRouteChildren {
   InvitesTokenAcceptRoute: typeof InvitesTokenAcceptRoute
   InvitesParticipantTokenRoute: typeof InvitesParticipantTokenRoute
   AdminOrganizationsIndexRoute: typeof AdminOrganizationsIndexRoute
+  AdminServerSettingsIndexRoute: typeof AdminServerSettingsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
@@ -570,6 +584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/server-settings/': {
+      id: '/admin/server-settings/'
+      path: '/admin/server-settings'
+      fullPath: '/admin/server-settings'
+      preLoaderRoute: typeof AdminServerSettingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/organizations/': {
       id: '/admin/organizations/'
       path: '/admin/organizations'
@@ -641,6 +662,7 @@ const rootRouteChildren: RootRouteChildren = {
   InvitesTokenAcceptRoute: InvitesTokenAcceptRoute,
   InvitesParticipantTokenRoute: InvitesParticipantTokenRoute,
   AdminOrganizationsIndexRoute: AdminOrganizationsIndexRoute,
+  AdminServerSettingsIndexRoute: AdminServerSettingsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
