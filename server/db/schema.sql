@@ -41,7 +41,7 @@ CREATE TABLE institution (
     name            text NOT NULL UNIQUE,
     deleted_at      timestamptz NULL,
     -- Free-use API key share for institution members (any member can use this key to play)
-    free_use_api_key_share_id uuid NULL REFERENCES api_key_share(id),
+    free_use_api_key_share_id uuid NULL,
     -- AI quality tier for the institution free-use key (high/medium/low, NULL = server default)
     free_use_ai_quality_tier text NULL
 );
@@ -208,7 +208,7 @@ CREATE TABLE api_key_share (
     user_id                         uuid NULL REFERENCES app_user(id),
     workshop_id                     uuid NULL REFERENCES workshop(id),
     institution_id                  uuid NULL REFERENCES institution(id),
-    game_id                         uuid NULL REFERENCES game(id),
+    game_id                         uuid NULL,
     allow_public_game_sponsoring     boolean NOT NULL DEFAULT false,
 
     CONSTRAINT api_key_share_target_chk CHECK (
@@ -380,3 +380,9 @@ CREATE TABLE user_favourite_game (
     game_id uuid NOT NULL REFERENCES game(id),
     CONSTRAINT user_favourite_game_user_game_uniq UNIQUE (user_id, game_id)
 );
+
+-- Deferred foreign keys (tables referenced before they are created)
+ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk
+    FOREIGN KEY (free_use_api_key_share_id) REFERENCES api_key_share(id);
+ALTER TABLE api_key_share ADD CONSTRAINT api_key_share_game_fk
+    FOREIGN KEY (game_id) REFERENCES game(id);
