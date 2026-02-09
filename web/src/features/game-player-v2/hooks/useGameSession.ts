@@ -11,7 +11,6 @@ import type {
   SceneMessage,
   StreamChunk,
   MessageStatus,
-  GameSessionConfig,
   GamePlayerState,
 } from "../types";
 import { mapApiMessageToScene } from "../types";
@@ -66,17 +65,14 @@ export function useGameSession(gameId: string) {
     [],
   );
 
-  const appendTextToMessage = useCallback(
-    (messageId: string, text: string) => {
-      setState((prev) => ({
-        ...prev,
-        messages: prev.messages.map((msg) =>
-          msg.id === messageId ? { ...msg, text: msg.text + text } : msg,
-        ),
-      }));
-    },
-    [],
-  );
+  const appendTextToMessage = useCallback((messageId: string, text: string) => {
+    setState((prev) => ({
+      ...prev,
+      messages: prev.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, text: msg.text + text } : msg,
+      ),
+    }));
+  }, []);
 
   const stopPolling = useCallback(() => {
     if (pollDelayRef.current) {
@@ -148,21 +144,28 @@ export function useGameSession(gameId: string) {
               updates.isImageLoading = false;
             }
           }
-          if (status.imageStatus === "error" && status.imageError !== msg.imageErrorCode) {
+          if (
+            status.imageStatus === "error" &&
+            status.imageError !== msg.imageErrorCode
+          ) {
             updates.imageErrorCode = status.imageError;
           }
 
           // Status fields — only update if actually changed
           if (
             status.statusFields?.length &&
-            JSON.stringify(status.statusFields) !== JSON.stringify(msg.statusFields)
+            JSON.stringify(status.statusFields) !==
+              JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
           }
 
           // Skip update if nothing changed
-          if (Object.keys(updates).length === 0 && Object.keys(stateUpdates).length === 0) {
+          if (
+            Object.keys(updates).length === 0 &&
+            Object.keys(stateUpdates).length === 0
+          ) {
             return prev;
           }
 
@@ -236,7 +239,9 @@ export function useGameSession(gameId: string) {
       silenceTimerRef.current = setTimeout(() => {
         // No SSE data for SSE_SILENCE_TIMEOUT — activate polling fallback
         if (!pollIntervalRef.current) {
-          apiLogger.debug("SSE silence timeout, activating polling fallback", { messageId });
+          apiLogger.debug("SSE silence timeout, activating polling fallback", {
+            messageId,
+          });
           startPollingRef.current(messageId);
         }
       }, SSE_SILENCE_TIMEOUT);
@@ -407,77 +412,72 @@ export function useGameSession(gameId: string) {
 
   // ── Session Actions ─────────────────────────────────────────────────
 
-  const startSession = useCallback(
-    async (sessionConfig?: GameSessionConfig) => {
-      setState((prev) => ({ ...prev, phase: "starting", error: null }));
+  const startSession = useCallback(async () => {
+    setState((prev) => ({ ...prev, phase: "starting", error: null }));
 
-      try {
-        const response = await api.games.sessionsCreate(gameId, {
-          model: sessionConfig?.model,
-        });
+    try {
+      const response = await api.games.sessionsCreate(gameId, {});
 
-        const sessionResponse = response.data;
-        const firstMessage = sessionResponse.messages?.[0];
+      const sessionResponse = response.data;
+      const firstMessage = sessionResponse.messages?.[0];
 
-        if (!firstMessage) {
-          throw new Error("No message returned from session creation");
-        }
+      if (!firstMessage) {
+        throw new Error("No message returned from session creation");
+      }
 
-        const sceneMessage = mapApiMessageToScene(firstMessage);
+      const sceneMessage = mapApiMessageToScene(firstMessage);
 
-        setState((prev) => ({
-          ...prev,
-          phase: "playing",
-          sessionId: sessionResponse.id || null,
-          gameInfo: {
-            id: sessionResponse.gameId,
-            name: sessionResponse.gameName,
-            description: sessionResponse.gameDescription,
+      setState((prev) => ({
+        ...prev,
+        phase: "playing",
+        sessionId: sessionResponse.id || null,
+        gameInfo: {
+          id: sessionResponse.gameId,
+          name: sessionResponse.gameName,
+          description: sessionResponse.gameDescription,
+        },
+        messages: [
+          {
+            ...sceneMessage,
+            text: "",
+            isStreaming: true,
+            isImageLoading: !!firstMessage.imagePrompt,
           },
-          messages: [
-            {
-              ...sceneMessage,
-              text: "",
-              isStreaming: true,
-              isImageLoading: !!firstMessage.imagePrompt,
-            },
-          ],
-          statusFields: firstMessage.statusFields || [],
-          isWaitingForResponse: true,
-          theme: sessionResponse.theme || null,
-        }));
+        ],
+        statusFields: firstMessage.statusFields || [],
+        isWaitingForResponse: true,
+        theme: sessionResponse.theme || null,
+      }));
 
-        queryClient.invalidateQueries({
-          queryKey: [...queryKeys.gameSessions, gameId],
-        });
-        queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-        queryClient.invalidateQueries({
-          queryKey: [...queryKeys.games, gameId],
-        });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.gameSessions, gameId],
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId],
+      });
 
-        if (firstMessage.id && firstMessage.stream) {
-          // No playerMessageId for initial session — system message, no retry needed
-          connectToStream(firstMessage.id);
-        } else {
-          setState((prev) => ({
-            ...prev,
-            messages: [sceneMessage],
-            isWaitingForResponse: false,
-          }));
-        }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to start session";
+      if (firstMessage.id && firstMessage.stream) {
+        // No playerMessageId for initial session — system message, no retry needed
+        connectToStream(firstMessage.id);
+      } else {
         setState((prev) => ({
           ...prev,
-          phase: "error",
-          error: message,
-          errorObject: error,
+          messages: [sceneMessage],
+          isWaitingForResponse: false,
         }));
       }
-    },
-    [api, gameId, connectToStream, queryClient],
-  );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to start session";
+      setState((prev) => ({
+        ...prev,
+        phase: "error",
+        error: message,
+        errorObject: error,
+      }));
+    }
+  }, [api, gameId, connectToStream, queryClient]);
 
   const sendAction = useCallback(
     async (message: string) => {
@@ -495,7 +495,9 @@ export function useGameSession(gameId: string) {
         messages: [
           // Clear error from any previously failed player message
           ...prev.messages.map((msg) =>
-            msg.error ? { ...msg, error: undefined, errorCode: undefined } : msg,
+            msg.error
+              ? { ...msg, error: undefined, errorCode: undefined }
+              : msg,
           ),
           playerMessage,
         ],
@@ -635,13 +637,20 @@ export function useGameSession(gameId: string) {
         // connectToStream falls back to polling if SSE returns 404 (stream finished).
         // Reset text to "" because SSE sends incremental deltas that get appended.
         if (isInProgress && lastMessage?.id) {
-          apiLogger.debug("Session has in-progress message, connecting to stream", {
-            messageId: lastMessage.id,
-          });
+          apiLogger.debug(
+            "Session has in-progress message, connecting to stream",
+            {
+              messageId: lastMessage.id,
+            },
+          );
           // Reset text so SSE deltas append cleanly (avoids plotOutline + narrative duplication)
           updateMessage(lastMessage.id, { text: "" });
           connectToStream(lastMessage.id);
-        } else if (!isInProgress && lastMessage?.id && lastMessage.imagePrompt) {
+        } else if (
+          !isInProgress &&
+          lastMessage?.id &&
+          lastMessage.imagePrompt
+        ) {
           // Text is done but image might still be generating, failed, or skipped.
           // mapApiMessageToScene optimistically sets imageStatus="complete", but
           // the image may not be persisted yet. Use the status endpoint as source of truth.
@@ -652,16 +661,22 @@ export function useGameSession(gameId: string) {
             if (statusResp.ok) {
               const status: MessageStatus = await statusResp.json();
               if (status.imageStatus === "generating") {
-                apiLogger.debug("Session has in-progress image, starting poll", {
-                  messageId: lastMessage.id,
-                });
+                apiLogger.debug(
+                  "Session has in-progress image, starting poll",
+                  {
+                    messageId: lastMessage.id,
+                  },
+                );
                 updateMessage(lastMessage.id, {
                   imageStatus: "generating",
                   imageHash: status.imageHash || undefined,
                   isImageLoading: true,
                 });
                 startPolling(lastMessage.id);
-              } else if (status.imageStatus === "complete" && status.imageHash) {
+              } else if (
+                status.imageStatus === "complete" &&
+                status.imageHash
+              ) {
                 updateMessage(lastMessage.id, {
                   imageStatus: "complete",
                   imageHash: status.imageHash,
@@ -700,34 +715,31 @@ export function useGameSession(gameId: string) {
     [api, connectToStream, startPolling, updateMessage],
   );
 
-  const updateSessionApiKey = useCallback(
-    async () => {
-      if (!state.sessionId) return;
+  const updateSessionApiKey = useCallback(async () => {
+    if (!state.sessionId) return;
 
-      setState((prev) => ({ ...prev, phase: "starting" }));
+    setState((prev) => ({ ...prev, phase: "starting" }));
 
-      try {
-        await api.sessions.sessionsPartialUpdate(state.sessionId);
+    try {
+      await api.sessions.sessionsPartialUpdate(state.sessionId);
 
-        setState((prev) => ({
-          ...prev,
-          phase: "playing",
-        }));
+      setState((prev) => ({
+        ...prev,
+        phase: "playing",
+      }));
 
-        queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to update session";
-        setState((prev) => ({
-          ...prev,
-          phase: "error",
-          error: message,
-          errorObject: error,
-        }));
-      }
-    },
-    [api, state.sessionId, queryClient],
-  );
+      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update session";
+      setState((prev) => ({
+        ...prev,
+        phase: "error",
+        error: message,
+        errorObject: error,
+      }));
+    }
+  }, [api, state.sessionId, queryClient]);
 
   const clearStreamError = useCallback(() => {
     setState((prev) => ({ ...prev, streamError: null }));
