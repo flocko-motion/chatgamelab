@@ -5,6 +5,7 @@ import {
   IconStar,
   IconStarFilled,
   IconSchool,
+  IconHeartFilled,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -64,7 +65,7 @@ export interface GameCardProps {
 }
 
 /** Badge type for rendering multiple badges */
-type GameBadgeType = "owner" | "workshop" | "public";
+type GameBadgeType = "owner" | "workshop" | "public" | "sponsored";
 
 export function GameCard({
   game,
@@ -117,6 +118,7 @@ export function GameCard({
   const getBadges = (): GameBadgeType[] => {
     const badges: GameBadgeType[] = [];
     if (isOwner) badges.push("owner");
+    if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
     if (isWorkshopGame) badges.push("workshop");
     if (game.public && !showVisibility) badges.push("public");
     return badges;
@@ -161,6 +163,26 @@ export function GameCard({
           >
             {t("games.badges.public")}
           </Badge>
+        );
+      case "sponsored":
+        return (
+          <Tooltip
+            key="sponsored"
+            label={t("games.sponsor.sponsoredTooltip")}
+            withArrow
+            multiline
+            w={250}
+          >
+            <Badge
+              size="xs"
+              color="pink"
+              variant="light"
+              leftSection={<IconHeartFilled size={10} />}
+              style={{ flexShrink: 0, cursor: "help" }}
+            >
+              {t("games.sponsor.sponsored")}
+            </Badge>
+          </Tooltip>
         );
       default:
         return null;

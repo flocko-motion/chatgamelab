@@ -10,8 +10,9 @@ import {
   ScrollArea,
   rem,
   Text,
+  Badge,
 } from "@mantine/core";
-import { IconCopy } from "@tabler/icons-react";
+import { IconCopy, IconCoin } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
@@ -46,6 +47,8 @@ interface GameEditModalProps {
   copyLoading?: boolean;
   /** Pre-populate form fields in create mode (e.g. from YAML import or game copy) */
   initialData?: Partial<CreateGameFormData> | null;
+  /** Callback when user clicks Sponsor button */
+  onSponsor?: () => void;
 }
 
 export function GameEditModal({
@@ -58,6 +61,7 @@ export function GameEditModal({
   onCopy,
   copyLoading = false,
   initialData,
+  onSponsor,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -349,6 +353,11 @@ export function GameEditModal({
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
             disabled={readOnly}
           />
+          {!isPublic && game?.publicSponsoredApiKeyShareId && (
+            <Text size="xs" c="orange" fw={500}>
+              {t("games.sponsor.privateWarning")}
+            </Text>
+          )}
         </Stack>
       </ScrollArea>
     );
@@ -359,11 +368,25 @@ export function GameEditModal({
       opened={opened}
       onClose={handleModalClose}
       title={
-        isCreateMode
-          ? t("games.createModal.title")
-          : readOnly
-            ? t("games.viewModal.title")
-            : t("games.editModal.title")
+        <Group gap="sm">
+          <Text fw={600}>
+            {isCreateMode
+              ? t("games.createModal.title")
+              : readOnly
+                ? t("games.viewModal.title")
+                : t("games.editModal.title")}
+          </Text>
+          {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
+            <Badge
+              size="sm"
+              color="green"
+              variant="light"
+              leftSection={<IconCoin size={12} />}
+            >
+              {t("games.sponsor.sponsored")}
+            </Badge>
+          )}
+        </Group>
       }
       size={isMobile ? "100%" : rem(1000)}
       fullScreen={isMobile}
@@ -376,31 +399,49 @@ export function GameEditModal({
       <Stack gap="md">
         {modalContent()}
 
-        <Group justify="flex-end" mt="md" gap="sm">
-          {readOnly ? (
-            <>
-              <CancelButton onClick={onClose}>{t("close")}</CancelButton>
-              {onCopy && (
-                <ActionButton
-                  onClick={onCopy}
-                  loading={copyLoading}
-                  size="sm"
-                  leftSection={<IconCopy size={16} />}
-                >
-                  {t("copyGame")}
-                </ActionButton>
-              )}
-            </>
-          ) : (
-            <>
-              <CancelButton onClick={handleModalClose} disabled={isSaving}>
-                {t("cancel")}
-              </CancelButton>
-              <ActionButton onClick={handleSave} loading={isSaving} size="sm">
-                {isCreateMode ? t("games.createModal.submit") : t("save")}
+        <Group justify="space-between" mt="md" gap="sm">
+          {/* Left side: sponsor button */}
+          <Group gap="sm">
+            {!isCreateMode && onSponsor && (
+              <ActionButton
+                onClick={onSponsor}
+                size="sm"
+                leftSection={<IconCoin size={16} />}
+              >
+                {game?.publicSponsoredApiKeyShareId
+                  ? t("games.sponsor.manageSponsor")
+                  : t("games.sponsor.sponsorGame")}
               </ActionButton>
-            </>
-          )}
+            )}
+          </Group>
+
+          {/* Right side: close/cancel + save/copy */}
+          <Group gap="sm">
+            {readOnly ? (
+              <>
+                <CancelButton onClick={onClose}>{t("close")}</CancelButton>
+                {onCopy && (
+                  <ActionButton
+                    onClick={onCopy}
+                    loading={copyLoading}
+                    size="sm"
+                    leftSection={<IconCopy size={16} />}
+                  >
+                    {t("copyGame")}
+                  </ActionButton>
+                )}
+              </>
+            ) : (
+              <>
+                <CancelButton onClick={handleModalClose} disabled={isSaving}>
+                  {t("cancel")}
+                </CancelButton>
+                <ActionButton onClick={handleSave} loading={isSaving} size="sm">
+                  {isCreateMode ? t("games.createModal.submit") : t("save")}
+                </ActionButton>
+              </>
+            )}
+          </Group>
         </Group>
       </Stack>
     </Modal>
