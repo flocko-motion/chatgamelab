@@ -7,6 +7,8 @@ import (
 	"cgl/game/ai"
 	"cgl/log"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 // GetSystemSettings retrieves the global system settings
@@ -16,17 +18,26 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 		return nil, err
 	}
 
-	return &obj.SystemSettings{
+	settings := &obj.SystemSettings{
 		ID:             row.ID,
 		CreatedAt:      &row.CreatedAt,
 		ModifiedAt:     &row.ModifiedAt,
 		DefaultAiModel: row.DefaultAiModel,
-	}, nil
+	}
+	if row.FreeUseApiKeyID.Valid {
+		settings.FreeUseApiKeyID = &row.FreeUseApiKeyID.UUID
+	}
+	return settings, nil
 }
 
 // UpdateDefaultAiModel updates the default AI model setting
 func UpdateDefaultAiModel(ctx context.Context, model string) error {
 	return queries().UpdateDefaultAiModel(ctx, model)
+}
+
+// UpdateSystemSettingsFreeUseApiKey sets or clears the free-use API key (admin only).
+func UpdateSystemSettingsFreeUseApiKey(ctx context.Context, apiKeyID *uuid.UUID) error {
+	return queries().UpdateSystemSettingsFreeUseApiKey(ctx, uuidPtrToNullUUID(apiKeyID))
 }
 
 // InitSystemSettings ensures system settings exist with a default value

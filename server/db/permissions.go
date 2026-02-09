@@ -707,7 +707,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
 				for _, share := range shares {
-					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicSponsoredPlays {
+					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicGameSponsoring {
 						return nil
 					}
 				}

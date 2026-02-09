@@ -856,7 +856,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
-// priority chain (workshop → user default) and updates the session.
+// priority chain (workshop → institution free-use → system free-use → user default) and updates the session.
 // Used when resuming a session whose API key was deleted.
 func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	// Load and verify session ownership
@@ -869,11 +869,12 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	}
 
 	// Resolve the API key using the same priority chain as session creation:
-	// 1. Workshop key → 2. User default key
+	// 1. Workshop key → 2. Institution free-use key → 3. System free-use key → 4. User default key
 	var share *obj.ApiKeyShare
 
-	// 1. Check for workshop key
 	user, userErr := GetUserByID(ctx, userID)
+
+	// 1. Check for workshop key
 	if userErr == nil && user.Role != nil && user.Role.Workshop != nil {
 		workshop, wsErr := GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
 		if wsErr == nil && workshop.DefaultApiKeyShareID != nil {
@@ -881,7 +882,26 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		}
 	}
 
-	// 2. Check user's default API key (is_default=true on api_key table)
+	// 2. Check institution free-use key
+	if share == nil && userErr == nil && user.Role != nil && user.Role.Institution != nil && user.Role.Institution.FreeUseApiKeyShareID != nil {
+		share, _ = GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
+	}
+
+	// 3. Check system free-use key (stored as api_key_id, not a share)
+	if share == nil {
+		settings, settingsErr := GetSystemSettings(ctx)
+		if settingsErr == nil && settings.FreeUseApiKeyID != nil {
+			apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
+			if keyErr == nil {
+				share = &obj.ApiKeyShare{
+					ApiKeyID: apiKey.ID,
+					ApiKey:   apiKey,
+				}
+			}
+		}
+	}
+
+	// 4. Check user's default API key (is_default=true on api_key table)
 	if share == nil {
 		defaultKey, _ := GetDefaultApiKeyForUser(ctx, userID)
 		if defaultKey != nil {

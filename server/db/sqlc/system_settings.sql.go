@@ -18,16 +18,18 @@ SELECT
   id,
   created_at,
   modified_at,
-  default_ai_model
+  default_ai_model,
+  free_use_api_key_id
 FROM system_settings
 LIMIT 1
 `
 
 type GetSystemSettingsRow struct {
-	ID             uuid.UUID
-	CreatedAt      time.Time
-	ModifiedAt     time.Time
-	DefaultAiModel string
+	ID              uuid.UUID
+	CreatedAt       time.Time
+	ModifiedAt      time.Time
+	DefaultAiModel  string
+	FreeUseApiKeyID uuid.NullUUID
 }
 
 // System Settings queries
@@ -39,6 +41,7 @@ func (q *Queries) GetSystemSettings(ctx context.Context) (GetSystemSettingsRow, 
 		&i.CreatedAt,
 		&i.ModifiedAt,
 		&i.DefaultAiModel,
+		&i.FreeUseApiKeyID,
 	)
 	return i, err
 }
@@ -63,5 +66,17 @@ SET
 
 func (q *Queries) UpdateDefaultAiModel(ctx context.Context, defaultAiModel string) error {
 	_, err := q.db.ExecContext(ctx, updateDefaultAiModel, defaultAiModel)
+	return err
+}
+
+const updateSystemSettingsFreeUseApiKey = `-- name: UpdateSystemSettingsFreeUseApiKey :exec
+UPDATE system_settings
+SET
+  free_use_api_key_id = $1,
+  modified_at = now()
+`
+
+func (q *Queries) UpdateSystemSettingsFreeUseApiKey(ctx context.Context, freeUseApiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, updateSystemSettingsFreeUseApiKey, freeUseApiKeyID)
 	return err
 }

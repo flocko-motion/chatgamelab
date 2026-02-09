@@ -24,7 +24,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id
 `
 
 type CreateInstitutionParams struct {
@@ -55,6 +55,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
 	)
 	return i, err
 }
@@ -213,7 +214,7 @@ func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) e
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id FROM institution WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
@@ -227,6 +228,7 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
 	)
 	return i, err
 }
@@ -325,7 +327,7 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id FROM institution WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
@@ -345,6 +347,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.ModifiedAt,
 			&i.Name,
 			&i.DeletedAt,
+			&i.FreeUseApiKeyShareID,
 		); err != nil {
 			return nil, err
 		}
@@ -445,6 +448,22 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 	return items, nil
 }
 
+const setInstitutionFreeUseApiKeyShare = `-- name: SetInstitutionFreeUseApiKeyShare :exec
+UPDATE institution
+SET free_use_api_key_share_id = $2, modified_at = now()
+WHERE id = $1
+`
+
+type SetInstitutionFreeUseApiKeyShareParams struct {
+	ID                   uuid.UUID
+	FreeUseApiKeyShareID uuid.NullUUID
+}
+
+func (q *Queries) SetInstitutionFreeUseApiKeyShare(ctx context.Context, arg SetInstitutionFreeUseApiKeyShareParams) error {
+	_, err := q.db.ExecContext(ctx, setInstitutionFreeUseApiKeyShare, arg.ID, arg.FreeUseApiKeyShareID)
+	return err
+}
+
 const setWorkshopDefaultApiKey = `-- name: SetWorkshopDefaultApiKey :one
 UPDATE workshop SET
   modified_by = $2,
@@ -491,7 +510,7 @@ UPDATE institution SET
   modified_at = $5,
   name = $6
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id
 `
 
 type UpdateInstitutionParams struct {
@@ -521,6 +540,7 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
 	)
 	return i, err
 }

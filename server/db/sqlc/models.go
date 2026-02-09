@@ -37,7 +37,7 @@ type ApiKeyShare struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
-	AllowPublicSponsoredPlays bool
+	AllowPublicGameSponsoring bool
 }
 
 type AppUser struct {
@@ -131,21 +131,23 @@ type GameTag struct {
 }
 
 type Institution struct {
-	ID         uuid.UUID
-	CreatedBy  uuid.NullUUID
-	CreatedAt  time.Time
-	ModifiedBy uuid.NullUUID
-	ModifiedAt time.Time
-	Name       string
-	DeletedAt  sql.NullTime
+	ID                   uuid.UUID
+	CreatedBy            uuid.NullUUID
+	CreatedAt            time.Time
+	ModifiedBy           uuid.NullUUID
+	ModifiedAt           time.Time
+	Name                 string
+	DeletedAt            sql.NullTime
+	FreeUseApiKeyShareID uuid.NullUUID
 }
 
 type SystemSetting struct {
-	ID             uuid.UUID
-	CreatedAt      time.Time
-	ModifiedAt     time.Time
-	DefaultAiModel string
-	SchemaVersion  int32
+	ID              uuid.UUID
+	CreatedAt       time.Time
+	ModifiedAt      time.Time
+	DefaultAiModel  string
+	SchemaVersion   int32
+	FreeUseApiKeyID uuid.NullUUID
 }
 
 type UserFavouriteGame struct {

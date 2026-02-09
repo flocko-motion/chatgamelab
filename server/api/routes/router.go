@@ -23,6 +23,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
 	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
+	mux.Handle("PATCH /api/system/settings/free-use-key", httpx.RequireAuth(SetSystemFreeUseApiKey))
 
 	// Games
 	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
@@ -49,6 +50,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/apikeys/{id}", httpx.RequireAuth(ShareApiKey))
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
 	mux.Handle("PUT /api/apikeys/{id}/default", httpx.RequireAuth(SetDefaultApiKey))
+	mux.Handle("PATCH /api/apikeys/{id}/sponsoring", httpx.RequireAuth(UpdateApiKeyShare))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
 	// Auth
@@ -82,6 +84,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/institutions/{id}/members", httpx.RequireAuth(GetInstitutionMembers))
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
 	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
+	mux.Handle("PATCH /api/institutions/{id}/free-use-key", httpx.RequireAuth(SetInstitutionFreeUseApiKeyShare))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))

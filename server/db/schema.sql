@@ -39,7 +39,9 @@ CREATE TABLE institution (
     modified_at     timestamptz NOT NULL DEFAULT now(),
 
     name            text NOT NULL UNIQUE,
-    deleted_at      timestamptz NULL
+    deleted_at      timestamptz NULL,
+    -- Free-use API key share for institution members (any member can use this key to play)
+    free_use_api_key_share_id uuid NULL REFERENCES api_key_share(id)
 );
 
 -- Workshop
@@ -205,7 +207,7 @@ CREATE TABLE api_key_share (
     user_id                         uuid NULL REFERENCES app_user(id),
     workshop_id                     uuid NULL REFERENCES workshop(id),
     institution_id                  uuid NULL REFERENCES institution(id),
-    allow_public_sponsored_plays    boolean NOT NULL DEFAULT false,
+    allow_public_game_sponsoring     boolean NOT NULL DEFAULT false,
 
     CONSTRAINT api_key_share_target_chk CHECK (
         user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL
@@ -349,6 +351,8 @@ CREATE TABLE system_settings (
     default_ai_model text NOT NULL,
     -- Schema version for tracking applied migrations
     schema_version integer NOT NULL DEFAULT 0,
+    -- Free-use API key for all users (admin-configured, references api_key directly)
+    free_use_api_key_id uuid NULL REFERENCES api_key(id),
     -- Ensure only one row exists by enforcing a fixed ID
     CONSTRAINT system_settings_singleton CHECK (
         id = '00000000-0000-0000-0000-000000000001'::uuid

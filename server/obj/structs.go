@@ -52,10 +52,11 @@ type UserStats struct {
 }
 
 type Institution struct {
-	ID      uuid.UUID           `json:"id"`
-	Meta    Meta                `json:"meta"`
-	Name    string              `json:"name"`
-	Members []InstitutionMember `json:"members,omitempty"`
+	ID                   uuid.UUID           `json:"id"`
+	Meta                 Meta                `json:"meta"`
+	Name                 string              `json:"name"`
+	Members              []InstitutionMember `json:"members,omitempty"`
+	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
 }
 
 type InstitutionMember struct {
@@ -66,10 +67,11 @@ type InstitutionMember struct {
 }
 
 type SystemSettings struct {
-	ID             uuid.UUID  `json:"id"`
-	CreatedAt      *time.Time `json:"createdAt"`
-	ModifiedAt     *time.Time `json:"modifiedAt"`
-	DefaultAiModel string     `json:"defaultAiModel"`
+	ID              uuid.UUID  `json:"id"`
+	CreatedAt       *time.Time `json:"createdAt"`
+	ModifiedAt      *time.Time `json:"modifiedAt"`
+	DefaultAiModel  string     `json:"defaultAiModel"`
+	FreeUseApiKeyID *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 }
 
 type Role string
@@ -155,7 +157,7 @@ type ApiKeyShare struct {
 	User                      *User        `json:"user,omitempty"`
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
-	AllowPublicSponsoredPlays bool         `json:"allowPublicSponsoredPlays"`
+	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 }
 

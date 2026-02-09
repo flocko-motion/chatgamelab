@@ -28,6 +28,11 @@ UPDATE institution SET
 WHERE id = $1
 RETURNING *;
 
+-- name: SetInstitutionFreeUseApiKeyShare :exec
+UPDATE institution
+SET free_use_api_key_share_id = $2, modified_at = now()
+WHERE id = $1;
+
 -- name: DeleteInstitution :exec
 UPDATE institution SET deleted_at = now() WHERE id = $1;
 
