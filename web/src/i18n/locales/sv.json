@@ -87,8 +87,6 @@
       "saveButton": "Spara ändringar",
       "saved": "Ändringar sparade",
       "saving": "Sparar...",
-      "showAiModelSelectorDescription": "När detta är aktiverat kan du välja vilket AI-modell som ska användas varje gång du startar en spelsession.",
-      "showAiModelSelectorLabel": "Visa AI-modellväljare",
       "subtitle": "Hantera dina kontoinställningar",
       "title": "Inställningar"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Skapa inbjudningslänk",
         "createTitle": "Skapa workshop",
         "deactivate": "Inaktivera",
-        "defaultAiModel": "Standard-AI-modell",
-        "defaultAiModelHint": "Modell som används när deltagare inte kan välja. Kräver att en API-nyckel är angiven.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Standard-API-nyckel",
         "defaultApiKeyHint": "Deltagarna kommer att använda denna API-nyckel när de spelar.",
         "deleteConfirm": "Är du säker på att du vill ta bort \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Välj en API-nyckel",
         "settings": "Inställningar",
         "shareParticipantLink": "Kopiera individuell inbjudningslänk för denna deltagare",
-        "showAiModelSelector": "Tillåt deltagare att välja AI-modell",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Visa andra deltagares spel",
         "showPublicGames": "Visa offentliga spel för deltagare",
         "sort": {

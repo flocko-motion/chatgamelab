@@ -87,8 +87,6 @@
       "saveButton": "Αποθήκευση αλλαγών",
       "saved": "Οι αλλαγές αποθηκεύτηκαν επιτυχώς",
       "saving": "Αποθήκευση...",
-      "showAiModelSelectorDescription": "Όταν είναι ενεργοποιημένο, μπορείτε να επιλέγετε ποιο μοντέλο τεχνητής νοημοσύνης θα χρησιμοποιείται κάθε φορά που ξεκινάτε μια συνεδρία παιχνιδιού.",
-      "showAiModelSelectorLabel": "Εμφάνιση επιλογής μοντέλου AI",
       "subtitle": "Διαχειριστείτε τις ρυθμίσεις του λογαριασμού σας",
       "title": "Ρυθμίσεις"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Δημιουργία συνδέσμου πρόσκλησης",
         "createTitle": "Δημιουργία εργαστηρίου",
         "deactivate": "Απενεργοποίηση",
-        "defaultAiModel": "Προεπιλεγμένο μοντέλο AI",
-        "defaultAiModelHint": "Μοντέλο που χρησιμοποιείται όταν οι συμμετέχοντες δεν μπορούν να επιλέξουν. Απαιτείται να έχει οριστεί κλειδί API.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Προεπιλεγμένο κλειδί API",
         "defaultApiKeyHint": "Οι συμμετέχοντες θα χρησιμοποιούν αυτό το κλειδί API κατά το παίξιμο.",
         "deleteConfirm": "Είστε σίγουροι ότι θέλετε να διαγράψετε το \"{{name}}\";",
@@ -691,7 +692,7 @@
         "selectApiKey": "Επιλέξτε ένα κλειδί API",
         "settings": "Ρυθμίσεις",
         "shareParticipantLink": "Αντιγραφή ατομικού συνδέσμου πρόσκλησης για αυτόν τον συμμετέχοντα",
-        "showAiModelSelector": "Να επιτρέπεται στους συμμετέχοντες η επιλογή μοντέλου AI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Εμφάνιση παιχνιδιών άλλων συμμετεχόντων",
         "showPublicGames": "Εμφάνιση δημόσιων παιχνιδιών στους συμμετέχοντες",
         "sort": {

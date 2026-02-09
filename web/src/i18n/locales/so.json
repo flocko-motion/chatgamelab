@@ -87,8 +87,6 @@
       "saveButton": "Kaydi Isbeddelada",
       "saved": "Isbeddelada si guul leh ayaa loo kaydiyey",
       "saving": "Waa la keydinayaa...",
-      "showAiModelSelectorDescription": "Marka la dhaqaajiyo, waxaad dooran kartaa moodelka AI ee la isticmaali doono mar kasta oo aad bilowdo kalfadhiga ciyaarta.",
-      "showAiModelSelectorLabel": "Muuji doorashada Moodelka AI",
       "subtitle": "Maaree dejimaha koontadaada",
       "title": "Dejimaha"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Abuur Link Casuumaad",
         "createTitle": "Abuur Workshop",
         "deactivate": "Demi",
-        "defaultAiModel": "Moodel AI ee Caadiga ah",
-        "defaultAiModelHint": "Moodelka la isticmaali doono marka kaqaybgalayaashu aysan dooran karin. Waxay u baahan tahay fure API oo la dejiyey.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Fure API ee Caadiga ah",
         "defaultApiKeyHint": "Kaqaybgalayaashu waxay isticmaali doonaan furehan marka ay ciyaarayaan.",
         "deleteConfirm": "Ma hubtaa inaad tirtiri rabto \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Dooro Fure API",
         "settings": "Dejimaha",
         "shareParticipantLink": "Koobiye link casuumaad shaqsi ah oo loogu talagalay kaqaybgalahan",
-        "showAiModelSelector": "U oggolow kaqaybgalayaasha inay doortaan moodelka AI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Muuji ciyaaraha kaqaybgalayaasha kale",
         "showPublicGames": "Muuji ciyaaraha guud ee kaqaybgalayaasha",
         "sort": {

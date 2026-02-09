@@ -87,8 +87,6 @@
       "saveButton": "Lagre endringer",
       "saved": "Endringer lagret",
       "saving": "Lagrer...",
-      "showAiModelSelectorDescription": "Når aktivert, kan du velge hvilken KI-modell som skal brukes hver gang du starter en spillsesjon.",
-      "showAiModelSelectorLabel": "Vis valg for KI-modell",
       "subtitle": "Administrer kontoinnstillingene dine",
       "title": "Innstillinger"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Opprett invitasjonslenke",
         "createTitle": "Opprett workshop",
         "deactivate": "Deaktiver",
-        "defaultAiModel": "Standard-KI-modell",
-        "defaultAiModelHint": "Modell som brukes når deltakere ikke kan velge. Krever at en API-nøkkel er satt.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Standard-API-nøkkel",
         "defaultApiKeyHint": "Deltakerne vil bruke denne API-nøkkelen når de spiller spill.",
         "deleteConfirm": "Er du sikker på at du vil slette \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Velg en API-nøkkel",
         "settings": "Innstillinger",
         "shareParticipantLink": "Kopier individuell invitasjonslenke for denne deltakeren",
-        "showAiModelSelector": "La deltakere velge KI-modell",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Vis andre deltakeres spill",
         "showPublicGames": "Vis offentlige spill for deltakere",
         "sort": {

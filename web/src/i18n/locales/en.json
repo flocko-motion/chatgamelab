@@ -87,14 +87,19 @@
       "saveButton": "Save Changes",
       "saved": "Changes saved successfully",
       "saving": "Saving...",
-      "showAiModelSelectorDescription": "When enabled, you can choose which AI model to use each time you start a game session.",
-      "showAiModelSelectorLabel": "Show AI Model Selector",
       "subtitle": "Manage your account settings",
       "title": "Settings"
     }
   },
   "common": {
     "actions": "Actions",
+    "aiQualityTier": {
+      "high": "High (Premium)",
+      "label": "AI Quality Tier",
+      "low": "Low (Economy)",
+      "medium": "Medium (Balanced)",
+      "serverDefault": "Server Default"
+    },
     "admin": {
       "invites": {
         "actions": "Actions",
@@ -235,6 +240,9 @@
       "unfavorite": "Remove from favorites"
     },
     "apiKeys": {
+      "aiQualityTier": {
+        "description": "Choose the AI quality level for your games when using your own API key. Higher tiers cost more but may have higher quality. Leave empty to use the server default."
+      },
       "aboutSection": {
         "description": "API keys are used to connect to AI platforms for generating game content. The selected key (marked with a checkmark) will be used by default when creating new game sessions.",
         "title": "About API Keys"
@@ -671,9 +679,8 @@
         "createFirst": "Create Your First Workshop",
         "createInviteLink": "Create Invite Link",
         "createTitle": "Create Workshop",
+        "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "deactivate": "Deactivate",
-        "defaultAiModel": "Default AI Model",
-        "defaultAiModelHint": "Model used when participants cannot choose. Requires an API key to be set.",
         "defaultApiKey": "Default API Key",
         "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
@@ -716,7 +723,6 @@
         "selectApiKey": "Select an API key",
         "settings": "Settings",
         "shareParticipantLink": "Copy individual invite link for this participant",
-        "showAiModelSelector": "Allow participants to select AI model",
         "showOtherParticipantsGames": "Show other participants' games",
         "showPublicGames": "Show public games to participants",
         "sort": {
@@ -801,6 +807,10 @@
     "serverSettings": {
       "title": "Server Settings",
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
+      "defaultTier": {
+        "title": "Default AI Quality Tier",
+        "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality."
+      },
       "freeUseKey": {
         "title": "Free-Use API Key",
         "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
@@ -808,6 +818,10 @@
         "remove": "Remove",
         "unknownKey": "Unknown key (may have been deleted)",
         "noKeys": "You have no API keys. Add one in your API Key settings first."
+      },
+      "freeUseTier": {
+        "title": "Free-Use AI Quality Tier",
+        "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier."
       }
     },
     "settings": "Settings",

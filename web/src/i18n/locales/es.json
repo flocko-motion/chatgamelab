@@ -87,8 +87,6 @@
       "saveButton": "Guardar cambios",
       "saved": "Cambios guardados con éxito",
       "saving": "Guardando...",
-      "showAiModelSelectorDescription": "Cuando esté activado, podrás elegir qué modelo de IA usar cada vez que inicies una sesión de juego.",
-      "showAiModelSelectorLabel": "Mostrar selector de modelo de IA",
       "subtitle": "Gestiona la configuración de tu cuenta",
       "title": "Ajustes"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Crear enlace de invitación",
         "createTitle": "Crear taller",
         "deactivate": "Desactivar",
-        "defaultAiModel": "Modelo de IA por defecto",
-        "defaultAiModelHint": "Modelo usado cuando los participantes no pueden elegir. Requiere que se establezca una clave API.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Clave API predeterminada",
         "defaultApiKeyHint": "Los participantes usarán esta clave API al jugar.",
         "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Seleccionar una clave API",
         "settings": "Ajustes",
         "shareParticipantLink": "Copiar enlace de invitación individual para este participante",
-        "showAiModelSelector": "Permitir a los participantes seleccionar modelo de IA",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Mostrar los juegos de otros participantes",
         "showPublicGames": "Mostrar juegos públicos a los participantes",
         "sort": {

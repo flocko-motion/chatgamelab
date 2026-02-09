@@ -87,8 +87,6 @@
       "saveButton": "Änderungen speichern",
       "saved": "Änderungen erfolgreich g'speichert",
       "saving": "Wird g'speichert...",
-      "showAiModelSelectorDescription": "Wenn a eingeschaltet is, kannst du bei jedem Spielstart aussuachn, wos KI-Modell verwendet werdn soll.",
-      "showAiModelSelectorLabel": "KI-Modell-Auswahlanzeige",
       "subtitle": "Verwalt dei Konto-Einstellungen",
       "title": "Einstellungen"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Einladungslink erstellen",
         "createTitle": "Workshop erstellen",
         "deactivate": "Deaktiviern",
-        "defaultAiModel": "Standard-KI-Modell",
-        "defaultAiModelHint": "Modell, des verwendet werd, wenn Teilnehmer ned auswähln kennen. Braucht a API-Schlüssal.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Standard-API-Schlüssal",
         "defaultApiKeyHint": "Teilnehmer verwenden den Schlüssal beim Spui'n.",
         "deleteConfirm": "Bist du si­cher, dassd \"{{name}}\" löschen willst?",
@@ -691,7 +692,7 @@
         "selectApiKey": "API-Schlüssal auswähln",
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für den Teilnehmer kopiern",
-        "showAiModelSelector": "Teilnehmer kennen KI-Modell auswähln",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Spiele vo andern Teilnehmern anzeigen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {

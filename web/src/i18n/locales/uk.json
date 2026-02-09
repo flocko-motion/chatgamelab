@@ -87,8 +87,6 @@
       "saveButton": "Зберегти зміни",
       "saved": "Зміни успішно збережено",
       "saving": "Збереження...",
-      "showAiModelSelectorDescription": "Якщо увімкнено, ви зможете вибирати модель ШІ щоразу при запуску ігрової сесії.",
-      "showAiModelSelectorLabel": "Показувати вибір моделі ШІ",
       "subtitle": "Керування налаштуваннями облікового запису",
       "title": "Налаштування"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Створити посилання для запрошення",
         "createTitle": "Створити воркшоп",
         "deactivate": "Деактивувати",
-        "defaultAiModel": "Модель ШІ за замовчуванням",
-        "defaultAiModelHint": "Модель, яка використовується, якщо учасники не можуть обирати. Потребує встановленого API-ключа.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "API-ключ за замовчуванням",
         "defaultApiKeyHint": "Учасники використовуватимуть цей API-ключ під час гри.",
         "deleteConfirm": "Ви впевнені, що хочете видалити \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Оберіть API-ключ",
         "settings": "Налаштування",
         "shareParticipantLink": "Скопіювати індивідуальне посилання для запрошення для цього учасника",
-        "showAiModelSelector": "Дозволити учасникам обирати модель ШІ",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Показувати ігри інших учасників",
         "showPublicGames": "Показувати публічні ігри учасникам",
         "sort": {

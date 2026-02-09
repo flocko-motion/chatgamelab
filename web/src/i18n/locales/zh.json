@@ -87,8 +87,6 @@
       "saveButton": "保存更改",
       "saved": "更改已成功保存",
       "saving": "保存中...",
-      "showAiModelSelectorDescription": "启用后，每次开始游戏会话时，你可以选择要使用的 AI 模型。",
-      "showAiModelSelectorLabel": "显示 AI 模型选择器",
       "subtitle": "管理你的账户设置",
       "title": "设置"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "创建邀请链接",
         "createTitle": "创建工作坊",
         "deactivate": "停用",
-        "defaultAiModel": "默认 AI 模型",
-        "defaultAiModelHint": "当参与者无法选择时使用的模型。需要设置 API 密钥。",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "默认 API 密钥",
         "defaultApiKeyHint": "参与者在游玩时将使用此 API 密钥。",
         "deleteConfirm": "你确定要删除 \"{{name}}\" 吗？",
@@ -691,7 +692,7 @@
         "selectApiKey": "选择 API 密钥",
         "settings": "设置",
         "shareParticipantLink": "复制该参与者的个人邀请链接",
-        "showAiModelSelector": "允许参与者选择 AI 模型",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "显示其他参与者的游戏",
         "showPublicGames": "向参与者显示公开游戏",
         "sort": {

@@ -87,8 +87,6 @@
       "saveButton": "Ruaj ndryshimet",
       "saved": "Ndryshimet u ruajtën me sukses",
       "saving": "Duke ruajtur...",
-      "showAiModelSelectorDescription": "Kur aktivizohet, mund të zgjidhni modelin e AI që do të përdoret çdo herë që filloni një seancë loje.",
-      "showAiModelSelectorLabel": "Trego zgjedhësin e modelit AI",
       "subtitle": "Menaxhoni cilësimet e llogarisë suaj",
       "title": "Cilësimet"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Krijo link ftesë",
         "createTitle": "Krijo workshop",
         "deactivate": "Ç'aktivizo",
-        "defaultAiModel": "Modeli AI parazgjedhje",
-        "defaultAiModelHint": "Modeli që përdoret kur pjesëmarrësit nuk mund të zgjedhin. Kërkon që të jetë vendosur një çelës API.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Çelësi API parazgjedhje",
         "defaultApiKeyHint": "Pjesëmarrësit do të përdorin këtë çelës API kur luajnë lojëra.",
         "deleteConfirm": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Zgjidh një çelës API",
         "settings": "Cilësimet",
         "shareParticipantLink": "Kopjo linkun individual të ftesës për këtë pjesëmarrës",
-        "showAiModelSelector": "Lejo pjesëmarrësit të zgjedhin modelin AI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Trego lojërat e pjesëmarrësve të tjerë",
         "showPublicGames": "Trego lojërat publike për pjesëmarrësit",
         "sort": {

@@ -87,8 +87,6 @@
       "saveButton": "بدلونونه خوندي کړه",
       "saved": "بدلونونه په بریالیتوب سره ثبت شول",
       "saving": "خوندي کېږي...",
-      "showAiModelSelectorDescription": "که فعال شي، تاسو کولی شئ هر ځل د لوبې پیل پر مهال د کارولو لپاره د AI ماډل غوره کړئ.",
-      "showAiModelSelectorLabel": "د AI ماډل انتخاب ښودل",
       "subtitle": "خپل حساب تنظیمات مدیریت کړئ",
       "title": "تنظیمات"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "د بلنې لینک جوړ کړئ",
         "createTitle": "ورکشاپ جوړ کړئ",
         "deactivate": "غیرفعالول",
-        "defaultAiModel": "معیاري AI ماډل",
-        "defaultAiModelHint": "هغه ماډل چې کارول کېږي کله چې ګډونوال نشي کولی غوره کړي. د کار لپاره باید یوه API کیلي تنظیم شوی وي.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "معیاري API کیلي",
         "defaultApiKeyHint": "ګډونوال به د لوبې پر مهال دا API کیلي وکاروي.",
         "deleteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟",
@@ -691,7 +692,7 @@
         "selectApiKey": "د API کیلي غوره کړئ",
         "settings": "ترتیبات",
         "shareParticipantLink": "د دې ګډونوال لپاره انفرادي بلنې لینک نقل کړئ",
-        "showAiModelSelector": "ګډونوال ته د AI ماډل انتخاب اجازه ورکړئ",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "د نورو ګډونوالو لوبې وښایئ",
         "showPublicGames": "عامې لوبې ګډونوالو ته وښایئ",
         "sort": {

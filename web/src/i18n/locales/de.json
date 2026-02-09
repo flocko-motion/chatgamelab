@@ -87,14 +87,19 @@
       "saveButton": "Änderungen speichern",
       "saved": "Änderungen erfolgreich gespeichert",
       "saving": "Wird gespeichert...",
-      "showAiModelSelectorDescription": "Wenn aktiviert, kannst du bei jedem Spielstart auswählen, welches KI-Modell verwendet werden soll.",
-      "showAiModelSelectorLabel": "KI-Modell-Auswahl anzeigen",
       "subtitle": "Verwalte deine Kontoeinstellungen",
       "title": "Einstellungen"
     }
   },
   "common": {
     "actions": "Aktionen",
+    "aiQualityTier": {
+      "high": "Hoch (Premium)",
+      "label": "KI-Qualitätsstufe",
+      "low": "Niedrig (Sparsam)",
+      "medium": "Mittel (Ausgewogen)",
+      "serverDefault": "Serverstandard"
+    },
     "admin": {
       "invites": {
         "actions": "Aktionen",
@@ -235,6 +240,9 @@
       "unfavorite": "Aus Favoriten entfernen"
     },
     "apiKeys": {
+      "aiQualityTier": {
+        "description": "Wähle die KI-Qualitätsstufe für deine Spiele bei Verwendung deines eigenen API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Servereinstellung."
+      },
       "aboutSection": {
         "description": "API-Schlüssel werden verwendet, um sich mit KI-Plattformen für die Generierung von Spielinhalten zu verbinden. Der ausgewählte Schlüssel (mit einem Häkchen markiert) wird standardmäßig beim Erstellen neuer Spielsitzungen verwendet.",
         "title": "Über API-Schlüssel"
@@ -671,9 +679,8 @@
         "createFirst": "Ersten Workshop erstellen",
         "createInviteLink": "Einladungslink erstellen",
         "createTitle": "Workshop erstellen",
+        "aiQualityTierHint": "Qualitätsstufe für KI-Antworten. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer verwendet die Servereinstellung.",
         "deactivate": "Deaktivieren",
-        "defaultAiModel": "Standard-KI-Modell",
-        "defaultAiModelHint": "Modell, das verwendet wird, wenn Teilnehmer nicht wählen können. Erfordert einen eingestellten API-Schlüssel.",
         "defaultApiKey": "Standard-API-Schlüssel",
         "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
         "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten?",
@@ -716,7 +723,6 @@
         "selectApiKey": "API-Schlüssel auswählen",
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
-        "showAiModelSelector": "Teilnehmer können KI-Modell auswählen",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
@@ -796,18 +802,75 @@
       },
       "startNewGame": "Starte ein neues Spiel",
       "title": "Deine laufenden Spiele",
-      "untitledGame": "Unbenanntes Spiel"
+      "freeUseKey": {
+        "title": "Freier Nutzungsschlüssel",
+        "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen. Nur bereits mit dieser Organisation geteilte Schlüssel können ausgewählt werden.",
+        "selectPlaceholder": "Geteilten Schlüssel auswählen...",
+        "remove": "Entfernen",
+        "unknownKey": "Unbekannter Schlüssel"
+      }
+    },
+    "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
+    "demoteTitle": "Zum Lehrer herabstufen",
+    "demoteToStaff": "Zum Lehrer herabstufen",
+    "email": "E-Mail",
+    "emailPlaceholder": "E-Mail-Adresse eingeben",
+    "empty": "Keine Mitglieder in dieser Organisation.",
+    "inviteAlreadyExists": "Für diese E-Mail-Adresse existiert bereits eine ausstehende Einladung.",
+    "inviteError": "Einladung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+    "inviteTeacher": "Lehrer einladen",
+    "inviteTeacherDescription": "Senden Sie eine Einladung an einen Lehrer, Ihrer Organisation beizutreten.",
+    "inviteTeacherTitle": "Lehrer einladen",
+    "inviteUser": "Benutzer einladen",
+    "inviteUserDescription": "Senden Sie eine Einladung an einen Benutzer, Ihrer Organisation ohne spezifische Rolle beizutreten.",
+    "inviteUserTitle": "Benutzer einladen",
+    "leaveConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" verlassen möchten?",
+    "leaveOrganization": "Organisation verlassen",
+    "leaveTitle": "Organisation verlassen",
+    "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+    "me": "Ich",
+    "name": "Name",
+    "noEmail": "Keine E-Mail",
+    "noOrganization": "Keine Organisation",
+    "noOrganizationDescription": "Sie sind kein Mitglied einer Organisation.",
+    "noResults": "Keine Mitglieder entsprechen Ihrer Suche.",
+    "noRole": "Keine Rolle",
+    "promoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Leiter befördern möchten?",
+    "promoteTitle": "Zum Leiter befördern",
+    "promoteToHead": "Zum Leiter befördern",
+    "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
+    "removeConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus der Organisation entfernen möchten?",
+    "removeMember": "Mitglied entfernen",
+    "removeTitle": "Mitglied entfernen",
+    "removeWarning": "Dieser Benutzer verliert den Zugriff auf die Organisation.",
+    "role": "Rolle",
+    "searchPlaceholder": "Mitglieder suchen...",
+    "showing": "{{count}} Mitglieder",
+    "sort": {
+      "label": "Sortieren nach",
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "role-asc": "Rolle (A-Z)",
+      "role-desc": "Rolle (Z-A)"
     },
     "serverSettings": {
       "title": "Servereinstellungen",
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
+      "defaultTier": {
+        "title": "Standard-KI-Qualitätsstufe",
+        "description": "Die serverweite Standardstufe, die verwendet wird, wenn keine spezifische Stufe auf Workshop-, Institutions- oder Benutzerebene konfiguriert ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben."
+      },
       "freeUseKey": {
-        "title": "Freier Nutzungsschlüssel",
-        "description": "Legen Sie einen globalen freien Nutzungsschlüssel fest, damit alle Benutzer auf diesem Server Spiele spielen können, ohne einen eigenen Schlüssel zu benötigen. Dieser Schlüssel wird als Fallback verwendet, wenn kein Workshop- oder Organisationsschlüssel verfügbar ist.",
-        "selectPlaceholder": "Einen Ihrer API-Schlüssel auswählen...",
+        "title": "Freier API-Schlüssel",
+        "description": "Setze einen globalen freien API-Schlüssel, damit alle Benutzer auf diesem Server Spiele spielen können, ohne einen eigenen Schlüssel zu benötigen. Dieser Schlüssel wird als Fallback verwendet, wenn kein Workshop- oder Organisationsschlüssel verfügbar ist.",
+        "selectPlaceholder": "Wähle einen deiner API-Schlüssel...",
         "remove": "Entfernen",
         "unknownKey": "Unbekannter Schlüssel (möglicherweise gelöscht)",
-        "noKeys": "Sie haben keine API-Schlüssel. Fügen Sie zuerst einen in Ihren API-Schlüssel-Einstellungen hinzu."
+        "noKeys": "Du hast keine API-Schlüssel. Füge zuerst einen in deinen API-Schlüssel-Einstellungen hinzu."
+      },
+      "freeUseTier": {
+        "title": "Freie KI-Qualitätsstufe",
+        "description": "Qualitätsstufe bei Verwendung des freien API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Standardstufe."
       }
     },
     "settings": "Einstellungen",

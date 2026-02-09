@@ -87,8 +87,6 @@
       "saveButton": "Salvar alterações",
       "saved": "Alterações salvas com sucesso",
       "saving": "Salvando...",
-      "showAiModelSelectorDescription": "Quando ativado, você pode escolher qual modelo de IA usar cada vez que iniciar uma sessão de jogo.",
-      "showAiModelSelectorLabel": "Mostrar seletor de modelo de IA",
       "subtitle": "Gerencie as configurações da sua conta",
       "title": "Configurações"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Criar link de convite",
         "createTitle": "Criar workshop",
         "deactivate": "Desativar",
-        "defaultAiModel": "Modelo de IA padrão",
-        "defaultAiModelHint": "Modelo usado quando os participantes não podem escolher. Requer que uma chave de API esteja configurada.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Chave de API padrão",
         "defaultApiKeyHint": "Participantes usarão esta chave de API ao jogar.",
         "deleteConfirm": "Tem certeza de que deseja excluir \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Selecionar uma chave de API",
         "settings": "Configurações",
         "shareParticipantLink": "Copiar link de convite individual para este participante",
-        "showAiModelSelector": "Permitir que participantes selecionem o modelo de IA",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Mostrar jogos de outros participantes",
         "showPublicGames": "Mostrar jogos públicos aos participantes",
         "sort": {

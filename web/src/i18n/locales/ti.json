@@ -87,8 +87,6 @@
       "saveButton": "ለውጦች ይዘርፉ",
       "saved": "ለውጦች ብትክክል ተቀዲሙ",
       "saving": "ይዘርፉ...",
-      "showAiModelSelectorDescription": "ካብ ዝተፈለጠ ጊዜ ሕጊ ስለ AI ሞዴል ምርጫ እቲ ዝተፈለጠ ምርጫ ትችላለህ።",
-      "showAiModelSelectorLabel": "ኣማካይ የ AI ሞዴል ምርጫ ይታይ",
       "subtitle": "መለዓለካ ንኣስተዳደር",
       "title": "ቅንብሮች"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "መግቢ ኣድራሻ ፍጠር",
         "createTitle": "ውርክሽፕ ፍጠር",
         "deactivate": "ይውርዱ",
-        "defaultAiModel": "ነባር AI ሞዴል",
-        "defaultAiModelHint": "እዚ ሞዴል እንደፈለጉ ሲሆን ተሳታፊዎች ኣብ ጨዋታ ጊዜ አንዱ አይምርጡ እዩ። ኣብቲ ነባር የ API ቁልፍ ይደርሳል።",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "ነባር API ቁልፍ",
         "defaultApiKeyHint": "ተሳታፊዎች ይህን  API ቁልፍ ሲጫወቱ ይጠቀማሉ።",
         "deleteConfirm": "እርግጠኛ እየ ክርኣይ \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "API ቁልፍ ይምረጡ",
         "settings": "ቅንብሮች",
         "shareParticipantLink": "ንዉርክሽፕ እያንዳንዱ ተሳታፊ የተለየ መግቢ ሊንክ ኣብ ኮፒ ይርእዩ",
-        "showAiModelSelector": "ኣባላት የ AI ሞዴል ምርጫ ይፈቀዱ",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "የሌሎች ተሳታፊዎች ጨዋታታት ኣሳይ",
         "showPublicGames": "ህዝባዊ ጨዋታታት ተሳታፊዎች ምርካብ",
         "sort": {

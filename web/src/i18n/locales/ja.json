@@ -87,8 +87,6 @@
       "saveButton": "変更を保存",
       "saved": "変更が保存されました",
       "saving": "保存中...",
-      "showAiModelSelectorDescription": "有効にすると、ゲームセッション開始時に使用するAIモデルを選択できます。",
-      "showAiModelSelectorLabel": "AIモデル選択を表示する",
       "subtitle": "アカウント設定を管理する",
       "title": "設定"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "招待リンクを作成",
         "createTitle": "ワークショップを作成",
         "deactivate": "無効化",
-        "defaultAiModel": "デフォルトAIモデル",
-        "defaultAiModelHint": "参加者が選べない場合に使用されるモデルです。APIキーの設定が必要です。",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "デフォルトAPIキー",
         "defaultApiKeyHint": "参加者はゲームプレイ時にこのAPIキーを使用します。",
         "deleteConfirm": "「{{name}}」を本当に削除しますか？",
@@ -691,7 +692,7 @@
         "selectApiKey": "APIキーを選択",
         "settings": "設定",
         "shareParticipantLink": "この参加者用の個別招待リンクをコピー",
-        "showAiModelSelector": "参加者がAIモデルを選択できるようにする",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "他の参加者のゲームを表示する",
         "showPublicGames": "公開ゲームを参加者に表示する",
         "sort": {

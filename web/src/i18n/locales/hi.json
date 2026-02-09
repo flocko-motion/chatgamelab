@@ -87,8 +87,6 @@
       "saveButton": "परिवर्तन सहेजें",
       "saved": "परिवर्तन सफलतापूर्वक सहेजे गए",
       "saving": "सहेजा जा रहा है...",
-      "showAiModelSelectorDescription": "सक्रिय होने पर, आप प्रत्येक गेम सत्र शुरू करते समय किस AI मॉडल का उपयोग करना है चुन सकते हैं।",
-      "showAiModelSelectorLabel": "AI मॉडल चयन दिखाएँ",
       "subtitle": "अपने खाते की सेटिंग्स प्रबंधित करें",
       "title": "सेटिंग्स"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "निमंत्रण लिंक बनाएं",
         "createTitle": "वर्कशॉप बनाएं",
         "deactivate": "निष्क्रिय करें",
-        "defaultAiModel": "डिफ़ॉल्ट AI मॉडल",
-        "defaultAiModelHint": "जब प्रतिभागी चुन न सकें तब उपयोग किया जाने वाला मॉडल। इसके लिए एक API कुंजी आवश्यक है।",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "डिफ़ॉल्ट API कुंजी",
         "defaultApiKeyHint": "प्रतिभागी गेम खेलते समय इस API कुंजी का उपयोग करेंगे।",
         "deleteConfirm": "क्या आप निश्चित रूप से \"{{name}}\" को हटाना चाहते हैं?",
@@ -691,7 +692,7 @@
         "selectApiKey": "API कुंजी चुनें",
         "settings": "सेटिंग्स",
         "shareParticipantLink": "इस प्रतिभागी के लिए व्यक्तिगत निमंत्रण लिंक कॉपी करें",
-        "showAiModelSelector": "प्रतिभागियों को AI मॉडल चुनने की अनुमति दें",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "अन्य प्रतिभागियों के गेम दिखाएँ",
         "showPublicGames": "प्रतिभागियों को सार्वजनिक गेम दिखाएँ",
         "sort": {

@@ -87,8 +87,6 @@
       "saveButton": "Változtatások mentése",
       "saved": "A módosítások sikeresen elmentve",
       "saving": "Mentés…",
-      "showAiModelSelectorDescription": "Ha engedélyezve van, játékindításkor kiválaszthatod, melyik MI-modellt használja a rendszer.",
-      "showAiModelSelectorLabel": "MI-modell kiválasztó megjelenítése",
       "subtitle": "Fiókbeállítások kezelése",
       "title": "Beállítások"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Meghívólink létrehozása",
         "createTitle": "Workshop létrehozása",
         "deactivate": "Deaktiválás",
-        "defaultAiModel": "Alapértelmezett MI-modell",
-        "defaultAiModelHint": "Olyan modell, amelyet akkor használnak, ha a résztvevők nem választhatnak. API-kulcs beállítását igényli.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Alapértelmezett API-kulcs",
         "defaultApiKeyHint": "A résztvevők ezt az API-kulcsot fogják használni játék közben.",
         "deleteConfirm": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t?",
@@ -691,7 +692,7 @@
         "selectApiKey": "API-kulcs kiválasztása",
         "settings": "Beállítások",
         "shareParticipantLink": "Egyedi meghívólink másolása ennek a résztvevőnek",
-        "showAiModelSelector": "Engedélyezd, hogy a résztvevők MI-modellt válasszanak",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Más résztvevők játékainak megjelenítése",
         "showPublicGames": "Nyilvános játékok megjelenítése a résztvevőknek",
         "sort": {

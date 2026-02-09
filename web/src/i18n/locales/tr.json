@@ -87,8 +87,6 @@
       "saveButton": "Değişiklikleri Kaydet",
       "saved": "Değişiklikler başarıyla kaydedildi",
       "saving": "Kaydediliyor...",
-      "showAiModelSelectorDescription": "Etkinleştirildiğinde, her oyun oturumu başlattığınızda hangi yapay zeka modelinin kullanılacağını seçebilirsiniz.",
-      "showAiModelSelectorLabel": "Yapay Zeka Modeli Seçicisini Göster",
       "subtitle": "Hesap ayarlarınızı yönetin",
       "title": "Ayarlar"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Davet Linki Oluştur",
         "createTitle": "Atölye Oluştur",
         "deactivate": "Devre Dışı Bırak",
-        "defaultAiModel": "Varsayılan AI Modeli",
-        "defaultAiModelHint": "Katılımcıların seçim yapamadığı durumlarda kullanılacak model. Bir API anahtarının ayarlanmasını gerektirir.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Varsayılan API Anahtarı",
         "defaultApiKeyHint": "Katılımcılar oyun oynarken bu API anahtarını kullanacak.",
         "deleteConfirm": "“{{name}}” silinsin mi?",
@@ -691,7 +692,7 @@
         "selectApiKey": "API Anahtarı Seç",
         "settings": "Ayarlar",
         "shareParticipantLink": "Bu katılımcı için bireysel davet linkini kopyala",
-        "showAiModelSelector": "Katılımcıların AI model seçmesine izin ver",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
         "showPublicGames": "Katılımcılara herkese açık oyunları göster",
         "sort": {
