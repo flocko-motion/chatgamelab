@@ -289,6 +289,19 @@
       "subtitle": "Verwalte deine API-Schlüssel für KI-Plattformen.",
       "title": "API-Schlüssel verwalten",
       "unnamed": "Unbenannter Schlüssel",
+      "shares": {
+        "toggle": "Freigaben & Sponsorings",
+        "orgShares": "Organisations-Freigaben",
+        "sponsorships": "Spiel-Sponsorings",
+        "noOrgShares": "Nicht mit einer Organisation geteilt",
+        "noSponsorships": "Keine Spiel-Sponsorings",
+        "unknownOrg": "Unbekannte Organisation",
+        "unknownWorkshop": "Unbekannter Workshop",
+        "unknownUser": "Unbekannter Benutzer",
+        "unknownGame": "Unbekanntes Spiel",
+        "goToOrg": "Verwalten",
+        "removeSponsor": "Sponsoring entfernen"
+      },
       "unsupportedPlatform": {
         "badge": "nicht unterstützt",
         "hint": "Diese Plattform wird derzeit nicht unterstützt. Du kannst nur vorhandene Schlüssel entfernen."
@@ -416,6 +429,13 @@
           "title": "Ungespeicherte Änderungen"
         }
       },
+      "actions": {
+        "delete": "Löschen",
+        "edit": "Bearbeiten",
+        "export": "Exportieren",
+        "play": "Spielen",
+        "view": "Ansehen"
+      },
       "empty": {
         "description": "Erstelle dein erstes Spiel und starte mit interaktiven KI-gestützten Abenteuern.",
         "title": "Noch keine Spiele"
@@ -471,6 +491,31 @@
         "styleInfo": "Optionale Einstellungen für das Aussehen des Spiels beim Spielen."
       },
       "title": "Meine erstellten Spiele",
+      "sponsor": {
+        "apiKey": "API-Schlüssel:",
+        "back": "Zurück",
+        "confirm": "Sponsoring bestätigen",
+        "confirmExplanation": "Wenn du dieses Spiel sponserst, wird dein API-Schlüssel für alle öffentlichen Spiele verwendet. Jeder, der dieses Spiel spielt, nutzt deinen Schlüssel - die Kosten jedes Spiels werden deinem Konto belastet.",
+        "confirmNote": "Du kannst das Sponsoring jederzeit in den Spieleinstellungen entfernen.",
+        "currentlySponsored": "Dieses Spiel wird derzeit gesponsert. Der API-Schlüssel des Sponsors bezahlt alle öffentlichen Spiele.",
+        "description": "Sponsere dieses Spiel, damit jeder es kostenlos spielen kann. Dein API-Schlüssel wird für alle öffentlichen Spiele verwendet.",
+        "gameName": "Spiel:",
+        "loadingKeys": "API-Schlüssel werden geladen...",
+        "manageSponsor": "Sponsor verwalten",
+        "next": "Weiter",
+        "noEligibleKeys": "Du hast keine API-Schlüssel mit aktiviertem öffentlichen Sponsoring. Gehe zu den API-Schlüssel-Einstellungen und aktiviere \"Öffentliches Sponsoring erlauben\" bei einem Schlüssel.",
+        "removeSponsor": "Sponsoring entfernen",
+        "selectKey": "API-Schlüssel auswählen",
+        "selectKeyPlaceholder": "Wähle einen Schlüssel zum Sponsern...",
+        "sponsored": "Gesponsert",
+        "sponsoredTooltip": "Dieses Spiel wird gesponsert - du kannst es kostenlos spielen! Der Ersteller oder ein Unterstützer übernimmt die KI-Kosten.",
+        "sponsorGame": "Spiel sponsern",
+        "gameStartTitle": "Kostenlos spielen!",
+        "gameStartMessage": "Dieses Spiel wird gesponsert - jemand übernimmt großzügig die KI-Kosten, damit du kostenlos spielen kannst. Viel Spaß!",
+        "gameStartOk": "Los geht's!",
+        "privateWarning": "Wenn du dieses Spiel privat machst, wird das öffentliche Sponsoring entfernt.",
+        "title": "Spiel sponsern"
+      },
       "viewModal": {
         "readOnlyNotice": "Dieses Spiel wurde von einem anderen Benutzer erstellt. Du kannst die Details ansehen, aber nicht bearbeiten. Verwende \"Kopieren\", um deine eigene bearbeitbare Version zu erstellen.",
         "title": "Spieldetails"
