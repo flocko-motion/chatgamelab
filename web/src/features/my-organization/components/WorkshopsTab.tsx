@@ -58,7 +58,6 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
-  usePlatforms,
 } from "@/api/hooks";
 import {
   ExpandableSearch,
@@ -75,6 +74,7 @@ import {
   type ObjWorkshop,
   type ObjWorkshopParticipant,
 } from "@/api/generated";
+import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 
 interface WorkshopsTabProps {
   institutionId: string;
@@ -172,8 +172,6 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
 
-  const { data: platforms } = usePlatforms();
-
   // Build API key options for select - only institution-shared keys
   const apiKeyOptions = [
     { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
@@ -182,23 +180,6 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
       label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
     })) || []),
   ];
-
-  // Helper to get model options for a specific workshop's API key
-  const getModelOptionsForWorkshop = (workshop: ObjWorkshop) => {
-    const selectedApiKey = institutionApiKeys?.find(
-      (k) => k.id === workshop.defaultApiKeyShareId,
-    );
-    const selectedPlatform = platforms?.find(
-      (p) => p.id === selectedApiKey?.apiKey?.platform,
-    );
-    return [
-      { value: "", label: t("myOrganization.workshops.noDefaultModel") },
-      ...(selectedPlatform?.models?.map((model) => ({
-        value: model.id || "",
-        label: model.name || model.id || "",
-      })) || []),
-    ];
-  };
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -317,10 +298,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const handleUpdateWorkshopSettings = async (
     workshop: ObjWorkshop,
     settings: Partial<{
-      showAiModelSelector: boolean;
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
-      useSpecificAiModel: string | null;
+      aiQualityTier: string;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -329,16 +309,14 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
       name: workshop.name || "",
       active: workshop.active || false,
       public: workshop.public || false,
-      showAiModelSelector:
-        settings.showAiModelSelector ?? workshop.showAiModelSelector ?? false,
       showPublicGames:
         settings.showPublicGames ?? workshop.showPublicGames ?? false,
       showOtherParticipantsGames:
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
-      useSpecificAiModel:
-        settings.useSpecificAiModel ?? workshop.useSpecificAiModel ?? undefined,
+      aiQualityTier:
+        settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
     });
   };
 
@@ -395,7 +373,11 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
         {isMobile ? (
           <Group gap="sm" wrap="nowrap">
             <Tooltip label={t("myOrganization.workshops.create")} withArrow>
-              <PlusIconButton onClick={openCreateModal} variant="filled" aria-label={t("myOrganization.workshops.create")} />
+              <PlusIconButton
+                onClick={openCreateModal}
+                variant="filled"
+                aria-label={t("myOrganization.workshops.create")}
+              />
             </Tooltip>
             <ExpandableSearch
               value={searchQuery}
@@ -538,14 +520,19 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                         <Group gap="xs" wrap="nowrap">
                           {(() => {
                             const existingInvite = workshop.invites?.find(
-                              (inv) => inv.status === "pending" && inv.inviteToken,
+                              (inv) =>
+                                inv.status === "pending" && inv.inviteToken,
                             );
                             return (
                               <Tooltip
                                 label={
                                   existingInvite
-                                    ? t("myOrganization.workshops.viewInviteLink")
-                                    : t("myOrganization.workshops.createInviteLink")
+                                    ? t(
+                                        "myOrganization.workshops.viewInviteLink",
+                                      )
+                                    : t(
+                                        "myOrganization.workshops.createInviteLink",
+                                      )
                                 }
                               >
                                 <ActionIcon
@@ -653,14 +640,17 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                         )}
                         {(() => {
                           const existingInvite = workshop.invites?.find(
-                            (inv) => inv.status === "pending" && inv.inviteToken,
+                            (inv) =>
+                              inv.status === "pending" && inv.inviteToken,
                           );
                           return (
                             <Tooltip
                               label={
                                 existingInvite
                                   ? t("myOrganization.workshops.viewInviteLink")
-                                  : t("myOrganization.workshops.createInviteLink")
+                                  : t(
+                                      "myOrganization.workshops.createInviteLink",
+                                    )
                               }
                             >
                               <ActionIcon
@@ -752,39 +742,23 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                         <Text size="sm" fw={500}>
                           {t("myOrganization.workshops.settings")}
                         </Text>
-                        <Switch
+                        <Text size="sm" c="dimmed">
+                          {t("myOrganization.workshops.aiQualityTierHint")}
+                        </Text>
+                        <Select
                           size="xs"
-                          label={t(
-                            "myOrganization.workshops.showAiModelSelector",
-                          )}
-                          checked={workshop.showAiModelSelector || false}
-                          onChange={(e) =>
+                          label={t("aiQualityTier.label")}
+                          data={getAiQualityTierOptions(t, {
+                            includeEmpty: true,
+                          })}
+                          value={workshop.aiQualityTier || ""}
+                          onChange={(value) =>
                             handleUpdateWorkshopSettings(workshop, {
-                              showAiModelSelector: e.currentTarget.checked,
+                              aiQualityTier: value || undefined,
                             })
                           }
+                          disabled={updateWorkshop.isPending}
                         />
-                        {/* Default AI Model - only show when API key is selected and model selector is disabled */}
-                        {workshop.defaultApiKeyShareId &&
-                          !workshop.showAiModelSelector && (
-                            <Select
-                              size="xs"
-                              label={t(
-                                "myOrganization.workshops.defaultAiModel",
-                              )}
-                              description={t(
-                                "myOrganization.workshops.defaultAiModelHint",
-                              )}
-                              data={getModelOptionsForWorkshop(workshop)}
-                              value={workshop.useSpecificAiModel || ""}
-                              onChange={(value) =>
-                                handleUpdateWorkshopSettings(workshop, {
-                                  useSpecificAiModel: value || null,
-                                })
-                              }
-                              disabled={updateWorkshop.isPending}
-                            />
-                          )}
                         <Switch
                           size="xs"
                           label={t("myOrganization.workshops.showPublicGames")}
@@ -1301,7 +1275,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
               </Text>
             );
           }
-          const inviteLink = buildShareUrl(`/invites/${existingInvite.inviteToken}/accept`);
+          const inviteLink = buildShareUrl(
+            `/invites/${existingInvite.inviteToken}/accept`,
+          );
           const createdAt = existingInvite.meta?.createdAt
             ? new Date(existingInvite.meta.createdAt)
             : null;

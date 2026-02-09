@@ -45,13 +45,13 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
-  usePlatforms,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
+import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 
 interface SingleWorkshopSettingsProps {
   workshopId: string;
@@ -96,8 +96,6 @@ export function SingleWorkshopSettings({
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
 
-  const { data: platforms } = usePlatforms();
-
   // Build API key options for select - only institution-shared keys
   const apiKeyOptions = [
     { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
@@ -107,20 +105,9 @@ export function SingleWorkshopSettings({
     })) || []),
   ];
 
-  // Get platform for the selected workshop API key to show available models
-  const selectedApiKey = institutionApiKeys?.find(
-    (k) => k.id === workshop?.defaultApiKeyShareId,
-  );
-  const selectedPlatform = platforms?.find(
-    (p) => p.id === selectedApiKey?.apiKey?.platform,
-  );
-  const modelOptions = [
-    { value: "", label: t("myOrganization.workshops.noDefaultModel") },
-    ...(selectedPlatform?.models?.map((model) => ({
-      value: model.id || "",
-      label: model.name || model.id || "",
-    })) || []),
-  ];
+  const aiQualityTierOptions = getAiQualityTierOptions(t, {
+    includeEmpty: true,
+  });
 
   const handleCreateAndViewInvite = async () => {
     if (!workshopId) return;
@@ -197,10 +184,9 @@ export function SingleWorkshopSettings({
   // Workshop settings handler
   const handleUpdateWorkshopSettings = async (
     settings: Partial<{
-      showAiModelSelector: boolean;
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
-      useSpecificAiModel: string | null;
+      aiQualityTier: string;
     }>,
   ) => {
     if (!workshop?.id) return;
@@ -209,16 +195,14 @@ export function SingleWorkshopSettings({
       name: workshop.name || "",
       active: workshop.active || false,
       public: workshop.public || false,
-      showAiModelSelector:
-        settings.showAiModelSelector ?? workshop.showAiModelSelector ?? false,
       showPublicGames:
         settings.showPublicGames ?? workshop.showPublicGames ?? false,
       showOtherParticipantsGames:
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
-      useSpecificAiModel:
-        settings.useSpecificAiModel ?? workshop.useSpecificAiModel ?? undefined,
+      aiQualityTier:
+        settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
     });
   };
 
@@ -343,32 +327,21 @@ export function SingleWorkshopSettings({
             <Text size="sm" fw={500}>
               {t("myOrganization.workshops.settings")}
             </Text>
-            <Switch
+            <Text size="sm" c="dimmed">
+              {t("myOrganization.workshops.aiQualityTierHint")}
+            </Text>
+            <Select
               size="sm"
-              label={t("myOrganization.workshops.showAiModelSelector")}
-              checked={workshop.showAiModelSelector || false}
-              onChange={(e) =>
+              label={t("aiQualityTier.label")}
+              data={aiQualityTierOptions}
+              value={workshop.aiQualityTier || ""}
+              onChange={(value) =>
                 handleUpdateWorkshopSettings({
-                  showAiModelSelector: e.currentTarget.checked,
+                  aiQualityTier: value || undefined,
                 })
               }
+              disabled={updateWorkshop.isPending}
             />
-            {/* Default AI Model - only show when API key is selected and model selector is disabled */}
-            {workshop.defaultApiKeyShareId && !workshop.showAiModelSelector && (
-              <Select
-                size="sm"
-                label={t("myOrganization.workshops.defaultAiModel")}
-                description={t("myOrganization.workshops.defaultAiModelHint")}
-                data={modelOptions}
-                value={workshop.useSpecificAiModel || ""}
-                onChange={(value) =>
-                  handleUpdateWorkshopSettings({
-                    useSpecificAiModel: value || null,
-                  })
-                }
-                disabled={updateWorkshop.isPending}
-              />
-            )}
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showPublicGames")}
