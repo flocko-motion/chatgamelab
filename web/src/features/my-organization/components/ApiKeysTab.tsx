@@ -29,23 +29,29 @@ import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useAuth } from "@/providers/AuthProvider";
 import { ActionButton, PlusIconButton } from "@/common/components/buttons";
-import { ExpandableSearch, FilterSegmentedControl } from "@/common/components/controls";
+import {
+  ExpandableSearch,
+  FilterSegmentedControl,
+} from "@/common/components/controls";
 import {
   useInstitutionApiKeys,
   useApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
+  useSetInstitutionFreeUseKey,
 } from "@/api/hooks";
 import type { ObjApiKeyShare } from "@/api/generated";
 
 interface ApiKeysTabProps {
   institutionId: string;
   institutionName?: string;
+  freeUseApiKeyShareId?: string;
 }
 
 export function ApiKeysTab({
   institutionId,
   institutionName,
+  freeUseApiKeyShareId,
 }: ApiKeysTabProps) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
@@ -70,6 +76,7 @@ export function ApiKeysTab({
   // Mutations
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
+  const setFreeUseKey = useSetInstitutionFreeUseKey();
 
   // Get unique platforms for filter
   const platforms = useMemo(() => {
@@ -114,7 +121,7 @@ export function ApiKeysTab({
     await shareApiKey.mutateAsync({
       shareId: selectedKeyId,
       institutionId,
-      allowPublicSponsoredPlays: allowPublicSponsored,
+      allowPublicGameSponsoring: allowPublicSponsored,
     });
 
     closeShareModal();
@@ -177,10 +184,13 @@ export function ApiKeysTab({
           />
           {hasKeys && platforms.length > 1 && (
             <FilterSegmentedControl
-              value={platformFilter || 'all'}
-              onChange={(v) => setPlatformFilter(v === 'all' ? null : v)}
+              value={platformFilter || "all"}
+              onChange={(v) => setPlatformFilter(v === "all" ? null : v)}
               options={[
-                { value: 'all', label: t('myOrganization.apiKeys.allPlatforms', 'All') },
+                {
+                  value: "all",
+                  label: t("myOrganization.apiKeys.allPlatforms", "All"),
+                },
                 ...platforms.map((p) => ({ value: p, label: p })),
               ]}
             />
@@ -262,7 +272,7 @@ export function ApiKeysTab({
                     </Table.Td>
                     {!isMobile && (
                       <Table.Td>
-                        {share.allowPublicSponsoredPlays ? (
+                        {share.allowPublicGameSponsoring ? (
                           <Badge color="red" variant="light" size="sm">
                             {t("labels.yes")}
                           </Badge>
@@ -314,6 +324,77 @@ export function ApiKeysTab({
           </Stack>
         </Card>
       )}
+
+      {/* Free-Use Key Section */}
+      <Card shadow="sm" padding={isMobile ? "md" : "lg"} radius="md" withBorder>
+        <Stack gap="md">
+          <Group gap="xs">
+            <IconKey size={20} />
+            <Text fw={600} size="sm">
+              {t("myOrganization.apiKeys.freeUseKey.title")}
+            </Text>
+          </Group>
+          <Text size="sm" c="dimmed">
+            {t("myOrganization.apiKeys.freeUseKey.description")}
+          </Text>
+
+          {freeUseApiKeyShareId ? (
+            (() => {
+              const currentFreeUseShare = institutionKeys?.find(
+                (s) => s.id === freeUseApiKeyShareId,
+              );
+              return (
+                <Group gap="sm" wrap="wrap">
+                  <Badge color="cyan" variant="light" size="lg">
+                    {currentFreeUseShare?.apiKey?.name ||
+                      t("myOrganization.apiKeys.freeUseKey.unknownKey")}
+                    {currentFreeUseShare?.apiKey?.platform &&
+                      ` (${currentFreeUseShare.apiKey.platform})`}
+                  </Badge>
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() =>
+                      setFreeUseKey.mutate({
+                        institutionId,
+                        shareId: null,
+                      })
+                    }
+                    loading={setFreeUseKey.isPending}
+                  >
+                    {t("myOrganization.apiKeys.freeUseKey.remove")}
+                  </Button>
+                </Group>
+              );
+            })()
+          ) : (
+            <Select
+              placeholder={t(
+                "myOrganization.apiKeys.freeUseKey.selectPlaceholder",
+              )}
+              data={
+                institutionKeys?.map((share) => ({
+                  value: share.id || "",
+                  label: `${share.apiKey?.name || t("unnamed")} (${share.apiKey?.platform})`,
+                })) ?? []
+              }
+              onChange={(value) => {
+                if (value) {
+                  setFreeUseKey.mutate({
+                    institutionId,
+                    shareId: value,
+                  });
+                }
+              }}
+              disabled={!hasKeys || setFreeUseKey.isPending}
+              clearable={false}
+              size="sm"
+              style={{ maxWidth: 400 }}
+            />
+          )}
+        </Stack>
+      </Card>
 
       {/* Share Key Modal */}
       <Modal
