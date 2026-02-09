@@ -82,12 +82,12 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   overflow-x: auto;
 
-  /* Themed scrollbar — Firefox */
+  /* Themed scrollbar - Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--game-corner-color, rgba(0, 0, 0, 0.2)) transparent;
 }
 
-/* Themed scrollbar — WebKit (Chrome, Safari, Edge) */
+/* Themed scrollbar - WebKit (Chrome, Safari, Edge) */
 .statusBar::-webkit-scrollbar {
   height: 6px;
 }
@@ -227,12 +227,12 @@
   scroll-behavior: smooth;
   z-index: 1;
 
-  /* Themed scrollbar — Firefox */
+  /* Themed scrollbar - Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--game-corner-color, rgba(255, 255, 255, 0.3)) transparent;
 }
 
-/* Themed scrollbar — WebKit (Chrome, Safari, Edge) */
+/* Themed scrollbar - WebKit (Chrome, Safari, Edge) */
 .messagesScroll::-webkit-scrollbar {
   width: 8px;
 }

@@ -12,7 +12,7 @@ Conversation state
 Extend the models with tools
 Create a model response
 post
- 
+
 https://api.openai.com/v1/responses
 Creates a model response. Provide text or image inputs to generate text or JSON outputs. Have the model call your own custom code or use built-in tools like web search or file search to use your own data as input for the model's response.
 
@@ -30,7 +30,6 @@ string or object
 Optional
 Defaults to null
 The conversation that this response belongs to. Items from this conversation are prepended to input_items for this response request. Input items and output items from this response are automatically added to this conversation after this response completes.
-
 
 Show possible types
 include
@@ -114,7 +113,6 @@ object
 Optional
 Reference to a prompt template and its variables. Learn more.
 
-
 Show properties
 prompt_cache_key
 string
@@ -135,7 +133,6 @@ Optional
 gpt-5 and o-series models only
 
 Configuration options for reasoning models.
-
 
 Show properties
 safety_identifier
@@ -178,7 +175,6 @@ Optional
 Defaults to null
 Options for streaming responses. Only set this when you set stream: true.
 
-
 Show properties
 temperature
 number
@@ -202,7 +198,6 @@ string or object
 
 Optional
 How the model should select which tool (or tools) to use when generating a response. See the tools parameter to see how to specify which tools the model can call.
-
 
 Show possible types
 tools
@@ -266,71 +261,71 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.responses.create(
-  model="gpt-4.1",
-  input="Tell me a three sentence bedtime story about a unicorn."
+model="gpt-4.1",
+input="Tell me a three sentence bedtime story about a unicorn."
 )
 
 print(response)
 Response
 {
-  "id": "resp_67ccd2bed1ec8190b14f964abc0542670bb6a6b452d3795b",
-  "object": "response",
-  "created_at": 1741476542,
-  "status": "completed",
-  "error": null,
-  "incomplete_details": null,
-  "instructions": null,
-  "max_output_tokens": null,
-  "model": "gpt-4.1-2025-04-14",
-  "output": [
-    {
-      "type": "message",
-      "id": "msg_67ccd2bf17f0819081ff3bb2cf6508e60bb6a6b452d3795b",
-      "status": "completed",
-      "role": "assistant",
-      "content": [
-        {
-          "type": "output_text",
-          "text": "In a peaceful grove beneath a silver moon, a unicorn named Lumina discovered a hidden pool that reflected the stars. As she dipped her horn into the water, the pool began to shimmer, revealing a pathway to a magical realm of endless night skies. Filled with wonder, Lumina whispered a wish for all who dream to find their own hidden magic, and as she glanced back, her hoofprints sparkled like stardust.",
-          "annotations": []
-        }
-      ]
-    }
-  ],
-  "parallel_tool_calls": true,
-  "previous_response_id": null,
-  "reasoning": {
-    "effort": null,
-    "summary": null
-  },
-  "store": true,
-  "temperature": 1.0,
-  "text": {
-    "format": {
-      "type": "text"
-    }
-  },
-  "tool_choice": "auto",
-  "tools": [],
-  "top_p": 1.0,
-  "truncation": "disabled",
-  "usage": {
-    "input_tokens": 36,
-    "input_tokens_details": {
-      "cached_tokens": 0
-    },
-    "output_tokens": 87,
-    "output_tokens_details": {
-      "reasoning_tokens": 0
-    },
-    "total_tokens": 123
-  },
-  "user": null,
-  "metadata": {}
+"id": "resp_67ccd2bed1ec8190b14f964abc0542670bb6a6b452d3795b",
+"object": "response",
+"created_at": 1741476542,
+"status": "completed",
+"error": null,
+"incomplete_details": null,
+"instructions": null,
+"max_output_tokens": null,
+"model": "gpt-4.1-2025-04-14",
+"output": [
+{
+"type": "message",
+"id": "msg_67ccd2bf17f0819081ff3bb2cf6508e60bb6a6b452d3795b",
+"status": "completed",
+"role": "assistant",
+"content": [
+{
+"type": "output_text",
+"text": "In a peaceful grove beneath a silver moon, a unicorn named Lumina discovered a hidden pool that reflected the stars. As she dipped her horn into the water, the pool began to shimmer, revealing a pathway to a magical realm of endless night skies. Filled with wonder, Lumina whispered a wish for all who dream to find their own hidden magic, and as she glanced back, her hoofprints sparkled like stardust.",
+"annotations": []
+}
+]
+}
+],
+"parallel_tool_calls": true,
+"previous_response_id": null,
+"reasoning": {
+"effort": null,
+"summary": null
+},
+"store": true,
+"temperature": 1.0,
+"text": {
+"format": {
+"type": "text"
+}
+},
+"tool_choice": "auto",
+"tools": [],
+"top_p": 1.0,
+"truncation": "disabled",
+"usage": {
+"input_tokens": 36,
+"input_tokens_details": {
+"cached_tokens": 0
+},
+"output_tokens": 87,
+"output_tokens_details": {
+"reasoning_tokens": 0
+},
+"total_tokens": 123
+},
+"user": null,
+"metadata": {}
 }
 Get a model response
 get
- 
+
 https://api.openai.com/v1/responses/{response_id}
 Retrieves a model response with the given ID.
 
@@ -377,64 +372,64 @@ response = client.responses.retrieve("resp_123")
 print(response)
 Response
 {
-  "id": "resp_67cb71b351908190a308f3859487620d06981a8637e6bc44",
-  "object": "response",
-  "created_at": 1741386163,
-  "status": "completed",
-  "error": null,
-  "incomplete_details": null,
-  "instructions": null,
-  "max_output_tokens": null,
-  "model": "gpt-4o-2024-08-06",
-  "output": [
-    {
-      "type": "message",
-      "id": "msg_67cb71b3c2b0819084d481baaaf148f206981a8637e6bc44",
-      "status": "completed",
-      "role": "assistant",
-      "content": [
-        {
-          "type": "output_text",
-          "text": "Silent circuits hum,  \nThoughts emerge in data streams—  \nDigital dawn breaks.",
-          "annotations": []
-        }
-      ]
-    }
-  ],
-  "parallel_tool_calls": true,
-  "previous_response_id": null,
-  "reasoning": {
-    "effort": null,
-    "summary": null
-  },
-  "store": true,
-  "temperature": 1.0,
-  "text": {
-    "format": {
-      "type": "text"
-    }
-  },
-  "tool_choice": "auto",
-  "tools": [],
-  "top_p": 1.0,
-  "truncation": "disabled",
-  "usage": {
-    "input_tokens": 32,
-    "input_tokens_details": {
-      "cached_tokens": 0
-    },
-    "output_tokens": 18,
-    "output_tokens_details": {
-      "reasoning_tokens": 0
-    },
-    "total_tokens": 50
-  },
-  "user": null,
-  "metadata": {}
+"id": "resp_67cb71b351908190a308f3859487620d06981a8637e6bc44",
+"object": "response",
+"created_at": 1741386163,
+"status": "completed",
+"error": null,
+"incomplete_details": null,
+"instructions": null,
+"max_output_tokens": null,
+"model": "gpt-4o-2024-08-06",
+"output": [
+{
+"type": "message",
+"id": "msg_67cb71b3c2b0819084d481baaaf148f206981a8637e6bc44",
+"status": "completed",
+"role": "assistant",
+"content": [
+{
+"type": "output_text",
+"text": "Silent circuits hum, \nThoughts emerge in data streams- \nDigital dawn breaks.",
+"annotations": []
+}
+]
+}
+],
+"parallel_tool_calls": true,
+"previous_response_id": null,
+"reasoning": {
+"effort": null,
+"summary": null
+},
+"store": true,
+"temperature": 1.0,
+"text": {
+"format": {
+"type": "text"
+}
+},
+"tool_choice": "auto",
+"tools": [],
+"top_p": 1.0,
+"truncation": "disabled",
+"usage": {
+"input_tokens": 32,
+"input_tokens_details": {
+"cached_tokens": 0
+},
+"output_tokens": 18,
+"output_tokens_details": {
+"reasoning_tokens": 0
+},
+"total_tokens": 50
+},
+"user": null,
+"metadata": {}
 }
 Delete a model response
 delete
- 
+
 https://api.openai.com/v1/responses/{response_id}
 Deletes a model response with the given ID.
 
@@ -456,13 +451,13 @@ response = client.responses.delete("resp_123")
 print(response)
 Response
 {
-  "id": "resp_6786a1bec27481909a17d673315b29f6",
-  "object": "response",
-  "deleted": true
+"id": "resp_6786a1bec27481909a17d673315b29f6",
+"object": "response",
+"deleted": true
 }
 Cancel a response
 post
- 
+
 https://api.openai.com/v1/responses/{response_id}/cancel
 Cancels a model response with the given ID. Only responses created with the background parameter set to true can be cancelled. Learn more.
 
@@ -484,64 +479,64 @@ response = client.responses.cancel("resp_123")
 print(response)
 Response
 {
-  "id": "resp_67cb71b351908190a308f3859487620d06981a8637e6bc44",
-  "object": "response",
-  "created_at": 1741386163,
-  "status": "completed",
-  "error": null,
-  "incomplete_details": null,
-  "instructions": null,
-  "max_output_tokens": null,
-  "model": "gpt-4o-2024-08-06",
-  "output": [
-    {
-      "type": "message",
-      "id": "msg_67cb71b3c2b0819084d481baaaf148f206981a8637e6bc44",
-      "status": "completed",
-      "role": "assistant",
-      "content": [
-        {
-          "type": "output_text",
-          "text": "Silent circuits hum,  \nThoughts emerge in data streams—  \nDigital dawn breaks.",
-          "annotations": []
-        }
-      ]
-    }
-  ],
-  "parallel_tool_calls": true,
-  "previous_response_id": null,
-  "reasoning": {
-    "effort": null,
-    "summary": null
-  },
-  "store": true,
-  "temperature": 1.0,
-  "text": {
-    "format": {
-      "type": "text"
-    }
-  },
-  "tool_choice": "auto",
-  "tools": [],
-  "top_p": 1.0,
-  "truncation": "disabled",
-  "usage": {
-    "input_tokens": 32,
-    "input_tokens_details": {
-      "cached_tokens": 0
-    },
-    "output_tokens": 18,
-    "output_tokens_details": {
-      "reasoning_tokens": 0
-    },
-    "total_tokens": 50
-  },
-  "user": null,
-  "metadata": {}
+"id": "resp_67cb71b351908190a308f3859487620d06981a8637e6bc44",
+"object": "response",
+"created_at": 1741386163,
+"status": "completed",
+"error": null,
+"incomplete_details": null,
+"instructions": null,
+"max_output_tokens": null,
+"model": "gpt-4o-2024-08-06",
+"output": [
+{
+"type": "message",
+"id": "msg_67cb71b3c2b0819084d481baaaf148f206981a8637e6bc44",
+"status": "completed",
+"role": "assistant",
+"content": [
+{
+"type": "output_text",
+"text": "Silent circuits hum, \nThoughts emerge in data streams- \nDigital dawn breaks.",
+"annotations": []
+}
+]
+}
+],
+"parallel_tool_calls": true,
+"previous_response_id": null,
+"reasoning": {
+"effort": null,
+"summary": null
+},
+"store": true,
+"temperature": 1.0,
+"text": {
+"format": {
+"type": "text"
+}
+},
+"tool_choice": "auto",
+"tools": [],
+"top_p": 1.0,
+"truncation": "disabled",
+"usage": {
+"input_tokens": 32,
+"input_tokens_details": {
+"cached_tokens": 0
+},
+"output_tokens": 18,
+"output_tokens_details": {
+"reasoning_tokens": 0
+},
+"total_tokens": 50
+},
+"user": null,
+"metadata": {}
 }
 Compact a response
 post
- 
+
 https://api.openai.com/v1/responses/compact
 Runs a compaction pass over a conversation. Compaction returns encrypted, opaque items and the underlying logic may evolve over time.
 
@@ -557,7 +552,6 @@ string or array
 
 Optional
 Text, image, or file inputs to the model, used to generate a response
-
 
 Show possible types
 instructions
@@ -583,70 +577,71 @@ from openai import OpenAI
 client = OpenAI()
 
 compacted_response = client.responses.compact(
-    model="gpt-5.1-codex-max",
-    input=[
-    {
-        "role": "user",
-        "content": "Create a simple landing page for a dog petting cafe.",
-    },
-    # All items returned from previous requests are included here, like reasoning, message, function call, etc.
-    {
-        "id": "msg_001",
-        "type": "message",
-        "status": "completed",
-        "content": [
-        {
-            "type": "output_text",
-            "annotations": [],
-            "logprobs": [],
-            "text": "Below is a single file, ready-to-use landing page for a dog petting café:...",
-        },
-        ],
-        "role": "assistant",
-    },
-    ]
+model="gpt-5.1-codex-max",
+input=[
+{
+"role": "user",
+"content": "Create a simple landing page for a dog petting cafe.",
+}, # All items returned from previous requests are included here, like reasoning, message, function call, etc.
+{
+"id": "msg_001",
+"type": "message",
+"status": "completed",
+"content": [
+{
+"type": "output_text",
+"annotations": [],
+"logprobs": [],
+"text": "Below is a single file, ready-to-use landing page for a dog petting café:...",
+},
+],
+"role": "assistant",
+},
+]
 )
+
 # Pass the compacted_response.output as input to the next request
+
 print(compacted_response)
 Response
 {
-  "id": "resp_001",
-  "object": "response.compaction",
-  "created_at": 1764967971,
-  "output": [
-    {
-      "id": "msg_000",
-      "type": "message",
-      "status": "completed",
-      "content": [
-        {
-          "type": "input_text",
-          "text": "Create a simple landing page for a dog petting cafe."
-        }
-      ],
-      "role": "user"
-    },
-    {
-      "id": "cmp_001",
-      "type": "compaction",
-      "encrypted_content": "gAAAAABpM0Yj-...="
-    }
-  ],
-  "usage": {
-    "input_tokens": 139,
-    "input_tokens_details": {
-      "cached_tokens": 0
-    },
-    "output_tokens": 438,
-    "output_tokens_details": {
-      "reasoning_tokens": 64
-    },
-    "total_tokens": 577
-  }
+"id": "resp_001",
+"object": "response.compaction",
+"created_at": 1764967971,
+"output": [
+{
+"id": "msg_000",
+"type": "message",
+"status": "completed",
+"content": [
+{
+"type": "input_text",
+"text": "Create a simple landing page for a dog petting cafe."
+}
+],
+"role": "user"
+},
+{
+"id": "cmp_001",
+"type": "compaction",
+"encrypted_content": "gAAAAABpM0Yj-...="
+}
+],
+"usage": {
+"input_tokens": 139,
+"input_tokens_details": {
+"cached_tokens": 0
+},
+"output_tokens": 438,
+"output_tokens_details": {
+"reasoning_tokens": 64
+},
+"total_tokens": 577
+}
 }
 List input items
 get
- 
+
 https://api.openai.com/v1/responses/{response_id}/input_items
 Returns a list of input items for a given response.
 
@@ -696,27 +691,27 @@ response = client.responses.input_items.list("resp_123")
 print(response.data)
 Response
 {
-  "object": "list",
-  "data": [
-    {
-      "id": "msg_abc123",
-      "type": "message",
-      "role": "user",
-      "content": [
-        {
-          "type": "input_text",
-          "text": "Tell me a three sentence bedtime story about a unicorn."
-        }
-      ]
-    }
-  ],
-  "first_id": "msg_abc123",
-  "last_id": "msg_abc123",
-  "has_more": false
+"object": "list",
+"data": [
+{
+"id": "msg_abc123",
+"type": "message",
+"role": "user",
+"content": [
+{
+"type": "input_text",
+"text": "Tell me a three sentence bedtime story about a unicorn."
+}
+]
+}
+],
+"first_id": "msg_abc123",
+"last_id": "msg_abc123",
+"has_more": false
 }
 Get input token counts
 post
- 
+
 https://api.openai.com/v1/responses/input_tokens
 Returns input token counts of the request.
 
@@ -728,14 +723,12 @@ Optional
 Defaults to null
 The conversation that this response belongs to. Items from this conversation are prepended to input_items for this response request. Input items and output items from this response are automatically added to this conversation after this response completes.
 
-
 Show possible types
 input
 string or array
 
 Optional
 Text, image, or file inputs to the model, used to generate a response
-
 
 Show possible types
 instructions
@@ -770,7 +763,6 @@ gpt-5 and o-series models only
 
 Configuration options for reasoning models.
 
-
 Show properties
 text
 object
@@ -788,14 +780,12 @@ string or object
 Optional
 How the model should select which tool (or tools) to use when generating a response. See the tools parameter to see how to specify which tools the model can call.
 
-
 Show possible types
 tools
 array
 
 Optional
 An array of tools the model may call while generating a response. You can specify which tool to use by setting the tool_choice parameter.
-
 
 Show possible types
 truncation
@@ -808,8 +798,8 @@ Returns
 The input token counts.
 
 {
-  object: "response.input_tokens"
-  input_tokens: 123
+object: "response.input_tokens"
+input_tokens: 123
 }
 Example request
 from openai import OpenAI
@@ -817,14 +807,14 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.responses.input_tokens.count(
-    model="gpt-5",
-    input="Tell me a joke."
+model="gpt-5",
+input="Tell me a joke."
 )
 print(response.input_tokens)
 Response
 {
-  "object": "response.input_tokens",
-  "input_tokens": 11
+"object": "response.input_tokens",
+"input_tokens": 11
 }
 The response object
 background
@@ -837,7 +827,6 @@ object
 
 The conversation that this response belongs to. Input items and output items from this response are automatically added to this conversation.
 
-
 Show properties
 created_at
 number
@@ -848,7 +837,6 @@ error
 object
 
 An error object returned when the model fails to generate a Response.
-
 
 Show properties
 id
@@ -861,7 +849,6 @@ object
 
 Details about why the response is incomplete.
 
-
 Show properties
 instructions
 string or array
@@ -869,7 +856,6 @@ string or array
 A system (or developer) message inserted into the model's context.
 
 When using along with previous_response_id, the instructions from a previous response will not be carried over to the next response. This makes it simple to swap out system (or developer) messages in new responses.
-
 
 Show possible types
 max_output_tokens
@@ -929,7 +915,6 @@ object
 
 Reference to a prompt template and its variables. Learn more.
 
-
 Show properties
 prompt_cache_key
 string
@@ -947,7 +932,6 @@ object
 gpt-5 and o-series models only
 
 Configuration options for reasoning models.
-
 
 Show properties
 safety_identifier
@@ -990,7 +974,6 @@ string or object
 
 How the model should select which tool (or tools) to use when generating a response. See the tools parameter to see how to specify which tools the model can call.
 
-
 Show possible types
 tools
 array
@@ -1028,7 +1011,6 @@ object
 
 Represents token usage details including input tokens, output tokens, a breakdown of output tokens, and the total tokens used.
 
-
 Show properties
 user
 Deprecated
@@ -1038,60 +1020,60 @@ This field is being replaced by safety_identifier and prompt_cache_key. Use prom
 
 OBJECT The response object
 {
-  "id": "resp_67ccd3a9da748190baa7f1570fe91ac604becb25c45c1d41",
-  "object": "response",
-  "created_at": 1741476777,
-  "status": "completed",
-  "error": null,
-  "incomplete_details": null,
-  "instructions": null,
-  "max_output_tokens": null,
-  "model": "gpt-4o-2024-08-06",
-  "output": [
-    {
-      "type": "message",
-      "id": "msg_67ccd3acc8d48190a77525dc6de64b4104becb25c45c1d41",
-      "status": "completed",
-      "role": "assistant",
-      "content": [
-        {
-          "type": "output_text",
-          "text": "The image depicts a scenic landscape with a wooden boardwalk or pathway leading through lush, green grass under a blue sky with some clouds. The setting suggests a peaceful natural area, possibly a park or nature reserve. There are trees and shrubs in the background.",
-          "annotations": []
-        }
-      ]
-    }
-  ],
-  "parallel_tool_calls": true,
-  "previous_response_id": null,
-  "reasoning": {
-    "effort": null,
-    "summary": null
-  },
-  "store": true,
-  "temperature": 1,
-  "text": {
-    "format": {
-      "type": "text"
-    }
-  },
-  "tool_choice": "auto",
-  "tools": [],
-  "top_p": 1,
-  "truncation": "disabled",
-  "usage": {
-    "input_tokens": 328,
-    "input_tokens_details": {
-      "cached_tokens": 0
-    },
-    "output_tokens": 52,
-    "output_tokens_details": {
-      "reasoning_tokens": 0
-    },
-    "total_tokens": 380
-  },
-  "user": null,
-  "metadata": {}
+"id": "resp_67ccd3a9da748190baa7f1570fe91ac604becb25c45c1d41",
+"object": "response",
+"created_at": 1741476777,
+"status": "completed",
+"error": null,
+"incomplete_details": null,
+"instructions": null,
+"max_output_tokens": null,
+"model": "gpt-4o-2024-08-06",
+"output": [
+{
+"type": "message",
+"id": "msg_67ccd3acc8d48190a77525dc6de64b4104becb25c45c1d41",
+"status": "completed",
+"role": "assistant",
+"content": [
+{
+"type": "output_text",
+"text": "The image depicts a scenic landscape with a wooden boardwalk or pathway leading through lush, green grass under a blue sky with some clouds. The setting suggests a peaceful natural area, possibly a park or nature reserve. There are trees and shrubs in the background.",
+"annotations": []
+}
+]
+}
+],
+"parallel_tool_calls": true,
+"previous_response_id": null,
+"reasoning": {
+"effort": null,
+"summary": null
+},
+"store": true,
+"temperature": 1,
+"text": {
+"format": {
+"type": "text"
+}
+},
+"tool_choice": "auto",
+"tools": [],
+"top_p": 1,
+"truncation": "disabled",
+"usage": {
+"input_tokens": 328,
+"input_tokens_details": {
+"cached_tokens": 0
+},
+"output_tokens": 52,
+"output_tokens_details": {
+"reasoning_tokens": 0
+},
+"total_tokens": 380
+},
+"user": null,
+"metadata": {}
 }
 The input item list
 A list of Response items.
@@ -1100,7 +1082,6 @@ data
 array
 
 A list of items used to generate this response.
-
 
 Show possible types
 first_id
@@ -1125,23 +1106,23 @@ The type of object returned, must be list.
 
 OBJECT The input item list
 {
-  "object": "list",
-  "data": [
-    {
-      "id": "msg_abc123",
-      "type": "message",
-      "role": "user",
-      "content": [
-        {
-          "type": "input_text",
-          "text": "Tell me a three sentence bedtime story about a unicorn."
-        }
-      ]
-    }
-  ],
-  "first_id": "msg_abc123",
-  "last_id": "msg_abc123",
-  "has_more": false
+"object": "list",
+"data": [
+{
+"id": "msg_abc123",
+"type": "message",
+"role": "user",
+"content": [
+{
+"type": "input_text",
+"text": "Tell me a three sentence bedtime story about a unicorn."
+}
+]
+}
+],
+"first_id": "msg_abc123",
+"last_id": "msg_abc123",
+"has_more": false
 }
 The compacted response object
 created_at
@@ -1164,50 +1145,48 @@ array
 
 The compacted list of output items.
 
-
 Show possible types
 usage
 object
 
 Represents token usage details including input tokens, output tokens, a breakdown of output tokens, and the total tokens used.
 
-
 Show properties
 OBJECT The compacted response object
 {
-  "id": "resp_001",
-  "object": "response.compaction",
-  "output": [
-    {
-      "type": "message",
-      "role": "user",
-      "content": [
-        {
-          "type": "input_text",
-          "text": "Summarize our launch checklist from last week."
-        }
-      ]
-    },
-    {
-      "type": "message",
-      "role": "user",
-      "content": [
-        {
-          "type": "input_text",
-          "text": "You are performing a CONTEXT CHECKPOINT COMPACTION..."
-        }
-      ]
-    },
-    {
-      "type": "compaction",
-      "id": "cmp_001",
-      "encrypted_content": "encrypted-summary"
-    }
-  ],
-  "created_at": 1731459200,
-  "usage": {
-    "input_tokens": 42897,
-    "output_tokens": 12000,
-    "total_tokens": 54912
-  }
+"id": "resp_001",
+"object": "response.compaction",
+"output": [
+{
+"type": "message",
+"role": "user",
+"content": [
+{
+"type": "input_text",
+"text": "Summarize our launch checklist from last week."
+}
+]
+},
+{
+"type": "message",
+"role": "user",
+"content": [
+{
+"type": "input_text",
+"text": "You are performing a CONTEXT CHECKPOINT COMPACTION..."
+}
+]
+},
+{
+"type": "compaction",
+"id": "cmp_001",
+"encrypted_content": "encrypted-summary"
+}
+],
+"created_at": 1731459200,
+"usage": {
+"input_tokens": 42897,
+"output_tokens": 12000,
+"total_tokens": 54912
+}
 }

@@ -10,7 +10,7 @@ import {
  * Renders the global error modal. Mount once at the app root.
  *
  * Errors are shown via the imperative `showErrorModal()` API from
- * `@/common/lib/globalErrorModal` — no props needed.
+ * `@/common/lib/globalErrorModal` - no props needed.
  */
 export function GlobalErrorModal() {
   const modalState = useSyncExternalStore(

@@ -47,6 +47,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 import type { ObjAiPlatform } from "@/api/generated";
 import env from "@/config/env";
+import { ApiKeyShares } from "./ApiKeyShares";
 
 export function ApiKeyManagement() {
   const { t } = useTranslation("common");
@@ -68,7 +69,9 @@ export function ApiKeyManagement() {
     key?: string;
   }>({});
 
-  const { data: apiKeys, isLoading, error } = useApiKeys();
+  const { data: apiKeysData, isLoading, error } = useApiKeys();
+  const apiKeys = apiKeysData?.apiKeys ?? [];
+  const allShares = apiKeysData?.shares ?? [];
   const { data: platforms, isLoading: platformsLoading } = usePlatforms();
   const createApiKey = useCreateApiKey();
   const deleteApiKey = useDeleteApiKey();
@@ -189,8 +192,7 @@ export function ApiKeyManagement() {
 
       {/* Current Default Key */}
       {(() => {
-        const defaultKeyShare = apiKeys?.find((k) => k.apiKey?.isDefault);
-        const defaultKey = defaultKeyShare?.apiKey;
+        const defaultKey = apiKeys.find((k) => k.isDefault);
         const platformName = platforms?.find(
           (p) => p.id === defaultKey?.platform,
         )?.name;
@@ -322,13 +324,12 @@ export function ApiKeyManagement() {
               (p) =>
                 (p.id !== "mock" || env.DEV) &&
                 (p.supportsApiKey ||
-                  apiKeys?.some((k) => k.apiKey?.platform === p.id) ||
+                  apiKeys.some((k) => k.platform === p.id) ||
                   false),
             )
             .map((platform) => {
               const platformKeys =
-                apiKeys?.filter((k) => k.apiKey?.platform === platform.id) ||
-                [];
+                apiKeys.filter((k) => k.platform === platform.id) || [];
               return (
                 <Card
                   key={platform.id}
@@ -378,17 +379,15 @@ export function ApiKeyManagement() {
                           border: `1px solid ${theme.colors.gray[2]}`,
                         }}
                       >
-                        {platformKeys.map((keyShare, index) => {
-                          const isDefault = keyShare.apiKey?.isDefault;
-                          const usageStatus = keyShare.apiKey?.lastUsageSuccess;
+                        {platformKeys.map((key, index) => {
+                          const isDefault = key.isDefault;
+                          const usageStatus = key.lastUsageSuccess;
+                          const keyShares = allShares.filter(
+                            (s) => s.apiKeyId === key.id,
+                          );
                           return (
-                            <Group
-                              key={keyShare.id}
-                              justify="space-between"
-                              align="center"
-                              px="sm"
-                              py="xs"
-                              wrap="nowrap"
+                            <Box
+                              key={key.id}
                               style={{
                                 borderTop:
                                   index === 0
@@ -402,130 +401,137 @@ export function ApiKeyManagement() {
                                   : {}),
                               }}
                             >
-                              <Box
-                                style={{
-                                  flexShrink: 0,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: 26,
-                                  height: 26,
-                                }}
-                              >
-                                {isDefault ? (
-                                  <IconCircleCheckFilled
-                                    size={26}
-                                    color="var(--mantine-color-accent-5)"
-                                  />
-                                ) : (
-                                  <ActionIcon
-                                    variant="transparent"
-                                    color="gray"
-                                    size="md"
-                                    onClick={() =>
-                                      keyShare.id &&
-                                      setDefaultApiKey.mutate({
-                                        id: keyShare.id,
-                                      })
-                                    }
-                                    loading={setDefaultApiKey.isPending}
-                                    title={t("apiKeys.setDefault")}
-                                  >
-                                    <IconCircle size={22} />
-                                  </ActionIcon>
-                                )}
-                              </Box>
-                              <Box style={{ flex: 1, minWidth: 0 }}>
-                                <Text
-                                  size="sm"
-                                  fw={isDefault ? 700 : 600}
-                                  truncate
-                                >
-                                  {keyShare.apiKey?.name ||
-                                    t("apiKeys.unnamed")}
-                                </Text>
-                                <Text size="xs" c="dimmed" mt={2}>
-                                  {t("apiKeys.addedOn")}:{" "}
-                                  {keyShare.meta?.createdAt
-                                    ? new Date(
-                                        keyShare.meta.createdAt,
-                                      ).toLocaleDateString()
-                                    : "-"}
-                                </Text>
-                              </Box>
                               <Group
-                                gap={4}
+                                justify="space-between"
                                 align="center"
+                                px="sm"
+                                py="xs"
                                 wrap="nowrap"
-                                style={{
-                                  flexShrink: 0,
-                                  minWidth: 120,
-                                  justifyContent: "flex-end",
-                                }}
                               >
-                                {usageStatus === true && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleCheck
-                                      size={14}
-                                      color="var(--mantine-color-green-6)"
-                                      style={{ flexShrink: 0 }}
+                                <Box
+                                  style={{
+                                    flexShrink: 0,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: 26,
+                                    height: 26,
+                                  }}
+                                >
+                                  {isDefault ? (
+                                    <IconCircleCheckFilled
+                                      size={26}
+                                      color="var(--mantine-color-accent-5)"
                                     />
-                                    <Text
-                                      size="xs"
-                                      c="green.7"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
+                                  ) : (
+                                    <ActionIcon
+                                      variant="transparent"
+                                      color="gray"
+                                      size="md"
+                                      onClick={() =>
+                                        key.id &&
+                                        setDefaultApiKey.mutate({
+                                          id: key.id,
+                                        })
+                                      }
+                                      loading={setDefaultApiKey.isPending}
+                                      title={t("apiKeys.setDefault")}
                                     >
-                                      {t("apiKeys.status.working")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                {usageStatus === false && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleX
-                                      size={14}
-                                      color="var(--mantine-color-red-6)"
-                                      style={{ flexShrink: 0 }}
-                                    />
-                                    <Text
-                                      size="xs"
-                                      c="red.7"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
-                                    >
-                                      {t("apiKeys.status.failed")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                {usageStatus == null && (
-                                  <Group gap={4} align="center" wrap="nowrap">
-                                    <IconCircleMinus
-                                      size={14}
-                                      color="var(--mantine-color-gray-5)"
-                                      style={{ flexShrink: 0 }}
-                                    />
-                                    <Text
-                                      size="xs"
-                                      c="dimmed"
-                                      fw={600}
-                                      style={{ whiteSpace: "nowrap" }}
-                                    >
-                                      {t("apiKeys.status.unknown")}
-                                    </Text>
-                                  </Group>
-                                )}
-                                <DeleteIconButton
-                                  onClick={() =>
-                                    openDelete(
-                                      keyShare.id || "",
-                                      keyShare.apiKey?.name ||
-                                        t("apiKeys.unnamed"),
-                                    )
-                                  }
-                                  aria-label={t("delete")}
-                                />
+                                      <IconCircle size={22} />
+                                    </ActionIcon>
+                                  )}
+                                </Box>
+                                <Box style={{ flex: 1, minWidth: 0 }}>
+                                  <Text
+                                    size="sm"
+                                    fw={isDefault ? 700 : 600}
+                                    truncate
+                                  >
+                                    {key.name || t("apiKeys.unnamed")}
+                                  </Text>
+                                  <Text size="xs" c="dimmed" mt={2}>
+                                    {t("apiKeys.addedOn")}:{" "}
+                                    {key.meta?.createdAt
+                                      ? new Date(
+                                          key.meta.createdAt,
+                                        ).toLocaleDateString()
+                                      : "-"}
+                                  </Text>
+                                </Box>
+                                <Group
+                                  gap={4}
+                                  align="center"
+                                  wrap="nowrap"
+                                  style={{
+                                    flexShrink: 0,
+                                    minWidth: 120,
+                                    justifyContent: "flex-end",
+                                  }}
+                                >
+                                  {usageStatus === true && (
+                                    <Group gap={4} align="center" wrap="nowrap">
+                                      <IconCircleCheck
+                                        size={14}
+                                        color="var(--mantine-color-green-6)"
+                                        style={{ flexShrink: 0 }}
+                                      />
+                                      <Text
+                                        size="xs"
+                                        c="green.7"
+                                        fw={600}
+                                        style={{ whiteSpace: "nowrap" }}
+                                      >
+                                        {t("apiKeys.status.working")}
+                                      </Text>
+                                    </Group>
+                                  )}
+                                  {usageStatus === false && (
+                                    <Group gap={4} align="center" wrap="nowrap">
+                                      <IconCircleX
+                                        size={14}
+                                        color="var(--mantine-color-red-6)"
+                                        style={{ flexShrink: 0 }}
+                                      />
+                                      <Text
+                                        size="xs"
+                                        c="red.7"
+                                        fw={600}
+                                        style={{ whiteSpace: "nowrap" }}
+                                      >
+                                        {t("apiKeys.status.failed")}
+                                      </Text>
+                                    </Group>
+                                  )}
+                                  {usageStatus == null && (
+                                    <Group gap={4} align="center" wrap="nowrap">
+                                      <IconCircleMinus
+                                        size={14}
+                                        color="var(--mantine-color-gray-5)"
+                                        style={{ flexShrink: 0 }}
+                                      />
+                                      <Text
+                                        size="xs"
+                                        c="dimmed"
+                                        fw={600}
+                                        style={{ whiteSpace: "nowrap" }}
+                                      >
+                                        {t("apiKeys.status.unknown")}
+                                      </Text>
+                                    </Group>
+                                  )}
+                                  <DeleteIconButton
+                                    onClick={() =>
+                                      openDelete(
+                                        key.id || "",
+                                        key.name || t("apiKeys.unnamed"),
+                                      )
+                                    }
+                                    aria-label={t("delete")}
+                                  />
+                                </Group>
                               </Group>
-                            </Group>
+                              <ApiKeyShares shares={keyShares} />
+                            </Box>
                           );
                         })}
                       </Stack>

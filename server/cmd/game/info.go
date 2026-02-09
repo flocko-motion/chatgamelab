@@ -60,9 +60,9 @@ func printGameInfo(gameID string) {
 
 	// Sharing
 	fmt.Println("\n=== Sharing ===")
-	fmt.Printf("Public Sponsored API Key: %s\n", functional.MaybeToString(game.PublicSponsoredApiKeyID, "n/a"))
+	fmt.Printf("Public Sponsored API Key: %s\n", functional.MaybeToString(game.PublicSponsoredApiKeyShareID, "n/a"))
 	fmt.Printf("Private Share Hash: %s\n", functional.MaybeToString(game.PrivateShareHash, "n/a"))
-	fmt.Printf("Private Sponsored API Key: %s\n", functional.MaybeToString(game.PrivateSponsoredApiKeyID, "n/a"))
+	fmt.Printf("Private Sponsored API Key: %s\n", functional.MaybeToString(game.PrivateSponsoredApiKeyShareID, "n/a"))
 
 	// Tags
 	fmt.Println("\n=== Tags ===")

@@ -1,6 +1,6 @@
-import { Table, Card, Stack, Group, Text, Box, Skeleton } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-import type { ReactNode } from 'react';
+import { Table, Card, Stack, Group, Text, Box, Skeleton } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import type { ReactNode } from "react";
 
 export interface DataTableColumn<T> {
   key: string;
@@ -21,14 +21,15 @@ export interface DataTableProps<T> {
   loadingRows?: number;
   maxHeight?: number | string;
   fillHeight?: boolean;
+  getRowStyle?: (item: T) => React.CSSProperties | undefined;
 }
 
 const tableHeaderStyle = {
-  color: 'var(--mantine-color-gray-6)',
+  color: "var(--mantine-color-gray-6)",
   fontWeight: 600,
-  fontSize: '0.75rem',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.5px',
+  fontSize: "0.75rem",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.5px",
 };
 
 export function DataTable<T>({
@@ -42,8 +43,9 @@ export function DataTable<T>({
   loadingRows = 3,
   maxHeight,
   fillHeight = false,
+  getRowStyle,
 }: DataTableProps<T>) {
-  const isMobile = useMediaQuery('(max-width: 48em)');
+  const isMobile = useMediaQuery("(max-width: 48em)");
 
   if (isLoading) {
     if (isMobile) {
@@ -81,19 +83,43 @@ export function DataTable<T>({
     );
   }
 
-  const effectiveMaxHeight = fillHeight ? '100%' : maxHeight;
+  const effectiveMaxHeight = fillHeight ? "100%" : maxHeight;
   const useScrolling = fillHeight || !!maxHeight;
 
   return (
-    <Card shadow="sm" p={0} radius="md" withBorder style={fillHeight ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : undefined}>
-      <Table.ScrollContainer minWidth={500} mah={effectiveMaxHeight} style={useScrolling ? { overflowY: 'auto', flex: 1 } : undefined}>
-        <Table verticalSpacing="md" horizontalSpacing="lg" stickyHeader={useScrolling}>
+    <Card
+      shadow="sm"
+      p={0}
+      radius="md"
+      withBorder
+      style={
+        fillHeight
+          ? { flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }
+          : undefined
+      }
+    >
+      <Table.ScrollContainer
+        minWidth={500}
+        mah={effectiveMaxHeight}
+        style={useScrolling ? { overflowY: "auto", flex: 1 } : undefined}
+      >
+        <Table
+          verticalSpacing="md"
+          horizontalSpacing="lg"
+          stickyHeader={useScrolling}
+        >
           <Table.Thead>
-            <Table.Tr style={{ borderBottom: '2px solid var(--mantine-color-gray-2)' }}>
+            <Table.Tr
+              style={{ borderBottom: "2px solid var(--mantine-color-gray-2)" }}
+            >
               {columns
                 .filter((col) => !col.hideOnMobile || !isMobile)
                 .map((column) => (
-                  <Table.Th key={column.key} w={column.width} style={tableHeaderStyle}>
+                  <Table.Th
+                    key={column.key}
+                    w={column.width}
+                    style={tableHeaderStyle}
+                  >
                     {column.header}
                   </Table.Th>
                 ))}
@@ -104,8 +130,9 @@ export function DataTable<T>({
               <Table.Tr
                 key={getRowKey(item)}
                 style={{
-                  cursor: onRowClick ? 'pointer' : 'default',
-                  transition: 'background-color 150ms ease',
+                  cursor: onRowClick ? "pointer" : "default",
+                  transition: "background-color 150ms ease",
+                  ...getRowStyle?.(item),
                 }}
                 onClick={() => onRowClick?.(item)}
               >

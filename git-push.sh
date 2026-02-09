@@ -14,7 +14,7 @@ if git push origin "$BRANCH" 2>/dev/null; then
     exit 0
 fi
 
-echo "⚠️  Push rejected — rebasing on origin/development..."
+echo "⚠️  Push rejected - rebasing on origin/development..."
 git fetch origin development
 git rebase origin/development
 

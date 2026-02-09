@@ -40,6 +40,7 @@ import type { CreateGameFormData } from "@/features/games/types";
 import { gameToFormData } from "@/features/games/lib";
 import {
   GameEditModal,
+  SponsorGameModal,
   DeleteGameModal,
   GameCard,
   type GameCardAction,
@@ -97,6 +98,12 @@ export function MyWorkshop() {
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewReadOnly, setGameToViewReadOnly] = useState(false);
+  const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
+  const [
+    sponsorModalOpened,
+    { open: openSponsorModal, close: closeSponsorModal },
+  ] = useDisclosure(false);
+  const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [gameFilter, setGameFilter] = useState<GameFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -167,12 +174,14 @@ export function MyWorkshop() {
     if (game.id) {
       setGameToView(game.id);
       setGameToViewReadOnly(!canEdit);
+      setGameToViewIsOwner(game.creatorId === currentUserId);
       openViewModal();
     }
   };
 
   // Pre-populated data for create modal (from YAML import or game copy)
-  const [createInitialData, setCreateInitialData] = useState<Partial<CreateGameFormData> | null>(null);
+  const [createInitialData, setCreateInitialData] =
+    useState<Partial<CreateGameFormData> | null>(null);
 
   const handleCopyFromModal = () => {
     if (!gameToView) return;
@@ -449,7 +458,12 @@ export function MyWorkshop() {
       render: (game) => {
         const { canEdit, canDelete } = getPermissions(game);
         return (
-          <Group gap="md" onClick={(e) => e.stopPropagation()} wrap="wrap" justify="flex-end">
+          <Group
+            gap="md"
+            onClick={(e) => e.stopPropagation()}
+            wrap="wrap"
+            justify="flex-end"
+          >
             <Box style={{ width: 140, flexShrink: 0 }}>
               {renderPlayButton(game)}
             </Box>
@@ -575,7 +589,6 @@ export function MyWorkshop() {
             onSortChange={setSortValue}
             onCreateClick={openCreateModal}
             onImportClick={triggerImportClick}
-
           />
         </Stack>
 
@@ -636,7 +649,26 @@ export function MyWorkshop() {
           setGameToView(null);
         }}
         readOnly={gameToViewReadOnly}
+        onSponsor={
+          gameToViewIsOwner
+            ? () => {
+                const game = games?.find((g) => g.id === gameToView);
+                if (game) {
+                  setGameToSponsor(game);
+                  openSponsorModal();
+                }
+              }
+            : undefined
+        }
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
+      />
+      <SponsorGameModal
+        game={gameToSponsor}
+        opened={sponsorModalOpened}
+        onClose={() => {
+          closeSponsorModal();
+          setGameToSponsor(null);
+        }}
       />
       <DeleteGameModal
         opened={deleteModalOpened}

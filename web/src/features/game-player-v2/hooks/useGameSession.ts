@@ -107,7 +107,7 @@ export function useGameSession(gameId: string) {
         const status: MessageStatus = await response.json();
         pollErrorCountRef.current = 0;
 
-        // Sync state from DB — but be careful not to fight with SSE
+        // Sync state from DB - but be careful not to fight with SSE
         setState((prev) => {
           const msg = prev.messages.find((m) => m.id === messageId);
           if (!msg) return prev;
@@ -116,7 +116,7 @@ export function useGameSession(gameId: string) {
           const stateUpdates: Partial<GamePlayerState> = {};
 
           // Text: only overwrite if SSE is NOT actively streaming.
-          // When SSE is active, it streams char-by-char — polling would cause jumps.
+          // When SSE is active, it streams char-by-char - polling would cause jumps.
           // When SSE is inactive (dropped or never connected), polling is the fallback.
           if (!sseActiveRef.current && status.text.length > msg.text.length) {
             updates.text = status.text;
@@ -128,7 +128,7 @@ export function useGameSession(gameId: string) {
             stateUpdates.isWaitingForResponse = false;
           }
 
-          // Image status — only update when actually changed to avoid re-renders
+          // Image status - only update when actually changed to avoid re-renders
           if (status.imageStatus !== msg.imageStatus) {
             updates.imageStatus = status.imageStatus;
           }
@@ -151,7 +151,7 @@ export function useGameSession(gameId: string) {
             updates.imageErrorCode = status.imageError;
           }
 
-          // Status fields — only update if actually changed
+          // Status fields - only update if actually changed
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
@@ -201,7 +201,7 @@ export function useGameSession(gameId: string) {
 
   const startPolling = useCallback(
     (messageId: string) => {
-      // Already polling this message — don't create duplicate intervals
+      // Already polling this message - don't create duplicate intervals
       if (activePollingIdRef.current === messageId && pollIntervalRef.current) {
         return;
       }
@@ -237,7 +237,7 @@ export function useGameSession(gameId: string) {
     (messageId: string) => {
       clearSilenceTimer();
       silenceTimerRef.current = setTimeout(() => {
-        // No SSE data for SSE_SILENCE_TIMEOUT — activate polling fallback
+        // No SSE data for SSE_SILENCE_TIMEOUT - activate polling fallback
         if (!pollIntervalRef.current) {
           apiLogger.debug("SSE silence timeout, activating polling fallback", {
             messageId,
@@ -278,7 +278,7 @@ export function useGameSession(gameId: string) {
         });
 
         if (!response.ok) {
-          // SSE failed to connect — activate polling as fallback
+          // SSE failed to connect - activate polling as fallback
           apiLogger.error("SSE connection failed, activating polling", {
             status: response.status,
             messageId,
@@ -291,7 +291,7 @@ export function useGameSession(gameId: string) {
         if (!reader) return;
 
         sseActiveRef.current = true;
-        // Start silence timer — if no data arrives within the timeout, polling kicks in
+        // Start silence timer - if no data arrives within the timeout, polling kicks in
         resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
@@ -310,7 +310,7 @@ export function useGameSession(gameId: string) {
                 const data = line.slice(6);
                 const chunk: StreamChunk = JSON.parse(data);
 
-                // SSE is alive — reset silence timer
+                // SSE is alive - reset silence timer
                 resetSilenceTimer(messageId);
 
                 if (chunk.error) {
@@ -346,7 +346,7 @@ export function useGameSession(gameId: string) {
                   appendTextToMessage(messageId, chunk.text);
                 }
 
-                // Partial image received — bump imageHash to trigger SceneImage re-fetch
+                // Partial image received - bump imageHash to trigger SceneImage re-fetch
                 // (the backend caches partial images, served via /messages/{id}/image)
                 if (chunk.imageData) {
                   updateMessage(messageId, {
@@ -370,7 +370,7 @@ export function useGameSession(gameId: string) {
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
-                  // SSE delivered everything — stop polling (if active) and silence timer
+                  // SSE delivered everything - stop polling (if active) and silence timer
                   clearSilenceTimer();
                   stopPolling();
                   return;
@@ -390,7 +390,7 @@ export function useGameSession(gameId: string) {
         sseActiveRef.current = false;
         clearSilenceTimer();
         if ((error as Error).name !== "AbortError") {
-          // SSE dropped — activate polling as fallback
+          // SSE dropped - activate polling as fallback
           apiLogger.error("SSE connection lost, activating polling", {
             error,
             messageId,
@@ -458,7 +458,7 @@ export function useGameSession(gameId: string) {
       });
 
       if (firstMessage.id && firstMessage.stream) {
-        // No playerMessageId for initial session — system message, no retry needed
+        // No playerMessageId for initial session - system message, no retry needed
         connectToStream(firstMessage.id);
       } else {
         setState((prev) => ({
@@ -695,7 +695,7 @@ export function useGameSession(gameId: string) {
               }
             }
           } catch {
-            // Status check failed — leave optimistic "complete" status, image will 404 gracefully
+            // Status check failed - leave optimistic "complete" status, image will 404 gracefully
             apiLogger.debug("Failed to check image status on rejoin", {
               messageId: lastMessage.id,
             });

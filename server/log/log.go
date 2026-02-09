@@ -90,7 +90,7 @@ func Fatal(msg string, args ...any) {
 
 // EnableSentry wraps the current slog handler so that Warn/Error messages
 // are also forwarded to Sentry. Call this after sentry.Init() succeeds.
-// Safe to call multiple times — subsequent calls are no-ops.
+// Safe to call multiple times - subsequent calls are no-ops.
 func EnableSentry() {
 	if _, ok := logger.Handler().(*sentryHandler); ok {
 		return

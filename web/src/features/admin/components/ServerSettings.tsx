@@ -56,24 +56,18 @@ export function ServerSettings() {
     );
   }
 
-  // Flatten API keys from shares to get unique keys owned by the admin
-  const uniqueKeys = new Map<
-    string,
-    { id: string; name: string; platform: string }
-  >();
-  apiKeys?.forEach((share) => {
-    if (share.apiKey?.id && !uniqueKeys.has(share.apiKey.id)) {
-      uniqueKeys.set(share.apiKey.id, {
-        id: share.apiKey.id,
-        name: share.apiKey.name || "",
-        platform: share.apiKey.platform || "",
-      });
-    }
-  });
-  const keyOptions = Array.from(uniqueKeys.values()).map((key) => ({
-    value: key.id,
-    label: `${key.name} (${key.platform})`,
+  // Get unique keys owned by the admin
+  const keys = apiKeys?.apiKeys ?? [];
+  const keyOptions = keys.map((key) => ({
+    value: key.id!,
+    label: `${key.name || ""} (${key.platform || ""})`,
   }));
+  const uniqueKeys = new Map(
+    keys.map((key) => [
+      key.id!,
+      { id: key.id!, name: key.name || "", platform: key.platform || "" },
+    ]),
+  );
 
   const currentKeyId = settings?.freeUseApiKeyId;
   const currentKey = currentKeyId ? uniqueKeys.get(currentKeyId) : undefined;

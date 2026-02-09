@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useModals } from "@mantine/modals";
+import { useTranslation } from "react-i18next";
 import { queryKeys, useGame, useWorkshopEvents } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
@@ -95,12 +97,36 @@ export function useSessionLifecycle({
   }, [sessionId, state.phase, loadExistingSession]);
 
   // Auto-start new sessions: API key is resolved server-side
+  // For sponsored games, show an explanation modal first
+  const modals = useModals();
+  const { t } = useTranslation("common");
   const autoStartAttemptedRef = useRef(false);
   useEffect(() => {
-    if (isContinuation || state.phase !== "idle" || autoStartAttemptedRef.current) return;
+    if (
+      isContinuation ||
+      state.phase !== "idle" ||
+      autoStartAttemptedRef.current
+    )
+      return;
     if (gameLoading || gameError || !game) return;
     autoStartAttemptedRef.current = true;
-    startSession();
+
+    if (game.publicSponsoredApiKeyShareId) {
+      modals.openConfirmModal({
+        title: t("games.sponsor.gameStartTitle"),
+        children: t("games.sponsor.gameStartMessage"),
+        labels: {
+          confirm: t("games.sponsor.gameStartOk"),
+          cancel: t("cancel"),
+        },
+        confirmProps: { color: "pink" },
+        onConfirm: () => startSession(),
+        onCancel: () => handleBack(),
+      });
+    } else {
+      startSession();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isContinuation, state.phase, gameLoading, gameError, game, startSession]);
 
   // Replace URL with /sessions/$sessionId once a new session is created,
@@ -186,9 +212,12 @@ export function useSessionLifecycle({
 
   // Check if the error is a "no API key" error
   const isNoApiKeyError =
-    state.phase === "error" && extractRawErrorCode(state.errorObject) === "no_api_key";
+    state.phase === "error" &&
+    extractRawErrorCode(state.errorObject) === "no_api_key";
 
-  const displayGame = (isContinuation ? state.gameInfo : game) as GameInfo | undefined;
+  const displayGame = (isContinuation ? state.gameInfo : game) as
+    | GameInfo
+    | undefined;
 
   // Validate required game fields before allowing play
   const missingFields = useMemo(() => {

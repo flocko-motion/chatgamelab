@@ -38,13 +38,18 @@ type ApiKeyInfoResponse struct {
 	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
 }
 
+type ApiKeysResponse struct {
+	ApiKeys []obj.ApiKey      `json:"apiKeys"`
+	Shares  []obj.ApiKeyShare `json:"shares"`
+}
+
 // GetApiKeys godoc
 //
 //	@Summary		List API keys
-//	@Description	Returns all API key shares accessible to the current user
+//	@Description	Returns the user's API keys and all their linked shares (org shares, sponsorships)
 //	@Tags			apikeys
 //	@Produce		json
-//	@Success		200	{array}		obj.ApiKeyShare
+//	@Success		200	{object}	ApiKeysResponse
 //	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500	{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
@@ -52,13 +57,23 @@ type ApiKeyInfoResponse struct {
 func GetApiKeys(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	keys, err := db.GetApiKeySharesByUser(r.Context(), user.ID)
+	apiKeys, shares, err := db.GetApiKeysWithShares(r.Context(), user.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get API keys: "+err.Error())
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, keys)
+	if apiKeys == nil {
+		apiKeys = []obj.ApiKey{}
+	}
+	if shares == nil {
+		shares = []obj.ApiKeyShare{}
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, ApiKeysResponse{
+		ApiKeys: apiKeys,
+		Shares:  shares,
+	})
 }
 
 // CreateApiKey godoc

@@ -110,7 +110,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check for messages with imagePrompt but no persisted image — retry generation once.
+	// Check for messages with imagePrompt but no persisted image - retry generation once.
 	// Only for non-streaming (text-complete) messages where the image was lost or never generated.
 	for i := range resp.Messages {
 		msg := &resp.Messages[i]
@@ -239,7 +239,6 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		string				true	"Game ID (UUID)"
-//	@Param			request	body		CreateSessionRequest	true	"Create session request"
 //	@Success		200		{object}	SessionResponse
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
@@ -440,7 +439,7 @@ func GetMessageStatus(w http.ResponseWriter, r *http.Request) {
 			// Stream still active, image generation hasn't started yet
 			resp.ImageStatus = "generating"
 		} else {
-			// Stream finished but no image — generation failed silently or was skipped
+			// Stream finished but no image - generation failed silently or was skipped
 			resp.ImageStatus = "none"
 		}
 	}

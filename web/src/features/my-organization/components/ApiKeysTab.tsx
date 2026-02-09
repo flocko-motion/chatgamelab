@@ -104,22 +104,34 @@ export function ApiKeysTab({
   }, [institutionKeys, searchQuery, platformFilter]);
 
   // Filter user's own keys that aren't already shared with the institution
-  const availableKeysToShare =
-    userKeys?.filter((share) => {
-      // Only show keys the user owns (compare with current user's ID)
-      if (share.apiKey?.userId !== backendUser?.id) return false;
-      // Don't show keys already shared with this institution
-      const alreadyShared = institutionKeys?.some(
-        (instShare) => instShare.apiKeyId === share.apiKeyId,
-      );
-      return !alreadyShared;
-    }) ?? [];
+  const ownKeys = userKeys?.apiKeys ?? [];
+  const ownShares = userKeys?.shares ?? [];
+  const availableKeysToShare = ownKeys.filter((key) => {
+    // Only show keys the user owns
+    if (key.userId !== backendUser?.id) return false;
+    // Don't show keys already shared with this institution
+    const alreadyShared = institutionKeys?.some(
+      (instShare) => instShare.apiKeyId === key.id,
+    );
+    return !alreadyShared;
+  });
 
   const handleShareKey = async () => {
     if (!selectedKeyId) return;
 
+    // Find the user's self-share for this API key (backend expects share ID, not key ID)
+    const selfShare = ownShares.find(
+      (s) =>
+        s.apiKeyId === selectedKeyId &&
+        s.user &&
+        !s.institution &&
+        !s.workshop &&
+        !s.game,
+    );
+    if (!selfShare?.id) return;
+
     await shareApiKey.mutateAsync({
-      shareId: selectedKeyId,
+      shareId: selfShare.id,
       institutionId,
       allowPublicGameSponsoring: allowPublicSponsored,
     });
@@ -406,9 +418,9 @@ export function ApiKeysTab({
           <Select
             label={t("myOrganization.apiKeys.selectKey")}
             placeholder={t("myOrganization.apiKeys.selectKeyPlaceholder")}
-            data={availableKeysToShare.map((share) => ({
-              value: share.id || "",
-              label: `${share.apiKey?.name || t("unnamed")} (${share.apiKey?.platform})`,
+            data={availableKeysToShare.map((key) => ({
+              value: key.id || "",
+              label: `${key.name || t("unnamed")} (${key.platform})`,
             }))}
             value={selectedKeyId}
             onChange={setSelectedKeyId}
