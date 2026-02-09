@@ -517,6 +517,109 @@ func RemoveFavouriteGame(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"favourite": false})
 }
 
+// SponsorGameRequest represents the request body for sponsoring a game
+type SponsorGameRequest struct {
+	ShareID uuid.UUID `json:"shareId"`
+}
+
+// SetGameSponsor godoc
+//
+//	@Summary		Sponsor a game
+//	@Description	Sets a public sponsorship on a game using an API key share
+//	@Tags			games
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string				true	"Game ID (UUID)"
+//	@Param			request	body		SponsorGameRequest	true	"Sponsor request"
+//	@Success		200		{object}	obj.Game
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		404		{object}	httpx.ErrorResponse	"Game not found"
+//	@Security		BearerAuth
+//	@Router			/games/{id}/sponsor [put]
+func SetGameSponsor(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	var req SponsorGameRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	if req.ShareID == uuid.Nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Missing required field: shareId")
+		return
+	}
+
+	log.Debug("setting game sponsor", "game_id", gameID, "user_id", user.ID, "share_id", req.ShareID)
+
+	if err := db.SetGamePublicSponsorship(r.Context(), user.ID, gameID, req.ShareID); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to set sponsor: "+err.Error())
+		return
+	}
+
+	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, game)
+}
+
+// RemoveGameSponsor godoc
+//
+//	@Summary		Remove game sponsorship
+//	@Description	Removes the public sponsorship from a game
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID)"
+//	@Success		200	{object}	obj.Game
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403	{object}	httpx.ErrorResponse	"Forbidden"
+//	@Security		BearerAuth
+//	@Router			/games/{id}/sponsor [delete]
+func RemoveGameSponsor(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	log.Debug("removing game sponsor", "game_id", gameID, "user_id", user.ID)
+
+	if err := db.ClearGamePublicSponsorship(r.Context(), user.ID, gameID); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to remove sponsor: "+err.Error())
+		return
+	}
+
+	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, game)
+}
+
 // GetAvailableKeys godoc
 //
 //	@Summary		Get available API keys for a game
