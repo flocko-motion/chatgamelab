@@ -11,15 +11,17 @@ import {
   Alert,
   Loader,
 } from "@mantine/core";
-import { IconKey, IconAlertCircle } from "@tabler/icons-react";
+import { IconKey, IconAlertCircle, IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { isAdmin } from "@/common/lib/roles";
 import {
   useSystemSettings,
+  useUpdateSystemSettings,
   useSetSystemFreeUseKey,
   useApiKeys,
 } from "@/api/hooks";
+import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 
 export function ServerSettings() {
   const { t } = useTranslation("common");
@@ -28,6 +30,7 @@ export function ServerSettings() {
   const { data: settings, isLoading: settingsLoading } = useSystemSettings();
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const setFreeUseKey = useSetSystemFreeUseKey();
+  const updateSettings = useUpdateSystemSettings();
 
   if (!isAdmin(backendUser)) {
     return (
@@ -73,14 +76,39 @@ export function ServerSettings() {
   }));
 
   const currentKeyId = settings?.freeUseApiKeyId;
-  const currentKey = currentKeyId
-    ? uniqueKeys.get(currentKeyId)
-    : undefined;
+  const currentKey = currentKeyId ? uniqueKeys.get(currentKeyId) : undefined;
 
   return (
     <Container size="xl" py="xl">
       <Stack gap="lg">
         <Title order={2}>{t("serverSettings.title")}</Title>
+
+        {/* Default AI Quality Tier */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="md">
+            <Group gap="xs">
+              <IconSparkles size={20} />
+              <Text fw={600} size="sm">
+                {t("serverSettings.defaultTier.title")}
+              </Text>
+            </Group>
+            <Text size="sm" c="dimmed">
+              {t("serverSettings.defaultTier.description")}
+            </Text>
+            <Select
+              data={getAiQualityTierOptions(t)}
+              value={settings?.defaultAiQualityTier || "medium"}
+              onChange={(value) => {
+                if (value) {
+                  updateSettings.mutate({ defaultAiQualityTier: value });
+                }
+              }}
+              disabled={updateSettings.isPending}
+              size="sm"
+              style={{ maxWidth: 300 }}
+            />
+          </Stack>
+        </Card>
 
         {/* Free-Use Key Section */}
         <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -104,9 +132,7 @@ export function ServerSettings() {
                   variant="subtle"
                   color="red"
                   size="xs"
-                  onClick={() =>
-                    setFreeUseKey.mutate({ apiKeyId: null })
-                  }
+                  onClick={() => setFreeUseKey.mutate({ apiKeyId: null })}
                   loading={setFreeUseKey.isPending}
                 >
                   {t("serverSettings.freeUseKey.remove")}
@@ -121,9 +147,7 @@ export function ServerSettings() {
                   variant="subtle"
                   color="red"
                   size="xs"
-                  onClick={() =>
-                    setFreeUseKey.mutate({ apiKeyId: null })
-                  }
+                  onClick={() => setFreeUseKey.mutate({ apiKeyId: null })}
                   loading={setFreeUseKey.isPending}
                 >
                   {t("serverSettings.freeUseKey.remove")}
@@ -131,18 +155,14 @@ export function ServerSettings() {
               </Group>
             ) : (
               <Select
-                placeholder={t(
-                  "serverSettings.freeUseKey.selectPlaceholder",
-                )}
+                placeholder={t("serverSettings.freeUseKey.selectPlaceholder")}
                 data={keyOptions}
                 onChange={(value) => {
                   if (value) {
                     setFreeUseKey.mutate({ apiKeyId: value });
                   }
                 }}
-                disabled={
-                  keyOptions.length === 0 || setFreeUseKey.isPending
-                }
+                disabled={keyOptions.length === 0 || setFreeUseKey.isPending}
                 clearable={false}
                 size="sm"
                 style={{ maxWidth: 400 }}
@@ -154,6 +174,23 @@ export function ServerSettings() {
                 {t("serverSettings.freeUseKey.noKeys")}
               </Text>
             )}
+
+            <Text size="sm" c="dimmed">
+              {t("serverSettings.freeUseTier.description")}
+            </Text>
+            <Select
+              label={t("serverSettings.freeUseTier.title")}
+              data={getAiQualityTierOptions(t, { includeEmpty: true })}
+              value={settings?.freeUseAiQualityTier || ""}
+              onChange={(value) => {
+                updateSettings.mutate({
+                  freeUseAiQualityTier: value || "",
+                });
+              }}
+              disabled={updateSettings.isPending}
+              size="sm"
+              style={{ maxWidth: 300 }}
+            />
           </Stack>
         </Card>
       </Stack>
