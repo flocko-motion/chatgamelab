@@ -1,6 +1,7 @@
-import { useGameTheme } from '../theme';
-import { translateErrorCode } from '@/common/lib/errorHelpers';
-import classes from './GamePlayer.module.css';
+import { useTranslation } from "react-i18next";
+import { useGameTheme } from "../theme";
+import { translateErrorCode } from "@/common/lib/errorHelpers";
+import classes from "./GamePlayer.module.css";
 
 interface PlayerActionProps {
   text: string;
@@ -11,38 +12,49 @@ interface PlayerActionProps {
 
 // Map indicator type to display character
 const INDICATOR_CHARS: Record<string, string> = {
-  dot: '•',
-  chevron: '>',
-  pipe: '|',
-  cursor: '▌',
-  underscore: '_',
-  none: '',
+  dot: "•",
+  chevron: ">",
+  pipe: "|",
+  cursor: "▌",
+  underscore: "_",
+  none: "",
 };
 
-export function PlayerAction({ text, error, errorCode, onRetry }: PlayerActionProps) {
+export function PlayerAction({
+  text,
+  error,
+  errorCode,
+  onRetry,
+}: PlayerActionProps) {
+  const { t } = useTranslation("common");
   const { theme } = useGameTheme();
-  const indicator = theme.player.indicator ?? 'chevron';
+  const indicator = theme.player.indicator ?? "chevron";
   const indicatorBlink = theme.player.indicatorBlink ?? false;
 
   const bubbleClasses = [
     classes.playerActionBubble,
-    indicator === 'none' && classes.noIndicator,
+    indicator === "none" && classes.noIndicator,
     error && classes.playerActionError,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const indicatorClasses = [
     classes.playerIndicator,
     indicatorBlink && classes.indicatorBlink,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  const indicatorChar = INDICATOR_CHARS[indicator] || '>';
+  const indicatorChar = INDICATOR_CHARS[indicator] || ">";
 
   const errorInfo = error && errorCode ? translateErrorCode(errorCode) : null;
+  const errorMessage = errorInfo?.message || t("gamePlayer.error.sendFailed");
 
   return (
     <div className={classes.playerAction}>
       <div className={bubbleClasses}>
-        {indicator !== 'none' && (
+        {indicator !== "none" && (
           <span className={indicatorClasses}>{indicatorChar}</span>
         )}
         <span className={classes.playerActionText}>{text}</span>
@@ -50,7 +62,7 @@ export function PlayerAction({ text, error, errorCode, onRetry }: PlayerActionPr
       {error && (
         <div className={classes.playerActionErrorInfo}>
           <span className={classes.playerActionErrorText}>
-            ⚠️ {errorInfo?.message || error}
+            ⚠️ {errorMessage}
           </span>
           {onRetry && (
             <button
@@ -58,7 +70,7 @@ export function PlayerAction({ text, error, errorCode, onRetry }: PlayerActionPr
               onClick={onRetry}
               type="button"
             >
-              ↻ Retry
+              ↻ {t("gamePlayer.error.retry")}
             </button>
           )}
         </div>

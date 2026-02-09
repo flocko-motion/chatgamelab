@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useModals } from "@mantine/modals";
-import { useTranslation } from "react-i18next";
 import { queryKeys, useGame, useWorkshopEvents } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
@@ -97,9 +95,6 @@ export function useSessionLifecycle({
   }, [sessionId, state.phase, loadExistingSession]);
 
   // Auto-start new sessions: API key is resolved server-side
-  // For sponsored games, show an explanation modal first
-  const modals = useModals();
-  const { t } = useTranslation("common");
   const autoStartAttemptedRef = useRef(false);
   useEffect(() => {
     if (
@@ -111,22 +106,7 @@ export function useSessionLifecycle({
     if (gameLoading || gameError || !game) return;
     autoStartAttemptedRef.current = true;
 
-    if (game.publicSponsoredApiKeyShareId) {
-      modals.openConfirmModal({
-        title: t("games.sponsor.gameStartTitle"),
-        children: t("games.sponsor.gameStartMessage"),
-        labels: {
-          confirm: t("games.sponsor.gameStartOk"),
-          cancel: t("cancel"),
-        },
-        confirmProps: { color: "pink" },
-        onConfirm: () => startSession(),
-        onCancel: () => handleBack(),
-      });
-    } else {
-      startSession();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    startSession();
   }, [isContinuation, state.phase, gameLoading, gameError, game, startSession]);
 
   // Replace URL with /sessions/$sessionId once a new session is created,

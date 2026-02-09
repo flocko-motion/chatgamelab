@@ -6,7 +6,7 @@ import { queryKeys } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { config } from "@/config/env";
 import type { RoutesSessionResponse } from "@/api/generated";
-import { extractRawErrorCode } from "@/common/types/errorCodes";
+import { extractRawErrorCode, ErrorCodes } from "@/common/types/errorCodes";
 import type {
   SceneMessage,
   StreamChunk,
@@ -28,10 +28,12 @@ const INITIAL_STATE: GamePlayerState = {
   theme: null,
 };
 
-const POLL_INTERVAL = 1500;
+const POLL_INTERVAL = 3000;
 const MAX_POLL_ERRORS = 5;
 /** If no SSE data arrives within this window, activate polling as fallback */
 const SSE_SILENCE_TIMEOUT = 10_000;
+/** Minimum interval between partial image hash updates (throttle re-fetches) */
+const PARTIAL_IMAGE_THROTTLE = 4000;
 
 export function useGameSession(gameId: string) {
   const api = useRequiredAuthenticatedApi();
@@ -50,6 +52,8 @@ export function useGameSession(gameId: string) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Ref to break circular dependency between resetSilenceTimer and startPolling
   const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  // Throttle partial image updates from SSE imageData chunks
+  const lastImageUpdateRef = useRef(0);
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -259,6 +263,7 @@ export function useGameSession(gameId: string) {
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
+      lastImageUpdateRef.current = 0;
 
       try {
         const token = await getAccessToken();
@@ -347,12 +352,19 @@ export function useGameSession(gameId: string) {
                 }
 
                 // Partial image received - bump imageHash to trigger SceneImage re-fetch
-                // (the backend caches partial images, served via /messages/{id}/image)
+                // Throttled to avoid excessive image downloads during generation
                 if (chunk.imageData) {
-                  updateMessage(messageId, {
-                    imageStatus: "generating",
-                    imageHash: `partial-${Date.now()}`,
-                  });
+                  const now = Date.now();
+                  if (
+                    now - lastImageUpdateRef.current >=
+                    PARTIAL_IMAGE_THROTTLE
+                  ) {
+                    lastImageUpdateRef.current = now;
+                    updateMessage(messageId, {
+                      imageStatus: "generating",
+                      imageHash: `partial-${now}`,
+                    });
+                  }
                 }
 
                 if (chunk.textDone) {
@@ -542,7 +554,12 @@ export function useGameSession(gameId: string) {
         }
       } catch (error) {
         apiLogger.error("sendAction failed", { error });
-        const errorCode = extractRawErrorCode(error);
+        // Detect network errors (backend unreachable, offline, etc.)
+        const isNetworkError =
+          error instanceof TypeError && /fetch|network/i.test(error.message);
+        const errorCode = isNetworkError
+          ? ErrorCodes.NETWORK_ERROR
+          : extractRawErrorCode(error) || undefined;
         // Mark the player message as failed (red + retry)
         setState((prev) => ({
           ...prev,
@@ -555,7 +572,7 @@ export function useGameSession(gameId: string) {
                     error instanceof Error
                       ? error.message
                       : "Failed to send action",
-                  errorCode: errorCode || undefined,
+                  errorCode,
                 }
               : msg,
           ),

@@ -1,20 +1,9 @@
 /* ============================================================================
-   Game Player - Custom Color Palette
-   Using warm amber/gold tones instead of the app's violet accent
+   Game Player Styles
+   Theme-driven via CSS custom properties from GameThemeContext
    ============================================================================ */
 
 .container {
-  /* Game-specific accent colors */
-  --game-accent-1: #fef3c7;
-  --game-accent-2: #fde68a;
-  --game-accent-3: #fcd34d;
-  --game-accent-4: #fbbf24;
-  --game-accent-5: #f59e0b;
-  --game-accent-6: #d97706;
-  --game-accent-7: #b45309;
-  --game-accent-8: #92400e;
-  --game-accent-9: #78350f;
-
   /* Dimmed backgrounds - soft gray, not dark mode */
   --game-bg-dim: #e8e8ec;
   --game-bg-header: #dddde3;
@@ -330,7 +319,7 @@
 .cornerDecor.cornerBrackets {
   width: 24px;
   height: 24px;
-  border-color: var(--game-corner-color, var(--game-accent-4));
+  border-color: var(--game-corner-color, #475569);
   border-style: solid;
   opacity: 0.7;
 }
@@ -354,7 +343,7 @@
 /* Flourish style */
 .cornerDecor.cornerFlourish {
   font-size: 24px;
-  color: var(--game-corner-color, var(--game-accent-4));
+  color: var(--game-corner-color, #475569);
   opacity: 0.6;
   line-height: 1;
 }
@@ -372,26 +361,26 @@
 }
 .cornerDecor.cornerArrows.cornerTopLeft {
   border-width: 12px 12px 0 0;
-  border-color: var(--game-corner-color, var(--game-accent-4)) transparent transparent transparent;
+  border-color: var(--game-corner-color, #475569) transparent transparent transparent;
 }
 .cornerDecor.cornerArrows.cornerTopRight {
   border-width: 0 12px 12px 0;
-  border-color: transparent var(--game-corner-color, var(--game-accent-4)) transparent transparent;
+  border-color: transparent var(--game-corner-color, #475569) transparent transparent;
 }
 .cornerDecor.cornerArrows.cornerBottomLeft {
   border-width: 12px 0 0 12px;
-  border-color: transparent transparent transparent var(--game-corner-color, var(--game-accent-4));
+  border-color: transparent transparent transparent var(--game-corner-color, #475569);
 }
 .cornerDecor.cornerArrows.cornerBottomRight {
   border-width: 0 0 12px 12px;
-  border-color: transparent transparent var(--game-corner-color, var(--game-accent-4)) transparent;
+  border-color: transparent transparent var(--game-corner-color, #475569) transparent;
 }
 
 /* Dots style (triple dots) */
 .cornerDecor.cornerDots {
   font-size: 10px;
   letter-spacing: 2px;
-  color: var(--game-corner-color, var(--game-accent-4));
+  color: var(--game-corner-color, #475569);
   opacity: 0.6;
 }
 .cornerDecor.cornerDots::before { content: '•••'; }
@@ -402,10 +391,10 @@
 .cornerDecor.cornerDot {
   width: 8px;
   height: 8px;
-  background: var(--game-corner-color, var(--game-accent-4));
+  background: var(--game-corner-color, #475569);
   border-radius: 50%;
   opacity: 0.8;
-  box-shadow: 0 0 6px var(--game-corner-color, var(--game-accent-4));
+  box-shadow: 0 0 6px var(--game-corner-color, #475569);
 }
 
 /* Cursor style (underscore) */
@@ -413,7 +402,7 @@
   font-size: 18px;
   font-family: 'Courier New', Consolas, monospace;
   font-weight: bold;
-  color: var(--game-corner-color, var(--game-accent-4));
+  color: var(--game-corner-color, #475569);
 }
 .cornerDecor.cornerCursor::before { content: '_'; }
 
@@ -550,19 +539,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--game-error-border, rgba(239, 68, 68, 0.3));
   padding: 1rem;
   text-align: center;
 }
 
 .imageErrorIcon {
   font-size: 1.5rem;
+  color: var(--game-error-text, inherit);
 }
 
 .imageErrorText {
   font-size: 0.75rem;
-  color: var(--mantine-color-red-7);
+  color: var(--game-error-text, var(--mantine-color-red-7));
   line-height: 1.3;
 }
 
@@ -694,8 +684,8 @@
 
 /* Error state for failed player messages */
 .playerActionBubble.playerActionError {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.4);
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
+  border-color: var(--game-error-border, rgba(239, 68, 68, 0.4));
 }
 
 .playerActionErrorInfo {
@@ -709,14 +699,14 @@
 
 .playerActionErrorText {
   font-size: var(--mantine-font-size-xs);
-  color: var(--mantine-color-red-7);
+  color: var(--game-error-text, var(--mantine-color-red-7));
 }
 
 .playerActionRetryButton {
   background: none;
-  border: 1px solid var(--mantine-color-red-4);
+  border: 1px solid var(--game-error-border, var(--mantine-color-red-4));
   border-radius: var(--mantine-radius-sm);
-  color: var(--mantine-color-red-7);
+  color: var(--game-error-text, var(--mantine-color-red-7));
   font-size: var(--mantine-font-size-xs);
   font-weight: 600;
   padding: 2px 10px;
@@ -726,7 +716,7 @@
 }
 
 .playerActionRetryButton:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
 }
 
 /* ============================================================================
@@ -762,7 +752,7 @@
 }
 
 .dividerSymbol {
-  color: var(--game-divider-color, var(--game-accent-5));
+  color: var(--game-divider-color, #475569);
   font-size: var(--mantine-font-size-xs);
   opacity: 0.8;
 }
@@ -868,7 +858,7 @@
   border-radius: var(--mantine-radius-lg);
   border-width: var(--game-border-width, 2px);
   border-style: solid;
-  border-color: var(--game-player-color, var(--game-accent-4));
+  border-color: var(--game-player-color, #475569);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -901,7 +891,7 @@
 
 .inlineInput :global(.mantine-ActionIcon-root):hover,
 .inlineInput :global(.mantine-Button-root):hover {
-  background: var(--game-player-color, var(--game-accent-5));
+  background: var(--game-player-color, #475569);
   color: var(--game-player-font-color, inherit);
 }
 
