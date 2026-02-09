@@ -21,8 +21,8 @@ type resolvedKey struct {
 //  1. Workshop key + workshop.aiQualityTier
 //  2. Sponsored game key (public sponsor on the game)
 //  3. Institution free-use key + institution.freeUseAiQualityTier
-//  4. System free-use key + system_settings.freeUseAiQualityTier
-//  5. User's default API key + user.aiQualityTier
+//  4. User's default API key + user.aiQualityTier
+//  5. System free-use key + system_settings.freeUseAiQualityTier
 //
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
 func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
@@ -50,11 +50,11 @@ func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.
 		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
 	}
 
-	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
+	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
 		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
 	}
 
-	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
+	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
 		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
 	}
 

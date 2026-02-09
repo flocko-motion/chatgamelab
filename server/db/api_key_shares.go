@@ -334,16 +334,21 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 	// Check permission - user must have read access to the API key
 	// First check via standard canAccessApiKey
 	if err := canAccessApiKey(ctx, userID, OpRead, s.ApiKeyID, s.KeyOwnerID, nil, nil, nil); err != nil {
-		// If standard check fails, also check if this share is a workshop's default API key
-		// and the user is a member of that workshop
-		canAccess, checkErr := queries().CanUserAccessShareViaWorkshopDefault(ctx, db.CanUserAccessShareViaWorkshopDefaultParams{
-			DefaultApiKeyShareID: uuid.NullUUID{UUID: shareID, Valid: true},
-			UserID:               userID,
-		})
-		if checkErr != nil || !canAccess {
-			return nil, err // Return original error
+		// Game-scoped shares (sponsorships) are accessible by any user
+		if s.GameID.Valid {
+			log.Debug("access granted via game sponsorship share", "share_id", shareID, "user_id", userID, "game_id", s.GameID.UUID)
+		} else {
+			// Also check if this share is a workshop's default API key
+			// and the user is a member of that workshop
+			canAccess, checkErr := queries().CanUserAccessShareViaWorkshopDefault(ctx, db.CanUserAccessShareViaWorkshopDefaultParams{
+				DefaultApiKeyShareID: uuid.NullUUID{UUID: shareID, Valid: true},
+				UserID:               userID,
+			})
+			if checkErr != nil || !canAccess {
+				return nil, err // Return original error
+			}
+			log.Debug("access granted via workshop default API key", "share_id", shareID, "user_id", userID)
 		}
-		log.Debug("access granted via workshop default API key", "share_id", shareID, "user_id", userID)
 	}
 	share := &obj.ApiKeyShare{
 		ID: s.ID,

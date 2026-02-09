@@ -861,7 +861,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
-// priority chain (workshop → institution free-use → system free-use → user default) and updates the session.
+// priority chain (workshop → sponsored game → institution free-use → user default → system free-use) and updates the session.
 // Used when resuming a session whose API key was deleted.
 func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	// Load and verify session ownership
@@ -874,7 +874,7 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	}
 
 	// Resolve the API key and AI quality tier using the same priority chain as session creation:
-	// 1. Workshop key + tier → 2. Institution free-use key + tier → 3. System free-use key + tier → 4. User default key + tier
+	// 1. Workshop key + tier → 2. Sponsored game key → 3. Institution free-use key + tier → 4. User default key + tier → 5. System free-use key + tier
 	var share *obj.ApiKeyShare
 	var sourceTier *string
 
@@ -898,7 +898,18 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 		}
 	}
 
-	// 2. Check institution free-use key
+	// 2. Check sponsored game key
+	if share == nil {
+		game, gameErr := loadGameByID(ctx, session.GameID)
+		if gameErr == nil && game.PublicSponsoredApiKeyShareID != nil {
+			sponsorShare, shareErr := GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
+			if shareErr == nil {
+				share = sponsorShare
+			}
+		}
+	}
+
+	// 3. Check institution free-use key
 	if share == nil && userErr == nil && user.Role != nil && user.Role.Institution != nil && user.Role.Institution.FreeUseApiKeyShareID != nil {
 		share, _ = GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
 		if share != nil {
@@ -906,18 +917,6 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 			if instErr == nil {
 				sourceTier = institution.FreeUseAiQualityTier
 			}
-		}
-	}
-
-	// 3. Check system free-use key (stored as api_key_id, not a share)
-	if share == nil && settings != nil && settings.FreeUseApiKeyID != nil {
-		apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
-		if keyErr == nil {
-			share = &obj.ApiKeyShare{
-				ApiKeyID: apiKey.ID,
-				ApiKey:   apiKey,
-			}
-			sourceTier = settings.FreeUseAiQualityTier
 		}
 	}
 
@@ -929,6 +928,18 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 			if share != nil {
 				sourceTier = user.AiQualityTier
 			}
+		}
+	}
+
+	// 5. Check system free-use key (stored as api_key_id, not a share)
+	if share == nil && settings != nil && settings.FreeUseApiKeyID != nil {
+		apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
+		if keyErr == nil {
+			share = &obj.ApiKeyShare{
+				ApiKeyID: apiKey.ID,
+				ApiKey:   apiKey,
+			}
+			sourceTier = settings.FreeUseAiQualityTier
 		}
 	}
 
