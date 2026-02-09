@@ -16,8 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var modelID string
-
 const imageOutputDir = "/tmp/cgl"
 
 var gamePlayCmd = &cobra.Command{
@@ -29,7 +27,6 @@ var gamePlayCmd = &cobra.Command{
 }
 
 func init() {
-	gamePlayCmd.Flags().StringVarP(&modelID, "model", "m", "", "AI model to use (optional, uses platform default if not provided)")
 	Cmd.AddCommand(gamePlayCmd)
 }
 
@@ -69,13 +66,9 @@ func tryGetSession(id string) (uuid.UUID, error) {
 
 // createNewSession creates a new session for the given game ID
 func createNewSession(gameID string) uuid.UUID {
-	req := routes.CreateSessionRequest{
-		Model: modelID,
-	}
-
 	startTime := time.Now()
 	var resp obj.GameSessionMessage
-	if err := client.ApiPost("games/"+gameID+"/sessions", req, &resp); err != nil {
+	if err := client.ApiPost("games/"+gameID+"/sessions", struct{}{}, &resp); err != nil {
 		log.Fatalf("Failed to create session: %v", err)
 	}
 

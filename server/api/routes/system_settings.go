@@ -32,7 +32,8 @@ func GetSystemSettings(w http.ResponseWriter, r *http.Request) {
 
 // UpdateSystemSettingsRequest is the request body for updating system settings
 type UpdateSystemSettingsRequest struct {
-	DefaultAiModel string `json:"defaultAiModel"`
+	DefaultAiQualityTier *string `json:"defaultAiQualityTier"`
+	FreeUseAiQualityTier *string `json:"freeUseAiQualityTier"`
 }
 
 // UpdateSystemSettings godoc
@@ -63,15 +64,26 @@ func UpdateSystemSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.DefaultAiModel == "" {
-		httpx.WriteError(w, http.StatusBadRequest, "defaultAiModel is required")
-		return
+	if req.DefaultAiQualityTier != nil {
+		if *req.DefaultAiQualityTier == "" {
+			httpx.WriteError(w, http.StatusBadRequest, "defaultAiQualityTier cannot be empty")
+			return
+		}
+		if err := db.UpdateDefaultAiQualityTier(r.Context(), *req.DefaultAiQualityTier); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update default AI quality tier: "+err.Error())
+			return
+		}
 	}
 
-	// Update the default AI model
-	if err := db.UpdateDefaultAiModel(r.Context(), req.DefaultAiModel); err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update settings: "+err.Error())
-		return
+	if req.FreeUseAiQualityTier != nil {
+		tier := req.FreeUseAiQualityTier
+		if *tier == "" {
+			tier = nil // empty string means clear
+		}
+		if err := db.UpdateFreeUseAiQualityTier(r.Context(), tier); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use AI quality tier: "+err.Error())
+			return
+		}
 	}
 
 	// Return updated settings

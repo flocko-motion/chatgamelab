@@ -27,10 +27,6 @@ type SessionResponse struct {
 	Messages []obj.GameSessionMessage `json:"messages,omitempty"`
 }
 
-type CreateSessionRequest struct {
-	Model string `json:"model"`
-}
-
 // GetUserSessions godoc
 //
 //	@Summary		List user sessions
@@ -261,14 +257,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug("creating game session", "game_id", gameID, "user_id", user.ID)
 
-	var req CreateSessionRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
-
-	log.Debug("creating session with model", "game_id", gameID, "model", req.Model)
-	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.Model)
+	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
