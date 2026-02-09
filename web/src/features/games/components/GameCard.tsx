@@ -118,7 +118,7 @@ export function GameCard({
     const badges: GameBadgeType[] = [];
     if (isOwner) badges.push("owner");
     if (isWorkshopGame) badges.push("workshop");
-    if (game.public) badges.push("public");
+    if (game.public && !showVisibility) badges.push("public");
     return badges;
   };
 
@@ -233,7 +233,11 @@ export function GameCard({
           >
             {game.name}
           </Text>
-          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0, alignSelf: "flex-start" }}>
+          <Group
+            gap="xs"
+            wrap="nowrap"
+            style={{ flexShrink: 0, alignSelf: "flex-start" }}
+          >
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
                 {dateLabel}
@@ -261,11 +265,7 @@ export function GameCard({
           <Box onClick={(e) => e.stopPropagation()}>{renderPlayButtons()}</Box>
 
           {/* Action buttons + Favorite */}
-          <Group
-            gap={4}
-            wrap="wrap"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Group gap={4} wrap="wrap" onClick={(e) => e.stopPropagation()}>
             {actions.map((action) => (
               <Tooltip key={action.key} label={action.label} withArrow>
                 {action.key === "edit" ? (
