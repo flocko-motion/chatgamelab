@@ -52,8 +52,8 @@ func extractAIErrorCode(err error) string {
 //  1. Workshop key + workshop.aiQualityTier
 //  2. Sponsored game key (public sponsor on the game)
 //  3. Institution free-use key + institution.freeUseAiQualityTier
-//  4. System free-use key + system_settings.freeUseAiQualityTier
-//  5. User's default API key + user.aiQualityTier
+//  4. User's default API key + user.aiQualityTier
+//  5. System free-use key + system_settings.freeUseAiQualityTier
 //
 // If no key can be resolved, returns ErrCodeNoApiKey.
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
@@ -135,7 +135,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		defer wg.Done()
 		start := time.Now()
 		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-		t, themeUsage, err := GenerateTheme(ctx, tempSession, game)
+		t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
 		mu.Lock()
 		sessionUsage = sessionUsage.Add(themeUsage)
 		mu.Unlock()

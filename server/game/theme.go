@@ -17,7 +17,7 @@ const ThemeGenerationPrompt = `You are a visual theme generator for a text adven
 RULES:
 1. Choose the preset that best fits the game's genre, setting, and mood.
 2. Output ONLY valid JSON. No explanation, no markdown.
-3. The "thinkingText" MUST be in the SAME LANGUAGE as the game scenario.
+3. The "thinkingText" MUST be in the USER'S LANGUAGE (specified in the user prompt).
 
 AVAILABLE PRESETS:
 - "default" - Neutral, clean, slate accents, no animation
@@ -97,7 +97,7 @@ COMMON EMOJI MAPPINGS:
 Health/Leben→❤️, Gold/Münzen→🪙, Energy/Energie→⚡, Mana→🔮, Food/Essen→🍖, Time/Zeit→⏰, Armor/Rüstung→🛡️, Strength/Stärke→💪, Luck/Glück→🍀, Score/Punkte→⭐`
 
 // GenerateTheme generates a visual theme for the game based on its description
-func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game) (*obj.GameTheme, obj.TokenUsage, error) {
+func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game, userLanguage string) (*obj.GameTheme, obj.TokenUsage, error) {
 	if session == nil || session.ApiKey == nil {
 		return nil, obj.TokenUsage{}, fmt.Errorf("session or API key is nil")
 	}
@@ -122,7 +122,16 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 		statusFields = "(No status fields defined)"
 	}
 
+	// Resolve language label for the prompt
+	langLabel := "English"
+	if userLanguage != "" && userLanguage != "en" {
+		langLabel = userLanguage
+	}
+
 	userPrompt := fmt.Sprintf(`Generate a visual theme for this game. Use neutral defaults unless the game clearly suggests a specific style.
+
+USER LANGUAGE: %s
+The "thinkingText" MUST be written in this language.
 
 GAME NAME: %s
 
@@ -135,6 +144,7 @@ STATUS FIELDS (for emoji mapping - only add emoji if it fits):
 %s
 
 Generate the JSON theme. Remember: use defaults for most options, only customize what clearly fits the theme.`,
+		langLabel,
 		game.Name,
 		game.Description,
 		truncateString(scenario, 800),
