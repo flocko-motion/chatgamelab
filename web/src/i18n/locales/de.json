@@ -608,7 +608,14 @@
         "share": "Teilen",
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
-        "title": "Organisations-API-Schlüssel"
+        "title": "Organisations-API-Schlüssel",
+        "freeUseKey": {
+          "title": "Freier Nutzungsschlüssel",
+          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen. Nur bereits mit dieser Organisation geteilte Schlüssel können ausgewählt werden.",
+          "selectPlaceholder": "Geteilten Schlüssel auswählen...",
+          "remove": "Entfernen",
+          "unknownKey": "Unbekannter Schlüssel"
+        }
       },
       "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
       "demoteTitle": "Zum Lehrer herabstufen",
@@ -791,6 +798,18 @@
       "title": "Deine laufenden Spiele",
       "untitledGame": "Unbenanntes Spiel"
     },
+    "serverSettings": {
+      "title": "Servereinstellungen",
+      "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
+      "freeUseKey": {
+        "title": "Freier Nutzungsschlüssel",
+        "description": "Legen Sie einen globalen freien Nutzungsschlüssel fest, damit alle Benutzer auf diesem Server Spiele spielen können, ohne einen eigenen Schlüssel zu benötigen. Dieser Schlüssel wird als Fallback verwendet, wenn kein Workshop- oder Organisationsschlüssel verfügbar ist.",
+        "selectPlaceholder": "Einen Ihrer API-Schlüssel auswählen...",
+        "remove": "Entfernen",
+        "unknownKey": "Unbekannter Schlüssel (möglicherweise gelöscht)",
+        "noKeys": "Sie haben keine API-Schlüssel. Fügen Sie zuerst einen in Ihren API-Schlüssel-Einstellungen hinzu."
+      }
+    },
     "settings": "Einstellungen",
     "unnamed": "Unbenannt",
     "viewGame": "Spiel ansehen"
@@ -928,6 +947,7 @@
     "orgWorkshops": "Workshops",
     "play": "Spiele spielen",
     "rooms": "Räume",
+    "serverSettings": "Servereinstellungen",
     "workshopSettings": "Workshop-Einstellungen"
   }
 }

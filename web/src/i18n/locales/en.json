@@ -608,7 +608,14 @@
         "share": "Share",
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
-        "title": "Organization API Keys"
+        "title": "Organization API Keys",
+        "freeUseKey": {
+          "title": "Free-Use Key",
+          "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
+          "selectPlaceholder": "Select a shared key...",
+          "remove": "Remove",
+          "unknownKey": "Unknown key"
+        }
       },
       "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
       "demoteTitle": "Demote to Teacher",
@@ -791,6 +798,18 @@
       "title": "Continue Playing",
       "untitledGame": "Untitled Game"
     },
+    "serverSettings": {
+      "title": "Server Settings",
+      "notAuthorized": "You don't have permission to access server settings. Admin access required.",
+      "freeUseKey": {
+        "title": "Free-Use API Key",
+        "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
+        "selectPlaceholder": "Select one of your API keys...",
+        "remove": "Remove",
+        "unknownKey": "Unknown key (may have been deleted)",
+        "noKeys": "You have no API keys. Add one in your API Key settings first."
+      }
+    },
     "settings": "Settings",
     "unnamed": "Unnamed",
     "viewGame": "View Game"
@@ -928,6 +947,7 @@
     "orgWorkshops": "Workshops",
     "play": "Play a Game",
     "rooms": "Rooms",
+    "serverSettings": "Server Settings",
     "workshopSettings": "Workshop Settings"
   }
 }
