@@ -26,6 +26,8 @@ export const ErrorCodes = {
   INSUFFICIENT_QUOTA: "insufficient_quota",
   CONTENT_FILTERED: "content_filtered",
   AI_ERROR: "ai_error",
+  // Client-side error codes (not from backend)
+  NETWORK_ERROR: "network_error",
 } as const;
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];

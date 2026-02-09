@@ -98,6 +98,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.authentication",
     messageKey: "errors:workshopInactive",
   },
+  [ErrorCodes.NETWORK_ERROR]: {
+    titleKey: "errors:titles.network",
+    messageKey: "errors:network",
+  },
 };
 
 export interface TranslatedError {
