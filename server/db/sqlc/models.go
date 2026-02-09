@@ -37,6 +37,7 @@ type ApiKeyShare struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 }
 
@@ -57,31 +58,31 @@ type AppUser struct {
 }
 
 type Game struct {
-	ID                       uuid.UUID
-	CreatedBy                uuid.NullUUID
-	CreatedAt                time.Time
-	ModifiedBy               uuid.NullUUID
-	ModifiedAt               time.Time
-	Name                     string
-	Description              string
-	Icon                     []byte
-	WorkshopID               uuid.NullUUID
-	Public                   bool
-	PublicSponsoredApiKeyID  uuid.NullUUID
-	PrivateShareHash         sql.NullString
-	PrivateSponsoredApiKeyID uuid.NullUUID
-	SystemMessageScenario    string
-	SystemMessageGameStart   string
-	ImageStyle               string
-	Css                      string
-	StatusFields             string
-	FirstMessage             sql.NullString
-	FirstStatus              sql.NullString
-	FirstImage               []byte
-	OriginallyCreatedBy      uuid.NullUUID
-	PlayCount                int32
-	CloneCount               int32
-	DeletedAt                sql.NullTime
+	ID                            uuid.UUID
+	CreatedBy                     uuid.NullUUID
+	CreatedAt                     time.Time
+	ModifiedBy                    uuid.NullUUID
+	ModifiedAt                    time.Time
+	Name                          string
+	Description                   string
+	Icon                          []byte
+	WorkshopID                    uuid.NullUUID
+	Public                        bool
+	PublicSponsoredApiKeyShareID  uuid.NullUUID
+	PrivateShareHash              sql.NullString
+	PrivateSponsoredApiKeyShareID uuid.NullUUID
+	SystemMessageScenario         string
+	SystemMessageGameStart        string
+	ImageStyle                    string
+	Css                           string
+	StatusFields                  string
+	FirstMessage                  sql.NullString
+	FirstStatus                   sql.NullString
+	FirstImage                    []byte
+	OriginallyCreatedBy           uuid.NullUUID
+	PlayCount                     int32
+	CloneCount                    int32
+	DeletedAt                     sql.NullTime
 }
 
 type GameSession struct {

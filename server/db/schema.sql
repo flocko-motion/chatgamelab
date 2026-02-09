@@ -208,10 +208,11 @@ CREATE TABLE api_key_share (
     user_id                         uuid NULL REFERENCES app_user(id),
     workshop_id                     uuid NULL REFERENCES workshop(id),
     institution_id                  uuid NULL REFERENCES institution(id),
+    game_id                         uuid NULL REFERENCES game(id),
     allow_public_game_sponsoring     boolean NOT NULL DEFAULT false,
 
     CONSTRAINT api_key_share_target_chk CHECK (
-        user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL
+        user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL OR game_id IS NOT NULL
     )
 );
 
@@ -233,12 +234,12 @@ CREATE TABLE game (
 
     -- Access rights and payments. public = true: discoverable on the website and playable by anyone.
     public                          boolean NOT NULL DEFAULT false,
-    -- If public, a sponsored API key can be provided to pay for any public plays.
-    public_sponsored_api_key_id     uuid NULL REFERENCES api_key(id),
+    -- If public, a sponsored API key share can be provided to pay for any public plays.
+    public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id),
     -- Private share links contain secret random tokens to limit access to the game.
     -- They are sponsored, so invited players don't require their own API key.
-    private_share_hash              text NULL,
-    private_sponsored_api_key_id    uuid NULL REFERENCES api_key(id),
+    private_share_hash                 text NULL,
+    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id),
 
     -- Game details and system messages for the LLM.
     -- What is the game about? How does it work? Player role? World description?

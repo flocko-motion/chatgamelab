@@ -4,10 +4,10 @@
 -- name: CreateApiKeyShare :one
 INSERT INTO api_key_share (
   id, created_by, created_at, modified_by, modified_at,
-  api_key_id, user_id, workshop_id, institution_id, allow_public_game_sponsoring
+  api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
 ) VALUES (
   gen_random_uuid(), $1, $2, $3, $4,
-  $5, $6, $7, $8, $9
+  $5, $6, $7, $8, $9, $10
 )
 RETURNING *;
 
@@ -22,6 +22,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.id AS key_id,
   k.user_id AS key_owner_id,
@@ -47,14 +48,17 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   u.name AS user_name,
   w.name AS workshop_name,
-  i.name AS institution_name
+  i.name AS institution_name,
+  g.name AS game_name
 FROM api_key_share s
 LEFT JOIN app_user u ON u.id = s.user_id
 LEFT JOIN workshop w ON w.id = s.workshop_id
 LEFT JOIN institution i ON i.id = s.institution_id
+LEFT JOIN game g ON g.id = s.game_id
 WHERE s.api_key_id = $1;
 
 -- name: GetApiKeySharesByUserID :many
@@ -68,6 +72,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.name AS api_key_name,
   k.platform AS api_key_platform,
@@ -98,6 +103,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.name AS api_key_name,
   k.platform AS api_key_platform,
@@ -118,13 +124,37 @@ WHERE default_api_key_share_id IN (
 -- name: ClearSessionApiKeyID :exec
 UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1;
 
--- name: ClearGameSponsoredApiKey :exec
+-- name: ClearGameSponsoredApiKeyByShareID :exec
+-- Clear game sponsoring when an API key share is deleted
 UPDATE game
 SET
-  public_sponsored_api_key_id = CASE WHEN public_sponsored_api_key_id = $1 THEN NULL ELSE public_sponsored_api_key_id END,
-  private_sponsored_api_key_id = CASE WHEN private_sponsored_api_key_id = $1 THEN NULL ELSE private_sponsored_api_key_id END,
+  public_sponsored_api_key_share_id = CASE WHEN public_sponsored_api_key_share_id = $1 THEN NULL ELSE public_sponsored_api_key_share_id END,
+  private_sponsored_api_key_share_id = CASE WHEN private_sponsored_api_key_share_id = $1 THEN NULL ELSE private_sponsored_api_key_share_id END,
   modified_at = now()
-WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1;
+WHERE public_sponsored_api_key_share_id = $1 OR private_sponsored_api_key_share_id = $1;
+
+-- name: ClearGameSponsoredApiKeyByApiKeyID :exec
+-- Clear game sponsoring when an API key is deleted (find shares for that key)
+UPDATE game g
+SET
+  public_sponsored_api_key_share_id = CASE WHEN g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1) THEN NULL ELSE g.public_sponsored_api_key_share_id END,
+  private_sponsored_api_key_share_id = CASE WHEN g.private_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1) THEN NULL ELSE g.private_sponsored_api_key_share_id END,
+  modified_at = now()
+WHERE g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1)
+   OR g.private_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1);
+
+-- name: SetGamePublicSponsor :exec
+UPDATE game
+SET public_sponsored_api_key_share_id = $2, modified_at = now()
+WHERE id = $1;
+
+-- name: ClearGamePublicSponsor :exec
+UPDATE game
+SET public_sponsored_api_key_share_id = NULL, modified_at = now()
+WHERE id = $1;
+
+-- name: DeleteApiKeySharesByGameID :exec
+DELETE FROM api_key_share WHERE game_id = $1;
 
 -- name: DeleteApiKeySharesByOwnerForInstitution :exec
 -- Delete all API key shares owned by a user that target a specific institution

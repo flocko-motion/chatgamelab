@@ -13,17 +13,45 @@ import (
 	"github.com/google/uuid"
 )
 
-const clearGameSponsoredApiKey = `-- name: ClearGameSponsoredApiKey :exec
+const clearGamePublicSponsor = `-- name: ClearGamePublicSponsor :exec
 UPDATE game
-SET
-  public_sponsored_api_key_id = CASE WHEN public_sponsored_api_key_id = $1 THEN NULL ELSE public_sponsored_api_key_id END,
-  private_sponsored_api_key_id = CASE WHEN private_sponsored_api_key_id = $1 THEN NULL ELSE private_sponsored_api_key_id END,
-  modified_at = now()
-WHERE public_sponsored_api_key_id = $1 OR private_sponsored_api_key_id = $1
+SET public_sponsored_api_key_share_id = NULL, modified_at = now()
+WHERE id = $1
 `
 
-func (q *Queries) ClearGameSponsoredApiKey(ctx context.Context, publicSponsoredApiKeyID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKey, publicSponsoredApiKeyID)
+func (q *Queries) ClearGamePublicSponsor(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearGamePublicSponsor, id)
+	return err
+}
+
+const clearGameSponsoredApiKeyByApiKeyID = `-- name: ClearGameSponsoredApiKeyByApiKeyID :exec
+UPDATE game g
+SET
+  public_sponsored_api_key_share_id = CASE WHEN g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1) THEN NULL ELSE g.public_sponsored_api_key_share_id END,
+  private_sponsored_api_key_share_id = CASE WHEN g.private_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1) THEN NULL ELSE g.private_sponsored_api_key_share_id END,
+  modified_at = now()
+WHERE g.public_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1)
+   OR g.private_sponsored_api_key_share_id IN (SELECT s.id FROM api_key_share s WHERE s.api_key_id = $1)
+`
+
+// Clear game sponsoring when an API key is deleted (find shares for that key)
+func (q *Queries) ClearGameSponsoredApiKeyByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKeyByApiKeyID, apiKeyID)
+	return err
+}
+
+const clearGameSponsoredApiKeyByShareID = `-- name: ClearGameSponsoredApiKeyByShareID :exec
+UPDATE game
+SET
+  public_sponsored_api_key_share_id = CASE WHEN public_sponsored_api_key_share_id = $1 THEN NULL ELSE public_sponsored_api_key_share_id END,
+  private_sponsored_api_key_share_id = CASE WHEN private_sponsored_api_key_share_id = $1 THEN NULL ELSE private_sponsored_api_key_share_id END,
+  modified_at = now()
+WHERE public_sponsored_api_key_share_id = $1 OR private_sponsored_api_key_share_id = $1
+`
+
+// Clear game sponsoring when an API key share is deleted
+func (q *Queries) ClearGameSponsoredApiKeyByShareID(ctx context.Context, publicSponsoredApiKeyShareID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameSponsoredApiKeyByShareID, publicSponsoredApiKeyShareID)
 	return err
 }
 
@@ -53,12 +81,12 @@ const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (
   id, created_by, created_at, modified_by, modified_at,
-  api_key_id, user_id, workshop_id, institution_id, allow_public_game_sponsoring
+  api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
 ) VALUES (
   gen_random_uuid(), $1, $2, $3, $4,
-  $5, $6, $7, $8, $9
+  $5, $6, $7, $8, $9, $10
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, allow_public_game_sponsoring
+RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
 `
 
 type CreateApiKeyShareParams struct {
@@ -70,6 +98,7 @@ type CreateApiKeyShareParams struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 }
 
@@ -84,6 +113,7 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 		arg.UserID,
 		arg.WorkshopID,
 		arg.InstitutionID,
+		arg.GameID,
 		arg.AllowPublicGameSponsoring,
 	)
 	var i ApiKeyShare
@@ -97,6 +127,7 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 		&i.UserID,
 		&i.WorkshopID,
 		&i.InstitutionID,
+		&i.GameID,
 		&i.AllowPublicGameSponsoring,
 	)
 	return i, err
@@ -117,6 +148,15 @@ DELETE FROM api_key_share WHERE api_key_id = $1
 
 func (q *Queries) DeleteApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByApiKeyID, apiKeyID)
+	return err
+}
+
+const deleteApiKeySharesByGameID = `-- name: DeleteApiKeySharesByGameID :exec
+DELETE FROM api_key_share WHERE game_id = $1
+`
+
+func (q *Queries) DeleteApiKeySharesByGameID(ctx context.Context, gameID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByGameID, gameID)
 	return err
 }
 
@@ -165,6 +205,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.id AS key_id,
   k.user_id AS key_owner_id,
@@ -190,6 +231,7 @@ type GetApiKeyShareByIDRow struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 	KeyID                     uuid.UUID
 	KeyOwnerID                uuid.UUID
@@ -214,6 +256,7 @@ func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiK
 		&i.UserID,
 		&i.WorkshopID,
 		&i.InstitutionID,
+		&i.GameID,
 		&i.AllowPublicGameSponsoring,
 		&i.KeyID,
 		&i.KeyOwnerID,
@@ -238,14 +281,17 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   u.name AS user_name,
   w.name AS workshop_name,
-  i.name AS institution_name
+  i.name AS institution_name,
+  g.name AS game_name
 FROM api_key_share s
 LEFT JOIN app_user u ON u.id = s.user_id
 LEFT JOIN workshop w ON w.id = s.workshop_id
 LEFT JOIN institution i ON i.id = s.institution_id
+LEFT JOIN game g ON g.id = s.game_id
 WHERE s.api_key_id = $1
 `
 
@@ -259,10 +305,12 @@ type GetApiKeySharesByApiKeyIDRow struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 	UserName                  sql.NullString
 	WorkshopName              sql.NullString
 	InstitutionName           sql.NullString
+	GameName                  sql.NullString
 }
 
 func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GetApiKeySharesByApiKeyIDRow, error) {
@@ -284,10 +332,12 @@ func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.U
 			&i.UserID,
 			&i.WorkshopID,
 			&i.InstitutionID,
+			&i.GameID,
 			&i.AllowPublicGameSponsoring,
 			&i.UserName,
 			&i.WorkshopName,
 			&i.InstitutionName,
+			&i.GameName,
 		); err != nil {
 			return nil, err
 		}
@@ -313,6 +363,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.name AS api_key_name,
   k.platform AS api_key_platform,
@@ -334,6 +385,7 @@ type GetApiKeySharesByInstitutionIDRow struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 	ApiKeyName                string
 	ApiKeyPlatform            string
@@ -360,6 +412,7 @@ func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutio
 			&i.UserID,
 			&i.WorkshopID,
 			&i.InstitutionID,
+			&i.GameID,
 			&i.AllowPublicGameSponsoring,
 			&i.ApiKeyName,
 			&i.ApiKeyPlatform,
@@ -390,6 +443,7 @@ SELECT
   s.user_id,
   s.workshop_id,
   s.institution_id,
+  s.game_id,
   s.allow_public_game_sponsoring,
   k.name AS api_key_name,
   k.platform AS api_key_platform,
@@ -414,6 +468,7 @@ type GetApiKeySharesByUserIDRow struct {
 	UserID                    uuid.NullUUID
 	WorkshopID                uuid.NullUUID
 	InstitutionID             uuid.NullUUID
+	GameID                    uuid.NullUUID
 	AllowPublicGameSponsoring bool
 	ApiKeyName                string
 	ApiKeyPlatform            string
@@ -443,6 +498,7 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 			&i.UserID,
 			&i.WorkshopID,
 			&i.InstitutionID,
+			&i.GameID,
 			&i.AllowPublicGameSponsoring,
 			&i.ApiKeyName,
 			&i.ApiKeyPlatform,
@@ -490,6 +546,22 @@ func (q *Queries) GetWorkshopIDsByInstitution(ctx context.Context, institutionID
 		return nil, err
 	}
 	return items, nil
+}
+
+const setGamePublicSponsor = `-- name: SetGamePublicSponsor :exec
+UPDATE game
+SET public_sponsored_api_key_share_id = $2, modified_at = now()
+WHERE id = $1
+`
+
+type SetGamePublicSponsorParams struct {
+	ID                           uuid.UUID
+	PublicSponsoredApiKeyShareID uuid.NullUUID
+}
+
+func (q *Queries) SetGamePublicSponsor(ctx context.Context, arg SetGamePublicSponsorParams) error {
+	_, err := q.db.ExecContext(ctx, setGamePublicSponsor, arg.ID, arg.PublicSponsoredApiKeyShareID)
+	return err
 }
 
 const updateApiKeyShareAllowPublicGameSponsoring = `-- name: UpdateApiKeyShareAllowPublicGameSponsoring :exec
