@@ -85,14 +85,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		// Non-fatal - continue with session creation
 	}
 
-	// Parse game template to get system message
-	log.Debug("parsing game template", "game_id", gameID, "game_name", game.Name)
-	systemMessage, err := templates.GetTemplate(game)
-	if err != nil {
-		log.Debug("failed to get game template", "game_id", gameID, "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-	}
-
 	// Validate AI platform
 	log.Debug("resolving AI platform", "platform", share.ApiKey.Platform, "requested_model", aiModel)
 	_, err = ai.GetAiPlatform(share.ApiKey.Platform)
@@ -182,12 +174,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	// Use translated game if available
 	if translatedGame != nil {
 		game = translatedGame
-		// Re-generate system message with translated game
-		systemMessage, err = templates.GetTemplate(game)
-		if err != nil {
-			log.Debug("failed to get template from translated game", "error", err)
-			return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get game template: " + err.Error()}
-		}
 
 		// Rewrite theme statusEmojis keys from original to translated field names
 		if theme != nil && len(theme.StatusEmojis) > 0 && len(fieldNameMap) > 0 {
@@ -202,6 +188,15 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 			theme.StatusEmojis = translatedEmojis
 			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", fieldNameMap)
 		}
+	}
+
+	// Generate system message from (possibly translated) game
+	// This is done after translation so the system message contains translated content
+	log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
+	systemMessage, err := templates.GetTemplate(game)
+	if err != nil {
+		log.Debug("failed to get game template", "game_id", gameID, "error", err)
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
 	}
 
 	// Persist to database with theme

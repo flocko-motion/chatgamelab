@@ -313,20 +313,28 @@ const (
 	GameSessionMessageTypeSystem = "system" // system/context messages
 )
 
+// GameSessionMessageAi is the AI-facing JSON structure for player/game messages.
+// Status uses a flat map keyed by field name (e.g. {"Health": "100", "Gold": "5"})
+// so the AI schema can enforce exact field names and prevent hallucination.
 type GameSessionMessageAi struct {
-	Type         string        `json:"type"`
-	Message      string        `json:"message"`
-	StatusFields []StatusField `json:"statusFields"`
-	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
+	Type        string            `json:"type"`
+	Message     string            `json:"message"`
+	Status      map[string]string `json:"status"`
+	ImagePrompt *string           `json:"imagePrompt,omitempty"`
 }
 
-// ToAiJSON converts a GameSessionMessage to its AI-facing JSON representation
+// ToAiJSON converts a GameSessionMessage to its AI-facing JSON representation.
+// Converts internal []StatusField to flat map[string]string for the AI.
 func (m *GameSessionMessage) ToAiJSON() string {
+	statusMap := make(map[string]string, len(m.StatusFields))
+	for _, f := range m.StatusFields {
+		statusMap[f.Name] = f.Value
+	}
 	data, err := json.Marshal(GameSessionMessageAi{
-		Type:         m.Type,
-		Message:      m.Message,
-		StatusFields: m.StatusFields,
-		ImagePrompt:  m.ImagePrompt,
+		Type:        m.Type,
+		Message:     m.Message,
+		Status:      statusMap,
+		ImagePrompt: m.ImagePrompt,
 	})
 	if err != nil {
 		return "{}"
@@ -368,35 +376,4 @@ type GameSessionMessageChunk struct {
 	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
 	Error     string `json:"error,omitempty"`     // Error message if failed
 	ErrorCode string `json:"errorCode,omitempty"` // Machine-readable error code (maps to frontend i18n)
-}
-
-// GameResponseSchema is the JSON schema for LLM responses, shared across all AI platforms.
-// It defines the expected structure: message, statusFields, and imagePrompt.
-var GameResponseSchema = map[string]interface{}{
-	"type": "object",
-	"properties": map[string]interface{}{
-		"message": map[string]interface{}{
-			"type":        "string",
-			"description": "The narrative response to the player's action",
-		},
-		"statusFields": map[string]interface{}{
-			"type": "array",
-			"items": map[string]interface{}{
-				"type": "object",
-				"properties": map[string]interface{}{
-					"name":  map[string]interface{}{"type": "string"},
-					"value": map[string]interface{}{"type": "string"},
-				},
-				"required":             []string{"name", "value"},
-				"additionalProperties": false,
-			},
-			"description": "Updated status fields after the action",
-		},
-		"imagePrompt": map[string]interface{}{
-			"type":        "string",
-			"description": "Description for generating an image of the scene",
-		},
-	},
-	"required":             []string{"message", "statusFields", "imagePrompt"},
-	"additionalProperties": false,
 }

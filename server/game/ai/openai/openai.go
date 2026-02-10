@@ -6,6 +6,7 @@ import (
 	"cgl/apiclient"
 	"cgl/functional"
 	"cgl/game/imagecache"
+	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
 	"cgl/lang"
@@ -192,6 +193,9 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// Serialize the player action as JSON input (minimal AI-facing structure)
 	actionInput := action.ToAiJSON()
 
+	// Build game-specific JSON schema that enforces exact status field names
+	gameSchema := status.BuildResponseSchema(session.StatusFields)
+
 	// Build the request
 	req := ResponsesAPIRequest{
 		Model:           model,
@@ -202,7 +206,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			Format: FormatConfig{
 				Type:   "json_schema",
 				Name:   "game_response",
-				Schema: obj.GameResponseSchema,
+				Schema: gameSchema,
 				Strict: true,
 			},
 		},
@@ -272,12 +276,19 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	response.ResponseRaw = &responseText
 
-	// Parse the structured response into the pre-created message
+	// Parse the AI response (uses flat status map) and convert to internal format
 	log.Debug("parsing OpenAI response", "response_length", len(responseText))
-	if err := json.Unmarshal([]byte(responseText), response); err != nil {
+	var aiResp obj.GameSessionMessageAi
+	if err := json.Unmarshal([]byte(responseText), &aiResp); err != nil {
 		log.Debug("failed to parse game response", "error", err, "response_text", responseText[:min(200, len(responseText))])
 		return usage, fmt.Errorf("failed to parse game response: %w", err)
 	}
+
+	// Convert flat status map back to ordered []StatusField using session's field definitions
+	fieldNames := status.FieldNames(session.StatusFields)
+	response.Message = aiResp.Message
+	response.StatusFields = status.MapToFields(aiResp.Status, fieldNames)
+	response.ImagePrompt = aiResp.ImagePrompt
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID
