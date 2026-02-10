@@ -75,6 +75,7 @@ import {
   type ObjWorkshopParticipant,
 } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { parseSortValue } from "@/common/lib/sort";
 
 interface WorkshopsTabProps {
   institutionId: string;
@@ -143,11 +144,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const [hideInactive, setHideInactive] = useState(false);
   const [sortValue, setSortValue] = useState("createdAt-desc");
 
-  // Parse sort value
-  const [sortField, sortDir] = sortValue.split("-") as [
-    "name" | "createdAt" | "participantCount",
-    "asc" | "desc",
-  ];
+  const [sortField, sortDir] = parseSortValue<
+    "name" | "createdAt" | "participantCount"
+  >(sortValue);
 
   const {
     data: workshops,
