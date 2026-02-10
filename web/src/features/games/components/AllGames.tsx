@@ -41,27 +41,28 @@ import {
   type DataTableColumn,
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
-import {
-  PlayGameButton,
-  TextButton,
-  GenericIconButton,
-} from "@components/buttons";
+import { GenericIconButton } from "@components/buttons";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
+import { GamePlayButtons } from "./GamePlayButtons";
+import { useGames, useCreateGame, useUpdateGame } from "@/api/hooks";
 import {
-  useGames,
-  useCreateGame,
-  useUpdateGame,
-  useGameSessionMap,
-} from "@/api/hooks";
-import { useFavoriteState, useGameNavigation } from "../hooks";
+  useFavoriteState,
+  useGameNavigation,
+  useGameSessionState,
+} from "../hooks";
 import { useAuth } from "@/providers/AuthProvider";
+import { parseSortValue } from "@/common/lib/sort";
 import type { ObjGame } from "@/api/generated";
 import { type GameFilter } from "@/features/play/types";
 import type { CreateGameFormData } from "../types";
-import { gameToFormData } from "../lib";
+import {
+  gameToFormData,
+  getGameDateLabel,
+  createGameWithExtraFields,
+} from "../lib";
 
 export function AllGames() {
   const { t } = useTranslation("common");
@@ -74,8 +75,7 @@ export function AllGames() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  // Parse combined sort value into field and direction
-  const [sortField, sortDir] = sortValue.split("-") as [string, "asc" | "desc"];
+  const [sortField, sortDir] = parseSortValue(sortValue);
 
   // For favorites/sponsored filter, we fetch all games and filter client-side
   const apiFilter =
@@ -99,7 +99,8 @@ export function AllGames() {
     filter: apiFilter,
   });
 
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { sessionsLoading, getSessionState: getGameSessionState } =
+    useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
 
@@ -149,12 +150,6 @@ export function AllGames() {
     return game.creatorId === backendUser.id;
   };
 
-  const getGameSessionState = (game: ObjGame) => {
-    if (!game.id) return { hasSession: false, session: undefined };
-    const session = sessionMap.get(game.id);
-    return { hasSession: !!session, session };
-  };
-
   const handleViewGame = (game: ObjGame) => {
     if (!game.id) return;
     setGameToView(game.id);
@@ -192,30 +187,11 @@ export function AllGames() {
 
   const handleCreateGame = async (data: CreateGameFormData) => {
     try {
-      const newGame = await createGame.mutateAsync({
-        name: data.name,
-        description: data.description,
-        public: data.isPublic,
-      });
-
-      const hasExtraFields =
-        data.systemMessageScenario ||
-        data.systemMessageGameStart ||
-        data.imageStyle ||
-        data.statusFields;
-      if (newGame.id && hasExtraFields) {
-        await updateGame.mutateAsync({
-          id: newGame.id,
-          game: {
-            ...newGame,
-            systemMessageScenario: data.systemMessageScenario,
-            systemMessageGameStart: data.systemMessageGameStart,
-            imageStyle: data.imageStyle,
-            statusFields: data.statusFields,
-          },
-        });
-      }
-
+      const newGame = await createGameWithExtraFields(
+        data,
+        createGame.mutateAsync,
+        updateGame.mutateAsync,
+      );
       closeCreateModal();
       setCreateInitialData(null);
       if (newGame.id) {
@@ -226,11 +202,7 @@ export function AllGames() {
     }
   };
 
-  const getDateLabel = (game: ObjGame) => {
-    const dateValue =
-      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
-    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
-  };
+  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
     const actions: GameCardAction[] = [
@@ -257,34 +229,24 @@ export function AllGames() {
     return actions;
   };
 
+  const playLabels = {
+    play: t("allGames.play"),
+    continue: t("allGames.continue"),
+    restart: t("allGames.restart"),
+  };
+
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getGameSessionState(game);
-
-    if (!hasSession) {
-      return (
-        <PlayGameButton
-          onClick={() => handlePlayGame(game)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("allGames.play")}
-        </PlayGameButton>
-      );
-    }
-
     return (
-      <Stack gap={4}>
-        <PlayGameButton
-          onClick={() => handleContinueGame(session!)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("allGames.continue")}
-        </PlayGameButton>
-        <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
-          {t("allGames.restart")}
-        </TextButton>
-      </Stack>
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
     );
   };
 
