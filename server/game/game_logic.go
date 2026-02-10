@@ -129,23 +129,29 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	var translatedGame *obj.Game
 	var sessionUsage obj.TokenUsage
 
-	// Start theme generation
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		start := time.Now()
-		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-		t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
-		mu.Lock()
-		sessionUsage = sessionUsage.Add(themeUsage)
-		mu.Unlock()
-		if err != nil {
-			log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
-		} else {
-			log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
-			theme = t
-		}
-	}()
+	// Use game-level theme if set, otherwise generate via AI
+	if game.Theme != nil {
+		log.Debug("using game-level theme override", "game_id", gameID, "preset", game.Theme.Preset)
+		theme = game.Theme
+	} else {
+		// Start theme generation
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+			t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
+			mu.Lock()
+			sessionUsage = sessionUsage.Add(themeUsage)
+			mu.Unlock()
+			if err != nil {
+				log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
+			} else {
+				log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
+				theme = t
+			}
+		}()
+	}
 
 	// Start game translation if user language is not English
 	var fieldNameMap map[string]string

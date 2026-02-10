@@ -399,6 +399,7 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		SystemMessageScenario:  sourceGame.SystemMessageScenario,
 		SystemMessageGameStart: sourceGame.SystemMessageGameStart,
 		StatusFields:           sourceGame.StatusFields,
+		Theme:                  sourceGame.Theme,
 		FirstMessage:           sourceGame.FirstMessage,
 		FirstStatus:            sourceGame.FirstStatus,
 		CSS:                    sourceGame.CSS,

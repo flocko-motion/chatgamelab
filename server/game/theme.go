@@ -22,40 +22,42 @@ RULES:
 AVAILABLE PRESETS:
 - "default" - Neutral, clean, slate accents, no animation
 - "minimal" - Clean, slate gray, no decorations, no animation
+- "educational" - Professional, clean, learning-focused, emerald accents, no animation
+- "school" - Friendly, educational, clean sky blue/white, no animation
 - "scifi" - Clean futuristic (Star Trek), blue/cyan, mono font, stars animation
 - "cyberpunk" - Neon-soaked gritty streets, pink/cyan on black, glitch animation
 - "medieval" - Medieval fantasy, flourish corners, serif font, drop caps, fireflies
-- "horror" - Dark, minimal, rose accents, no animation
+- "horror" - Dark, scary, rose accents, bloody text glow, no animation
 - "adventure" - Exploration, arrows, emerald, nature feel, no animation
 - "mystery" - Whodunit/suspense, dark blue atmosphere, fireflies
 - "mystic" - Occult/arcane, ethereal purple magic, sparkles
 - "detective" - Classic whodunit, warm amber tones, serif, no animation
-- "noir" - Dark moody, black & white stark contrast, no animation
+- "noir" - Dark moody, black & white stark contrast, shadow pulse effect, no animation
 - "space" - Cosmic, dark background, cyan, hyperspace animation
 - "terminal" - Classic green on black, mono font, matrix rain
 - "hacker" - Aggressive red AI / green user, mono font, matrix rain
 - "playful" - Kids, colorful, confetti animation
 - "barbie" - Pink dream, flourish, diamond dividers, no animation
 - "nature" - Forest, emerald, flourish, falling leaves
-- "ocean" - Surface/coastal, bright cyan, cool tint, bubbles
+- "ocean" - Surface/coastal, bright cyan, cool tint, waves animation
 - "underwater" - Deep sea, dark, bioluminescent cyan, bubbles
-- "pirate" - Nautical adventure, amber on dark blue, stars
+- "nautical" - Clean maritime, sailing, coastal, cyan/white, waves animation
+- "pirate" - Dark, treasure and rum, brown/amber, waves animation
 - "retro" - 80s, violet/cyan on dark, no animation
-- "western" - Wild West, amber, warm tones, no animation
+- "western" - Wild West, amber, warm tones, tumbleweed animation
 - "fire" - Dark, orange/red accents, embers animation
-- "desert" - Arid, sandy, warm tones, no animation
+- "desert" - Arid, sandy, warm tones, sun animation
 - "tech" - Modern technology, clean digital, circuits animation
 - "greenFantasy" - Enchanted forest, nature magic, sparkles
 - "abstract" - Artistic, geometric shapes, geometric animation
 - "romance" - Soft, warm, romantic, hearts animation
 - "glitch" - Corrupted, digital chaos, glitch animation
 - "snowy" - Winter wonderland, snow animation
-- "fairy" - Light magical, pastel pink/violet, sparkles
+- "fairy" - Enchanted forest, mystical green glow, dark atmosphere, glowworm animation
 - "steampunk" - Brass, gears, Victorian industrial, no animation
 - "zombie" - Post-apocalyptic, decayed, eerie green, no animation
-- "school" - Friendly, educational, clean sky blue/white, no animation
 - "candy" - Sweet, colorful pastels, coral/lavender, no animation
-- "superhero" - Bold, comic book, indigo/coral, no animation
+- "superhero" - Bold graphic novel style, high contrast, thick borders, no animation
 - "sunshine" - Warm, bright, cheerful yellow, no animation
 - "storybook" - Classic children's book, teal/coral, warm, no animation
 - "jungle" - Tropical, lush, vibrant lime/green, falling leaves
@@ -63,7 +65,7 @@ AVAILABLE PRESETS:
 - "circus" - Bright, bold, showtime energy, confetti
 
 AVAILABLE ANIMATIONS (for optional override):
-"none", "stars", "bubbles", "fireflies", "snow", "matrix", "embers", "hyperspace", "sparkles", "hearts", "glitch", "circuits", "leaves", "geometric", "confetti"
+"none", "stars", "bubbles", "fireflies", "snow", "matrix", "embers", "hyperspace", "sparkles", "hearts", "glitch", "circuits", "leaves", "geometric", "confetti", "waves", "glowworm", "sun", "tumbleweed"
 
 OUTPUT FORMAT:
 {
@@ -193,11 +195,11 @@ func parseThemeResponse(response string) (*obj.GameTheme, error) {
 
 // validPresets lists all valid preset names
 var validPresets = map[string]bool{
-	"default": true, "minimal": true, "scifi": true, "cyberpunk": true, "horror": true,
+	"default": true, "minimal": true, "educational": true, "scifi": true, "cyberpunk": true, "horror": true,
 	"adventure": true, "mystery": true, "mystic": true, "detective": true, "noir": true,
 	"space": true, "terminal": true, "hacker": true, "medieval": true,
 	"playful": true, "barbie": true, "nature": true, "ocean": true, "underwater": true,
-	"pirate": true, "retro": true, "western": true, "fire": true, "desert": true,
+	"nautical": true, "pirate": true, "retro": true, "western": true, "fire": true, "desert": true,
 	"tech": true, "greenFantasy": true, "abstract": true, "romance": true,
 	"glitch": true, "snowy": true, "fairy": true, "steampunk": true, "zombie": true,
 	"school": true, "candy": true, "superhero": true, "sunshine": true, "storybook": true,
@@ -209,6 +211,7 @@ var validAnimations = map[string]bool{
 	"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true,
 	"matrix": true, "embers": true, "hyperspace": true, "sparkles": true, "hearts": true,
 	"glitch": true, "circuits": true, "leaves": true, "geometric": true, "confetti": true,
+	"waves": true, "glowworm": true, "sun": true, "tumbleweed": true,
 }
 
 // validateTheme ensures all theme values are valid
