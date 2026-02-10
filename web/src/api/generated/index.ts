@@ -104,6 +104,7 @@ export interface ObjApiKeyShare {
   game?: ObjGame;
   id?: string;
   institution?: ObjInstitution;
+  isPrivateShare?: boolean;
   isUserDefault?: boolean;
   meta?: ObjMeta;
   user?: ObjUser;
@@ -155,6 +156,7 @@ export interface ObjGame {
    * They are sponsored, so invited players don't require their own API key.
    */
   privateShareHash?: string;
+  privateShareRemaining?: number;
   privateSponsoredApiKeyShareId?: string;
   /** Access rights and payments. public = true: discoverable on the website and playable by anyone. */
   public?: boolean;
@@ -418,6 +420,43 @@ export interface RoutesCreateWorkshopRequest {
   public?: boolean;
 }
 
+export interface RoutesGuestGameInfo {
+  description?: string;
+  name?: string;
+  /** null = unlimited, 0 = exhausted */
+  remaining?: number;
+}
+
+export interface RoutesGuestSessionResponse {
+  aiModel?: string;
+  /** AI model used for playing. */
+  aiPlatform?: string;
+  /** JSON with arbitrary details to be used within that model and within that session. */
+  aiSession?: string;
+  apiKey?: ObjApiKey;
+  /**
+   * API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
+   * Nullable: key may be deleted, session can continue with a new key.
+   */
+  apiKeyId?: string;
+  gameDescription?: string;
+  gameId?: string;
+  gameName?: string;
+  id?: string;
+  imageStyle?: string;
+  /** Set to true when image generation fails due to organization verification required */
+  isOrganisationUnverified?: boolean;
+  messages?: RoutesSessionMessageResponse[];
+  meta?: ObjMeta;
+  /** Defines the status fields available in the game; copied from game.status_fields at launch. */
+  statusFields?: string;
+  /** AI-generated visual theme for the game player UI (JSON) */
+  theme?: ObjGameTheme;
+  userId?: string;
+  userName?: string;
+  workshopId?: string;
+}
+
 export interface RoutesImageStatusResponse {
   errorCode?: string;
   errorMsg?: string;
@@ -474,6 +513,22 @@ export interface RoutesParticipantLoginRequest {
   token?: string;
 }
 
+export interface RoutesPrivateShareRequest {
+  /** null = unlimited */
+  maxSessions?: number;
+  /** required to enable */
+  sponsorKeyShareId?: string;
+}
+
+export interface RoutesPrivateShareStatus {
+  enabled?: boolean;
+  privateSponsoredApiKeyShareId?: string;
+  /** null = unlimited */
+  remaining?: number;
+  shareUrl?: string;
+  token?: string;
+}
+
 export interface RoutesRegisterRequest {
   email?: string;
   name?: string;
@@ -487,6 +542,29 @@ export interface RoutesSessionActionRequest {
   message?: string;
   /** Current status to pass to AI */
   statusFields?: ObjStatusField[];
+}
+
+export interface RoutesSessionMessageResponse {
+  gameSessionId?: string;
+  id?: string;
+  image?: number[];
+  imagePrompt?: string;
+  /** Plain text of the scene (system message, player action, or game response). */
+  message?: string;
+  meta?: ObjMeta;
+  requestExpandStory?: string;
+  requestImageGeneration?: string;
+  requestStatusUpdate?: string;
+  responseRaw?: string;
+  /** Sequence number within the session, starting at 1 */
+  seq?: number;
+  /** JSON encoded status fields. */
+  statusFields?: ObjStatusField[];
+  stream?: boolean;
+  tokenUsage?: ObjTokenUsage;
+  /** player: user message; game: LLM/game response; system: initial system/context messages. */
+  type?: string;
+  urlAnalytics?: string;
 }
 
 export interface RoutesSessionResponse {
@@ -1353,6 +1431,66 @@ export class Api<
       }),
 
     /**
+     * @description Returns the current private share configuration for a game.
+     *
+     * @tags games
+     * @name PrivateShareList
+     * @summary Get private share status
+     * @request GET:/games/{id}/private-share
+     * @secure
+     */
+    privateShareList: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
+        path: `/games/${id}/private-share`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Enables private sharing for a game with a sponsored API key and optional session limit.
+     *
+     * @tags games
+     * @name PrivateShareCreate
+     * @summary Enable or configure private share
+     * @request POST:/games/{id}/private-share
+     * @secure
+     */
+    privateShareCreate: (
+      id: string,
+      request: RoutesPrivateShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
+        path: `/games/${id}/private-share`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Disables private sharing by clearing the share token and sponsor key.
+     *
+     * @tags games
+     * @name PrivateShareDelete
+     * @summary Revoke private share
+     * @request DELETE:/games/{id}/private-share
+     * @secure
+     */
+    privateShareDelete: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
+        path: `/games/${id}/private-share`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Lists sessions for a game
      *
      * @tags sessions
@@ -1930,6 +2068,87 @@ export class Api<
       this.request<ObjAiPlatform[], HttpxErrorResponse>({
         path: `/platforms`,
         method: "GET",
+        format: "json",
+        ...params,
+      }),
+  };
+  play = {
+    /**
+     * @description Creates a new anonymous game session using a private share link. No authentication required — the share token grants access.
+     *
+     * @tags play
+     * @name PlayCreate
+     * @summary Create guest session via share token
+     * @request POST:/play/{token}
+     */
+    playCreate: (token: string, params: RequestParams = {}) =>
+      this.request<RoutesGuestSessionResponse, HttpxErrorResponse>({
+        path: `/play/${token}`,
+        method: "POST",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns basic game info (name, description) for the welcome screen. No session is created.
+     *
+     * @tags play
+     * @name InfoList
+     * @summary Get game info via share token
+     * @request GET:/play/{token}/info
+     */
+    infoList: (token: string, params: RequestParams = {}) =>
+      this.request<RoutesGuestGameInfo, HttpxErrorResponse>({
+        path: `/play/${token}/info`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns session details for recovery after reload. Validates token→game→session chain.
+     *
+     * @tags play
+     * @name SessionsDetail
+     * @summary Get guest session via share token
+     * @request GET:/play/{token}/sessions/{id}
+     */
+    sessionsDetail: (
+      token: string,
+      id: string,
+      query?: {
+        /** Message inclusion: none|latest|all */
+        messages?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesSessionResponse, HttpxErrorResponse>({
+        path: `/play/${token}/sessions/${id}`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sends a player message to an anonymous session. Validates token→game→session chain.
+     *
+     * @tags play
+     * @name SessionsCreate
+     * @summary Send guest action via share token
+     * @request POST:/play/{token}/sessions/{id}
+     */
+    sessionsCreate: (
+      token: string,
+      id: string,
+      request: RoutesSessionActionRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGameSessionMessage, HttpxErrorResponse>({
+        path: `/play/${token}/sessions/${id}`,
+        method: "POST",
+        body: request,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
