@@ -34,8 +34,8 @@ AVAILABLE PRESETS:
 - "detective" - Classic whodunit, warm amber tones, serif, no animation
 - "noir" - Dark moody, black & white stark contrast, shadow pulse effect, no animation
 - "space" - Cosmic, dark background, cyan, hyperspace animation
-- "terminal" - Classic green on black, mono font, matrix rain
-- "hacker" - Aggressive red AI / green user, mono font, matrix rain
+- "terminal" - Classic green on black, mono font, falling 1-0 bits
+- "hacker" - Aggressive red AI / green user, mono font, falling 1-0 bits
 - "playful" - Kids, colorful, confetti animation
 - "barbie" - Pink dream, flourish, diamond dividers, no animation
 - "nature" - Forest, emerald, flourish, falling leaves
@@ -48,7 +48,7 @@ AVAILABLE PRESETS:
 - "fire" - Dark, orange/red accents, embers animation
 - "desert" - Arid, sandy, warm tones, sun animation
 - "tech" - Modern technology, clean digital, circuits animation
-- "greenFantasy" - Enchanted forest, nature magic, sparkles
+- "greenFantasy" - Enchanted dark forest, nature magic, fireflies
 - "abstract" - Artistic, geometric shapes, geometric animation
 - "romance" - Soft, warm, romantic, hearts animation
 - "glitch" - Corrupted, digital chaos, glitch animation
@@ -61,11 +61,12 @@ AVAILABLE PRESETS:
 - "sunshine" - Warm, bright, cheerful yellow, no animation
 - "storybook" - Classic children's book, teal/coral, warm, no animation
 - "jungle" - Tropical, lush, vibrant lime/green, falling leaves
-- "garden" - Blooming flowers, soft teal/coral, sparkles
-- "circus" - Bright, bold, showtime energy, confetti
+- "garden" - Blooming flowers, soft greens and earth tones, falling leaves
+- "circus" - Bright, bold, showtime energy, confetti explosion
+- "matrix" - The Matrix digital rain, green on black, mono font, decrypted text effect
 
 AVAILABLE ANIMATIONS (for optional override):
-"none", "stars", "bubbles", "fireflies", "snow", "matrix", "embers", "hyperspace", "sparkles", "hearts", "glitch", "circuits", "leaves", "geometric", "confetti", "waves", "glowworm", "sun", "tumbleweed"
+"none", "stars", "bubbles", "fireflies", "snow", "bits", "matrixRain", "embers", "hyperspace", "sparkles", "hearts", "glitch", "circuits", "leaves", "geometric", "confetti", "confettiExplosion", "waves", "glowworm", "sun", "tumbleweed"
 
 OUTPUT FORMAT:
 {
@@ -203,15 +204,16 @@ var validPresets = map[string]bool{
 	"tech": true, "greenFantasy": true, "abstract": true, "romance": true,
 	"glitch": true, "snowy": true, "fairy": true, "steampunk": true, "zombie": true,
 	"school": true, "candy": true, "superhero": true, "sunshine": true, "storybook": true,
-	"jungle": true, "garden": true, "circus": true,
+	"jungle": true, "garden": true, "circus": true, "matrix": true,
 }
 
 // validAnimations lists all valid animation names
 var validAnimations = map[string]bool{
 	"none": true, "stars": true, "bubbles": true, "fireflies": true, "snow": true,
-	"matrix": true, "embers": true, "hyperspace": true, "sparkles": true, "hearts": true,
-	"glitch": true, "circuits": true, "leaves": true, "geometric": true, "confetti": true,
-	"waves": true, "glowworm": true, "sun": true, "tumbleweed": true,
+	"bits": true, "matrixRain": true, "embers": true, "hyperspace": true, "sparkles": true,
+	"hearts": true, "glitch": true, "circuits": true, "leaves": true, "geometric": true,
+	"confetti": true, "confettiExplosion": true, "waves": true, "glowworm": true,
+	"sun": true, "tumbleweed": true,
 }
 
 // validateTheme ensures all theme values are valid

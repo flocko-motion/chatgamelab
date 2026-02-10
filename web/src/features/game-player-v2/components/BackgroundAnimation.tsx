@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadFull } from "tsparticles";
 import type { ISourceOptions } from "@tsparticles/engine";
@@ -112,7 +112,7 @@ const ANIMATION_CONFIGS: Record<
     detectRetina: true,
   },
 
-  matrix: {
+  bits: {
     fullScreen: false,
     background: { color: { value: "transparent" } },
     fpsLimit: 60,
@@ -152,6 +152,8 @@ const ANIMATION_CONFIGS: Record<
     },
     detectRetina: true,
   },
+
+  matrixRain: null, // Canvas-based animation (real Matrix digital rain)
 
   embers: {
     fullScreen: false,
@@ -495,6 +497,130 @@ const ANIMATION_CONFIGS: Record<
     detectRetina: true,
   },
 
+  confettiExplosion: {
+    fullScreen: false,
+    background: { color: { value: "transparent" } },
+    fpsLimit: 60,
+    emitters: [
+      {
+        position: { x: 20, y: 30 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 3 },
+      },
+      {
+        position: { x: 75, y: 20 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 4.5 },
+      },
+      {
+        position: { x: 50, y: 50 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 5.5 },
+      },
+      {
+        position: { x: 35, y: 70 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 7 },
+      },
+      {
+        position: { x: 85, y: 60 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 8.5 },
+      },
+      {
+        position: { x: 10, y: 55 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 10 },
+      },
+      {
+        position: { x: 60, y: 35 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 11.5 },
+      },
+      {
+        position: { x: 40, y: 15 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 13 },
+      },
+      {
+        position: { x: 90, y: 40 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 14.5 },
+      },
+      {
+        position: { x: 25, y: 80 },
+        rate: { quantity: 12, delay: 0.1 },
+        size: { width: 5, height: 5 },
+        life: { count: 0, duration: 0.15, delay: 16 },
+      },
+    ],
+    particles: {
+      number: { value: 0 },
+      color: {
+        value: [
+          "#f472b6",
+          "#fb923c",
+          "#facc15",
+          "#4ade80",
+          "#60a5fa",
+          "#a78bfa",
+          "#f87171",
+          "#e879f9",
+          "#34d399",
+        ],
+      },
+      shape: {
+        type: ["circle", "square", "triangle"],
+      },
+      opacity: {
+        value: { min: 0.6, max: 1 },
+        animation: {
+          enable: true,
+          speed: 0.5,
+          sync: false,
+          startValue: "max",
+          destroy: "min",
+        },
+      },
+      size: { value: { min: 4, max: 10 } },
+      move: {
+        enable: true,
+        speed: { min: 8, max: 20 },
+        direction: "none",
+        random: true,
+        straight: false,
+        outModes: { default: "destroy" },
+        gravity: {
+          enable: true,
+          acceleration: 5,
+        },
+      },
+      rotate: {
+        value: { min: 0, max: 360 },
+        animation: { enable: true, speed: 15, sync: false },
+      },
+      tilt: {
+        enable: true,
+        value: { min: 0, max: 360 },
+        animation: { enable: true, speed: 10, sync: false },
+      },
+      life: {
+        count: 1,
+        duration: { value: { min: 2, max: 4 } },
+      },
+    },
+    detectRetina: true,
+  },
+
   waves: null, // CSS-based animation (tsparticles can't do wave motion)
   sun: null, // CSS-based animation (single glowing orb arc)
   tumbleweed: null, // CSS-based animation (rolling bushes along bottom)
@@ -732,67 +858,60 @@ function SunBackground() {
   );
 }
 
-/** CSS-based tumbleweed background — dry bushes bouncing across the bottom */
+/**
+ * CSS-based tumbleweed + dust background for the western theme.
+ *
+ * Approach:
+ * - Tumbleweeds use a SINGLE `transform`-based animation per weed that combines
+ *   translateX (drift), translateY (bounce), and rotate (spin). This is GPU-
+ *   accelerated and avoids the "stuck at left" issues of animating `left`.
+ * - Wind/dust is a scrolling semi-transparent gradient overlay that creates a
+ *   haze effect, like dust blowing across the scene.
+ */
 const TUMBLEWEED_KEYFRAMES = `
-@keyframes twDrift {
-  0% { left: -70px; }
-  100% { left: calc(100% + 70px); }
+@keyframes tw1 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  8%   { transform: translateX(0vw)   translateY(-35px)  rotate(60deg); }
+  16%  { transform: translateX(10vw)  translateY(0px)    rotate(130deg); }
+  28%  { transform: translateX(22vw)  translateY(-50px)  rotate(230deg); }
+  38%  { transform: translateX(34vw)  translateY(0px)    rotate(340deg); }
+  50%  { transform: translateX(48vw)  translateY(-25px)  rotate(450deg); }
+  60%  { transform: translateX(58vw)  translateY(0px)    rotate(530deg); }
+  72%  { transform: translateX(70vw)  translateY(-40px)  rotate(640deg); }
+  84%  { transform: translateX(84vw)  translateY(0px)    rotate(740deg); }
+  92%  { transform: translateX(96vw)  translateY(-15px)  rotate(810deg); }
+  100% { transform: translateX(110vw) translateY(0px)    rotate(900deg); }
 }
-@keyframes windGust {
-  0% { transform: translateX(-100%) scaleX(0.5); opacity: 0; }
-  10% { opacity: 0.3; }
-  50% { scaleX(1); opacity: 0.15; }
-  90% { opacity: 0.25; }
-  100% { transform: translateX(100vw) scaleX(0.7); opacity: 0; }
+@keyframes tw2 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  10%  { transform: translateX(5vw)   translateY(-20px)  rotate(-80deg); }
+  20%  { transform: translateX(16vw)  translateY(0px)    rotate(-160deg); }
+  35%  { transform: translateX(30vw)  translateY(-45px)  rotate(-300deg); }
+  48%  { transform: translateX(44vw)  translateY(0px)    rotate(-420deg); }
+  58%  { transform: translateX(55vw)  translateY(-30px)  rotate(-520deg); }
+  70%  { transform: translateX(68vw)  translateY(0px)    rotate(-620deg); }
+  82%  { transform: translateX(80vw)  translateY(-20px)  rotate(-720deg); }
+  100% { transform: translateX(110vw) translateY(0px)    rotate(-880deg); }
 }
-@keyframes twBounce1 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  10% { transform: translateY(-40px) rotate(80deg); }
-  20% { transform: translateY(0) rotate(160deg); }
-  35% { transform: translateY(-25px) rotate(280deg); }
-  45% { transform: translateY(0) rotate(380deg); }
-  55% { transform: translateY(-55px) rotate(480deg); }
-  65% { transform: translateY(0) rotate(560deg); }
-  80% { transform: translateY(-18px) rotate(640deg); }
-  90% { transform: translateY(0) rotate(700deg); }
+@keyframes tw3 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  12%  { transform: translateX(4vw)   translateY(-55px)  rotate(100deg); }
+  22%  { transform: translateX(14vw)  translateY(0px)    rotate(190deg); }
+  38%  { transform: translateX(32vw)  translateY(-20px)  rotate(320deg); }
+  50%  { transform: translateX(46vw)  translateY(0px)    rotate(440deg); }
+  62%  { transform: translateX(58vw)  translateY(-40px)  rotate(560deg); }
+  74%  { transform: translateX(72vw)  translateY(0px)    rotate(660deg); }
+  88%  { transform: translateX(88vw)  translateY(-15px)  rotate(780deg); }
+  100% { transform: translateX(110vw) translateY(0px)    rotate(860deg); }
 }
-@keyframes twBounce2 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  12% { transform: translateY(-30px) rotate(-90deg); }
-  22% { transform: translateY(0) rotate(-170deg); }
-  40% { transform: translateY(-50px) rotate(-300deg); }
-  52% { transform: translateY(0) rotate(-400deg); }
-  65% { transform: translateY(-20px) rotate(-490deg); }
-  75% { transform: translateY(0) rotate(-560deg); }
-  88% { transform: translateY(-35px) rotate(-650deg); }
-}
-@keyframes twBounce3 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  8% { transform: translateY(-20px) rotate(70deg); }
-  18% { transform: translateY(0) rotate(150deg); }
-  30% { transform: translateY(-45px) rotate(260deg); }
-  42% { transform: translateY(0) rotate(360deg); }
-  58% { transform: translateY(-30px) rotate(470deg); }
-  68% { transform: translateY(0) rotate(540deg); }
-  82% { transform: translateY(-15px) rotate(620deg); }
-  92% { transform: translateY(0) rotate(680deg); }
-}
-@keyframes twBounce4 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  15% { transform: translateY(-18px) rotate(100deg); }
-  30% { transform: translateY(0) rotate(200deg); }
-  50% { transform: translateY(-35px) rotate(350deg); }
-  65% { transform: translateY(0) rotate(460deg); }
-  85% { transform: translateY(-12px) rotate(580deg); }
-}
-@keyframes twBounce5 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  18% { transform: translateY(-45px) rotate(-120deg); }
-  28% { transform: translateY(0) rotate(-200deg); }
-  45% { transform: translateY(-25px) rotate(-340deg); }
-  55% { transform: translateY(0) rotate(-420deg); }
-  70% { transform: translateY(-60px) rotate(-530deg); }
-  82% { transform: translateY(0) rotate(-620deg); }
+@keyframes tw4 {
+  0%   { transform: translateX(-10vw) translateY(0px)   rotate(0deg); }
+  15%  { transform: translateX(8vw)   translateY(-15px)  rotate(-120deg); }
+  30%  { transform: translateX(24vw)  translateY(0px)    rotate(-240deg); }
+  50%  { transform: translateX(46vw)  translateY(-30px)  rotate(-400deg); }
+  68%  { transform: translateX(64vw)  translateY(0px)    rotate(-540deg); }
+  85%  { transform: translateX(86vw)  translateY(-10px)  rotate(-680deg); }
+  100% { transform: translateX(110vw) translateY(0px)    rotate(-800deg); }
 }
 `;
 
@@ -806,9 +925,8 @@ function ensureTumbleweedKeyframes() {
   tumbleweedKeyframesInjected = true;
 }
 
-/** Tumbleweed SVG as overlapping wobbly circles for a tangled bush look */
-function TumbleweedSvg() {
-  // Multiple offset ellipses create a round, tangled, woolly shape
+/** Tumbleweed SVG — overlapping wobbly ellipses for a tangled bush look */
+function TumbleweedSvg({ fill }: { fill: string }) {
   return (
     <svg viewBox="0 0 40 40" style={{ width: "100%", height: "100%" }}>
       <ellipse
@@ -816,10 +934,11 @@ function TumbleweedSvg() {
         cy="20"
         rx="16"
         ry="14"
-        fill="none"
+        fill={fill}
+        fillOpacity={0.15}
         stroke="#78350f"
         strokeWidth={1.2}
-        opacity={0.5}
+        opacity={0.6}
       />
       <ellipse
         cx="18"
@@ -829,7 +948,7 @@ function TumbleweedSvg() {
         fill="none"
         stroke="#92400e"
         strokeWidth={1.5}
-        opacity={0.6}
+        opacity={0.5}
       />
       <ellipse
         cx="22"
@@ -859,7 +978,7 @@ function TumbleweedSvg() {
         fill="none"
         stroke="#b45309"
         strokeWidth={1.2}
-        opacity={0.5}
+        opacity={0.4}
       />
       <circle
         cx="21"
@@ -879,7 +998,6 @@ function TumbleweedSvg() {
         strokeWidth={0.8}
         opacity={0.3}
       />
-      {/* Cross strands for tangled texture */}
       <line
         x1="10"
         y1="16"
@@ -914,15 +1032,71 @@ function TumbleweedSvg() {
 function TumbleweedBackground() {
   ensureTumbleweedKeyframes();
 
-  // [size, bottom%, opacity, bounceAnim, driftDur, delay]
-  const weeds: [number, number, number, string, string, string][] = [
-    [70, 2, 0.35, "twBounce1", "16s", "0s"], // big, medium
-    [25, 5, 0.2, "twBounce2", "8s", "4s"], // small, fast
-    [80, 1, 0.3, "twBounce3", "20s", "9s"], // very big, slow
-    [20, 7, 0.2, "twBounce4", "6s", "2s"], // tiny, very fast
-    [45, 3, 0.25, "twBounce5", "24s", "14s"], // medium, very slow
-    [30, 4, 0.22, "twBounce1", "10s", "19s"], // small-medium
-    [90, 1, 0.28, "twBounce5", "28s", "25s"], // huge, slowest
+  // Each weed: [sizePx, bottomPct, opacity, animName, duration, delay, fillColor]
+  const weeds = [
+    {
+      size: 70,
+      bottom: 2,
+      opacity: 0.35,
+      anim: "tw1",
+      dur: "12s",
+      delay: "0s",
+      fill: "#92400e",
+    },
+    {
+      size: 25,
+      bottom: 5,
+      opacity: 0.22,
+      anim: "tw2",
+      dur: "7s",
+      delay: "3s",
+      fill: "#a16207",
+    },
+    {
+      size: 85,
+      bottom: 1,
+      opacity: 0.3,
+      anim: "tw3",
+      dur: "18s",
+      delay: "8s",
+      fill: "#78350f",
+    },
+    {
+      size: 20,
+      bottom: 7,
+      opacity: 0.2,
+      anim: "tw4",
+      dur: "5s",
+      delay: "1s",
+      fill: "#b45309",
+    },
+    {
+      size: 45,
+      bottom: 3,
+      opacity: 0.25,
+      anim: "tw1",
+      dur: "20s",
+      delay: "14s",
+      fill: "#92400e",
+    },
+    {
+      size: 30,
+      bottom: 4,
+      opacity: 0.22,
+      anim: "tw3",
+      dur: "9s",
+      delay: "18s",
+      fill: "#a16207",
+    },
+    {
+      size: 95,
+      bottom: 1,
+      opacity: 0.28,
+      anim: "tw2",
+      dur: "24s",
+      delay: "22s",
+      fill: "#78350f",
+    },
   ];
 
   return (
@@ -936,52 +1110,109 @@ function TumbleweedBackground() {
         overflow: "hidden",
       }}
     >
-      {/* Wind streaks at the bottom */}
-      {[
-        { bottom: "2%", width: "180px", dur: "8s", delay: "0s" },
-        { bottom: "5%", width: "120px", dur: "12s", delay: "6s" },
-        { bottom: "3%", width: "200px", dur: "10s", delay: "13s" },
-      ].map((w, i) => (
-        <div
-          key={`wind-${i}`}
-          style={{
-            position: "absolute",
-            bottom: w.bottom,
-            left: 0,
-            width: w.width,
-            height: 2,
-            borderRadius: 1,
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), rgba(255,255,255,0.15), transparent)",
-            animation: `windGust ${w.dur} ease-in-out ${w.delay} infinite`,
-          }}
-        />
-      ))}
-      {weeds.map(([size, bottom, opacity, bounce, dur, delay], i) => (
-        // Outer: horizontal drift (left property animated)
+      {/* Tumbleweeds */}
+      {weeds.map((w, i) => (
         <div
           key={i}
           style={{
             position: "absolute",
-            bottom: `${bottom}%`,
-            width: size,
-            height: size,
-            opacity,
-            animation: `twDrift ${dur} linear ${delay} infinite`,
+            bottom: `${w.bottom}%`,
+            left: "-10vw",
+            width: w.size,
+            height: w.size,
+            opacity: w.opacity,
+            animation: `${w.anim} ${w.dur} linear ${w.delay} infinite`,
+            willChange: "transform",
           }}
         >
-          {/* Inner: bounce + rotation */}
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              animation: `${bounce} ${dur} ease-in-out ${delay} infinite`,
-            }}
-          >
-            <TumbleweedSvg />
-          </div>
+          <TumbleweedSvg fill={w.fill} />
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Characters used in the Matrix rain effect */
+const MATRIX_ALPHABET =
+  "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン" +
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+  "0123456789";
+
+/** Canvas-based Matrix digital rain (based on react-mdr) */
+function MatrixRainBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const parent = canvas.parentElement;
+    if (!parent) return;
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
+
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+
+    const maxRows = Math.ceil(canvas.height / fontSize);
+    const rainDrops: number[] = [];
+    for (let x = 0; x < columns; x++) {
+      rainDrops[x] = Math.floor(Math.random() * maxRows);
+    }
+
+    const render = () => {
+      context.fillStyle = "rgba(0, 0, 0, 0.05)";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.fillStyle = "#0F0";
+      context.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < rainDrops.length; i++) {
+        const text = MATRIX_ALPHABET.charAt(
+          Math.floor(Math.random() * MATRIX_ALPHABET.length),
+        );
+        context.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+        if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          rainDrops[i] = 0;
+        }
+        rainDrops[i]++;
+      }
+    };
+
+    const intervalId = setInterval(render, 45);
+
+    const handleResize = () => {
+      canvas.width = parent.clientWidth;
+      canvas.height = parent.clientHeight;
+    };
+    const observer = new ResizeObserver(handleResize);
+    observer.observe(parent);
+
+    return () => {
+      clearInterval(intervalId);
+      observer.disconnect();
+    };
+  }, []);
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 0,
+        overflow: "hidden",
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{ display: "block", width: "100%", height: "100%" }}
+      />
     </div>
   );
 }
@@ -1036,6 +1267,9 @@ export const BackgroundAnimation = memo(function BackgroundAnimation({
   }
   if (!config && animation === "tumbleweed") {
     return <TumbleweedBackground />;
+  }
+  if (!config && animation === "matrixRain") {
+    return <MatrixRainBackground />;
   }
 
   // tsparticles animations need engine init

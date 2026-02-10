@@ -244,3 +244,11 @@
   50% { opacity: 0.9; }
   100% { opacity: 0.8; }
 }
+
+/* ============================================================================
+   Matrix Rain Animation - canvas-based, styled via parent container
+   ============================================================================ */
+
+.matrixRain {
+  /* No extra CSS needed — canvas fills the animationLayer */
+}

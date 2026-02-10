@@ -32,7 +32,7 @@ export function BackgroundAnimation({
         return styles.waves;
       case "glowworm":
         return styles.glowworm;
-      case "matrix":
+      case "bits":
         return styles.scanlines;
       default:
         return "";
