@@ -44,6 +44,8 @@ export const ROUTES = {
 
   // Game play routes (actual gameplay)
   GAME_PLAY: "/games/$gameId/play",
+  // Guest play via private share token (anonymous, no auth)
+  GUEST_PLAY: "/play",
 
   // Sessions (kept for direct session access)
   SESSIONS: "/sessions",
