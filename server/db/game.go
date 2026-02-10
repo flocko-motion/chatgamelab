@@ -1670,6 +1670,11 @@ func uuidPtrToNullUUID(id *uuid.UUID) uuid.NullUUID {
 	return uuid.NullUUID{UUID: *id, Valid: true}
 }
 
+// IncrementGamePlayCount increments the play count of a game by 1.
+func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
+	return queries().IncrementGamePlayCount(ctx, gameID)
+}
+
 func stringPtrToNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{}
