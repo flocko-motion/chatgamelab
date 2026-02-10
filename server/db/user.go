@@ -404,6 +404,7 @@ func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
 
 	// Already admin?
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		log.Debug("user already has admin role", "user_id", user.ID, "email", *user.Email)
 		return user
 	}
 
