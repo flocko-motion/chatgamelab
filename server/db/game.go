@@ -383,6 +383,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		PublicSponsoredApiKeyShareID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyShareID),
 		PrivateShareHash:              sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil},
 		PrivateSponsoredApiKeyShareID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyShareID),
+		PrivateShareRemaining:         intPtrToNullInt32(game.PrivateShareRemaining),
 		SystemMessageScenario:         game.SystemMessageScenario,
 		SystemMessageGameStart:        game.SystemMessageGameStart,
 		ImageStyle:                    game.ImageStyle,
@@ -427,10 +428,14 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	now := time.Now()
 	privateShareHash := sql.NullString{String: functional.Deref(game.PrivateShareHash, ""), Valid: game.PrivateShareHash != nil}
 	if !privateShareHash.Valid || privateShareHash.String == "" {
-		// Keep existing hash or generate new one
-		if existingGameRaw.PrivateShareHash.Valid && existingGameRaw.PrivateShareHash.String != "" {
+		if game.PrivateSponsoredApiKeyShareID == nil {
+			// Share is being revoked — clear the hash
+			privateShareHash = sql.NullString{Valid: false}
+		} else if existingGameRaw.PrivateShareHash.Valid && existingGameRaw.PrivateShareHash.String != "" {
+			// Keep existing hash
 			privateShareHash = existingGameRaw.PrivateShareHash
 		} else {
+			// Generate new hash for new share
 			hash, _ := functional.GenerateSecureToken(20)
 			privateShareHash = sql.NullString{String: hash, Valid: true}
 		}
@@ -464,6 +469,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		PublicSponsoredApiKeyShareID:  uuidPtrToNullUUID(game.PublicSponsoredApiKeyShareID),
 		PrivateShareHash:              privateShareHash,
 		PrivateSponsoredApiKeyShareID: uuidPtrToNullUUID(game.PrivateSponsoredApiKeyShareID),
+		PrivateShareRemaining:         intPtrToNullInt32(game.PrivateShareRemaining),
 		SystemMessageScenario:         game.SystemMessageScenario,
 		SystemMessageGameStart:        game.SystemMessageGameStart,
 		ImageStyle:                    game.ImageStyle,
@@ -802,6 +808,68 @@ func UpdateGameSessionOrganisationUnverified(ctx context.Context, sessionID uuid
 		return obj.ErrServerError("failed to update session organisation status")
 	}
 	return nil
+}
+
+// GetGameSessionByIDForGuest returns a session by ID, validating only that it belongs to the given game.
+// Used by guest play endpoints where access is proven by the share token, not by user identity.
+func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expectedGameID uuid.UUID) (*obj.GameSession, error) {
+	s, err := queries().GetGameSessionByID(ctx, sessionID)
+	if err != nil {
+		return nil, obj.ErrNotFound("session not found")
+	}
+	if s.GameID != expectedGameID {
+		return nil, obj.ErrForbidden("session does not belong to this game")
+	}
+
+	session := &obj.GameSession{
+		ID:         s.ID,
+		GameID:     s.GameID,
+		UserID:     s.UserID,
+		ApiKeyID:   nullUUIDToPtr(s.ApiKeyID),
+		AiPlatform: s.AiPlatform,
+		AiModel:    s.AiModel,
+		AiSession:  string(s.AiSession),
+		ImageStyle: s.ImageStyle,
+		Meta: obj.Meta{
+			CreatedBy:  s.CreatedBy,
+			CreatedAt:  &s.CreatedAt,
+			ModifiedBy: s.ModifiedBy,
+			ModifiedAt: &s.ModifiedAt,
+		},
+	}
+
+	if s.Theme.Valid && len(s.Theme.RawMessage) > 0 {
+		var theme obj.GameTheme
+		if err := json.Unmarshal(s.Theme.RawMessage, &theme); err == nil {
+			if theme.Preset == "" {
+				theme.Preset = "default"
+			}
+			session.Theme = &theme
+		}
+	}
+
+	game, err := queries().GetGameByID(ctx, s.GameID)
+	if err == nil {
+		session.GameName = game.Name
+		session.GameDescription = game.Description
+	}
+
+	if s.ApiKeyID.Valid {
+		key, err := queries().GetApiKeyByID(ctx, s.ApiKeyID.UUID)
+		if err == nil {
+			session.ApiKey = &obj.ApiKey{
+				ID:               key.ID,
+				UserID:           key.UserID,
+				Name:             key.Name,
+				Platform:         key.Platform,
+				Key:              key.Key,
+				IsDefault:        key.IsDefault,
+				LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+			}
+		}
+	}
+
+	return session, nil
 }
 
 // GetGameSessionByID returns a single session by ID with its API key loaded
@@ -1184,6 +1252,71 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 		result = append(result, msg)
 	}
 
+	return result, nil
+}
+
+// GetLatestGuestSessionMessage returns the latest message for a guest session (no user permission check).
+// Access must be validated by the share token at the route level.
+func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
+	m, err := queries().GetLatestGameSessionMessage(ctx, sessionID)
+	if err != nil {
+		return nil, obj.ErrNotFound("latest message not found")
+	}
+
+	msg := &obj.GameSessionMessage{
+		ID:            m.ID,
+		GameSessionID: m.GameSessionID,
+		Seq:           int(m.Seq),
+		Type:          m.Type,
+		Message:       m.Message,
+		Meta: obj.Meta{
+			CreatedBy:  m.CreatedBy,
+			CreatedAt:  &m.CreatedAt,
+			ModifiedBy: m.ModifiedBy,
+			ModifiedAt: &m.ModifiedAt,
+		},
+	}
+	if m.Status.Valid && m.Status.String != "" {
+		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+	if m.ImagePrompt.Valid {
+		msg.ImagePrompt = &m.ImagePrompt.String
+	}
+	return msg, nil
+}
+
+// GetAllGuestSessionMessages returns all messages for a guest session (no user permission check).
+// Access must be validated by the share token at the route level.
+func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj.GameSessionMessage, error) {
+	messages, err := queries().GetAllGameSessionMessages(ctx, sessionID)
+	if err != nil {
+		return nil, obj.ErrServerError("failed to get session messages")
+	}
+
+	result := make([]obj.GameSessionMessage, 0, len(messages))
+	for _, m := range messages {
+		msg := obj.GameSessionMessage{
+			ID:            m.ID,
+			GameSessionID: m.GameSessionID,
+			Seq:           int(m.Seq),
+			Type:          m.Type,
+			Message:       m.Message,
+			Image:         m.Image,
+			Meta: obj.Meta{
+				CreatedBy:  m.CreatedBy,
+				CreatedAt:  &m.CreatedAt,
+				ModifiedBy: m.ModifiedBy,
+				ModifiedAt: &m.ModifiedAt,
+			},
+		}
+		if m.Status.Valid && m.Status.String != "" {
+			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+		}
+		if m.ImagePrompt.Valid {
+			msg.ImagePrompt = &m.ImagePrompt.String
+		}
+		result = append(result, msg)
+	}
 	return result, nil
 }
 
@@ -1570,6 +1703,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		PublicSponsoredApiKeyShareID:  nullUUIDToPtr(g.PublicSponsoredApiKeyShareID),
 		PrivateShareHash:              nullStringToPtr(g.PrivateShareHash),
 		PrivateSponsoredApiKeyShareID: nullUUIDToPtr(g.PrivateSponsoredApiKeyShareID),
+		PrivateShareRemaining:         nullInt32ToIntPtr(g.PrivateShareRemaining),
 		SystemMessageScenario:         g.SystemMessageScenario,
 		SystemMessageGameStart:        g.SystemMessageGameStart,
 		ImageStyle:                    g.ImageStyle,
@@ -1675,9 +1809,70 @@ func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
 	return queries().IncrementGamePlayCount(ctx, gameID)
 }
 
+// DecrementPrivateShareRemaining atomically decrements the private share remaining counter.
+// Returns the updated game if successful. Fails if remaining is 0.
+// If remaining is NULL (unlimited), this is a no-op that succeeds.
+func DecrementPrivateShareRemaining(ctx context.Context, gameID uuid.UUID) (*obj.Game, error) {
+	g, err := queries().DecrementPrivateShareRemaining(ctx, gameID)
+	if err != nil {
+		return nil, obj.ErrForbidden("share link has reached its play limit")
+	}
+	return dbGameToObj(ctx, g)
+}
+
+// CreateGuestUser creates an anonymous user for guest play sessions.
+// The user has no email, no auth0 ID, and no participant token.
+// gameID links the guest to the game's private share for cleanup on revoke.
+func CreateGuestUser(ctx context.Context, userID uuid.UUID, name string, gameID uuid.UUID) error {
+	_, err := queries().CreateGuestUser(ctx, db.CreateGuestUserParams{
+		ID:                 userID,
+		Name:               name,
+		PrivateShareGameID: uuid.NullUUID{UUID: gameID, Valid: true},
+	})
+	return err
+}
+
+// DeleteGuestDataByGameID removes all guest users, their sessions, and messages
+// that were created via a game's private share link.
+// Must delete in order: messages → sessions → users (FK constraints).
+func DeleteGuestDataByGameID(ctx context.Context, gameID uuid.UUID) error {
+	nullID := uuid.NullUUID{UUID: gameID, Valid: true}
+	if err := queries().DeleteGuestSessionMessagesByGameID(ctx, nullID); err != nil {
+		return err
+	}
+	if err := queries().DeleteGuestSessionsByGameID(ctx, nullID); err != nil {
+		return err
+	}
+	return queries().DeleteGuestUsersByGameID(ctx, nullID)
+}
+
+// CountGuestUsersByGameID returns the number of guest users created via a game's share link.
+func CountGuestUsersByGameID(ctx context.Context, gameID uuid.UUID) (int, error) {
+	count, err := queries().CountGuestUsersByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
 func stringPtrToNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{}
 	}
 	return sql.NullString{String: *s, Valid: true}
+}
+
+func nullInt32ToIntPtr(ni sql.NullInt32) *int {
+	if !ni.Valid {
+		return nil
+	}
+	v := int(ni.Int32)
+	return &v
+}
+
+func intPtrToNullInt32(i *int) sql.NullInt32 {
+	if i == nil {
+		return sql.NullInt32{}
+	}
+	return sql.NullInt32{Int32: int32(*i), Valid: true}
 }
