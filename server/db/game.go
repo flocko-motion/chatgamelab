@@ -1432,6 +1432,16 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 		return obj.ErrValidation("api key share must allow public game sponsoring")
 	}
 
+	// Remove any existing sponsorship and its game-scoped shares first
+	if game.PublicSponsoredApiKeyShareID != nil {
+		if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
+			return obj.ErrServerError("failed to clear existing sponsorship")
+		}
+		if err := queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true}); err != nil {
+			log.Debug("failed to delete old game-scoped shares", "game_id", gameID, "error", err)
+		}
+	}
+
 	// Create a game-scoped share for this sponsorship
 	sponsorShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID, true)
 	if err != nil {
