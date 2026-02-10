@@ -164,7 +164,7 @@ WHERE id = $1;
 
 -- name: GetGamesWithPrivateShareByApiKeyID :many
 -- Find games that use a share of this API key for private share sponsoring
-SELECT g.id, g.name, g.private_sponsored_api_key_share_id
+SELECT g.id, g.name, g.private_sponsored_api_key_share_id, g.private_share_remaining
 FROM game g
 JOIN api_key_share s ON g.private_sponsored_api_key_share_id = s.id
 WHERE s.api_key_id = $1

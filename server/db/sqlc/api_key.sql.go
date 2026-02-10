@@ -537,7 +537,7 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 }
 
 const getGamesWithPrivateShareByApiKeyID = `-- name: GetGamesWithPrivateShareByApiKeyID :many
-SELECT g.id, g.name, g.private_sponsored_api_key_share_id
+SELECT g.id, g.name, g.private_sponsored_api_key_share_id, g.private_share_remaining
 FROM game g
 JOIN api_key_share s ON g.private_sponsored_api_key_share_id = s.id
 WHERE s.api_key_id = $1
@@ -549,6 +549,7 @@ type GetGamesWithPrivateShareByApiKeyIDRow struct {
 	ID                            uuid.UUID
 	Name                          string
 	PrivateSponsoredApiKeyShareID uuid.NullUUID
+	PrivateShareRemaining         sql.NullInt32
 }
 
 // Find games that use a share of this API key for private share sponsoring
@@ -561,7 +562,12 @@ func (q *Queries) GetGamesWithPrivateShareByApiKeyID(ctx context.Context, apiKey
 	var items []GetGamesWithPrivateShareByApiKeyIDRow
 	for rows.Next() {
 		var i GetGamesWithPrivateShareByApiKeyIDRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.PrivateSponsoredApiKeyShareID); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.PrivateSponsoredApiKeyShareID,
+			&i.PrivateShareRemaining,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
