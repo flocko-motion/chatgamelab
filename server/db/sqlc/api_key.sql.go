@@ -13,6 +13,21 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearGamePrivateShare = `-- name: ClearGamePrivateShare :exec
+UPDATE game
+SET private_share_hash = NULL,
+    private_sponsored_api_key_share_id = NULL,
+    private_share_remaining = NULL,
+    modified_at = now()
+WHERE id = $1
+`
+
+// Clear all private share fields on a game (used when revoking via API key deletion)
+func (q *Queries) ClearGamePrivateShare(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearGamePrivateShare, id)
+	return err
+}
+
 const clearGamePublicSponsor = `-- name: ClearGamePublicSponsor :exec
 UPDATE game
 SET public_sponsored_api_key_share_id = NULL, modified_at = now()
@@ -508,6 +523,45 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 			&i.OwnerID,
 			&i.OwnerName,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGamesWithPrivateShareByApiKeyID = `-- name: GetGamesWithPrivateShareByApiKeyID :many
+SELECT g.id, g.name, g.private_sponsored_api_key_share_id
+FROM game g
+JOIN api_key_share s ON g.private_sponsored_api_key_share_id = s.id
+WHERE s.api_key_id = $1
+  AND g.deleted_at IS NULL
+  AND g.private_share_hash IS NOT NULL
+`
+
+type GetGamesWithPrivateShareByApiKeyIDRow struct {
+	ID                            uuid.UUID
+	Name                          string
+	PrivateSponsoredApiKeyShareID uuid.NullUUID
+}
+
+// Find games that use a share of this API key for private share sponsoring
+func (q *Queries) GetGamesWithPrivateShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GetGamesWithPrivateShareByApiKeyIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGamesWithPrivateShareByApiKeyID, apiKeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGamesWithPrivateShareByApiKeyIDRow
+	for rows.Next() {
+		var i GetGamesWithPrivateShareByApiKeyIDRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.PrivateSponsoredApiKeyShareID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
