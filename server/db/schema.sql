@@ -28,7 +28,7 @@ CREATE TABLE app_user (
     -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
     language text NOT NULL DEFAULT 'en',
     -- Links guest users to the game whose private share link created them (NULL for non-guests)
-    private_share_game_id uuid NULL REFERENCES game(id)
+    private_share_game_id uuid NULL
 );
 
 -- Institution
@@ -393,3 +393,5 @@ ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk
     FOREIGN KEY (free_use_api_key_share_id) REFERENCES api_key_share(id);
 ALTER TABLE api_key_share ADD CONSTRAINT api_key_share_game_fk
     FOREIGN KEY (game_id) REFERENCES game(id);
+ALTER TABLE app_user ADD CONSTRAINT app_user_private_share_game_fk
+    FOREIGN KEY (private_share_game_id) REFERENCES game(id);
