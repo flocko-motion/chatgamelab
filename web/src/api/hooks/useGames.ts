@@ -212,6 +212,7 @@ export function useSponsorGame() {
     onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
     onError: handleApiError,
   });
@@ -339,6 +340,7 @@ export function useEnablePrivateShare() {
         queryKey: [...queryKeys.games, gameId, "private-share"],
       });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
     onError: handleApiError,
   });
@@ -370,6 +372,7 @@ export function useRevokePrivateShare() {
         queryKey: [...queryKeys.games, gameId, "private-share"],
       });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
     onError: handleApiError,
   });
