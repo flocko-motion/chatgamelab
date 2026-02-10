@@ -359,6 +359,16 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 	now := time.Now()
 	game.ID = uuid.New()
 
+	// Serialize theme to JSON if present
+	var themeJSON pqtype.NullRawMessage
+	if game.Theme != nil {
+		themeBytes, err := json.Marshal(game.Theme)
+		if err != nil {
+			return obj.ErrServerError("failed to serialize theme")
+		}
+		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
+	}
+
 	arg := db.CreateGameParams{
 		ID:                            game.ID,
 		CreatedBy:                     uuid.NullUUID{UUID: userID, Valid: true},
@@ -378,6 +388,7 @@ func CreateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ImageStyle:                    game.ImageStyle,
 		Css:                           game.CSS,
 		StatusFields:                  game.StatusFields,
+		Theme:                         themeJSON,
 		FirstMessage:                  sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                   sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                    game.FirstImage,
@@ -430,6 +441,16 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		game.PublicSponsoredApiKeyShareID = nil
 	}
 
+	// Serialize theme to JSON if present
+	var themeJSON pqtype.NullRawMessage
+	if game.Theme != nil {
+		themeBytes, err := json.Marshal(game.Theme)
+		if err != nil {
+			return obj.ErrServerError("failed to serialize theme")
+		}
+		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
+	}
+
 	arg := db.UpdateGameParams{
 		ID:                            game.ID,
 		CreatedBy:                     existingGameRaw.CreatedBy,
@@ -448,6 +469,7 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 		ImageStyle:                    game.ImageStyle,
 		Css:                           game.CSS,
 		StatusFields:                  game.StatusFields,
+		Theme:                         themeJSON,
 		FirstMessage:                  sql.NullString{String: functional.Deref(game.FirstMessage, ""), Valid: game.FirstMessage != nil},
 		FirstStatus:                   sql.NullString{String: functional.Deref(game.FirstStatus, ""), Valid: game.FirstStatus != nil},
 		FirstImage:                    game.FirstImage,
@@ -1513,6 +1535,16 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		})
 	}
 
+	// Deserialize theme from JSON if present
+	var theme *obj.GameTheme
+	if g.Theme.Valid && len(g.Theme.RawMessage) > 0 {
+		theme = &obj.GameTheme{}
+		if err := json.Unmarshal(g.Theme.RawMessage, theme); err != nil {
+			log.Warn("failed to unmarshal game theme", "game_id", g.ID, "error", err)
+			theme = nil
+		}
+	}
+
 	game := &obj.Game{
 		ID: g.ID,
 		Meta: obj.Meta{
@@ -1533,6 +1565,7 @@ func dbGameToObj(ctx context.Context, g db.Game) (*obj.Game, error) {
 		ImageStyle:                    g.ImageStyle,
 		CSS:                           g.Css,
 		StatusFields:                  g.StatusFields,
+		Theme:                         theme,
 		FirstMessage:                  nullStringToPtr(g.FirstMessage),
 		FirstStatus:                   nullStringToPtr(g.FirstStatus),
 		FirstImage:                    g.FirstImage,

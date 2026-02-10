@@ -76,6 +76,7 @@ type Game struct {
 	ImageStyle                    string
 	Css                           string
 	StatusFields                  string
+	Theme                         pqtype.NullRawMessage
 	FirstMessage                  sql.NullString
 	FirstStatus                   sql.NullString
 	FirstImage                    []byte

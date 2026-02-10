@@ -254,6 +254,9 @@ CREATE TABLE game (
     -- The status fields available to the LLM, shaping the JSON format for status.
     status_fields                   text NOT NULL,
 
+    -- Optional visual theme override (JSON). When set, used directly instead of AI-generating per session.
+    theme                           jsonb NULL,
+
     -- Quick start: pre-generated first scene of the game.
     -- This is generated content (first output after the system message) and may be
     -- regenerated from time to time to avoid being too static.
