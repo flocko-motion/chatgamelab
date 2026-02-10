@@ -48,6 +48,7 @@ export interface MembersListProps {
   isLoading: boolean;
   currentUserId?: string;
   canSeeEmails: boolean;
+  canSeeRoles: boolean;
   isHead: boolean;
   isStaff: boolean;
   onPromote?: (user: ObjUser) => void;
@@ -60,6 +61,7 @@ export function MembersList({
   isLoading,
   currentUserId,
   canSeeEmails,
+  canSeeRoles,
   isHead,
   isStaff,
   onPromote,
@@ -113,10 +115,14 @@ export function MembersList({
     () => [
       { value: "name-asc", label: t("myOrganization.sort.name-asc") },
       { value: "name-desc", label: t("myOrganization.sort.name-desc") },
-      { value: "role-asc", label: t("myOrganization.sort.role-asc") },
-      { value: "role-desc", label: t("myOrganization.sort.role-desc") },
+      ...(canSeeRoles
+        ? [
+            { value: "role-asc", label: t("myOrganization.sort.role-asc") },
+            { value: "role-desc", label: t("myOrganization.sort.role-desc") },
+          ]
+        : []),
     ],
-    [t],
+    [t, canSeeRoles],
   );
 
   const filteredMembers = useMemo(() => {
@@ -126,8 +132,13 @@ export function MembersList({
       if (debouncedSearch) {
         const search = debouncedSearch.toLowerCase();
         const name = (member.name || "").toLowerCase();
-        const email = (member.email || "").toLowerCase();
-        const role = (member.role?.role || "").toLowerCase();
+
+        if (!canSeeEmails && !canSeeRoles) {
+          return name.includes(search);
+        }
+
+        const email = canSeeEmails ? (member.email || "").toLowerCase() : "";
+        const role = canSeeRoles ? (member.role?.role || "").toLowerCase() : "";
 
         return (
           name.includes(search) ||
@@ -137,7 +148,7 @@ export function MembersList({
       }
       return true;
     });
-  }, [members, debouncedSearch]);
+  }, [members, debouncedSearch, canSeeEmails, canSeeRoles]);
 
   const sortedMembers = useMemo(() => {
     if (filteredMembers.length === 0) return [];
@@ -234,7 +245,7 @@ export function MembersList({
                         </Badge>
                       )}
                     </Group>
-                    {member.role?.role && (
+                    {canSeeRoles && member.role?.role && (
                       <Badge
                         color={getRoleColor(member.role.role)}
                         variant="light"
@@ -301,7 +312,7 @@ export function MembersList({
                 {canSeeEmails && (
                   <Table.Th>{t("myOrganization.email")}</Table.Th>
                 )}
-                <Table.Th>{t("myOrganization.role")}</Table.Th>
+                {canSeeRoles && <Table.Th>{t("myOrganization.role")}</Table.Th>}
                 {showActions && (
                   <Table.Th style={{ width: 100 }}>
                     {t("myOrganization.actions")}
@@ -332,15 +343,17 @@ export function MembersList({
                       </Text>
                     </Table.Td>
                   )}
-                  <Table.Td>
-                    <Badge
-                      color={getRoleColor(member.role?.role)}
-                      variant="light"
-                      size="sm"
-                    >
-                      {translateRole(member.role?.role)}
-                    </Badge>
-                  </Table.Td>
+                  {canSeeRoles && (
+                    <Table.Td>
+                      <Badge
+                        color={getRoleColor(member.role?.role)}
+                        variant="light"
+                        size="sm"
+                      >
+                        {translateRole(member.role?.role)}
+                      </Badge>
+                    </Table.Td>
+                  )}
                   {showActions && (
                     <Table.Td>
                       <Group gap="xs">
