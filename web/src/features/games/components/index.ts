@@ -4,5 +4,7 @@ export { AllGames } from "./AllGames";
 export { GameCard, type GameCardAction } from "./GameCard";
 export { GamesTable } from "./GamesTable";
 export { GameEditModal } from "./GameEditModal";
+export { ThemePickerModal } from "./ThemePickerModal";
+export { ThemePreview } from "./ThemePreview";
 export { SponsorGameModal } from "./SponsorGameModal";
 export { DeleteGameModal } from "./DeleteGameModal";
