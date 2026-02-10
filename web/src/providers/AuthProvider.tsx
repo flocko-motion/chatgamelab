@@ -184,6 +184,9 @@ function clearStoredDevToken(): void {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { t } = useTranslation();
+  // Ref for t to avoid fetchBackendUser identity changes when i18next re-renders
+  const tRef = useRef(t);
+  tRef.current = t;
   const {
     user: auth0User,
     isAuthenticated: auth0IsAuthenticated,
@@ -311,10 +314,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      setBackendError(t("errors.backendUserFetch"));
+      setBackendError(tRef.current("errors.backendUserFetch"));
       setBackendUser(null);
     }
-  }, [getAccessToken, t, getRegistrationDataFromAuth0]);
+  }, [getAccessToken, getRegistrationDataFromAuth0]);
 
   // Retry backend fetch (for error recovery)
   const retryBackendFetch = useCallback(() => {
