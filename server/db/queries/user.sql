@@ -438,6 +438,35 @@ WHERE institution_id = $1
   )
 LIMIT 1;
 
+-- Guest User queries
+
+-- name: CreateGuestUser :one
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_game_id)
+VALUES ($1, $2, NULL, NULL, NULL, $3)
+ON CONFLICT (id) DO NOTHING
+RETURNING id;
+
+-- name: DeleteGuestSessionMessagesByGameID :exec
+-- Delete all messages belonging to sessions of guest users created via a game's share link
+DELETE FROM game_session_message WHERE game_session_id IN (
+  SELECT gs.id FROM game_session gs
+  JOIN app_user u ON u.id = gs.user_id
+  WHERE u.private_share_game_id = $1
+);
+
+-- name: DeleteGuestSessionsByGameID :exec
+-- Delete all sessions of guest users created via a game's share link
+DELETE FROM game_session WHERE user_id IN (
+  SELECT id FROM app_user WHERE private_share_game_id = $1
+);
+
+-- name: DeleteGuestUsersByGameID :exec
+-- Delete all guest users created via a game's share link
+DELETE FROM app_user WHERE private_share_game_id = $1;
+
+-- name: CountGuestUsersByGameID :one
+SELECT COUNT(*)::int AS count FROM app_user WHERE private_share_game_id = $1;
+
 -- User Statistics queries
 
 -- name: CountUserSessions :one

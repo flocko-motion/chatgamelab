@@ -11,7 +11,7 @@ INSERT INTO game (
   name, description, icon,
   workshop_id,
   public, public_sponsored_api_key_share_id,
-  private_share_hash, private_sponsored_api_key_share_id,
+  private_share_hash, private_sponsored_api_key_share_id, private_share_remaining,
   system_message_scenario, system_message_game_start,
   image_style, css, status_fields,
   theme,
@@ -23,12 +23,12 @@ INSERT INTO game (
   $6, $7, $8,
   $9,
   $10, $11,
-  $12, $13,
-  $14, $15,
-  $16, $17, $18,
-  $19,
-  $20, $21, $22,
-  $23, $24, $25
+  $12, $13, $14,
+  $15, $16,
+  $17, $18, $19,
+  $20,
+  $21, $22, $23,
+  $24, $25, $26
 )
 RETURNING *;
 
@@ -228,17 +228,28 @@ UPDATE game SET
   public_sponsored_api_key_share_id = $10,
   private_share_hash = $11,
   private_sponsored_api_key_share_id = $12,
-  system_message_scenario = $13,
-  system_message_game_start = $14,
-  image_style = $15,
-  css = $16,
-  status_fields = $17,
-  theme = $18,
-  first_message = $19,
-  first_status = $20,
-  first_image = $21,
-  originally_created_by = $22
+  private_share_remaining = $13,
+  system_message_scenario = $14,
+  system_message_game_start = $15,
+  image_style = $16,
+  css = $17,
+  status_fields = $18,
+  theme = $19,
+  first_message = $20,
+  first_status = $21,
+  first_image = $22,
+  originally_created_by = $23
 WHERE id = $1
+RETURNING *;
+
+-- name: DecrementPrivateShareRemaining :one
+-- Atomically decrements the remaining counter. Returns the game if successful.
+-- Succeeds when: remaining is NULL (unlimited) or remaining > 0.
+UPDATE game SET private_share_remaining = CASE
+  WHEN private_share_remaining IS NULL THEN NULL
+  ELSE private_share_remaining - 1
+END, modified_at = now()
+WHERE id = $1 AND (private_share_remaining IS NULL OR private_share_remaining > 0)
 RETURNING *;
 
 -- name: IncrementGamePlayCount :exec
