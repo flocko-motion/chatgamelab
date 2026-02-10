@@ -28,6 +28,7 @@ import {
   IconStar,
   IconStarFilled,
   IconFileImport,
+  IconHeartFilled,
 } from "@tabler/icons-react";
 import {
   ActionButton,
@@ -451,6 +452,24 @@ export function MyGames({
             <Text fw={600} size="sm" c="gray.8" lineClamp={1}>
               {game.name}
             </Text>
+            {game.publicSponsoredApiKeyShareId && (
+              <Tooltip
+                label={t("games.sponsor.sponsoredTooltip")}
+                withArrow
+                multiline
+                w={250}
+              >
+                <Badge
+                  size="xs"
+                  color="pink"
+                  variant="light"
+                  leftSection={<IconHeartFilled size={10} />}
+                  style={{ flexShrink: 0, cursor: "help" }}
+                >
+                  {t("games.sponsor.sponsored")}
+                </Badge>
+              </Tooltip>
+            )}
           </Group>
           {game.description && (
             <Text size="xs" c="gray.5" lineClamp={1}>
@@ -799,6 +818,13 @@ export function MyGames({
                 onRowClick={handleViewGame}
                 isLoading={false}
                 fillHeight
+                getRowStyle={(game) =>
+                  game.publicSponsoredApiKeyShareId
+                    ? {
+                        borderLeft: "3px solid var(--mantine-color-pink-4)",
+                      }
+                    : undefined
+                }
                 renderMobileCard={(game) => {
                   const { hasSession, session } = getGameSessionState(game);
                   return (

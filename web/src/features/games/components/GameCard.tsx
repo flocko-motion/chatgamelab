@@ -241,7 +241,12 @@ export function GameCard({
       p="md"
       radius="md"
       withBorder
-      style={{ cursor: onClick ? "pointer" : "default" }}
+      style={{
+        cursor: onClick ? "pointer" : "default",
+        ...(game.publicSponsoredApiKeyShareId
+          ? { borderLeft: "3px solid var(--mantine-color-pink-4)" }
+          : undefined),
+      }}
       onClick={onClick}
     >
       <Stack gap="sm">

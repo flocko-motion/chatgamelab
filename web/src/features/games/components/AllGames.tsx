@@ -81,8 +81,9 @@ export function AllGames() {
   // Parse combined sort value into field and direction
   const [sortField, sortDir] = sortValue.split("-") as [string, "asc" | "desc"];
 
-  // For favorites filter, we fetch all games and filter client-side using the favorites list
-  const apiFilter = filter === "favorites" ? "all" : filter;
+  // For favorites/sponsored filter, we fetch all games and filter client-side
+  const apiFilter =
+    filter === "favorites" || filter === "sponsored" ? "all" : filter;
 
   const {
     data: rawGames,
@@ -128,11 +129,13 @@ export function AllGames() {
 
   const favoriteGameIds = new Set(favoriteGames?.map((g) => g.id) ?? []);
 
-  // Apply client-side favorites filter
+  // Apply client-side favorites/sponsored filter
   const games =
     filter === "favorites"
       ? rawGames?.filter((game) => game.id && favoriteGameIds.has(game.id))
-      : rawGames;
+      : filter === "sponsored"
+        ? rawGames?.filter((game) => !!game.publicSponsoredApiKeyShareId)
+        : rawGames;
 
   const isFavorite = (game: ObjGame) =>
     game.id ? favoriteGameIds.has(game.id) : false;
@@ -501,6 +504,7 @@ export function AllGames() {
 
   const filterOptions = [
     { value: "all", label: t("allGames.filters.all") },
+    { value: "sponsored", label: t("allGames.filters.sponsored") },
     { value: "favorites", label: t("allGames.filters.favorites") },
     { value: "own", label: t("allGames.filters.own") },
     { value: "public", label: t("allGames.filters.public") },
@@ -667,7 +671,6 @@ export function AllGames() {
                   game.publicSponsoredApiKeyShareId
                     ? {
                         borderLeft: "3px solid var(--mantine-color-pink-4)",
-                        backgroundColor: "var(--mantine-color-pink-0)",
                       }
                     : undefined
                 }
