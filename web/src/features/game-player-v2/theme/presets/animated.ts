@@ -128,7 +128,7 @@ const mysteryPreset: PresetDefinition = {
       bgColor: "dark",
       fontColor: "light",
       borderColor: "slate",
-      textEffect: "flicker",
+      textEffect: "none",
     },
     cards: { borderThickness: "thin" },
     thinking: { text: "Clues emerge...", style: "dots" },
@@ -217,7 +217,7 @@ const spacePreset: PresetDefinition = {
 const terminalPreset: PresetDefinition = {
   theme: {
     corners: { style: "brackets", color: "hacker" },
-    background: { tint: "black", animation: "matrix" },
+    background: { tint: "black", animation: "bits" },
     player: {
       color: "hacker",
       indicator: "underscore",
@@ -252,7 +252,7 @@ const terminalPreset: PresetDefinition = {
 const hackerPreset: PresetDefinition = {
   theme: {
     corners: { style: "brackets", color: "terminal" },
-    background: { tint: "black", animation: "matrix" },
+    background: { tint: "black", animation: "bits" },
     player: {
       color: "hacker",
       indicator: "underscore",
@@ -537,38 +537,39 @@ const techPreset: PresetDefinition = {
   },
 };
 
-/** Green Fantasy - Enchanted forest, nature magic */
+/** Green Fantasy - Enchanted forest, nature magic, dark and mystical */
 const greenFantasyPreset: PresetDefinition = {
   theme: {
     corners: { style: "flourish", color: "emerald" },
-    background: { tint: "green", animation: "sparkles" },
+    background: { tint: "dark", animation: "fireflies" },
     player: {
       color: "emerald",
       indicator: "star",
       indicatorBlink: true,
-      bgColor: "greenLight",
-      fontColor: "dark",
+      bgColor: "dark",
+      fontColor: "light",
       borderColor: "emerald",
     },
     gameMessage: {
       dropCap: true,
       dropCapColor: "emerald",
-      bgColor: "greenLight",
-      fontColor: "dark",
+      bgColor: "dark",
+      fontColor: "light",
       borderColor: "emerald",
+      textEffect: "inkBleed",
     },
     cards: { borderThickness: "medium" },
     thinking: { text: "Magic awakens...", style: "pulse" },
     typography: { messages: "fantasy" },
     statusFields: {
-      bgColor: "greenLight",
+      bgColor: "dark",
       accentColor: "emerald",
       borderColor: "emerald",
-      fontColor: "dark",
+      fontColor: "light",
     },
     header: {
-      bgColor: "greenLight",
-      fontColor: "dark",
+      bgColor: "dark",
+      fontColor: "light",
       accentColor: "emerald",
     },
     divider: { style: "star", color: "emerald" },
@@ -792,37 +793,41 @@ const junglePreset: PresetDefinition = {
   },
 };
 
-/** Garden - Blooming flowers, soft teal/coral, peaceful */
+/** Garden - Blooming flowers, soft greens and warm earth tones, peaceful */
 const gardenPreset: PresetDefinition = {
   theme: {
-    corners: { style: "flourish", color: "teal" },
-    background: { tint: "warm", animation: "sparkles" },
+    corners: { style: "flourish", color: "emerald" },
+    background: { tint: "green", animation: "leaves" },
     player: {
-      color: "teal",
+      color: "emerald",
       indicator: "dot",
       indicatorBlink: false,
-      bgColor: "tealLight",
+      bgColor: "greenLight",
       fontColor: "dark",
-      borderColor: "teal",
+      borderColor: "emerald",
     },
     gameMessage: {
       dropCap: true,
-      dropCapColor: "coral",
-      bgColor: "coralLight",
+      dropCapColor: "amber",
+      bgColor: "creme",
       fontColor: "dark",
-      borderColor: "coral",
+      borderColor: "emerald",
     },
     cards: { borderThickness: "thin" },
     thinking: { text: "Flowers bloom...", style: "dots" },
     typography: { messages: "serif" },
     statusFields: {
-      bgColor: "tealLight",
-      accentColor: "teal",
-      borderColor: "teal",
+      bgColor: "greenLight",
+      accentColor: "emerald",
+      borderColor: "emerald",
       fontColor: "dark",
     },
-    header: { bgColor: "tealLight", fontColor: "dark", accentColor: "teal" },
-    divider: { style: "diamond", color: "coral" },
+    header: {
+      bgColor: "greenLight",
+      fontColor: "dark",
+      accentColor: "emerald",
+    },
+    divider: { style: "diamond", color: "emerald" },
   },
 };
 
@@ -830,7 +835,7 @@ const gardenPreset: PresetDefinition = {
 const circusPreset: PresetDefinition = {
   theme: {
     corners: { style: "dots", color: "coral" },
-    background: { tint: "warm", animation: "confetti" },
+    background: { tint: "warm", animation: "confettiExplosion" },
     player: {
       color: "indigo",
       indicator: "star",
@@ -899,6 +904,46 @@ const nauticalPreset: PresetDefinition = {
   },
 };
 
+/** Matrix - The Matrix digital rain, dark green on black, mono font */
+const matrixPreset: PresetDefinition = {
+  theme: {
+    corners: { style: "brackets", color: "emerald" },
+    background: { tint: "black", animation: "matrixRain" },
+    player: {
+      color: "emerald",
+      indicator: "underscore",
+      indicatorBlink: true,
+      bgColor: "black",
+      fontColor: "hacker",
+      borderColor: "emerald",
+    },
+    gameMessage: {
+      dropCap: false,
+      dropCapColor: "emerald",
+      bgColor: "black",
+      fontColor: "hacker",
+      borderColor: "emerald",
+      textEffect: "decrypted",
+      textEffectScope: {
+        gameMessages: true,
+        playerMessages: false,
+        statusFields: false,
+      },
+    },
+    cards: { borderThickness: "thin" },
+    thinking: { text: "Decrypting...", style: "dots", streamingCursor: "pipe" },
+    typography: { messages: "mono" },
+    statusFields: {
+      bgColor: "black",
+      accentColor: "emerald",
+      borderColor: "emerald",
+      fontColor: "hacker",
+    },
+    header: { bgColor: "black", fontColor: "hacker", accentColor: "emerald" },
+    divider: { style: "dash", color: "emerald" },
+  },
+};
+
 export const ANIMATED_PRESETS: Record<string, PresetDefinition> = {
   scifi: scifiPreset,
   cyberpunk: cyberpunkPreset,
@@ -925,4 +970,5 @@ export const ANIMATED_PRESETS: Record<string, PresetDefinition> = {
   garden: gardenPreset,
   circus: circusPreset,
   nautical: nauticalPreset,
+  matrix: matrixPreset,
 };
