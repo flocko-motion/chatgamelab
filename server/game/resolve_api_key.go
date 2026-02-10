@@ -62,6 +62,29 @@ func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.
 	return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
 }
 
+// IsApiKeyAvailable checks whether an API key can be resolved for the given user+game
+// without exposing any key details. Used for upfront checks before starting/resuming a game.
+func IsApiKeyAvailable(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) bool {
+	resolved, _ := resolveApiKeyForSession(ctx, userID, gameID)
+	return resolved != nil
+}
+
+// ResolveSessionApiKey re-resolves the API key for an existing session using the standard priority chain.
+// It updates session.ApiKey, session.AiPlatform, and session.AiModel in-place.
+// This must be called before every DoSessionAction to ensure the key is still valid
+// (e.g. sponsorship may have been removed since the session was created).
+func ResolveSessionApiKey(ctx context.Context, session *obj.GameSession) *obj.HTTPError {
+	resolved, httpErr := resolveApiKeyForSession(ctx, session.UserID, session.GameID)
+	if httpErr != nil {
+		return httpErr
+	}
+	session.ApiKey = resolved.Share.ApiKey
+	session.ApiKeyID = &resolved.Share.ApiKey.ID
+	session.AiPlatform = resolved.Share.ApiKey.Platform
+	session.AiModel = resolved.AiQualityTier
+	return nil
+}
+
 // tierOrDefault returns tier if non-empty, otherwise the default.
 func tierOrDefault(tier *string, defaultTier string) string {
 	if tier != nil && *tier != "" {

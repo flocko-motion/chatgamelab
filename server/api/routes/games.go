@@ -7,6 +7,7 @@ import (
 
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/game"
 	"cgl/log"
 	"cgl/obj"
 
@@ -657,4 +658,28 @@ func GetAvailableKeys(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, keys)
+}
+
+// GetApiKeyStatus godoc
+//
+//	@Summary		Check API key availability
+//	@Description	Checks whether an API key can be resolved for the current user and game.
+//	@Tags			games
+//	@Produce		json
+//	@Param			id	path		string	true	"Game ID (UUID)"
+//	@Success		200	{object}	map[string]bool
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid game ID"
+//	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Security		BearerAuth
+//	@Router			/games/{id}/api-key-status [get]
+func GetApiKeyStatus(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+	available := game.IsApiKeyAvailable(r.Context(), user.ID, gameID)
+	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"available": available})
 }

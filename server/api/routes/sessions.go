@@ -184,6 +184,13 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		StatusFields:  currentStatus,
 	}
 
+	// Re-resolve API key fresh (sponsorship may have been removed since session was created)
+	if httpErr := game.ResolveSessionApiKey(r.Context(), session); httpErr != nil {
+		log.Debug("failed to resolve API key for session action", "session_id", session.ID, "error", httpErr.Message)
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
 	// Execute the action and get streaming response
 	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
 	response, httpErr := game.DoSessionAction(r.Context(), session, action)
