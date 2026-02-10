@@ -24,6 +24,10 @@ export interface GamePlayerSettings {
   animationEnabled: boolean;
   setAnimationEnabled: (enabled: boolean) => void;
 
+  // Text effects
+  textEffectsEnabled: boolean;
+  setTextEffectsEnabled: (enabled: boolean) => void;
+
   // Neutral theme
   useNeutralTheme: boolean;
   setUseNeutralTheme: (value: boolean) => void;
@@ -41,6 +45,7 @@ export function useGamePlayerSettings(): GamePlayerSettings {
   const [fontSize, setFontSize] = useState<FontSize>("md");
   const [debugMode, setDebugMode] = useState(false);
   const [animationEnabled, setAnimationEnabled] = useState(true);
+  const [textEffectsEnabled, setTextEffectsEnabled] = useState(true);
   const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] =
     useState(false);
@@ -92,6 +97,8 @@ export function useGamePlayerSettings(): GamePlayerSettings {
     toggleDebugMode,
     animationEnabled,
     setAnimationEnabled,
+    textEffectsEnabled,
+    setTextEffectsEnabled,
     useNeutralTheme,
     setUseNeutralTheme,
     isImageGenerationDisabled,
