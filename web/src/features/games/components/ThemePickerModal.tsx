@@ -157,6 +157,7 @@ export function ThemePickerModal({
         onChange={(v) => v && setPreset(v)}
         searchable
         readOnly={readOnly}
+        maxDropdownHeight={400}
       />
       <Select
         label={t("games.theme.animation")}
