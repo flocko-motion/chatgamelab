@@ -26,7 +26,13 @@ export interface UseGamesParams {
     | "visibility"
     | "creator";
   sortDir?: "asc" | "desc";
-  filter?: "all" | "own" | "public" | "organization" | "favorites";
+  filter?:
+    | "all"
+    | "own"
+    | "public"
+    | "organization"
+    | "favorites"
+    | "sponsored";
 }
 
 export function useGames(params?: UseGamesParams) {
