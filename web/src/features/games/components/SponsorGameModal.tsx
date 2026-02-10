@@ -42,17 +42,21 @@ export function SponsorGameModal({
 
   const isSponsored = !!game?.publicSponsoredApiKeyShareId;
 
-  // Filter to only show shares that allow public sponsoring, enriched with key info
+  // Filter to only show keys that have at least one share with public sponsoring enabled.
+  // Deduplicate by API key ID so each key appears only once in the dropdown.
   const keys = apiKeys?.apiKeys ?? [];
   const shares = apiKeys?.shares ?? [];
   const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number] })[] =
-    shares
-      .filter((share) => share.allowPublicGameSponsoring)
-      .map((share) => ({
-        ...share,
-        apiKey: keys.find((k) => k.id === share.apiKeyId),
-      }))
-      .filter((share) => share.apiKey?.lastUsageSuccess !== false);
+    [];
+  const seenKeyIds = new Set<string>();
+  for (const share of shares) {
+    if (!share.allowPublicGameSponsoring || !share.apiKeyId) continue;
+    if (seenKeyIds.has(share.apiKeyId)) continue;
+    const apiKey = keys.find((k) => k.id === share.apiKeyId);
+    if (apiKey?.lastUsageSuccess === false) continue;
+    seenKeyIds.add(share.apiKeyId);
+    eligibleKeys.push({ ...share, apiKey });
+  }
 
   const selectedShare = eligibleKeys.find((s) => s.id === selectedShareId);
 
