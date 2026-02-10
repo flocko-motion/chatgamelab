@@ -15,7 +15,6 @@ import {
   IconAlertCircle,
   IconCheck,
   IconArrowRight,
-  IconLogout,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, type ReactNode } from "react";
@@ -81,7 +80,6 @@ function AcceptInvitePage() {
     isAuthenticated,
     backendUser,
     isLoading: authLoading,
-    logout,
   } = useAuth();
   const { enterWorkshopMode, isLoading: isEnteringWorkshop } =
     useWorkshopMode();
@@ -96,7 +94,6 @@ function AcceptInvitePage() {
     | "success"
     | "error"
     | "switch-workshop"
-    | "already-logged-in"
     | "already-member"
   >("loading");
   const [invite, setInvite] = useState<InviteDetails | null>(null);
@@ -133,20 +130,9 @@ function AcceptInvitePage() {
         setInvite(data);
 
         // Check if user is logged in with a non-participant account
+        // All authenticated users (head, staff, individual) can enter a workshop via invite link
         if (isLoggedInNonParticipant) {
-          // Check if user is head/staff of the organization that owns this workshop
-          const userInstitutionId = backendUser?.role?.institution?.id;
-          const userRole = backendUser?.role?.role;
-          if (
-            userInstitutionId &&
-            data.institutionId === userInstitutionId &&
-            (userRole === "head" || userRole === "staff")
-          ) {
-            setState("already-member");
-            return;
-          }
-          // Other authenticated users: show "already logged in" message
-          setState("already-logged-in");
+          setState("already-member");
           return;
         }
 
@@ -295,38 +281,7 @@ function AcceptInvitePage() {
     );
   }
 
-  // Show "already logged in" message for non-participant authenticated users
-  if (state === "already-logged-in") {
-    return (
-      <InvitePageLayout showBranding={false}>
-        <Card shadow="sm" padding="xl" radius="md" withBorder w="100%">
-          <Stack gap="lg">
-            <Title order={2} ta="center">
-              {t("invites.alreadyLoggedIn.title")}
-            </Title>
-
-            <Alert icon={<IconAlertCircle size={16} />} color="yellow" w="100%">
-              {t("invites.alreadyLoggedIn.message")}
-            </Alert>
-
-            <Group justify="center" gap="md">
-              <TextButton onClick={() => navigate({ to: "/" })}>
-                {t("invites.goHome")}
-              </TextButton>
-              <ActionButton
-                onClick={() => logout()}
-                leftSection={<IconLogout size={16} />}
-              >
-                {t("invites.alreadyLoggedIn.logoutButton")}
-              </ActionButton>
-            </Group>
-          </Stack>
-        </Card>
-      </InvitePageLayout>
-    );
-  }
-
-  // Show "already a member" message for head/staff of the owning org
+  // Show "enter workshop" option for authenticated users
   if (state === "already-member") {
     const handleEnterWorkshop = async () => {
       if (invite?.workshopId && invite?.workshopName) {
@@ -344,7 +299,9 @@ function AcceptInvitePage() {
             </Title>
 
             <Text ta="center" c="dimmed">
-              {t("invites.alreadyMember.message")}
+              {t("invites.alreadyMember.message", {
+                workshop: invite?.workshopName,
+              })}
             </Text>
 
             <Group justify="center" gap="md">
