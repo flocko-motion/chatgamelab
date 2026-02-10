@@ -84,8 +84,8 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     const settingsFiltered = filterGamesByWorkshopSettings(
       rawGames,
       currentUserId,
+      currentWorkshopId,
       workshopSettings,
-      canEditAllWorkshopGames,
     );
     return filterGamesByUserFilter(
       settingsFiltered,
@@ -98,7 +98,6 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     gameFilter,
     currentUserId,
     currentWorkshopId,
-    canEditAllWorkshopGames,
     workshopSettings,
   ]);
 

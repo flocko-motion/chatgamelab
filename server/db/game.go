@@ -224,47 +224,96 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 		workshopParam = uuid.NullUUID{UUID: user.Role.Workshop.ID, Valid: true}
 	}
 
+	var games []db.Game
+
 	if search != "" {
 		switch sortField {
 		case "name":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByName(ctx, db.SearchGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByName(ctx, db.SearchGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByNameDesc(ctx, db.SearchGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUserSortedByNameDesc(ctx, db.SearchGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		case "createdAt":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByCreatedAt(ctx, db.SearchGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByCreatedAt(ctx, db.SearchGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		case "modifiedAt":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		default:
-			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+		}
+	} else {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByName(ctx, db.GetGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByNameDesc(ctx, db.GetGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "createdAt":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByCreatedAt(ctx, db.GetGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "modifiedAt":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		default:
+			games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
 		}
 	}
 
-	switch sortField {
-	case "name":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByName(ctx, db.GetGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUserSortedByNameDesc(ctx, db.GetGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	case "createdAt":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByCreatedAt(ctx, db.GetGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	case "modifiedAt":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	default:
-		return queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
+	if err != nil {
+		return nil, err
 	}
+
+	// Apply workshop visibility settings for all users in a workshop.
+	// Workshop settings control what games are visible; head/staff can still edit/delete but see the same list.
+	if user != nil && user.Role != nil && user.Role.Workshop != nil {
+		ws := user.Role.Workshop
+		filtered := make([]db.Game, 0, len(games))
+		for _, g := range games {
+			isWorkshopGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
+
+			// Public games (from anywhere): controlled by showPublicGames
+			if g.Public {
+				if ws.ShowPublicGames {
+					filtered = append(filtered, g)
+				}
+				continue
+			}
+
+			// Non-public games must belong to this workshop
+			if !isWorkshopGame {
+				continue
+			}
+
+			// Own workshop games always visible
+			if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
+				filtered = append(filtered, g)
+				continue
+			}
+
+			// Other people's workshop games: controlled by showOtherParticipantsGames
+			if ws.ShowOtherParticipantsGames {
+				filtered = append(filtered, g)
+			}
+		}
+		games = filtered
+	}
+
+	return games, nil
 }
 
 // GetGameByID gets a game by ID. Verifies access based on user permissions.

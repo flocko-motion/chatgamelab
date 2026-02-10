@@ -34,22 +34,18 @@ export function getGamePermissions(
 export function filterGamesByWorkshopSettings(
   games: ObjGame[],
   currentUserId: string | undefined,
+  currentWorkshopId: string | undefined,
   settings: WorkshopSettings,
-  canEditAllWorkshopGames: boolean,
 ): ObjGame[] {
-  if (canEditAllWorkshopGames) {
-    return games;
-  }
-
   return games.filter((game) => {
+    // Public games: controlled solely by showPublicGames
+    if (game.public) return settings.showPublicGames;
+    // Non-public games must belong to this workshop
+    if (!game.workshopId || game.workshopId !== currentWorkshopId) return false;
+    // Own workshop games always visible
     if (game.creatorId === currentUserId) return true;
-    if (game.public && !settings.showPublicGames) return false;
-    if (
-      !settings.showOtherParticipantsGames &&
-      game.creatorId !== currentUserId
-    )
-      return false;
-    return true;
+    // Other people's workshop games: controlled by showOtherParticipantsGames
+    return settings.showOtherParticipantsGames;
   });
 }
 
