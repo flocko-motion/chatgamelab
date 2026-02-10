@@ -301,6 +301,14 @@ func Authenticate(next http.Handler) http.Handler {
 			return
 		}
 
+		// Auth0 CheckJWT reads from Authorization header. If the token came from
+		// a query param (e.g. SSE EventSource), inject it into the header so
+		// Auth0 middleware can find it.
+		if tokenSource == "query" && r.Header.Get("Authorization") == "" {
+			r = r.Clone(r.Context())
+			r.Header.Set("Authorization", "Bearer "+tokenString)
+		}
+
 		// Use Auth0 middleware to validate, then extract user
 		auth0.CheckJWT(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenObj := r.Context().Value(jwtmiddleware.ContextKey{})
