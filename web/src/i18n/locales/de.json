@@ -588,6 +588,24 @@
         "styleInfo": "Optionale Einstellungen für das Aussehen des Spiels beim Spielen."
       },
       "title": "Meine erstellten Spiele",
+      "privateShare": {
+        "title": "Privater Freigabelink",
+        "loading": "Lade Freigabestatus...",
+        "active": "Die private Freigabe ist aktiv. Jeder mit dem untenstehenden Link kann dieses Spiel anonym spielen.",
+        "remainingSessions": "{{count}} Sitzung(en) verbleibend",
+        "copyLink": "Link kopieren",
+        "revoke": "Link widerrufen",
+        "description": "Erstelle einen privaten Freigabelink, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
+        "loadingKeys": "Lade API-Schlüssel...",
+        "noEligibleKeys": "Du hast keine API-Schlüssel mit aktiviertem öffentlichen Sponsoring. Gehe zu den API-Schlüssel-Einstellungen und aktiviere zuerst \"Öffentliches Sponsoring erlauben\".",
+        "selectKey": "API-Schlüssel auswählen",
+        "selectKeyPlaceholder": "Schlüssel für Gastsitzungen wählen...",
+        "maxSessions": "Max. Sitzungen",
+        "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
+        "unlimited": "Unbegrenzt",
+        "enable": "Freigabelink erstellen",
+        "shareLink": "Freigabelink"
+      },
       "sponsor": {
         "apiKey": "API-Schlüssel:",
         "back": "Zurück",
@@ -635,6 +653,19 @@
       "organization": "Organisation",
       "profile": "Profil",
       "workshop": "Workshop"
+    },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Zu ChatGameLab",
+        "continueGame": "Spiel fortsetzen",
+        "expired": "Dieser Einladungslink hat sein Spiellimit erreicht. Es sind keine weiteren Sitzungen verfügbar.",
+        "headline": "Du wurdest eingeladen, kostenlos mit der AI ein Text-Adventure zu spielen!",
+        "invalidLink": "Dieser Einladungslink ist ungültig oder existiert nicht mehr.",
+        "loadError": "Spielinformationen konnten nicht geladen werden. Bitte versuche es erneut.",
+        "restartGame": "Neu starten",
+        "sessionExists": "Du hast bereits ein laufendes Spiel. Du kannst dort weitermachen oder ein neues Spiel starten.",
+        "startPlaying": "Spiel starten"
+      }
     },
     "home": {
       "features": {
