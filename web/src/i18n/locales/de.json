@@ -350,6 +350,7 @@
         "gameNotFound": "Spiel nicht gefunden",
         "missingFields": "Dem Spiel fehlen erforderliche Felder:",
         "noApiKey": {
+          "banner": "Der zuvor verwendete API-Schlüssel für dieses Spiel ist nicht mehr verfügbar. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
           "goToSettings": "API-Schlüssel Einstellungen",
           "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
           "title": "Kein API-Schlüssel verfügbar",
@@ -1085,6 +1086,7 @@
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
+    "noApiKey": "Für dieses Spiel ist kein API-Schlüssel verfügbar. Der Sponsor hat möglicherweise seinen Schlüssel entfernt, oder du musst einen eigenen API-Schlüssel einrichten.",
     "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wähle eine gültige Option.",
     "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
@@ -1102,6 +1104,7 @@
       "billing": "Zahlungsfehler",
       "error": "Fehler",
       "network": "Netzwerkfehler",
+      "noApiKey": "Kein API-Schlüssel",
       "notFound": "Nicht gefunden",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",

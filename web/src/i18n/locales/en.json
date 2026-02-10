@@ -350,6 +350,7 @@
         "gameNotFound": "Game not found",
         "missingFields": "Game is missing required fields:",
         "noApiKey": {
+          "banner": "The API key previously used for this game is no longer available. To continue playing, add your own API key in your account settings.",
           "goToSettings": "API Key Settings",
           "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
           "title": "No API Key Available",
@@ -1036,6 +1037,7 @@
     "generic": "Something went wrong. Please try again.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
+    "noApiKey": "No API key is available for this game. The game sponsor may have removed their key, or you need to configure your own API key.",
     "invalidPlatform": "Invalid platform selected. Please choose a valid option.",
     "invalidToken": "Your session has expired or is invalid. Please use your invite link again.",
     "network": "Network error. Please check your connection.",
@@ -1053,6 +1055,7 @@
       "billing": "Billing Error",
       "error": "Error",
       "network": "Network Error",
+      "noApiKey": "No API Key",
       "notFound": "Not Found",
       "permission": "Permission Denied",
       "server": "Server Error",
