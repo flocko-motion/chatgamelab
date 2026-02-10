@@ -301,15 +301,18 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Role is optional - if not provided, user joins without a role
+	// Role is required - must be head, staff, or individual
 	var role obj.Role
 	if req.Role != "" {
 		role = obj.Role(req.Role)
-		if role != obj.RoleHead && role != obj.RoleStaff {
+		if role != obj.RoleHead && role != obj.RoleStaff && role != obj.RoleIndividual {
 			log.Warn("invalid role for institution invite", "user_id", user.ID, "role", req.Role)
-			httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head', 'staff', or empty for no role"))
+			httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head', 'staff', or 'individual'"))
 			return
 		}
+	} else {
+		// Default to individual if no role specified
+		role = obj.RoleIndividual
 	}
 
 	var invitedUserID *uuid.UUID
@@ -444,25 +447,47 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Authenticated user accepting open invite by token
-		// For now, reject non-participant authenticated users (e.g. Auth0/dev users)
-		// They should not join workshops as participants - workshop invites are for anonymous users
-		if user.Role == nil || user.Role.Role != obj.RoleParticipant {
-			httpx.WriteAppError(w, obj.ErrConflict("You are already logged in with an account. Workshop invite links are for new participants. Please log out first if you want to join as a participant."))
+		// Participants switch workshops (new role assignment)
+		if user.Role != nil && user.Role.Role == obj.RoleParticipant {
+			_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
+			if acceptErr != nil {
+				if appErr, ok := acceptErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+				return
+			}
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Invite accepted",
+			})
 			return
 		}
 
-		_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
-		if acceptErr != nil {
-			if appErr, ok := acceptErr.(*obj.AppError); ok {
+		// Head, staff, individual enter workshop mode (keep their role, set active workshop)
+		invite, getErr := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
+		if getErr != nil {
+			if appErr, ok := getErr.(*obj.AppError); ok {
 				httpx.WriteAppError(w, appErr)
 				return
 			}
-			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+			httpx.WriteError(w, http.StatusInternalServerError, getErr.Error())
 			return
 		}
-
+		if invite.WorkshopID == nil {
+			httpx.WriteAppError(w, obj.ErrValidation("this is not a workshop invite"))
+			return
+		}
+		if setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID); setErr != nil {
+			if appErr, ok := setErr.(*obj.AppError); ok {
+				httpx.WriteAppError(w, appErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+			return
+		}
 		httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
-			Message: "Invite accepted",
+			Message: "Workshop entered",
 		})
 		return
 	}
