@@ -6,9 +6,9 @@
  * - Complex presets with custom components get their own folder
  */
 
-import type { PresetDefinition } from './types';
-import { SIMPLE_PRESETS } from './simple';
-import { ANIMATED_PRESETS } from './animated';
+import type { PresetDefinition } from "./types";
+import { SIMPLE_PRESETS } from "./simple";
+import { ANIMATED_PRESETS } from "./animated";
 
 /** All available presets, keyed by name */
 export const PRESETS: Record<string, PresetDefinition> = {
@@ -18,4 +18,4 @@ export const PRESETS: Record<string, PresetDefinition> = {
   // space: spacePreset,  (from ./space/)
 };
 
-export type { PresetDefinition } from './types';
+export type { PresetDefinition, MessageTextWrapperProps } from "./types";

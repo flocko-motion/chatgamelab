@@ -6,6 +6,7 @@
 
 import { useContext, createContext, type ComponentType } from "react";
 import type { GameTheme } from "./types";
+import type { MessageTextWrapperProps } from "./presets/types";
 import {
   DEFAULT_GAME_THEME,
   THEME_COLORS,
@@ -24,6 +25,12 @@ export interface GameThemeContextValue {
   getStatusEmoji: (fieldName: string) => string;
   /** Optional custom background component from preset (replaces tsparticles) */
   BackgroundComponent?: ComponentType<{ className?: string }>;
+  /** Optional wrapper for AI/game message text (completed messages) */
+  GameMessageWrapper?: ComponentType<MessageTextWrapperProps>;
+  /** Optional wrapper for player message text */
+  PlayerMessageWrapper?: ComponentType<MessageTextWrapperProps>;
+  /** Optional wrapper for AI message text while streaming */
+  StreamingMessageWrapper?: ComponentType<MessageTextWrapperProps>;
 }
 
 export const GameThemeContext = createContext<GameThemeContextValue | null>(
