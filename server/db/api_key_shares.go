@@ -529,7 +529,7 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 			allShares = append(allShares, obj.ApiKeyShare{
 				ID:             g.PrivateSponsoredApiKeyShareID.UUID,
 				ApiKeyID:       keyID,
-				Game:           &obj.Game{ID: g.ID, Name: g.Name},
+				Game:           &obj.Game{ID: g.ID, Name: g.Name, PrivateShareRemaining: nullInt32ToIntPtr(g.PrivateShareRemaining)},
 				IsPrivateShare: true,
 			})
 		}
