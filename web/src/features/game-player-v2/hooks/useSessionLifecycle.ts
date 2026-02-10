@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys, useGame, useWorkshopEvents } from "@/api/hooks";
+import {
+  queryKeys,
+  useGame,
+  useApiKeyStatus,
+  useWorkshopEvents,
+} from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
@@ -41,6 +46,9 @@ export interface SessionLifecycle {
 
   // Error detection
   isNoApiKeyError: boolean;
+
+  // API key availability (checked on entry)
+  apiKeyAvailable: boolean;
 }
 
 export function useSessionLifecycle({
@@ -195,6 +203,10 @@ export function useSessionLifecycle({
     state.phase === "error" &&
     extractRawErrorCode(state.errorObject) === "no_api_key";
 
+  // Upfront API key availability check
+  const effectiveGameId = gameId || state.gameInfo?.id;
+  const { data: apiKeyAvailable = true } = useApiKeyStatus(effectiveGameId);
+
   const displayGame = (isContinuation ? state.gameInfo : game) as
     | GameInfo
     | undefined;
@@ -227,5 +239,6 @@ export function useSessionLifecycle({
     handleBack,
     handleSendAction,
     isNoApiKeyError,
+    apiKeyAvailable,
   };
 }

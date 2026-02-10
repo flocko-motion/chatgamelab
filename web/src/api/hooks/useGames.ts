@@ -264,3 +264,29 @@ export function useRemoveFavorite() {
     onError: handleApiError,
   });
 }
+
+// API Key Status hook
+export function useApiKeyStatus(gameId: string | undefined) {
+  const { getAccessToken } = useAuth();
+
+  return useQuery<boolean>({
+    queryKey: queryKeys.apiKeyStatus(gameId!),
+    queryFn: async () => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/api-key-status`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        },
+      );
+      if (!response.ok) return false;
+      const data: { available: boolean } = await response.json();
+      return data.available;
+    },
+    enabled: !!gameId,
+    staleTime: 0,
+  });
+}

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useGameTheme } from "../theme";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
+import { ErrorCodes } from "@/common/types/errorCodes";
 import { ThemedText } from "./text-effects";
 import classes from "./GamePlayer.module.css";
 
@@ -51,6 +52,7 @@ export function PlayerAction({
 
   const errorInfo = error && errorCode ? translateErrorCode(errorCode) : null;
   const errorMessage = errorInfo?.message || t("gamePlayer.error.sendFailed");
+  const canRetry = onRetry && errorCode !== ErrorCodes.NO_API_KEY;
 
   return (
     <div className={classes.playerAction}>
@@ -71,7 +73,7 @@ export function PlayerAction({
           <span className={classes.playerActionErrorText}>
             ⚠️ {errorMessage}
           </span>
-          {onRetry && (
+          {canRetry && (
             <button
               className={classes.playerActionRetryButton}
               onClick={onRetry}

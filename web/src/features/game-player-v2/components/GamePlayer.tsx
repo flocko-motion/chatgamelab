@@ -151,6 +151,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               messages={lifecycle.state.messages}
               isWaitingForResponse={lifecycle.state.isWaitingForResponse}
               isImageGenerationDisabled={settings.isImageGenerationDisabled}
+              apiKeyUnavailable={!lifecycle.apiKeyAvailable}
               onSendAction={lifecycle.handleSendAction}
               onRetryLastAction={lifecycle.retryLastAction}
             />

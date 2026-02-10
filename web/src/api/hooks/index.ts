@@ -38,6 +38,7 @@ export {
   useFavoriteGames,
   useAddFavorite,
   useRemoveFavorite,
+  useApiKeyStatus,
   type UseGamesParams,
 } from "./useGames";
 
