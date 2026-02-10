@@ -68,6 +68,31 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
 
     let eventSource: EventSource | null = null;
     let cancelled = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectAttempt = 0;
+    const MAX_RECONNECT_DELAY = 30_000; // 30 seconds max
+    const BASE_RECONNECT_DELAY = 1_000; // 1 second initial
+
+    const getReconnectDelay = () =>
+      Math.min(
+        BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempt),
+        MAX_RECONNECT_DELAY,
+      );
+
+    const scheduleReconnect = () => {
+      if (cancelled) return;
+      const delay = getReconnectDelay();
+      reconnectAttempt++;
+      uiLogger.debug("Scheduling SSE reconnect", {
+        workshopId,
+        attempt: reconnectAttempt,
+        delayMs: delay,
+      });
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        if (!cancelled) connect();
+      }, delay);
+    };
 
     const connect = async () => {
       const baseUrl = config.API_BASE_URL.replace(/\/$/, "");
@@ -98,6 +123,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
 
       eventSource.addEventListener("connected", () => {
         uiLogger.info("Workshop SSE connected", { workshopId });
+        reconnectAttempt = 0; // Reset backoff on successful connection
         setIsConnected(true);
       });
 
@@ -153,11 +179,17 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
       });
 
       eventSource.onerror = () => {
-        uiLogger.warning("Workshop SSE error, will auto-reconnect", {
+        uiLogger.warning("Workshop SSE error, reconnecting with backoff", {
           workshopId,
+          attempt: reconnectAttempt,
         });
         setIsConnected(false);
-        // EventSource will auto-reconnect
+        // Close the native EventSource to prevent its own auto-reconnect
+        eventSource?.close();
+        eventSource = null;
+        eventSourceRef.current = null;
+        // Reconnect manually with exponential backoff
+        scheduleReconnect();
       };
     };
 
@@ -165,6 +197,9 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
 
     return () => {
       cancelled = true;
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+      }
       if (eventSource) {
         uiLogger.debug("Closing workshop SSE connection", { workshopId });
         eventSource.close();
