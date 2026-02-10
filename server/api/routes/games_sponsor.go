@@ -156,7 +156,7 @@ func GetAvailableKeys(w http.ResponseWriter, r *http.Request) {
 // GetApiKeyStatus godoc
 //
 //	@Summary		Check API key availability
-//	@Description	Checks whether an API key can be resolved for the current user and game.
+//	@Description	Checks whether an API key can be reso        lved for the current user and game.
 //	@Tags			games
 //	@Produce		json
 //	@Param			id	path		string	true	"Game ID (UUID)"
