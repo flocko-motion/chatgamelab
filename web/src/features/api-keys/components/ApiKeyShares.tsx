@@ -7,6 +7,7 @@ import {
   UnstyledButton,
   Badge,
 } from "@mantine/core";
+import { HelperText } from "@components/typography";
 import {
   IconChevronDown,
   IconChevronRight,
@@ -170,9 +171,20 @@ function PrivateSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
       <Stack gap={6} pl="md">
         {shares.map((share) => (
           <Group key={share.id} gap="sm" align="center" justify="space-between">
-            <Text size="sm">
-              {share.game?.name || t("apiKeys.shares.unknownGame")}
-            </Text>
+            <Group gap="xs" align="center">
+              <Text size="sm">
+                {share.game?.name || t("apiKeys.shares.unknownGame")}
+              </Text>
+              {share.game?.privateShareRemaining != null && (
+                <HelperText>
+                  (
+                  {t("apiKeys.shares.remaining", {
+                    count: share.game.privateShareRemaining,
+                  })}
+                  )
+                </HelperText>
+              )}
+            </Group>
             <DeleteIconButton
               size="sm"
               onClick={() => {
