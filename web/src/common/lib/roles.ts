@@ -10,7 +10,7 @@
  * Users without a role (null) are treated as having no privileges.
  */
 
-import type { ObjUser, ObjUserRole } from '@/api/generated';
+import type { ObjUser, ObjUserRole } from "@/api/generated";
 
 /**
  * Role values with numeric levels for easy comparison.
@@ -18,6 +18,7 @@ import type { ObjUser, ObjUserRole } from '@/api/generated';
  */
 export const Role = {
   Participant: 0,
+  Individual: 0.5,
   Staff: 1,
   Head: 2,
   Admin: 3,
@@ -28,13 +29,19 @@ export type Role = (typeof Role)[keyof typeof Role];
 /**
  * Role string values as they come from the API.
  */
-export type RoleString = 'participant' | 'staff' | 'head' | 'admin';
+export type RoleString =
+  | "participant"
+  | "individual"
+  | "staff"
+  | "head"
+  | "admin";
 
 /**
  * Maps API role strings to Role enum values.
  */
 const ROLE_MAP: Record<RoleString, Role> = {
   participant: Role.Participant,
+  individual: Role.Individual,
   staff: Role.Staff,
   head: Role.Head,
   admin: Role.Admin,
@@ -44,17 +51,20 @@ const ROLE_MAP: Record<RoleString, Role> = {
  * Maps Role enum values to display-friendly labels.
  */
 const ROLE_LABELS: Record<Role, string> = {
-  [Role.Participant]: 'Participant',
-  [Role.Staff]: 'Staff',
-  [Role.Head]: 'Head',
-  [Role.Admin]: 'Admin',
+  [Role.Participant]: "Participant",
+  [Role.Individual]: "Individual",
+  [Role.Staff]: "Staff",
+  [Role.Head]: "Head",
+  [Role.Admin]: "Admin",
 };
 
 /**
  * Parses a role string from the API into a Role enum value.
  * Returns undefined for unknown/missing roles.
  */
-export function parseRole(roleString: string | undefined | null): Role | undefined {
+export function parseRole(
+  roleString: string | undefined | null,
+): Role | undefined {
   if (!roleString) return undefined;
   return ROLE_MAP[roleString as RoleString];
 }
@@ -63,7 +73,9 @@ export function parseRole(roleString: string | undefined | null): Role | undefin
  * Gets the Role enum value from a user object.
  * Returns undefined if user has no role.
  */
-export function getUserRole(user: ObjUser | null | undefined): Role | undefined {
+export function getUserRole(
+  user: ObjUser | null | undefined,
+): Role | undefined {
   if (!user?.role?.role) return undefined;
   return parseRole(user.role.role);
 }
@@ -71,14 +83,18 @@ export function getUserRole(user: ObjUser | null | undefined): Role | undefined 
 /**
  * Gets the role string from a user object.
  */
-export function getUserRoleString(user: ObjUser | null | undefined): RoleString | undefined {
+export function getUserRoleString(
+  user: ObjUser | null | undefined,
+): RoleString | undefined {
   return user?.role?.role as RoleString | undefined;
 }
 
 /**
  * Gets the UserRole object from a user.
  */
-export function getUserRoleDetails(user: ObjUser | null | undefined): ObjUserRole | undefined {
+export function getUserRoleDetails(
+  user: ObjUser | null | undefined,
+): ObjUserRole | undefined {
   return user?.role;
 }
 
@@ -87,14 +103,14 @@ export function getUserRoleDetails(user: ObjUser | null | undefined): ObjUserRol
  * Accepts Role enum, role string from API, or any string.
  */
 export function getRoleLabel(role: Role | string | undefined | null): string {
-  if (role === undefined || role === null || role === '') return 'Guest';
+  if (role === undefined || role === null || role === "") return "Guest";
 
-  if (typeof role === 'string') {
+  if (typeof role === "string") {
     const parsed = parseRole(role);
-    return parsed !== undefined ? ROLE_LABELS[parsed] : 'Guest';
+    return parsed !== undefined ? ROLE_LABELS[parsed] : "Guest";
   }
 
-  return ROLE_LABELS[role] ?? 'Guest';
+  return ROLE_LABELS[role] ?? "Guest";
 }
 
 /**
@@ -106,7 +122,7 @@ export function getRoleLabel(role: Role | string | undefined | null): string {
  */
 export function hasMinRole(
   user: ObjUser | null | undefined,
-  minRole: Role
+  minRole: Role,
 ): boolean {
   const userRole = getUserRole(user);
   if (userRole === undefined) return false;
@@ -116,10 +132,7 @@ export function hasMinRole(
 /**
  * Checks if user has exactly the specified role.
  */
-export function hasRole(
-  user: ObjUser | null | undefined,
-  role: Role
-): boolean {
+export function hasRole(user: ObjUser | null | undefined, role: Role): boolean {
   const userRole = getUserRole(user);
   return userRole === role;
 }
@@ -129,7 +142,7 @@ export function hasRole(
  */
 export function hasAnyRole(
   user: ObjUser | null | undefined,
-  roles: Role[]
+  roles: Role[],
 ): boolean {
   const userRole = getUserRole(user);
   if (userRole === undefined) return false;
@@ -174,7 +187,9 @@ export function isGuest(user: ObjUser | null | undefined): boolean {
 /**
  * Gets the user's institution ID if they have one.
  */
-export function getUserInstitutionId(user: ObjUser | null | undefined): string | undefined {
+export function getUserInstitutionId(
+  user: ObjUser | null | undefined,
+): string | undefined {
   return user?.role?.institution?.id;
 }
 
@@ -183,7 +198,7 @@ export function getUserInstitutionId(user: ObjUser | null | undefined): string |
  */
 export function isInInstitution(
   user: ObjUser | null | undefined,
-  institutionId: string
+  institutionId: string,
 ): boolean {
   return getUserInstitutionId(user) === institutionId;
 }
