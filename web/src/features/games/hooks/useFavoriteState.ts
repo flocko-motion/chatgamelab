@@ -1,5 +1,9 @@
 import { useMemo } from "react";
-import { useFavoriteGames, useAddFavorite, useRemoveFavorite } from "@/api/hooks";
+import {
+  useFavoriteGames,
+  useAddFavorite,
+  useRemoveFavorite,
+} from "@/api/hooks";
 import type { ObjGame } from "@/api/generated";
 
 /**
