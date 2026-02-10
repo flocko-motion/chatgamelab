@@ -363,6 +363,7 @@
         "debug": "Debug",
         "decreaseFont": "Smaller",
         "disableAnimations": "Disable animations",
+        "disableTextEffects": "Disable text effects",
         "fontSize": "Font size",
         "increaseFont": "Larger",
         "resetFont": "Reset",
