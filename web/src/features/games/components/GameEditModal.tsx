@@ -12,7 +12,12 @@ import {
   Text,
   Badge,
 } from "@mantine/core";
-import { IconCopy, IconHeartFilled, IconPalette } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconHeartFilled,
+  IconLink,
+  IconPalette,
+} from "@tabler/icons-react";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
@@ -51,6 +56,8 @@ interface GameEditModalProps {
   initialData?: Partial<CreateGameFormData> | null;
   /** Callback when user clicks Sponsor button */
   onSponsor?: () => void;
+  /** Callback when user clicks Private Share button */
+  onPrivateShare?: () => void;
 }
 
 export function GameEditModal({
@@ -64,6 +71,7 @@ export function GameEditModal({
   copyLoading = false,
   initialData,
   onSponsor,
+  onPrivateShare,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -464,6 +472,15 @@ export function GameEditModal({
                   {game?.publicSponsoredApiKeyShareId
                     ? t("games.sponsor.manageSponsor")
                     : t("games.sponsor.sponsorGame")}
+                </ActionButton>
+              )}
+              {!isCreateMode && onPrivateShare && (
+                <ActionButton
+                  onClick={onPrivateShare}
+                  size="sm"
+                  leftSection={<IconLink size={16} />}
+                >
+                  {t("games.privateShare.shareLink")}
                 </ActionButton>
               )}
             </Group>

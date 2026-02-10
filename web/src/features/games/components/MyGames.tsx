@@ -69,6 +69,7 @@ import { type CreateGameFormData } from "../types";
 import { parseGameYaml, gameToFormData } from "../lib";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
+import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { useModals } from "@mantine/modals";
@@ -111,6 +112,13 @@ export function MyGames({
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [
+    privateShareModalOpened,
+    { open: openPrivateShareModal, close: closePrivateShareModal },
+  ] = useDisclosure(false);
+  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
+    null,
+  );
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [showFavorites, setShowFavorites] = useState<"all" | "favorites">(
     "all",
@@ -895,6 +903,13 @@ export function MyGames({
             openSponsorModal();
           }
         }}
+        onPrivateShare={() => {
+          const game = rawGames?.find((g) => g.id === gameToView);
+          if (game) {
+            setGameToPrivateShare(game);
+            openPrivateShareModal();
+          }
+        }}
       />
 
       <SponsorGameModal
@@ -903,6 +918,15 @@ export function MyGames({
         onClose={() => {
           closeSponsorModal();
           setGameToSponsor(null);
+        }}
+      />
+
+      <PrivateShareModal
+        game={gameToPrivateShare}
+        opened={privateShareModalOpened}
+        onClose={() => {
+          closePrivateShareModal();
+          setGameToPrivateShare(null);
         }}
       />
 
