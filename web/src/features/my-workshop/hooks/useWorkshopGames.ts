@@ -1,21 +1,26 @@
 import { useMemo, useRef, useCallback } from "react";
 import { useDebouncedValue } from "@mantine/hooks";
+import { parseSortValue } from "@/common/lib/sort";
 import {
   useGames,
   useCreateGame,
   useUpdateGame,
   useDeleteGame,
   useExportGameYaml,
-  useGameSessionMap,
   useDeleteSession,
 } from "@/api/hooks";
+import { useGameSessionState } from "@/features/games/hooks";
 import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
-import { parseGameYaml, gameToFormData } from "@/features/games/lib";
+import {
+  parseGameYaml,
+  gameToFormData,
+  downloadYamlFile,
+  createGameWithExtraFields,
+} from "@/features/games/lib";
 import {
   type GameFilter,
   type WorkshopSettings,
-  type GameSessionState,
   filterGamesByWorkshopSettings,
   filterGamesByUserFilter,
   getGamePermissions,
@@ -44,7 +49,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [sortField, sortDir] = sortValue.split("-") as [string, "asc" | "desc"];
+  const [sortField, sortDir] = parseSortValue(sortValue);
 
   // Fetch games
   const {
@@ -66,7 +71,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     search: debouncedSearch || undefined,
   });
 
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { sessionsLoading, getSessionState } = useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
@@ -104,45 +109,14 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     [currentUserId, canEditAllWorkshopGames],
   );
 
-  // Session helpers
-  const getSessionState = useCallback(
-    (game: ObjGame): GameSessionState => {
-      if (!game.id) return { hasSession: false, session: undefined };
-      const session = sessionMap.get(game.id);
-      return { hasSession: !!session, session };
-    },
-    [sessionMap],
-  );
-
   // Game operations
   const handleCreateGame = useCallback(
     async (data: CreateGameFormData) => {
-      const newGame = await createGame.mutateAsync({
-        name: data.name,
-        description: data.description,
-        public: data.isPublic,
-      });
-
-      const hasExtraFields =
-        data.systemMessageScenario ||
-        data.systemMessageGameStart ||
-        data.imageStyle ||
-        data.statusFields;
-
-      if (newGame.id && hasExtraFields) {
-        await updateGame.mutateAsync({
-          id: newGame.id,
-          game: {
-            ...newGame,
-            systemMessageScenario: data.systemMessageScenario,
-            systemMessageGameStart: data.systemMessageGameStart,
-            imageStyle: data.imageStyle,
-            statusFields: data.statusFields,
-          },
-        });
-      }
-
-      return newGame;
+      return createGameWithExtraFields(
+        data,
+        createGame.mutateAsync,
+        updateGame.mutateAsync,
+      );
     },
     [createGame, updateGame],
   );
@@ -158,15 +132,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     async (game: ObjGame) => {
       if (!game.id) return;
       const yaml = await exportGameYaml.mutateAsync(game.id);
-      const blob = new Blob([yaml], { type: "application/x-yaml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${game.name || "game"}.yaml`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadYamlFile(yaml, game.name);
     },
     [exportGameYaml],
   );

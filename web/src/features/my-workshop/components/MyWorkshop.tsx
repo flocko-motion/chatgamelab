@@ -22,11 +22,9 @@ import {
   IconEye,
 } from "@tabler/icons-react";
 import {
-  PlayGameButton,
   EditIconButton,
   DeleteIconButton,
   GenericIconButton,
-  TextButton,
 } from "@components/buttons";
 import {
   DataTable,
@@ -36,7 +34,7 @@ import {
 import { DimmedLoader } from "@components/LoadingAnimation";
 import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
-import { gameToFormData } from "@/features/games/lib";
+import { gameToFormData, getGameDateLabel } from "@/features/games/lib";
 import {
   GameEditModal,
   SponsorGameModal,
@@ -46,6 +44,7 @@ import {
 } from "@/features/games";
 import { useAuth } from "@/providers/AuthProvider";
 import { useGameNavigation } from "@/features/games/hooks";
+import { GamePlayButtons } from "@/features/games/components/GamePlayButtons";
 import { hasRole, Role } from "@/common/lib/roles";
 import {
   isWorkshopGame,
@@ -235,41 +234,29 @@ export function MyWorkshop() {
     event.target.value = "";
   };
 
+  const playLabels = {
+    play: t("myGames.play"),
+    continue: t("myGames.continue"),
+    restart: t("myGames.restart"),
+  };
+
   // Render helpers
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getSessionState(game);
-    if (!hasSession) {
-      return (
-        <PlayGameButton
-          onClick={() => handlePlayGame(game)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.play")}
-        </PlayGameButton>
-      );
-    }
     return (
-      <Stack gap={4}>
-        <PlayGameButton
-          onClick={() => handleContinueGame(session!)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.continue")}
-        </PlayGameButton>
-        <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
-          {t("myGames.restart")}
-        </TextButton>
-      </Stack>
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
     );
   };
 
-  const getDateLabel = (game: ObjGame) => {
-    const dateValue =
-      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
-    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
-  };
+  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
     const { canEdit, canDelete } = getPermissions(game);
