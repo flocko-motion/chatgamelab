@@ -288,6 +288,7 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
+			user = db.CheckAndPromoteAdmin(r.Context(), user)
 			log.Debug("CGL JWT authenticated", "user_id", userId, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
@@ -333,6 +334,7 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
+			user = db.CheckAndPromoteAdmin(r.Context(), user)
 			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 		})).ServeHTTP(w, r)
