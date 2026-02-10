@@ -78,7 +78,8 @@ button:focus-visible {
   input[type="url"],
   input:not([type]),
   textarea,
-  select {
+  select,
+  .mantine-Input-input {
     font-size: 16px !important;
   }
 }
