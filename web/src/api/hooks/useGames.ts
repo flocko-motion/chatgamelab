@@ -271,6 +271,110 @@ export function useRemoveFavorite() {
   });
 }
 
+// ── Private Share Management hooks ──────────────────────────────────────────
+
+export interface PrivateShareStatus {
+  enabled: boolean;
+  shareUrl?: string;
+  token?: string;
+  remaining: number | null;
+  privateSponsoredApiKeyShareId?: string;
+}
+
+export function usePrivateShareStatus(gameId: string | undefined) {
+  const { getAccessToken } = useAuth();
+
+  return useQuery<PrivateShareStatus>({
+    queryKey: [...queryKeys.games, gameId, "private-share"],
+    queryFn: async () => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        },
+      );
+      if (!response.ok) throw new Error("Failed to fetch private share status");
+      return response.json();
+    },
+    enabled: !!gameId,
+  });
+}
+
+export function useEnablePrivateShare() {
+  const queryClient = useQueryClient();
+  const { getAccessToken } = useAuth();
+
+  return useMutation<
+    PrivateShareStatus,
+    Error,
+    { gameId: string; sponsorKeyShareId: string; maxSessions?: number | null }
+  >({
+    mutationFn: async ({ gameId, sponsorKeyShareId, maxSessions }) => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            sponsorKeyShareId,
+            maxSessions: maxSessions ?? null,
+          }),
+        },
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to enable private share");
+      }
+      return response.json();
+    },
+    onSuccess: (_, { gameId }) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId, "private-share"],
+      });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRevokePrivateShare() {
+  const queryClient = useQueryClient();
+  const { getAccessToken } = useAuth();
+
+  return useMutation<PrivateShareStatus, Error, string>({
+    mutationFn: async (gameId) => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include",
+        },
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to revoke private share");
+      }
+      return response.json();
+    },
+    onSuccess: (_, gameId) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId, "private-share"],
+      });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+    },
+    onError: handleApiError,
+  });
+}
+
 // API Key Status hook
 export function useApiKeyStatus(gameId: string | undefined) {
   const { getAccessToken } = useAuth();
