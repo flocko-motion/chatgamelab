@@ -167,6 +167,22 @@
   }
 }
 
+.statusOverflowChip {
+  composes: statusField;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.statusOverflowChip:hover {
+  background: var(--game-status-accent, var(--game-corner-color));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.statusOverflowChip:hover .statusFieldValue {
+  color: var(--game-status-bg, #fff);
+}
+
 .statusFieldChanged {
   animation: statusBoxPulse 2s ease-out;
 }
