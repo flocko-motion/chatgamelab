@@ -170,6 +170,8 @@ export interface ObjGame {
    */
   systemMessageScenario?: string;
   tags?: ObjGameTag[];
+  /** Optional visual theme override. When set, used directly instead of AI-generating per session. */
+  theme?: ObjGameTheme;
   /** Optional workshop scope (games can be created within a workshop context) */
   workshopId?: string;
 }
@@ -647,10 +649,8 @@ export interface ApiConfig<SecurityDataType = unknown> {
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<
-  D extends unknown,
-  E extends unknown = unknown,
-> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -882,7 +882,7 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   apikeys = {
     /**
-     * @description Returns all API key shares accessible to the current user
+     * @description Returns the user's API keys and all their linked shares (org shares, sponsorships)
      *
      * @tags apikeys
      * @name ApikeysList
