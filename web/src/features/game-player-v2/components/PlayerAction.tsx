@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useGameTheme } from "../theme";
 import { translateErrorCode } from "@/common/lib/errorHelpers";
+import { ThemedText } from "./text-effects";
 import classes from "./GamePlayer.module.css";
 
 interface PlayerActionProps {
@@ -27,7 +28,7 @@ export function PlayerAction({
   onRetry,
 }: PlayerActionProps) {
   const { t } = useTranslation("common");
-  const { theme } = useGameTheme();
+  const { theme, PlayerMessageWrapper } = useGameTheme();
   const indicator = theme.player.indicator ?? "chevron";
   const indicatorBlink = theme.player.indicatorBlink ?? false;
 
@@ -57,7 +58,13 @@ export function PlayerAction({
         {indicator !== "none" && (
           <span className={indicatorClasses}>{indicatorChar}</span>
         )}
-        <span className={classes.playerActionText}>{text}</span>
+        <span className={classes.playerActionText}>
+          {PlayerMessageWrapper ? (
+            <PlayerMessageWrapper text={text}>{text}</PlayerMessageWrapper>
+          ) : (
+            <ThemedText text={text} scope="playerMessages" />
+          )}
+        </span>
       </div>
       {error && (
         <div className={classes.playerActionErrorInfo}>

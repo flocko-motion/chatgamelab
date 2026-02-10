@@ -2,6 +2,7 @@ import { Box, Group } from "@mantine/core";
 import { useEffect, useRef, useState } from "react";
 import type { ObjStatusField } from "@/api/generated";
 import { useGameTheme } from "../theme";
+import { ThemedText } from "./text-effects";
 import classes from "./GamePlayer.module.css";
 
 interface StatusBarProps {
@@ -74,12 +75,12 @@ export function StatusBar({ statusFields }: StatusBarProps) {
                 {emoji && (
                   <span className={classes.statusFieldEmoji}>{emoji}</span>
                 )}
-                {field.name}:
+                <ThemedText text={`${field.name}:`} scope="statusFields" />
               </span>
               <span
                 className={`${classes.statusFieldValue} ${isChanged ? classes.statusFieldValueChanged : ""}`}
               >
-                {field.value}
+                <ThemedText text={field.value || ""} scope="statusFields" />
               </span>
             </div>
           );

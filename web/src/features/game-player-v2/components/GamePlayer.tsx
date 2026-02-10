@@ -20,7 +20,11 @@ interface SceneAreaProps {
   animationEnabled: boolean;
 }
 
-function SceneArea({ children, sceneEndRef, animationEnabled }: SceneAreaProps) {
+function SceneArea({
+  children,
+  sceneEndRef,
+  animationEnabled,
+}: SceneAreaProps) {
   const { cssVars, theme, BackgroundComponent: CustomBg } = useGameTheme();
   const animation = theme.background.animation || "none";
 
@@ -97,6 +101,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     resetFontSize: settings.resetFontSize,
     debugMode: settings.debugMode,
     toggleDebugMode: settings.toggleDebugMode,
+    textEffectsEnabled: settings.textEffectsEnabled,
     isImageGenerationDisabled: settings.isImageGenerationDisabled,
     disableImageGeneration: settings.disableImageGeneration,
   };
@@ -106,6 +111,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     <GameThemeProvider
       theme={themeResolution.effectiveTheme}
       BackgroundComponent={themeResolution.BackgroundComponent}
+      GameMessageWrapper={themeResolution.GameMessageWrapper}
+      PlayerMessageWrapper={themeResolution.PlayerMessageWrapper}
+      StreamingMessageWrapper={themeResolution.StreamingMessageWrapper}
     >
       <GamePlayerProvider value={contextValue}>
         <Box className={classes.container}>
@@ -119,6 +127,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             animationEnabled={settings.animationEnabled}
             onToggleAnimation={() =>
               settings.setAnimationEnabled(!settings.animationEnabled)
+            }
+            textEffectsEnabled={settings.textEffectsEnabled}
+            onToggleTextEffects={() =>
+              settings.setTextEffectsEnabled(!settings.textEffectsEnabled)
             }
             useNeutralTheme={settings.useNeutralTheme}
             onToggleNeutralTheme={themeResolution.handleNeutralThemeToggle}
