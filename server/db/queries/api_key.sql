@@ -153,6 +153,24 @@ UPDATE game
 SET public_sponsored_api_key_share_id = NULL, modified_at = now()
 WHERE id = $1;
 
+-- name: ClearGamePrivateShare :exec
+-- Clear all private share fields on a game (used when revoking via API key deletion)
+UPDATE game
+SET private_share_hash = NULL,
+    private_sponsored_api_key_share_id = NULL,
+    private_share_remaining = NULL,
+    modified_at = now()
+WHERE id = $1;
+
+-- name: GetGamesWithPrivateShareByApiKeyID :many
+-- Find games that use a share of this API key for private share sponsoring
+SELECT g.id, g.name, g.private_sponsored_api_key_share_id, g.private_share_remaining
+FROM game g
+JOIN api_key_share s ON g.private_sponsored_api_key_share_id = s.id
+WHERE s.api_key_id = $1
+  AND g.deleted_at IS NULL
+  AND g.private_share_hash IS NOT NULL;
+
 -- name: DeleteApiKeySharesByGameID :exec
 DELETE FROM api_key_share WHERE game_id = $1;
 

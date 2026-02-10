@@ -125,6 +125,15 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to clear user default api key references")
 	}
 
+	// Clean up private share guest data before clearing references
+	privateGames, _ := queries().GetGamesWithPrivateShareByApiKeyID(ctx, key.ID)
+	for _, g := range privateGames {
+		log.Info("deleting api key: cleaning up private share guest data", "game_id", g.ID, "game_name", g.Name)
+		_ = DeleteGuestDataByGameID(ctx, g.ID)
+		// Clear the private share fields so the link becomes invalid
+		_ = queries().ClearGamePrivateShare(ctx, g.ID)
+	}
+
 	// Clear game sponsored API key references before deleting the key
 	if err := queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to clear game sponsored api key references")
@@ -507,6 +516,22 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 				ls.Game = &obj.Game{ID: s.GameID.UUID, Name: s.GameName.String}
 			}
 			allShares = append(allShares, ls)
+		}
+	}
+
+	// For each owned key, also find games using it for private share sponsoring
+	for _, keyID := range ownedKeyIDs {
+		privateGames, err := queries().GetGamesWithPrivateShareByApiKeyID(ctx, keyID)
+		if err != nil {
+			continue
+		}
+		for _, g := range privateGames {
+			allShares = append(allShares, obj.ApiKeyShare{
+				ID:             g.PrivateSponsoredApiKeyShareID.UUID,
+				ApiKeyID:       keyID,
+				Game:           &obj.Game{ID: g.ID, Name: g.Name, PrivateShareRemaining: nullInt32ToIntPtr(g.PrivateShareRemaining)},
+				IsPrivateShare: true,
+			})
 		}
 	}
 

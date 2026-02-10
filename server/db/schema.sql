@@ -26,7 +26,9 @@ CREATE TABLE app_user (
     -- User's preferred AI quality tier for their own default key (high/medium/low, NULL = server default)
     ai_quality_tier text NULL,
     -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
-    language text NOT NULL DEFAULT 'en'
+    language text NOT NULL DEFAULT 'en',
+    -- Links guest users to the game whose private share link created them (NULL for non-guests)
+    private_share_game_id uuid NULL
 );
 
 -- Institution
@@ -240,6 +242,8 @@ CREATE TABLE game (
     -- They are sponsored, so invited players don't require their own API key.
     private_share_hash                 text NULL,
     private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id),
+    -- Remaining plays for private share links. NULL = unlimited, >0 = can play, 0 = exhausted.
+    private_share_remaining            integer NULL,
 
     -- Game details and system messages for the LLM.
     -- What is the game about? How does it work? Player role? World description?
@@ -389,3 +393,5 @@ ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk
     FOREIGN KEY (free_use_api_key_share_id) REFERENCES api_key_share(id);
 ALTER TABLE api_key_share ADD CONSTRAINT api_key_share_game_fk
     FOREIGN KEY (game_id) REFERENCES game(id);
+ALTER TABLE app_user ADD CONSTRAINT app_user_private_share_game_fk
+    FOREIGN KEY (private_share_game_id) REFERENCES game(id);

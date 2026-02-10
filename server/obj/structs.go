@@ -162,6 +162,7 @@ type ApiKeyShare struct {
 	Game                      *Game        `json:"game,omitempty"`
 	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
+	IsPrivateShare            bool         `json:"isPrivateShare,omitempty"`
 }
 
 // AvailableKey represents an API key available to a user for playing a specific game
@@ -189,6 +190,7 @@ type Game struct {
 	// They are sponsored, so invited players don't require their own API key.
 	PrivateShareHash              *string    `json:"privateShareHash" yaml:"-"`
 	PrivateSponsoredApiKeyShareID *uuid.UUID `json:"privateSponsoredApiKeyShareId" yaml:"-"`
+	PrivateShareRemaining         *int       `json:"privateShareRemaining" yaml:"-"`
 	// Game details and system messages for the LLM.
 	// What is the game about? How does it work? Player role? World description?
 	SystemMessageScenario string `json:"systemMessageScenario" yaml:"system_message_scenario"`

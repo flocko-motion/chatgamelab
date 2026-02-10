@@ -55,15 +55,21 @@ function RootComponent() {
   // Workshop mode: true participants OR staff/head who entered workshop mode
   const isInWorkshopUI = isParticipant || isInWorkshopMode;
 
+  // Guest play route (anonymous access via share token)
+  const isGuestPlayRoute = pathname.startsWith("/play/");
+
   // Game player routes need special dark styling
   const isGamePlayerRoute =
-    pathname.includes("/play") || pathname.startsWith("/sessions/");
+    pathname.includes("/play") ||
+    pathname.startsWith("/sessions/") ||
+    isGuestPlayRoute;
 
   // Public routes that don't require authentication
   const isPublicRoute =
     isHomePage ||
     pathname.startsWith(ROUTES.AUTH_LOGIN) ||
-    pathname.startsWith(ROUTES.INVITES);
+    pathname.startsWith(ROUTES.INVITES) ||
+    isGuestPlayRoute;
 
   // Routes that participants are allowed to access
   const isParticipantAllowedRoute =
@@ -276,6 +282,25 @@ function RootComponent() {
           onApiKeysClick: () => navigate({ to: ROUTES.API_KEYS }),
         }
     : undefined;
+
+  // Guest play: show header with logo + Contact + Language, content below
+  // Checked before auth loading so guests aren't blocked by auth initialization.
+  if (isGuestPlayRoute) {
+    return (
+      <AppLayout
+        variant="authenticated"
+        background="#e8e8ec"
+        darkMode={true}
+        withContainer={false}
+        navItems={[]}
+        headerProps={{
+          isGuest: true,
+        }}
+      >
+        <Outlet />
+      </AppLayout>
+    );
+  }
 
   // Show loading state while auth is initializing
   if (isLoading) {

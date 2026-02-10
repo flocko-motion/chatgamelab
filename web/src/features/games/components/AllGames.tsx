@@ -49,6 +49,7 @@ import {
 } from "@components/buttons";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
+import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import {
   useGames,
@@ -121,6 +122,13 @@ export function AllGames() {
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [
+    privateShareModalOpened,
+    { open: openPrivateShareModal, close: closePrivateShareModal },
+  ] = useDisclosure(false);
+  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
+    null,
+  );
   const [createInitialData, setCreateInitialData] =
     useState<Partial<CreateGameFormData> | null>(null);
   const { data: favoriteGames } = useFavoriteGames();
@@ -214,6 +222,14 @@ export function AllGames() {
     if (game) {
       setGameToSponsor(game);
       openSponsorModal();
+    }
+  };
+
+  const handlePrivateShare = () => {
+    const game = games?.find((g) => g.id === gameToView);
+    if (game) {
+      setGameToPrivateShare(game);
+      openPrivateShareModal();
     }
   };
 
@@ -739,6 +755,7 @@ export function AllGames() {
         }}
         readOnly={!gameToViewIsOwner}
         onSponsor={gameToViewIsOwner ? handleSponsorGame : undefined}
+        onPrivateShare={gameToViewIsOwner ? handlePrivateShare : undefined}
         onCopy={
           !gameToViewIsOwner
             ? () => {
@@ -759,6 +776,15 @@ export function AllGames() {
         onClose={() => {
           closeSponsorModal();
           setGameToSponsor(null);
+        }}
+      />
+
+      <PrivateShareModal
+        game={gameToPrivateShare}
+        opened={privateShareModalOpened}
+        onClose={() => {
+          closePrivateShareModal();
+          setGameToPrivateShare(null);
         }}
       />
     </>

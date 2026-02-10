@@ -110,6 +110,17 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
 	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
 
+	// Private Share Management (authenticated — game owner only)
+	mux.Handle("GET /api/games/{id}/private-share", httpx.RequireAuth(GetPrivateShareStatus))
+	mux.Handle("POST /api/games/{id}/private-share", httpx.RequireAuth(EnablePrivateShare))
+	mux.Handle("DELETE /api/games/{id}/private-share", httpx.RequireAuth(RevokePrivateShare))
+
+	// Guest Play (public — share token is the capability)
+	mux.HandleFunc("GET /api/play/{token}/info", PlayGuestGetGameInfo)
+	mux.HandleFunc("POST /api/play/{token}", PlayGuestCreateSession)
+	mux.HandleFunc("POST /api/play/{token}/sessions/{id}", PlayGuestSendAction)
+	mux.HandleFunc("GET /api/play/{token}/sessions/{id}", PlayGuestGetSession)
+
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))
 	mux.Handle("GET /api/sessions/{id}", httpx.RequireAuth(GetSession))

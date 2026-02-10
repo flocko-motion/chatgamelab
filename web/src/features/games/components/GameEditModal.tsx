@@ -8,11 +8,17 @@ import {
   Skeleton,
   Alert,
   ScrollArea,
+  Divider,
   rem,
   Text,
   Badge,
 } from "@mantine/core";
-import { IconCopy, IconHeartFilled, IconPalette } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconHeartFilled,
+  IconLink,
+  IconPalette,
+} from "@tabler/icons-react";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
@@ -51,6 +57,8 @@ interface GameEditModalProps {
   initialData?: Partial<CreateGameFormData> | null;
   /** Callback when user clicks Sponsor button */
   onSponsor?: () => void;
+  /** Callback when user clicks Private Share button */
+  onPrivateShare?: () => void;
 }
 
 export function GameEditModal({
@@ -64,6 +72,7 @@ export function GameEditModal({
   copyLoading = false,
   initialData,
   onSponsor,
+  onPrivateShare,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -410,6 +419,15 @@ export function GameEditModal({
               {t("games.sponsor.privateWarning")}
             </Text>
           )}
+
+          {/* Sharing & Sponsoring — collapsible section (edit/view mode only) */}
+          {!isCreateMode && (onSponsor || onPrivateShare) && (
+            <SharingSection
+              game={game}
+              onSponsor={onSponsor}
+              onPrivateShare={onPrivateShare}
+            />
+          )}
         </Stack>
       </ScrollArea>
     );
@@ -452,53 +470,31 @@ export function GameEditModal({
         <Stack gap="md">
           {modalContent()}
 
-          <Group justify="space-between" mt="md" gap="sm">
-            {/* Left side: sponsor button */}
-            <Group gap="sm">
-              {!isCreateMode && onSponsor && (
-                <ActionButton
-                  onClick={onSponsor}
-                  size="sm"
-                  leftSection={<IconHeartFilled size={16} />}
-                >
-                  {game?.publicSponsoredApiKeyShareId
-                    ? t("games.sponsor.manageSponsor")
-                    : t("games.sponsor.sponsorGame")}
-                </ActionButton>
-              )}
-            </Group>
-
-            {/* Right side: close/cancel + save/copy */}
-            <Group gap="sm">
-              {readOnly ? (
-                <>
-                  <CancelButton onClick={onClose}>{t("close")}</CancelButton>
-                  {onCopy && (
-                    <ActionButton
-                      onClick={onCopy}
-                      loading={copyLoading}
-                      size="sm"
-                      leftSection={<IconCopy size={16} />}
-                    >
-                      {t("copyGame")}
-                    </ActionButton>
-                  )}
-                </>
-              ) : (
-                <>
-                  <CancelButton onClick={handleModalClose} disabled={isSaving}>
-                    {t("cancel")}
-                  </CancelButton>
+          <Group justify="flex-end" mt="md" gap="sm">
+            {readOnly ? (
+              <>
+                <CancelButton onClick={onClose}>{t("close")}</CancelButton>
+                {onCopy && (
                   <ActionButton
-                    onClick={handleSave}
-                    loading={isSaving}
+                    onClick={onCopy}
+                    loading={copyLoading}
                     size="sm"
+                    leftSection={<IconCopy size={16} />}
                   >
-                    {isCreateMode ? t("games.createModal.submit") : t("save")}
+                    {t("copyGame")}
                   </ActionButton>
-                </>
-              )}
-            </Group>
+                )}
+              </>
+            ) : (
+              <>
+                <CancelButton onClick={handleModalClose} disabled={isSaving}>
+                  {t("cancel")}
+                </CancelButton>
+                <ActionButton onClick={handleSave} loading={isSaving} size="sm">
+                  {isCreateMode ? t("games.createModal.submit") : t("save")}
+                </ActionButton>
+              </>
+            )}
           </Group>
         </Stack>
       </Modal>
@@ -512,6 +508,79 @@ export function GameEditModal({
           readOnly={readOnly}
         />
       )}
+    </>
+  );
+}
+
+function SharingSection({
+  game,
+  onSponsor,
+  onPrivateShare,
+}: {
+  game?: {
+    publicSponsoredApiKeyShareId?: string;
+    privateShareHash?: string;
+  } | null;
+  onSponsor?: () => void;
+  onPrivateShare?: () => void;
+}) {
+  const { t } = useTranslation("common");
+
+  const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
+  const hasPrivateShare = !!game?.privateShareHash;
+
+  return (
+    <>
+      <Divider />
+      <Text size="sm" fw={500} c="dimmed">
+        {t("games.sharing.sectionTitle")}
+      </Text>
+      <Stack gap="sm">
+        {onSponsor && (
+          <Group gap="sm" align="center">
+            <ActionButton
+              onClick={onSponsor}
+              size="sm"
+              leftSection={<IconHeartFilled size={16} />}
+            >
+              {hasSponsoring
+                ? t("games.sponsor.manageSponsor")
+                : t("games.sponsor.sponsorGame")}
+            </ActionButton>
+            {hasSponsoring && (
+              <Badge
+                size="xs"
+                color="pink"
+                variant="light"
+                leftSection={<IconHeartFilled size={10} />}
+              >
+                {t("games.sponsor.sponsored")}
+              </Badge>
+            )}
+          </Group>
+        )}
+        {onPrivateShare && (
+          <Group gap="sm" align="center">
+            <ActionButton
+              onClick={onPrivateShare}
+              size="sm"
+              leftSection={<IconLink size={16} />}
+            >
+              {t("games.privateShare.shareLink")}
+            </ActionButton>
+            {hasPrivateShare && (
+              <Badge
+                size="xs"
+                color="accent"
+                variant="light"
+                leftSection={<IconLink size={10} />}
+              >
+                {t("games.sharing.active")}
+              </Badge>
+            )}
+          </Group>
+        )}
+      </Stack>
     </>
   );
 }

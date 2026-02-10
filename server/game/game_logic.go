@@ -233,6 +233,14 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		return nil, nil, httpErr
 	}
 	response.PromptStatusUpdate = functional.Ptr(systemMessage)
+
+	// Increment play count only for non-creator plays
+	if !game.Meta.CreatedBy.Valid || game.Meta.CreatedBy.UUID != userID {
+		if err := db.IncrementGamePlayCount(ctx, gameID); err != nil {
+			log.Warn("failed to increment play count", "game_id", gameID, "error", err)
+		}
+	}
+
 	// Accumulate setup usage (theme + translation) with action usage
 	if response.TokenUsage != nil {
 		totalUsage := sessionUsage.Add(*response.TokenUsage)

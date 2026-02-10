@@ -32,6 +32,7 @@ export function AppHeader({
   onApiKeysClick,
   onLogoutClick,
   isParticipant = false,
+  isGuest = false,
   isInWorkshopMode = false,
   workshopName,
   onExitWorkshopMode,
@@ -107,6 +108,7 @@ export function AppHeader({
             onApiKeysClick={onApiKeysClick}
             onLogoutClick={onLogoutClick}
             isParticipant={isParticipant}
+            isGuest={isGuest}
             isInWorkshopMode={isInWorkshopMode}
             workshopName={workshopName}
             onExitWorkshopMode={onExitWorkshopMode}
@@ -176,22 +178,23 @@ export function AppHeader({
 
           {/* Right section */}
           <Group gap="sm" align="center" wrap="nowrap">
-            {/* Desktop: Full user actions */}
-            {!forceMobile && (
+            {/* Desktop: Full user actions, or always inline for guests */}
+            {(!forceMobile || isGuest) && (
               <UserActions
                 onSettingsClick={onSettingsClick}
                 onProfileClick={onProfileClick}
                 onApiKeysClick={onApiKeysClick}
                 onLogoutClick={onLogoutClick}
                 isParticipant={isParticipant}
+                isGuest={isGuest}
                 isInWorkshopMode={isInWorkshopMode}
                 workshopName={workshopName}
                 onExitWorkshopMode={onExitWorkshopMode}
               />
             )}
 
-            {/* Mobile: Burger menu */}
-            {forceMobile && (
+            {/* Mobile: Burger menu (not for guests) */}
+            {forceMobile && !isGuest && (
               <Burger
                 opened={mobileNavOpened}
                 onClick={openMobileNav}

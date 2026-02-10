@@ -1218,6 +1218,164 @@
                 }
             }
         },
+        "/games/{id}/private-share": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns the current private share configuration for a game.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Get private share status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.PrivateShareStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Enables private sharing for a game with a sponsored API key and optional session limit.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Enable or configure private share",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Share configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.PrivateShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.PrivateShareStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Disables private sharing by clearing the share token and sponsor key.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Revoke private share",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.PrivateShareStatus"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{id}/sessions": {
             "get": {
                 "security": [
@@ -2684,6 +2842,230 @@
                             "items": {
                                 "$ref": "#/definitions/obj.AiPlatform"
                             }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/{token}": {
+            "post": {
+                "description": "Creates a new anonymous game session using a private share link.\nNo authentication required — the share token grants access.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create guest session via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.GuestSessionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Share limit reached",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/{token}/info": {
+            "get": {
+                "description": "Returns basic game info (name, description) for the welcome screen. No session is created.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get game info via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.GuestGameInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid token",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/{token}/sessions/{id}": {
+            "get": {
+                "description": "Returns session details for recovery after reload. Validates token→game→session chain.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get guest session via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Message inclusion: none|latest|all",
+                        "name": "messages",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.SessionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Sends a player message to an anonymous session. Validates token→game→session chain.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Send guest action via share token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Private share token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player action",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.SessionActionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.GameSessionMessage"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Token/session mismatch",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Session not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
                         }
                     },
                     "500": {
@@ -4430,6 +4812,9 @@
                 "institution": {
                     "$ref": "#/definitions/obj.Institution"
                 },
+                "isPrivateShare": {
+                    "type": "boolean"
+                },
                 "isUserDefault": {
                     "type": "boolean"
                 },
@@ -4534,6 +4919,9 @@
                 "privateShareHash": {
                     "description": "Private share links contain secret random tokens to limit access to the game.\nThey are sponsored, so invited players don't require their own API key.",
                     "type": "string"
+                },
+                "privateShareRemaining": {
+                    "type": "integer"
                 },
                 "privateSponsoredApiKeyShareId": {
                     "type": "string"
@@ -5220,6 +5608,93 @@
                 }
             }
         },
+        "routes.GuestGameInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "remaining": {
+                    "description": "null = unlimited, 0 = exhausted",
+                    "type": "integer"
+                }
+            }
+        },
+        "routes.GuestSessionResponse": {
+            "type": "object",
+            "properties": {
+                "aiModel": {
+                    "type": "string"
+                },
+                "aiPlatform": {
+                    "description": "AI model used for playing.",
+                    "type": "string"
+                },
+                "aiSession": {
+                    "description": "JSON with arbitrary details to be used within that model and within that session.",
+                    "type": "string"
+                },
+                "apiKey": {
+                    "$ref": "#/definitions/obj.ApiKey"
+                },
+                "apiKeyId": {
+                    "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
+                    "type": "string"
+                },
+                "gameDescription": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "gameName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageStyle": {
+                    "type": "string"
+                },
+                "isOrganisationUnverified": {
+                    "description": "Set to true when image generation fails due to organization verification required",
+                    "type": "boolean"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/routes.SessionMessageResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/obj.Meta"
+                },
+                "statusFields": {
+                    "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
+                    "type": "string"
+                },
+                "theme": {
+                    "description": "AI-generated visual theme for the game player UI (JSON)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "workshopId": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.ImageStatusResponse": {
             "type": "object",
             "properties": {
@@ -5355,6 +5830,40 @@
                 }
             }
         },
+        "routes.PrivateShareRequest": {
+            "type": "object",
+            "properties": {
+                "maxSessions": {
+                    "description": "null = unlimited",
+                    "type": "integer"
+                },
+                "sponsorKeyShareId": {
+                    "description": "required to enable",
+                    "type": "string"
+                }
+            }
+        },
+        "routes.PrivateShareStatus": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "privateSponsoredApiKeyShareId": {
+                    "type": "string"
+                },
+                "remaining": {
+                    "description": "null = unlimited",
+                    "type": "integer"
+                },
+                "shareUrl": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.RegisterRequest": {
             "type": "object",
             "properties": {
@@ -5389,6 +5898,69 @@
                     "items": {
                         "$ref": "#/definitions/obj.StatusField"
                     }
+                }
+            }
+        },
+        "routes.SessionMessageResponse": {
+            "type": "object",
+            "properties": {
+                "gameSessionId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "imagePrompt": {
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Plain text of the scene (system message, player action, or game response).",
+                    "type": "string"
+                },
+                "meta": {
+                    "$ref": "#/definitions/obj.Meta"
+                },
+                "requestExpandStory": {
+                    "type": "string"
+                },
+                "requestImageGeneration": {
+                    "type": "string"
+                },
+                "requestStatusUpdate": {
+                    "type": "string"
+                },
+                "responseRaw": {
+                    "type": "string"
+                },
+                "seq": {
+                    "description": "Sequence number within the session, starting at 1",
+                    "type": "integer"
+                },
+                "statusFields": {
+                    "description": "JSON encoded status fields.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.StatusField"
+                    }
+                },
+                "stream": {
+                    "type": "boolean"
+                },
+                "tokenUsage": {
+                    "$ref": "#/definitions/obj.TokenUsage"
+                },
+                "type": {
+                    "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
+                    "type": "string"
+                },
+                "urlAnalytics": {
+                    "type": "string"
                 }
             }
         },

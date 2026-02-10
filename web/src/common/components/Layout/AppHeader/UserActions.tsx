@@ -30,6 +30,7 @@ export function UserActions({
   onApiKeysClick,
   onLogoutClick,
   isParticipant = false,
+  isGuest = false,
   isInWorkshopMode = false,
   workshopName: _workshopName,
   onExitWorkshopMode,
@@ -40,6 +41,7 @@ export function UserActions({
   | "onApiKeysClick"
   | "onLogoutClick"
   | "isParticipant"
+  | "isGuest"
   | "isInWorkshopMode"
   | "workshopName"
   | "onExitWorkshopMode"
@@ -52,6 +54,50 @@ export function UserActions({
     authLogout();
     onLogoutClick?.();
   };
+
+  // Guest mode: Contact + Language switcher only, no user menu
+  if (isGuest) {
+    return (
+      <Group gap="sm" wrap="nowrap">
+        <Tooltip
+          label={EXTERNAL_LINKS.CONTACT.description}
+          position="bottom"
+          withArrow
+        >
+          <UnstyledButton
+            onClick={() => window.open(EXTERNAL_LINKS.CONTACT.href, "_blank")}
+            aria-label={t("header.contact")}
+            py="xs"
+            px="md"
+            style={{
+              borderRadius: "var(--mantine-radius-md)",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              transition: "background-color 150ms ease, box-shadow 150ms ease",
+            }}
+            styles={{
+              root: {
+                backgroundColor: "transparent",
+                boxShadow: "none",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.2)",
+                  boxShadow: "none",
+                },
+              },
+            }}
+          >
+            <IconMessage size={18} />
+            <Text size="sm" fw={500}>
+              {t("header.contact")}
+            </Text>
+          </UnstyledButton>
+        </Tooltip>
+        <LanguageSwitcher size="sm" variant="compact" />
+      </Group>
+    );
+  }
 
   const userAvatar = (
     <UnstyledButton
