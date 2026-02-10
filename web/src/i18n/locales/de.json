@@ -302,6 +302,7 @@
         "unknownGame": "Unbekanntes Spiel",
         "goToOrg": "Verwalten",
         "privateShares": "Private Einladungslinks",
+        "remaining": "{{count}} verbleibend",
         "removeSponsor": "Sponsoring entfernen",
         "revokePrivateShare": "Einladungslink widerrufen"
       },
@@ -460,7 +461,7 @@
         "remove": "Design entfernen",
         "removeConfirm": "Das benutzerdefinierte Design entfernen? Die KI wird stattdessen pro Sitzung eines generieren.",
         "currentTheme": "Design: {{preset}}",
-        "noTheme": "Kein Design (KI-generiert)",
+        "noTheme": "Kein Design ausgewählt. Die KI wird das Design pro Sitzung generieren.",
         "samplePlayer": "Ich öffne die alte Holztür...",
         "sampleGame": "Die Tür knarrt auf und enthüllt eine schwach beleuchtete Kammer. Alte Runen glühen schwach an den Steinwänden. Eine geheimnisvolle Truhe steht in der Mitte des Raumes.",
         "sampleGame2": "Du näherst dich vorsichtig der Truhe. Als deine Finger den kalten Metallriegel berühren, beginnen die Runen an den Wänden heller zu pulsieren. Ein tiefes Summen erfüllt die Kammer.",
@@ -590,6 +591,10 @@
         "styleInfo": "Optionale Einstellungen für das Aussehen des Spiels beim Spielen."
       },
       "title": "Meine erstellten Spiele",
+      "sharing": {
+        "sectionTitle": "Teilen & Sponsoring",
+        "active": "Aktiv"
+      },
       "privateShare": {
         "title": "Privater Freigabelink",
         "loading": "Lade Freigabestatus...",
@@ -612,10 +617,10 @@
         "apiKey": "API-Schlüssel:",
         "back": "Zurück",
         "confirm": "Sponsoring bestätigen",
-        "confirmExplanation": "Wenn du dieses Spiel sponserst, wird dein API-Schlüssel für alle öffentlichen Spiele verwendet. Jeder, der dieses Spiel spielt, nutzt deinen Schlüssel - die Kosten jedes Spiels werden deinem Konto belastet.",
+        "confirmExplanation": "Wenn du dieses Spiel sponserst, wird dein API-Schlüssel für jede Sitzung dieses Spiels verwendet. Jeder, der es spielt, nutzt deinen Schlüssel - die Kosten jeder Sitzung werden deinem Konto belastet.",
         "confirmNote": "Du kannst das Sponsoring jederzeit in den Spieleinstellungen oder der API-Schlüssel-Verwaltung entfernen.",
-        "currentlySponsored": "Dieses Spiel wird derzeit gesponsert. Der API-Schlüssel des Sponsors bezahlt alle öffentlichen Spiele.",
-        "description": "Sponsere dieses Spiel, damit jeder es kostenlos spielen kann. Dein API-Schlüssel wird für alle öffentlichen Spiele verwendet.",
+        "currentlySponsored": "Dieses Spiel wird derzeit gesponsert. Der API-Schlüssel des Sponsors bezahlt jede Sitzung dieses Spiels.",
+        "description": "Sponsere dieses Spiel, damit jeder es kostenlos spielen kann. Dein API-Schlüssel übernimmt die KI-Kosten für jede Sitzung dieses Spiels.",
         "gameName": "Spiel:",
         "loadingKeys": "API-Schlüssel werden geladen...",
         "manageSponsor": "Sponsor verwalten",

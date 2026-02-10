@@ -302,6 +302,7 @@
         "unknownGame": "Unknown game",
         "goToOrg": "Manage",
         "privateShares": "Private Share Links",
+        "remaining": "{{count}} remaining",
         "removeSponsor": "Remove sponsorship",
         "revokePrivateShare": "Revoke share link"
       },
@@ -460,7 +461,7 @@
         "remove": "Remove Theme",
         "removeConfirm": "Remove the custom theme? The AI will generate one per session instead.",
         "currentTheme": "Theme: {{preset}}",
-        "noTheme": "No theme (AI-generated)",
+        "noTheme": "No theme selected. The AI will generate the theme for each game session.",
         "samplePlayer": "I open the old wooden door...",
         "sampleGame": "The door creaks open, revealing a dimly lit chamber. Ancient runes glow faintly on the stone walls. A mysterious chest sits in the center of the room.",
         "sampleGame2": "You carefully approach the chest. As your fingers touch the cold metal latch, the runes on the walls begin to pulse with a brighter light. A low hum fills the chamber.",
@@ -590,6 +591,10 @@
         "styleInfo": "Optional settings for the look of the game while playing."
       },
       "title": "My Created Games",
+      "sharing": {
+        "sectionTitle": "Sharing & Sponsoring",
+        "active": "Active"
+      },
       "privateShare": {
         "title": "Private Share Link",
         "loading": "Loading share status...",
@@ -612,10 +617,10 @@
         "apiKey": "API Key:",
         "back": "Back",
         "confirm": "Confirm Sponsoring",
-        "confirmExplanation": "By sponsoring this game, your API key will be used to pay for all public plays. Anyone who plays this game will use your key - the cost of each play will be charged to your account.",
+        "confirmExplanation": "By sponsoring this game, your API key will be used to pay for every session of this game. Anyone who plays it will use your key - the cost of each session will be charged to your account.",
         "confirmNote": "You can remove the sponsoring at any time from the game settings or the API key management.",
-        "currentlySponsored": "This game is currently sponsored. The sponsor's API key pays for all public plays.",
-        "description": "Sponsor this game so that anyone can play it for free. Your API key will be used to pay for all public plays.",
+        "currentlySponsored": "This game is currently sponsored. The sponsor's API key pays for every session of this game.",
+        "description": "Sponsor this game so that anyone can play it for free. Your API key will cover the AI costs for every session of this game.",
         "gameName": "Game:",
         "loadingKeys": "Loading API keys...",
         "manageSponsor": "Manage Sponsor",
