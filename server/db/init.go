@@ -238,8 +238,8 @@ func getHighestMigrationVersion() (int, error) {
 	return migrations[len(migrations)-1].version, nil
 }
 
-// getCurrentSchemaVersion reads the current schema version from system_settings
-func getCurrentSchemaVersion() (int, error) {
+// GetCurrentSchemaVersion reads the current schema version from system_settings
+func GetCurrentSchemaVersion() (int, error) {
 	var version int
 	query := `SELECT schema_version FROM system_settings WHERE id = '00000000-0000-0000-0000-000000000001'::uuid`
 	err := sqlDb.QueryRow(query).Scan(&version)
@@ -277,7 +277,7 @@ func setInitialSchemaVersion() error {
 
 // runPendingMigrations executes all migrations that haven't been applied yet
 func runPendingMigrations() error {
-	currentVersion, err := getCurrentSchemaVersion()
+	currentVersion, err := GetCurrentSchemaVersion()
 	if err != nil {
 		return err
 	}

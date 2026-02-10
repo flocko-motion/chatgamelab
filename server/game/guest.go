@@ -216,7 +216,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	}
 
 	// Persist session
-	session, err := db.CreateGameSession(ctx, user.ID, game.ID, share.ApiKey.ID, aiModel, nil, theme)
+	session, err := db.CreateGameSession(ctx, user.ID, game, share.ApiKey.ID, aiModel, nil, theme)
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
 	}

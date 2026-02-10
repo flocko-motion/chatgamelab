@@ -5063,6 +5063,9 @@
                 "requestImageGeneration": {
                     "type": "string"
                 },
+                "requestResponseSchema": {
+                    "type": "string"
+                },
                 "requestStatusUpdate": {
                     "type": "string"
                 },
@@ -5932,6 +5935,9 @@
                 "requestImageGeneration": {
                     "type": "string"
                 },
+                "requestResponseSchema": {
+                    "type": "string"
+                },
                 "requestStatusUpdate": {
                     "type": "string"
                 },
@@ -6223,6 +6229,9 @@
             "properties": {
                 "buildTime": {
                     "type": "string"
+                },
+                "dbLevel": {
+                    "type": "integer"
                 },
                 "gitCommit": {
                     "type": "string"

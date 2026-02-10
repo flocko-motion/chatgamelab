@@ -217,6 +217,7 @@ export interface ObjGameSessionMessage {
   meta?: ObjMeta;
   requestExpandStory?: string;
   requestImageGeneration?: string;
+  requestResponseSchema?: string;
   requestStatusUpdate?: string;
   responseRaw?: string;
   /** Sequence number within the session, starting at 1 */
@@ -554,6 +555,7 @@ export interface RoutesSessionMessageResponse {
   meta?: ObjMeta;
   requestExpandStory?: string;
   requestImageGeneration?: string;
+  requestResponseSchema?: string;
   requestStatusUpdate?: string;
   responseRaw?: string;
   /** Sequence number within the session, starting at 1 */
@@ -681,6 +683,7 @@ export interface RoutesUsersNewRequest {
 
 export interface RoutesVersionResponse {
   buildTime?: string;
+  dbLevel?: number;
   gitCommit?: string;
   version?: string;
 }

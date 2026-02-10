@@ -5065,6 +5065,9 @@ const docTemplate = `{
                 "requestImageGeneration": {
                     "type": "string"
                 },
+                "requestResponseSchema": {
+                    "type": "string"
+                },
                 "requestStatusUpdate": {
                     "type": "string"
                 },
@@ -5934,6 +5937,9 @@ const docTemplate = `{
                 "requestImageGeneration": {
                     "type": "string"
                 },
+                "requestResponseSchema": {
+                    "type": "string"
+                },
                 "requestStatusUpdate": {
                     "type": "string"
                 },
@@ -6225,6 +6231,9 @@ const docTemplate = `{
             "properties": {
                 "buildTime": {
                     "type": "string"
+                },
+                "dbLevel": {
+                    "type": "integer"
                 },
                 "gitCommit": {
                     "type": "string"
