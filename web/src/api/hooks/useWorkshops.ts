@@ -129,6 +129,9 @@ export function useUpdateWorkshop() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.workshop(variables.id),
       });
+      // Workshop settings affect game visibility filtering on the backend,
+      // so refetch games when settings change
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
   });
 }
