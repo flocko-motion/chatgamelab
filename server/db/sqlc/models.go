@@ -55,6 +55,7 @@ type AppUser struct {
 	DefaultApiKeyShareID uuid.NullUUID
 	AiQualityTier        sql.NullString
 	Language             string
+	PrivateShareGameID   uuid.NullUUID
 }
 
 type Game struct {
@@ -71,6 +72,7 @@ type Game struct {
 	PublicSponsoredApiKeyShareID  uuid.NullUUID
 	PrivateShareHash              sql.NullString
 	PrivateSponsoredApiKeyShareID uuid.NullUUID
+	PrivateShareRemaining         sql.NullInt32
 	SystemMessageScenario         string
 	SystemMessageGameStart        string
 	ImageStyle                    string
