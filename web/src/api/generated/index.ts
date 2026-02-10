@@ -1263,6 +1263,24 @@ export class Api<
       }),
 
     /**
+     * @description Checks whether an API key can be resolved for the current user and game.
+     *
+     * @tags games
+     * @name ApiKeyStatusList
+     * @summary Check API key availability
+     * @request GET:/games/{id}/api-key-status
+     * @secure
+     */
+    apiKeyStatusList: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, boolean>, HttpxErrorResponse>({
+        path: `/games/${id}/api-key-status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Returns a prioritized list of API keys available to the user for playing this game
      *
      * @tags games
