@@ -17,7 +17,6 @@ import {
   useDebouncedValue,
 } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import {
   IconAlertCircle,
   IconMoodEmpty,
@@ -59,12 +58,9 @@ import {
   useDeleteGame,
   useExportGameYaml,
   useGameSessionMap,
-  useDeleteSession,
-  useFavoriteGames,
-  useAddFavorite,
-  useRemoveFavorite,
 } from "@/api/hooks";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import { useFavoriteState, useGameNavigation } from "../hooks";
+import type { ObjGame } from "@/api/generated";
 import { type CreateGameFormData } from "../types";
 import { parseGameYaml, gameToFormData } from "../lib";
 import { GameEditModal } from "./GameEditModal";
@@ -72,7 +68,6 @@ import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { GameCard, type GameCardAction } from "./GameCard";
-import { useModals } from "@mantine/modals";
 
 interface MyGamesProps {
   initialGameId?: string;
@@ -90,8 +85,6 @@ export function MyGames({
 }: MyGamesProps = {}) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const navigate = useNavigate();
-  const modals = useModals();
 
   const [
     createModalOpened,
@@ -150,31 +143,23 @@ export function MyGames({
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
-  const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
-  const { data: favoriteGames } = useFavoriteGames();
-  const addFavorite = useAddFavorite();
-  const removeFavorite = useRemoveFavorite();
-
-  const favoriteGameIds = new Set(favoriteGames?.map((g) => g.id) ?? []);
+  const {
+    favoriteGameIds,
+    isFavorite,
+    toggleFavorite: handleToggleFavorite,
+  } = useFavoriteState();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
 
   // Apply client-side favorites filter
   const games =
     showFavorites === "favorites"
       ? rawGames?.filter((game) => game.id && favoriteGameIds.has(game.id))
       : rawGames;
-
-  const isFavorite = (game: ObjGame) =>
-    game.id ? favoriteGameIds.has(game.id) : false;
-
-  const handleToggleFavorite = (game: ObjGame) => {
-    if (!game.id) return;
-    if (isFavorite(game)) {
-      removeFavorite.mutate(game.id);
-    } else {
-      addFavorite.mutate(game.id);
-    }
-  };
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -288,47 +273,6 @@ export function MyGames({
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
-  };
-
-  const handlePlayGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
-    }
-  };
-
-  const handleContinueGame = (session: DbUserSessionWithGame) => {
-    if (session.id) {
-      navigate({ to: `/sessions/${session.id}` as "/" });
-    }
-  };
-
-  const handleRestartGame = (game: ObjGame, session: DbUserSessionWithGame) => {
-    if (!game.id || !session.id) return;
-
-    modals.openConfirmModal({
-      title: t("myGames.restartConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("myGames.restartConfirm.message", {
-            game: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("myGames.restartConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      confirmProps: { color: "red" },
-      onConfirm: async () => {
-        // Delete session - if it fails (e.g., already deleted), just continue to play
-        try {
-          await deleteSession.mutateAsync(session.id!);
-        } catch {
-          // Session may have been deleted already, ignore and continue
-        }
-        navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
-      },
-    });
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {

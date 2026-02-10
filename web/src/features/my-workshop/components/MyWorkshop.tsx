@@ -11,7 +11,6 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import {
   IconAlertCircle,
   IconMoodEmpty,
@@ -35,7 +34,7 @@ import {
   type DataTableColumn,
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
 import { gameToFormData } from "@/features/games/lib";
 import {
@@ -45,8 +44,8 @@ import {
   GameCard,
   type GameCardAction,
 } from "@/features/games";
-import { useModals } from "@mantine/modals";
 import { useAuth } from "@/providers/AuthProvider";
+import { useGameNavigation } from "@/features/games/hooks";
 import { hasRole, Role } from "@/common/lib/roles";
 import {
   isWorkshopGame,
@@ -64,8 +63,11 @@ export function MyWorkshop() {
   const { t } = useTranslation("common");
   const { t: tWorkshop } = useTranslation("myWorkshop");
   const isMobile = useMediaQuery("(max-width: 48em)") ?? false;
-  const navigate = useNavigate();
-  const modals = useModals();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
   const { backendUser, retryBackendFetch } = useAuth();
   const { addGameToCache, updateGameInCache, removeGameFromCache } =
     useGamesCacheUpdater();
@@ -126,7 +128,6 @@ export function MyWorkshop() {
     handleDeleteGame,
     handleExportGame,
     getGameFormDataForCopy,
-    handleDeleteSession,
     triggerImportClick,
     parseImportFile,
   } = useWorkshopGames({
@@ -217,46 +218,6 @@ export function MyWorkshop() {
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
-  };
-
-  const handlePlayGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
-    }
-  };
-
-  const handleContinueGame = (session: DbUserSessionWithGame) => {
-    if (session.id) {
-      navigate({ to: `/sessions/${session.id}` as "/" });
-    }
-  };
-
-  const handleRestartGame = (game: ObjGame, session: DbUserSessionWithGame) => {
-    if (!game.id || !session.id) return;
-    modals.openConfirmModal({
-      title: t("myGames.restartConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("myGames.restartConfirm.message", {
-            game: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("myGames.restartConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      confirmProps: { color: "red" },
-      onConfirm: async () => {
-        // Delete session - if it fails (e.g., already deleted), just continue to play
-        try {
-          await handleDeleteSession(session.id!);
-        } catch {
-          // Session may have been deleted already, ignore and continue
-        }
-        navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
-      },
-    });
   };
 
   const handleFileSelect = async (
