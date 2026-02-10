@@ -30,8 +30,20 @@ function notify() {
   subscribers.forEach((fn) => fn(current));
 }
 
-/** Show a global error modal. Only one modal at a time. */
+/** Show a global error modal. Only one modal at a time.
+ *  Skips notification if an identical error is already displayed (dedup). */
 export function showErrorModal(options: GlobalErrorModalOptions) {
+  // Deduplicate: if the same error code (or same message when no code) is
+  // already showing, skip the update to avoid cascading re-renders when
+  // multiple queries fail simultaneously (e.g. backend down).
+  if (current) {
+    const sameCode = options.code && current.code === options.code;
+    const sameMessage =
+      !options.code && !current.code && options.message === current.message;
+    if (sameCode || sameMessage) {
+      return;
+    }
+  }
   current = options;
   notify();
 }
