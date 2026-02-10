@@ -4517,6 +4517,14 @@ const docTemplate = `{
                         "$ref": "#/definitions/obj.GameTag"
                     }
                 },
+                "theme": {
+                    "description": "Optional visual theme override. When set, used directly instead of AI-generating per session.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.GameTheme"
+                        }
+                    ]
+                },
                 "workshopId": {
                     "description": "Optional workshop scope (games can be created within a workshop context)",
                     "type": "string"
