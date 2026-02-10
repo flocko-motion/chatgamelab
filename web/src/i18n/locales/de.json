@@ -301,7 +301,9 @@
         "unknownUser": "Unbekannter Benutzer",
         "unknownGame": "Unbekanntes Spiel",
         "goToOrg": "Verwalten",
-        "removeSponsor": "Sponsoring entfernen"
+        "privateShares": "Private Einladungslinks",
+        "removeSponsor": "Sponsoring entfernen",
+        "revokePrivateShare": "Einladungslink widerrufen"
       },
       "unsupportedPlatform": {
         "badge": "nicht unterstützt",

@@ -301,7 +301,9 @@
         "unknownUser": "Unknown user",
         "unknownGame": "Unknown game",
         "goToOrg": "Manage",
-        "removeSponsor": "Remove sponsorship"
+        "privateShares": "Private Share Links",
+        "removeSponsor": "Remove sponsorship",
+        "revokePrivateShare": "Revoke share link"
       },
       "unsupportedPlatform": {
         "badge": "unsupported",
