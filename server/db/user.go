@@ -463,6 +463,12 @@ func PromoteAdminEmails(ctx context.Context) {
 			continue
 		}
 
+		// Only individual users can be promoted to admin
+		if user.Role == nil || user.Role.Role != obj.RoleIndividual {
+			log.Warn("skipping admin promotion: user does not have individual role", "user_id", user.ID, "email", *user.Email, "role", user.Role)
+			continue
+		}
+
 		CheckAndPromoteAdmin(ctx, user)
 	}
 }
