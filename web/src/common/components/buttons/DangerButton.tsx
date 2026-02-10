@@ -1,20 +1,20 @@
-import { Button as MantineButton } from '@mantine/core';
-import type { ReactNode } from 'react';
+import { Button as MantineButton } from "@mantine/core";
+import type { ReactNode } from "react";
 
 /**
  * DangerButton - Button for destructive or irreversible actions
- * 
+ *
  * USE WHEN:
  * - Delete/remove actions
  * - Destructive operations that cannot be undone
  * - Error recovery actions ("Try Again" after crash)
  * - Actions that require extra user attention due to consequences
- * 
+ *
  * DO NOT USE FOR:
  * - Primary actions (use ActionButton)
  * - Cancel/dismiss (use TextButton)
  * - Non-destructive actions
- * 
+ *
  * @example
  * <DangerButton onClick={handleDelete}>Delete Account</DangerButton>
  * <DangerButton variant="outline" onClick={handleRetry}>Try Again</DangerButton>
@@ -27,9 +27,19 @@ export interface DangerButtonProps {
   rightSection?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
-  variant?: 'filled' | 'outline';
+  type?: "button" | "submit" | "reset";
+  variant?: "filled" | "outline";
   fullWidth?: boolean;
+  size?:
+    | "compact-xs"
+    | "compact-sm"
+    | "compact-md"
+    | "compact-lg"
+    | "xs"
+    | "sm"
+    | "md"
+    | "lg"
+    | "xl";
 }
 
 export function DangerButton({
@@ -39,15 +49,16 @@ export function DangerButton({
   rightSection,
   loading = false,
   disabled = false,
-  type = 'button',
-  variant = 'filled',
+  type = "button",
+  variant = "filled",
   fullWidth = false,
+  size = "sm",
 }: DangerButtonProps) {
   return (
     <MantineButton
       color="red"
       variant={variant}
-      size="md"
+      size={size}
       radius="md"
       onClick={onClick}
       leftSection={leftSection}
