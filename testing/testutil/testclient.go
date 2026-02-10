@@ -487,6 +487,15 @@ func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, e
 	return response, err
 }
 
+// GetGameSession loads a session with all messages (composable high-level API)
+// Simulates a player returning to a session (e.g. browser reload).
+func (u *UserClient) GetGameSession(sessionID string) (routes.SessionResponse, error) {
+	u.t.Helper()
+	var response routes.SessionResponse
+	err := u.Get("sessions/"+sessionID+"?messages=all", &response)
+	return response, err
+}
+
 // SendGameMessage sends a message to a game session and returns the AI response (composable high-level API)
 // This returns the initial response with plot outline and status fields.
 // Use SendGameMessageWithStream to also consume the full expanded story.

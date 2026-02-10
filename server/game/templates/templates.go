@@ -16,7 +16,7 @@ const (
 	DefaultImageStyle = "simple illustration, minimalist"
 
 	// PromptMessageStart is sent as the first player input to kick off the game
-	PromptMessageStart = "Start the game. Generate the opening scene."
+	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario."
 	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
 	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 1-3 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
 )
@@ -115,11 +115,10 @@ func GetTemplate(game *obj.Game) (string, error) {
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.SystemMessageScenario)
 
 	// Append game start instructions if provided by the game creator
-	gameStart := ""
 	if game.SystemMessageGameStart != "" {
-		gameStart = fmt.Sprintf("\nHow to start the game:\n%s", game.SystemMessageGameStart)
+		instructions = strings.ReplaceAll(instructions, "{{GAME_START}}",
+			fmt.Sprintf("\nHow to start the game:\n%s", game.SystemMessageGameStart))
 	}
-	instructions = strings.ReplaceAll(instructions, "{{GAME_START}}", gameStart)
 
 	return instructions, nil
 }

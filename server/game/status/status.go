@@ -20,12 +20,18 @@ func FieldNames(statusFieldsJSON string) []string {
 
 // MapToFields converts map[string]string back to []StatusField,
 // preserving the order defined by fieldNames.
-func MapToFields(statusMap map[string]string, fieldNames []string) []obj.StatusField {
+// If a key is missing from statusMap, the value from fallback is used
+// (defensive: strict schemas prevent this, but guards against non-strict platforms).
+func MapToFields(statusMap map[string]string, fieldNames []string, fallback map[string]string) []obj.StatusField {
 	fields := make([]obj.StatusField, 0, len(fieldNames))
 	for _, name := range fieldNames {
+		value, ok := statusMap[name]
+		if !ok && fallback != nil {
+			value = fallback[name]
+		}
 		fields = append(fields, obj.StatusField{
 			Name:  name,
-			Value: statusMap[name],
+			Value: value,
 		})
 	}
 	return fields

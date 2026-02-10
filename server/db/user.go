@@ -423,6 +423,12 @@ func PromoteAdminEmails(ctx context.Context) {
 			continue
 		}
 
+		// Only individual users can be promoted to admin
+		if user.Role == nil || user.Role.Role != obj.RoleIndividual {
+			log.Warn("skipping admin promotion: user does not have individual role", "user_id", user.ID, "email", *user.Email, "role", user.Role)
+			continue
+		}
+
 		// Promote to admin
 		log.Info("promoting user to admin", "user_id", user.ID, "email", *user.Email)
 
@@ -531,6 +537,17 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 	if role != nil {
 		if _, err := stringToRole(*role); err != nil {
 			return err
+		}
+	}
+
+	// Only individual users can be promoted to admin
+	if role != nil && *role == string(obj.RoleAdmin) {
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleIndividual {
+			return obj.ErrForbidden("only users with 'individual' role can be promoted to admin")
 		}
 	}
 

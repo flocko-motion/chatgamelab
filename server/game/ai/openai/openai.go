@@ -175,7 +175,7 @@ func (p *OpenAiPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
+func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
@@ -192,9 +192,6 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	// Serialize the player action as JSON input (minimal AI-facing structure)
 	actionInput := action.ToAiJSON()
-
-	// Build game-specific JSON schema that enforces exact status field names
-	gameSchema := status.BuildResponseSchema(session.StatusFields)
 
 	// Build the request
 	req := ResponsesAPIRequest{
@@ -277,17 +274,18 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	response.ResponseRaw = &responseText
 
 	// Parse the AI response (uses flat status map) and convert to internal format
-	log.Debug("parsing OpenAI response", "response_length", len(responseText))
+	log.Debug("parsing OpenAI response", "response_length", len(responseText), "response_text", responseText)
 	var aiResp obj.GameSessionMessageAi
 	if err := json.Unmarshal([]byte(responseText), &aiResp); err != nil {
-		log.Debug("failed to parse game response", "error", err, "response_text", responseText[:min(200, len(responseText))])
+		log.Error("failed to parse game response", "error", err, "response_text", responseText)
 		return usage, fmt.Errorf("failed to parse game response: %w", err)
 	}
 
-	// Convert flat status map back to ordered []StatusField using session's field definitions
+	// Convert flat status map back to ordered []StatusField using session's field definitions.
+	// Pass action's current status as fallback in case the AI omits a field.
 	fieldNames := status.FieldNames(session.StatusFields)
 	response.Message = aiResp.Message
-	response.StatusFields = status.MapToFields(aiResp.Status, fieldNames)
+	response.StatusFields = status.MapToFields(aiResp.Status, fieldNames, status.FieldsToMap(action.StatusFields))
 	response.ImagePrompt = aiResp.ImagePrompt
 
 	// Update model session with new response ID

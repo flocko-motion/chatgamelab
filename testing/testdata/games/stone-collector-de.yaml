@@ -17,4 +17,4 @@ system_message_game_start: |
 
 image_style: "NO_IMAGE"
 css: ""
-status_fields: '[{"name":"Gold","value":"100"},{"name":"Score","value":"77"},{"name":"Tag","value":"1"},{"name":"Steine","value":"0"}]'
+status_fields: '[{"name":"Gold","value":"100"},{"name":"Score","value":"77"},{"name":"Tag","value":"1"},{"name":"Steine","value":"0"},{"name":"Haarfarbe","value":"schwarz"}]'

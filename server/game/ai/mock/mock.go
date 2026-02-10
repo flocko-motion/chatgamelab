@@ -42,7 +42,7 @@ func (p *MockPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
+func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	// Get field names from session to generate mock status
 	fieldNames := status.FieldNames(session.StatusFields)
 
@@ -54,7 +54,7 @@ func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSessi
 
 	// Fill in the pre-created message with lorem ipsum text
 	response.Message = lorem.Paragraph(3, 5)
-	response.StatusFields = status.MapToFields(mockStatusMap, fieldNames)
+	response.StatusFields = status.MapToFields(mockStatusMap, fieldNames, nil)
 	response.ImagePrompt = functional.Ptr(lorem.Sentence(5, 10))
 	response.GameSessionID = session.ID
 	response.Type = obj.GameSessionMessageTypeGame

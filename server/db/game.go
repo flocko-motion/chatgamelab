@@ -595,21 +595,15 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // The function loads game details and constructs the session object internally.
 // Parameters:
 // - userID: the user creating the session
-// - gameID: the game to play
+// - game: the game to play (possibly translated)
 // - apiKeyID: the API key to use (defines platform)
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
-	if err := canAccessGameSession(ctx, userID, OpCreate, nil, gameID, workshopID); err != nil {
+	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
-	}
-
-	// Load game to get details
-	game, err := queries().GetGameByID(ctx, gameID)
-	if err != nil {
-		return nil, obj.ErrNotFound("game not found")
 	}
 
 	// Load API key to get platform
@@ -634,7 +628,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		CreatedAt:    now,
 		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:   now,
-		GameID:       gameID,
+		GameID:       game.ID,
 		UserID:       userID,
 		WorkshopID:   uuidPtrToNullUUID(workshopID),
 		ApiKeyID:     uuid.NullUUID{UUID: apiKeyID, Valid: true},
@@ -944,14 +938,15 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	session := &obj.GameSession{
-		ID:         s.ID,
-		GameID:     s.GameID,
-		UserID:     s.UserID,
-		ApiKeyID:   nullUUIDToPtr(s.ApiKeyID),
-		AiPlatform: s.AiPlatform,
-		AiModel:    s.AiModel,
-		AiSession:  string(s.AiSession),
-		ImageStyle: s.ImageStyle,
+		ID:           s.ID,
+		GameID:       s.GameID,
+		UserID:       s.UserID,
+		ApiKeyID:     nullUUIDToPtr(s.ApiKeyID),
+		AiPlatform:   s.AiPlatform,
+		AiModel:      s.AiModel,
+		AiSession:    string(s.AiSession),
+		ImageStyle:   s.ImageStyle,
+		StatusFields: s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,

@@ -183,8 +183,8 @@ export function UserManagement() {
     return user.role?.role === "admin";
   }, []);
 
-  const hasNoRole = useCallback((user: ObjUser) => {
-    return !user.role || !user.role.role;
+  const isIndividual = useCallback((user: ObjUser) => {
+    return user.role?.role === 'individual';
   }, []);
 
   const canPromoteToAdmin = useCallback(

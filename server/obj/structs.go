@@ -356,6 +356,7 @@ type GameSessionMessage struct {
 	Message string `json:"message"`
 
 	PromptStatusUpdate    *string `json:"requestStatusUpdate,omitempty"`
+	PromptResponseSchema  *string `json:"requestResponseSchema,omitempty"`
 	PromptImageGeneration *string `json:"requestImageGeneration,omitempty"`
 	PromptExpandStory     *string `json:"requestExpandStory,omitempty"`
 	ResponseRaw           *string `json:"responseRaw,omitempty"`

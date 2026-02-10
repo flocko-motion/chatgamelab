@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -11,6 +12,7 @@ import (
 	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/imagecache"
+	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
 	"cgl/log"
@@ -201,7 +203,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Persist to database with theme
 	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game.ID, share.ApiKey.ID, aiModel, nil, theme)
+	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
@@ -272,18 +274,16 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
 	}
 
-	// Store player/system action message (skip for system messages which are just prompts)
-	// Track the player message so we can delete it if the AI action fails
-	var playerMessageID *uuid.UUID
-	if action.Type == obj.GameSessionMessageTypePlayer {
-		log.Debug("storing player action message", "session_id", session.ID)
-		playerMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
-		if err != nil {
-			log.Debug("failed to store player action", "session_id", session.ID, "error", err)
-			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store player action")
-		}
-		playerMessageID = &playerMsg.ID
+	// Store the action message (player or system) so it appears in session history.
+	// Track the message ID so we can delete it if the AI action fails.
+	var actionMessageID *uuid.UUID
+	log.Debug("storing action message", "session_id", session.ID, "type", action.Type)
+	actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
+	if err != nil {
+		log.Debug("failed to store action message", "session_id", session.ID, "error", err)
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
 	}
+	actionMessageID = &actionMsg.ID
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
 	log.Debug("creating streaming message", "session_id", session.ID)
@@ -299,9 +299,14 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
 	})
 
+	// Build game-specific JSON schema that enforces exact status field names
+	gameSchema := status.BuildResponseSchema(session.StatusFields)
+	gameSchemaJSON, _ := json.Marshal(gameSchema)
+
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
-	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
-	usage, err := platform.ExecuteAction(ctx, session, action, response)
+	log.Debug(fmt.Sprintf("executing AI action, session_id=%s, message_id=%s, schema=%s",
+		session.ID, response.ID, string(gameSchemaJSON)))
+	usage, err := platform.ExecuteAction(ctx, session, action, response, gameSchema)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
 		// Track API key usage failure
@@ -317,11 +322,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			log.Warn("failed to delete placeholder message after error", "message_id", response.ID, "error", delErr)
 		}
 
-		// Delete the player message too - it was never processed by the AI
-		if playerMessageID != nil {
-			if delErr := db.DeleteGameSessionMessage(ctx, *playerMessageID); delErr != nil {
-				log.Warn("failed to delete player message after error", "message_id", *playerMessageID, "error", delErr)
-			}
+		// Delete the action message too - it was never processed by the AI
+		if delErr := db.DeleteGameSessionMessage(ctx, *actionMessageID); delErr != nil {
+			log.Warn("failed to delete action message after error", "message_id", *actionMessageID, "error", delErr)
 		}
 		if errorCode == obj.ErrCodeBillingNotActive || errorCode == obj.ErrCodeInvalidApiKey || errorCode == obj.ErrCodeInsufficientQuota {
 			log.Debug("clearing session API key due to key error", "session_id", session.ID, "error_code", errorCode)
@@ -343,8 +346,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, true)
 	}
 	response.TokenUsage = &usage
-	// Set PromptStatusUpdate to the full JSON input sent to the AI
+	// Set prompts on response for transparency (educational debug view)
 	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
 

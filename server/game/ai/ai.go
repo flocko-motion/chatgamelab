@@ -33,7 +33,8 @@ type AiPlatform interface {
 
 	// ExecuteAction - blocking, returns structured JSON (plotOutline in Message, statusFields, imagePrompt)
 	// For system messages (first call), action.Message contains the system prompt/instructions
-	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error)
+	// gameSchema is the JSON schema enforcing exact status field names, built by the caller.
+	ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error)
 
 	// ExpandStory - async/streaming, expands plotOutline to full narrative text
 	// Streams text chunks to responseStream, updates response.Message with full text when done
