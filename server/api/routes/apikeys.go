@@ -22,11 +22,15 @@ type ShareRequest struct {
 	UserID        *uuid.UUID `json:"userId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
-	AllowPublic   bool       `json:"allowPublicSponsoredPlays"`
+	AllowPublic   bool       `json:"allowPublicGameSponsoring"`
 }
 
 type UpdateApiKeyRequest struct {
 	Name *string `json:"name,omitempty"`
+}
+
+type UpdateApiKeyShareRequest struct {
+	AllowPublicGameSponsoring *bool `json:"allowPublicGameSponsoring"`
 }
 
 type ApiKeyInfoResponse struct {
@@ -34,13 +38,18 @@ type ApiKeyInfoResponse struct {
 	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
 }
 
+type ApiKeysResponse struct {
+	ApiKeys []obj.ApiKey      `json:"apiKeys"`
+	Shares  []obj.ApiKeyShare `json:"shares"`
+}
+
 // GetApiKeys godoc
 //
 //	@Summary		List API keys
-//	@Description	Returns all API key shares accessible to the current user
+//	@Description	Returns the user's API keys and all their linked shares (org shares, sponsorships)
 //	@Tags			apikeys
 //	@Produce		json
-//	@Success		200	{array}		obj.ApiKeyShare
+//	@Success		200	{object}	ApiKeysResponse
 //	@Failure		401	{object}	httpx.ErrorResponse	"Unauthorized"
 //	@Failure		500	{object}	httpx.ErrorResponse
 //	@Security		BearerAuth
@@ -48,13 +57,23 @@ type ApiKeyInfoResponse struct {
 func GetApiKeys(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
 
-	keys, err := db.GetApiKeySharesByUser(r.Context(), user.ID)
+	apiKeys, shares, err := db.GetApiKeysWithShares(r.Context(), user.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get API keys: "+err.Error())
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, keys)
+	if apiKeys == nil {
+		apiKeys = []obj.ApiKey{}
+	}
+	if shares == nil {
+		shares = []obj.ApiKeyShare{}
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, ApiKeysResponse{
+		ApiKeys: apiKeys,
+		Shares:  shares,
+	})
 }
 
 // CreateApiKey godoc
@@ -220,6 +239,57 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 	if req.Name != nil {
 		if err := db.UpdateApiKeyName(r.Context(), user.ID, shareID, *req.Name); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update: "+err.Error())
+			return
+		}
+	}
+
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load updated share: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, share)
+}
+
+// UpdateApiKeyShare godoc
+//
+//	@Summary		Update API key share
+//	@Description	Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
+//	@Tags			apikeys
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"Share ID (UUID)"
+//	@Param			request	body		UpdateApiKeyShareRequest	true	"Update request"
+//	@Success		200		{object}	obj.ApiKeyShare
+//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
+//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
+//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/apikeys/{id}/sponsoring [patch]
+func UpdateApiKeyShare(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	shareID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
+		return
+	}
+
+	var req UpdateApiKeyShareRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	if req.AllowPublicGameSponsoring != nil {
+		if err := db.UpdateApiKeyShareAllowPublicGameSponsoring(r.Context(), user.ID, shareID, *req.AllowPublicGameSponsoring); err != nil {
+			if httpErr, ok := err.(*obj.HTTPError); ok {
+				httpx.WriteHTTPError(w, httpErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update share: "+err.Error())
 			return
 		}
 	}

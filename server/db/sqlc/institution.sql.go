@@ -24,7 +24,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier
 `
 
 type CreateInstitutionParams struct {
@@ -55,6 +55,8 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
 	)
 	return i, err
 }
@@ -65,14 +67,14 @@ INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
-  use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
+  ai_quality_tier, show_public_games, show_other_participants_games
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
-  $11, $12, $13, $14
+  $11, $12, $13
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
 `
 
 type CreateWorkshopParams struct {
@@ -86,8 +88,7 @@ type CreateWorkshopParams struct {
 	Active                     bool
 	Public                     bool
 	DefaultApiKeyShareID       uuid.NullUUID
-	UseSpecificAiModel         sql.NullString
-	ShowAiModelSelector        bool
+	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 }
@@ -105,8 +106,7 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		arg.Active,
 		arg.Public,
 		arg.DefaultApiKeyShareID,
-		arg.UseSpecificAiModel,
-		arg.ShowAiModelSelector,
+		arg.AiQualityTier,
 		arg.ShowPublicGames,
 		arg.ShowOtherParticipantsGames,
 	)
@@ -123,8 +123,7 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
-		&i.UseSpecificAiModel,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
 	)
@@ -213,7 +212,7 @@ func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) e
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier FROM institution WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
@@ -227,6 +226,8 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
 	)
 	return i, err
 }
@@ -277,7 +278,7 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 }
 
 const getWorkshopByID = `-- name: GetWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
@@ -295,8 +296,7 @@ func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
-		&i.UseSpecificAiModel,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
 	)
@@ -325,7 +325,7 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at FROM institution WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier FROM institution WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
@@ -345,6 +345,8 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.ModifiedAt,
 			&i.Name,
 			&i.DeletedAt,
+			&i.FreeUseApiKeyShareID,
+			&i.FreeUseAiQualityTier,
 		); err != nil {
 			return nil, err
 		}
@@ -360,7 +362,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 }
 
 const listWorkshops = `-- name: ListWorkshops :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
@@ -384,8 +386,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 			&i.Public,
 			&i.DeletedAt,
 			&i.DefaultApiKeyShareID,
-			&i.UseSpecificAiModel,
-			&i.ShowAiModelSelector,
+			&i.AiQualityTier,
 			&i.ShowPublicGames,
 			&i.ShowOtherParticipantsGames,
 		); err != nil {
@@ -403,7 +404,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 }
 
 const listWorkshopsByInstitution = `-- name: ListWorkshopsByInstitution :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]Workshop, error) {
@@ -427,8 +428,7 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 			&i.Public,
 			&i.DeletedAt,
 			&i.DefaultApiKeyShareID,
-			&i.UseSpecificAiModel,
-			&i.ShowAiModelSelector,
+			&i.AiQualityTier,
 			&i.ShowPublicGames,
 			&i.ShowOtherParticipantsGames,
 		); err != nil {
@@ -445,13 +445,29 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 	return items, nil
 }
 
+const setInstitutionFreeUseApiKeyShare = `-- name: SetInstitutionFreeUseApiKeyShare :exec
+UPDATE institution
+SET free_use_api_key_share_id = $2, modified_at = now()
+WHERE id = $1
+`
+
+type SetInstitutionFreeUseApiKeyShareParams struct {
+	ID                   uuid.UUID
+	FreeUseApiKeyShareID uuid.NullUUID
+}
+
+func (q *Queries) SetInstitutionFreeUseApiKeyShare(ctx context.Context, arg SetInstitutionFreeUseApiKeyShareParams) error {
+	_, err := q.db.ExecContext(ctx, setInstitutionFreeUseApiKeyShare, arg.ID, arg.FreeUseApiKeyShareID)
+	return err
+}
+
 const setWorkshopDefaultApiKey = `-- name: SetWorkshopDefaultApiKey :one
 UPDATE workshop SET
   modified_by = $2,
   modified_at = now(),
   default_api_key_share_id = $3
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
 `
 
 type SetWorkshopDefaultApiKeyParams struct {
@@ -475,8 +491,7 @@ func (q *Queries) SetWorkshopDefaultApiKey(ctx context.Context, arg SetWorkshopD
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
-		&i.UseSpecificAiModel,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
 	)
@@ -491,7 +506,7 @@ UPDATE institution SET
   modified_at = $5,
   name = $6
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier
 `
 
 type UpdateInstitutionParams struct {
@@ -521,8 +536,26 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.ModifiedAt,
 		&i.Name,
 		&i.DeletedAt,
+		&i.FreeUseApiKeyShareID,
+		&i.FreeUseAiQualityTier,
 	)
 	return i, err
+}
+
+const updateInstitutionFreeUseAiQualityTier = `-- name: UpdateInstitutionFreeUseAiQualityTier :exec
+UPDATE institution
+SET free_use_ai_quality_tier = $2, modified_at = now()
+WHERE id = $1
+`
+
+type UpdateInstitutionFreeUseAiQualityTierParams struct {
+	ID                   uuid.UUID
+	FreeUseAiQualityTier sql.NullString
+}
+
+func (q *Queries) UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, arg UpdateInstitutionFreeUseAiQualityTierParams) error {
+	_, err := q.db.ExecContext(ctx, updateInstitutionFreeUseAiQualityTier, arg.ID, arg.FreeUseAiQualityTier)
+	return err
 }
 
 const updateWorkshop = `-- name: UpdateWorkshop :one
@@ -536,12 +569,11 @@ UPDATE workshop SET
   active = $8,
   public = $9,
   default_api_key_share_id = $10,
-  use_specific_ai_model = $11,
-  show_ai_model_selector = $12,
-  show_public_games = $13,
-  show_other_participants_games = $14
+  ai_quality_tier = $11,
+  show_public_games = $12,
+  show_other_participants_games = $13
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
 `
 
 type UpdateWorkshopParams struct {
@@ -555,8 +587,7 @@ type UpdateWorkshopParams struct {
 	Active                     bool
 	Public                     bool
 	DefaultApiKeyShareID       uuid.NullUUID
-	UseSpecificAiModel         sql.NullString
-	ShowAiModelSelector        bool
+	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 }
@@ -573,8 +604,7 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		arg.Active,
 		arg.Public,
 		arg.DefaultApiKeyShareID,
-		arg.UseSpecificAiModel,
-		arg.ShowAiModelSelector,
+		arg.AiQualityTier,
 		arg.ShowPublicGames,
 		arg.ShowOtherParticipantsGames,
 	)
@@ -591,8 +621,7 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.Public,
 		&i.DeletedAt,
 		&i.DefaultApiKeyShareID,
-		&i.UseSpecificAiModel,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
 	)

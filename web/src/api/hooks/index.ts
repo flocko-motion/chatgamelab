@@ -19,6 +19,7 @@ export {
   useInstitutionApiKeys,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
+  useSetInstitutionFreeUseKey,
   useAvailableKeysForGame,
 } from "./useApiKeys";
 
@@ -32,9 +33,12 @@ export {
   useCloneGame,
   useExportGameYaml,
   useImportGameYaml,
+  useSponsorGame,
+  useRemoveGameSponsor,
   useFavoriteGames,
   useAddFavorite,
   useRemoveFavorite,
+  useApiKeyStatus,
   type UseGamesParams,
 } from "./useGames";
 
@@ -65,6 +69,7 @@ export {
   useRoles,
   useSystemSettings,
   useUpdateSystemSettings,
+  useSetSystemFreeUseKey,
   useVersion,
 } from "./useSystem";
 

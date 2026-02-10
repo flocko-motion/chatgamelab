@@ -58,6 +58,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.authentication",
     messageKey: "errors:invalidApiKey",
   },
+  [ErrorCodes.NO_API_KEY]: {
+    titleKey: "errors:titles.noApiKey",
+    messageKey: "errors:noApiKey",
+  },
   [ErrorCodes.ORG_VERIFICATION_REQUIRED]: {
     titleKey: "errors:titles.authentication",
     messageKey: "errors:orgVerificationRequired",
@@ -98,6 +102,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.authentication",
     messageKey: "errors:workshopInactive",
   },
+  [ErrorCodes.NETWORK_ERROR]: {
+    titleKey: "errors:titles.network",
+    messageKey: "errors:network",
+  },
 };
 
 export interface TranslatedError {
@@ -121,6 +129,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.CONFLICT:
     case ErrorCodes.INVALID_PLATFORM:
     case ErrorCodes.DUPLICATE_NAME:
+    case ErrorCodes.NO_API_KEY:
       return "orange";
     default:
       return "red";

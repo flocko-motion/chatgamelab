@@ -80,7 +80,7 @@ NARRATIVE STYLE
 
 The scenario:
 {{SCENARIO}}
-`
+{{GAME_START}}`
 
 func GetTemplate(game *obj.Game) (string, error) {
 	var statusFields []obj.StatusField
@@ -111,6 +111,13 @@ func GetTemplate(game *obj.Game) (string, error) {
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_PLAYER}}", obj.GameSessionMessageTypePlayer)
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_SYSTEM}}", obj.GameSessionMessageTypeSystem)
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.SystemMessageScenario)
+
+	// Append game start instructions if provided by the game creator
+	gameStart := ""
+	if game.SystemMessageGameStart != "" {
+		gameStart = fmt.Sprintf("\nHow to start the game:\n%s", game.SystemMessageGameStart)
+	}
+	instructions = strings.ReplaceAll(instructions, "{{GAME_START}}", gameStart)
 
 	return instructions, nil
 }

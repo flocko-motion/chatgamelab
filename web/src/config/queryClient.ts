@@ -96,7 +96,7 @@ export function handleApiError(
     }
 
     // The generated API client throws the HttpResponse object on error.
-    // The parsed error body is in the `.error` property — extract it first.
+    // The parsed error body is in the `.error` property - extract it first.
     const errorObj = error as Record<string, unknown>;
     const nested =
       errorObj.error && typeof errorObj.error === "object"
@@ -180,12 +180,12 @@ export function handleApiError(
       return;
     }
 
-    // All other known error codes — just show the modal
+    // All other known error codes - just show the modal
     showErrorModal({ code: errorCode });
     return;
   }
 
-  // Fallback: no error code — map HTTP status to an error code
+  // Fallback: no error code - map HTTP status to an error code
   const statusCodeMap: Record<number, string> = {
     401: "unauthorized",
     403: "forbidden",

@@ -87,8 +87,6 @@
       "saveButton": "ذخیره تغییرات",
       "saved": "تغییرات با موفقیت ذخیره شد",
       "saving": "در حال ذخیره...",
-      "showAiModelSelectorDescription": "اگر فعال باشد، هر بار که یک جلسه بازی را شروع می‌کنید می‌توانید مدل هوش مصنوعی مورد نظر را انتخاب کنید.",
-      "showAiModelSelectorLabel": "نمایش انتخاب‌گر مدل هوش مصنوعی",
       "subtitle": "تنظیمات حساب خود را مدیریت کنید",
       "title": "تنظیمات"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "ایجاد لینک دعوت",
         "createTitle": "ایجاد کارگاه",
         "deactivate": "غیرفعال‌سازی",
-        "defaultAiModel": "مدل پیش‌فرض هوش مصنوعی",
-        "defaultAiModelHint": "مدلی که وقتی شرکت‌کنندگان نمی‌توانند انتخاب کنند استفاده می‌شود. نیاز به تنظیم کلید API دارد.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "کلید API پیش‌فرض",
         "defaultApiKeyHint": "شرکت‌کنندگان هنگام بازی از این کلید API استفاده خواهند کرد.",
         "deleteConfirm": "آیا مطمئن هستید که می‌خواهید «{{name}}» را حذف کنید؟",
@@ -691,7 +692,7 @@
         "selectApiKey": "انتخاب یک کلید API",
         "settings": "تنظیمات",
         "shareParticipantLink": "کپی لینک دعوت فردی برای این شرکت‌کننده",
-        "showAiModelSelector": "اجازه انتخاب مدل هوش مصنوعی به شرکت‌کنندگان",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "نمایش بازی‌های سایر شرکت‌کنندگان",
         "showPublicGames": "نمایش بازی‌های عمومی به شرکت‌کنندگان",
         "sort": {

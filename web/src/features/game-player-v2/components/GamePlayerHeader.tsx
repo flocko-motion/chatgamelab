@@ -36,6 +36,8 @@ interface GamePlayerHeaderProps {
   // Settings toggles
   animationEnabled: boolean;
   onToggleAnimation: () => void;
+  textEffectsEnabled: boolean;
+  onToggleTextEffects: () => void;
   useNeutralTheme: boolean;
   onToggleNeutralTheme: () => void;
   debugMode: boolean;
@@ -69,6 +71,8 @@ export function GamePlayerHeader({
   resetFontSize,
   animationEnabled,
   onToggleAnimation,
+  textEffectsEnabled,
+  onToggleTextEffects,
   useNeutralTheme,
   onToggleNeutralTheme,
   debugMode,
@@ -99,11 +103,7 @@ export function GamePlayerHeader({
               {gameName || t("gamePlayer.unnamed")}
             </Text>
             {gameDescription && (
-              <Text
-                size="xs"
-                truncate
-                className={classes.headerDescription}
-              >
+              <Text size="xs" truncate className={classes.headerDescription}>
                 {gameDescription}
               </Text>
             )}
@@ -169,13 +169,24 @@ export function GamePlayerHeader({
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>{t("gamePlayer.header.settings")}</Menu.Label>
-              <Menu.Item
-                closeMenuOnClick={false}
-                onClick={onToggleAnimation}
-              >
+              <Menu.Item closeMenuOnClick={false} onClick={onToggleAnimation}>
                 <Checkbox
                   label={t("gamePlayer.header.disableAnimations")}
                   checked={!animationEnabled}
+                  readOnly
+                  tabIndex={-1}
+                  size="sm"
+                  styles={{
+                    root: { pointerEvents: "none" },
+                    input: { cursor: "pointer" },
+                    label: { cursor: "pointer" },
+                  }}
+                />
+              </Menu.Item>
+              <Menu.Item closeMenuOnClick={false} onClick={onToggleTextEffects}>
+                <Checkbox
+                  label={t("gamePlayer.header.disableTextEffects")}
+                  checked={!textEffectsEnabled}
                   readOnly
                   tabIndex={-1}
                   size="sm"
@@ -204,10 +215,7 @@ export function GamePlayerHeader({
                 />
               </Menu.Item>
               <Menu.Divider />
-              <Menu.Item
-                closeMenuOnClick={false}
-                onClick={onToggleDebugMode}
-              >
+              <Menu.Item closeMenuOnClick={false} onClick={onToggleDebugMode}>
                 <Checkbox
                   label={t("gamePlayer.header.debug")}
                   checked={debugMode}

@@ -87,8 +87,6 @@
       "saveButton": "حفظ التغييرات",
       "saved": "تم حفظ التغييرات بنجاح",
       "saving": "جارٍ الحفظ...",
-      "showAiModelSelectorDescription": "عند التفعيل، يمكنك اختيار نموذج الذكاء الاصطناعي الذي سيستخدم في كل مرة تبدأ فيها جلسة لعبة.",
-      "showAiModelSelectorLabel": "إظهار محدد نموذج الذكاء الاصطناعي",
       "subtitle": "إدارة إعدادات حسابك",
       "title": "الإعدادات"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "إنشاء رابط دعوة",
         "createTitle": "إنشاء ورشة",
         "deactivate": "تعطيل",
-        "defaultAiModel": "نموذج الذكاء الاصطناعي الافتراضي",
-        "defaultAiModelHint": "النموذج المستخدم عندما لا يمكن للمشاركين الاختيار. يتطلب تعيين مفتاح API.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "مفتاح API الافتراضي",
         "defaultApiKeyHint": "سيستخدم المشاركون هذا المفتاح عند اللعب.",
         "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟",
@@ -691,7 +692,7 @@
         "selectApiKey": "اختر مفتاح API",
         "settings": "الإعدادات",
         "shareParticipantLink": "نسخ رابط دعوة فردي لهذا المشارك",
-        "showAiModelSelector": "السماح للمشاركين باختيار نموذج الذكاء الاصطناعي",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "عرض ألعاب المشاركين الآخرين",
         "showPublicGames": "عرض الألعاب العامة للمشاركين",
         "sort": {

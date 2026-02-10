@@ -87,8 +87,6 @@
       "saveButton": "Запази промените",
       "saved": "Промените са записани успешно",
       "saving": "Записване...",
-      "showAiModelSelectorDescription": "Когато е активирано, можете да избирате кой AI модел да се използва всеки път, когато стартирате игрова сесия.",
-      "showAiModelSelectorLabel": "Покажи избор на AI модел",
       "subtitle": "Управлявайте настройките на акаунта си",
       "title": "Настройки"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Създай поканителен линк",
         "createTitle": "Създаване на работилница",
         "deactivate": "Деактивирай",
-        "defaultAiModel": "По подразбиране AI модел",
-        "defaultAiModelHint": "Моделът, използван когато участниците не могат да избират. Изисква зададен API ключ.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "По подразбиране API ключ",
         "defaultApiKeyHint": "Участниците ще използват този API ключ при игра.",
         "deleteConfirm": "Сигурни ли сте, че искате да изтриете \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Изберете API ключ",
         "settings": "Настройки",
         "shareParticipantLink": "Копирай индивидуален поканителен линк за този участник",
-        "showAiModelSelector": "Позволи на участниците да избират AI модел",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Показвай игрите на другите участници",
         "showPublicGames": "Показвай публични игри на участниците",
         "sort": {

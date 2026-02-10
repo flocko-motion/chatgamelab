@@ -32,7 +32,7 @@ func CreateInstitution(ctx context.Context, createdBy uuid.UUID, name string) (*
 		return nil, obj.ErrServerError("failed to create institution")
 	}
 
-	return &obj.Institution{
+	inst := &obj.Institution{
 		ID:   result.ID,
 		Name: result.Name,
 		Meta: obj.Meta{
@@ -41,7 +41,11 @@ func CreateInstitution(ctx context.Context, createdBy uuid.UUID, name string) (*
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	if result.FreeUseApiKeyShareID.Valid {
+		inst.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
+	}
+	return inst, nil
 }
 
 // GetInstitutionName retrieves just the institution name by ID (no permission check, for display only)
@@ -74,6 +78,12 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
+	}
+	if result.FreeUseApiKeyShareID.Valid {
+		institution.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
+	}
+	if result.FreeUseAiQualityTier.Valid {
+		institution.FreeUseAiQualityTier = &result.FreeUseAiQualityTier.String
 	}
 
 	// Load members if user has permission (admin, head, or staff of this institution)
@@ -149,7 +159,7 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 
 	institutions := make([]obj.Institution, 0, len(results))
 	for _, r := range results {
-		institutions = append(institutions, obj.Institution{
+		inst := obj.Institution{
 			ID:   r.ID,
 			Name: r.Name,
 			Meta: obj.Meta{
@@ -158,7 +168,11 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 				ModifiedBy: r.ModifiedBy,
 				ModifiedAt: &r.ModifiedAt,
 			},
-		})
+		}
+		if r.FreeUseApiKeyShareID.Valid {
+			inst.FreeUseApiKeyShareID = &r.FreeUseApiKeyShareID.UUID
+		}
+		institutions = append(institutions, inst)
 	}
 
 	return institutions, nil
@@ -192,7 +206,7 @@ func UpdateInstitution(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, 
 		return nil, obj.ErrServerError("failed to update institution")
 	}
 
-	return &obj.Institution{
+	inst2 := &obj.Institution{
 		ID:   result.ID,
 		Name: result.Name,
 		Meta: obj.Meta{
@@ -201,7 +215,36 @@ func UpdateInstitution(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, 
 			ModifiedBy: result.ModifiedBy,
 			ModifiedAt: &result.ModifiedAt,
 		},
-	}, nil
+	}
+	if result.FreeUseApiKeyShareID.Valid {
+		inst2.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
+	}
+	return inst2, nil
+}
+
+// SetInstitutionFreeUseApiKeyShare sets or clears the free-use API key share for an institution.
+// Permission check: head of the institution or admin.
+func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, shareID *uuid.UUID) error {
+	// Check permission - must be head or admin
+	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
+		return err
+	}
+
+	return queries().SetInstitutionFreeUseApiKeyShare(ctx, db.SetInstitutionFreeUseApiKeyShareParams{
+		ID:                   institutionID,
+		FreeUseApiKeyShareID: uuidPtrToNullUUID(shareID),
+	})
+}
+
+// UpdateInstitutionFreeUseAiQualityTier sets or clears the AI quality tier for the institution free-use key.
+func UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, tier *string) error {
+	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
+		return err
+	}
+	return queries().UpdateInstitutionFreeUseAiQualityTier(ctx, db.UpdateInstitutionFreeUseAiQualityTierParams{
+		ID:                   institutionID,
+		FreeUseAiQualityTier: stringPtrToNullString(tier),
+	})
 }
 
 // DeleteInstitution soft-deletes an institution (admin only)

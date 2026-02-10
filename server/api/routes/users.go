@@ -20,7 +20,7 @@ type UserUpdateRequest struct {
 	Name                 string     `json:"name"`
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
-	ShowAiModelSelector  *bool      `json:"showAiModelSelector,omitempty"`
+	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
 }
 
 type UsersNewRequest struct {
@@ -307,10 +307,14 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Handle showAiModelSelector update
-	if req.ShowAiModelSelector != nil {
-		if err := db.UpdateUserShowAiModelSelector(r.Context(), userID, *req.ShowAiModelSelector); err != nil {
-			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update AI model selector preference")
+	// Handle aiQualityTier update
+	if req.AiQualityTier != nil {
+		tier := req.AiQualityTier
+		if *tier == "" {
+			tier = nil // empty string means clear
+		}
+		if err := db.UpdateUserAiQualityTier(r.Context(), userID, tier); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update AI quality tier")
 			return
 		}
 	}

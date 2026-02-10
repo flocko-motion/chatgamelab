@@ -54,7 +54,7 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Create game session - game should be auto-translated to French
-	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String(), "gpt-5.2"))
+	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String()))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
 	// Log initial message

@@ -353,7 +353,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, usage, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
-		// For story expansion, partial text is still usable — don't fail if we got some output
+		// For story expansion, partial text is still usable - don't fail if we got some output
 		if len(fullText) > 0 {
 			log.Warn("OpenAI streaming API incomplete, using partial text",
 				"error", err,

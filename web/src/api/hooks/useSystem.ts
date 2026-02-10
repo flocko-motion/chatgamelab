@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { handleApiError } from "@/config/queryClient";
 import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { apiClient } from "../client";
 import { queryKeys } from "../queryKeys";
@@ -38,8 +39,7 @@ export function useSystemSettings() {
 
   return useQuery<ObjSystemSettings, HttpxErrorResponse>({
     queryKey: queryKeys.systemSettings,
-    queryFn: () =>
-      api.system.settingsList().then((response) => response.data),
+    queryFn: () => api.system.settingsList().then((response) => response.data),
   });
 }
 
@@ -64,9 +64,34 @@ export function useUpdateSystemSettings() {
     RoutesUpdateSystemSettingsRequest
   >({
     mutationFn: (request) =>
-      api.system.settingsPartialUpdate(request).then((response) => response.data),
+      api.system
+        .settingsPartialUpdate(request)
+        .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
     },
+  });
+}
+
+// Set/clear system free-use API key (admin only)
+export function useSetSystemFreeUseKey() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    ObjSystemSettings,
+    HttpxErrorResponse,
+    { apiKeyId: string | null }
+  >({
+    mutationFn: ({ apiKeyId }) =>
+      api.system
+        .settingsFreeUseKeyPartialUpdate({
+          apiKeyId: apiKeyId ?? undefined,
+        })
+        .then((response) => response.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
+    },
+    onError: handleApiError,
   });
 }

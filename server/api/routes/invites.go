@@ -445,7 +445,7 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 
 		// Authenticated user accepting open invite by token
 		// For now, reject non-participant authenticated users (e.g. Auth0/dev users)
-		// They should not join workshops as participants — workshop invites are for anonymous users
+		// They should not join workshops as participants - workshop invites are for anonymous users
 		if user.Role == nil || user.Role.Role != obj.RoleParticipant {
 			httpx.WriteAppError(w, obj.ErrConflict("You are already logged in with an account. Workshop invite links are for new participants. Please log out first if you want to join as a participant."))
 			return

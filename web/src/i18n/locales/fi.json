@@ -87,8 +87,6 @@
       "saveButton": "Tallenna muutokset",
       "saved": "Muutokset tallennettu",
       "saving": "Tallennetaan...",
-      "showAiModelSelectorDescription": "Kun tämä on käytössä, voit valita käytettävän tekoälymallin aina pelisession alkaessa.",
-      "showAiModelSelectorLabel": "Näytä tekoälymallin valitsin",
       "subtitle": "Hallitse tilisi asetuksia",
       "title": "Asetukset"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Luo kutsulinkki",
         "createTitle": "Luo työpaja",
         "deactivate": "Poista käytöstä",
-        "defaultAiModel": "Oletus-KI-malli",
-        "defaultAiModelHint": "Malli, jota käytetään, kun osallistujat eivät voi valita. Vaatii API-avaimen asettamisen.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Oletus-API-avain",
         "defaultApiKeyHint": "Osallistujat käyttävät tätä API-avainta pelatessaan.",
         "deleteConfirm": "Haluatko varmasti poistaa \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Valitse API-avain",
         "settings": "Asetukset",
         "shareParticipantLink": "Kopioi yksilöllinen kutsulinkki tälle osallistujalle",
-        "showAiModelSelector": "Salli osallistujien valita tekoälymalli",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Näytä muiden osallistujien pelit",
         "showPublicGames": "Näytä osallistujille julkiset pelit",
         "sort": {

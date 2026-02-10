@@ -31,16 +31,16 @@ type Meta struct {
 }
 
 type User struct {
-	ID                  uuid.UUID     `json:"id"`
-	Meta                Meta          `json:"meta"`
-	Name                string        `json:"name"`
-	Email               *string       `json:"email"`
-	DeletedAt           *time.Time    `json:"deletedAt"`
-	Auth0Id             *string       `json:"auth0Id"`
-	Role                *UserRole     `json:"role"`
-	ApiKeys             []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
-	ShowAiModelSelector bool          `json:"showAiModelSelector"`
-	Language            string        `json:"language"` // ISO 639-1 language code (e.g., "en", "de", "fr")
+	ID            uuid.UUID     `json:"id"`
+	Meta          Meta          `json:"meta"`
+	Name          string        `json:"name"`
+	Email         *string       `json:"email"`
+	DeletedAt     *time.Time    `json:"deletedAt"`
+	Auth0Id       *string       `json:"auth0Id"`
+	Role          *UserRole     `json:"role"`
+	ApiKeys       []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
+	AiQualityTier *string       `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
+	Language      string        `json:"language"`                // ISO 639-1 language code (e.g., "en", "de", "fr")
 }
 
 // UserStats contains aggregated statistics for a user
@@ -52,10 +52,12 @@ type UserStats struct {
 }
 
 type Institution struct {
-	ID      uuid.UUID           `json:"id"`
-	Meta    Meta                `json:"meta"`
-	Name    string              `json:"name"`
-	Members []InstitutionMember `json:"members,omitempty"`
+	ID                   uuid.UUID           `json:"id"`
+	Meta                 Meta                `json:"meta"`
+	Name                 string              `json:"name"`
+	Members              []InstitutionMember `json:"members,omitempty"`
+	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
+	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
 }
 
 type InstitutionMember struct {
@@ -66,10 +68,12 @@ type InstitutionMember struct {
 }
 
 type SystemSettings struct {
-	ID             uuid.UUID  `json:"id"`
-	CreatedAt      *time.Time `json:"createdAt"`
-	ModifiedAt     *time.Time `json:"modifiedAt"`
-	DefaultAiModel string     `json:"defaultAiModel"`
+	ID                   uuid.UUID  `json:"id"`
+	CreatedAt            *time.Time `json:"createdAt"`
+	ModifiedAt           *time.Time `json:"modifiedAt"`
+	DefaultAiQualityTier string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
+	FreeUseAiQualityTier *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
+	FreeUseApiKeyID      *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 }
 
 type Role string
@@ -112,8 +116,7 @@ type Workshop struct {
 	Participants         []WorkshopParticipant `json:"participants,omitempty"`
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 	// Workshop settings (configured by staff/heads)
-	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
-	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }
@@ -142,11 +145,12 @@ type ApiKey struct {
 	LastUsageSuccess *bool     `json:"lastUsageSuccess"`
 }
 
-// ApiKeyShare represents how an API key is shared with a user, workshop, or institution.
+// ApiKeyShare represents how an API key is shared with a user, workshop, institution, or game.
 // The ApiKey contains owner info (UserID, UserName). The share target is one of:
 // - User (for direct user-to-user sharing)
 // - Workshop (for workshop-scoped sharing)
 // - Institution (for institution-wide sharing)
+// - Game (for game sponsoring)
 type ApiKeyShare struct {
 	ID                        uuid.UUID    `json:"id"`
 	Meta                      Meta         `json:"meta"`
@@ -155,7 +159,8 @@ type ApiKeyShare struct {
 	User                      *User        `json:"user,omitempty"`
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
-	AllowPublicSponsoredPlays bool         `json:"allowPublicSponsoredPlays"`
+	Game                      *Game        `json:"game,omitempty"`
+	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 }
 
@@ -178,12 +183,12 @@ type Game struct {
 	WorkshopID *uuid.UUID `json:"workshopId,omitempty" yaml:"-"`
 	// Access rights and payments. public = true: discoverable on the website and playable by anyone.
 	Public bool `json:"public" yaml:"-"`
-	// If public, a sponsored API key can be provided to pay for any public plays.
-	PublicSponsoredApiKeyID *uuid.UUID `json:"publicSponsoredApiKeyId" yaml:"-"`
+	// If public, a sponsored API key share can be provided to pay for any public plays.
+	PublicSponsoredApiKeyShareID *uuid.UUID `json:"publicSponsoredApiKeyShareId" yaml:"-"`
 	// Private share links contain secret random tokens to limit access to the game.
 	// They are sponsored, so invited players don't require their own API key.
-	PrivateShareHash         *string    `json:"privateShareHash" yaml:"-"`
-	PrivateSponsoredApiKeyID *uuid.UUID `json:"privateSponsoredApiKeyId" yaml:"-"`
+	PrivateShareHash              *string    `json:"privateShareHash" yaml:"-"`
+	PrivateSponsoredApiKeyShareID *uuid.UUID `json:"privateSponsoredApiKeyShareId" yaml:"-"`
 	// Game details and system messages for the LLM.
 	// What is the game about? How does it work? Player role? World description?
 	SystemMessageScenario string `json:"systemMessageScenario" yaml:"system_message_scenario"`
@@ -196,6 +201,8 @@ type Game struct {
 	CSS string `json:"css" yaml:"css"`
 	// The status fields available to the LLM, shaping the JSON format for status.
 	StatusFields string `json:"statusFields" yaml:"status_fields"`
+	// Optional visual theme override. When set, used directly instead of AI-generating per session.
+	Theme *GameTheme `json:"theme,omitempty" yaml:"-"`
 	// Quick start: pre-generated first scene of the game.
 	// This is generated content (first output after the system message) and may be
 	// regenerated from time to time to avoid being too static.

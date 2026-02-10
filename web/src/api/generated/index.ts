@@ -98,9 +98,10 @@ export interface ObjApiKey {
 }
 
 export interface ObjApiKeyShare {
-  allowPublicSponsoredPlays?: boolean;
+  allowPublicGameSponsoring?: boolean;
   apiKey?: ObjApiKey;
   apiKeyId?: string;
+  game?: ObjGame;
   id?: string;
   institution?: ObjInstitution;
   isUserDefault?: boolean;
@@ -154,11 +155,11 @@ export interface ObjGame {
    * They are sponsored, so invited players don't require their own API key.
    */
   privateShareHash?: string;
-  privateSponsoredApiKeyId?: string;
+  privateSponsoredApiKeyShareId?: string;
   /** Access rights and payments. public = true: discoverable on the website and playable by anyone. */
   public?: boolean;
-  /** If public, a sponsored API key can be provided to pay for any public plays. */
-  publicSponsoredApiKeyId?: string;
+  /** If public, a sponsored API key share can be provided to pay for any public plays. */
+  publicSponsoredApiKeyShareId?: string;
   /** The status fields available to the LLM, shaping the JSON format for status. */
   statusFields?: string;
   /** How should the game start? First scene? How is the player welcomed? */
@@ -169,6 +170,8 @@ export interface ObjGame {
    */
   systemMessageScenario?: string;
   tags?: ObjGameTag[];
+  /** Optional visual theme override. When set, used directly instead of AI-generating per session. */
+  theme?: ObjGameTheme;
   /** Optional workshop scope (games can be created within a workshop context) */
   workshopId?: string;
 }
@@ -244,6 +247,9 @@ export interface ObjGameTheme {
 }
 
 export interface ObjInstitution {
+  /** high/medium/low, nil = server default */
+  freeUseAiQualityTier?: string;
+  freeUseApiKeyShareId?: string;
   id?: string;
   members?: ObjInstitutionMember[];
   meta?: ObjMeta;
@@ -271,7 +277,11 @@ export interface ObjStatusField {
 
 export interface ObjSystemSettings {
   createdAt?: string;
-  defaultAiModel?: string;
+  /** ultimate server-wide fallback (e.g. "medium") */
+  defaultAiQualityTier?: string;
+  /** tier for system free-use key, nil = use default */
+  freeUseAiQualityTier?: string;
+  freeUseApiKeyId?: string;
   id?: string;
   modifiedAt?: string;
 }
@@ -283,6 +293,8 @@ export interface ObjTokenUsage {
 }
 
 export interface ObjUser {
+  /** high/medium/low, nil = server default */
+  aiQualityTier?: string;
   auth0Id?: string;
   deletedAt?: string;
   email?: string;
@@ -292,7 +304,6 @@ export interface ObjUser {
   meta?: ObjMeta;
   name?: string;
   role?: ObjUserRole;
-  showAiModelSelector?: boolean;
 }
 
 export interface ObjUserRole {
@@ -330,6 +341,8 @@ export interface ObjUserStats {
 
 export interface ObjWorkshop {
   active?: boolean;
+  /** Workshop settings (configured by staff/heads) */
+  aiQualityTier?: string;
   defaultApiKeyShareId?: string;
   id?: string;
   institution?: ObjInstitution;
@@ -338,11 +351,8 @@ export interface ObjWorkshop {
   name?: string;
   participants?: ObjWorkshopParticipant[];
   public?: boolean;
-  showAiModelSelector?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
-  /** Workshop settings (configured by staff/heads) */
-  useSpecificAiModel?: string;
 }
 
 export interface ObjWorkshopParticipant {
@@ -367,6 +377,11 @@ export interface RoutesApiKeyInfoResponse {
   share?: ObjApiKeyShare;
 }
 
+export interface RoutesApiKeysResponse {
+  apiKeys?: ObjApiKey[];
+  shares?: ObjApiKeyShare[];
+}
+
 export interface RoutesCreateApiKeyRequest {
   key?: string;
   name?: string;
@@ -388,10 +403,6 @@ export interface RoutesCreateInstitutionInviteRequest {
 
 export interface RoutesCreateInstitutionRequest {
   name?: string;
-}
-
-export interface RoutesCreateSessionRequest {
-  model?: string;
 }
 
 export interface RoutesCreateWorkshopInviteRequest {
@@ -512,6 +523,14 @@ export interface RoutesSetActiveWorkshopRequest {
   workshopId?: string;
 }
 
+export interface RoutesSetFreeUseApiKeyRequest {
+  apiKeyId?: string;
+}
+
+export interface RoutesSetInstitutionFreeUseKeyRequest {
+  shareId?: string;
+}
+
 export interface RoutesSetUserRoleRequest {
   institutionId?: string;
   role?: string;
@@ -523,10 +542,14 @@ export interface RoutesSetWorkshopApiKeyRequest {
 }
 
 export interface RoutesShareRequest {
-  allowPublicSponsoredPlays?: boolean;
+  allowPublicGameSponsoring?: boolean;
   institutionId?: string;
   userId?: string;
   workshopId?: string;
+}
+
+export interface RoutesSponsorGameRequest {
+  shareId?: string;
 }
 
 export interface RoutesStatusResponse {
@@ -538,29 +561,33 @@ export interface RoutesUpdateApiKeyRequest {
   name?: string;
 }
 
+export interface RoutesUpdateApiKeyShareRequest {
+  allowPublicGameSponsoring?: boolean;
+}
+
 export interface RoutesUpdateInstitutionRequest {
   name?: string;
 }
 
 export interface RoutesUpdateSystemSettingsRequest {
-  defaultAiModel?: string;
+  defaultAiQualityTier?: string;
+  freeUseAiQualityTier?: string;
 }
 
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
+  aiQualityTier?: string;
   name?: string;
   public?: boolean;
-  showAiModelSelector?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
-  useSpecificAiModel?: string;
 }
 
 export interface RoutesUserUpdateRequest {
+  aiQualityTier?: string;
   defaultApiKeyShareId?: string;
   email?: string;
   name?: string;
-  showAiModelSelector?: boolean;
 }
 
 export interface RoutesUsersJwtResponse {
@@ -855,7 +882,7 @@ export class Api<
 > extends HttpClient<SecurityDataType> {
   apikeys = {
     /**
-     * @description Returns all API key shares accessible to the current user
+     * @description Returns the user's API keys and all their linked shares (org shares, sponsorships)
      *
      * @tags apikeys
      * @name ApikeysList
@@ -864,7 +891,7 @@ export class Api<
      * @secure
      */
     apikeysList: (params: RequestParams = {}) =>
-      this.request<ObjApiKeyShare[], HttpxErrorResponse>({
+      this.request<RoutesApiKeysResponse, HttpxErrorResponse>({
         path: `/apikeys`,
         method: "GET",
         secure: true,
@@ -998,6 +1025,30 @@ export class Api<
       this.request<ObjApiKeyShare, HttpxErrorResponse>({
         path: `/apikeys/${id}/shares`,
         method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
+     *
+     * @tags apikeys
+     * @name SponsoringPartialUpdate
+     * @summary Update API key share
+     * @request PATCH:/apikeys/{id}/sponsoring
+     * @secure
+     */
+    sponsoringPartialUpdate: (
+      id: string,
+      request: RoutesUpdateApiKeyShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjApiKeyShare, HttpxErrorResponse>({
+        path: `/apikeys/${id}/sponsoring`,
+        method: "PATCH",
         body: request,
         secure: true,
         type: ContentType.Json,
@@ -1212,6 +1263,24 @@ export class Api<
       }),
 
     /**
+     * @description Checks whether an API key can be resolved for the current user and game.
+     *
+     * @tags games
+     * @name ApiKeyStatusList
+     * @summary Check API key availability
+     * @request GET:/games/{id}/api-key-status
+     * @secure
+     */
+    apiKeyStatusList: (id: string, params: RequestParams = {}) =>
+      this.request<Record<string, boolean>, HttpxErrorResponse>({
+        path: `/games/${id}/api-key-status`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Returns a prioritized list of API keys available to the user for playing this game
      *
      * @tags games
@@ -1310,17 +1379,54 @@ export class Api<
      * @request POST:/games/{id}/sessions
      * @secure
      */
-    sessionsCreate: (
-      id: string,
-      request: RoutesCreateSessionRequest,
-      params: RequestParams = {},
-    ) =>
+    sessionsCreate: (id: string, params: RequestParams = {}) =>
       this.request<RoutesSessionResponse, HttpxErrorResponse>({
         path: `/games/${id}/sessions`,
         method: "POST",
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets a public sponsorship on a game using an API key share
+     *
+     * @tags games
+     * @name SponsorUpdate
+     * @summary Sponsor a game
+     * @request PUT:/games/{id}/sponsor
+     * @secure
+     */
+    sponsorUpdate: (
+      id: string,
+      request: RoutesSponsorGameRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/sponsor`,
+        method: "PUT",
         body: request,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes the public sponsorship from a game
+     *
+     * @tags games
+     * @name SponsorDelete
+     * @summary Remove game sponsorship
+     * @request DELETE:/games/{id}/sponsor
+     * @secure
+     */
+    sponsorDelete: (id: string, params: RequestParams = {}) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/games/${id}/sponsor`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -1477,6 +1583,30 @@ export class Api<
         path: `/institutions/${id}/apikeys`,
         method: "GET",
         secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets or clears the free-use API key share for an institution. Any institution member can use this key to play for free. Pass null shareId to clear.
+     *
+     * @tags institutions
+     * @name FreeUseKeyPartialUpdate
+     * @summary Set institution free-use API key share
+     * @request PATCH:/institutions/{id}/free-use-key
+     * @secure
+     */
+    freeUseKeyPartialUpdate: (
+      id: string,
+      request: RoutesSetInstitutionFreeUseKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
         format: "json",
         ...params,
       }),
@@ -2002,6 +2132,29 @@ export class Api<
         path: `/system/settings`,
         method: "PATCH",
         body: request,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Sets or clears the global free-use API key (admin only). The admin's own API key will be used directly. Pass null apiKeyId to clear.
+     *
+     * @tags system
+     * @name SettingsFreeUseKeyPartialUpdate
+     * @summary Set system free-use API key
+     * @request PATCH:/system/settings/free-use-key
+     * @secure
+     */
+    settingsFreeUseKeyPartialUpdate: (
+      request: RoutesSetFreeUseApiKeyRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjSystemSettings, HttpxErrorResponse>({
+        path: `/system/settings/free-use-key`,
+        method: "PATCH",
+        body: request,
+        secure: true,
         type: ContentType.Json,
         format: "json",
         ...params,

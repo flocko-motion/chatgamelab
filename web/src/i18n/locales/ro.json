@@ -87,8 +87,6 @@
       "saveButton": "Salvează modificările",
       "saved": "Modificările au fost salvate cu succes",
       "saving": "Se salvează...",
-      "showAiModelSelectorDescription": "Când este activată, poți alege ce model AI să folosești de fiecare dată când pornești o sesiune de joc.",
-      "showAiModelSelectorLabel": "Afișează selectorul de model AI",
       "subtitle": "Gestionează setările contului tău",
       "title": "Setări"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Creează link de invitație",
         "createTitle": "Creează atelier",
         "deactivate": "Dezactivează",
-        "defaultAiModel": "Model AI implicit",
-        "defaultAiModelHint": "Model folosit când participanții nu pot alege. Necesită o cheie API setată.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Cheie API implicită",
         "defaultApiKeyHint": "Participanții vor folosi această cheie API când joacă.",
         "deleteConfirm": "Ești sigur/ă că vrei să ștergi \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Selectează o cheie API",
         "settings": "Setări",
         "shareParticipantLink": "Copiază linkul individual de invitație pentru acest participant",
-        "showAiModelSelector": "Permite participanților să selecteze modelul AI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Afișează jocurile celorlalți participanți",
         "showPublicGames": "Afișează jocurile publice participanților",
         "sort": {

@@ -1,20 +1,20 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Container, Title, Text, Stack, Alert } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/providers/AuthProvider';
-import { getUserInstitutionId, Role, hasRole } from '@/common/lib/roles';
-import { ApiKeysTab } from '@/features/my-organization/components/ApiKeysTab';
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
+import { createFileRoute } from "@tanstack/react-router";
+import { Container, Title, Text, Stack, Alert } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "@/providers/AuthProvider";
+import { getUserInstitutionId, Role, hasRole } from "@/common/lib/roles";
+import { ApiKeysTab } from "@/features/my-organization/components/ApiKeysTab";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/api/queryKeys";
+import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 
-export const Route = createFileRoute('/my-organization/api-keys')({
+export const Route = createFileRoute("/my-organization/api-keys")({
   component: OrganizationApiKeysPage,
 });
 
 function OrganizationApiKeysPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
   const { backendUser } = useAuth();
   const api = useRequiredAuthenticatedApi();
 
@@ -38,8 +38,12 @@ function OrganizationApiKeysPage() {
   if (!institutionId) {
     return (
       <Container size="xl" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('myOrganization.noOrganization')} color="yellow">
-          {t('myOrganization.noOrganizationDescription')}
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          title={t("myOrganization.noOrganization")}
+          color="yellow"
+        >
+          {t("myOrganization.noOrganizationDescription")}
         </Alert>
       </Container>
     );
@@ -49,8 +53,12 @@ function OrganizationApiKeysPage() {
   if (!canManageApiKeys) {
     return (
       <Container size="xl" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title={t('error')} color="red">
-          {t('myOrganization.apiKeys.notAuthorized')}
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          title={t("error")}
+          color="red"
+        >
+          {t("myOrganization.apiKeys.notAuthorized")}
         </Alert>
       </Container>
     );
@@ -61,9 +69,11 @@ function OrganizationApiKeysPage() {
       <Stack gap="lg">
         {/* Header */}
         <Stack gap={0}>
-          <Title order={2}>{t('myOrganization.apiKeys.title')}</Title>
+          <Title order={2}>{t("myOrganization.apiKeys.title")}</Title>
           {institution?.name && (
-            <Text c="dimmed" size="sm">{institution.name}</Text>
+            <Text c="dimmed" size="sm">
+              {institution.name}
+            </Text>
           )}
         </Stack>
 
@@ -71,6 +81,7 @@ function OrganizationApiKeysPage() {
         <ApiKeysTab
           institutionId={institutionId}
           institutionName={institution?.name}
+          freeUseApiKeyShareId={institution?.freeUseApiKeyShareId}
         />
       </Stack>
     </Container>

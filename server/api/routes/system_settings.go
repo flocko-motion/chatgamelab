@@ -7,6 +7,8 @@ import (
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 // GetSystemSettings godoc
@@ -30,7 +32,8 @@ func GetSystemSettings(w http.ResponseWriter, r *http.Request) {
 
 // UpdateSystemSettingsRequest is the request body for updating system settings
 type UpdateSystemSettingsRequest struct {
-	DefaultAiModel string `json:"defaultAiModel"`
+	DefaultAiQualityTier *string `json:"defaultAiQualityTier"`
+	FreeUseAiQualityTier *string `json:"freeUseAiQualityTier"`
 }
 
 // UpdateSystemSettings godoc
@@ -61,15 +64,26 @@ func UpdateSystemSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.DefaultAiModel == "" {
-		httpx.WriteError(w, http.StatusBadRequest, "defaultAiModel is required")
-		return
+	if req.DefaultAiQualityTier != nil {
+		if *req.DefaultAiQualityTier == "" {
+			httpx.WriteError(w, http.StatusBadRequest, "defaultAiQualityTier cannot be empty")
+			return
+		}
+		if err := db.UpdateDefaultAiQualityTier(r.Context(), *req.DefaultAiQualityTier); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update default AI quality tier: "+err.Error())
+			return
+		}
 	}
 
-	// Update the default AI model
-	if err := db.UpdateDefaultAiModel(r.Context(), req.DefaultAiModel); err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update settings: "+err.Error())
-		return
+	if req.FreeUseAiQualityTier != nil {
+		tier := req.FreeUseAiQualityTier
+		if *tier == "" {
+			tier = nil // empty string means clear
+		}
+		if err := db.UpdateFreeUseAiQualityTier(r.Context(), tier); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use AI quality tier: "+err.Error())
+			return
+		}
 	}
 
 	// Return updated settings
@@ -80,4 +94,54 @@ func UpdateSystemSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, settings)
+}
+
+// SetFreeUseApiKeyRequest is the request body for setting the system free-use API key
+type SetFreeUseApiKeyRequest struct {
+	ApiKeyID *uuid.UUID `json:"apiKeyId"`
+}
+
+// SetSystemFreeUseApiKey godoc
+//
+//	@Summary		Set system free-use API key
+//	@Description	Sets or clears the global free-use API key (admin only).
+//	@Description	The admin's own API key will be used directly.
+//	@Description	Pass null apiKeyId to clear.
+//	@Tags			system
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		SetFreeUseApiKeyRequest	true	"API Key ID to set (null to clear)"
+//	@Success		200		{object}	obj.SystemSettings
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/system/settings/free-use-key [patch]
+func SetSystemFreeUseApiKey(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	// Require admin
+	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
+		return
+	}
+
+	var req SetFreeUseApiKeyRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	if err := db.UpdateSystemSettingsFreeUseApiKey(r.Context(), req.ApiKeyID); err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use key: "+err.Error())
+		return
+	}
+
+	updatedSettings, err := db.GetSystemSettings(r.Context())
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated settings: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updatedSettings)
 }

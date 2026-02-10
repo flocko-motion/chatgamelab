@@ -87,9 +87,7 @@ function RootComponent() {
 
   // Redirect workshop mode users from dashboard to my-workshop
   const shouldRedirectWorkshopMode =
-    !isLoading &&
-    isInWorkshopMode &&
-    pathname === ROUTES.DASHBOARD;
+    !isLoading && isInWorkshopMode && pathname === ROUTES.DASHBOARD;
 
   // All hooks must be called before any early returns
   useEffect(() => {
@@ -230,6 +228,12 @@ function RootComponent() {
   // Admin-only navigation items
   if (isAdmin(backendUser)) {
     navItems.push(
+      {
+        label: t("serverSettings"),
+        icon: <IconSettings size={18} />,
+        onClick: () => navigate({ to: ROUTES.ADMIN_SERVER_SETTINGS as "/" }),
+        active: pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS),
+      },
       {
         label: t("manageOrganizations"),
         icon: <IconBuilding size={18} />,

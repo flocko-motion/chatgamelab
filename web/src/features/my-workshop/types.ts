@@ -5,8 +5,7 @@ export type GameFilter = "all" | "mine" | "workshop" | "public";
 export interface WorkshopSettings {
   showPublicGames: boolean;
   showOtherParticipantsGames: boolean;
-  showAiModelSelector?: boolean;
-  useSpecificAiModel?: string;
+  aiQualityTier?: string;
 }
 
 export interface GameSessionState {

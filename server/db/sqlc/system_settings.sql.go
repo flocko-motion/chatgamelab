@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -18,16 +19,20 @@ SELECT
   id,
   created_at,
   modified_at,
-  default_ai_model
+  default_ai_quality_tier,
+  free_use_ai_quality_tier,
+  free_use_api_key_id
 FROM system_settings
 LIMIT 1
 `
 
 type GetSystemSettingsRow struct {
-	ID             uuid.UUID
-	CreatedAt      time.Time
-	ModifiedAt     time.Time
-	DefaultAiModel string
+	ID                   uuid.UUID
+	CreatedAt            time.Time
+	ModifiedAt           time.Time
+	DefaultAiQualityTier string
+	FreeUseAiQualityTier sql.NullString
+	FreeUseApiKeyID      uuid.NullUUID
 }
 
 // System Settings queries
@@ -38,30 +43,56 @@ func (q *Queries) GetSystemSettings(ctx context.Context) (GetSystemSettingsRow, 
 		&i.ID,
 		&i.CreatedAt,
 		&i.ModifiedAt,
-		&i.DefaultAiModel,
+		&i.DefaultAiQualityTier,
+		&i.FreeUseAiQualityTier,
+		&i.FreeUseApiKeyID,
 	)
 	return i, err
 }
 
 const initSystemSettings = `-- name: InitSystemSettings :exec
-INSERT INTO system_settings (id, default_ai_model)
+INSERT INTO system_settings (id, default_ai_quality_tier)
 VALUES ('00000000-0000-0000-0000-000000000001'::uuid, $1)
 ON CONFLICT DO NOTHING
 `
 
-func (q *Queries) InitSystemSettings(ctx context.Context, defaultAiModel string) error {
-	_, err := q.db.ExecContext(ctx, initSystemSettings, defaultAiModel)
+func (q *Queries) InitSystemSettings(ctx context.Context, defaultAiQualityTier string) error {
+	_, err := q.db.ExecContext(ctx, initSystemSettings, defaultAiQualityTier)
 	return err
 }
 
-const updateDefaultAiModel = `-- name: UpdateDefaultAiModel :exec
+const updateDefaultAiQualityTier = `-- name: UpdateDefaultAiQualityTier :exec
 UPDATE system_settings
 SET
-  default_ai_model = $1,
+  default_ai_quality_tier = $1,
   modified_at = now()
 `
 
-func (q *Queries) UpdateDefaultAiModel(ctx context.Context, defaultAiModel string) error {
-	_, err := q.db.ExecContext(ctx, updateDefaultAiModel, defaultAiModel)
+func (q *Queries) UpdateDefaultAiQualityTier(ctx context.Context, defaultAiQualityTier string) error {
+	_, err := q.db.ExecContext(ctx, updateDefaultAiQualityTier, defaultAiQualityTier)
+	return err
+}
+
+const updateFreeUseAiQualityTier = `-- name: UpdateFreeUseAiQualityTier :exec
+UPDATE system_settings
+SET
+  free_use_ai_quality_tier = $1,
+  modified_at = now()
+`
+
+func (q *Queries) UpdateFreeUseAiQualityTier(ctx context.Context, freeUseAiQualityTier sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, updateFreeUseAiQualityTier, freeUseAiQualityTier)
+	return err
+}
+
+const updateSystemSettingsFreeUseApiKey = `-- name: UpdateSystemSettingsFreeUseApiKey :exec
+UPDATE system_settings
+SET
+  free_use_api_key_id = $1,
+  modified_at = now()
+`
+
+func (q *Queries) UpdateSystemSettingsFreeUseApiKey(ctx context.Context, freeUseApiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, updateSystemSettingsFreeUseApiKey, freeUseApiKeyID)
 	return err
 }

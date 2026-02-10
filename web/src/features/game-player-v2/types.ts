@@ -30,7 +30,7 @@ export interface SceneMessage {
   imageErrorCode?: string;
   timestamp: Date;
   seq?: number;
-  /** Set when a player message failed (AI error) — shows red with retry */
+  /** Set when a player message failed (AI error) - shows red with retry */
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
@@ -45,7 +45,7 @@ export interface StreamChunk {
   errorCode?: string; // Machine-readable error code (maps to frontend i18n)
 }
 
-/** Response from GET /messages/{id}/status — unified polling endpoint */
+/** Response from GET /messages/{id}/status - unified polling endpoint */
 export interface MessageStatus {
   text: string;
   textDone: boolean;
@@ -93,7 +93,7 @@ export interface GamePlayerState {
   error: string | null;
   /** Full error object for error code extraction */
   errorObject: unknown;
-  /** Recoverable error from SSE stream (mid-game AI errors) — player can dismiss and retry */
+  /** Recoverable error from SSE stream (mid-game AI errors) - player can dismiss and retry */
   streamError: StreamError | null;
   /** AI-generated visual theme from the session */
   theme: ObjGameTheme | null;
@@ -109,10 +109,10 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
   let imageHash: string | undefined;
   if (msg.imagePrompt) {
     if (msg.stream) {
-      // Still streaming — polling will determine actual status
+      // Still streaming - polling will determine actual status
       imageStatus = "generating";
     } else {
-      // Completed message with image prompt — image is persisted
+      // Completed message with image prompt - image is persisted
       imageStatus = "complete";
       imageHash = "persisted";
     }
@@ -148,7 +148,8 @@ export function mapApiThemeToPartial(
 
   // Load preset (deep clone to avoid mutating the original)
   // Fall back to 'default' when preset is empty or unknown
-  const presetKey = apiTheme.preset && PRESETS[apiTheme.preset] ? apiTheme.preset : 'default';
+  const presetKey =
+    apiTheme.preset && PRESETS[apiTheme.preset] ? apiTheme.preset : "default";
   const presetDef = PRESETS[presetKey];
   const result: PartialGameTheme = JSON.parse(JSON.stringify(presetDef.theme));
 

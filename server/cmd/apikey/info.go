@@ -66,7 +66,7 @@ func runInfo(cmd *cobra.Command, args []string) {
 			}
 
 			allowPublic := "no"
-			if s.AllowPublicSponsoredPlays {
+			if s.AllowPublicGameSponsoring {
 				allowPublic = "yes"
 			}
 

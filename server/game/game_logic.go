@@ -47,67 +47,28 @@ func extractAIErrorCode(err error) string {
 	}
 }
 
-// resolveApiKeyForSession resolves the API key for a new game session using priority:
-//  1. Workshop key (if user is in a workshop with a configured default key)
-//  2. User's default API key share
-//
-// The resolved key determines the AI platform used for the session.
-// Returns the resolved share or an HTTPError if no key is available.
-func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.ApiKeyShare, *obj.HTTPError) {
-	// Load user for workshop/default key resolution
-	user, err := db.GetUserByID(ctx, userID)
-	if err != nil {
-		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
-	}
-
-	// 1. Check for workshop key (if user is a workshop participant)
-	if user.Role != nil && user.Role.Workshop != nil {
-		workshop, err := db.GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
-		if err == nil && workshop.DefaultApiKeyShareID != nil {
-			share, err := db.GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
-			if err == nil {
-				log.Debug("resolved workshop key", "workshop_id", user.Role.Workshop.ID, "share_id", share.ID, "platform", share.ApiKey.Platform)
-				return share, nil
-			}
-			log.Warn("workshop default API key share not accessible", "share_id", *workshop.DefaultApiKeyShareID, "error", err)
-		}
-	}
-
-	// 2. Check user's default API key (is_default=true on api_key table)
-	defaultKey, _ := db.GetDefaultApiKeyForUser(ctx, userID)
-	if defaultKey != nil {
-		// Find the self-share for this key so we can return an ApiKeyShare
-		share, err := db.GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
-		if err == nil {
-			log.Debug("resolved user default key", "key_id", defaultKey.ID, "share_id", share.ID, "platform", defaultKey.Platform)
-			return share, nil
-		}
-		log.Warn("user default API key self-share not found", "key_id", defaultKey.ID, "error", err)
-	}
-
-	// No key found
-	log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
-	return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
-}
-
 // CreateSession creates a new game session for a user.
-// The API key is resolved server-side using the following priority:
-//  1. Sponsor key (game-level public/private sponsored key)
-//  2. Workshop key (if user is a workshop participant)
-//  3. User's default API key share
+// The API key and AI quality tier are resolved server-side using the following priority:
+//  1. Workshop key + workshop.aiQualityTier
+//  2. Sponsored game key (public sponsor on the game)
+//  3. Institution free-use key + institution.freeUseAiQualityTier
+//  4. User's default API key + user.aiQualityTier
+//  5. System free-use key + system_settings.freeUseAiQualityTier
 //
 // If no key can be resolved, returns ErrCodeNoApiKey.
-// If model is empty, the platform's default model will be used.
+// If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
 // Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, aiModel string) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	log.Debug("creating session", "user_id", userID, "game_id", gameID, "ai_model", aiModel)
+func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
+	log.Debug("creating session", "user_id", userID, "game_id", gameID)
 
-	// Resolve API key using priority chain
-	share, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
+	// Resolve API key and AI quality tier using priority chain
+	resolved, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
 	if httpErr != nil {
 		return nil, nil, httpErr
 	}
-	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID)
+	share := resolved.Share
+	aiModel := resolved.AiQualityTier
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID, "ai_quality_tier", aiModel)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -168,23 +129,29 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, aiMo
 	var translatedGame *obj.Game
 	var sessionUsage obj.TokenUsage
 
-	// Start theme generation
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		start := time.Now()
-		log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-		t, themeUsage, err := GenerateTheme(ctx, tempSession, game)
-		mu.Lock()
-		sessionUsage = sessionUsage.Add(themeUsage)
-		mu.Unlock()
-		if err != nil {
-			log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
-		} else {
-			log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
-			theme = t
-		}
-	}()
+	// Use game-level theme if set, otherwise generate via AI
+	if game.Theme != nil {
+		log.Debug("using game-level theme override", "game_id", gameID, "preset", game.Theme.Preset)
+		theme = game.Theme
+	} else {
+		// Start theme generation
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
+			t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
+			mu.Lock()
+			sessionUsage = sessionUsage.Add(themeUsage)
+			mu.Unlock()
+			if err != nil {
+				log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
+			} else {
+				log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
+				theme = t
+			}
+		}()
+	}
 
 	// Start game translation if user language is not English
 	var fieldNameMap map[string]string
@@ -358,6 +325,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			if clearErr := db.ClearGameSessionApiKey(ctx, session.ID); clearErr != nil {
 				log.Warn("failed to clear session API key", "session_id", session.ID, "error", clearErr)
 			}
+
+			// Auto-remove sponsorship if the failing key was a sponsored game key
+			if removed := autoRemoveSponsorshipOnKeyFailure(ctx, session.GameID, session.ApiKey.ID); removed {
+				return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeSponsoredApiKeyNotWorking, fmt.Sprintf("Sponsored API key is not working: %v", err))
+			}
 		}
 
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
@@ -444,9 +416,33 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	return response, nil
 }
 
+// autoRemoveSponsorshipOnKeyFailure checks if the failing API key is the game's public sponsor
+// and auto-removes the sponsorship if so. Returns true if sponsorship was removed.
+func autoRemoveSponsorshipOnKeyFailure(ctx context.Context, gameID uuid.UUID, apiKeyID uuid.UUID) bool {
+	game, err := db.GetGameByID(ctx, nil, gameID)
+	if err != nil || game.PublicSponsoredApiKeyShareID == nil {
+		return false
+	}
+
+	// Check if the sponsored share uses the failing API key
+	share, err := db.GetApiKeyShareByID(ctx, uuid.Nil, *game.PublicSponsoredApiKeyShareID)
+	if err != nil || share.ApiKey == nil || share.ApiKey.ID != apiKeyID {
+		return false
+	}
+
+	// The failing key is the sponsor - remove the sponsorship
+	if clearErr := db.ClearGamePublicSponsorshipByShareID(ctx, gameID, *game.PublicSponsoredApiKeyShareID); clearErr != nil {
+		log.Warn("failed to auto-remove game sponsorship", "game_id", gameID, "share_id", *game.PublicSponsoredApiKeyShareID, "error", clearErr)
+		return false
+	}
+
+	log.Info("auto-removed game sponsorship due to key failure", "game_id", gameID, "api_key_id", apiKeyID)
+	return true
+}
+
 // RetryImageGeneration re-triggers image generation for a message that has an imagePrompt
 // but no persisted image. Called when loading a session and detecting a missing image.
-// Runs asynchronously — the frontend will poll /messages/{id}/status to track progress.
+// Runs asynchronously - the frontend will poll /messages/{id}/status to track progress.
 // Only retries if images are enabled on the session and the message is not already generating.
 func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMessage) {
 	if session == nil || message == nil {
@@ -480,7 +476,7 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 		return
 	}
 
-	// Create a stream for the image generation (no SSE consumer — just for the ImageSaver)
+	// Create a stream for the image generation (no SSE consumer - just for the ImageSaver)
 	responseStream := stream.Get().Create(context.Background(), message, func(messageID uuid.UUID, imageData []byte) error {
 		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
 	})

@@ -1,31 +1,43 @@
-import type { ObjGame } from '@/api/generated';
+import type { ObjGame } from "@/api/generated";
 
-export type GameFilter = 'all' | 'own' | 'public' | 'organization' | 'favorites';
+export type GameFilter =
+  | "all"
+  | "own"
+  | "public"
+  | "organization"
+  | "favorites"
+  | "sponsored";
 
-export type GameSortField = 'name' | 'createdAt' | 'modifiedAt' | 'playCount' | 'visibility' | 'creator';
+export type GameSortField =
+  | "name"
+  | "createdAt"
+  | "modifiedAt"
+  | "playCount"
+  | "visibility"
+  | "creator";
 
 export interface GameSortConfig {
   field: GameSortField;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
 }
 
 export function filterGames(
   games: ObjGame[],
   filter: GameFilter,
-  currentUserId?: string
+  currentUserId?: string,
 ): ObjGame[] {
   switch (filter) {
-    case 'own':
+    case "own":
       return games.filter((game) => game.meta?.createdBy === currentUserId);
-    case 'public':
+    case "public":
       return games.filter((game) => game.public === true);
-    case 'organization':
+    case "organization":
       // TODO: Filter by organization when backend supports it
       return games;
-    case 'favorites':
+    case "favorites":
       // TODO: Filter by favorites when backend supports it
       return games;
-    case 'all':
+    case "all":
     default:
       return games;
   }
@@ -40,17 +52,17 @@ export function sortGames(games: ObjGame[], config: GameSortConfig): ObjGame[] {
     let bVal: string | number | undefined;
 
     switch (field) {
-      case 'name':
-        aVal = a.name?.toLowerCase() ?? '';
-        bVal = b.name?.toLowerCase() ?? '';
+      case "name":
+        aVal = a.name?.toLowerCase() ?? "";
+        bVal = b.name?.toLowerCase() ?? "";
         break;
-      case 'createdAt':
-        aVal = a.meta?.createdAt ?? '';
-        bVal = b.meta?.createdAt ?? '';
+      case "createdAt":
+        aVal = a.meta?.createdAt ?? "";
+        bVal = b.meta?.createdAt ?? "";
         break;
-      case 'modifiedAt':
-        aVal = a.meta?.modifiedAt ?? '';
-        bVal = b.meta?.modifiedAt ?? '';
+      case "modifiedAt":
+        aVal = a.meta?.modifiedAt ?? "";
+        bVal = b.meta?.modifiedAt ?? "";
         break;
     }
 
@@ -58,8 +70,8 @@ export function sortGames(games: ObjGame[], config: GameSortConfig): ObjGame[] {
     if (aVal === undefined) return 1;
     if (bVal === undefined) return -1;
 
-    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
-    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+    if (aVal < bVal) return direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return direction === "asc" ? 1 : -1;
     return 0;
   });
 

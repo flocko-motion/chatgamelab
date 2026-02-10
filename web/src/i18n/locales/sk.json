@@ -87,8 +87,6 @@
       "saveButton": "Uložiť zmeny",
       "saved": "Zmeny boli úspešne uložené",
       "saving": "Ukladanie...",
-      "showAiModelSelectorDescription": "Ak je povolené, pri každom spustení hry si môžete vybrať, ktorý AI model sa použije.",
-      "showAiModelSelectorLabel": "Zobraziť výber AI modelu",
       "subtitle": "Spravujte nastavenia svojho účtu",
       "title": "Nastavenia"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Vytvoriť pozývací odkaz",
         "createTitle": "Vytvoriť workshop",
         "deactivate": "Deaktivovať",
-        "defaultAiModel": "Predvolený AI model",
-        "defaultAiModelHint": "Model používaný, keď si účastníci nemôžu vybrať. Vyžaduje nastavený API kľúč.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Predvolený API kľúč",
         "defaultApiKeyHint": "Účastníci budú pri hraní používať tento API kľúč.",
         "deleteConfirm": "Naozaj chcete vymazať \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Vybrať API kľúč",
         "settings": "Nastavenia",
         "shareParticipantLink": "Kopírovať individuálny pozývací odkaz pre tohto účastníka",
-        "showAiModelSelector": "Umožniť účastníkom vybrať AI model",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Zobraziť hry ostatných účastníkov",
         "showPublicGames": "Zobraziť verejné hry účastníkom",
         "sort": {

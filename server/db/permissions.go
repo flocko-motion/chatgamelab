@@ -687,16 +687,22 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 
 		// Check sponsorship context
 		if gameID != nil {
-			// Load game to check if this key sponsors it
+			// Load game to check if this key sponsors it (via share)
 			game, err := queries().GetGameByID(ctx, *gameID)
 			if err == nil {
-				// Public game with sponsored key
-				if game.Public && game.PublicSponsoredApiKeyID.Valid && game.PublicSponsoredApiKeyID.UUID == apiKeyID {
-					return nil
+				// Public game with sponsored key share
+				if game.Public && game.PublicSponsoredApiKeyShareID.Valid {
+					share, err := queries().GetApiKeyShareByID(ctx, game.PublicSponsoredApiKeyShareID.UUID)
+					if err == nil && share.ApiKeyID == apiKeyID {
+						return nil
+					}
 				}
-				// Private game with sponsored key (share link context)
-				if game.PrivateSponsoredApiKeyID.Valid && game.PrivateSponsoredApiKeyID.UUID == apiKeyID {
-					return nil
+				// Private game with sponsored key share
+				if game.PrivateSponsoredApiKeyShareID.Valid {
+					share, err := queries().GetApiKeyShareByID(ctx, game.PrivateSponsoredApiKeyShareID.UUID)
+					if err == nil && share.ApiKeyID == apiKeyID {
+						return nil
+					}
 				}
 			}
 		}
@@ -707,7 +713,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
 				for _, share := range shares {
-					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicSponsoredPlays {
+					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicGameSponsoring {
 						return nil
 					}
 				}

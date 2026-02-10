@@ -23,8 +23,7 @@ type UpdateWorkshopRequest struct {
 	Name                       string  `json:"name"`
 	Active                     bool    `json:"active"`
 	Public                     bool    `json:"public"`
-	UseSpecificAiModel         *string `json:"useSpecificAiModel,omitempty"`
-	ShowAiModelSelector        bool    `json:"showAiModelSelector"`
+	AiQualityTier              *string `json:"aiQualityTier,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 }
@@ -211,8 +210,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		Name:                       req.Name,
 		Active:                     req.Active,
 		Public:                     req.Public,
-		UseSpecificAiModel:         req.UseSpecificAiModel,
-		ShowAiModelSelector:        req.ShowAiModelSelector,
+		AiQualityTier:              req.AiQualityTier,
 		ShowPublicGames:            req.ShowPublicGames,
 		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
 	}

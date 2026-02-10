@@ -144,7 +144,10 @@ export function GameStateScreen({
                 leftSection={<IconKey size={16} />}
                 onClick={() => navigate({ to: "/api-keys" })}
               >
-                {t("gamePlayer.error.noApiKey.goToSettings", "API Key Settings")}
+                {t(
+                  "gamePlayer.error.noApiKey.goToSettings",
+                  "API Key Settings",
+                )}
               </ActionButton>
             )}
           </Group>
@@ -178,7 +181,7 @@ export function GameStateScreen({
     );
   }
 
-  // Session exists but API key was deleted — auto-resolving server-side
+  // Session exists but API key was deleted - auto-resolving server-side
   if (phase === "needs-api-key") {
     return (
       <Box className={classes.container}>
@@ -189,7 +192,9 @@ export function GameStateScreen({
           gap="md"
         >
           <Loader size="lg" color="accent" />
-          <Text fw={600}>{t("gamePlayer.loading.resolvingKey", "Resolving API key...")}</Text>
+          <Text fw={600}>
+            {t("gamePlayer.loading.resolvingKey", "Resolving API key...")}
+          </Text>
         </Stack>
       </Box>
     );
@@ -215,6 +220,6 @@ export function GameStateScreen({
     );
   }
 
-  // No state screen needed — return null so the caller renders the game
+  // No state screen needed - return null so the caller renders the game
   return null;
 }

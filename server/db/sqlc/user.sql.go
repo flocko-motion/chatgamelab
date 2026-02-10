@@ -1008,7 +1008,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -1026,14 +1026,14 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -1051,14 +1051,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (App
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, show_ai_model_selector, language FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -1076,14 +1076,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.Language,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.show_ai_model_selector, u.language
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.ai_quality_tier, u.language
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -1110,7 +1110,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.Auth0ID,
 		&i.ParticipantToken,
 		&i.DefaultApiKeyShareID,
-		&i.ShowAiModelSelector,
+		&i.AiQualityTier,
 		&i.Language,
 	)
 	return i, err
@@ -1139,6 +1139,7 @@ SELECT
   u.deleted_at,
   u.auth0_id,
   u.default_api_key_share_id,
+  u.ai_quality_tier,
   u.language,
   r.id           AS role_id,
   r.role         AS role,
@@ -1148,14 +1149,12 @@ SELECT
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
-  w.show_ai_model_selector AS workshop_show_ai_model_selector,
-  w.use_specific_ai_model AS workshop_use_specific_ai_model,
+  w.ai_quality_tier AS workshop_ai_quality_tier,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
-  aw.show_ai_model_selector AS active_workshop_show_ai_model_selector,
-  aw.use_specific_ai_model AS active_workshop_use_specific_ai_model
+  aw.ai_quality_tier AS active_workshop_ai_quality_tier
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
@@ -1184,6 +1183,7 @@ type GetUserDetailsByIDRow struct {
 	DeletedAt                                sql.NullTime
 	Auth0ID                                  sql.NullString
 	DefaultApiKeyShareID                     uuid.NullUUID
+	AiQualityTier                            sql.NullString
 	Language                                 string
 	RoleID                                   uuid.NullUUID
 	Role                                     sql.NullString
@@ -1193,14 +1193,12 @@ type GetUserDetailsByIDRow struct {
 	WorkshopName                             sql.NullString
 	WorkshopShowPublicGames                  sql.NullBool
 	WorkshopShowOtherParticipantsGames       sql.NullBool
-	WorkshopShowAiModelSelector              sql.NullBool
-	WorkshopUseSpecificAiModel               sql.NullString
+	WorkshopAiQualityTier                    sql.NullString
 	ActiveWorkshopID                         uuid.NullUUID
 	ActiveWorkshopName                       sql.NullString
 	ActiveWorkshopShowPublicGames            sql.NullBool
 	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
-	ActiveWorkshopShowAiModelSelector        sql.NullBool
-	ActiveWorkshopUseSpecificAiModel         sql.NullString
+	ActiveWorkshopAiQualityTier              sql.NullString
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1217,6 +1215,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DeletedAt,
 		&i.Auth0ID,
 		&i.DefaultApiKeyShareID,
+		&i.AiQualityTier,
 		&i.Language,
 		&i.RoleID,
 		&i.Role,
@@ -1226,14 +1225,12 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopName,
 		&i.WorkshopShowPublicGames,
 		&i.WorkshopShowOtherParticipantsGames,
-		&i.WorkshopShowAiModelSelector,
-		&i.WorkshopUseSpecificAiModel,
+		&i.WorkshopAiQualityTier,
 		&i.ActiveWorkshopID,
 		&i.ActiveWorkshopName,
 		&i.ActiveWorkshopShowPublicGames,
 		&i.ActiveWorkshopShowOtherParticipantsGames,
-		&i.ActiveWorkshopShowAiModelSelector,
-		&i.ActiveWorkshopUseSpecificAiModel,
+		&i.ActiveWorkshopAiQualityTier,
 	)
 	return i, err
 }
@@ -1679,6 +1676,23 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	return err
 }
 
+const updateUserAiQualityTier = `-- name: UpdateUserAiQualityTier :exec
+UPDATE app_user SET
+  ai_quality_tier = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserAiQualityTierParams struct {
+	ID            uuid.UUID
+	AiQualityTier sql.NullString
+}
+
+func (q *Queries) UpdateUserAiQualityTier(ctx context.Context, arg UpdateUserAiQualityTierParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserAiQualityTier, arg.ID, arg.AiQualityTier)
+	return err
+}
+
 const updateUserLanguage = `-- name: UpdateUserLanguage :exec
 UPDATE app_user SET
   language = $2,
@@ -1693,22 +1707,5 @@ type UpdateUserLanguageParams struct {
 
 func (q *Queries) UpdateUserLanguage(ctx context.Context, arg UpdateUserLanguageParams) error {
 	_, err := q.db.ExecContext(ctx, updateUserLanguage, arg.ID, arg.Language)
-	return err
-}
-
-const updateUserShowAiModelSelector = `-- name: UpdateUserShowAiModelSelector :exec
-UPDATE app_user SET
-  show_ai_model_selector = $2,
-  modified_at = now()
-WHERE id = $1
-`
-
-type UpdateUserShowAiModelSelectorParams struct {
-	ID                  uuid.UUID
-	ShowAiModelSelector bool
-}
-
-func (q *Queries) UpdateUserShowAiModelSelector(ctx context.Context, arg UpdateUserShowAiModelSelectorParams) error {
-	_, err := q.db.ExecContext(ctx, updateUserShowAiModelSelector, arg.ID, arg.ShowAiModelSelector)
 	return err
 }

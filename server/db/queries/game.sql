@@ -10,10 +10,11 @@ INSERT INTO game (
   created_at, modified_by, modified_at,
   name, description, icon,
   workshop_id,
-  public, public_sponsored_api_key_id,
-  private_share_hash, private_sponsored_api_key_id,
+  public, public_sponsored_api_key_share_id,
+  private_share_hash, private_sponsored_api_key_share_id,
   system_message_scenario, system_message_game_start,
   image_style, css, status_fields,
+  theme,
   first_message, first_status, first_image,
   originally_created_by, play_count, clone_count
 ) VALUES (
@@ -25,8 +26,9 @@ INSERT INTO game (
   $12, $13,
   $14, $15,
   $16, $17, $18,
-  $19, $20, $21,
-  $22, $23, $24
+  $19,
+  $20, $21, $22,
+  $23, $24, $25
 )
 RETURNING *;
 
@@ -223,18 +225,19 @@ UPDATE game SET
   description = $7,
   icon = $8,
   public = $9,
-  public_sponsored_api_key_id = $10,
+  public_sponsored_api_key_share_id = $10,
   private_share_hash = $11,
-  private_sponsored_api_key_id = $12,
+  private_sponsored_api_key_share_id = $12,
   system_message_scenario = $13,
   system_message_game_start = $14,
   image_style = $15,
   css = $16,
   status_fields = $17,
-  first_message = $18,
-  first_status = $19,
-  first_image = $20,
-  originally_created_by = $21
+  theme = $18,
+  first_message = $19,
+  first_status = $20,
+  first_image = $21,
+  originally_created_by = $22
 WHERE id = $1
 RETURNING *;
 

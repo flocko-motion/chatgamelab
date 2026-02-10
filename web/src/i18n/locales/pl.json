@@ -87,8 +87,6 @@
       "saveButton": "Zapisz zmiany",
       "saved": "Zmiany zapisane pomyślnie",
       "saving": "Zapisywanie...",
-      "showAiModelSelectorDescription": "Po włączeniu możesz wybierać model SI przy każdym rozpoczęciu sesji gry.",
-      "showAiModelSelectorLabel": "Pokaż wybór modelu SI",
       "subtitle": "Zarządzaj ustawieniami konta",
       "title": "Ustawienia"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Utwórz link zaproszenia",
         "createTitle": "Utwórz warsztat",
         "deactivate": "Dezaktywuj",
-        "defaultAiModel": "Domyślny model SI",
-        "defaultAiModelHint": "Model używany, gdy uczestnicy nie mogą wybierać. Wymaga ustawionego klucza API.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Domyślny klucz API",
         "defaultApiKeyHint": "Uczestnicy będą używać tego klucza API podczas grania.",
         "deleteConfirm": "Czy na pewno chcesz usunąć \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Wybierz klucz API",
         "settings": "Ustawienia",
         "shareParticipantLink": "Skopiuj indywidualny link zaproszenia dla tego uczestnika",
-        "showAiModelSelector": "Pozwól uczestnikom wybierać model SI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Pokaż gry innych uczestników",
         "showPublicGames": "Pokaż uczestnikom gry publiczne",
         "sort": {

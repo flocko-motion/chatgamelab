@@ -28,6 +28,16 @@ UPDATE institution SET
 WHERE id = $1
 RETURNING *;
 
+-- name: SetInstitutionFreeUseApiKeyShare :exec
+UPDATE institution
+SET free_use_api_key_share_id = $2, modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateInstitutionFreeUseAiQualityTier :exec
+UPDATE institution
+SET free_use_ai_quality_tier = $2, modified_at = now()
+WHERE id = $1;
+
 -- name: DeleteInstitution :exec
 UPDATE institution SET deleted_at = now() WHERE id = $1;
 
@@ -48,12 +58,12 @@ INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
-  use_specific_ai_model, show_ai_model_selector, show_public_games, show_other_participants_games
+  ai_quality_tier, show_public_games, show_other_participants_games
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
-  $11, $12, $13, $14
+  $11, $12, $13
 )
 RETURNING *;
 
@@ -77,10 +87,9 @@ UPDATE workshop SET
   active = $8,
   public = $9,
   default_api_key_share_id = $10,
-  use_specific_ai_model = $11,
-  show_ai_model_selector = $12,
-  show_public_games = $13,
-  show_other_participants_games = $14
+  ai_quality_tier = $11,
+  show_public_games = $12,
+  show_other_participants_games = $13
 WHERE id = $1
 RETURNING *;
 

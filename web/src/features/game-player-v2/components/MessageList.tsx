@@ -1,3 +1,5 @@
+import { Alert } from "@mantine/core";
+import { IconKeyOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { SceneMessage } from "../types";
 import { SceneCard } from "./SceneCard";
@@ -12,6 +14,7 @@ interface MessageListProps {
   messages: SceneMessage[];
   isWaitingForResponse: boolean;
   isImageGenerationDisabled: boolean;
+  apiKeyUnavailable?: boolean;
   onSendAction: (message: string) => Promise<void>;
   onRetryLastAction: () => void;
 }
@@ -20,6 +23,7 @@ export function MessageList({
   messages,
   isWaitingForResponse,
   isImageGenerationDisabled,
+  apiKeyUnavailable,
   onSendAction,
   onRetryLastAction,
 }: MessageListProps) {
@@ -69,17 +73,32 @@ export function MessageList({
     }
   }
 
-  // Show input inline when user can type
+  // Show input inline when user can type, or a banner if API key is unavailable
   if (!isWaitingForResponse && messages.length > 0) {
-    elements.push(
-      <div key="inline-input" className={classes.inlineInput}>
-        <PlayerInput
-          onSend={onSendAction}
-          disabled={isWaitingForResponse}
-          placeholder={t("gamePlayer.input.placeholder")}
-        />
-      </div>,
-    );
+    if (apiKeyUnavailable) {
+      elements.push(
+        <div key="api-key-banner" className={classes.inlineInput}>
+          <Alert
+            variant="filled"
+            color="red"
+            icon={<IconKeyOff size={18} />}
+            radius="md"
+          >
+            {t("gamePlayer.error.noApiKey.banner")}
+          </Alert>
+        </div>,
+      );
+    } else {
+      elements.push(
+        <div key="inline-input" className={classes.inlineInput}>
+          <PlayerInput
+            onSend={onSendAction}
+            disabled={isWaitingForResponse}
+            placeholder={t("gamePlayer.input.placeholder")}
+          />
+        </div>,
+      );
+    }
   }
 
   return <>{elements}</>;

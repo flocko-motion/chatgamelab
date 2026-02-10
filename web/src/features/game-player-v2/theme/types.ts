@@ -1,56 +1,157 @@
 /**
  * Game Player Theme Types
- * 
+ *
  * Defines the schema for customizable game player theming.
  * The current default style is preserved - themes allow non-destructive customization.
  */
 
 /** Corner decoration styles */
-export type CornerStyle = 'brackets' | 'flourish' | 'arrows' | 'dots' | 'dot' | 'cursor' | 'none';
+export type CornerStyle =
+  | "brackets"
+  | "flourish"
+  | "arrows"
+  | "dots"
+  | "dot"
+  | "cursor"
+  | "none";
 
 /** Available accent colors (corners, chevrons, drop caps, player accents) */
-export type ThemeColor = 
-  | 'amber' | 'emerald' | 'cyan' | 'violet' | 'rose' | 'slate' 
-  | 'hacker' | 'terminal'
-  | 'brown' | 'brownLight' | 'pink' | 'pinkLight' | 'orange' | 'orangeLight'
-  | 'sky' | 'indigo' | 'lime' | 'sunshine' | 'coral' | 'lavender' | 'teal';
+export type ThemeColor =
+  | "amber"
+  | "emerald"
+  | "cyan"
+  | "violet"
+  | "rose"
+  | "slate"
+  | "hacker"
+  | "terminal"
+  | "brown"
+  | "brownLight"
+  | "pink"
+  | "pinkLight"
+  | "orange"
+  | "orangeLight"
+  | "sky"
+  | "indigo"
+  | "lime"
+  | "sunshine"
+  | "coral"
+  | "lavender"
+  | "teal";
 
 /** Message card background colors */
-export type CardBgColor = 
-  | 'white' | 'creme' | 'dark' | 'black' 
-  | 'blue' | 'blueLight' | 'green' | 'greenLight' | 'red' | 'redLight'
-  | 'amber' | 'amberLight' | 'violet' | 'violetLight' | 'rose' | 'roseLight' | 'cyan' | 'cyanLight'
-  | 'pink' | 'pinkLight' | 'orange' | 'orangeLight'
-  | 'skyLight' | 'indigoLight' | 'limeLight' | 'sunshineLight' | 'coralLight' | 'lavenderLight' | 'tealLight';
+export type CardBgColor =
+  | "white"
+  | "creme"
+  | "dark"
+  | "black"
+  | "blue"
+  | "blueLight"
+  | "green"
+  | "greenLight"
+  | "red"
+  | "redLight"
+  | "amber"
+  | "amberLight"
+  | "violet"
+  | "violetLight"
+  | "rose"
+  | "roseLight"
+  | "cyan"
+  | "cyanLight"
+  | "pink"
+  | "pinkLight"
+  | "orange"
+  | "orangeLight"
+  | "skyLight"
+  | "indigoLight"
+  | "limeLight"
+  | "sunshineLight"
+  | "coralLight"
+  | "lavenderLight"
+  | "tealLight";
 
 /** Font colors for messages */
-export type FontColor = 'dark' | 'light' | 'hacker' | 'terminal' | 'pink' | 'amber' | 'cyan' | 'violet'
-  | 'sky' | 'indigo' | 'lime' | 'sunshine' | 'coral' | 'lavender' | 'teal';
+export type FontColor =
+  | "dark"
+  | "light"
+  | "hacker"
+  | "terminal"
+  | "pink"
+  | "amber"
+  | "cyan"
+  | "violet"
+  | "sky"
+  | "indigo"
+  | "lime"
+  | "sunshine"
+  | "coral"
+  | "lavender"
+  | "teal";
 
 /** Card border thickness */
-export type CardBorderThickness = 'none' | 'thin' | 'medium' | 'thick';
-
+export type CardBorderThickness = "none" | "thin" | "medium" | "thick";
 
 /** Background animation types */
-export type BackgroundAnimation = 'none' | 'stars' | 'bubbles' | 'fireflies' | 'snow' | 'matrix' | 'embers' | 'hyperspace' | 'sparkles' | 'hearts' | 'glitch' | 'circuits' | 'leaves' | 'geometric' | 'confetti';
+export type BackgroundAnimation =
+  | "none"
+  | "stars"
+  | "bubbles"
+  | "fireflies"
+  | "snow"
+  | "bits"
+  | "matrixRain"
+  | "embers"
+  | "hyperspace"
+  | "sparkles"
+  | "hearts"
+  | "glitch"
+  | "circuits"
+  | "leaves"
+  | "geometric"
+  | "confetti"
+  | "confettiExplosion"
+  | "waves"
+  | "glowworm"
+  | "sun"
+  | "tumbleweed";
 
 /** Background tint */
-export type BackgroundTint = 
-  | 'warm' | 'cool' | 'neutral' | 'dark' | 'black'
-  | 'pink' | 'green' | 'blue' | 'violet'
-  | 'darkCyan' | 'darkViolet' | 'darkBlue' | 'darkRose';
+export type BackgroundTint =
+  | "warm"
+  | "cool"
+  | "neutral"
+  | "dark"
+  | "black"
+  | "pink"
+  | "green"
+  | "blue"
+  | "violet"
+  | "darkCyan"
+  | "darkViolet"
+  | "darkBlue"
+  | "darkRose";
 
 /** Player indicator icons */
-export type PlayerIndicator = 'dot' | 'chevron' | 'pipe' | 'cursor' | 'underscore' | 'diamond' | 'arrow' | 'star' | 'none';
+export type PlayerIndicator =
+  | "dot"
+  | "chevron"
+  | "pipe"
+  | "cursor"
+  | "underscore"
+  | "diamond"
+  | "arrow"
+  | "star"
+  | "none";
 
 /** Thinking animation styles */
-export type ThinkingStyle = 'dots' | 'spinner' | 'pulse' | 'typewriter';
+export type ThinkingStyle = "dots" | "spinner" | "pulse" | "typewriter";
 
 /** Streaming cursor styles (shown while text is being generated) */
-export type StreamingCursor = 'dots' | 'block' | 'pipe' | 'underscore' | 'none';
+export type StreamingCursor = "dots" | "block" | "pipe" | "underscore" | "none";
 
 /** Message font families */
-export type MessageFont = 'serif' | 'sans' | 'mono' | 'fantasy';
+export type MessageFont = "serif" | "sans" | "mono" | "fantasy";
 
 /** Corner position configuration */
 export interface CornerPositions {
@@ -85,7 +186,28 @@ export interface PlayerConfig {
 }
 
 /** Text effect applied to AI message text */
-export type TextEffect = 'none' | 'decrypted' | 'glitch';
+export type TextEffect =
+  | "none"
+  | "decrypted"
+  | "glitch"
+  | "retro"
+  | "handwritten"
+  | "inkBleed"
+  | "fadeIn"
+  | "parchmentBurn"
+  | "flicker"
+  | "rainbow"
+  | "frost"
+  | "emberGlow"
+  | "shadowPulse"
+  | "bloodDrip";
+
+/** Where text effects are applied */
+export interface TextEffectScope {
+  gameMessages: boolean;
+  playerMessages: boolean;
+  statusFields: boolean;
+}
 
 /** AI/Game message styling */
 export interface GameMessageConfig {
@@ -95,6 +217,8 @@ export interface GameMessageConfig {
   fontColor: FontColor;
   borderColor: ThemeColor;
   textEffect: TextEffect;
+  /** Which areas the text effect applies to (defaults: all true) */
+  textEffectScope: TextEffectScope;
 }
 
 /** Status field styling */
@@ -113,7 +237,14 @@ export interface HeaderConfig {
 }
 
 /** Divider style between messages */
-export type DividerStyle = 'dot' | 'line' | 'dots' | 'diamond' | 'star' | 'dash' | 'none';
+export type DividerStyle =
+  | "dot"
+  | "line"
+  | "dots"
+  | "diamond"
+  | "star"
+  | "dash"
+  | "none";
 
 /** Divider configuration */
 export interface DividerConfig {
@@ -143,34 +274,34 @@ export interface TypographyConfig {
 export interface GameTheme {
   /** Corner decoration settings */
   corners: CornerConfig;
-  
+
   /** Background animation and tint */
   background: BackgroundConfig;
-  
+
   /** Player input/message styling */
   player: PlayerConfig;
-  
+
   /** AI/Game message styling */
   gameMessage: GameMessageConfig;
-  
+
   /** Shared card styling (transparency) */
   cards: CardStyleConfig;
-  
+
   /** AI "thinking" indicator */
   thinking: ThinkingConfig;
-  
+
   /** Font settings */
   typography: TypographyConfig;
-  
+
   /** Status field styling */
   statusFields: StatusFieldConfig;
-  
+
   /** Header bar styling */
   header: HeaderConfig;
-  
+
   /** Divider between messages */
   divider: DividerConfig;
-  
+
   /** Status field emoji mappings (field name -> emoji) */
   statusEmojis: Record<string, string>;
 }

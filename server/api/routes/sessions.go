@@ -27,10 +27,6 @@ type SessionResponse struct {
 	Messages []obj.GameSessionMessage `json:"messages,omitempty"`
 }
 
-type CreateSessionRequest struct {
-	Model string `json:"model"`
-}
-
 // GetUserSessions godoc
 //
 //	@Summary		List user sessions
@@ -114,7 +110,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check for messages with imagePrompt but no persisted image — retry generation once.
+	// Check for messages with imagePrompt but no persisted image - retry generation once.
 	// Only for non-streaming (text-complete) messages where the image was lost or never generated.
 	for i := range resp.Messages {
 		msg := &resp.Messages[i]
@@ -188,6 +184,13 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		StatusFields:  currentStatus,
 	}
 
+	// Re-resolve API key fresh (sponsorship may have been removed since session was created)
+	if httpErr := game.ResolveSessionApiKey(r.Context(), session); httpErr != nil {
+		log.Debug("failed to resolve API key for session action", "session_id", session.ID, "error", httpErr.Message)
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
 	// Execute the action and get streaming response
 	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
 	response, httpErr := game.DoSessionAction(r.Context(), session, action)
@@ -243,7 +246,6 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id		path		string				true	"Game ID (UUID)"
-//	@Param			request	body		CreateSessionRequest	true	"Create session request"
 //	@Success		200		{object}	SessionResponse
 //	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
 //	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
@@ -261,14 +263,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 
 	log.Debug("creating game session", "game_id", gameID, "user_id", user.ID)
 
-	var req CreateSessionRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
-
-	log.Debug("creating session with model", "game_id", gameID, "model", req.Model)
-	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID, req.Model)
+	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID)
 	if httpErr != nil {
 		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
@@ -451,7 +446,7 @@ func GetMessageStatus(w http.ResponseWriter, r *http.Request) {
 			// Stream still active, image generation hasn't started yet
 			resp.ImageStatus = "generating"
 		} else {
-			// Stream finished but no image — generation failed silently or was skipped
+			// Stream finished but no image - generation failed silently or was skipped
 			resp.ImageStatus = "none"
 		}
 	}

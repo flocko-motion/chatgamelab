@@ -92,7 +92,10 @@ function MyWorkshopsCard() {
       .slice(0, 5);
   }, [workshops]);
 
-  const handleWorkshopClick = async (workshopId: string, workshopName: string) => {
+  const handleWorkshopClick = async (
+    workshopId: string,
+    workshopName: string,
+  ) => {
     await enterWorkshopMode(workshopId, workshopName);
     navigate({ to: ROUTES.MY_WORKSHOP as "/" });
   };
@@ -100,7 +103,9 @@ function MyWorkshopsCard() {
   const items: ListItem[] = recentWorkshops.map((workshop) => ({
     id: workshop.id ?? "",
     label: workshop.name ?? t("untitled"),
-    sublabel: formatRelativeTime(workshop.meta?.modifiedAt ?? workshop.meta?.createdAt),
+    sublabel: formatRelativeTime(
+      workshop.meta?.modifiedAt ?? workshop.meta?.createdAt,
+    ),
     onClick: () => handleWorkshopClick(workshop.id ?? "", workshop.name ?? ""),
   }));
 
@@ -135,7 +140,9 @@ function LastPlayedCard() {
   const items: ListItem[] = recentSessions.map((session) => ({
     id: session.id ?? "",
     label: session.gameName ?? t("untitledGame"),
-    sublabel: formatRelativeTime(session.meta?.modifiedAt ?? session.meta?.createdAt),
+    sublabel: formatRelativeTime(
+      session.meta?.modifiedAt ?? session.meta?.createdAt,
+    ),
     onClick: () => navigate({ to: `/sessions/${session.id}` as "/" }),
   }));
 
@@ -172,7 +179,7 @@ function PopularGamesCard() {
     if (existingSession?.id) {
       navigate({ to: `/sessions/${existingSession.id}` as "/" });
     } else {
-      navigate({ to: `/play/${gameId}` as "/" });
+      navigate({ to: `/games/${gameId}/play` as "/" });
     }
   };
 
@@ -223,7 +230,7 @@ function NewGamesCard() {
     if (existingSession?.id) {
       navigate({ to: `/sessions/${existingSession.id}` as "/" });
     } else {
-      navigate({ to: `/play/${gameId}` as "/" });
+      navigate({ to: `/games/${gameId}/play` as "/" });
     }
   };
 
@@ -303,7 +310,8 @@ function QuickActionsCard() {
       id: "import-game",
       label: t("quickActions.importGame"),
       icon: <IconDownload size={16} />,
-      onClick: () => navigate({ to: ROUTES.MY_GAMES as "/", search: { action: 'import' } }),
+      onClick: () =>
+        navigate({ to: ROUTES.MY_GAMES as "/", search: { action: "import" } }),
     },
     ...(canManageWorkshops
       ? [
@@ -312,7 +320,10 @@ function QuickActionsCard() {
             label: t("quickActions.createWorkshop"),
             icon: <IconSchool size={16} />,
             onClick: () =>
-              navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/", search: { action: 'create' } }),
+              navigate({
+                to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/",
+                search: { action: "create" },
+              }),
           },
         ]
       : []),

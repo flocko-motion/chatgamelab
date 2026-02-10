@@ -1,7 +1,8 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ComponentType } from "react";
 import type { ObjGameTheme } from "@/api/generated";
 import { mapApiThemeToPartial } from "../types";
 import type { PartialGameTheme } from "../theme/types";
+import type { MessageTextWrapperProps } from "../theme/presets/types";
 import { PRESETS } from "../theme";
 
 interface UseGameThemeResolutionOptions {
@@ -14,6 +15,9 @@ interface UseGameThemeResolutionOptions {
 export interface GameThemeResolution {
   effectiveTheme: PartialGameTheme | undefined;
   BackgroundComponent: React.ComponentType | undefined;
+  GameMessageWrapper: ComponentType<MessageTextWrapperProps> | undefined;
+  PlayerMessageWrapper: ComponentType<MessageTextWrapperProps> | undefined;
+  StreamingMessageWrapper: ComponentType<MessageTextWrapperProps> | undefined;
   handleThemeChange: (theme: PartialGameTheme) => void;
   handleNeutralThemeToggle: () => void;
 }
@@ -66,10 +70,16 @@ export function useGameThemeResolution({
   const presetName = useNeutralTheme ? "default" : apiTheme?.preset;
   const activePreset = presetName ? PRESETS[presetName] : undefined;
   const BackgroundComponent = activePreset?.BackgroundComponent;
+  const GameMessageWrapper = activePreset?.GameMessageWrapper;
+  const PlayerMessageWrapper = activePreset?.PlayerMessageWrapper;
+  const StreamingMessageWrapper = activePreset?.StreamingMessageWrapper;
 
   return {
     effectiveTheme,
     BackgroundComponent,
+    GameMessageWrapper,
+    PlayerMessageWrapper,
+    StreamingMessageWrapper,
     handleThemeChange,
     handleNeutralThemeToggle,
   };

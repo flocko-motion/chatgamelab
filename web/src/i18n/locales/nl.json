@@ -87,8 +87,6 @@
       "saveButton": "Wijzigingen opslaan",
       "saved": "Wijzigingen succesvol opgeslagen",
       "saving": "Bezig met opslaan...",
-      "showAiModelSelectorDescription": "Wanneer ingeschakeld kun je bij elke spelstart kiezen welk AI-model gebruikt wordt.",
-      "showAiModelSelectorLabel": "AI-modelkiezer tonen",
       "subtitle": "Beheer je accountinstellingen",
       "title": "Instellingen"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Uitnodigingslink maken",
         "createTitle": "Workshop maken",
         "deactivate": "Deactiveren",
-        "defaultAiModel": "Standaard AI-model",
-        "defaultAiModelHint": "Model dat gebruikt wordt wanneer deelnemers niet kunnen kiezen. Vereist een ingestelde API-sleutel.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Standaard API-sleutel",
         "defaultApiKeyHint": "Deelnemers gebruiken deze API-sleutel tijdens het spelen.",
         "deleteConfirm": "Weet je zeker dat je \"{{name}}\" wilt verwijderen?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Selecteer een API-sleutel",
         "settings": "Instellingen",
         "shareParticipantLink": "Individuele uitnodigingslink voor deze deelnemer kopiëren",
-        "showAiModelSelector": "Deelnemers mogen AI-model kiezen",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Spellen van andere deelnemers tonen",
         "showPublicGames": "Openbare spellen voor deelnemers tonen",
         "sort": {

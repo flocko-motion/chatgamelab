@@ -87,8 +87,6 @@
       "saveButton": "Sačuvaj promjene",
       "saved": "Promjene su uspješno sačuvane",
       "saving": "Spremanje...",
-      "showAiModelSelectorDescription": "Kada je omogućeno, možete pri svakom pokretanju igre odabrati koji AI model će se koristiti.",
-      "showAiModelSelectorLabel": "Prikaži izbor AI modela",
       "subtitle": "Upravljajte postavkama naloga",
       "title": "Postavke"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Kreiraj pozivni link",
         "createTitle": "Kreiraj radionicu",
         "deactivate": "Deaktiviraj",
-        "defaultAiModel": "Podrazumijevani AI model",
-        "defaultAiModelHint": "Model koji se koristi kada učesnici ne mogu birati. Potreban je postavljen API ključ.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Podrazumijevani API ključ",
         "defaultApiKeyHint": "Učesnici će koristiti ovaj API ključ prilikom igranja.",
         "deleteConfirm": "Jeste li sigurni da želite obrisati \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Odaberi API ključ",
         "settings": "Postavke",
         "shareParticipantLink": "Kopiraj pojedinačni pozivni link za ovog učesnika",
-        "showAiModelSelector": "Dozvoli učesnicima da biraju AI model",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Prikaži igre drugih učesnika",
         "showPublicGames": "Prikaži javne igre učesnicima",
         "sort": {

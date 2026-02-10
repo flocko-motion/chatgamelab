@@ -5,6 +5,8 @@ import (
 	"cgl/db"
 	"cgl/obj"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 // CreateInstitutionRequest represents the request to create an institution
@@ -307,4 +309,64 @@ func RemoveInstitutionMember(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Member removed",
 	})
+}
+
+// SetInstitutionFreeUseKeyRequest is the request body for setting the institution free-use API key share
+type SetInstitutionFreeUseKeyRequest struct {
+	ShareID *uuid.UUID `json:"shareId"`
+}
+
+// SetInstitutionFreeUseApiKeyShare godoc
+//
+//	@Summary		Set institution free-use API key share
+//	@Description	Sets or clears the free-use API key share for an institution.
+//	@Description	Any institution member can use this key to play for free.
+//	@Description	Pass null shareId to clear.
+//	@Tags			institutions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string							true	"Institution ID (UUID)"
+//	@Param			request	body		SetInstitutionFreeUseKeyRequest	true	"Share ID to set (null to clear)"
+//	@Success		200		{object}	obj.Institution
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/free-use-key [patch]
+func SetInstitutionFreeUseApiKeyShare(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid institution ID")
+		return
+	}
+
+	var req SetInstitutionFreeUseKeyRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	if err := db.SetInstitutionFreeUseApiKeyShare(r.Context(), user.ID, institutionID, req.ShareID); err != nil {
+		if httpErr, ok := err.(*obj.HTTPError); ok {
+			httpx.WriteHTTPError(w, httpErr)
+			return
+		}
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use key: "+err.Error())
+		return
+	}
+
+	// Return updated institution
+	institution, err := db.GetInstitutionByID(r.Context(), user.ID, institutionID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated institution: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, institution)
 }

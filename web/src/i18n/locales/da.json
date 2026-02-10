@@ -87,8 +87,6 @@
       "saveButton": "Gem ændringer",
       "saved": "Ændringer gemt succesfuldt",
       "saving": "Gemmer...",
-      "showAiModelSelectorDescription": "Når aktiveret, kan du vælge hvilket AI-model der skal bruges, hver gang du starter en spilsession.",
-      "showAiModelSelectorLabel": "Vis AI-modelvælger",
       "subtitle": "Administrer dine kontoindstillinger",
       "title": "Indstillinger"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Opret invitelink",
         "createTitle": "Opret workshop",
         "deactivate": "Deaktivér",
-        "defaultAiModel": "Standard-AI-model",
-        "defaultAiModelHint": "Model, der bruges, når deltagere ikke kan vælge. Kræver en indstillet API-nøgle.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Standard API-nøgle",
         "defaultApiKeyHint": "Deltagere vil bruge denne API-nøgle, når de spiller.",
         "deleteConfirm": "Er du sikker på, at du vil slette \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Vælg en API-nøgle",
         "settings": "Indstillinger",
         "shareParticipantLink": "Kopier individuelt invitelink for denne deltager",
-        "showAiModelSelector": "Tillad deltagere at vælge AI-model",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Vis andre deltageres spil",
         "showPublicGames": "Vis offentlige spil for deltagerne",
         "sort": {

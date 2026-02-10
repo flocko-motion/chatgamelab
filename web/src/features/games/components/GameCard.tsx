@@ -5,6 +5,7 @@ import {
   IconStar,
   IconStarFilled,
   IconSchool,
+  IconHeartFilled,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -64,7 +65,7 @@ export interface GameCardProps {
 }
 
 /** Badge type for rendering multiple badges */
-type GameBadgeType = "owner" | "workshop" | "public";
+type GameBadgeType = "owner" | "workshop" | "public" | "sponsored";
 
 export function GameCard({
   game,
@@ -117,8 +118,9 @@ export function GameCard({
   const getBadges = (): GameBadgeType[] => {
     const badges: GameBadgeType[] = [];
     if (isOwner) badges.push("owner");
+    if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
     if (isWorkshopGame) badges.push("workshop");
-    if (game.public) badges.push("public");
+    if (game.public && !showVisibility) badges.push("public");
     return badges;
   };
 
@@ -161,6 +163,26 @@ export function GameCard({
           >
             {t("games.badges.public")}
           </Badge>
+        );
+      case "sponsored":
+        return (
+          <Tooltip
+            key="sponsored"
+            label={t("games.sponsor.sponsoredTooltip")}
+            withArrow
+            multiline
+            w={250}
+          >
+            <Badge
+              size="xs"
+              color="pink"
+              variant="light"
+              leftSection={<IconHeartFilled size={10} />}
+              style={{ flexShrink: 0, cursor: "help" }}
+            >
+              {t("games.sponsor.sponsored")}
+            </Badge>
+          </Tooltip>
         );
       default:
         return null;
@@ -219,7 +241,12 @@ export function GameCard({
       p="md"
       radius="md"
       withBorder
-      style={{ cursor: onClick ? "pointer" : "default" }}
+      style={{
+        cursor: onClick ? "pointer" : "default",
+        ...(game.publicSponsoredApiKeyShareId
+          ? { borderLeft: "3px solid var(--mantine-color-pink-4)" }
+          : undefined),
+      }}
       onClick={onClick}
     >
       <Stack gap="sm">
@@ -233,7 +260,11 @@ export function GameCard({
           >
             {game.name}
           </Text>
-          <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0, alignSelf: "flex-start" }}>
+          <Group
+            gap="xs"
+            wrap="nowrap"
+            style={{ flexShrink: 0, alignSelf: "flex-start" }}
+          >
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
                 {dateLabel}
@@ -261,11 +292,7 @@ export function GameCard({
           <Box onClick={(e) => e.stopPropagation()}>{renderPlayButtons()}</Box>
 
           {/* Action buttons + Favorite */}
-          <Group
-            gap={4}
-            wrap="wrap"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Group gap={4} wrap="wrap" onClick={(e) => e.stopPropagation()}>
             {actions.map((action) => (
               <Tooltip key={action.key} label={action.label} withArrow>
                 {action.key === "edit" ? (

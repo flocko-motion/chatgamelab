@@ -1,6 +1,6 @@
 /**
  * Game Theme System
- * 
+ *
  * Exports for customizable game player theming.
  */
 
@@ -25,7 +25,9 @@ export type {
   CardStyleConfig,
   ThinkingConfig,
   TypographyConfig,
-} from './types';
+  TextEffect,
+  TextEffectScope,
+} from "./types";
 
 // Defaults
 export {
@@ -35,12 +37,12 @@ export {
   CARD_BG_COLORS,
   FONT_COLORS,
   CARD_BORDER_THICKNESSES,
-} from './defaults';
+} from "./defaults";
 
 // Presets
-export { PRESETS } from './presets';
-export type { PresetDefinition } from './presets';
+export { PRESETS } from "./presets";
+export type { PresetDefinition, MessageTextWrapperProps } from "./presets";
 
 // Context and hook
-export { GameThemeProvider } from './GameThemeContext';
-export { useGameTheme, type GameThemeContextValue } from './useGameTheme';
+export { GameThemeProvider } from "./GameThemeContext";
+export { useGameTheme, type GameThemeContextValue } from "./useGameTheme";

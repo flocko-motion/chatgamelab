@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys, useGame, useWorkshopEvents } from "@/api/hooks";
+import {
+  queryKeys,
+  useGame,
+  useApiKeyStatus,
+  useWorkshopEvents,
+} from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
@@ -41,6 +46,9 @@ export interface SessionLifecycle {
 
   // Error detection
   isNoApiKeyError: boolean;
+
+  // API key availability (checked on entry)
+  apiKeyAvailable: boolean;
 }
 
 export function useSessionLifecycle({
@@ -97,9 +105,15 @@ export function useSessionLifecycle({
   // Auto-start new sessions: API key is resolved server-side
   const autoStartAttemptedRef = useRef(false);
   useEffect(() => {
-    if (isContinuation || state.phase !== "idle" || autoStartAttemptedRef.current) return;
+    if (
+      isContinuation ||
+      state.phase !== "idle" ||
+      autoStartAttemptedRef.current
+    )
+      return;
     if (gameLoading || gameError || !game) return;
     autoStartAttemptedRef.current = true;
+
     startSession();
   }, [isContinuation, state.phase, gameLoading, gameError, game, startSession]);
 
@@ -186,9 +200,16 @@ export function useSessionLifecycle({
 
   // Check if the error is a "no API key" error
   const isNoApiKeyError =
-    state.phase === "error" && extractRawErrorCode(state.errorObject) === "no_api_key";
+    state.phase === "error" &&
+    extractRawErrorCode(state.errorObject) === "no_api_key";
 
-  const displayGame = (isContinuation ? state.gameInfo : game) as GameInfo | undefined;
+  // Upfront API key availability check
+  const effectiveGameId = gameId || state.gameInfo?.id;
+  const { data: apiKeyAvailable = true } = useApiKeyStatus(effectiveGameId);
+
+  const displayGame = (isContinuation ? state.gameInfo : game) as
+    | GameInfo
+    | undefined;
 
   // Validate required game fields before allowing play
   const missingFields = useMemo(() => {
@@ -218,5 +239,6 @@ export function useSessionLifecycle({
     handleBack,
     handleSendAction,
     isNoApiKeyError,
+    apiKeyAvailable,
   };
 }

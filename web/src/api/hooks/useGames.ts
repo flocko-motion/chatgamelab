@@ -26,7 +26,13 @@ export interface UseGamesParams {
     | "visibility"
     | "creator";
   sortDir?: "asc" | "desc";
-  filter?: "all" | "own" | "public" | "organization" | "favorites";
+  filter?:
+    | "all"
+    | "own"
+    | "public"
+    | "organization"
+    | "favorites"
+    | "sponsored";
 }
 
 export function useGames(params?: UseGamesParams) {
@@ -189,6 +195,44 @@ export function useImportGameYaml() {
   );
 }
 
+// Game Sponsoring hooks
+export function useSponsorGame() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjGame,
+    HttpxErrorResponse,
+    { gameId: string; shareId: string }
+  >({
+    mutationFn: ({ gameId, shareId }) =>
+      api.games
+        .sponsorUpdate(gameId, { shareId })
+        .then((response) => response.data),
+    onSuccess: (_, { gameId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useRemoveGameSponsor() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<ObjGame, HttpxErrorResponse, string>({
+    mutationFn: (gameId) =>
+      api.games.sponsorDelete(gameId).then((response) => response.data),
+    onSuccess: (_, gameId) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
 // Favorite Games hooks
 export function useFavoriteGames() {
   const api = useRequiredAuthenticatedApi();
@@ -224,5 +268,31 @@ export function useRemoveFavorite() {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
     onError: handleApiError,
+  });
+}
+
+// API Key Status hook
+export function useApiKeyStatus(gameId: string | undefined) {
+  const { getAccessToken } = useAuth();
+
+  return useQuery<boolean>({
+    queryKey: queryKeys.apiKeyStatus(gameId!),
+    queryFn: async () => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/api-key-status`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        },
+      );
+      if (!response.ok) return false;
+      const data: { available: boolean } = await response.json();
+      return data.available;
+    },
+    enabled: !!gameId,
+    staleTime: 0,
   });
 }

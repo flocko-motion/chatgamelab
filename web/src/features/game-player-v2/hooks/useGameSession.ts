@@ -6,12 +6,11 @@ import { queryKeys } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { config } from "@/config/env";
 import type { RoutesSessionResponse } from "@/api/generated";
-import { extractRawErrorCode } from "@/common/types/errorCodes";
+import { extractRawErrorCode, ErrorCodes } from "@/common/types/errorCodes";
 import type {
   SceneMessage,
   StreamChunk,
   MessageStatus,
-  GameSessionConfig,
   GamePlayerState,
 } from "../types";
 import { mapApiMessageToScene } from "../types";
@@ -29,10 +28,12 @@ const INITIAL_STATE: GamePlayerState = {
   theme: null,
 };
 
-const POLL_INTERVAL = 1500;
+const POLL_INTERVAL = 3000;
 const MAX_POLL_ERRORS = 5;
 /** If no SSE data arrives within this window, activate polling as fallback */
 const SSE_SILENCE_TIMEOUT = 10_000;
+/** Minimum interval between partial image hash updates (throttle re-fetches) */
+const PARTIAL_IMAGE_THROTTLE = 4000;
 
 export function useGameSession(gameId: string) {
   const api = useRequiredAuthenticatedApi();
@@ -51,6 +52,8 @@ export function useGameSession(gameId: string) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Ref to break circular dependency between resetSilenceTimer and startPolling
   const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  // Throttle partial image updates from SSE imageData chunks
+  const lastImageUpdateRef = useRef(0);
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -66,17 +69,14 @@ export function useGameSession(gameId: string) {
     [],
   );
 
-  const appendTextToMessage = useCallback(
-    (messageId: string, text: string) => {
-      setState((prev) => ({
-        ...prev,
-        messages: prev.messages.map((msg) =>
-          msg.id === messageId ? { ...msg, text: msg.text + text } : msg,
-        ),
-      }));
-    },
-    [],
-  );
+  const appendTextToMessage = useCallback((messageId: string, text: string) => {
+    setState((prev) => ({
+      ...prev,
+      messages: prev.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, text: msg.text + text } : msg,
+      ),
+    }));
+  }, []);
 
   const stopPolling = useCallback(() => {
     if (pollDelayRef.current) {
@@ -111,7 +111,7 @@ export function useGameSession(gameId: string) {
         const status: MessageStatus = await response.json();
         pollErrorCountRef.current = 0;
 
-        // Sync state from DB — but be careful not to fight with SSE
+        // Sync state from DB - but be careful not to fight with SSE
         setState((prev) => {
           const msg = prev.messages.find((m) => m.id === messageId);
           if (!msg) return prev;
@@ -120,7 +120,7 @@ export function useGameSession(gameId: string) {
           const stateUpdates: Partial<GamePlayerState> = {};
 
           // Text: only overwrite if SSE is NOT actively streaming.
-          // When SSE is active, it streams char-by-char — polling would cause jumps.
+          // When SSE is active, it streams char-by-char - polling would cause jumps.
           // When SSE is inactive (dropped or never connected), polling is the fallback.
           if (!sseActiveRef.current && status.text.length > msg.text.length) {
             updates.text = status.text;
@@ -132,7 +132,7 @@ export function useGameSession(gameId: string) {
             stateUpdates.isWaitingForResponse = false;
           }
 
-          // Image status — only update when actually changed to avoid re-renders
+          // Image status - only update when actually changed to avoid re-renders
           if (status.imageStatus !== msg.imageStatus) {
             updates.imageStatus = status.imageStatus;
           }
@@ -148,21 +148,28 @@ export function useGameSession(gameId: string) {
               updates.isImageLoading = false;
             }
           }
-          if (status.imageStatus === "error" && status.imageError !== msg.imageErrorCode) {
+          if (
+            status.imageStatus === "error" &&
+            status.imageError !== msg.imageErrorCode
+          ) {
             updates.imageErrorCode = status.imageError;
           }
 
-          // Status fields — only update if actually changed
+          // Status fields - only update if actually changed
           if (
             status.statusFields?.length &&
-            JSON.stringify(status.statusFields) !== JSON.stringify(msg.statusFields)
+            JSON.stringify(status.statusFields) !==
+              JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
           }
 
           // Skip update if nothing changed
-          if (Object.keys(updates).length === 0 && Object.keys(stateUpdates).length === 0) {
+          if (
+            Object.keys(updates).length === 0 &&
+            Object.keys(stateUpdates).length === 0
+          ) {
             return prev;
           }
 
@@ -198,7 +205,7 @@ export function useGameSession(gameId: string) {
 
   const startPolling = useCallback(
     (messageId: string) => {
-      // Already polling this message — don't create duplicate intervals
+      // Already polling this message - don't create duplicate intervals
       if (activePollingIdRef.current === messageId && pollIntervalRef.current) {
         return;
       }
@@ -234,9 +241,11 @@ export function useGameSession(gameId: string) {
     (messageId: string) => {
       clearSilenceTimer();
       silenceTimerRef.current = setTimeout(() => {
-        // No SSE data for SSE_SILENCE_TIMEOUT — activate polling fallback
+        // No SSE data for SSE_SILENCE_TIMEOUT - activate polling fallback
         if (!pollIntervalRef.current) {
-          apiLogger.debug("SSE silence timeout, activating polling fallback", { messageId });
+          apiLogger.debug("SSE silence timeout, activating polling fallback", {
+            messageId,
+          });
           startPollingRef.current(messageId);
         }
       }, SSE_SILENCE_TIMEOUT);
@@ -254,6 +263,7 @@ export function useGameSession(gameId: string) {
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
+      lastImageUpdateRef.current = 0;
 
       try {
         const token = await getAccessToken();
@@ -273,7 +283,7 @@ export function useGameSession(gameId: string) {
         });
 
         if (!response.ok) {
-          // SSE failed to connect — activate polling as fallback
+          // SSE failed to connect - activate polling as fallback
           apiLogger.error("SSE connection failed, activating polling", {
             status: response.status,
             messageId,
@@ -286,7 +296,7 @@ export function useGameSession(gameId: string) {
         if (!reader) return;
 
         sseActiveRef.current = true;
-        // Start silence timer — if no data arrives within the timeout, polling kicks in
+        // Start silence timer - if no data arrives within the timeout, polling kicks in
         resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
@@ -305,7 +315,7 @@ export function useGameSession(gameId: string) {
                 const data = line.slice(6);
                 const chunk: StreamChunk = JSON.parse(data);
 
-                // SSE is alive — reset silence timer
+                // SSE is alive - reset silence timer
                 resetSilenceTimer(messageId);
 
                 if (chunk.error) {
@@ -341,13 +351,20 @@ export function useGameSession(gameId: string) {
                   appendTextToMessage(messageId, chunk.text);
                 }
 
-                // Partial image received — bump imageHash to trigger SceneImage re-fetch
-                // (the backend caches partial images, served via /messages/{id}/image)
+                // Partial image received - bump imageHash to trigger SceneImage re-fetch
+                // Throttled to avoid excessive image downloads during generation
                 if (chunk.imageData) {
-                  updateMessage(messageId, {
-                    imageStatus: "generating",
-                    imageHash: `partial-${Date.now()}`,
-                  });
+                  const now = Date.now();
+                  if (
+                    now - lastImageUpdateRef.current >=
+                    PARTIAL_IMAGE_THROTTLE
+                  ) {
+                    lastImageUpdateRef.current = now;
+                    updateMessage(messageId, {
+                      imageStatus: "generating",
+                      imageHash: `partial-${now}`,
+                    });
+                  }
                 }
 
                 if (chunk.textDone) {
@@ -365,7 +382,7 @@ export function useGameSession(gameId: string) {
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
-                  // SSE delivered everything — stop polling (if active) and silence timer
+                  // SSE delivered everything - stop polling (if active) and silence timer
                   clearSilenceTimer();
                   stopPolling();
                   return;
@@ -385,7 +402,7 @@ export function useGameSession(gameId: string) {
         sseActiveRef.current = false;
         clearSilenceTimer();
         if ((error as Error).name !== "AbortError") {
-          // SSE dropped — activate polling as fallback
+          // SSE dropped - activate polling as fallback
           apiLogger.error("SSE connection lost, activating polling", {
             error,
             messageId,
@@ -407,77 +424,72 @@ export function useGameSession(gameId: string) {
 
   // ── Session Actions ─────────────────────────────────────────────────
 
-  const startSession = useCallback(
-    async (sessionConfig?: GameSessionConfig) => {
-      setState((prev) => ({ ...prev, phase: "starting", error: null }));
+  const startSession = useCallback(async () => {
+    setState((prev) => ({ ...prev, phase: "starting", error: null }));
 
-      try {
-        const response = await api.games.sessionsCreate(gameId, {
-          model: sessionConfig?.model,
-        });
+    try {
+      const response = await api.games.sessionsCreate(gameId, {});
 
-        const sessionResponse = response.data;
-        const firstMessage = sessionResponse.messages?.[0];
+      const sessionResponse = response.data;
+      const firstMessage = sessionResponse.messages?.[0];
 
-        if (!firstMessage) {
-          throw new Error("No message returned from session creation");
-        }
+      if (!firstMessage) {
+        throw new Error("No message returned from session creation");
+      }
 
-        const sceneMessage = mapApiMessageToScene(firstMessage);
+      const sceneMessage = mapApiMessageToScene(firstMessage);
 
-        setState((prev) => ({
-          ...prev,
-          phase: "playing",
-          sessionId: sessionResponse.id || null,
-          gameInfo: {
-            id: sessionResponse.gameId,
-            name: sessionResponse.gameName,
-            description: sessionResponse.gameDescription,
+      setState((prev) => ({
+        ...prev,
+        phase: "playing",
+        sessionId: sessionResponse.id || null,
+        gameInfo: {
+          id: sessionResponse.gameId,
+          name: sessionResponse.gameName,
+          description: sessionResponse.gameDescription,
+        },
+        messages: [
+          {
+            ...sceneMessage,
+            text: "",
+            isStreaming: true,
+            isImageLoading: !!firstMessage.imagePrompt,
           },
-          messages: [
-            {
-              ...sceneMessage,
-              text: "",
-              isStreaming: true,
-              isImageLoading: !!firstMessage.imagePrompt,
-            },
-          ],
-          statusFields: firstMessage.statusFields || [],
-          isWaitingForResponse: true,
-          theme: sessionResponse.theme || null,
-        }));
+        ],
+        statusFields: firstMessage.statusFields || [],
+        isWaitingForResponse: true,
+        theme: sessionResponse.theme || null,
+      }));
 
-        queryClient.invalidateQueries({
-          queryKey: [...queryKeys.gameSessions, gameId],
-        });
-        queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-        queryClient.invalidateQueries({
-          queryKey: [...queryKeys.games, gameId],
-        });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.gameSessions, gameId],
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId],
+      });
 
-        if (firstMessage.id && firstMessage.stream) {
-          // No playerMessageId for initial session — system message, no retry needed
-          connectToStream(firstMessage.id);
-        } else {
-          setState((prev) => ({
-            ...prev,
-            messages: [sceneMessage],
-            isWaitingForResponse: false,
-          }));
-        }
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to start session";
+      if (firstMessage.id && firstMessage.stream) {
+        // No playerMessageId for initial session - system message, no retry needed
+        connectToStream(firstMessage.id);
+      } else {
         setState((prev) => ({
           ...prev,
-          phase: "error",
-          error: message,
-          errorObject: error,
+          messages: [sceneMessage],
+          isWaitingForResponse: false,
         }));
       }
-    },
-    [api, gameId, connectToStream, queryClient],
-  );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to start session";
+      setState((prev) => ({
+        ...prev,
+        phase: "error",
+        error: message,
+        errorObject: error,
+      }));
+    }
+  }, [api, gameId, connectToStream, queryClient]);
 
   const sendAction = useCallback(
     async (message: string) => {
@@ -495,7 +507,9 @@ export function useGameSession(gameId: string) {
         messages: [
           // Clear error from any previously failed player message
           ...prev.messages.map((msg) =>
-            msg.error ? { ...msg, error: undefined, errorCode: undefined } : msg,
+            msg.error
+              ? { ...msg, error: undefined, errorCode: undefined }
+              : msg,
           ),
           playerMessage,
         ],
@@ -540,7 +554,12 @@ export function useGameSession(gameId: string) {
         }
       } catch (error) {
         apiLogger.error("sendAction failed", { error });
-        const errorCode = extractRawErrorCode(error);
+        // Detect network errors (backend unreachable, offline, etc.)
+        const isNetworkError =
+          error instanceof TypeError && /fetch|network/i.test(error.message);
+        const errorCode = isNetworkError
+          ? ErrorCodes.NETWORK_ERROR
+          : extractRawErrorCode(error) || undefined;
         // Mark the player message as failed (red + retry)
         setState((prev) => ({
           ...prev,
@@ -553,7 +572,7 @@ export function useGameSession(gameId: string) {
                     error instanceof Error
                       ? error.message
                       : "Failed to send action",
-                  errorCode: errorCode || undefined,
+                  errorCode,
                 }
               : msg,
           ),
@@ -635,13 +654,20 @@ export function useGameSession(gameId: string) {
         // connectToStream falls back to polling if SSE returns 404 (stream finished).
         // Reset text to "" because SSE sends incremental deltas that get appended.
         if (isInProgress && lastMessage?.id) {
-          apiLogger.debug("Session has in-progress message, connecting to stream", {
-            messageId: lastMessage.id,
-          });
+          apiLogger.debug(
+            "Session has in-progress message, connecting to stream",
+            {
+              messageId: lastMessage.id,
+            },
+          );
           // Reset text so SSE deltas append cleanly (avoids plotOutline + narrative duplication)
           updateMessage(lastMessage.id, { text: "" });
           connectToStream(lastMessage.id);
-        } else if (!isInProgress && lastMessage?.id && lastMessage.imagePrompt) {
+        } else if (
+          !isInProgress &&
+          lastMessage?.id &&
+          lastMessage.imagePrompt
+        ) {
           // Text is done but image might still be generating, failed, or skipped.
           // mapApiMessageToScene optimistically sets imageStatus="complete", but
           // the image may not be persisted yet. Use the status endpoint as source of truth.
@@ -652,16 +678,22 @@ export function useGameSession(gameId: string) {
             if (statusResp.ok) {
               const status: MessageStatus = await statusResp.json();
               if (status.imageStatus === "generating") {
-                apiLogger.debug("Session has in-progress image, starting poll", {
-                  messageId: lastMessage.id,
-                });
+                apiLogger.debug(
+                  "Session has in-progress image, starting poll",
+                  {
+                    messageId: lastMessage.id,
+                  },
+                );
                 updateMessage(lastMessage.id, {
                   imageStatus: "generating",
                   imageHash: status.imageHash || undefined,
                   isImageLoading: true,
                 });
                 startPolling(lastMessage.id);
-              } else if (status.imageStatus === "complete" && status.imageHash) {
+              } else if (
+                status.imageStatus === "complete" &&
+                status.imageHash
+              ) {
                 updateMessage(lastMessage.id, {
                   imageStatus: "complete",
                   imageHash: status.imageHash,
@@ -680,7 +712,7 @@ export function useGameSession(gameId: string) {
               }
             }
           } catch {
-            // Status check failed — leave optimistic "complete" status, image will 404 gracefully
+            // Status check failed - leave optimistic "complete" status, image will 404 gracefully
             apiLogger.debug("Failed to check image status on rejoin", {
               messageId: lastMessage.id,
             });
@@ -700,34 +732,31 @@ export function useGameSession(gameId: string) {
     [api, connectToStream, startPolling, updateMessage],
   );
 
-  const updateSessionApiKey = useCallback(
-    async () => {
-      if (!state.sessionId) return;
+  const updateSessionApiKey = useCallback(async () => {
+    if (!state.sessionId) return;
 
-      setState((prev) => ({ ...prev, phase: "starting" }));
+    setState((prev) => ({ ...prev, phase: "starting" }));
 
-      try {
-        await api.sessions.sessionsPartialUpdate(state.sessionId);
+    try {
+      await api.sessions.sessionsPartialUpdate(state.sessionId);
 
-        setState((prev) => ({
-          ...prev,
-          phase: "playing",
-        }));
+      setState((prev) => ({
+        ...prev,
+        phase: "playing",
+      }));
 
-        queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to update session";
-        setState((prev) => ({
-          ...prev,
-          phase: "error",
-          error: message,
-          errorObject: error,
-        }));
-      }
-    },
-    [api, state.sessionId, queryClient],
-  );
+      queryClient.invalidateQueries({ queryKey: queryKeys.userSessions });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update session";
+      setState((prev) => ({
+        ...prev,
+        phase: "error",
+        error: message,
+        errorObject: error,
+      }));
+    }
+  }, [api, state.sessionId, queryClient]);
 
   const clearStreamError = useCallback(() => {
     setState((prev) => ({ ...prev, streamError: null }));

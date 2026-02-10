@@ -11,7 +11,7 @@
  */
 
 export interface GlobalErrorModalOptions {
-  /** Machine-readable error code — the modal translates it via i18n */
+  /** Machine-readable error code - the modal translates it via i18n */
   code?: string | null;
   /** Override title (bypasses i18n lookup) */
   title?: string;

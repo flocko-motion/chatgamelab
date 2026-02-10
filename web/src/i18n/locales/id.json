@@ -87,8 +87,6 @@
       "saveButton": "Simpan Perubahan",
       "saved": "Perubahan berhasil disimpan",
       "saving": "Menyimpan...",
-      "showAiModelSelectorDescription": "Jika diaktifkan, Anda dapat memilih model AI yang digunakan setiap kali memulai sesi permainan.",
-      "showAiModelSelectorLabel": "Tampilkan Pemilih Model AI",
       "subtitle": "Kelola pengaturan akun Anda",
       "title": "Pengaturan"
     }
@@ -647,8 +645,11 @@
         "createInviteLink": "Buat Tautan Undangan",
         "createTitle": "Buat Workshop",
         "deactivate": "Nonaktifkan",
-        "defaultAiModel": "Model AI Default",
-        "defaultAiModelHint": "Model yang digunakan ketika peserta tidak bisa memilih. Memerlukan kunci API yang disetel.",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Kunci API Default",
         "defaultApiKeyHint": "Peserta akan menggunakan kunci API ini saat bermain.",
         "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
@@ -691,7 +692,7 @@
         "selectApiKey": "Pilih kunci API",
         "settings": "Pengaturan",
         "shareParticipantLink": "Salin tautan undangan individu untuk peserta ini",
-        "showAiModelSelector": "Izinkan peserta memilih model AI",
+        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Tampilkan game peserta lain",
         "showPublicGames": "Tampilkan game publik kepada peserta",
         "sort": {
