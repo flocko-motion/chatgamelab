@@ -98,16 +98,11 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
       const baseUrl = config.API_BASE_URL.replace(/\/$/, "");
       let url = `${baseUrl}/workshops/${workshopId}/events`;
 
-      // For non-participant users, add token as query param (EventSource can't send headers)
-      // Participants use cookie auth which is sent automatically
-      if (!isParticipant) {
-        const token = await getAccessToken();
-        if (!token) {
-          uiLogger.debug(
-            "No token available for workshop SSE, skipping connection",
-          );
-          return;
-        }
+      // Add token as query param (EventSource can't send headers).
+      // This applies to all users — participants included — because
+      // SameSite=Lax cookies are not sent on cross-origin sub-resource requests.
+      const token = await getAccessToken();
+      if (token) {
         url = `${url}?token=${encodeURIComponent(token)}`;
       }
 
