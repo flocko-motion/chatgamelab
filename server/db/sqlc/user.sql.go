@@ -1328,6 +1328,7 @@ SELECT
   r.role         AS role,
   r.institution_id,
   i.name         AS institution_name,
+  i.free_use_api_key_share_id AS institution_free_use_api_key_share_id,
   r.workshop_id,
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
@@ -1372,6 +1373,7 @@ type GetUserDetailsByIDRow struct {
 	Role                                     sql.NullString
 	InstitutionID                            uuid.NullUUID
 	InstitutionName                          sql.NullString
+	InstitutionFreeUseApiKeyShareID          uuid.NullUUID
 	WorkshopID                               uuid.NullUUID
 	WorkshopName                             sql.NullString
 	WorkshopShowPublicGames                  sql.NullBool
@@ -1404,6 +1406,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.Role,
 		&i.InstitutionID,
 		&i.InstitutionName,
+		&i.InstitutionFreeUseApiKeyShareID,
 		&i.WorkshopID,
 		&i.WorkshopName,
 		&i.WorkshopShowPublicGames,
