@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "د Auth0 سره ننوتل",
+      "devMode": "پرمختیايي حالت",
+      "devModeAlert": {
+        "message": "دا د پراختیايي ننوتلو پاڼه ده. په تولیدي چاپیریال کې به تاسو مستقیم Auth0 ته واستول شئ.",
+        "title": "پرمختیايي حالت"
+      },
+      "devModeDescription": "د پراختیا او ازموینې لپاره چټک ننوتل",
+      "redirecting": {
+        "message": "مهرباني وکړئ انتظار وکړئ تر څو چې موږ تاسو د ننوتلو پاڼې ته لارښوونه وکړو.",
+        "title": "Auth0 ته د لېږدوونکې..."
+      },
+      "role": {
+        "admin": "د اډمین په توګه ننوتل",
+        "guest": "د مېلمه په توګه ننوتل",
+        "student": "د زده کوونکي په توګه ننوتل",
+        "teacher": "د ښوونکي په توګه ننوتل"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "ورکشاپ پرېښودل",
+        "message": "ایا تاسې باوري یاست چې غواړئ له دې ورکشاپ څخه ووځئ؟ بېرته د ګډون لپاره به تاسو ته یو نوی بلنې لینک ته اړتیا وي.",
+        "title": "ورکشاپ پرېښودل؟"
+      },
+      "leaveWorkshop": "ورکشاپ پرېښودل",
+      "organization": "سازمان",
+      "role": "د ورکشاپ ګډونوال",
+      "workshop": "ورکشاپ"
+    },
+    "profile": {
+      "gamesCreated": "جوړ شوي لوبې",
+      "gamesPlayed": "لوبې شوي",
+      "memberSince": "راجستر شوی له",
+      "messagesSent": "لېږل شوې پیغامونه",
+      "noOrganization": "هیڅ سازمان نشته",
+      "noRole": "هیڅ رول ټاکل شوی نه دی",
+      "organization": "سازمان",
+      "organizationSection": "سازمان \u0006 رول",
+      "role": "رول",
+      "roles": {
+        "admin": "مدیر",
+        "head": "سرښوونکی",
+        "participant": "ګډونوال",
+        "staff": "کارکوونکی"
+      },
+      "statisticsSection": "احصایې",
+      "title": "پروفایل",
+      "totalPlaysOnGames": "په زما لوبو کې ټولې لوبې"
+    },
+    "register": {
+      "cancelButton": "لغوه کول",
+      "emailDescription": "موږ به دا د مهمو خبرتیاوو لپاره وکاروو.",
+      "emailLabel": "برېښنالیک",
+      "emailPlaceholder": "خپل برېښنالیک دننه کړئ",
+      "errors": {
+        "emailInvalid": "مهرباني وکړئ یو صحيح برېښنالیک داخل کړئ",
+        "emailRequired": "برېښنالیک اړین دی",
+        "nameRequired": "نوم اړین دی",
+        "nameTaken": "دا نوم له مخکې څخه نیول شوی دی",
+        "nameTooLong": "نوم باید تر 24 کرکټرونو پورې وي",
+        "registrationFailed": "د ثبت نام کې تېروتنه وشوه. مهرباني وکړئ بیا هڅه وکړئ."
+      },
+      "nameDescription": "دا هغه ډول دی چې نور کارونکي به تاسو وپیژني. اعظمي 24 کرکټرونه.",
+      "nameLabel": "د ښودلو نوم",
+      "namePlaceholder": "خپل ښودنی نوم داخل کړئ",
+      "submitButton": "حساب جوړول",
+      "submitting": "حساب جوړېږي...",
+      "subtitle": "د پیل لپاره یواځې څو نور معلومات",
+      "title": "خپل پروفایل بشپړ کړئ"
+    },
+    "settings": {
+      "accountSection": "حساب",
+      "emailChangeNote": "د خپل برېښنالیک د بدلولو لپاره، مهرباني وکړئ د سایت اډمین سره اړیکه ونیسئ.",
+      "errors": {
+        "nameRequired": "نوم اړین دی",
+        "nameTaken": "دا نوم له مخکې څخه نیول شوی دی",
+        "nameTooLong": "نوم باید تر 24 کرکټرونو پورې وي",
+        "saveFailed": "د بدلونونو د ثبتولو هڅه ناکامه شوه. مهرباني وکړئ بیا هڅه وکړئ."
+      },
+      "nameDescription": "دا هغه ډول دی چې نور کارونکي به تاسو وپیژني. اعظمي 24 کرکټرونه.",
+      "nameLabel": "د ښودلو نوم",
+      "namePlaceholder": "خپل ښودنی نوم داخل کړئ",
+      "saveButton": "بدلونونه خوندي کړه",
+      "saved": "بدلونونه په بریالیتوب سره ثبت شول",
+      "saving": "خوندي کېږي...",
+      "subtitle": "خپل حساب تنظیمات مدیریت کړئ",
+      "title": "تنظیمات"
+    }
+  },
+  "common": {
+    "actions": "عملونه",
+    "admin": {
+      "invites": {
+        "actions": "عملونه",
+        "empty": "هیڅ ځنډېدلې بلنې نشته.",
+        "invitedEmail": "بل شوی برېښنالیک",
+        "modifiedAt": "بدلول شوی",
+        "noResults": "هیڅ بلنه ستاسو په لټون برابره نه ده.",
+        "organization": "سازمان",
+        "revokeConfirm": {
+          "confirm": "حذف",
+          "message": "ایا تاسو ډاډه یاست چې غواړئ دا بلنه حذف کړئ؟ دا عمل بیرته نشي راګرځیدلی.",
+          "title": "بلنه حذف کړئ"
+        },
+        "role": "رول",
+        "searchPlaceholder": "د ایمیل، رول، حالت، یا سازمان له مخې لټون...",
+        "sort": {
+          "label": "د ترتیب معیار",
+          "modifiedAt-asc": "بدلول شوی (زوړترین)",
+          "modifiedAt-desc": "بدلول شوی (نوې)",
+          "organization-asc": "سازمان (A-Z)",
+          "organization-desc": "سازمان (Z-A)",
+          "role-asc": "رول (A-Z)",
+          "role-desc": "رول (Z-A)",
+          "status-asc": "حالت (A-Z)",
+          "status-desc": "حالت (Z-A)"
+        },
+        "status": "حالت",
+        "statuses": {
+          "accepted": "منل شوی",
+          "declined": "رد شوی",
+          "expired": "موده تېرې شوې",
+          "pending": "په تمه",
+          "revoked": "لغوه شوی"
+        },
+        "title": "انتظار کې بلنې"
+      },
+      "organizations": {
+        "actions": "عملونه",
+        "create": "سازمان جوړول",
+        "createTitle": "نوې سازمان جوړول",
+        "deleteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟ دا عمل بیرته نشي راګرځول کېدای.",
+        "deleteTitle": "سازمان حذف کړئ",
+        "editTitle": "سازمان سمول",
+        "email": "برېښنالیک",
+        "emailPlaceholder": "برېښنالیک داخل کړئ",
+        "empty": "تر اوسه هیڅ سازمان نشته. د پیل لپاره یو جوړ کړئ.",
+        "inviteDescription": "یو بلنه واستوئ چې {{name}} ته د سازمان د مشر په توګه شامل شي.",
+        "inviteTitle": "سازمان ته بلنه",
+        "memberEmail": "برېښنالیک",
+        "memberName": "نوم",
+        "memberRole": "رول",
+        "members": "غړي",
+        "membersCount": "غړي",
+        "membersList": "غړي",
+        "name": "نوم",
+        "namePlaceholder": "د سازمان نوم داخل کړئ",
+        "noMembers": "په دې سازمان کې هیڅ غړي نشته.",
+        "removeMember": "غړی لرې کړئ",
+        "removeMemberConfirm": "ایا تاسو ډاډه یاست چې غواړئ {{name}} له دې سازمان څخه لرې کړئ؟",
+        "searchPlaceholder": "سازمانونه لټون...",
+        "sendInvite": "بلنه واستوئ",
+        "title": "سازمانونه مدیریت کړئ"
+      },
+      "users": {
+        "actions": "عملونه",
+        "deleteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟ دا عمل بیرته نشي راګرځول کېدای.",
+        "deleteTitle": "کارونکي حذف کړئ",
+        "editEmail": "برېښنالیک سمول",
+        "editTitle": "کارونکی سمول",
+        "editingUser": "د کارونکي سمول: {{name}}",
+        "email": "برېښنالیک",
+        "emailPlaceholder": "برېښنالیک داخل کړئ",
+        "empty": "هیڅ کارونکي ونه موندل شول.",
+        "hideGuests": "میلمانه پټول ({{count}})",
+        "joined": "ګډون کړی",
+        "loadError": "کاروونکي بار نه شول",
+        "makeAdmin": "ادمن جوړ کړئ",
+        "me": "زه",
+        "name": "نوم",
+        "noEmail": "برېښنالیک نشته",
+        "noResults": "هیڅ کارونکي ستاسو په لټون برابر ندي.",
+        "noRole": "هیڅ رول نشته",
+        "organization": "سازمان",
+        "promoteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" ({{email}}) ته ادمن مقام ورکړئ؟",
+        "promoteTitle": "ادمن ته وده ورکړئ",
+        "promoteWarning": "دغه کارونکی به د سیستم بشپړ اداري لاسرسی ترلاسه کړي.",
+        "removeAdmin": "ادمن لرې کړئ",
+        "removeAdminConfirm": "ایا تاسو ډاډه یاست چې غواړئ د \"{{name}}\" ({{email}}) څخه ادمن رول لرې کړئ؟",
+        "removeAdminTitle": "ادمن رول لرې کړئ",
+        "removeAdminWarning": "دغه کارونکی به ټول اداري امتیازات له لاسه ورکړي.",
+        "role": "رول",
+        "searchPlaceholder": "د نوم، برېښنالیک، رول یا سازمان له مخې لټون...",
+        "showing": "د {{total}} څخه {{count}} کارونکي ښودل شوي",
+        "sort": {
+          "email-asc": "برېښنالیک (A-Z)",
+          "email-desc": "برېښنالیک (Z-A)",
+          "joined-asc": "ګډون (زوړترین)",
+          "joined-desc": "ګډون (نوی)",
+          "label": "د ترتیب معیار",
+          "name-asc": "نوم (A-Z)",
+          "name-desc": "نوم (Z-A)",
+          "organization-asc": "سازمان (A-Z)",
+          "organization-desc": "سازمان (Z-A)",
+          "role-asc": "رول (A-Z)",
+          "role-desc": "رول (Z-A)"
+        },
+        "title": "کاروونکي مدیریت کړئ"
+      }
+    },
+    "allGames": {
+      "continue": "دوام ورکړئ",
+      "copyConfirm": {
+        "confirm": "لوبه کاپي کړئ",
+        "message": "دا به د \"{{name}}\" یوه کاپي ستاسو په لوبو کې جوړ کړي.",
+        "title": "لوبه کاپي کړئ"
+      },
+      "copyGame": "لوبه کاپي کړئ",
+      "empty": {
+        "description": "خپل فلټرونه بدل کړئ یا وروسته بیا وګورئ د نوو لوبو لپاره.",
+        "title": "هیڅ لوبې ونه موندل شوې"
+      },
+      "favorite": "خوښ شوو ته اضافه کړئ",
+      "filters": {
+        "all": "ټولې لوبې",
+        "favorites": "خوښ شوي",
+        "own": "زما لوبې",
+        "public": "عامه"
+      },
+      "play": "لوبه وکړئ",
+      "restart": "بیا پیل کړئ",
+      "restartConfirm": {
+        "confirm": "بیا پیل",
+        "message": "ایا تاسو ډاډه یاست چې غواړئ \"{{game}}\" بیا پیل کړئ؟ ستاسې اوسنی پرمختګ به له منځه ولاړ شي.",
+        "title": "لوبه بیا پیل کړئ"
+      },
+      "title": "ټولې لوبې",
+      "unfavorite": "د خوښ شویو څخه لرې کړئ"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "د API کیلي د لوبې منځپانګې د تولید لپاره د AI پلیټفارمونو سره د تړاو لپاره کارول کېږي.",
+        "title": "د API کیلو په اړه"
+      },
+      "addKey": "کیلي اضافه کړئ",
+      "addedOn": "زیات شوی",
+      "createModal": {
+        "keyDescription": "ستاسو کیلي به کوډ شوې او په امن کې ذخیره شي.",
+        "keyLabel": "د API کیلي",
+        "keyPlaceholder": "خپل API کیلي داخل کړئ",
+        "nameLabel": "د کیلي نوم",
+        "namePlaceholder": "مثلاً، زما OpenAI کیلي",
+        "platformLabel": "پلیټفارم",
+        "platformPlaceholder": "پلیټفارم وټاکئ",
+        "submit": "کیلي اضافه کړئ",
+        "title": "نوې API کیلي اضافه کړئ"
+      },
+      "deleteModal": {
+        "message": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟",
+        "title": "د API کیلي حذف کړئ",
+        "warning": "دا عمل نشي بیرته راګرځیدلی. کیلي به دایمي ډول حذف شي."
+      },
+      "errors": {
+        "invalidPlatform": "ناسم پلیټفارم غوره شوی. مهرباني وکړئ یو سم AI پلیټفارم انتخاب کړئ.",
+        "keyRequired": "د API کیلي اړینه ده",
+        "loadFailed": "د API کیلي بارولو کې پاتې راغلل. مهرباني وکړئ بیا هڅه وکړئ.",
+        "nameRequired": "نوم اړین دی",
+        "platformRequired": "پلیټفارم اړین دی"
+      },
+      "key": "کیلي",
+      "keys": "کیلي ګانې",
+      "subtitle": "د AI پلیټفارمونو لپاره خپلې API کیلي اداره کړئ.",
+      "title": "د API کیلي مدیریت",
+      "unnamed": "بې نومه کیلي",
+      "unsupportedPlatform": {
+        "badge": "ملاتړی نه دی",
+        "hint": "دا پلیټفورم اوس مهال ملاتړ نه لري. تاسو یوازې موجودې کیلي ګانې لېرې کولی شئ."
+      }
+    },
+    "back": "شاتګ",
+    "cancel": "لغوه",
+    "close": "بندول",
+    "copyGame": "لوبه کاپي کړئ",
+    "create": "جوړول",
+    "delete": "حذف",
+    "deleteGame": "لوبه حذف کړئ",
+    "edit": "سمول",
+    "editGame": "لوبه سمول",
+    "error": "تېروتنه",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - د میډیا پوهنې انسټیټیوټ",
+      "programmedBy": "پروګرام جوړ کړی"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "د پیغام ID",
+          "imagePrompt": "د عکس لپاره غوښتنه",
+          "isStreaming": "ستریمینګ",
+          "seq": "ترتیب",
+          "statusFields": "د حالت ساحې",
+          "timestamp": "وخت",
+          "type": "ډول"
+        },
+        "hints": {
+          "id": "د دې پیغام لپاره ځانګړی پېژندونکی",
+          "imagePrompt": "هغه غوښتنه چې د عکس جوړولو AI ته لیږل شوې",
+          "isStreaming": "ایا مواد لا هم تر لاسه کېږي",
+          "seq": "په مکالمه کې ترتیب",
+          "statusFields": "د لوبې حالت متغیرونه چې AI یې تعقیبوي",
+          "timestamp": "کله چې دا پیغام جوړ شو",
+          "type": "player = د کارونکي ننوتنه، game = د AI ځواب، system = متن"
+        },
+        "title": "ډیبګ معلومات"
+      },
+      "error": {
+        "backToGames": "بېرته لوبو ته",
+        "gameNotFound": "لوبه ونه موندل شوه",
+        "missingFields": "لوبه لازمي ساحې نه لري:",
+        "sessionFailed": "د لوبې سیشن پیل نشو"
+      },
+      "header": {
+        "back": "بېرته لوبو ته",
+        "debug": "ډیبګ",
+        "decreaseFont": "فونټ کوچنی کړئ",
+        "disableAnimations": "انیمیشنونه غیر فعال کړئ",
+        "increaseFont": "فونټ لوی کړئ",
+        "settings": "تنظیمات",
+        "useNeutralTheme": "بې پرې موضوع وکاروئ"
+      },
+      "input": {
+        "placeholder": "تاسو څه کوئ؟",
+        "send": "عمل واستوئ"
+      },
+      "loading": {
+        "game": "لوبه لوډیږي...",
+        "starting": "د لوبې سیشن پیلېږي...",
+        "startingHint": "AI ستاسو ماجرا چمتو کوي"
+      },
+      "needsApiKey": {
+        "description": "د دې سیشن لپاره کارول شوې API کیلي نور شتون نلري. د لوبې د دوام لپاره نوې کیلي وټاکئ.",
+        "reason": "ستاسو پخوانۍ API کیلي نور شتون نلري. د لوبې د ادامه لپاره، مهرباني وکړئ یوه نوې وټاکئ.",
+        "title": "د API کیلي اړتیا"
+      },
+      "selectApiKey": {
+        "keyDescription": "د دې لوبې سیشن لپاره د کارونې API کیلي وټاکئ",
+        "keyLabel": "د API کیلي",
+        "keyPlaceholder": "د API کیلي وټاکئ",
+        "loadError": "د API کیلو بارول ناکام شول",
+        "mine": "زما",
+        "modelDescription": "اختیاري: یو ځانګړی AI ماډل وټاکئ",
+        "modelLabel": "AI ماډل",
+        "modelPlaceholder": "معیاري ماډل",
+        "noKeys": "د لوبې لپاره لږ تر لږه یوه API کیلي ته اړتیا لرئ. یوه کیلي د تنظیماتو → API کیلو کې اضافه کړئ.",
+        "playing": "لوبه روانه ده",
+        "startGame": "لوبه پیل کړئ",
+        "title": "د API کیلي وټاکئ"
+      },
+      "statusChange": {
+        "effect": "اغېز:"
+      },
+      "unnamed": "بې نومه"
+    },
+    "games": {
+      "badges": {
+        "myGame": "زما لوبه",
+        "public": "عامه",
+        "workshop": "ورکشاپ"
+      },
+      "createButton": "لوبه جوړول",
+      "createModal": {
+        "descriptionPlaceholder": "ستاسو لوبه د څه په اړه ده؟",
+        "namePlaceholder": "مثلاً، د فضا ماجرا",
+        "publicDescription": "عامې لوبې د هر چا له خوا موندل کېدونکې دي.",
+        "publicLabel": "دا لوبه عامه کړئ",
+        "submit": "لوبه جوړول",
+        "title": "نوې لوبه جوړ کړئ"
+      },
+      "deleteModal": {
+        "message": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟",
+        "title": "لوبه حذف کړئ",
+        "warning": "دا عمل نشي بیرته راګرځېدلی. ټول د لوبې معلومات به دایمي توګه حذف شي."
+      },
+      "editFields": {
+        "description": "د لوبې لپاره یوه لنډه تشریح ورکړئ. دا یوازې ستاسو لپاره ده او په لوبه به اثر ونلري.",
+        "gameStart": "لوبه څنګه پېل کېږي؟",
+        "gameStartHint": "لوبه څنګه پیل کېږي؟ د لومړۍ صحنې تشریح ورکړئ چې لوبغاړی یې ویني. لوبغاړی څنګه هرکلی کېږي؟",
+        "gameStartPlaceholder": "تاسې د تیاره ځنګل په څنډه کې راویښېږئ. یو تنګ لار ژورې ونې ته ځي...",
+        "imageStyle": "د لوبې عکسونه کوم سټایل ولري؟",
+        "imageStyleHint": "د بېلګې په توګه: کارتوني، حقیقي، پکسل آرټ، اوبو رنګ...",
+        "name": "د لوبې نوم",
+        "scenario": "د لوبې موضوع څه ده؟",
+        "scenarioHint": "لنډ تشریح وليکئ: لوبه څنګه کار کوي؟ د لوبې نړۍ څنګه ښکاري؟ ژبه او لحن (مثلاً د شپږم ټولګي زده کوونکو لپاره په هسپانوي)؟\nلوبغاړی کوم رول لري؟ ولیکئ \"لوبغاړی ...\".\nکه غواړئ AI د یوې ځانګړې څېرې رول واخلي نو ولیکئ \"تاسو ...\".",
+        "scenarioPlaceholder": "تاسې یو موندونکی یاست په یو پټ اسرار لرونکي ځنګل کې. موخه داده چې پټ خزانه ومومئ...",
+        "statusFields": "د لوبې ارزښتونه",
+        "statusFieldsHint": "کوم ارزښتونه باید لوبه تعقیب کړي؟ لکه روغتیا، امتیازونه، یا مهمات. لوبه دا ارزښتونه حفظ کوي او د لوبې پرمهال یې تازه کوي."
+      },
+      "editModal": {
+        "title": "لوبه سمول",
+        "unsavedChanges": {
+          "discard": "بدلونونه رد کړئ",
+          "keepEditing": "ادامه سمول",
+          "message": "تاسو نا خوندي شوي بدلونونه لرئ. ایا ډاډه یاست چې غواړئ یې رد کړئ؟",
+          "title": "نا خوندي شوي بدلونونه"
+        }
+      },
+      "empty": {
+        "description": "خپل لومړنی لوبه جوړه کړئ او د متقابل AI-چلول شوو ماجراوو څخه خوند واخلئ.",
+        "title": "تر اوسه هیڅ لوبې نشته"
+      },
+      "errors": {
+        "loadFailed": "لوبې بار نه شوې. مهرباني وکړئ بیا هڅه وکړئ.",
+        "nameRequired": "د لوبې نوم اړین دی"
+      },
+      "fields": {
+        "created": "جوړ شوی",
+        "creator": "جوړوونکی",
+        "me": "زه",
+        "modified": "بدلول شوی",
+        "name": "نوم",
+        "playCount": "لوبې",
+        "visibility": "لاسرسی"
+      },
+      "importExport": {
+        "exportButton": "لوبه صادرول",
+        "importButton": "لوبه واردول"
+      },
+      "playNow": "همدا اوس ولوبېږئ",
+      "sort": {
+        "createdAt-asc": "جوړ شوی (زوړترین)",
+        "createdAt-desc": "جوړ شوی (نوی)",
+        "creator-asc": "جوړوونکی (A-Z)",
+        "creator-desc": "جوړوونکی (Z-A)",
+        "label": "د ترتیب معیار",
+        "modifiedAt-asc": "بدلول شوی (زوړترین)",
+        "modifiedAt-desc": "بدلول شوی (نوی)",
+        "name-asc": "نوم (A-Z)",
+        "name-desc": "نوم (Z-A)",
+        "playCount-asc": "تر ټولو لږ لوبېدلی",
+        "playCount-desc": "تر ټولو ډېر لوبېدلی",
+        "visibility-asc": "خصوصي لومړی",
+        "visibility-desc": "عامه لومړی"
+      },
+      "statusFieldsEditor": {
+        "addField": "نوې ارزښت اضافه کړئ",
+        "namePlaceholder": "نوم (مثلاً: روغتیا)",
+        "noFields": "تر اوسه هېڅ ارزښت نشته. د + تڼۍ باندې کلیک وکړئ ترڅو نوی ارزښت اضافه کړئ.",
+        "valuePlaceholder": "د پیل ارزښت (مثلاً: 100)"
+      },
+      "tabs": {
+        "basic": "بنسټیز",
+        "basicInfo": "د لوبې عمومي معلومات. دا يوازې ستاسو لپاره دي او په لوبه به اغېز ونلري.",
+        "importExport": "وارد/صادر",
+        "quickStart": "چټک پیل",
+        "story": "کیسه \u0006 AI",
+        "storyInfo": "دلته هر څه AI ته لیږل کېږي ترڅو ستاسو د لوبې نړۍ او کیسه جوړ کړي.",
+        "style": "ډیزاین",
+        "styleInfo": "د لوبې لید لپاره اختیاري تنظیمات."
+      },
+      "title": "زما جوړې شوې لوبې",
+      "viewModal": {
+        "readOnlyNotice": "دا لوبه د بل کارونکي لخوا جوړه شوې ده. تاسو کولی شئ جزئیات وګورئ خو سمول يې نشي کولی. د خپلې سمېدونکې نسخې لپاره \"کاپي\" وکاروئ.",
+        "title": "د لوبې تفصیلات"
+      },
+      "visibility": {
+        "private": "خصوصي",
+        "public": "عامه"
+      }
+    },
+    "header": {
+      "apiKeys": "د API کیلي",
+      "closeNavigation": "د لارښود مینو بندول",
+      "contact": "اړیکه",
+      "goToDashboard": "ډشبورډ ته لاړ شئ",
+      "leaveWorkshopMode": "د ورکشاپ حالت پریښودل",
+      "leaveWorkshopModeTooltip": "د ورکشاپ حالت بند کړئ او نورمال لید ته ستون شئ",
+      "logout": "وتل",
+      "openNavigation": "د لارښود مینو پرانستل",
+      "openUserMenu": "د کارونکي مینو خلاصول",
+      "organization": "سازمان",
+      "profile": "پروفایل",
+      "workshop": "ورکشاپ"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "د AI په مرسته متقابل متن ماجراوې ډیزاین کړئ",
+          "title": "ماجراګانې جوړ کړئ"
+        },
+        "learn": {
+          "description": "د زده کړې ورکشاپونو او ټولګي فعالیتونو لپاره مناسب",
+          "title": "زده کړه \u0006 ښوونه"
+        },
+        "play": {
+          "description": "د کیسو په ګډو ناسته کې له دوستانو سره ګډون وکړئ",
+          "title": "په ګډه ولوبېږئ"
+        },
+        "title": "ولې ChatGameLab غوره کړئ؟",
+        "understand": {
+          "description": "پلټنه وکړئ چې AI ماډلونه څنګه کیسې جوړوي او زده کړئ چې دا څنګه کار کوي",
+          "title": "AI وپیژنئ"
+        }
+      },
+      "loginCta": "ننوتل او سپړنه",
+      "splashDescription": "د زده کړې لپاره یو پلیټفارم د AI-چلېزډ متن ماجراګانو د جوړولو او لوبولو لپاره. د ښوونکو، زده کوونکو او تخلیقي کیسې ویونکو لپاره مناسب."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "تاسو ته بلنه درکړل شوې چې د \"{{organization}}\" سازمان ورکشاپ کې ګډون وکړئ.",
+        "inviteMessageSimple": "تاسو ته بلنه درکړل شوې چې دې ورکشاپ کې ګډون وکړئ.",
+        "joinButton": "ورکشاپ ته ګډون وکړئ",
+        "title": "ورکشاپ ته ګډون",
+        "titleWithWorkshop": "ورکشاپ \"{{workshop}}\" ته ګډون"
+      },
+      "errors": {
+        "acceptFailed": "بلنه منل نشو. مهرباني وکړئ بیا هڅه وکړئ.",
+        "expired": "د دې بلنې لینک موده تېرې شوې ده.",
+        "loadFailed": "د بلنې تفصیلات بار نه شول. مهرباني وکړئ بیا هڅه وکړئ.",
+        "notFound": "دا بلنې لینک نامعتبر دی یا لغوه شوی دی."
+      },
+      "goHome": "کور پاڼې ته لاړ شئ",
+      "participant": {
+        "loggingIn": "تاسو ننوتل..."
+      },
+      "success": {
+        "message": "تاسو په بریالیتوب سره ورکشاپ ته ورننوتئ. لارښوونه...",
+        "title": "ښه راغلاست!"
+      },
+      "switchWorkshop": {
+        "message": "ستاسو لوبې او پرمختګونه په اوسني ورکشاپ کې به پاتې شي، خو تاسو به تر بیرته ګډون پورې ورته لاسرسی ونه لرئ.",
+        "stayButton": "په اوسني ورکشاپ کې پاتې شئ",
+        "switchButton": "ورکشاپ بدل کړئ",
+        "title": "ورکشاپ بدلول؟",
+        "warning": "تاسو اوس په ورکشاپ \"{{currentWorkshop}}\" کې یاست. که تاسو \"{{newWorkshop}}\" ته ورشئ، تاسو به له اوسني ورکشاپ څخه ووځي."
+      }
+    },
+    "labels": {
+      "no": "نه",
+      "yes": "هو"
+    },
+    "languageSwitcher": {
+      "wipHint": "نورې ژبې لا په کار کې دي. اوس مهال یوازې انګلیسي او جرمني شتون لري.",
+      "wipLabel": "WIP"
+    },
+    "loading": "پورته کېږي...",
+    "logout": "وتل",
+    "myGames": {
+      "continue": "دوام ورکړئ",
+      "copyConfirm": {
+        "confirm": "لوبه کاپي کړئ",
+        "message": "دا به د \"{{name}}\" یوه کاپي ستاسو په لوبو کې جوړ کړي.",
+        "title": "لوبه کاپي کړئ"
+      },
+      "copyGame": "لوبه کاپي کړئ",
+      "empty": {
+        "description": "خپل لومړنی لوبه جوړه کړئ ترڅو د متقابل AI-چلول شوو ماجراوو سره پیل وکړئ.",
+        "title": "تر اوسه هیڅ لوبې نشته"
+      },
+      "favorite": "خوښ شوو ته اضافه کړئ",
+      "filters": {
+        "all": "ټولې",
+        "favorites": "خوښ شوي"
+      },
+      "play": "لوبه وکړئ",
+      "restart": "بیا پیل کړئ",
+      "restartConfirm": {
+        "confirm": "بیا پیل",
+        "message": "ایا تاسو ډاډه یاست چې غواړئ \"{{game}}\" بیا پیل کړئ؟ ستاسې اوسنی پرمختګ به له منځه ولاړ شي.",
+        "title": "لوبه بیا پیل کړئ"
+      },
+      "title": "زما لوبې",
+      "unfavorite": "د خوښ شویو څخه لرې کړئ"
+    },
+    "myOrganization": {
+      "actions": "عملونه",
+      "apiKeys": {
+        "aboutDescription": "دلته شریک شوي API کیلي د سازمان د ټولو غړو لپاره د لوبو لپاره شتون لري. یوازې مشران او ښوونکي کولای شي دغه کیلي اداره کړي.",
+        "aboutTitle": "د سازمان API کیلي",
+        "allowPublicSponsoring": "عامه تمویل اجازه ورکړئ",
+        "allowPublicSponsoringDesc": "دا کیلي د ټولو کاروونکو لپاره د لوبو تمویلولو لپاره کارېدلی شي.",
+        "filterByPlatform": "د پلیټفارم له مخې فلټر",
+        "keyName": "د کیلي نوم",
+        "loadError": "د سازمان د API کیلو بارولو کې تېروتنه.",
+        "noKeys": "تر اوسه د دې سازمان سره هېڅ API کیلي شریکې شوې ندي.",
+        "noResults": "هیڅ API کیلي ستاسو په لټون برابر نشته.",
+        "notAuthorized": "تاسو اجازه نلرئ د سازمان API کیلي مدیریت کړئ. یوازې مشران او ښوونکي دې صفحې ته لاسرسی لري.",
+        "owner": "مالک",
+        "platform": "پلیټفارم",
+        "publicSponsoring": "عامه تمویل",
+        "searchPlaceholder": "د نوم یا مالک له مخې لټون...",
+        "selectKey": "API کیلي وټاکئ",
+        "selectKeyPlaceholder": "د شریکولو لپاره یوه کیلي وټاکئ...",
+        "share": "شریکول",
+        "shareKey": "کیلي شریک کړئ",
+        "shareKeyTitle": "API کیلي له سازمان سره شریک کړئ",
+        "title": "د سازمان API کیلې"
+      },
+      "demoteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" ({{email}}) د ښوونکي په درجه راوټیټ کړئ؟",
+      "demoteTitle": "د ښوونکي ته راټیټول",
+      "demoteToStaff": "د ښوونکي ته راټیټول",
+      "email": "برېښنالیک",
+      "emailPlaceholder": "برېښنالیک داخل کړئ",
+      "empty": "په دې سازمان کې هیڅ غړي نشته.",
+      "inviteAlreadyExists": "د دې برېښنالیک لپاره یوه ځنډېدلې بلنه له مخکې موجوده ده.",
+      "inviteError": "د بلنې لیږلو کې تېروتنه. مهرباني وکړئ بیا هڅه وکړئ.",
+      "inviteTeacher": "ښوونکی بلنه وکړئ",
+      "inviteTeacherDescription": "یو ښوونکی ته بلنه واستوئ چې ستاسو سازمان سره یو ځای شي.",
+      "inviteTeacherTitle": "ښوونکی بلنه",
+      "inviteUser": "کاروونکی بلنه",
+      "inviteUserDescription": "یو کارونکي ته بلنه واستوئ چې ستاسو سازمان سره پرته له ځانګړي رول څخه یوځای شي.",
+      "inviteUserTitle": "کاروونکی بلنه",
+      "leaveConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" پرېږدئ؟",
+      "leaveOrganization": "سازمان پرېښودل",
+      "leaveTitle": "سازمان پرېښودل",
+      "leaveWarning": "تاسو به د سازمان ټولو سرچینو او غړو ته لاسرسی له لاسه ورکړئ.",
+      "me": "زه",
+      "name": "نوم",
+      "noEmail": "برېښنالیک نشته",
+      "noOrganization": "سازمان نشته",
+      "noOrganizationDescription": "تاسو د هېڅ سازمان غړی نه یاست.",
+      "noResults": "هیڅ غړي ستاسو په لټون برابر نشته.",
+      "noRole": "هیڅ رول نشته",
+      "promoteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" ({{email}}) ته مشر وټاکئ؟",
+      "promoteTitle": "مشر ته وده ورکړئ",
+      "promoteToHead": "مشر ته وده ورکړئ",
+      "promoteWarning": "دغه کارونکی به د سازمان د غړیو د مدیریت او ښوونکو د بلنې وړتیا ترلاسه کړي.",
+      "removeConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" له سازمان څخه لرې کړئ؟",
+      "removeMember": "غړی لرې کړئ",
+      "removeTitle": "غړی لرې کړئ",
+      "removeWarning": "دغه کارونکی به د سازمان له لاسرسي محروم شي.",
+      "role": "رول",
+      "searchPlaceholder": "غړي لټون...",
+      "showing": "{{count}} غړي",
+      "sort": {
+        "label": "د ترتیب معیار",
+        "name-asc": "نوم (A-Z)",
+        "name-desc": "نوم (Z-A)",
+        "role-asc": "رول (A-Z)",
+        "role-desc": "رول (Z-A)"
+      },
+      "title": "زما سازمان",
+      "workshops": {
+        "activate": "فعالول",
+        "active": "فعاله",
+        "activeDescription": "فعاله ورکشاپونه ګډونوالو ته اجازه ورکوي چې ګډون وکړي او لوبې جوړې کړي.",
+        "activeLabel": "فعاله",
+        "anonymousParticipant": "ناشناس ګډونوال",
+        "create": "ورکشاپ جوړ کړئ",
+        "createFirst": "خپل لومړی ورکشاپ جوړ کړئ",
+        "createInviteLink": "د بلنې لینک جوړ کړئ",
+        "createTitle": "ورکشاپ جوړ کړئ",
+        "deactivate": "غیرفعالول",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "معیاري API کیلي",
+        "defaultApiKeyHint": "ګډونوال به د لوبې پر مهال دا API کیلي وکاروي.",
+        "deleteConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" حذف کړئ؟",
+        "deleteTitle": "ورکشاپ حذف کړئ",
+        "deleteWarning": "د دې ورکشاپ ټولې لوبې او سیشنونه به حذف شي. دا عمل بیرته نه کېدونکی دی.",
+        "editParticipant": "نوم سمول",
+        "empty": "تر اوسه هېڅ ورکشاپ نشته.",
+        "enterWorkshop": "ورکشاپ حالت ته ننوځئ",
+        "games": "لوبې",
+        "hideInactive": "غیرفعاله پټول",
+        "inactive": "غیرفعال",
+        "inviteCreatedAt": "جوړ شوی",
+        "inviteDescription": "یو بلنې لینک تولید کړئ چې ګډونوال دا کارولی شي ترڅو دې ورکشاپ ته ورشي.",
+        "inviteExpiresAt": "د پای نېټه",
+        "inviteLink": "د بلنې لینک",
+        "inviteLinkDescription": "دا لینک له ګډونوالو سره شریک کړئ ترڅو هغوی ورکشاپ ته بلنه ورکړل شي.",
+        "inviteLinkTitle": "د {{name}} لپاره د بلنې لینک",
+        "inviteUsage": "استعمال",
+        "joined": "ګډون شوی",
+        "linkCopied": "لینک نقل شو",
+        "linkCopiedMessage": "د بلنې لینک ستاسو کلیپ بورډ ته نقل شو.",
+        "loadError": "د ورکشاپونو بارولو کې تېروتنه.",
+        "nameLabel": "د ورکشاپ نوم",
+        "namePlaceholder": "مثلاً، د اوړي کمپ 2024",
+        "noActiveInvite": "فعال بلنې لینک نشته.",
+        "noDefaultApiKey": "هیڅ معیاري API کیلي نشته",
+        "noDefaultModel": "د پلیټفارم معیاري وکاروئ",
+        "noParticipantToken": "دغه ګډونوال بلنې لینک نه لري. یوازې ناشناس ګډونوال بیا کارېدونکي بلنې لینکونه لري.",
+        "noParticipants": "تر اوسه هېڅ ګډونوال نشته",
+        "notAuthorized": "تاسو اجازه نلرئ ورکشاپونه مدیریت کړئ. یوازې مشران او ښوونکي دې صفحې ته لاسرسی لري.",
+        "participantGames": "{{count}} لوبې",
+        "participantJoined": "ګډون شوی {{date}}",
+        "participantName": "د ګډونوال نوم",
+        "participants": "ګډونوال",
+        "removeParticipant": "ګډونوال لرې کړئ",
+        "removeParticipantConfirm": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" له دې ورکشاپ څخه لرې کړئ؟",
+        "removeParticipantMessage": "ایا تاسو ډاډه یاست چې غواړئ \"{{name}}\" له دې ورکشاپ څخه لرې کړئ؟ دا عمل بیرته نه کېدونکی دی.",
+        "removeParticipantTitle": "ګډونوال لرې کړئ",
+        "revokeInvite": "د بلنې لینک لغوه کړئ",
+        "selectApiKey": "د API کیلي غوره کړئ",
+        "settings": "ترتیبات",
+        "shareParticipantLink": "د دې ګډونوال لپاره انفرادي بلنې لینک نقل کړئ",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "د نورو ګډونوالو لوبې وښایئ",
+        "showPublicGames": "عامې لوبې ګډونوالو ته وښایئ",
+        "sort": {
+          "createdAtAsc": "زوړترین لومړی",
+          "createdAtDesc": "نوی تر ټولو لومړی",
+          "label": "د ترتیب معیار",
+          "nameAsc": "نوم (A-Z)",
+          "nameDesc": "نوم (Z-A)",
+          "participantsAsc": "تر ټولو لږ ګډونوال",
+          "participantsDesc": "تر ټولو ډېر ګډونوال"
+        },
+        "subtitle": "ورکشاپونه مدیریت کړئ او ګډونوالو ته د لوبو لپاره د ګډ کار بلنه ورکړئ.",
+        "title": "ورکشاپونه",
+        "usedCount": "{{count}} ځلې کارول شوې",
+        "viewInviteLink": "د بلنې لینک وګورئ"
+      }
+    },
+    "notifications": {
+      "accept": "منل",
+      "decline": "ردول",
+      "declineConfirm": "ایا تاسو ډاډه یاست چې غواړئ دا بلنه رد کړئ؟",
+      "declineTitle": "بلنه رد کړئ",
+      "empty": "هیڅ نوې خبرتیاوې نشته.",
+      "inviteDescription": "تاسو ته د {{role}} په توګه بلنه درکړل شوې.",
+      "inviteToJoin": "د سازمان بلنه",
+      "title": "خبرتیاوې"
+    },
+    "play": {
+      "cloneGame": "زما لوبو ته کاپي کړئ",
+      "empty": {
+        "description": "خپل فلټرونه بدل کړئ یا وروسته بیا وګورئ د نوو لوبو لپاره.",
+        "title": "هیڅ لوبې ونه موندل شوې"
+      },
+      "favorite": "خوښ شوو ته اضافه کړئ",
+      "filters": {
+        "all": "ټولې لوبې",
+        "favorites": "خوښ شوي",
+        "organization": "سازمان",
+        "own": "زما لوبې",
+        "public": "عامه"
+      },
+      "owner": "زما",
+      "playGame": "دا لوبه ولوبوئ",
+      "playNow": "همدا اوس ولوبېږئ",
+      "selectGameTitle": "یو لوبه وټاکئ",
+      "title": "یو لوبه وټاکئ",
+      "unfavorite": "د خوښ شویو څخه لرې کړئ"
+    },
+    "profile": "پروفایل",
+    "save": "خوندي کول",
+    "search": "لټون",
+    "sessions": {
+      "continueGame": "لوبه ادامه ورکړئ",
+      "deleteConfirm": {
+        "message": "ایا تاسو ډاډه یاست چې غواړئ دا سیشن د \"{{game}}\" لپاره حذف کړئ؟ دا عمل بیرته نشي راګرځیدلی.",
+        "title": "سیشن حذف کړئ"
+      },
+      "empty": {
+        "description": "یو نوی لوبه پیل کړئ ترڅو خپل ماجرا شروع کړئ!",
+        "noResults": "هیڅ ورته لوبې ونه موندلې",
+        "title": "تر اوسه هېڅ لوبه نه ده شوې"
+      },
+      "errors": {
+        "loadFailed": "ستاسو لوبې نشوې بارېدلای. مهرباني وکړئ بیا هڅه وکړئ."
+      },
+      "fields": {
+        "game": "لوبه",
+        "lastPlayed": "وروستی ځل لوبېدلې",
+        "model": "ماډل"
+      },
+      "noDescription": "تشریح نشته",
+      "sort": {
+        "game": "لوبه",
+        "label": "د ترتیب معیار",
+        "lastPlayed": "وروستی ځل لوبېدلې",
+        "model": "ماډل"
+      },
+      "startNewGame": "نوې لوبه پیل کړئ",
+      "title": "ستاسو روانې لوبې",
+      "untitledGame": "بې سرلیکه لوبه"
+    },
+    "settings": "تنظیمات",
+    "unnamed": "بې نومه",
+    "viewGame": "لوبه وګورئ"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "د پروژې همغږونکی او مخکښ سازمان.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "د دې پلېټفارم شاته تعلیمي پروژې په اړه نور معلومات ترلاسه کړئ.",
+          "title": "ChatGameLab پروژه"
+        },
+        "title": "د ChatGameLab په اړه"
+      },
+      "lastPlayed": {
+        "empty": "تر اوسه د لوبې تاریخ نشته. لومړۍ لوبه پیل کړئ!",
+        "title": "وروستی لوبول شوی",
+        "viewAll": "ټولې لوبې"
+      },
+      "myGames": {
+        "empty": "تر اوسه هېڅ لوبې نشته. خپله لومړی لوبه جوړه کړئ!",
+        "title": "زما لوبې",
+        "viewAll": "ټولې تخلیقات"
+      },
+      "myWorkshops": {
+        "empty": "هیڅ فعال ورکشاپ نشته. په خپل سازمان کې یو ورکشاپ جوړ کړئ!",
+        "title": "زما ورکشاپونه",
+        "viewAll": "ټولې ورکشاپونه"
+      },
+      "newGames": {
+        "empty": "تر اوسه هېڅ لوبې شتون نلري.",
+        "title": "نوې لوبې",
+        "viewAll": "ټولې لوبې"
+      },
+      "popularGames": {
+        "empty": "تر اوسه هېڅ لوبې شتون نلري.",
+        "plays": "{{count}} ځلې لوبول شوي",
+        "title": "مشهورې لوبې",
+        "viewAll": "ټولې لوبې"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "نوې لوبه جوړه کړئ",
+      "createRoom": "خونه/کمره جوړه کړئ",
+      "inviteMembers": "غړي بلنه کړئ",
+      "startNewGame": "نوې لوبه پیل کړئ",
+      "title": "چټک عملونه"
+    },
+    "untitled": "بې سرلیک",
+    "untitledGame": "بې سرلیکه لوبه",
+    "version": {
+      "mismatch": {
+        "message": "د فرانت اینډ نسخه {{frontendVersion}} د بیکنډ نسخه {{backendVersion}} سره برابره نه ده. دا ممکن په غیر متوقع ډول تاثیر وکړي. که ستونزې دوام ومومي، ملاتړ سره اړیکه ونیسئ.",
+        "title": "د نسخو اختلاف کشف شو"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "د AI خدمت یوه تېروتنه تجربه کړه. مهرباني وکړئ بیا هڅه وکړئ.",
+    "backendUserFetch": "د کارونکي معلومات له سرور څخه نشول بارېدلای. مهرباني وکړئ بیا هڅه وکړئ.",
+    "billingNotActive": "ستاسو OpenAI حساب فعال نه دی. مهرباني وکړئ خپلې د بیلنګ معلومات په https://platform.openai.com/settings/organization/billing کې وګورئ.",
+    "conflict": "دا عمل د موجوده معلوماتو سره ټکر لري. مهرباني وکړئ بیا هڅه وکړئ.",
+    "contentFiltered": "ستاسو غوښتنه د AI د مینځپانګې پالیسۍ له مخې فلټر شوې ده. مهرباني وکړئ دا په بله طریقه ولیکئ.",
+    "forbidden": "تاسو اجازه نلرئ چې دا عمل ترسره کړئ.",
+    "generic": "څه یو څه سم نه دي. مهرباني وکړئ بیا هڅه وکړئ.",
+    "insufficientQuota": "ستاسو API کیلي کریډیټونه پای ته رسېدلي. مهرباني وکړئ نور کریډیټ اضافه کړئ یا بله API کیلي وکاروئ.",
+    "invalidApiKey": "ستاسو API کیلي ناسم یا پاخه شوې ده. مهرباني وکړئ خپله API کیلي په تنظیماتو کې وڅېړئ.",
+    "invalidPlatform": "ناسم پلیټفارم غوره شوی. مهرباني وکړئ یو مناسب اختیار وټاکئ.",
+    "invalidToken": "ستاسو سیشن وخت تېر شوی یا ناسم دی. مهرباني وکړئ خپل بلنې لینک بیا وکاروئ.",
+    "network": "د شبکې تېروتنه. مهرباني وکړئ خپله اړیکه وګورئ.",
+    "notFound": "غوښتل شوې سرچینه ونه موندل شوه.",
+    "orgVerificationRequired": "ستاسو OpenAI سازمان باید تایید شي تر څو د عکس تولید فیچر وکاروي. مهرباني وکړئ په https://platform.openai.com/settings/organization/general کې تایید کړئ.",
+    "rateLimitExceeded": "ډېرې غوښتنې وشوې. مهرباني وکړئ لږ انتظار وکړئ او بیا هڅه وکړئ.",
+    "server": "د سرور تېروتنه. مهرباني وکړئ وروسته بیا هڅه وکړئ.",
+    "titles": {
+      "aiError": "د AI تېروتنه",
+      "authentication": "د تصدیق تېروتنه",
+      "billing": "د بیلینګ تېروتنه",
+      "error": "تېروتنه",
+      "network": "د شبکې تېروتنه",
+      "notFound": "نه وموندل شو",
+      "permission": "اجازه رد شوه",
+      "server": "د سرور تېروتنه",
+      "validation": "د تایید تېروتنه",
+      "workshopInactive": "ورکشاپ غیرفعال شوی"
+    },
+    "unauthorized": "د دوام لپاره مهرباني وکړئ ننوتئ.",
+    "unexpected": "یو غیر متوقع تېروتنه رامنځته شوه.",
+    "userNotRegistered": "تاسو باید ثبت نام بشپړ کړئ مخکې له دې چې دوام ورکړئ.",
+    "validation": "مهرباني وکړئ خپلې داخلې وګورئ او بیا هڅه وکړئ.",
+    "workshopInactive": "دا ورکشاپ غیرفعال شوی دی. مهرباني وکړئ خپل ښوونکي یا د ورکشاپ تنظیموونکي سره اړیکه ونیسئ."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "د لوبو د پیلولو سره به دا ځای ډک شي، یا خپله لوبه جوړه کړئ!",
+      "title": "تر اوسه هېڅ لوبې نشته"
+    },
+    "filters": {
+      "all": "ټولې لوبې",
+      "mine": "زما لوبې",
+      "public": "عامې لوبې",
+      "workshop": "د ورکشاپ لوبې"
+    },
+    "gameType": "لوبه",
+    "organizator": "تنظیموونکی: {{name}}",
+    "settings": {
+      "currentWorkshop": "اوسنی ورکشاپ",
+      "notInWorkshopMode": "تاسو په ورکشاپ حالت کې نشئ. مهرباني وکړئ لومړی یو ورکشاپ دننه شئ.",
+      "title": "د ورکشاپ تنظیمات"
+    },
+    "title": "زما ورکشاپ",
+    "you": "تاسو"
+  },
+  "navigation": {
+    "allGames": "ټولې لوبې",
+    "create": "خپل ځان ته لوبه جوړه کړئ",
+    "dashboard": "ډشبورډ",
+    "games": "لوبې",
+    "groups": "ګروپونه",
+    "manageOrganizations": "سازمانونه مدیریت کړئ",
+    "manageUsers": "کارونکي مدیریت کړئ",
+    "myGames": "زما لوبې",
+    "myOrganization": "زما سازمان",
+    "myWorkshop": "زما ورکشاپ",
+    "orgApiKeys": "د API کیلې",
+    "orgMembers": "غړي",
+    "orgWorkshops": "ورکشاپونه",
+    "play": "لوبه وکړئ",
+    "rooms": "خوني",
+    "workshopSettings": "د ورکشاپ تنظیمات"
+  }
+}

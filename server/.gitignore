@@ -1,3 +1,7 @@
 .env
 /var/
 gpt/api_key.go
+__debug_bin*
+docs/
+cgl.exe
+cgl

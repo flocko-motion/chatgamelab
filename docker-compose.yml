@@ -1,0 +1,96 @@
+# Production deployment using pre-built images from GitHub Container Registry
+# Usage: 
+#   Production (main):     IMAGE_TAG=latest docker compose up -d
+#   Development (dev):     IMAGE_TAG=dev docker compose up -d
+#   Specific version:      IMAGE_TAG=1.2.3 docker compose up -d
+# Environment variables must be set (e.g., via systemd, .env, or export)
+
+services:
+  db:
+    image: ghcr.io/flocko-motion/chatgamelab-db:${IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: chatgamelab-db
+    environment:
+      POSTGRES_DB: chatgamelab
+      POSTGRES_USER: chatgamelab
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      # Backup config (optional)
+      BACKUP_ENABLED: ${BACKUP_ENABLED:-false}
+      BACKUP_SSH_HOST: ${BACKUP_SSH_HOST:-}
+      BACKUP_SSH_PORT: ${BACKUP_SSH_PORT:-22}
+      BACKUP_SSH_USER: ${BACKUP_SSH_USER:-}
+      BACKUP_SSH_KEY: /run/secrets/backup_key
+      BACKUP_PATH: ${BACKUP_PATH:-backups}
+      DB_NAME: chatgamelab
+      DB_USER: chatgamelab
+    volumes:
+      - db_data:/var/lib/postgresql
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    secrets:
+      - backup_key
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/flocko-motion/chatgamelab-backend:${IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: chatgamelab-backend
+    environment:
+      DB_HOST: db
+      DB_USER: chatgamelab
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: chatgamelab
+      PORT_BACKEND: 3000
+      PORT_POSTGRES: 5432
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      DEV_JWT_SECRET: ${DEV_JWT_SECRET}
+      PUBLIC_URL: ${PUBLIC_URL}
+      API_BASE_URL: ${API_BASE_URL}
+      SENTRY_DSN_BACKEND: ${SENTRY_DSN_BACKEND:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "/app/cgl", "healthcheck" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: [ "server" ]
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/flocko-motion/chatgamelab-web:${IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: chatgamelab-web
+    environment:
+      API_BASE_URL: ${API_BASE_URL}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      PUBLIC_URL: ${PUBLIC_URL}
+      SENTRY_DSN_FRONTEND: ${SENTRY_DSN_FRONTEND:-}
+    depends_on:
+      backend:
+        condition: service_healthy
+    expose:
+      - "80"
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+secrets:
+  backup_key:
+    file: ${BACKUP_SSH_KEY_PATH:-/dev/null}
+
+volumes:
+  db_data:

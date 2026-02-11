@@ -1,0 +1,1008 @@
+/* ============================================================================
+   Game Player Styles
+   Theme-driven via CSS custom properties from GameThemeContext
+   ============================================================================ */
+
+.container {
+  /* Dimmed backgrounds - soft gray, not dark mode */
+  --game-bg-dim: #e8e8ec;
+  --game-bg-header: #dddde3;
+  --game-bg-status: #e2e2e8;
+
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+  background: var(--game-bg-dim);
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.header {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--game-header-bg, #ffffff);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--game-header-font, var(--mantine-color-gray-8));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Header buttons inherit theme colors */
+.header :global(.mantine-ActionIcon-root),
+.header :global(.mantine-Button-root) {
+  color: var(--game-header-font, inherit);
+}
+
+.header :global(.mantine-ActionIcon-root):hover,
+.header :global(.mantine-Button-root):hover {
+  background-color: var(--game-header-accent, rgba(0, 0, 0, 0.05));
+  color: var(--game-header-font, inherit);
+}
+
+/* Header text elements inherit theme color */
+.header :global(.mantine-Text-root) {
+  color: var(--game-header-font, inherit);
+}
+
+/* Header description (dimmed variant) */
+.headerDescription {
+  color: var(--game-header-font, var(--mantine-color-gray-6)) !important;
+  opacity: 0.7;
+}
+
+/* ============================================================================
+   Status Bar - Game Stats Style
+   ============================================================================ */
+
+.statusBar {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background:
+    linear-gradient(var(--game-bg-tint, transparent), var(--game-bg-tint, transparent)),
+    var(--game-bg-status);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+
+  /* Themed scrollbar - Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-corner-color, rgba(0, 0, 0, 0.2)) transparent;
+}
+
+/* Themed scrollbar - WebKit (Chrome, Safari, Edge) */
+.statusBar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.statusBar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.statusBar::-webkit-scrollbar-thumb {
+  background: var(--game-corner-color, rgba(0, 0, 0, 0.2));
+  border-radius: 3px;
+}
+
+.statusBar::-webkit-scrollbar-thumb:hover {
+  background: var(--game-corner-color-light, rgba(0, 0, 0, 0.3));
+}
+
+.statusField {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  white-space: nowrap;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  background: var(--game-status-bg, rgba(255,255,255,0.7));
+  border: 1px solid var(--game-status-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.statusField::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--game-status-accent, var(--game-corner-color));
+  border-radius: 0 2px 2px 0;
+}
+
+.statusFieldName {
+  color: var(--game-status-font, var(--mantine-color-gray-6));
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statusFieldEmoji {
+  font-size: var(--mantine-font-size-sm);
+  text-transform: none;
+}
+
+.statusFieldValue {
+  color: var(--game-status-font, var(--mantine-color-gray-9));
+  font-weight: 700;
+}
+
+.statusFieldValueChanged {
+  animation: statusValuePulse 2s ease-out;
+}
+
+@keyframes statusValuePulse {
+  0% {
+    transform: scale(1);
+    color: var(--game-status-accent, var(--mantine-color-amber-6));
+    text-shadow: 0 0 8px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  30% {
+    transform: scale(2);
+    color: var(--game-status-accent, var(--mantine-color-amber-6));
+    text-shadow: 0 0 12px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  60% {
+    transform: scale(1.2);
+    text-shadow: 0 0 4px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  100% {
+    transform: scale(1);
+    color: var(--game-status-font, var(--mantine-color-gray-9));
+    text-shadow: none;
+  }
+}
+
+.statusOverflowChip {
+  composes: statusField;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+
+.statusOverflowChip:hover {
+  background: var(--game-status-accent, var(--game-corner-color));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.statusOverflowChip:hover .statusFieldValue {
+  color: var(--game-status-bg, #fff);
+}
+
+.statusFieldChanged {
+  animation: statusBoxPulse 2s ease-out;
+}
+
+@keyframes statusBoxPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  30% {
+    transform: scale(1.5);
+    box-shadow: 0 0 12px 4px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  60% {
+    transform: scale(1.04);
+    box-shadow: 0 0 8px 2px var(--game-status-accent, var(--mantine-color-amber-6));
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* ============================================================================
+   Scene Area (layered: fixed background + scrollable messages)
+   ============================================================================ */
+
+.sceneArea {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--game-bg-tint, transparent);
+}
+
+/* Force tsParticles container and canvas to fill the scene area */
+.sceneArea :global(#game-bg-particles),
+.sceneArea :global(#game-bg-particles) canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.messagesScroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  z-index: 1;
+
+  /* Themed scrollbar - Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-corner-color, rgba(255, 255, 255, 0.3)) transparent;
+}
+
+/* Themed scrollbar - WebKit (Chrome, Safari, Edge) */
+.messagesScroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messagesScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messagesScroll::-webkit-scrollbar-thumb {
+  background: var(--game-corner-color, rgba(255, 255, 255, 0.3));
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.messagesScroll::-webkit-scrollbar-thumb:hover {
+  background: var(--game-corner-color-light, rgba(255, 255, 255, 0.5));
+  background-clip: padding-box;
+}
+
+.scenesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-xl);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   Scene Card
+   ============================================================================ */
+
+.sceneCard {
+  animation: cardEnter 0.4s ease-out forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sceneCard:hover {
+  transform: translateY(-2px);
+}
+
+.sceneCardMonochrome {
+  filter: grayscale(0.7) contrast(1.1);
+}
+
+.sceneCardMonochrome img {
+  filter: grayscale(0.5);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Game scene - image left, text right */
+.gameScene {
+  display: flex;
+  gap: var(--mantine-spacing-lg);
+  padding: var(--mantine-spacing-lg);
+  background: var(--game-ai-bg, #ffffff);
+  border-radius: var(--mantine-radius-lg);
+  border-width: var(--game-border-width, 1px);
+  border-style: solid;
+  border-color: var(--game-ai-border-color, var(--mantine-color-gray-2));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+
+/* ============================================================================
+   Corner Decorations (element-based for flexible positioning)
+   ============================================================================ */
+
+/* Base corner decoration element */
+.cornerDecor {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Corner positions */
+.cornerTopLeft { top: 8px; left: 8px; }
+.cornerTopRight { top: 8px; right: 8px; }
+.cornerBottomLeft { bottom: 8px; left: 8px; }
+.cornerBottomRight { bottom: 8px; right: 8px; }
+
+/* Brackets style */
+.cornerDecor.cornerBrackets {
+  width: 24px;
+  height: 24px;
+  border-color: var(--game-corner-color, #475569);
+  border-style: solid;
+  opacity: 0.7;
+}
+.cornerDecor.cornerBrackets.cornerTopLeft {
+  border-width: 2px 0 0 2px;
+  border-radius: 4px 0 0 0;
+}
+.cornerDecor.cornerBrackets.cornerTopRight {
+  border-width: 2px 2px 0 0;
+  border-radius: 0 4px 0 0;
+}
+.cornerDecor.cornerBrackets.cornerBottomLeft {
+  border-width: 0 0 2px 2px;
+  border-radius: 0 0 0 4px;
+}
+.cornerDecor.cornerBrackets.cornerBottomRight {
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 4px 0;
+}
+
+/* Flourish style */
+.cornerDecor.cornerFlourish {
+  font-size: 24px;
+  color: var(--game-corner-color, #475569);
+  opacity: 0.6;
+  line-height: 1;
+}
+.cornerDecor.cornerFlourish::before { content: '❧'; }
+.cornerDecor.cornerFlourish.cornerTopRight { transform: scaleX(-1); }
+.cornerDecor.cornerFlourish.cornerBottomLeft { transform: rotate(180deg) scaleX(-1); }
+.cornerDecor.cornerFlourish.cornerBottomRight { transform: rotate(180deg); }
+
+/* Arrows style */
+.cornerDecor.cornerArrows {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  opacity: 0.7;
+}
+.cornerDecor.cornerArrows.cornerTopLeft {
+  border-width: 12px 12px 0 0;
+  border-color: var(--game-corner-color, #475569) transparent transparent transparent;
+}
+.cornerDecor.cornerArrows.cornerTopRight {
+  border-width: 0 12px 12px 0;
+  border-color: transparent var(--game-corner-color, #475569) transparent transparent;
+}
+.cornerDecor.cornerArrows.cornerBottomLeft {
+  border-width: 12px 0 0 12px;
+  border-color: transparent transparent transparent var(--game-corner-color, #475569);
+}
+.cornerDecor.cornerArrows.cornerBottomRight {
+  border-width: 0 0 12px 12px;
+  border-color: transparent transparent var(--game-corner-color, #475569) transparent;
+}
+
+/* Dots style (triple dots) */
+.cornerDecor.cornerDots {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--game-corner-color, #475569);
+  opacity: 0.6;
+}
+.cornerDecor.cornerDots::before { content: '•••'; }
+.cornerDecor.cornerDots.cornerTopRight,
+.cornerDecor.cornerDots.cornerBottomLeft { writing-mode: vertical-rl; }
+
+/* Dot style (single dot) */
+.cornerDecor.cornerDot {
+  width: 8px;
+  height: 8px;
+  background: var(--game-corner-color, #475569);
+  border-radius: 50%;
+  opacity: 0.8;
+  box-shadow: 0 0 6px var(--game-corner-color, #475569);
+}
+
+/* Cursor style (underscore) */
+.cornerDecor.cornerCursor {
+  font-size: 18px;
+  font-family: 'Courier New', Consolas, monospace;
+  font-weight: bold;
+  color: var(--game-corner-color, #475569);
+}
+.cornerDecor.cornerCursor::before { content: '_'; }
+
+/* Blinking animation for corners */
+.cornerDecor.cornerBlink {
+  animation: cornerBlink 1s step-end infinite;
+}
+
+@keyframes cornerBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.gameScene.noImage {
+  padding: var(--mantine-spacing-xl);
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 48em) {
+  .gameScene {
+    flex-direction: column;
+  }
+}
+
+/* ============================================================================
+   Scene Image
+   ============================================================================ */
+
+.sceneImageWrapper {
+  flex-shrink: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Decorative frame around image */
+.sceneImageWrapper::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(var(--mantine-radius-md) - 2px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sceneImageWrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mantine-radius-md);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sceneImageWrapper:hover {
+  transform: scale(1.03) rotate(0.5deg);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 2px var(--game-image-highlight, var(--game-ai-border-color));
+}
+
+@media (max-width: 48em) {
+  .sceneImageWrapper {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+.sceneImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: imageReveal 0.5s ease-out forwards;
+}
+
+.partialImage {
+  opacity: 0.85;
+  filter: blur(1px);
+  animation: partialPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes partialPulse {
+  0%, 100% {
+    opacity: 0.7;
+    filter: blur(1px);
+  }
+  50% {
+    opacity: 0.9;
+    filter: blur(0.5px);
+  }
+}
+
+@keyframes imageReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    110deg,
+    var(--game-bg-tint, rgba(139, 92, 246, 0.15)) 8%,
+    color-mix(in srgb, var(--game-bg-tint, rgba(139, 92, 246, 0.15)) 60%, white 40%) 18%,
+    var(--game-bg-tint, rgba(139, 92, 246, 0.15)) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+.imageError {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--game-error-border, rgba(239, 68, 68, 0.3));
+  padding: 1rem;
+  text-align: center;
+}
+
+.imageErrorIcon {
+  font-size: 1.5rem;
+  color: var(--game-error-text, inherit);
+}
+
+.imageErrorText {
+  font-size: 0.75rem;
+  color: var(--game-error-text, var(--mantine-color-red-7));
+  line-height: 1.3;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ============================================================================
+   Scene Content (Narrative Text)
+   ============================================================================ */
+
+.sceneContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.narrativeText {
+  font-family: var(--game-message-font, inherit);
+  font-size: var(--mantine-font-size-md);
+  line-height: 1.8;
+  color: var(--game-ai-font-color, var(--mantine-color-gray-8));
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: textReveal 0.6s ease-out forwards;
+}
+
+@keyframes textReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Drop cap for first letter - only when enabled */
+.narrativeTextDropCap {
+  display: block; /* Needed for CSS Modules export and ::first-letter to work */
+}
+
+.narrativeTextDropCap::first-letter {
+  float: left;
+  font-size: 3.2em;
+  line-height: 0.85;
+  font-weight: 700;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--game-drop-cap-color, var(--mantine-color-violet-6));
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================================================
+   Player Action
+   ============================================================================ */
+
+.playerAction {
+  display: flex;
+  justify-content: flex-end;
+  animation: actionEnter 0.2s ease-out forwards;
+}
+
+@keyframes actionEnter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.playerActionBubble {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  max-width: 80%;
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--game-player-bg, rgba(34, 211, 238, 0.1));
+  color: var(--game-player-font-color, var(--mantine-color-gray-8));
+  border-width: var(--game-border-width, 1px);
+  border-style: solid;
+  border-color: var(--game-player-border-color, rgba(0, 0, 0, 0.2));
+  border-radius: var(--mantine-radius-md);
+  font-family: var(--game-message-font, 'Courier New', Consolas, monospace);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+
+/* Hide indicator gap when no indicator */
+.playerActionBubble.noIndicator {
+  padding-left: var(--mantine-spacing-md);
+}
+
+/* Player indicator character */
+.playerIndicator {
+  color: var(--game-player-color, #22d3ee);
+  font-weight: 700;
+  font-family: 'Courier New', Consolas, monospace;
+  margin-right: var(--mantine-spacing-xs);
+  text-shadow: 0 0 8px var(--game-player-color, #22d3ee);
+}
+
+/* Blinking animation for indicator */
+.playerIndicator.indicatorBlink {
+  animation: indicatorBlink 1s step-end infinite;
+}
+
+@keyframes indicatorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.playerActionText {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Error state for failed player messages */
+.playerActionBubble.playerActionError {
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
+  border-color: var(--game-error-border, rgba(239, 68, 68, 0.4));
+}
+
+.playerActionErrorInfo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--mantine-spacing-sm);
+  margin-top: 4px;
+  padding-right: 4px;
+}
+
+.playerActionErrorText {
+  font-size: var(--mantine-font-size-xs);
+  color: var(--game-error-text, var(--mantine-color-red-7));
+}
+
+.playerActionRetryButton {
+  background: none;
+  border: 1px solid var(--game-error-border, var(--mantine-color-red-4));
+  border-radius: var(--mantine-radius-sm);
+  color: var(--game-error-text, var(--mantine-color-red-7));
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 600;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 28px;
+}
+
+.playerActionRetryButton:hover {
+  background: var(--game-error-bg, rgba(239, 68, 68, 0.1));
+}
+
+/* ============================================================================
+   Scene Divider
+   ============================================================================ */
+
+.sceneDivider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-xs) 0;
+}
+
+.sceneDividerEmpty {
+  height: var(--mantine-spacing-xs);
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--game-divider-color, rgba(0, 0, 0, 0.1));
+  max-width: 100px;
+  opacity: 0.3;
+}
+
+.dividerFullLine {
+  flex: 1;
+  height: 1px;
+  background: var(--game-divider-color, rgba(0, 0, 0, 0.1));
+  max-width: 300px;
+  opacity: 0.5;
+}
+
+.dividerSymbol {
+  color: var(--game-divider-color, #475569);
+  font-size: var(--mantine-font-size-xs);
+  opacity: 0.8;
+}
+
+/* ============================================================================
+   Typing Indicator
+   ============================================================================ */
+
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-md) var(--mantine-spacing-lg);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--mantine-radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  animation: cardEnter 0.3s ease-out forwards;
+}
+
+.typingDots {
+  display: flex;
+  gap: 4px;
+}
+
+.typingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.typingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.typingText {
+  font-size: var(--mantine-font-size-sm);
+}
+
+/* Streaming indicator (inline with text) */
+.streamingIndicator {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: var(--mantine-spacing-xs);
+  vertical-align: middle;
+}
+
+.streamingDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: typingPulse 1.4s ease-in-out infinite;
+}
+
+.streamingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.streamingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Streaming cursor (character-based like | or █) */
+.streamingCursor {
+  display: inline;
+  margin-left: 2px;
+  animation: cursorBlink 1s step-end infinite;
+  font-weight: normal;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ============================================================================
+   Inline Input (appears as a chat message element)
+   ============================================================================ */
+
+.inlineInput {
+  animation: cardEnter 0.3s ease-out forwards;
+  padding: var(--mantine-spacing-lg);
+  background: var(--game-player-bg, rgba(255, 255, 255, 0.9));
+  color: var(--game-player-font-color, var(--mantine-color-gray-8));
+  font-family: var(--game-message-font, inherit);
+  border-radius: var(--mantine-radius-lg);
+  border-width: var(--game-border-width, 2px);
+  border-style: solid;
+  border-color: var(--game-player-color, #475569);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+
+/* Corner accents removed - corners only apply to game messages, not player input */
+
+/* Input field inside inlineInput */
+.inlineInput :global(.mantine-TextInput-input),
+.inlineInput :global(.mantine-Textarea-input) {
+  background: transparent;
+  color: var(--game-player-font-color, inherit);
+  font-family: var(--game-message-font, inherit);
+  border-color: var(--game-player-border-color, var(--mantine-color-gray-4));
+}
+
+.inlineInput :global(.mantine-TextInput-input)::placeholder,
+.inlineInput :global(.mantine-Textarea-input)::placeholder {
+  color: var(--game-player-font-color, var(--mantine-color-gray-6));
+  opacity: 0.6;
+}
+
+/* Submit button inside inlineInput */
+.inlineInput :global(.mantine-ActionIcon-root),
+.inlineInput :global(.mantine-Button-root) {
+  color: var(--game-player-font-color, inherit);
+  background: var(--game-player-bg, rgba(255, 255, 255, 0.9));
+  border: 1px solid var(--game-player-border-color, var(--game-player-color));
+}
+
+.inlineInput :global(.mantine-ActionIcon-root):hover,
+.inlineInput :global(.mantine-Button-root):hover {
+  background: var(--game-player-color, #475569);
+  color: var(--game-player-font-color, inherit);
+}
+
+/* ============================================================================
+   Lightbox Overlay
+   ============================================================================ */
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  animation: fadeIn 0.2s ease-out;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightboxImage {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--mantine-radius-md);
+  animation: lightboxZoom 0.2s ease-out;
+}
+
+@keyframes lightboxZoom {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lightboxClose {
+  position: absolute;
+  top: var(--mantine-spacing-md);
+  right: var(--mantine-spacing-md);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================================
+   Loading & Error States
+   ============================================================================ */
+
+.stateContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mantine-spacing-md);
+  height: 100%;
+  padding: var(--mantine-spacing-xl);
+  text-align: center;
+}
+
+/* ============================================================================
+   System Message
+   ============================================================================ */
+
+.systemMessage {
+  padding: var(--mantine-spacing-sm) var(--mantine-spacing-md);
+  background: var(--mantine-color-gray-1);
+  border: 1px dashed var(--mantine-color-gray-3);
+  border-radius: var(--mantine-radius-md);
+  font-size: var(--mantine-font-size-sm);
+  font-style: italic;
+  color: var(--mantine-color-gray-6);
+  text-align: center;
+  animation: cardEnter 0.3s ease-out forwards;
+}

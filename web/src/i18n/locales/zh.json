@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "使用 Auth0 登录",
+      "devMode": "开发模式",
+      "devModeAlert": {
+        "message": "这是开发者登录页面。在生产环境中，你会被直接重定向到 Auth0。",
+        "title": "开发模式"
+      },
+      "devModeDescription": "用于开发和测试的快速登录",
+      "redirecting": {
+        "message": "请稍候，我们正在将你重定向到登录页面。",
+        "title": "正在重定向到 Auth0..."
+      },
+      "role": {
+        "admin": "以管理员身份登录",
+        "guest": "以访客身份登录",
+        "student": "以学生身份登录",
+        "teacher": "以教师身份登录"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "离开工作坊",
+        "message": "你确定要离开此工作坊吗？你需要新的邀请链接才能重新加入。",
+        "title": "离开工作坊？"
+      },
+      "leaveWorkshop": "离开工作坊",
+      "organization": "组织",
+      "role": "工作坊参与者",
+      "workshop": "工作坊"
+    },
+    "profile": {
+      "gamesCreated": "创建的游戏",
+      "gamesPlayed": "游玩过的游戏",
+      "memberSince": "注册于",
+      "messagesSent": "发送的消息",
+      "noOrganization": "无组织",
+      "noRole": "未分配角色",
+      "organization": "组织",
+      "organizationSection": "组织 \u00026 角色",
+      "role": "角色",
+      "roles": {
+        "admin": "管理员",
+        "head": "负责人",
+        "participant": "来宾",
+        "staff": "工作人员"
+      },
+      "statisticsSection": "统计",
+      "title": "个人资料",
+      "totalPlaysOnGames": "我的游戏总游玩次数"
+    },
+    "register": {
+      "cancelButton": "取消",
+      "emailDescription": "我们会使用该邮箱发送重要通知。",
+      "emailLabel": "电子邮件地址",
+      "emailPlaceholder": "输入你的电子邮件",
+      "errors": {
+        "emailInvalid": "请输入有效的电子邮件地址",
+        "emailRequired": "电子邮件为必填项",
+        "nameRequired": "姓名为必填项",
+        "nameTaken": "该名称已被占用",
+        "nameTooLong": "名称最多 24 个字符",
+        "registrationFailed": "注册失败。请重试。"
+      },
+      "nameDescription": "这是其他用户看到你的名称。最多 24 个字符。",
+      "nameLabel": "显示名称",
+      "namePlaceholder": "输入你的显示名称",
+      "submitButton": "创建账号",
+      "submitting": "创建账号中...",
+      "subtitle": "再填写几项信息即可开始",
+      "title": "完善你的个人资料"
+    },
+    "settings": {
+      "accountSection": "账户",
+      "emailChangeNote": "如需更改你的电子邮件地址，请联系网站管理员。",
+      "errors": {
+        "nameRequired": "姓名为必填项",
+        "nameTaken": "该名称已被占用",
+        "nameTooLong": "名称最多 24 个字符",
+        "saveFailed": "保存失败。请重试。"
+      },
+      "nameDescription": "这是其他用户看到你的名称。最多 24 个字符。",
+      "nameLabel": "显示名称",
+      "namePlaceholder": "输入你的显示名称",
+      "saveButton": "保存更改",
+      "saved": "更改已成功保存",
+      "saving": "保存中...",
+      "subtitle": "管理你的账户设置",
+      "title": "设置"
+    }
+  },
+  "common": {
+    "actions": "操作",
+    "admin": {
+      "invites": {
+        "actions": "操作",
+        "empty": "没有待处理的邀请。",
+        "invitedEmail": "被邀请的邮箱",
+        "modifiedAt": "修改时间",
+        "noResults": "没有匹配搜索的邀请。",
+        "organization": "组织",
+        "revokeConfirm": {
+          "confirm": "删除",
+          "message": "你确定要删除此邀请吗？此操作不可撤销。",
+          "title": "删除邀请"
+        },
+        "role": "角色",
+        "searchPlaceholder": "按邮箱、角色、状态或组织搜索...",
+        "sort": {
+          "label": "排序方式",
+          "modifiedAt-asc": "修改时间（最旧）",
+          "modifiedAt-desc": "修改时间（最新）",
+          "organization-asc": "组织（A-Z）",
+          "organization-desc": "组织（Z-A）",
+          "role-asc": "角色（A-Z）",
+          "role-desc": "角色（Z-A）",
+          "status-asc": "状态（A-Z）",
+          "status-desc": "状态（Z-A）"
+        },
+        "status": "状态",
+        "statuses": {
+          "accepted": "已接受",
+          "declined": "已拒绝",
+          "expired": "已过期",
+          "pending": "待处理",
+          "revoked": "已撤销"
+        },
+        "title": "待处理邀请"
+      },
+      "organizations": {
+        "actions": "操作",
+        "create": "创建组织",
+        "createTitle": "创建新组织",
+        "deleteConfirm": "你确定要删除 \"{{name}}\" 吗？此操作不可撤销。",
+        "deleteTitle": "删除组织",
+        "editTitle": "编辑组织",
+        "email": "电子邮件地址",
+        "emailPlaceholder": "输入电子邮件地址",
+        "empty": "目前还没有组织。创建一个以开始使用。",
+        "inviteDescription": "发送邀请以将用户作为组织负责人加入 {{name}}。",
+        "inviteTitle": "邀请加入组织",
+        "memberEmail": "邮箱",
+        "memberName": "姓名",
+        "memberRole": "角色",
+        "members": "成员",
+        "membersCount": "成员",
+        "membersList": "成员",
+        "name": "名称",
+        "namePlaceholder": "输入组织名称",
+        "noMembers": "该组织中没有成员。",
+        "removeMember": "移除成员",
+        "removeMemberConfirm": "你确定要将 {{name}} 从该组织中移除吗？",
+        "searchPlaceholder": "搜索组织...",
+        "sendInvite": "发送邀请",
+        "title": "管理组织"
+      },
+      "users": {
+        "actions": "操作",
+        "deleteConfirm": "你确定要删除 \"{{name}}\" 吗？此操作不可撤销。",
+        "deleteTitle": "删除用户",
+        "editEmail": "编辑邮箱",
+        "editTitle": "编辑用户",
+        "editingUser": "正在编辑用户：{{name}}",
+        "email": "邮箱",
+        "emailPlaceholder": "输入电子邮件地址",
+        "empty": "未找到用户。",
+        "hideGuests": "隐藏访客 ({{count}})",
+        "joined": "加入时间",
+        "loadError": "加载用户失败",
+        "makeAdmin": "设为管理员",
+        "me": "我",
+        "name": "姓名",
+        "noEmail": "无邮箱",
+        "noResults": "没有匹配搜索的用户。",
+        "noRole": "无角色",
+        "organization": "组织",
+        "promoteConfirm": "你确定要将 \"{{name}}\" ({{email}}) 提升为管理员吗？",
+        "promoteTitle": "提升为管理员",
+        "promoteWarning": "该用户将获得系统的全部管理权限。",
+        "removeAdmin": "移除管理员",
+        "removeAdminConfirm": "你确定要移除 \"{{name}}\" ({{email}}) 的管理员角色吗？",
+        "removeAdminTitle": "移除管理员角色",
+        "removeAdminWarning": "该用户将失去所有管理权限。",
+        "role": "角色",
+        "searchPlaceholder": "按姓名、邮箱、角色或组织搜索...",
+        "showing": "显示 {{count}} / 共 {{total}} 位用户",
+        "sort": {
+          "email-asc": "邮箱（A-Z）",
+          "email-desc": "邮箱（Z-A）",
+          "joined-asc": "加入时间（最早）",
+          "joined-desc": "加入时间（最近）",
+          "label": "排序方式",
+          "name-asc": "姓名（A-Z）",
+          "name-desc": "姓名（Z-A）",
+          "organization-asc": "组织（A-Z）",
+          "organization-desc": "组织（Z-A）",
+          "role-asc": "角色（A-Z）",
+          "role-desc": "角色（Z-A）"
+        },
+        "title": "管理用户"
+      }
+    },
+    "allGames": {
+      "continue": "继续",
+      "copyConfirm": {
+        "confirm": "复制游戏",
+        "message": "这会在你的游戏中创建 \"{{name}}\" 的副本。",
+        "title": "复制游戏"
+      },
+      "copyGame": "复制游戏",
+      "empty": {
+        "description": "尝试调整筛选条件，或稍后查看是否有新游戏。",
+        "title": "未找到游戏"
+      },
+      "favorite": "加入收藏",
+      "filters": {
+        "all": "所有游戏",
+        "favorites": "收藏",
+        "own": "我的游戏",
+        "public": "公开"
+      },
+      "play": "游玩",
+      "restart": "重新开始",
+      "restartConfirm": {
+        "confirm": "重新开始",
+        "message": "你确定要重新开始 \"{{game}}\" 吗？你当前的进度将会丢失。",
+        "title": "重新开始游戏"
+      },
+      "title": "所有游戏",
+      "unfavorite": "从收藏移除"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API 密钥用于连接 AI 平台以生成游戏内容。",
+        "title": "关于 API 密钥"
+      },
+      "addKey": "添加密钥",
+      "addedOn": "添加于",
+      "createModal": {
+        "keyDescription": "你的密钥将被加密并安全存储。",
+        "keyLabel": "API 密钥",
+        "keyPlaceholder": "输入你的 API 密钥",
+        "nameLabel": "密钥名称",
+        "namePlaceholder": "例如：我的 OpenAI 密钥",
+        "platformLabel": "平台",
+        "platformPlaceholder": "选择一个平台",
+        "submit": "添加密钥",
+        "title": "添加新的 API 密钥"
+      },
+      "deleteModal": {
+        "message": "你确定要删除 \"{{name}}\" 吗？",
+        "title": "删除 API 密钥",
+        "warning": "此操作不可撤销。密钥将被永久删除。"
+      },
+      "errors": {
+        "invalidPlatform": "选择的平台无效。请选择有效的 AI 平台。",
+        "keyRequired": "API 密钥为必填项",
+        "loadFailed": "加载 API 密钥失败。请重试。",
+        "nameRequired": "名称为必填项",
+        "platformRequired": "平台为必填项"
+      },
+      "key": "密钥",
+      "keys": "密钥",
+      "subtitle": "管理用于 AI 平台的 API 密钥。",
+      "title": "API 密钥管理",
+      "unnamed": "未命名密钥",
+      "unsupportedPlatform": {
+        "badge": "不支持",
+        "hint": "该平台目前不受支持。你只能删除已存在的密钥。"
+      }
+    },
+    "back": "返回",
+    "cancel": "取消",
+    "close": "关闭",
+    "copyGame": "复制游戏",
+    "create": "创建",
+    "delete": "删除",
+    "deleteGame": "删除游戏",
+    "edit": "编辑",
+    "editGame": "编辑游戏",
+    "error": "错误",
+    "footer": {
+      "copyright": "JFF - 媒体教育研究所",
+      "jffTitle": "JFF - 媒体教育研究与创新研究所",
+      "programmedBy": "程序开发"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "消息 ID",
+          "imagePrompt": "图像提示词",
+          "isStreaming": "是否流式传输",
+          "seq": "顺序",
+          "statusFields": "状态字段",
+          "timestamp": "时间戳",
+          "type": "类型"
+        },
+        "hints": {
+          "id": "该消息的唯一标识符",
+          "imagePrompt": "发送给图像生成 AI 的提示词",
+          "isStreaming": "内容是否仍在接收中",
+          "seq": "对话中的顺序",
+          "statusFields": "AI 跟踪的游戏状态变量",
+          "timestamp": "此消息的创建时间",
+          "type": "player = 玩家输入, game = AI 响应, system = 上下文"
+        },
+        "title": "调试信息"
+      },
+      "error": {
+        "backToGames": "返回游戏",
+        "gameNotFound": "未找到游戏",
+        "missingFields": "游戏缺少必需字段：",
+        "sessionFailed": "启动游戏会话失败"
+      },
+      "header": {
+        "back": "返回到游戏列表",
+        "debug": "调试",
+        "decreaseFont": "减小字体大小",
+        "disableAnimations": "禁用动画",
+        "increaseFont": "增大字体大小",
+        "settings": "设置",
+        "useNeutralTheme": "使用中性主题"
+      },
+      "input": {
+        "placeholder": "你要做什么？",
+        "send": "发送操作"
+      },
+      "loading": {
+        "game": "游戏加载中...",
+        "starting": "正在开始游戏会话...",
+        "startingHint": "AI 正在为你的冒险做准备"
+      },
+      "needsApiKey": {
+        "description": "该会话使用的 API 密钥不再可用。请选择新的密钥以继续游戏。",
+        "reason": "你之前的 API 密钥不再可用。要继续游戏，请选择新的密钥。",
+        "title": "需要 API 密钥"
+      },
+      "selectApiKey": {
+        "keyDescription": "选择用于本次游戏会话的 API 密钥",
+        "keyLabel": "API 密钥",
+        "keyPlaceholder": "选择一个 API 密钥",
+        "loadError": "加载 API 密钥失败",
+        "mine": "我的",
+        "modelDescription": "可选：选择特定的 AI 模型",
+        "modelLabel": "AI 模型",
+        "modelPlaceholder": "默认模型",
+        "noKeys": "你至少需要一个 API 密钥才能游玩。请在 设置 → API 密钥 中添加一个。",
+        "playing": "游玩中",
+        "startGame": "开始游戏",
+        "title": "选择 API 密钥"
+      },
+      "statusChange": {
+        "effect": "效果："
+      },
+      "unnamed": "未命名"
+    },
+    "games": {
+      "badges": {
+        "myGame": "我的游戏",
+        "public": "公开",
+        "workshop": "工作坊"
+      },
+      "createButton": "创建游戏",
+      "createModal": {
+        "descriptionPlaceholder": "你的游戏讲述什么？",
+        "namePlaceholder": "例如：太空冒险",
+        "publicDescription": "公开游戏可被所有人发现。",
+        "publicLabel": "将此游戏设为公开",
+        "submit": "创建游戏",
+        "title": "创建新游戏"
+      },
+      "deleteModal": {
+        "message": "你确定要删除 \"{{name}}\" 吗？",
+        "title": "删除游戏",
+        "warning": "此操作不可撤销。所有游戏数据将被永久删除。"
+      },
+      "editFields": {
+        "description": "为游戏写一个简短描述。仅供你参考，不影响游戏玩法。",
+        "gameStart": "游戏如何开始？",
+        "gameStartHint": "游戏在开始时会发生什么？描述玩家看到的第一幕。玩家如何被迎接？",
+        "gameStartPlaceholder": "你在一片黑暗森林的边缘醒来。一条狭窄的小路通向树林深处...",
+        "imageStyle": "游戏图片应采用何种风格？",
+        "imageStyleHint": "例如：卡通、写实、像素、淡彩水彩...",
+        "name": "游戏名称",
+        "scenario": "游戏内容简介？",
+        "scenarioHint": "简要描述：游戏如何运行？世界是什么样的？语言与语气（例如面向六年级的西班牙语）？\n玩家扮演什么角色？请写“玩家……”。\n如果你希望 AI 扮演特定人物，请写“你是……”。",
+        "scenarioPlaceholder": "你是一名在神秘森林中的探险者。你的目标是找到隐藏的宝藏...",
+        "statusFields": "游戏数值",
+        "statusFieldsHint": "游戏需要记录哪些数值？例如生命值、积分或弹药。游戏会在游玩过程中记住并更新这些数值。"
+      },
+      "editModal": {
+        "title": "编辑游戏",
+        "unsavedChanges": {
+          "discard": "放弃更改",
+          "keepEditing": "继续编辑",
+          "message": "你有未保存的更改。确定要放弃吗？",
+          "title": "未保存的更改"
+        }
+      },
+      "empty": {
+        "description": "创建你的第一个游戏，开始互动式的 AI 驱动冒险。",
+        "title": "还没有游戏"
+      },
+      "errors": {
+        "loadFailed": "加载游戏失败。请重试。",
+        "nameRequired": "游戏名称为必填项"
+      },
+      "fields": {
+        "created": "创建时间",
+        "creator": "创建者",
+        "me": "我",
+        "modified": "修改时间",
+        "name": "名称",
+        "playCount": "游玩次数",
+        "visibility": "可见性"
+      },
+      "importExport": {
+        "exportButton": "导出游戏",
+        "importButton": "导入游戏"
+      },
+      "playNow": "立即游玩",
+      "sort": {
+        "createdAt-asc": "创建时间（最早）",
+        "createdAt-desc": "创建时间（最近）",
+        "creator-asc": "创建者（A-Z）",
+        "creator-desc": "创建者（Z-A）",
+        "label": "排序方式",
+        "modifiedAt-asc": "修改时间（最早）",
+        "modifiedAt-desc": "修改时间（最近）",
+        "name-asc": "名称（A-Z）",
+        "name-desc": "名称（Z-A）",
+        "playCount-asc": "最少游玩",
+        "playCount-desc": "最多游玩",
+        "visibility-asc": "私人优先",
+        "visibility-desc": "公开优先"
+      },
+      "statusFieldsEditor": {
+        "addField": "添加新数值",
+        "namePlaceholder": "名称（例如：生命）",
+        "noFields": "尚无数值。点击 + 添加新数值。",
+        "valuePlaceholder": "初始值（例如：100）"
+      },
+      "tabs": {
+        "basic": "基础",
+        "basicInfo": "关于游戏的一般信息，仅供你参考，不影响游戏。",
+        "importExport": "导入/导出",
+        "quickStart": "快速入门",
+        "story": "故事与 AI",
+        "storyInfo": "这里的所有内容都会发送给 AI，用于塑造你的游戏世界和故事。",
+        "style": "设计",
+        "styleInfo": "用于游玩时游戏外观的可选设置。"
+      },
+      "title": "我创建的游戏",
+      "viewModal": {
+        "readOnlyNotice": "此游戏由其他用户创建。你可以查看详情但无法编辑。使用“复制”创建你自己的可编辑版本。",
+        "title": "游戏详情"
+      },
+      "visibility": {
+        "private": "私有",
+        "public": "公开"
+      }
+    },
+    "header": {
+      "apiKeys": "API 密钥",
+      "closeNavigation": "关闭导航菜单",
+      "contact": "联系",
+      "goToDashboard": "前往仪表盘",
+      "leaveWorkshopMode": "退出工作坊模式",
+      "leaveWorkshopModeTooltip": "退出工作坊模式并返回正常视图",
+      "logout": "登出",
+      "openNavigation": "打开导航菜单",
+      "openUserMenu": "打开用户菜单",
+      "organization": "组织",
+      "profile": "个人资料",
+      "workshop": "工作坊"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "设计由 AI 驱动的互动文本冒险",
+          "title": "创建冒险"
+        },
+        "learn": {
+          "description": "非常适合教育工作坊和课堂活动",
+          "title": "学习与教学"
+        },
+        "play": {
+          "description": "与朋友一起参与协作式故事创作",
+          "title": "一起游玩"
+        },
+        "title": "为什么选择 ChatGameLab？",
+        "understand": {
+          "description": "探索 AI 模型如何创作故事并了解其工作原理",
+          "title": "理解 AI"
+        }
+      },
+      "loginCta": "登录并探索",
+      "splashDescription": "一个用于创建和游玩 AI 驱动文本冒险的教育平台。非常适合教师、学生和创意故事爱好者。"
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "你已被邀请加入组织 \"{{organization}}\" 的一个工作坊。",
+        "inviteMessageSimple": "你已被邀请加入此工作坊。",
+        "joinButton": "加入工作坊",
+        "title": "加入工作坊",
+        "titleWithWorkshop": "加入工作坊 \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "接受邀请失败。请重试。",
+        "expired": "此邀请链接已过期。",
+        "loadFailed": "加载邀请详情失败。请重试。",
+        "notFound": "此邀请链接无效或已被撤销。"
+      },
+      "goHome": "返回首页",
+      "participant": {
+        "loggingIn": "正在为你登录..."
+      },
+      "success": {
+        "message": "你已成功加入工作坊。正在重定向...",
+        "title": "欢迎！"
+      },
+      "switchWorkshop": {
+        "message": "你在当前工作坊中的游戏和进度将保留，但在重新加入之前你将无法访问它们。",
+        "stayButton": "留在当前工作坊",
+        "switchButton": "切换工作坊",
+        "title": "切换工作坊？",
+        "warning": "你当前在工作坊 \"{{currentWorkshop}}\"。加入 \"{{newWorkshop}}\" 将使你离开当前工作坊。"
+      }
+    },
+    "labels": {
+      "no": "否",
+      "yes": "是"
+    },
+    "languageSwitcher": {
+      "wipHint": "更多语言正在开发中。目前仅提供英文和德文。",
+      "wipLabel": "开发中"
+    },
+    "loading": "加载中...",
+    "logout": "登出",
+    "myGames": {
+      "continue": "继续",
+      "copyConfirm": {
+        "confirm": "复制游戏",
+        "message": "这会在你的游戏中创建 \"{{name}}\" 的副本。",
+        "title": "复制游戏"
+      },
+      "copyGame": "复制游戏",
+      "empty": {
+        "description": "创建你的第一个游戏，开始互动式的 AI 驱动冒险。",
+        "title": "还没有游戏"
+      },
+      "favorite": "加入收藏",
+      "filters": {
+        "all": "全部",
+        "favorites": "收藏"
+      },
+      "play": "游玩",
+      "restart": "重新开始",
+      "restartConfirm": {
+        "confirm": "重新开始",
+        "message": "你确定要重新开始 \"{{game}}\" 吗？你当前的进度将会丢失。",
+        "title": "重新开始游戏"
+      },
+      "title": "我的游戏",
+      "unfavorite": "从收藏移除"
+    },
+    "myOrganization": {
+      "actions": "操作",
+      "apiKeys": {
+        "aboutDescription": "在此共享的 API 密钥可供组织内所有成员用于游玩游戏。只有负责人和教师可以管理这些密钥。",
+        "aboutTitle": "组织 API 密钥",
+        "allowPublicSponsoring": "允许公开资助",
+        "allowPublicSponsoringDesc": "该密钥可用于为所有用户资助游戏。",
+        "filterByPlatform": "按平台筛选",
+        "keyName": "密钥名称",
+        "loadError": "加载组织 API 密钥失败。",
+        "noKeys": "尚未与该组织共享任何 API 密钥。",
+        "noResults": "没有匹配搜索的 API 密钥。",
+        "notAuthorized": "你无权管理组织 API 密钥。仅负责人和教师可访问此页面。",
+        "owner": "所有者",
+        "platform": "平台",
+        "publicSponsoring": "公开资助",
+        "searchPlaceholder": "按名称或所有者搜索...",
+        "selectKey": "选择 API 密钥",
+        "selectKeyPlaceholder": "选择要共享的密钥...",
+        "share": "共享",
+        "shareKey": "共享密钥",
+        "shareKeyTitle": "与组织共享 API 密钥",
+        "title": "组织 API 密钥"
+      },
+      "demoteConfirm": "你确定要将 \"{{name}}\" ({{email}}) 降级为教师吗？",
+      "demoteTitle": "降级为教师",
+      "demoteToStaff": "降级为教师",
+      "email": "邮箱",
+      "emailPlaceholder": "输入电子邮件地址",
+      "empty": "该组织中没有成员。",
+      "inviteAlreadyExists": "该邮箱已有未处理的邀请。",
+      "inviteError": "发送邀请失败。请重试。",
+      "inviteTeacher": "邀请教师",
+      "inviteTeacherDescription": "向教师发送邀请，加入你的组织。",
+      "inviteTeacherTitle": "邀请教师",
+      "inviteUser": "邀请用户",
+      "inviteUserDescription": "向用户发送邀请，加入你的组织但不指定具体角色。",
+      "inviteUserTitle": "邀请用户",
+      "leaveConfirm": "你确定要离开 \"{{name}}\" 吗？",
+      "leaveOrganization": "离开组织",
+      "leaveTitle": "离开组织",
+      "leaveWarning": "你将失去对所有组织资源和成员的访问权限。",
+      "me": "我",
+      "name": "名称",
+      "noEmail": "无邮箱",
+      "noOrganization": "无组织",
+      "noOrganizationDescription": "你不是任何组织的成员。",
+      "noResults": "没有匹配搜索的成员。",
+      "noRole": "无角色",
+      "promoteConfirm": "你确定要将 \"{{name}}\" ({{email}}) 提升为负责人吗？",
+      "promoteTitle": "提升为负责人",
+      "promoteToHead": "提升为负责人",
+      "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
+      "removeConfirm": "你确定要将 \"{{name}}\" 从组织中移除吗？",
+      "removeMember": "移除成员",
+      "removeTitle": "移除成员",
+      "removeWarning": "该用户将失去对组织的访问权限。",
+      "role": "角色",
+      "searchPlaceholder": "搜索成员...",
+      "showing": "显示 {{count}} 位成员",
+      "sort": {
+        "label": "排序方式",
+        "name-asc": "姓名（A-Z）",
+        "name-desc": "姓名（Z-A）",
+        "role-asc": "角色（A-Z）",
+        "role-desc": "角色（Z-A）"
+      },
+      "title": "我的组织",
+      "workshops": {
+        "activate": "激活",
+        "active": "激活中",
+        "activeDescription": "激活的工作坊允许参与者加入并创建游戏。",
+        "activeLabel": "激活",
+        "anonymousParticipant": "匿名参与者",
+        "create": "创建工作坊",
+        "createFirst": "创建你的第一个工作坊",
+        "createInviteLink": "创建邀请链接",
+        "createTitle": "创建工作坊",
+        "deactivate": "停用",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "默认 API 密钥",
+        "defaultApiKeyHint": "参与者在游玩时将使用此 API 密钥。",
+        "deleteConfirm": "你确定要删除 \"{{name}}\" 吗？",
+        "deleteTitle": "删除工作坊",
+        "deleteWarning": "该工作坊中的所有游戏和会话将被删除。此操作不可撤销。",
+        "editParticipant": "编辑名字",
+        "empty": "尚无工作坊。",
+        "enterWorkshop": "进入工作坊模式",
+        "games": "游戏",
+        "hideInactive": "隐藏未激活项",
+        "inactive": "未激活",
+        "inviteCreatedAt": "创建时间",
+        "inviteDescription": "生成一个邀请链接，参与者可使用该链接加入此工作坊。",
+        "inviteExpiresAt": "到期时间",
+        "inviteLink": "邀请链接",
+        "inviteLinkDescription": "与参与者共享此链接以邀请他们加入工作坊。",
+        "inviteLinkTitle": "{{name}} 的邀请链接",
+        "inviteUsage": "使用次数",
+        "joined": "已加入",
+        "linkCopied": "链接已复制",
+        "linkCopiedMessage": "邀请链接已复制到剪贴板。",
+        "loadError": "加载工作坊失败。",
+        "nameLabel": "工作坊名称",
+        "namePlaceholder": "例如：2024 年夏令营",
+        "noActiveInvite": "没有可用的活动邀请链接。",
+        "noDefaultApiKey": "无默认 API 密钥",
+        "noDefaultModel": "使用平台默认",
+        "noParticipantToken": "该参与者没有邀请链接。只有匿名参与者（访客）拥有可复用的邀请链接。",
+        "noParticipants": "尚无参与者",
+        "notAuthorized": "你无权管理工作坊。仅负责人和教师可访问此页面。",
+        "participantGames": "{{count}} 个游戏",
+        "participantJoined": "加入于 {{date}}",
+        "participantName": "参与者名称",
+        "participants": "参与者",
+        "removeParticipant": "移除参与者",
+        "removeParticipantConfirm": "你确定要将 \"{{name}}\" 从此工作坊移除吗？",
+        "removeParticipantMessage": "你确定要将 \"{{name}}\" 从此工作坊移除吗？此操作不可撤销。",
+        "removeParticipantTitle": "移除参与者",
+        "revokeInvite": "撤销邀请链接",
+        "selectApiKey": "选择 API 密钥",
+        "settings": "设置",
+        "shareParticipantLink": "复制该参与者的个人邀请链接",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "显示其他参与者的游戏",
+        "showPublicGames": "向参与者显示公开游戏",
+        "sort": {
+          "createdAtAsc": "最早的优先",
+          "createdAtDesc": "最新的优先",
+          "label": "排序方式",
+          "nameAsc": "名称（A-Z）",
+          "nameDesc": "名称（Z-A）",
+          "participantsAsc": "参与者最少",
+          "participantsDesc": "参与者最多"
+        },
+        "subtitle": "管理工作坊并邀请参与者协作创作游戏。",
+        "title": "工作坊",
+        "usedCount": "{{count}} 次使用",
+        "viewInviteLink": "查看邀请链接"
+      }
+    },
+    "notifications": {
+      "accept": "接受",
+      "decline": "拒绝",
+      "declineConfirm": "你确定要拒绝此邀请吗？",
+      "declineTitle": "拒绝邀请",
+      "empty": "没有新通知。",
+      "inviteDescription": "你被邀请以 {{role}} 身份加入。",
+      "inviteToJoin": "组织邀请",
+      "title": "通知"
+    },
+    "play": {
+      "cloneGame": "复制到我的游戏",
+      "empty": {
+        "description": "尝试调整筛选条件，或稍后查看是否有新游戏。",
+        "title": "未找到游戏"
+      },
+      "favorite": "加入收藏",
+      "filters": {
+        "all": "所有游戏",
+        "favorites": "收藏",
+        "organization": "组织",
+        "own": "我的游戏",
+        "public": "公开"
+      },
+      "owner": "我的",
+      "playGame": "游玩此游戏",
+      "playNow": "立即游玩",
+      "selectGameTitle": "选择一个游戏",
+      "title": "选择游戏",
+      "unfavorite": "从收藏移除"
+    },
+    "profile": "个人资料",
+    "save": "保存",
+    "search": "搜索",
+    "sessions": {
+      "continueGame": "继续游戏",
+      "deleteConfirm": {
+        "message": "你确定要删除该《{{game}}》的会话吗？此操作不可撤销。",
+        "title": "删除会话"
+      },
+      "empty": {
+        "description": "开始一个新游戏以开启你的冒险！",
+        "noResults": "未找到匹配的游戏",
+        "title": "尚未游玩任何游戏"
+      },
+      "errors": {
+        "loadFailed": "加载你的游戏失败。请重试。"
+      },
+      "fields": {
+        "game": "游戏",
+        "lastPlayed": "最近游玩",
+        "model": "模型"
+      },
+      "noDescription": "无描述",
+      "sort": {
+        "game": "游戏",
+        "label": "排序方式",
+        "lastPlayed": "最近游玩",
+        "model": "模型"
+      },
+      "startNewGame": "开始新游戏",
+      "title": "继续游玩",
+      "untitledGame": "未命名游戏"
+    },
+    "settings": "设置",
+    "unnamed": "未命名",
+    "viewGame": "查看游戏"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "项目协调方与主导组织。",
+          "title": "JFF – 媒体教育研究所"
+        },
+        "mainSite": {
+          "description": "了解支持该平台的教育项目详情。",
+          "title": "ChatGameLab 项目"
+        },
+        "title": "关于 ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "尚无游玩记录。开始游玩一个游戏吧！",
+        "title": "最近游玩",
+        "viewAll": "所有游戏"
+      },
+      "myGames": {
+        "empty": "还没有游戏。创建你的第一个游戏！",
+        "title": "我的游戏",
+        "viewAll": "所有创作"
+      },
+      "myWorkshops": {
+        "empty": "没有激活的工作坊。在你的组织中创建一个工作坊！",
+        "title": "我的工作坊",
+        "viewAll": "所有工作坊"
+      },
+      "newGames": {
+        "empty": "暂无可用游戏。",
+        "title": "新游戏",
+        "viewAll": "所有游戏"
+      },
+      "popularGames": {
+        "empty": "暂无可用游戏。",
+        "plays": "{{count}} 次游玩",
+        "title": "热门游戏",
+        "viewAll": "所有游戏"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "创建新游戏",
+      "createRoom": "创建房间",
+      "inviteMembers": "邀请成员",
+      "startNewGame": "开始新游戏",
+      "title": "快速操作"
+    },
+    "untitled": "未命名",
+    "untitledGame": "未命名游戏",
+    "version": {
+      "mismatch": {
+        "message": "前端版本 \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e 与后端版本 \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e 不匹配。这可能导致意外行为。如果问题持续存在，请联系支持。",
+        "title": "检测到版本不匹配"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "AI 服务遇到错误。请重试。",
+    "backendUserFetch": "从服务器加载用户数据失败。请重试。",
+    "billingNotActive": "你的 OpenAI 帐户未激活。请在 https://platform.openai.com/settings/organization/billing 检查你的计费信息。",
+    "conflict": "此操作与现有数据冲突。请重试。",
+    "contentFiltered": "你的请求被 AI 的内容策略过滤。请尝试重新表述。",
+    "forbidden": "你没有执行此操作的权限。",
+    "generic": "出现问题。请重试。",
+    "insufficientQuota": "你的 API 密钥额度已用尽。请充值或使用其他 API 密钥。",
+    "invalidApiKey": "你的 API 密钥无效或已过期。请在设置中检查你的 API 密钥。",
+    "invalidPlatform": "选择的平台无效。请选择有效选项。",
+    "invalidToken": "你的会话已过期或无效。请再次使用你的邀请链接。",
+    "network": "网络错误。请检查你的连接。",
+    "notFound": "未找到请求的资源。",
+    "orgVerificationRequired": "你的 OpenAI 组织需要验证才能使用图像生成功能。请在 https://platform.openai.com/settings/organization/general 完成验证。",
+    "rateLimitExceeded": "请求过多。请稍等片刻再试。",
+    "server": "服务器错误。请稍后重试。",
+    "titles": {
+      "aiError": "AI 错误",
+      "authentication": "认证错误",
+      "billing": "计费错误",
+      "error": "错误",
+      "network": "网络错误",
+      "notFound": "未找到",
+      "permission": "权限被拒绝",
+      "server": "服务器错误",
+      "validation": "验证错误",
+      "workshopInactive": "工作坊未激活"
+    },
+    "unauthorized": "请登录以继续。",
+    "unexpected": "发生了意外错误。",
+    "userNotRegistered": "你需要先完成注册才能继续。",
+    "validation": "请检查你的输入并重试。",
+    "workshopInactive": "此工作坊已被停用。请联系你的教师或工作坊组织者。"
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "开始游玩游戏即可在此查看，或创建你自己的游戏！",
+      "title": "还没有游戏"
+    },
+    "filters": {
+      "all": "所有游戏",
+      "mine": "我的游戏",
+      "public": "公开游戏",
+      "workshop": "工作坊游戏"
+    },
+    "gameType": "游戏",
+    "organizator": "组织者：{{name}}",
+    "settings": {
+      "currentWorkshop": "当前工作坊",
+      "notInWorkshopMode": "你当前不在工作坊模式。请先进入一个工作坊。",
+      "title": "工作坊设置"
+    },
+    "title": "我的工作坊",
+    "you": "你"
+  },
+  "navigation": {
+    "allGames": "所有游戏",
+    "create": "创建你自己的游戏",
+    "dashboard": "仪表盘",
+    "games": "游戏",
+    "groups": "小组",
+    "manageOrganizations": "管理组织",
+    "manageUsers": "管理用户",
+    "myGames": "我的游戏",
+    "myOrganization": "我的组织",
+    "myWorkshop": "我的工作坊",
+    "orgApiKeys": "API 密钥",
+    "orgMembers": "成员",
+    "orgWorkshops": "工作坊",
+    "play": "游玩游戏",
+    "rooms": "房间",
+    "workshopSettings": "工作坊设置"
+  }
+}

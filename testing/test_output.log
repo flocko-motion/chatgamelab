@@ -1,0 +1,525 @@
+=== RUN   TestMultiUserSuite
+
+🚀 [Multi-User Tests] Starting test environment (Postgres:42123, Backend:37655)...
+🐘 [Multi-User Tests] Starting Postgres on port 42123...
+b49716a9813992ba881c829fa77991cf45c814f1f35c4f3cbf74d6692b18a882
+🚀 [Multi-User Tests] Starting backend in-process...
+⏳ [Multi-User Tests] Waiting for backend to initialize...
+time=2026-01-22T01:24:13.517+01:00 level=INFO msg="development mode enabled" debug_logging=true
+time=2026-01-22T01:24:13.517+01:00 level=DEBUG msg="initializing database"
+time=2026-01-22T01:24:13.517+01:00 level=DEBUG msg="initializing database connection"
+time=2026-01-22T01:24:13.517+01:00 level=DEBUG msg="connecting to postgres" host=localhost port=42123 database=chatgamelab
+time=2026-01-22T01:24:13.531+01:00 level=DEBUG msg="postgres connection established"
+time=2026-01-22T01:24:13.539+01:00 level=INFO msg="database is empty, initializing schema"
+time=2026-01-22T01:24:13.539+01:00 level=DEBUG msg="executing schema.sql" length=13595
+time=2026-01-22T01:24:13.574+01:00 level=INFO msg="database schema initialized successfully"
+time=2026-01-22T01:24:13.574+01:00 level=INFO msg="database connection initialized"
+time=2026-01-22T01:24:13.574+01:00 level=DEBUG msg="running database preseed"
+time=2026-01-22T01:24:13.574+01:00 level=DEBUG msg="running database preseed"
+time=2026-01-22T01:24:13.577+01:00 level=DEBUG msg="creating dev user" user_id=00000000-0000-0000-0000-000000000000
+time=2026-01-22T01:24:13.585+01:00 level=DEBUG msg="assigning admin role to dev user"
+Auto-upgraded user 00000000-0000-0000-0000-000000000000 to admin role
+time=2026-01-22T01:24:13.589+01:00 level=DEBUG msg="creating mock API key for dev user"
+time=2026-01-22T01:24:13.602+01:00 level=DEBUG msg="creating dummy game for dev user"
+time=2026-01-22T01:24:13.607+01:00 level=DEBUG msg="database preseed completed"
+time=2026-01-22T01:24:13.607+01:00 level=DEBUG msg="setting up HTTP router"
+time=2026-01-22T01:24:13.608+01:00 level=INFO msg="server starting" address=0.0.0.0:37655
+✅ [Multi-User Tests] Backend initialized, waiting for HTTP server...
+time=2026-01-22T01:24:13.609+01:00 level=INFO msg="http request" method=GET path=/api/status status=200 duration=99.385µs
+GET http://localhost:37655/api/users/00000000-0000-0000-0000-000000000000/jwt
+time=2026-01-22T01:24:13.616+01:00 level=INFO msg="http request" method=GET path=/api/users/00000000-0000-0000-0000-000000000000/jwt status=200 duration=4.235061ms
+✅ [Multi-User Tests] Backend fully ready!
+
+time=2026-01-22T01:24:13.617+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.620+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=00000000-0000-0000-0000-000000000000 user_name=dev
+time=2026-01-22T01:24:13.621+01:00 level=INFO msg="http request" method=GET path=/api/users status=200 duration=4.372879ms
+    institution_membership_test.go:27: Initial users: 1
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:13.629+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=6.544498ms
+GET http://localhost:37655/api/users/d51de24f-9883-43e6-84ab-9236c21641af/jwt
+time=2026-01-22T01:24:13.633+01:00 level=INFO msg="http request" method=GET path=/api/users/d51de24f-9883-43e6-84ab-9236c21641af/jwt status=200 duration=3.08031ms
+    institution_membership_test.go:30: Created user "admin" (ID: d51de24f-9883-43e6-84ab-9236c21641af)
+time=2026-01-22T01:24:13.634+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.637+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=00000000-0000-0000-0000-000000000000 user_name=dev
+time=2026-01-22T01:24:13.648+01:00 level=INFO msg="http request" method=POST path=/api/users/d51de24f-9883-43e6-84ab-9236c21641af/role status=200 duration=14.081424ms
+    suite.go:270: assigned role "admin"
+=== RUN   TestMultiUserSuite/TestInstitutionManagement
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:13.659+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.420135ms
+GET http://localhost:37655/api/users/8f868097-62d2-4019-83bf-2cea58d73596/jwt
+time=2026-01-22T01:24:13.665+01:00 level=INFO msg="http request" method=GET path=/api/users/8f868097-62d2-4019-83bf-2cea58d73596/jwt status=200 duration=5.007044ms
+    institution_membership_test.go:49: Created user "alice" (ID: 8f868097-62d2-4019-83bf-2cea58d73596)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:13.678+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=10.473508ms
+GET http://localhost:37655/api/users/010e6419-896a-424e-9e9e-5df3d4a22361/jwt
+time=2026-01-22T01:24:13.684+01:00 level=INFO msg="http request" method=GET path=/api/users/010e6419-896a-424e-9e9e-5df3d4a22361/jwt status=200 duration=4.561923ms
+    institution_membership_test.go:53: Created user "bob" (ID: 010e6419-896a-424e-9e9e-5df3d4a22361)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:13.695+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=9.304202ms
+GET http://localhost:37655/api/users/43df9d8b-1976-40c7-ab27-9221d8e213c7/jwt
+time=2026-01-22T01:24:13.701+01:00 level=INFO msg="http request" method=GET path=/api/users/43df9d8b-1976-40c7-ab27-9221d8e213c7/jwt status=200 duration=4.525718ms
+    institution_membership_test.go:57: Created user "harry" (ID: 43df9d8b-1976-40c7-ab27-9221d8e213c7)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:13.713+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=10.477042ms
+GET http://localhost:37655/api/users/33cc3cdd-3de1-4e59-bf0d-501441e019ba/jwt
+time=2026-01-22T01:24:13.719+01:00 level=INFO msg="http request" method=GET path=/api/users/33cc3cdd-3de1-4e59-bf0d-501441e019ba/jwt status=200 duration=4.513221ms
+    institution_membership_test.go:61: Created user "tanja" (ID: 33cc3cdd-3de1-4e59-bf0d-501441e019ba)
+time=2026-01-22T01:24:13.720+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.725+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.734+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=14.60792ms
+    institution_membership_test.go:69: Created institution: Test Institution 1 (ID: 4349a574-84ed-4664-b5a4-768129ef0df3)
+time=2026-01-22T01:24:13.736+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.741+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.750+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=14.29667ms
+    institution_membership_test.go:74: Created institution: Test Institution 2 (ID: a3b8a460-d158-42ab-9437-6eb25abd7e41)
+time=2026-01-22T01:24:13.751+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.756+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.769+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=18.162492ms
+    institution_membership_test.go:84: Created invite for bob: d73f395d-bf7a-4021-b5b9-bac82c0f9e42
+time=2026-01-22T01:24:13.770+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.775+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=010e6419-896a-424e-9e9e-5df3d4a22361 user_name=bob
+time=2026-01-22T01:24:13.791+01:00 level=INFO msg="http request" method=POST path=/api/invites/d73f395d-bf7a-4021-b5b9-bac82c0f9e42/accept status=200 duration=21.156092ms
+    institution_membership_test.go:87: Bob accepted invite
+time=2026-01-22T01:24:13.792+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.798+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.808+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=15.421811ms
+    institution_membership_test.go:97: Created invite for harry: cab0d211-4717-4293-8087-23b00094ac68
+time=2026-01-22T01:24:13.809+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.814+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.825+01:00 level=INFO msg="http request" method=GET path=/api/invites status=200 duration=16.723699ms
+    institution_membership_test.go:102: Admin sees 2 invite(s)
+time=2026-01-22T01:24:13.827+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.833+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.843+01:00 level=INFO msg="http request" method=GET path=/api/invites status=200 duration=16.403953ms
+    institution_membership_test.go:108: Harry sees 1 pending invite(s)
+time=2026-01-22T01:24:13.844+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.848+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.852+01:00 level=INFO msg="http request" method=GET path=/api/institutions status=403 duration=8.488267ms
+time=2026-01-22T01:24:13.853+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.857+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.866+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=12.853414ms
+time=2026-01-22T01:24:13.867+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.870+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.878+01:00 level=INFO msg="http request" method=GET path=/api/institutions/a3b8a460-d158-42ab-9437-6eb25abd7e41 status=200 duration=11.212797ms
+time=2026-01-22T01:24:13.878+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.882+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.895+01:00 level=INFO msg="http request" method=POST path=/api/invites/cab0d211-4717-4293-8087-23b00094ac68/accept status=200 duration=16.313079ms
+    institution_membership_test.go:121: Harry accepted invite
+time=2026-01-22T01:24:13.896+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.900+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.912+01:00 level=INFO msg="http request" method=GET path=/api/institutions status=200 duration=16.321281ms
+    institution_membership_test.go:127: Harry sees 1 institution(s)
+time=2026-01-22T01:24:13.913+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.917+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.928+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=15.087455ms
+time=2026-01-22T01:24:13.929+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.933+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.942+01:00 level=INFO msg="http request" method=GET path=/api/institutions/a3b8a460-d158-42ab-9437-6eb25abd7e41 status=200 duration=13.05257ms
+time=2026-01-22T01:24:13.943+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.947+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.947+01:00 level=INFO msg="http request" method=GET path=/api/users/me status=200 duration=3.993127ms
+time=2026-01-22T01:24:13.948+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.952+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:13.961+01:00 level=INFO msg="http request" method=GET path=/api/invites status=200 duration=12.605572ms
+    institution_membership_test.go:145: Admin sees 2 invite(s)
+time=2026-01-22T01:24:13.961+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.965+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:13.972+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=10.546857ms
+    institution_membership_test.go:155: Harry created invite for tanja: 8d5c56a3-0a65-497e-abfb-1e13eeec5040
+time=2026-01-22T01:24:13.973+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.976+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:13.984+01:00 level=INFO msg="http request" method=GET path=/api/invites status=200 duration=11.189987ms
+    institution_membership_test.go:161: Tanja sees 1 pending invite(s)
+time=2026-01-22T01:24:13.985+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.989+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:13.993+01:00 level=INFO msg="http request" method=GET path=/api/institutions status=403 duration=8.205859ms
+time=2026-01-22T01:24:13.994+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.997+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.005+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=11.157622ms
+time=2026-01-22T01:24:14.006+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.010+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.017+01:00 level=INFO msg="http request" method=GET path=/api/institutions/a3b8a460-d158-42ab-9437-6eb25abd7e41 status=200 duration=11.529827ms
+time=2026-01-22T01:24:14.018+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.022+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.033+01:00 level=INFO msg="http request" method=POST path=/api/invites/8d5c56a3-0a65-497e-abfb-1e13eeec5040/accept status=200 duration=15.001027ms
+    institution_membership_test.go:174: Tanja accepted invite
+time=2026-01-22T01:24:14.034+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.037+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.045+01:00 level=INFO msg="http request" method=GET path=/api/institutions status=200 duration=11.613343ms
+time=2026-01-22T01:24:14.046+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.049+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.056+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=10.739389ms
+time=2026-01-22T01:24:14.057+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.061+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.069+01:00 level=INFO msg="http request" method=GET path=/api/institutions/a3b8a460-d158-42ab-9437-6eb25abd7e41 status=200 duration=11.385452ms
+time=2026-01-22T01:24:14.069+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.072+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.073+01:00 level=INFO msg="http request" method=GET path=/api/users/me status=200 duration=3.295132ms
+time=2026-01-22T01:24:14.073+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.077+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.085+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=12.342662ms
+    institution_membership_test.go:202: Institution members: [harry tanja]
+time=2026-01-22T01:24:14.086+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.089+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.093+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=403 duration=7.034644ms
+time=2026-01-22T01:24:14.094+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.097+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.103+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=9.54804ms
+time=2026-01-22T01:24:14.104+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.108+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.115+01:00 level=INFO msg="http request" method=DELETE path=/api/invites/f399689e-6d14-4378-94fe-4c2e9f82f588 status=200 duration=11.462801ms
+time=2026-01-22T01:24:14.116+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.119+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.124+01:00 level=INFO msg="http request" method=GET path=/api/invites/f399689e-6d14-4378-94fe-4c2e9f82f588 status=200 duration=8.001782ms
+time=2026-01-22T01:24:14.125+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.129+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.133+01:00 level=INFO msg="http request" method=GET path=/api/invites/f399689e-6d14-4378-94fe-4c2e9f82f588 status=200 duration=8.058478ms
+time=2026-01-22T01:24:14.133+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.137+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.142+01:00 level=INFO msg="http request" method=POST path=/api/invites/f399689e-6d14-4378-94fe-4c2e9f82f588/accept status=400 duration=8.626802ms
+time=2026-01-22T01:24:14.143+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.147+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.153+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=10.710998ms
+time=2026-01-22T01:24:14.154+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.158+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.170+01:00 level=INFO msg="http request" method=POST path=/api/invites/d2d929e8-4b23-464d-a7bf-7898041a507b/decline status=200 duration=15.81535ms
+time=2026-01-22T01:24:14.171+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.174+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.178+01:00 level=INFO msg="http request" method=GET path=/api/invites/d2d929e8-4b23-464d-a7bf-7898041a507b status=200 duration=7.429744ms
+time=2026-01-22T01:24:14.179+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.182+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.186+01:00 level=INFO msg="http request" method=GET path=/api/invites/d2d929e8-4b23-464d-a7bf-7898041a507b status=200 duration=7.793105ms
+time=2026-01-22T01:24:14.187+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.190+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.191+01:00 level=INFO msg="http request" method=DELETE path=/api/invites/d2d929e8-4b23-464d-a7bf-7898041a507b status=500 duration=4.196748ms
+time=2026-01-22T01:24:14.192+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.195+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.199+01:00 level=INFO msg="http request" method=POST path=/api/invites/d2d929e8-4b23-464d-a7bf-7898041a507b/accept status=400 duration=7.65849ms
+time=2026-01-22T01:24:14.200+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.203+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.210+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=9.553121ms
+time=2026-01-22T01:24:14.210+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.214+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.224+01:00 level=INFO msg="http request" method=POST path=/api/invites/7fcd00ac-e7c1-42a8-9a21-20b7247a987b/accept status=200 duration=14.375116ms
+time=2026-01-22T01:24:14.225+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.229+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.237+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=12.199934ms
+time=2026-01-22T01:24:14.238+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.242+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.250+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=12.058428ms
+time=2026-01-22T01:24:14.251+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.254+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=33cc3cdd-3de1-4e59-bf0d-501441e019ba user_name=tanja
+time=2026-01-22T01:24:14.263+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=11.894621ms
+time=2026-01-22T01:24:14.263+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.267+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=8f868097-62d2-4019-83bf-2cea58d73596 user_name=alice
+time=2026-01-22T01:24:14.270+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3/members/33cc3cdd-3de1-4e59-bf0d-501441e019ba status=403 duration=7.231571ms
+time=2026-01-22T01:24:14.271+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.275+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.281+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3/members/33cc3cdd-3de1-4e59-bf0d-501441e019ba status=200 duration=9.554746ms
+time=2026-01-22T01:24:14.282+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.286+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=43df9d8b-1976-40c7-ab27-9221d8e213c7 user_name=harry
+time=2026-01-22T01:24:14.295+01:00 level=INFO msg="http request" method=GET path=/api/institutions/4349a574-84ed-4664-b5a4-768129ef0df3 status=200 duration=13.216316ms
+    institution_membership_test.go:261: Institution now has 2 members: [harry alice]
+=== RUN   TestMultiUserSuite/TestInstitutionManagementLeadership
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.303+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.194387ms
+GET http://localhost:37655/api/users/e5ac56a3-c4b0-43de-b319-906432e1b69d/jwt
+time=2026-01-22T01:24:14.308+01:00 level=INFO msg="http request" method=GET path=/api/users/e5ac56a3-c4b0-43de-b319-906432e1b69d/jwt status=200 duration=3.452466ms
+    institution_membership_test.go:272: Created user "charlie" (ID: e5ac56a3-c4b0-43de-b319-906432e1b69d)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.315+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=6.21435ms
+GET http://localhost:37655/api/users/34621daa-5da9-47cd-a790-971ab5c0d2af/jwt
+time=2026-01-22T01:24:14.320+01:00 level=INFO msg="http request" method=GET path=/api/users/34621daa-5da9-47cd-a790-971ab5c0d2af/jwt status=200 duration=4.398942ms
+    institution_membership_test.go:273: Created user "diana" (ID: 34621daa-5da9-47cd-a790-971ab5c0d2af)
+time=2026-01-22T01:24:14.321+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.325+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.332+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=10.925187ms
+    institution_membership_test.go:277: Created institution: Leadership Test Institution
+time=2026-01-22T01:24:14.333+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.337+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.344+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=10.747955ms
+time=2026-01-22T01:24:14.344+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.348+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.360+01:00 level=INFO msg="http request" method=POST path=/api/invites/de34010b-dfb1-45b5-85a7-8d08980e4a63/accept status=200 duration=15.186352ms
+    institution_membership_test.go:286: Charlie became head
+time=2026-01-22T01:24:14.360+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.364+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.371+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=11.175652ms
+time=2026-01-22T01:24:14.372+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.376+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=34621daa-5da9-47cd-a790-971ab5c0d2af user_name=diana
+time=2026-01-22T01:24:14.388+01:00 level=INFO msg="http request" method=POST path=/api/invites/186e95dd-cc8d-4520-83be-8c25ad1cdd3a/accept status=200 duration=15.74157ms
+    institution_membership_test.go:295: Diana became staff
+time=2026-01-22T01:24:14.389+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.392+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.396+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f/members/e5ac56a3-c4b0-43de-b319-906432e1b69d status=400 duration=7.092291ms
+    institution_membership_test.go:299: Charlie cannot remove himself (expected - must have at least one head)
+time=2026-01-22T01:24:14.396+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.400+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.408+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=11.65911ms
+time=2026-01-22T01:24:14.409+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.413+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=34621daa-5da9-47cd-a790-971ab5c0d2af user_name=diana
+time=2026-01-22T01:24:14.425+01:00 level=INFO msg="http request" method=POST path=/api/invites/03fe8b41-7f41-41e8-9634-134b8057e80e/accept status=200 duration=16.229725ms
+    institution_membership_test.go:308: Diana promoted to head
+time=2026-01-22T01:24:14.426+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.429+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.439+01:00 level=INFO msg="http request" method=GET path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f status=200 duration=12.99925ms
+    institution_membership_test.go:313: 
+        	Error Trace:	/r/chatgamelab/testing/institution_membership_test.go:313
+        	Error:      	Not equal: 
+        	            	expected: 3
+        	            	actual  : 2
+        	Test:       	TestMultiUserSuite/TestInstitutionManagementLeadership
+        	Messages:   	should have 3 member entries
+    institution_membership_test.go:321: Institution now has 2 heads (diana has both staff and head roles)
+time=2026-01-22T01:24:14.440+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.444+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.451+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f/members/34621daa-5da9-47cd-a790-971ab5c0d2af status=200 duration=11.074955ms
+    institution_membership_test.go:325: Charlie removed Diana (head)
+time=2026-01-22T01:24:14.452+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.455+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.465+01:00 level=INFO msg="http request" method=GET path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f status=200 duration=13.949651ms
+    institution_membership_test.go:332: Institution now has 1 member: charlie (head)
+time=2026-01-22T01:24:14.466+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.471+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.478+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=12.004241ms
+time=2026-01-22T01:24:14.479+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.484+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=34621daa-5da9-47cd-a790-971ab5c0d2af user_name=diana
+time=2026-01-22T01:24:14.496+01:00 level=INFO msg="http request" method=POST path=/api/invites/2590a9d7-6239-4c9c-90bd-53687e39f853/accept status=200 duration=16.853939ms
+    institution_membership_test.go:341: Diana re-invited and became head again
+time=2026-01-22T01:24:14.497+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.500+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.510+01:00 level=INFO msg="http request" method=GET path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f status=200 duration=12.987047ms
+    institution_membership_test.go:346: Institution has 2 heads again
+time=2026-01-22T01:24:14.510+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.515+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=e5ac56a3-c4b0-43de-b319-906432e1b69d user_name=charlie
+time=2026-01-22T01:24:14.519+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f/members/e5ac56a3-c4b0-43de-b319-906432e1b69d status=400 duration=9.08012ms
+    institution_membership_test.go:350: Charlie cannot remove himself (expected - validation prevents self-removal)
+time=2026-01-22T01:24:14.520+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.525+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=34621daa-5da9-47cd-a790-971ab5c0d2af user_name=diana
+time=2026-01-22T01:24:14.530+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/e4ac71f9-dcbe-4f49-8f01-f446748d821f/members/34621daa-5da9-47cd-a790-971ab5c0d2af status=400 duration=9.513032ms
+    institution_membership_test.go:354: Diana cannot remove herself (expected - validation prevents self-removal)
+=== RUN   TestMultiUserSuite/TestInstitutionManagementLeadershipSteal
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.539+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.179313ms
+GET http://localhost:37655/api/users/9c485d7f-57ed-4319-9c8c-8227067d76ee/jwt
+time=2026-01-22T01:24:14.545+01:00 level=INFO msg="http request" method=GET path=/api/users/9c485d7f-57ed-4319-9c8c-8227067d76ee/jwt status=200 duration=5.102268ms
+    institution_membership_test.go:363: Created user "eve" (ID: 9c485d7f-57ed-4319-9c8c-8227067d76ee)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.555+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.524831ms
+GET http://localhost:37655/api/users/469782f2-7999-4694-a97a-9eeb1460dfb7/jwt
+time=2026-01-22T01:24:14.561+01:00 level=INFO msg="http request" method=GET path=/api/users/469782f2-7999-4694-a97a-9eeb1460dfb7/jwt status=200 duration=5.075235ms
+    institution_membership_test.go:364: Created user "frank" (ID: 469782f2-7999-4694-a97a-9eeb1460dfb7)
+time=2026-01-22T01:24:14.562+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.567+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.575+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=12.172732ms
+    institution_membership_test.go:368: Created institution1: Institution Alpha
+time=2026-01-22T01:24:14.575+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.581+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.590+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=14.080869ms
+    institution_membership_test.go:371: Created institution2: Institution Beta
+time=2026-01-22T01:24:14.590+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.595+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.603+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=12.981887ms
+time=2026-01-22T01:24:14.604+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.608+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.620+01:00 level=INFO msg="http request" method=POST path=/api/invites/4d21e0cb-7557-497e-9389-fa95241369f6/accept status=200 duration=16.354632ms
+    institution_membership_test.go:380: Eve became head of institution1
+time=2026-01-22T01:24:14.621+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.626+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.634+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=12.882296ms
+time=2026-01-22T01:24:14.635+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.639+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.651+01:00 level=INFO msg="http request" method=POST path=/api/invites/3a022f24-2d0c-44ec-ad0f-a223836f0b35/accept status=200 duration=16.429026ms
+    institution_membership_test.go:389: Frank became head of institution2
+time=2026-01-22T01:24:14.652+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.656+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.667+01:00 level=INFO msg="http request" method=GET path=/api/institutions/28e954c0-08ed-44e2-bb45-16daa7a2706a status=200 duration=14.996177ms
+time=2026-01-22T01:24:14.668+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.672+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.681+01:00 level=INFO msg="http request" method=GET path=/api/institutions/964aaf6c-1127-4590-91e9-1dc1738b352f status=200 duration=13.020108ms
+time=2026-01-22T01:24:14.681+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.686+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.689+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/964aaf6c-1127-4590-91e9-1dc1738b352f/members/469782f2-7999-4694-a97a-9eeb1460dfb7 status=400 duration=7.926891ms
+    institution_membership_test.go:402: Frank cannot leave institution2 (last head)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.698+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.165123ms
+GET http://localhost:37655/api/users/dad9de40-ef43-452b-b4d6-84bf289dc3fc/jwt
+time=2026-01-22T01:24:14.703+01:00 level=INFO msg="http request" method=GET path=/api/users/dad9de40-ef43-452b-b4d6-84bf289dc3fc/jwt status=200 duration=4.211262ms
+    institution_membership_test.go:406: Created user "grace" (ID: dad9de40-ef43-452b-b4d6-84bf289dc3fc)
+time=2026-01-22T01:24:14.704+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.708+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.715+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=10.577826ms
+time=2026-01-22T01:24:14.715+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.720+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=dad9de40-ef43-452b-b4d6-84bf289dc3fc user_name=grace
+time=2026-01-22T01:24:14.731+01:00 level=INFO msg="http request" method=POST path=/api/invites/9d12dde3-9b68-4ed3-ac31-7f522d3c26fa/accept status=200 duration=15.971717ms
+    institution_membership_test.go:413: Grace became head of institution2
+time=2026-01-22T01:24:14.732+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.736+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.745+01:00 level=INFO msg="http request" method=GET path=/api/institutions/964aaf6c-1127-4590-91e9-1dc1738b352f status=200 duration=13.172595ms
+    institution_membership_test.go:418: Institution2 now has 2 heads: frank and grace
+time=2026-01-22T01:24:14.746+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.750+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.757+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=10.989204ms
+    institution_membership_test.go:426: Eve invited Frank to become head of institution1
+time=2026-01-22T01:24:14.758+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.762+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.774+01:00 level=INFO msg="http request" method=POST path=/api/invites/5b67ffb7-c568-46c9-bd97-3cae0f5d9d32/accept status=200 duration=15.766552ms
+    institution_membership_test.go:430: Frank accepted head role in institution1 (lost role in institution2)
+time=2026-01-22T01:24:14.774+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.778+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.788+01:00 level=INFO msg="http request" method=GET path=/api/institutions/28e954c0-08ed-44e2-bb45-16daa7a2706a status=200 duration=13.523692ms
+    institution_membership_test.go:443: Institution1 now has 2 heads: eve and frank
+time=2026-01-22T01:24:14.788+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.792+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=dad9de40-ef43-452b-b4d6-84bf289dc3fc user_name=grace
+time=2026-01-22T01:24:14.801+01:00 level=INFO msg="http request" method=GET path=/api/institutions/964aaf6c-1127-4590-91e9-1dc1738b352f status=200 duration=13.003979ms
+    institution_membership_test.go:450: Institution2 now has 1 head: grace (Frank left)
+time=2026-01-22T01:24:14.802+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.807+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=469782f2-7999-4694-a97a-9eeb1460dfb7 user_name=frank
+time=2026-01-22T01:24:14.810+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/28e954c0-08ed-44e2-bb45-16daa7a2706a/members/469782f2-7999-4694-a97a-9eeb1460dfb7 status=400 duration=8.325556ms
+    institution_membership_test.go:454: Frank cannot remove himself from institution1 (validation prevents self-removal)
+time=2026-01-22T01:24:14.811+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.815+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.822+01:00 level=INFO msg="http request" method=DELETE path=/api/institutions/28e954c0-08ed-44e2-bb45-16daa7a2706a/members/469782f2-7999-4694-a97a-9eeb1460dfb7 status=200 duration=10.896538ms
+    institution_membership_test.go:458: Eve removed Frank from institution1
+time=2026-01-22T01:24:14.823+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.827+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9c485d7f-57ed-4319-9c8c-8227067d76ee user_name=eve
+time=2026-01-22T01:24:14.836+01:00 level=INFO msg="http request" method=GET path=/api/institutions/28e954c0-08ed-44e2-bb45-16daa7a2706a status=200 duration=13.412814ms
+    institution_membership_test.go:464: Institution1 back to 1 head: eve
+    institution_membership_test.go:467: Frank has no role in any institution
+=== RUN   TestMultiUserSuite/TestWorkshopManagement
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.845+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=6.865483ms
+GET http://localhost:37655/api/users/d52c76f5-8f57-49b8-9c9b-beb19cd2157d/jwt
+time=2026-01-22T01:24:14.849+01:00 level=INFO msg="http request" method=GET path=/api/users/d52c76f5-8f57-49b8-9c9b-beb19cd2157d/jwt status=200 duration=3.162481ms
+    institution_workshop_test.go:10: Created user "tony" (ID: d52c76f5-8f57-49b8-9c9b-beb19cd2157d)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.858+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.272398ms
+GET http://localhost:37655/api/users/9294542c-8f14-4858-96ff-c38fb61de588/jwt
+time=2026-01-22T01:24:14.863+01:00 level=INFO msg="http request" method=GET path=/api/users/9294542c-8f14-4858-96ff-c38fb61de588/jwt status=200 duration=3.949262ms
+    institution_workshop_test.go:14: Created user "timo" (ID: 9294542c-8f14-4858-96ff-c38fb61de588)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.871+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=7.222323ms
+GET http://localhost:37655/api/users/a5659301-369b-4afe-a0cf-fb6fc78f859b/jwt
+time=2026-01-22T01:24:14.876+01:00 level=INFO msg="http request" method=GET path=/api/users/a5659301-369b-4afe-a0cf-fb6fc78f859b/jwt status=200 duration=4.238883ms
+    institution_workshop_test.go:18: Created user "toto" (ID: a5659301-369b-4afe-a0cf-fb6fc78f859b)
+POST http://localhost:37655/api/users/new
+time=2026-01-22T01:24:14.884+01:00 level=INFO msg="http request" method=POST path=/api/users/new status=200 duration=6.58006ms
+GET http://localhost:37655/api/users/16d723d6-5aaa-468c-9306-9c1c967cff8f/jwt
+time=2026-01-22T01:24:14.889+01:00 level=INFO msg="http request" method=GET path=/api/users/16d723d6-5aaa-468c-9306-9c1c967cff8f/jwt status=200 duration=3.522949ms
+    institution_workshop_test.go:22: Created user "steve" (ID: 16d723d6-5aaa-468c-9306-9c1c967cff8f)
+time=2026-01-22T01:24:14.890+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.893+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.900+01:00 level=INFO msg="http request" method=POST path=/api/institutions status=200 duration=10.423326ms
+    institution_workshop_test.go:30: Created institution: Workshop Institution (ID: 8add3019-897c-4b65-aeca-bd9bf1d11d20)
+time=2026-01-22T01:24:14.901+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.906+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d51de24f-9883-43e6-84ab-9236c21641af user_name=admin
+time=2026-01-22T01:24:14.913+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=11.731876ms
+    institution_workshop_test.go:39: Created invite for Tony as head
+time=2026-01-22T01:24:14.914+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.918+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:14.932+01:00 level=INFO msg="http request" method=POST path=/api/invites/ade18d89-ab03-45f7-871b-ae269545122f/accept status=200 duration=18.571456ms
+    institution_workshop_test.go:43: Tony accepted invite and became head
+time=2026-01-22T01:24:14.933+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.938+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:14.946+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=12.090851ms
+    institution_workshop_test.go:52: Tony invited Timo as staff
+time=2026-01-22T01:24:14.946+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.950+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.964+01:00 level=INFO msg="http request" method=POST path=/api/invites/4525c12c-a40e-4c9f-9b2c-8c1f9c2d69e3/accept status=200 duration=17.7545ms
+    institution_workshop_test.go:56: Timo accepted invite and became staff
+time=2026-01-22T01:24:14.965+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.970+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:14.978+01:00 level=INFO msg="http request" method=POST path=/api/invites/institution status=200 duration=12.94779ms
+    institution_workshop_test.go:65: Tony invited Toto as staff
+time=2026-01-22T01:24:14.979+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.983+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=a5659301-369b-4afe-a0cf-fb6fc78f859b user_name=toto
+time=2026-01-22T01:24:14.995+01:00 level=INFO msg="http request" method=POST path=/api/invites/306bc670-b4e1-42b2-ba80-7baa53f586b6/accept status=200 duration=16.715497ms
+    institution_workshop_test.go:69: Toto accepted invite and became staff
+time=2026-01-22T01:24:14.996+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:15.000+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:15.010+01:00 level=INFO msg="http request" method=GET path=/api/institutions/8add3019-897c-4b65-aeca-bd9bf1d11d20 status=200 duration=13.75861ms
+    institution_workshop_test.go:74: Institution has 3 members
+time=2026-01-22T01:24:15.011+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:15.015+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.489+01:00 level=INFO msg="http request" method=POST path=/api/workshops status=200 duration=15.294491ms
+    institution_workshop_test.go:84: Timo created workshop: Test Workshop (ID: a01c2617-064b-4d7b-b75b-249cc7b94942)
+time=2026-01-22T01:24:14.490+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.495+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.505+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=14.555709ms
+    institution_workshop_test.go:95: Timo updated workshop name to: Updated Workshop Name
+time=2026-01-22T01:24:14.506+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.510+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.519+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=13.04443ms
+    institution_workshop_test.go:106: Timo set workshop to inactive
+time=2026-01-22T01:24:14.519+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.523+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.532+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=13.096989ms
+    institution_workshop_test.go:117: Timo made workshop public
+time=2026-01-22T01:24:14.533+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.537+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.543+01:00 level=INFO msg="http request" method=GET path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=9.920183ms
+    institution_workshop_test.go:124: Final workshop state verified: name=Updated Workshop Name, active=false, public=true
+time=2026-01-22T01:24:14.544+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.548+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=a5659301-369b-4afe-a0cf-fb6fc78f859b user_name=toto
+time=2026-01-22T01:24:14.553+01:00 level=INFO msg="http request" method=GET path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=9.316543ms
+    institution_workshop_test.go:130: Toto can view workshop: Updated Workshop Name
+time=2026-01-22T01:24:14.554+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.557+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=a5659301-369b-4afe-a0cf-fb6fc78f859b user_name=toto
+time=2026-01-22T01:24:14.562+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=403 duration=8.252591ms
+    institution_workshop_test.go:139: Toto cannot edit workshop (expected)
+time=2026-01-22T01:24:14.563+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.567+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:14.577+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=14.016627ms
+    institution_workshop_test.go:150: Tony (head) can edit workshop: Tony's Edit
+time=2026-01-22T01:24:14.578+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.583+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=9294542c-8f14-4858-96ff-c38fb61de588 user_name=timo
+time=2026-01-22T01:24:14.592+01:00 level=INFO msg="http request" method=PATCH path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=14.141512ms
+    institution_workshop_test.go:161: Timo (owner) can edit workshop: Timo's Final Edit
+time=2026-01-22T01:24:14.593+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:14.598+01:00 level=DEBUG msg="CGL JWT authenticated" user_id=d52c76f5-8f57-49b8-9c9b-beb19cd2157d user_name=tony
+time=2026-01-22T01:24:13.905+01:00 level=INFO msg="http request" method=GET path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=200 duration=11.369217ms
+time=2026-01-22T01:24:13.905+01:00 level=DEBUG msg="validating CGL JWT" token_prefix=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJjZ
+time=2026-01-22T01:24:13.905+01:00 level=DEBUG msg="JWT parse error" error="Token used before issued"
+time=2026-01-22T01:24:13.905+01:00 level=DEBUG msg="auth0 validator initialized" issuer=https://test.auth0.domain/
+time=2026-01-22T01:24:13.906+01:00 level=DEBUG msg="auth0 JWT validation failed" error="jwt invalid: signing method is invalid: expected \"RS256\" signing algorithm but token specified \"HS256\"" path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942
+time=2026-01-22T01:24:13.906+01:00 level=INFO msg="http request" method=GET path=/api/workshops/a01c2617-064b-4d7b-b75b-249cc7b94942 status=401 duration=184.915µs
+    helpers.go:9: test panicked: Must failed: api error (401): {"code":"error","message":"Invalid token","type":"error"}
+        
+        goroutine 1663 [running]:
+        runtime/debug.Stack()
+        	/usr/local/go/src/runtime/debug/stack.go:26 +0x5e
+        github.com/stretchr/testify/suite.failOnPanic(0xc0003808c0, {0xa9b3a0, 0xc0003594b0})
+        	/home/flo/go/pkg/mod/github.com/stretchr/testify@v1.10.0/suite/suite.go:89 +0x37
+        github.com/stretchr/testify/suite.Run.func1.1()
+        	/home/flo/go/pkg/mod/github.com/stretchr/testify@v1.10.0/suite/suite.go:188 +0x293
+        panic({0xa9b3a0?, 0xc0003594b0?})
+        	/usr/local/go/src/runtime/panic.go:783 +0x132
+        cgl/testing.Must[...](...)
+        	/r/chatgamelab/testing/helpers.go:9
+        cgl/testing.(*MultiUserTestSuite).TestWorkshopManagement(0xc0001802d0)
+        	/r/chatgamelab/testing/institution_workshop_test.go:166 +0x470e
+        reflect.Value.call({0xc000222180?, 0xc0003cc0b0?, 0x13?}, {0xb75cc5, 0x4}, {0xc000401f28, 0x1, 0x1?})
+        	/usr/local/go/src/reflect/value.go:581 +0xcc6
+        reflect.Value.Call({0xc000222180?, 0xc0003cc0b0?, 0xf?}, {0xc000675f28?, 0x0?, 0x0?})
+        	/usr/local/go/src/reflect/value.go:365 +0xb9
+        github.com/stretchr/testify/suite.Run.func1(0xc0003808c0)
+        	/home/flo/go/pkg/mod/github.com/stretchr/testify@v1.10.0/suite/suite.go:202 +0x44a
+        testing.tRunner(0xc0003808c0, 0xc0003a2c60)
+        	/usr/local/go/src/testing/testing.go:1934 +0xea
+        created by testing.(*T).Run in goroutine 8
+        	/usr/local/go/src/testing/testing.go:1997 +0x465
+
+🧹 [Multi-User Tests] Cleaning up test environment...
+time=2026-01-22T01:24:13.906+01:00 level=INFO msg="context cancelled"
+time=2026-01-22T01:24:13.906+01:00 level=INFO msg="shutting down server"
+time=2026-01-22T01:24:13.906+01:00 level=INFO msg="server stopped"
+✅ [Multi-User Tests] Cleanup complete (Postgres kept running)
+
+--- FAIL: TestMultiUserSuite (5.51s)
+    --- PASS: TestMultiUserSuite/TestInstitutionManagement (0.65s)
+    --- FAIL: TestMultiUserSuite/TestInstitutionManagementLeadership (0.23s)
+    --- PASS: TestMultiUserSuite/TestInstitutionManagementLeadershipSteal (0.31s)
+    --- FAIL: TestMultiUserSuite/TestWorkshopManagement (0.31s)
+FAIL
+exit status 1
+FAIL	cgl/testing	5.524s

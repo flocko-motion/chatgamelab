@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Masuk dengan Auth0",
+      "devMode": "Mode Pengembangan",
+      "devModeAlert": {
+        "message": "Ini adalah halaman login pengembangan. Di produksi, Anda akan dialihkan langsung ke Auth0.",
+        "title": "Mode Pengembangan"
+      },
+      "devModeDescription": "Login cepat untuk pengembangan dan pengujian",
+      "redirecting": {
+        "message": "Harap tunggu sementara kami mengalihkan Anda ke halaman login.",
+        "title": "Mengalihkan ke Auth0..."
+      },
+      "role": {
+        "admin": "Masuk sebagai Admin",
+        "guest": "Masuk sebagai Tamu",
+        "student": "Masuk sebagai Siswa",
+        "teacher": "Masuk sebagai Guru"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Keluar dari Workshop",
+        "message": "Apakah Anda yakin ingin keluar dari workshop ini? Anda akan membutuhkan tautan undangan baru untuk bergabung kembali.",
+        "title": "Keluar dari Workshop?"
+      },
+      "leaveWorkshop": "Keluar dari Workshop",
+      "organization": "Organisasi",
+      "role": "Peserta Workshop",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Game yang Dibuat",
+      "gamesPlayed": "Game yang Dimainkan",
+      "memberSince": "Terdaftar sejak",
+      "messagesSent": "Pesan Terkirim",
+      "noOrganization": "Tidak ada organisasi",
+      "noRole": "Tidak ada peran",
+      "organization": "Organisasi",
+      "organizationSection": "Organisasi \u0006 Peran",
+      "role": "Peran",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Kepala Pengajar",
+        "participant": "Tamu",
+        "staff": "Staf"
+      },
+      "statisticsSection": "Statistik",
+      "title": "Profil",
+      "totalPlaysOnGames": "Total Pemainan pada Game Saya"
+    },
+    "register": {
+      "cancelButton": "Batal",
+      "emailDescription": "Kami akan menggunakan ini untuk pemberitahuan penting.",
+      "emailLabel": "Alamat Email",
+      "emailPlaceholder": "Masukkan email Anda",
+      "errors": {
+        "emailInvalid": "Silakan masukkan alamat email yang valid",
+        "emailRequired": "Email wajib diisi",
+        "nameRequired": "Nama wajib diisi",
+        "nameTaken": "Nama ini sudah digunakan",
+        "nameTooLong": "Nama maksimal 24 karakter",
+        "registrationFailed": "Registrasi gagal. Silakan coba lagi."
+      },
+      "nameDescription": "Inilah nama yang akan dilihat pengguna lain. Maksimal 24 karakter.",
+      "nameLabel": "Nama Tampilan",
+      "namePlaceholder": "Masukkan nama tampilan Anda",
+      "submitButton": "Buat Akun",
+      "submitting": "Membuat akun...",
+      "subtitle": "Hanya beberapa detail lagi untuk memulai",
+      "title": "Lengkapi Profil Anda"
+    },
+    "settings": {
+      "accountSection": "Akun",
+      "emailChangeNote": "Untuk mengubah alamat email, silakan hubungi administrator situs.",
+      "errors": {
+        "nameRequired": "Nama wajib diisi",
+        "nameTaken": "Nama ini sudah digunakan",
+        "nameTooLong": "Nama maksimal 24 karakter",
+        "saveFailed": "Gagal menyimpan perubahan. Silakan coba lagi."
+      },
+      "nameDescription": "Inilah nama yang akan dilihat pengguna lain. Maksimal 24 karakter.",
+      "nameLabel": "Nama Tampilan",
+      "namePlaceholder": "Masukkan nama tampilan Anda",
+      "saveButton": "Simpan Perubahan",
+      "saved": "Perubahan berhasil disimpan",
+      "saving": "Menyimpan...",
+      "subtitle": "Kelola pengaturan akun Anda",
+      "title": "Pengaturan"
+    }
+  },
+  "common": {
+    "actions": "Tindakan",
+    "admin": {
+      "invites": {
+        "actions": "Tindakan",
+        "empty": "Tidak ada undangan tertunda.",
+        "invitedEmail": "Email yang Diundang",
+        "modifiedAt": "Diubah",
+        "noResults": "Tidak ada undangan yang cocok dengan pencarian Anda.",
+        "organization": "Organisasi",
+        "revokeConfirm": {
+          "confirm": "Hapus",
+          "message": "Apakah Anda yakin ingin menghapus undangan ini? Tindakan ini tidak dapat dibatalkan.",
+          "title": "Hapus Undangan"
+        },
+        "role": "Peran",
+        "searchPlaceholder": "Cari berdasarkan email, peran, status, atau organisasi...",
+        "sort": {
+          "label": "Urutkan berdasarkan",
+          "modifiedAt-asc": "Diubah (Terlama)",
+          "modifiedAt-desc": "Diubah (Terbaru)",
+          "organization-asc": "Organisasi (A-Z)",
+          "organization-desc": "Organisasi (Z-A)",
+          "role-asc": "Peran (A-Z)",
+          "role-desc": "Peran (Z-A)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)"
+        },
+        "status": "Status",
+        "statuses": {
+          "accepted": "Diterima",
+          "declined": "Ditolak",
+          "expired": "Kedaluwarsa",
+          "pending": "Tertunda",
+          "revoked": "Dicabut"
+        },
+        "title": "Undangan Tertunda"
+      },
+      "organizations": {
+        "actions": "Tindakan",
+        "create": "Buat Organisasi",
+        "createTitle": "Buat Organisasi Baru",
+        "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+        "deleteTitle": "Hapus Organisasi",
+        "editTitle": "Edit Organisasi",
+        "email": "Alamat Email",
+        "emailPlaceholder": "Masukkan alamat email",
+        "empty": "Belum ada organisasi. Buat satu untuk memulai.",
+        "inviteDescription": "Kirim undangan untuk bergabung dengan {{name}} sebagai kepala organisasi.",
+        "inviteTitle": "Undang ke Organisasi",
+        "memberEmail": "Email",
+        "memberName": "Nama",
+        "memberRole": "Peran",
+        "members": "Anggota",
+        "membersCount": "anggota",
+        "membersList": "Anggota",
+        "name": "Nama",
+        "namePlaceholder": "Masukkan nama organisasi",
+        "noMembers": "Tidak ada anggota dalam organisasi ini.",
+        "removeMember": "Hapus anggota",
+        "removeMemberConfirm": "Apakah Anda yakin ingin menghapus {{name}} dari organisasi ini?",
+        "searchPlaceholder": "Cari organisasi...",
+        "sendInvite": "Kirim Undangan",
+        "title": "Kelola Organisasi"
+      },
+      "users": {
+        "actions": "Tindakan",
+        "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+        "deleteTitle": "Hapus Pengguna",
+        "editEmail": "Edit email",
+        "editTitle": "Edit Pengguna",
+        "editingUser": "Mengedit pengguna: {{name}}",
+        "email": "Email",
+        "emailPlaceholder": "Masukkan alamat email",
+        "empty": "Tidak ada pengguna ditemukan.",
+        "hideGuests": "Sembunyikan tamu ({{count}})",
+        "joined": "Bergabung",
+        "loadError": "Gagal memuat pengguna",
+        "makeAdmin": "Jadikan admin",
+        "me": "Saya",
+        "name": "Nama",
+        "noEmail": "Tidak ada email",
+        "noResults": "Tidak ada pengguna yang cocok dengan pencarian Anda.",
+        "noRole": "Tidak ada peran",
+        "organization": "Organisasi",
+        "promoteConfirm": "Apakah Anda yakin ingin mempromosikan \"{{name}}\" ({{email}}) menjadi admin?",
+        "promoteTitle": "Promosikan menjadi Admin",
+        "promoteWarning": "Pengguna ini akan mendapatkan akses administratif penuh ke sistem.",
+        "removeAdmin": "Hapus admin",
+        "removeAdminConfirm": "Apakah Anda yakin ingin menghapus peran admin dari \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Hapus Peran Admin",
+        "removeAdminWarning": "Pengguna ini akan kehilangan semua hak administratif.",
+        "role": "Peran",
+        "searchPlaceholder": "Cari berdasarkan nama, email, peran, atau organisasi...",
+        "showing": "Menampilkan {{count}} dari {{total}} pengguna",
+        "sort": {
+          "email-asc": "Email (A-Z)",
+          "email-desc": "Email (Z-A)",
+          "joined-asc": "Bergabung (Terlama)",
+          "joined-desc": "Bergabung (Terbaru)",
+          "label": "Urutkan berdasarkan",
+          "name-asc": "Nama (A-Z)",
+          "name-desc": "Nama (Z-A)",
+          "organization-asc": "Organisasi (A-Z)",
+          "organization-desc": "Organisasi (Z-A)",
+          "role-asc": "Peran (A-Z)",
+          "role-desc": "Peran (Z-A)"
+        },
+        "title": "Kelola Pengguna"
+      }
+    },
+    "allGames": {
+      "continue": "Lanjutkan",
+      "copyConfirm": {
+        "confirm": "Salin Game",
+        "message": "Ini akan membuat salinan \"{{name}}\" di permainan Anda.",
+        "title": "Salin Game"
+      },
+      "copyGame": "Salin Game",
+      "empty": {
+        "description": "Coba sesuaikan filter Anda atau cek kembali nanti untuk permainan baru.",
+        "title": "Tidak ada permainan ditemukan"
+      },
+      "favorite": "Tambahkan ke favorit",
+      "filters": {
+        "all": "Semua Game",
+        "favorites": "Favorit",
+        "own": "Game Saya",
+        "public": "Publik"
+      },
+      "play": "Mainkan",
+      "restart": "Mulai Ulang",
+      "restartConfirm": {
+        "confirm": "Mulai Ulang",
+        "message": "Apakah Anda yakin ingin memulai ulang \"{{game}}\"? Kemajuan Anda saat ini akan hilang.",
+        "title": "Mulai Ulang Game"
+      },
+      "title": "Semua Game",
+      "unfavorite": "Hapus dari favorit"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "Kunci API digunakan untuk terhubung ke platform AI untuk menghasilkan konten permainan.",
+        "title": "Tentang Kunci API"
+      },
+      "addKey": "Tambah Kunci",
+      "addedOn": "Ditambahkan",
+      "createModal": {
+        "keyDescription": "Kunci Anda akan dienkripsi dan disimpan dengan aman.",
+        "keyLabel": "Kunci API",
+        "keyPlaceholder": "Masukkan kunci API Anda",
+        "nameLabel": "Nama Kunci",
+        "namePlaceholder": "mis. Kunci OpenAI Saya",
+        "platformLabel": "Platform",
+        "platformPlaceholder": "Pilih platform",
+        "submit": "Tambah Kunci",
+        "title": "Tambahkan Kunci API Baru"
+      },
+      "deleteModal": {
+        "message": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
+        "title": "Hapus Kunci API",
+        "warning": "Tindakan ini tidak dapat dibatalkan. Kunci akan dihapus secara permanen."
+      },
+      "errors": {
+        "invalidPlatform": "Platform yang dipilih tidak valid. Silakan pilih platform AI yang valid.",
+        "keyRequired": "Kunci API wajib diisi",
+        "loadFailed": "Gagal memuat kunci API. Silakan coba lagi.",
+        "nameRequired": "Nama wajib diisi",
+        "platformRequired": "Platform wajib diisi"
+      },
+      "key": "kunci",
+      "keys": "kunci",
+      "subtitle": "Kelola kunci API Anda untuk platform AI.",
+      "title": "Manajemen Kunci API",
+      "unnamed": "Kunci Tanpa Nama",
+      "unsupportedPlatform": {
+        "badge": "tidak didukung",
+        "hint": "Platform ini saat ini tidak didukung. Anda hanya dapat menghapus kunci yang ada."
+      }
+    },
+    "back": "Kembali",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "copyGame": "Salin Game",
+    "create": "Buat",
+    "delete": "Hapus",
+    "deleteGame": "Hapus Game",
+    "edit": "Edit",
+    "editGame": "Edit Game",
+    "error": "Kesalahan",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institut untuk Riset dan Inovasi Pendidikan",
+      "programmedBy": "Diprogram oleh"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "ID Pesan",
+          "imagePrompt": "Prompt Gambar",
+          "isStreaming": "Streaming",
+          "seq": "Urutan",
+          "statusFields": "Bidang Status",
+          "timestamp": "Waktu",
+          "type": "Tipe"
+        },
+        "hints": {
+          "id": "Pengidentifikasi unik untuk pesan ini",
+          "imagePrompt": "Prompt yang dikirim ke AI pembuat gambar",
+          "isStreaming": "Apakah konten masih diterima",
+          "seq": "Urutan dalam percakapan",
+          "statusFields": "Variabel status permainan yang dilacak oleh AI",
+          "timestamp": "Waktu pesan ini dibuat",
+          "type": "player = masukan pemain, game = respons AI, system = konteks"
+        },
+        "title": "Informasi Debug"
+      },
+      "error": {
+        "backToGames": "Kembali ke Game",
+        "gameNotFound": "Game tidak ditemukan",
+        "missingFields": "Permainan kekurangan bidang yang dibutuhkan:",
+        "sessionFailed": "Gagal memulai sesi permainan"
+      },
+      "header": {
+        "back": "Kembali ke game",
+        "debug": "Debug",
+        "decreaseFont": "Perkecil ukuran font",
+        "disableAnimations": "Nonaktifkan animasi",
+        "increaseFont": "Perbesar ukuran font",
+        "settings": "Pengaturan",
+        "useNeutralTheme": "Gunakan tema netral"
+      },
+      "input": {
+        "placeholder": "Apa yang kamu lakukan?",
+        "send": "Kirim tindakan"
+      },
+      "loading": {
+        "game": "Memuat game...",
+        "starting": "Memulai sesi permainan...",
+        "startingHint": "AI sedang menyiapkan petualangan Anda"
+      },
+      "needsApiKey": {
+        "description": "Kunci API untuk sesi ini tidak lagi tersedia. Silakan pilih yang baru untuk melanjutkan permainan.",
+        "reason": "Kunci API Anda sebelumnya tidak lagi tersedia. Untuk melanjutkan permainan, pilih yang baru.",
+        "title": "Kunci API Diperlukan"
+      },
+      "selectApiKey": {
+        "keyDescription": "Pilih kunci API yang akan digunakan untuk sesi permainan ini",
+        "keyLabel": "Kunci API",
+        "keyPlaceholder": "Pilih kunci API",
+        "loadError": "Gagal memuat kunci API",
+        "mine": "Milik Saya",
+        "modelDescription": "Opsional: pilih model AI tertentu",
+        "modelLabel": "Model AI",
+        "modelPlaceholder": "Model default",
+        "noKeys": "Anda membutuhkan setidaknya satu kunci API untuk bermain. Tambahkan di Pengaturan → Kunci API.",
+        "playing": "Sedang bermain",
+        "startGame": "Mulai Game",
+        "title": "Pilih Kunci API"
+      },
+      "statusChange": {
+        "effect": "Efek:"
+      },
+      "unnamed": "Tanpa Nama"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Game Saya",
+        "public": "Publik",
+        "workshop": "Workshop"
+      },
+      "createButton": "Buat Game",
+      "createModal": {
+        "descriptionPlaceholder": "Tentang apa game Anda?",
+        "namePlaceholder": "mis. Petualangan Antariksa",
+        "publicDescription": "Game publik dapat ditemukan oleh semua orang.",
+        "publicLabel": "Jadikan game ini publik",
+        "submit": "Buat Game",
+        "title": "Buat Game Baru"
+      },
+      "deleteModal": {
+        "message": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
+        "title": "Hapus Game",
+        "warning": "Tindakan ini tidak dapat dibatalkan. Semua data game akan dihapus secara permanen."
+      },
+      "editFields": {
+        "description": "Beri game deskripsi singkat. Ini hanya untuk Anda dan tidak memengaruhi permainan.",
+        "gameStart": "Bagaimana permainan dimulai?",
+        "gameStartHint": "Apa yang terjadi di awal? Gambarkan adegan pertama yang dilihat pemain. Bagaimana pemain disambut?",
+        "gameStartPlaceholder": "Karakter terbangun di tepi hutan gelap. Sebuah jalur sempit mengarah lebih dalam ke pepohonan...",
+        "imageStyle": "Gaya apa yang harus dimiliki gambar game?",
+        "imageStyleHint": "Misalnya: kartun, realistis, pixel art, cat air...",
+        "name": "Nama Game",
+        "scenario": "Tentang apa game ini?",
+        "scenarioHint": "Jelaskan singkat: Bagaimana permainan bekerja? Seperti apa dunia permainan? Bahasa \u0006 Nada (mis. Bahasa Spanyol untuk siswa kelas enam)?\nPeran apa yang dimiliki pemain? Tulis \"Pemain ...\".\nJika Anda ingin AI berperan sebagai orang tertentu tulis \"Anda adalah ...\".",
+        "scenarioPlaceholder": "Anda adalah seorang penjelajah di hutan misterius. Tujuan Anda adalah menemukan harta karun yang tersembunyi...",
+        "statusFields": "Nilai permainan",
+        "statusFieldsHint": "Apa yang harus dilacak permainan? Misalnya kesehatan, poin, atau amunisi. Game akan mengingat nilai-nilai ini dan memperbaruinya selama bermain."
+      },
+      "editModal": {
+        "title": "Edit Game",
+        "unsavedChanges": {
+          "discard": "Buang Perubahan",
+          "keepEditing": "Lanjutkan Mengedit",
+          "message": "Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin membuangnya?",
+          "title": "Perubahan Belum Disimpan"
+        }
+      },
+      "empty": {
+        "description": "Buat game pertama Anda untuk memulai petualangan interaktif bertenaga AI.",
+        "title": "Belum ada game"
+      },
+      "errors": {
+        "loadFailed": "Gagal memuat game. Silakan coba lagi.",
+        "nameRequired": "Nama game wajib diisi"
+      },
+      "fields": {
+        "created": "Dibuat",
+        "creator": "Pencipta",
+        "me": "Saya",
+        "modified": "Diubah",
+        "name": "Nama",
+        "playCount": "Jumlah Main",
+        "visibility": "Visibilitas"
+      },
+      "importExport": {
+        "exportButton": "Ekspor Game",
+        "importButton": "Impor Game"
+      },
+      "playNow": "Main Sekarang",
+      "sort": {
+        "createdAt-asc": "Dibuat (Terlama)",
+        "createdAt-desc": "Dibuat (Terbaru)",
+        "creator-asc": "Pencipta (A-Z)",
+        "creator-desc": "Pencipta (Z-A)",
+        "label": "Urutkan berdasarkan",
+        "modifiedAt-asc": "Diubah (Terlama)",
+        "modifiedAt-desc": "Diubah (Terbaru)",
+        "name-asc": "Nama (A-Z)",
+        "name-desc": "Nama (Z-A)",
+        "playCount-asc": "Paling Sedikit Dimainkan",
+        "playCount-desc": "Paling Banyak Dimainkan",
+        "visibility-asc": "Game Pribadi Terlebih Dahulu",
+        "visibility-desc": "Game Publik Terlebih Dahulu"
+      },
+      "statusFieldsEditor": {
+        "addField": "Tambah nilai baru",
+        "namePlaceholder": "Nama (mis. Kesehatan)",
+        "noFields": "Belum ada nilai. Klik + untuk menambah nilai baru.",
+        "valuePlaceholder": "Nilai awal (mis. 100)"
+      },
+      "tabs": {
+        "basic": "Dasar",
+        "basicInfo": "Informasi umum tentang game. Ini hanya untuk Anda dan tidak memengaruhi permainan.",
+        "importExport": "Impor/Ekspor",
+        "quickStart": "Mulai Cepat",
+        "story": "Cerita \u0006 AI",
+        "storyInfo": "Semua di sini dikirim ke AI untuk membentuk dunia dan cerita game Anda.",
+        "style": "Desain",
+        "styleInfo": "Pengaturan opsional untuk tampilan game saat bermain."
+      },
+      "title": "Game Buatan Saya",
+      "viewModal": {
+        "readOnlyNotice": "Game ini dibuat oleh pengguna lain. Anda dapat melihat detailnya tetapi tidak dapat mengedit. Gunakan \"Salin\" untuk membuat versi yang dapat Anda edit.",
+        "title": "Detail Game"
+      },
+      "visibility": {
+        "private": "Pribadi",
+        "public": "Publik"
+      }
+    },
+    "header": {
+      "apiKeys": "Kunci API",
+      "closeNavigation": "Tutup menu navigasi",
+      "contact": "Kontak",
+      "goToDashboard": "Ke Dashboard",
+      "leaveWorkshopMode": "Keluar dari Mode Workshop",
+      "leaveWorkshopModeTooltip": "Keluar dari mode workshop dan kembali ke tampilan normal",
+      "logout": "Keluar",
+      "openNavigation": "Buka menu navigasi",
+      "openUserMenu": "Buka menu pengguna",
+      "organization": "Organisasi",
+      "profile": "Profil",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Rancang petualangan teks interaktif yang didukung oleh AI",
+          "title": "Buat Petualangan"
+        },
+        "learn": {
+          "description": "Cocok untuk workshop edukasi dan kegiatan kelas",
+          "title": "Belajar \u0006 Mengajar"
+        },
+        "play": {
+          "description": "Bergabung dengan teman dalam sesi bercerita kolaboratif",
+          "title": "Bermain Bersama"
+        },
+        "title": "Mengapa Memilih ChatGameLab?",
+        "understand": {
+          "description": "Jelajahi bagaimana model AI membuat cerita dan pelajari cara kerjanya",
+          "title": "Pahami AI"
+        }
+      },
+      "loginCta": "Masuk dan Jelajahi",
+      "splashDescription": "Platform edukasi untuk membuat dan memainkan game petualangan teks bertenaga AI. Cocok untuk guru, siswa, dan perancang cerita kreatif."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Anda diundang untuk bergabung dengan workshop organisasi \"{{organization}}\".",
+        "inviteMessageSimple": "Anda diundang untuk bergabung dengan workshop ini.",
+        "joinButton": "Bergabung dengan Workshop",
+        "title": "Bergabung dengan Workshop",
+        "titleWithWorkshop": "Bergabung dengan Workshop \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Gagal menerima undangan. Silakan coba lagi.",
+        "expired": "Tautan undangan ini telah kedaluwarsa.",
+        "loadFailed": "Gagal memuat detail undangan. Silakan coba lagi.",
+        "notFound": "Tautan undangan ini tidak valid atau telah dicabut."
+      },
+      "goHome": "Kembali ke Beranda",
+      "participant": {
+        "loggingIn": "Sedang masuk..."
+      },
+      "success": {
+        "message": "Anda berhasil bergabung dengan workshop. Mengalihkan...",
+        "title": "Selamat Datang!"
+      },
+      "switchWorkshop": {
+        "message": "Game dan kemajuan Anda di workshop saat ini akan tetap ada, tetapi Anda tidak dapat mengaksesnya sampai Anda bergabung kembali.",
+        "stayButton": "Tetap di Workshop Saat Ini",
+        "switchButton": "Ganti Workshop",
+        "title": "Ganti Workshop?",
+        "warning": "Anda saat ini berada di workshop \"{{currentWorkshop}}\". Bergabung dengan \"{{newWorkshop}}\" akan mengeluarkan Anda dari workshop saat ini."
+      }
+    },
+    "labels": {
+      "no": "Tidak",
+      "yes": "Ya"
+    },
+    "languageSwitcher": {
+      "wipHint": "Lebih banyak bahasa sedang dalam pengerjaan. Saat ini hanya Bahasa Inggris dan Jerman yang tersedia.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Memuat...",
+    "logout": "Keluar",
+    "myGames": {
+      "continue": "Lanjutkan",
+      "copyConfirm": {
+        "confirm": "Salin Game",
+        "message": "Ini akan membuat salinan \"{{name}}\" di permainan Anda.",
+        "title": "Salin Game"
+      },
+      "copyGame": "Salin Game",
+      "empty": {
+        "description": "Buat game pertama Anda untuk memulai petualangan interaktif bertenaga AI.",
+        "title": "Belum ada game"
+      },
+      "favorite": "Tambahkan ke favorit",
+      "filters": {
+        "all": "Semua",
+        "favorites": "Favorit"
+      },
+      "play": "Mainkan",
+      "restart": "Mulai Ulang",
+      "restartConfirm": {
+        "confirm": "Mulai Ulang",
+        "message": "Apakah Anda yakin ingin memulai ulang \"{{game}}\"? Kemajuan Anda saat ini akan hilang.",
+        "title": "Mulai Ulang Game"
+      },
+      "title": "Game Saya",
+      "unfavorite": "Hapus dari favorit"
+    },
+    "myOrganization": {
+      "actions": "Tindakan",
+      "apiKeys": {
+        "aboutDescription": "Kunci API yang dibagikan di sini tersedia untuk semua anggota organisasi Anda untuk bermain game. Hanya kepala dan guru yang dapat mengelola kunci ini.",
+        "aboutTitle": "Kunci API Organisasi",
+        "allowPublicSponsoring": "Izinkan sponsor publik",
+        "allowPublicSponsoringDesc": "Kunci ini dapat digunakan untuk mensponsori game untuk semua pengguna.",
+        "filterByPlatform": "Filter berdasarkan platform",
+        "keyName": "Nama Kunci",
+        "loadError": "Gagal memuat kunci API organisasi.",
+        "noKeys": "Belum ada kunci API yang dibagikan ke organisasi ini.",
+        "noResults": "Tidak ada kunci API yang cocok dengan pencarian Anda.",
+        "notAuthorized": "Anda tidak memiliki izin untuk mengelola kunci API organisasi. Hanya kepala dan guru yang dapat mengakses halaman ini.",
+        "owner": "Pemilik",
+        "platform": "Platform",
+        "publicSponsoring": "Sponsor Publik",
+        "searchPlaceholder": "Cari berdasarkan nama atau pemilik...",
+        "selectKey": "Pilih Kunci API",
+        "selectKeyPlaceholder": "Pilih kunci untuk dibagikan...",
+        "share": "Bagikan",
+        "shareKey": "Bagikan Kunci",
+        "shareKeyTitle": "Bagikan Kunci API dengan Organisasi",
+        "title": "Kunci API Organisasi"
+      },
+      "demoteConfirm": "Apakah Anda yakin ingin menurunkan jabatan \"{{name}}\" ({{email}}) menjadi Guru?",
+      "demoteTitle": "Turunkan menjadi Guru",
+      "demoteToStaff": "Turunkan menjadi Guru",
+      "email": "Email",
+      "emailPlaceholder": "Masukkan alamat email",
+      "empty": "Tidak ada anggota di organisasi ini.",
+      "inviteAlreadyExists": "Undangan tertunda sudah ada untuk alamat email ini.",
+      "inviteError": "Gagal mengirim undangan. Silakan coba lagi.",
+      "inviteTeacher": "Undang Guru",
+      "inviteTeacherDescription": "Kirim undangan kepada guru agar bergabung dengan organisasi Anda.",
+      "inviteTeacherTitle": "Undang Guru",
+      "inviteUser": "Undang Pengguna",
+      "inviteUserDescription": "Kirim undangan kepada pengguna untuk bergabung ke organisasi Anda tanpa peran tertentu.",
+      "inviteUserTitle": "Undang Pengguna",
+      "leaveConfirm": "Apakah Anda yakin ingin meninggalkan \"{{name}}\"?",
+      "leaveOrganization": "Keluar dari Organisasi",
+      "leaveTitle": "Keluar dari Organisasi",
+      "leaveWarning": "Anda akan kehilangan akses ke semua sumber daya dan anggota organisasi.",
+      "me": "Saya",
+      "name": "Nama",
+      "noEmail": "Tidak ada email",
+      "noOrganization": "Tidak ada organisasi",
+      "noOrganizationDescription": "Anda bukan anggota organisasi manapun.",
+      "noResults": "Tidak ada anggota yang cocok dengan pencarian Anda.",
+      "noRole": "Tidak ada peran",
+      "promoteConfirm": "Apakah Anda yakin ingin mempromosikan \"{{name}}\" ({{email}}) menjadi Kepala?",
+      "promoteTitle": "Promosikan menjadi Kepala",
+      "promoteToHead": "Promosikan menjadi Kepala",
+      "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
+      "removeConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari organisasi?",
+      "removeMember": "Hapus anggota",
+      "removeTitle": "Hapus Anggota",
+      "removeWarning": "Pengguna ini akan kehilangan akses ke organisasi.",
+      "role": "Peran",
+      "searchPlaceholder": "Cari anggota...",
+      "showing": "{{count}} anggota",
+      "sort": {
+        "label": "Urutkan berdasarkan",
+        "name-asc": "Nama (A-Z)",
+        "name-desc": "Nama (Z-A)",
+        "role-asc": "Peran (A-Z)",
+        "role-desc": "Peran (Z-A)"
+      },
+      "title": "Organisasi Saya",
+      "workshops": {
+        "activate": "Aktifkan",
+        "active": "Aktif",
+        "activeDescription": "Workshop aktif memungkinkan peserta untuk bergabung dan membuat game.",
+        "activeLabel": "Aktif",
+        "anonymousParticipant": "Peserta anonim",
+        "create": "Buat Workshop",
+        "createFirst": "Buat Workshop Pertama Anda",
+        "createInviteLink": "Buat Tautan Undangan",
+        "createTitle": "Buat Workshop",
+        "deactivate": "Nonaktifkan",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "Kunci API Default",
+        "defaultApiKeyHint": "Peserta akan menggunakan kunci API ini saat bermain.",
+        "deleteConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
+        "deleteTitle": "Hapus Workshop",
+        "deleteWarning": "Semua game dan sesi dalam workshop ini akan dihapus. Ini tidak dapat dibatalkan.",
+        "editParticipant": "Edit nama",
+        "empty": "Belum ada workshop.",
+        "enterWorkshop": "Masuk Mode Workshop",
+        "games": "Game",
+        "hideInactive": "Sembunyikan yang tidak aktif",
+        "inactive": "Tidak Aktif",
+        "inviteCreatedAt": "Dibuat",
+        "inviteDescription": "Buat tautan undangan yang dapat digunakan peserta untuk bergabung ke workshop ini.",
+        "inviteExpiresAt": "Kedaluwarsa",
+        "inviteLink": "Tautan Undangan",
+        "inviteLinkDescription": "Bagikan tautan ini dengan peserta agar mereka dapat bergabung.",
+        "inviteLinkTitle": "Tautan Undangan untuk {{name}}",
+        "inviteUsage": "Penggunaan",
+        "joined": "Bergabung",
+        "linkCopied": "Tautan Disalin",
+        "linkCopiedMessage": "Tautan undangan telah disalin ke clipboard Anda.",
+        "loadError": "Gagal memuat workshop.",
+        "nameLabel": "Nama Workshop",
+        "namePlaceholder": "mis. Kamp Musim Panas 2024",
+        "noActiveInvite": "Tidak ada tautan undangan aktif.",
+        "noDefaultApiKey": "Tidak ada kunci API default",
+        "noDefaultModel": "Gunakan default platform",
+        "noParticipantToken": "Peserta ini tidak memiliki tautan undangan. Hanya peserta anonim (tamu) yang memiliki tautan undangan yang dapat digunakan ulang.",
+        "noParticipants": "Belum ada peserta",
+        "notAuthorized": "Anda tidak memiliki izin untuk mengelola workshop. Hanya kepala dan guru yang dapat mengakses halaman ini.",
+        "participantGames": "{{count}} game",
+        "participantJoined": "Bergabung {{date}}",
+        "participantName": "Nama peserta",
+        "participants": "Peserta",
+        "removeParticipant": "Hapus peserta",
+        "removeParticipantConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari workshop ini?",
+        "removeParticipantMessage": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari workshop ini? Tindakan ini tidak dapat dibatalkan.",
+        "removeParticipantTitle": "Hapus Peserta",
+        "revokeInvite": "Batalkan Tautan Undangan",
+        "selectApiKey": "Pilih kunci API",
+        "settings": "Pengaturan",
+        "shareParticipantLink": "Salin tautan undangan individu untuk peserta ini",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "Tampilkan game peserta lain",
+        "showPublicGames": "Tampilkan game publik kepada peserta",
+        "sort": {
+          "createdAtAsc": "Terlama terlebih dahulu",
+          "createdAtDesc": "Terbaru terlebih dahulu",
+          "label": "Urutkan berdasarkan",
+          "nameAsc": "Nama (A-Z)",
+          "nameDesc": "Nama (Z-A)",
+          "participantsAsc": "Paling sedikit peserta",
+          "participantsDesc": "Paling banyak peserta"
+        },
+        "subtitle": "Kelola workshop dan undang peserta untuk berkolaborasi membuat game.",
+        "title": "Workshop",
+        "usedCount": "{{count}} penggunaan",
+        "viewInviteLink": "Lihat Tautan Undangan"
+      }
+    },
+    "notifications": {
+      "accept": "Terima",
+      "decline": "Tolak",
+      "declineConfirm": "Apakah Anda yakin ingin menolak undangan ini?",
+      "declineTitle": "Tolak Undangan",
+      "empty": "Tidak ada notifikasi baru.",
+      "inviteDescription": "Anda diundang untuk bergabung sebagai {{role}}.",
+      "inviteToJoin": "Undangan Organisasi",
+      "title": "Notifikasi"
+    },
+    "play": {
+      "cloneGame": "Salin ke game saya",
+      "empty": {
+        "description": "Coba sesuaikan filter Anda atau cek kembali nanti untuk permainan baru.",
+        "title": "Tidak ada permainan ditemukan"
+      },
+      "favorite": "Tambahkan ke favorit",
+      "filters": {
+        "all": "Semua Game",
+        "favorites": "Favorit",
+        "organization": "Organisasi",
+        "own": "Game Saya",
+        "public": "Publik"
+      },
+      "owner": "Milik Saya",
+      "playGame": "Mainkan game ini",
+      "playNow": "Main sekarang",
+      "selectGameTitle": "Pilih Game",
+      "title": "Pilih Game",
+      "unfavorite": "Hapus dari favorit"
+    },
+    "profile": "Profil",
+    "save": "Simpan",
+    "search": "Cari",
+    "sessions": {
+      "continueGame": "Lanjutkan Game",
+      "deleteConfirm": {
+        "message": "Apakah Anda yakin ingin menghapus sesi untuk \"{{game}}\"? Tindakan ini tidak dapat dibatalkan.",
+        "title": "Hapus Sesi"
+      },
+      "empty": {
+        "description": "Mulai game baru untuk memulai petualangan Anda!",
+        "noResults": "Tidak ada game yang cocok ditemukan",
+        "title": "Belum ada game yang dimainkan"
+      },
+      "errors": {
+        "loadFailed": "Gagal memuat game Anda. Silakan coba lagi."
+      },
+      "fields": {
+        "game": "Game",
+        "lastPlayed": "Terakhir Dimainkan",
+        "model": "Model"
+      },
+      "noDescription": "Tidak ada deskripsi",
+      "sort": {
+        "game": "Game",
+        "label": "Urutkan berdasarkan",
+        "lastPlayed": "Terakhir Dimainkan",
+        "model": "Model"
+      },
+      "startNewGame": "Mulai Game Baru",
+      "title": "Lanjutkan Bermain",
+      "untitledGame": "Game Tanpa Judul"
+    },
+    "settings": "Pengaturan",
+    "unnamed": "Tanpa Nama",
+    "viewGame": "Lihat Game"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Koordinator proyek dan organisasi utama.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Pelajari lebih lanjut tentang proyek pendidikan di balik platform ini.",
+          "title": "Proyek ChatGameLab"
+        },
+        "title": "Tentang ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Belum ada riwayat permainan. Mulai mainkan sebuah game!",
+        "title": "Terakhir Dimainkan",
+        "viewAll": "Semua Game"
+      },
+      "myGames": {
+        "empty": "Belum ada game. Buat game pertama Anda!",
+        "title": "Game Saya",
+        "viewAll": "Semua Karya"
+      },
+      "myWorkshops": {
+        "empty": "Tidak ada workshop aktif. Buat workshop di organisasi Anda!",
+        "title": "Workshop Saya",
+        "viewAll": "Semua Workshop"
+      },
+      "newGames": {
+        "empty": "Belum ada game tersedia.",
+        "title": "Game Baru",
+        "viewAll": "Semua Game"
+      },
+      "popularGames": {
+        "empty": "Belum ada game tersedia.",
+        "plays": "{{count}} kali dimainkan",
+        "title": "Game Populer",
+        "viewAll": "Semua Game"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Buat Game Baru",
+      "createRoom": "Buat Ruang",
+      "inviteMembers": "Undang Anggota",
+      "startNewGame": "Mulai Game Baru",
+      "title": "Aksi Cepat"
+    },
+    "untitled": "Tanpa Judul",
+    "untitledGame": "Game Tanpa Judul",
+    "version": {
+      "mismatch": {
+        "message": "Versi frontend \u0006frontendVersion\u0006{{frontendVersion}}\u0006/frontendVersion\u0006 tidak cocok dengan versi backend \u0006backendVersion\u0006{{backendVersion}}\u0006/backendVersion\u0006. Ini dapat menyebabkan perilaku yang tidak terduga. Hubungi dukungan jika masalah berlanjut.",
+        "title": "Terjadi Ketidakcocokan Versi"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "Layanan AI mengalami kesalahan. Silakan coba lagi.",
+    "backendUserFetch": "Gagal memuat data pengguna dari server. Silakan coba lagi.",
+    "billingNotActive": "Akun OpenAI Anda tidak aktif. Periksa detail penagihan Anda di https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Tindakan ini bertentangan dengan data yang ada. Silakan coba lagi.",
+    "contentFiltered": "Permintaan Anda disaring oleh kebijakan konten AI. Silakan coba ubah penulisan.",
+    "forbidden": "Anda tidak memiliki izin untuk melakukan tindakan ini.",
+    "generic": "Terjadi kesalahan. Silakan coba lagi.",
+    "insufficientQuota": "Kunci API Anda kehabisan kuota. Tambah kuota atau gunakan kunci API lain.",
+    "invalidApiKey": "Kunci API Anda tidak valid atau telah kedaluwarsa. Periksa kunci API di Pengaturan.",
+    "invalidPlatform": "Platform yang dipilih tidak valid. Silakan pilih opsi yang valid.",
+    "invalidToken": "Sesi Anda telah kedaluwarsa atau tidak valid. Silakan gunakan tautan undangan lagi.",
+    "network": "Kesalahan jaringan. Periksa koneksi Anda.",
+    "notFound": "Sumber yang diminta tidak ditemukan.",
+    "orgVerificationRequired": "Organisasi OpenAI Anda perlu diverifikasi untuk menggunakan fitur pembuatan gambar. Silakan verifikasi di https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "Terlalu banyak permintaan. Tunggu sebentar dan coba lagi.",
+    "server": "Kesalahan server. Silakan coba lagi nanti.",
+    "titles": {
+      "aiError": "Kesalahan AI",
+      "authentication": "Kesalahan Otentikasi",
+      "billing": "Kesalahan Penagihan",
+      "error": "Kesalahan",
+      "network": "Kesalahan Jaringan",
+      "notFound": "Tidak Ditemukan",
+      "permission": "Akses Ditolak",
+      "server": "Kesalahan Server",
+      "validation": "Kesalahan Validasi",
+      "workshopInactive": "Workshop Tidak Aktif"
+    },
+    "unauthorized": "Silakan masuk untuk melanjutkan.",
+    "unexpected": "Terjadi kesalahan tak terduga.",
+    "userNotRegistered": "Anda perlu menyelesaikan pendaftaran sebelum melanjutkan.",
+    "validation": "Periksa masukan Anda dan coba lagi.",
+    "workshopInactive": "Workshop ini telah dinonaktifkan. Silakan hubungi guru atau penyelenggara workshop Anda."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Mulai memainkan game untuk melihatnya di sini, atau buat sendiri!",
+      "title": "Belum ada game"
+    },
+    "filters": {
+      "all": "Semua Game",
+      "mine": "Game Saya",
+      "public": "Game Publik",
+      "workshop": "Game Workshop"
+    },
+    "gameType": "Game",
+    "organizator": "Penyelenggara: {{name}}",
+    "settings": {
+      "currentWorkshop": "Workshop Saat Ini",
+      "notInWorkshopMode": "Anda tidak berada dalam mode workshop. Silakan masuk ke workshop terlebih dahulu.",
+      "title": "Pengaturan Workshop"
+    },
+    "title": "Workshop Saya",
+    "you": "Anda"
+  },
+  "navigation": {
+    "allGames": "Semua Game",
+    "create": "Buat Game Anda Sendiri",
+    "dashboard": "Dashboard",
+    "games": "Game",
+    "groups": "Grup",
+    "manageOrganizations": "Kelola Organisasi",
+    "manageUsers": "Kelola Pengguna",
+    "myGames": "Game Saya",
+    "myOrganization": "Organisasi Saya",
+    "myWorkshop": "Workshop Saya",
+    "orgApiKeys": "Kunci API",
+    "orgMembers": "Anggota",
+    "orgWorkshops": "Workshop",
+    "play": "Mainkan Game",
+    "rooms": "Ruang",
+    "workshopSettings": "Pengaturan Workshop"
+  }
+}

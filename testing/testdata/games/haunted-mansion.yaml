@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000008
+name: Haunted Mansion
+description: "Survive a night in the infamous Blackwood Manor"
+system_message_scenario: "Blackwood Manor has been abandoned for 50 years. Local legends say the family was cursed. You've been dared to spend the night inside."
+system_message_game_start: "Thunder crashes as you push open the creaking front door. Dust swirls in the beam of your flashlight. Behind you, the door slams shut."
+image_style: "gothic horror, candlelit shadows, Victorian architecture, ghostly apparitions"
+css: ""
+status_fields: '[{"name":"Sanity","value":"100"},{"name":"Courage","value":"75"}]'

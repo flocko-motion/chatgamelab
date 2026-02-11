@@ -1,0 +1,50 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  margin-top: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: var(--mantine-radius-sm);
+  font-size: var(--mantine-font-size-sm);
+}
+
+.label {
+  color: var(--mantine-color-gray-6);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: var(--mantine-font-size-xs);
+  letter-spacing: 0.5px;
+}
+
+.change {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--mantine-radius-sm);
+  font-weight: 600;
+}
+
+.positive {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--mantine-color-green-7);
+}
+
+.negative {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--mantine-color-red-7);
+}
+
+.emoji {
+  font-size: var(--mantine-font-size-sm);
+}
+
+.delta {
+  font-weight: 700;
+}
+
+.name {
+  font-weight: 500;
+  opacity: 0.9;
+}

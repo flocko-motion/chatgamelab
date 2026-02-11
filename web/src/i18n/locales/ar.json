@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "تسجيل الدخول عبر Auth0",
+      "devMode": "وضع التطوير",
+      "devModeAlert": {
+        "message": "هذه صفحة تسجيل الدخول للتطوير. في بيئة الإنتاج، سيتم إعادة توجيهك مباشرة إلى Auth0.",
+        "title": "وضع التطوير"
+      },
+      "devModeDescription": "تسجيل دخول سريع للتطوير والاختبار",
+      "redirecting": {
+        "message": "يرجى الانتظار بينما نعيد توجيهك إلى صفحة تسجيل الدخول.",
+        "title": "إعادة التوجيه إلى Auth0..."
+      },
+      "role": {
+        "admin": "تسجيل الدخول كمسؤول",
+        "guest": "تسجيل الدخول كزائر",
+        "student": "تسجيل الدخول كطالب",
+        "teacher": "تسجيل الدخول كمدرس"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "مغادرة الورشة",
+        "message": "هل أنت متأكد أنك تريد مغادرة هذه الورشة؟ ستحتاج إلى رابط دعوة جديد للانضمام مرة أخرى.",
+        "title": "مغادرة الورشة؟"
+      },
+      "leaveWorkshop": "مغادرة الورشة",
+      "organization": "المنظمة",
+      "role": "مشارك في الورشة",
+      "workshop": "ورشة العمل"
+    },
+    "profile": {
+      "gamesCreated": "الألعاب التي أنشأتها",
+      "gamesPlayed": "الألعاب التي لعبتها",
+      "memberSince": "مسجل منذ",
+      "messagesSent": "الرسائل المرسلة",
+      "noOrganization": "لا توجد منظمة",
+      "noRole": "لم يتم تعيين دور",
+      "organization": "المنظمة",
+      "organizationSection": "المنظمة \\u0026 الدور",
+      "role": "الدور",
+      "roles": {
+        "admin": "المسؤول",
+        "head": "الرئيس",
+        "participant": "ضيف",
+        "staff": "عضو الفريق"
+      },
+      "statisticsSection": "الإحصائيات",
+      "title": "الملف الشخصي",
+      "totalPlaysOnGames": "إجمالي مرات اللعب لألعابي"
+    },
+    "register": {
+      "cancelButton": "إلغاء",
+      "emailDescription": "سنستخدم هذا للإشعارات المهمة.",
+      "emailLabel": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "errors": {
+        "emailInvalid": "يرجى إدخال عنوان بريد إلكتروني صالح",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "nameRequired": "الاسم مطلوب",
+        "nameTaken": "هذا الاسم محجوز",
+        "nameTooLong": "يجب ألا يزيد الاسم عن 24 حرفًا",
+        "registrationFailed": "فشل التسجيل. الرجاء المحاولة مرة أخرى."
+      },
+      "nameDescription": "هكذا سيراك المستخدمون الآخرون. الحد الأقصى 24 حرفًا.",
+      "nameLabel": "اسم العرض",
+      "namePlaceholder": "أدخل اسم العرض",
+      "submitButton": "إنشاء حساب",
+      "submitting": "جارٍ إنشاء الحساب...",
+      "subtitle": "بعض التفاصيل فقط لبدء الاستخدام",
+      "title": "أكمل ملفك الشخصي"
+    },
+    "settings": {
+      "accountSection": "الحساب",
+      "emailChangeNote": "لتغيير عنوان بريدك الإلكتروني، يرجى الاتصال بمسؤول الموقع.",
+      "errors": {
+        "nameRequired": "الاسم مطلوب",
+        "nameTaken": "هذا الاسم محجوز",
+        "nameTooLong": "يجب ألا يزيد الاسم عن 24 حرفًا",
+        "saveFailed": "فشل حفظ التغييرات. الرجاء المحاولة مرة أخرى."
+      },
+      "nameDescription": "هكذا سيراك المستخدمون الآخرون. الحد الأقصى 24 حرفًا.",
+      "nameLabel": "اسم العرض",
+      "namePlaceholder": "أدخل اسم العرض",
+      "saveButton": "حفظ التغييرات",
+      "saved": "تم حفظ التغييرات بنجاح",
+      "saving": "جارٍ الحفظ...",
+      "subtitle": "إدارة إعدادات حسابك",
+      "title": "الإعدادات"
+    }
+  },
+  "common": {
+    "actions": "إجراءات",
+    "admin": {
+      "invites": {
+        "actions": "إجراءات",
+        "empty": "لا توجد دعوات معلقة.",
+        "invitedEmail": "البريد الإلكتروني المدعو",
+        "modifiedAt": "آخر تعديل",
+        "noResults": "لا توجد دعوات تطابق بحثك.",
+        "organization": "المنظمة",
+        "revokeConfirm": {
+          "confirm": "حذف",
+          "message": "هل أنت متأكد أنك تريد حذف هذه الدعوة؟ لا يمكن التراجع عن هذا الإجراء.",
+          "title": "حذف الدعوة"
+        },
+        "role": "الدور",
+        "searchPlaceholder": "ابحث حسب البريد الإلكتروني أو الدور أو الحالة أو المنظمة...",
+        "sort": {
+          "label": "الفرز حسب",
+          "modifiedAt-asc": "تم التعديل (الأقدم)",
+          "modifiedAt-desc": "تم التعديل (الأحدث)",
+          "organization-asc": "المنظمة (أ-ي)",
+          "organization-desc": "المنظمة (ي-أ)",
+          "role-asc": "الدور (أ-ي)",
+          "role-desc": "الدور (ي-أ)",
+          "status-asc": "الحالة (أ-ي)",
+          "status-desc": "الحالة (ي-أ)"
+        },
+        "status": "الحالة",
+        "statuses": {
+          "accepted": "مقبولة",
+          "declined": "مرفوضة",
+          "expired": "منتهية الصلاحية",
+          "pending": "قيد الانتظار",
+          "revoked": "ملغاة"
+        },
+        "title": "الدعوات المعلقة"
+      },
+      "organizations": {
+        "actions": "إجراءات",
+        "create": "إنشاء منظمة",
+        "createTitle": "إنشاء منظمة جديدة",
+        "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+        "deleteTitle": "حذف المنظمة",
+        "editTitle": "تعديل المنظمة",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "أدخل عنوان البريد الإلكتروني",
+        "empty": "لا توجد منظمات بعد. أنشئ واحدة للبدء.",
+        "inviteDescription": "أرسل دعوة للانضمام إلى {{name}} كرئيس للمنظمة.",
+        "inviteTitle": "دعوة للانضمام إلى المنظمة",
+        "memberEmail": "البريد الإلكتروني",
+        "memberName": "الاسم",
+        "memberRole": "الدور",
+        "members": "الأعضاء",
+        "membersCount": "أعضاء",
+        "membersList": "قائمة الأعضاء",
+        "name": "الاسم",
+        "namePlaceholder": "أدخل اسم المنظمة",
+        "noMembers": "لا يوجد أعضاء في هذه المنظمة.",
+        "removeMember": "إزالة عضو",
+        "removeMemberConfirm": "هل أنت متأكد أنك تريد إزالة {{name}} من هذه المنظمة؟",
+        "searchPlaceholder": "ابحث في المنظمات...",
+        "sendInvite": "إرسال دعوة",
+        "title": "إدارة المنظمات"
+      },
+      "users": {
+        "actions": "إجراءات",
+        "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+        "deleteTitle": "حذف المستخدم",
+        "editEmail": "تعديل البريد الإلكتروني",
+        "editTitle": "تعديل المستخدم",
+        "editingUser": "تعديل المستخدم: {{name}}",
+        "email": "البريد الإلكتروني",
+        "emailPlaceholder": "أدخل عنوان البريد الإلكتروني",
+        "empty": "لا يوجد مستخدمون.",
+        "hideGuests": "إخفاء الضيوف ({{count}})",
+        "joined": "انضم",
+        "loadError": "فشل تحميل المستخدمين",
+        "makeAdmin": "تعيين كمسؤول",
+        "me": "أنا",
+        "name": "الاسم",
+        "noEmail": "لا يوجد بريد إلكتروني",
+        "noResults": "لا توجد نتائج تطابق بحثك.",
+        "noRole": "لا دور",
+        "organization": "المنظمة",
+        "promoteConfirm": "هل أنت متأكد أنك تريد ترقية \"{{name}}\" ({{email}}) إلى مسؤول؟",
+        "promoteTitle": "الترقية إلى مسؤول",
+        "promoteWarning": "سيحصل هذا المستخدم على حق الوصول الإداري الكامل للنظام.",
+        "removeAdmin": "إزالة المسؤول",
+        "removeAdminConfirm": "هل أنت متأكد أنك تريد إزالة دور المسؤول من \"{{name}}\" ({{email}})؟",
+        "removeAdminTitle": "إزالة دور المسؤول",
+        "removeAdminWarning": "سيفقد هذا المستخدم جميع صلاحيات المسؤول.",
+        "role": "الدور",
+        "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني أو الدور أو المنظمة...",
+        "showing": "عرض {{count}} من أصل {{total}} مستخدم",
+        "sort": {
+          "email-asc": "البريد الإلكتروني (أ-ي)",
+          "email-desc": "البريد الإلكتروني (ي-أ)",
+          "joined-asc": "انضم (الأقدم)",
+          "joined-desc": "انضم (الأحدث)",
+          "label": "الفرز حسب",
+          "name-asc": "الاسم (أ-ي)",
+          "name-desc": "الاسم (ي-أ)",
+          "organization-asc": "المنظمة (أ-ي)",
+          "organization-desc": "المنظمة (ي-أ)",
+          "role-asc": "الدور (أ-ي)",
+          "role-desc": "الدور (ي-أ)"
+        },
+        "title": "إدارة المستخدمين"
+      }
+    },
+    "allGames": {
+      "continue": "متابعة",
+      "copyConfirm": {
+        "confirm": "نسخ اللعبة",
+        "message": "سيتم إنشاء نسخة من \"{{name}}\" في ألعابك.",
+        "title": "نسخ اللعبة"
+      },
+      "copyGame": "نسخ اللعبة",
+      "empty": {
+        "description": "حاول تعديل عوامل التصفية أو عُد لاحقًا للاطلاع على ألعاب جديدة.",
+        "title": "لم يتم العثور على ألعاب"
+      },
+      "favorite": "أضف إلى المفضلة",
+      "filters": {
+        "all": "كل الألعاب",
+        "favorites": "المفضلة",
+        "own": "ألعابي",
+        "public": "عامة"
+      },
+      "play": "اللعب",
+      "restart": "إعادة التشغيل",
+      "restartConfirm": {
+        "confirm": "إعادة التشغيل",
+        "message": "هل أنت متأكد أنك تريد إعادة تشغيل \"{{game}}\"؟ سيتم فقدان تقدمك الحالي.",
+        "title": "إعادة تشغيل اللعبة"
+      },
+      "title": "كل الألعاب",
+      "unfavorite": "إزالة من المفضلة"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "تُستخدم مفاتيح API للاتصال بمنصات الذكاء الاصطناعي لتوليد محتوى اللعبة.",
+        "title": "حول مفاتيح API"
+      },
+      "addKey": "إضافة مفتاح",
+      "addedOn": "أضيف في",
+      "createModal": {
+        "keyDescription": "سيتم تشفير مفتاحك وتخزينه بأمان.",
+        "keyLabel": "مفتاح API",
+        "keyPlaceholder": "أدخل مفتاح API الخاص بك",
+        "nameLabel": "اسم المفتاح",
+        "namePlaceholder": "مثال: مفتاح OpenAI الخاص بي",
+        "platformLabel": "المنصة",
+        "platformPlaceholder": "اختر منصة",
+        "submit": "إضافة المفتاح",
+        "title": "إضافة مفتاح API جديد"
+      },
+      "deleteModal": {
+        "message": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟",
+        "title": "حذف مفتاح API",
+        "warning": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف المفتاح نهائيًا."
+      },
+      "errors": {
+        "invalidPlatform": "تم اختيار منصة غير صالحة. يرجى اختيار منصة ذكاء اصطناعي صالحة.",
+        "keyRequired": "مفتاح API مطلوب",
+        "loadFailed": "فشل تحميل مفاتيح API. الرجاء المحاولة مرة أخرى.",
+        "nameRequired": "الاسم مطلوب",
+        "platformRequired": "المنصة مطلوبة"
+      },
+      "key": "مفتاح",
+      "keys": "مفاتيح",
+      "subtitle": "إدارة مفاتيح API الخاصة بك لمنصات الذكاء الاصطناعي.",
+      "title": "إدارة مفاتيح API",
+      "unnamed": "مفتاح غير مسمى",
+      "unsupportedPlatform": {
+        "badge": "غير مدعومة",
+        "hint": "هذه المنصة غير مدعومة حاليًا. يمكنك فقط إزالة المفاتيح الموجودة."
+      }
+    },
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "copyGame": "نسخ اللعبة",
+    "create": "إنشاء",
+    "delete": "حذف",
+    "deleteGame": "حذف اللعبة",
+    "edit": "تعديل",
+    "editGame": "تعديل اللعبة",
+    "error": "خطأ",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institute for Educational Research and Innovation",
+      "programmedBy": "مُبرمج بواسطة"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "معرف الرسالة",
+          "imagePrompt": "موجه الصورة",
+          "isStreaming": "يتم البث",
+          "seq": "التسلسل",
+          "statusFields": "حقول الحالة",
+          "timestamp": "الطابع الزمني",
+          "type": "النوع"
+        },
+        "hints": {
+          "id": "معرف فريد لهذه الرسالة",
+          "imagePrompt": "الموجه المرسل إلى ذكاء اصطناعي لتوليد الصور",
+          "isStreaming": "ما إذا كان لا يزال يتم استقبال المحتوى",
+          "seq": "الترتيب في المحادثة",
+          "statusFields": "متغيرات حالة اللعبة التي تتتبعها الـ AI",
+          "timestamp": "متى تم إنشاء هذه الرسالة",
+          "type": "player = إدخال المستخدم, game = استجابة الذكاء الاصطناعي, system = السياق"
+        },
+        "title": "معلومات التصحيح"
+      },
+      "error": {
+        "backToGames": "العودة إلى الألعاب",
+        "gameNotFound": "لم يتم العثور على اللعبة",
+        "missingFields": "اللعبة تفتقد الحقول المطلوبة:",
+        "sessionFailed": "فشل بدء جلسة اللعبة"
+      },
+      "header": {
+        "back": "العودة إلى الألعاب",
+        "debug": "تصحيح",
+        "decreaseFont": "تصغير الخط",
+        "disableAnimations": "تعطيل الرسوم المتحركة",
+        "increaseFont": "تكبير الخط",
+        "settings": "الإعدادات",
+        "useNeutralTheme": "استخدام سمة محايدة"
+      },
+      "input": {
+        "placeholder": "ماذا تفعل؟",
+        "send": "إرسال الإجراء"
+      },
+      "loading": {
+        "game": "جارٍ تحميل اللعبة...",
+        "starting": "جارٍ بدء جلسة اللعبة...",
+        "startingHint": "الذكاء الاصطناعي يحضّر مغامرتك"
+      },
+      "needsApiKey": {
+        "description": "مفتاح الـ API المستخدم لهذه الجلسة لم يعد متاحًا. يرجى اختيار مفتاح جديد للمتابعة.",
+        "reason": "مفتاح API السابق لم يعد متاحًا. لاستكمال لعبتك، يرجى اختيار مفتاح جديد.",
+        "title": "مطلوب مفتاح API"
+      },
+      "selectApiKey": {
+        "keyDescription": "اختر مفتاح الـ API لاستخدامه في جلسة اللعبة هذه",
+        "keyLabel": "مفتاح API",
+        "keyPlaceholder": "اختر مفتاح API",
+        "loadError": "فشل تحميل مفاتيح API",
+        "mine": "الخاصة بي",
+        "modelDescription": "يمكنك اختيار نموذج ذكاء اصطناعي محدد اختياريًا",
+        "modelLabel": "نموذج الذكاء الاصطناعي",
+        "modelPlaceholder": "النموذج الافتراضي",
+        "noKeys": "تحتاج إلى مفتاح API واحد على الأقل للعب. أضف واحدًا في الإعدادات → مفاتيح API.",
+        "playing": "قيد اللعب",
+        "startGame": "بدء اللعبة",
+        "title": "اختر مفتاح API"
+      },
+      "statusChange": {
+        "effect": "التأثير:"
+      },
+      "unnamed": "بدون اسم"
+    },
+    "games": {
+      "badges": {
+        "myGame": "لعبتي",
+        "public": "عامة",
+        "workshop": "ورشة"
+      },
+      "createButton": "إنشاء لعبة",
+      "createModal": {
+        "descriptionPlaceholder": "عن ماذا تدور لعبتك؟",
+        "namePlaceholder": "مثلاً: مغامرة فضائية",
+        "publicDescription": "الألعاب العامة مرئية للجميع.",
+        "publicLabel": "اجعل هذه اللعبة عامة",
+        "submit": "إنشاء اللعبة",
+        "title": "إنشاء لعبة جديدة"
+      },
+      "deleteModal": {
+        "message": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟",
+        "title": "حذف اللعبة",
+        "warning": "لا يمكن التراجع عن هذا الإجراء. سيتم حذف جميع بيانات اللعبة نهائيًا."
+      },
+      "editFields": {
+        "description": "أعطِ اللعبة وصفًا قصيرًا. هذا لك فقط ولن يؤثر على طريقة اللعب.",
+        "gameStart": "كيف يبدأ اللعب؟",
+        "gameStartHint": "ماذا يحدث في البداية؟ صف المشهد الأول الذي يراه اللاعب. كيف يتم استقبال اللاعب؟",
+        "gameStartPlaceholder": "تصحو على حافة غابة مظلمة. يؤدي طريق ضيق إلى داخل الأشجار...",
+        "imageStyle": "ما النمط الذي يجب أن تكون عليه صور اللعبة؟",
+        "imageStyleHint": "على سبيل المثال: كرتوني، واقعي، فن بكسل، مائي...",
+        "name": "اسم اللعبة",
+        "scenario": "عن ماذا تتحدث اللعبة؟",
+        "scenarioHint": "وصف موجز: كيف تعمل اللعبة؟ كيف تبدو العالم؟ اللغة \\u0026 النبرة (مثلاً الإسبانية لطلاب الصف السادس)؟\nما دور اللاعب؟ اكتب \"اللاعب ...\".\nإذا أردت من الذكاء الاصطناعي أن يتقمص دور شخص معين اكتب \"أنت ...\".",
+        "scenarioPlaceholder": "أنت مستكشف في غابة غامضة. هدفك هو العثور على الكنز المخفي...",
+        "statusFields": "قيم اللعبة",
+        "statusFieldsHint": "ما القيم التي يجب أن يتتبعها اللعب؟ مثل الصحة، النقاط، أو الذخيرة. يتذكر اللعبة هذه القيم ويحدثها أثناء اللعب."
+      },
+      "editModal": {
+        "title": "تعديل اللعبة",
+        "unsavedChanges": {
+          "discard": "تجاهل التغييرات",
+          "keepEditing": "متابعة التعديل",
+          "message": "لديك تغييرات لم تُحفظ. هل أنت متأكد أنك تريد تجاهلها؟",
+          "title": "تغييرات غير محفوظة"
+        }
+      },
+      "empty": {
+        "description": "أنشئ لعبتك الأولى للبدء بالمغامرات التفاعلية المدعومة بالذكاء الاصطناعي.",
+        "title": "لا توجد ألعاب حتى الآن"
+      },
+      "errors": {
+        "loadFailed": "فشل تحميل الألعاب. يرجى المحاولة مرة أخرى.",
+        "nameRequired": "اسم اللعبة مطلوب"
+      },
+      "fields": {
+        "created": "تم الإنشاء",
+        "creator": "المنشئ",
+        "me": "أنا",
+        "modified": "تم التعديل",
+        "name": "الاسم",
+        "playCount": "مرات اللعب",
+        "visibility": "الظهور"
+      },
+      "importExport": {
+        "exportButton": "تصدير اللعبة",
+        "importButton": "استيراد اللعبة"
+      },
+      "playNow": "العب الآن",
+      "sort": {
+        "createdAt-asc": "تم الإنشاء (الأقدم)",
+        "createdAt-desc": "تم الإنشاء (الأحدث)",
+        "creator-asc": "المنشئ (أ-ي)",
+        "creator-desc": "المنشئ (ي-أ)",
+        "label": "الفرز حسب",
+        "modifiedAt-asc": "تم التعديل (الأقدم)",
+        "modifiedAt-desc": "تم التعديل (الأحدث)",
+        "name-asc": "الاسم (أ-ي)",
+        "name-desc": "الاسم (ي-أ)",
+        "playCount-asc": "الأقل لعبًا",
+        "playCount-desc": "الأكثر لعبًا",
+        "visibility-asc": "الألعاب الخاصة أولًا",
+        "visibility-desc": "الألعاب العامة أولًا"
+      },
+      "statusFieldsEditor": {
+        "addField": "إضافة قيمة جديدة",
+        "namePlaceholder": "الاسم (مثلاً: الصحة)",
+        "noFields": "لا توجد قيم بعد. انقر + لإضافة قيمة جديدة.",
+        "valuePlaceholder": "قيمة البداية (مثلاً: 100)"
+      },
+      "tabs": {
+        "basic": "الأساسيات",
+        "basicInfo": "معلومات عامة عن اللعبة. هذه لك فقط ولن تؤثر على طريقة اللعب.",
+        "importExport": "استيراد/تصدير",
+        "quickStart": "بدء سريع",
+        "story": "القصة \\u0026 الذكاء الاصطناعي",
+        "storyInfo": "كل ما هنا يُرسل إلى الذكاء الاصطناعي لتشكيل عالم لعبتك وقصتها.",
+        "style": "التصميم",
+        "styleInfo": "إعدادات اختيارية لمظهر اللعبة أثناء اللعب."
+      },
+      "title": "ألعابي المنشأة",
+      "viewModal": {
+        "readOnlyNotice": "تم إنشاء هذه اللعبة بواسطة مستخدم آخر. يمكنك عرض التفاصيل لكن لا يمكنك التعديل. استخدم \"نسخ\" لإنشاء نسختك القابلة للتعديل.",
+        "title": "تفاصيل اللعبة"
+      },
+      "visibility": {
+        "private": "خاصة",
+        "public": "عامة"
+      }
+    },
+    "header": {
+      "apiKeys": "مفاتيح API",
+      "closeNavigation": "إغلاق قائمة التنقل",
+      "contact": "اتصل",
+      "goToDashboard": "الذهاب إلى لوحة التحكم",
+      "leaveWorkshopMode": "مغادرة وضع الورشة",
+      "leaveWorkshopModeTooltip": "الخروج من وضع الورشة والعودة إلى العرض العادي",
+      "logout": "تسجيل الخروج",
+      "openNavigation": "فتح قائمة التنقل",
+      "openUserMenu": "فتح قائمة المستخدم",
+      "organization": "المنظمة",
+      "profile": "الملف الشخصي",
+      "workshop": "ورشة العمل"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "صمم مغامرات نصية تفاعلية مدعومة بالذكاء الاصطناعي",
+          "title": "إنشاء مغامرات"
+        },
+        "learn": {
+          "description": "مثالية لورش العمل التعليمية وأنشطة الصف",
+          "title": "التعلم \\u0026 التعليم"
+        },
+        "play": {
+          "description": "انضم إلى الأصدقاء في جلسات سرد تعاونية",
+          "title": "اللعب معًا"
+        },
+        "title": "لماذا تختار ChatGameLab؟",
+        "understand": {
+          "description": "استكشف كيف تنشئ نماذج الذكاء الاصطناعي القصص وتعلم كيف تعمل",
+          "title": "فهم الذكاء الاصطناعي"
+        }
+      },
+      "loginCta": "سجل الدخول واستكشف",
+      "splashDescription": "منصة تعليمية لإنشاء ولعب ألعاب مغامرات نصية مدعومة بالذكاء الاصطناعي. مثالية للمعلمين والطلاب وصانعي القصص المبدعين."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "لقد تمت دعوتك للانضمام إلى ورشة عمل تابعة للمنظمة \"{{organization}}\".",
+        "inviteMessageSimple": "لقد تمت دعوتك للانضمام إلى هذه الورشة.",
+        "joinButton": "الانضمام إلى الورشة",
+        "title": "الانضمام إلى الورشة",
+        "titleWithWorkshop": "الانضمام إلى الورشة \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "فشل قبول الدعوة. الرجاء المحاولة مرة أخرى.",
+        "expired": "رابط الدعوة هذا منتهي الصلاحية.",
+        "loadFailed": "فشل تحميل تفاصيل الدعوة. الرجاء المحاولة مرة أخرى.",
+        "notFound": "رابط الدعوة هذا غير صالح أو تم إلغاؤه."
+      },
+      "goHome": "الذهاب إلى الصفحة الرئيسية",
+      "participant": {
+        "loggingIn": "جارٍ تسجيل دخولك..."
+      },
+      "success": {
+        "message": "لقد انضممت إلى الورشة بنجاح. جاري إعادة التوجيه...",
+        "title": "مرحبًا!"
+      },
+      "switchWorkshop": {
+        "message": "ستبقى ألعابك وتقدمك في الورشة الحالية، لكن لن تتمكن من الوصول إليها حتى تعود للانضمام.",
+        "stayButton": "البقاء في الورشة الحالية",
+        "switchButton": "تبديل الورشة",
+        "title": "تبديل الورشة؟",
+        "warning": "أنت حاليًا في الورشة \"{{currentWorkshop}}\". الانضمام إلى \"{{newWorkshop}}\" سيُخرجك من ورشتك الحالية."
+      }
+    },
+    "labels": {
+      "no": "لا",
+      "yes": "نعم"
+    },
+    "languageSwitcher": {
+      "wipHint": "لغات أخرى قيد العمل. متاح حاليًا فقط الإنجليزية والألمانية.",
+      "wipLabel": "قيد العمل"
+    },
+    "loading": "جارٍ التحميل...",
+    "logout": "تسجيل الخروج",
+    "myGames": {
+      "continue": "متابعة",
+      "copyConfirm": {
+        "confirm": "نسخ اللعبة",
+        "message": "سيتم إنشاء نسخة من \"{{name}}\" في ألعابك.",
+        "title": "نسخ اللعبة"
+      },
+      "copyGame": "نسخ اللعبة",
+      "empty": {
+        "description": "أنشئ لعبتك الأولى للبدء بالمغامرات التفاعلية المدعومة بالذكاء الاصطناعي.",
+        "title": "لا توجد ألعاب حتى الآن"
+      },
+      "favorite": "أضف إلى المفضلة",
+      "filters": {
+        "all": "الكل",
+        "favorites": "المفضلة"
+      },
+      "play": "اللعب",
+      "restart": "إعادة التشغيل",
+      "restartConfirm": {
+        "confirm": "إعادة التشغيل",
+        "message": "هل أنت متأكد أنك تريد إعادة تشغيل \"{{game}}\"؟ سيتم فقدان تقدمك الحالي.",
+        "title": "إعادة تشغيل اللعبة"
+      },
+      "title": "ألعابي",
+      "unfavorite": "إزالة من المفضلة"
+    },
+    "myOrganization": {
+      "actions": "إجراءات",
+      "apiKeys": {
+        "aboutDescription": "مفاتيح API المشتركة هنا متاحة لجميع أعضاء منظمتك للعب الألعاب. فقط الرؤساء والمعلمون يمكنهم إدارة هذه المفاتيح.",
+        "aboutTitle": "مفاتيح API للمنظمة",
+        "allowPublicSponsoring": "السماح بالتمويل العام",
+        "allowPublicSponsoringDesc": "يمكن استخدام هذا المفتاح لرعاية الألعاب لجميع المستخدمين.",
+        "filterByPlatform": "تصفية حسب المنصة",
+        "keyName": "اسم المفتاح",
+        "loadError": "فشل تحميل مفاتيح API للمنظمة.",
+        "noKeys": "لا توجد مفاتيح API مشتركة مع هذه المنظمة بعد.",
+        "noResults": "لا توجد مفاتيح API تطابق بحثك.",
+        "notAuthorized": "ليس لديك صلاحية لإدارة مفاتيح API المنظمة. فقط الرؤساء والمعلمون يمكنهم الوصول لهذه الصفحة.",
+        "owner": "المالك",
+        "platform": "المنصة",
+        "publicSponsoring": "الرعاية العامة",
+        "searchPlaceholder": "ابحث بالاسم أو المالك...",
+        "selectKey": "اختر مفتاح API",
+        "selectKeyPlaceholder": "اختر مفتاحًا للمشاركة...",
+        "share": "مشاركة",
+        "shareKey": "مشاركة المفتاح",
+        "shareKeyTitle": "مشاركة مفتاح API مع المنظمة",
+        "title": "مفاتيح API للمنظمة"
+      },
+      "demoteConfirm": "هل أنت متأكد أنك تريد تخفيض مرتبة \"{{name}}\" ({{email}}) إلى مدرس؟",
+      "demoteTitle": "تخفيض إلى مدرس",
+      "demoteToStaff": "تخفيض إلى مدرس",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل عنوان البريد الإلكتروني",
+      "empty": "لا يوجد أعضاء في هذه المنظمة.",
+      "inviteAlreadyExists": "هناك دعوة معلقة لهذا البريد الإلكتروني بالفعل.",
+      "inviteError": "فشل إرسال الدعوة. الرجاء المحاولة مرة أخرى.",
+      "inviteTeacher": "دعوة مدرس",
+      "inviteTeacherDescription": "أرسل دعوة إلى مدرس للانضمام إلى منظمتك.",
+      "inviteTeacherTitle": "دعوة مدرس",
+      "inviteUser": "دعوة مستخدم",
+      "inviteUserDescription": "أرسل دعوة لمستخدم للانضمام إلى منظمتك بدون دور محدد.",
+      "inviteUserTitle": "دعوة مستخدم",
+      "leaveConfirm": "هل أنت متأكد أنك تريد مغادرة \"{{name}}\"؟",
+      "leaveOrganization": "مغادرة المنظمة",
+      "leaveTitle": "مغادرة المنظمة",
+      "leaveWarning": "ستفقد الوصول إلى جميع موارد وأعضاء المنظمة.",
+      "me": "أنا",
+      "name": "الاسم",
+      "noEmail": "لا يوجد بريد إلكتروني",
+      "noOrganization": "لا توجد منظمة",
+      "noOrganizationDescription": "أنت لست عضوًا في أي منظمة.",
+      "noResults": "لا توجد نتائج تطابق بحثك.",
+      "noRole": "لا دور",
+      "promoteConfirm": "هل أنت متأكد أنك تريد ترقية \"{{name}}\" ({{email}}) إلى رئيس؟",
+      "promoteTitle": "الترقية إلى رئيس",
+      "promoteToHead": "الترقية إلى رئيس",
+      "promoteWarning": "سيحصل هذا المستخدم على إمكانية إدارة أعضاء المنظمة ودعوة المدرسين.",
+      "removeConfirm": "هل أنت متأكد أنك تريد إزالة \"{{name}}\" من المنظمة؟",
+      "removeMember": "إزالة عضو",
+      "removeTitle": "إزالة عضو",
+      "removeWarning": "سيفقد هذا المستخدم الوصول إلى المنظمة.",
+      "role": "الدور",
+      "searchPlaceholder": "ابحث عن أعضاء...",
+      "showing": "عرض {{count}} أعضاء",
+      "sort": {
+        "label": "الفرز حسب",
+        "name-asc": "الاسم (أ-ي)",
+        "name-desc": "الاسم (ي-أ)",
+        "role-asc": "الدور (أ-ي)",
+        "role-desc": "الدور (ي-أ)"
+      },
+      "title": "منظمتي",
+      "workshops": {
+        "activate": "تفعيل",
+        "active": "نشط",
+        "activeDescription": "الورش النشطة تسمح للمشاركين بالانضمام وإنشاء الألعاب.",
+        "activeLabel": "نشط",
+        "anonymousParticipant": "مشارك مجهول",
+        "create": "إنشاء ورشة",
+        "createFirst": "إنشاء ورشتك الأولى",
+        "createInviteLink": "إنشاء رابط دعوة",
+        "createTitle": "إنشاء ورشة",
+        "deactivate": "تعطيل",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "مفتاح API الافتراضي",
+        "defaultApiKeyHint": "سيستخدم المشاركون هذا المفتاح عند اللعب.",
+        "deleteConfirm": "هل أنت متأكد أنك تريد حذف \"{{name}}\"؟",
+        "deleteTitle": "حذف الورشة",
+        "deleteWarning": "سيتم حذف جميع الألعاب والجلسات في هذه الورشة. لا يمكن التراجع عن ذلك.",
+        "editParticipant": "تعديل الاسم",
+        "empty": "لا توجد ورش حتى الآن.",
+        "enterWorkshop": "دخول وضع الورشة",
+        "games": "الألعاب",
+        "hideInactive": "إخفاء غير النشطين",
+        "inactive": "غير نشط",
+        "inviteCreatedAt": "تاريخ الإنشاء",
+        "inviteDescription": "قم بإنشاء رابط دعوة يمكن للمشاركين استخدامه للانضمام إلى هذه الورشة.",
+        "inviteExpiresAt": "ينتهي في",
+        "inviteLink": "رابط الدعوة",
+        "inviteLinkDescription": "شارك هذا الرابط مع المشاركين للسماح لهم بالانضمام للورشة.",
+        "inviteLinkTitle": "رابط دعوة لـ {{name}}",
+        "inviteUsage": "الاستخدام",
+        "joined": "انضم",
+        "linkCopied": "تم نسخ الرابط",
+        "linkCopiedMessage": "تم نسخ رابط الدعوة إلى الحافظة.",
+        "loadError": "فشل تحميل الورش.",
+        "nameLabel": "اسم الورشة",
+        "namePlaceholder": "مثلاً: معسكر صيفي 2024",
+        "noActiveInvite": "لا يوجد رابط دعوة نشط.",
+        "noDefaultApiKey": "لا يوجد مفتاح API افتراضي",
+        "noDefaultModel": "استخدم الافتراضي للمنصة",
+        "noParticipantToken": "هذا المشارك ليس لديه رابط دعوة. فقط المشاركون المجهولون (الضيوف) لديهم روابط دعوة قابلة لإعادة الاستخدام.",
+        "noParticipants": "لا مشاركين بعد",
+        "notAuthorized": "ليس لديك إذن لإدارة الورش. فقط الرؤساء والمدرسون يمكنهم الوصول لهذه الصفحة.",
+        "participantGames": "{{count}} ألعاب",
+        "participantJoined": "انضم في {{date}}",
+        "participantName": "اسم المشارك",
+        "participants": "المشاركون",
+        "removeParticipant": "إزالة مشارك",
+        "removeParticipantConfirm": "هل أنت متأكد أنك تريد إزالة \"{{name}}\" من هذه الورشة؟",
+        "removeParticipantMessage": "هل أنت متأكد أنك تريد إزالة \"{{name}}\" من هذه الورشة؟ لا يمكن التراجع عن هذا الإجراء.",
+        "removeParticipantTitle": "إزالة مشارك",
+        "revokeInvite": "سحب رابط الدعوة",
+        "selectApiKey": "اختر مفتاح API",
+        "settings": "الإعدادات",
+        "shareParticipantLink": "نسخ رابط دعوة فردي لهذا المشارك",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "عرض ألعاب المشاركين الآخرين",
+        "showPublicGames": "عرض الألعاب العامة للمشاركين",
+        "sort": {
+          "createdAtAsc": "الأقدم أولًا",
+          "createdAtDesc": "الأحدث أولًا",
+          "label": "الفرز حسب",
+          "nameAsc": "الاسم (أ-ي)",
+          "nameDesc": "الاسم (ي-أ)",
+          "participantsAsc": "أقل المشاركين",
+          "participantsDesc": "أكثر المشاركين"
+        },
+        "subtitle": "إدارة الورش ودعوة المشاركين للتعاون في الألعاب.",
+        "title": "ورش العمل",
+        "usedCount": "{{count}} استخدامات",
+        "viewInviteLink": "عرض رابط الدعوة"
+      }
+    },
+    "notifications": {
+      "accept": "قبول",
+      "decline": "رفض",
+      "declineConfirm": "هل أنت متأكد أنك تريد رفض هذه الدعوة؟",
+      "declineTitle": "رفض الدعوة",
+      "empty": "لا توجد إشعارات جديدة.",
+      "inviteDescription": "لقد تمت دعوتك للانضمام ك{{role}}.",
+      "inviteToJoin": "دعوة للانضمام إلى المنظمة",
+      "title": "الإشعارات"
+    },
+    "play": {
+      "cloneGame": "نسخ إلى ألعابي",
+      "empty": {
+        "description": "حاول تعديل عوامل التصفية أو عُد لاحقًا للاطلاع على ألعاب جديدة.",
+        "title": "لم يتم العثور على ألعاب"
+      },
+      "favorite": "أضف إلى المفضلة",
+      "filters": {
+        "all": "كل الألعاب",
+        "favorites": "المفضلة",
+        "organization": "المنظمة",
+        "own": "ألعابي",
+        "public": "عامة"
+      },
+      "owner": "الخاصة بي",
+      "playGame": "العب هذه اللعبة",
+      "playNow": "العب الآن",
+      "selectGameTitle": "اختر لعبة",
+      "title": "اختر لعبة",
+      "unfavorite": "إزالة من المفضلة"
+    },
+    "profile": "الملف الشخصي",
+    "save": "حفظ",
+    "search": "بحث",
+    "sessions": {
+      "continueGame": "متابعة اللعبة",
+      "deleteConfirm": {
+        "message": "هل أنت متأكد أنك تريد حذف هذه الجلسة لـ \"{{game}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+        "title": "حذف الجلسة"
+      },
+      "empty": {
+        "description": "ابدأ لعبة جديدة لبدء مغامرتك!",
+        "noResults": "لم يتم العثور على ألعاب مطابقة",
+        "title": "لم يتم لعب ألعاب بعد"
+      },
+      "errors": {
+        "loadFailed": "فشل تحميل ألعابك. الرجاء المحاولة مرة أخرى."
+      },
+      "fields": {
+        "game": "اللعبة",
+        "lastPlayed": "آخر لعب",
+        "model": "النموذج"
+      },
+      "noDescription": "لا يوجد وصف",
+      "sort": {
+        "game": "اللعبة",
+        "label": "الفرز حسب",
+        "lastPlayed": "آخر لعب",
+        "model": "النموذج"
+      },
+      "startNewGame": "بدء لعبة جديدة",
+      "title": "متابعة اللعب",
+      "untitledGame": "لعبة بدون عنوان"
+    },
+    "settings": "الإعدادات",
+    "unnamed": "بدون اسم",
+    "viewGame": "عرض اللعبة"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "منسق المشروع والمنظمة الرئيسية.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "تعرف على المزيد عن مشروع التعليم وراء هذه المنصة.",
+          "title": "مشروع ChatGameLab"
+        },
+        "title": "عن ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "لا تاريخ لعب بعد. ابدأ بلعب لعبة!",
+        "title": "آخر الألعاب التي لعبت",
+        "viewAll": "جميع الألعاب"
+      },
+      "myGames": {
+        "empty": "لا توجد ألعاب بعد. أنشئ لعبتك الأولى!",
+        "title": "ألعابي",
+        "viewAll": "كل إبداعاتي"
+      },
+      "myWorkshops": {
+        "empty": "لا توجد ورش نشطة. أنشئ ورشة في منظمتك!",
+        "title": "ورش العمل الخاصة بي",
+        "viewAll": "جميع الورش"
+      },
+      "newGames": {
+        "empty": "لا توجد ألعاب متاحة بعد.",
+        "title": "ألعاب جديدة",
+        "viewAll": "جميع الألعاب"
+      },
+      "popularGames": {
+        "empty": "لا توجد ألعاب متاحة بعد.",
+        "plays": "{{count}} مرات اللعب",
+        "title": "ألعاب شائعة",
+        "viewAll": "جميع الألعاب"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "إنشاء لعبة جديدة",
+      "createRoom": "إنشاء غرفة",
+      "inviteMembers": "دعوة أعضاء",
+      "startNewGame": "بدء لعبة جديدة",
+      "title": "إجراءات سريعة"
+    },
+    "untitled": "بدون عنوان",
+    "untitledGame": "لعبة بدون عنوان",
+    "version": {
+      "mismatch": {
+        "message": "إصدار الواجهة الأمامية \\u003cfrontendVersion\\u003e{{frontendVersion}}\\u003c/frontendVersion\\u003e لا يتطابق مع إصدار الخادم \\u003cbackendVersion\\u003e{{backendVersion}}\\u003c/backendVersion\\u003e. قد يؤدي ذلك إلى سلوك غير متوقع. اتصل بالدعم إذا استمرت المشكلات.",
+        "title": "تم اكتشاف عدم تطابق في الإصدارات"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "واجهت خدمة الذكاء الاصطناعي خطأ. الرجاء المحاولة مرة أخرى.",
+    "backendUserFetch": "فشل تحميل بيانات المستخدم من الخادم. الرجاء المحاولة مرة أخرى.",
+    "billingNotActive": "حساب OpenAI الخاص بك غير نشط. يرجى التحقق من بيانات الفوترة على https://platform.openai.com/settings/organization/billing.",
+    "conflict": "هذا الإجراء يتعارض مع بيانات موجودة. الرجاء المحاولة مرة أخرى.",
+    "contentFiltered": "تمت فلترة طلبك بواسطة سياسة المحتوى الخاصة بالذكاء الاصطناعي. يرجى إعادة الصياغة.",
+    "forbidden": "ليس لديك إذن لتنفيذ هذا الإجراء.",
+    "generic": "حدث خطأ ما. الرجاء المحاولة مرة أخرى.",
+    "insufficientQuota": "نفد رصيد مفتاح API الخاص بك. الرجاء إضافة رصيد أو استخدام مفتاح مختلف.",
+    "invalidApiKey": "مفتاح API الخاص بك غير صالح أو انتهت صلاحيته. يرجى التحقق من مفتاح API في الإعدادات.",
+    "invalidPlatform": "تم اختيار منصة غير صالحة. يرجى اختيار خيار صالح.",
+    "invalidToken": "انتهت جلستك أو أنها غير صالحة. يرجى استخدام رابط الدعوة مرة أخرى.",
+    "network": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "notFound": "المورد المطلوب غير موجود.",
+    "orgVerificationRequired": "تحتاج منظمة OpenAI الخاصة بك إلى التحقق لاستخدام ميزة توليد الصور. يرجى التحقق على https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "الطلبات كثيرة جدًا. يرجى الانتظار لحظة وحاول مرة أخرى.",
+    "server": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.",
+    "titles": {
+      "aiError": "خطأ في الذكاء الاصطناعي",
+      "authentication": "خطأ في المصادقة",
+      "billing": "خطأ في الفوترة",
+      "error": "خطأ",
+      "network": "خطأ في الشبكة",
+      "notFound": "غير موجود",
+      "permission": "ممنوع",
+      "server": "خطأ في الخادم",
+      "validation": "خطأ في التحقق",
+      "workshopInactive": "الورشة غير نشطة"
+    },
+    "unauthorized": "يرجى تسجيل الدخول للمتابعة.",
+    "unexpected": "حدث خطأ غير متوقع.",
+    "userNotRegistered": "تحتاج إلى إكمال التسجيل قبل المتابعة.",
+    "validation": "يرجى التحقق من مدخلاتك وحاول مرة أخرى.",
+    "workshopInactive": "تم تعطيل هذه الورشة. يرجى الاتصال بمعلمك أو منظم الورشة."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "ابدأ بلعب الألعاب لرؤيتها هنا، أو أنشئ لعبتك الخاصة!",
+      "title": "لا توجد ألعاب حتى الآن"
+    },
+    "filters": {
+      "all": "كل الألعاب",
+      "mine": "ألعابي",
+      "public": "ألعاب عامة",
+      "workshop": "ألعاب الورشة"
+    },
+    "gameType": "اللعبة",
+    "organizator": "المنظم: {{name}}",
+    "settings": {
+      "currentWorkshop": "الورشة الحالية",
+      "notInWorkshopMode": "أنت لست في وضع الورشة. يرجى دخول ورشة أولًا.",
+      "title": "إعدادات الورشة"
+    },
+    "title": "ورشتي",
+    "you": "أنت"
+  },
+  "navigation": {
+    "allGames": "كل الألعاب",
+    "create": "أنشئ لعبتك الخاصة",
+    "dashboard": "لوحة التحكم",
+    "games": "الألعاب",
+    "groups": "المجموعات",
+    "manageOrganizations": "إدارة المنظمات",
+    "manageUsers": "إدارة المستخدمين",
+    "myGames": "ألعابي",
+    "myOrganization": "منظمتي",
+    "myWorkshop": "ورشتي",
+    "orgApiKeys": "مفاتيح API",
+    "orgMembers": "الأعضاء",
+    "orgWorkshops": "ورش العمل",
+    "play": "العب لعبة",
+    "rooms": "الغرف",
+    "workshopSettings": "إعدادات الورشة"
+  }
+}

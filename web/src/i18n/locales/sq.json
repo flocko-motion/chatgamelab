@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Hyr me Auth0",
+      "devMode": "Modaliteti i zhvillimit",
+      "devModeAlert": {
+        "message": "Kjo është faqja e hyrjes për zhvillues. Në prodhim do të ridrejtohesh drejtpërdrejt te Auth0.",
+        "title": "Modaliteti i zhvillimit"
+      },
+      "devModeDescription": "Hyrje e shpejtë për zhvillim dhe testim",
+      "redirecting": {
+        "message": "Ju lutemi pritni ndërsa ju ridrejtojmë te faqja e hyrjes.",
+        "title": "Po ridrejtohemi te Auth0..."
+      },
+      "role": {
+        "admin": "Hyr si Admin",
+        "guest": "Hyr si Mysafir",
+        "student": "Hyr si Nxënës",
+        "teacher": "Hyr si Mësues"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Lësho workshop-in",
+        "message": "A jeni i sigurt që dëshironi të largoheni nga ky workshop? Do t'ju duhet një link i ri ftesë për t'u bashkuar përsëri.",
+        "title": "Të largohesh nga workshop-i?"
+      },
+      "leaveWorkshop": "Lësho workshop-in",
+      "organization": "Organizata",
+      "role": "Pjesëmarrës i workshop-it",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Lojëra të krijuara",
+      "gamesPlayed": "Lojëra të luajtura",
+      "memberSince": "Regjistruar që nga",
+      "messagesSent": "Mesazhe të dërguara",
+      "noOrganization": "Asnjë organizatë",
+      "noRole": "Asnjë rol i caktuar",
+      "organization": "Organizata",
+      "organizationSection": "Organizata \u00026 Roli",
+      "role": "Roli",
+      "roles": {
+        "admin": "Administrator",
+        "head": "Drejtor i mësimdhënies",
+        "participant": "Pjesëmarrës",
+        "staff": "Anëtar i stafit"
+      },
+      "statisticsSection": "Statistika",
+      "title": "Profili",
+      "totalPlaysOnGames": "Numri total i lojërave të luajtura për lojërat e mia"
+    },
+    "register": {
+      "cancelButton": "Anulo",
+      "emailDescription": "Ne do ta përdorim këtë për njoftime të rëndësishme.",
+      "emailLabel": "Adresa e email-it",
+      "emailPlaceholder": "Shkruani email-in tuaj",
+      "errors": {
+        "emailInvalid": "Ju lutemi shkruani një adresë email-i të vlefshme",
+        "emailRequired": "Email është i detyrueshëm",
+        "nameRequired": "Emri është i detyrueshëm",
+        "nameTaken": "Ky emër është tashmë në përdorim",
+        "nameTooLong": "Emri mund të ketë deri në 24 karaktere",
+        "registrationFailed": "Regjistrimi dështoi. Ju lutemi provoni përsëri."
+      },
+      "nameDescription": "Kështu do t'ju shohin përdoruesit e tjerë. Maksimum 24 karaktere.",
+      "nameLabel": "Emri për shfaqje",
+      "namePlaceholder": "Shkruani emrin tuaj për shfaqje",
+      "submitButton": "Krijo llogari",
+      "submitting": "Krijohet llogaria...",
+      "subtitle": "Vetëm edhe disa detaje për të filluar",
+      "title": "Plotëso profilin tuaj"
+    },
+    "settings": {
+      "accountSection": "Llogaria",
+      "emailChangeNote": "Për të ndryshuar adresën e email-it, ju lutemi kontaktoni administratorin e faqes.",
+      "errors": {
+        "nameRequired": "Emri është i detyrueshëm",
+        "nameTaken": "Ky emër është tashmë në përdorim",
+        "nameTooLong": "Emri mund të ketë deri në 24 karaktere",
+        "saveFailed": "Ruajtja dështoi. Ju lutemi provoni përsëri."
+      },
+      "nameDescription": "Kështu do t'ju shohin përdoruesit e tjerë. Maksimum 24 karaktere.",
+      "nameLabel": "Emri për shfaqje",
+      "namePlaceholder": "Shkruani emrin tuaj për shfaqje",
+      "saveButton": "Ruaj ndryshimet",
+      "saved": "Ndryshimet u ruajtën me sukses",
+      "saving": "Duke ruajtur...",
+      "subtitle": "Menaxhoni cilësimet e llogarisë suaj",
+      "title": "Cilësimet"
+    }
+  },
+  "common": {
+    "actions": "Veprime",
+    "admin": {
+      "invites": {
+        "actions": "Veprime",
+        "empty": "Asnjë ftese në pritje.",
+        "invitedEmail": "Email i ftuar",
+        "modifiedAt": "Ndryshuar",
+        "noResults": "Asnjë ftesë nuk i përputhet kërkimit tuaj.",
+        "organization": "Organizata",
+        "revokeConfirm": {
+          "confirm": "Fshi",
+          "message": "A jeni i sigurt që dëshironi të fshini këtë ftese? Kjo veprim nuk mund të zhbëhet.",
+          "title": "Fshi ftesën"
+        },
+        "role": "Roli",
+        "searchPlaceholder": "Kërko sipas email-it, rolit, statusit, ose organizatës...",
+        "sort": {
+          "label": "Rendit sipas",
+          "modifiedAt-asc": "Të ndryshuara (Më të vjetrat)",
+          "modifiedAt-desc": "Të ndryshuara (Më të rejat)",
+          "organization-asc": "Organizata (A-Z)",
+          "organization-desc": "Organizata (Z-A)",
+          "role-asc": "Roli (A-Z)",
+          "role-desc": "Roli (Z-A)",
+          "status-asc": "Statusi (A-Z)",
+          "status-desc": "Statusi (Z-A)"
+        },
+        "status": "Statusi",
+        "statuses": {
+          "accepted": "Pranuar",
+          "declined": "Refuzuar",
+          "expired": "Skaduar",
+          "pending": "Në pritje",
+          "revoked": "Hequr"
+        },
+        "title": "Ftesat në pritje"
+      },
+      "organizations": {
+        "actions": "Veprime",
+        "create": "Krijo organizatë",
+        "createTitle": "Krijo organizatë të re",
+        "deleteConfirm": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"? Kjo veprim nuk mund të zhbëhet.",
+        "deleteTitle": "Fshi organizatën",
+        "editTitle": "Ndrysho organizatën",
+        "email": "Adresa e email-it",
+        "emailPlaceholder": "Shkruani adresën e email-it",
+        "empty": "Ende nuk ka organizata. Krijoni një për të filluar.",
+        "inviteDescription": "Dërgoni një ftesë për t'u bashkuar me {{name}} si kreu i organizatës.",
+        "inviteTitle": "Fto në organizatë",
+        "memberEmail": "Email",
+        "memberName": "Emri",
+        "memberRole": "Roli",
+        "members": "Anëtarët",
+        "membersCount": "anëtarë",
+        "membersList": "Anëtarët",
+        "name": "Emri",
+        "namePlaceholder": "Shkruani emrin e organizatës",
+        "noMembers": "Asnjë anëtar në këtë organizatë.",
+        "removeMember": "Hiq anëtarin",
+        "removeMemberConfirm": "A jeni i sigurt që dëshironi të hiqni {{name}} nga kjo organizatë?",
+        "searchPlaceholder": "Kërko organizata...",
+        "sendInvite": "Dërgo ftese",
+        "title": "Menaxho organizatat"
+      },
+      "users": {
+        "actions": "Veprime",
+        "deleteConfirm": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"? Kjo veprim nuk mund të zhbëhet.",
+        "deleteTitle": "Fshi përdoruesin",
+        "editEmail": "Ndrysho email-in",
+        "editTitle": "Ndrysho përdoruesin",
+        "editingUser": "Po redaktohet përdoruesi: {{name}}",
+        "email": "Email",
+        "emailPlaceholder": "Shkruani adresën e email-it",
+        "empty": "Nuk u gjetën përdorues.",
+        "hideGuests": "Fshih mysafirët ({{count}})",
+        "joined": "Bashkuar",
+        "loadError": "Ngarkimi i përdoruesve dështoi",
+        "makeAdmin": "Bëje admin",
+        "me": "Unë",
+        "name": "Emri",
+        "noEmail": "Asnjë email",
+        "noResults": "Asnjë përdorues nuk i përputhet kërkimit tuaj.",
+        "noRole": "Asnjë rol",
+        "organization": "Organizata",
+        "promoteConfirm": "A jeni i sigurt që dëshironi të promovoni \"{{name}}\" ({{email}}) në admin?",
+        "promoteTitle": "Promovo në admin",
+        "promoteWarning": "Ky përdorues do të marrë akses të plotë administrativ në sistem.",
+        "removeAdmin": "Hiq admin",
+        "removeAdminConfirm": "A jeni i sigurt që dëshironi të hiqni rolin e admin-it nga \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Hiq rolin e admin-it",
+        "removeAdminWarning": "Ky përdorues do të humbasë të gjitha privilegjet administrative.",
+        "role": "Roli",
+        "searchPlaceholder": "Kërko sipas emrit, email-it, rolit apo organizatës...",
+        "showing": "Po shfaqen {{count}} nga {{total}} përdorues",
+        "sort": {
+          "email-asc": "Email (A-Z)",
+          "email-desc": "Email (Z-A)",
+          "joined-asc": "U bashkua (Më të vjetrat)",
+          "joined-desc": "U bashkua (Më të rejat)",
+          "label": "Rendit sipas",
+          "name-asc": "Emri (A-Z)",
+          "name-desc": "Emri (Z-A)",
+          "organization-asc": "Organizata (A-Z)",
+          "organization-desc": "Organizata (Z-A)",
+          "role-asc": "Roli (A-Z)",
+          "role-desc": "Roli (Z-A)"
+        },
+        "title": "Menaxho përdoruesit"
+      }
+    },
+    "allGames": {
+      "continue": "Vazhdo",
+      "copyConfirm": {
+        "confirm": "Kopjo lojën",
+        "message": "Kjo do të krijojë një kopje të \"{{name}}\" në lojërat tuaja.",
+        "title": "Kopjo lojën"
+      },
+      "copyGame": "Kopjo lojën",
+      "empty": {
+        "description": "Provoni të rregulloni filtrat ose kontrolloni më vonë për lojëra të reja.",
+        "title": "Asnjë lojë e gjetur"
+      },
+      "favorite": "Shto te të preferuarat",
+      "filters": {
+        "all": "Të gjitha lojërat",
+        "favorites": "Të preferuarat",
+        "own": "Lojërat e mia",
+        "public": "Publike"
+      },
+      "play": "Luaj",
+      "restart": "Rindezo",
+      "restartConfirm": {
+        "confirm": "Rindezo",
+        "message": "A jeni i sigurt që dëshironi të rindizni \"{{game}}\"? Përparimi juaj aktual do të humbasë.",
+        "title": "Rindezo lojën"
+      },
+      "title": "Të gjitha lojërat",
+      "unfavorite": "Hiq nga të preferuarat"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "Çelësat API përdoren për t'u lidhur me platformat e AI për të gjeneruar përmbajtje loje.",
+        "title": "Rreth çelësave API"
+      },
+      "addKey": "Shto çelës",
+      "addedOn": "Shtuar më",
+      "createModal": {
+        "keyDescription": "Çelësi juaj do të enkriptohet dhe ruhet në mënyrë të sigurt.",
+        "keyLabel": "Çelësi API",
+        "keyPlaceholder": "Shkruani çelësin tuaj API",
+        "nameLabel": "Emri i çelësit",
+        "namePlaceholder": "p.sh., Çelësi im OpenAI",
+        "platformLabel": "Platforma",
+        "platformPlaceholder": "Zgjidhni një platformë",
+        "submit": "Shto çelësin",
+        "title": "Shto çelës të ri API"
+      },
+      "deleteModal": {
+        "message": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"?",
+        "title": "Fshi çelësin API",
+        "warning": "Kjo veprim nuk mund të zhbëhet. Çelësi do të fshihet përfundimisht."
+      },
+      "errors": {
+        "invalidPlatform": "Platformë e pavlefshme e zgjedhur. Ju lutemi zgjidhni një platformë të vlefshme AI.",
+        "keyRequired": "Çelësi API është i detyrueshëm",
+        "loadFailed": "Ngarkimi i çelësave API dështoi. Ju lutemi provoni përsëri.",
+        "nameRequired": "Emri është i detyrueshëm",
+        "platformRequired": "Platforma është e detyrueshme"
+      },
+      "key": "çelës",
+      "keys": "çelësa",
+      "subtitle": "Menaxhoni çelësat tuaj API për platformat e AI.",
+      "title": "Menaxhimi i çelësave API",
+      "unnamed": "Çelës pa emër",
+      "unsupportedPlatform": {
+        "badge": "i papërkrahur",
+        "hint": "Kjo platformë aktualisht nuk mbështetet. Mund të hiqni vetëm çelësat ekzistues."
+      }
+    },
+    "back": "Kthehu",
+    "cancel": "Anulo",
+    "close": "Mbylle",
+    "copyGame": "Kopjo lojën",
+    "create": "Krijo",
+    "delete": "Fshi",
+    "deleteGame": "Fshi lojën",
+    "edit": "Ndrysho",
+    "editGame": "Ndrysho lojën",
+    "error": "Gabim",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Instituti për Pedagogjinë e Medias",
+      "programmedBy": "Programuar nga"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "ID e mesazhit",
+          "imagePrompt": "Prompt për imazhin",
+          "isStreaming": "Streaming",
+          "seq": "Renditja",
+          "statusFields": "Fushat e statusit",
+          "timestamp": "Koha",
+          "type": "Lloji"
+        },
+        "hints": {
+          "id": "Identifikues unik për këtë mesazh",
+          "imagePrompt": "Prompt i dërguar te AI për gjenerimin e imazheve",
+          "isStreaming": "Nëse përmbajtja po pranohet ende",
+          "seq": "Renditja në bisedë",
+          "statusFields": "Variabla të gjendjes së lojës të ndjekura nga AI",
+          "timestamp": "Kur u krijua ky mesazh",
+          "type": "player = hyrja e përdoruesit, game = përgjigjja e AI, system = konteksti"
+        },
+        "title": "Informacion debug"
+      },
+      "error": {
+        "backToGames": "Kthehu te lojërat",
+        "gameNotFound": "Lojë e papërfunduar",
+        "missingFields": "Lojës i mungojnë fushat e nevojshme:",
+        "sessionFailed": "Nisja e seancës së lojës dështoi"
+      },
+      "header": {
+        "back": "Kthehu te lojërat",
+        "debug": "Debug",
+        "decreaseFont": "Zvogëlo madhësinë e shkronjave",
+        "disableAnimations": "Ç'aktivizo animacionet",
+        "increaseFont": "Rrit madhësinë e shkronjave",
+        "settings": "Cilësimet",
+        "useNeutralTheme": "Përdor një temë neutrale"
+      },
+      "input": {
+        "placeholder": "Çfarë bën?",
+        "send": "Dërgo veprimin"
+      },
+      "loading": {
+        "game": "Duke u ngarkuar loja...",
+        "starting": "Duke nisur seancën e lojës...",
+        "startingHint": "AI po përgatit aventurën tuaj"
+      },
+      "needsApiKey": {
+        "description": "Çelësi API i përdorur për këtë seancë nuk është më i disponueshëm. Ju lutemi zgjidhni një të ri për të vazhduar lojën.",
+        "reason": "Çelësi juaj API i mëparshëm nuk është më i disponueshëm. Për të vazhduar lojën tuaj, ju lutemi zgjidhni një të ri.",
+        "title": "Kërkohet çelës API"
+      },
+      "selectApiKey": {
+        "keyDescription": "Zgjidhni çelësin API për t'u përdorur në këtë seancë loje",
+        "keyLabel": "Çelësi API",
+        "keyPlaceholder": "Zgjidhni një çelës API",
+        "loadError": "Ngarkimi i çelësave API dështoi",
+        "mine": "I imi",
+        "modelDescription": "Opsionalisht zgjidhni një model specifik AI",
+        "modelLabel": "Modeli AI",
+        "modelPlaceholder": "Modeli parazgjedhje",
+        "noKeys": "Ju nevojitet të paktën një çelës API për të luajtur. Shto një në Cilësimet → Çelësat API.",
+        "playing": "Duke luajtur",
+        "startGame": "Nis lojën",
+        "title": "Zgjidh çelësin API"
+      },
+      "statusChange": {
+        "effect": "Efekti:"
+      },
+      "unnamed": "Pa emër"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Lojë e imi",
+        "public": "Publike",
+        "workshop": "Workshop"
+      },
+      "createButton": "Krijo lojë",
+      "createModal": {
+        "descriptionPlaceholder": "Për çfarë është loja juaj?",
+        "namePlaceholder": "p.sh., Aventurë në hapësirë",
+        "publicDescription": "Lojë publike është e zbuluar për të gjithë.",
+        "publicLabel": "E bëj këtë lojë publike",
+        "submit": "Krijo lojën",
+        "title": "Krijo lojë të re"
+      },
+      "deleteModal": {
+        "message": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"?",
+        "title": "Fshi lojën",
+        "warning": "Kjo veprim nuk mund të zhbëhet. Të gjitha të dhënat e lojës do të fshihen përgjithmonë."
+      },
+      "editFields": {
+        "description": "Jep lojës një përshkrim të shkurtër. Kjo është vetëm për ju dhe nuk ndikon në lojë.",
+        "gameStart": "Si fillon loja?",
+        "gameStartHint": "Çfarë ndodh në fillim? Përshkruani skenën e parë që sheh lojtari. Si përshendet lojtari?",
+        "gameStartPlaceholder": "Zgjohesh në skajin e një pylli të errët. Një shtig i ngushtë të çon më thellë në pemë...",
+        "imageStyle": "Çfarë stili duhet të kenë imazhet e lojës?",
+        "imageStyleHint": "P.sh.: kartun, realist, pixel art, ujor...",
+        "name": "Emri i lojës",
+        "scenario": "Për çfarë është loja?",
+        "scenarioHint": "Përshkruani shkurt: Si funksionon loja? Si duket bota e lojës? Gjuha \u00026 tonaliteti (p.sh. Spanjisht për klasën e gjashtë)?\nÇfarë roli ka lojtari? Shkruani \"Lojtari ...\".\nNëse dëshironi që AI të marrë rolin e një personi të caktuar, shkruani \"Ti je ...\".",
+        "scenarioPlaceholder": "Ti je një eksplorues në një pyll misterioz. Qëllimi yt është të gjesh thesarin e fshehur...",
+        "statusFields": "Vlerat e lojës",
+        "statusFieldsHint": "Çfarë duhet të mbajë mend loja? Për shembull shëndeti, pikët, ose municioni. Loja ruan dhe përditëson këto vlera gjatë lojës."
+      },
+      "editModal": {
+        "title": "Ndrysho lojën",
+        "unsavedChanges": {
+          "discard": "Hidh poshtë ndryshimet",
+          "keepEditing": "Vazhdo redaktimin",
+          "message": "Keni ndryshime të pa ruajtura. A jeni i sigurt që dëshironi t'i hidhni poshtë?",
+          "title": "Ndryshime të pa ruajtura"
+        }
+      },
+      "empty": {
+        "description": "Krijoni lojën tuaj të parë për të filluar me aventura interaktive të fuqizuara nga AI.",
+        "title": "Ende nuk ka lojëra"
+      },
+      "errors": {
+        "loadFailed": "Ngarkimi i lojërave dështoi. Ju lutemi provoni përsëri.",
+        "nameRequired": "Emri i lojës është i detyrueshëm"
+      },
+      "fields": {
+        "created": "Krijuar",
+        "creator": "Krijuesi",
+        "me": "Unë",
+        "modified": "Ndryshuar",
+        "name": "Emri",
+        "playCount": "Luajtjet",
+        "visibility": "Dukshmëria"
+      },
+      "importExport": {
+        "exportButton": "Eksporto lojën",
+        "importButton": "Importo lojën"
+      },
+      "playNow": "Luaj tani",
+      "sort": {
+        "createdAt-asc": "Krijuar (Më të vjetrat)",
+        "createdAt-desc": "Krijuar (Më të rejat)",
+        "creator-asc": "Krijuesi (A-Z)",
+        "creator-desc": "Krijuesi (Z-A)",
+        "label": "Rendit sipas",
+        "modifiedAt-asc": "Ndryshuar (Më të vjetrat)",
+        "modifiedAt-desc": "Ndryshuar (Më të rejat)",
+        "name-asc": "Emri (A-Z)",
+        "name-desc": "Emri (Z-A)",
+        "playCount-asc": "Më pak të luajtura",
+        "playCount-desc": "Më të luajtura",
+        "visibility-asc": "Lojërat private së pari",
+        "visibility-desc": "Lojërat publike së pari"
+      },
+      "statusFieldsEditor": {
+        "addField": "Shto vlerë të re",
+        "namePlaceholder": "Emri (p.sh., Shëndeti)",
+        "noFields": "Ende nuk ka vlera. Kliko + për të shtuar një vlerë të re.",
+        "valuePlaceholder": "Vlera fillestare (p.sh., 100)"
+      },
+      "tabs": {
+        "basic": "Bazat",
+        "basicInfo": "Informacion i përgjithshëm për lojën. Kjo është vetëm për ju dhe nuk ndikon në lojë.",
+        "importExport": "Import/Eksport",
+        "quickStart": "Fillo shpejt",
+        "story": "Historia \u00026 AI",
+        "storyInfo": "Gjithçka këtu dërgohet te AI për të formësuar botën dhe historinë e lojës.",
+        "style": "Dizajn",
+        "styleInfo": "Cilësime shtesë për pamjen e lojës gjatë lojës."
+      },
+      "title": "Lojërat e mia të krijuara",
+      "viewModal": {
+        "readOnlyNotice": "Kjo lojë është krijuar nga një përdorues tjetër. Mund të shikoni detajet por nuk mund ta redaktoni. Përdorni \"Kopjo\" për të krijuar një version të redaktueshëm tuajin.",
+        "title": "Detajet e lojës"
+      },
+      "visibility": {
+        "private": "Privat",
+        "public": "Publik"
+      }
+    },
+    "header": {
+      "apiKeys": "Çelësat API",
+      "closeNavigation": "Mbyll menynë e navigimit",
+      "contact": "Kontakti",
+      "goToDashboard": "Shko te paneli",
+      "leaveWorkshopMode": "Lësho modalitetin e workshop-it",
+      "leaveWorkshopModeTooltip": "Dilni nga modaliteti i workshop-it dhe kthehuni në pamjen normale",
+      "logout": "Dil",
+      "openNavigation": "Hap menynë e navigimit",
+      "openUserMenu": "Hap menynë e përdoruesit",
+      "organization": "Organizata",
+      "profile": "Profili",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Krijoni aventura interaktive tekstuale të fuqizuara nga AI",
+          "title": "Krijo aventura"
+        },
+        "learn": {
+          "description": "I përshtatshëm për workshop-e arsimore dhe aktivitete në klasë",
+          "title": "Mëso \u00026 Mëso të tjerët"
+        },
+        "play": {
+          "description": "Bashkohuni me miqtë në sesione bashkëpunuese të tregimit të historive",
+          "title": "Luaj së bashku"
+        },
+        "title": "Pse të zgjidhni ChatGameLab?",
+        "understand": {
+          "description": "Eksploroni se si modelet AI krijojnë histori dhe mësoni si funksionojnë",
+          "title": "Kupono AI-në"
+        }
+      },
+      "loginCta": "Hyni dhe eksploro",
+      "splashDescription": "Një platformë arsimore për krijimin dhe lojën e lojërave tekstuale të fuqizuara nga AI. E përsosur për mësues, nxënës dhe tregimtarë krijues."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Jeni ftuar të bashkoheni në një workshop të organizatës \"{{organization}}\".",
+        "inviteMessageSimple": "Jeni ftuar të bashkoheni në këtë workshop.",
+        "joinButton": "Bashkangjihu workshop-it",
+        "title": "Bashkangjitu workshop-it",
+        "titleWithWorkshop": "Bashkangjitu workshop-it \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Pranimi i ftesës dështoi. Ju lutemi provoni përsëri.",
+        "expired": "Ky link ftesë ka skaduar.",
+        "loadFailed": "Ngarkimi i detajeve të ftesës dështoi. Ju lutemi provoni përsëri.",
+        "notFound": "Ky link ftesë është i pavlefshëm ose është hequr."
+      },
+      "goHome": "Shko te faqja kryesore",
+      "participant": {
+        "loggingIn": "Po regjistroheni..."
+      },
+      "success": {
+        "message": "Keni u bashkuar me sukses në workshop. Duke u ridrejtuar...",
+        "title": "Mirësevini!"
+      },
+      "switchWorkshop": {
+        "message": "Lojërat dhe përparimi juaj në workshop-in aktual do të mbeten, por nuk do të mund të keni akses deri sa të ribashkoheni.",
+        "stayButton": "Qëndro në workshop-in aktual",
+        "switchButton": "Ndrysho workshop-in",
+        "title": "Ndryshoni workshop-in?",
+        "warning": "Aktualisht jeni në workshop-in \"{{currentWorkshop}}\". Bashkimi me \"{{newWorkshop}}\" do t'ju largojë nga workshop-i aktual."
+      }
+    },
+    "labels": {
+      "no": "Jo",
+      "yes": "Po"
+    },
+    "languageSwitcher": {
+      "wipHint": "Më shumë gjuhë janë ende në punë. Vetëm anglishtja dhe gjermanishtja janë të disponueshme tani.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Duke u ngarkuar...",
+    "logout": "Dil",
+    "myGames": {
+      "continue": "Vazhdo",
+      "copyConfirm": {
+        "confirm": "Kopjo lojën",
+        "message": "Kjo do të krijojë një kopje të \"{{name}}\" në lojërat tua.",
+        "title": "Kopjo lojën"
+      },
+      "copyGame": "Kopjo lojën",
+      "empty": {
+        "description": "Krijoni lojën tuaj të parë për të filluar me aventura interaktive të fuqizuara nga AI.",
+        "title": "Ende nuk ka lojëra"
+      },
+      "favorite": "Shto te të preferuarat",
+      "filters": {
+        "all": "Të gjitha",
+        "favorites": "Të preferuarat"
+      },
+      "play": "Luaj",
+      "restart": "Rindezo",
+      "restartConfirm": {
+        "confirm": "Rindezo",
+        "message": "A jeni i sigurt që dëshironi të rindizni \"{{game}}\"? Përparimi juaj aktual do të humbasë.",
+        "title": "Rindezo lojën"
+      },
+      "title": "Lojërat e mia",
+      "unfavorite": "Hiq nga të preferuarat"
+    },
+    "myOrganization": {
+      "actions": "Veprime",
+      "apiKeys": {
+        "aboutDescription": "Çelësat API të ndarë këtu janë të disponueshëm për të gjithë anëtarët e organizatës suaj për të luajtur lojëra. Vetëm drejtuesit dhe mësuesit mund t'i menaxhojnë këto çelësa.",
+        "aboutTitle": "Çelësat API të organizatës",
+        "allowPublicSponsoring": "Lejo sponsorizimin publik",
+        "allowPublicSponsoringDesc": "Ky çelës mund të përdoret për të sponsoruar lojëra për të gjithë përdoruesit.",
+        "filterByPlatform": "Filtro sipas platformës",
+        "keyName": "Emri i çelësit",
+        "loadError": "Ngarkimi i çelësave API të organizatës dështoi.",
+        "noKeys": "Nuk ka ende çelësa API të ndarë me këtë organizatë.",
+        "noResults": "Asnjë çelës API nuk i përputhet kërkimit tuaj.",
+        "notAuthorized": "Nuk keni leje për të menaxhuar çelësat API të organizatës. Vetëm drejtuesit dhe mësuesit mund të aksesojnë këtë faqe.",
+        "owner": "Pronar",
+        "platform": "Platforma",
+        "publicSponsoring": "Sponsorizim publik",
+        "searchPlaceholder": "Kërko sipas emrit ose pronarit...",
+        "selectKey": "Zgjidh çelësin API",
+        "selectKeyPlaceholder": "Zgjidhni një çelës për t'u ndarë...",
+        "share": "Ndaj",
+        "shareKey": "Nda çelësin",
+        "shareKeyTitle": "Ndaj çelës API me organizatën",
+        "title": "Çelësat API të organizatës"
+      },
+      "demoteConfirm": "A jeni i sigurt që dëshironi të degradeshoni \"{{name}}\" ({{email}}) në Mësues?",
+      "demoteTitle": "Degradeso në Mësues",
+      "demoteToStaff": "Degradeso në Mësues",
+      "email": "Email",
+      "emailPlaceholder": "Shkruani adresën e email-it",
+      "empty": "Asnjë anëtar në këtë organizatë.",
+      "inviteAlreadyExists": "Një ftese në pritje ekziston tashmë për këtë adresë email-i.",
+      "inviteError": "Dërgimi i ftesës dështoi. Ju lutemi provoni përsëri.",
+      "inviteTeacher": "Fto mësues",
+      "inviteTeacherDescription": "Dërgoni një ftese për një mësues për t'u bashkuar me organizatën tuaj.",
+      "inviteTeacherTitle": "Fto mësues",
+      "inviteUser": "Fto përdorues",
+      "inviteUserDescription": "Dërgoni një ftese për një përdorues për t'u bashkuar me organizatën tuaj pa një rol të specifikuar.",
+      "inviteUserTitle": "Fto përdorues",
+      "leaveConfirm": "A jeni i sigurt që dëshironi të largoheni nga \"{{name}}\"?",
+      "leaveOrganization": "Lësho organizatën",
+      "leaveTitle": "Lësho organizatën",
+      "leaveWarning": "Do të humbni aksesin në të gjitha burimet dhe anëtarët e organizatës.",
+      "me": "Unë",
+      "name": "Emri",
+      "noEmail": "Asnjë email",
+      "noOrganization": "Asnjë organizatë",
+      "noOrganizationDescription": "Nuk jeni anëtar i asnjë organizate.",
+      "noResults": "Asnjë anëtar nuk i përputhet kërkimit tuaj.",
+      "noRole": "Asnjë rol",
+      "promoteConfirm": "A jeni i sigurt që dëshironi të promovoni \"{{name}}\" ({{email}}) në Drejtor?",
+      "promoteTitle": "Promovo në Drejtor",
+      "promoteToHead": "Promovo në Drejtor",
+      "promoteWarning": "Ky përdorues do të marrë mundësinë të menaxhojë anëtarët e organizatës dhe të ftojë mësues.",
+      "removeConfirm": "A jeni i sigurt që dëshironi të hiqni \"{{name}}\" nga organizata?",
+      "removeMember": "Hiq anëtarin",
+      "removeTitle": "Hiq anëtar",
+      "removeWarning": "Ky përdorues do të humbasë aksesin në organizatë.",
+      "role": "Roli",
+      "searchPlaceholder": "Kërko anëtarë...",
+      "showing": "{{count}} anëtarë",
+      "sort": {
+        "label": "Rendit sipas",
+        "name-asc": "Emri (A-Z)",
+        "name-desc": "Emri (Z-A)",
+        "role-asc": "Roli (A-Z)",
+        "role-desc": "Roli (Z-A)"
+      },
+      "title": "Organizata ime",
+      "workshops": {
+        "activate": "Aktivizo",
+        "active": "Aktiv",
+        "activeDescription": "Workshop-et aktive lejojnë pjesëmarrësit të bashkohen dhe të krijojnë lojëra.",
+        "activeLabel": "Aktiv",
+        "anonymousParticipant": "Pjesëmarrës anonim",
+        "create": "Krijo workshop",
+        "createFirst": "Krijo workshop-in tuaj të parë",
+        "createInviteLink": "Krijo link ftesë",
+        "createTitle": "Krijo workshop",
+        "deactivate": "Ç'aktivizo",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "Çelësi API parazgjedhje",
+        "defaultApiKeyHint": "Pjesëmarrësit do të përdorin këtë çelës API kur luajnë lojëra.",
+        "deleteConfirm": "A jeni i sigurt që dëshironi të fshini \"{{name}}\"?",
+        "deleteTitle": "Fshi workshop-in",
+        "deleteWarning": "Të gjitha lojërat dhe seancat në këtë workshop do të fshihen. Kjo nuk mund të zhbëhet.",
+        "editParticipant": "Ndrysho emrin",
+        "empty": "Ende nuk ka workshop-e.",
+        "enterWorkshop": "Hyr në modalitetin e workshop-it",
+        "games": "Lojëra",
+        "hideInactive": "Fshih të paaktivët",
+        "inactive": "Jo aktiv",
+        "inviteCreatedAt": "Krijuar",
+        "inviteDescription": "Gjeneroni një link ftesë që pjesëmarrësit mund ta përdorin për t'u bashkuar me këtë workshop.",
+        "inviteExpiresAt": "Skadon",
+        "inviteLink": "Link ftesë",
+        "inviteLinkDescription": "Ndani këtë link me pjesëmarrësit për t'i ftuar në workshop.",
+        "inviteLinkTitle": "Link ftesë për {{name}}",
+        "inviteUsage": "Përdorimi",
+        "joined": "Bashkuar",
+        "linkCopied": "Linku u kopjua",
+        "linkCopiedMessage": "Linku i ftesës është kopjuar në memorien tuaj.",
+        "loadError": "Ngarkimi i workshop-eve dështoi.",
+        "nameLabel": "Emri i workshop-it",
+        "namePlaceholder": "p.sh., Kamp veror 2024",
+        "noActiveInvite": "Nuk ka link ftesë aktiv të disponueshëm.",
+        "noDefaultApiKey": "Asnjë çelës API parazgjedhje",
+        "noDefaultModel": "Përdor parazgjedhjen e platformës",
+        "noParticipantToken": "Ky pjesëmarrës nuk ka link ftesë. Vetëm pjesëmarrësit anonimë (mysafirët) kanë linke ftesë të ripërdorshme.",
+        "noParticipants": "Ende nuk ka pjesëmarrës",
+        "notAuthorized": "Nuk keni leje për të menaxhuar workshop-et. Vetëm drejtuesit dhe mësuesit mund të aksesojnë këtë faqe.",
+        "participantGames": "{{count}} lojëra",
+        "participantJoined": "Bashkuar më {{date}}",
+        "participantName": "Emri i pjesëmarrësit",
+        "participants": "Pjesëmarrësit",
+        "removeParticipant": "Hiq pjesëmarrësin",
+        "removeParticipantConfirm": "A jeni i sigurt që dëshironi të hiqni \"{{name}}\" nga ky workshop?",
+        "removeParticipantMessage": "A jeni i sigurt që dëshironi të hiqni \"{{name}}\" nga ky workshop? Kjo veprim nuk mund të zhbëhet.",
+        "removeParticipantTitle": "Hiq pjesëmarrësin",
+        "revokeInvite": "Heq linkun e ftesës",
+        "selectApiKey": "Zgjidh një çelës API",
+        "settings": "Cilësimet",
+        "shareParticipantLink": "Kopjo linkun individual të ftesës për këtë pjesëmarrës",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "Trego lojërat e pjesëmarrësve të tjerë",
+        "showPublicGames": "Trego lojërat publike për pjesëmarrësit",
+        "sort": {
+          "createdAtAsc": "Më të vjetra së pari",
+          "createdAtDesc": "Më të reja së pari",
+          "label": "Rendit sipas",
+          "nameAsc": "Emri (A-Z)",
+          "nameDesc": "Emri (Z-A)",
+          "participantsAsc": "Më pak pjesëmarrës",
+          "participantsDesc": "Më shumë pjesëmarrës"
+        },
+        "subtitle": "Menaxhoni workshop-et dhe ftoni pjesëmarrës për të bashkëpunuar në lojëra.",
+        "title": "Workshop-et",
+        "usedCount": "{{count}} përdorime",
+        "viewInviteLink": "Shiko linkun e ftesës"
+      }
+    },
+    "notifications": {
+      "accept": "Prano",
+      "decline": "Refuzo",
+      "declineConfirm": "A jeni i sigurt që dëshironi të refuzoni këtë ftese?",
+      "declineTitle": "Refuzo ftesën",
+      "empty": "Asnjë njoftim i ri.",
+      "inviteDescription": "Jeni ftuar të bashkoheni si {{role}}.",
+      "inviteToJoin": "Ftesë për organizatë",
+      "title": "Njoftimet"
+    },
+    "play": {
+      "cloneGame": "Kopjo te lojërat e mia",
+      "empty": {
+        "description": "Provoni të rregulloni filtrat ose kontrolloni më vonë për lojëra të reja.",
+        "title": "Asnjë lojë e gjetur"
+      },
+      "favorite": "Shto te të preferuarat",
+      "filters": {
+        "all": "Të gjitha lojërat",
+        "favorites": "Të preferuarat",
+        "organization": "Organizata",
+        "own": "Lojërat e mia",
+        "public": "Publike"
+      },
+      "owner": "E imja",
+      "playGame": "Luaj këtë lojë",
+      "playNow": "Luaj tani",
+      "selectGameTitle": "Zgjidh një lojë",
+      "title": "Zgjidh një lojë",
+      "unfavorite": "Hiq nga të preferuarat"
+    },
+    "profile": "Profili",
+    "save": "Ruaj",
+    "search": "Kërko",
+    "sessions": {
+      "continueGame": "Vazhdo lojën",
+      "deleteConfirm": {
+        "message": "A jeni i sigurt që dëshironi të fshini këtë seancë për \"{{game}}\"? Kjo veprim nuk mund të zhbëhet.",
+        "title": "Fshi seancën"
+      },
+      "empty": {
+        "description": "Nisni një lojë të re për të filluar aventurën tuaj!",
+        "noResults": "Nuk u gjetën lojëra përkatëse",
+        "title": "Ende nuk keni luajtur lojëra"
+      },
+      "errors": {
+        "loadFailed": "Ngarkimi i lojërave tuaja dështoi. Ju lutemi provoni përsëri."
+      },
+      "fields": {
+        "game": "Loja",
+        "lastPlayed": "Luajtur së fundmi",
+        "model": "Modeli"
+      },
+      "noDescription": "Pa përshkrim",
+      "sort": {
+        "game": "Loja",
+        "label": "Rendit sipas",
+        "lastPlayed": "Luajtur së fundmi",
+        "model": "Modeli"
+      },
+      "startNewGame": "Nis një lojë të re",
+      "title": "Vazhdo lojën",
+      "untitledGame": "Loja pa titull"
+    },
+    "settings": "Cilësimet",
+    "unnamed": "Pa emër",
+    "viewGame": "Shiko lojën"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Koordinator projekti dhe organizata kryesore.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Mësoni më shumë rreth projektit arsimor pas kësaj platforme.",
+          "title": "Projekti ChatGameLab"
+        },
+        "title": "Rreth ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Ende nuk ka histori loje. Filloni të luani një lojë!",
+        "title": "Luajtur së fundmi",
+        "viewAll": "Të gjitha lojërat"
+      },
+      "myGames": {
+        "empty": "Ende nuk ka lojëra. Krijoni lojën tuaj të parë!",
+        "title": "Lojërat e mia",
+        "viewAll": "Të gjitha krijimet"
+      },
+      "myWorkshops": {
+        "empty": "Nuk ka workshop-e aktive. Krijoni një workshop në organizatën tuaj!",
+        "title": "Workshop-et e mia",
+        "viewAll": "Të gjitha workshop-et"
+      },
+      "newGames": {
+        "empty": "Ende nuk ka lojëra të disponueshme.",
+        "title": "Lojëra të reja",
+        "viewAll": "Të gjitha lojërat"
+      },
+      "popularGames": {
+        "empty": "Ende nuk ka lojëra të disponueshme.",
+        "plays": "{{count}} luajtje",
+        "title": "Lojëra të njohura",
+        "viewAll": "Të gjitha lojërat"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Krijo lojë të re",
+      "createRoom": "Krijo dhomë",
+      "inviteMembers": "Fto anëtarë",
+      "startNewGame": "Nis lojën e re",
+      "title": "Veprime të shpejta"
+    },
+    "untitled": "Pa titull",
+    "untitledGame": "Loja pa titull",
+    "version": {
+      "mismatch": {
+        "message": "Versioni i frontend-it \u0003\u003cfrontendVersion\u0003\u003e{{frontendVersion}}\u0003\u003c/frontendVersion\u0003\u003e nuk përputhet me versionin e backend-it \u0003\u003cbackendVersion\u0003\u003e{{backendVersion}}\u0003\u003c/backendVersion\u0003\u003e. Kjo mund të shkaktojë sjellje të papritura. Kontaktoni mbështetjen nëse problemet vazhdojnë.",
+        "title": "Kjo mund të shkaktojë mos përputhje versioni"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "Shërbimi i AI-së hasi në një gabim. Ju lutemi provoni përsëri.",
+    "backendUserFetch": "Ngarkimi i të dhënave të përdoruesit nga serveri dështoi. Ju lutemi provoni përsëri.",
+    "billingNotActive": "Llogaria juaj OpenAI nuk është aktive. Ju lutemi kontrolloni detajet e faturimit në https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Kjo veprim hyn në konflikt me të dhënat ekzistuese. Ju lutemi provoni përsëri.",
+    "contentFiltered": "Kërkesa juaj u filtrua nga politika e përmbajtjes së AI-së. Ju lutemi riformuloni.",
+    "forbidden": "Nuk keni leje për të kryer këtë veprim.",
+    "generic": "Diçka shkoi gabim. Ju lutemi provoni përsëri.",
+    "insufficientQuota": "Çelësi juaj API ka mbaruar kreditë. Ju lutemi shtoni më shumë kredi ose përdorni një çelës tjetër API.",
+    "invalidApiKey": "Çelësi juaj API është i pavlefshëm ose ka skaduar. Ju lutemi kontrolloni çelësin tuaj API në Cilësime.",
+    "invalidPlatform": "Platformë e pavlefshme e zgjedhur. Ju lutemi zgjidhni një opsion të vlefshëm.",
+    "invalidToken": "Seanca juaj ka skaduar ose është e pavlefshme. Ju lutemi përdorni përsëri linkun tuaj të ftesës.",
+    "network": "Gabim lidhjeje. Ju lutemi kontrolloni lidhjen tuaj.",
+    "notFound": "Burimi i kërkuar nuk u gjet.",
+    "orgVerificationRequired": "Organizata juaj OpenAI ka nevojë për verifikim për të përdorur funksionin e gjenerimit të imazheve. Ju lutemi verifikohuni në https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "Kërkesa të shumta. Ju lutemi prisni një moment dhe provoni përsëri.",
+    "server": "Gabim shërbimi. Ju lutemi provoni përsëri më vonë.",
+    "titles": {
+      "aiError": "Gabim i AI-së",
+      "authentication": "Gabim Autentikimi",
+      "billing": "Gabim faturimi",
+      "error": "Gabim",
+      "network": "Gabim rrjeti",
+      "notFound": "Nuk u gjet",
+      "permission": "Akses i refuzuar",
+      "server": "Gabim serveri",
+      "validation": "Gabim verifikimi",
+      "workshopInactive": "Workshop jo aktiv"
+    },
+    "unauthorized": "Ju lutemi identifikohuni për të vazhduar.",
+    "unexpected": "Ndodhi një gabim i papritur.",
+    "userNotRegistered": "Duhet të përfundoni regjistrimin para se të vazhdoni.",
+    "validation": "Ju lutemi kontrolloni të dhënat tuaja dhe provoni përsëri.",
+    "workshopInactive": "Ky workshop është çaktivizuar. Ju lutemi kontaktoni mësuesin ose organizatorin e workshop-it."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Filloni të luani lojëra për t'i parë këtu, ose krijoni tuajën!",
+      "title": "Ende nuk ka lojëra"
+    },
+    "filters": {
+      "all": "Të gjitha lojërat",
+      "mine": "Lojërat e mia",
+      "public": "Lojëra publike",
+      "workshop": "Lojëra të workshop-it"
+    },
+    "gameType": "Loja",
+    "organizator": "Organizator: {{name}}",
+    "settings": {
+      "currentWorkshop": "Workshop-i aktual",
+      "notInWorkshopMode": "Nuk jeni në modalitetin e workshop-it. Ju lutemi hyni në një workshop më parë.",
+      "title": "Cilësimet e workshop-it"
+    },
+    "title": "Workshop-i im",
+    "you": "Ti"
+  },
+  "navigation": {
+    "allGames": "Të gjitha lojërat",
+    "create": "Krijo lojën tënde",
+    "dashboard": "Paneli",
+    "games": "Lojëra",
+    "groups": "Grupet",
+    "manageOrganizations": "Menaxho organizatat",
+    "manageUsers": "Menaxho përdoruesit",
+    "myGames": "Lojërat e mia",
+    "myOrganization": "Organizata ime",
+    "myWorkshop": "Workshop-i im",
+    "orgApiKeys": "Çelësat API",
+    "orgMembers": "Anëtarët",
+    "orgWorkshops": "Workshop-et",
+    "play": "Luaj një lojë",
+    "rooms": "Dhomat",
+    "workshopSettings": "Cilësimet e workshop-it"
+  }
+}

@@ -1,0 +1,20 @@
+id: a1b2c3d4-e5f6-4789-a1b2-c3d4e5f67890
+name: Steinsammler
+description: "Ein vorhersehbares Testspiel zur Validierung der Spiele-Engine"
+system_message_scenario: |
+  Ein einfaches Steinsammelspiel für Integrationstests der Spiele-Engine. Das Spiel hat sehr strenge Regeln, die du genau befolgen musst:
+  
+  REGELN, DIE DU BEFOLGEN MUSST:
+  1. In jeder Runde MUSST du das Statusfeld "Tag" um genau 1 erhöhen
+  2. Wenn der Spieler sagt, dass er Steine sammelt (z.B. "Ich sammle 3 Steine"), MUSST du das Statusfeld "Steine" um genau diese Anzahl erhöhen
+  3. Der Spieler beginnt an Tag 1 mit 0 Steinen
+  4. Sei konsistent und vorhersehbar - keine zufälligen Ereignisse
+
+system_message_game_start: |
+  Tag 1
+  Du hast 0 Steine.
+  Du stehst auf einem Feld voller Steine. Du kannst jeden Tag so viele sammeln, wie du möchtest.
+
+image_style: "NO_IMAGE"
+css: ""
+status_fields: '[{"name":"Gold","value":"100"},{"name":"Score","value":"77"},{"name":"Tag","value":"1"},{"name":"Steine","value":"0"},{"name":"Haarfarbe","value":"schwarz"}]'

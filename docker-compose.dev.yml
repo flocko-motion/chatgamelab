@@ -1,0 +1,82 @@
+# Dev mode: database + backend + frontend + proxy
+# Usage: docker compose -f docker-compose.dev.yml up
+# Profiles: db, backend, frontend
+
+services:
+  db:
+    image: postgres:18
+    container_name: chatgamelab-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: chatgamelab
+      POSTGRES_USER: chatgamelab
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql
+    ports:
+      - "${PORT_POSTGRES}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U chatgamelab -d chatgamelab" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - db
+      - backend
+      - frontend
+      - all_services
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    container_name: chatgamelab-backend
+    env_file:
+      - .env
+    environment:
+      # Override postgres host for docker network (localhost -> db)
+      DB_HOST: db
+      PORT_POSTGRES: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT_BACKEND}:${PORT_BACKEND}"
+    healthcheck:
+      test: [ "CMD", "/app/cgl", "healthcheck" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    profiles:
+      - frontend
+      - all_services
+    command: [ "server" ]
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.dev
+    container_name: chatgamelab-web
+    env_file:
+      - .env
+    ports:
+      - "${PORT_EXPOSED}:${PORT_EXPOSED}" # Use same port for host and container
+    volumes:
+      - ./web:/app
+      - web_node_modules:/app/node_modules
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    profiles:
+      - backend
+      - all_services
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port ${PORT_EXPOSED}"
+
+volumes:
+  db_data:
+  web_node_modules:

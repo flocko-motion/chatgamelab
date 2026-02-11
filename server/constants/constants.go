@@ -1,5 +1,5 @@
 package constants
 
 const (
-	ProjectName = "gpt-adventure"
+	ProjectName = "ChatGameLab" // technical name, no spaces or funny characters
 )

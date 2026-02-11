@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000010
+name: Zombie Survival
+description: "Survive the undead apocalypse"
+system_message_scenario: "A mysterious virus has turned most of humanity into zombies. You're holed up in an abandoned shopping mall with a handful of survivors. Supplies are running low."
+system_message_game_start: "Day 14 of the outbreak. You wake to the sound of zombies pounding on the barricaded entrance. Someone needs to make a supply run today."
+image_style: "zombie apocalypse, abandoned cities, survival gear, gritty realism"
+css: ""
+status_fields: '[{"name":"Food","value":"40"},{"name":"Health","value":"100"},{"name":"Survivors","value":"6"}]'

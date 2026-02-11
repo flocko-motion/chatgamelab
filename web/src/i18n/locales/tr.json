@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Auth0 ile giriş yap",
+      "devMode": "Geliştirme Modu",
+      "devModeAlert": {
+        "message": "Bu geliştirici giriş sayfasıdır. Üretimde doğrudan Auth0'ya yönlendirileceksiniz.",
+        "title": "Geliştirme Modu"
+      },
+      "devModeDescription": "Geliştirme ve test için hızlı giriş",
+      "redirecting": {
+        "message": "Giriş sayfasına yönlendirirken lütfen bekleyin.",
+        "title": "Auth0'ya yönlendiriliyor..."
+      },
+      "role": {
+        "admin": "Yönetici olarak giriş yap",
+        "guest": "Misafir olarak giriş yap",
+        "student": "Öğrenci olarak giriş yap",
+        "teacher": "Öğretmen olarak giriş yap"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Atölyeden ayrıl",
+        "message": "Bu atölyeden ayrılmak istediğinizden emin misiniz? Yeniden katılmak için yeni bir davet bağlantısına ihtiyacınız olacak.",
+        "title": "Atölyeden ayrıl?"
+      },
+      "leaveWorkshop": "Atölyeden ayrıl",
+      "organization": "Organizasyon",
+      "role": "Atölye Katılımcısı",
+      "workshop": "Atölye"
+    },
+    "profile": {
+      "gamesCreated": "Oluşturulan Oyunlar",
+      "gamesPlayed": "Oynanan Oyunlar",
+      "memberSince": "Kayıt tarihi",
+      "messagesSent": "Gönderilen Mesajlar",
+      "noOrganization": "Organizasyon yok",
+      "noRole": "Rol atanmamış",
+      "organization": "Organizasyon",
+      "organizationSection": "Organizasyon \u00026 Rol",
+      "role": "Rol",
+      "roles": {
+        "admin": "Yönetici",
+        "head": "Baş Öğretmen",
+        "participant": "Konuk",
+        "staff": "Personel"
+      },
+      "statisticsSection": "İstatistikler",
+      "title": "Profil",
+      "totalPlaysOnGames": "Oyunlarımın Toplam Oynanma Sayısı"
+    },
+    "register": {
+      "cancelButton": "İptal",
+      "emailDescription": "Önemli bildirimler için bunu kullanacağız.",
+      "emailLabel": "E-posta Adresi",
+      "emailPlaceholder": "E-posta adresinizi girin",
+      "errors": {
+        "emailInvalid": "Lütfen geçerli bir e-posta adresi girin",
+        "emailRequired": "E-posta gerekli",
+        "nameRequired": "İsim gerekli",
+        "nameTaken": "Bu isim zaten alınmış",
+        "nameTooLong": "İsim en fazla 24 karakter olmalı",
+        "registrationFailed": "Kayıt başarısız oldu. Lütfen tekrar deneyin."
+      },
+      "nameDescription": "Diğer kullanıcılar sizi böyle görecek. Maksimum 24 karakter.",
+      "nameLabel": "Görünen İsim",
+      "namePlaceholder": "Görünen isminizi girin",
+      "submitButton": "Hesap Oluştur",
+      "submitting": "Hesap oluşturuluyor...",
+      "subtitle": "Başlamak için birkaç detay daha",
+      "title": "Profilinizi Tamamlayın"
+    },
+    "settings": {
+      "accountSection": "Hesap",
+      "emailChangeNote": "E-posta adresinizi değiştirmek için lütfen site yöneticisi ile iletişime geçin.",
+      "errors": {
+        "nameRequired": "İsim gerekli",
+        "nameTaken": "Bu isim zaten alınmış",
+        "nameTooLong": "İsim en fazla 24 karakter olmalı",
+        "saveFailed": "Değişiklikler kaydedilemedi. Lütfen tekrar deneyin."
+      },
+      "nameDescription": "Diğer kullanıcılar sizi böyle görecek. Maksimum 24 karakter.",
+      "nameLabel": "Görünen İsim",
+      "namePlaceholder": "Görünen isminizi girin",
+      "saveButton": "Değişiklikleri Kaydet",
+      "saved": "Değişiklikler başarıyla kaydedildi",
+      "saving": "Kaydediliyor...",
+      "subtitle": "Hesap ayarlarınızı yönetin",
+      "title": "Ayarlar"
+    }
+  },
+  "common": {
+    "actions": "İşlemler",
+    "admin": {
+      "invites": {
+        "actions": "İşlemler",
+        "empty": "Bekleyen davet yok.",
+        "invitedEmail": "Davet Edilen E-posta",
+        "modifiedAt": "Değiştirilme",
+        "noResults": "Aramanızla eşleşen davet yok.",
+        "organization": "Organizasyon",
+        "revokeConfirm": {
+          "confirm": "Sil",
+          "message": "Bu daveti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+          "title": "Daveti Sil"
+        },
+        "role": "Rol",
+        "searchPlaceholder": "E-posta, rol, durum veya organizasyona göre ara...",
+        "sort": {
+          "label": "Sırala",
+          "modifiedAt-asc": "Değiştirilme (En Eski)",
+          "modifiedAt-desc": "Değiştirilme (En Yeni)",
+          "organization-asc": "Organizasyon (A-Z)",
+          "organization-desc": "Organizasyon (Z-A)",
+          "role-asc": "Rol (A-Z)",
+          "role-desc": "Rol (Z-A)",
+          "status-asc": "Durum (A-Z)",
+          "status-desc": "Durum (Z-A)"
+        },
+        "status": "Durum",
+        "statuses": {
+          "accepted": "Kabul Edildi",
+          "declined": "Reddedildi",
+          "expired": "Süresi Doldu",
+          "pending": "Beklemede",
+          "revoked": "Geri Alındı"
+        },
+        "title": "Bekleyen Davetler"
+      },
+      "organizations": {
+        "actions": "İşlemler",
+        "create": "Organizasyon Oluştur",
+        "createTitle": "Yeni Organizasyon Oluştur",
+        "deleteConfirm": "“{{name}}” silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "deleteTitle": "Organizasyonu Sil",
+        "editTitle": "Organizasyonu Düzenle",
+        "email": "E-posta Adresi",
+        "emailPlaceholder": "E-posta adresi girin",
+        "empty": "Henüz organizasyon yok. Başlamak için bir tane oluşturun.",
+        "inviteDescription": "{{name}} kuruluşuna kuruluş yöneticisi olarak katılması için bir davet gönderin.",
+        "inviteTitle": "Organizasyona Davet Et",
+        "memberEmail": "E-posta",
+        "memberName": "İsim",
+        "memberRole": "Rol",
+        "members": "Üyeler",
+        "membersCount": "üyeler",
+        "membersList": "Üyeler",
+        "name": "İsim",
+        "namePlaceholder": "Organizasyon adını girin",
+        "noMembers": "Bu organizasyonda üye yok.",
+        "removeMember": "Üyeyi Kaldır",
+        "removeMemberConfirm": "“{{name}}” bu organizasyondan çıkarılsın mı?",
+        "searchPlaceholder": "Organizasyonları ara...",
+        "sendInvite": "Davet Gönder",
+        "title": "Organizasyonları Yönet"
+      },
+      "users": {
+        "actions": "İşlemler",
+        "deleteConfirm": "“{{name}}” silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "deleteTitle": "Kullanıcıyı Sil",
+        "editEmail": "E-postayı Düzenle",
+        "editTitle": "Kullanıcıyı Düzenle",
+        "editingUser": "Kullanıcı düzenleniyor: {{name}}",
+        "email": "E-posta",
+        "emailPlaceholder": "E-posta adresi girin",
+        "empty": "Kullanıcı bulunamadı.",
+        "hideGuests": "Konukları gizle ({{count}})",
+        "joined": "Katıldı",
+        "loadError": "Kullanıcılar yüklenemedi",
+        "makeAdmin": "Yönetici yap",
+        "me": "Ben",
+        "name": "İsim",
+        "noEmail": "E-posta yok",
+        "noResults": "Aramanızla eşleşen kullanıcı yok.",
+        "noRole": "Rol yok",
+        "organization": "Organizasyon",
+        "promoteConfirm": "“{{name}}” ({{email}}) kullanıcısını yönetici yapmak istediğinizden emin misiniz?",
+        "promoteTitle": "Yönetici Yap",
+        "promoteWarning": "Bu kullanıcıya sisteme tam yönetici erişimi verilecektir.",
+        "removeAdmin": "Yöneticiliği Kaldır",
+        "removeAdminConfirm": "“{{name}}” ({{email}}) kullanıcısından yönetici rolünü kaldırmak istediğinizden emin misiniz?",
+        "removeAdminTitle": "Yönetici Rolünü Kaldır",
+        "removeAdminWarning": "Bu kullanıcı tüm yönetici ayrıcalıklarını kaybedecek.",
+        "role": "Rol",
+        "searchPlaceholder": "İsim, e-posta, rol veya organizasyona göre ara...",
+        "showing": "{{count}} / {{total}} kullanıcı gösteriliyor",
+        "sort": {
+          "email-asc": "E-posta (A-Z)",
+          "email-desc": "E-posta (Z-A)",
+          "joined-asc": "Katılma (En Eski)",
+          "joined-desc": "Katılma (En Yeni)",
+          "label": "Sırala",
+          "name-asc": "İsim (A-Z)",
+          "name-desc": "İsim (Z-A)",
+          "organization-asc": "Organizasyon (A-Z)",
+          "organization-desc": "Organizasyon (Z-A)",
+          "role-asc": "Rol (A-Z)",
+          "role-desc": "Rol (Z-A)"
+        },
+        "title": "Kullanıcıları Yönet"
+      }
+    },
+    "allGames": {
+      "continue": "Devam Et",
+      "copyConfirm": {
+        "confirm": "Oyunu Kopyala",
+        "message": "Bu, \"{{name}}\" oyunundan bir kopya oluşturacaktır.",
+        "title": "Oyunu Kopyala"
+      },
+      "copyGame": "Oyunu Kopyala",
+      "empty": {
+        "description": "Filtrelerini ayarlamayı dene veya yeni oyunlar için daha sonra tekrar kontrol et.",
+        "title": "Oyun bulunamadı"
+      },
+      "favorite": "Favorilere ekle",
+      "filters": {
+        "all": "Tüm Oyunlar",
+        "favorites": "Favoriler",
+        "own": "Benim Oyunlarım",
+        "public": "Herkese Açık"
+      },
+      "play": "Oyna",
+      "restart": "Yeniden Başlat",
+      "restartConfirm": {
+        "confirm": "Yeniden Başlat",
+        "message": "“{{game}}” gerçekten yeniden başlatılsın mı? Mevcut ilerlemeniz kaybedilecek.",
+        "title": "Oyunu Yeniden Başlat"
+      },
+      "title": "Tüm Oyunlar",
+      "unfavorite": "Favorilerden kaldır"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API anahtarları, oyun içerikleri üretmek için AI platformlarına bağlanmak amacıyla kullanılır.",
+        "title": "API Anahtarları Hakkında"
+      },
+      "addKey": "Anahtar Ekle",
+      "addedOn": "Eklendi",
+      "createModal": {
+        "keyDescription": "Anahtarınız şifrelenip güvenli bir şekilde saklanacaktır.",
+        "keyLabel": "API Anahtarı",
+        "keyPlaceholder": "API anahtarınızı girin",
+        "nameLabel": "Anahtar Adı",
+        "namePlaceholder": "ör. Benim OpenAI Anahtarım",
+        "platformLabel": "Platform",
+        "platformPlaceholder": "Bir platform seçin",
+        "submit": "Anahtarı Ekle",
+        "title": "Yeni API Anahtarı Ekle"
+      },
+      "deleteModal": {
+        "message": "“{{name}}” gerçekten silinsin mi?",
+        "title": "API Anahtarını Sil",
+        "warning": "Bu işlem geri alınamaz. Anahtar kalıcı olarak silinecek."
+      },
+      "errors": {
+        "invalidPlatform": "Geçersiz platform seçildi. Lütfen geçerli bir AI platformu seçin.",
+        "keyRequired": "API anahtarı gerekli",
+        "loadFailed": "API anahtarları yüklenemedi. Lütfen tekrar deneyin.",
+        "nameRequired": "İsim gerekli",
+        "platformRequired": "Platform gerekli"
+      },
+      "key": "anahtar",
+      "keys": "anahtarlar",
+      "subtitle": "AI platformları için API anahtarlarınızı yönetin.",
+      "title": "API Anahtarı Yönetimi",
+      "unnamed": "Adsız Anahtar",
+      "unsupportedPlatform": {
+        "badge": "desteklenmiyor",
+        "hint": "Bu platform şu anda desteklenmiyor. Sadece mevcut anahtarları kaldırabilirsiniz."
+      }
+    },
+    "back": "Geri",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "copyGame": "Oyunu Kopyala",
+    "create": "Oluştur",
+    "delete": "Sil",
+    "deleteGame": "Oyunu Sil",
+    "edit": "Düzenle",
+    "editGame": "Oyunu Düzenle",
+    "error": "Hata",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Medya Pedagojisi Enstitüsü",
+      "programmedBy": "Programlayan"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Mesaj ID",
+          "imagePrompt": "Görüntü İstemi",
+          "isStreaming": "Akışta",
+          "seq": "Sıra",
+          "statusFields": "Durum Alanları",
+          "timestamp": "Zaman Damgası",
+          "type": "Tür"
+        },
+        "hints": {
+          "id": "Bu mesaj için benzersiz kimlik",
+          "imagePrompt": "Görüntü oluşturma AI'sına gönderilen istem",
+          "isStreaming": "İçeriğin hâlâ alınıp alınmadığı",
+          "seq": "Konuşmadaki sıra",
+          "statusFields": "AI tarafından takip edilen oyun durum değişkenleri",
+          "timestamp": "Bu mesajın oluşturulduğu zaman",
+          "type": "player = oyuncu girdisi, game = AI yanıtı, system = bağlam"
+        },
+        "title": "Hata Ayıklama Bilgisi"
+      },
+      "error": {
+        "backToGames": "Oyunlara geri dön",
+        "gameNotFound": "Oyun bulunamadı",
+        "missingFields": "Oyunda gerekli alanlar eksik:",
+        "sessionFailed": "Oyun oturumu başlatılamadı"
+      },
+      "header": {
+        "back": "Oyunlara geri dön",
+        "debug": "Hata Ayıklama",
+        "decreaseFont": "Yazı boyutunu küçült",
+        "disableAnimations": "Animasyonları kapat",
+        "increaseFont": "Yazı boyutunu büyüt",
+        "settings": "Ayarlar",
+        "useNeutralTheme": "Nötr tema kullan"
+      },
+      "input": {
+        "placeholder": "Ne yapıyorsun?",
+        "send": "Eylemi Gönder"
+      },
+      "loading": {
+        "game": "Oyun yükleniyor...",
+        "starting": "Oyun oturumu başlatılıyor...",
+        "startingHint": "Yapay zeka maceranızı hazırlıyor"
+      },
+      "needsApiKey": {
+        "description": "Bu oturum için kullanılan API anahtarı artık mevcut değil. Devam etmek için lütfen yeni bir tane seçin.",
+        "reason": "Önceki API anahtarınız artık mevcut değil. Oyununuza devam etmek için lütfen yeni bir anahtar seçin.",
+        "title": "API Anahtarı Gerekli"
+      },
+      "selectApiKey": {
+        "keyDescription": "Bu oyun oturumu için kullanılacak API anahtarını seçin",
+        "keyLabel": "API Anahtarı",
+        "keyPlaceholder": "Bir API anahtarı seçin",
+        "loadError": "API anahtarları yüklenemedi",
+        "mine": "Benim",
+        "modelDescription": "İsteğe bağlı olarak belirli bir AI modeli seçin",
+        "modelLabel": "AI Modeli",
+        "modelPlaceholder": "Varsayılan model",
+        "noKeys": "Oynamak için en az bir API anahtarına ihtiyacınız var. Ayarlar → API Anahtarları bölümünden ekleyin.",
+        "playing": "Oynanıyor",
+        "startGame": "Oyunu Başlat",
+        "title": "API Anahtarı Seç"
+      },
+      "statusChange": {
+        "effect": "Etkisi:"
+      },
+      "unnamed": "Adsız"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Benim Oyunum",
+        "public": "Herkese Açık",
+        "workshop": "Atölye"
+      },
+      "createButton": "Oyun Oluştur",
+      "createModal": {
+        "descriptionPlaceholder": "Oyunun ne hakkında?",
+        "namePlaceholder": "ör. Uzay Macerası",
+        "publicDescription": "Herkese açık oyunlar herkes tarafından bulunabilir.",
+        "publicLabel": "Bu oyunu herkese açık yap",
+        "submit": "Oyunu Oluştur",
+        "title": "Yeni Oyun Oluştur"
+      },
+      "deleteModal": {
+        "message": "“{{name}}” gerçekten silinsin mi?",
+        "title": "Oyunu Sil",
+        "warning": "Bu işlem geri alınamaz. Tüm oyun verileri kalıcı olarak silinecektir."
+      },
+      "editFields": {
+        "description": "Oyuna kısa bir açıklama ver. Bu sadece senin için ve oynanışı etkilemez.",
+        "gameStart": "Oyun nasıl başlıyor?",
+        "gameStartHint": "Oyun nasıl başlamalı? Oyuncunun gördüğü ilk sahne nedir? Oyuncu nasıl karşılanır?",
+        "gameStartPlaceholder": "Karanlık bir ormanın kenarında uyanıyorsun. Dar bir patika ağaçların derinliklerine doğru uzanıyor...",
+        "imageStyle": "Oyunun görselleri hangi stilde olsun?",
+        "imageStyleHint": "Örneğin: çizgi film, gerçekçi, piksel sanat, sulu boya...",
+        "name": "Oyun Adı",
+        "scenario": "Oyun ne hakkında?",
+        "scenarioHint": "Kısaca anlat: Oyun nasıl işliyor? Oyun dünyası nasıl? Dil ve ton (örn. altıncı sınıf için İspanyolca)?\nOyuncunun rolü ne? \"Oyuncu ...\" şeklinde yazın.\nEğer yapay zekanın belirli bir kişinin rolünü almasını istiyorsanız \"Sen ...\" yazın.",
+        "scenarioPlaceholder": "Gizemli bir ormanda bir kâşifsiniz. Amacınız gizli hazineyi bulmak...",
+        "statusFields": "Oyun Değerleri",
+        "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin sağlık, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller."
+      },
+      "editModal": {
+        "title": "Oyunu Düzenle",
+        "unsavedChanges": {
+          "discard": "Değişiklikleri At",
+          "keepEditing": "Düzenlemeye Devam Et",
+          "message": "Kaydedilmemiş değişiklikleriniz var. Bunları gerçekten iptal etmek istiyor musunuz?",
+          "title": "Kaydedilmemiş Değişiklikler"
+        }
+      },
+      "empty": {
+        "description": "İlk oyununuzu oluşturun ve AI destekli etkileşimli maceralara başlayın.",
+        "title": "Henüz oyun yok"
+      },
+      "errors": {
+        "loadFailed": "Oyunlar yüklenemedi. Lütfen tekrar deneyin.",
+        "nameRequired": "Oyun adı gerekli"
+      },
+      "fields": {
+        "created": "Oluşturulma",
+        "creator": "Oluşturan",
+        "me": "Ben",
+        "modified": "Değiştirilme",
+        "name": "İsim",
+        "playCount": "Oynanma",
+        "visibility": "Görünürlük"
+      },
+      "importExport": {
+        "exportButton": "Oyunu Dışa Aktar",
+        "importButton": "Oyunu İçe Aktar"
+      },
+      "playNow": "Şimdi Oyna",
+      "sort": {
+        "createdAt-asc": "Oluşturulma (En Eski)",
+        "createdAt-desc": "Oluşturulma (En Yeni)",
+        "creator-asc": "Oluşturan (A-Z)",
+        "creator-desc": "Oluşturan (Z-A)",
+        "label": "Sırala",
+        "modifiedAt-asc": "Değiştirilme (En Eski)",
+        "modifiedAt-desc": "Değiştirilme (En Yeni)",
+        "name-asc": "İsim (A-Z)",
+        "name-desc": "İsim (Z-A)",
+        "playCount-asc": "En Az Oynanan",
+        "playCount-desc": "En Çok Oynanan",
+        "visibility-asc": "Özel Oyunlar Önde",
+        "visibility-desc": "Herkese Açık Oyunlar Önde"
+      },
+      "statusFieldsEditor": {
+        "addField": "Yeni değer ekle",
+        "namePlaceholder": "İsim (örn. Sağlık)",
+        "noFields": "Henüz değer yok. Yeni değer eklemek için + tuşuna basın.",
+        "valuePlaceholder": "Başlangıç değeri (örn. 100)"
+      },
+      "tabs": {
+        "basic": "Temel",
+        "basicInfo": "Oyunun genel bilgileri. Bu sadece sizin içindir ve oynanışı etkilemez.",
+        "importExport": "İçe/Dışa Aktar",
+        "quickStart": "Hızlı Başlangıç",
+        "story": "Hikaye \u00026 AI",
+        "storyInfo": "Buradaki her şey yapay zekaya gönderilir ve oyun dünyanızı, hikâyenizi şekillendirir.",
+        "style": "Tasarım",
+        "styleInfo": "Oyun oynanırken görünümle ilgili isteğe bağlı ayarlar."
+      },
+      "title": "Oluşturduğum Oyunlar",
+      "viewModal": {
+        "readOnlyNotice": "Bu oyun başka bir kullanıcı tarafından oluşturulmuş. Detayları görebilirsiniz ancak düzenleyemezsiniz. Kendi düzenlenebilir sürümünüzü oluşturmak için \"Kopyala\"yı kullanın.",
+        "title": "Oyun Detayları"
+      },
+      "visibility": {
+        "private": "Özel",
+        "public": "Herkese Açık"
+      }
+    },
+    "header": {
+      "apiKeys": "API Anahtarları",
+      "closeNavigation": "Gezinme menüsünü kapat",
+      "contact": "İletişim",
+      "goToDashboard": "Kontrol Paneline Git",
+      "leaveWorkshopMode": "Atölye Modunu Çık",
+      "leaveWorkshopModeTooltip": "Atölye modundan çık ve normal görünüme dön",
+      "logout": "Çıkış Yap",
+      "openNavigation": "Gezinme menüsünü aç",
+      "openUserMenu": "Kullanıcı menüsünü aç",
+      "organization": "Organizasyon",
+      "profile": "Profil",
+      "workshop": "Atölye"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "AI destekli etkileşimli metin maceraları tasarlayın",
+          "title": "Macera Oluştur"
+        },
+        "learn": {
+          "description": "Eğitim atölyeleri ve sınıf etkinlikleri için ideal",
+          "title": "Öğren \u00026 Öğret"
+        },
+        "play": {
+          "description": "Arkadaşlarla birlikte işbirlikçi hikâye oturumlarına katılın",
+          "title": "Birlikte Oyna"
+        },
+        "title": "Neden ChatGameLab?",
+        "understand": {
+          "description": "AI modellerinin hikâyeleri nasıl oluşturduğunu keşfedin ve nasıl çalıştıklarını öğrenin",
+          "title": "AI'yi Anla"
+        }
+      },
+      "loginCta": "Giriş Yap ve Keşfet",
+      "splashDescription": "AI destekli metin-macera oyunları oluşturmak ve oynamak için bir eğitim platformu. Öğretmenler, öğrenciler ve yaratıcı hikâye anlatıcıları için ideal."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "“{{organization}}” kuruluşunun bir atölyesine davet edildiniz.",
+        "inviteMessageSimple": "Bu atölyeye davet edildiniz.",
+        "joinButton": "Atölyeye Katıl",
+        "title": "Atölyeye Katıl",
+        "titleWithWorkshop": "“{{workshop}}” Atölyesine Katıl"
+      },
+      "errors": {
+        "acceptFailed": "Davet kabul edilemedi. Lütfen tekrar deneyin.",
+        "expired": "Bu davet linkinin süresi doldu.",
+        "loadFailed": "Davet detayları yüklenemedi. Lütfen tekrar deneyin.",
+        "notFound": "Bu davet linki geçersiz veya iptal edilmiş."
+      },
+      "goHome": "Ana Sayfaya Git",
+      "participant": {
+        "loggingIn": "Giriş yapılıyor..."
+      },
+      "success": {
+        "message": "Atölyeye başarıyla katıldınız. Yönlendiriliyorsunuz...",
+        "title": "Hoş Geldiniz!"
+      },
+      "switchWorkshop": {
+        "message": "Mevcut atölyedeki oyunlarınız ve ilerlemeniz saklanacak, ancak yeniden katılana kadar erişemeyeceksiniz.",
+        "stayButton": "Mevcut Atölyede Kal",
+        "switchButton": "Atölyeyi Değiştir",
+        "title": "Atölye Değiştirilsin mi?",
+        "warning": "Şu anda \"{{currentWorkshop}}\" atölyesindesiniz. \"{{newWorkshop}}\" atölyesine katılmak mevcut atölyenizden çıkaracaktır."
+      }
+    },
+    "labels": {
+      "no": "Hayır",
+      "yes": "Evet"
+    },
+    "languageSwitcher": {
+      "wipHint": "Daha fazla dil üzerinde çalışılıyor. Şu anda sadece İngilizce ve Almanca mevcut.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Yükleniyor...",
+    "logout": "Çıkış Yap",
+    "myGames": {
+      "continue": "Devam Et",
+      "copyConfirm": {
+        "confirm": "Oyunu Kopyala",
+        "message": "Bu, \"{{name}}\" oyunundan bir kopya oluşturacaktır.",
+        "title": "Oyunu Kopyala"
+      },
+      "copyGame": "Oyunu Kopyala",
+      "empty": {
+        "description": "İlk oyununuzu oluşturun ve AI destekli etkileşimli maceralara başlayın.",
+        "title": "Henüz oyun yok"
+      },
+      "favorite": "Favorilere ekle",
+      "filters": {
+        "all": "Tümü",
+        "favorites": "Favoriler"
+      },
+      "play": "Oyna",
+      "restart": "Yeniden Başlat",
+      "restartConfirm": {
+        "confirm": "Yeniden Başlat",
+        "message": "“{{game}}” gerçekten yeniden başlatılsın mı? Mevcut ilerlemeniz kaybedilecek.",
+        "title": "Oyunu Yeniden Başlat"
+      },
+      "title": "Oyunlarım",
+      "unfavorite": "Favorilerden kaldır"
+    },
+    "myOrganization": {
+      "actions": "İşlemler",
+      "apiKeys": {
+        "aboutDescription": "Burada paylaşılan API anahtarları organizasyonunuzdaki tüm üyelerin oyun oynarken kullanabileceği şekilde mevcuttur. Sadece baş ve öğretmenler bu anahtarları yönetebilir.",
+        "aboutTitle": "Organizasyon API Anahtarları",
+        "allowPublicSponsoring": "Herkese açık sponsorluğa izin ver",
+        "allowPublicSponsoringDesc": "Bu anahtar tüm kullanıcılar için oyun sponsorluğu yapmak amacıyla kullanılabilir.",
+        "filterByPlatform": "Platforma göre filtrele",
+        "keyName": "Anahtar Adı",
+        "loadError": "Organizasyon API anahtarları yüklenemedi.",
+        "noKeys": "Henüz bu organizasyonla paylaşılmış API anahtarı yok.",
+        "noResults": "Aramanızla eşleşen API anahtarı yok.",
+        "notAuthorized": "Organizasyon API anahtarlarını yönetme izniniz yok. Sadece baş ve öğretmenler bu sayfaya erişebilir.",
+        "owner": "Sahip",
+        "platform": "Platform",
+        "publicSponsoring": "Herkese Açık Sponsor",
+        "searchPlaceholder": "İsim veya sahip ara...",
+        "selectKey": "API Anahtarı Seç",
+        "selectKeyPlaceholder": "Paylaşmak için bir anahtar seçin...",
+        "share": "Paylaş",
+        "shareKey": "Anahtarı Paylaş",
+        "shareKeyTitle": "API Anahtarını Organizasyonla Paylaş",
+        "title": "Organizasyon API Anahtarları"
+      },
+      "demoteConfirm": "“{{name}}” ({{email}}) kullanıcısını Öğretmen olarak düşürmek istediğinizden emin misiniz?",
+      "demoteTitle": "Öğretmen Olarak Düşür",
+      "demoteToStaff": "Öğretmen Olarak Düşür",
+      "email": "E-posta",
+      "emailPlaceholder": "E-posta adresi girin",
+      "empty": "Bu organizasyonda üye yok.",
+      "inviteAlreadyExists": "Bu e-posta adresi için bekleyen bir davet zaten var.",
+      "inviteError": "Davet gönderilemedi. Lütfen tekrar deneyin.",
+      "inviteTeacher": "Öğretmen Davet Et",
+      "inviteTeacherDescription": "Bir öğretmeni organizasyonunuza katılmaya davet edin.",
+      "inviteTeacherTitle": "Öğretmen Davet Et",
+      "inviteUser": "Kullanıcı Davet Et",
+      "inviteUserDescription": "Bir kullanıcıyı belirli bir rol olmadan organizasyonunuza davet edin.",
+      "inviteUserTitle": "Kullanıcı Davet Et",
+      "leaveConfirm": "“{{name}}” organizasyonundan ayrılmak istediğinizden emin misiniz?",
+      "leaveOrganization": "Organasyondan Ayrıl",
+      "leaveTitle": "Organasyondan Ayrıl",
+      "leaveWarning": "Organizasyonun tüm kaynaklarına ve üyelerine erişimi kaybedeceksiniz.",
+      "me": "Ben",
+      "name": "İsim",
+      "noEmail": "E-posta yok",
+      "noOrganization": "Organizasyon yok",
+      "noOrganizationDescription": "Hiçbir organizasyonun üyesi değilsiniz.",
+      "noResults": "Aramanızla eşleşen üye yok.",
+      "noRole": "Rol yok",
+      "promoteConfirm": "“{{name}}” ({{email}}) kullanıcısını baş yönetici (Head) yapmak istediğinizden emin misiniz?",
+      "promoteTitle": "Başa Yükselt",
+      "promoteToHead": "Başa Yükselt",
+      "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
+      "removeConfirm": "“{{name}}” organizasyondan çıkarılsın mı?",
+      "removeMember": "Üyeyi Kaldır",
+      "removeTitle": "Üyeyi Kaldır",
+      "removeWarning": "Bu kullanıcı organizasyona erişimi kaybedecek.",
+      "role": "Rol",
+      "searchPlaceholder": "Üyeleri ara...",
+      "showing": "{{count}} üye",
+      "sort": {
+        "label": "Sırala",
+        "name-asc": "İsim (A-Z)",
+        "name-desc": "İsim (Z-A)",
+        "role-asc": "Rol (A-Z)",
+        "role-desc": "Rol (Z-A)"
+      },
+      "title": "Organizasyonum",
+      "workshops": {
+        "activate": "Etkinleştir",
+        "active": "Aktif",
+        "activeDescription": "Aktif atölyelere katılımcılar katılabilir ve oyun oluşturabilir.",
+        "activeLabel": "Aktif",
+        "anonymousParticipant": "Anonim katılımcı",
+        "create": "Atölye Oluştur",
+        "createFirst": "İlk Atölyeni Oluştur",
+        "createInviteLink": "Davet Linki Oluştur",
+        "createTitle": "Atölye Oluştur",
+        "deactivate": "Devre Dışı Bırak",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "Varsayılan API Anahtarı",
+        "defaultApiKeyHint": "Katılımcılar oyun oynarken bu API anahtarını kullanacak.",
+        "deleteConfirm": "“{{name}}” silinsin mi?",
+        "deleteTitle": "Atölyeyi Sil",
+        "deleteWarning": "Bu atölyedeki tüm oyunlar ve oturumlar silinecek. Bu işlem geri alınamaz.",
+        "editParticipant": "İsmi Düzenle",
+        "empty": "Henüz atölye yok.",
+        "enterWorkshop": "Atölye Moduna Gir",
+        "games": "Oyunlar",
+        "hideInactive": "Aktif olmayanları gizle",
+        "inactive": "Etkin Değil",
+        "inviteCreatedAt": "Oluşturulma",
+        "inviteDescription": "Katılımcıların bu atölyeye katılmak için kullanabileceği bir davet linki oluşturun.",
+        "inviteExpiresAt": "Sona Erme",
+        "inviteLink": "Davet Linki",
+        "inviteLinkDescription": "Katılımcıları atölyeye davet etmek için bu linki paylaşın.",
+        "inviteLinkTitle": "{{name}} için Davet Linki",
+        "inviteUsage": "Kullanım",
+        "joined": "Katıldı",
+        "linkCopied": "Link Kopyalandı",
+        "linkCopiedMessage": "Davet linki panoya kopyalandı.",
+        "loadError": "Atölyeler yüklenemedi.",
+        "nameLabel": "Atölye Adı",
+        "namePlaceholder": "ör. Yaz Kampı 2024",
+        "noActiveInvite": "Aktif davet linki yok.",
+        "noDefaultApiKey": "Varsayılan API anahtarı yok",
+        "noDefaultModel": "Platform varsayılanını kullan",
+        "noParticipantToken": "Bu katılımcının bir davet linki yok. Yalnızca anonim katılımcıların yeniden kullanılabilir davet linkleri vardır.",
+        "noParticipants": "Henüz katılımcı yok",
+        "notAuthorized": "Atölyeleri yönetme izniniz yok. Yalnızca baş ve öğretmenler bu sayfaya erişebilir.",
+        "participantGames": "{{count}} oyun",
+        "participantJoined": "{{date}} tarihinde katıldı",
+        "participantName": "Katılımcı adı",
+        "participants": "Katılımcılar",
+        "removeParticipant": "Katılımcıyı Kaldır",
+        "removeParticipantConfirm": "“{{name}}” bu atölyeden çıkarılsın mı?",
+        "removeParticipantMessage": "“{{name}}” bu atölyeden çıkarılsın mı? Bu işlem geri alınamaz.",
+        "removeParticipantTitle": "Katılımcıyı Kaldır",
+        "revokeInvite": "Davet Linkini İptal Et",
+        "selectApiKey": "API Anahtarı Seç",
+        "settings": "Ayarlar",
+        "shareParticipantLink": "Bu katılımcı için bireysel davet linkini kopyala",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
+        "showPublicGames": "Katılımcılara herkese açık oyunları göster",
+        "sort": {
+          "createdAtAsc": "En Eski Önce",
+          "createdAtDesc": "En Yeni Önce",
+          "label": "Sırala",
+          "nameAsc": "İsim (A-Z)",
+          "nameDesc": "İsim (Z-A)",
+          "participantsAsc": "En Az Katılımcı",
+          "participantsDesc": "En Çok Katılımcı"
+        },
+        "subtitle": "Atölyeleri yönetin ve katılımcıları oyunlarda işbirliği yapmaya davet edin.",
+        "title": "Atölyeler",
+        "usedCount": "{{count}} kullanım",
+        "viewInviteLink": "Davet Linkini Görüntüle"
+      }
+    },
+    "notifications": {
+      "accept": "Kabul Et",
+      "decline": "Reddet",
+      "declineConfirm": "Bu daveti reddetmek istediğinizden emin misiniz?",
+      "declineTitle": "Daveti Reddet",
+      "empty": "Yeni bildirim yok.",
+      "inviteDescription": "Sizi {{role}} olarak davet ettiler.",
+      "inviteToJoin": "Organizasyon Daveti",
+      "title": "Bildirimler"
+    },
+    "play": {
+      "cloneGame": "Oyunlarım'a Kopyala",
+      "empty": {
+        "description": "Filtrelerinizi ayarlamayı deneyin veya yeni oyunlar için daha sonra tekrar kontrol edin.",
+        "title": "Oyun bulunamadı"
+      },
+      "favorite": "Favorilere ekle",
+      "filters": {
+        "all": "Tüm Oyunlar",
+        "favorites": "Favoriler",
+        "organization": "Organizasyon",
+        "own": "Benim Oyunlarım",
+        "public": "Herkese Açık"
+      },
+      "owner": "Benim",
+      "playGame": "Bu oyunu oynat",
+      "playNow": "Şimdi Oyna",
+      "selectGameTitle": "Bir Oyun Seç",
+      "title": "Bir Oyun Seç",
+      "unfavorite": "Favorilerden kaldır"
+    },
+    "profile": "Profil",
+    "save": "Kaydet",
+    "search": "Ara",
+    "sessions": {
+      "continueGame": "Oyuna Devam Et",
+      "deleteConfirm": {
+        "message": "“{{game}}” için bu oturumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "title": "Oturumu Sil"
+      },
+      "empty": {
+        "description": "Maceranıza başlamak için yeni bir oyun başlatın!",
+        "noResults": "Eşleşen oyun bulunamadı",
+        "title": "Henüz oyun oynanmadı"
+      },
+      "errors": {
+        "loadFailed": "Oyunlarınız yüklenemedi. Lütfen tekrar deneyin."
+      },
+      "fields": {
+        "game": "Oyun",
+        "lastPlayed": "Son Oynama",
+        "model": "Model"
+      },
+      "noDescription": "Açıklama yok",
+      "sort": {
+        "game": "Oyun",
+        "label": "Sırala",
+        "lastPlayed": "Son Oynama",
+        "model": "Model"
+      },
+      "startNewGame": "Yeni Oyun Başlat",
+      "title": "Oynamaya Devam Et",
+      "untitledGame": "Adsız Oyun"
+    },
+    "settings": "Ayarlar",
+    "unnamed": "Adsız",
+    "viewGame": "Oyunu Görüntüle"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Proje koordinatörü ve lider kuruluş.",
+          "title": "JFF – Medya Pedagojisi Enstitüsü"
+        },
+        "mainSite": {
+          "description": "Bu platformun arkasındaki eğitim projesi hakkında daha fazla bilgi edinin.",
+          "title": "ChatGameLab Projesi"
+        },
+        "title": "ChatGameLab Hakkında"
+      },
+      "lastPlayed": {
+        "empty": "Henüz oynama geçmişi yok. Bir oyunla oynamaya başlayın!",
+        "title": "Son Oynanan",
+        "viewAll": "Tüm Oyunlar"
+      },
+      "myGames": {
+        "empty": "Henüz oyun yok. İlk oyununuzu oluşturun!",
+        "title": "Oyunlarım",
+        "viewAll": "Tüm Oluşturmalar"
+      },
+      "myWorkshops": {
+        "empty": "Aktif atölye yok. Organizasyonunuzda bir atölye oluşturun!",
+        "title": "Atölyelerim",
+        "viewAll": "Tüm Atölyeler"
+      },
+      "newGames": {
+        "empty": "Henüz oyun yok.",
+        "title": "Yeni Oyunlar",
+        "viewAll": "Tüm Oyunlar"
+      },
+      "popularGames": {
+        "empty": "Henüz oyun yok.",
+        "plays": "{{count}} kez oynandı",
+        "title": "Popüler Oyunlar",
+        "viewAll": "Tüm Oyunlar"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Yeni Oyun Oluştur",
+      "createRoom": "Oda Oluştur",
+      "inviteMembers": "Üyeleri Davet Et",
+      "startNewGame": "Yeni Oyun Başlat",
+      "title": "Hızlı Eylemler"
+    },
+    "untitled": "Adsız",
+    "untitledGame": "Adsız Oyun",
+    "version": {
+      "mismatch": {
+        "message": "Frontend versiyonu \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e ile backend versiyonu \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e eşleşmiyor. Bu beklenmeyen davranışlara yol açabilir. Sorun devam ederse destek ile iletişime geçin.",
+        "title": "Sürüm Uyumsuzluğu Tespit Edildi"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "Yapay zeka servisi bir hata ile karşılaştı. Lütfen tekrar deneyin.",
+    "backendUserFetch": "Kullanıcı verileri sunucudan yüklenemedi. Lütfen tekrar deneyin.",
+    "billingNotActive": "OpenAI hesabınız aktif değil. Lütfen fatura bilgilerinizi https://platform.openai.com/settings/organization/billing adresinden kontrol edin.",
+    "conflict": "Bu işlem mevcut verilerle çelişiyor. Lütfen tekrar deneyin.",
+    "contentFiltered": "İsteğiniz AI'nın içerik politikası tarafından filtrelendi. Lütfen yeniden ifade etmeyi deneyin.",
+    "forbidden": "Bu işlemi gerçekleştirme izniniz yok.",
+    "generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
+    "insufficientQuota": "API anahtarınızın kredisi tükendi. Lütfen daha fazla kredi ekleyin veya farklı bir API anahtarı kullanın.",
+    "invalidApiKey": "API anahtarınız geçersiz veya süresi dolmuş. Lütfen Ayarlar'dan API anahtarınızı kontrol edin.",
+    "invalidPlatform": "Geçersiz platform seçildi. Lütfen geçerli bir seçenek seçin.",
+    "invalidToken": "Oturumunuz süresi dolmuş veya geçersiz. Lütfen davet linkinizi tekrar kullanın.",
+    "network": "Ağ hatası. Lütfen bağlantınızı kontrol edin.",
+    "notFound": "İstenen kaynak bulunamadı.",
+    "orgVerificationRequired": "OpenAI organizasyonunuzun görsel oluşturma özelliğini kullanabilmesi için doğrulanması gerekiyor. Lütfen https://platform.openai.com/settings/organization/general adresinden doğrulayın.",
+    "rateLimitExceeded": "Çok fazla istek. Lütfen bir süre bekleyip tekrar deneyin.",
+    "server": "Sunucu hatası. Lütfen daha sonra tekrar deneyin.",
+    "titles": {
+      "aiError": "AI Hatası",
+      "authentication": "Kimlik Doğrulama Hatası",
+      "billing": "Faturalama Hatası",
+      "error": "Hata",
+      "network": "Ağ Hatası",
+      "notFound": "Bulunamadı",
+      "permission": "Erişim Reddedildi",
+      "server": "Sunucu Hatası",
+      "validation": "Doğrulama Hatası",
+      "workshopInactive": "Atölye Devre Dışı"
+    },
+    "unauthorized": "Devam etmek için lütfen giriş yapın.",
+    "unexpected": "Beklenmeyen bir hata oluştu.",
+    "userNotRegistered": "Devam etmeden önce kaydı tamamlamanız gerekiyor.",
+    "validation": "Lütfen girişinizi kontrol edin ve tekrar deneyin.",
+    "workshopInactive": "Bu atölye devre dışı bırakıldı. Lütfen öğretmeniniz veya atölye organizatörü ile iletişime geçin."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Burada görmek için oyun oynamaya başlayın veya kendi oyununuzu oluşturun!",
+      "title": "Henüz oyun yok"
+    },
+    "filters": {
+      "all": "Tüm Oyunlar",
+      "mine": "Benim Oyunlarım",
+      "public": "Herkese Açık Oyunlar",
+      "workshop": "Atölye Oyunları"
+    },
+    "gameType": "Oyun",
+    "organizator": "Organizatör: {{name}}",
+    "settings": {
+      "currentWorkshop": "Geçerli Atölye",
+      "notInWorkshopMode": "Atölye modunda değilsiniz. Lütfen önce bir atölyeye girin.",
+      "title": "Atölye Ayarları"
+    },
+    "title": "Atölyem",
+    "you": "Sen"
+  },
+  "navigation": {
+    "allGames": "Tüm Oyunlar",
+    "create": "Kendi Oyununuzu Oluşturun",
+    "dashboard": "Kontrol Paneli",
+    "games": "Oyunlar",
+    "groups": "Gruplar",
+    "manageOrganizations": "Organizasyonları Yönet",
+    "manageUsers": "Kullanıcıları Yönet",
+    "myGames": "Oyunlarım",
+    "myOrganization": "Organizasyonum",
+    "myWorkshop": "Atölyem",
+    "orgApiKeys": "API Anahtarları",
+    "orgMembers": "Üyeler",
+    "orgWorkshops": "Atölyeler",
+    "play": "Oyun Oyna",
+    "rooms": "Odalar",
+    "workshopSettings": "Atölye Ayarları"
+  }
+}

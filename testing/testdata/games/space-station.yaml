@@ -1,0 +1,8 @@
+id: 00000000-0000-0000-0000-000000000001
+name: Space Station Alpha
+description: "A sci-fi adventure aboard a mysterious space station"
+system_message_scenario: "You are aboard Space Station Alpha, a massive orbital facility that has gone silent. Strange readings are coming from the reactor core."
+system_message_game_start: "You wake up in the medical bay. The lights are flickering, and an alarm is softly beeping in the distance."
+image_style: "cyberpunk sci-fi, neon lights, metallic corridors, holographic displays"
+css: ""
+status_fields: '[{"name":"Oxygen","value":"100"},{"name":"Energy","value":"75"}]'

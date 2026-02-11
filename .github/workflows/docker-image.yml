@@ -1,36 +1,251 @@
-name: CI to GHCR
+name: Build and Push Docker Images
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build from'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - main
+          - development
+      reason:
+        description: 'Reason for manual build'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chatgamelab
 
 jobs:
+  semantic-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Display build info
+        run: |
+          echo "🚀 Manual build triggered"
+          echo "📂 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "💬 Reason: ${{ github.event.inputs.reason || 'No reason provided' }}"
+          echo "👤 Triggered by: ${{ github.actor }}"
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install semantic-release
+        run: |
+          npm install -g semantic-release
+          npm install -g @semantic-release/github @semantic-release/exec
+      
+      - name: Run semantic-release
+        id: release
+        run: |
+          echo "Running semantic-release on branch: ${{ github.ref_name }}"
+          # Run semantic-release and capture output
+          npx semantic-release > /tmp/release.log 2>&1 || true
+          cat /tmp/release.log
+          
+          # Extract the published version (clean semver without prerelease)
+          VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
+          
+          if [ -z "$VERSION" ]; then
+            # No release was published, check if semantic-release found an existing tag
+            FOUND_TAG=$(grep -oP 'Found git tag v\K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
+            
+            if [ -n "$FOUND_TAG" ]; then
+              VERSION="$FOUND_TAG"
+              echo "No new release, using existing tag: $VERSION"
+            else
+              # Fallback: get the latest tag from git
+              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | head -n1 | sed 's/^v//' || echo "1.0.0")
+              echo "No tag found in release log, using latest git tag: $VERSION"
+            fi
+          else
+            echo "New version published: $VERSION"
+          fi
+          
+          # For development branch, append -dev suffix for Docker images
+          if [ "${{ github.ref_name }}" = "development" ]; then
+            BUILD_VERSION="${VERSION}-dev"
+            echo "Build version for development: $BUILD_VERSION"
+          else
+            BUILD_VERSION="$VERSION"
+            echo "Build version for main: $BUILD_VERSION"
+          fi
+          
+          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build-and-push:
+    needs: semantic-release
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
 
+    strategy:
+      matrix:
+        service:
+          - name: backend
+            context: .
+            dockerfile: ./server/Dockerfile
+          - name: web
+            context: ./web
+            dockerfile: ./web/Dockerfile
+          - name: db
+            context: .
+            dockerfile: ./docker/db/Dockerfile
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/chatgamelab:latest
-
-      - name: Call API to Upgrade
+      - name: Determine image tags
+        id: tags
         run: |
-          curl -X POST https://play.chatgamelab.eu/api/upgrade
+          SERVICE_NAME="${{ matrix.service.name }}"
+          BRANCH_NAME="${{ github.ref_name }}"
+          VERSION="${{ needs.semantic-release.outputs.version }}"
+          
+          # Base image name
+          IMAGE_NAME="${{ env.IMAGE_PREFIX }}-${SERVICE_NAME}"
+          
+          # Initialize tags array
+          TAGS=""
+          
+          # Always add version tag (if we have one)
+          if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
+            TAGS="${IMAGE_NAME}:${VERSION}"
+          fi
+          
+          # Add branch-specific tags
+          if [ "$BRANCH_NAME" = "main" ]; then
+            # Main branch: add latest
+            if [ -n "$TAGS" ]; then
+              TAGS="${TAGS},${IMAGE_NAME}:latest"
+            else
+              TAGS="${IMAGE_NAME}:latest"
+            fi
+          elif [ "$BRANCH_NAME" = "development" ]; then
+            # Development branch: add dev
+            if [ -n "$TAGS" ]; then
+              TAGS="${TAGS},${IMAGE_NAME}:dev"
+            else
+              TAGS="${IMAGE_NAME}:dev"
+            fi
+          fi
+          
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+          echo "Building tags: ${TAGS}"
+
+      - name: Debug version
+        run: |
+          echo "Version from semantic-release: ${{ needs.semantic-release.outputs.version }}"
+      
+      - name: Build and push ${{ matrix.service.name }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ needs.semantic-release.outputs.version }}
+            GIT_COMMIT=${{ github.sha }}
+            BUILD_TIME=${{ github.event.head_commit.timestamp }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.version=${{ needs.semantic-release.outputs.version }}
+
+  webhook:
+    needs: [build-and-push, semantic-release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment webhook
+        run: |
+          echo "Release version: ${{ needs.semantic-release.outputs.version }}"
+          
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            # Production: trigger omnitopos only
+            echo "Triggering production webhook..."
+            curl -X POST \
+              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+              -f \
+              "https://omnitopos.net/dashctl/cgl-prod/restart"
+          else
+            # Development: trigger both omnitopos and coolify
+            echo "Triggering omnitopos dev webhook..."
+            curl -X POST \
+              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+              -f \
+              "https://omnitopos.net/dashctl/cgl-dev/restart" || echo "⚠️ Omnitopos webhook failed"
+            
+            echo "Triggering Coolify dev webhook..."
+            curl -X POST \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
+              -f \
+              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify webhook failed"
+          fi
+
+  summary:
+    needs: [build-and-push, semantic-release, webhook]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build summary
+        run: |
+          echo "## Docker Images Built and Pushed 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Version:** \`${{ needs.semantic-release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Images:" >> $GITHUB_STEP_SUMMARY
+          
+          VERSION="${{ needs.semantic-release.outputs.version }}"
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "$VERSION" != "no-release" ]; then
+              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.ref_name }}" = "development" ]; then
+            if [ "$VERSION" != "no-release" ]; then
+              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:dev\`" >> $GITHUB_STEP_SUMMARY
+          fi

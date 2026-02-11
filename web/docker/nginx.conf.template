@@ -1,0 +1,56 @@
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+
+    # Strip the base path prefix and serve from root
+    # PUBLIC_URL_PATH will be replaced by entrypoint (e.g., "/cgldev" or "")
+    location ${PUBLIC_URL_PATH}/ {
+        # Rewrite to strip the base path, then process normally
+        rewrite ^${PUBLIC_URL_PATH}/(.*)$ /$1 last;
+    }
+
+    # API reverse proxy to backend (internal Docker network)
+    location /api/ {
+        proxy_pass http://backend:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    # Runtime config: never cache (generated at container startup)
+    location = /env.js {
+        add_header Cache-Control "no-store";
+        try_files $uri =404;
+    }
+
+    # index.html: allow revalidation so new releases load quickly
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+        try_files $uri =404;
+    }
+
+    # Vite hashed assets: cache forever (filenames are fingerprinted)
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA fallback: serve index.html for all non-file requests
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

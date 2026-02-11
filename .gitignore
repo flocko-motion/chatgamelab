@@ -1,0 +1,6 @@
+server/__debug_bin*
+
+# Environment files (use .env.example as template)
+.env
+bin
+*/__debug_bin*

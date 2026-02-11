@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Logga in med Auth0",
+      "devMode": "Utvecklingsläge",
+      "devModeAlert": {
+        "message": "Detta är utvecklingsinloggningssidan. I produktion kommer du att omdirigeras direkt till Auth0.",
+        "title": "Utvecklingsläge"
+      },
+      "devModeDescription": "Snabb inloggning för utveckling och testning",
+      "redirecting": {
+        "message": "Vänligen vänta medan vi omdirigerar dig till inloggningssidan.",
+        "title": "Omdirigerar till Auth0..."
+      },
+      "role": {
+        "admin": "Logga in som administratör",
+        "guest": "Logga in som gäst",
+        "student": "Logga in som elev",
+        "teacher": "Logga in som lärare"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Lämna workshop",
+        "message": "Är du säker på att du vill lämna denna workshop? Du behöver en ny inbjudningslänk för att gå med igen.",
+        "title": "Lämna workshop?"
+      },
+      "leaveWorkshop": "Lämna workshop",
+      "organization": "Organisation",
+      "role": "Workshopdeltagare",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Skapade spel",
+      "gamesPlayed": "Spelade spel",
+      "memberSince": "Medlem sedan",
+      "messagesSent": "Skickade meddelanden",
+      "noOrganization": "Ingen organisation",
+      "noRole": "Ingen roll tilldelad",
+      "organization": "Organisation",
+      "organizationSection": "Organisation \u00026 Roll",
+      "role": "Roll",
+      "roles": {
+        "admin": "Administratör",
+        "head": "Huvudansvarig",
+        "participant": "Gäst",
+        "staff": "Personal"
+      },
+      "statisticsSection": "Statistik",
+      "title": "Profil",
+      "totalPlaysOnGames": "Totalt antal spelomgångar för mina spel"
+    },
+    "register": {
+      "cancelButton": "Avbryt",
+      "emailDescription": "Vi kommer att använda denna för viktiga meddelanden.",
+      "emailLabel": "E-postadress",
+      "emailPlaceholder": "Ange din e-post",
+      "errors": {
+        "emailInvalid": "Ange en giltig e-postadress",
+        "emailRequired": "E-post krävs",
+        "nameRequired": "Namn krävs",
+        "nameTaken": "Detta namn är redan taget",
+        "nameTooLong": "Namnet får vara högst 24 tecken",
+        "registrationFailed": "Registreringen misslyckades. Försök igen."
+      },
+      "nameDescription": "Så här syns du för andra användare. Max 24 tecken.",
+      "nameLabel": "Visningsnamn",
+      "namePlaceholder": "Ange ditt visningsnamn",
+      "submitButton": "Skapa konto",
+      "submitting": "Skapar konto...",
+      "subtitle": "Bara några fler uppgifter för att komma igång",
+      "title": "Fyll i din profil"
+    },
+    "settings": {
+      "accountSection": "Konto",
+      "emailChangeNote": "För att ändra din e-postadress, kontakta webbplatsadministratören.",
+      "errors": {
+        "nameRequired": "Namn krävs",
+        "nameTaken": "Detta namn är redan taget",
+        "nameTooLong": "Namnet får vara högst 24 tecken",
+        "saveFailed": "Kunde inte spara ändringarna. Försök igen."
+      },
+      "nameDescription": "Så här syns du för andra användare. Max 24 tecken.",
+      "nameLabel": "Visningsnamn",
+      "namePlaceholder": "Ange ditt visningsnamn",
+      "saveButton": "Spara ändringar",
+      "saved": "Ändringar sparade",
+      "saving": "Sparar...",
+      "subtitle": "Hantera dina kontoinställningar",
+      "title": "Inställningar"
+    }
+  },
+  "common": {
+    "actions": "Åtgärder",
+    "admin": {
+      "invites": {
+        "actions": "Åtgärder",
+        "empty": "Inga väntande inbjudningar.",
+        "invitedEmail": "Inbjuden e-post",
+        "modifiedAt": "Ändrad",
+        "noResults": "Inga inbjudningar matchar din sökning.",
+        "organization": "Organisation",
+        "revokeConfirm": {
+          "confirm": "Ta bort",
+          "message": "Är du säker på att du vill ta bort denna inbjudan? Denna åtgärd kan inte återställas.",
+          "title": "Ta bort inbjudan"
+        },
+        "role": "Roll",
+        "searchPlaceholder": "Sök efter e-post, roll, status eller organisation...",
+        "sort": {
+          "label": "Sortera efter",
+          "modifiedAt-asc": "Ändrad (äldst)",
+          "modifiedAt-desc": "Ändrad (nyast)",
+          "organization-asc": "Organisation (A-Ö)",
+          "organization-desc": "Organisation (Ö-A)",
+          "role-asc": "Roll (A-Ö)",
+          "role-desc": "Roll (Ö-A)",
+          "status-asc": "Status (A-Ö)",
+          "status-desc": "Status (Ö-A)"
+        },
+        "status": "Status",
+        "statuses": {
+          "accepted": "Accepterad",
+          "declined": "Avvisad",
+          "expired": "Utgånget",
+          "pending": "Väntande",
+          "revoked": "Återkallad"
+        },
+        "title": "Väntande inbjudningar"
+      },
+      "organizations": {
+        "actions": "Åtgärder",
+        "create": "Skapa organisation",
+        "createTitle": "Skapa ny organisation",
+        "deleteConfirm": "Är du säker på att du vill ta bort \"{{name}}\"? Denna åtgärd kan inte återställas.",
+        "deleteTitle": "Ta bort organisation",
+        "editTitle": "Redigera organisation",
+        "email": "E-postadress",
+        "emailPlaceholder": "Ange e-postadress",
+        "empty": "Inga organisationer än. Skapa en för att komma igång.",
+        "inviteDescription": "Skicka en inbjudan för att gå med i {{name}} som organisationsansvarig.",
+        "inviteTitle": "Bjud in till organisation",
+        "memberEmail": "E-post",
+        "memberName": "Namn",
+        "memberRole": "Roll",
+        "members": "Medlemmar",
+        "membersCount": "medlemmar",
+        "membersList": "Medlemmar",
+        "name": "Namn",
+        "namePlaceholder": "Ange organisationsnamn",
+        "noMembers": "Inga medlemmar i denna organisation.",
+        "removeMember": "Ta bort medlem",
+        "removeMemberConfirm": "Är du säker på att du vill ta bort {{name}} från denna organisation?",
+        "searchPlaceholder": "Sök organisationer...",
+        "sendInvite": "Skicka inbjudan",
+        "title": "Hantera organisationer"
+      },
+      "users": {
+        "actions": "Åtgärder",
+        "deleteConfirm": "Är du säker på att du vill ta bort \"{{name}}\"? Denna åtgärd kan inte återställas.",
+        "deleteTitle": "Ta bort användare",
+        "editEmail": "Redigera e-post",
+        "editTitle": "Redigera användare",
+        "editingUser": "Redigerar användare: {{name}}",
+        "email": "E-post",
+        "emailPlaceholder": "Ange e-postadress",
+        "empty": "Inga användare hittades.",
+        "hideGuests": "Dölj gäster ({{count}})",
+        "joined": "Gick med",
+        "loadError": "Kunde inte ladda användare",
+        "makeAdmin": "Gör till admin",
+        "me": "Jag",
+        "name": "Namn",
+        "noEmail": "Ingen e-post",
+        "noResults": "Inga användare matchar din sökning.",
+        "noRole": "Ingen roll",
+        "organization": "Organisation",
+        "promoteConfirm": "Är du säker på att du vill befordra \"{{name}}\" ({{email}}) till admin?",
+        "promoteTitle": "Befordra till admin",
+        "promoteWarning": "Denna användare får full administrativ åtkomst till systemet.",
+        "removeAdmin": "Ta bort admin",
+        "removeAdminConfirm": "Är du säker på att du vill ta bort admin-rollen från \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Ta bort admin-roll",
+        "removeAdminWarning": "Denna användare förlorar alla administrativa rättigheter.",
+        "role": "Roll",
+        "searchPlaceholder": "Sök efter namn, e-post, roll eller organisation...",
+        "showing": "Visar {{count}} av {{total}} användare",
+        "sort": {
+          "email-asc": "E-post (A-Ö)",
+          "email-desc": "E-post (Ö-A)",
+          "joined-asc": "Gick med (äldst)",
+          "joined-desc": "Gick med (nyast)",
+          "label": "Sortera efter",
+          "name-asc": "Namn (A-Ö)",
+          "name-desc": "Namn (Ö-A)",
+          "organization-asc": "Organisation (A-Ö)",
+          "organization-desc": "Organisation (Ö-A)",
+          "role-asc": "Roll (A-Ö)",
+          "role-desc": "Roll (Ö-A)"
+        },
+        "title": "Hantera användare"
+      }
+    },
+    "allGames": {
+      "continue": "Fortsätt",
+      "copyConfirm": {
+        "confirm": "Kopiera spel",
+        "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
+        "title": "Kopiera spel"
+      },
+      "copyGame": "Kopiera spel",
+      "empty": {
+        "description": "Försök justera dina filter eller kom tillbaka senare för nya spel.",
+        "title": "Inga spel hittades"
+      },
+      "favorite": "Lägg till i favoriter",
+      "filters": {
+        "all": "Alla spel",
+        "favorites": "Favoriter",
+        "own": "Mina spel",
+        "public": "Offentliga"
+      },
+      "play": "Spela",
+      "restart": "Starta om",
+      "restartConfirm": {
+        "confirm": "Starta om",
+        "message": "Är du säker på att du vill starta om \"{{game}}\"? Din nuvarande framsteg kommer att gå förlorad.",
+        "title": "Starta om spel"
+      },
+      "title": "Alla spel",
+      "unfavorite": "Ta bort från favoriter"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API-nycklar används för att ansluta till AI-plattformar för att generera spelsinnehåll.",
+        "title": "Om API-nycklar"
+      },
+      "addKey": "Lägg till nyckel",
+      "addedOn": "Tillagd",
+      "createModal": {
+        "keyDescription": "Din nyckel kommer att krypteras och lagras säkert.",
+        "keyLabel": "API-nyckel",
+        "keyPlaceholder": "Ange din API-nyckel",
+        "nameLabel": "Nyckelnamn",
+        "namePlaceholder": "t.ex. Min OpenAI-nyckel",
+        "platformLabel": "Plattform",
+        "platformPlaceholder": "Välj en plattform",
+        "submit": "Lägg till nyckel",
+        "title": "Lägg till ny API-nyckel"
+      },
+      "deleteModal": {
+        "message": "Är du säker på att du vill radera \"{{name}}\"?",
+        "title": "Ta bort API-nyckel",
+        "warning": "Denna åtgärd kan inte ångras. Nyckeln kommer att raderas permanent."
+      },
+      "errors": {
+        "invalidPlatform": "Ogiltig plattform vald. Välj en giltig AI-plattform.",
+        "keyRequired": "API-nyckel krävs",
+        "loadFailed": "Kunde inte ladda API-nycklar. Försök igen.",
+        "nameRequired": "Namn krävs",
+        "platformRequired": "Plattform krävs"
+      },
+      "key": "nyckel",
+      "keys": "nycklar",
+      "subtitle": "Hantera dina API-nycklar för AI-plattformar.",
+      "title": "Hantera API-nycklar",
+      "unnamed": "Namnlös nyckel",
+      "unsupportedPlatform": {
+        "badge": "inte stöds",
+        "hint": "Denna plattform stöds för närvarande inte. Du kan endast ta bort befintliga nycklar."
+      }
+    },
+    "back": "Tillbaka",
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "copyGame": "Kopiera spel",
+    "create": "Skapa",
+    "delete": "Ta bort",
+    "deleteGame": "Ta bort spel",
+    "edit": "Redigera",
+    "editGame": "Redigera spel",
+    "error": "Fel",
+    "footer": {
+      "copyright": "JFF - Institutet för mediepedagogik",
+      "jffTitle": "JFF - Institutet för mediepedagogik",
+      "programmedBy": "Programmerad av"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Meddelande-ID",
+          "imagePrompt": "Bildprompt",
+          "isStreaming": "Streaming",
+          "seq": "Sekvens",
+          "statusFields": "Statusfält",
+          "timestamp": "Tidsstämpel",
+          "type": "Typ"
+        },
+        "hints": {
+          "id": "Unik identifierare för detta meddelande",
+          "imagePrompt": "Prompt skickad till bildgenererande AI",
+          "isStreaming": "Om innehåll fortfarande tas emot",
+          "seq": "Ordning i konversationen",
+          "statusFields": "Speltillståndsvariabler som spåras av AI",
+          "timestamp": "När detta meddelande skapades",
+          "type": "player = spelarens inmatning, game = AI-svar, system = kontext"
+        },
+        "title": "Debug-info"
+      },
+      "error": {
+        "backToGames": "Tillbaka till spel",
+        "gameNotFound": "Spelet hittades inte",
+        "missingFields": "Spelet saknar obligatoriska fält:",
+        "sessionFailed": "Kunde inte starta spelsession"
+      },
+      "header": {
+        "back": "Tillbaka till spel",
+        "debug": "Debug",
+        "decreaseFont": "Minska teckenstorlek",
+        "disableAnimations": "Inaktivera animationer",
+        "increaseFont": "Öka teckenstorlek",
+        "settings": "Inställningar",
+        "useNeutralTheme": "Använd neutralt tema"
+      },
+      "input": {
+        "placeholder": "Vad gör du?",
+        "send": "Skicka handling"
+      },
+      "loading": {
+        "game": "Laddar spel...",
+        "starting": "Startar spelsession...",
+        "startingHint": "AI:n förbereder ditt äventyr"
+      },
+      "needsApiKey": {
+        "description": "API-nyckeln som användes för denna session är inte längre tillgänglig. Välj en ny för att fortsätta spela.",
+        "reason": "Din tidigare API-nyckel är inte längre tillgänglig. För att fortsätta ditt spel, välj en ny.",
+        "title": "API-nyckel krävs"
+      },
+      "selectApiKey": {
+        "keyDescription": "Välj API-nyckeln som ska användas för denna spelsession",
+        "keyLabel": "API-nyckel",
+        "keyPlaceholder": "Välj en API-nyckel",
+        "loadError": "Kunde inte ladda API-nycklar",
+        "mine": "Mina",
+        "modelDescription": "Välj eventuellt en specifik AI-modell",
+        "modelLabel": "AI-modell",
+        "modelPlaceholder": "Standardmodell",
+        "noKeys": "Du behöver minst en API-nyckel för att spela. Lägg till en under Inställningar → API-nycklar.",
+        "playing": "Spelar",
+        "startGame": "Starta spel",
+        "title": "Välj API-nyckel"
+      },
+      "statusChange": {
+        "effect": "Effekt:"
+      },
+      "unnamed": "Namnlös"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Mitt spel",
+        "public": "Offentlig",
+        "workshop": "Workshop"
+      },
+      "createButton": "Skapa spel",
+      "createModal": {
+        "descriptionPlaceholder": "Vad handlar ditt spel om?",
+        "namePlaceholder": "t.ex. Rymdäventyr",
+        "publicDescription": "Offentliga spel är synliga för alla.",
+        "publicLabel": "Gör detta spel offentligt",
+        "submit": "Skapa spel",
+        "title": "Skapa nytt spel"
+      },
+      "deleteModal": {
+        "message": "Är du säker på att du vill ta bort \"{{name}}\"?",
+        "title": "Ta bort spel",
+        "warning": "Denna åtgärd kan inte återställas. All speldata kommer att raderas permanent."
+      },
+      "editFields": {
+        "description": "Ge spelet en kort beskrivning. Detta är bara för dig och påverkar inte spelet.",
+        "gameStart": "Hur börjar spelet?",
+        "gameStartHint": "Vad händer i början? Beskriv den första scenen som spelaren ser. Hur välkomnas spelaren?",
+        "gameStartPlaceholder": "Du vaknar vid kanten av en mörk skog. En smal stig leder djupare in bland träden...",
+        "imageStyle": "Vilken stil ska spelets bilder ha?",
+        "imageStyleHint": "Till exempel: tecknat, realistiskt, pixelkonst, akvarell...",
+        "name": "Spelnamn",
+        "scenario": "Vad handlar spelet om?",
+        "scenarioHint": "Beskriv kort: Hur fungerar spelet? Hur ser spelvärlden ut? Språk \u00026 Ton (t.ex. spanska för sjätteklassare)?\nVilken roll har spelaren? Skriv \"Spelaren ...\".\nOm du vill att AI ska anta rollen av en specifik person, skriv \"Du är ...\".",
+        "scenarioPlaceholder": "Du är en upptäcktsresande i en mystisk skog. Ditt mål är att hitta den gömda skatten...",
+        "statusFields": "Spelvärden",
+        "statusFieldsHint": "Vilka värden ska spelet hålla reda på? Till exempel hälsa, poäng eller ammunition. Spelet kommer ihåg dessa värden och uppdaterar dem under spelets gång."
+      },
+      "editModal": {
+        "title": "Redigera spel",
+        "unsavedChanges": {
+          "discard": "Förkasta ändringar",
+          "keepEditing": "Fortsätt redigera",
+          "message": "Du har osparade ändringar. Är du säker på att du vill förkasta dem?",
+          "title": "Osparade ändringar"
+        }
+      },
+      "empty": {
+        "description": "Skapa ditt första spel för att komma igång med interaktiva AI-äventyr.",
+        "title": "Inga spel än"
+      },
+      "errors": {
+        "loadFailed": "Kunde inte ladda spel. Försök igen.",
+        "nameRequired": "Spelnamn krävs"
+      },
+      "fields": {
+        "created": "Skapad",
+        "creator": "Skapare",
+        "me": "Jag",
+        "modified": "Ändrad",
+        "name": "Namn",
+        "playCount": "Spelningar",
+        "visibility": "Synlighet"
+      },
+      "importExport": {
+        "exportButton": "Exportera spel",
+        "importButton": "Importera spel"
+      },
+      "playNow": "Spela nu",
+      "sort": {
+        "createdAt-asc": "Skapad (äldst)",
+        "createdAt-desc": "Skapad (nyast)",
+        "creator-asc": "Skapare (A-Ö)",
+        "creator-desc": "Skapare (Ö-A)",
+        "label": "Sortera efter",
+        "modifiedAt-asc": "Ändrad (äldst)",
+        "modifiedAt-desc": "Ändrad (nyast)",
+        "name-asc": "Namn (A-Ö)",
+        "name-desc": "Namn (Ö-A)",
+        "playCount-asc": "Minst spelade",
+        "playCount-desc": "Mest spelade",
+        "visibility-asc": "Privata först",
+        "visibility-desc": "Offentliga först"
+      },
+      "statusFieldsEditor": {
+        "addField": "Lägg till nytt värde",
+        "namePlaceholder": "Namn (t.ex. Hälsa)",
+        "noFields": "Inga värden ännu. Klicka på + för att lägga till ett nytt värde.",
+        "valuePlaceholder": "Startvärde (t.ex. 100)"
+      },
+      "tabs": {
+        "basic": "Grundläggande",
+        "basicInfo": "Allmän info om spelet. Detta är bara för dig och påverkar inte spelet.",
+        "importExport": "Import/Export",
+        "quickStart": "Snabbstart",
+        "story": "Berättelse \u00026 AI",
+        "storyInfo": "Allt här skickas till AI:n för att forma din spelvärld och berättelse.",
+        "style": "Design",
+        "styleInfo": "Valfria inställningar för spelets utseende under spel."
+      },
+      "title": "Mina skapade spel",
+      "viewModal": {
+        "readOnlyNotice": "Detta spel skapades av en annan användare. Du kan se detaljer men inte redigera. Använd \"Kopiera\" för att skapa din egen redigerbara version.",
+        "title": "Speldetaljer"
+      },
+      "visibility": {
+        "private": "Privat",
+        "public": "Offentlig"
+      }
+    },
+    "header": {
+      "apiKeys": "API-nycklar",
+      "closeNavigation": "Stäng navigationsmenyn",
+      "contact": "Kontakt",
+      "goToDashboard": "Gå till instrumentpanelen",
+      "leaveWorkshopMode": "Lämna workshop-läge",
+      "leaveWorkshopModeTooltip": "Avsluta workshop-läge och återgå till normal vy",
+      "logout": "Logga ut",
+      "openNavigation": "Öppna navigationsmenyn",
+      "openUserMenu": "Öppna användarmenyn",
+      "organization": "Organisation",
+      "profile": "Profil",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Skapa interaktiva textäventyr drivna av AI",
+          "title": "Skapa äventyr"
+        },
+        "learn": {
+          "description": "Perfekt för utbildningsworkshops och klassrumsaktiviteter",
+          "title": "Lära \u00026 Undervisa"
+        },
+        "play": {
+          "description": "Spela tillsammans i samarbetande berättarsessioner",
+          "title": "Spela tillsammans"
+        },
+        "title": "Varför välja ChatGameLab?",
+        "understand": {
+          "description": "Utforska hur AI-modeller skapar berättelser och lär dig hur de fungerar",
+          "title": "Förstå AI"
+        }
+      },
+      "loginCta": "Logga in och utforska",
+      "splashDescription": "En utbildningsplattform för att skapa och spela AI-drivna textäventyr. Perfekt för lärare, elever och kreativa berättare."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Du har blivit inbjuden att gå med i en workshop i organisationen \"{{organization}}\".",
+        "inviteMessageSimple": "Du har blivit inbjuden att gå med i denna workshop.",
+        "joinButton": "Gå med i workshop",
+        "title": "Gå med i workshop",
+        "titleWithWorkshop": "Gå med i workshop \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Kunde inte acceptera inbjudan. Försök igen.",
+        "expired": "Denna inbjudningslänk har gått ut.",
+        "loadFailed": "Kunde inte ladda inbjudningsdetaljer. Försök igen.",
+        "notFound": "Denna inbjudningslänk är ogiltig eller har blivit återkallad."
+      },
+      "goHome": "Gå till startsidan",
+      "participant": {
+        "loggingIn": "Loggar in dig..."
+      },
+      "success": {
+        "message": "Du har gått med i workshopen. Omdirigerar...",
+        "title": "Välkommen!"
+      },
+      "switchWorkshop": {
+        "message": "Dina spel och framsteg i den nuvarande workshopen förblir, men du kommer inte kunna komma åt dem förrän du går med igen.",
+        "stayButton": "Stanna i nuvarande workshop",
+        "switchButton": "Byt workshop",
+        "title": "Byt workshop?",
+        "warning": "Du är för närvarande i workshop \"{{currentWorkshop}}\". Att gå med i \"{{newWorkshop}}\" kommer att ta dig ur din nuvarande workshop."
+      }
+    },
+    "labels": {
+      "no": "Nej",
+      "yes": "Ja"
+    },
+    "languageSwitcher": {
+      "wipHint": "Fler språk är under arbete. Endast engelska och tyska är tillgängliga just nu.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Läser...",
+    "logout": "Logga ut",
+    "myGames": {
+      "continue": "Fortsätt",
+      "copyConfirm": {
+        "confirm": "Kopiera spel",
+        "message": "Detta skapar en kopia av \"{{name}}\" i dina spel.",
+        "title": "Kopiera spel"
+      },
+      "copyGame": "Kopiera spel",
+      "empty": {
+        "description": "Skapa ditt första spel för att komma igång med interaktiva AI-äventyr.",
+        "title": "Inga spel än"
+      },
+      "favorite": "Lägg till i favoriter",
+      "filters": {
+        "all": "Alla",
+        "favorites": "Favoriter"
+      },
+      "play": "Spela",
+      "restart": "Starta om",
+      "restartConfirm": {
+        "confirm": "Starta om",
+        "message": "Är du säker på att du vill starta om \"{{game}}\"? Din nuvarande framsteg kommer att gå förlorad.",
+        "title": "Starta om spel"
+      },
+      "title": "Mina spel",
+      "unfavorite": "Ta bort från favoriter"
+    },
+    "myOrganization": {
+      "actions": "Åtgärder",
+      "apiKeys": {
+        "aboutDescription": "API-nycklar som delas här är tillgängliga för alla medlemmar i din organisation för att spela spel. Endast ledare och lärare kan hantera dessa nycklar.",
+        "aboutTitle": "Organisations-API-nycklar",
+        "allowPublicSponsoring": "Tillåt offentligt sponsring",
+        "allowPublicSponsoringDesc": "Denna nyckel kan användas för att sponsra spel för alla användare.",
+        "filterByPlatform": "Filtrera efter plattform",
+        "keyName": "Nyckelnamn",
+        "loadError": "Kunde inte ladda organisationens API-nycklar.",
+        "noKeys": "Inga API-nycklar delade med denna organisation än.",
+        "noResults": "Inga API-nycklar matchar din sökning.",
+        "notAuthorized": "Du har inte behörighet att hantera organisations-API-nycklar. Endast ledare och lärare kan komma åt den här sidan.",
+        "owner": "Ägare",
+        "platform": "Plattform",
+        "publicSponsoring": "Offentlig sponsring",
+        "searchPlaceholder": "Sök efter namn eller ägare...",
+        "selectKey": "Välj API-nyckel",
+        "selectKeyPlaceholder": "Välj en nyckel att dela...",
+        "share": "Dela",
+        "shareKey": "Dela nyckel",
+        "shareKeyTitle": "Dela API-nyckel med organisation",
+        "title": "Organisations-API-nycklar"
+      },
+      "demoteConfirm": "Är du säker på att du vill degradera \"{{name}}\" ({{email}}) till lärare?",
+      "demoteTitle": "Degradera till lärare",
+      "demoteToStaff": "Degradera till lärare",
+      "email": "E-post",
+      "emailPlaceholder": "Ange e-postadress",
+      "empty": "Inga medlemmar i denna organisation.",
+      "inviteAlreadyExists": "En väntande inbjudan finns redan för denna e-postadress.",
+      "inviteError": "Kunde inte skicka inbjudan. Försök igen.",
+      "inviteTeacher": "Bjud in lärare",
+      "inviteTeacherDescription": "Skicka en inbjudan till en lärare att gå med i din organisation.",
+      "inviteTeacherTitle": "Bjud in lärare",
+      "inviteUser": "Bjud in användare",
+      "inviteUserDescription": "Skicka en inbjudan till en användare att gå med i din organisation utan en specifik roll.",
+      "inviteUserTitle": "Bjud in användare",
+      "leaveConfirm": "Är du säker på att du vill lämna \"{{name}}\"?",
+      "leaveOrganization": "Lämna organisation",
+      "leaveTitle": "Lämna organisation",
+      "leaveWarning": "Du förlorar åtkomst till alla organisationsresurser och medlemmar.",
+      "me": "Jag",
+      "name": "Namn",
+      "noEmail": "Ingen e-post",
+      "noOrganization": "Ingen organisation",
+      "noOrganizationDescription": "Du är inte medlem i någon organisation.",
+      "noResults": "Inga medlemmar matchar din sökning.",
+      "noRole": "Ingen roll",
+      "promoteConfirm": "Är du säker på att du vill befordra \"{{name}}\" ({{email}}) till ledare?",
+      "promoteTitle": "Befordra till ledare",
+      "promoteToHead": "Befordra till ledare",
+      "promoteWarning": "Denna användare kommer att få möjligheten att hantera organisationsmedlemmar och bjuda in lärare.",
+      "removeConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från organisationen?",
+      "removeMember": "Ta bort medlem",
+      "removeTitle": "Ta bort medlem",
+      "removeWarning": "Denna användare kommer att förlora åtkomst till organisationen.",
+      "role": "Roll",
+      "searchPlaceholder": "Sök medlemmar...",
+      "showing": "{{count}} medlemmar",
+      "sort": {
+        "label": "Sortera efter",
+        "name-asc": "Namn (A-Ö)",
+        "name-desc": "Namn (Ö-A)",
+        "role-asc": "Roll (A-Ö)",
+        "role-desc": "Roll (Ö-A)"
+      },
+      "title": "Min organisation",
+      "workshops": {
+        "activate": "Aktivera",
+        "active": "Aktiv",
+        "activeDescription": "Aktiva workshops tillåter deltagare att gå med och skapa spel.",
+        "activeLabel": "Aktiv",
+        "anonymousParticipant": "Anonym deltagare",
+        "create": "Skapa workshop",
+        "createFirst": "Skapa din första workshop",
+        "createInviteLink": "Skapa inbjudningslänk",
+        "createTitle": "Skapa workshop",
+        "deactivate": "Inaktivera",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "Standard-API-nyckel",
+        "defaultApiKeyHint": "Deltagarna kommer att använda denna API-nyckel när de spelar.",
+        "deleteConfirm": "Är du säker på att du vill ta bort \"{{name}}\"?",
+        "deleteTitle": "Ta bort workshop",
+        "deleteWarning": "Alla spel och sessioner i denna workshop kommer att raderas. Detta kan inte återställas.",
+        "editParticipant": "Redigera namn",
+        "empty": "Inga workshops ännu.",
+        "enterWorkshop": "Gå in i workshop-läge",
+        "games": "Spel",
+        "hideInactive": "Dölj inaktiva",
+        "inactive": "Inaktiv",
+        "inviteCreatedAt": "Skapad",
+        "inviteDescription": "Generera en inbjudningslänk som deltagare kan använda för att gå med i denna workshop.",
+        "inviteExpiresAt": "Löper ut",
+        "inviteLink": "Inbjudningslänk",
+        "inviteLinkDescription": "Dela denna länk med deltagare för att låta dem gå med i workshopen.",
+        "inviteLinkTitle": "Inbjudningslänk för {{name}}",
+        "inviteUsage": "Användning",
+        "joined": "Gick med",
+        "linkCopied": "Länk kopierad",
+        "linkCopiedMessage": "Inbjudningslänken har kopierats till din urklippshanterare.",
+        "loadError": "Kunde inte ladda workshops.",
+        "nameLabel": "Workshop-namn",
+        "namePlaceholder": "t.ex. Sommarkollo 2024",
+        "noActiveInvite": "Ingen aktiv inbjudningslänk tillgänglig.",
+        "noDefaultApiKey": "Ingen standard-API-nyckel",
+        "noDefaultModel": "Använd plattformsstandard",
+        "noParticipantToken": "Denna deltagare har ingen inbjudningslänk. Endast anonyma deltagare (gäster) har återanvändbara inbjudningslänkar.",
+        "noParticipants": "Inga deltagare ännu",
+        "notAuthorized": "Du har inte behörighet att hantera workshops. Endast ledare och lärare kan komma åt den här sidan.",
+        "participantGames": "{{count}} spel",
+        "participantJoined": "Gick med {{date}}",
+        "participantName": "Deltagarnamn",
+        "participants": "Deltagare",
+        "removeParticipant": "Ta bort deltagare",
+        "removeParticipantConfirm": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop?",
+        "removeParticipantMessage": "Är du säker på att du vill ta bort \"{{name}}\" från denna workshop? Denna åtgärd kan inte återställas.",
+        "removeParticipantTitle": "Ta bort deltagare",
+        "revokeInvite": "Återkalla inbjudningslänk",
+        "selectApiKey": "Välj en API-nyckel",
+        "settings": "Inställningar",
+        "shareParticipantLink": "Kopiera individuell inbjudningslänk för denna deltagare",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "Visa andra deltagares spel",
+        "showPublicGames": "Visa offentliga spel för deltagare",
+        "sort": {
+          "createdAtAsc": "Äldst först",
+          "createdAtDesc": "Nyast först",
+          "label": "Sortera efter",
+          "nameAsc": "Namn (A-Ö)",
+          "nameDesc": "Namn (Ö-A)",
+          "participantsAsc": "Minst deltagare",
+          "participantsDesc": "Flest deltagare"
+        },
+        "subtitle": "Hantera workshops och bjud in deltagare att samarbeta kring spel.",
+        "title": "Workshops",
+        "usedCount": "{{count}} användningar",
+        "viewInviteLink": "Visa inbjudningslänk"
+      }
+    },
+    "notifications": {
+      "accept": "Acceptera",
+      "decline": "Avvisa",
+      "declineConfirm": "Är du säker på att du vill avvisa denna inbjudan?",
+      "declineTitle": "Avvisa inbjudan",
+      "empty": "Inga nya aviseringar.",
+      "inviteDescription": "Du har blivit inbjuden att gå med som {{role}}.",
+      "inviteToJoin": "Organisationsinbjudan",
+      "title": "Aviseringar"
+    },
+    "play": {
+      "cloneGame": "Kopiera till mina spel",
+      "empty": {
+        "description": "Försök justera dina filter eller kom tillbaka senare för nya spel.",
+        "title": "Inga spel hittades"
+      },
+      "favorite": "Lägg till i favoriter",
+      "filters": {
+        "all": "Alla spel",
+        "favorites": "Favoriter",
+        "organization": "Organisation",
+        "own": "Mina spel",
+        "public": "Offentliga"
+      },
+      "owner": "Mina",
+      "playGame": "Spela detta spel",
+      "playNow": "Spela nu",
+      "selectGameTitle": "Välj ett spel",
+      "title": "Välj ett spel",
+      "unfavorite": "Ta bort från favoriter"
+    },
+    "profile": "Profil",
+    "save": "Spara",
+    "search": "Sök",
+    "sessions": {
+      "continueGame": "Fortsätt spel",
+      "deleteConfirm": {
+        "message": "Är du säker på att du vill ta bort denna session för \"{{game}}\"? Denna åtgärd kan inte återställas.",
+        "title": "Ta bort session"
+      },
+      "empty": {
+        "description": "Starta ett nytt spel för att börja ditt äventyr!",
+        "noResults": "Inga matchande spel hittades",
+        "title": "Inga spel spelade ännu"
+      },
+      "errors": {
+        "loadFailed": "Kunde inte ladda dina spel. Försök igen."
+      },
+      "fields": {
+        "game": "Spel",
+        "lastPlayed": "Senast spelat",
+        "model": "Modell"
+      },
+      "noDescription": "Ingen beskrivning",
+      "sort": {
+        "game": "Spel",
+        "label": "Sortera efter",
+        "lastPlayed": "Senast spelat",
+        "model": "Modell"
+      },
+      "startNewGame": "Starta nytt spel",
+      "title": "Fortsätt spela",
+      "untitledGame": "Namnlöst spel"
+    },
+    "settings": "Inställningar",
+    "unnamed": "Namnlös",
+    "viewGame": "Visa spel"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Projektkoordinator och huvudorganisation.",
+          "title": "JFF – Institutet för mediepedagogik"
+        },
+        "mainSite": {
+          "description": "Läs mer om utbildningsprojektet bakom denna plattform.",
+          "title": "ChatGameLab-projektet"
+        },
+        "title": "Om ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Ingen spelhistorik än. Börja spela!",
+        "title": "Senast spelat",
+        "viewAll": "Alla spel"
+      },
+      "myGames": {
+        "empty": "Inga spel än. Skapa ditt första spel!",
+        "title": "Mina spel",
+        "viewAll": "Alla skapelser"
+      },
+      "myWorkshops": {
+        "empty": "Inga aktiva workshops. Skapa en workshop i din organisation!",
+        "title": "Mina workshops",
+        "viewAll": "Alla workshops"
+      },
+      "newGames": {
+        "empty": "Inga spel tillgängliga ännu.",
+        "title": "Nya spel",
+        "viewAll": "Alla spel"
+      },
+      "popularGames": {
+        "empty": "Inga spel tillgängliga ännu.",
+        "plays": "{{count}} spelningar",
+        "title": "Populära spel",
+        "viewAll": "Alla spel"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Skapa nytt spel",
+      "createRoom": "Skapa rum",
+      "inviteMembers": "Bjud in medlemmar",
+      "startNewGame": "Starta nytt spel",
+      "title": "Snabbåtgärder"
+    },
+    "untitled": "Namnlös",
+    "untitledGame": "Namnlöst spel",
+    "version": {
+      "mismatch": {
+        "message": "Frontend-version {{frontendVersion}} stämmer inte överens med backend-version {{backendVersion}}. Detta kan orsaka oväntat beteende. Kontakta support om problem kvarstår.",
+        "title": "Versionkonflikt upptäckt"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "AI-tjänsten stötte på ett fel. Försök igen.",
+    "backendUserFetch": "Kunde inte hämta användardata från servern. Försök igen.",
+    "billingNotActive": "Ditt OpenAI-konto är inte aktivt. Kontrollera dina faktureringsuppgifter på https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Denna åtgärd strider mot befintliga data. Försök igen.",
+    "contentFiltered": "Din förfrågan filtrerades av AI:ns innehållspolicy. Försök omformulera.",
+    "forbidden": "Du har inte behörighet att utföra denna åtgärd.",
+    "generic": "Något gick fel. Försök igen.",
+    "insufficientQuota": "Din API-nyckel har slut på krediter. Lägg till mer krediter eller använd en annan API-nyckel.",
+    "invalidApiKey": "Din API-nyckel är ogiltig eller har gått ut. Kontrollera din API-nyckel i Inställningar.",
+    "invalidPlatform": "Ogiltig plattform vald. Välj ett giltigt alternativ.",
+    "invalidToken": "Din session har gått ut eller är ogiltig. Använd din inbjudningslänk igen.",
+    "network": "Nätverksfel. Kontrollera din anslutning.",
+    "notFound": "Den begärda resursen hittades inte.",
+    "orgVerificationRequired": "Din OpenAI-organisation måste verifieras för att bildgenerering ska fungera. Verifiera på https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "För många förfrågningar. Vänta en stund och försök igen.",
+    "server": "Serverfel. Försök igen senare.",
+    "titles": {
+      "aiError": "AI-fel",
+      "authentication": "Autentiseringsfel",
+      "billing": "Betalningsfel",
+      "error": "Fel",
+      "network": "Nätverksfel",
+      "notFound": "Hittades inte",
+      "permission": "Åtkomst nekad",
+      "server": "Serverfel",
+      "validation": "Valideringsfel",
+      "workshopInactive": "Workshop inaktiv"
+    },
+    "unauthorized": "Logga in för att fortsätta.",
+    "unexpected": "Ett oväntat fel inträffade.",
+    "userNotRegistered": "Du måste slutföra registreringen innan du fortsätter.",
+    "validation": "Kontrollera din inmatning och försök igen.",
+    "workshopInactive": "Denna workshop har inaktiverats. Kontakta din lärare eller workshop-arrangör."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Börja spela spel för att se dem här, eller skapa ditt eget!",
+      "title": "Inga spel än"
+    },
+    "filters": {
+      "all": "Alla spel",
+      "mine": "Mina spel",
+      "public": "Offentliga spel",
+      "workshop": "Workshop-spel"
+    },
+    "gameType": "Spel",
+    "organizator": "Arrangör: {{name}}",
+    "settings": {
+      "currentWorkshop": "Aktuell workshop",
+      "notInWorkshopMode": "Du är inte i workshop-läge. Gå in i en workshop först.",
+      "title": "Workshop-inställningar"
+    },
+    "title": "Min workshop",
+    "you": "Du"
+  },
+  "navigation": {
+    "allGames": "Alla spel",
+    "create": "Skapa ditt eget spel",
+    "dashboard": "Instrumentpanelen",
+    "games": "Spel",
+    "groups": "Grupper",
+    "manageOrganizations": "Hantera organisationer",
+    "manageUsers": "Hantera användare",
+    "myGames": "Mina spel",
+    "myOrganization": "Min organisation",
+    "myWorkshop": "Min workshop",
+    "orgApiKeys": "API-nycklar",
+    "orgMembers": "Medlemmar",
+    "orgWorkshops": "Workshops",
+    "play": "Spela ett spel",
+    "rooms": "Rum",
+    "workshopSettings": "Workshop-inställningar"
+  }
+}

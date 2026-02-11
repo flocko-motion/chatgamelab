@@ -1,0 +1,33 @@
+.wrapper {
+  position: relative;
+}
+
+.content {
+  transition: opacity 160ms ease;
+}
+
+.contentDimmed {
+  opacity: 0.5;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(1px);
+}
+
+.spinner {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 10px rgba(var(--glow-color-rgb), 0.25));
+}

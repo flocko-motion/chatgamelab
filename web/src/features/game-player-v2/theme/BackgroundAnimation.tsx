@@ -1,0 +1,52 @@
+/**
+ * Background Animation Components
+ *
+ * Provides animated backgrounds for the game player scene area.
+ * All animations are purely visual and non-destructive.
+ */
+
+import { useMemo } from "react";
+import type { BackgroundAnimation as AnimationType } from "./types";
+import styles from "./BackgroundAnimation.module.css";
+
+interface BackgroundAnimationProps {
+  animation: AnimationType;
+  className?: string;
+}
+
+export function BackgroundAnimation({
+  animation,
+  className,
+}: BackgroundAnimationProps) {
+  const animationClass = useMemo(() => {
+    switch (animation) {
+      case "stars":
+        return styles.stars;
+      case "bubbles":
+        return styles.particles;
+      case "fireflies":
+        return styles.particles;
+      case "snow":
+        return styles.snow;
+      case "waves":
+        return styles.waves;
+      case "glowworm":
+        return styles.glowworm;
+      case "bits":
+        return styles.scanlines;
+      default:
+        return "";
+    }
+  }, [animation]);
+
+  if (animation === "none") {
+    return null;
+  }
+
+  return (
+    <div
+      className={`${styles.animationLayer} ${animationClass} ${className || ""}`}
+      aria-hidden="true"
+    />
+  );
+}

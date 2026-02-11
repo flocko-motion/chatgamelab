@@ -1,0 +1,911 @@
+{
+  "_sourceHash": "98425c3aa434b7f9",
+  "auth": {
+    "login": {
+      "auth0Button": "Inloggen met Auth0",
+      "devMode": "Ontwikkelmodus",
+      "devModeAlert": {
+        "message": "Dit is de ontwikkelaars-loginpagina. In productie word je direct naar Auth0 doorgestuurd.",
+        "title": "Ontwikkelmodus"
+      },
+      "devModeDescription": "Snel inloggen voor ontwikkeling en testen",
+      "redirecting": {
+        "message": "Wacht even terwijl we je naar de inlogpagina doorsturen.",
+        "title": "Doorsturen naar Auth0..."
+      },
+      "role": {
+        "admin": "Inloggen als Admin",
+        "guest": "Inloggen als Gast",
+        "student": "Inloggen als Student",
+        "teacher": "Inloggen als Docent"
+      }
+    },
+    "participant": {
+      "leaveConfirm": {
+        "confirm": "Workshop verlaten",
+        "message": "Weet je zeker dat je deze workshop wilt verlaten? Je hebt een nieuwe uitnodigingslink nodig om opnieuw deel te nemen.",
+        "title": "Workshop verlaten?"
+      },
+      "leaveWorkshop": "Workshop verlaten",
+      "organization": "Organisatie",
+      "role": "Workshopdeelnemer",
+      "workshop": "Workshop"
+    },
+    "profile": {
+      "gamesCreated": "Aangemaakte spellen",
+      "gamesPlayed": "Gespeelde spellen",
+      "memberSince": "Geregistreerd sinds",
+      "messagesSent": "Verzonden berichten",
+      "noOrganization": "Geen organisatie",
+      "noRole": "Geen rol toegewezen",
+      "organization": "Organisatie",
+      "organizationSection": "Organisatie \u00026 Rol",
+      "role": "Rol",
+      "roles": {
+        "admin": "Beheerder",
+        "head": "Hoofd",
+        "participant": "Gast",
+        "staff": "Personeelslid"
+      },
+      "statisticsSection": "Statistieken",
+      "title": "Profiel",
+      "totalPlaysOnGames": "Totaal aantal speelbeurten van mijn spellen"
+    },
+    "register": {
+      "cancelButton": "Annuleren",
+      "emailDescription": "We gebruiken dit voor belangrijke meldingen.",
+      "emailLabel": "E-mailadres",
+      "emailPlaceholder": "Voer je e-mailadres in",
+      "errors": {
+        "emailInvalid": "Voer een geldig e-mailadres in",
+        "emailRequired": "E-mail is verplicht",
+        "nameRequired": "Naam is verplicht",
+        "nameTaken": "Deze naam is al in gebruik",
+        "nameTooLong": "Naam mag maximaal 24 tekens bevatten",
+        "registrationFailed": "Registratie mislukt. Probeer het opnieuw."
+      },
+      "nameDescription": "Zo zien andere gebruikers je. Maximaal 24 tekens.",
+      "nameLabel": "Weergavenaam",
+      "namePlaceholder": "Voer je weergavenaam in",
+      "submitButton": "Account aanmaken",
+      "submitting": "Account aanmaken...",
+      "subtitle": "Nog een paar gegevens om te beginnen",
+      "title": "Vervolledig je profiel"
+    },
+    "settings": {
+      "accountSection": "Account",
+      "emailChangeNote": "Om je e-mailadres te wijzigen, neem contact op met de sitebeheerder.",
+      "errors": {
+        "nameRequired": "Naam is verplicht",
+        "nameTaken": "Deze naam is al in gebruik",
+        "nameTooLong": "Naam mag maximaal 24 tekens bevatten",
+        "saveFailed": "Wijzigingen opslaan is mislukt. Probeer het opnieuw."
+      },
+      "nameDescription": "Zo zien andere gebruikers je. Maximaal 24 tekens.",
+      "nameLabel": "Weergavenaam",
+      "namePlaceholder": "Voer je weergavenaam in",
+      "saveButton": "Wijzigingen opslaan",
+      "saved": "Wijzigingen succesvol opgeslagen",
+      "saving": "Bezig met opslaan...",
+      "subtitle": "Beheer je accountinstellingen",
+      "title": "Instellingen"
+    }
+  },
+  "common": {
+    "actions": "Acties",
+    "admin": {
+      "invites": {
+        "actions": "Acties",
+        "empty": "Geen openstaande uitnodigingen.",
+        "invitedEmail": "Uitgenodigde e-mail",
+        "modifiedAt": "Gewijzigd",
+        "noResults": "Geen uitnodigingen komen overeen met je zoekopdracht.",
+        "organization": "Organisatie",
+        "revokeConfirm": {
+          "confirm": "Verwijderen",
+          "message": "Weet je zeker dat je deze uitnodiging wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+          "title": "Uitnodiging verwijderen"
+        },
+        "role": "Rol",
+        "searchPlaceholder": "Zoeken op e-mail, rol, status of organisatie...",
+        "sort": {
+          "label": "Sorteren op",
+          "modifiedAt-asc": "Gewijzigd (Oudste)",
+          "modifiedAt-desc": "Gewijzigd (Nieuwste)",
+          "organization-asc": "Organisatie (A-Z)",
+          "organization-desc": "Organisatie (Z-A)",
+          "role-asc": "Rol (A-Z)",
+          "role-desc": "Rol (Z-A)",
+          "status-asc": "Status (A-Z)",
+          "status-desc": "Status (Z-A)"
+        },
+        "status": "Status",
+        "statuses": {
+          "accepted": "Geaccepteerd",
+          "declined": "Afgewezen",
+          "expired": "Verlopen",
+          "pending": "In afwachting",
+          "revoked": "Ingetrokken"
+        },
+        "title": "Openstaande uitnodigingen"
+      },
+      "organizations": {
+        "actions": "Acties",
+        "create": "Organisatie aanmaken",
+        "createTitle": "Nieuwe organisatie aanmaken",
+        "deleteConfirm": "Weet je zeker dat je \"{{name}}\" wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "deleteTitle": "Organisatie verwijderen",
+        "editTitle": "Organisatie bewerken",
+        "email": "E-mailadres",
+        "emailPlaceholder": "E-mailadres invoeren",
+        "empty": "Nog geen organisaties. Maak er een om te beginnen.",
+        "inviteDescription": "Stuur een uitnodiging om lid te worden van {{name}} als organisatiehoofd.",
+        "inviteTitle": "Uitnodigen voor organisatie",
+        "memberEmail": "E-mail",
+        "memberName": "Naam",
+        "memberRole": "Rol",
+        "members": "Leden",
+        "membersCount": "leden",
+        "membersList": "Leden",
+        "name": "Naam",
+        "namePlaceholder": "Voer organisatienaam in",
+        "noMembers": "Geen leden in deze organisatie.",
+        "removeMember": "Lid verwijderen",
+        "removeMemberConfirm": "Weet je zeker dat je {{name}} uit deze organisatie wilt verwijderen?",
+        "searchPlaceholder": "Organisaties zoeken...",
+        "sendInvite": "Uitnodiging verzenden",
+        "title": "Organisaties beheren"
+      },
+      "users": {
+        "actions": "Acties",
+        "deleteConfirm": "Weet je zeker dat je \"{{name}}\" wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "deleteTitle": "Gebruiker verwijderen",
+        "editEmail": "E-mail bewerken",
+        "editTitle": "Gebruiker bewerken",
+        "editingUser": "Gebruiker bewerken: {{name}}",
+        "email": "E-mail",
+        "emailPlaceholder": "E-mailadres invoeren",
+        "empty": "Geen gebruikers gevonden.",
+        "hideGuests": "Gasten verbergen ({{count}})",
+        "joined": "Aangemeld",
+        "loadError": "Gebruikers konden niet geladen worden",
+        "makeAdmin": "Maak admin",
+        "me": "Ik",
+        "name": "Naam",
+        "noEmail": "Geen e-mail",
+        "noResults": "Geen gebruikers komen overeen met je zoekopdracht.",
+        "noRole": "Geen rol",
+        "organization": "Organisatie",
+        "promoteConfirm": "Weet je zeker dat je \"{{name}}\" ({{email}}) wilt promoveren tot admin?",
+        "promoteTitle": "Promoveren tot admin",
+        "promoteWarning": "Deze gebruiker krijgt volledige administratieve toegang tot het systeem.",
+        "removeAdmin": "Admin verwijderen",
+        "removeAdminConfirm": "Weet je zeker dat je de admin-rol van \"{{name}}\" ({{email}}) wilt verwijderen?",
+        "removeAdminTitle": "Admin-rol verwijderen",
+        "removeAdminWarning": "Deze gebruiker verliest alle administratieve rechten.",
+        "role": "Rol",
+        "searchPlaceholder": "Zoeken op naam, e-mail, rol of organisatie...",
+        "showing": "Toont {{count}} van {{total}} gebruikers",
+        "sort": {
+          "email-asc": "E-mail (A-Z)",
+          "email-desc": "E-mail (Z-A)",
+          "joined-asc": "Aangemeld (Oudste)",
+          "joined-desc": "Aangemeld (Nieuwste)",
+          "label": "Sorteren op",
+          "name-asc": "Naam (A-Z)",
+          "name-desc": "Naam (Z-A)",
+          "organization-asc": "Organisatie (A-Z)",
+          "organization-desc": "Organisatie (Z-A)",
+          "role-asc": "Rol (A-Z)",
+          "role-desc": "Rol (Z-A)"
+        },
+        "title": "Gebruikers beheren"
+      }
+    },
+    "allGames": {
+      "continue": "Doorgaan",
+      "copyConfirm": {
+        "confirm": "Spel kopiëren",
+        "message": "Dit maakt een kopie van \"{{name}}\" in jouw spellen.",
+        "title": "Spel kopiëren"
+      },
+      "copyGame": "Spel kopiëren",
+      "empty": {
+        "description": "Probeer je filters aan te passen of kom later terug voor nieuwe spellen.",
+        "title": "Geen spellen gevonden"
+      },
+      "favorite": "Toevoegen aan favorieten",
+      "filters": {
+        "all": "Alle spellen",
+        "favorites": "Favorieten",
+        "own": "Mijn spellen",
+        "public": "Openbaar"
+      },
+      "play": "Spelen",
+      "restart": "Opnieuw starten",
+      "restartConfirm": {
+        "confirm": "Opnieuw starten",
+        "message": "Weet je zeker dat je \"{{game}}\" opnieuw wilt starten? Je huidige voortgang gaat verloren.",
+        "title": "Spel opnieuw starten"
+      },
+      "title": "Alle spellen",
+      "unfavorite": "Verwijderen uit favorieten"
+    },
+    "apiKeys": {
+      "aboutSection": {
+        "description": "API-sleutels worden gebruikt om verbinding te maken met AI-platforms voor het genereren van spelinhoud.",
+        "title": "Over API-sleutels"
+      },
+      "addKey": "Sleutel toevoegen",
+      "addedOn": "Toegevoegd",
+      "createModal": {
+        "keyDescription": "Je sleutel wordt versleuteld en veilig opgeslagen.",
+        "keyLabel": "API-sleutel",
+        "keyPlaceholder": "Voer je API-sleutel in",
+        "nameLabel": "Sleutelnaam",
+        "namePlaceholder": "bijv. Mijn OpenAI-sleutel",
+        "platformLabel": "Platform",
+        "platformPlaceholder": "Selecteer een platform",
+        "submit": "Sleutel toevoegen",
+        "title": "Nieuwe API-sleutel toevoegen"
+      },
+      "deleteModal": {
+        "message": "Weet je zeker dat je \"{{name}}\" wilt verwijderen?",
+        "title": "API-sleutel verwijderen",
+        "warning": "Deze actie kan niet ongedaan gemaakt worden. De sleutel wordt permanent verwijderd."
+      },
+      "errors": {
+        "invalidPlatform": "Ongeldig platform geselecteerd. Kies een geldig AI-platform.",
+        "keyRequired": "API-sleutel is verplicht",
+        "loadFailed": "API-sleutels konden niet geladen worden. Probeer het opnieuw.",
+        "nameRequired": "Naam is verplicht",
+        "platformRequired": "Platform is verplicht"
+      },
+      "key": "sleutel",
+      "keys": "sleutels",
+      "subtitle": "Beheer je API-sleutels voor AI-platforms.",
+      "title": "API-sleutels beheren",
+      "unnamed": "Naamloze sleutel",
+      "unsupportedPlatform": {
+        "badge": "niet ondersteund",
+        "hint": "Dit platform wordt momenteel niet ondersteund. Je kunt alleen bestaande sleutels verwijderen."
+      }
+    },
+    "back": "Terug",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "copyGame": "Spel kopiëren",
+    "create": "Aanmaken",
+    "delete": "Verwijderen",
+    "deleteGame": "Spel verwijderen",
+    "edit": "Bewerken",
+    "editGame": "Spel bewerken",
+    "error": "Fout",
+    "footer": {
+      "copyright": "JFF - Institut für Medienpädagogik",
+      "jffTitle": "JFF - Institute for Educational Research and Innovation",
+      "programmedBy": "Geprogrammeerd door"
+    },
+    "gamePlayer": {
+      "debug": {
+        "fields": {
+          "id": "Bericht-ID",
+          "imagePrompt": "Beeldprompt",
+          "isStreaming": "Streaming",
+          "seq": "Volgorde",
+          "statusFields": "Statusvelden",
+          "timestamp": "Tijdstempel",
+          "type": "Type"
+        },
+        "hints": {
+          "id": "Unieke identificatie van dit bericht",
+          "imagePrompt": "Prompt verzonden naar beeldgeneratie-AI",
+          "isStreaming": "Of er nog content binnenkomt",
+          "seq": "Volgorde in het gesprek",
+          "statusFields": "Spelstatusvariabelen die door de AI worden bijgehouden",
+          "timestamp": "Wanneer dit bericht is gemaakt",
+          "type": "player = spelerinvoer, game = AI-antwoord, system = context"
+        },
+        "title": "Debug-info"
+      },
+      "error": {
+        "backToGames": "Terug naar spellen",
+        "gameNotFound": "Spel niet gevonden",
+        "missingFields": "Aan het spel ontbreken vereiste velden:",
+        "sessionFailed": "Spelsessie kon niet worden gestart"
+      },
+      "header": {
+        "back": "Terug naar spellen",
+        "debug": "Debug",
+        "decreaseFont": "Lettergrootte verkleinen",
+        "disableAnimations": "Animaties uitschakelen",
+        "increaseFont": "Lettergrootte vergroten",
+        "settings": "Instellingen",
+        "useNeutralTheme": "Neutraal thema gebruiken"
+      },
+      "input": {
+        "placeholder": "Wat doe je?",
+        "send": "Actie verzenden"
+      },
+      "loading": {
+        "game": "Spel laden...",
+        "starting": "Spelsessie starten...",
+        "startingHint": "De AI bereidt je avontuur voor"
+      },
+      "needsApiKey": {
+        "description": "De API-sleutel die voor deze sessie werd gebruikt is niet langer beschikbaar. Selecteer een nieuwe om verder te spelen.",
+        "reason": "Je vorige API-sleutel is niet meer beschikbaar. Om je spel voort te zetten, selecteer een nieuwe.",
+        "title": "API-sleutel vereist"
+      },
+      "selectApiKey": {
+        "keyDescription": "Selecteer de API-sleutel die voor deze spelsessie gebruikt wordt",
+        "keyLabel": "API-sleutel",
+        "keyPlaceholder": "Selecteer een API-sleutel",
+        "loadError": "API-sleutels konden niet geladen worden",
+        "mine": "Mijn",
+        "modelDescription": "Optioneel een specifiek AI-model selecteren",
+        "modelLabel": "AI-model",
+        "modelPlaceholder": "Standaardmodel",
+        "noKeys": "Je hebt minimaal één API-sleutel nodig om te spelen. Voeg er een toe onder Instellingen → API-sleutels.",
+        "playing": "Spelen",
+        "startGame": "Spel starten",
+        "title": "Selecteer API-sleutel"
+      },
+      "statusChange": {
+        "effect": "Effect:"
+      },
+      "unnamed": "Naamloos"
+    },
+    "games": {
+      "badges": {
+        "myGame": "Mijn spel",
+        "public": "Openbaar",
+        "workshop": "Workshop"
+      },
+      "createButton": "Spel aanmaken",
+      "createModal": {
+        "descriptionPlaceholder": "Waar gaat jouw spel over?",
+        "namePlaceholder": "bijv. Ruimteavontuur",
+        "publicDescription": "Openbare spellen zijn voor iedereen vindbaar.",
+        "publicLabel": "Maak dit spel openbaar",
+        "submit": "Spel aanmaken",
+        "title": "Nieuw spel maken"
+      },
+      "deleteModal": {
+        "message": "Weet je zeker dat je \"{{name}}\" wilt verwijderen?",
+        "title": "Spel verwijderen",
+        "warning": "Deze actie kan niet ongedaan gemaakt worden. Alle speldgegevens worden permanent verwijderd."
+      },
+      "editFields": {
+        "description": "Geef het spel een korte beschrijving. Dit is alleen voor jou en heeft geen invloed op het spel.",
+        "gameStart": "Hoe begint het spel?",
+        "gameStartHint": "Wat gebeurt er aan het begin? Beschrijf de eerste scène die de speler ziet. Hoe wordt de speler verwelkomd?",
+        "gameStartPlaceholder": "Je wordt wakker aan de rand van een donker bos. Een smal pad leidt dieper het bos in...",
+        "imageStyle": "Welke stijl moeten de afbeeldingen van het spel hebben?",
+        "imageStyleHint": "Bijv.: cartoon, realistisch, pixelart, aquarel...",
+        "name": "Spelnaam",
+        "scenario": "Waar gaat het spel over?",
+        "scenarioHint": "Beschrijf kort: Hoe werkt het spel? Hoe ziet de wereld eruit? Taal \u00026 toon (bijv. Spaans voor groep 6)?\nWelke rol heeft de speler? Schrijf \"De speler ...\".\nWil je dat de AI de rol van een specifieke persoon aanneemt, schrijf dan \"Jij bent ...\".",
+        "scenarioPlaceholder": "Je bent een ontdekkingsreiziger in een mysterieus bos. Je doel is de verborgen schat te vinden...",
+        "statusFields": "Spelwaarden",
+        "statusFieldsHint": "Welke waarden moet het spel bijhouden? Bijvoorbeeld gezondheid, punten of munitie. Het spel onthoudt deze waarden en werkt ze bij tijdens het spelen."
+      },
+      "editModal": {
+        "title": "Spel bewerken",
+        "unsavedChanges": {
+          "discard": "Wijzigingen verwerpen",
+          "keepEditing": "Verder bewerken",
+          "message": "Je hebt niet-opgeslagen wijzigingen. Weet je zeker dat je deze wilt verwerpen?",
+          "title": "Niet-opgeslagen wijzigingen"
+        }
+      },
+      "empty": {
+        "description": "Maak je eerste spel om te beginnen met interactieve AI-gestuurde avonturen.",
+        "title": "Nog geen spellen"
+      },
+      "errors": {
+        "loadFailed": "Spellen konden niet geladen worden. Probeer het opnieuw.",
+        "nameRequired": "Spelnaam is verplicht"
+      },
+      "fields": {
+        "created": "Gemaakt",
+        "creator": "Maker",
+        "me": "Ik",
+        "modified": "Gewijzigd",
+        "name": "Naam",
+        "playCount": "Aantal keren gespeeld",
+        "visibility": "Zichtbaarheid"
+      },
+      "importExport": {
+        "exportButton": "Spel exporteren",
+        "importButton": "Spel importeren"
+      },
+      "playNow": "Nu spelen",
+      "sort": {
+        "createdAt-asc": "Gemaakt (Oudste)",
+        "createdAt-desc": "Gemaakt (Nieuwste)",
+        "creator-asc": "Maker (A-Z)",
+        "creator-desc": "Maker (Z-A)",
+        "label": "Sorteren op",
+        "modifiedAt-asc": "Gewijzigd (Oudste)",
+        "modifiedAt-desc": "Gewijzigd (Nieuwste)",
+        "name-asc": "Naam (A-Z)",
+        "name-desc": "Naam (Z-A)",
+        "playCount-asc": "Minst gespeeld",
+        "playCount-desc": "Meest gespeeld",
+        "visibility-asc": "Privé spellen eerst",
+        "visibility-desc": "Openbare spellen eerst"
+      },
+      "statusFieldsEditor": {
+        "addField": "Nieuwe waarde toevoegen",
+        "namePlaceholder": "Naam (bijv. Gezondheid)",
+        "noFields": "Nog geen waarden. Klik op + om een nieuwe waarde toe te voegen.",
+        "valuePlaceholder": "Beginnende waarde (bijv. 100)"
+      },
+      "tabs": {
+        "basic": "Basis",
+        "basicInfo": "Algemene info over het spel. Dit is alleen voor jou en heeft geen invloed op het spel.",
+        "importExport": "Import/Export",
+        "quickStart": "Snelstart",
+        "story": "Verhaal \u00026 AI",
+        "storyInfo": "Alles hier wordt naar de AI gestuurd om je spelwereld en verhaal vorm te geven.",
+        "style": "Ontwerp",
+        "styleInfo": "Optionele instellingen voor het uiterlijk van het spel tijdens het spelen."
+      },
+      "title": "Mijn gemaakte spellen",
+      "viewModal": {
+        "readOnlyNotice": "Dit spel is door een andere gebruiker gemaakt. Je kunt de details bekijken maar niet bewerken. Gebruik \"Kopiëren\" om je eigen bewerkbare versie te maken.",
+        "title": "Speldetails"
+      },
+      "visibility": {
+        "private": "Privé",
+        "public": "Openbaar"
+      }
+    },
+    "header": {
+      "apiKeys": "API-sleutels",
+      "closeNavigation": "Navigatiemenu sluiten",
+      "contact": "Contact",
+      "goToDashboard": "Naar dashboard",
+      "leaveWorkshopMode": "Workshopmodus verlaten",
+      "leaveWorkshopModeTooltip": "Workshopmodus verlaten en terugkeren naar normale weergave",
+      "logout": "Afmelden",
+      "openNavigation": "Navigatiemenu openen",
+      "openUserMenu": "Gebruikersmenu openen",
+      "organization": "Organisatie",
+      "profile": "Profiel",
+      "workshop": "Workshop"
+    },
+    "home": {
+      "features": {
+        "create": {
+          "description": "Ontwerp interactieve tekstavonturen aangedreven door AI",
+          "title": "Avonturen maken"
+        },
+        "learn": {
+          "description": "Perfect voor educatieve workshops en lesactiviteiten",
+          "title": "Leren \u00026 Lesgeven"
+        },
+        "play": {
+          "description": "Doe mee met vrienden in samenwerkende verhaalsessies",
+          "title": "Samen spelen"
+        },
+        "title": "Waarom kiezen voor ChatGameLab?",
+        "understand": {
+          "description": "Ontdek hoe AI-modellen verhalen maken en leer hoe ze werken",
+          "title": "AI begrijpen"
+        }
+      },
+      "loginCta": "Inloggen en verkennen",
+      "splashDescription": "Een educatief platform om AI-gestuurde tekstavonturen te maken en te spelen. Perfect voor docenten, leerlingen en creatieve vertellers."
+    },
+    "invites": {
+      "accept": {
+        "inviteMessage": "Je bent uitgenodigd om deel te nemen aan een workshop van organisatie \"{{organization}}\".",
+        "inviteMessageSimple": "Je bent uitgenodigd om deel te nemen aan deze workshop.",
+        "joinButton": "Workshop deelnemen",
+        "title": "Workshop deelnemen",
+        "titleWithWorkshop": "Deelnemen aan workshop \"{{workshop}}\""
+      },
+      "errors": {
+        "acceptFailed": "Uitnodiging accepteren mislukt. Probeer het opnieuw.",
+        "expired": "Deze uitnodigingslink is verlopen.",
+        "loadFailed": "Uitnodigingsgegevens konden niet geladen worden. Probeer het opnieuw.",
+        "notFound": "Deze uitnodigingslink is ongeldig of ingetrokken."
+      },
+      "goHome": "Ga naar startpagina",
+      "participant": {
+        "loggingIn": "Je wordt aangemeld..."
+      },
+      "success": {
+        "message": "Je bent succesvol lid geworden van de workshop. Je wordt doorgestuurd...",
+        "title": "Welkom!"
+      },
+      "switchWorkshop": {
+        "message": "Je spellen en voortgang in de huidige workshop blijven behouden, maar je kunt er niet bij totdat je weer lid wordt.",
+        "stayButton": "Blijf in huidige workshop",
+        "switchButton": "Workshop wisselen",
+        "title": "Workshop wisselen?",
+        "warning": "Je bent momenteel in workshop \"{{currentWorkshop}}\". Deelnemen aan \"{{newWorkshop}}\" zorgt dat je je huidige workshop verlaat."
+      }
+    },
+    "labels": {
+      "no": "Nee",
+      "yes": "Ja"
+    },
+    "languageSwitcher": {
+      "wipHint": "Meer talen zijn in ontwikkeling. Op dit moment zijn alleen Engels en Duits beschikbaar.",
+      "wipLabel": "WIP"
+    },
+    "loading": "Laden...",
+    "logout": "Afmelden",
+    "myGames": {
+      "continue": "Doorgaan",
+      "copyConfirm": {
+        "confirm": "Spel kopiëren",
+        "message": "Dit maakt een kopie van \"{{name}}\" in jouw spellen.",
+        "title": "Spel kopiëren"
+      },
+      "copyGame": "Spel kopiëren",
+      "empty": {
+        "description": "Maak je eerste spel om te beginnen met interactieve AI-gestuurde avonturen.",
+        "title": "Nog geen spellen"
+      },
+      "favorite": "Toevoegen aan favorieten",
+      "filters": {
+        "all": "Alles",
+        "favorites": "Favorieten"
+      },
+      "play": "Spelen",
+      "restart": "Opnieuw starten",
+      "restartConfirm": {
+        "confirm": "Opnieuw starten",
+        "message": "Weet je zeker dat je \"{{game}}\" opnieuw wilt starten? Je huidige voortgang gaat verloren.",
+        "title": "Spel opnieuw starten"
+      },
+      "title": "Mijn spellen",
+      "unfavorite": "Verwijderen uit favorieten"
+    },
+    "myOrganization": {
+      "actions": "Acties",
+      "apiKeys": {
+        "aboutDescription": "Hier gedeelde API-sleutels zijn beschikbaar voor alle leden van je organisatie om spellen te spelen. Alleen hoofden en docenten kunnen deze sleutels beheren.",
+        "aboutTitle": "Organisatie-API-sleutels",
+        "allowPublicSponsoring": "Openbaar sponsoren toestaan",
+        "allowPublicSponsoringDesc": "Deze sleutel kan gebruikt worden om spellen voor alle gebruikers te sponsoren.",
+        "filterByPlatform": "Filteren op platform",
+        "keyName": "Sleutelnaam",
+        "loadError": "Organisatie-API-sleutels konden niet geladen worden.",
+        "noKeys": "Nog geen API-sleutels met deze organisatie gedeeld.",
+        "noResults": "Geen API-sleutels komen overeen met je zoekopdracht.",
+        "notAuthorized": "Je hebt geen permissie om organisatie-API-sleutels te beheren. Alleen hoofden en docenten kunnen deze pagina openen.",
+        "owner": "Eigenaar",
+        "platform": "Platform",
+        "publicSponsoring": "Openbare sponsoring",
+        "searchPlaceholder": "Zoeken op naam of eigenaar...",
+        "selectKey": "API-sleutel selecteren",
+        "selectKeyPlaceholder": "Kies een sleutel om te delen...",
+        "share": "Delen",
+        "shareKey": "Sleutel delen",
+        "shareKeyTitle": "API-sleutel met organisatie delen",
+        "title": "Organisatie-API-sleutels"
+      },
+      "demoteConfirm": "Weet je zeker dat je \"{{name}}\" ({{email}}) wilt degraderen naar Docent?",
+      "demoteTitle": "Degradatie naar Docent",
+      "demoteToStaff": "Degradatie naar Docent",
+      "email": "E-mail",
+      "emailPlaceholder": "E-mailadres invoeren",
+      "empty": "Geen leden in deze organisatie.",
+      "inviteAlreadyExists": "Er bestaat al een openstaande uitnodiging voor dit e-mailadres.",
+      "inviteError": "Uitnodiging kon niet worden verzonden. Probeer het opnieuw.",
+      "inviteTeacher": "Docent uitnodigen",
+      "inviteTeacherDescription": "Stuur een uitnodiging naar een docent om lid te worden van je organisatie.",
+      "inviteTeacherTitle": "Docent uitnodigen",
+      "inviteUser": "Gebruiker uitnodigen",
+      "inviteUserDescription": "Stuur een uitnodiging naar een gebruiker om zonder specifieke rol lid te worden van je organisatie.",
+      "inviteUserTitle": "Gebruiker uitnodigen",
+      "leaveConfirm": "Weet je zeker dat je \"{{name}}\" wilt verlaten?",
+      "leaveOrganization": "Organisatie verlaten",
+      "leaveTitle": "Organisatie verlaten",
+      "leaveWarning": "Je verliest toegang tot alle organisatiebronnen en leden.",
+      "me": "Ik",
+      "name": "Naam",
+      "noEmail": "Geen e-mail",
+      "noOrganization": "Geen organisatie",
+      "noOrganizationDescription": "Je bent geen lid van een organisatie.",
+      "noResults": "Geen leden komen overeen met je zoekopdracht.",
+      "noRole": "Geen rol",
+      "promoteConfirm": "Weet je zeker dat je \"{{name}}\" ({{email}}) wilt promoveren tot Hoofd?",
+      "promoteTitle": "Promoveren tot Hoofd",
+      "promoteToHead": "Promoveren tot Hoofd",
+      "promoteWarning": "Deze gebruiker krijgt de mogelijkheid om organisatiedeelnemers te beheren en docenten uit te nodigen.",
+      "removeConfirm": "Weet je zeker dat je \"{{name}}\" uit de organisatie wilt verwijderen?",
+      "removeMember": "Lid verwijderen",
+      "removeTitle": "Lid verwijderen",
+      "removeWarning": "Deze gebruiker verliest de toegang tot de organisatie.",
+      "role": "Rol",
+      "searchPlaceholder": "Leden zoeken...",
+      "showing": "{{count}} leden",
+      "sort": {
+        "label": "Sorteren op",
+        "name-asc": "Naam (A-Z)",
+        "name-desc": "Naam (Z-A)",
+        "role-asc": "Rol (A-Z)",
+        "role-desc": "Rol (Z-A)"
+      },
+      "title": "Mijn organisatie",
+      "workshops": {
+        "activate": "Activeren",
+        "active": "Actief",
+        "activeDescription": "Actieve workshops laten deelnemers toe en maken het mogelijk spellen te maken.",
+        "activeLabel": "Actief",
+        "anonymousParticipant": "Anonieme deelnemer",
+        "create": "Workshop aanmaken",
+        "createFirst": "Maak je eerste workshop",
+        "createInviteLink": "Uitnodigingslink maken",
+        "createTitle": "Workshop maken",
+        "deactivate": "Deactiveren",
+        "aiQualityHigh": "High (Premium)",
+        "aiQualityLow": "Low (Economy)",
+        "aiQualityMedium": "Medium (Balanced)",
+        "aiQualityTier": "AI Quality Tier",
+        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "defaultApiKey": "Standaard API-sleutel",
+        "defaultApiKeyHint": "Deelnemers gebruiken deze API-sleutel tijdens het spelen.",
+        "deleteConfirm": "Weet je zeker dat je \"{{name}}\" wilt verwijderen?",
+        "deleteTitle": "Workshop verwijderen",
+        "deleteWarning": "Alle spellen en sessies in deze workshop worden verwijderd. Dit kan niet ongedaan gemaakt worden.",
+        "editParticipant": "Naam wijzigen",
+        "empty": "Nog geen workshops.",
+        "enterWorkshop": "Workshopmodus starten",
+        "games": "Spellen",
+        "hideInactive": "Inactieve verbergen",
+        "inactive": "Inactief",
+        "inviteCreatedAt": "Gemaakt",
+        "inviteDescription": "Genereer een uitnodigingslink die deelnemers kunnen gebruiken om aan deze workshop deel te nemen.",
+        "inviteExpiresAt": "Verloopt",
+        "inviteLink": "Uitnodigingslink",
+        "inviteLinkDescription": "Deel deze link met deelnemers om ze uit te nodigen voor de workshop.",
+        "inviteLinkTitle": "Uitnodigingslink voor {{name}}",
+        "inviteUsage": "Gebruik",
+        "joined": "Aangemeld",
+        "linkCopied": "Link gekopieerd",
+        "linkCopiedMessage": "De uitnodigingslink is naar je klembord gekopieerd.",
+        "loadError": "Workshops konden niet geladen worden.",
+        "nameLabel": "Workshopnaam",
+        "namePlaceholder": "bijv. Zomerkamp 2024",
+        "noActiveInvite": "Geen actieve uitnodigingslink beschikbaar.",
+        "noDefaultApiKey": "Geen standaard API-sleutel",
+        "noDefaultModel": "Gebruik platformstandaard",
+        "noParticipantToken": "Deze deelnemer heeft geen uitnodigingslink. Alleen anonieme deelnemers (gasten) hebben herbruikbare uitnodigingslinks.",
+        "noParticipants": "Nog geen deelnemers",
+        "notAuthorized": "Je hebt geen permissie om workshops te beheren. Alleen hoofden en docenten kunnen deze pagina openen.",
+        "participantGames": "{{count}} spellen",
+        "participantJoined": "Aangemeld op {{date}}",
+        "participantName": "Deelnemernaam",
+        "participants": "Deelnemers",
+        "removeParticipant": "Deelnemer verwijderen",
+        "removeParticipantConfirm": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen?",
+        "removeParticipantMessage": "Weet je zeker dat je \"{{name}}\" uit deze workshop wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "removeParticipantTitle": "Deelnemer verwijderen",
+        "revokeInvite": "Uitnodigingslink intrekken",
+        "selectApiKey": "Selecteer een API-sleutel",
+        "settings": "Instellingen",
+        "shareParticipantLink": "Individuele uitnodigingslink voor deze deelnemer kopiëren",
+        "serverDefault": "Server Default",
+        "showOtherParticipantsGames": "Spellen van andere deelnemers tonen",
+        "showPublicGames": "Openbare spellen voor deelnemers tonen",
+        "sort": {
+          "createdAtAsc": "Oudste eerst",
+          "createdAtDesc": "Nieuwste eerst",
+          "label": "Sorteren op",
+          "nameAsc": "Naam (A-Z)",
+          "nameDesc": "Naam (Z-A)",
+          "participantsAsc": "Minste deelnemers",
+          "participantsDesc": "Meeste deelnemers"
+        },
+        "subtitle": "Beheer workshops en nodig deelnemers uit om samen aan spellen te werken.",
+        "title": "Workshops",
+        "usedCount": "{{count}} keer gebruikt",
+        "viewInviteLink": "Uitnodigingslink bekijken"
+      }
+    },
+    "notifications": {
+      "accept": "Accepteren",
+      "decline": "Weigeren",
+      "declineConfirm": "Weet je zeker dat je deze uitnodiging wilt weigeren?",
+      "declineTitle": "Uitnodiging weigeren",
+      "empty": "Geen nieuwe meldingen.",
+      "inviteDescription": "Je bent uitgenodigd om toe te treden als {{role}}.",
+      "inviteToJoin": "Organisatie-uitnodiging",
+      "title": "Meldingen"
+    },
+    "play": {
+      "cloneGame": "Kopiëren naar mijn spellen",
+      "empty": {
+        "description": "Probeer je filters aan te passen of kom later terug voor nieuwe spellen.",
+        "title": "Geen spellen gevonden"
+      },
+      "favorite": "Toevoegen aan favorieten",
+      "filters": {
+        "all": "Alle spellen",
+        "favorites": "Favorieten",
+        "organization": "Organisatie",
+        "own": "Mijn spellen",
+        "public": "Openbaar"
+      },
+      "owner": "Mijn",
+      "playGame": "Speel dit spel",
+      "playNow": "Nu spelen",
+      "selectGameTitle": "Selecteer een spel",
+      "title": "Selecteer een spel",
+      "unfavorite": "Verwijderen uit favorieten"
+    },
+    "profile": "Profiel",
+    "save": "Opslaan",
+    "search": "Zoeken",
+    "sessions": {
+      "continueGame": "Doorgaan",
+      "deleteConfirm": {
+        "message": "Weet je zeker dat je deze sessie voor \"{{game}}\" wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.",
+        "title": "Sessie verwijderen"
+      },
+      "empty": {
+        "description": "Begin een nieuw spel om je avontuur te starten!",
+        "noResults": "Geen overeenkomende spellen gevonden",
+        "title": "Nog geen spellen gespeeld"
+      },
+      "errors": {
+        "loadFailed": "Je spellen konden niet geladen worden. Probeer het opnieuw."
+      },
+      "fields": {
+        "game": "Spel",
+        "lastPlayed": "Laatst gespeeld",
+        "model": "Model"
+      },
+      "noDescription": "Geen beschrijving",
+      "sort": {
+        "game": "Spel",
+        "label": "Sorteren op",
+        "lastPlayed": "Laatst gespeeld",
+        "model": "Model"
+      },
+      "startNewGame": "Start nieuw spel",
+      "title": "Doorgaan met spelen",
+      "untitledGame": "Naamloos spel"
+    },
+    "settings": "Instellingen",
+    "unnamed": "Naamloos",
+    "viewGame": "Spel bekijken"
+  },
+  "dashboard": {
+    "cards": {
+      "externalLinks": {
+        "jff": {
+          "description": "Projectcoördinator en leidende organisatie.",
+          "title": "JFF – Institut für Medienpädagogik"
+        },
+        "mainSite": {
+          "description": "Lees meer over het educatieve project achter dit platform.",
+          "title": "ChatGameLab-project"
+        },
+        "title": "Over ChatGameLab"
+      },
+      "lastPlayed": {
+        "empty": "Nog geen speelgeschiedenis. Begin met spelen!",
+        "title": "Laatst gespeeld",
+        "viewAll": "Alle spellen"
+      },
+      "myGames": {
+        "empty": "Nog geen spellen. Maak je eerste spel!",
+        "title": "Mijn spellen",
+        "viewAll": "Al mijn creaties"
+      },
+      "myWorkshops": {
+        "empty": "Geen actieve workshops. Maak een workshop in je organisatie!",
+        "title": "Mijn workshops",
+        "viewAll": "Alle workshops"
+      },
+      "newGames": {
+        "empty": "Nog geen spellen beschikbaar.",
+        "title": "Nieuwe spellen",
+        "viewAll": "Alle spellen"
+      },
+      "popularGames": {
+        "empty": "Nog geen spellen beschikbaar.",
+        "plays": "{{count}} plays",
+        "title": "Populaire spellen",
+        "viewAll": "Alle spellen"
+      }
+    },
+    "quickActions": {
+      "createNewGame": "Nieuw spel aanmaken",
+      "createRoom": "Ruimte aanmaken",
+      "inviteMembers": "Leden uitnodigen",
+      "startNewGame": "Nieuw spel starten",
+      "title": "Snelacties"
+    },
+    "untitled": "Naamloos",
+    "untitledGame": "Naamloos spel",
+    "version": {
+      "mismatch": {
+        "message": "Frontend-versie \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e komt niet overeen met backend-versie \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Dit kan onverwacht gedrag veroorzaken. Neem contact op met support als problemen aanhouden.",
+        "title": "Versieconflict gedetecteerd"
+      }
+    }
+  },
+  "errors": {
+    "aiError": "De AI-service ondervond een fout. Probeer het opnieuw.",
+    "backendUserFetch": "Gebruikersgegevens konden niet van de server worden geladen. Probeer het opnieuw.",
+    "billingNotActive": "Je OpenAI-account is niet actief. Controleer je facturatiegegevens op https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Deze actie conflicteert met bestaande gegevens. Probeer het opnieuw.",
+    "contentFiltered": "Je verzoek is gefilterd door het contentbeleid van de AI. Probeer het anders te formuleren.",
+    "forbidden": "Je hebt geen toestemming om deze actie uit te voeren.",
+    "generic": "Er is iets misgegaan. Probeer het opnieuw.",
+    "insufficientQuota": "Je API-sleutel heeft geen tegoed meer. Voeg tegoed toe of gebruik een andere API-sleutel.",
+    "invalidApiKey": "Je API-sleutel is ongeldig of verlopen. Controleer je API-sleutel bij Instellingen.",
+    "invalidPlatform": "Ongeldig platform geselecteerd. Kies een geldige optie.",
+    "invalidToken": "Je sessie is verlopen of ongeldig. Gebruik je uitnodigingslink opnieuw.",
+    "network": "Netwerkfout. Controleer je verbinding.",
+    "notFound": "De opgevraagde bron is niet gevonden.",
+    "orgVerificationRequired": "Je OpenAI-organisatie moet worden geverifieerd om de beeldgeneratiefunctie te gebruiken. Verifieer op https://platform.openai.com/settings/organization/general.",
+    "rateLimitExceeded": "Te veel verzoeken. Wacht even en probeer het opnieuw.",
+    "server": "Serverfout. Probeer het later opnieuw.",
+    "titles": {
+      "aiError": "AI-fout",
+      "authentication": "Authenticatiefout",
+      "billing": "Facturatieprobleem",
+      "error": "Fout",
+      "network": "Netwerkfout",
+      "notFound": "Niet gevonden",
+      "permission": "Toegang geweigerd",
+      "server": "Serverfout",
+      "validation": "Validatiefout",
+      "workshopInactive": "Workshop inactief"
+    },
+    "unauthorized": "Log in om verder te gaan.",
+    "unexpected": "Er is een onverwachte fout opgetreden.",
+    "userNotRegistered": "Je moet je registratie voltooien voordat je verder kunt gaan.",
+    "validation": "Controleer je invoer en probeer het opnieuw.",
+    "workshopInactive": "Deze workshop is gedeactiveerd. Neem contact op met je docent of workshoporganisator."
+  },
+  "myWorkshop": {
+    "empty": {
+      "description": "Begin met spelen om ze hier te zien, of maak je eigen spellen!",
+      "title": "Nog geen spellen"
+    },
+    "filters": {
+      "all": "Alle spellen",
+      "mine": "Mijn spellen",
+      "public": "Openbare spellen",
+      "workshop": "Workshop-spellen"
+    },
+    "gameType": "Spel",
+    "organizator": "Organisator: {{name}}",
+    "settings": {
+      "currentWorkshop": "Huidige workshop",
+      "notInWorkshopMode": "Je bent niet in workshopmodus. Betreed eerst een workshop.",
+      "title": "Workshopinstellingen"
+    },
+    "title": "Mijn workshop",
+    "you": "Jij"
+  },
+  "navigation": {
+    "allGames": "Alle spellen",
+    "create": "Eigen spellen maken",
+    "dashboard": "Dashboard",
+    "games": "Spellen",
+    "groups": "Groepen",
+    "manageOrganizations": "Organisaties beheren",
+    "manageUsers": "Gebruikers beheren",
+    "myGames": "Mijn spellen",
+    "myOrganization": "Mijn organisatie",
+    "myWorkshop": "Mijn workshop",
+    "orgApiKeys": "API-sleutels",
+    "orgMembers": "Leden",
+    "orgWorkshops": "Workshops",
+    "play": "Speel een spel",
+    "rooms": "Ruimtes",
+    "workshopSettings": "Workshopinstellingen"
+  }
+}

@@ -1,0 +1,9 @@
+.gridCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.gridCol > * {
+  flex: 1;
+  min-height: 0;
+}
