@@ -404,6 +404,7 @@ func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
 
 	// Already admin?
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		log.Debug("user already has admin role", "user_id", user.ID, "email", *user.Email)
 		return user
 	}
 
@@ -460,6 +461,12 @@ func PromoteAdminEmails(ctx context.Context) {
 		user, err := GetUserByID(ctx, raw.ID)
 		if err != nil {
 			log.Warn("failed to load user for admin promotion", "email", email, "error", err)
+			continue
+		}
+
+		// Only individual users can be promoted to admin
+		if user.Role == nil || user.Role.Role != obj.RoleIndividual {
+			log.Warn("skipping admin promotion: user does not have individual role", "user_id", user.ID, "email", *user.Email, "role", user.Role)
 			continue
 		}
 
