@@ -157,6 +157,51 @@ func (s *GamePermissionsTestSuite) TestStaffCannotDeleteNonWorkshopGame() {
 	s.T().Logf("Correctly rejected: %v", err)
 }
 
+// TestOtherUserCannotAccessNonPublicGame tests that a user cannot fetch
+// another user's non-public game by ID (outside any workshop context).
+func (s *GamePermissionsTestSuite) TestOtherUserCannotAccessNonPublicGame() {
+	owner := s.CreateUser("gp-owner")
+	other := s.CreateUser("gp-other")
+
+	game := Must(owner.UploadGame("alien-first-contact"))
+	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.ID)
+
+	// Other user tries to fetch the game by ID — should fail
+	_, err := other.GetGameByID(game.ID.String())
+	s.Error(err, "other user should not be able to access a non-public game")
+	s.T().Logf("Correctly denied: %v", err)
+}
+
+// TestOtherUserCannotSeeNonPublicGameInList tests that a non-public game
+// does not appear in another user's game list.
+func (s *GamePermissionsTestSuite) TestOtherUserCannotSeeNonPublicGameInList() {
+	owner := s.CreateUser("gp-owner2")
+	other := s.CreateUser("gp-other2")
+
+	game := Must(owner.UploadGame("alien-first-contact"))
+	s.T().Logf("Owner created game: %s (ID: %s)", game.Name, game.ID)
+
+	// Other user lists games — should not see the owner's private game
+	games := Must(other.ListGames())
+	for _, g := range games {
+		s.NotEqual(game.ID, g.ID, "other user should not see a non-public game in their list")
+	}
+	s.T().Logf("Other user sees %d games, none of which is the private game", len(games))
+}
+
+// TestOwnerCanAccessOwnNonPublicGame verifies the owner CAN access their
+// own non-public game (sanity check).
+func (s *GamePermissionsTestSuite) TestOwnerCanAccessOwnNonPublicGame() {
+	owner := s.CreateUser("gp-owner3")
+
+	game := Must(owner.UploadGame("alien-first-contact"))
+
+	fetched, err := owner.GetGameByID(game.ID.String())
+	s.NoError(err, "owner should be able to access their own game")
+	s.Equal(game.ID, fetched.ID)
+	s.T().Logf("Owner accessed own game: %s", fetched.Name)
+}
+
 // TestGameDeletionCleansUpSessions tests that deleting a game also removes
 // its sessions and messages.
 func (s *GamePermissionsTestSuite) TestGameDeletionCleansUpSessions() {

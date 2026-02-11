@@ -784,6 +784,22 @@ func (u *UserClient) DeleteGame(gameID string) error {
 	return u.Delete("games/" + gameID)
 }
 
+// UpdateGame updates a game's properties (composable high-level API)
+func (u *UserClient) UpdateGame(gameID string, updates map[string]interface{}) (obj.Game, error) {
+	u.t.Helper()
+	var result obj.Game
+	err := u.Post("games/"+gameID, updates, &result)
+	return result, err
+}
+
+// GetGameByID returns a game by ID (composable high-level API)
+func (u *UserClient) GetGameByID(gameID string) (obj.Game, error) {
+	u.t.Helper()
+	var result obj.Game
+	err := u.Get("games/"+gameID, &result)
+	return result, err
+}
+
 // ListGames returns all games visible to the user (composable high-level API)
 func (u *UserClient) ListGames() ([]obj.Game, error) {
 	u.t.Helper()
