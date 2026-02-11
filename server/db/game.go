@@ -742,18 +742,32 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
 	}
 
+	// Marshal token usage to JSON for storage
+	var tokenUsageJSON pqtype.NullRawMessage
+	if msg.TokenUsage != nil {
+		tokenBytes, _ := json.Marshal(msg.TokenUsage)
+		tokenUsageJSON = pqtype.NullRawMessage{RawMessage: tokenBytes, Valid: true}
+	}
+
 	arg := db.UpdateGameSessionMessageParams{
-		ID:            msg.ID,
-		CreatedBy:     uuid.NullUUID{},
-		CreatedAt:     time.Time{},
-		ModifiedBy:    uuid.NullUUID{},
-		ModifiedAt:    now,
-		GameSessionID: msg.GameSessionID,
-		Type:          msg.Type,
-		Message:       msg.Message,
-		Status:        statusJSON,
-		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
-		Image:         msg.Image,
+		ID:                    msg.ID,
+		CreatedBy:             uuid.NullUUID{},
+		CreatedAt:             time.Time{},
+		ModifiedBy:            uuid.NullUUID{},
+		ModifiedAt:            now,
+		GameSessionID:         msg.GameSessionID,
+		Type:                  msg.Type,
+		Message:               msg.Message,
+		Status:                statusJSON,
+		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
+		Image:                 msg.Image,
+		PromptStatusUpdate:    sql.NullString{String: functional.Deref(msg.PromptStatusUpdate, ""), Valid: msg.PromptStatusUpdate != nil},
+		PromptResponseSchema:  sql.NullString{String: functional.Deref(msg.PromptResponseSchema, ""), Valid: msg.PromptResponseSchema != nil},
+		PromptImageGeneration: sql.NullString{String: functional.Deref(msg.PromptImageGeneration, ""), Valid: msg.PromptImageGeneration != nil},
+		PromptExpandStory:     sql.NullString{String: functional.Deref(msg.PromptExpandStory, ""), Valid: msg.PromptExpandStory != nil},
+		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
+		TokenUsage:            tokenUsageJSON,
+		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1120,6 +1134,34 @@ func ClearGameSessionApiKey(ctx context.Context, sessionID uuid.UUID) error {
 	return queries().ClearGameSessionApiKeyByID(ctx, sessionID)
 }
 
+// mapAiInsightFields copies AI insight fields from the sqlc model to the obj model.
+func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
+	if m.PromptStatusUpdate.Valid {
+		msg.PromptStatusUpdate = &m.PromptStatusUpdate.String
+	}
+	if m.PromptResponseSchema.Valid {
+		msg.PromptResponseSchema = &m.PromptResponseSchema.String
+	}
+	if m.PromptImageGeneration.Valid {
+		msg.PromptImageGeneration = &m.PromptImageGeneration.String
+	}
+	if m.PromptExpandStory.Valid {
+		msg.PromptExpandStory = &m.PromptExpandStory.String
+	}
+	if m.ResponseRaw.Valid {
+		msg.ResponseRaw = &m.ResponseRaw.String
+	}
+	if m.UrlAnalytics.Valid {
+		msg.URLAnalytics = &m.UrlAnalytics.String
+	}
+	if m.TokenUsage.Valid {
+		var tu obj.TokenUsage
+		if err := json.Unmarshal(m.TokenUsage.RawMessage, &tu); err == nil {
+			msg.TokenUsage = &tu
+		}
+	}
+}
+
 // GetGameSessionMessageImageByID returns just the image for a message (no auth required)
 // Used for <img> tags which cannot send Authorization headers
 // Security relies on message UUIDs being random/unguessable
@@ -1159,6 +1201,8 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+
+	mapAiInsightFields(msg, m)
 
 	return msg, nil
 }
@@ -1204,6 +1248,8 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
 
+	mapAiInsightFields(msg, m)
+
 	return msg, nil
 }
 
@@ -1246,6 +1292,8 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+
+	mapAiInsightFields(msg, m)
 
 	return msg, nil
 }
@@ -1293,6 +1341,8 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
 
+		mapAiInsightFields(&msg, m)
+
 		result = append(result, msg)
 	}
 
@@ -1326,6 +1376,7 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+	mapAiInsightFields(msg, m)
 	return msg, nil
 }
 
@@ -1359,6 +1410,7 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
+		mapAiInsightFields(&msg, m)
 		result = append(result, msg)
 	}
 	return result, nil
