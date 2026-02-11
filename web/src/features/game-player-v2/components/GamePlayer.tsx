@@ -134,8 +134,6 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             }
             useNeutralTheme={settings.useNeutralTheme}
             onToggleNeutralTheme={themeResolution.handleNeutralThemeToggle}
-            debugMode={settings.debugMode}
-            onToggleDebugMode={settings.toggleDebugMode}
             onBack={lifecycle.handleBack}
             currentTheme={themeResolution.effectiveTheme}
             onThemeChange={themeResolution.handleThemeChange}
