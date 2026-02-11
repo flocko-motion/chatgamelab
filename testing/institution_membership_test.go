@@ -22,9 +22,9 @@ func (s *MultiUserTestSuite) SetupSuite() {
 	// Call parent SetupSuite to initialize base suite
 	s.BaseSuite.SetupSuite()
 
-	// Verify initial state (should have 5 dev users)
+	// Verify initial state (should have 9 dev users)
 	initialUsers := Must(s.DevUser().GetUsers())
-	s.Equal(5, len(initialUsers), "should have 5 users (preseeded dev users)")
+	s.Equal(9, len(initialUsers), "should have 9 users (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
 	// Use preseeded admin user
