@@ -75,12 +75,16 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 	s.T().Logf("Users after deletion: %d", len(usersAfter))
 	s.Equal(len(usersBefore)-1, len(usersAfter), "only participant should be removed")
 
-	// Head and staff should still exist
+	// Head and staff should still exist with individual roles
 	headMe := Must(head.GetMe())
 	s.Equal(head.Name, headMe.Name, "head should still exist")
+	s.Require().NotNil(headMe.Role, "head should have a role")
+	s.Equal(obj.RoleIndividual, headMe.Role.Role, "head should become individual")
 	staffMe := Must(staff.GetMe())
 	s.Equal(staff.Name, staffMe.Name, "staff should still exist")
-	s.T().Logf("Head and staff survived institution deletion")
+	s.Require().NotNil(staffMe.Role, "staff should have a role")
+	s.Equal(obj.RoleIndividual, staffMe.Role.Role, "staff should become individual")
+	s.T().Logf("Head and staff survived institution deletion with individual roles")
 
 	// Participant's game should be gone
 	games := Must(admin.ListGames())
@@ -234,6 +238,19 @@ func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDe
 	_, err = admin.GetGameByID(participantGame.ID.String())
 	s.Error(err, "participant's game should be deleted with institution")
 	s.T().Logf("Participant's game correctly deleted")
+
+	// Head and staff should now have individual roles (not left without a role)
+	headMe := Must(head.GetMe())
+	s.Require().NotNil(headMe.Role, "head should still have a role after institution deletion")
+	s.Equal(obj.RoleIndividual, headMe.Role.Role, "head should become individual after institution deletion")
+	s.Nil(headMe.Role.Institution, "head should have no institution after institution deletion")
+	s.T().Logf("Head has individual role")
+
+	staffMe := Must(staff.GetMe())
+	s.Require().NotNil(staffMe.Role, "staff should still have a role after institution deletion")
+	s.Equal(obj.RoleIndividual, staffMe.Role.Role, "staff should become individual after institution deletion")
+	s.Nil(staffMe.Role.Institution, "staff should have no institution after institution deletion")
+	s.T().Logf("Staff has individual role")
 }
 
 // TestDeleteWorkshopUnlinksMemberGames tests that deleting a single workshop
