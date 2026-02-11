@@ -52,6 +52,14 @@ WHERE r.institution_id = $1
   AND r.role = 'participant'
   AND u.deleted_at IS NULL;
 
+-- name: GetNonParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role != 'participant'
+  AND u.deleted_at IS NULL;
+
 -- name: DeleteInvitesByInstitution :exec
 DELETE FROM user_role_invite WHERE institution_id = $1;
 
