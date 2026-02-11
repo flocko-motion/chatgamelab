@@ -918,6 +918,7 @@
         "settings": "Settings",
         "shareParticipantLink": "Copy individual invite link for this participant",
         "showOtherParticipantsGames": "Show other participants' games",
+        "designEditingEnabled": "Allow participants to edit game design (theme)",
         "showPublicGames": "Show public games to participants",
         "sort": {
           "createdAtAsc": "Oldest first",
