@@ -37,6 +37,7 @@ import {
 } from "@/common/components/controls";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
+import { isGuest } from "@/common/lib/roles";
 import type { ObjUser, ObjRole } from "@/api/generated";
 
 type SortField = "name" | "email" | "role" | "organization" | "joined";
@@ -183,15 +184,11 @@ export function UserManagement() {
     return user.role?.role === "admin";
   }, []);
 
-  const isIndividual = useCallback((user: ObjUser) => {
-    return user.role?.role === 'individual';
-  }, []);
-
   const canPromoteToAdmin = useCallback(
     (user: ObjUser) => {
-      return !isCurrentUser(user.id) && hasNoRole(user);
+      return !isCurrentUser(user.id) && isGuest(user);
     },
-    [isCurrentUser, hasNoRole],
+    [isCurrentUser],
   );
 
   const canRemoveAdmin = useCallback(
