@@ -5429,6 +5429,9 @@ const docTemplate = `{
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
+                "designEditingEnabled": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -6178,6 +6181,9 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "type": "string"
+                },
+                "designEditingEnabled": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

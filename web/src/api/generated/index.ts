@@ -350,6 +350,7 @@ export interface ObjWorkshop {
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
   defaultApiKeyShareId?: string;
+  designEditingEnabled?: boolean;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
@@ -660,6 +661,7 @@ export interface RoutesUpdateSystemSettingsRequest {
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
+  designEditingEnabled?: boolean;
   name?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;
