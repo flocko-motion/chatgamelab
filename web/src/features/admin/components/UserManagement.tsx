@@ -37,7 +37,6 @@ import {
 } from "@/common/components/controls";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
-import { isGuest } from "@/common/lib/roles";
 import type { ObjUser, ObjRole } from "@/api/generated";
 
 type SortField = "name" | "email" | "role" | "organization" | "joined";
