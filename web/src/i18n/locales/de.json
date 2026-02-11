@@ -1058,7 +1058,11 @@
         "title": "Freier API-Schlüssel",
         "description": "Setze einen globalen freien API-Schlüssel, damit alle Benutzer auf diesem Server Spiele spielen können, ohne einen eigenen Schlüssel zu benötigen. Dieser Schlüssel wird als Fallback verwendet, wenn kein Workshop- oder Organisationsschlüssel verfügbar ist.",
         "selectPlaceholder": "Wähle einen deiner API-Schlüssel...",
+        "replacePlaceholder": "Mit einem deiner API-Schlüssel ersetzen...",
         "remove": "Entfernen",
+        "working": "Funktioniert",
+        "notWorking": "Funktioniert nicht",
+        "untested": "Ungetestet",
         "unknownKey": "Unbekannter Schlüssel (möglicherweise gelöscht)",
         "noKeys": "Du hast keine API-Schlüssel. Füge zuerst einen in deinen API-Schlüssel-Einstellungen hinzu."
       },

@@ -1009,7 +1009,11 @@
         "title": "Free-Use API Key",
         "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
         "selectPlaceholder": "Select one of your API keys...",
+        "replacePlaceholder": "Replace with one of your API keys...",
         "remove": "Remove",
+        "working": "Working",
+        "notWorking": "Not working",
+        "untested": "Untested",
         "unknownKey": "Unknown key (may have been deleted)",
         "noKeys": "You have no API keys. Add one in your API Key settings first."
       },
