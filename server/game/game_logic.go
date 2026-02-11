@@ -326,6 +326,20 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	const failedAction = "failed doing session action"
 	log.Debug("starting session action", "session_id", session.ID, "action_type", action.Type)
 
+	// Acquire per-session lock to serialize AI calls.
+	// Mistral's Conversations API rejects concurrent requests (409), and even
+	// for OpenAI the ExpandStory response ID must be persisted before the next
+	// ExecuteAction can reference it for conversation continuity.
+	unlock := sessionLocks.Lock(session.ID)
+	// unlock is passed to the ExpandStory goroutine below; if we return early
+	// (error paths), we must unlock here.
+	earlyReturn := true
+	defer func() {
+		if earlyReturn {
+			unlock()
+		}
+	}()
+
 	if session == nil {
 		log.Error("session action failed: session is nil")
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, fmt.Sprintf("%s: session is nil", failedAction))
@@ -423,6 +437,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
 
+	// Persist AI session state immediately so the next action can find the conversation/response ID.
+	// (ExpandStory may update it again later with a newer ID, which the goroutine will also persist.)
+	if err := db.UpdateGameSessionAiSession(ctx, session.UserID, session.ID, session.AiSession); err != nil {
+		log.Warn("failed to persist AI session state after ExecuteAction", "session_id", session.ID, "error", err)
+	}
+
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
 	// This is returned to client immediately
 	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
@@ -432,7 +452,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
+	// The ExpandStory goroutine takes ownership of the session lock.
+	earlyReturn = false
 	go func() {
+		defer unlock()
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
 		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
@@ -450,6 +473,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Update session with new AI state (response IDs for conversation continuity)
+		log.Debug("[TRACE] persisting AiSession to DB", "session_id", session.ID, "ai_session", session.AiSession)
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}

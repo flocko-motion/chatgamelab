@@ -168,6 +168,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusNotFound, "Session not found")
 		return
 	}
+	log.Debug("[TRACE] session loaded from DB for action", "session_id", session.ID, "ai_session", session.AiSession, "platform", session.AiPlatform)
 
 	// Get current status fields from the latest message in the session
 	var currentStatus []obj.StatusField
@@ -188,7 +189,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
 	response, httpErr := game.DoSessionActionWithFallback(r.Context(), session, action)
 	if httpErr != nil {
-		log.Debug("session action failed", "session_id", session.ID, "error", httpErr.Message)
+		log.Warn("session action failed", "session_id", session.ID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}

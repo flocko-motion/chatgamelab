@@ -76,7 +76,7 @@
             ]
         },
         {
-            "name": "Debug TestGamePlaythrough",
+            "name": "Debug TestGamePlaythrough Mistral",
             "type": "go",
             "request": "launch",
             "mode": "test",
@@ -84,7 +84,21 @@
             "cwd": "${workspaceFolder}/testing",
             "args": [
                 "-test.run",
-                "TestGameEngineTestSuite/TestGamePlaythrough",
+                "TestGameEngineTestSuite/TestGamePlaythroughMistral",
+                "-test.v"
+            ],
+            "buildFlags": "-tags=ai_tests"
+        },
+        {
+            "name": "Debug TestGamePlaythrough OpenAI",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestGameEngineTestSuite/TestGamePlaythroughOpenai",
                 "-test.v"
             ],
             "buildFlags": "-tags=ai_tests"
