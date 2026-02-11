@@ -227,6 +227,9 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			{Role: "developer", Content: templates.ReminderExecuteAction},
 			{Role: "user", Content: actionInput},
 		}
+		// Set debug prompt showing full input sent to the AI
+		response.PromptStatusUpdate = functional.Ptr(
+			"[developer] " + templates.ReminderExecuteAction + "\n\n[user] " + actionInput)
 	}
 
 	responseStream := stream.Get().Lookup(response.ID)
