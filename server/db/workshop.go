@@ -225,6 +225,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       result.DesignEditingEnabled,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -450,6 +451,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
+				DesignEditingEnabled:       r.DesignEditingEnabled,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -502,6 +504,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
+				DesignEditingEnabled:       r.DesignEditingEnabled,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -532,6 +535,7 @@ type UpdateWorkshopParams struct {
 	AiQualityTier              *string
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
+	DesignEditingEnabled       bool
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -570,6 +574,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
 		ShowPublicGames:            params.ShowPublicGames,
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       params.DesignEditingEnabled,
 	}
 	if params.AiQualityTier != nil {
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
@@ -600,6 +605,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       result.DesignEditingEnabled,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

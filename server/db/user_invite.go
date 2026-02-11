@@ -296,9 +296,9 @@ func CreateWorkshopInvite(
 		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
 	}
 
-	// Check permission: any head or staff of the institution can create workshop invites
-	// (unlike update/delete which requires the creator for staff)
-	if err := canAccessWorkshop(ctx, createdBy, OpRead, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
+	// Check permission: only head or staff of the institution can create workshop invites
+	// (participants have OpRead access to their workshop but must not create invites)
+	if err := canAccessWorkshop(ctx, createdBy, OpCreate, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
 		return obj.UserRoleInvite{}, err
 	}
 

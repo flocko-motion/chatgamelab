@@ -257,6 +257,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.WorkshopName.String,
 				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
+				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				AiQualityTier:              aiQualityTier,
 			}
 		} else if res.ActiveWorkshopID.Valid {
@@ -270,6 +271,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.ActiveWorkshopName.String,
 				ShowPublicGames:            res.ActiveWorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
+				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				AiQualityTier:              aiQualityTier,
 			}
 		}

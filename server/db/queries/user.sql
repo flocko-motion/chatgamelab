@@ -97,11 +97,13 @@ SELECT
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
+  w.design_editing_enabled AS workshop_design_editing_enabled,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
-  aw.ai_quality_tier AS active_workshop_ai_quality_tier
+  aw.ai_quality_tier AS active_workshop_ai_quality_tier,
+  aw.design_editing_enabled AS active_workshop_design_editing_enabled
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*

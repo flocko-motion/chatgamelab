@@ -1334,11 +1334,13 @@ SELECT
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
+  w.design_editing_enabled AS workshop_design_editing_enabled,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
-  aw.ai_quality_tier AS active_workshop_ai_quality_tier
+  aw.ai_quality_tier AS active_workshop_ai_quality_tier,
+  aw.design_editing_enabled AS active_workshop_design_editing_enabled
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
@@ -1379,11 +1381,13 @@ type GetUserDetailsByIDRow struct {
 	WorkshopShowPublicGames                  sql.NullBool
 	WorkshopShowOtherParticipantsGames       sql.NullBool
 	WorkshopAiQualityTier                    sql.NullString
+	WorkshopDesignEditingEnabled             sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
 	ActiveWorkshopName                       sql.NullString
 	ActiveWorkshopShowPublicGames            sql.NullBool
 	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
 	ActiveWorkshopAiQualityTier              sql.NullString
+	ActiveWorkshopDesignEditingEnabled       sql.NullBool
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1412,11 +1416,13 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopShowPublicGames,
 		&i.WorkshopShowOtherParticipantsGames,
 		&i.WorkshopAiQualityTier,
+		&i.WorkshopDesignEditingEnabled,
 		&i.ActiveWorkshopID,
 		&i.ActiveWorkshopName,
 		&i.ActiveWorkshopShowPublicGames,
 		&i.ActiveWorkshopShowOtherParticipantsGames,
 		&i.ActiveWorkshopAiQualityTier,
+		&i.ActiveWorkshopDesignEditingEnabled,
 	)
 	return i, err
 }

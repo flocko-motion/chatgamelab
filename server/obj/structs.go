@@ -122,6 +122,7 @@ type Workshop struct {
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
+	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 }
 
 type WorkshopParticipant struct {

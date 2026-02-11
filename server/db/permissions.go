@@ -766,12 +766,11 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		if targetUserID == userID {
 			return nil
 		}
-		// Heads can read users in their institution's workshops
-		if user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
-			// Check if target user has a role in any workshop of this institution
+		// Head/staff can read users in their institution
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
 			targetUser, err := GetUserByID(ctx, targetUserID)
 			if err == nil && targetUser.Role != nil {
-				// If target has workshop role, check if workshop belongs to head's institution
+				// If target has workshop role, check if workshop belongs to the institution
 				if targetUser.Role.Workshop != nil {
 					workshop, err := queries().GetWorkshopByID(ctx, targetUser.Role.Workshop.ID)
 					if err == nil && workshop.InstitutionID == user.Role.Institution.ID {
@@ -788,12 +787,11 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 
 	case OpList:
 		// Admin can list all users
-		// Heads can list users in their institution
-		// Complex filtering logic implemented in the list function itself
-		if user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
+		// Head/staff can list users in their institution (filtered in handler)
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
 			return nil
 		}
-		return obj.ErrForbidden("only admins or institution heads can list users")
+		return obj.ErrForbidden("only admins or institution heads/staff can list users")
 
 	case OpUpdate:
 		// Users can update their own profile
@@ -809,6 +807,12 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 	default:
 		return obj.ErrForbidden("unknown operation")
 	}
+}
+
+// CanReadUser checks if the requesting user can read the target user's profile.
+// Exported wrapper around canAccessUser with OpRead.
+func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID uuid.UUID) error {
+	return canAccessUser(ctx, requestingUserID, OpRead, targetUserID)
 }
 
 // canManageUserRole checks if user can manage (set/remove) roles
