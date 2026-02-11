@@ -46,13 +46,32 @@ type UsersJwtResponse struct {
 //	@Security		BearerAuth
 //	@Router			/users [get]
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := db.GetAllUsers(r.Context())
-	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get users: "+err.Error())
+	user := httpx.UserFromRequest(r)
+
+	// Admin sees all users
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		users, err := db.GetAllUsers(r.Context())
+		if err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to get users: "+err.Error())
+			return
+		}
+		httpx.WriteJSON(w, http.StatusOK, users)
 		return
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, users)
+	// Head/staff sees members of their institution
+	if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
+		members, err := db.GetInstitutionMembers(r.Context(), user.Role.Institution.ID, user.ID)
+		if err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to get users: "+err.Error())
+			return
+		}
+		httpx.WriteJSON(w, http.StatusOK, members)
+		return
+	}
+
+	// Everyone else (individual, participant) gets 403
+	httpx.WriteAppError(w, obj.ErrForbidden("only admins or institution heads/staff can list users"))
 }
 
 // GetCurrentUser godoc
@@ -159,15 +178,23 @@ func UpdateUserLanguage(w http.ResponseWriter, r *http.Request) {
 //	@Security		BearerAuth
 //	@Router			/users/{id} [get]
 func GetUserByID(w http.ResponseWriter, r *http.Request) {
-	userID, err := httpx.PathParamUUID(r, "id")
+	currentUser := httpx.UserFromRequest(r)
+
+	targetID, err := httpx.PathParamUUID(r, "id")
 	if err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
 
-	log.Debug("getting user by ID", "user_id", userID)
+	log.Debug("getting user by ID", "user_id", targetID, "requested_by", currentUser.ID)
 
-	user, err := db.GetUserByID(r.Context(), userID)
+	// Permission check: own profile, admin, or head/staff for org members
+	if err := db.CanReadUser(r.Context(), currentUser.ID, targetID); err != nil {
+		httpx.WriteError(w, http.StatusForbidden, "Not authorized to read this user")
+		return
+	}
+
+	user, err := db.GetUserByID(r.Context(), targetID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "User not found")
 		return
