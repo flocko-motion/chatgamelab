@@ -10,6 +10,8 @@
  * Users without a role (null) are treated as having no privileges.
  */
 
+import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { ObjUser, ObjUserRole } from "@/api/generated";
 
 /**
@@ -53,9 +55,9 @@ const ROLE_MAP: Record<RoleString, Role> = {
 const ROLE_LABELS: Record<Role, string> = {
   [Role.Participant]: "Participant",
   [Role.Individual]: "Individual",
-  [Role.Staff]: "Workshop Lead",
-  [Role.Head]: "Head",
-  [Role.Admin]: "Admin",
+  [Role.Staff]: "Workshop Leader",
+  [Role.Head]: "Head of Organization",
+  [Role.Admin]: "Administrator",
 };
 
 /**
@@ -211,4 +213,46 @@ export function isInInstitution(
  */
 export function compareRoles(role1: Role, role2: Role): number {
   return role1 - role2;
+}
+
+/**
+ * Returns the Mantine color associated with a role string.
+ */
+export function getRoleColor(role: string | undefined | null): string {
+  switch (role) {
+    case "admin":
+      return "red";
+    case "head":
+      return "violet";
+    case "staff":
+      return "blue";
+    case "participant":
+    case "individual":
+    default:
+      return "gray";
+  }
+}
+
+/**
+ * Hook that returns a translateRole function using i18n.
+ * Looks up `auth:profile.roles.<role>`, falls back to getRoleLabel.
+ *
+ * @param fallbackForEmpty - text to return when role is empty/undefined.
+ *   Defaults to "-".
+ */
+export function useTranslateRole(fallbackForEmpty = "-") {
+  const { t } = useTranslation("auth");
+
+  const translateRole = useCallback(
+    (role: string | undefined | null): string => {
+      if (!role) return fallbackForEmpty;
+      const key = `profile.roles.${role.toLowerCase()}`;
+      const translated = t(key);
+      // If the key is not found, react-i18next returns the key itself
+      return translated === key ? getRoleLabel(role) : translated;
+    },
+    [t, fallbackForEmpty],
+  );
+
+  return translateRole;
 }
