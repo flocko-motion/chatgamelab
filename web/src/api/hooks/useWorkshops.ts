@@ -113,6 +113,7 @@ export function useUpdateWorkshop() {
       showOtherParticipantsGames?: boolean;
       designEditingEnabled?: boolean;
       aiQualityTier?: string;
+      isPaused?: boolean;
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
         name: data.name,
@@ -122,6 +123,7 @@ export function useUpdateWorkshop() {
         showOtherParticipantsGames: data.showOtherParticipantsGames ?? true,
         designEditingEnabled: data.designEditingEnabled ?? false,
         aiQualityTier: data.aiQualityTier,
+        isPaused: data.isPaused ?? false,
       });
       return response.data;
     },

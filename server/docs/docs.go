@@ -5444,6 +5444,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/obj.UserRoleInvite"
                     }
                 },
+                "isPaused": {
+                    "type": "boolean"
+                },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
@@ -6183,6 +6186,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "designEditingEnabled": {
+                    "type": "boolean"
+                },
+                "isPaused": {
                     "type": "boolean"
                 },
                 "name": {
