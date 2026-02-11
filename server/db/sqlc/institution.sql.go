@@ -318,6 +318,38 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 	return items, nil
 }
 
+const getNonParticipantUserIDsByInstitution = `-- name: GetNonParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role != 'participant'
+  AND u.deleted_at IS NULL
+`
+
+func (q *Queries) GetNonParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getNonParticipantUserIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getParticipantUserIDsByInstitution = `-- name: GetParticipantUserIDsByInstitution :many
 SELECT DISTINCT u.id
 FROM app_user u

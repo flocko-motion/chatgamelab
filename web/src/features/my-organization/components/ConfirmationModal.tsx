@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import { Modal, Stack, Text, Group, ActionIcon, Alert } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+import type { ReactNode } from "react";
+import { Modal, Stack, Text, Group, ActionIcon, Alert } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
 export interface ConfirmationModalProps {
   opened: boolean;
@@ -14,6 +14,8 @@ export interface ConfirmationModalProps {
   confirmColor: string;
   onConfirm: () => void;
   isLoading?: boolean;
+  /** Error message to display (red alert) */
+  error?: string | null;
 }
 
 export function ConfirmationModal({
@@ -22,13 +24,14 @@ export function ConfirmationModal({
   title,
   message,
   warning,
-  warningColor = 'yellow',
+  warningColor = "yellow",
   confirmIcon,
   confirmColor,
   onConfirm,
   isLoading = false,
+  error,
 }: ConfirmationModalProps) {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation("common");
 
   return (
     <Modal opened={opened} onClose={onClose} title={title}>
@@ -39,14 +42,19 @@ export function ConfirmationModal({
             {warning}
           </Alert>
         )}
+        {error && (
+          <Alert color="red" icon={<IconAlertCircle size={16} />}>
+            {error}
+          </Alert>
+        )}
         <Group justify="flex-end">
           <Text
             size="sm"
             c="dimmed"
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: "pointer" }}
             onClick={onClose}
           >
-            {t('cancel')}
+            {t("cancel")}
           </Text>
           <ActionIcon
             color={confirmColor}

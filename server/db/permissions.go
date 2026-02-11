@@ -113,11 +113,6 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 			// If target is a head, apply additional validations
 			if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead &&
 				targetUser.Role.Institution != nil && targetUser.Role.Institution.ID == institutionID {
-				// Heads cannot remove themselves
-				if *targetUserID == userID {
-					return obj.ErrForbidden("heads cannot remove themselves from an institution")
-				}
-
 				// Count heads in this institution
 				members, err := GetInstitutionMembers(ctx, institutionID, userID)
 				if err != nil {
@@ -131,9 +126,9 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 					}
 				}
 
-				// Prevent removing the last head
+				// Prevent removing the last head (whether self or other)
 				if headCount <= 1 {
-					return obj.ErrForbidden("cannot remove the last head from an institution")
+					return obj.NewAppError(obj.ErrCodeLastHead, "you are the last head of this organization — please contact the site administrators to leave")
 				}
 			}
 

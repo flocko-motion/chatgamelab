@@ -270,14 +270,22 @@ func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) e
 		_ = DeleteUser(ctx, participantID)
 	}
 
-	// 3. Clean up remaining FK references before hard-delete
+	// 3. Collect non-participant members (head/staff) before removing roles
+	memberIDs, _ := queries().GetNonParticipantUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+
+	// 4. Clean up remaining FK references before hard-delete
 	_ = queries().DeleteInvitesByInstitution(ctx, id)
 	_ = queries().DeleteApiKeySharesByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	_ = queries().DeleteUserRolesByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
 	_ = queries().HardDeleteWorkshopsByInstitution(ctx, id)
 	_ = queries().ClearInstitutionFreeUseApiKeyShare(ctx, id)
 
-	// 4. Hard-delete the institution
+	// 5. Assign individual role to former members so they aren't left without a role
+	for _, memberID := range memberIDs {
+		_ = assignDefaultIndividualRole(ctx, memberID)
+	}
+
+	// 6. Hard-delete the institution
 	if err := queries().HardDeleteInstitution(ctx, id); err != nil {
 		return obj.ErrServerError("failed to delete institution")
 	}
