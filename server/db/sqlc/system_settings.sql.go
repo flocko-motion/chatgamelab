@@ -13,6 +13,19 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearSystemSettingsFreeUseApiKey = `-- name: ClearSystemSettingsFreeUseApiKey :exec
+UPDATE system_settings
+SET
+  free_use_api_key_id = NULL,
+  modified_at = now()
+WHERE free_use_api_key_id = $1
+`
+
+func (q *Queries) ClearSystemSettingsFreeUseApiKey(ctx context.Context, freeUseApiKeyID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearSystemSettingsFreeUseApiKey, freeUseApiKeyID)
+	return err
+}
+
 const getSystemSettings = `-- name: GetSystemSettings :one
 
 SELECT

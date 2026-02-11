@@ -139,6 +139,11 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to clear game sponsored api key references")
 	}
 
+	// Clear system free-use key reference if it points to this key
+	if err := queries().ClearSystemSettingsFreeUseApiKey(ctx, uuid.NullUUID{UUID: key.ID, Valid: true}); err != nil {
+		return obj.ErrServerError("failed to clear system free-use api key reference")
+	}
+
 	wasDefault := key.IsDefault
 
 	// Delete all shares
