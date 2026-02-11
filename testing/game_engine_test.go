@@ -124,9 +124,23 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	s.Equal("game", resumed.Messages[1].Type, "Second message should be a game start scenario")
 	s.Equal("player", resumed.Messages[2].Type, "Second message should be a player input")
 
-	// Log all messages for review
+	// Log all messages and verify prompt fields on game-type messages
 	for i, msg := range resumed.Messages {
 		log.Printf("  Message[%d] type=%-6s seq=%d len=%d", i, msg.Type, msg.Seq, len(msg.Message))
+
+		if msg.Type == "game" {
+			s.Require().NotNil(msg.PromptExpandStory, "Message[%d] PromptExpandStory should not be nil", i)
+			s.Greater(len(*msg.PromptExpandStory), 0, "Message[%d] PromptExpandStory should not be empty", i)
+
+			s.Require().NotNil(msg.PromptStatusUpdate, "Message[%d] PromptStatusUpdate should not be nil", i)
+			s.Greater(len(*msg.PromptStatusUpdate), 0, "Message[%d] PromptStatusUpdate should not be empty", i)
+
+			s.Require().NotNil(msg.PromptResponseSchema, "Message[%d] PromptResponseSchema should not be nil", i)
+			s.Greater(len(*msg.PromptResponseSchema), 0, "Message[%d] PromptResponseSchema should not be empty", i)
+
+			s.Require().NotNil(msg.PromptImageGeneration, "Message[%d] PromptImageGeneration should not be nil", i)
+			s.Greater(len(*msg.PromptImageGeneration), 0, "Message[%d] PromptImageGeneration should not be empty", i)
+		}
 	}
 
 	log.Printf("Game engine test completed successfully! Review terminal output to verify French translation.")
