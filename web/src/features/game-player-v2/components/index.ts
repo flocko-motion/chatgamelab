@@ -12,3 +12,4 @@ export { ImageLightbox } from "./ImageLightbox";
 export { SceneDivider } from "./SceneDivider";
 export { SystemMessage } from "./SystemMessage";
 export { BackgroundAnimation } from "./BackgroundAnimation";
+export { AiInsightPanel } from "./AiInsightPanel";
