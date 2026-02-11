@@ -264,6 +264,31 @@ UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1;
 -- name: HardDeleteGame :exec
 DELETE FROM game WHERE id = $1;
 
+-- User deletion: game cleanup queries
+
+-- name: GetGameIDsByCreator :many
+SELECT id FROM game WHERE created_by = $1;
+
+-- name: DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1;
+
+-- name: DeleteGameSessionMessagesByGameID :exec
+DELETE FROM game_session_message WHERE game_session_id IN (
+  SELECT id FROM game_session WHERE game_id = $1
+);
+
+-- name: DeleteGameSessionsByGameID :exec
+DELETE FROM game_session WHERE game_id = $1;
+
+-- name: DeleteFavouritesByGameID :exec
+DELETE FROM user_favourite_game WHERE game_id = $1;
+
+-- name: ClearPrivateShareGameIDByGameID :exec
+UPDATE app_user SET private_share_game_id = NULL WHERE private_share_game_id = $1;
+
+-- name: HardDeleteGamesByCreator :exec
+DELETE FROM game WHERE created_by = $1;
+
 
 -- game_tag -------------------------------------------------------------
 

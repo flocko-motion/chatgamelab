@@ -295,8 +295,14 @@ UPDATE api_key SET
 WHERE id = $1
 RETURNING *;
 
+-- name: GetApiKeyIDsByUser :many
+SELECT id FROM api_key WHERE user_id = $1;
+
 -- name: DeleteApiKey :exec
 DELETE FROM api_key WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteAllApiKeysByUser :exec
+DELETE FROM api_key WHERE user_id = $1;
 
 -- GetApiKeySharesByUserID is now in api_key.sql using the unified api_key_share table
 
@@ -483,3 +489,27 @@ WHERE s.user_id = $1 AND m.type = 'player';
 
 -- name: SumPlayCountOfUserGames :one
 SELECT COALESCE(SUM(play_count), 0)::int AS total FROM game WHERE created_by = $1;
+
+-- User deletion cleanup queries
+
+-- name: DeleteUserFavourites :exec
+DELETE FROM user_favourite_game WHERE user_id = $1;
+
+-- name: DeleteWorkshopParticipantsByUserID :exec
+DELETE FROM workshop_participant WHERE workshop_id IN (
+  SELECT workshop_id FROM user_role WHERE user_id = $1 AND role = 'participant' AND workshop_id IS NOT NULL
+);
+
+-- name: CountHeadsByInstitution :one
+-- Count how many heads an institution has (for last-head protection)
+SELECT COUNT(*)::int AS count
+FROM user_role
+WHERE institution_id = $1 AND role = 'head';
+
+-- name: GetParticipantUserIDsByWorkshopID :many
+-- Get user IDs of participants in a workshop
+SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant';
+
+-- name: DeleteUserRolesByWorkshopID :exec
+-- Delete all participant roles scoped to a workshop
+DELETE FROM user_role WHERE workshop_id = $1 AND role = 'participant';
