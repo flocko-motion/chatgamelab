@@ -951,7 +951,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Checks whether an API key can be resolved for the current user and game.",
+                "description": "Checks whether an API key can be reso        lved for the current user and game.",
                 "produces": [
                     "application/json"
                 ],
