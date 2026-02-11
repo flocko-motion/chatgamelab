@@ -25,6 +25,7 @@ import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
 import { SortSelector, type SortOption } from "@/common/components/controls";
 import type { RoutesInviteResponse, ObjInstitution } from "@/api/generated";
+import { useTranslateRole } from "@/common/lib/roles";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -57,7 +58,6 @@ export function InvitesList({
   showInstitutionColumn = false,
 }: InvitesListProps) {
   const { t } = useTranslation("common");
-  const { t: tAuth } = useTranslation("auth");
   const api = useRequiredAuthenticatedApi();
   const { isMobile } = useResponsiveDesign();
 
@@ -92,14 +92,7 @@ export function InvitesList({
     [institutions],
   );
 
-  const translateRole = useCallback(
-    (role?: string) => {
-      if (!role) return "-";
-      const roleKey = role.toLowerCase();
-      return tAuth(`profile.roles.${roleKey}`, role);
-    },
-    [tAuth],
-  );
+  const translateRole = useTranslateRole();
 
   const translateStatus = useCallback(
     (status?: string) => {

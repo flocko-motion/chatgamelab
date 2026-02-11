@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Table,
   Text,
@@ -9,13 +9,20 @@ import {
   Stack,
   Loader,
   Box,
-} from '@mantine/core';
-import { IconChevronDown, IconChevronRight, IconTrash, IconSend, IconEdit } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '@/api/queryKeys';
-import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
-import type { ObjInstitution, ObjUser } from '@/api/generated';
+} from "@mantine/core";
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconTrash,
+  IconSend,
+  IconEdit,
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/api/queryKeys";
+import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
+import type { ObjInstitution, ObjUser } from "@/api/generated";
+import { useTranslateRole } from "@/common/lib/roles";
 
 interface OrganizationMembersRowProps {
   org: ObjInstitution;
@@ -24,11 +31,16 @@ interface OrganizationMembersRowProps {
   onInvite: (org: ObjInstitution) => void;
 }
 
-export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: OrganizationMembersRowProps) {
-  const { t } = useTranslation('common');
-  const { t: tAuth } = useTranslation('auth');
+export function OrganizationMembersRow({
+  org,
+  onEdit,
+  onDelete,
+  onInvite,
+}: OrganizationMembersRowProps) {
+  const { t } = useTranslation("common");
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
+  const translateRole = useTranslateRole();
   const [expanded, setExpanded] = useState(false);
 
   const { data: members, isLoading: membersLoading } = useQuery({
@@ -45,40 +57,42 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
       await api.institutions.membersDelete(org.id!, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.institutionMembers(org.id!) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institutionMembers(org.id!),
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
     },
   });
 
   const handleRemoveMember = (userId: string, userName: string) => {
-    if (confirm(t('admin.organizations.removeMemberConfirm', { name: userName }))) {
+    if (
+      confirm(t("admin.organizations.removeMemberConfirm", { name: userName }))
+    ) {
       removeMemberMutation.mutate(userId);
     }
   };
 
-  const translateRole = (role?: string) => {
-    if (!role) return '-';
-    const roleKey = role.toLowerCase();
-    return tAuth(`profile.roles.${roleKey}`, role);
-  };
-
   return (
     <>
-      <Table.Tr 
-        style={{ cursor: 'pointer' }}
+      <Table.Tr
+        style={{ cursor: "pointer" }}
         onClick={() => setExpanded(!expanded)}
       >
         <Table.Td>
           <Group gap="xs">
             <ActionIcon variant="subtle" size="sm">
-              {expanded ? <IconChevronDown size={16} /> : <IconChevronRight size={16} />}
+              {expanded ? (
+                <IconChevronDown size={16} />
+              ) : (
+                <IconChevronRight size={16} />
+              )}
             </ActionIcon>
             <Text fw={500}>{org.name}</Text>
           </Group>
         </Table.Td>
         <Table.Td>
           <Badge variant="light" color="blue">
-            {org.members?.length || 0} {t('admin.organizations.membersCount')}
+            {org.members?.length || 0} {t("admin.organizations.membersCount")}
           </Badge>
         </Table.Td>
         <Table.Td onClick={(e) => e.stopPropagation()}>
@@ -87,7 +101,7 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
               variant="subtle"
               color="blue"
               onClick={() => onInvite(org)}
-              title={t('admin.organizations.sendInvite')}
+              title={t("admin.organizations.sendInvite")}
             >
               <IconSend size={16} />
             </ActionIcon>
@@ -95,7 +109,7 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
               variant="subtle"
               color="gray"
               onClick={() => onEdit(org)}
-              title={t('edit')}
+              title={t("edit")}
             >
               <IconEdit size={16} />
             </ActionIcon>
@@ -103,7 +117,7 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
               variant="subtle"
               color="red"
               onClick={() => onDelete(org)}
-              title={t('delete')}
+              title={t("delete")}
             >
               <IconTrash size={16} />
             </ActionIcon>
@@ -121,24 +135,36 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
                   </Group>
                 ) : members && members.length > 0 ? (
                   <Stack gap="xs">
-                    <Text size="sm" fw={600} c="dimmed">{t('admin.organizations.membersList')}</Text>
+                    <Text size="sm" fw={600} c="dimmed">
+                      {t("admin.organizations.membersList")}
+                    </Text>
                     <Table>
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th>{t('admin.organizations.memberName')}</Table.Th>
-                          <Table.Th>{t('admin.organizations.memberEmail')}</Table.Th>
-                          <Table.Th>{t('admin.organizations.memberRole')}</Table.Th>
-                          <Table.Th style={{ width: 80 }}>{t('admin.organizations.actions')}</Table.Th>
+                          <Table.Th>
+                            {t("admin.organizations.memberName")}
+                          </Table.Th>
+                          <Table.Th>
+                            {t("admin.organizations.memberEmail")}
+                          </Table.Th>
+                          <Table.Th>
+                            {t("admin.organizations.memberRole")}
+                          </Table.Th>
+                          <Table.Th style={{ width: 80 }}>
+                            {t("admin.organizations.actions")}
+                          </Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
                         {members.map((member: ObjUser) => (
                           <Table.Tr key={member.id}>
                             <Table.Td>
-                              <Text size="sm">{member.name || '-'}</Text>
+                              <Text size="sm">{member.name || "-"}</Text>
                             </Table.Td>
                             <Table.Td>
-                              <Text size="sm" c="dimmed">{member.email || '-'}</Text>
+                              <Text size="sm" c="dimmed">
+                                {member.email || "-"}
+                              </Text>
                             </Table.Td>
                             <Table.Td>
                               <Badge size="sm" variant="light">
@@ -150,9 +176,14 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
                                 variant="subtle"
                                 color="red"
                                 size="sm"
-                                onClick={() => handleRemoveMember(member.id!, member.name || member.email || 'this user')}
+                                onClick={() =>
+                                  handleRemoveMember(
+                                    member.id!,
+                                    member.name || member.email || "this user",
+                                  )
+                                }
                                 loading={removeMemberMutation.isPending}
-                                title={t('admin.organizations.removeMember')}
+                                title={t("admin.organizations.removeMember")}
                               >
                                 <IconTrash size={14} />
                               </ActionIcon>
@@ -164,7 +195,7 @@ export function OrganizationMembersRow({ org, onEdit, onDelete, onInvite }: Orga
                   </Stack>
                 ) : (
                   <Text size="sm" c="dimmed" ta="center" py="md">
-                    {t('admin.organizations.noMembers')}
+                    {t("admin.organizations.noMembers")}
                   </Text>
                 )}
               </Box>

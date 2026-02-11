@@ -8,7 +8,7 @@ import {
   ThemeIcon,
   Badge,
   Skeleton,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   IconBuilding,
   IconChartBar,
@@ -17,18 +17,25 @@ import {
   IconPlayerPlay,
   IconShieldStar,
   IconTrophy,
-} from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next';
+} from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
 
-import { useAuth } from '@/providers/AuthProvider';
-import { UserAvatar } from '@/common/components/UserAvatar';
-import { useUserStats } from '@/api/hooks';
-import { isAdmin, getRoleLabel, getUserRole, Role } from '@/common/lib/roles';
+import { useAuth } from "@/providers/AuthProvider";
+import { UserAvatar } from "@/common/components/UserAvatar";
+import { useUserStats } from "@/api/hooks";
+import {
+  isAdmin,
+  getUserRole,
+  getRoleColor,
+  useTranslateRole,
+} from "@/common/lib/roles";
 
 export function ProfileView() {
-  const { t } = useTranslation('auth');
+  const { t } = useTranslation("auth");
   const { backendUser } = useAuth();
   const { data: stats, isLoading: statsLoading } = useUserStats();
+
+  const translateRole = useTranslateRole(t("profile.noRole"));
 
   if (!backendUser) {
     return null;
@@ -38,25 +45,33 @@ export function ProfileView() {
   const userRole = getUserRole(backendUser);
   const hasOrganization = !!backendUser.role?.institution;
 
-  // Get translated role name, fallback to English label
-  const getRoleTranslation = (role: string) => {
-    const key = `profile.roles.${role}`;
-    const translated = t(key);
-    // If translation key not found, use the role label from our utilities
-    return translated === key ? getRoleLabel(role) : translated;
-  };
-
   // Format member since date
   const memberSince = backendUser.meta?.createdAt
     ? new Date(backendUser.meta.createdAt).toLocaleDateString()
-    : '-';
+    : "-";
 
   // Statistics from API
   const statItems = [
-    { label: t('profile.gamesPlayed'), value: stats?.gamesPlayed ?? 0, icon: IconPlayerPlay },
-    { label: t('profile.gamesCreated'), value: stats?.gamesCreated ?? 0, icon: IconDeviceGamepad2 },
-    { label: t('profile.messagesSent'), value: stats?.messagesSent ?? 0, icon: IconMessage },
-    { label: t('profile.totalPlaysOnGames'), value: stats?.totalPlaysOnGames ?? 0, icon: IconTrophy },
+    {
+      label: t("profile.gamesPlayed"),
+      value: stats?.gamesPlayed ?? 0,
+      icon: IconPlayerPlay,
+    },
+    {
+      label: t("profile.gamesCreated"),
+      value: stats?.gamesCreated ?? 0,
+      icon: IconDeviceGamepad2,
+    },
+    {
+      label: t("profile.messagesSent"),
+      value: stats?.messagesSent ?? 0,
+      icon: IconMessage,
+    },
+    {
+      label: t("profile.totalPlaysOnGames"),
+      value: stats?.totalPlaysOnGames ?? 0,
+      icon: IconTrophy,
+    },
   ];
 
   return (
@@ -64,11 +79,8 @@ export function ProfileView() {
       {/* User Info Card */}
       <Card shadow="sm" padding="xl" radius="md" withBorder>
         <Group gap="lg" align="flex-start">
-          <UserAvatar
-            name={backendUser.name || 'User'}
-            size="xl"
-          />
-          
+          <UserAvatar name={backendUser.name || "User"} size="xl" />
+
           <Stack gap="xs" style={{ flex: 1 }}>
             <Group gap="sm" align="center">
               <Title order={2}>{backendUser.name}</Title>
@@ -84,10 +96,12 @@ export function ProfileView() {
               )}
             </Group>
             {backendUser.email && (
-              <Text c="dimmed" size="sm">{backendUser.email}</Text>
+              <Text c="dimmed" size="sm">
+                {backendUser.email}
+              </Text>
             )}
             <Text size="sm" c="dimmed">
-              {t('profile.memberSince')}: {memberSince}
+              {t("profile.memberSince")}: {memberSince}
             </Text>
           </Stack>
         </Group>
@@ -100,31 +114,35 @@ export function ProfileView() {
             <ThemeIcon variant="light" size="lg" color="accent">
               <IconBuilding size={20} />
             </ThemeIcon>
-            <Title order={3}>{t('profile.organizationSection')}</Title>
+            <Title order={3}>{t("profile.organizationSection")}</Title>
           </Group>
-          
+
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
             <Stack gap="xs">
-              <Text size="sm" c="dimmed">{t('profile.organization')}</Text>
+              <Text size="sm" c="dimmed">
+                {t("profile.organization")}
+              </Text>
               <Text fw={500}>
                 {hasOrganization
                   ? backendUser.role?.institution?.name
-                  : t('profile.noOrganization')}
+                  : t("profile.noOrganization")}
               </Text>
             </Stack>
-            
+
             <Stack gap="xs">
-              <Text size="sm" c="dimmed">{t('profile.role')}</Text>
+              <Text size="sm" c="dimmed">
+                {t("profile.role")}
+              </Text>
               {userRole !== undefined ? (
                 <Badge
-                  variant={userIsAdmin ? 'filled' : 'light'}
-                  color={userIsAdmin ? 'red' : userRole === Role.Head ? 'violet' : 'accent'}
+                  variant={userIsAdmin ? "filled" : "light"}
+                  color={getRoleColor(backendUser.role?.role)}
                   size="lg"
                 >
-                  {getRoleTranslation(backendUser.role?.role || '')}
+                  {translateRole(backendUser.role?.role)}
                 </Badge>
               ) : (
-                <Text fw={500}>{t('profile.noRole')}</Text>
+                <Text fw={500}>{t("profile.noRole")}</Text>
               )}
             </Stack>
           </SimpleGrid>
@@ -138,22 +156,31 @@ export function ProfileView() {
             <ThemeIcon variant="light" size="lg" color="accent">
               <IconChartBar size={20} />
             </ThemeIcon>
-            <Title order={3}>{t('profile.statisticsSection')}</Title>
+            <Title order={3}>{t("profile.statisticsSection")}</Title>
           </Group>
-          
+
           <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="md">
             {statItems.map((stat) => (
               <Card key={stat.label} padding="md" radius="md" bg="gray.0">
                 <Stack gap="xs" align="center" ta="center">
-                  <ThemeIcon variant="light" size="xl" color="accent" radius="xl">
+                  <ThemeIcon
+                    variant="light"
+                    size="xl"
+                    color="accent"
+                    radius="xl"
+                  >
                     <stat.icon size={24} />
                   </ThemeIcon>
                   {statsLoading ? (
                     <Skeleton height={28} width={40} />
                   ) : (
-                    <Text size="xl" fw={700}>{stat.value}</Text>
+                    <Text size="xl" fw={700}>
+                      {stat.value}
+                    </Text>
                   )}
-                  <Text size="xs" c="dimmed">{stat.label}</Text>
+                  <Text size="xs" c="dimmed">
+                    {stat.label}
+                  </Text>
                 </Stack>
               </Card>
             ))}
