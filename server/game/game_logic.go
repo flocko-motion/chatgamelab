@@ -415,7 +415,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	response.TokenUsage = &usage
 	// Set prompts on response for transparency (educational debug view)
-	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	// PromptStatusUpdate is set by the platform's ExecuteAction (platform-specific input format)
+	if response.PromptStatusUpdate == nil {
+		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
