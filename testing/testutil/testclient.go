@@ -691,6 +691,25 @@ func (u *UserClient) SetDefaultApiKey(shareID string) (obj.ApiKeyShare, error) {
 	return result, err
 }
 
+// SetInstitutionFreeUseApiKey sets or clears the free-use API key share for an institution (composable high-level API)
+// Pass nil to clear.
+func (u *UserClient) SetInstitutionFreeUseApiKey(institutionID string, shareID *string) (obj.Institution, error) {
+	u.t.Helper()
+	var sid *uuid.UUID
+	if shareID != nil {
+		parsed, err := uuid.Parse(*shareID)
+		if err != nil {
+			return obj.Institution{}, fmt.Errorf("invalid shareID: %w", err)
+		}
+		sid = &parsed
+	}
+	var result obj.Institution
+	err := u.Patch("institutions/"+institutionID+"/free-use-key", map[string]interface{}{
+		"shareId": sid,
+	}, &result)
+	return result, err
+}
+
 // ShareApiKeyWithInstitution shares an API key with an institution (composable high-level API)
 func (u *UserClient) ShareApiKeyWithInstitution(shareID string, institutionID string) (obj.ApiKeyShare, error) {
 	u.t.Helper()
