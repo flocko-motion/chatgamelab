@@ -71,6 +71,7 @@ CREATE TABLE workshop (
     show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
     design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no
+    is_paused boolean NOT NULL DEFAULT false,  -- If true, participants/individuals see a paused overlay and cannot interact
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );

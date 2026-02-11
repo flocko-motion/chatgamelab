@@ -35,7 +35,7 @@ func (q *Queries) AcceptTargetedInvite(ctx context.Context, arg AcceptTargetedIn
 const canUserAccessShareViaWorkshopDefault = `-- name: CanUserAccessShareViaWorkshopDefault :one
 SELECT EXISTS(
   SELECT 1 FROM workshop w
-  INNER JOIN user_role ur ON ur.workshop_id = w.id
+  INNER JOIN user_role ur ON (ur.workshop_id = w.id OR ur.active_workshop_id = w.id)
   WHERE w.default_api_key_share_id = $1
     AND ur.user_id = $2
     AND w.active = true
@@ -49,6 +49,7 @@ type CanUserAccessShareViaWorkshopDefaultParams struct {
 }
 
 // Check if a user can access an API key share because it's the default share for a workshop they're in
+// Matches both participants (workshop_id) and individuals in workshop mode (active_workshop_id)
 func (q *Queries) CanUserAccessShareViaWorkshopDefault(ctx context.Context, arg CanUserAccessShareViaWorkshopDefaultParams) (bool, error) {
 	row := q.db.QueryRowContext(ctx, canUserAccessShareViaWorkshopDefault, arg.DefaultApiKeyShareID, arg.UserID)
 	var can_access bool
@@ -1335,12 +1336,14 @@ SELECT
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
   w.design_editing_enabled AS workshop_design_editing_enabled,
+  w.is_paused AS workshop_is_paused,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
-  aw.design_editing_enabled AS active_workshop_design_editing_enabled
+  aw.design_editing_enabled AS active_workshop_design_editing_enabled,
+  aw.is_paused AS active_workshop_is_paused
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
@@ -1382,12 +1385,14 @@ type GetUserDetailsByIDRow struct {
 	WorkshopShowOtherParticipantsGames       sql.NullBool
 	WorkshopAiQualityTier                    sql.NullString
 	WorkshopDesignEditingEnabled             sql.NullBool
+	WorkshopIsPaused                         sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
 	ActiveWorkshopName                       sql.NullString
 	ActiveWorkshopShowPublicGames            sql.NullBool
 	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
 	ActiveWorkshopAiQualityTier              sql.NullString
 	ActiveWorkshopDesignEditingEnabled       sql.NullBool
+	ActiveWorkshopIsPaused                   sql.NullBool
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1417,12 +1422,14 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopShowOtherParticipantsGames,
 		&i.WorkshopAiQualityTier,
 		&i.WorkshopDesignEditingEnabled,
+		&i.WorkshopIsPaused,
 		&i.ActiveWorkshopID,
 		&i.ActiveWorkshopName,
 		&i.ActiveWorkshopShowPublicGames,
 		&i.ActiveWorkshopShowOtherParticipantsGames,
 		&i.ActiveWorkshopAiQualityTier,
 		&i.ActiveWorkshopDesignEditingEnabled,
+		&i.ActiveWorkshopIsPaused,
 	)
 	return i, err
 }
