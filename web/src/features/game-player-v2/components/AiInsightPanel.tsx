@@ -70,9 +70,6 @@ export function AiInsightPanel({
 
   if (!hasAnyData) return null;
 
-  const usage = message.tokenUsage;
-  const hasTokens = usage && (usage.totalTokens ?? 0) > 0;
-
   return (
     <div className={classes.wrapper}>
       <button
@@ -90,14 +87,6 @@ export function AiInsightPanel({
           <div className={classes.panelHeader}>
             <IconBrain size={14} className={classes.panelHeaderIcon} />
             {t("gamePlayer.aiInsight.title")}
-            {hasTokens && (
-              <span className={classes.tokenBadge}>
-                🔤 {usage.inputTokens?.toLocaleString() ?? 0}{" "}
-                {t("gamePlayer.aiInsight.tokens.sent")} ·{" "}
-                {usage.outputTokens?.toLocaleString() ?? 0}{" "}
-                {t("gamePlayer.aiInsight.tokens.received")}
-              </span>
-            )}
           </div>
           <div className={classes.sections}>
             {isFirstGameMessage && systemPrompt && (
