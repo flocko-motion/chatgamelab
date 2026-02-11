@@ -4657,6 +4657,15 @@ func (q *Queries) SoftDeleteGame(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const unlinkGamesFromWorkshop = `-- name: UnlinkGamesFromWorkshop :exec
+UPDATE game SET workshop_id = NULL WHERE workshop_id = $1
+`
+
+func (q *Queries) UnlinkGamesFromWorkshop(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, unlinkGamesFromWorkshop, workshopID)
+	return err
+}
+
 const updateGame = `-- name: UpdateGame :one
 UPDATE game SET
   created_by = $2,

@@ -289,6 +289,9 @@ UPDATE app_user SET private_share_game_id = NULL WHERE private_share_game_id = $
 -- name: HardDeleteGamesByCreator :exec
 DELETE FROM game WHERE created_by = $1;
 
+-- name: UnlinkGamesFromWorkshop :exec
+UPDATE game SET workshop_id = NULL WHERE workshop_id = $1;
+
 
 -- game_tag -------------------------------------------------------------
 
