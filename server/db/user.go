@@ -236,10 +236,14 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			Role: role,
 		}
 		if res.InstitutionID.Valid {
-			user.Role.Institution = &obj.Institution{
+			inst := &obj.Institution{
 				ID:   res.InstitutionID.UUID,
 				Name: res.InstitutionName.String,
 			}
+			if res.InstitutionFreeUseApiKeyShareID.Valid {
+				inst.FreeUseApiKeyShareID = &res.InstitutionFreeUseApiKeyShareID.UUID
+			}
+			user.Role.Institution = inst
 		}
 		// For participants: use workshop_id (their assigned workshop)
 		// For head/staff/individual: use active_workshop_id (workshop mode) or workshop_id as fallback
