@@ -1141,6 +1141,7 @@
     "you": "You"
   },
   "navigation": {
+    "adminPanel": "Admin Panel",
     "allGames": "All Games",
     "create": "Create Your Own Game",
     "createGame": "Create Game",

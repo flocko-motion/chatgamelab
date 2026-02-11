@@ -198,25 +198,17 @@ jobs:
           echo "Release version: ${{ needs.semantic-release.outputs.version }}"
           
           if [ "${{ github.ref_name }}" = "main" ]; then
-            # Production: trigger omnitopos only
-            echo "Triggering production webhook..."
+            echo "Triggering Coolify prod webhook..."
             curl -X POST \
-              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
+              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
               -f \
-              "https://omnitopos.net/dashctl/cgl-prod/restart"
+              "${{ secrets.COOLIFY_WEBHOOK_URL_PROD }}" || echo "⚠️ Coolify prod webhook failed"
           else
-            # Development: trigger both omnitopos and coolify
-            echo "Triggering omnitopos dev webhook..."
-            curl -X POST \
-              -u "${{ secrets.OMNITOPOS_USERNAME }}:${{ secrets.OMNITOPOS_PASSWORD }}" \
-              -f \
-              "https://omnitopos.net/dashctl/cgl-dev/restart" || echo "⚠️ Omnitopos webhook failed"
-            
             echo "Triggering Coolify dev webhook..."
             curl -X POST \
               -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
               -f \
-              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify webhook failed"
+              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify dev webhook failed"
           fi
 
   summary:

@@ -1190,6 +1190,7 @@
     "you": "Du"
   },
   "navigation": {
+    "adminPanel": "Admin-Bereich",
     "allGames": "Alle Spiele",
     "create": "Eigene Spiele erstellen",
     "createGame": "Spiel erstellen",
