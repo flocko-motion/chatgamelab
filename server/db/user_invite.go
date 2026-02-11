@@ -237,6 +237,17 @@ func CreateInstitutionInvite(
 		return obj.UserRoleInvite{}, err
 	}
 
+	// Only heads (and admins) can invite someone as head
+	if role == obj.RoleHead {
+		creator, err := GetUserByID(ctx, createdBy)
+		if err != nil {
+			return obj.UserRoleInvite{}, obj.ErrServerError("failed to get creator")
+		}
+		if creator.Role == nil || (creator.Role.Role != obj.RoleAdmin && creator.Role.Role != obj.RoleHead) {
+			return obj.UserRoleInvite{}, obj.ErrForbidden("only heads or admins can invite users as head")
+		}
+	}
+
 	// Check for existing pending invite for the same target
 	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
 		InstitutionID: institutionID,

@@ -664,7 +664,6 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 	}, nil
 }
 
-// DeleteWorkshop soft-deletes a workshop (admin, head of institution, or staff who created it)
 func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) error {
 	// Get workshop to check institution and creator
 	workshop, err := queries().GetWorkshopByID(ctx, id)
@@ -679,6 +678,17 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 	}
 	if err := canAccessWorkshop(ctx, deletedBy, OpDelete, workshop.InstitutionID, &id, createdByID); err != nil {
 		return err
+	}
+
+	wsNullUUID := uuid.NullUUID{UUID: id, Valid: true}
+
+	// Clean up participants: collect user IDs, delete roles, participant rows, and user accounts
+	participantUserIDs, _ := queries().GetParticipantUserIDsByWorkshopID(ctx, wsNullUUID)
+	_ = queries().DeleteUserRolesByWorkshopID(ctx, wsNullUUID)
+	_ = queries().DeleteWorkshopParticipantsByWorkshopID(ctx, id)
+	for _, uid := range participantUserIDs {
+		// Delete each participant's user account (these are anonymous accounts)
+		_ = DeleteUser(ctx, uid)
 	}
 
 	err = queries().DeleteWorkshop(ctx, id)
