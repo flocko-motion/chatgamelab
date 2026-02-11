@@ -285,6 +285,9 @@ export interface ObjSystemSettings {
   /** tier for system free-use key, nil = use default */
   freeUseAiQualityTier?: string;
   freeUseApiKeyId?: string;
+  freeUseApiKeyName?: string;
+  freeUseApiKeyPlatform?: string;
+  freeUseApiKeyWorking?: boolean;
   id?: string;
   modifiedAt?: string;
 }
