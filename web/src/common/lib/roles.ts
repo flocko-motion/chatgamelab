@@ -53,7 +53,7 @@ const ROLE_MAP: Record<RoleString, Role> = {
 const ROLE_LABELS: Record<Role, string> = {
   [Role.Participant]: "Participant",
   [Role.Individual]: "Individual",
-  [Role.Staff]: "Staff",
+  [Role.Staff]: "Workshop Lead",
   [Role.Head]: "Head",
   [Role.Admin]: "Admin",
 };

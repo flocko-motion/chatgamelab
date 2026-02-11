@@ -132,21 +132,6 @@ export function ServerSettings() {
                   {t("serverSettings.freeUseKey.remove")}
                 </Button>
               </Group>
-            ) : currentKeyId ? (
-              <Group gap="sm" wrap="wrap">
-                <Badge color="orange" variant="light" size="lg">
-                  {t("serverSettings.freeUseKey.unknownKey")}
-                </Badge>
-                <Button
-                  variant="subtle"
-                  color="red"
-                  size="xs"
-                  onClick={() => setFreeUseKey.mutate({ apiKeyId: null })}
-                  loading={setFreeUseKey.isPending}
-                >
-                  {t("serverSettings.freeUseKey.remove")}
-                </Button>
-              </Group>
             ) : (
               <Select
                 placeholder={t("serverSettings.freeUseKey.selectPlaceholder")}

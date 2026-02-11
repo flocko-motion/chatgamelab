@@ -74,7 +74,7 @@ export function UserManagement() {
     null,
   );
   const [userToEdit, setUserToEdit] = useState<ObjUser | null>(null);
-  const [editEmail, setEditEmail] = useState("");
+  const [editName, setEditName] = useState("");
   const [
     deleteModalOpened,
     { open: openDeleteModal, close: closeDeleteModal },
@@ -141,20 +141,14 @@ export function UserManagement() {
 
   // Update user mutation
   const updateUserMutation = useMutation({
-    mutationFn: async ({
-      userId,
-      email,
-    }: {
-      userId: string;
-      email: string;
-    }) => {
-      await api.users.usersCreate(userId, { email });
+    mutationFn: async ({ userId, name }: { userId: string; name: string }) => {
+      await api.users.usersCreate(userId, { name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.adminUsers });
       closeEditModal();
       setUserToEdit(null);
-      setEditEmail("");
+      setEditName("");
     },
   });
 
@@ -229,7 +223,7 @@ export function UserManagement() {
   const handleEdit = useCallback(
     (user: ObjUser) => {
       setUserToEdit(user);
-      setEditEmail(user.email || "");
+      setEditName(user.name || "");
       openEditModal();
     },
     [openEditModal],
@@ -264,8 +258,11 @@ export function UserManagement() {
     if (!users) return [];
 
     return users.filter((user) => {
-      // Filter out guests if toggle is on
-      if (hideGuests && user.role?.role === "participant") {
+      // Filter out guests and participants if toggle is on
+      if (
+        hideGuests &&
+        (!user.role?.role || user.role.role === "participant")
+      ) {
         return false;
       }
 
@@ -330,7 +327,8 @@ export function UserManagement() {
   // Count guests for display
   const guestCount = useMemo(() => {
     if (!users) return 0;
-    return users.filter((u) => u.role?.role === "participant").length;
+    return users.filter((u) => !u.role?.role || u.role.role === "participant")
+      .length;
   }, [users]);
 
   if (error) {
@@ -482,7 +480,7 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
-                          <Tooltip label={t("admin.users.editEmail")}>
+                          <Tooltip label={t("admin.users.editName")}>
                             <ActionIcon
                               variant="subtle"
                               color="blue"
@@ -590,7 +588,7 @@ export function UserManagement() {
                               </ActionIcon>
                             </Tooltip>
                           )}
-                          <Tooltip label={t("admin.users.editEmail")}>
+                          <Tooltip label={t("admin.users.editName")}>
                             <ActionIcon
                               variant="subtle"
                               color="blue"
@@ -760,10 +758,10 @@ export function UserManagement() {
             {t("admin.users.editingUser", { name: userToEdit?.name })}
           </Text>
           <TextInput
-            label={t("admin.users.email")}
-            placeholder={t("admin.users.emailPlaceholder")}
-            value={editEmail}
-            onChange={(e) => setEditEmail(e.currentTarget.value)}
+            label={t("admin.users.name")}
+            placeholder={t("admin.users.namePlaceholder")}
+            value={editName}
+            onChange={(e) => setEditName(e.currentTarget.value)}
           />
           <Group justify="flex-end">
             <Text
@@ -782,11 +780,11 @@ export function UserManagement() {
                 userToEdit?.id &&
                 updateUserMutation.mutate({
                   userId: userToEdit.id,
-                  email: editEmail,
+                  name: editName,
                 })
               }
               loading={updateUserMutation.isPending}
-              disabled={editEmail === (userToEdit?.email || "")}
+              disabled={editName === (userToEdit?.name || "")}
             >
               <IconEdit size={16} />
             </ActionIcon>

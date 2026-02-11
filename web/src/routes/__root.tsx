@@ -11,6 +11,7 @@ import {
   IconSchool,
   IconSettings,
   IconTools,
+  IconShield,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
@@ -233,26 +234,34 @@ function RootComponent() {
 
   // Admin-only navigation items
   if (isAdmin(backendUser)) {
-    navItems.push(
-      {
-        label: t("serverSettings"),
-        icon: <IconSettings size={18} />,
-        onClick: () => navigate({ to: ROUTES.ADMIN_SERVER_SETTINGS as "/" }),
-        active: pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS),
-      },
-      {
-        label: t("manageOrganizations"),
-        icon: <IconBuilding size={18} />,
-        onClick: () => navigate({ to: ROUTES.ADMIN_ORGANIZATIONS as "/" }),
-        active: pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS),
-      },
-      {
-        label: t("manageUsers"),
-        icon: <IconUsers size={18} />,
-        onClick: () => navigate({ to: ROUTES.ADMIN_USERS as "/" }),
-        active: pathname.startsWith(ROUTES.ADMIN_USERS),
-      },
-    );
+    navItems.push({
+      label: t("adminPanel"),
+      icon: <IconShield size={18} />,
+      active:
+        pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS) ||
+        pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS) ||
+        pathname.startsWith(ROUTES.ADMIN_USERS),
+      children: [
+        {
+          label: t("serverSettings"),
+          icon: <IconSettings size={18} />,
+          onClick: () => navigate({ to: ROUTES.ADMIN_SERVER_SETTINGS as "/" }),
+          active: pathname.startsWith(ROUTES.ADMIN_SERVER_SETTINGS),
+        },
+        {
+          label: t("manageOrganizations"),
+          icon: <IconBuilding size={18} />,
+          onClick: () => navigate({ to: ROUTES.ADMIN_ORGANIZATIONS as "/" }),
+          active: pathname.startsWith(ROUTES.ADMIN_ORGANIZATIONS),
+        },
+        {
+          label: t("manageUsers"),
+          icon: <IconUsers size={18} />,
+          onClick: () => navigate({ to: ROUTES.ADMIN_USERS as "/" }),
+          active: pathname.startsWith(ROUTES.ADMIN_USERS),
+        },
+      ],
+    });
   }
 
   // Header navigation callbacks
