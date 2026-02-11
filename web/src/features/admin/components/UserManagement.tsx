@@ -276,12 +276,14 @@ export function UserManagement() {
         const name = (user.name || "").toLowerCase();
         const email = (user.email || "").toLowerCase();
         const org = getOrganizationName(user).toLowerCase();
-        const role = (user.role?.role || '').toLowerCase();
+        const role = (user.role?.role || "").toLowerCase();
 
-        return name.includes(search) ||
+        return (
+          name.includes(search) ||
           email.includes(search) ||
           org.includes(search) ||
-          role.includes(search);
+          role.includes(search)
+        );
       }
 
       return true;
@@ -626,9 +628,9 @@ export function UserManagement() {
 
         {/* Stats */}
         <Text size="sm" c="dimmed" ta="right">
-          {t('admin.users.showing', {
+          {t("admin.users.showing", {
             count: sortedUsers.length,
-            total: users?.length || 0
+            total: users?.length || 0,
           })}
         </Text>
       </Stack>
@@ -637,7 +639,7 @@ export function UserManagement() {
       <Modal
         opened={deleteModalOpened}
         onClose={closeDeleteModal}
-        title={t('admin.users.deleteTitle')}
+        title={t("admin.users.deleteTitle")}
       >
         <Stack gap="md">
           <Text>
@@ -647,7 +649,7 @@ export function UserManagement() {
             <Text
               size="sm"
               c="dimmed"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={closeDeleteModal}
             >
               {t("cancel")}
@@ -671,11 +673,11 @@ export function UserManagement() {
       <Modal
         opened={promoteModalOpened}
         onClose={closePromoteModal}
-        title={t('admin.users.promoteTitle')}
+        title={t("admin.users.promoteTitle")}
       >
         <Stack gap="md">
           <Text>
-            {t('admin.users.promoteConfirm', {
+            {t("admin.users.promoteConfirm", {
               name: userToPromote?.name,
               email: userToPromote?.email || t("admin.users.noEmail"),
             })}
@@ -687,7 +689,7 @@ export function UserManagement() {
             <Text
               size="sm"
               c="dimmed"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={closePromoteModal}
             >
               {t("cancel")}
@@ -711,11 +713,11 @@ export function UserManagement() {
       <Modal
         opened={removeAdminModalOpened}
         onClose={closeRemoveAdminModal}
-        title={t('admin.users.removeAdminTitle')}
+        title={t("admin.users.removeAdminTitle")}
       >
         <Stack gap="md">
           <Text>
-            {t('admin.users.removeAdminConfirm', {
+            {t("admin.users.removeAdminConfirm", {
               name: userToRemoveAdmin?.name,
               email: userToRemoveAdmin?.email || t("admin.users.noEmail"),
             })}
@@ -727,7 +729,7 @@ export function UserManagement() {
             <Text
               size="sm"
               c="dimmed"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={closeRemoveAdminModal}
             >
               {t("cancel")}
@@ -752,7 +754,7 @@ export function UserManagement() {
       <Modal
         opened={editModalOpened}
         onClose={closeEditModal}
-        title={t('admin.users.editTitle')}
+        title={t("admin.users.editTitle")}
       >
         <Stack gap="md">
           <Text size="sm" c="dimmed">
@@ -768,7 +770,7 @@ export function UserManagement() {
             <Text
               size="sm"
               c="dimmed"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               onClick={closeEditModal}
             >
               {t("cancel")}
