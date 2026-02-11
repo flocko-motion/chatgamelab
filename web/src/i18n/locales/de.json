@@ -327,6 +327,22 @@
       "programmedBy": "Programmiert von"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "title": "KI-Anfrage / Antwort",
+        "toggle": "KI-Einblick",
+        "sections": {
+          "systemPrompt": "Spielanweisungen an die KI",
+          "responseSchema": "Vorgabe an die KI über den Aufbau der Antwort",
+          "statusUpdate": "Aktualisierte Statusfelder",
+          "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
+          "rawResponse": "Unbearbeitete KI-Antwort",
+          "imageGeneration": "Anweisung von der KI zur Bildgenerierung"
+        },
+        "tokens": {
+          "sent": "Tokens gesendet",
+          "received": "Tokens empfangen"
+        }
+      },
       "debug": {
         "fields": {
           "id": "Nachrichten-ID",

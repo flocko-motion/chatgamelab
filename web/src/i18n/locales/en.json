@@ -327,6 +327,22 @@
       "programmedBy": "Programmed by"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "title": "AI Request / Response",
+        "toggle": "AI Insight",
+        "sections": {
+          "systemPrompt": "Game instructions for the AI",
+          "responseSchema": "Required structure of the AI response",
+          "statusUpdate": "Updated status fields",
+          "expandStory": "Instructions to the AI for writing out the story",
+          "rawResponse": "Unprocessed AI response",
+          "imageGeneration": "Instructions from the AI for image generation"
+        },
+        "tokens": {
+          "sent": "tokens sent",
+          "received": "tokens received"
+        }
+      },
       "debug": {
         "fields": {
           "id": "Message ID",
