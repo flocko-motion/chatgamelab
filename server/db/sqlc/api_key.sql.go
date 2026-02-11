@@ -92,6 +92,32 @@ func (q *Queries) ClearUserDefaultApiKeyShareByApiKeyID(ctx context.Context, api
 	return err
 }
 
+const clearWorkshopDefaultApiKeyShareByApiKeyID = `-- name: ClearWorkshopDefaultApiKeyShareByApiKeyID :exec
+UPDATE workshop
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+)
+`
+
+// Clear workshop default API key when an API key is deleted (find shares for that key)
+func (q *Queries) ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearWorkshopDefaultApiKeyShareByApiKeyID, apiKeyID)
+	return err
+}
+
+const clearWorkshopDefaultApiKeyShareByShareID = `-- name: ClearWorkshopDefaultApiKeyShareByShareID :exec
+UPDATE workshop
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id = $1
+`
+
+// Clear workshop default API key when a specific share is deleted
+func (q *Queries) ClearWorkshopDefaultApiKeyShareByShareID(ctx context.Context, defaultApiKeyShareID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearWorkshopDefaultApiKeyShareByShareID, defaultApiKeyShareID)
+	return err
+}
+
 const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (

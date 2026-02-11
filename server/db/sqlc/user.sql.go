@@ -134,6 +134,20 @@ func (q *Queries) CountGuestUsersByGameID(ctx context.Context, privateShareGameI
 	return count, err
 }
 
+const countHeadsByInstitution = `-- name: CountHeadsByInstitution :one
+SELECT COUNT(*)::int AS count
+FROM user_role
+WHERE institution_id = $1 AND role = 'head'
+`
+
+// Count how many heads an institution has (for last-head protection)
+func (q *Queries) CountHeadsByInstitution(ctx context.Context, institutionID uuid.NullUUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countHeadsByInstitution, institutionID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countUserGames = `-- name: CountUserGames :one
 SELECT COUNT(*)::int AS count FROM game WHERE created_by = $1
 `
@@ -472,6 +486,15 @@ func (q *Queries) CreateUserWithParticipantToken(ctx context.Context, arg Create
 	return id, err
 }
 
+const deleteAllApiKeysByUser = `-- name: DeleteAllApiKeysByUser :exec
+DELETE FROM api_key WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAllApiKeysByUser(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteAllApiKeysByUser, userID)
+	return err
+}
+
 const deleteApiKey = `-- name: DeleteApiKey :exec
 DELETE FROM api_key WHERE id = $1 AND user_id = $2
 `
@@ -543,6 +566,17 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteUserFavourites = `-- name: DeleteUserFavourites :exec
+
+DELETE FROM user_favourite_game WHERE user_id = $1
+`
+
+// User deletion cleanup queries
+func (q *Queries) DeleteUserFavourites(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserFavourites, userID)
+	return err
+}
+
 const deleteUserRole = `-- name: DeleteUserRole :exec
 DELETE FROM user_role WHERE user_id = $1
 `
@@ -560,6 +594,27 @@ DELETE FROM user_role WHERE user_id = $1
 // user_role -------------------------------------------------------------
 func (q *Queries) DeleteUserRoles(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteUserRoles, userID)
+	return err
+}
+
+const deleteUserRolesByWorkshopID = `-- name: DeleteUserRolesByWorkshopID :exec
+DELETE FROM user_role WHERE workshop_id = $1 AND role = 'participant'
+`
+
+// Delete all participant roles scoped to a workshop
+func (q *Queries) DeleteUserRolesByWorkshopID(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserRolesByWorkshopID, workshopID)
+	return err
+}
+
+const deleteWorkshopParticipantsByUserID = `-- name: DeleteWorkshopParticipantsByUserID :exec
+DELETE FROM workshop_participant WHERE workshop_id IN (
+  SELECT workshop_id FROM user_role WHERE user_id = $1 AND role = 'participant' AND workshop_id IS NOT NULL
+)
+`
+
+func (q *Queries) DeleteWorkshopParticipantsByUserID(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipantsByUserID, userID)
 	return err
 }
 
@@ -674,6 +729,33 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 		&i.LastUsageSuccess,
 	)
 	return i, err
+}
+
+const getApiKeyIDsByUser = `-- name: GetApiKeyIDsByUser :many
+SELECT id FROM api_key WHERE user_id = $1
+`
+
+func (q *Queries) GetApiKeyIDsByUser(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getApiKeyIDsByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getDefaultApiKey = `-- name: GetDefaultApiKey :one
@@ -943,6 +1025,34 @@ func (q *Queries) GetInvitesByWorkshop(ctx context.Context, workshopID uuid.Null
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getParticipantUserIDsByWorkshopID = `-- name: GetParticipantUserIDsByWorkshopID :many
+SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant'
+`
+
+// Get user IDs of participants in a workshop
+func (q *Queries) GetParticipantUserIDsByWorkshopID(ctx context.Context, workshopID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getParticipantUserIDsByWorkshopID, workshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

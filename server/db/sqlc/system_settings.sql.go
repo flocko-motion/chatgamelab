@@ -26,6 +26,21 @@ func (q *Queries) ClearSystemSettingsFreeUseApiKey(ctx context.Context, freeUseA
 	return err
 }
 
+const clearSystemSettingsFreeUseApiKeyByOwner = `-- name: ClearSystemSettingsFreeUseApiKeyByOwner :exec
+UPDATE system_settings
+SET
+  free_use_api_key_id = NULL,
+  modified_at = now()
+WHERE free_use_api_key_id IN (
+  SELECT id FROM api_key WHERE user_id = $1
+)
+`
+
+func (q *Queries) ClearSystemSettingsFreeUseApiKeyByOwner(ctx context.Context, userID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearSystemSettingsFreeUseApiKeyByOwner, userID)
+	return err
+}
+
 const getSystemSettings = `-- name: GetSystemSettings :one
 
 SELECT

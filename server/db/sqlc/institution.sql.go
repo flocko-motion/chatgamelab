@@ -13,6 +13,15 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearInstitutionFreeUseApiKeyShare = `-- name: ClearInstitutionFreeUseApiKeyShare :exec
+UPDATE institution SET free_use_api_key_share_id = NULL WHERE id = $1
+`
+
+func (q *Queries) ClearInstitutionFreeUseApiKeyShare(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearInstitutionFreeUseApiKeyShare, id)
+	return err
+}
+
 const createInstitution = `-- name: CreateInstitution :one
 
 INSERT INTO institution (
@@ -184,12 +193,30 @@ func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorks
 	return i, err
 }
 
-const deleteInstitution = `-- name: DeleteInstitution :exec
-UPDATE institution SET deleted_at = now() WHERE id = $1
+const deleteApiKeySharesByInstitution = `-- name: DeleteApiKeySharesByInstitution :exec
+DELETE FROM api_key_share WHERE institution_id = $1
 `
 
-func (q *Queries) DeleteInstitution(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteInstitution, id)
+func (q *Queries) DeleteApiKeySharesByInstitution(ctx context.Context, institutionID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByInstitution, institutionID)
+	return err
+}
+
+const deleteInvitesByInstitution = `-- name: DeleteInvitesByInstitution :exec
+DELETE FROM user_role_invite WHERE institution_id = $1
+`
+
+func (q *Queries) DeleteInvitesByInstitution(ctx context.Context, institutionID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteInvitesByInstitution, institutionID)
+	return err
+}
+
+const deleteUserRolesByInstitution = `-- name: DeleteUserRolesByInstitution :exec
+DELETE FROM user_role WHERE institution_id = $1
+`
+
+func (q *Queries) DeleteUserRolesByInstitution(ctx context.Context, institutionID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserRolesByInstitution, institutionID)
 	return err
 }
 
@@ -208,6 +235,15 @@ DELETE FROM workshop_participant WHERE id = $1
 
 func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipant, id)
+	return err
+}
+
+const deleteWorkshopParticipantsByWorkshopID = `-- name: DeleteWorkshopParticipantsByWorkshopID :exec
+DELETE FROM workshop_participant WHERE workshop_id = $1
+`
+
+func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, workshopID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipantsByWorkshopID, workshopID)
 	return err
 }
 
@@ -277,6 +313,38 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 	return items, nil
 }
 
+const getParticipantUserIDsByInstitution = `-- name: GetParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role = 'participant'
+  AND u.deleted_at IS NULL
+`
+
+func (q *Queries) GetParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getParticipantUserIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopByID = `-- name: GetWorkshopByID :one
 SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
@@ -322,6 +390,24 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 		&i.Active,
 	)
 	return i, err
+}
+
+const hardDeleteInstitution = `-- name: HardDeleteInstitution :exec
+DELETE FROM institution WHERE id = $1
+`
+
+func (q *Queries) HardDeleteInstitution(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, hardDeleteInstitution, id)
+	return err
+}
+
+const hardDeleteWorkshopsByInstitution = `-- name: HardDeleteWorkshopsByInstitution :exec
+DELETE FROM workshop WHERE institution_id = $1
+`
+
+func (q *Queries) HardDeleteWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, hardDeleteWorkshopsByInstitution, institutionID)
+	return err
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
@@ -496,6 +582,15 @@ func (q *Queries) SetWorkshopDefaultApiKey(ctx context.Context, arg SetWorkshopD
 		&i.ShowOtherParticipantsGames,
 	)
 	return i, err
+}
+
+const softDeleteInstitution = `-- name: SoftDeleteInstitution :exec
+UPDATE institution SET deleted_at = now() WHERE id = $1
+`
+
+func (q *Queries) SoftDeleteInstitution(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, softDeleteInstitution, id)
+	return err
 }
 
 const updateInstitution = `-- name: UpdateInstitution :one
