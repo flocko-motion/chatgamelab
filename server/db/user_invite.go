@@ -211,9 +211,9 @@ func CreateInstitutionInvite(
 	invitedUserID *uuid.UUID,
 	invitedEmail *string,
 ) (obj.UserRoleInvite, error) {
-	// Validate role - only head, staff, or empty allowed
-	if role != "" && role != obj.RoleHead && role != obj.RoleStaff {
-		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head, staff, or empty roles, got: %s", role)
+	// Validate role - only head, staff, or individual allowed
+	if role != obj.RoleHead && role != obj.RoleStaff && role != obj.RoleIndividual {
+		return obj.UserRoleInvite{}, obj.ErrValidationf("institution invites only allow head, staff, or individual roles, got: %s", role)
 	}
 
 	// Validate that at least one target is provided

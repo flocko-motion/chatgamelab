@@ -87,7 +87,7 @@ func (p *MistralPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
+func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	// TODO: implement Mistral action execution
 	return obj.TokenUsage{}, fmt.Errorf("Mistral ExecuteAction not implemented")
 }

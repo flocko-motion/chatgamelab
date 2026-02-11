@@ -10,6 +10,7 @@ import {
   ActionIcon,
   Tooltip,
   rem,
+  Divider,
 } from "@mantine/core";
 import {
   IconAlertCircle,
@@ -50,14 +51,41 @@ export function PrivateShareModal({
   const enableShare = useEnablePrivateShare();
   const revokeShare = useRevokePrivateShare();
 
-  const [selectedShareId, setSelectedShareId] = useState<string | null>(null);
-  const [maxSessions, setMaxSessions] = useState<number | string>("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [tempSelectedShareId, setTempSelectedShareId] = useState<string | null>(
+    null,
+  );
+  const [tempMaxSessions, setTempMaxSessions] = useState<number | string>("");
 
   const isEnabled = shareStatus?.enabled ?? false;
 
+  // Current values for display
+  const currentSelectedShareId =
+    shareStatus?.privateSponsoredApiKeyShareId?.toString() ?? null;
+  const currentMaxSessions = shareStatus?.remaining ?? "";
+
+  // Values to use in form (current or temp depending on edit mode)
+  const selectedShareId = isEditMode
+    ? tempSelectedShareId
+    : currentSelectedShareId;
+  const maxSessions = isEditMode ? tempMaxSessions : currentMaxSessions;
+
+  // Enter edit mode
+  const handleEnterEditMode = () => {
+    setTempSelectedShareId(currentSelectedShareId);
+    setTempMaxSessions(currentMaxSessions);
+    setIsEditMode(true);
+  };
+
+  // Exit edit mode
+  const handleExitEditMode = () => {
+    setTempSelectedShareId(null);
+    setTempMaxSessions("");
+    setIsEditMode(false);
+  };
+
   const handleClose = () => {
-    setSelectedShareId(null);
-    setMaxSessions("");
+    handleExitEditMode();
     onClose();
   };
 
@@ -83,16 +111,23 @@ export function PrivateShareModal({
   }));
 
   const handleEnable = async () => {
-    if (!game?.id || !selectedShareId) return;
+    const finalSelectedShareId = isEditMode
+      ? tempSelectedShareId
+      : selectedShareId;
+    const finalMaxSessions = isEditMode ? tempMaxSessions : maxSessions;
+
+    if (!game?.id || !finalSelectedShareId) return;
     try {
       await enableShare.mutateAsync({
         gameId: game.id,
-        sponsorKeyShareId: selectedShareId,
+        sponsorKeyShareId: finalSelectedShareId,
         maxSessions:
-          typeof maxSessions === "number" && maxSessions > 0
-            ? maxSessions
+          typeof finalMaxSessions === "number" && finalMaxSessions > 0
+            ? finalMaxSessions
             : null,
       });
+      // Exit edit mode after successful update
+      handleExitEditMode();
     } catch {
       // Error handled by mutation
     }
@@ -177,14 +212,81 @@ export function PrivateShareModal({
               </Group>
             )}
 
+            {/* Edit form for existing shares */}
+            {isEditMode && (
+              <>
+                <Divider />
+                <Text size="sm" fw={500} c="dimmed">
+                  {t("games.privateShare.editSettings")}
+                </Text>
+
+                <Select
+                  label={t("games.privateShare.selectKey")}
+                  placeholder={t("games.privateShare.selectKeyPlaceholder")}
+                  data={selectData}
+                  value={selectedShareId}
+                  onChange={setTempSelectedShareId}
+                  searchable={selectData.length > 5}
+                />
+
+                <NumberInput
+                  label={t("games.privateShare.maxSessions")}
+                  description={t("games.privateShare.maxSessionsDescription")}
+                  placeholder={t("games.privateShare.unlimited")}
+                  value={maxSessions}
+                  onChange={(value) => {
+                    // Handle both empty string (infinity) and number values
+                    setTempMaxSessions(value === "" ? "" : value);
+                  }}
+                  min={1}
+                  allowNegative={false}
+                  allowDecimal={false}
+                />
+              </>
+            )}
+
             <Group justify="flex-end" mt="md" gap="sm">
-              <CancelButton onClick={handleClose}>{t("close")}</CancelButton>
-              <DangerButton
-                onClick={handleRevoke}
-                loading={revokeShare.isPending}
-              >
-                {t("games.privateShare.revoke")}
-              </DangerButton>
+              {!isEditMode ? (
+                <>
+                  <CancelButton onClick={handleClose}>
+                    {t("close")}
+                  </CancelButton>
+                  <ActionButton
+                    onClick={handleEnterEditMode}
+                    size="sm"
+                    leftSection={<IconLink size={16} />}
+                  >
+                    {t("games.privateShare.edit")}
+                  </ActionButton>
+                  <DangerButton
+                    onClick={handleRevoke}
+                    loading={revokeShare.isPending}
+                  >
+                    {t("games.privateShare.revoke")}
+                  </DangerButton>
+                </>
+              ) : (
+                <>
+                  <CancelButton onClick={handleExitEditMode}>
+                    {t("cancel")}
+                  </CancelButton>
+                  <ActionButton
+                    onClick={handleEnable}
+                    disabled={!selectedShareId}
+                    loading={enableShare.isPending}
+                    size="sm"
+                    leftSection={<IconLink size={16} />}
+                  >
+                    {t("games.privateShare.update")}
+                  </ActionButton>
+                  <DangerButton
+                    onClick={handleRevoke}
+                    loading={revokeShare.isPending}
+                  >
+                    {t("games.privateShare.revoke")}
+                  </DangerButton>
+                </>
+              )}
             </Group>
           </>
         ) : (
@@ -212,8 +314,9 @@ export function PrivateShareModal({
                   placeholder={t("games.privateShare.selectKeyPlaceholder")}
                   data={selectData}
                   value={selectedShareId}
-                  onChange={setSelectedShareId}
+                  onChange={isEditMode ? setTempSelectedShareId : () => {}}
                   searchable={selectData.length > 5}
+                  disabled={!isEditMode}
                 />
 
                 <NumberInput
@@ -221,10 +324,17 @@ export function PrivateShareModal({
                   description={t("games.privateShare.maxSessionsDescription")}
                   placeholder={t("games.privateShare.unlimited")}
                   value={maxSessions}
-                  onChange={setMaxSessions}
+                  onChange={(value) => {
+                    // Handle both empty string (infinity) and number values
+                    const newValue = value === "" ? "" : value;
+                    if (isEditMode) {
+                      setTempMaxSessions(newValue);
+                    }
+                  }}
                   min={1}
                   allowNegative={false}
                   allowDecimal={false}
+                  disabled={!isEditMode}
                 />
               </>
             )}

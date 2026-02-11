@@ -22,6 +22,7 @@ import {
 } from "@/api/hooks";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { parseSortValue } from "@/common/lib/sort";
 import { SortSelector, type SortOption } from "@/common/components/controls";
 import type { RoutesInviteResponse, ObjInstitution } from "@/api/generated";
 
@@ -126,11 +127,7 @@ export function InvitesList({
     [t, revokeInvite],
   );
 
-  // Parse combined sort value into field and direction
-  const [sortField, sortDirection] = sortValue.split("-") as [
-    string,
-    "asc" | "desc",
-  ];
+  const [sortField, sortDirection] = parseSortValue(sortValue);
 
   const sortOptions: SortOption[] = useMemo(() => {
     const options: SortOption[] = [

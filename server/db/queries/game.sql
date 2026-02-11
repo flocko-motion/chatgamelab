@@ -473,7 +473,14 @@ UPDATE game_session_message SET
   message = $8,
   status = $9,
   image_prompt = $10,
-  image = $11
+  image = $11,
+  prompt_status_update = $12,
+  prompt_response_schema = $13,
+  prompt_image_generation = $14,
+  prompt_expand_story = $15,
+  response_raw = $16,
+  token_usage = $17,
+  url_analytics = $18
 WHERE id = $1
 RETURNING *;
 

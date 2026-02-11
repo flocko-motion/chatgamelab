@@ -109,19 +109,26 @@ type GameSession struct {
 }
 
 type GameSessionMessage struct {
-	ID            uuid.UUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	GameSessionID uuid.UUID
-	Seq           int32
-	Type          string
-	Message       string
-	Status        sql.NullString
-	ImagePrompt   sql.NullString
-	Image         []byte
-	DeletedAt     sql.NullTime
+	ID                    uuid.UUID
+	CreatedBy             uuid.NullUUID
+	CreatedAt             time.Time
+	ModifiedBy            uuid.NullUUID
+	ModifiedAt            time.Time
+	GameSessionID         uuid.UUID
+	Seq                   int32
+	Type                  string
+	Message               string
+	Status                sql.NullString
+	ImagePrompt           sql.NullString
+	Image                 []byte
+	PromptStatusUpdate    sql.NullString
+	PromptResponseSchema  sql.NullString
+	PromptImageGeneration sql.NullString
+	PromptExpandStory     sql.NullString
+	ResponseRaw           sql.NullString
+	TokenUsage            pqtype.NullRawMessage
+	UrlAnalytics          sql.NullString
+	DeletedAt             sql.NullTime
 }
 
 type GameTag struct {

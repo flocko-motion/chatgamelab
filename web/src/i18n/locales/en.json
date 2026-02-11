@@ -327,6 +327,22 @@
       "programmedBy": "Programmed by"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "title": "AI Request / Response",
+        "toggle": "AI Insight",
+        "sections": {
+          "systemPrompt": "Game instructions for the AI",
+          "responseSchema": "Required structure of the AI response",
+          "statusUpdate": "Updated status fields",
+          "expandStory": "Instructions to the AI for writing out the story",
+          "rawResponse": "Unprocessed AI response",
+          "imageGeneration": "Instructions from the AI for image generation"
+        },
+        "tokens": {
+          "sent": "tokens sent",
+          "received": "tokens received"
+        }
+      },
       "debug": {
         "fields": {
           "id": "Message ID",
@@ -611,7 +627,10 @@
         "maxSessionsDescription": "Leave empty for unlimited sessions.",
         "unlimited": "Unlimited",
         "enable": "Create Share Link",
-        "shareLink": "Share Link"
+        "shareLink": "Share Link",
+        "edit": "Edit Settings",
+        "editSettings": "Edit Share Settings",
+        "update": "Update Share Link"
       },
       "sponsor": {
         "apiKey": "API Key:",
@@ -719,15 +738,10 @@
         "message": "You've successfully joined the workshop. Redirecting...",
         "title": "Welcome!"
       },
-      "alreadyLoggedIn": {
-        "logoutButton": "Log Out & Try Again",
-        "message": "You are already logged in with an account. Workshop invite links are for new participants. Please log out first if you want to join as a participant.",
-        "title": "Already Logged In"
-      },
       "alreadyMember": {
         "enterButton": "Enter Workshop",
-        "message": "You are already a member of the organization that manages this workshop. You can enter it directly.",
-        "title": "Already a Member"
+        "message": "Would you like to join the workshop \"{{workshop}}\"? You will enter workshop mode and create games in this workshop context.",
+        "title": "Join Workshop"
       },
       "switchWorkshop": {
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",

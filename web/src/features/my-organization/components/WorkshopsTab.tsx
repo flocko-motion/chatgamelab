@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/providers/AuthProvider";
 import {
   Stack,
   Card,
@@ -75,6 +76,7 @@ import {
   type ObjWorkshopParticipant,
 } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { parseSortValue } from "@/common/lib/sort";
 
 interface WorkshopsTabProps {
   institutionId: string;
@@ -87,6 +89,7 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
   const { isMobile } = useResponsiveDesign();
+  const { retryBackendFetch } = useAuth();
 
   const handleEnterWorkshop = async (workshop: ObjWorkshop) => {
     if (!workshop.id || !workshop.name) return;
@@ -143,11 +146,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const [hideInactive, setHideInactive] = useState(false);
   const [sortValue, setSortValue] = useState("createdAt-desc");
 
-  // Parse sort value
-  const [sortField, sortDir] = sortValue.split("-") as [
-    "name" | "createdAt" | "participantCount",
-    "asc" | "desc",
-  ];
+  const [sortField, sortDir] = parseSortValue<
+    "name" | "createdAt" | "participantCount"
+  >(sortValue);
 
   const {
     data: workshops,
@@ -318,6 +319,8 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
     });
+    // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
+    retryBackendFetch();
   };
 
   if (isLoading) {

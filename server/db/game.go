@@ -224,47 +224,96 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 		workshopParam = uuid.NullUUID{UUID: user.Role.Workshop.ID, Valid: true}
 	}
 
+	var games []db.Game
+
 	if search != "" {
 		switch sortField {
 		case "name":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByName(ctx, db.SearchGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByName(ctx, db.SearchGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByNameDesc(ctx, db.SearchGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUserSortedByNameDesc(ctx, db.SearchGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		case "createdAt":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByCreatedAt(ctx, db.SearchGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByCreatedAt(ctx, db.SearchGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		case "modifiedAt":
 			if sortDir == "asc" {
-				return queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
-			return queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		default:
-			return queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+		}
+	} else {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByName(ctx, db.GetGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByNameDesc(ctx, db.GetGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "createdAt":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByCreatedAt(ctx, db.GetGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "modifiedAt":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		default:
+			games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
 		}
 	}
 
-	switch sortField {
-	case "name":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByName(ctx, db.GetGamesVisibleToUserSortedByNameParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUserSortedByNameDesc(ctx, db.GetGamesVisibleToUserSortedByNameDescParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	case "createdAt":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByCreatedAt(ctx, db.GetGamesVisibleToUserSortedByCreatedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	case "modifiedAt":
-		if sortDir == "asc" {
-			return queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
-		}
-		return queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
-	default:
-		return queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
+	if err != nil {
+		return nil, err
 	}
+
+	// Apply workshop visibility settings for all users in a workshop.
+	// Workshop settings control what games are visible; head/staff can still edit/delete but see the same list.
+	if user != nil && user.Role != nil && user.Role.Workshop != nil {
+		ws := user.Role.Workshop
+		filtered := make([]db.Game, 0, len(games))
+		for _, g := range games {
+			isWorkshopGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
+
+			// Public games (from anywhere): controlled by showPublicGames
+			if g.Public {
+				if ws.ShowPublicGames {
+					filtered = append(filtered, g)
+				}
+				continue
+			}
+
+			// Non-public games must belong to this workshop
+			if !isWorkshopGame {
+				continue
+			}
+
+			// Own workshop games always visible
+			if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
+				filtered = append(filtered, g)
+				continue
+			}
+
+			// Other people's workshop games: controlled by showOtherParticipantsGames
+			if ws.ShowOtherParticipantsGames {
+				filtered = append(filtered, g)
+			}
+		}
+		games = filtered
+	}
+
+	return games, nil
 }
 
 // GetGameByID gets a game by ID. Verifies access based on user permissions.
@@ -546,21 +595,15 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // The function loads game details and constructs the session object internally.
 // Parameters:
 // - userID: the user creating the session
-// - gameID: the game to play
+// - game: the game to play (possibly translated)
 // - apiKeyID: the API key to use (defines platform)
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
-	if err := canAccessGameSession(ctx, userID, OpCreate, nil, gameID, workshopID); err != nil {
+	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
-	}
-
-	// Load game to get details
-	game, err := queries().GetGameByID(ctx, gameID)
-	if err != nil {
-		return nil, obj.ErrNotFound("game not found")
 	}
 
 	// Load API key to get platform
@@ -585,7 +628,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, 
 		CreatedAt:    now,
 		ModifiedBy:   uuid.NullUUID{UUID: userID, Valid: true},
 		ModifiedAt:   now,
-		GameID:       gameID,
+		GameID:       game.ID,
 		UserID:       userID,
 		WorkshopID:   uuidPtrToNullUUID(workshopID),
 		ApiKeyID:     uuid.NullUUID{UUID: apiKeyID, Valid: true},
@@ -699,18 +742,32 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
 	}
 
+	// Marshal token usage to JSON for storage
+	var tokenUsageJSON pqtype.NullRawMessage
+	if msg.TokenUsage != nil {
+		tokenBytes, _ := json.Marshal(msg.TokenUsage)
+		tokenUsageJSON = pqtype.NullRawMessage{RawMessage: tokenBytes, Valid: true}
+	}
+
 	arg := db.UpdateGameSessionMessageParams{
-		ID:            msg.ID,
-		CreatedBy:     uuid.NullUUID{},
-		CreatedAt:     time.Time{},
-		ModifiedBy:    uuid.NullUUID{},
-		ModifiedAt:    now,
-		GameSessionID: msg.GameSessionID,
-		Type:          msg.Type,
-		Message:       msg.Message,
-		Status:        statusJSON,
-		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
-		Image:         msg.Image,
+		ID:                    msg.ID,
+		CreatedBy:             uuid.NullUUID{},
+		CreatedAt:             time.Time{},
+		ModifiedBy:            uuid.NullUUID{},
+		ModifiedAt:            now,
+		GameSessionID:         msg.GameSessionID,
+		Type:                  msg.Type,
+		Message:               msg.Message,
+		Status:                statusJSON,
+		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
+		Image:                 msg.Image,
+		PromptStatusUpdate:    sql.NullString{String: functional.Deref(msg.PromptStatusUpdate, ""), Valid: msg.PromptStatusUpdate != nil},
+		PromptResponseSchema:  sql.NullString{String: functional.Deref(msg.PromptResponseSchema, ""), Valid: msg.PromptResponseSchema != nil},
+		PromptImageGeneration: sql.NullString{String: functional.Deref(msg.PromptImageGeneration, ""), Valid: msg.PromptImageGeneration != nil},
+		PromptExpandStory:     sql.NullString{String: functional.Deref(msg.PromptExpandStory, ""), Valid: msg.PromptExpandStory != nil},
+		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
+		TokenUsage:            tokenUsageJSON,
+		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -895,14 +952,15 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	}
 
 	session := &obj.GameSession{
-		ID:         s.ID,
-		GameID:     s.GameID,
-		UserID:     s.UserID,
-		ApiKeyID:   nullUUIDToPtr(s.ApiKeyID),
-		AiPlatform: s.AiPlatform,
-		AiModel:    s.AiModel,
-		AiSession:  string(s.AiSession),
-		ImageStyle: s.ImageStyle,
+		ID:           s.ID,
+		GameID:       s.GameID,
+		UserID:       s.UserID,
+		ApiKeyID:     nullUUIDToPtr(s.ApiKeyID),
+		AiPlatform:   s.AiPlatform,
+		AiModel:      s.AiModel,
+		AiSession:    string(s.AiSession),
+		ImageStyle:   s.ImageStyle,
+		StatusFields: s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -1076,6 +1134,34 @@ func ClearGameSessionApiKey(ctx context.Context, sessionID uuid.UUID) error {
 	return queries().ClearGameSessionApiKeyByID(ctx, sessionID)
 }
 
+// mapAiInsightFields copies AI insight fields from the sqlc model to the obj model.
+func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
+	if m.PromptStatusUpdate.Valid {
+		msg.PromptStatusUpdate = &m.PromptStatusUpdate.String
+	}
+	if m.PromptResponseSchema.Valid {
+		msg.PromptResponseSchema = &m.PromptResponseSchema.String
+	}
+	if m.PromptImageGeneration.Valid {
+		msg.PromptImageGeneration = &m.PromptImageGeneration.String
+	}
+	if m.PromptExpandStory.Valid {
+		msg.PromptExpandStory = &m.PromptExpandStory.String
+	}
+	if m.ResponseRaw.Valid {
+		msg.ResponseRaw = &m.ResponseRaw.String
+	}
+	if m.UrlAnalytics.Valid {
+		msg.URLAnalytics = &m.UrlAnalytics.String
+	}
+	if m.TokenUsage.Valid {
+		var tu obj.TokenUsage
+		if err := json.Unmarshal(m.TokenUsage.RawMessage, &tu); err == nil {
+			msg.TokenUsage = &tu
+		}
+	}
+}
+
 // GetGameSessionMessageImageByID returns just the image for a message (no auth required)
 // Used for <img> tags which cannot send Authorization headers
 // Security relies on message UUIDs being random/unguessable
@@ -1115,6 +1201,8 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+
+	mapAiInsightFields(msg, m)
 
 	return msg, nil
 }
@@ -1160,6 +1248,8 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
 
+	mapAiInsightFields(msg, m)
+
 	return msg, nil
 }
 
@@ -1202,6 +1292,8 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+
+	mapAiInsightFields(msg, m)
 
 	return msg, nil
 }
@@ -1249,6 +1341,8 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
 
+		mapAiInsightFields(&msg, m)
+
 		result = append(result, msg)
 	}
 
@@ -1282,6 +1376,7 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
+	mapAiInsightFields(msg, m)
 	return msg, nil
 }
 
@@ -1315,6 +1410,7 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
+		mapAiInsightFields(&msg, m)
 		result = append(result, msg)
 	}
 	return result, nil

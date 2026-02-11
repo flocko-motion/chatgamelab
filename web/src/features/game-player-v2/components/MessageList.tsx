@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import type { SceneMessage } from "../types";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
-import { SystemMessage } from "./SystemMessage";
 import { SceneDivider } from "./SceneDivider";
 import { TypingIndicator } from "./TypingIndicator";
 import { PlayerInput } from "./PlayerInput";
@@ -34,6 +33,10 @@ export function MessageList({
   // Track previous game message's status fields for showing changes
   let previousGameStatusFields: SceneMessage["statusFields"] = undefined;
 
+  // Collect system prompt text from system messages for the first game message
+  let systemPromptText = "";
+  let isFirstGameMessage = true;
+
   messages.forEach((message, index) => {
     if (message.type === "player") {
       elements.push(
@@ -46,7 +49,7 @@ export function MessageList({
         />,
       );
     } else if (message.type === "system") {
-      elements.push(<SystemMessage key={message.id} message={message} />);
+      systemPromptText += (systemPromptText ? "\n\n" : "") + message.text;
     } else {
       if (index > 0 && messages[index - 1]?.type !== "system") {
         elements.push(<SceneDivider key={`divider-${message.id}`} />);
@@ -57,8 +60,11 @@ export function MessageList({
           message={message}
           showImages={showImages}
           previousStatusFields={previousGameStatusFields}
+          systemPrompt={isFirstGameMessage ? systemPromptText : undefined}
+          isFirstGameMessage={isFirstGameMessage}
         />,
       );
+      isFirstGameMessage = false;
       // Update previous status fields for next game message
       if (message.statusFields?.length) {
         previousGameStatusFields = message.statusFields;

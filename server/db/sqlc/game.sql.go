@@ -241,7 +241,7 @@ INSERT INTO game_session_message (
   $6, $7,
   $8, $9, $10
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
 `
 
 type CreateGameSessionMessageParams struct {
@@ -285,6 +285,13 @@ func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSe
 		&i.Status,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.PromptStatusUpdate,
+		&i.PromptResponseSchema,
+		&i.PromptImageGeneration,
+		&i.PromptExpandStory,
+		&i.ResponseRaw,
+		&i.TokenUsage,
+		&i.UrlAnalytics,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -475,7 +482,7 @@ func (q *Queries) DeleteUserGameSessions(ctx context.Context, arg DeleteUserGame
 }
 
 const getAllGameSessionMessages = `-- name: GetAllGameSessionMessages :many
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
 `
 
 func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID uuid.UUID) ([]GameSessionMessage, error) {
@@ -500,6 +507,13 @@ func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID u
 			&i.Status,
 			&i.ImagePrompt,
 			&i.Image,
+			&i.PromptStatusUpdate,
+			&i.PromptResponseSchema,
+			&i.PromptImageGeneration,
+			&i.PromptExpandStory,
+			&i.ResponseRaw,
+			&i.TokenUsage,
+			&i.UrlAnalytics,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -655,7 +669,7 @@ func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSes
 }
 
 const getGameSessionMessageByID = `-- name: GetGameSessionMessageByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at FROM game_session_message WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (GameSessionMessage, error) {
@@ -674,6 +688,13 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.Status,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.PromptStatusUpdate,
+		&i.PromptResponseSchema,
+		&i.PromptImageGeneration,
+		&i.PromptExpandStory,
+		&i.ResponseRaw,
+		&i.TokenUsage,
+		&i.UrlAnalytics,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -1583,7 +1604,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCountAsc(ctx context.Context,
 }
 
 const getLatestGameSessionMessage = `-- name: GetLatestGameSessionMessage :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
 `
 
 func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID uuid.UUID) (GameSessionMessage, error) {
@@ -1602,6 +1623,13 @@ func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID
 		&i.Status,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.PromptStatusUpdate,
+		&i.PromptResponseSchema,
+		&i.PromptImageGeneration,
+		&i.PromptExpandStory,
+		&i.ResponseRaw,
+		&i.TokenUsage,
+		&i.UrlAnalytics,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -4829,23 +4857,37 @@ UPDATE game_session_message SET
   message = $8,
   status = $9,
   image_prompt = $10,
-  image = $11
+  image = $11,
+  prompt_status_update = $12,
+  prompt_response_schema = $13,
+  prompt_image_generation = $14,
+  prompt_expand_story = $15,
+  response_raw = $16,
+  token_usage = $17,
+  url_analytics = $18
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
 `
 
 type UpdateGameSessionMessageParams struct {
-	ID            uuid.UUID
-	CreatedBy     uuid.NullUUID
-	CreatedAt     time.Time
-	ModifiedBy    uuid.NullUUID
-	ModifiedAt    time.Time
-	GameSessionID uuid.UUID
-	Type          string
-	Message       string
-	Status        sql.NullString
-	ImagePrompt   sql.NullString
-	Image         []byte
+	ID                    uuid.UUID
+	CreatedBy             uuid.NullUUID
+	CreatedAt             time.Time
+	ModifiedBy            uuid.NullUUID
+	ModifiedAt            time.Time
+	GameSessionID         uuid.UUID
+	Type                  string
+	Message               string
+	Status                sql.NullString
+	ImagePrompt           sql.NullString
+	Image                 []byte
+	PromptStatusUpdate    sql.NullString
+	PromptResponseSchema  sql.NullString
+	PromptImageGeneration sql.NullString
+	PromptExpandStory     sql.NullString
+	ResponseRaw           sql.NullString
+	TokenUsage            pqtype.NullRawMessage
+	UrlAnalytics          sql.NullString
 }
 
 func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSessionMessageParams) (GameSessionMessage, error) {
@@ -4861,6 +4903,13 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		arg.Status,
 		arg.ImagePrompt,
 		arg.Image,
+		arg.PromptStatusUpdate,
+		arg.PromptResponseSchema,
+		arg.PromptImageGeneration,
+		arg.PromptExpandStory,
+		arg.ResponseRaw,
+		arg.TokenUsage,
+		arg.UrlAnalytics,
 	)
 	var i GameSessionMessage
 	err := row.Scan(
@@ -4876,6 +4925,13 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		&i.Status,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.PromptStatusUpdate,
+		&i.PromptResponseSchema,
+		&i.PromptImageGeneration,
+		&i.PromptExpandStory,
+		&i.ResponseRaw,
+		&i.TokenUsage,
+		&i.UrlAnalytics,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -4886,7 +4942,7 @@ UPDATE game_session_message SET
   image = $2,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, image_prompt, image, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
 `
 
 type UpdateGameSessionMessageImageParams struct {
@@ -4910,6 +4966,13 @@ func (q *Queries) UpdateGameSessionMessageImage(ctx context.Context, arg UpdateG
 		&i.Status,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.PromptStatusUpdate,
+		&i.PromptResponseSchema,
+		&i.PromptImageGeneration,
+		&i.PromptExpandStory,
+		&i.ResponseRaw,
+		&i.TokenUsage,
+		&i.UrlAnalytics,
 		&i.DeletedAt,
 	)
 	return i, err

@@ -11,7 +11,6 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import {
   IconAlertCircle,
   IconMoodEmpty,
@@ -23,11 +22,9 @@ import {
   IconEye,
 } from "@tabler/icons-react";
 import {
-  PlayGameButton,
   EditIconButton,
   DeleteIconButton,
   GenericIconButton,
-  TextButton,
 } from "@components/buttons";
 import {
   DataTable,
@@ -35,9 +32,9 @@ import {
   type DataTableColumn,
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import type { ObjGame } from "@/api/generated";
 import type { CreateGameFormData } from "@/features/games/types";
-import { gameToFormData } from "@/features/games/lib";
+import { gameToFormData, getGameDateLabel } from "@/features/games/lib";
 import {
   GameEditModal,
   SponsorGameModal,
@@ -45,8 +42,9 @@ import {
   GameCard,
   type GameCardAction,
 } from "@/features/games";
-import { useModals } from "@mantine/modals";
 import { useAuth } from "@/providers/AuthProvider";
+import { useGameNavigation } from "@/features/games/hooks";
+import { GamePlayButtons } from "@/features/games/components/GamePlayButtons";
 import { hasRole, Role } from "@/common/lib/roles";
 import {
   isWorkshopGame,
@@ -64,8 +62,11 @@ export function MyWorkshop() {
   const { t } = useTranslation("common");
   const { t: tWorkshop } = useTranslation("myWorkshop");
   const isMobile = useMediaQuery("(max-width: 48em)") ?? false;
-  const navigate = useNavigate();
-  const modals = useModals();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
   const { backendUser, retryBackendFetch } = useAuth();
   const { addGameToCache, updateGameInCache, removeGameFromCache } =
     useGamesCacheUpdater();
@@ -126,7 +127,6 @@ export function MyWorkshop() {
     handleDeleteGame,
     handleExportGame,
     getGameFormDataForCopy,
-    handleDeleteSession,
     triggerImportClick,
     parseImportFile,
   } = useWorkshopGames({
@@ -219,46 +219,6 @@ export function MyWorkshop() {
     openCreateModal();
   };
 
-  const handlePlayGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
-    }
-  };
-
-  const handleContinueGame = (session: DbUserSessionWithGame) => {
-    if (session.id) {
-      navigate({ to: `/sessions/${session.id}` as "/" });
-    }
-  };
-
-  const handleRestartGame = (game: ObjGame, session: DbUserSessionWithGame) => {
-    if (!game.id || !session.id) return;
-    modals.openConfirmModal({
-      title: t("myGames.restartConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("myGames.restartConfirm.message", {
-            game: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("myGames.restartConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      confirmProps: { color: "red" },
-      onConfirm: async () => {
-        // Delete session - if it fails (e.g., already deleted), just continue to play
-        try {
-          await handleDeleteSession(session.id!);
-        } catch {
-          // Session may have been deleted already, ignore and continue
-        }
-        navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
-      },
-    });
-  };
-
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -274,41 +234,29 @@ export function MyWorkshop() {
     event.target.value = "";
   };
 
+  const playLabels = {
+    play: t("myGames.play"),
+    continue: t("myGames.continue"),
+    restart: t("myGames.restart"),
+  };
+
   // Render helpers
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getSessionState(game);
-    if (!hasSession) {
-      return (
-        <PlayGameButton
-          onClick={() => handlePlayGame(game)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.play")}
-        </PlayGameButton>
-      );
-    }
     return (
-      <Stack gap={4}>
-        <PlayGameButton
-          onClick={() => handleContinueGame(session!)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.continue")}
-        </PlayGameButton>
-        <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
-          {t("myGames.restart")}
-        </TextButton>
-      </Stack>
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
     );
   };
 
-  const getDateLabel = (game: ObjGame) => {
-    const dateValue =
-      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
-    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
-  };
+  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
     const { canEdit, canDelete } = getPermissions(game);

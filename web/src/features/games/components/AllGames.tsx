@@ -18,7 +18,6 @@ import {
 } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
-import { useModals } from "@mantine/modals";
 import {
   IconAlertCircle,
   IconMoodEmpty,
@@ -42,35 +41,32 @@ import {
   type DataTableColumn,
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
-import {
-  PlayGameButton,
-  TextButton,
-  GenericIconButton,
-} from "@components/buttons";
+import { GenericIconButton } from "@components/buttons";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
+import { GamePlayButtons } from "./GamePlayButtons";
+import { useGames, useCreateGame, useUpdateGame } from "@/api/hooks";
 import {
-  useGames,
-  useCreateGame,
-  useUpdateGame,
-  useGameSessionMap,
-  useDeleteSession,
-  useFavoriteGames,
-  useAddFavorite,
-  useRemoveFavorite,
-} from "@/api/hooks";
+  useFavoriteState,
+  useGameNavigation,
+  useGameSessionState,
+} from "../hooks";
 import { useAuth } from "@/providers/AuthProvider";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import { parseSortValue } from "@/common/lib/sort";
+import type { ObjGame } from "@/api/generated";
 import { type GameFilter } from "@/features/play/types";
 import type { CreateGameFormData } from "../types";
-import { gameToFormData } from "../lib";
+import {
+  gameToFormData,
+  getGameDateLabel,
+  createGameWithExtraFields,
+} from "../lib";
 
 export function AllGames() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
-  const modals = useModals();
   const isMobile = useMediaQuery("(max-width: 48em)");
   const { backendUser } = useAuth();
 
@@ -79,8 +75,7 @@ export function AllGames() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  // Parse combined sort value into field and direction
-  const [sortField, sortDir] = sortValue.split("-") as [string, "asc" | "desc"];
+  const [sortField, sortDir] = parseSortValue(sortValue);
 
   // For favorites/sponsored filter, we fetch all games and filter client-side
   const apiFilter =
@@ -104,10 +99,10 @@ export function AllGames() {
     filter: apiFilter,
   });
 
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { sessionsLoading, getSessionState: getGameSessionState } =
+    useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
-  const deleteSession = useDeleteSession();
 
   const [
     createModalOpened,
@@ -131,11 +126,16 @@ export function AllGames() {
   );
   const [createInitialData, setCreateInitialData] =
     useState<Partial<CreateGameFormData> | null>(null);
-  const { data: favoriteGames } = useFavoriteGames();
-  const addFavorite = useAddFavorite();
-  const removeFavorite = useRemoveFavorite();
-
-  const favoriteGameIds = new Set(favoriteGames?.map((g) => g.id) ?? []);
+  const {
+    favoriteGameIds,
+    isFavorite,
+    toggleFavorite: handleToggleFavorite,
+  } = useFavoriteState();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
 
   // Apply client-side favorites/sponsored filter
   const games =
@@ -145,68 +145,9 @@ export function AllGames() {
         ? rawGames?.filter((game) => !!game.publicSponsoredApiKeyShareId)
         : rawGames;
 
-  const isFavorite = (game: ObjGame) =>
-    game.id ? favoriteGameIds.has(game.id) : false;
-
-  const handleToggleFavorite = (game: ObjGame) => {
-    if (!game.id) return;
-    if (isFavorite(game)) {
-      removeFavorite.mutate(game.id);
-    } else {
-      addFavorite.mutate(game.id);
-    }
-  };
-
   const isOwner = (game: ObjGame) => {
     if (!backendUser?.id || !game.creatorId) return false;
     return game.creatorId === backendUser.id;
-  };
-
-  const getGameSessionState = (game: ObjGame) => {
-    if (!game.id) return { hasSession: false, session: undefined };
-    const session = sessionMap.get(game.id);
-    return { hasSession: !!session, session };
-  };
-
-  const handlePlayGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
-    }
-  };
-
-  const handleContinueGame = (session: DbUserSessionWithGame) => {
-    if (session.id) {
-      navigate({ to: `/sessions/${session.id}` as "/" });
-    }
-  };
-
-  const handleRestartGame = (game: ObjGame, session: DbUserSessionWithGame) => {
-    if (!game.id || !session.id) return;
-
-    modals.openConfirmModal({
-      title: t("allGames.restartConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("allGames.restartConfirm.message", {
-            game: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("allGames.restartConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      confirmProps: { color: "red" },
-      onConfirm: async () => {
-        // Delete session - if it fails (e.g., already deleted), just continue to play
-        try {
-          await deleteSession.mutateAsync(session.id!);
-        } catch {
-          // Session may have been deleted already, ignore and continue
-        }
-        navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
-      },
-    });
   };
 
   const handleViewGame = (game: ObjGame) => {
@@ -246,30 +187,11 @@ export function AllGames() {
 
   const handleCreateGame = async (data: CreateGameFormData) => {
     try {
-      const newGame = await createGame.mutateAsync({
-        name: data.name,
-        description: data.description,
-        public: data.isPublic,
-      });
-
-      const hasExtraFields =
-        data.systemMessageScenario ||
-        data.systemMessageGameStart ||
-        data.imageStyle ||
-        data.statusFields;
-      if (newGame.id && hasExtraFields) {
-        await updateGame.mutateAsync({
-          id: newGame.id,
-          game: {
-            ...newGame,
-            systemMessageScenario: data.systemMessageScenario,
-            systemMessageGameStart: data.systemMessageGameStart,
-            imageStyle: data.imageStyle,
-            statusFields: data.statusFields,
-          },
-        });
-      }
-
+      const newGame = await createGameWithExtraFields(
+        data,
+        createGame.mutateAsync,
+        updateGame.mutateAsync,
+      );
       closeCreateModal();
       setCreateInitialData(null);
       if (newGame.id) {
@@ -280,11 +202,7 @@ export function AllGames() {
     }
   };
 
-  const getDateLabel = (game: ObjGame) => {
-    const dateValue =
-      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
-    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
-  };
+  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
     const actions: GameCardAction[] = [
@@ -311,34 +229,24 @@ export function AllGames() {
     return actions;
   };
 
+  const playLabels = {
+    play: t("allGames.play"),
+    continue: t("allGames.continue"),
+    restart: t("allGames.restart"),
+  };
+
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getGameSessionState(game);
-
-    if (!hasSession) {
-      return (
-        <PlayGameButton
-          onClick={() => handlePlayGame(game)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("allGames.play")}
-        </PlayGameButton>
-      );
-    }
-
     return (
-      <Stack gap={4}>
-        <PlayGameButton
-          onClick={() => handleContinueGame(session!)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("allGames.continue")}
-        </PlayGameButton>
-        <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
-          {t("allGames.restart")}
-        </TextButton>
-      </Stack>
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
     );
   };
 

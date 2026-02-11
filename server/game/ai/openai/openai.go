@@ -6,6 +6,7 @@ import (
 	"cgl/apiclient"
 	"cgl/functional"
 	"cgl/game/imagecache"
+	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
 	"cgl/lang"
@@ -174,7 +175,7 @@ func (p *OpenAiPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
+func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
@@ -202,7 +203,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			Format: FormatConfig{
 				Type:   "json_schema",
 				Name:   "game_response",
-				Schema: obj.GameResponseSchema,
+				Schema: gameSchema,
 				Strict: true,
 			},
 		},
@@ -272,12 +273,20 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	response.ResponseRaw = &responseText
 
-	// Parse the structured response into the pre-created message
-	log.Debug("parsing OpenAI response", "response_length", len(responseText))
-	if err := json.Unmarshal([]byte(responseText), response); err != nil {
-		log.Debug("failed to parse game response", "error", err, "response_text", responseText[:min(200, len(responseText))])
+	// Parse the AI response (uses flat status map) and convert to internal format
+	log.Debug("parsing OpenAI response", "response_length", len(responseText), "response_text", responseText)
+	var aiResp obj.GameSessionMessageAi
+	if err := json.Unmarshal([]byte(responseText), &aiResp); err != nil {
+		log.Error("failed to parse game response", "error", err, "response_text", responseText)
 		return usage, fmt.Errorf("failed to parse game response: %w", err)
 	}
+
+	// Convert flat status map back to ordered []StatusField using session's field definitions.
+	// Pass action's current status as fallback in case the AI omits a field.
+	fieldNames := status.FieldNames(session.StatusFields)
+	response.Message = aiResp.Message
+	response.StatusFields = status.MapToFields(aiResp.Status, fieldNames, status.FieldsToMap(action.StatusFields))
+	response.ImagePrompt = aiResp.ImagePrompt
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID

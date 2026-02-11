@@ -34,7 +34,11 @@ import {
 } from "@/api/hooks";
 import type { ObjGame } from "@/api/generated";
 import { type SortField, type CreateGameFormData } from "../types";
-import { parseGameYaml } from "../lib";
+import {
+  parseGameYaml,
+  downloadYamlFile,
+  createGameWithExtraFields,
+} from "../lib";
 import { GamesTable } from "./GamesTable";
 import { GameCard } from "./GameCard";
 import { GameEditModal } from "./GameEditModal";
@@ -103,31 +107,11 @@ export function GamesManagement({
 
   const handleCreateGame = async (data: CreateGameFormData) => {
     try {
-      const newGame = await createGame.mutateAsync({
-        name: data.name,
-        description: data.description,
-        public: data.isPublic,
-      });
-
-      // Update with additional fields if provided
-      const hasExtraFields =
-        data.systemMessageScenario ||
-        data.systemMessageGameStart ||
-        data.imageStyle ||
-        data.statusFields;
-      if (newGame.id && hasExtraFields) {
-        await updateGame.mutateAsync({
-          id: newGame.id,
-          game: {
-            ...newGame,
-            systemMessageScenario: data.systemMessageScenario,
-            systemMessageGameStart: data.systemMessageGameStart,
-            imageStyle: data.imageStyle,
-            statusFields: data.statusFields,
-          },
-        });
-      }
-
+      await createGameWithExtraFields(
+        data,
+        createGame.mutateAsync,
+        updateGame.mutateAsync,
+      );
       closeCreateModal();
     } catch {
       // Error handled by mutation
@@ -176,15 +160,7 @@ export function GamesManagement({
     if (!game.id) return;
     try {
       const yaml = await exportGameYaml.mutateAsync(game.id);
-      const blob = new Blob([yaml], { type: "application/x-yaml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${game.name || "game"}.yaml`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadYamlFile(yaml, game.name);
     } catch {
       // Error handled by mutation
     }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"cgl/api/httpx"
+	"cgl/db"
+	"cgl/log"
 )
 
 // Version info (set via main package at startup)
@@ -17,6 +19,7 @@ type VersionResponse struct {
 	Version   string `json:"version"`
 	GitCommit string `json:"gitCommit"`
 	BuildTime string `json:"buildTime"`
+	DbLevel   int    `json:"dbLevel"`
 }
 
 // GetVersion godoc
@@ -28,9 +31,15 @@ type VersionResponse struct {
 //	@Success		200	{object}	VersionResponse
 //	@Router			/version [get]
 func GetVersion(w http.ResponseWriter, r *http.Request) {
+	dbLevel, err := db.GetCurrentSchemaVersion()
+	if err != nil {
+		log.Warn("failed to get schema version", "error", err)
+	}
+
 	httpx.WriteJSON(w, http.StatusOK, VersionResponse{
 		Version:   Version,
 		GitCommit: GitCommit,
 		BuildTime: BuildTime,
+		DbLevel:   dbLevel,
 	})
 }

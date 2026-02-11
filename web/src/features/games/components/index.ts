@@ -9,3 +9,4 @@ export { ThemePreview } from "./ThemePreview";
 export { SponsorGameModal } from "./SponsorGameModal";
 export { PrivateShareModal } from "./PrivateShareModal";
 export { DeleteGameModal } from "./DeleteGameModal";
+export { GamePlayButtons } from "./GamePlayButtons";

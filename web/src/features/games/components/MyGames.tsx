@@ -17,7 +17,6 @@ import {
   useDebouncedValue,
 } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "@tanstack/react-router";
 import {
   IconAlertCircle,
   IconMoodEmpty,
@@ -32,8 +31,6 @@ import {
 } from "@tabler/icons-react";
 import {
   ActionButton,
-  TextButton,
-  PlayGameButton,
   EditIconButton,
   DeleteIconButton,
   GenericIconButton,
@@ -58,21 +55,28 @@ import {
   useUpdateGame,
   useDeleteGame,
   useExportGameYaml,
-  useGameSessionMap,
-  useDeleteSession,
-  useFavoriteGames,
-  useAddFavorite,
-  useRemoveFavorite,
 } from "@/api/hooks";
-import type { ObjGame, DbUserSessionWithGame } from "@/api/generated";
+import {
+  useFavoriteState,
+  useGameNavigation,
+  useGameSessionState,
+} from "../hooks";
+import type { ObjGame } from "@/api/generated";
+import { parseSortValue } from "@/common/lib/sort";
 import { type CreateGameFormData } from "../types";
-import { parseGameYaml, gameToFormData } from "../lib";
+import {
+  parseGameYaml,
+  gameToFormData,
+  getGameDateLabel,
+  downloadYamlFile,
+  createGameWithExtraFields,
+} from "../lib";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { GameCard, type GameCardAction } from "./GameCard";
-import { useModals } from "@mantine/modals";
+import { GamePlayButtons } from "./GamePlayButtons";
 
 interface MyGamesProps {
   initialGameId?: string;
@@ -90,8 +94,6 @@ export function MyGames({
 }: MyGamesProps = {}) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const navigate = useNavigate();
-  const modals = useModals();
 
   const [
     createModalOpened,
@@ -126,8 +128,7 @@ export function MyGames({
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
 
-  // Parse combined sort value into field and direction
-  const [sortField, sortDir] = sortValue.split("-") as [string, "asc" | "desc"];
+  const [sortField, sortDir] = parseSortValue(sortValue);
 
   const {
     data: rawGames,
@@ -146,17 +147,22 @@ export function MyGames({
     filter: "own",
     search: debouncedSearch || undefined,
   });
-  const { sessionMap, isLoading: sessionsLoading } = useGameSessionMap();
+  const { sessionsLoading, getSessionState: getGameSessionState } =
+    useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
   const deleteGame = useDeleteGame();
-  const deleteSession = useDeleteSession();
   const exportGameYaml = useExportGameYaml();
-  const { data: favoriteGames } = useFavoriteGames();
-  const addFavorite = useAddFavorite();
-  const removeFavorite = useRemoveFavorite();
-
-  const favoriteGameIds = new Set(favoriteGames?.map((g) => g.id) ?? []);
+  const {
+    favoriteGameIds,
+    isFavorite,
+    toggleFavorite: handleToggleFavorite,
+  } = useFavoriteState();
+  const {
+    playGame: handlePlayGame,
+    continueGame: handleContinueGame,
+    restartGame: handleRestartGame,
+  } = useGameNavigation();
 
   // Apply client-side favorites filter
   const games =
@@ -164,47 +170,15 @@ export function MyGames({
       ? rawGames?.filter((game) => game.id && favoriteGameIds.has(game.id))
       : rawGames;
 
-  const isFavorite = (game: ObjGame) =>
-    game.id ? favoriteGameIds.has(game.id) : false;
-
-  const handleToggleFavorite = (game: ObjGame) => {
-    if (!game.id) return;
-    if (isFavorite(game)) {
-      removeFavorite.mutate(game.id);
-    } else {
-      addFavorite.mutate(game.id);
-    }
-  };
-
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleCreateGame = async (data: CreateGameFormData) => {
     try {
-      const newGame = await createGame.mutateAsync({
-        name: data.name,
-        description: data.description,
-        public: data.isPublic,
-      });
-
-      // Update with additional fields if provided
-      const hasExtraFields =
-        data.systemMessageScenario ||
-        data.systemMessageGameStart ||
-        data.imageStyle ||
-        data.statusFields;
-      if (newGame.id && hasExtraFields) {
-        await updateGame.mutateAsync({
-          id: newGame.id,
-          game: {
-            ...newGame,
-            systemMessageScenario: data.systemMessageScenario,
-            systemMessageGameStart: data.systemMessageGameStart,
-            imageStyle: data.imageStyle,
-            statusFields: data.statusFields,
-          },
-        });
-      }
-
+      await createGameWithExtraFields(
+        data,
+        createGame.mutateAsync,
+        updateGame.mutateAsync,
+      );
       closeCreateModal();
     } catch {
       // Error handled by mutation
@@ -253,15 +227,7 @@ export function MyGames({
     if (!game.id) return;
     try {
       const yaml = await exportGameYaml.mutateAsync(game.id);
-      const blob = new Blob([yaml], { type: "application/x-yaml" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${game.name || "game"}.yaml`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      downloadYamlFile(yaml, game.name);
     } catch {
       // Error handled by mutation
     }
@@ -290,47 +256,6 @@ export function MyGames({
     openCreateModal();
   };
 
-  const handlePlayGame = (game: ObjGame) => {
-    if (game.id) {
-      navigate({ to: "/games/$gameId/play", params: { gameId: game.id } });
-    }
-  };
-
-  const handleContinueGame = (session: DbUserSessionWithGame) => {
-    if (session.id) {
-      navigate({ to: `/sessions/${session.id}` as "/" });
-    }
-  };
-
-  const handleRestartGame = (game: ObjGame, session: DbUserSessionWithGame) => {
-    if (!game.id || !session.id) return;
-
-    modals.openConfirmModal({
-      title: t("myGames.restartConfirm.title"),
-      children: (
-        <Text size="sm">
-          {t("myGames.restartConfirm.message", {
-            game: game.name || t("sessions.untitledGame"),
-          })}
-        </Text>
-      ),
-      labels: {
-        confirm: t("myGames.restartConfirm.confirm"),
-        cancel: t("cancel"),
-      },
-      confirmProps: { color: "red" },
-      onConfirm: async () => {
-        // Delete session - if it fails (e.g., already deleted), just continue to play
-        try {
-          await deleteSession.mutateAsync(session.id!);
-        } catch {
-          // Session may have been deleted already, ignore and continue
-        }
-        navigate({ to: "/games/$gameId/play", params: { gameId: game.id! } });
-      },
-    });
-  };
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -346,17 +271,7 @@ export function MyGames({
     event.target.value = "";
   };
 
-  const getGameSessionState = (game: ObjGame) => {
-    if (!game.id) return { hasSession: false, session: undefined };
-    const session = sessionMap.get(game.id);
-    return { hasSession: !!session, session };
-  };
-
-  const getDateLabel = (game: ObjGame) => {
-    const dateValue =
-      sortField === "createdAt" ? game.meta?.createdAt : game.meta?.modifiedAt;
-    return dateValue ? new Date(dateValue).toLocaleDateString() : undefined;
-  };
+  const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => [
     {
@@ -385,34 +300,24 @@ export function MyGames({
     },
   ];
 
+  const playLabels = {
+    play: t("myGames.play"),
+    continue: t("myGames.continue"),
+    restart: t("myGames.restart"),
+  };
+
   const renderPlayButton = (game: ObjGame) => {
     const { hasSession, session } = getGameSessionState(game);
-
-    if (!hasSession) {
-      return (
-        <PlayGameButton
-          onClick={() => handlePlayGame(game)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.play")}
-        </PlayGameButton>
-      );
-    }
-
     return (
-      <Stack gap={4}>
-        <PlayGameButton
-          onClick={() => handleContinueGame(session!)}
-          size="xs"
-          style={{ width: "100%" }}
-        >
-          {t("myGames.continue")}
-        </PlayGameButton>
-        <TextButton onClick={() => handleRestartGame(game, session!)} size="xs">
-          {t("myGames.restart")}
-        </TextButton>
-      </Stack>
+      <GamePlayButtons
+        game={game}
+        hasSession={hasSession}
+        session={session}
+        onPlay={handlePlayGame}
+        onContinue={handleContinueGame}
+        onRestart={handleRestartGame}
+        labels={playLabels}
+      />
     );
   };
 

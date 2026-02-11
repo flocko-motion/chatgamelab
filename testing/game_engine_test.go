@@ -84,7 +84,8 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 	}
 	messageLens := []int{}
 	for i, playerAction := range playerActions {
-		msg1 := Must(s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction))
+		msg1, err := s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction)
+		s.Require().NoError(err, "SendGameMessage failed for action #%d: %s", i, playerAction)
 		log.Printf("\n=================================================================================================\n")
 		log.Printf("Turn #%d - Player: %s", i, playerAction)
 		log.Printf("Analytics: %s", functional.MaybeToString(msg1.URLAnalytics, "nil"))
@@ -103,6 +104,31 @@ func (s *GameEngineTestSuite) TestGamePlaythrough() {
 		s.Greater(msg1.TokenUsage.TotalTokens, 0, "Action should have total tokens > 0")
 		log.Printf("TokenUsage: input=%d, output=%d, total=%d", msg1.TokenUsage.InputTokens, msg1.TokenUsage.OutputTokens, msg1.TokenUsage.TotalTokens)
 	}
+
+	// --- Session resume: simulate player closing browser and returning later ---
+	log.Printf("\n=================================================================================================\n")
+	log.Printf("Session resume: loading all messages (simulating browser reload)")
+
+	resumed := Must(s.clientAlice.GetGameSession(sessionResponse.ID.String()))
+	s.Require().NotNil(resumed.GameSession, "Resumed session should not be nil")
+	s.Equal(sessionResponse.ID, resumed.ID, "Session ID should match")
+
+	// Expect: 1 initial game message + (N player actions * 2: player + game response)
+	expectedMessageCount := 2 + len(playerActions)*2
+	s.Require().Len(resumed.Messages, expectedMessageCount,
+		"Should have %d messages: 1 initial + %d player actions + %d AI responses",
+		expectedMessageCount, len(playerActions), len(playerActions))
+
+	// Message[0] should be the initial game response (system message triggers this)
+	s.Equal("system", resumed.Messages[0].Type, "First message should be a game response (from system prompt)")
+	s.Equal("game", resumed.Messages[1].Type, "Second message should be a game start scenario")
+	s.Equal("player", resumed.Messages[2].Type, "Second message should be a player input")
+
+	// Log all messages for review
+	for i, msg := range resumed.Messages {
+		log.Printf("  Message[%d] type=%-6s seq=%d len=%d", i, msg.Type, msg.Seq, len(msg.Message))
+	}
+
 	log.Printf("Game engine test completed successfully! Review terminal output to verify French translation.")
 	log.Printf("Message lengths: %v", messageLens)
 }

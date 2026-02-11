@@ -129,7 +129,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/sessions/{id}", httpx.RequireAuth(DeleteSession))
 
 	// Messages
-	mux.Handle("GET /api/messages/{id}/stream", httpx.RequireAuth(GetMessageStream))
+	mux.HandleFunc("GET /api/messages/{id}/stream", GetMessageStream)
 	// Image endpoint doesn't require auth header - browser <img> tags can't send headers
 	// Access is verified internally via session ownership
 	mux.HandleFunc("GET /api/messages/{id}/status", GetMessageStatus)

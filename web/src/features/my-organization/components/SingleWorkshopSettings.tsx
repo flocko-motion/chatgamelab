@@ -52,6 +52,7 @@ import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface SingleWorkshopSettingsProps {
   workshopId: string;
@@ -64,6 +65,7 @@ export function SingleWorkshopSettings({
 }: SingleWorkshopSettingsProps) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
+  const { retryBackendFetch } = useAuth();
 
   const [
     inviteLinkModalOpened,
@@ -204,6 +206,8 @@ export function SingleWorkshopSettings({
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
     });
+    // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
+    retryBackendFetch();
   };
 
   if (isLoading) {

@@ -3,10 +3,10 @@ package mock
 import (
 	"bytes"
 	"cgl/functional"
+	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/obj"
 	"context"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -42,27 +42,19 @@ func (p *MockPlatform) ResolveModel(model string) string {
 	return models[1].Model
 }
 
-func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage) (obj.TokenUsage, error) {
-	// Parse status fields from session to generate mock status
-	var statusFields []obj.StatusField
-	if session != nil && session.StatusFields != "" {
-		if err := json.Unmarshal([]byte(session.StatusFields), &statusFields); err != nil {
-			return obj.TokenUsage{}, fmt.Errorf("failed to parse status fields: %w", err)
-		}
-	}
+func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
+	// Get field names from session to generate mock status
+	fieldNames := status.FieldNames(session.StatusFields)
 
-	// Generate mock values for each field
-	mockStatus := make([]obj.StatusField, len(statusFields))
-	for i, field := range statusFields {
-		mockStatus[i] = obj.StatusField{
-			Name:  field.Name,
-			Value: fmt.Sprintf("%d", rand.Intn(100)),
-		}
+	// Generate mock values as a flat map (same format the AI would return)
+	mockStatusMap := make(map[string]string, len(fieldNames))
+	for _, name := range fieldNames {
+		mockStatusMap[name] = fmt.Sprintf("%d", rand.Intn(100))
 	}
 
 	// Fill in the pre-created message with lorem ipsum text
 	response.Message = lorem.Paragraph(3, 5)
-	response.StatusFields = mockStatus
+	response.StatusFields = status.MapToFields(mockStatusMap, fieldNames, nil)
 	response.ImagePrompt = functional.Ptr(lorem.Sentence(5, 10))
 	response.GameSessionID = session.ID
 	response.Type = obj.GameSessionMessageTypeGame

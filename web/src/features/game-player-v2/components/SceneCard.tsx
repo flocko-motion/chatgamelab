@@ -5,6 +5,7 @@ import { useGameTheme } from "../theme";
 import { SceneImage } from "./SceneImage";
 import { StreamingIndicator } from "./TypingIndicator";
 import { DebugPanel } from "./DebugPanel";
+import { AiInsightPanel } from "./AiInsightPanel";
 import { StatusChangeIndicator } from "./StatusChangeIndicator";
 import { ThemedText } from "./text-effects";
 import classes from "./GamePlayer.module.css";
@@ -13,6 +14,10 @@ interface SceneCardProps {
   message: SceneMessage;
   showImages: boolean;
   previousStatusFields?: ObjStatusField[];
+  /** System prompt text to show on the first game message */
+  systemPrompt?: string;
+  /** Whether this is the first game message in the session */
+  isFirstGameMessage?: boolean;
 }
 
 const FONT_SIZE_MAP = {
@@ -29,6 +34,8 @@ export function SceneCard({
   message,
   showImages,
   previousStatusFields,
+  systemPrompt,
+  isFirstGameMessage,
 }: SceneCardProps) {
   const { fontSize, debugMode } = useGamePlayerContext();
   const { theme, GameMessageWrapper, StreamingMessageWrapper } = useGameTheme();
@@ -125,6 +132,11 @@ export function SceneCard({
           </div>
         </div>
       </div>
+      <AiInsightPanel
+        message={message}
+        systemPrompt={systemPrompt}
+        isFirstGameMessage={isFirstGameMessage}
+      />
       {previousStatusFields && message.statusFields && (
         <StatusChangeIndicator
           currentFields={message.statusFields}

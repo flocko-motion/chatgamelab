@@ -346,6 +346,9 @@ func isAdminEmail(email string) bool {
 	// Split by comma and trim whitespace
 	emails := strings.Split(adminEmails, ",")
 	for _, adminEmail := range emails {
+		if strings.TrimSpace(adminEmail) == "" {
+			continue
+		}
 		if strings.TrimSpace(adminEmail) == strings.TrimSpace(email) {
 			return true
 		}
@@ -391,8 +394,48 @@ func assignDefaultIndividualRole(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-// PromoteAdminEmails checks all existing users and promotes those whose email
-// is in ADMIN_EMAILS to admin role. Called on server startup.
+// CheckAndPromoteAdmin checks if a single user should be promoted to admin based on ADMIN_EMAILS.
+// Called at login time to ensure admin promotion happens immediately, not just on server restart.
+// Returns the (possibly updated) user.
+func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
+	if user.Email == nil || !isAdminEmail(*user.Email) {
+		return user
+	}
+
+	// Already admin?
+	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+		return user
+	}
+
+	// Only individual users can be promoted
+	if user.Role == nil || user.Role.Role != obj.RoleIndividual {
+		log.Warn("skipping login admin promotion: user does not have individual role", "user_id", user.ID, "email", *user.Email)
+		return user
+	}
+
+	log.Info("promoting user to admin at login", "user_id", user.ID, "email", *user.Email)
+
+	if err := queries().DeleteUserRoles(ctx, user.ID); err != nil {
+		log.Warn("failed to delete existing roles for login admin promotion", "user_id", user.ID, "error", err)
+		return user
+	}
+
+	if err := autoUpgradeUserToAdmin(ctx, user.ID); err != nil {
+		log.Warn("failed to promote user to admin at login", "user_id", user.ID, "error", err)
+		return user
+	}
+
+	// Reload user to get updated role
+	updated, err := GetUserByID(ctx, user.ID)
+	if err != nil {
+		log.Warn("failed to reload user after login admin promotion", "user_id", user.ID, "error", err)
+		return user
+	}
+	return updated
+}
+
+// PromoteAdminEmails checks users whose email is in ADMIN_EMAILS and promotes
+// them to admin role. Called on server startup.
 func PromoteAdminEmails(ctx context.Context) {
 	adminEmails := os.Getenv("ADMIN_EMAILS")
 	if adminEmails == "" {
@@ -402,40 +445,25 @@ func PromoteAdminEmails(ctx context.Context) {
 
 	log.Info("checking for admin email promotions", "admin_emails", adminEmails)
 
-	users, err := GetAllUsers(ctx)
-	if err != nil {
-		log.Warn("failed to get users for admin promotion check", "error", err)
-		return
-	}
-
-	for _, user := range users {
-		if user.Email == nil {
+	for _, email := range strings.Split(adminEmails, ",") {
+		email = strings.TrimSpace(email)
+		if email == "" {
 			continue
 		}
 
-		if !isAdminEmail(*user.Email) {
+		raw, err := queries().GetUserByEmail(ctx, sql.NullString{String: email, Valid: true})
+		if err != nil {
+			log.Debug("admin email user not found, skipping", "email", email)
 			continue
 		}
 
-		// Already admin?
-		if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-			log.Debug("user already has admin role", "user_id", user.ID, "email", *user.Email)
+		user, err := GetUserByID(ctx, raw.ID)
+		if err != nil {
+			log.Warn("failed to load user for admin promotion", "email", email, "error", err)
 			continue
 		}
 
-		// Promote to admin
-		log.Info("promoting user to admin", "user_id", user.ID, "email", *user.Email)
-
-		// Delete existing role first
-		if err := queries().DeleteUserRoles(ctx, user.ID); err != nil {
-			log.Warn("failed to delete existing roles for admin promotion", "user_id", user.ID, "error", err)
-			continue
-		}
-
-		// Create admin role
-		if err := autoUpgradeUserToAdmin(ctx, user.ID); err != nil {
-			log.Warn("failed to promote user to admin", "user_id", user.ID, "error", err)
-		}
+		CheckAndPromoteAdmin(ctx, user)
 	}
 }
 
@@ -531,6 +559,17 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 	if role != nil {
 		if _, err := stringToRole(*role); err != nil {
 			return err
+		}
+	}
+
+	// Only individual users can be promoted to admin
+	if role != nil && *role == string(obj.RoleAdmin) {
+		targetUser, err := GetUserByID(ctx, targetUserID)
+		if err != nil {
+			return obj.ErrNotFound("target user not found")
+		}
+		if targetUser.Role == nil || targetUser.Role.Role != obj.RoleIndividual {
+			return obj.ErrForbidden("only users with 'individual' role can be promoted to admin")
 		}
 	}
 

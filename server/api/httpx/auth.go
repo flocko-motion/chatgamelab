@@ -288,6 +288,7 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
+			user = db.CheckAndPromoteAdmin(r.Context(), user)
 			log.Debug("CGL JWT authenticated", "user_id", userId, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
@@ -299,6 +300,14 @@ func Authenticate(next http.Handler) http.Handler {
 			// Auth0 not configured and CGL token invalid
 			WriteError(w, http.StatusUnauthorized, "Invalid token")
 			return
+		}
+
+		// Auth0 CheckJWT reads from Authorization header. If the token came from
+		// a query param (e.g. SSE EventSource), inject it into the header so
+		// Auth0 middleware can find it.
+		if tokenSource == "query" && r.Header.Get("Authorization") == "" {
+			r = r.Clone(r.Context())
+			r.Header.Set("Authorization", "Bearer "+tokenString)
 		}
 
 		// Use Auth0 middleware to validate, then extract user
@@ -325,6 +334,7 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
+			user = db.CheckAndPromoteAdmin(r.Context(), user)
 			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 		})).ServeHTTP(w, r)

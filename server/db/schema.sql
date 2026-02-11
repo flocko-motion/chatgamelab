@@ -345,6 +345,14 @@ CREATE TABLE game_session_message (
     status              text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
+    -- AI insight fields: raw prompts and responses for educational debug view
+    prompt_status_update    text NULL,
+    prompt_response_schema  text NULL,
+    prompt_image_generation text NULL,
+    prompt_expand_story     text NULL,
+    response_raw            text NULL,
+    token_usage             jsonb NULL,
+    url_analytics           text NULL,
 
     deleted_at          timestamptz NULL,
 

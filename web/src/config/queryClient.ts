@@ -8,6 +8,13 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
+      // Prevent all stale queries from refetching simultaneously when the
+      // browser regains connectivity (e.g. server restart). Queries will
+      // still refetch on mount, window focus, and explicit invalidation.
+      refetchOnReconnect: false,
+      // Exponential backoff for retries (1s, 2s, 4s, … capped at 30s)
+      retryDelay: (attemptIndex) =>
+        Math.min(1000 * Math.pow(2, attemptIndex), 30_000),
       retry: (
         failureCount,
         error: Error & { status?: number; type?: string },

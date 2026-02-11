@@ -40,8 +40,6 @@ interface GamePlayerHeaderProps {
   onToggleTextEffects: () => void;
   useNeutralTheme: boolean;
   onToggleNeutralTheme: () => void;
-  debugMode: boolean;
-  onToggleDebugMode: () => void;
 
   // Navigation
   onBack: () => void;
@@ -75,8 +73,6 @@ export function GamePlayerHeader({
   onToggleTextEffects,
   useNeutralTheme,
   onToggleNeutralTheme,
-  debugMode,
-  onToggleDebugMode,
   onBack,
   currentTheme,
   onThemeChange,
@@ -204,21 +200,6 @@ export function GamePlayerHeader({
                 <Checkbox
                   label={t("gamePlayer.header.useNeutralTheme")}
                   checked={useNeutralTheme}
-                  readOnly
-                  tabIndex={-1}
-                  size="sm"
-                  styles={{
-                    root: { pointerEvents: "none" },
-                    input: { cursor: "pointer" },
-                    label: { cursor: "pointer" },
-                  }}
-                />
-              </Menu.Item>
-              <Menu.Divider />
-              <Menu.Item closeMenuOnClick={false} onClick={onToggleDebugMode}>
-                <Checkbox
-                  label={t("gamePlayer.header.debug")}
-                  checked={debugMode}
                   readOnly
                   tabIndex={-1}
                   size="sm"
