@@ -627,7 +627,10 @@
         "maxSessionsDescription": "Leave empty for unlimited sessions.",
         "unlimited": "Unlimited",
         "enable": "Create Share Link",
-        "shareLink": "Share Link"
+        "shareLink": "Share Link",
+        "edit": "Edit Settings",
+        "editSettings": "Edit Share Settings",
+        "update": "Update Share Link"
       },
       "sponsor": {
         "apiKey": "API Key:",

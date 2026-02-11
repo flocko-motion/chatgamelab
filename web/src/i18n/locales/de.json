@@ -627,7 +627,10 @@
         "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
         "unlimited": "Unbegrenzt",
         "enable": "Freigabelink erstellen",
-        "shareLink": "Freigabelink"
+        "shareLink": "Freigabelink",
+        "edit": "Einstellungen bearbeiten",
+        "editSettings": "Freigabe-Einstellungen bearbeiten",
+        "update": "Freigabelink aktualisieren"
       },
       "sponsor": {
         "apiKey": "API-Schlüssel:",
