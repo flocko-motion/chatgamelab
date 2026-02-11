@@ -285,6 +285,9 @@ export interface ObjSystemSettings {
   /** tier for system free-use key, nil = use default */
   freeUseAiQualityTier?: string;
   freeUseApiKeyId?: string;
+  freeUseApiKeyName?: string;
+  freeUseApiKeyPlatform?: string;
+  freeUseApiKeyWorking?: boolean;
   id?: string;
   modifiedAt?: string;
 }
@@ -347,6 +350,7 @@ export interface ObjWorkshop {
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
   defaultApiKeyShareId?: string;
+  designEditingEnabled?: boolean;
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
@@ -657,6 +661,7 @@ export interface RoutesUpdateSystemSettingsRequest {
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
+  designEditingEnabled?: boolean;
   name?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;

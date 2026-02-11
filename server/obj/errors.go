@@ -19,6 +19,7 @@ const (
 	ErrCodeProfaneName               = "profane_name"
 	ErrCodeNoApiKey                  = "no_api_key"
 	ErrCodeSponsoredApiKeyNotWorking = "sponsored_api_key_not_working"
+	ErrCodeLastHead                  = "last_head"
 
 	// AI-specific error codes
 	ErrCodeAiError                 = "ai_error"

@@ -85,6 +85,11 @@ export function MyWorkshop() {
     showOtherParticipantsGames: workshop?.showOtherParticipantsGames ?? true,
   };
 
+  // Hide design editing for workshop members unless enabled by staff/head
+  // Staff/head always see design; only participants are restricted
+  const hideDesign =
+    !canEditAllWorkshopGames && !(workshop?.designEditingEnabled ?? false);
+
   // UI State
   const [
     createModalOpened,
@@ -588,6 +593,7 @@ export function MyWorkshop() {
         onCreate={onCreateGame}
         createLoading={isCreating}
         initialData={createInitialData}
+        hideDesign={hideDesign}
       />
       <GameEditModal
         gameId={gameToView}
@@ -609,6 +615,7 @@ export function MyWorkshop() {
             : undefined
         }
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
+        hideDesign={hideDesign}
       />
       <SponsorGameModal
         game={gameToSponsor}

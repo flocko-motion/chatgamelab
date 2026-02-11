@@ -5264,6 +5264,15 @@ const docTemplate = `{
                 "freeUseApiKeyId": {
                     "type": "string"
                 },
+                "freeUseApiKeyName": {
+                    "type": "string"
+                },
+                "freeUseApiKeyPlatform": {
+                    "type": "string"
+                },
+                "freeUseApiKeyWorking": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5419,6 +5428,9 @@ const docTemplate = `{
                 },
                 "defaultApiKeyShareId": {
                     "type": "string"
+                },
+                "designEditingEnabled": {
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"
@@ -6169,6 +6181,9 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "type": "string"
+                },
+                "designEditingEnabled": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

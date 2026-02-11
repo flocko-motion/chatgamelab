@@ -26,6 +26,7 @@ type UpdateWorkshopRequest struct {
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
+	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 }
 
 // CreateWorkshop godoc
@@ -213,6 +214,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		AiQualityTier:              req.AiQualityTier,
 		ShowPublicGames:            req.ShowPublicGames,
 		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       req.DesignEditingEnabled,
 	}
 
 	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)

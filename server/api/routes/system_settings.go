@@ -21,6 +21,14 @@ import (
 //	@Failure		500	{object}	httpx.ErrorResponse
 //	@Router			/system/settings [get]
 func GetSystemSettings(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	// Require admin
+	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
+		httpx.WriteError(w, http.StatusForbidden, "Forbidden: admin access required")
+		return
+	}
+
 	settings, err := db.GetSystemSettings(r.Context())
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get system settings: "+err.Error())

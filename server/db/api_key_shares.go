@@ -125,6 +125,11 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to clear user default api key references")
 	}
 
+	// Clear workshop default_api_key_share_id references before deleting shares
+	if err := queries().ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
+		return obj.ErrServerError("failed to clear workshop default api key references")
+	}
+
 	// Clean up private share guest data before clearing references
 	privateGames, _ := queries().GetGamesWithPrivateShareByApiKeyID(ctx, key.ID)
 	for _, g := range privateGames {
@@ -316,7 +321,8 @@ func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID u
 	return &result.ID, nil
 }
 
-// DeleteApiKeyShare deletes a single share. Owner can delete any share, others can only delete their own.
+// DeleteApiKeyShare deletes a single share.
+// Allowed by: key owner, share target user, or head/staff of the institution the share targets.
 func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {
 	share, err := queries().GetApiKeyShareByID(ctx, shareID)
 	if err != nil {
@@ -331,9 +337,26 @@ func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID)
 	isOwner := key.UserID == userID
 	isOwnShare := share.UserID.Valid && share.UserID.UUID == userID
 
-	if !isOwner && !isOwnShare {
+	// Head/staff of the target institution can remove org-scoped shares from colleagues
+	isOrgMember := false
+	if share.InstitutionID.Valid {
+		user, lookupErr := GetUserByID(ctx, userID)
+		if lookupErr == nil && user.Role != nil && user.Role.Institution != nil &&
+			user.Role.Institution.ID == share.InstitutionID.UUID &&
+			(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
+			isOrgMember = true
+		}
+	}
+
+	if !isOwner && !isOwnShare && !isOrgMember {
 		return obj.ErrForbidden("not authorized to delete this share")
 	}
+
+	// Clear workshop default_api_key_share_id if it references this share
+	_ = queries().ClearWorkshopDefaultApiKeyShareByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
+
+	// Clear game sponsor references if they reference this share
+	_ = queries().ClearGameSponsoredApiKeyByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
 
 	return queries().DeleteApiKeyShare(ctx, shareID)
 }

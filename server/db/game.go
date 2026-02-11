@@ -360,6 +360,14 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Store workshop ID before deletion for event publishing
 	workshopID := game.WorkshopID
 
+	// Clean up game data: sessions, messages, tags, favourites, shares, private share refs
+	_ = queries().DeleteGameSessionMessagesByGameID(ctx, gameID)
+	_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
+	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
+	_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+	_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+	_ = queries().ClearPrivateShareGameIDByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+
 	if err := queries().SoftDeleteGame(ctx, gameID); err != nil {
 		return err
 	}

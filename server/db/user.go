@@ -148,6 +148,23 @@ func RemoveUser(ctx context.Context, currentUserID uuid.UUID, targetUserID uuid.
 	if err := CanDeleteUser(ctx, currentUserID, targetUserID); err != nil {
 		return err
 	}
+
+	// Last-head protection: if the target is a head, ensure the institution has another head
+	targetUser, err := GetUserByID(ctx, targetUserID)
+	if err != nil {
+		return obj.ErrNotFound("target user not found")
+	}
+	if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead && targetUser.Role.Institution != nil {
+		instID := uuid.NullUUID{UUID: targetUser.Role.Institution.ID, Valid: true}
+		headCount, err := queries().CountHeadsByInstitution(ctx, instID)
+		if err != nil {
+			return obj.ErrServerError("failed to check institution heads")
+		}
+		if headCount <= 1 {
+			return obj.NewAppError(obj.ErrCodeLastHead, "cannot delete the last head of an institution")
+		}
+	}
+
 	return DeleteUser(ctx, targetUserID)
 }
 
@@ -219,10 +236,14 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			Role: role,
 		}
 		if res.InstitutionID.Valid {
-			user.Role.Institution = &obj.Institution{
+			inst := &obj.Institution{
 				ID:   res.InstitutionID.UUID,
 				Name: res.InstitutionName.String,
 			}
+			if res.InstitutionFreeUseApiKeyShareID.Valid {
+				inst.FreeUseApiKeyShareID = &res.InstitutionFreeUseApiKeyShareID.UUID
+			}
+			user.Role.Institution = inst
 		}
 		// For participants: use workshop_id (their assigned workshop)
 		// For head/staff/individual: use active_workshop_id (workshop mode) or workshop_id as fallback
@@ -236,6 +257,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.WorkshopName.String,
 				ShowPublicGames:            res.WorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
+				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				AiQualityTier:              aiQualityTier,
 			}
 		} else if res.ActiveWorkshopID.Valid {
@@ -249,6 +271,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				Name:                       res.ActiveWorkshopName.String,
 				ShowPublicGames:            res.ActiveWorkshopShowPublicGames.Bool,
 				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
+				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				AiQualityTier:              aiQualityTier,
 			}
 		}
@@ -291,19 +314,74 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 	})
 }
 
-// DeleteUser soft-deletes a user and cleans up their sessions
+// DeleteUser soft-deletes a user and cleans up all their data:
+// sessions, API keys (with cascade), shares, roles, favourites, workshop participant records.
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
-	// First delete all session messages for this user's sessions
+	// 1. Delete session messages and sessions
 	if err := queries().DeleteGameSessionMessagesByUserID(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete user session messages: %w", err)
 	}
-
-	// Then delete all sessions for this user
 	if err := queries().DeleteAllUserSessions(ctx, id); err != nil {
 		return fmt.Errorf("failed to delete user sessions: %w", err)
 	}
 
-	// Finally soft-delete the user
+	// 2. Clean up games created by this user
+	gameIDs, _ := queries().GetGameIDsByCreator(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	for _, gameID := range gameIDs {
+		_ = queries().DeleteGameTagsByGameID(ctx, gameID)
+		_ = queries().DeleteGameSessionMessagesByGameID(ctx, gameID)
+		_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
+		_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+		_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+		_ = queries().ClearPrivateShareGameIDByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, gameID) // clear sponsored refs
+		_ = queries().HardDeleteGame(ctx, gameID)
+	}
+
+	// 3. Clean up API keys owned by this user (cascade: clears shares, workshop refs, game sponsors, etc.)
+	keyIDs, _ := queries().GetApiKeyIDsByUser(ctx, id)
+	for _, keyID := range keyIDs {
+		// Clear session api_key_id references
+		_ = queries().ClearSessionApiKeyID(ctx, uuid.NullUUID{UUID: keyID, Valid: true})
+		// Clear user default_api_key_share_id references
+		_ = queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, keyID)
+		// Clear workshop default_api_key_share_id references
+		_ = queries().ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx, keyID)
+		// Clean up private share guest data
+		privateGames, _ := queries().GetGamesWithPrivateShareByApiKeyID(ctx, keyID)
+		for _, g := range privateGames {
+			_ = DeleteGuestDataByGameID(ctx, g.ID)
+			_ = queries().ClearGamePrivateShare(ctx, g.ID)
+		}
+		// Clear game sponsored API key references
+		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, keyID)
+		// Clear system free-use key reference
+		_ = queries().ClearSystemSettingsFreeUseApiKey(ctx, uuid.NullUUID{UUID: keyID, Valid: true})
+		// Delete all shares for this key
+		_ = queries().DeleteApiKeySharesByApiKeyID(ctx, keyID)
+	}
+	// Delete all API keys owned by this user
+	_ = queries().DeleteAllApiKeysByUser(ctx, id)
+
+	// 3. Clear user's default_api_key_share_id (in case it references someone else's share)
+	_ = queries().SetUserDefaultApiKeyShare(ctx, db.SetUserDefaultApiKeyShareParams{
+		ID:                   id,
+		DefaultApiKeyShareID: uuid.NullUUID{},
+	})
+
+	// 4. Delete workshop participant records for this user
+	_ = queries().DeleteWorkshopParticipantsByUserID(ctx, id)
+
+	// 5. Delete favourites
+	_ = queries().DeleteUserFavourites(ctx, id)
+
+	// 6. Delete user roles
+	_ = queries().DeleteUserRoles(ctx, id)
+
+	// 7. Clear system free-use API key if it references this user's keys
+	_ = ClearSystemSettingsFreeUseApiKeyByOwner(ctx, id)
+
+	// 8. Soft-delete the user
 	return queries().DeleteUser(ctx, id)
 }
 
@@ -580,6 +658,17 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 		}
 	}
 
+	// If the target user is losing their admin role, clear the system free-use API key
+	// if it references one of their keys (non-admins should not have keys in system settings)
+	{
+		targetUser, lookupErr := GetUserByID(ctx, targetUserID)
+		if lookupErr == nil && targetUser.Role != nil && targetUser.Role.Role == obj.RoleAdmin {
+			if role == nil || *role != string(obj.RoleAdmin) {
+				_ = ClearSystemSettingsFreeUseApiKeyByOwner(ctx, targetUserID)
+			}
+		}
+	}
+
 	// If removing role (role == nil) or changing institution, clean up API key shares
 	// with the user's current institution before the role change
 	if role == nil || institutionID != nil {
@@ -614,9 +703,11 @@ func UpdateUserRole(ctx context.Context, currentUserID uuid.UUID, targetUserID u
 		return fmt.Errorf("failed to delete existing roles: %w", err)
 	}
 
-	// No new role? Commit and return
+	// No new role specified? Assign "individual" as the default fallback role.
+	// Admin/head/staff who lose their role become individual users.
 	if role == nil {
-		return tx.Commit()
+		individualRole := string(obj.RoleIndividual)
+		role = &individualRole
 	}
 
 	// Create the new role

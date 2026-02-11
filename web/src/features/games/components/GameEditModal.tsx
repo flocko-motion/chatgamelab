@@ -59,6 +59,8 @@ interface GameEditModalProps {
   onSponsor?: () => void;
   /** Callback when user clicks Private Share button */
   onPrivateShare?: () => void;
+  /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
+  hideDesign?: boolean;
 }
 
 export function GameEditModal({
@@ -73,6 +75,7 @@ export function GameEditModal({
   initialData,
   onSponsor,
   onPrivateShare,
+  hideDesign = false,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -365,8 +368,8 @@ export function GameEditModal({
             readOnly={readOnly}
           />
 
-          {/* Theme - only in edit/view mode */}
-          {!isCreateMode && (
+          {/* Theme - only in edit/view mode, hidden when design editing is disabled */}
+          {!isCreateMode && !hideDesign && (
             <Group gap="sm" align="center">
               <ActionButton
                 leftSection={<IconPalette size={16} />}

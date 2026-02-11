@@ -16,7 +16,12 @@ type resolvedKey struct {
 	AiQualityTier string // resolved tier (high/medium/low), never empty
 }
 
-// resolveApiKeyForSession resolves the API key and AI quality tier for a new game session.
+const maxCandidates = 3
+
+// resolveApiKeyCandidates collects all matching API keys from the priority chain,
+// deduplicated by API key ID, up to maxCandidates. The first candidate is the
+// highest-priority match; subsequent entries are fallbacks.
+//
 // Priority chain:
 //  1. Workshop key + workshop.aiQualityTier
 //  2. Sponsored game key (public sponsor on the game)
@@ -25,7 +30,7 @@ type resolvedKey struct {
 //  5. System free-use key + system_settings.freeUseAiQualityTier
 //
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
-func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
+func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]resolvedKey, *obj.HTTPError) {
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
@@ -38,28 +43,50 @@ func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.
 		defaultTier = settings.DefaultAiQualityTier
 	}
 
+	var candidates []resolvedKey
+	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
+
+	add := func(share *obj.ApiKeyShare, tier string) {
+		if share == nil || share.ApiKey == nil || seen[share.ApiKey.ID] || len(candidates) >= maxCandidates {
+			return
+		}
+		seen[share.ApiKey.ID] = true
+		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier})
+	}
+
 	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
-		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
+		add(share, tierOrDefault(tier, defaultTier))
 	}
-
 	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
-		return &resolvedKey{Share: share, AiQualityTier: defaultTier}, nil
+		add(share, defaultTier)
 	}
-
 	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
-		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
+		add(share, tierOrDefault(tier, defaultTier))
 	}
-
 	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
-		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
+		add(share, tierOrDefault(tier, defaultTier))
 	}
-
 	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
-		return &resolvedKey{Share: share, AiQualityTier: tierOrDefault(tier, defaultTier)}, nil
+		add(share, tierOrDefault(tier, defaultTier))
 	}
 
-	log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
-	return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
+	if len(candidates) == 0 {
+		log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
+		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
+	}
+
+	log.Debug("resolved API key candidates", "user_id", userID, "game_id", gameID, "count", len(candidates))
+	return candidates, nil
+}
+
+// resolveApiKeyForSession resolves the highest-priority API key for a session.
+// Convenience wrapper around resolveApiKeyCandidates that returns only the first match.
+func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
+	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID)
+	if httpErr != nil {
+		return nil, httpErr
+	}
+	return &candidates[0], nil
 }
 
 // IsApiKeyAvailable checks whether an API key can be resolved for the given user+game
@@ -78,11 +105,22 @@ func ResolveSessionApiKey(ctx context.Context, session *obj.GameSession) *obj.HT
 	if httpErr != nil {
 		return httpErr
 	}
+	applyResolvedKey(session, resolved)
+	return nil
+}
+
+// ResolveSessionApiKeyCandidates re-resolves all API key candidates for an existing session.
+// Returns the ordered list of candidates for retry logic.
+func ResolveSessionApiKeyCandidates(ctx context.Context, session *obj.GameSession) ([]resolvedKey, *obj.HTTPError) {
+	return resolveApiKeyCandidates(ctx, session.UserID, session.GameID)
+}
+
+// applyResolvedKey updates session fields from a resolved key candidate.
+func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
 	session.ApiKey = resolved.Share.ApiKey
 	session.ApiKeyID = &resolved.Share.ApiKey.ID
 	session.AiPlatform = resolved.Share.ApiKey.Platform
 	session.AiModel = resolved.AiQualityTier
-	return nil
 }
 
 // tierOrDefault returns tier if non-empty, otherwise the default.
@@ -132,8 +170,12 @@ func resolveSponsoredGameKey(ctx context.Context, userID uuid.UUID, gameID uuid.
 }
 
 // resolveInstitutionFreeUseKey checks if the user's institution has a free-use API key configured.
+// Participants are excluded — they can only use the workshop key (priority 1).
 func resolveInstitutionFreeUseKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, *string) {
 	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.FreeUseApiKeyShareID == nil {
+		return nil, nil
+	}
+	if user.Role.Role == obj.RoleParticipant {
 		return nil, nil
 	}
 

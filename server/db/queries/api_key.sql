@@ -121,6 +121,20 @@ WHERE default_api_key_share_id IN (
   SELECT id FROM api_key_share WHERE api_key_id = $1
 );
 
+-- name: ClearWorkshopDefaultApiKeyShareByShareID :exec
+-- Clear workshop default API key when a specific share is deleted
+UPDATE workshop
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id = $1;
+
+-- name: ClearWorkshopDefaultApiKeyShareByApiKeyID :exec
+-- Clear workshop default API key when an API key is deleted (find shares for that key)
+UPDATE workshop
+SET default_api_key_share_id = NULL, modified_at = now()
+WHERE default_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+);
+
 -- name: ClearSessionApiKeyID :exec
 UPDATE game_session SET api_key_id = NULL, modified_at = now() WHERE api_key_id = $1;
 
