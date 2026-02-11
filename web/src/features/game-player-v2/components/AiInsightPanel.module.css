@@ -1,0 +1,163 @@
+/* ============================================================================
+   AI Insight Panel - Shows raw AI request/response under messages
+   Themed using game CSS variables to match the current game's visual style.
+   ============================================================================ */
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: var(--mantine-radius-sm);
+  color: var(--game-ai-font-color, var(--mantine-color-gray-5));
+  font-size: var(--mantine-font-size-sm);
+  font-family: var(--game-message-font, var(--mantine-font-family));
+  font-weight: 700;
+  opacity: 0.5;
+  transition: opacity 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.toggleButton:hover {
+  opacity: 0.85;
+}
+
+.toggleButtonActive {
+  opacity: 0.9;
+}
+
+.panelCollapse {
+  align-self: stretch;
+}
+
+.panel {
+  margin-top: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  border: var(--game-border-width, 1px) solid var(--game-ai-border-color, var(--mantine-color-gray-3));
+  background: var(--game-ai-bg, #ffffff);
+  overflow: hidden;
+  animation: panelReveal 0.2s ease-out;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+@keyframes panelReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  background: color-mix(in srgb, var(--game-ai-bg, #ffffff) 85%, black 15%);
+  border-bottom: 1px solid var(--game-ai-border-color, var(--mantine-color-gray-3));
+  color: var(--game-ai-font-color, var(--mantine-color-gray-7));
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  font-family: var(--game-message-font, var(--mantine-font-family));
+}
+
+.panelHeaderIcon {
+  color: var(--game-ai-font-color, var(--mantine-color-violet-5));
+  opacity: 0.7;
+}
+
+.tokenBadge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--mantine-radius-sm);
+  background: color-mix(in srgb, var(--game-ai-bg, #ffffff) 70%, black 30%);
+  color: var(--game-ai-font-color, var(--mantine-color-gray-6));
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--game-ai-border-color, var(--mantine-color-gray-3)) 50%, transparent 50%);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  cursor: pointer;
+  user-select: none;
+  color: var(--game-ai-font-color, var(--mantine-color-gray-7));
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  font-family: var(--game-message-font, var(--mantine-font-family));
+  padding: 2px 0;
+  opacity: 0.8;
+}
+
+.sectionLabel:hover {
+  opacity: 1;
+}
+
+.sectionLabelText {
+  color: var(--game-ai-font-color, var(--mantine-color-violet-6));
+}
+
+.sectionContent {
+  margin-top: var(--mantine-spacing-xs);
+  padding: var(--mantine-spacing-sm);
+  background: color-mix(in srgb, var(--game-ai-bg, #ffffff) 80%, black 20%);
+  border-radius: var(--mantine-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--game-ai-border-color, var(--mantine-color-gray-3)) 40%, transparent 60%);
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--game-ai-font-color, var(--mantine-color-gray-7));
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+
+  /* Themed scrollbar - Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-ai-border-color, var(--mantine-color-gray-4)) transparent;
+}
+
+/* Themed scrollbar - WebKit */
+.sectionContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sectionContent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sectionContent::-webkit-scrollbar-thumb {
+  background: var(--game-ai-border-color, var(--mantine-color-gray-4));
+  border-radius: 3px;
+}

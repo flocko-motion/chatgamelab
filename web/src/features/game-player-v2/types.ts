@@ -34,6 +34,22 @@ export interface SceneMessage {
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
+  /** Raw AI request: status update prompt */
+  requestStatusUpdate?: string;
+  /** Raw AI request: response schema */
+  requestResponseSchema?: string;
+  /** Raw AI request: image generation prompt */
+  requestImageGeneration?: string;
+  /** Raw AI request: expand story prompt */
+  requestExpandStory?: string;
+  /** Raw AI response (unparsed) */
+  responseRaw?: string;
+  /** Token usage for this message */
+  tokenUsage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+    totalTokens?: number;
+  };
 }
 
 export interface StreamChunk {
@@ -130,6 +146,12 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     imageHash,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
     seq: msg.seq,
+    requestStatusUpdate: msg.requestStatusUpdate ?? undefined,
+    requestResponseSchema: msg.requestResponseSchema ?? undefined,
+    requestImageGeneration: msg.requestImageGeneration ?? undefined,
+    requestExpandStory: msg.requestExpandStory ?? undefined,
+    responseRaw: msg.responseRaw ?? undefined,
+    tokenUsage: msg.tokenUsage ?? undefined,
   };
 }
 
