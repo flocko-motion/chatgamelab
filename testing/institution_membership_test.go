@@ -207,8 +207,11 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	s.Contains(memberNames, "tanja")
 	s.T().Logf("Institution members: %v", memberNames)
 
-	// Verify tanja can't invite alice to institution
-	Fail(clientTanja.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
+	// Verify tanja (staff) can also invite alice to institution
+	tanjaInvite = Must(clientTanja.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
+	s.T().Logf("Tanja (staff) invited alice: %s", tanjaInvite.ID)
+	// Revoke it so harry can invite alice next
+	MustSucceed(clientTanja.RevokeInvite(tanjaInvite.ID.String()))
 
 	// Harry creates invitiation to alice, revokes it (hard delete), invite no longer exists
 	invitation := Must(clientHarry.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))

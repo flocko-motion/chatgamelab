@@ -16,6 +16,8 @@ import (
 	"cgl/api/routes"
 	"cgl/config"
 	"cgl/obj"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -138,13 +140,26 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 		return obj.Game{}, fmt.Errorf("failed to read game file %s.yaml, tried absolute paths: %v", yamlName, triedPaths)
 	}
 
-	// Create game
+	// Make game name unique to avoid UNIQUE constraint conflicts across tests
+	uniqueSuffix := uuid.New().String()[:8]
+	uniqueName := fmt.Sprintf("Test Game %s", uniqueSuffix)
+
+	// Create game with unique name
 	var game obj.Game
 	err = u.Post("games/new", routes.CreateGameRequest{
-		Name: "Test Game",
+		Name: uniqueName,
 	}, &game)
 	if err != nil {
 		return obj.Game{}, fmt.Errorf("failed to create game: %w", err)
+	}
+
+	// Replace the name in YAML content with the unique name (avoid UNIQUE constraint on upload)
+	yamlStr := string(yamlContent)
+	if idx := strings.Index(yamlStr, "name: "); idx != -1 {
+		endIdx := strings.Index(yamlStr[idx:], "\n")
+		if endIdx != -1 {
+			yamlStr = yamlStr[:idx] + "name: " + uniqueName + yamlStr[idx+endIdx:]
+		}
 	}
 
 	// Set user's token
@@ -154,7 +169,7 @@ func (u *UserClient) UploadGame(yamlName string) (obj.Game, error) {
 
 	// Upload via PUT /games/{id}/yaml
 	endpoint := fmt.Sprintf("games/%s/yaml", game.ID.String())
-	if err := client.ApiPutRaw(endpoint, string(yamlContent)); err != nil {
+	if err := client.ApiPutRaw(endpoint, yamlStr); err != nil {
 		return obj.Game{}, fmt.Errorf("failed to upload game YAML: %w", err)
 	}
 
@@ -243,6 +258,12 @@ func (u *UserClient) Post(endpoint string, payload interface{}, out interface{})
 func (u *UserClient) Patch(endpoint string, payload interface{}, out interface{}) error {
 	u.t.Helper()
 	return u.makeRequest("PATCH", endpoint, payload, out)
+}
+
+// Put performs an authenticated PUT request
+func (u *UserClient) Put(endpoint string, payload interface{}, out interface{}) error {
+	u.t.Helper()
+	return u.makeRequest("PUT", endpoint, payload, out)
 }
 
 // Delete performs an authenticated DELETE request
@@ -609,6 +630,175 @@ func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, err
 	}
 
 	return fullText.String(), imageData, nil
+}
+
+// RemoveUserRole removes a user's role (composable high-level API)
+func (u *UserClient) RemoveUserRole(userID string) error {
+	u.t.Helper()
+	return u.Delete("users/" + userID + "/role")
+}
+
+// GetSystemSettings returns the global system settings (composable high-level API)
+func (u *UserClient) GetSystemSettings() (obj.SystemSettings, error) {
+	u.t.Helper()
+	var result obj.SystemSettings
+	err := u.Get("system/settings", &result)
+	return result, err
+}
+
+// SetSystemFreeUseApiKey sets or clears the global free-use API key (composable high-level API)
+// Pass nil to clear the free-use key.
+func (u *UserClient) SetSystemFreeUseApiKey(apiKeyID *string) (obj.SystemSettings, error) {
+	u.t.Helper()
+	var payload interface{}
+	if apiKeyID != nil {
+		id, err := uuid.Parse(*apiKeyID)
+		if err != nil {
+			return obj.SystemSettings{}, fmt.Errorf("invalid apiKeyID: %w", err)
+		}
+		payload = routes.SetFreeUseApiKeyRequest{ApiKeyID: &id}
+	} else {
+		payload = routes.SetFreeUseApiKeyRequest{ApiKeyID: nil}
+	}
+	var result obj.SystemSettings
+	err := u.Patch("system/settings/free-use-key", payload, &result)
+	return result, err
+}
+
+// DeleteApiKey deletes an API key share, optionally cascading to delete the key and all shares (composable high-level API)
+func (u *UserClient) DeleteApiKey(shareID string, cascade bool) error {
+	u.t.Helper()
+	endpoint := "apikeys/" + shareID
+	if cascade {
+		endpoint += "?cascade=true"
+	}
+	return u.Delete(endpoint)
+}
+
+// GetApiKeys returns the user's API keys and all their linked shares (composable high-level API)
+func (u *UserClient) GetApiKeys() (routes.ApiKeysResponse, error) {
+	u.t.Helper()
+	var result routes.ApiKeysResponse
+	err := u.Get("apikeys", &result)
+	return result, err
+}
+
+// SetDefaultApiKey sets the given API key share as the user's default (composable high-level API)
+func (u *UserClient) SetDefaultApiKey(shareID string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+	var result obj.ApiKeyShare
+	err := u.Put("apikeys/"+shareID+"/default", nil, &result)
+	return result, err
+}
+
+// ShareApiKeyWithInstitution shares an API key with an institution (composable high-level API)
+func (u *UserClient) ShareApiKeyWithInstitution(shareID string, institutionID string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+	instID, err := uuid.Parse(institutionID)
+	if err != nil {
+		return obj.ApiKeyShare{}, fmt.Errorf("invalid institutionID: %w", err)
+	}
+	var result obj.ApiKeyShare
+	err = u.Post("apikeys/"+shareID+"/shares", routes.ShareRequest{
+		InstitutionID: &instID,
+	}, &result)
+	return result, err
+}
+
+// SetWorkshopApiKey sets (or clears) the default API key for a workshop (composable high-level API)
+func (u *UserClient) SetWorkshopApiKey(workshopID string, apiKeyShareID *string) (obj.Workshop, error) {
+	u.t.Helper()
+	var result obj.Workshop
+	err := u.Put("workshops/"+workshopID+"/api-key", routes.SetWorkshopApiKeyRequest{
+		ApiKeyShareID: apiKeyShareID,
+	}, &result)
+	return result, err
+}
+
+// SetActiveWorkshop sets the user's active workshop context (composable high-level API)
+// Pass nil to leave workshop mode.
+func (u *UserClient) SetActiveWorkshop(workshopID *string) (obj.User, error) {
+	u.t.Helper()
+	var wsID *uuid.UUID
+	if workshopID != nil {
+		parsed, err := uuid.Parse(*workshopID)
+		if err != nil {
+			return obj.User{}, fmt.Errorf("invalid workshopID: %w", err)
+		}
+		wsID = &parsed
+	}
+	var result obj.User
+	err := u.Put("users/me/active-workshop", map[string]interface{}{
+		"workshopId": wsID,
+	}, &result)
+	return result, err
+}
+
+// GetApiKeyStatus checks whether an API key can be resolved for a game (composable high-level API)
+func (u *UserClient) GetApiKeyStatus(gameID string) (bool, error) {
+	u.t.Helper()
+	var result map[string]bool
+	err := u.Get("games/"+gameID+"/api-key-status", &result)
+	if err != nil {
+		return false, err
+	}
+	return result["available"], nil
+}
+
+// ShareApiKeyWithWorkshop shares an API key with a workshop (composable high-level API)
+func (u *UserClient) ShareApiKeyWithWorkshop(shareID string, workshopID string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+	wsID, err := uuid.Parse(workshopID)
+	if err != nil {
+		return obj.ApiKeyShare{}, fmt.Errorf("invalid workshopID: %w", err)
+	}
+	var result obj.ApiKeyShare
+	err = u.Post("apikeys/"+shareID+"/shares", routes.ShareRequest{
+		WorkshopID: &wsID,
+	}, &result)
+	return result, err
+}
+
+// DeleteGame deletes a game by ID (composable high-level API)
+func (u *UserClient) DeleteGame(gameID string) error {
+	u.t.Helper()
+	return u.Delete("games/" + gameID)
+}
+
+// ListGames returns all games visible to the user (composable high-level API)
+func (u *UserClient) ListGames() ([]obj.Game, error) {
+	u.t.Helper()
+	var result []obj.Game
+	err := u.Get("games", &result)
+	return result, err
+}
+
+// ListInstitutions returns all institutions visible to the user (composable high-level API)
+func (u *UserClient) ListInstitutions() ([]obj.Institution, error) {
+	u.t.Helper()
+	var result []obj.Institution
+	err := u.Get("institutions", &result)
+	return result, err
+}
+
+// DeleteInstitution deletes an institution by ID (composable high-level API)
+func (u *UserClient) DeleteInstitution(institutionID string) error {
+	u.t.Helper()
+	return u.Delete("institutions/" + institutionID)
+}
+
+// DeleteWorkshop deletes a workshop by ID (composable high-level API)
+func (u *UserClient) DeleteWorkshop(workshopID string) error {
+	u.t.Helper()
+	return u.Delete("workshops/" + workshopID)
+}
+
+// GetInstitutionApiKeys returns API keys shared with an institution (composable high-level API)
+func (u *UserClient) GetInstitutionApiKeys(institutionID string) ([]obj.ApiKeyShare, error) {
+	u.t.Helper()
+	var result []obj.ApiKeyShare
+	err := u.Get("institutions/"+institutionID+"/apikeys", &result)
+	return result, err
 }
 
 // ReactivateInvite reactivates a revoked invite (composable high-level API)
