@@ -333,7 +333,7 @@
         "sections": {
           "systemPrompt": "Spielanweisungen an die KI",
           "responseSchema": "Vorgabe an die KI über den Aufbau der Antwort",
-          "statusUpdate": "Aktualisierte Statusfelder",
+          "statusUpdate": "Prompt an die KI",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "rawResponse": "Unbearbeitete KI-Antwort",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung"

@@ -66,16 +66,23 @@ type ModelSession struct {
 	ResponseID string `json:"responseId"`
 }
 
+// InputMessage represents a single message in the Responses API input array.
+// Role can be "developer" (instructions/reminders) or "user" (player actions).
+type InputMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
 // ResponsesAPIRequest is the request body for the Responses API
 type ResponsesAPIRequest struct {
-	Model              string      `json:"model"`
-	Input              string      `json:"input"`
-	Instructions       string      `json:"instructions,omitempty"`
-	PreviousResponseID string      `json:"previous_response_id,omitempty"`
-	Store              bool        `json:"store"`
-	Stream             bool        `json:"stream,omitempty"`
-	MaxOutputTokens    int         `json:"max_output_tokens,omitempty"`
-	Text               *TextConfig `json:"text,omitempty"`
+	Model              string         `json:"model"`
+	Input              []InputMessage `json:"input"`
+	Instructions       string         `json:"instructions,omitempty"`
+	PreviousResponseID string         `json:"previous_response_id,omitempty"`
+	Store              bool           `json:"store"`
+	Stream             bool           `json:"stream,omitempty"`
+	MaxOutputTokens    int            `json:"max_output_tokens,omitempty"`
+	Text               *TextConfig    `json:"text,omitempty"`
 }
 
 type TextConfig struct {
@@ -193,10 +200,10 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// Serialize the player action as JSON input (minimal AI-facing structure)
 	actionInput := action.ToAiJSON()
 
-	// Build the request
+	// Build the request (Input is set below based on action type)
 	req := ResponsesAPIRequest{
 		Model:           model,
-		Input:           actionInput,
+		Input:           []InputMessage{{Role: "user", Content: actionInput}},
 		Store:           true,
 		MaxOutputTokens: 5000,
 		Text: &TextConfig{
@@ -212,9 +219,14 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	// System messages become instructions, otherwise use previous_response_id for continuity
 	if action.Type == obj.GameSessionMessageTypeSystem {
 		req.Instructions = action.Message
-		req.Input = templates.PromptMessageStart
+		req.Input = []InputMessage{{Role: "developer", Content: templates.PromptMessageStart}}
 	} else if modelSession.ResponseID != "" {
 		req.PreviousResponseID = modelSession.ResponseID
+		// Inject developer reminder with every player action to reinforce brevity
+		req.Input = []InputMessage{
+			{Role: "developer", Content: templates.ReminderExecuteAction},
+			{Role: "user", Content: actionInput},
+		}
 	}
 
 	responseStream := stream.Get().Lookup(response.ID)
@@ -273,20 +285,12 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	response.ResponseRaw = &responseText
 
-	// Parse the AI response (uses flat status map) and convert to internal format
-	log.Debug("parsing OpenAI response", "response_length", len(responseText), "response_text", responseText)
-	var aiResp obj.GameSessionMessageAi
-	if err := json.Unmarshal([]byte(responseText), &aiResp); err != nil {
+	// Parse the AI response and convert to internal format
+	log.Debug("parsing AI response", "response_length", len(responseText), "response_text", responseText)
+	if err := status.ParseGameResponse(responseText, session.StatusFields, action.StatusFields, response); err != nil {
 		log.Error("failed to parse game response", "error", err, "response_text", responseText)
-		return usage, fmt.Errorf("failed to parse game response: %w", err)
+		return usage, err
 	}
-
-	// Convert flat status map back to ordered []StatusField using session's field definitions.
-	// Pass action's current status as fallback in case the AI omits a field.
-	fieldNames := status.FieldNames(session.StatusFields)
-	response.Message = aiResp.Message
-	response.StatusFields = status.MapToFields(aiResp.Status, fieldNames, status.FieldsToMap(action.StatusFields))
-	response.ImagePrompt = aiResp.ImagePrompt
 
 	// Update model session with new response ID
 	modelSession.ResponseID = apiResponse.ID
@@ -348,10 +352,13 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	}
 
 	// Build streaming request - plain text, no JSON schema
+	// Use developer role for the narration instruction (it's a directive, not player input)
 	model := p.ResolveModel(session.AiModel)
 	req := ResponsesAPIRequest{
-		Model:              model,
-		Input:              templates.PromptNarratePlotOutline,
+		Model: model,
+		Input: []InputMessage{
+			{Role: "developer", Content: templates.PromptNarratePlotOutline},
+		},
 		Store:              true,
 		Stream:             true,
 		MaxOutputTokens:    5000,
@@ -509,9 +516,9 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 
 	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
 	// For gpt-image-1, we include the style in the prompt instead
-	fullPrompt := prompt
+	fullPrompt := prompt + templates.ImagePromptSuffix
 	if style != "" {
-		fullPrompt = fmt.Sprintf("%s. Style: %s", prompt, style)
+		fullPrompt = fmt.Sprintf("%s Style: %s", fullPrompt, style)
 	}
 
 	reqBody := map[string]interface{}{
@@ -608,7 +615,7 @@ func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []s
 	req := ResponsesAPIRequest{
 		Model:        translateModel,
 		Instructions: lang.TranslateInstruction,
-		Input:        fmt.Sprintf("Translate this JSON to %s:\n\n%s", lang.GetLanguageName(targetLang), originals),
+		Input:        []InputMessage{{Role: "user", Content: fmt.Sprintf("Translate this JSON to %s:\n\n%s", lang.GetLanguageName(targetLang), originals)}},
 		Store:        false,
 		Text: &TextConfig{
 			Format: FormatConfig{
@@ -729,45 +736,7 @@ func isIrrelevantModel(modelID string) bool {
 
 // isDatedModel checks if a model ID ends with a date or version pattern
 func isDatedModel(modelID string) bool {
-	parts := strings.Split(modelID, "-")
-	if len(parts) < 2 {
-		return false
-	}
-
-	lastPart := parts[len(parts)-1]
-
-	// Check if ends with 4 digits (e.g., -1106, -0914)
-	if len(lastPart) == 4 {
-		for _, ch := range lastPart {
-			if ch < '0' || ch > '9' {
-				return false
-			}
-		}
-		return true
-	}
-
-	// Check if model ends with -YYYY-MM-DD pattern
-	if len(parts) < 3 {
-		return false
-	}
-
-	// Get last 3 parts
-	lastThree := parts[len(parts)-3:]
-
-	// Check if they match YYYY-MM-DD pattern
-	if len(lastThree[0]) == 4 && len(lastThree[1]) == 2 && len(lastThree[2]) == 2 {
-		// Verify they're all numeric
-		for _, part := range lastThree {
-			for _, ch := range part {
-				if ch < '0' || ch > '9' {
-					return false
-				}
-			}
-		}
-		return true
-	}
-
-	return false
+	return functional.EndsWithDigits(modelID, 4) || functional.EndsWithDatePattern(modelID)
 }
 
 // GenerateTheme generates a visual theme JSON for the game player UI
@@ -785,7 +754,7 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 	reqBody := ResponsesAPIRequest{
 		Model:        model,
 		Instructions: systemPrompt,
-		Input:        userPrompt,
+		Input:        []InputMessage{{Role: "user", Content: userPrompt}},
 		Store:        false, // Don't store theme generation in conversation history
 	}
 

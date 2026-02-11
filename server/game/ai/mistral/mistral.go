@@ -195,28 +195,6 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 	return models, nil
 }
 
-// endsWithFourDigits checks if a model ID ends with -XXXX pattern (4 digits)
-func endsWithFourDigits(modelID string) bool {
-	parts := strings.Split(modelID, "-")
-	if len(parts) < 2 {
-		return false
-	}
-
-	lastPart := parts[len(parts)-1]
-
-	// Check if last part is exactly 4 digits
-	if len(lastPart) == 4 {
-		for _, ch := range lastPart {
-			if ch < '0' || ch > '9' {
-				return false
-			}
-		}
-		return true
-	}
-
-	return false
-}
-
 // isRelevantModel checks if a model supports chat completions
 func isRelevantModel(modelID string) bool {
 	// List of known non-chat model prefixes to skip
@@ -229,13 +207,13 @@ func isRelevantModel(modelID string) bool {
 	}
 
 	for _, prefix := range nonChatPrefixes {
-		if len(modelID) > len(prefix) && modelID[:len(prefix)] == prefix {
+		if strings.HasPrefix(modelID, prefix) {
 			return false
 		}
 	}
 
 	// Skip dated models (ending with -XXXX where X is a digit)
-	if endsWithFourDigits(modelID) {
+	if functional.EndsWithDigits(modelID, 4) {
 		return false
 	}
 

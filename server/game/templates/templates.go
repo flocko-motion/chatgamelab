@@ -19,6 +19,13 @@ const (
 	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario."
 	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
 	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 1-3 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
+
+	// ReminderExecuteAction is injected as a developer message with every player action
+	// to reinforce brevity constraints that the model tends to forget over long conversations.
+	ReminderExecuteAction = "STRICT OUTPUT RULES: message=telegraph-style (subject-verb-object, no adjectives, max 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
+
+	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
+	ImagePromptSuffix = ". Do not depict the player character."
 )
 
 func ImageStyleOrDefault(style string) string {
@@ -101,9 +108,9 @@ func GetTemplate(game *obj.Game) (string, error) {
 
 	actionOutput := obj.GameSessionMessageAi{
 		Type:        obj.GameSessionMessageTypeGame,
-		Message:     "You drink the potion. You feel a little bit dizzy. You feel a little bit stronger.",
+		Message:     "Player drinks potion, feels dizzy then stronger.",
 		Status:      statusMap,
-		ImagePrompt: functional.Ptr("a castle in the background, green grass, late afternoon"),
+		ImagePrompt: functional.Ptr("green grass, late afternoon, castle in background"),
 	}
 	actionOutputStr, _ := json.Marshal(actionOutput)
 

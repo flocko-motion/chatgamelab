@@ -333,7 +333,7 @@
         "sections": {
           "systemPrompt": "Game instructions for the AI",
           "responseSchema": "Required structure of the AI response",
-          "statusUpdate": "Updated status fields",
+          "statusUpdate": "Prompt sent to AI",
           "expandStory": "Instructions to the AI for writing out the story",
           "rawResponse": "Unprocessed AI response",
           "imageGeneration": "Instructions from the AI for image generation"
