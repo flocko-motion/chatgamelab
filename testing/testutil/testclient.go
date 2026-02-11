@@ -484,6 +484,13 @@ func (u *UserClient) CreateWorkshopInvite(workshopID, role string) (obj.UserRole
 	return result, err
 }
 
+// AcceptWorkshopInviteByToken accepts a workshop invite by token as an authenticated user (composable high-level API)
+// For individuals/head/staff this enters workshop mode; for participants this switches workshops.
+func (u *UserClient) AcceptWorkshopInviteByToken(token string) error {
+	u.t.Helper()
+	return u.Post("invites/"+token+"/accept", nil, nil)
+}
+
 // AddApiKey reads an API key from a file and creates it (composable high-level API)
 func (u *UserClient) AddApiKey(apiKey, name, platform string) (obj.ApiKeyShare, error) {
 	u.t.Helper()
