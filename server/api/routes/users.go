@@ -438,6 +438,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 				status = http.StatusForbidden
 			case obj.ErrCodeUnauthorized:
 				status = http.StatusUnauthorized
+			case obj.ErrCodeLastHead:
+				status = http.StatusConflict
 			}
 			httpx.WriteError(w, status, appErr.Error())
 		} else {

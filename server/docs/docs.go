@@ -5264,6 +5264,15 @@ const docTemplate = `{
                 "freeUseApiKeyId": {
                     "type": "string"
                 },
+                "freeUseApiKeyName": {
+                    "type": "string"
+                },
+                "freeUseApiKeyPlatform": {
+                    "type": "string"
+                },
+                "freeUseApiKeyWorking": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },

@@ -68,12 +68,15 @@ type InstitutionMember struct {
 }
 
 type SystemSettings struct {
-	ID                   uuid.UUID  `json:"id"`
-	CreatedAt            *time.Time `json:"createdAt"`
-	ModifiedAt           *time.Time `json:"modifiedAt"`
-	DefaultAiQualityTier string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
-	FreeUseAiQualityTier *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
-	FreeUseApiKeyID      *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
+	ID                    uuid.UUID  `json:"id"`
+	CreatedAt             *time.Time `json:"createdAt"`
+	ModifiedAt            *time.Time `json:"modifiedAt"`
+	DefaultAiQualityTier  string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
+	FreeUseAiQualityTier  *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
+	FreeUseApiKeyID       *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
+	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
+	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`
+	FreeUseApiKeyWorking  *bool      `json:"freeUseApiKeyWorking,omitempty"`
 }
 
 type Role string
