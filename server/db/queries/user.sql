@@ -91,6 +91,7 @@ SELECT
   r.role         AS role,
   r.institution_id,
   i.name         AS institution_name,
+  i.free_use_api_key_share_id AS institution_free_use_api_key_share_id,
   r.workshop_id,
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
