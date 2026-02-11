@@ -792,7 +792,8 @@ func (u *UserClient) DeleteGame(gameID string) error {
 }
 
 // UpdateGame updates a game's properties (composable high-level API)
-func (u *UserClient) UpdateGame(gameID string, updates map[string]interface{}) (obj.Game, error) {
+// Accepts either a map[string]interface{} for partial updates or a full obj.Game struct.
+func (u *UserClient) UpdateGame(gameID string, updates interface{}) (obj.Game, error) {
 	u.t.Helper()
 	var result obj.Game
 	err := u.Post("games/"+gameID, updates, &result)
@@ -991,6 +992,163 @@ func PrintJSON(t *testing.T, label string, v interface{}) {
 		return
 	}
 	t.Logf("%s: %s", label, string(data))
+}
+
+// EnableShareSponsoring enables AllowPublicGameSponsoring on an API key share (composable high-level API)
+func (u *UserClient) EnableShareSponsoring(shareID string) (obj.ApiKeyShare, error) {
+	u.t.Helper()
+	allowPublic := true
+	var result obj.ApiKeyShare
+	err := u.Patch("apikeys/"+shareID+"/sponsoring", routes.UpdateApiKeyShareRequest{
+		AllowPublicGameSponsoring: &allowPublic,
+	}, &result)
+	return result, err
+}
+
+// SetGameSponsor sets a public sponsorship on a game using an API key share (composable high-level API)
+// Returns the updated game with the sponsor share ID set.
+func (u *UserClient) SetGameSponsor(gameID string, shareID string) (obj.Game, error) {
+	u.t.Helper()
+	shareUUID, err := uuid.Parse(shareID)
+	if err != nil {
+		return obj.Game{}, fmt.Errorf("invalid shareID: %w", err)
+	}
+	var result obj.Game
+	err = u.Put("games/"+gameID+"/sponsor", routes.SponsorGameRequest{
+		ShareID: shareUUID,
+	}, &result)
+	return result, err
+}
+
+// RemoveGameSponsor removes the public sponsorship from a game (composable high-level API)
+func (u *UserClient) RemoveGameSponsor(gameID string) (obj.Game, error) {
+	u.t.Helper()
+	var result obj.Game
+	err := u.makeRequest("DELETE", "games/"+gameID+"/sponsor", nil, &result)
+	return result, err
+}
+
+// CloneGame clones a game by ID (composable high-level API)
+func (u *UserClient) CloneGame(gameID string) (obj.Game, error) {
+	u.t.Helper()
+	var result obj.Game
+	err := u.Post("games/"+gameID+"/clone", nil, &result)
+	return result, err
+}
+
+// GetGameYAML exports a game as YAML (composable high-level API)
+func (u *UserClient) GetGameYAML(gameID string) (string, error) {
+	u.t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return "", fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/games/%s/yaml", serverURL, gameID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Authorization", "Bearer "+u.Token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
+	}
+
+	return string(body), nil
+}
+
+// ListGamesWithFilter lists games with a filter parameter (composable high-level API)
+func (u *UserClient) ListGamesWithFilter(filter string) ([]obj.Game, error) {
+	u.t.Helper()
+	var result []obj.Game
+	err := u.Get("games?filter="+filter, &result)
+	return result, err
+}
+
+// ListGamesWithSearch lists games with a search query (composable high-level API)
+func (u *UserClient) ListGamesWithSearch(search string) ([]obj.Game, error) {
+	u.t.Helper()
+	var result []obj.Game
+	err := u.Get("games?search="+search, &result)
+	return result, err
+}
+
+// EnablePrivateShare enables private sharing for a game (composable high-level API)
+func (u *UserClient) EnablePrivateShare(gameID string, sponsorShareID string, maxSessions *int) (routes.PrivateShareStatus, error) {
+	u.t.Helper()
+	shareUUID, err := uuid.Parse(sponsorShareID)
+	if err != nil {
+		return routes.PrivateShareStatus{}, fmt.Errorf("invalid sponsorShareID: %w", err)
+	}
+	var result routes.PrivateShareStatus
+	err = u.Post("games/"+gameID+"/private-share", routes.PrivateShareRequest{
+		SponsorKeyShareID: &shareUUID,
+		MaxSessions:       maxSessions,
+	}, &result)
+	return result, err
+}
+
+// GetPrivateShareStatus returns the private share status for a game (composable high-level API)
+func (u *UserClient) GetPrivateShareStatus(gameID string) (routes.PrivateShareStatus, error) {
+	u.t.Helper()
+	var result routes.PrivateShareStatus
+	err := u.Get("games/"+gameID+"/private-share", &result)
+	return result, err
+}
+
+// RevokePrivateShare revokes private sharing for a game (composable high-level API)
+func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatus, error) {
+	u.t.Helper()
+	var result routes.PrivateShareStatus
+	err := u.makeRequest("DELETE", "games/"+gameID+"/private-share", nil, &result)
+	return result, err
+}
+
+// GuestGetGameInfo returns game info via a share token (composable high-level API)
+func (p *PublicClient) GuestGetGameInfo(token string) (routes.GuestGameInfo, error) {
+	p.t.Helper()
+	var result routes.GuestGameInfo
+	err := p.Get("play/"+token+"/info", &result)
+	return result, err
+}
+
+// GuestCreateSession creates a guest session via a share token (composable high-level API)
+func (p *PublicClient) GuestCreateSession(token string) (routes.GuestSessionResponse, error) {
+	p.t.Helper()
+	var result routes.GuestSessionResponse
+	err := p.Post("play/"+token, nil, &result)
+	return result, err
+}
+
+// GuestGetSession loads a guest session via a share token (composable high-level API)
+func (p *PublicClient) GuestGetSession(token, sessionID string) (routes.SessionResponse, error) {
+	p.t.Helper()
+	var result routes.SessionResponse
+	err := p.Get("play/"+token+"/sessions/"+sessionID+"?messages=all", &result)
+	return result, err
+}
+
+// GuestSendAction sends a player action to a guest session (composable high-level API)
+func (p *PublicClient) GuestSendAction(token, sessionID, message string) (obj.GameSessionMessage, error) {
+	p.t.Helper()
+	var result obj.GameSessionMessage
+	err := p.Post("play/"+token+"/sessions/"+sessionID, routes.SessionActionRequest{
+		Message: message,
+	}, &result)
+	return result, err
 }
 
 // AssertEqual checks if two values are equal
