@@ -22,17 +22,17 @@
   font-size: var(--mantine-font-size-sm);
   font-family: var(--game-message-font, var(--mantine-font-family));
   font-weight: 700;
-  opacity: 0.5;
+  opacity: 0.7;
   transition: opacity 0.15s, color 0.15s;
   user-select: none;
 }
 
 .toggleButton:hover {
-  opacity: 0.85;
+  opacity: 1;
 }
 
 .toggleButtonActive {
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .panelCollapse {
