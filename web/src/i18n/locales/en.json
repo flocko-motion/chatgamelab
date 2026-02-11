@@ -837,6 +837,8 @@
       "leaveOrganization": "Leave Organization",
       "leaveTitle": "Leave Organization",
       "leaveWarning": "You will lose access to all organization resources and members.",
+      "lastHeadError": "You are the last head of this organization. Please contact the site administrators if you need to leave.",
+      "leaveError": "Failed to leave the organization. Please try again.",
       "me": "Me",
       "name": "Name",
       "noEmail": "No email",

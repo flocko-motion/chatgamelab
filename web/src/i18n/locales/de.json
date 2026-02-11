@@ -837,6 +837,8 @@
       "leaveOrganization": "Organisation verlassen",
       "leaveTitle": "Organisation verlassen",
       "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+      "lastHeadError": "Sie sind der letzte Leiter dieser Organisation. Bitte kontaktieren Sie die Seitenadministratoren, wenn Sie die Organisation verlassen möchten.",
+      "leaveError": "Die Organisation konnte nicht verlassen werden. Bitte versuchen Sie es erneut.",
       "me": "Ich",
       "name": "Name",
       "noEmail": "Keine E-Mail",

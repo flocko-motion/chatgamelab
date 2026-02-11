@@ -697,6 +697,9 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 		_ = DeleteUser(ctx, uid)
 	}
 
+	// Unlink remaining games from this workshop (member games stay with their creator)
+	_ = queries().UnlinkGamesFromWorkshop(ctx, wsNullUUID)
+
 	err = queries().DeleteWorkshop(ctx, id)
 	if err != nil {
 		return obj.ErrServerError("failed to delete workshop")

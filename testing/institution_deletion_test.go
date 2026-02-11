@@ -75,12 +75,16 @@ func (s *InstitutionDeletionTestSuite) TestAdminCanDeleteInstitutionWithCascade(
 	s.T().Logf("Users after deletion: %d", len(usersAfter))
 	s.Equal(len(usersBefore)-1, len(usersAfter), "only participant should be removed")
 
-	// Head and staff should still exist
+	// Head and staff should still exist with individual roles
 	headMe := Must(head.GetMe())
 	s.Equal(head.Name, headMe.Name, "head should still exist")
+	s.Require().NotNil(headMe.Role, "head should have a role")
+	s.Equal(obj.RoleIndividual, headMe.Role.Role, "head should become individual")
 	staffMe := Must(staff.GetMe())
 	s.Equal(staff.Name, staffMe.Name, "staff should still exist")
-	s.T().Logf("Head and staff survived institution deletion")
+	s.Require().NotNil(staffMe.Role, "staff should have a role")
+	s.Equal(obj.RoleIndividual, staffMe.Role.Role, "staff should become individual")
+	s.T().Logf("Head and staff survived institution deletion with individual roles")
 
 	// Participant's game should be gone
 	games := Must(admin.ListGames())
@@ -173,6 +177,125 @@ func (s *InstitutionDeletionTestSuite) TestAdminDeleteOrgMultipleUsersAndWorksho
 		s.NotEqual(game2.ID, g.ID, "participant game2 should be deleted")
 	}
 	s.T().Logf("All participant games deleted, all non-participants survived")
+}
+
+// TestDeleteInstitutionUnlinksMemberGamesDeletesParticipantGames tests that when an institution
+// is deleted, participant games are removed but head/staff games are preserved (unlinked from workshop).
+func (s *InstitutionDeletionTestSuite) TestDeleteInstitutionUnlinksMemberGamesDeletesParticipantGames() {
+	admin := s.DevUser()
+
+	inst := Must(admin.CreateInstitution("Game Unlink Org"))
+	instIDStr := inst.ID.String()
+
+	head := s.CreateUser("gu-head")
+	headInvite := Must(admin.InviteToInstitution(instIDStr, "head", head.ID))
+	Must(head.AcceptInvite(headInvite.ID.String()))
+
+	staff := s.CreateUser("gu-staff")
+	staffInvite := Must(head.InviteToInstitution(instIDStr, "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.ID.String()))
+
+	// Create workshop with a participant
+	workshop := Must(head.CreateWorkshop(instIDStr, "Game Unlink Workshop"))
+	wsIDStr := workshop.ID.String()
+
+	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
+	s.NoError(err)
+	participant := s.CreateUserWithToken(*resp.AuthToken)
+
+	// Head creates a game (member game — should be preserved)
+	headGame := Must(head.UploadGame("alien-first-contact"))
+	s.T().Logf("Head created game: %s (ID: %s)", headGame.Name, headGame.ID)
+
+	// Staff creates a game (member game — should be preserved)
+	staffGame := Must(staff.UploadGame("alien-first-contact"))
+	s.T().Logf("Staff created game: %s (ID: %s)", staffGame.Name, staffGame.ID)
+
+	// Participant creates a game (should be deleted)
+	participantGame := Must(participant.UploadGame("alien-first-contact"))
+	s.T().Logf("Participant created game: %s (ID: %s)", participantGame.Name, participantGame.ID)
+
+	// Delete the institution
+	MustSucceed(admin.DeleteInstitution(instIDStr))
+	s.T().Logf("Admin deleted institution")
+
+	// Head's game should still exist (unlinked from workshop)
+	fetchedHeadGame, err := head.GetGameByID(headGame.ID.String())
+	s.NoError(err, "head's game should survive institution deletion")
+	s.Equal(headGame.ID, fetchedHeadGame.ID)
+	s.Nil(fetchedHeadGame.WorkshopID, "head's game should be unlinked from workshop")
+	s.T().Logf("Head's game survived and is unlinked")
+
+	// Staff's game should still exist (unlinked from workshop)
+	fetchedStaffGame, err := staff.GetGameByID(staffGame.ID.String())
+	s.NoError(err, "staff's game should survive institution deletion")
+	s.Equal(staffGame.ID, fetchedStaffGame.ID)
+	s.Nil(fetchedStaffGame.WorkshopID, "staff's game should be unlinked from workshop")
+	s.T().Logf("Staff's game survived and is unlinked")
+
+	// Participant's game should be gone (participant user deleted)
+	_, err = admin.GetGameByID(participantGame.ID.String())
+	s.Error(err, "participant's game should be deleted with institution")
+	s.T().Logf("Participant's game correctly deleted")
+
+	// Head and staff should now have individual roles (not left without a role)
+	headMe := Must(head.GetMe())
+	s.Require().NotNil(headMe.Role, "head should still have a role after institution deletion")
+	s.Equal(obj.RoleIndividual, headMe.Role.Role, "head should become individual after institution deletion")
+	s.Nil(headMe.Role.Institution, "head should have no institution after institution deletion")
+	s.T().Logf("Head has individual role")
+
+	staffMe := Must(staff.GetMe())
+	s.Require().NotNil(staffMe.Role, "staff should still have a role after institution deletion")
+	s.Equal(obj.RoleIndividual, staffMe.Role.Role, "staff should become individual after institution deletion")
+	s.Nil(staffMe.Role.Institution, "staff should have no institution after institution deletion")
+	s.T().Logf("Staff has individual role")
+}
+
+// TestDeleteWorkshopUnlinksMemberGames tests that deleting a single workshop
+// unlinks member games and deletes participant games.
+func (s *InstitutionDeletionTestSuite) TestDeleteWorkshopUnlinksMemberGames() {
+	admin := s.DevUser()
+
+	inst := Must(admin.CreateInstitution("WS Del Org"))
+	instIDStr := inst.ID.String()
+
+	head := s.CreateUser("wsd-head")
+	headInvite := Must(admin.InviteToInstitution(instIDStr, "head", head.ID))
+	Must(head.AcceptInvite(headInvite.ID.String()))
+
+	workshop := Must(head.CreateWorkshop(instIDStr, "WS Del Workshop"))
+	wsIDStr := workshop.ID.String()
+
+	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
+	s.NoError(err)
+	participant := s.CreateUserWithToken(*resp.AuthToken)
+
+	// Head creates a game in the workshop context
+	headGame := Must(head.UploadGame("alien-first-contact"))
+	s.T().Logf("Head created game: %s", headGame.ID)
+
+	// Participant creates a game
+	participantGame := Must(participant.UploadGame("alien-first-contact"))
+	s.T().Logf("Participant created game: %s", participantGame.ID)
+
+	// Delete the workshop (not the institution)
+	MustSucceed(head.DeleteWorkshop(wsIDStr))
+	s.T().Logf("Head deleted workshop")
+
+	// Head's game should still exist (unlinked)
+	fetchedHeadGame, err := head.GetGameByID(headGame.ID.String())
+	s.NoError(err, "head's game should survive workshop deletion")
+	s.Equal(headGame.ID, fetchedHeadGame.ID)
+	s.Nil(fetchedHeadGame.WorkshopID, "head's game should be unlinked from workshop")
+	s.T().Logf("Head's game survived and is unlinked")
+
+	// Participant's game should be gone
+	_, err = admin.GetGameByID(participantGame.ID.String())
+	s.Error(err, "participant's game should be deleted with workshop")
+	s.T().Logf("Participant's game correctly deleted")
 }
 
 // TestHeadCannotDeleteInstitution tests that a head cannot delete their own institution.
