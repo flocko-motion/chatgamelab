@@ -94,6 +94,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.validation",
     messageKey: "errors:nameProfane",
   },
+  [ErrorCodes.INVALID_JSON_SCHEMA]: {
+    titleKey: "errors:titles.gameConfig",
+    messageKey: "errors:invalidJsonSchema",
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:aiError",
@@ -130,6 +134,7 @@ function getErrorColor(errorCode: string | null): "red" | "orange" {
     case ErrorCodes.INVALID_PLATFORM:
     case ErrorCodes.DUPLICATE_NAME:
     case ErrorCodes.NO_API_KEY:
+    case ErrorCodes.INVALID_JSON_SCHEMA:
       return "orange";
     default:
       return "red";
