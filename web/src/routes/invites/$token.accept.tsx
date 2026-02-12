@@ -22,7 +22,6 @@ import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { config } from "@/config/env";
 import { useAuth, storeParticipantToken } from "@/providers/AuthProvider";
-import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { ROUTES } from "@/common/routes/routes";
 import { buildShareUrl, getCookiePath } from "@/common/lib/url";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
@@ -80,10 +79,8 @@ function AcceptInvitePage() {
     isAuthenticated,
     backendUser,
     isLoading: authLoading,
+    getAccessToken,
   } = useAuth();
-  const { enterWorkshopMode, isLoading: isEnteringWorkshop } =
-    useWorkshopMode();
-
   // Check if user is a non-participant authenticated user (admin, head, staff, individual)
   const isLoggedInNonParticipant = isAuthenticated && !isParticipant;
 
@@ -284,9 +281,40 @@ function AcceptInvitePage() {
   // Show "enter workshop" option for authenticated users
   if (state === "already-member") {
     const handleEnterWorkshop = async () => {
-      if (invite?.workshopId && invite?.workshopName) {
-        await enterWorkshopMode(invite.workshopId, invite.workshopName);
-        navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+      setIsAccepting(true);
+      try {
+        // Use the accept endpoint which handles all cases:
+        // - Head/staff in same org → enters workshop mode
+        // - Individual/user without role → falls back to AcceptOpenInvite (joins as participant)
+        const accessToken = await getAccessToken();
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (accessToken) {
+          headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+        const response = await fetch(
+          `${config.API_BASE_URL}/invites/${token}/accept`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers,
+            body: JSON.stringify({}),
+          },
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          setError(errorData.message || t("invites.errors.acceptFailed"));
+          setState("error");
+          return;
+        }
+
+        // Force page reload to refresh auth state and workshop context
+        window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
+      } catch {
+        setError(t("invites.errors.acceptFailed"));
+        setState("error");
       }
     };
 
@@ -310,7 +338,7 @@ function AcceptInvitePage() {
               </TextButton>
               <ActionButton
                 onClick={handleEnterWorkshop}
-                loading={isEnteringWorkshop}
+                loading={isAccepting}
                 rightSection={<IconArrowRight size={16} />}
               >
                 {t("invites.alreadyMember.enterButton")}
