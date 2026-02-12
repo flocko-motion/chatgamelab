@@ -29,23 +29,16 @@ func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 }
 
 func (p *MistralPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
-	for _, m := range p.GetPlatformInfo().Models {
-		if m.ID == tierID {
-			return &m
-		}
-	}
-	return nil
+	info := p.GetPlatformInfo()
+	return info.ResolveModelWithDowngrade(tierID)
 }
 
-func (p *MistralPlatform) ResolveModel(model string) string {
-	models := p.GetPlatformInfo().Models
-	for _, m := range models {
-		if m.ID == model {
-			return m.Model
-		}
+func (p *MistralPlatform) ResolveModel(tierID string) string {
+	if m := p.ResolveModelInfo(tierID); m != nil {
+		return m.Model
 	}
 	// fallback: medium tier
-	return models[1].Model
+	return p.GetPlatformInfo().Models[1].Model
 }
 
 func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {

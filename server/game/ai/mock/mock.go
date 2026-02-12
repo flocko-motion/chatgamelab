@@ -32,23 +32,16 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 }
 
 func (p *MockPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
-	for _, m := range p.GetPlatformInfo().Models {
-		if m.ID == tierID {
-			return &m
-		}
-	}
-	return nil
+	info := p.GetPlatformInfo()
+	return info.ResolveModelWithDowngrade(tierID)
 }
 
-func (p *MockPlatform) ResolveModel(model string) string {
-	models := p.GetPlatformInfo().Models
-	for _, m := range models {
-		if m.ID == model {
-			return m.Model
-		}
+func (p *MockPlatform) ResolveModel(tierID string) string {
+	if m := p.ResolveModelInfo(tierID); m != nil {
+		return m.Model
 	}
 	// fallback: balanced tier
-	return models[1].Model
+	return p.GetPlatformInfo().Models[1].Model
 }
 
 func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
@@ -187,4 +180,9 @@ func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSessi
 		`{"corners":{"style":"none","color":"slate"},"background":{"animation":"fog","tint":"dark"},"player":{"color":"rose","indicator":"none","monochrome":true,"showChevron":false},"thinking":{"text":"Something stirs...","style":"pulse"},"typography":{"messages":"serif"},"statusEmojis":{"Fear":"😨","Sanity":"🧠"}}`,
 	}
 	return themes[rand.Intn(len(themes))], obj.TokenUsage{}, nil
+}
+
+// ToolQuery returns a mock response for testing
+func (p *MockPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
+	return "mock-tool-query-response", nil
 }

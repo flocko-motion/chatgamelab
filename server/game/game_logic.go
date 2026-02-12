@@ -15,6 +15,7 @@ import (
 	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -219,7 +220,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Persist to database with theme
 	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme)
+	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
@@ -260,7 +261,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 				}
 
 				// Create a new session with the fallback key
-				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme)
+				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
 				if err != nil {
 					log.Debug("failed to create fallback session", "error", err)
 					continue
@@ -394,7 +395,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
 	if action.Type == obj.GameSessionMessageTypePlayer && session.ApiKey != nil {
-		prompt := fmt.Sprintf(templates.PromptObjectivizePlayerInput, action.Message)
+		prompt := fmt.Sprintf(templates.PromptObjectivizePlayerInput, lang.GetLanguageName(session.Language), action.Message)
 		if rephrased, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt); err != nil {
 			log.Warn("ToolQuery rephrasing failed, using original input", "session_id", session.ID, "error", err)
 		} else {

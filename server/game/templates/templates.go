@@ -20,7 +20,7 @@ const (
 
 	// PromptObjectivizePlayerInput rephrases player input in third person with uncertain outcome.
 	// Used via ToolQuery with a fast model. The %s placeholder is the raw player input.
-	PromptObjectivizePlayerInput = "Rephrase the player's input in third person, making the outcome uncertain. Return ONLY the rephrased text, nothing else.\nExample: 'I attack the wolf and wrestle him to the ground' → 'The player attacks the wolf, hoping to wrestle him to the ground.'\n\nPlayer Input: %s"
+	PromptObjectivizePlayerInput = "Rephrase the player's input in third person, making the outcome uncertain. Return ONLY the rephrased text, nothing else.\nExample: 'I attack the wolf and wrestle him to the ground' → 'The player attacks the wolf, hoping to wrestle him to the ground.'\nKeep the the response in %s.\n\nPlayer Input: %s"
 
 	// ReminderExecuteAction is injected as a developer message with every player action
 	// to reinforce brevity constraints that the model tends to forget over long conversations.

@@ -175,7 +175,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	s.T().Logf("Verified language preference: %s", me.Language)
 
 	// Create and upload predictable test game
-	game := Must(s.clientAlice.UploadGame("stone-collector-de"))
+	game := Must(s.clientAlice.UploadGame("stone-collector"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Create game session - game should be auto-translated to French

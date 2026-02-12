@@ -102,6 +102,7 @@ type GameSession struct {
 	AiModel                  string
 	AiSession                json.RawMessage
 	ImageStyle               string
+	Language                 string
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool

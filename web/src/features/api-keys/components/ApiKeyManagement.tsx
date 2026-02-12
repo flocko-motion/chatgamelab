@@ -116,9 +116,21 @@ export function ApiKeyManagement() {
     }
   };
 
+  const formatDefaultKeyName = (platformId: string) => {
+    const userName = backendUser?.name || "";
+    const platform = platformId.charAt(0).toUpperCase() + platformId.slice(1);
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yy = String(now.getFullYear()).slice(-2);
+    return userName
+      ? `${userName} ${platform} ${dd}.${mm}.${yy}`
+      : `${platform} ${dd}.${mm}.${yy}`;
+  };
+
   const openCreateForPlatform = (platform: ObjAiPlatform) => {
     setCreatePlatform(platform.id || "openai");
-    setCreateName("");
+    setCreateName(formatDefaultKeyName(platform.id || "openai"));
     setCreateKey("");
     setCreateErrors({});
     openCreateModal();
@@ -395,9 +407,9 @@ export function ApiKeyManagement() {
                                     : `1px solid ${theme.colors.gray[2]}`,
                                 ...(isDefault
                                   ? {
-                                      backgroundColor:
-                                        "var(--mantine-color-accent-0)",
-                                    }
+                                    backgroundColor:
+                                      "var(--mantine-color-accent-0)",
+                                  }
                                   : {}),
                               }}
                             >
@@ -453,8 +465,8 @@ export function ApiKeyManagement() {
                                     {t("apiKeys.addedOn")}:{" "}
                                     {key.meta?.createdAt
                                       ? new Date(
-                                          key.meta.createdAt,
-                                        ).toLocaleDateString()
+                                        key.meta.createdAt,
+                                      ).toLocaleDateString()
                                       : "-"}
                                   </Text>
                                 </Box>
@@ -563,8 +575,7 @@ export function ApiKeyManagement() {
         <Stack gap="md">
           <TextInput
             label={t("apiKeys.createModal.nameLabel")}
-            placeholder={t("apiKeys.createModal.namePlaceholder")}
-            required
+            placeholder={`My ${createPlatform.charAt(0).toUpperCase() + createPlatform.slice(1)}`}
             value={createName}
             onChange={(e) => setCreateName(e.currentTarget.value)}
             error={createErrors.name}

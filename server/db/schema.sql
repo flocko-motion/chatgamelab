@@ -317,6 +317,8 @@ CREATE TABLE game_session (
     -- JSON with arbitrary details to be used within that model and within that session.
     ai_session      jsonb NOT NULL,
     image_style     text NOT NULL,
+    -- Language used for this session (ISO 639-1 code), locked at creation time from user preference.
+    language        text NOT NULL DEFAULT 'en',
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
     status_fields   text NOT NULL,
     -- AI-generated visual theme for the game player UI (JSON)

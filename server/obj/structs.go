@@ -268,6 +268,8 @@ type GameSession struct {
 	AiSession string `json:"aiSession"`
 
 	ImageStyle string `json:"imageStyle"`
+	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
+	Language string `json:"language"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
@@ -309,6 +311,47 @@ const (
 	AiModelBalanced = "medium"
 	AiModelEconomy  = "low"
 )
+
+// aiModelPriority defines the tier ordering from highest to lowest.
+// Higher index = higher priority.
+var aiModelPriority = map[string]int{
+	AiModelEconomy:  0,
+	AiModelBalanced: 1,
+	AiModelPremium:  2,
+	AiModelMax:      3,
+}
+
+// AiModelTierPriority returns the priority of a tier ID (higher = better).
+// Returns -1 for unknown tiers.
+func AiModelTierPriority(tierID string) int {
+	if p, ok := aiModelPriority[tierID]; ok {
+		return p
+	}
+	return -1
+}
+
+// ResolveModelWithDowngrade returns the model for the requested tier, or the highest
+// available tier below it if the exact tier doesn't exist on this platform.
+// Returns nil only if the platform has no models at all.
+func (p *AiPlatform) ResolveModelWithDowngrade(tierID string) *AiModel {
+	requestedPriority := AiModelTierPriority(tierID)
+
+	// Try exact match first
+	var bestMatch *AiModel
+	bestPriority := -1
+	for i := range p.Models {
+		m := &p.Models[i]
+		if m.ID == tierID {
+			return m
+		}
+		mp := AiModelTierPriority(m.ID)
+		if mp <= requestedPriority && mp > bestPriority {
+			bestMatch = m
+			bestPriority = mp
+		}
+	}
+	return bestMatch
+}
 
 type StatusField struct {
 	Name  string `json:"name"`
