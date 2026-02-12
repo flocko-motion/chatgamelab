@@ -354,6 +354,7 @@ export interface ObjWorkshop {
   id?: string;
   institution?: ObjInstitution;
   invites?: ObjUserRoleInvite[];
+  isPaused?: boolean;
   meta?: ObjMeta;
   name?: string;
   participants?: ObjWorkshopParticipant[];
@@ -662,6 +663,7 @@ export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
   designEditingEnabled?: boolean;
+  isPaused?: boolean;
   name?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;

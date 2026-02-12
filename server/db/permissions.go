@@ -368,6 +368,13 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		return nil
 	}
 
+	// Individuals in workshop mode can read their active workshop (they have no institution)
+	if user.Role != nil && user.Role.Role == obj.RoleIndividual && operation == OpRead && workshopID != nil {
+		if user.Role.Workshop != nil && user.Role.Workshop.ID == *workshopID {
+			return nil
+		}
+	}
+
 	// Members (head/staff/participant) can access their institution's workshops
 	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
 		return obj.ErrForbidden("not authorized to access workshops for this institution")

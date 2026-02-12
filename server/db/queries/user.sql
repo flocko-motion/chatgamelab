@@ -98,12 +98,14 @@ SELECT
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
   w.design_editing_enabled AS workshop_design_editing_enabled,
+  w.is_paused AS workshop_is_paused,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
-  aw.design_editing_enabled AS active_workshop_design_editing_enabled
+  aw.design_editing_enabled AS active_workshop_design_editing_enabled,
+  aw.is_paused AS active_workshop_is_paused
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -230,9 +232,10 @@ SELECT EXISTS(
 
 -- name: CanUserAccessShareViaWorkshopDefault :one
 -- Check if a user can access an API key share because it's the default share for a workshop they're in
+-- Matches both participants (workshop_id) and individuals in workshop mode (active_workshop_id)
 SELECT EXISTS(
   SELECT 1 FROM workshop w
-  INNER JOIN user_role ur ON ur.workshop_id = w.id
+  INNER JOIN user_role ur ON (ur.workshop_id = w.id OR ur.active_workshop_id = w.id)
   WHERE w.default_api_key_share_id = $1
     AND ur.user_id = $2
     AND w.active = true

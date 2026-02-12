@@ -57,6 +57,7 @@ import { WorkshopHeader } from "./WorkshopHeader";
 import { WorkshopControls } from "./WorkshopControls";
 import { WorkshopLoadingSkeleton } from "./WorkshopLoadingSkeleton";
 import { WorkshopEmptyState } from "./WorkshopEmptyState";
+import { WorkshopPausedOverlay } from "./WorkshopPausedOverlay";
 
 export function MyWorkshop() {
   const { t } = useTranslation("common");
@@ -89,6 +90,10 @@ export function MyWorkshop() {
   // Staff/head always see design; only participants are restricted
   const hideDesign =
     !canEditAllWorkshopGames && !(workshop?.designEditingEnabled ?? false);
+
+  // Workshop is paused for non-staff users (participants and individuals)
+  const isPausedForUser =
+    !canEditAllWorkshopGames && (workshop?.isPaused ?? false);
 
   // UI State
   const [
@@ -519,33 +524,44 @@ export function MyWorkshop() {
       <Stack
         gap="lg"
         h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }}
-        style={{ overflow: "hidden" }}
+        style={{ overflow: "hidden", position: "relative" }}
       >
+        {isPausedForUser && <WorkshopPausedOverlay />}
         <Stack gap="md" style={{ flexShrink: 0 }}>
           <WorkshopHeader
             workshopName={workshopName}
             organizationName={organizationName}
-          />
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            accept=".yaml,.yml"
-            style={{ display: "none" }}
-          />
-          <WorkshopControls
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            gameFilter={gameFilter}
-            onFilterChange={setGameFilter}
-            sortValue={sortValue}
-            onSortChange={setSortValue}
-            onCreateClick={openCreateModal}
-            onImportClick={triggerImportClick}
+            workshopId={workshop?.id}
+            showMembers={canEditAllWorkshopGames}
           />
         </Stack>
 
-        <Box style={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+        <Box
+          style={{
+            flex: 1,
+            minHeight: 0,
+            overflow: "auto",
+          }}
+        >
+          <Stack gap="md" style={{ flexShrink: 0 }} pb="md">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept=".yaml,.yml"
+              style={{ display: "none" }}
+            />
+            <WorkshopControls
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              gameFilter={gameFilter}
+              onFilterChange={setGameFilter}
+              sortValue={sortValue}
+              onSortChange={setSortValue}
+              onCreateClick={openCreateModal}
+              onImportClick={triggerImportClick}
+            />
+          </Stack>
           <DimmedLoader visible={isRefetching} loaderSize="lg">
             {isMobile ? (
               (games?.length ?? 0) === 0 ? (

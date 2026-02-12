@@ -12,19 +12,31 @@ import (
 	"github.com/google/uuid"
 )
 
-// Well-known UUIDs for dev users (one per role)
+// Well-known UUIDs for dev users (two per role + one participant)
 var (
-	DevAdminUserID       = uuid.MustParse("00000000-0000-0000-0000-000000000001")
-	DevHeadUserID        = uuid.MustParse("00000000-0000-0000-0000-000000000002")
-	DevStaffUserID       = uuid.MustParse("00000000-0000-0000-0000-000000000003")
-	DevParticipantUserID = uuid.MustParse("00000000-0000-0000-0000-000000000004")
-	DevGuestUserID       = uuid.MustParse("00000000-0000-0000-0000-000000000005")
+	DevAdmin1UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000001")
+	DevAdmin2UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000002")
+	DevHead1UserID       = uuid.MustParse("00000000-0000-0000-0000-000000000003")
+	DevHead2UserID       = uuid.MustParse("00000000-0000-0000-0000-000000000004")
+	DevStaff1UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000005")
+	DevStaff2UserID      = uuid.MustParse("00000000-0000-0000-0000-000000000006")
+	DevIndividual1UserID = uuid.MustParse("00000000-0000-0000-0000-000000000007")
+	DevIndividual2UserID = uuid.MustParse("00000000-0000-0000-0000-000000000008")
+	DevParticipantUserID = uuid.MustParse("00000000-0000-0000-0000-000000000009")
 	DevInstitutionID     = uuid.MustParse("00000000-0000-0000-0000-000000000010")
 	DevWorkshopID        = uuid.MustParse("00000000-0000-0000-0000-000000000011")
 )
 
-// DevUserID is the well-known UUID for the dev user (legacy, use DevAdminUserID)
-var DevUserID = DevAdminUserID
+// DevUserID is the well-known UUID for the dev user (legacy, use DevAdmin1UserID)
+var DevUserID = DevAdmin1UserID
+
+// Legacy aliases for backward compatibility
+var (
+	DevAdminUserID = DevAdmin1UserID
+	DevHeadUserID  = DevHead1UserID
+	DevStaffUserID = DevStaff1UserID
+	DevGuestUserID = DevIndividual1UserID
+)
 
 // Preseed ensures required seed data exists in the database
 func Preseed(ctx context.Context) {
@@ -36,18 +48,22 @@ func Preseed(ctx context.Context) {
 	// Create dev workshop (needed for participant role)
 	preseedDevWorkshop(ctx)
 
-	// Create dev users for each role
-	preseedDevUser(ctx, DevAdminUserID, "admin", obj.RoleAdmin, nil)
-	preseedDevUser(ctx, DevHeadUserID, "head", obj.RoleHead, &DevInstitutionID)
-	preseedDevUser(ctx, DevStaffUserID, "staff", obj.RoleStaff, &DevInstitutionID)
+	// Create dev users (2 per role + 1 participant)
+	preseedDevUser(ctx, DevAdmin1UserID, "admin-1", obj.RoleAdmin, nil)
+	preseedDevUser(ctx, DevAdmin2UserID, "admin-2", obj.RoleAdmin, nil)
+	preseedDevUser(ctx, DevHead1UserID, "head-1", obj.RoleHead, &DevInstitutionID)
+	preseedDevUser(ctx, DevHead2UserID, "head-2", obj.RoleHead, &DevInstitutionID)
+	preseedDevUser(ctx, DevStaff1UserID, "staff-1", obj.RoleStaff, &DevInstitutionID)
+	preseedDevUser(ctx, DevStaff2UserID, "staff-2", obj.RoleStaff, &DevInstitutionID)
+	preseedDevUser(ctx, DevIndividual1UserID, "individual-1", obj.RoleIndividual, nil)
+	preseedDevUser(ctx, DevIndividual2UserID, "individual-2", obj.RoleIndividual, nil)
 	preseedDevUser(ctx, DevParticipantUserID, "participant", obj.RoleParticipant, &DevInstitutionID)
-	preseedDevUser(ctx, DevGuestUserID, "guest", obj.RoleIndividual, nil)
 
-	// Create mock API key for admin user
-	preseedDevApiKey(ctx, DevAdminUserID)
+	// Create mock API key for first admin user
+	preseedDevApiKey(ctx, DevAdmin1UserID)
 
-	// Create a dummy game for the admin user
-	preseedDevGame(ctx, DevAdminUserID)
+	// Create a dummy game for the first admin user
+	preseedDevGame(ctx, DevAdmin1UserID)
 
 	log.Debug("database preseed completed")
 }

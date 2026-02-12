@@ -123,6 +123,7 @@ type Workshop struct {
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
+	IsPaused                   bool    `json:"isPaused"`
 }
 
 type WorkshopParticipant struct {

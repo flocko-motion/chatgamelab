@@ -11,6 +11,7 @@ import { MessageList } from "./MessageList";
 import { StatusBar } from "./StatusBar";
 import { ImageLightbox } from "./ImageLightbox";
 import { BackgroundAnimation } from "./BackgroundAnimation";
+import { WorkshopPausedOverlay } from "@/features/my-workshop/components/WorkshopPausedOverlay";
 import classes from "./GamePlayer.module.css";
 
 /** Scene area with theme-aware background animation */
@@ -116,7 +117,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       StreamingMessageWrapper={themeResolution.StreamingMessageWrapper}
     >
       <GamePlayerProvider value={contextValue}>
-        <Box className={classes.container}>
+        <Box className={classes.container} style={{ position: "relative" }}>
+          {lifecycle.isPausedForUser && <WorkshopPausedOverlay />}
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}

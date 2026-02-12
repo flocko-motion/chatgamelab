@@ -8,6 +8,7 @@ import (
 
 	"cgl/functional"
 	"cgl/game/ai"
+	"cgl/obj"
 	"cgl/testing/testutil"
 
 	"github.com/stretchr/testify/suite"
@@ -28,16 +29,25 @@ func TestGameEngineTestSuite(t *testing.T) {
 	suite.Run(t, new(GameEngineTestSuite))
 }
 
-// TestGamePlaythrough tests the complete game engine workflow:
-// - Create user
+func (s *GameEngineTestSuite) TestGamePlaythroughOpenai() {
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+	s.GamePlaythrough(apiKeyShare)
+}
+
+func (s *GameEngineTestSuite) TestGamePlaythroughMistral() {
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyMistral(), "Test Mistral Key", "mistral"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+	s.GamePlaythrough(apiKeyShare)
+}
+
+// GamePlaythrough tests the complete game engine workflow:
 // - Add API key
 // - Upload game from YAML
 // - Create game session
 // - Send prompt and receive AI response
 // - Validate status field updates
-func (s *GameEngineTestSuite) TestGamePlaythrough() {
-	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
-	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 
 	// Set preferred language to French
 	err := s.clientAlice.SetUserLanguage("fr")

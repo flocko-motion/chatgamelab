@@ -42,10 +42,10 @@
       "role": "Rolle",
       "roles": {
         "admin": "Administrator",
-        "head": "Leitung",
-        "individual": "Benutzer",
+        "head": "Organisationsleiter",
+        "individual": "Individual",
         "participant": "Teilnehmer",
-        "staff": "Mitarbeiter"
+        "staff": "Workshopleiter"
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
@@ -620,7 +620,7 @@
         "revoke": "Link widerrufen",
         "description": "Erstelle einen privaten Freigabelink, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
         "loadingKeys": "Lade API-Schlüssel...",
-        "noEligibleKeys": "Du hast keine API-Schlüssel mit aktiviertem öffentlichen Sponsoring. Gehe zu den API-Schlüssel-Einstellungen und aktiviere zuerst \"Öffentliches Sponsoring erlauben\".",
+        "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Schlüssel für Gastsitzungen wählen...",
         "maxSessions": "Max. Sitzungen",
@@ -921,6 +921,9 @@
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
         "designEditingEnabled": "Teilnehmern erlauben, das Spieldesign (Theme) zu bearbeiten",
+        "isPaused": "Workshop pausieren",
+        "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
+        "unpause": "Workshop fortsetzen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -1187,7 +1190,15 @@
       "workshop": "Workshop-Spiele"
     },
     "gameType": "Spiel",
+    "members": {
+      "empty": "Noch keine Mitglieder",
+      "title": "Workshop-Mitglieder"
+    },
     "organizator": "Organisator: {{name}}",
+    "paused": {
+      "description": "Der Workshop ist derzeit pausiert. Bitte warte auf Anweisungen deiner Workshop-Organisatoren.",
+      "title": "Workshop pausiert"
+    },
     "settings": {
       "currentWorkshop": "Aktueller Workshop",
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",

@@ -223,6 +223,7 @@ type Workshop struct {
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
+	IsPaused                   bool
 }
 
 type WorkshopParticipant struct {

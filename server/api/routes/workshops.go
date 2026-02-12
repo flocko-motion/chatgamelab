@@ -27,6 +27,7 @@ type UpdateWorkshopRequest struct {
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
+	IsPaused                   bool    `json:"isPaused"`
 }
 
 // CreateWorkshop godoc
@@ -215,6 +216,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		ShowPublicGames:            req.ShowPublicGames,
 		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       req.DesignEditingEnabled,
+		IsPaused:                   req.IsPaused,
 	}
 
 	workshop, err := db.UpdateWorkshop(r.Context(), id, user.ID, params)

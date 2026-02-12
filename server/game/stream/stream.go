@@ -17,6 +17,8 @@ type Stream struct {
 	MessageID  uuid.UUID
 	Chunks     chan obj.GameSessionMessageChunk
 	ImageSaver ImageSaver
+	mu         sync.Mutex
+	closed     bool
 }
 
 // Registry manages active streams
@@ -72,13 +74,21 @@ func (r *Registry) Remove(messageID uuid.UUID) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if stream, ok := r.streams[messageID]; ok {
+		stream.mu.Lock()
+		stream.closed = true
 		close(stream.Chunks)
+		stream.mu.Unlock()
 		delete(r.streams, messageID)
 	}
 }
 
-// Send sends a chunk to the stream (non-blocking, drops if buffer full)
+// Send sends a chunk to the stream (non-blocking, drops if buffer full or closed)
 func (s *Stream) Send(chunk obj.GameSessionMessageChunk) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return
+	}
 	select {
 	case s.Chunks <- chunk:
 	default:

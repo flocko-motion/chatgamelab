@@ -243,7 +243,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
-        fetchBackendUser().finally(() => {
+        fetchBackendUser().then((success) => {
+          if (!success) {
+            authLogger.warning(
+              "Dev session restore failed — user may have been deleted, clearing session",
+            );
+            devTokenCache.current = null;
+            clearStoredDevToken();
+            setUser(null);
+            setIsAuthenticated(false);
+          }
           setIsLoading(false);
         });
       } else {
@@ -293,11 +302,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const DEV_USER_IDS: Record<string, string> = {
-      admin: "00000000-0000-0000-0000-000000000001",
-      head: "00000000-0000-0000-0000-000000000002",
-      staff: "00000000-0000-0000-0000-000000000003",
-      participant: "00000000-0000-0000-0000-000000000004",
-      guest: "00000000-0000-0000-0000-000000000005",
+      "admin-1": "00000000-0000-0000-0000-000000000001",
+      "admin-2": "00000000-0000-0000-0000-000000000002",
+      "head-1": "00000000-0000-0000-0000-000000000003",
+      "head-2": "00000000-0000-0000-0000-000000000004",
+      "staff-1": "00000000-0000-0000-0000-000000000005",
+      "staff-2": "00000000-0000-0000-0000-000000000006",
+      "individual-1": "00000000-0000-0000-0000-000000000007",
+      "individual-2": "00000000-0000-0000-0000-000000000008",
+      participant: "00000000-0000-0000-0000-000000000009",
     };
 
     const targetUserId = DEV_USER_IDS[role];
