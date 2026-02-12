@@ -608,7 +608,7 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme) (*obj.GameSession, error) {
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
 	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
@@ -644,6 +644,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		AiModel:      aiModel,
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
 		ImageStyle:   game.ImageStyle,
+		Language:     language,
 		StatusFields: game.StatusFields,
 		Theme:        themeJSON,
 	}
@@ -672,6 +673,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		AiModel:         result.AiModel,
 		AiSession:       string(result.AiSession),
 		ImageStyle:      result.ImageStyle,
+		Language:        result.Language,
 		StatusFields:    result.StatusFields,
 		Theme:           theme,
 	}, nil
@@ -707,6 +709,8 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Status:        statusJSON,
 		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
+		HasImage:      msg.HasImage,
+		HasAudio:      msg.HasAudio,
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -769,6 +773,8 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Status:                statusJSON,
 		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:                 msg.Image,
+		HasImage:              msg.HasImage,
+		HasAudio:              msg.HasAudio,
 		PromptStatusUpdate:    sql.NullString{String: functional.Deref(msg.PromptStatusUpdate, ""), Valid: msg.PromptStatusUpdate != nil},
 		PromptResponseSchema:  sql.NullString{String: functional.Deref(msg.PromptResponseSchema, ""), Valid: msg.PromptResponseSchema != nil},
 		PromptImageGeneration: sql.NullString{String: functional.Deref(msg.PromptImageGeneration, ""), Valid: msg.PromptImageGeneration != nil},
@@ -863,6 +869,41 @@ func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messag
 	return nil
 }
 
+// UpdateGameSessionMessageAudio updates only the audio field of a message
+func UpdateGameSessionMessageAudio(ctx context.Context, userID uuid.UUID, messageID uuid.UUID, audio []byte) error {
+	// Get message to find session
+	msg, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return obj.ErrNotFound("message not found")
+	}
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, msg.GameSessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
+	_, err = queries().UpdateGameSessionMessageAudio(ctx, db.UpdateGameSessionMessageAudioParams{
+		ID:    messageID,
+		Audio: audio,
+	})
+	if err != nil {
+		return obj.ErrServerError("failed to update message audio")
+	}
+	return nil
+}
+
+// GetGameSessionMessageAudioByID returns just the audio data for a message (public, no auth)
+func GetGameSessionMessageAudioByID(ctx context.Context, messageID uuid.UUID) ([]byte, error) {
+	row, err := queries().GetGameSessionMessageAudioByID(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+	return row.Audio, nil
+}
+
 // UpdateGameSessionOrganisationUnverified marks a session as having an unverified organisation
 func UpdateGameSessionOrganisationUnverified(ctx context.Context, sessionID uuid.UUID, isUnverified bool) error {
 	err := queries().UpdateGameSessionOrganisationUnverified(ctx, db.UpdateGameSessionOrganisationUnverifiedParams{
@@ -895,6 +936,7 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 		AiModel:    s.AiModel,
 		AiSession:  string(s.AiSession),
 		ImageStyle: s.ImageStyle,
+		Language:   s.Language,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -968,6 +1010,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		AiModel:      s.AiModel,
 		AiSession:    string(s.AiSession),
 		ImageStyle:   s.ImageStyle,
+		Language:     s.Language,
 		StatusFields: s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
@@ -1142,6 +1185,17 @@ func ClearGameSessionApiKey(ctx context.Context, sessionID uuid.UUID) error {
 	return queries().ClearGameSessionApiKeyByID(ctx, sessionID)
 }
 
+// inferCapabilityFlags ensures HasImage/HasAudio are true when actual data exists.
+// Handles old messages created before the has_image/has_audio columns were added.
+func inferCapabilityFlags(msg *obj.GameSessionMessage) {
+	if !msg.HasImage && len(msg.Image) > 0 {
+		msg.HasImage = true
+	}
+	if !msg.HasAudio && len(msg.Audio) > 0 {
+		msg.HasAudio = true
+	}
+}
+
 // mapAiInsightFields copies AI insight fields from the sqlc model to the obj model.
 func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 	if m.PromptStatusUpdate.Valid {
@@ -1194,10 +1248,13 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	msg := &obj.GameSessionMessage{
-		ID:      m.ID,
-		Type:    m.Type,
-		Message: m.Message,
-		Image:   m.Image,
+		ID:       m.ID,
+		Type:     m.Type,
+		Message:  m.Message,
+		Image:    m.Image,
+		Audio:    m.Audio,
+		HasImage: m.HasImage,
+		HasAudio: m.HasAudio,
 	}
 
 	// Parse status fields from JSON
@@ -1211,6 +1268,7 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	mapAiInsightFields(msg, m)
+	inferCapabilityFlags(msg)
 
 	return msg, nil
 }
@@ -1238,6 +1296,9 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		Type:          m.Type,
 		Message:       m.Message,
 		Image:         m.Image,
+		Audio:         m.Audio,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1257,6 +1318,7 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 	}
 
 	mapAiInsightFields(msg, m)
+	inferCapabilityFlags(msg)
 
 	return msg, nil
 }
@@ -1283,6 +1345,8 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		Seq:           int(m.Seq),
 		Type:          m.Type,
 		Message:       m.Message,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1302,6 +1366,7 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 	}
 
 	mapAiInsightFields(msg, m)
+	inferCapabilityFlags(msg)
 
 	return msg, nil
 }
@@ -1331,6 +1396,9 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			Type:          m.Type,
 			Message:       m.Message,
 			Image:         m.Image,
+			Audio:         m.Audio,
+			HasImage:      m.HasImage,
+			HasAudio:      m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1350,6 +1418,7 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 		}
 
 		mapAiInsightFields(&msg, m)
+		inferCapabilityFlags(&msg)
 
 		result = append(result, msg)
 	}
@@ -1371,6 +1440,8 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 		Seq:           int(m.Seq),
 		Type:          m.Type,
 		Message:       m.Message,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1385,6 +1456,7 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
 	mapAiInsightFields(msg, m)
+	inferCapabilityFlags(msg)
 	return msg, nil
 }
 
@@ -1405,6 +1477,9 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 			Type:          m.Type,
 			Message:       m.Message,
 			Image:         m.Image,
+			Audio:         m.Audio,
+			HasImage:      m.HasImage,
+			HasAudio:      m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1419,6 +1494,7 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
 		mapAiInsightFields(&msg, m)
+		inferCapabilityFlags(&msg)
 		result = append(result, msg)
 	}
 	return result, nil

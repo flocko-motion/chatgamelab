@@ -195,8 +195,9 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Debug("session action completed", "session_id", session.ID, "response_id", response.ID)
 
-	// Return full message (without image bytes)
+	// Return full message (without image/audio bytes - served via separate endpoints)
 	response.Image = nil
+	response.Audio = nil
 	httpx.WriteJSON(w, http.StatusOK, response)
 }
 
@@ -272,6 +273,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 
 	responseMessage := *firstMessage
 	responseMessage.Image = nil
+	responseMessage.Audio = nil
 
 	httpx.WriteJSON(w, http.StatusOK, SessionResponse{
 		GameSession: &responseSession,
@@ -565,6 +567,42 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 	w.Write(msg.Image)
 }
 
+// GetMessageAudio godoc
+//
+//	@Summary		Get message audio
+//	@Description	Returns the audio narration for a message (MP3 format).
+//	@Description	No authentication required - message UUIDs are random and unguessable.
+//	@Tags			messages
+//	@Produce		audio/mpeg
+//	@Param			id	path		string	true	"Message ID (UUID)"
+//	@Success		200	{file}		binary
+//	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
+//	@Failure		404	{object}	httpx.ErrorResponse	"Message or audio not found"
+//	@Router			/messages/{id}/audio [get]
+func GetMessageAudio(w http.ResponseWriter, r *http.Request) {
+	messageID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid message ID")
+		return
+	}
+
+	audio, err := db.GetGameSessionMessageAudioByID(r.Context(), messageID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Message not found")
+		return
+	}
+
+	if len(audio) == 0 {
+		httpx.WriteError(w, http.StatusNotFound, "Audio not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", "audio/mpeg")
+	w.Header().Set("Cache-Control", "public, max-age=31536000")
+	w.WriteHeader(http.StatusOK)
+	w.Write(audio)
+}
+
 // GetMessageStream godoc
 //
 //	@Summary		Stream message updates (SSE)
@@ -609,12 +647,17 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Stream chunks to client until both text and image are done
+	// Stream chunks to client until text, image, and audio are all done
+	log.Debug("[SSE] client connected", "message_id", messageID)
 	textDone := false
 	imageDone := false
+	audioDone := false
+	chunkCount := 0
 
 	for chunk := range s.Chunks {
+		chunkCount++
 		data, _ := json.Marshal(chunk)
+		log.Debug("[SSE] sending chunk to client", "message_id", messageID, "chunk_num", chunkCount, "text_len", len(chunk.Text), "textDone", chunk.TextDone, "imageDone", chunk.ImageDone, "audioDone", chunk.AudioDone)
 		fmt.Fprintf(w, "data: %s\n\n", data)
 		flusher.Flush()
 
@@ -624,10 +667,14 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 		if chunk.ImageDone {
 			imageDone = true
 		}
+		if chunk.AudioDone {
+			audioDone = true
+		}
 		if chunk.Error != "" {
 			break
 		}
-		if textDone && imageDone {
+		// Stream is complete when all active channels are done
+		if textDone && imageDone && audioDone {
 			break
 		}
 	}

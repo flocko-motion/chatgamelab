@@ -12,9 +12,9 @@ import (
 	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/imagecache"
-	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
+	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
 
@@ -219,7 +219,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Persist to database with theme
 	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme)
+	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
@@ -260,7 +260,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 				}
 
 				// Create a new session with the fallback key
-				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme)
+				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
 				if err != nil {
 					log.Debug("failed to create fallback session", "error", err)
 					continue
@@ -378,14 +378,30 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	log.Debug("streaming message created", "message_id", response.ID)
 
-	// Create stream for SSE with ImageSaver to persist image before signaling done
-	responseStream := stream.Get().Create(ctx, response, func(messageID uuid.UUID, imageData []byte) error {
-		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
-	})
+	// Create stream for SSE with ImageSaver and AudioSaver to persist before signaling done
+	responseStream := stream.Get().Create(ctx, response,
+		func(messageID uuid.UUID, imageData []byte) error {
+			return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
+		},
+		func(messageID uuid.UUID, audioData []byte) error {
+			return db.UpdateGameSessionMessageAudio(context.Background(), session.UserID, messageID, audioData)
+		},
+	)
 
 	// Build game-specific JSON schema that enforces exact status field names
-	gameSchema := status.BuildResponseSchema(session.StatusFields)
+	gameSchema := templates.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
+
+	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
+	if action.Type == obj.GameSessionMessageTypePlayer && session.ApiKey != nil {
+		prompt := fmt.Sprintf(templates.PromptObjectivizePlayerInput, lang.GetLanguageName(session.Language), action.Message)
+		if rephrased, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt); err != nil {
+			log.Warn("ToolQuery rephrasing failed, using original input", "session_id", session.ID, "error", err)
+		} else {
+			log.Debug("player input rephrased", "session_id", session.ID, "original", action.Message, "rephrased", rephrased)
+			action.Message = rephrased
+		}
+	}
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug(fmt.Sprintf("executing AI action, session_id=%s, message_id=%s, schema=%s",
@@ -439,6 +455,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
 
+	// Set capability flags based on platform tier
+	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
+		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
+		response.HasAudio = model.SupportsAudio
+	}
+
 	// Persist AI session state immediately so the next action can find the conversation/response ID.
 	// (ExpandStory may update it again later with a newer ID, which the goroutine will also persist.)
 	if err := db.UpdateGameSessionAiSession(ctx, session.UserID, session.ID, session.AiSession); err != nil {
@@ -479,19 +501,28 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
+
+		// Phase 4: Generate audio narration (after text is finalized)
+		if !response.HasAudio || len(response.Message) == 0 {
+			log.Debug("audio generation not active for this message, signaling audioDone")
+			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
+		} else {
+			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
+			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
+			if err != nil {
+				log.Warn("GenerateAudio failed", "session_id", session.ID, "error", err)
+			} else {
+				response.Audio = audioData
+				log.Debug("GenerateAudio completed", "session_id", session.ID, "audio_bytes", len(audioData))
+			}
+		}
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", response.ImagePrompt != nil)
-		// GenerateImage streams partial images and updates response.Image with final
-		// Note: Image is saved to DB inside stream.SendImage when isDone=true
-		// Use captured imagePrompt to avoid race condition with response pointer
-		if response.ImagePrompt == nil || *response.ImagePrompt == "" {
-			log.Debug("no image prompt, skipping image generation")
-			return
-		}
-		if session.ImageStyle == templates.ImageStyleNoImage {
-			log.Debug("image generation disabled (NO_IMAGE)")
+		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "hasImage", response.HasImage)
+		if !response.HasImage {
+			log.Debug("image generation not active for this message, signaling imageDone")
+			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true})
 			return
 		}
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
@@ -620,9 +651,12 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 	}
 
 	// Create a stream for the image generation (no SSE consumer - just for the ImageSaver)
-	responseStream := stream.Get().Create(context.Background(), message, func(messageID uuid.UUID, imageData []byte) error {
-		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
-	})
+	responseStream := stream.Get().Create(context.Background(), message,
+		func(messageID uuid.UUID, imageData []byte) error {
+			return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
+		},
+		nil, // no audio saver for image retry
+	)
 
 	go func() {
 		if err := platform.GenerateImage(context.Background(), session, message, responseStream); err != nil {

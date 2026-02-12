@@ -31,6 +31,9 @@ func IsValidApiKeyPlatform(platform string) bool {
 type AiPlatform interface {
 	GetPlatformInfo() obj.AiPlatform
 
+	// ResolveModelInfo returns the full AiModel definition for the given tier ID, or nil if not found.
+	ResolveModelInfo(tierID string) *obj.AiModel
+
 	// ExecuteAction - blocking, returns structured JSON (plotOutline in Message, statusFields, imagePrompt)
 	// For system messages (first call), action.Message contains the system prompt/instructions
 	// gameSchema is the JSON schema enforcing exact status field names, built by the caller.
@@ -44,6 +47,11 @@ type AiPlatform interface {
 	// Streams partial images to responseStream, updates response.Image with final image when done
 	GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
 
+	// GenerateAudio - async/streaming, generates audio narration from text via TTS
+	// Streams audio chunks to responseStream, updates response.Audio with final audio when done
+	// Only supported on OpenAI (max tier); other platforms return nil (no-op).
+	GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error)
+
 	// Translate - blocking, translates a set of language files to a target language
 	// Returns the translated JSON as a stringified object and token usage
 	Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error)
@@ -54,6 +62,10 @@ type AiPlatform interface {
 	// GenerateTheme - blocking, generates a visual theme JSON based on game description
 	// Returns the raw JSON string response from the AI and token usage
 	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error)
+
+	// ToolQuery - blocking, sends a single text prompt and returns a text answer.
+	// No chat history, no system message, just a simple ping-pong using a fast model.
+	ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error)
 }
 
 func GetAiPlatformInfos() []obj.AiPlatform {

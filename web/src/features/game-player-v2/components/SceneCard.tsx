@@ -8,6 +8,7 @@ import { DebugPanel } from "./DebugPanel";
 import { AiInsightPanel } from "./AiInsightPanel";
 import { StatusChangeIndicator } from "./StatusChangeIndicator";
 import { ThemedText } from "./text-effects";
+import { AudioPlayButton } from "./AudioPlayButton";
 import classes from "./GamePlayer.module.css";
 
 interface SceneCardProps {
@@ -39,10 +40,10 @@ export function SceneCard({
 }: SceneCardProps) {
   const { fontSize, debugMode } = useGamePlayerContext();
   const { theme, GameMessageWrapper, StreamingMessageWrapper } = useGameTheme();
-  const { id, text, imagePrompt, isStreaming } = message;
+  const { id, text, isStreaming } = message;
 
-  // Show image area if we have a prompt or are generating
-  const hasImage = showImages && !!imagePrompt;
+  // Show image area based on backend capability flag
+  const hasImage = showImages && !!message.hasImage;
   const cornerStyle = theme.corners?.style ?? "brackets";
   const showDropCap = theme.gameMessage?.dropCap ?? false;
 
@@ -59,8 +60,8 @@ export function SceneCard({
   const cornerStyleClass =
     cornerStyle !== "none"
       ? classes[
-          `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
-        ]
+      `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
+      ]
       : "";
 
   const narrativeClasses = [
@@ -101,7 +102,7 @@ export function SceneCard({
           <SceneImage
             key={id}
             messageId={id}
-            imagePrompt={imagePrompt}
+            imagePrompt={message.imagePrompt}
             imageStatus={message.imageStatus}
             imageHash={message.imageHash}
             imageErrorCode={message.imageErrorCode}
@@ -131,6 +132,15 @@ export function SceneCard({
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>
+        {message.hasAudio && (
+          <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
+            <AudioPlayButton
+              messageId={id}
+              audioStatus={message.audioStatus}
+              audioBlobUrl={message.audioBlobUrl}
+            />
+          </div>
+        )}
       </div>
       <AiInsightPanel
         message={message}

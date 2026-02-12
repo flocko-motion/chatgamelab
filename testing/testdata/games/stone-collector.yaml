@@ -1,5 +1,5 @@
 id: a1b2c3d4-e5f6-4789-a1b2-c3d4e5f67890
-name: Stone Collector
+name: Stone Collector EN
 description: "A predictable test game for validating game engine behavior"
 system_message_scenario: |
   A simple stone collection game for integration tests of the game engine. The game has very strict rules that you must follow exactly:

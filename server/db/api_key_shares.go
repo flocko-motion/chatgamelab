@@ -497,6 +497,7 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 			seenKeys[s.ApiKeyID] = true
 			apiKeys = append(apiKeys, obj.ApiKey{
 				ID:               s.ApiKeyID,
+				Meta:             obj.Meta{CreatedAt: &s.CreatedAt},
 				UserID:           s.OwnerID,
 				UserName:         s.OwnerName,
 				Name:             s.ApiKeyName,

@@ -12,11 +12,15 @@ import (
 // ImageSaver is a function that saves image data to persistent storage
 type ImageSaver func(messageID uuid.UUID, imageData []byte) error
 
+// AudioSaver is a function that saves audio data to persistent storage
+type AudioSaver func(messageID uuid.UUID, audioData []byte) error
+
 // Stream represents an active streaming response
 type Stream struct {
 	MessageID  uuid.UUID
 	Chunks     chan obj.GameSessionMessageChunk
 	ImageSaver ImageSaver
+	AudioSaver AudioSaver
 	mu         sync.Mutex
 	closed     bool
 }
@@ -41,7 +45,8 @@ const streamTimeout = 5 * time.Minute
 // Create creates a new stream for the given message ID
 // The stream will automatically be removed after 5 minutes
 // ImageSaver is called to persist image data before signaling imageDone
-func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage, imageSaver ImageSaver) (stream *Stream) {
+// AudioSaver is called to persist audio data before signaling audioDone
+func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage, imageSaver ImageSaver, audioSaver AudioSaver) (stream *Stream) {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -50,6 +55,7 @@ func (r *Registry) Create(ctx context.Context, message *obj.GameSessionMessage, 
 		MessageID:  message.ID,
 		Chunks:     make(chan obj.GameSessionMessageChunk, 100), // buffered channel
 		ImageSaver: imageSaver,
+		AudioSaver: audioSaver,
 	}
 	r.streams[message.ID] = stream
 
@@ -126,5 +132,26 @@ func (s *Stream) SendImage(data []byte, isDone bool) {
 	} else {
 		// Send partial image data for WIP preview
 		s.Send(obj.GameSessionMessageChunk{ImageData: data})
+	}
+}
+
+// SendAudio streams partial or final audio data to the frontend.
+// Final audio (isDone=true) is saved to DB and signaled as complete.
+func (s *Stream) SendAudio(data []byte, isDone bool) {
+	if len(data) == 0 && !isDone {
+		return
+	}
+
+	if isDone {
+		// Save audio to DB BEFORE signaling done
+		if s.AudioSaver != nil {
+			if err := s.AudioSaver(s.MessageID, data); err != nil {
+				// Audio save failed, but continue with signaling
+			}
+		}
+		s.Send(obj.GameSessionMessageChunk{AudioDone: true})
+	} else {
+		// Send partial audio data for streaming playback
+		s.Send(obj.GameSessionMessageChunk{AudioData: data})
 	}
 }

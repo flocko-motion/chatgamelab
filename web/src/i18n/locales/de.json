@@ -94,6 +94,7 @@
   "common": {
     "actions": "Aktionen",
     "aiQualityTier": {
+      "max": "Max (Premium + Audio)",
       "high": "Hoch (Premium)",
       "label": "KI-Qualitätsstufe",
       "low": "Niedrig (Sparsam)",

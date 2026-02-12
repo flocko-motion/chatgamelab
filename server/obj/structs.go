@@ -268,6 +268,8 @@ type GameSession struct {
 	AiSession string `json:"aiSession"`
 
 	ImageStyle string `json:"imageStyle"`
+	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
+	Language string `json:"language"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
@@ -295,17 +297,63 @@ type AiPlatform struct {
 }
 
 type AiModel struct {
-	ID          string `json:"id"`          // generic tier: "high", "medium", "low"
-	Name        string `json:"name"`        // display name e.g. "GPT-5.2"
-	Model       string `json:"model"`       // concrete model ID e.g. "gpt-5.2"
-	Description string `json:"description"` // tier label e.g. "Premium"
+	ID            string `json:"id"`                      // generic tier: "high", "medium", "low", "max"
+	Name          string `json:"name"`                    // display name e.g. "GPT-5.2"
+	Model         string `json:"model"`                   // concrete model ID e.g. "gpt-5.2"
+	ImageModel    string `json:"imageModel,omitempty"`    // model used for image generation (if different from Model)
+	ImageQuality  string `json:"imageQuality,omitempty"`  // image quality: "high", "medium", "low" (default: "low")
+	Description   string `json:"description"`             // tier label e.g. "Premium"
+	SupportsImage bool   `json:"supportsImage,omitempty"` // whether this tier generates images
+	SupportsAudio bool   `json:"supportsAudio,omitempty"` // whether this tier generates audio (TTS)
 }
 
 const (
+	AiModelMax      = "max" // highest text model + audio output (OpenAI only)
 	AiModelPremium  = "high"
 	AiModelBalanced = "medium"
 	AiModelEconomy  = "low"
 )
+
+// aiModelPriority defines the tier ordering from highest to lowest.
+// Higher index = higher priority.
+var aiModelPriority = map[string]int{
+	AiModelEconomy:  0,
+	AiModelBalanced: 1,
+	AiModelPremium:  2,
+	AiModelMax:      3,
+}
+
+// AiModelTierPriority returns the priority of a tier ID (higher = better).
+// Returns -1 for unknown tiers.
+func AiModelTierPriority(tierID string) int {
+	if p, ok := aiModelPriority[tierID]; ok {
+		return p
+	}
+	return -1
+}
+
+// ResolveModelWithDowngrade returns the model for the requested tier, or the highest
+// available tier below it if the exact tier doesn't exist on this platform.
+// Returns nil only if the platform has no models at all.
+func (p *AiPlatform) ResolveModelWithDowngrade(tierID string) *AiModel {
+	requestedPriority := AiModelTierPriority(tierID)
+
+	// Try exact match first
+	var bestMatch *AiModel
+	bestPriority := -1
+	for i := range p.Models {
+		m := &p.Models[i]
+		if m.ID == tierID {
+			return m
+		}
+		mp := AiModelTierPriority(m.ID)
+		if mp <= requestedPriority && mp > bestPriority {
+			bestMatch = m
+			bestPriority = mp
+		}
+	}
+	return bestMatch
+}
 
 type StatusField struct {
 	Name  string `json:"name"`
@@ -371,15 +419,20 @@ type GameSessionMessage struct {
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
+	Audio        []byte        `json:"audio,omitempty"`
+	HasImage     bool          `json:"hasImage"` // true when image generation is active for this message
+	HasAudio     bool          `json:"hasAudio"` // true when audio narration is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
 }
 
-// GameSessionMessageChunk represents a piece of streamed content (text or image)
+// GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
 type GameSessionMessageChunk struct {
 	Text      string `json:"text,omitempty"`      // Partial text content
 	TextDone  bool   `json:"textDone,omitempty"`  // True when text streaming is complete
 	ImageData []byte `json:"imageData,omitempty"` // Partial/final image data
 	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
+	AudioData []byte `json:"audioData,omitempty"` // Partial/final audio data (opus)
+	AudioDone bool   `json:"audioDone,omitempty"` // True when audio streaming is complete
 	Error     string `json:"error,omitempty"`     // Error message if failed
 	ErrorCode string `json:"errorCode,omitempty"` // Machine-readable error code (maps to frontend i18n)
 }

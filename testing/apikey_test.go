@@ -81,6 +81,67 @@ func (s *ApiKeyTestSuite) TestDefaultApiKeySwitching() {
 	s.T().Logf("Default correctly switched back to first key")
 }
 
+// TestMistralKeyLifecycle tests adding a Mistral key, setting it as default, and deleting it.
+// Reproduces "share not found" bug when setting a non-mock key as default.
+// This test was added, because Mistral keys didn't work (error - share not found) while openai keys did
+func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
+	user := s.CreateUser("mistral-user")
+
+	// Add a Mistral key
+	key := Must(user.AddApiKey("test-mistral-key-123", "My Mistral", "mistral"))
+	s.NotEmpty(key.ID, "share ID should not be empty")
+	s.NotEmpty(key.ApiKeyID, "api key ID should not be empty")
+	s.T().Logf("Added Mistral key: shareID=%s, apiKeyID=%s", key.ID, key.ApiKeyID)
+
+	// Verify it's listed and is the default (first key)
+	keys := Must(user.GetApiKeys())
+	s.Len(keys.ApiKeys, 1, "should have 1 key")
+	s.Equal("mistral", keys.ApiKeys[0].Platform, "platform should be mistral")
+	s.True(keys.ApiKeys[0].IsDefault, "first key should be default")
+	s.T().Logf("Mistral key is default")
+
+	// Add a second key (mock) so we can switch defaults
+	key2 := Must(user.AddApiKey("test-mock-key-456", "My Mock", "mock"))
+	s.T().Logf("Added Mock key: shareID=%s", key2.ID)
+
+	// Switch default to mock key
+	Must(user.SetDefaultApiKey(key2.ID.String()))
+	keys = Must(user.GetApiKeys())
+	for _, k := range keys.ApiKeys {
+		if k.ID == key2.ApiKeyID {
+			s.True(k.IsDefault, "mock key should be default")
+		} else {
+			s.False(k.IsDefault, "mistral key should not be default")
+		}
+	}
+	s.T().Logf("Switched default to mock key")
+
+	// Switch default back to Mistral key — this is where "share not found" was reported
+	Must(user.SetDefaultApiKey(key.ID.String()))
+	keys = Must(user.GetApiKeys())
+	for _, k := range keys.ApiKeys {
+		if k.ID == key.ApiKeyID {
+			s.True(k.IsDefault, "mistral key should be default again")
+		} else {
+			s.False(k.IsDefault, "mock key should not be default")
+		}
+	}
+	s.T().Logf("Switched default back to Mistral key")
+
+	// Delete Mistral key
+	MustSucceed(user.DeleteApiKey(key.ID.String(), true))
+	keys = Must(user.GetApiKeys())
+	s.Len(keys.ApiKeys, 1, "should have 1 key remaining")
+	s.Equal(key2.ApiKeyID, keys.ApiKeys[0].ID, "remaining key should be mock")
+	s.T().Logf("Deleted Mistral key, mock key remains")
+
+	// Delete mock key
+	MustSucceed(user.DeleteApiKey(key2.ID.String(), true))
+	keys = Must(user.GetApiKeys())
+	s.Len(keys.ApiKeys, 0, "should have no keys remaining")
+	s.T().Logf("All keys removed")
+}
+
 // TestApiKeyShareWithOrgAndCleanup tests the full lifecycle: add keys, join org,
 // share with org, switch defaults, remove shared key, remove all keys.
 func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {

@@ -97,6 +97,7 @@ func PlayGuestCreateSession(w http.ResponseWriter, r *http.Request) {
 
 	responseMessage := *firstMessage
 	responseMessage.Image = nil
+	responseMessage.Audio = nil
 
 	httpx.WriteJSON(w, http.StatusOK, GuestSessionResponse{
 		GameSession: &responseSession,
@@ -174,6 +175,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Image = nil
+	response.Audio = nil
 	httpx.WriteJSON(w, http.StatusOK, response)
 }
 
@@ -238,6 +240,7 @@ type SessionMessageResponse struct {
 
 func toSessionMessageResponse(msg obj.GameSessionMessage) SessionMessageResponse {
 	msg.Image = nil
+	msg.Audio = nil
 	return SessionMessageResponse{msg}
 }
 

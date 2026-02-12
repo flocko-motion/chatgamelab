@@ -31,15 +31,17 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
-func (p *MockPlatform) ResolveModel(model string) string {
-	models := p.GetPlatformInfo().Models
-	for _, m := range models {
-		if m.ID == model {
-			return m.Model
-		}
+func (p *MockPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
+	info := p.GetPlatformInfo()
+	return info.ResolveModelWithDowngrade(tierID)
+}
+
+func (p *MockPlatform) ResolveModel(tierID string) string {
+	if m := p.ResolveModelInfo(tierID); m != nil {
+		return m.Model
 	}
 	// fallback: balanced tier
-	return models[1].Model
+	return p.GetPlatformInfo().Models[1].Model
 }
 
 func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
@@ -92,6 +94,18 @@ func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSessi
 	response.Image = finalImg
 
 	return nil
+}
+
+func (p *MockPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
+	// Generate a minimal MP3 frame header for test validation
+	// 0xFF 0xFB = MP3 sync word (MPEG1 Layer3), followed by minimal frame data
+	mp3Frame := []byte{
+		0xFF, 0xFB, 0x90, 0x00, // MP3 frame header (sync word + MPEG1 Layer3 128kbps 44100Hz stereo)
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // padding
+	}
+
+	responseStream.SendAudio(mp3Frame, true)
+	return mp3Frame, nil
 }
 
 // Translate provides a mock translation implementation
@@ -166,4 +180,9 @@ func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSessi
 		`{"corners":{"style":"none","color":"slate"},"background":{"animation":"fog","tint":"dark"},"player":{"color":"rose","indicator":"none","monochrome":true,"showChevron":false},"thinking":{"text":"Something stirs...","style":"pulse"},"typography":{"messages":"serif"},"statusEmojis":{"Fear":"😨","Sanity":"🧠"}}`,
 	}
 	return themes[rand.Intn(len(themes))], obj.TokenUsage{}, nil
+}
+
+// ToolQuery returns a mock response for testing
+func (p *MockPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
+	return "mock-tool-query-response", nil
 }

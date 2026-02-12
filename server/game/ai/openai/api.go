@@ -118,10 +118,74 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 	return textBuilder.String(), responseID, usage, nil
 }
 
+// callSpeechAPI calls the OpenAI TTS API and streams audio chunks back.
+// The API returns raw audio bytes (not SSE), streamed via chunked transfer encoding.
+func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStream *stream.Stream) ([]byte, error) {
+	speechURL := openaiBaseURL + speechEndpoint
+
+	reqBody := map[string]interface{}{
+		"model":           ttsModel,
+		"input":           text,
+		"voice":           ttsVoice,
+		"response_format": ttsFormat,
+		"instructions":    "Narrate this game scene in an engaging, storyteller voice.",
+	}
+
+	reqJSON, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal TTS request: %w", err)
+	}
+
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", speechURL, bytes.NewReader(reqJSON))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create TTS request: %w", err)
+	}
+
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("TTS request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("TTS API returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	// Read streaming audio response in chunks
+	var audioData []byte
+	buf := make([]byte, 32*1024) // 32KB chunks
+	for {
+		n, readErr := resp.Body.Read(buf)
+		if n > 0 {
+			chunk := make([]byte, n)
+			copy(chunk, buf[:n])
+			audioData = append(audioData, chunk...)
+			// Stream partial audio to frontend
+			responseStream.SendAudio(chunk, false)
+		}
+		if readErr == io.EOF {
+			break
+		}
+		if readErr != nil {
+			return nil, fmt.Errorf("TTS read error: %w", readErr)
+		}
+	}
+
+	// Signal audio complete (this also persists to DB via AudioSaver)
+	responseStream.SendAudio(audioData, true)
+
+	log.Debug("TTS audio generated", "audio_bytes", len(audioData))
+	return audioData, nil
+}
+
 // callImageGenerationAPI generates an image with streaming partial images
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
-func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
+func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
 	imageGenURL := openaiBaseURL + imageGenEndpoint
 
 	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
@@ -132,11 +196,11 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 	}
 
 	reqBody := map[string]interface{}{
-		"model":          "gpt-image-1",
+		"model":          imageModel,
 		"prompt":         fullPrompt,
 		"n":              1,
 		"size":           "1024x1024",
-		"quality":        "low",
+		"quality":        imageQuality,
 		"output_format":  "png",
 		"stream":         true,
 		"partial_images": 3, // Get previews of the image generation process - each preview is sent as a full png file

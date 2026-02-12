@@ -515,6 +515,41 @@ func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, e
 	return response, err
 }
 
+// CreateGameSessionWithStream creates a session and consumes the SSE stream for the initial message.
+// Returns the session response with the initial message fully populated (text, image, audio).
+func (u *UserClient) CreateGameSessionWithStream(gameID string) (routes.SessionResponse, *StreamResult, error) {
+	u.t.Helper()
+
+	resp, err := u.CreateGameSession(gameID)
+	if err != nil {
+		return routes.SessionResponse{}, nil, err
+	}
+
+	if len(resp.Messages) == 0 {
+		return resp, nil, nil
+	}
+
+	// The initial game message (index 1, after system message) may be streaming
+	// Find the streaming message
+	for i := range resp.Messages {
+		msg := &resp.Messages[i]
+		if msg.Stream {
+			result, err := u.consumeMessageStream(msg.ID.String())
+			if err != nil {
+				return routes.SessionResponse{}, nil, fmt.Errorf("failed to consume initial stream: %w", err)
+			}
+			msg.Message = result.Text
+			msg.Image = result.ImageData
+			msg.Audio = result.AudioData
+			msg.Stream = false
+			return resp, result, nil
+		}
+	}
+
+	// No streaming message found
+	return resp, &StreamResult{}, nil
+}
+
 // GetGameSession loads a session with all messages (composable high-level API)
 // Simulates a player returning to a session (e.g. browser reload).
 func (u *UserClient) GetGameSession(sessionID string) (routes.SessionResponse, error) {
@@ -537,48 +572,55 @@ func (u *UserClient) SendGameMessage(sessionID string, message string) (obj.Game
 	return response, err
 }
 
+// StreamResult holds the accumulated data from consuming an SSE message stream
+type StreamResult struct {
+	Text      string
+	ImageData []byte
+	AudioData []byte
+}
+
 // SendGameMessageWithStream sends a message and consumes the SSE stream to get the full expanded story
-func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, error) {
+func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, *StreamResult, error) {
 	u.t.Helper()
 
 	// Get initial response with plot outline
 	initialResponse, err := u.SendGameMessage(sessionID, message)
 	if err != nil {
-		return obj.GameSessionMessage{}, err
+		return obj.GameSessionMessage{}, nil, err
 	}
 
 	// If not streaming, return the initial response
 	if !initialResponse.Stream {
-		return initialResponse, nil
+		return initialResponse, &StreamResult{Text: initialResponse.Message, ImageData: initialResponse.Image}, nil
 	}
 
 	// Consume the SSE stream to get full expanded story
-	fullStory, imageData, err := u.consumeMessageStream(initialResponse.ID.String())
+	result, err := u.consumeMessageStream(initialResponse.ID.String())
 	if err != nil {
-		return obj.GameSessionMessage{}, fmt.Errorf("failed to consume stream: %w", err)
+		return obj.GameSessionMessage{}, nil, fmt.Errorf("failed to consume stream: %w", err)
 	}
 
 	// Update response with full content
-	initialResponse.Message = fullStory
-	initialResponse.Image = imageData
+	initialResponse.Message = result.Text
+	initialResponse.Image = result.ImageData
 	initialResponse.Stream = false
 
-	return initialResponse, nil
+	return initialResponse, result, nil
 }
 
 // consumeMessageStream connects to SSE endpoint and consumes all chunks
-func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, error) {
+func (u *UserClient) consumeMessageStream(messageID string) (*StreamResult, error) {
 	u.t.Helper()
 
 	serverURL, err := config.GetServerURL()
 	if err != nil {
-		return "", nil, fmt.Errorf("no server configured: %w", err)
+		return nil, fmt.Errorf("no server configured: %w", err)
 	}
 
 	url := fmt.Sprintf("%s/api/messages/%s/stream", serverURL, messageID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	req.Header.Set("Authorization", "Bearer "+u.Token)
@@ -586,17 +628,23 @@ func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, err
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
+		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
 	var fullText strings.Builder
 	var imageData []byte
+	var audioData []byte
+	textDone := false
+	imageDone := false
+	audioDone := false
 	scanner := bufio.NewScanner(resp.Body)
+	// Increase buffer for large SSE lines (base64-encoded image data)
+	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024) // 10MB max
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -609,7 +657,7 @@ func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, err
 		jsonData := strings.TrimPrefix(line, "data: ")
 		var chunk obj.GameSessionMessageChunk
 		if err := json.Unmarshal([]byte(jsonData), &chunk); err != nil {
-			return "", nil, fmt.Errorf("failed to parse chunk: %w", err)
+			return nil, fmt.Errorf("failed to parse chunk: %w", err)
 		}
 
 		// Accumulate text
@@ -622,21 +670,46 @@ func (u *UserClient) consumeMessageStream(messageID string) (string, []byte, err
 			imageData = append(imageData, chunk.ImageData...)
 		}
 
-		// Check for completion or error
-		if chunk.Error != "" {
-			return "", nil, fmt.Errorf("stream error: %s", chunk.Error)
+		// Accumulate audio data
+		if len(chunk.AudioData) > 0 {
+			audioData = append(audioData, chunk.AudioData...)
 		}
 
-		if chunk.TextDone && chunk.ImageDone {
+		// Track completion
+		if chunk.TextDone {
+			textDone = true
+		}
+		if chunk.ImageDone {
+			imageDone = true
+		}
+		if chunk.AudioDone {
+			audioDone = true
+		}
+
+		// Check for error
+		if chunk.Error != "" {
+			return nil, fmt.Errorf("stream error: %s", chunk.Error)
+		}
+
+		// Stream is complete when all active channels are done
+		if textDone && imageDone && audioDone {
+			break
+		}
+		// Backwards-compatible: if no audio expected, text+image is enough
+		if textDone && imageDone && len(audioData) == 0 && !audioDone {
 			break
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return "", nil, fmt.Errorf("scanner error: %w", err)
+		return nil, fmt.Errorf("scanner error: %w", err)
 	}
 
-	return fullText.String(), imageData, nil
+	return &StreamResult{
+		Text:      fullText.String(),
+		ImageData: imageData,
+		AudioData: audioData,
+	}, nil
 }
 
 // RemoveUserRole removes a user's role (composable high-level API)
@@ -758,6 +831,49 @@ func (u *UserClient) SetActiveWorkshop(workshopID *string) (obj.User, error) {
 		"workshopId": wsID,
 	}, &result)
 	return result, err
+}
+
+// SetUserAiQualityTier sets the user's AI quality tier (composable high-level API)
+// Valid tiers: "low", "medium", "high", "max"
+func (u *UserClient) SetUserAiQualityTier(tier string) error {
+	u.t.Helper()
+	return u.Post("users/"+u.ID, map[string]interface{}{
+		"aiQualityTier": tier,
+	}, nil)
+}
+
+// GetMessageAudio fetches the audio bytes for a message (composable high-level API)
+func (u *UserClient) GetMessageAudio(messageID string) ([]byte, error) {
+	u.t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return nil, fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/messages/%s/audio", serverURL, messageID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+u.Token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
+	}
+
+	return body, nil
 }
 
 // GetApiKeyStatus checks whether an API key can be resolved for a game (composable high-level API)

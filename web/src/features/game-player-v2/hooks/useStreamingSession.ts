@@ -85,6 +85,8 @@ export interface GameMessageResult {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -93,6 +95,8 @@ export interface RawMessage {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -107,7 +111,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const activePollingIdRef = useRef<string | null>(null);
   const sseActiveRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  const startPollingRef = useRef<(messageId: string) => void>(() => { });
   const lastImageUpdateRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
@@ -212,7 +216,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
-              JSON.stringify(msg.statusFields)
+            JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
@@ -309,6 +313,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       lastImageUpdateRef.current = 0;
+      const audioChunks: string[] = [];
 
       try {
         const headers = await adapterRef.current.getStreamHeaders();
@@ -336,6 +341,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
         resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
+        let textDone = false;
+        let imageDone = false;
+        let audioDone = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -367,10 +375,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                       .map((msg) =>
                         msg.id === playerMessageId
                           ? {
-                              ...msg,
-                              error: chunk.error,
-                              errorCode: chunk.errorCode,
-                            }
+                            ...msg,
+                            error: chunk.error,
+                            errorCode: chunk.errorCode,
+                          }
                           : msg,
                       ),
                     isWaitingForResponse: false,
@@ -397,7 +405,12 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   }
                 }
 
+                if (chunk.audioData) {
+                  audioChunks.push(chunk.audioData);
+                }
+
                 if (chunk.textDone) {
+                  textDone = true;
                   sseActiveRef.current = false;
                   updateMessage(messageId, { isStreaming: false });
                   setState((prev) => ({
@@ -406,12 +419,35 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   }));
                 }
 
+                if (chunk.audioDone) {
+                  audioDone = true;
+                  // Decode accumulated base64 chunks into a blob URL
+                  try {
+                    const binaryStr = audioChunks.map(b64 => atob(b64)).join('');
+                    const bytes = new Uint8Array(binaryStr.length);
+                    for (let i = 0; i < binaryStr.length; i++) {
+                      bytes[i] = binaryStr.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    updateMessage(messageId, { audioStatus: 'ready', audioBlobUrl: blobUrl });
+                  } catch (e) {
+                    apiLogger.error('Failed to create audio blob', { error: e });
+                    updateMessage(messageId, { audioStatus: 'ready' });
+                  }
+                }
+
                 if (chunk.imageDone) {
+                  imageDone = true;
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
+                }
+
+                // Stream is complete when all channels are done
+                if (textDone && imageDone && audioDone) {
                   clearSilenceTimer();
                   stopPolling();
                   return;
@@ -479,7 +515,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
             ...sceneMessage,
             text: "",
             isStreaming: true,
-            isImageLoading: !!firstMessage.imagePrompt,
+            isImageLoading: !!firstMessage.hasImage,
+            audioStatus: firstMessage.hasAudio ? 'loading' : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
@@ -553,7 +590,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
               ...sceneMessage,
               text: "",
               isStreaming: true,
-              isImageLoading: !!gameResponse.imagePrompt,
+              isImageLoading: !!gameResponse.hasImage,
+              audioStatus: gameResponse.hasAudio ? 'loading' : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -585,13 +623,13 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: prev.messages.map((msg) =>
             msg.id === playerMessage.id
               ? {
-                  ...msg,
-                  error:
-                    error instanceof Error
-                      ? error.message
-                      : "Failed to send action",
-                  errorCode,
-                }
+                ...msg,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to send action",
+                errorCode,
+              }
               : msg,
           ),
         }));
@@ -646,10 +684,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
           },
           messages: isInProgress
             ? messages.map((msg, i) =>
-                i === messages.length - 1
-                  ? { ...msg, isImageLoading: !!msg.imagePrompt }
-                  : msg,
-              )
+              i === messages.length - 1
+                ? { ...msg, isImageLoading: !!msg.hasImage, audioStatus: msg.hasAudio ? 'loading' : undefined }
+                : msg,
+            )
             : messages,
           statusFields:
             messages.length > 0
@@ -669,7 +707,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
         } else if (
           !isInProgress &&
           lastMessage?.id &&
-          lastMessage.imagePrompt
+          lastMessage.hasImage
         ) {
           try {
             const statusResp = await fetch(
