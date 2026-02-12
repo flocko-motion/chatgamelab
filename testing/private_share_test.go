@@ -18,30 +18,14 @@ func TestPrivateShareSuite(t *testing.T) {
 	suite.Run(t, s)
 }
 
-// setupGameWithKey creates a user with a mock API key, an uploaded game, and a game-scoped
-// sponsor share (required for private share guest play to resolve the API key).
-// Returns (user, gameID, sponsorShareID).
+// setupGameWithKey creates a user with a mock API key and an uploaded game.
+// Returns (user, gameID, personalShareID).
+// EnablePrivateShare will internally create a game-scoped share for guest play.
 func (s *PrivateShareTestSuite) setupGameWithKey(prefix string) (*testutil.UserClient, string, string) {
 	user := s.CreateUser(prefix)
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
 	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
-
-	// Enable sponsoring on the share
-	Must(user.EnableShareSponsoring(keyShare.ID.String()))
-
-	// Make game public (required for SetGameSponsor).
-	// Fetch full game first so UpdateGame doesn't clear YAML-populated fields.
-	fullGame := Must(user.GetGameByID(gameID))
-	fullGame.Public = true
-	Must(user.UpdateGame(gameID, fullGame))
-
-	// Set public sponsor → creates a game-scoped share accessible by uuid.Nil
-	sponsored := Must(user.SetGameSponsor(gameID, keyShare.ID.String()))
-	s.NotNil(sponsored.PublicSponsoredApiKeyShareID, "game should have sponsor share")
-	sponsorShareID := sponsored.PublicSponsoredApiKeyShareID.String()
-
-	return user, gameID, sponsorShareID
+	return user, game.ID.String(), keyShare.ID.String()
 }
 
 // --- Lifecycle ---
@@ -260,27 +244,16 @@ func (s *PrivateShareTestSuite) TestUnlimitedSessions() {
 
 // TestDeleteSponsorKeyClearsShare verifies that deleting the sponsor API key disables the share.
 func (s *PrivateShareTestSuite) TestDeleteSponsorKeyClearsShare() {
-	user := s.CreateUser("ps-cascade")
-	keyShare := Must(user.AddApiKey("mock-ps-cascade", "Cascade Key", "mock"))
-	game := Must(user.UploadGame("alien-first-contact"))
-	gameID := game.ID.String()
+	user, gameID, shareID := s.setupGameWithKey("ps-cascade")
 
-	// Enable sponsoring and create game-scoped share
-	Must(user.EnableShareSponsoring(keyShare.ID.String()))
-	fullGame := Must(user.GetGameByID(gameID))
-	fullGame.Public = true
-	Must(user.UpdateGame(gameID, fullGame))
-	sponsored := Must(user.SetGameSponsor(gameID, keyShare.ID.String()))
-	sponsorShareID := sponsored.PublicSponsoredApiKeyShareID.String()
-
-	Must(user.EnablePrivateShare(gameID, sponsorShareID, nil))
+	Must(user.EnablePrivateShare(gameID, shareID, nil))
 
 	// Verify share is enabled
 	status := Must(user.GetPrivateShareStatus(gameID))
 	s.True(status.Enabled)
 
 	// Delete the API key (cascade) — this should clean up all shares including game-scoped
-	MustSucceed(user.DeleteApiKey(keyShare.ID.String(), true))
+	MustSucceed(user.DeleteApiKey(shareID, true))
 	s.T().Logf("Deleted sponsor API key")
 
 	// Share should now be disabled (sponsor key gone)
