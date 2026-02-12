@@ -96,16 +96,16 @@ func (u apiUsage) toTokenUsage() obj.TokenUsage {
 }
 
 // SSE event types for streaming conversations
-type sseConversationEvent struct {
-	Type string `json:"type"`
-}
-
-type sseContentDelta struct {
+// message.output.delta: streamed text chunk
+type sseOutputDelta struct {
+	Type    string `json:"type"`
 	Content string `json:"content"`
 }
 
-type sseConversationCompleted struct {
-	ConversationID string   `json:"conversation_id"`
+// conversation.response.done: final event with usage
+type sseResponseDone struct {
+	Type           string   `json:"type"`
+	ConversationID string   `json:"conversation_id,omitempty"`
 	Usage          apiUsage `json:"usage"`
 }
 

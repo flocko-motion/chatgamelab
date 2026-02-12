@@ -160,12 +160,16 @@ func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSess
 
 	// Append to existing conversation with streaming - plain text, no JSON schema
 	// Mistral append only accepts "user" or "assistant" roles (not "system")
+	// Must explicitly set response_format to text to override the inherited json_schema from ExecuteAction
 	req := ConversationsAppendRequest{
 		Inputs: []InputMessage{
 			{Role: "user", Content: templates.PromptNarratePlotOutline},
 		},
 		Store:  true,
 		Stream: true,
+		CompletionArgs: &CompletionArgs{
+			ResponseFormat: &ResponseFormat{Type: "text"},
+		},
 	}
 
 	// Make streaming API call

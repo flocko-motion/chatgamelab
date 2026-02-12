@@ -85,54 +85,59 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 	}
 
 	// Parse SSE stream
-	// Mistral streaming uses chat-completion-style events:
-	// - data: {"choices":[{"delta":{"content":"..."}}]} for text chunks
-	// - data: [DONE] for completion
-	// The Conversations API may also include conversation_id and usage in a final event.
+	// Mistral Conversations API streaming uses typed events:
+	// - message.output.delta: text chunk with "content" field
+	// - conversation.response.done: final event with "usage" (and optionally "conversation_id")
+	// - data: [DONE] signals end of stream
 	var textBuilder strings.Builder
 	scanner := bufio.NewScanner(resp.Body)
+	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		lineCount++
 		if !strings.HasPrefix(line, "data: ") {
 			continue
 		}
 		data := strings.TrimPrefix(line, "data: ")
 		if data == "[DONE]" {
+			log.Debug("[STREAM] received [DONE]", "total_lines", lineCount)
 			break
 		}
 
-		// Try to parse as a conversation event with outputs (non-streaming final response)
-		var convResp ConversationsAPIResponse
-		if json.Unmarshal([]byte(data), &convResp) == nil && convResp.ConversationID != "" {
-			newConversationID = convResp.ConversationID
-			usage = convResp.Usage.toTokenUsage()
-			// If there's content in outputs, append it
-			for _, output := range convResp.Outputs {
-				if output.Content != "" {
-					textBuilder.WriteString(output.Content)
-					responseStream.SendText(output.Content, false)
-				}
-			}
+		// Peek at the event type
+		var event struct {
+			Type string `json:"type"`
+		}
+		if err := json.Unmarshal([]byte(data), &event); err != nil {
+			log.Debug("[STREAM] unparseable SSE event", "data", data[:min(len(data), 300)])
 			continue
 		}
 
-		// Try chat-completion-style delta events
-		var chatChunk struct {
-			Choices []struct {
-				Delta struct {
-					Content string `json:"content"`
-				} `json:"delta"`
-			} `json:"choices"`
-			Usage *apiUsage `json:"usage,omitempty"`
-		}
-		if json.Unmarshal([]byte(data), &chatChunk) == nil {
-			if len(chatChunk.Choices) > 0 && chatChunk.Choices[0].Delta.Content != "" {
-				textBuilder.WriteString(chatChunk.Choices[0].Delta.Content)
-				responseStream.SendText(chatChunk.Choices[0].Delta.Content, false)
+		switch event.Type {
+		case "message.output.delta":
+			log.Debug("[STREAM] raw delta event", "data", data[:min(len(data), 500)])
+			var delta sseOutputDelta
+			if err := json.Unmarshal([]byte(data), &delta); err != nil {
+				log.Debug("[STREAM] delta unmarshal error", "error", err)
+			} else {
+				log.Debug("[STREAM] delta parsed", "content_len", len(delta.Content), "content_preview", delta.Content[:min(len(delta.Content), 100)])
+				if delta.Content != "" {
+					textBuilder.WriteString(delta.Content)
+					responseStream.SendText(delta.Content, false)
+				}
 			}
-			if chatChunk.Usage != nil {
-				usage = chatChunk.Usage.toTokenUsage()
+		case "conversation.response.done":
+			log.Debug("[STREAM] raw done event", "data", data[:min(len(data), 500)])
+			var done sseResponseDone
+			if err := json.Unmarshal([]byte(data), &done); err == nil {
+				usage = done.Usage.toTokenUsage()
+				if done.ConversationID != "" {
+					newConversationID = done.ConversationID
+				}
+				log.Debug("[STREAM] response done", "usage", usage, "conversation_id", done.ConversationID)
 			}
+		default:
+			log.Debug("[STREAM] unhandled event type", "type", event.Type, "data_len", len(data))
 		}
 	}
 

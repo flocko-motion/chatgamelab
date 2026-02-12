@@ -341,6 +341,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
         resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
+        let textDone = false;
+        let imageDone = false;
+        let audioDone = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -407,6 +410,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
                 }
 
                 if (chunk.textDone) {
+                  textDone = true;
                   sseActiveRef.current = false;
                   updateMessage(messageId, { isStreaming: false });
                   setState((prev) => ({
@@ -416,6 +420,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
                 }
 
                 if (chunk.audioDone) {
+                  audioDone = true;
                   // Decode accumulated base64 chunks into a blob URL
                   try {
                     const binaryStr = audioChunks.map(b64 => atob(b64)).join('');
@@ -433,11 +438,16 @@ export function useStreamingSession(adapter: SessionAdapter) {
                 }
 
                 if (chunk.imageDone) {
+                  imageDone = true;
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
+                }
+
+                // Stream is complete when all channels are done
+                if (textDone && imageDone && audioDone) {
                   clearSilenceTimer();
                   stopPolling();
                   return;
