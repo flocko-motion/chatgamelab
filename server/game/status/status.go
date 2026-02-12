@@ -51,6 +51,9 @@ func FieldsToMap(fields []obj.StatusField) map[string]string {
 // preventing the AI from hallucinating extra fields or dropping existing ones.
 func BuildResponseSchema(statusFieldsJSON string) map[string]interface{} {
 	fieldNames := FieldNames(statusFieldsJSON)
+	if fieldNames == nil {
+		fieldNames = []string{}
+	}
 
 	// Build status properties with exact field names as keys
 	statusProperties := make(map[string]interface{}, len(fieldNames))
