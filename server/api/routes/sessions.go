@@ -651,7 +651,6 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 	textDone := false
 	imageDone := false
 	audioDone := false
-	audioStarted := false
 
 	for chunk := range s.Chunks {
 		data, _ := json.Marshal(chunk)
@@ -664,9 +663,6 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 		if chunk.ImageDone {
 			imageDone = true
 		}
-		if len(chunk.AudioData) > 0 {
-			audioStarted = true
-		}
 		if chunk.AudioDone {
 			audioDone = true
 		}
@@ -674,7 +670,7 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		// Stream is complete when all active channels are done
-		if textDone && imageDone && (audioDone || !audioStarted) {
+		if textDone && imageDone && audioDone {
 			break
 		}
 	}

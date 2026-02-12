@@ -31,18 +31,6 @@ func TestGameEngineTestSuite(t *testing.T) {
 	suite.Run(t, new(GameEngineTestSuite))
 }
 
-func (s *GameEngineTestSuite) TestGamePlaythroughOpenai() {
-	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
-	s.T().Logf("Added API key: %s", apiKeyShare.ID)
-	s.GamePlaythrough(apiKeyShare)
-}
-
-func (s *GameEngineTestSuite) TestGamePlaythroughMistral() {
-	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyMistral(), "Test Mistral Key", "mistral"))
-	s.T().Logf("Added API key: %s", apiKeyShare.ID)
-	s.GamePlaythrough(apiKeyShare)
-}
-
 // TestAudioPlaythroughOpenai tests the audio output feature with the "max" quality tier.
 // Uses OpenAI's gpt-4o-mini-tts to generate audio narration alongside text and image.
 func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
@@ -154,6 +142,18 @@ func playAudio(data []byte, label string) {
 	if err := cmd.Run(); err != nil {
 		log.Printf("%s: paplay failed: %v", label, err)
 	}
+}
+
+func (s *GameEngineTestSuite) TestGamePlaythroughOpenai() {
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Key", "openai"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+	s.GamePlaythrough(apiKeyShare)
+}
+
+func (s *GameEngineTestSuite) TestGamePlaythroughMistral() {
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyMistral(), "Test Mistral Key", "mistral"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+	s.GamePlaythrough(apiKeyShare)
 }
 
 // GamePlaythrough tests the complete game engine workflow:

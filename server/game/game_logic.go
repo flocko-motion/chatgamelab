@@ -503,7 +503,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
-		if response.HasAudio && len(response.Message) > 0 {
+		if !response.HasAudio || len(response.Message) == 0 {
+			log.Debug("audio generation not active for this message, signaling audioDone")
+			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
+		} else {
 			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
 			if err != nil {
@@ -518,7 +521,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	go func() {
 		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "hasImage", response.HasImage)
 		if !response.HasImage {
-			log.Debug("image generation not active for this message, skipping")
+			log.Debug("image generation not active for this message, signaling imageDone")
+			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true})
 			return
 		}
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
