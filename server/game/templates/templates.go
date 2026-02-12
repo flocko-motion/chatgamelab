@@ -27,7 +27,7 @@ const (
 	ReminderExecuteAction = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
 
 	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
-	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 2-5 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
+	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
 
 	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
 	ImagePromptSuffix = ". Scenery only, do not depict the player character."
@@ -61,7 +61,7 @@ Your role:
 RESPONSE PHASES:
 We communicate in alternating phases:
 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status + image prompt)
-2. I ask you to NARRATE → You respond with plain text prose (1-3 sentences MAXIMUM, be brief)
+2. I ask you to NARRATE → ` + PromptNarratePlotOutline + `
 
 ---
 PHASE 1: JSON RESPONSE
@@ -84,13 +84,6 @@ Rules for Phase 1:
 PHASE 2: NARRATION
 ---
 When I give you the NARRATE command, turn the summary into prose. Plain text only (no JSON). Write the output in the same language as the scenario.
-
-Rules for Phase 2:
-- 1-3 short sentences maximum
-- No headers, no markdown, no lists
-- Describe the scene, not a story structure
-- DON'T repeat the status fields, only write the story content (status fields are reported in Phase 1 only!)
-- End on an open note - let the player decide what to do next
 
 ---
 NARRATIVE STYLE
