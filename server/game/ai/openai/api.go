@@ -185,7 +185,7 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 // callImageGenerationAPI generates an image with streaming partial images
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
-func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
+func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
 	imageGenURL := openaiBaseURL + imageGenEndpoint
 
 	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
@@ -196,11 +196,11 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, prompt string, s
 	}
 
 	reqBody := map[string]interface{}{
-		"model":          "gpt-image-1",
+		"model":          imageModel,
 		"prompt":         fullPrompt,
 		"n":              1,
 		"size":           "1024x1024",
-		"quality":        "low",
+		"quality":        imageQuality,
 		"output_format":  "png",
 		"stream":         true,
 		"partial_images": 3, // Get previews of the image generation process - each preview is sent as a full png file

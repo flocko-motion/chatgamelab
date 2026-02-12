@@ -4,6 +4,7 @@ import (
 	"cgl/apiclient"
 	"cgl/functional"
 	"cgl/obj"
+	"encoding/json"
 	"strings"
 )
 
@@ -11,6 +12,7 @@ const (
 	mistralBaseURL        = "https://api.mistral.ai/v1"
 	conversationsEndpoint = "/conversations"
 	mistralModelsEndpoint = "/models"
+	filesEndpoint         = "/files"
 	translateModel        = "mistral-small-latest"
 	toolQueryModel        = "mistral-small-latest"
 )
@@ -72,12 +74,42 @@ type ConversationsAPIResponse struct {
 	Usage          apiUsage      `json:"usage"`
 }
 
-// OutputEntry represents a single output entry from the Conversations API
+// OutputEntry represents a single output entry from the Conversations API.
+// Content is a string for regular text responses, but an array of ContentChunk
+// for responses that include tool outputs (e.g. image generation).
 type OutputEntry struct {
-	Content string `json:"content"`
-	Role    string `json:"role"`
-	Object  string `json:"object"`
-	Type    string `json:"type"`
+	Content json.RawMessage `json:"content"`
+	Role    string          `json:"role"`
+	Object  string          `json:"object"`
+	Type    string          `json:"type"`
+}
+
+// ContentChunk represents a single chunk in a rich content array.
+// For text: {"type": "text", "text": "..."}
+// For tool_file: {"type": "tool_file", "tool": "image_generation", "file_id": "...", "file_name": "...", "file_type": "png"}
+type ContentChunk struct {
+	Type     string `json:"type"`
+	Text     string `json:"text,omitempty"`
+	Tool     string `json:"tool,omitempty"`
+	FileID   string `json:"file_id,omitempty"`
+	FileName string `json:"file_name,omitempty"`
+	FileType string `json:"file_type,omitempty"`
+}
+
+// ImageConversationRequest is the request body for creating a new conversation with tools.
+// Used for image generation which requires the image_generation tool.
+type ImageConversationRequest struct {
+	Model          string          `json:"model"`
+	Inputs         []InputMessage  `json:"inputs"`
+	Instructions   string          `json:"instructions,omitempty"`
+	Store          bool            `json:"store"`
+	Tools          []Tool          `json:"tools"`
+	CompletionArgs *CompletionArgs `json:"completion_args,omitempty"`
+}
+
+// Tool represents a tool available to the model during a conversation
+type Tool struct {
+	Type string `json:"type"`
 }
 
 // apiUsage matches Mistral's usage format
@@ -111,6 +143,13 @@ type sseResponseDone struct {
 
 // newApi creates a new API client for Mistral with the given API key
 func (p *MistralPlatform) newApi(apiKey string) *apiclient.Client {
+	return apiclient.NewApi(mistralBaseURL, map[string]string{
+		"Authorization": "Bearer " + apiKey,
+	})
+}
+
+// newApiClient creates a standalone API client for Mistral with the given API key
+func newApiClient(apiKey string) *apiclient.Client {
 	return apiclient.NewApi(mistralBaseURL, map[string]string{
 		"Authorization": "Bearer " + apiKey,
 	})

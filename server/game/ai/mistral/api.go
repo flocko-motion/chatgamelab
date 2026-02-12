@@ -15,14 +15,63 @@ import (
 	"strings"
 )
 
-// extractResponseText extracts the text content from a Conversations API response
+// extractResponseText extracts the assistant's text from a Conversations API response.
+// Regular responses have content as a JSON string; tool responses have a ContentChunk array.
 func extractResponseText(apiResponse *ConversationsAPIResponse) string {
 	for _, output := range apiResponse.Outputs {
-		if output.Role == "assistant" && output.Content != "" {
-			return output.Content
+		if output.Role != "assistant" || len(output.Content) == 0 {
+			continue
+		}
+		text := extractText(output.Content)
+		if text != "" {
+			return text
 		}
 	}
 	return ""
+}
+
+// extractFileID extracts the first tool_file file_id from an image generation response
+func extractFileID(apiResponse *ConversationsAPIResponse) string {
+	for _, output := range apiResponse.Outputs {
+		if output.Role != "assistant" || len(output.Content) == 0 {
+			continue
+		}
+		chunks := parseContentChunks(output.Content)
+		for _, chunk := range chunks {
+			if chunk.Type == "tool_file" && chunk.FileID != "" {
+				return chunk.FileID
+			}
+		}
+	}
+	return ""
+}
+
+// extractText returns the text from a content field.
+// Dispatches based on the JSON type: string → return directly, array → join text chunks.
+func extractText(raw json.RawMessage) string {
+	switch raw[0] {
+	case '"':
+		var s string
+		if err := json.Unmarshal(raw, &s); err == nil {
+			return s
+		}
+	case '[':
+		var sb strings.Builder
+		for _, chunk := range parseContentChunks(raw) {
+			if chunk.Type == "text" {
+				sb.WriteString(chunk.Text)
+			}
+		}
+		return sb.String()
+	}
+	return ""
+}
+
+// parseContentChunks unmarshals a JSON array of ContentChunk objects.
+func parseContentChunks(raw json.RawMessage) []ContentChunk {
+	var chunks []ContentChunk
+	_ = json.Unmarshal(raw, &chunks)
+	return chunks
 }
 
 func callConversationsAPI(ctx context.Context, apiKey string, req ConversationsAPIRequest) (*ConversationsAPIResponse, obj.TokenUsage, error) {
@@ -145,4 +194,50 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 	// Signal text streaming complete
 	responseStream.SendText("", true)
 	return textBuilder.String(), newConversationID, usage, nil
+}
+
+// callImageConversationAPI creates a new conversation with the image_generation tool.
+// This is a separate conversation from the game conversation - image generation requires
+// the tool to be declared at conversation creation time.
+func callImageConversationAPI(ctx context.Context, apiKey string, req ImageConversationRequest) (*ConversationsAPIResponse, error) {
+	client := newApiClient(apiKey)
+
+	var apiResp ConversationsAPIResponse
+	if err := client.PostJson(ctx, conversationsEndpoint, req, &apiResp); err != nil {
+		return nil, fmt.Errorf("image conversation API failed: %w", err)
+	}
+
+	log.Debug("image conversation API completed", "conversation_id", apiResp.ConversationID)
+	return &apiResp, nil
+}
+
+// downloadFile downloads file content from the Mistral Files API.
+// Used to retrieve generated images by their file_id.
+func downloadFile(ctx context.Context, apiKey string, fileID string) ([]byte, error) {
+	endpoint := mistralBaseURL + filesEndpoint + "/" + fileID + "/content"
+
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create download request: %w", err)
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("file download request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("file download returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file content: %w", err)
+	}
+
+	log.Debug("file downloaded", "file_id", fileID, "size_bytes", len(data))
+	return data, nil
 }

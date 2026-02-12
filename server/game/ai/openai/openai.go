@@ -25,10 +25,10 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", Description: "Highest + Audio", SupportsImage: true, SupportsAudio: true},
-			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium", SupportsImage: true},
-			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced", SupportsImage: true},
-			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy", SupportsImage: true},
+			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Highest + Audio", SupportsImage: true, SupportsAudio: true},
+			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Premium", SupportsImage: true},
+			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", ImageModel: "gpt-image-1", ImageQuality: "medium", Description: "Balanced", SupportsImage: true},
+			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", ImageModel: "gpt-image-1-mini", ImageQuality: "low", Description: "Economy", SupportsImage: true},
 		},
 	}
 }
@@ -250,14 +250,20 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 
 	// Note: imagePrompt check is done in game_logic.go before calling this function
 	// to avoid race conditions with the shared response pointer
-	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle)
+	modelInfo := p.ResolveModelInfo(session.AiModel)
+	imageModel := modelInfo.ImageModel
+	imageQuality := modelInfo.ImageQuality
+	if imageQuality == "" {
+		imageQuality = "low"
+	}
+	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle, "image_model", imageModel, "image_quality", imageQuality)
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,

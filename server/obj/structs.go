@@ -300,6 +300,8 @@ type AiModel struct {
 	ID            string `json:"id"`                      // generic tier: "high", "medium", "low", "max"
 	Name          string `json:"name"`                    // display name e.g. "GPT-5.2"
 	Model         string `json:"model"`                   // concrete model ID e.g. "gpt-5.2"
+	ImageModel    string `json:"imageModel,omitempty"`    // model used for image generation (if different from Model)
+	ImageQuality  string `json:"imageQuality,omitempty"`  // image quality: "high", "medium", "low" (default: "low")
 	Description   string `json:"description"`             // tier label e.g. "Premium"
 	SupportsImage bool   `json:"supportsImage,omitempty"` // whether this tier generates images
 	SupportsAudio bool   `json:"supportsAudio,omitempty"` // whether this tier generates audio (TTS)

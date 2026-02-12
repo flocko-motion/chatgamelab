@@ -21,9 +21,9 @@ func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "mistral",
 		Name: "Mistral",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelPremium, Name: "Mistral Large", Model: "mistral-large-latest", Description: "Premium"},
-			{ID: obj.AiModelBalanced, Name: "Mistral Medium", Model: "mistral-medium-latest", Description: "Balanced"},
-			{ID: obj.AiModelEconomy, Name: "Mistral Small", Model: "mistral-small-latest", Description: "Economy"},
+			{ID: obj.AiModelPremium, Name: "Mistral Large", Model: "mistral-large-latest", ImageModel: "mistral-small-latest", Description: "Premium", SupportsImage: true},
+			{ID: obj.AiModelBalanced, Name: "Mistral Medium", Model: "mistral-medium-latest", ImageModel: "mistral-small-latest", Description: "Balanced", SupportsImage: true},
+			{ID: obj.AiModelEconomy, Name: "Mistral Small", Model: "mistral-small-latest", ImageModel: "mistral-small-latest", Description: "Economy", SupportsImage: true},
 		},
 	}
 }
@@ -209,13 +209,63 @@ func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSess
 	return usage, nil
 }
 
-// GenerateImage is a no-op for Mistral.
-// NOTE: Mistral supports image generation only as a built-in agent tool via the Conversations API
-// (see https://docs.mistral.ai/agents/tools/built-in/image_generation), not as a standalone endpoint.
-// This would require creating an agent with tools=[{"type":"image_generation"}], parsing tool_file
-// chunks from the response, and downloading the image via the files API. Not implemented yet.
+// GenerateImage generates an image using Mistral's Conversations API with the image_generation tool.
+// Creates a separate one-shot conversation (not the game conversation) with the tool enabled,
+// extracts the generated file_id from the response, and downloads the image via the Files API.
 func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
-	log.Debug("Mistral GenerateImage skipped - not supported", "session_id", session.ID)
+	log.Debug("Mistral GenerateImage starting", "session_id", session.ID, "message_id", response.ID)
+
+	if session.ApiKey == nil {
+		return fmt.Errorf("session has no API key")
+	}
+
+	// Build the image prompt with style suffix
+	fullPrompt := *response.ImagePrompt + templates.ImagePromptSuffix
+	if session.ImageStyle != "" {
+		fullPrompt = fmt.Sprintf("%s Style: %s", fullPrompt, session.ImageStyle)
+	}
+
+	modelInfo := p.ResolveModelInfo(session.AiModel)
+	imageModel := modelInfo.ImageModel
+	log.Debug("generating image via Mistral", "prompt_length", len(fullPrompt), "style", session.ImageStyle, "image_model", imageModel)
+
+	// Create a new conversation with the image_generation tool
+	req := ImageConversationRequest{
+		Model:        imageModel,
+		Instructions: "Generate the requested image. Do not add any text commentary.",
+		Inputs:       []InputMessage{{Role: "user", Content: fullPrompt}},
+		Store:        false,
+		Tools:        []Tool{{Type: "image_generation"}},
+	}
+
+	apiResp, err := callImageConversationAPI(ctx, session.ApiKey.Key, req)
+	if err != nil {
+		return fmt.Errorf("Mistral image generation failed: %w", err)
+	}
+
+	// Extract the file_id from the tool_file chunk in the response
+	fileID := extractFileID(apiResp)
+	if fileID == "" {
+		return fmt.Errorf("no image file_id in Mistral response")
+	}
+	log.Debug("image file_id extracted", "file_id", fileID)
+
+	// Download the image from the Files API
+	imageData, err := downloadFile(ctx, session.ApiKey.Key, fileID)
+	if err != nil {
+		return fmt.Errorf("failed to download generated image: %w", err)
+	}
+
+	if len(imageData) == 0 {
+		return fmt.Errorf("downloaded image is empty")
+	}
+
+	log.Debug("Mistral image downloaded", "size_bytes", len(imageData))
+
+	// Send the final image to the stream (no partial images for Mistral)
+	responseStream.SendImage(imageData, true)
+	response.Image = imageData
+
 	return nil
 }
 
