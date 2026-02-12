@@ -529,6 +529,16 @@ UPDATE game_session_message SET
 WHERE id = $1
 RETURNING *;
 
+-- name: UpdateGameSessionMessageAudio :one
+UPDATE game_session_message SET
+  audio = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING *;
+
+-- name: GetGameSessionMessageAudioByID :one
+SELECT id, audio FROM game_session_message WHERE id = $1;
+
 -- name: DeleteGameSessionMessagesBySessionID :exec
 DELETE FROM game_session_message WHERE game_session_id = $1;
 

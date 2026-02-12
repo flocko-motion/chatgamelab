@@ -863,6 +863,41 @@ func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messag
 	return nil
 }
 
+// UpdateGameSessionMessageAudio updates only the audio field of a message
+func UpdateGameSessionMessageAudio(ctx context.Context, userID uuid.UUID, messageID uuid.UUID, audio []byte) error {
+	// Get message to find session
+	msg, err := queries().GetGameSessionMessageByID(ctx, messageID)
+	if err != nil {
+		return obj.ErrNotFound("message not found")
+	}
+	// Verify session ownership
+	sessionObj, err := loadSessionByID(ctx, msg.GameSessionID)
+	if err != nil {
+		return err
+	}
+	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
+		return err
+	}
+
+	_, err = queries().UpdateGameSessionMessageAudio(ctx, db.UpdateGameSessionMessageAudioParams{
+		ID:    messageID,
+		Audio: audio,
+	})
+	if err != nil {
+		return obj.ErrServerError("failed to update message audio")
+	}
+	return nil
+}
+
+// GetGameSessionMessageAudioByID returns just the audio data for a message (public, no auth)
+func GetGameSessionMessageAudioByID(ctx context.Context, messageID uuid.UUID) ([]byte, error) {
+	row, err := queries().GetGameSessionMessageAudioByID(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+	return row.Audio, nil
+}
+
 // UpdateGameSessionOrganisationUnverified marks a session as having an unverified organisation
 func UpdateGameSessionOrganisationUnverified(ctx context.Context, sessionID uuid.UUID, isUnverified bool) error {
 	err := queries().UpdateGameSessionOrganisationUnverified(ctx, db.UpdateGameSessionOrganisationUnverifiedParams{
@@ -1198,6 +1233,7 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 		Type:    m.Type,
 		Message: m.Message,
 		Image:   m.Image,
+		Audio:   m.Audio,
 	}
 
 	// Parse status fields from JSON
@@ -1238,6 +1274,7 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		Type:          m.Type,
 		Message:       m.Message,
 		Image:         m.Image,
+		Audio:         m.Audio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1331,6 +1368,7 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			Type:          m.Type,
 			Message:       m.Message,
 			Image:         m.Image,
+			Audio:         m.Audio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1405,6 +1443,7 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 			Type:          m.Type,
 			Message:       m.Message,
 			Image:         m.Image,
+			Audio:         m.Audio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,

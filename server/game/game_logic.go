@@ -378,10 +378,15 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	log.Debug("streaming message created", "message_id", response.ID)
 
-	// Create stream for SSE with ImageSaver to persist image before signaling done
-	responseStream := stream.Get().Create(ctx, response, func(messageID uuid.UUID, imageData []byte) error {
-		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
-	})
+	// Create stream for SSE with ImageSaver and AudioSaver to persist before signaling done
+	responseStream := stream.Get().Create(ctx, response,
+		func(messageID uuid.UUID, imageData []byte) error {
+			return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
+		},
+		func(messageID uuid.UUID, audioData []byte) error {
+			return db.UpdateGameSessionMessageAudio(context.Background(), session.UserID, messageID, audioData)
+		},
+	)
 
 	// Build game-specific JSON schema that enforces exact status field names
 	gameSchema := status.BuildResponseSchema(session.StatusFields)
@@ -478,6 +483,18 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		log.Debug("[TRACE] persisting AiSession to DB", "session_id", session.ID, "ai_session", session.AiSession)
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
+		}
+
+		// Phase 4: Generate audio narration if "max" tier (after text is finalized)
+		if session.AiModel == obj.AiModelMax && len(response.Message) > 0 {
+			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
+			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
+			if err != nil {
+				log.Warn("GenerateAudio failed", "session_id", session.ID, "error", err)
+			} else {
+				response.Audio = audioData
+				log.Debug("GenerateAudio completed", "session_id", session.ID, "audio_bytes", len(audioData))
+			}
 		}
 	}()
 
@@ -620,9 +637,12 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 	}
 
 	// Create a stream for the image generation (no SSE consumer - just for the ImageSaver)
-	responseStream := stream.Get().Create(context.Background(), message, func(messageID uuid.UUID, imageData []byte) error {
-		return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
-	})
+	responseStream := stream.Get().Create(context.Background(), message,
+		func(messageID uuid.UUID, imageData []byte) error {
+			return db.UpdateGameSessionMessageImage(context.Background(), session.UserID, messageID, imageData)
+		},
+		nil, // no audio saver for image retry
+	)
 
 	go func() {
 		if err := platform.GenerateImage(context.Background(), session, message, responseStream); err != nil {

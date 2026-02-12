@@ -213,6 +213,11 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 	return nil
 }
 
+func (p *MistralPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
+	log.Debug("Mistral GenerateAudio skipped - not supported", "session_id", session.ID)
+	return nil, nil
+}
+
 // Translate translates the given JSON objects (stringified) to the target in a single API call
 func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error) {
 	originals := ""

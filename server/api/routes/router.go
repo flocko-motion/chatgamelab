@@ -135,6 +135,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/messages/{id}/status", GetMessageStatus)
 	mux.HandleFunc("GET /api/messages/{id}/image", GetMessageImage)
 	mux.HandleFunc("GET /api/messages/{id}/image/status", GetMessageImageStatus)
+	mux.HandleFunc("GET /api/messages/{id}/audio", GetMessageAudio)
 
 	// Admin
 	mux.Handle("POST /api/restart", httpx.RequireAuth(PostRestart))

@@ -302,6 +302,7 @@ type AiModel struct {
 }
 
 const (
+	AiModelMax      = "max" // highest text model + audio output (OpenAI only)
 	AiModelPremium  = "high"
 	AiModelBalanced = "medium"
 	AiModelEconomy  = "low"
@@ -371,15 +372,18 @@ type GameSessionMessage struct {
 	StatusFields []StatusField `json:"statusFields"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
+	Audio        []byte        `json:"audio,omitempty"`
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
 }
 
-// GameSessionMessageChunk represents a piece of streamed content (text or image)
+// GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
 type GameSessionMessageChunk struct {
 	Text      string `json:"text,omitempty"`      // Partial text content
 	TextDone  bool   `json:"textDone,omitempty"`  // True when text streaming is complete
 	ImageData []byte `json:"imageData,omitempty"` // Partial/final image data
 	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
+	AudioData []byte `json:"audioData,omitempty"` // Partial/final audio data (opus)
+	AudioDone bool   `json:"audioDone,omitempty"` // True when audio streaming is complete
 	Error     string `json:"error,omitempty"`     // Error message if failed
 	ErrorCode string `json:"errorCode,omitempty"` // Machine-readable error code (maps to frontend i18n)
 }

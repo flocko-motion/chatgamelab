@@ -25,6 +25,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
+			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", Description: "Highest + Audio"},
 			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium"},
 			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced"},
 			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy"},
@@ -272,6 +273,24 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	response.Image = imageData
 
 	return nil
+}
+
+// GenerateAudio generates audio narration from text using OpenAI TTS API
+func (p *OpenAiPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
+	log.Debug("OpenAI GenerateAudio starting", "session_id", session.ID, "text_length", len(text))
+
+	if session.ApiKey == nil {
+		return nil, fmt.Errorf("session has no API key")
+	}
+
+	audioData, err := callSpeechAPI(ctx, session.ApiKey.Key, text, responseStream)
+	if err != nil {
+		log.Error("TTS generation failed", "error", err, "session_id", session.ID)
+		return nil, fmt.Errorf("OpenAI TTS error: %w", err)
+	}
+
+	log.Debug("TTS generation completed", "audio_bytes", len(audioData))
+	return audioData, nil
 }
 
 // Translate translates language files to a target language using OpenAI API

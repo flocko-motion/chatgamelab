@@ -44,6 +44,11 @@ type AiPlatform interface {
 	// Streams partial images to responseStream, updates response.Image with final image when done
 	GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error
 
+	// GenerateAudio - async/streaming, generates audio narration from text via TTS
+	// Streams audio chunks to responseStream, updates response.Audio with final audio when done
+	// Only supported on OpenAI (max tier); other platforms return nil (no-op).
+	GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error)
+
 	// Translate - blocking, translates a set of language files to a target language
 	// Returns the translated JSON as a stringified object and token usage
 	Translate(ctx context.Context, apiKey string, input []string, targetLang string) (string, obj.TokenUsage, error)

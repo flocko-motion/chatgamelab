@@ -41,6 +41,88 @@ func (s *GameEngineTestSuite) TestGamePlaythroughMistral() {
 	s.GamePlaythrough(apiKeyShare)
 }
 
+// TestAudioPlaythroughOpenai tests the audio output feature with the "max" quality tier.
+// Uses OpenAI's gpt-4o-mini-tts to generate audio narration alongside text and image.
+func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
+	// Add OpenAI API key
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Audio Key", "openai"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+
+	// Set quality tier to "max" (= high text model + audio)
+	err := s.clientAlice.SetUserAiQualityTier("max")
+	s.Require().NoError(err, "Failed to set AI quality tier to max")
+	s.T().Logf("Set AI quality tier to max")
+
+	// Upload a simple test game
+	game := Must(s.clientAlice.UploadGame("stone-collector"))
+	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
+
+	// Create game session and consume the initial SSE stream (text + image + audio)
+	sessionResponse, initialStream, err := s.clientAlice.CreateGameSessionWithStream(game.ID.String())
+	s.Require().NoError(err, "CreateGameSessionWithStream failed")
+	s.T().Logf("Created game session: %s (model: %s, platform: %s)", sessionResponse.ID, sessionResponse.AiModel, sessionResponse.AiPlatform)
+
+	// Verify session was created with "max" tier
+	s.Equal("max", sessionResponse.AiModel, "Session should use max tier")
+	s.Equal("openai", sessionResponse.AiPlatform, "Session should use openai platform")
+
+	// Validate initial message has text + audio
+	s.Require().NotEmpty(sessionResponse.Messages, "Session should have messages")
+	// Find the game-type message (index 1, after system message)
+	var initialMsg *obj.GameSessionMessage
+	for i := range sessionResponse.Messages {
+		if sessionResponse.Messages[i].Type == "game" {
+			initialMsg = &sessionResponse.Messages[i]
+			break
+		}
+	}
+	s.Require().NotNil(initialMsg, "Should have a game-type initial message")
+	s.Greater(len(initialMsg.Message), 10, "Initial message should have substantial text")
+	log.Printf("Initial message (len=%d): %s", len(initialMsg.Message), initialMsg.Message)
+
+	// Validate audio on initial message
+	s.Require().NotNil(initialStream, "Initial stream result should not be nil")
+	s.validateAudioStream(initialStream, "initial message")
+
+	// Validate audio is persisted in DB and accessible via replay endpoint
+	s.validateAudioFromDB(initialMsg.ID.String(), initialStream, "initial message")
+
+	// Send a player action and consume the SSE stream (text + image + audio)
+	msg, streamResult, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), "I collect 3 stones")
+	s.Require().NoError(err, "SendGameMessageWithStream failed")
+
+	// Validate text
+	s.Greater(len(msg.Message), 10, "AI response text should be substantial")
+	log.Printf("AI response (len=%d): %s", len(msg.Message), msg.Message)
+
+	// Validate audio on player action response
+	s.Require().NotNil(streamResult, "Stream result should not be nil")
+	s.validateAudioStream(streamResult, "action response")
+	s.validateAudioFromDB(msg.ID.String(), streamResult, "action response")
+
+	log.Printf("Audio playthrough test completed successfully!")
+}
+
+// validateAudioStream checks that audio data was received via SSE and has valid Ogg/Opus header
+func (s *GameEngineTestSuite) validateAudioStream(result *testutil.StreamResult, label string) {
+	s.T().Helper()
+	s.Greater(len(result.AudioData), 0, "%s: audio data should be received via SSE stream", label)
+	log.Printf("%s: audio data received: %d bytes", label, len(result.AudioData))
+
+	s.Require().GreaterOrEqual(len(result.AudioData), 4, "%s: audio data should be at least 4 bytes", label)
+	s.Equal([]byte("OggS"), result.AudioData[:4], "%s: audio should start with Ogg magic bytes (opus format)", label)
+}
+
+// validateAudioFromDB checks that audio is persisted and accessible via the replay endpoint
+func (s *GameEngineTestSuite) validateAudioFromDB(messageID string, streamResult *testutil.StreamResult, label string) {
+	s.T().Helper()
+	audioFromDB, err := s.clientAlice.GetMessageAudio(messageID)
+	s.Require().NoError(err, "%s: GetMessageAudio should succeed", label)
+	s.Greater(len(audioFromDB), 0, "%s: audio from DB should not be empty", label)
+	s.Equal([]byte("OggS"), audioFromDB[:4], "%s: audio from DB should start with Ogg magic bytes", label)
+	log.Printf("%s: audio from DB: %d bytes (matches stream: %v)", label, len(audioFromDB), len(audioFromDB) == len(streamResult.AudioData))
+}
+
 // GamePlaythrough tests the complete game engine workflow:
 // - Add API key
 // - Upload game from YAML

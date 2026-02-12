@@ -12,7 +12,11 @@ const (
 	responsesEndpoint = "/responses"
 	modelsEndpoint    = "/models"
 	imageGenEndpoint  = "/images/generations"
+	speechEndpoint    = "/audio/speech"
 	translateModel    = "gpt-5.1-codex"
+	ttsModel          = "gpt-4o-mini-tts"
+	ttsVoice          = "coral"
+	ttsFormat         = "opus"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity
