@@ -38,7 +38,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     onGameUpdated,
     onGameDeleted,
   } = options;
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
   const { getAccessToken, isParticipant } = useAuth();
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -58,6 +58,8 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     onGameUpdated,
     onGameDeleted,
   };
+  const retryBackendFetchRef = useRef(retryBackendFetch);
+  retryBackendFetchRef.current = retryBackendFetch;
   const backendUserIdRef = useRef(backendUser?.id);
   backendUserIdRef.current = backendUser?.id;
 
@@ -128,7 +130,11 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
             workshopId,
           });
 
-          // Call the callback to refresh backend user (stored in AuthProvider state, not TanStack Query)
+          // Always refresh backendUser so isPaused and other workshop settings
+          // update reactively in all consumers (GamePlayer, MyWorkshop, etc.)
+          retryBackendFetchRef.current();
+
+          // Call the optional callback for additional consumer-specific logic
           callbacksRef.current.onSettingsUpdate?.();
 
           // Invalidate all queries affected by workshop settings changes:

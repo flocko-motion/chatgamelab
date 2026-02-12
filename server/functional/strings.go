@@ -116,6 +116,64 @@ func EnsurePointer(o any) any {
 	return ptr.Interface()
 }
 
+// EndsWithDigits checks if a dash-separated string ends with a segment of exactly n digits.
+// Useful for filtering dated/versioned model IDs like "gpt-4-0613" or "mistral-small-2402".
+func EndsWithDigits(s string, n int) bool {
+	parts := SplitDash(s)
+	if len(parts) < 2 {
+		return false
+	}
+	last := parts[len(parts)-1]
+	if len(last) != n {
+		return false
+	}
+	for _, ch := range last {
+		if ch < '0' || ch > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// EndsWithDatePattern checks if a dash-separated string ends with a YYYY-MM-DD pattern.
+// Example: "gpt-4-2024-01-25" returns true.
+func EndsWithDatePattern(s string) bool {
+	parts := SplitDash(s)
+	if len(parts) < 4 {
+		return false
+	}
+	lastThree := parts[len(parts)-3:]
+	if len(lastThree[0]) != 4 || len(lastThree[1]) != 2 || len(lastThree[2]) != 2 {
+		return false
+	}
+	for _, part := range lastThree {
+		for _, ch := range part {
+			if ch < '0' || ch > '9' {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// SplitDash splits a string by dashes. Convenience wrapper for model ID parsing.
+func SplitDash(s string) []string {
+	return splitBy(s, '-')
+}
+
+func splitBy(s string, sep byte) []string {
+	var parts []string
+	start := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == sep {
+			parts = append(parts, s[start:i])
+			start = i + 1
+		}
+	}
+	parts = append(parts, s[start:])
+	return parts
+}
+
 // NormalizeYaml unmarshals YAML into the given struct type and re-marshals it to normalize the format.
 // If o is not a pointer, a pointer to a new instance of its type is created automatically.
 func NormalizeYaml(in string, o any) string {

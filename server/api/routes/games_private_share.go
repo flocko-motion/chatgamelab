@@ -110,8 +110,21 @@ func EnablePrivateShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update the game with private share config
-	g.PrivateSponsoredApiKeyShareID = req.SponsorKeyShareID
+	// Create a game-scoped share from the user's personal share.
+	// This is needed so the guest play flow can resolve the API key with uuid.Nil.
+	gameScopedShareID, err := db.CreatePrivateShareSponsorship(r.Context(), user.ID, gameID, *req.SponsorKeyShareID)
+	if err != nil {
+		log.Warn("failed to create private share sponsorship", "game_id", gameID, "error", err)
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to set up private share: "+err.Error())
+		return
+	}
+
+	// Update the game with the game-scoped share ID and session limit
+	g.PrivateSponsoredApiKeyShareID = gameScopedShareID
 	g.PrivateShareRemaining = req.MaxSessions
 
 	if err := db.UpdateGame(r.Context(), user.ID, g); err != nil {
@@ -176,6 +189,13 @@ func RevokePrivateShare(w http.ResponseWriter, r *http.Request) {
 			// Non-fatal — continue with revoke even if cleanup fails
 		} else {
 			log.Info("revoking private share: removed guest data", "game_id", gameID, "guest_users_removed", guestCount)
+		}
+	}
+
+	// Delete the game-scoped share created by EnablePrivateShare
+	if g.PrivateSponsoredApiKeyShareID != nil {
+		if err := db.DeletePrivateShareSponsorship(r.Context(), *g.PrivateSponsoredApiKeyShareID); err != nil {
+			log.Warn("failed to delete private share sponsorship", "game_id", gameID, "share_id", *g.PrivateSponsoredApiKeyShareID, "error", err)
 		}
 	}
 

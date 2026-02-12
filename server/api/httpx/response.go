@@ -106,7 +106,7 @@ func ErrorCodeToStatus(code string) int {
 		return http.StatusForbidden
 	case obj.ErrCodeNotFound:
 		return http.StatusNotFound
-	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName:
+	case obj.ErrCodeConflict, obj.ErrCodeDuplicateName, obj.ErrCodeLastHead:
 		return http.StatusConflict
 	case obj.ErrCodeServerError:
 		return http.StatusInternalServerError

@@ -22,9 +22,9 @@ func (s *MultiUserTestSuite) SetupSuite() {
 	// Call parent SetupSuite to initialize base suite
 	s.BaseSuite.SetupSuite()
 
-	// Verify initial state (should have 5 dev users)
+	// Verify initial state (should have 9 dev users)
 	initialUsers := Must(s.DevUser().GetUsers())
-	s.Equal(5, len(initialUsers), "should have 5 users (preseeded dev users)")
+	s.Equal(9, len(initialUsers), "should have 9 users (preseeded dev users)")
 	s.T().Logf("Initial users: %d", len(initialUsers))
 
 	// Use preseeded admin user
@@ -207,8 +207,11 @@ func (s *MultiUserTestSuite) TestInstitutionManagement() {
 	s.Contains(memberNames, "tanja")
 	s.T().Logf("Institution members: %v", memberNames)
 
-	// Verify tanja can't invite alice to institution
-	Fail(clientTanja.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
+	// Verify tanja (staff) can also invite alice to institution
+	tanjaInvite = Must(clientTanja.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
+	s.T().Logf("Tanja (staff) invited alice: %s", tanjaInvite.ID)
+	// Revoke it so harry can invite alice next
+	MustSucceed(clientTanja.RevokeInvite(tanjaInvite.ID.String()))
 
 	// Harry creates invitiation to alice, revokes it (hard delete), invite no longer exists
 	invitation := Must(clientHarry.InviteToInstitution(institution1.ID.String(), string(obj.RoleStaff), clientAlice.ID))
@@ -350,13 +353,13 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadership() {
 	s.Equal(2, len(instWithBothHeads.Members), "should have 2 members")
 	s.T().Logf("Institution has 2 heads again")
 
-	// Charlie cannot remove himself - the validation prevents self-removal
-	MustFail(clientCharlie.RemoveMember(institution.ID.String(), clientCharlie.ID))
-	s.T().Logf("Charlie cannot remove himself (expected - validation prevents self-removal)")
+	// Charlie CAN remove himself (leave) since Diana is also a head
+	MustSucceed(clientCharlie.RemoveMember(institution.ID.String(), clientCharlie.ID))
+	s.T().Logf("Charlie left the institution (Diana remains as head)")
 
-	// Diana also cannot remove herself
+	// Diana is now the last head — she cannot leave
 	MustFail(clientDiana.RemoveMember(institution.ID.String(), clientDiana.ID))
-	s.T().Logf("Diana cannot remove herself (expected - validation prevents self-removal)")
+	s.T().Logf("Diana cannot leave (expected - she is the last head)")
 }
 
 // TestInstitutionManagementLeadershipSteal creates two institutions with one head each
@@ -454,13 +457,9 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
 	s.Equal(obj.RoleHead, inst2AfterFrankLeft.Members[0].Role)
 	s.T().Logf("Institution2 now has 1 head: grace (Frank left)")
 
-	// Frank cannot remove himself from institution1 (self-removal validation)
-	MustFail(clientFrank.RemoveMember(institution1.ID.String(), clientFrank.ID))
-	s.T().Logf("Frank cannot remove himself from institution1 (validation prevents self-removal)")
-
-	// Eve can remove Frank from institution1 (since there are 2 heads)
-	MustSucceed(clientEve.RemoveMember(institution1.ID.String(), clientFrank.ID))
-	s.T().Logf("Eve removed Frank from institution1")
+	// Frank CAN remove himself from institution1 (there are 2 heads: eve and frank)
+	MustSucceed(clientFrank.RemoveMember(institution1.ID.String(), clientFrank.ID))
+	s.T().Logf("Frank left institution1 (Eve remains as head)")
 
 	// Verify Frank was removed from institution1
 	inst1AfterRemoval := Must(clientEve.GetInstitution(institution1.ID.String()))
@@ -468,8 +467,9 @@ func (s *MultiUserTestSuite) TestInstitutionManagementLeadershipSteal() {
 	s.Equal("eve", inst1AfterRemoval.Members[0].Name)
 	s.T().Logf("Institution1 back to 1 head: eve")
 
-	// Frank now has no role in any institution
-	s.T().Logf("Frank has no role in any institution")
+	// Eve is now the last head — she cannot leave
+	MustFail(clientEve.RemoveMember(institution1.ID.String(), clientEve.ID))
+	s.T().Logf("Eve cannot leave institution1 (she is the last head)")
 }
 
 // TestInviteByEmail tests email-based invitations

@@ -26,22 +26,10 @@ import {
 } from "@/common/components/controls";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { parseSortValue } from "@/common/lib/sort";
+import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
 import type { ObjUser } from "@/api/generated";
 
 type SortField = "name" | "email" | "role";
-
-const getRoleColor = (role?: string): string => {
-  switch (role) {
-    case "head":
-      return "violet";
-    case "staff":
-      return "blue";
-    case "participant":
-      return "gray";
-    default:
-      return "gray";
-  }
-};
 
 export interface MembersListProps {
   members: ObjUser[];
@@ -69,21 +57,12 @@ export function MembersList({
   onRemove,
 }: MembersListProps) {
   const { t } = useTranslation("common");
-  const { t: tAuth } = useTranslation("auth");
   const { isMobile } = useResponsiveDesign();
+  const translateRole = useTranslateRole(t("myOrganization.noRole"));
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
   const [sortValue, setSortValue] = useState("name-asc");
-
-  const translateRole = useCallback(
-    (role?: string) => {
-      if (!role) return t("myOrganization.noRole");
-      const roleKey = role.toLowerCase();
-      return tAuth(`profile.roles.${roleKey}`, role);
-    },
-    [t, tAuth],
-  );
 
   const isCurrentUser = useCallback(
     (userId?: string) => {

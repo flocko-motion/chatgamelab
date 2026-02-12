@@ -13,6 +13,15 @@ import (
 	"github.com/google/uuid"
 )
 
+const clearInstitutionFreeUseApiKeyShare = `-- name: ClearInstitutionFreeUseApiKeyShare :exec
+UPDATE institution SET free_use_api_key_share_id = NULL WHERE id = $1
+`
+
+func (q *Queries) ClearInstitutionFreeUseApiKeyShare(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearInstitutionFreeUseApiKeyShare, id)
+	return err
+}
+
 const createInstitution = `-- name: CreateInstitution :one
 
 INSERT INTO institution (
@@ -67,14 +76,16 @@ INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
-  ai_quality_tier, show_public_games, show_other_participants_games
+  ai_quality_tier, show_public_games, show_other_participants_games,
+  design_editing_enabled, is_paused
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
-  $11, $12, $13
+  $11, $12, $13,
+  $14, $15
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
 `
 
 type CreateWorkshopParams struct {
@@ -91,6 +102,8 @@ type CreateWorkshopParams struct {
 	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
+	DesignEditingEnabled       bool
+	IsPaused                   bool
 }
 
 // workshop -------------------------------------------------------------
@@ -109,6 +122,8 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		arg.AiQualityTier,
 		arg.ShowPublicGames,
 		arg.ShowOtherParticipantsGames,
+		arg.DesignEditingEnabled,
+		arg.IsPaused,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -126,6 +141,8 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
+		&i.DesignEditingEnabled,
+		&i.IsPaused,
 	)
 	return i, err
 }
@@ -184,12 +201,30 @@ func (q *Queries) CreateWorkshopParticipant(ctx context.Context, arg CreateWorks
 	return i, err
 }
 
-const deleteInstitution = `-- name: DeleteInstitution :exec
-UPDATE institution SET deleted_at = now() WHERE id = $1
+const deleteApiKeySharesByInstitution = `-- name: DeleteApiKeySharesByInstitution :exec
+DELETE FROM api_key_share WHERE institution_id = $1
 `
 
-func (q *Queries) DeleteInstitution(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteInstitution, id)
+func (q *Queries) DeleteApiKeySharesByInstitution(ctx context.Context, institutionID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteApiKeySharesByInstitution, institutionID)
+	return err
+}
+
+const deleteInvitesByInstitution = `-- name: DeleteInvitesByInstitution :exec
+DELETE FROM user_role_invite WHERE institution_id = $1
+`
+
+func (q *Queries) DeleteInvitesByInstitution(ctx context.Context, institutionID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteInvitesByInstitution, institutionID)
+	return err
+}
+
+const deleteUserRolesByInstitution = `-- name: DeleteUserRolesByInstitution :exec
+DELETE FROM user_role WHERE institution_id = $1
+`
+
+func (q *Queries) DeleteUserRolesByInstitution(ctx context.Context, institutionID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteUserRolesByInstitution, institutionID)
 	return err
 }
 
@@ -208,6 +243,15 @@ DELETE FROM workshop_participant WHERE id = $1
 
 func (q *Queries) DeleteWorkshopParticipant(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipant, id)
+	return err
+}
+
+const deleteWorkshopParticipantsByWorkshopID = `-- name: DeleteWorkshopParticipantsByWorkshopID :exec
+DELETE FROM workshop_participant WHERE workshop_id = $1
+`
+
+func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, workshopID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteWorkshopParticipantsByWorkshopID, workshopID)
 	return err
 }
 
@@ -277,8 +321,72 @@ func (q *Queries) GetInstitutionMembers(ctx context.Context, institutionID uuid.
 	return items, nil
 }
 
+const getNonParticipantUserIDsByInstitution = `-- name: GetNonParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role != 'participant'
+  AND u.deleted_at IS NULL
+`
+
+func (q *Queries) GetNonParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getNonParticipantUserIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getParticipantUserIDsByInstitution = `-- name: GetParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role = 'participant'
+  AND u.deleted_at IS NULL
+`
+
+func (q *Queries) GetParticipantUserIDsByInstitution(ctx context.Context, institutionID uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getParticipantUserIDsByInstitution, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopByID = `-- name: GetWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
@@ -299,6 +407,8 @@ func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, 
 		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
+		&i.DesignEditingEnabled,
+		&i.IsPaused,
 	)
 	return i, err
 }
@@ -322,6 +432,24 @@ func (q *Queries) GetWorkshopParticipantByID(ctx context.Context, id uuid.UUID) 
 		&i.Active,
 	)
 	return i, err
+}
+
+const hardDeleteInstitution = `-- name: HardDeleteInstitution :exec
+DELETE FROM institution WHERE id = $1
+`
+
+func (q *Queries) HardDeleteInstitution(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, hardDeleteInstitution, id)
+	return err
+}
+
+const hardDeleteWorkshopsByInstitution = `-- name: HardDeleteWorkshopsByInstitution :exec
+DELETE FROM workshop WHERE institution_id = $1
+`
+
+func (q *Queries) HardDeleteWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, hardDeleteWorkshopsByInstitution, institutionID)
+	return err
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
@@ -362,7 +490,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 }
 
 const listWorkshops = `-- name: ListWorkshops :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
@@ -389,6 +517,8 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 			&i.AiQualityTier,
 			&i.ShowPublicGames,
 			&i.ShowOtherParticipantsGames,
+			&i.DesignEditingEnabled,
+			&i.IsPaused,
 		); err != nil {
 			return nil, err
 		}
@@ -404,7 +534,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 }
 
 const listWorkshopsByInstitution = `-- name: ListWorkshopsByInstitution :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]Workshop, error) {
@@ -431,6 +561,8 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 			&i.AiQualityTier,
 			&i.ShowPublicGames,
 			&i.ShowOtherParticipantsGames,
+			&i.DesignEditingEnabled,
+			&i.IsPaused,
 		); err != nil {
 			return nil, err
 		}
@@ -467,7 +599,7 @@ UPDATE workshop SET
   modified_at = now(),
   default_api_key_share_id = $3
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
 `
 
 type SetWorkshopDefaultApiKeyParams struct {
@@ -494,8 +626,19 @@ func (q *Queries) SetWorkshopDefaultApiKey(ctx context.Context, arg SetWorkshopD
 		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
+		&i.DesignEditingEnabled,
+		&i.IsPaused,
 	)
 	return i, err
+}
+
+const softDeleteInstitution = `-- name: SoftDeleteInstitution :exec
+UPDATE institution SET deleted_at = now() WHERE id = $1
+`
+
+func (q *Queries) SoftDeleteInstitution(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, softDeleteInstitution, id)
+	return err
 }
 
 const updateInstitution = `-- name: UpdateInstitution :one
@@ -571,9 +714,11 @@ UPDATE workshop SET
   default_api_key_share_id = $10,
   ai_quality_tier = $11,
   show_public_games = $12,
-  show_other_participants_games = $13
+  show_other_participants_games = $13,
+  design_editing_enabled = $14,
+  is_paused = $15
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
 `
 
 type UpdateWorkshopParams struct {
@@ -590,6 +735,8 @@ type UpdateWorkshopParams struct {
 	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
+	DesignEditingEnabled       bool
+	IsPaused                   bool
 }
 
 func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) (Workshop, error) {
@@ -607,6 +754,8 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		arg.AiQualityTier,
 		arg.ShowPublicGames,
 		arg.ShowOtherParticipantsGames,
+		arg.DesignEditingEnabled,
+		arg.IsPaused,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -624,6 +773,8 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.AiQualityTier,
 		&i.ShowPublicGames,
 		&i.ShowOtherParticipantsGames,
+		&i.DesignEditingEnabled,
+		&i.IsPaused,
 	)
 	return i, err
 }

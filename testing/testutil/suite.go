@@ -195,7 +195,7 @@ func (s *BaseSuite) SetupSuite() {
 		t:     s.T(),
 	}
 
-	fmt.Printf("✅ [%s] Backend fully ready!\n\n", s.SuiteName)
+	fmt.Printf("✅ [%s] Backend ready for tests!\n\n", s.SuiteName)
 }
 
 // TearDownSuite runs once after all tests in the suite

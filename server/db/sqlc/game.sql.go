@@ -24,6 +24,15 @@ func (q *Queries) ClearGameSessionApiKeyByID(ctx context.Context, id uuid.UUID) 
 	return err
 }
 
+const clearPrivateShareGameIDByGameID = `-- name: ClearPrivateShareGameIDByGameID :exec
+UPDATE app_user SET private_share_game_id = NULL WHERE private_share_game_id = $1
+`
+
+func (q *Queries) ClearPrivateShareGameIDByGameID(ctx context.Context, privateShareGameID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearPrivateShareGameIDByGameID, privateShareGameID)
+	return err
+}
+
 const createGame = `-- name: CreateGame :one
 
 
@@ -409,6 +418,15 @@ func (q *Queries) DeleteEmptyGameSession(ctx context.Context, id uuid.UUID) erro
 	return err
 }
 
+const deleteFavouritesByGameID = `-- name: DeleteFavouritesByGameID :exec
+DELETE FROM user_favourite_game WHERE game_id = $1
+`
+
+func (q *Queries) DeleteFavouritesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteFavouritesByGameID, gameID)
+	return err
+}
+
 const deleteGameSession = `-- name: DeleteGameSession :exec
 DELETE FROM game_session WHERE id = $1
 `
@@ -424,6 +442,17 @@ DELETE FROM game_session_message WHERE id = $1
 
 func (q *Queries) DeleteGameSessionMessage(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteGameSessionMessage, id)
+	return err
+}
+
+const deleteGameSessionMessagesByGameID = `-- name: DeleteGameSessionMessagesByGameID :exec
+DELETE FROM game_session_message WHERE game_session_id IN (
+  SELECT id FROM game_session WHERE game_id = $1
+)
+`
+
+func (q *Queries) DeleteGameSessionMessagesByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGameSessionMessagesByGameID, gameID)
 	return err
 }
 
@@ -447,12 +476,30 @@ func (q *Queries) DeleteGameSessionMessagesByUserID(ctx context.Context, userID 
 	return err
 }
 
+const deleteGameSessionsByGameID = `-- name: DeleteGameSessionsByGameID :exec
+DELETE FROM game_session WHERE game_id = $1
+`
+
+func (q *Queries) DeleteGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGameSessionsByGameID, gameID)
+	return err
+}
+
 const deleteGameTag = `-- name: DeleteGameTag :exec
 DELETE FROM game_tag WHERE id = $1
 `
 
 func (q *Queries) DeleteGameTag(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteGameTag, id)
+	return err
+}
+
+const deleteGameTagsByGameID = `-- name: DeleteGameTagsByGameID :exec
+DELETE FROM game_tag WHERE game_id = $1
+`
+
+func (q *Queries) DeleteGameTagsByGameID(ctx context.Context, gameID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteGameTagsByGameID, gameID)
 	return err
 }
 
@@ -605,6 +652,35 @@ func (q *Queries) GetGameByPrivateShareHash(ctx context.Context, privateShareHas
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const getGameIDsByCreator = `-- name: GetGameIDsByCreator :many
+
+SELECT id FROM game WHERE created_by = $1
+`
+
+// User deletion: game cleanup queries
+func (q *Queries) GetGameIDsByCreator(ctx context.Context, createdBy uuid.NullUUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGameIDsByCreator, createdBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getGameIDsVisibleToUser = `-- name: GetGameIDsVisibleToUser :many
@@ -2662,6 +2738,15 @@ func (q *Queries) HardDeleteGame(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const hardDeleteGamesByCreator = `-- name: HardDeleteGamesByCreator :exec
+DELETE FROM game WHERE created_by = $1
+`
+
+func (q *Queries) HardDeleteGamesByCreator(ctx context.Context, createdBy uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, hardDeleteGamesByCreator, createdBy)
+	return err
+}
+
 const incrementGameCloneCount = `-- name: IncrementGameCloneCount :exec
 UPDATE game SET clone_count = clone_count + 1 WHERE id = $1
 `
@@ -4569,6 +4654,15 @@ UPDATE game SET deleted_at = now(), modified_at = now() WHERE id = $1
 
 func (q *Queries) SoftDeleteGame(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, softDeleteGame, id)
+	return err
+}
+
+const unlinkGamesFromWorkshop = `-- name: UnlinkGamesFromWorkshop :exec
+UPDATE game SET workshop_id = NULL WHERE workshop_id = $1
+`
+
+func (q *Queries) UnlinkGamesFromWorkshop(ctx context.Context, workshopID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, unlinkGamesFromWorkshop, workshopID)
 	return err
 }
 

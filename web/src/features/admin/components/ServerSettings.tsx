@@ -11,7 +11,14 @@ import {
   Alert,
   Loader,
 } from "@mantine/core";
-import { IconKey, IconAlertCircle, IconSparkles } from "@tabler/icons-react";
+import {
+  IconKey,
+  IconAlertCircle,
+  IconSparkles,
+  IconCircleCheck,
+  IconCircleX,
+  IconCircleMinus,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { isAdmin } from "@/common/lib/roles";
@@ -56,21 +63,15 @@ export function ServerSettings() {
     );
   }
 
-  // Get unique keys owned by the admin
+  // Get the admin's own keys for the Select dropdown
   const keys = apiKeys?.apiKeys ?? [];
   const keyOptions = keys.map((key) => ({
     value: key.id!,
     label: `${key.name || ""} (${key.platform || ""})`,
   }));
-  const uniqueKeys = new Map(
-    keys.map((key) => [
-      key.id!,
-      { id: key.id!, name: key.name || "", platform: key.platform || "" },
-    ]),
-  );
 
-  const currentKeyId = settings?.freeUseApiKeyId;
-  const currentKey = currentKeyId ? uniqueKeys.get(currentKeyId) : undefined;
+  // Current free-use key info comes from system settings (visible to any admin)
+  const hasCurrentKey = !!settings?.freeUseApiKeyId;
 
   return (
     <Container size="xl" py="xl">
@@ -117,11 +118,42 @@ export function ServerSettings() {
               {t("serverSettings.freeUseKey.description")}
             </Text>
 
-            {currentKey ? (
+            {hasCurrentKey && (
               <Group gap="sm" wrap="wrap">
                 <Badge color="cyan" variant="light" size="lg">
-                  {currentKey.name} ({currentKey.platform})
+                  {settings.freeUseApiKeyName || "?"} (
+                  {settings.freeUseApiKeyPlatform || "?"})
                 </Badge>
+                {settings.freeUseApiKeyWorking === true && (
+                  <Group gap={4}>
+                    <IconCircleCheck
+                      size={16}
+                      color="var(--mantine-color-green-6)"
+                    />
+                    <Text size="xs" c="green">
+                      {t("serverSettings.freeUseKey.working")}
+                    </Text>
+                  </Group>
+                )}
+                {settings.freeUseApiKeyWorking === false && (
+                  <Group gap={4}>
+                    <IconCircleX size={16} color="var(--mantine-color-red-6)" />
+                    <Text size="xs" c="red">
+                      {t("serverSettings.freeUseKey.notWorking")}
+                    </Text>
+                  </Group>
+                )}
+                {settings.freeUseApiKeyWorking == null && (
+                  <Group gap={4}>
+                    <IconCircleMinus
+                      size={16}
+                      color="var(--mantine-color-gray-5)"
+                    />
+                    <Text size="xs" c="dimmed">
+                      {t("serverSettings.freeUseKey.untested")}
+                    </Text>
+                  </Group>
+                )}
                 <Button
                   variant="subtle"
                   color="red"
@@ -132,21 +164,25 @@ export function ServerSettings() {
                   {t("serverSettings.freeUseKey.remove")}
                 </Button>
               </Group>
-            ) : (
-              <Select
-                placeholder={t("serverSettings.freeUseKey.selectPlaceholder")}
-                data={keyOptions}
-                onChange={(value) => {
-                  if (value) {
-                    setFreeUseKey.mutate({ apiKeyId: value });
-                  }
-                }}
-                disabled={keyOptions.length === 0 || setFreeUseKey.isPending}
-                clearable={false}
-                size="sm"
-                style={{ maxWidth: 400 }}
-              />
             )}
+
+            <Select
+              placeholder={
+                hasCurrentKey
+                  ? t("serverSettings.freeUseKey.replacePlaceholder")
+                  : t("serverSettings.freeUseKey.selectPlaceholder")
+              }
+              data={keyOptions}
+              onChange={(value) => {
+                if (value) {
+                  setFreeUseKey.mutate({ apiKeyId: value });
+                }
+              }}
+              disabled={keyOptions.length === 0 || setFreeUseKey.isPending}
+              clearable={false}
+              size="sm"
+              style={{ maxWidth: 400 }}
+            />
 
             {keyOptions.length === 0 && (
               <Text size="xs" c="dimmed">

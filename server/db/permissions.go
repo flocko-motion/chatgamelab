@@ -57,16 +57,16 @@ func canAccessInstitution(ctx context.Context, userID uuid.UUID, operation CRUDO
 
 	case OpUpdate:
 		// Admin can update any institution
-		// Head can update their own institution
+		// Head or staff can update their own institution
 		if institutionID == nil {
 			return obj.ErrValidation("institutionID required for update operation")
 		}
 		if user.Role != nil && user.Role.Institution != nil && user.Role.Institution.ID == *institutionID {
-			if user.Role.Role == obj.RoleHead {
+			if user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff {
 				return nil
 			}
 		}
-		return obj.ErrForbidden("only admin or head of institution can update this institution")
+		return obj.ErrForbidden("only admin, head, or staff of institution can update this institution")
 
 	case OpDelete:
 		// Only admin can delete institutions
@@ -113,11 +113,6 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 			// If target is a head, apply additional validations
 			if targetUser.Role != nil && targetUser.Role.Role == obj.RoleHead &&
 				targetUser.Role.Institution != nil && targetUser.Role.Institution.ID == institutionID {
-				// Heads cannot remove themselves
-				if *targetUserID == userID {
-					return obj.ErrForbidden("heads cannot remove themselves from an institution")
-				}
-
 				// Count heads in this institution
 				members, err := GetInstitutionMembers(ctx, institutionID, userID)
 				if err != nil {
@@ -131,9 +126,9 @@ func canAccessInstitutionMembers(ctx context.Context, userID uuid.UUID, operatio
 					}
 				}
 
-				// Prevent removing the last head
+				// Prevent removing the last head (whether self or other)
 				if headCount <= 1 {
-					return obj.ErrForbidden("cannot remove the last head from an institution")
+					return obj.NewAppError(obj.ErrCodeLastHead, "you are the last head of this organization — please contact the site administrators to leave")
 				}
 			}
 
@@ -373,6 +368,13 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 		return nil
 	}
 
+	// Individuals in workshop mode can read their active workshop (they have no institution)
+	if user.Role != nil && user.Role.Role == obj.RoleIndividual && operation == OpRead && workshopID != nil {
+		if user.Role.Workshop != nil && user.Role.Workshop.ID == *workshopID {
+			return nil
+		}
+	}
+
 	// Members (head/staff/participant) can access their institution's workshops
 	if user.Role == nil || user.Role.Institution == nil || user.Role.Institution.ID != institutionID {
 		return obj.ErrForbidden("not authorized to access workshops for this institution")
@@ -461,13 +463,12 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 				if user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
 					return nil
 				}
-				// Staff with role for this specific workshop can read
-				if user.Role.Role == obj.RoleStaff && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
-					return nil
-				}
-				// Head of institution can read all workshop games in their institution
-				if user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
-					return nil
+				// Head/staff of the workshop's institution can read
+				if (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
+					ws, wsErr := queries().GetWorkshopByID(ctx, *game.WorkshopID)
+					if wsErr == nil && ws.InstitutionID == user.Role.Institution.ID {
+						return nil
+					}
 				}
 			}
 		}
@@ -486,14 +487,19 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		if game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == userID {
 			return nil
 		}
-		// If game belongs to a workshop, head of institution can update/delete
+		// If game belongs to a workshop, head/staff of the workshop's institution can update/delete
 		if game.WorkshopID != nil {
 			user, err := GetUserByID(ctx, userID)
-			if err == nil && user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
-				return nil
+			if err == nil && user.Role != nil && user.Role.Institution != nil &&
+				(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) {
+				// Verify the workshop belongs to the user's institution
+				ws, wsErr := queries().GetWorkshopByID(ctx, *game.WorkshopID)
+				if wsErr == nil && ws.InstitutionID == user.Role.Institution.ID {
+					return nil
+				}
 			}
 		}
-		return obj.ErrForbidden("only the owner or institution head can modify this game")
+		return obj.ErrForbidden("only the owner or institution head/staff can modify this game")
 
 	default:
 		return obj.ErrForbidden("unknown operation")
@@ -762,12 +768,11 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		if targetUserID == userID {
 			return nil
 		}
-		// Heads can read users in their institution's workshops
-		if user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
-			// Check if target user has a role in any workshop of this institution
+		// Head/staff can read users in their institution
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
 			targetUser, err := GetUserByID(ctx, targetUserID)
 			if err == nil && targetUser.Role != nil {
-				// If target has workshop role, check if workshop belongs to head's institution
+				// If target has workshop role, check if workshop belongs to the institution
 				if targetUser.Role.Workshop != nil {
 					workshop, err := queries().GetWorkshopByID(ctx, targetUser.Role.Workshop.ID)
 					if err == nil && workshop.InstitutionID == user.Role.Institution.ID {
@@ -784,12 +789,11 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 
 	case OpList:
 		// Admin can list all users
-		// Heads can list users in their institution
-		// Complex filtering logic implemented in the list function itself
-		if user.Role != nil && user.Role.Role == obj.RoleHead && user.Role.Institution != nil {
+		// Head/staff can list users in their institution (filtered in handler)
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff) && user.Role.Institution != nil {
 			return nil
 		}
-		return obj.ErrForbidden("only admins or institution heads can list users")
+		return obj.ErrForbidden("only admins or institution heads/staff can list users")
 
 	case OpUpdate:
 		// Users can update their own profile
@@ -805,6 +809,12 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 	default:
 		return obj.ErrForbidden("unknown operation")
 	}
+}
+
+// CanReadUser checks if the requesting user can read the target user's profile.
+// Exported wrapper around canAccessUser with OpRead.
+func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID uuid.UUID) error {
+	return canAccessUser(ctx, requestingUserID, OpRead, targetUserID)
 }
 
 // canManageUserRole checks if user can manage (set/remove) roles

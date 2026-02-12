@@ -222,6 +222,8 @@ type Workshop struct {
 	AiQualityTier              sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
+	DesignEditingEnabled       bool
+	IsPaused                   bool
 }
 
 type WorkshopParticipant struct {

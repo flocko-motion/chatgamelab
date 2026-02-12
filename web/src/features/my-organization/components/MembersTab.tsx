@@ -72,6 +72,7 @@ export function MembersTab({
   ] = useDisclosure(false);
   const [leaveModalOpened, { open: openLeaveModal, close: closeLeaveModal }] =
     useDisclosure(false);
+  const [leaveError, setLeaveError] = useState<string | null>(null);
 
   const institutionId = getUserInstitutionId(backendUser);
   const isHead = hasRole(backendUser, Role.Head);
@@ -194,8 +195,21 @@ export function MembersTab({
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.backendUser });
       retryBackendFetch(); // Refresh user data to update header
+      setLeaveError(null);
       closeLeaveModal();
       navigate({ to: "/dashboard" });
+    },
+    onError: (error: unknown) => {
+      if (error && typeof error === "object" && "error" in error) {
+        const apiError = error as {
+          error?: { code?: string; message?: string };
+        };
+        if (apiError.error?.code === "last_head") {
+          setLeaveError(t("myOrganization.lastHeadError"));
+          return;
+        }
+      }
+      setLeaveError(t("myOrganization.leaveError"));
     },
   });
 
@@ -356,7 +370,10 @@ export function MembersTab({
 
       <ConfirmationModal
         opened={leaveModalOpened}
-        onClose={closeLeaveModal}
+        onClose={() => {
+          setLeaveError(null);
+          closeLeaveModal();
+        }}
         title={t("myOrganization.leaveTitle")}
         message={t("myOrganization.leaveConfirm", { name: institution?.name })}
         warning={t("myOrganization.leaveWarning")}
@@ -365,6 +382,7 @@ export function MembersTab({
         confirmColor="red"
         onConfirm={() => leaveOrganizationMutation.mutate()}
         isLoading={leaveOrganizationMutation.isPending}
+        error={leaveError}
       />
     </>
   );

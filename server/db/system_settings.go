@@ -29,6 +29,13 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	}
 	if row.FreeUseApiKeyID.Valid {
 		settings.FreeUseApiKeyID = &row.FreeUseApiKeyID.UUID
+		// Enrich with key details so any admin can see the current key
+		apiKey, err := GetApiKeyByID(ctx, row.FreeUseApiKeyID.UUID)
+		if err == nil {
+			settings.FreeUseApiKeyName = apiKey.Name
+			settings.FreeUseApiKeyPlatform = apiKey.Platform
+			settings.FreeUseApiKeyWorking = apiKey.LastUsageSuccess
+		}
 	}
 	return settings, nil
 }
@@ -46,6 +53,12 @@ func UpdateFreeUseAiQualityTier(ctx context.Context, tier *string) error {
 // UpdateSystemSettingsFreeUseApiKey sets or clears the free-use API key (admin only).
 func UpdateSystemSettingsFreeUseApiKey(ctx context.Context, apiKeyID *uuid.UUID) error {
 	return queries().UpdateSystemSettingsFreeUseApiKey(ctx, uuidPtrToNullUUID(apiKeyID))
+}
+
+// ClearSystemSettingsFreeUseApiKeyByOwner clears the free-use API key if it
+// references a key owned by the given user (e.g. when the user loses admin role).
+func ClearSystemSettingsFreeUseApiKeyByOwner(ctx context.Context, userID uuid.UUID) error {
+	return queries().ClearSystemSettingsFreeUseApiKeyByOwner(ctx, userID)
 }
 
 // InitSystemSettings ensures system settings exist with a default value

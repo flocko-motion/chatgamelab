@@ -4,6 +4,7 @@ import (
 	db "cgl/db/sqlc"
 	"cgl/obj"
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -247,15 +248,45 @@ func UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, userID uuid.UUID
 	})
 }
 
-// DeleteInstitution soft-deletes an institution (admin only)
+// DeleteInstitution deletes an institution and all its data (admin only).
+// Cascade: workshops (with participants/games), member users (with their data),
+// invites, API key shares, free-use key ref.
 func DeleteInstitution(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) error {
 	// Check permission - only admin can delete institutions
 	if err := canAccessInstitution(ctx, deletedBy, OpDelete, nil); err != nil {
 		return err
 	}
 
-	err := queries().DeleteInstitution(ctx, id)
-	if err != nil {
+	// 1. Delete all workshops (cascades to participants, games, etc.)
+	workshopIDs, _ := queries().GetWorkshopIDsByInstitution(ctx, id)
+	for _, wsID := range workshopIDs {
+		// Use deletedBy (admin) to bypass per-workshop permission checks
+		_ = DeleteWorkshop(ctx, wsID, deletedBy)
+	}
+
+	// 2. Delete participant users only (anonymous workshop users)
+	participantIDs, _ := queries().GetParticipantUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	for _, participantID := range participantIDs {
+		_ = DeleteUser(ctx, participantID)
+	}
+
+	// 3. Collect non-participant members (head/staff) before removing roles
+	memberIDs, _ := queries().GetNonParticipantUserIDsByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+
+	// 4. Clean up remaining FK references before hard-delete
+	_ = queries().DeleteInvitesByInstitution(ctx, id)
+	_ = queries().DeleteApiKeySharesByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	_ = queries().DeleteUserRolesByInstitution(ctx, uuid.NullUUID{UUID: id, Valid: true})
+	_ = queries().HardDeleteWorkshopsByInstitution(ctx, id)
+	_ = queries().ClearInstitutionFreeUseApiKeyShare(ctx, id)
+
+	// 5. Assign individual role to former members so they aren't left without a role
+	for _, memberID := range memberIDs {
+		_ = assignDefaultIndividualRole(ctx, memberID)
+	}
+
+	// 6. Hard-delete the institution
+	if err := queries().HardDeleteInstitution(ctx, id); err != nil {
 		return obj.ErrServerError("failed to delete institution")
 	}
 	return nil
@@ -344,6 +375,14 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 	err := queries().DeleteUserRole(ctx, memberUserID)
 	if err != nil {
 		return obj.ErrServerError("failed to remove member")
+	}
+
+	// Assign "individual" role so the user isn't left without a role
+	if _, err := queries().CreateUserRole(ctx, db.CreateUserRoleParams{
+		UserID: memberUserID,
+		Role:   sql.NullString{String: string(obj.RoleIndividual), Valid: true},
+	}); err != nil {
+		return obj.ErrServerError("failed to assign individual role after member removal")
 	}
 
 	return nil

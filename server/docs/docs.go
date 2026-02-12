@@ -5264,6 +5264,15 @@ const docTemplate = `{
                 "freeUseApiKeyId": {
                     "type": "string"
                 },
+                "freeUseApiKeyName": {
+                    "type": "string"
+                },
+                "freeUseApiKeyPlatform": {
+                    "type": "string"
+                },
+                "freeUseApiKeyWorking": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5420,6 +5429,9 @@ const docTemplate = `{
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
+                "designEditingEnabled": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5431,6 +5443,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/obj.UserRoleInvite"
                     }
+                },
+                "isPaused": {
+                    "type": "boolean"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -6169,6 +6184,12 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "type": "string"
+                },
+                "designEditingEnabled": {
+                    "type": "boolean"
+                },
+                "isPaused": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

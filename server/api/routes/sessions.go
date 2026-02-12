@@ -168,6 +168,7 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusNotFound, "Session not found")
 		return
 	}
+	log.Debug("[TRACE] session loaded from DB for action", "session_id", session.ID, "ai_session", session.AiSession, "platform", session.AiPlatform)
 
 	// Get current status fields from the latest message in the session
 	var currentStatus []obj.StatusField
@@ -184,18 +185,11 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		StatusFields:  currentStatus,
 	}
 
-	// Re-resolve API key fresh (sponsorship may have been removed since session was created)
-	if httpErr := game.ResolveSessionApiKey(r.Context(), session); httpErr != nil {
-		log.Debug("failed to resolve API key for session action", "session_id", session.ID, "error", httpErr.Message)
-		httpx.WriteHTTPError(w, httpErr)
-		return
-	}
-
-	// Execute the action and get streaming response
+	// Re-resolve API key and execute action with fallback retry logic
 	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
-	response, httpErr := game.DoSessionAction(r.Context(), session, action)
+	response, httpErr := game.DoSessionActionWithFallback(r.Context(), session, action)
 	if httpErr != nil {
-		log.Debug("session action failed", "session_id", session.ID, "error", httpErr.Message)
+		log.Warn("session action failed", "session_id", session.ID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}

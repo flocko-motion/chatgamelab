@@ -5262,6 +5262,15 @@
                 "freeUseApiKeyId": {
                     "type": "string"
                 },
+                "freeUseApiKeyName": {
+                    "type": "string"
+                },
+                "freeUseApiKeyPlatform": {
+                    "type": "string"
+                },
+                "freeUseApiKeyWorking": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5418,6 +5427,9 @@
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
+                "designEditingEnabled": {
+                    "type": "boolean"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5429,6 +5441,9 @@
                     "items": {
                         "$ref": "#/definitions/obj.UserRoleInvite"
                     }
+                },
+                "isPaused": {
+                    "type": "boolean"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -6167,6 +6182,12 @@
                 },
                 "aiQualityTier": {
                     "type": "string"
+                },
+                "designEditingEnabled": {
+                    "type": "boolean"
+                },
+                "isPaused": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"

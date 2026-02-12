@@ -360,6 +360,14 @@ func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {
 	// Store workshop ID before deletion for event publishing
 	workshopID := game.WorkshopID
 
+	// Clean up game data: sessions, messages, tags, favourites, shares, private share refs
+	_ = queries().DeleteGameSessionMessagesByGameID(ctx, gameID)
+	_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
+	_ = queries().DeleteGameTagsByGameID(ctx, gameID)
+	_ = queries().DeleteFavouritesByGameID(ctx, gameID)
+	_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+	_ = queries().ClearPrivateShareGameIDByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+
 	if err := queries().SoftDeleteGame(ctx, gameID); err != nil {
 		return err
 	}
@@ -1903,6 +1911,53 @@ func uuidPtrToNullUUID(id *uuid.UUID) uuid.NullUUID {
 // IncrementGamePlayCount increments the play count of a game by 1.
 func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
 	return queries().IncrementGamePlayCount(ctx, gameID)
+}
+
+// CreatePrivateShareSponsorship creates a game-scoped API key share for private sharing.
+// Unlike public sponsoring, this does NOT require allowPublicGameSponsoring on the source share.
+// The user must own the API key behind the share and have update permission on the game.
+// If a previous private share sponsorship exists, it is cleaned up first.
+func CreatePrivateShareSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID) (*uuid.UUID, error) {
+	// Load game and check update permission
+	game, err := loadGameByID(ctx, gameID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGame(ctx, userID, OpUpdate, game, nil); err != nil {
+		return nil, err
+	}
+
+	// Verify the share exists and the user owns the underlying key
+	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
+	if err != nil {
+		return nil, obj.ErrNotFound("api key share not found")
+	}
+	if share.KeyOwnerID != userID {
+		return nil, obj.ErrForbidden("only the key owner can sponsor a game")
+	}
+
+	// Verify the key hasn't been proven to NOT work
+	if share.KeyLastUsageSuccess.Valid && !share.KeyLastUsageSuccess.Bool {
+		return nil, obj.ErrValidation("api key must be working before it can be used for private sharing")
+	}
+
+	// Clean up any existing private share sponsorship
+	if game.PrivateSponsoredApiKeyShareID != nil {
+		_ = queries().DeleteApiKeyShare(ctx, *game.PrivateSponsoredApiKeyShareID)
+	}
+
+	// Create a game-scoped share (accessible by uuid.Nil in guest play flow)
+	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID, false)
+	if err != nil {
+		return nil, obj.ErrServerError("failed to create private share sponsorship")
+	}
+
+	return gameScopedShareID, nil
+}
+
+// DeletePrivateShareSponsorship deletes a game-scoped private share sponsorship.
+func DeletePrivateShareSponsorship(ctx context.Context, shareID uuid.UUID) error {
+	return queries().DeleteApiKeyShare(ctx, shareID)
 }
 
 // DecrementPrivateShareRemaining atomically decrements the private share remaining counter.

@@ -1,68 +1,20 @@
 package mistral
 
 import (
-	"cgl/apiclient"
 	"cgl/functional"
+	"cgl/game/status"
 	"cgl/game/stream"
+	"cgl/game/templates"
 	"cgl/lang"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
-	"strings"
 )
 
 type MistralPlatform struct{}
-
-const (
-	mistralBaseURL        = "https://api.mistral.ai/v1"
-	mistralChatEndpoint   = "/chat/completions"
-	mistralModelsEndpoint = "/models"
-)
-
-// chatResponse represents the response from Mistral's chat completion API
-type chatResponse struct {
-	Choices []struct {
-		Message struct {
-			Content string `json:"content"`
-		} `json:"message"`
-	} `json:"choices"`
-}
-
-// parseContent parses the JSON content from the first choice into the provided destination
-func (r *chatResponse) parseContent(dest any) error {
-	if len(r.Choices) == 0 {
-		return fmt.Errorf("no choices in response")
-	}
-	return json.Unmarshal([]byte(r.Choices[0].Message.Content), dest)
-}
-
-// message represents a chat message in the request
-type message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
-
-// responseFormat represents the response format structure
-type responseFormat struct {
-	Type string `json:"type"`
-}
-
-// chatCompletionRequest represents the request structure for chat completion
-type chatCompletionRequest struct {
-	Model          string         `json:"model"`
-	Messages       []message      `json:"messages"`
-	Temperature    float64        `json:"temperature"`
-	ResponseFormat responseFormat `json:"response_format"`
-}
-
-// newApi creates a new API client for Mistral with the given API key
-func (p *MistralPlatform) newApi(apiKey string) *apiclient.Client {
-	return apiclient.NewApi(mistralBaseURL, map[string]string{
-		"Authorization": "Bearer " + apiKey,
-	})
-}
 
 func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 	return obj.AiPlatform{
@@ -88,18 +40,177 @@ func (p *MistralPlatform) ResolveModel(model string) string {
 }
 
 func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
-	// TODO: implement Mistral action execution
-	return obj.TokenUsage{}, fmt.Errorf("Mistral ExecuteAction not implemented")
+	model := p.ResolveModel(session.AiModel)
+	log.Debug("Mistral ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
+
+	if session.ApiKey == nil {
+		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
+	}
+
+	// Parse the model session
+	log.Debug("[TRACE] Mistral ExecuteAction AiSession input", "ai_session", session.AiSession, "action_type", action.Type)
+	var modelSession ModelSession
+	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
+		log.Warn("failed to parse model session", "error", err, "ai_session_raw", session.AiSession)
+		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
+	}
+	log.Debug("[TRACE] Mistral parsed ModelSession", "conversation_id", modelSession.ConversationID)
+
+	// Serialize the player action as JSON input (minimal AI-facing structure)
+	actionInput := action.ToAiJSON()
+
+	completionArgs := &CompletionArgs{
+		MaxTokens: 5000,
+		ResponseFormat: &ResponseFormat{
+			Type: "json_schema",
+			JSONSchema: &JSONSchema{
+				Name:   "game_response",
+				Schema: gameSchema,
+				Strict: true,
+			},
+		},
+	}
+
+	var apiResponse *ConversationsAPIResponse
+	var usage obj.TokenUsage
+	var err error
+
+	if action.Type == obj.GameSessionMessageTypeSystem {
+		// First turn: create a new conversation with system instructions
+		req := ConversationsAPIRequest{
+			Model:          model,
+			Instructions:   action.Message,
+			Inputs:         []InputMessage{{Role: "user", Content: templates.PromptMessageStart}},
+			Store:          true,
+			CompletionArgs: completionArgs,
+		}
+		apiResponse, usage, err = callConversationsAPI(ctx, session.ApiKey.Key, req)
+	} else if modelSession.ConversationID != "" {
+		// Continuation: append to existing conversation with developer reminder
+		// Mistral append only accepts "user" or "assistant" roles (not "system")
+		req := ConversationsAppendRequest{
+			Inputs: []InputMessage{
+				{Role: "user", Content: templates.ReminderExecuteAction},
+				{Role: "user", Content: actionInput},
+			},
+			Store:          true,
+			CompletionArgs: completionArgs,
+		}
+		apiResponse, usage, err = callConversationsAppendAPI(ctx, session.ApiKey.Key, modelSession.ConversationID, req)
+		// Set debug prompt showing full input sent to the AI
+		response.PromptStatusUpdate = functional.Ptr(
+			"[system] " + templates.ReminderExecuteAction + "\n\n[user] " + actionInput)
+	} else {
+		return obj.TokenUsage{}, fmt.Errorf("no conversation ID and not a system message")
+	}
+
+	if err != nil {
+		log.Error("Mistral API call failed", "error", err, "session_id", session.ID, "model", model)
+		return obj.TokenUsage{}, fmt.Errorf("Mistral API error: %w", err)
+	}
+	log.Debug("Mistral API call completed", "conversation_id", apiResponse.ConversationID)
+
+	// Extract the text response
+	responseText := extractResponseText(apiResponse)
+	if responseText == "" {
+		return usage, fmt.Errorf("no text response from Mistral")
+	}
+
+	response.ResponseRaw = &responseText
+
+	// Parse the AI response and convert to internal format
+	log.Debug("parsing AI response", "response_length", len(responseText), "response_text", responseText)
+	if err := status.ParseGameResponse(responseText, session.StatusFields, action.StatusFields, response); err != nil {
+		log.Error("failed to parse game response", "error", err, "response_text", responseText)
+		return usage, err
+	}
+
+	// Update model session with new conversation ID
+	log.Debug("[TRACE] Mistral updating AiSession", "old_conversation_id", modelSession.ConversationID, "new_conversation_id", apiResponse.ConversationID)
+	modelSession.ConversationID = apiResponse.ConversationID
+	sessionJSON, err := json.Marshal(modelSession)
+	if err != nil {
+		return usage, fmt.Errorf("failed to marshal model session: %w", err)
+	}
+	session.AiSession = string(sessionJSON)
+	log.Debug("[TRACE] Mistral AiSession after ExecuteAction", "ai_session", session.AiSession)
+
+	// Set fields that come from the session, not from the AI
+	response.GameSessionID = session.ID
+	response.Type = obj.GameSessionMessageTypeGame
+
+	return usage, nil
 }
 
+// ExpandStory expands the plot outline to full narrative text using streaming
 func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error) {
-	// TODO: implement Mistral story expansion
-	return obj.TokenUsage{}, fmt.Errorf("Mistral ExpandStory not implemented")
+	log.Debug("Mistral ExpandStory starting", "session_id", session.ID, "message_id", response.ID)
+
+	if session.ApiKey == nil {
+		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
+	}
+
+	// Parse the model session to get conversation ID
+	var modelSession ModelSession
+	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
+		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
+	}
+
+	// Append to existing conversation with streaming - plain text, no JSON schema
+	// Mistral append only accepts "user" or "assistant" roles (not "system")
+	req := ConversationsAppendRequest{
+		Inputs: []InputMessage{
+			{Role: "user", Content: templates.PromptNarratePlotOutline},
+		},
+		Store:  true,
+		Stream: true,
+	}
+
+	// Make streaming API call
+	log.Debug("calling Mistral streaming API for story expansion")
+	fullText, newConversationID, usage, err := callStreamingConversationsAPI(ctx, session.ApiKey.Key, modelSession.ConversationID, req, responseStream)
+	if err != nil {
+		// For story expansion, partial text is still usable - don't fail if we got some output
+		if len(fullText) > 0 {
+			log.Warn("Mistral streaming API incomplete, using partial text",
+				"error", err,
+				"session_id", session.ID,
+				"text_length", len(fullText),
+			)
+		} else {
+			log.Error("Mistral streaming API failed",
+				"error", err,
+				"session_id", session.ID,
+			)
+			return usage, fmt.Errorf("Mistral streaming API error: %w", err)
+		}
+	}
+	log.Debug("story expansion completed", "text_length", len(fullText), "new_conversation_id", newConversationID)
+
+	// Update response with full text
+	response.Message = fullText
+
+	// Update model session with new conversation ID
+	if newConversationID != "" {
+		modelSession.ConversationID = newConversationID
+	}
+	sessionJSON, err := json.Marshal(modelSession)
+	if err != nil {
+		return usage, fmt.Errorf("failed to marshal model session: %w", err)
+	}
+	session.AiSession = string(sessionJSON)
+
+	return usage, nil
 }
 
+// GenerateImage is a no-op for Mistral.
+// NOTE: Mistral supports image generation only as a built-in agent tool via the Conversations API
+// (see https://docs.mistral.ai/agents/tools/built-in/image_generation), not as a standalone endpoint.
+// This would require creating an agent with tools=[{"type":"image_generation"}], parsing tool_file
+// chunks from the response, and downloading the image via the files API. Not implemented yet.
 func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) error {
-	// TODO: implement Mistral image generation
-	return fmt.Errorf("Mistral GenerateImage not implemented")
+	log.Debug("Mistral GenerateImage skipped - not supported", "session_id", session.ID)
+	return nil
 }
 
 // Translate translates the given JSON objects (stringified) to the target in a single API call
@@ -109,43 +220,35 @@ func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []
 		originals += fmt.Sprintf("Original #%d: \n%s\n\n", i+1, original)
 	}
 
-	const translateModel = "mistral-small-latest"
-
-	// Create the request for translation
-	requestBody := chatCompletionRequest{
-		Model: translateModel,
-		Messages: []message{
-			{
-				Role:    "system",
-				Content: lang.TranslateInstruction,
+	req := ConversationsAPIRequest{
+		Model:        translateModel,
+		Instructions: lang.TranslateInstruction,
+		Inputs:       []InputMessage{{Role: "user", Content: fmt.Sprintf("Translate this JSON to %s:\n\n%s", lang.GetLanguageName(targetLang), originals)}},
+		Store:        false,
+		CompletionArgs: &CompletionArgs{
+			ResponseFormat: &ResponseFormat{
+				Type: "json_object",
 			},
-			{
-				Role:    "user",
-				Content: fmt.Sprintf("Translate this JSON to %s:\n\n%s", lang.GetLanguageName(targetLang), originals),
-			},
-		},
-		Temperature: 0.3,
-		ResponseFormat: responseFormat{
-			Type: "json_object",
 		},
 	}
 
-	// Make the API call
-	client := p.newApi(apiKey)
-
-	var response chatResponse
-
-	if err := client.PostJson(ctx, mistralChatEndpoint, requestBody, &response); err != nil {
+	apiResponse, usage, err := callConversationsAPI(ctx, apiKey, req)
+	if err != nil {
 		return "", obj.TokenUsage{}, fmt.Errorf("failed to translate: %w", err)
 	}
 
-	// Parse the translated JSON
-	var translated map[string]any
-	if err := response.parseContent(&translated); err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("failed to parse translated JSON: %w", err)
+	responseText := extractResponseText(apiResponse)
+	if responseText == "" {
+		return "", usage, fmt.Errorf("no text response from Mistral")
 	}
 
-	return functional.MustAnyToJson(translated), obj.TokenUsage{}, nil
+	// Validate it's valid JSON
+	var translated map[string]interface{}
+	if err := json.Unmarshal([]byte(responseText), &translated); err != nil {
+		return "", usage, fmt.Errorf("failed to parse translated JSON: %w", err)
+	}
+
+	return functional.MustAnyToJson(translated), usage, nil
 }
 
 func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error) {
@@ -195,81 +298,32 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 	return models, nil
 }
 
-// endsWithFourDigits checks if a model ID ends with -XXXX pattern (4 digits)
-func endsWithFourDigits(modelID string) bool {
-	parts := strings.Split(modelID, "-")
-	if len(parts) < 2 {
-		return false
-	}
-
-	lastPart := parts[len(parts)-1]
-
-	// Check if last part is exactly 4 digits
-	if len(lastPart) == 4 {
-		for _, ch := range lastPart {
-			if ch < '0' || ch > '9' {
-				return false
-			}
-		}
-		return true
-	}
-
-	return false
-}
-
-// isRelevantModel checks if a model supports chat completions
-func isRelevantModel(modelID string) bool {
-	// List of known non-chat model prefixes to skip
-	nonChatPrefixes := []string{
-		"embed-",
-		"rerank-",
-		"code-",
-		"codestral-",
-		"devstral-",
-	}
-
-	for _, prefix := range nonChatPrefixes {
-		if len(modelID) > len(prefix) && modelID[:len(prefix)] == prefix {
-			return false
-		}
-	}
-
-	// Skip dated models (ending with -XXXX where X is a digit)
-	if endsWithFourDigits(modelID) {
-		return false
-	}
-
-	return true
-}
-
 // GenerateTheme generates a visual theme JSON for the game player UI
 func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
+	log.Debug("Mistral GenerateTheme starting", "session_id", session.ID)
+
 	if session.ApiKey == nil {
 		return "", obj.TokenUsage{}, fmt.Errorf("session has no API key")
 	}
 
-	client := p.newApi(session.ApiKey.Key)
-
-	requestBody := chatCompletionRequest{
-		Model: session.AiModel,
-		Messages: []message{
-			{Role: "system", Content: systemPrompt},
-			{Role: "user", Content: userPrompt},
-		},
-		Temperature: 0.7,
-		ResponseFormat: responseFormat{
-			Type: "json_object",
-		},
+	model := p.ResolveModel(session.AiModel)
+	req := ConversationsAPIRequest{
+		Model:        model,
+		Instructions: systemPrompt,
+		Inputs:       []InputMessage{{Role: "user", Content: userPrompt}},
+		Store:        false,
 	}
 
-	var response chatResponse
-	if err := client.PostJson(ctx, mistralChatEndpoint, requestBody, &response); err != nil {
+	apiResponse, usage, err := callConversationsAPI(ctx, session.ApiKey.Key, req)
+	if err != nil {
 		return "", obj.TokenUsage{}, fmt.Errorf("failed to generate theme: %w", err)
 	}
 
-	if len(response.Choices) == 0 {
-		return "", obj.TokenUsage{}, fmt.Errorf("no response from Mistral")
+	responseText := extractResponseText(apiResponse)
+	if responseText == "" {
+		return "", usage, fmt.Errorf("no text response from Mistral")
 	}
 
-	return response.Choices[0].Message.Content, obj.TokenUsage{}, nil
+	log.Debug("Mistral GenerateTheme completed", "response_length", len(responseText))
+	return responseText, usage, nil
 }

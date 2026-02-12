@@ -38,8 +38,42 @@ UPDATE institution
 SET free_use_ai_quality_tier = $2, modified_at = now()
 WHERE id = $1;
 
--- name: DeleteInstitution :exec
+-- name: SoftDeleteInstitution :exec
 UPDATE institution SET deleted_at = now() WHERE id = $1;
+
+-- name: HardDeleteInstitution :exec
+DELETE FROM institution WHERE id = $1;
+
+-- name: GetParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role = 'participant'
+  AND u.deleted_at IS NULL;
+
+-- name: GetNonParticipantUserIDsByInstitution :many
+SELECT DISTINCT u.id
+FROM app_user u
+JOIN user_role r ON u.id = r.user_id
+WHERE r.institution_id = $1
+  AND r.role != 'participant'
+  AND u.deleted_at IS NULL;
+
+-- name: DeleteInvitesByInstitution :exec
+DELETE FROM user_role_invite WHERE institution_id = $1;
+
+-- name: DeleteApiKeySharesByInstitution :exec
+DELETE FROM api_key_share WHERE institution_id = $1;
+
+-- name: DeleteUserRolesByInstitution :exec
+DELETE FROM user_role WHERE institution_id = $1;
+
+-- name: HardDeleteWorkshopsByInstitution :exec
+DELETE FROM workshop WHERE institution_id = $1;
+
+-- name: ClearInstitutionFreeUseApiKeyShare :exec
+UPDATE institution SET free_use_api_key_share_id = NULL WHERE id = $1;
 
 -- name: GetInstitutionMembers :many
 SELECT u.id, u.name, u.email, r.role
@@ -58,12 +92,14 @@ INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
-  ai_quality_tier, show_public_games, show_other_participants_games
+  ai_quality_tier, show_public_games, show_other_participants_games,
+  design_editing_enabled, is_paused
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
-  $11, $12, $13
+  $11, $12, $13,
+  $14, $15
 )
 RETURNING *;
 
@@ -89,7 +125,9 @@ UPDATE workshop SET
   default_api_key_share_id = $10,
   ai_quality_tier = $11,
   show_public_games = $12,
-  show_other_participants_games = $13
+  show_other_participants_games = $13,
+  design_editing_enabled = $14,
+  is_paused = $15
 WHERE id = $1
 RETURNING *;
 
@@ -137,3 +175,6 @@ RETURNING *;
 
 -- name: DeleteWorkshopParticipant :exec
 DELETE FROM workshop_participant WHERE id = $1;
+
+-- name: DeleteWorkshopParticipantsByWorkshopID :exec
+DELETE FROM workshop_participant WHERE workshop_id = $1;

@@ -42,10 +42,10 @@
       "role": "Rolle",
       "roles": {
         "admin": "Administrator",
-        "head": "Leitung",
-        "individual": "Benutzer",
+        "head": "Organisationsleiter",
+        "individual": "Individual",
         "participant": "Teilnehmer",
-        "staff": "Mitarbeiter"
+        "staff": "Workshopleiter"
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
@@ -333,7 +333,7 @@
         "sections": {
           "systemPrompt": "Spielanweisungen an die KI",
           "responseSchema": "Vorgabe an die KI über den Aufbau der Antwort",
-          "statusUpdate": "Aktualisierte Statusfelder",
+          "statusUpdate": "Prompt an die KI",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "rawResponse": "Unbearbeitete KI-Antwort",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung"
@@ -620,7 +620,7 @@
         "revoke": "Link widerrufen",
         "description": "Erstelle einen privaten Freigabelink, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
         "loadingKeys": "Lade API-Schlüssel...",
-        "noEligibleKeys": "Du hast keine API-Schlüssel mit aktiviertem öffentlichen Sponsoring. Gehe zu den API-Schlüssel-Einstellungen und aktiviere zuerst \"Öffentliches Sponsoring erlauben\".",
+        "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Schlüssel für Gastsitzungen wählen...",
         "maxSessions": "Max. Sitzungen",
@@ -837,6 +837,8 @@
       "leaveOrganization": "Organisation verlassen",
       "leaveTitle": "Organisation verlassen",
       "leaveWarning": "Sie verlieren den Zugriff auf alle Organisationsressourcen und Mitglieder.",
+      "lastHeadError": "Sie sind der letzte Leiter dieser Organisation. Bitte kontaktieren Sie die Seitenadministratoren, wenn Sie die Organisation verlassen möchten.",
+      "leaveError": "Die Organisation konnte nicht verlassen werden. Bitte versuchen Sie es erneut.",
       "me": "Ich",
       "name": "Name",
       "noEmail": "Keine E-Mail",
@@ -918,6 +920,10 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
+        "designEditingEnabled": "Teilnehmern erlauben, das Spieldesign (Theme) zu bearbeiten",
+        "isPaused": "Workshop pausieren",
+        "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
+        "unpause": "Workshop fortsetzen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -1058,7 +1064,11 @@
         "title": "Freier API-Schlüssel",
         "description": "Setze einen globalen freien API-Schlüssel, damit alle Benutzer auf diesem Server Spiele spielen können, ohne einen eigenen Schlüssel zu benötigen. Dieser Schlüssel wird als Fallback verwendet, wenn kein Workshop- oder Organisationsschlüssel verfügbar ist.",
         "selectPlaceholder": "Wähle einen deiner API-Schlüssel...",
+        "replacePlaceholder": "Mit einem deiner API-Schlüssel ersetzen...",
         "remove": "Entfernen",
+        "working": "Funktioniert",
+        "notWorking": "Funktioniert nicht",
+        "untested": "Ungetestet",
         "unknownKey": "Unbekannter Schlüssel (möglicherweise gelöscht)",
         "noKeys": "Du hast keine API-Schlüssel. Füge zuerst einen in deinen API-Schlüssel-Einstellungen hinzu."
       },
@@ -1180,7 +1190,15 @@
       "workshop": "Workshop-Spiele"
     },
     "gameType": "Spiel",
+    "members": {
+      "empty": "Noch keine Mitglieder",
+      "title": "Workshop-Mitglieder"
+    },
     "organizator": "Organisator: {{name}}",
+    "paused": {
+      "description": "Der Workshop ist derzeit pausiert. Bitte warte auf Anweisungen deiner Workshop-Organisatoren.",
+      "title": "Workshop pausiert"
+    },
     "settings": {
       "currentWorkshop": "Aktueller Workshop",
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",

@@ -42,10 +42,10 @@
       "role": "Role",
       "roles": {
         "admin": "Administrator",
-        "head": "Head Teacher",
-        "individual": "User",
-        "participant": "Guest",
-        "staff": "Staff Member"
+        "head": "Head of Organization",
+        "individual": "Individual",
+        "participant": "Participant",
+        "staff": "Workshop Leader"
       },
       "statisticsSection": "Statistics",
       "title": "Profile",
@@ -333,7 +333,7 @@
         "sections": {
           "systemPrompt": "Game instructions for the AI",
           "responseSchema": "Required structure of the AI response",
-          "statusUpdate": "Updated status fields",
+          "statusUpdate": "Prompt sent to AI",
           "expandStory": "Instructions to the AI for writing out the story",
           "rawResponse": "Unprocessed AI response",
           "imageGeneration": "Instructions from the AI for image generation"
@@ -620,7 +620,7 @@
         "revoke": "Revoke Link",
         "description": "Create a private share link so that anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
         "loadingKeys": "Loading API keys...",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to pay for guest sessions...",
         "maxSessions": "Max Sessions",
@@ -837,6 +837,8 @@
       "leaveOrganization": "Leave Organization",
       "leaveTitle": "Leave Organization",
       "leaveWarning": "You will lose access to all organization resources and members.",
+      "lastHeadError": "You are the last head of this organization. Please contact the site administrators if you need to leave.",
+      "leaveError": "Failed to leave the organization. Please try again.",
       "me": "Me",
       "name": "Name",
       "noEmail": "No email",
@@ -918,6 +920,10 @@
         "settings": "Settings",
         "shareParticipantLink": "Copy individual invite link for this participant",
         "showOtherParticipantsGames": "Show other participants' games",
+        "designEditingEnabled": "Allow participants to edit game design (theme)",
+        "isPaused": "Pause workshop",
+        "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
+        "unpause": "Unpause workshop",
         "showPublicGames": "Show public games to participants",
         "sort": {
           "createdAtAsc": "Oldest first",
@@ -1009,7 +1015,11 @@
         "title": "Free-Use API Key",
         "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
         "selectPlaceholder": "Select one of your API keys...",
+        "replacePlaceholder": "Replace with one of your API keys...",
         "remove": "Remove",
+        "working": "Working",
+        "notWorking": "Not working",
+        "untested": "Untested",
         "unknownKey": "Unknown key (may have been deleted)",
         "noKeys": "You have no API keys. Add one in your API Key settings first."
       },
@@ -1131,7 +1141,15 @@
       "workshop": "Workshop Games"
     },
     "gameType": "Game",
+    "members": {
+      "empty": "No members yet",
+      "title": "Workshop Members"
+    },
     "organizator": "Organizator: {{name}}",
+    "paused": {
+      "description": "The workshop is currently paused. Please wait for instructions from your workshop organizers.",
+      "title": "Workshop Paused"
+    },
     "settings": {
       "currentWorkshop": "Current Workshop",
       "notInWorkshopMode": "You are not in workshop mode. Please enter a workshop first.",

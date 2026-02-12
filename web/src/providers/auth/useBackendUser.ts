@@ -63,8 +63,8 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
       };
     }, [auth0User]);
 
-  // Fetch backend user
-  const fetchBackendUser = useCallback(async () => {
+  // Fetch backend user. Returns true on success, false on failure.
+  const fetchBackendUser = useCallback(async (): Promise<boolean> => {
     try {
       setBackendError(null);
       setNeedsRegistration(false);
@@ -84,6 +84,7 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
         userId: response.data.id,
         name: response.data.name,
       });
+      return true;
     } catch (error) {
       authLogger.error("Failed to fetch backend user", { error });
 
@@ -96,11 +97,12 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
         setNeedsRegistration(true);
         setRegistrationData(regData);
         setBackendUser(null);
-        return;
+        return false;
       }
 
       setBackendError(tRef.current("errors.backendUserFetch"));
       setBackendUser(null);
+      return false;
     }
   }, [getAccessToken, getRegistrationDataFromAuth0]);
 

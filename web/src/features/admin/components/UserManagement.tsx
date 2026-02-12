@@ -37,28 +37,13 @@ import {
 } from "@/common/components/controls";
 import { useAuth } from "@/providers/AuthProvider";
 import { parseSortValue } from "@/common/lib/sort";
+import { getRoleColor, useTranslateRole } from "@/common/lib/roles";
 import type { ObjUser, ObjRole } from "@/api/generated";
 
 type SortField = "name" | "email" | "role" | "organization" | "joined";
 
-const getRoleColor = (role?: ObjRole): string => {
-  switch (role) {
-    case "admin":
-      return "red";
-    case "head":
-      return "violet";
-    case "staff":
-      return "blue";
-    case "participant":
-      return "gray";
-    default:
-      return "gray";
-  }
-};
-
 export function UserManagement() {
   const { t } = useTranslation("common");
-  const { t: tAuth } = useTranslation("auth");
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
   const { isMobile } = useResponsiveDesign();
@@ -152,14 +137,7 @@ export function UserManagement() {
     },
   });
 
-  const translateRole = useCallback(
-    (role?: string) => {
-      if (!role) return t("admin.users.noRole");
-      const roleKey = role.toLowerCase();
-      return tAuth(`profile.roles.${roleKey}`, role);
-    },
-    [t, tAuth],
-  );
+  const translateRole = useTranslateRole(t("admin.users.noRole"));
 
   const formatDate = useCallback((dateStr?: string) => {
     if (!dateStr) return "-";
@@ -178,12 +156,15 @@ export function UserManagement() {
   }, []);
 
   const isIndividual = useCallback((user: ObjUser) => {
-    return user.role?.role === 'individual';
+    return user.role?.role === "individual";
   }, []);
 
-  const canPromoteToAdmin = useCallback((user: ObjUser) => {
-    return !isCurrentUser(user.id) && isIndividual(user);
-  }, [isCurrentUser, isIndividual]);
+  const canPromoteToAdmin = useCallback(
+    (user: ObjUser) => {
+      return !isCurrentUser(user.id) && isIndividual(user);
+    },
+    [isCurrentUser, isIndividual],
+  );
 
   const canRemoveAdmin = useCallback(
     (user: ObjUser) => {

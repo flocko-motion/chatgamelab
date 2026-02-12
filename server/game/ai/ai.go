@@ -20,7 +20,7 @@ const (
 
 var ApiKeyPlatforms = []string{
 	OpenAi,
-	// Mistral,
+	Mistral,
 	Mock,
 }
 

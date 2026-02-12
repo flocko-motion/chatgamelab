@@ -49,6 +49,18 @@ func extractAIErrorCode(err error) string {
 	}
 }
 
+// isKeyRelatedError returns true if the error code indicates the API key itself
+// is broken (not a transient or content error). These errors warrant retrying
+// with a fallback key.
+func isKeyRelatedError(errorCode string) bool {
+	switch errorCode {
+	case obj.ErrCodeInvalidApiKey, obj.ErrCodeBillingNotActive, obj.ErrCodeInsufficientQuota:
+		return true
+	default:
+		return false
+	}
+}
+
 // CreateSession creates a new game session for a user.
 // The API key and AI quality tier are resolved server-side using the following priority:
 //  1. Workshop key + workshop.aiQualityTier
@@ -63,14 +75,16 @@ func extractAIErrorCode(err error) string {
 func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
 	log.Debug("creating session", "user_id", userID, "game_id", gameID)
 
-	// Resolve API key and AI quality tier using priority chain
-	resolved, httpErr := resolveApiKeyForSession(ctx, userID, gameID)
+	// Resolve all API key candidates using priority chain (up to 3, deduplicated)
+	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID)
 	if httpErr != nil {
 		return nil, nil, httpErr
 	}
-	share := resolved.Share
-	aiModel := resolved.AiQualityTier
-	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID, "ai_quality_tier", aiModel)
+
+	// Use the highest-priority candidate; fallbacks are tried later if this one fails
+	share := candidates[0].Share
+	aiModel := candidates[0].AiQualityTier
+	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID, "ai_quality_tier", aiModel, "fallback_count", len(candidates)-1)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -213,7 +227,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	// Attach API key for response
 	session.ApiKey = share.ApiKey
 
-	// First action is a system message containing the game instructions
+	// First action is a system message containing the game instructions.
+	// Try the primary key first; on key-related failure, retry with fallback candidates.
 	log.Debug("executing initial system action", "session_id", session.ID)
 	startAction := obj.GameSessionMessage{
 		GameSessionID: session.ID,
@@ -221,8 +236,61 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		Message:       systemMessage,
 	}
 	response, httpErr := DoSessionAction(ctx, session, startAction)
+
+	// Retry with fallback candidates on key-related errors
+	if httpErr != nil && len(candidates) > 1 {
+		errorCode := httpErr.Code
+		if isKeyRelatedError(errorCode) {
+			// Clean up the failed session before retrying
+			log.Debug("initial action failed with key error, trying fallback", "session_id", session.ID, "error_code", errorCode)
+			if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
+				log.Warn("failed to delete empty session before fallback", "session_id", session.ID, "error", delErr)
+			}
+
+			for i := 1; i < len(candidates); i++ {
+				fallback := candidates[i]
+				log.Info("retrying with fallback API key", "attempt", i+1, "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform)
+
+				// Validate platform
+				if _, platformErr := ai.GetAiPlatform(fallback.Share.ApiKey.Platform); platformErr != nil {
+					log.Debug("fallback key has invalid platform, skipping", "platform", fallback.Share.ApiKey.Platform)
+					continue
+				}
+
+				// Create a new session with the fallback key
+				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme)
+				if err != nil {
+					log.Debug("failed to create fallback session", "error", err)
+					continue
+				}
+				session.ApiKey = fallback.Share.ApiKey
+
+				startAction.GameSessionID = session.ID
+				response, httpErr = DoSessionAction(ctx, session, startAction)
+				if httpErr == nil {
+					// Fallback succeeded
+					share = fallback.Share
+					aiModel = fallback.AiQualityTier
+					log.Info("fallback API key succeeded", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform)
+					break
+				}
+
+				// Clean up failed fallback session
+				log.Debug("fallback key also failed", "attempt", i+1, "error", httpErr.Message)
+				if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
+					log.Warn("failed to delete fallback session", "session_id", session.ID, "error", delErr)
+				}
+
+				// Only continue retrying for key-related errors
+				if !isKeyRelatedError(httpErr.Code) {
+					break
+				}
+			}
+		}
+	}
+
 	if httpErr != nil {
-		// Clean up: delete session if first action failed (0 messages = nothing to preserve)
+		// Final cleanup if all candidates failed
 		log.Debug("initial action failed, deleting empty session", "session_id", session.ID, "error", httpErr.Message)
 		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
@@ -257,6 +325,20 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (response *obj.GameSessionMessage, httpErr *obj.HTTPError) {
 	const failedAction = "failed doing session action"
 	log.Debug("starting session action", "session_id", session.ID, "action_type", action.Type)
+
+	// Acquire per-session lock to serialize AI calls.
+	// Mistral's Conversations API rejects concurrent requests (409), and even
+	// for OpenAI the ExpandStory response ID must be persisted before the next
+	// ExecuteAction can reference it for conversation continuity.
+	unlock := sessionLocks.Lock(session.ID)
+	// unlock is passed to the ExpandStory goroutine below; if we return early
+	// (error paths), we must unlock here.
+	earlyReturn := true
+	defer func() {
+		if earlyReturn {
+			unlock()
+		}
+	}()
 
 	if session == nil {
 		log.Error("session action failed: session is nil")
@@ -347,10 +429,19 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	response.TokenUsage = &usage
 	// Set prompts on response for transparency (educational debug view)
-	response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	// PromptStatusUpdate is set by the platform's ExecuteAction (platform-specific input format)
+	if response.PromptStatusUpdate == nil {
+		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
+	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
+
+	// Persist AI session state immediately so the next action can find the conversation/response ID.
+	// (ExpandStory may update it again later with a newer ID, which the goroutine will also persist.)
+	if err := db.UpdateGameSessionAiSession(ctx, session.UserID, session.ID, session.AiSession); err != nil {
+		log.Warn("failed to persist AI session state after ExecuteAction", "session_id", session.ID, "error", err)
+	}
 
 	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
 	// This is returned to client immediately
@@ -361,7 +452,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Phase 2 & 3: Run ExpandStory and GenerateImage in parallel (async)
 	log.Debug("starting async story expansion and image generation", "session_id", session.ID)
+	// The ExpandStory goroutine takes ownership of the session lock.
+	earlyReturn = false
 	go func() {
+		defer unlock()
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
 		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
@@ -379,6 +473,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Update session with new AI state (response IDs for conversation continuity)
+		log.Debug("[TRACE] persisting AiSession to DB", "session_id", session.ID, "ai_session", session.AiSession)
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
@@ -421,6 +516,45 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	return response, nil
+}
+
+// DoSessionActionWithFallback resolves all API key candidates for an existing session,
+// then tries them in order. If the primary key fails with a key-related error,
+// it retries with fallback candidates before giving up.
+func DoSessionActionWithFallback(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage) (*obj.GameSessionMessage, *obj.HTTPError) {
+	candidates, resolveErr := ResolveSessionApiKeyCandidates(ctx, session)
+	if resolveErr != nil {
+		return nil, resolveErr
+	}
+
+	// Apply the primary candidate
+	applyResolvedKey(session, &candidates[0])
+
+	response, httpErr := DoSessionAction(ctx, session, action)
+	if httpErr == nil {
+		return response, nil
+	}
+
+	// Retry with fallback candidates on key-related errors
+	if len(candidates) > 1 && isKeyRelatedError(httpErr.Code) {
+		for i := 1; i < len(candidates); i++ {
+			fallback := candidates[i]
+			log.Info("retrying session action with fallback API key", "attempt", i+1, "session_id", session.ID, "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform)
+
+			applyResolvedKey(session, &fallback)
+			response, httpErr = DoSessionAction(ctx, session, action)
+			if httpErr == nil {
+				log.Info("fallback API key succeeded for session action", "key_name", fallback.Share.ApiKey.Name)
+				return response, nil
+			}
+
+			if !isKeyRelatedError(httpErr.Code) {
+				break
+			}
+		}
+	}
+
+	return nil, httpErr
 }
 
 // autoRemoveSponsorshipOnKeyFailure checks if the failing API key is the game's public sponsor

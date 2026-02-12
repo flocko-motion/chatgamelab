@@ -36,6 +36,15 @@ SET
   modified_at = now()
 WHERE free_use_api_key_id = $1;
 
+-- name: ClearSystemSettingsFreeUseApiKeyByOwner :exec
+UPDATE system_settings
+SET
+  free_use_api_key_id = NULL,
+  modified_at = now()
+WHERE free_use_api_key_id IN (
+  SELECT id FROM api_key WHERE user_id = $1
+);
+
 -- name: InitSystemSettings :exec
 INSERT INTO system_settings (id, default_ai_quality_tier)
 VALUES ('00000000-0000-0000-0000-000000000001'::uuid, $1)

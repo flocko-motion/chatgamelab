@@ -301,7 +301,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
     settings: Partial<{
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
+      designEditingEnabled: boolean;
       aiQualityTier: string;
+      isPaused: boolean;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -316,8 +318,11 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
+      designEditingEnabled:
+        settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
+      isPaused: settings.isPaused ?? workshop.isPaused ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -786,6 +791,32 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                 e.currentTarget.checked,
                             })
                           }
+                        />
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.designEditingEnabled",
+                          )}
+                          checked={workshop.designEditingEnabled || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              designEditingEnabled: e.currentTarget.checked,
+                            })
+                          }
+                        />
+                        <Switch
+                          size="xs"
+                          label={t("myOrganization.workshops.isPaused")}
+                          description={t(
+                            "myOrganization.workshops.isPausedHint",
+                          )}
+                          checked={workshop.isPaused || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              isPaused: e.currentTarget.checked,
+                            })
+                          }
+                          color="orange"
                         />
                       </Stack>
 

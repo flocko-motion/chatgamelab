@@ -21,6 +21,7 @@ import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { useAuth } from "@/providers/AuthProvider";
 import { queryKeys } from "@/api/hooks";
 import type { RoutesInviteResponse } from "@/api/generated";
+import { useTranslateRole } from "@/common/lib/roles";
 
 const SEEN_INVITES_KEY = "cgl_seen_invites";
 
@@ -46,7 +47,6 @@ function markInvitesAsSeen(inviteIds: string[]): void {
 
 export function NotificationBell() {
   const { t } = useTranslation("common");
-  const { t: tAuth } = useTranslation("auth");
   const api = useRequiredAuthenticatedApi();
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
@@ -210,11 +210,7 @@ export function NotificationBell() {
     }
   }, [isLoading, hasUnseenInvites, opened, open]);
 
-  const translateRole = (role?: string) => {
-    if (!role) return "-";
-    const roleKey = role.toLowerCase();
-    return tAuth(`profile.roles.${roleKey}`, role);
-  };
+  const translateRole = useTranslateRole();
 
   const getInviteTarget = (invite: RoutesInviteResponse) => {
     if (invite.workshopId) {

@@ -49,6 +49,9 @@ export interface SessionLifecycle {
 
   // API key availability (checked on entry)
   apiKeyAvailable: boolean;
+
+  // Workshop pause state (true when non-staff user and workshop is paused)
+  isPausedForUser: boolean;
 }
 
 export function useSessionLifecycle({
@@ -77,6 +80,14 @@ export function useSessionLifecycle({
   useWorkshopEvents({
     workshopId: workshopIdForEvents,
   });
+
+  // Workshop pause: only affects participants and individuals, not head/staff
+  const isStaffOrHead =
+    backendUser?.role?.role === "head" || backendUser?.role?.role === "staff";
+  const isPausedForUser =
+    isInWorkshopContext &&
+    !isStaffOrHead &&
+    (backendUser?.role?.workshop?.isPaused ?? false);
 
   const {
     data: game,
@@ -240,5 +251,6 @@ export function useSessionLifecycle({
     handleSendAction,
     isNoApiKeyError,
     apiKeyAvailable,
+    isPausedForUser,
   };
 }

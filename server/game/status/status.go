@@ -55,7 +55,7 @@ func BuildResponseSchema(statusFieldsJSON string) map[string]interface{} {
 	// Build status properties with exact field names as keys
 	statusProperties := make(map[string]interface{}, len(fieldNames))
 	for _, name := range fieldNames {
-		statusProperties[name] = map[string]interface{}{"type": "string"}
+		statusProperties[name] = map[string]interface{}{"type": "string", "maxLength": 30}
 	}
 
 	return map[string]interface{}{
@@ -63,7 +63,8 @@ func BuildResponseSchema(statusFieldsJSON string) map[string]interface{} {
 		"properties": map[string]interface{}{
 			"message": map[string]interface{}{
 				"type":        "string",
-				"description": "The narrative response to the player's action",
+				"maxLength":   400,
+				"description": "Telegram-style. Subject-verb-object. No adjectives. Example: 'You start reciting. Dog interrupts. Courtiers laugh.'",
 			},
 			"status": map[string]interface{}{
 				"type":                 "object",
@@ -74,7 +75,8 @@ func BuildResponseSchema(statusFieldsJSON string) map[string]interface{} {
 			},
 			"imagePrompt": map[string]interface{}{
 				"type":        "string",
-				"description": "Description for generating an image of the scene",
+				"maxLength":   150,
+				"description": "Short visual description of the scene for image generation",
 			},
 		},
 		"required":             []string{"message", "status", "imagePrompt"},

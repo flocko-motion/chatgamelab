@@ -188,7 +188,9 @@ export function SingleWorkshopSettings({
     settings: Partial<{
       showPublicGames: boolean;
       showOtherParticipantsGames: boolean;
+      designEditingEnabled: boolean;
       aiQualityTier: string;
+      isPaused: boolean;
     }>,
   ) => {
     if (!workshop?.id) return;
@@ -203,8 +205,11 @@ export function SingleWorkshopSettings({
         settings.showOtherParticipantsGames ??
         workshop.showOtherParticipantsGames ??
         true,
+      designEditingEnabled:
+        settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
+      isPaused: settings.isPaused ?? workshop.isPaused ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -365,6 +370,28 @@ export function SingleWorkshopSettings({
                   showOtherParticipantsGames: e.currentTarget.checked,
                 })
               }
+            />
+            <Switch
+              size="sm"
+              label={t("myOrganization.workshops.designEditingEnabled")}
+              checked={workshop.designEditingEnabled || false}
+              onChange={(e) =>
+                handleUpdateWorkshopSettings({
+                  designEditingEnabled: e.currentTarget.checked,
+                })
+              }
+            />
+            <Switch
+              size="sm"
+              label={t("myOrganization.workshops.isPaused")}
+              description={t("myOrganization.workshops.isPausedHint")}
+              checked={workshop.isPaused || false}
+              onChange={(e) =>
+                handleUpdateWorkshopSettings({
+                  isPaused: e.currentTarget.checked,
+                })
+              }
+              color="orange"
             />
           </Stack>
 

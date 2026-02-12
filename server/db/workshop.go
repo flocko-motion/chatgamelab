@@ -225,6 +225,8 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       result.DesignEditingEnabled,
+		IsPaused:                   result.IsPaused,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -450,6 +452,8 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
+				DesignEditingEnabled:       r.DesignEditingEnabled,
+				IsPaused:                   r.IsPaused,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -502,6 +506,8 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				AiQualityTier:              aiQualityTier,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
+				DesignEditingEnabled:       r.DesignEditingEnabled,
+				IsPaused:                   r.IsPaused,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -532,6 +538,8 @@ type UpdateWorkshopParams struct {
 	AiQualityTier              *string
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
+	DesignEditingEnabled       bool
+	IsPaused                   bool
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -570,6 +578,8 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		DefaultApiKeyShareID:       existing.DefaultApiKeyShareID,
 		ShowPublicGames:            params.ShowPublicGames,
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       params.DesignEditingEnabled,
+		IsPaused:                   params.IsPaused,
 	}
 	if params.AiQualityTier != nil {
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
@@ -600,6 +610,8 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		AiQualityTier:              aiQualityTier,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       result.DesignEditingEnabled,
+		IsPaused:                   result.IsPaused,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -664,7 +676,6 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 	}, nil
 }
 
-// DeleteWorkshop soft-deletes a workshop (admin, head of institution, or staff who created it)
 func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) error {
 	// Get workshop to check institution and creator
 	workshop, err := queries().GetWorkshopByID(ctx, id)
@@ -680,6 +691,20 @@ func DeleteWorkshop(ctx context.Context, id uuid.UUID, deletedBy uuid.UUID) erro
 	if err := canAccessWorkshop(ctx, deletedBy, OpDelete, workshop.InstitutionID, &id, createdByID); err != nil {
 		return err
 	}
+
+	wsNullUUID := uuid.NullUUID{UUID: id, Valid: true}
+
+	// Clean up participants: collect user IDs, delete roles, participant rows, and user accounts
+	participantUserIDs, _ := queries().GetParticipantUserIDsByWorkshopID(ctx, wsNullUUID)
+	_ = queries().DeleteUserRolesByWorkshopID(ctx, wsNullUUID)
+	_ = queries().DeleteWorkshopParticipantsByWorkshopID(ctx, id)
+	for _, uid := range participantUserIDs {
+		// Delete each participant's user account (these are anonymous accounts)
+		_ = DeleteUser(ctx, uid)
+	}
+
+	// Unlink remaining games from this workshop (member games stay with their creator)
+	_ = queries().UnlinkGamesFromWorkshop(ctx, wsNullUUID)
 
 	err = queries().DeleteWorkshop(ctx, id)
 	if err != nil {
