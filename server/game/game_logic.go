@@ -12,7 +12,6 @@ import (
 	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/imagecache"
-	"cgl/game/status"
 	"cgl/game/stream"
 	"cgl/game/templates"
 	"cgl/lang"
@@ -390,7 +389,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	)
 
 	// Build game-specific JSON schema that enforces exact status field names
-	gameSchema := status.BuildResponseSchema(session.StatusFields)
+	gameSchema := templates.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
 	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)

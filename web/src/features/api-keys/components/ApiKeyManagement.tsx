@@ -286,33 +286,45 @@ export function ApiKeyManagement() {
       })()}
 
       {/* User AI Quality Tier */}
-      <Card shadow="sm" p="lg" radius="md" withBorder>
-        <Stack gap="sm">
-          <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-            {t("aiQualityTier.label")}
-          </Text>
-          <Text size="sm" c="dimmed">
-            {t("apiKeys.aiQualityTier.description")}
-          </Text>
-          <Select
-            data={getAiQualityTierOptions(t, { includeEmpty: true })}
-            value={backendUser?.aiQualityTier || ""}
-            onChange={(value) => {
-              if (!backendUser?.id) return;
-              updateUser.mutate(
-                {
-                  id: backendUser.id,
-                  request: { aiQualityTier: value || "" },
-                },
-                { onSuccess: () => retryBackendFetch() },
-              );
-            }}
-            disabled={updateUser.isPending}
-            size="sm"
-            style={{ maxWidth: 300 }}
-          />
-        </Stack>
-      </Card>
+      {(() => {
+        const defaultKey = apiKeys.find((k) => k.isDefault);
+        const defaultPlatform = platforms?.find(
+          (p) => p.id === defaultKey?.platform,
+        );
+        const availableTiers = defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
+        return (
+          <Card shadow="sm" p="lg" radius="md" withBorder>
+            <Stack gap="sm">
+              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                {t("aiQualityTier.label")}
+              </Text>
+              <Text size="sm" c="dimmed">
+                {t("apiKeys.aiQualityTier.description")}
+              </Text>
+              <Select
+                data={getAiQualityTierOptions(t, {
+                  includeEmpty: true,
+                  availableTiers: availableTiers.length > 0 ? availableTiers : undefined,
+                })}
+                value={backendUser?.aiQualityTier || ""}
+                onChange={(value) => {
+                  if (!backendUser?.id) return;
+                  updateUser.mutate(
+                    {
+                      id: backendUser.id,
+                      request: { aiQualityTier: value || "" },
+                    },
+                    { onSuccess: () => retryBackendFetch() },
+                  );
+                }}
+                disabled={updateUser.isPending}
+                size="sm"
+                style={{ maxWidth: 300 }}
+              />
+            </Stack>
+          </Card>
+        );
+      })()}
 
       {/* Platform Cards */}
       {platformsLoading ? (
@@ -340,8 +352,13 @@ export function ApiKeyManagement() {
                   false),
             )
             .map((platform) => {
-              const platformKeys =
-                apiKeys.filter((k) => k.platform === platform.id) || [];
+              const platformKeys = apiKeys
+                .filter((k) => k.platform === platform.id)
+                .sort((a, b) => {
+                  const dateA = a.meta?.createdAt ? new Date(a.meta.createdAt).getTime() : 0;
+                  const dateB = b.meta?.createdAt ? new Date(b.meta.createdAt).getTime() : 0;
+                  return dateA - dateB;
+                });
               return (
                 <Card
                   key={platform.id}
@@ -397,6 +414,9 @@ export function ApiKeyManagement() {
                           const keyShares = allShares.filter(
                             (s) => s.apiKeyId === key.id,
                           );
+                          const selfShare = keyShares.find(
+                            (s) => s.user?.id === backendUser?.id,
+                          );
                           return (
                             <Box
                               key={key.id}
@@ -441,9 +461,9 @@ export function ApiKeyManagement() {
                                       color="gray"
                                       size="md"
                                       onClick={() =>
-                                        key.id &&
+                                        selfShare?.id &&
                                         setDefaultApiKey.mutate({
-                                          id: key.id,
+                                          id: selfShare.id,
                                         })
                                       }
                                       loading={setDefaultApiKey.isPending}
@@ -458,15 +478,21 @@ export function ApiKeyManagement() {
                                     size="sm"
                                     fw={isDefault ? 700 : 600}
                                     truncate
+                                    title={`${key.name || t("apiKeys.unnamed")} — ${key.meta?.createdAt ? new Date(key.meta.createdAt).toLocaleString() : "no date"}`}
                                   >
                                     {key.name || t("apiKeys.unnamed")}
                                   </Text>
-                                  <Text size="xs" c="dimmed" mt={2}>
+                                  <Text
+                                    size="xs"
+                                    c="dimmed"
+                                    mt={2}
+                                    title={key.meta?.createdAt || "no date"}
+                                  >
                                     {t("apiKeys.addedOn")}:{" "}
                                     {key.meta?.createdAt
                                       ? new Date(
                                         key.meta.createdAt,
-                                      ).toLocaleDateString()
+                                      ).toLocaleString()
                                       : "-"}
                                   </Text>
                                 </Box>
@@ -534,7 +560,7 @@ export function ApiKeyManagement() {
                                   <DeleteIconButton
                                     onClick={() =>
                                       openDelete(
-                                        key.id || "",
+                                        selfShare?.id || "",
                                         key.name || t("apiKeys.unnamed"),
                                       )
                                     }

@@ -16,7 +16,7 @@ const (
 	translateModel    = "gpt-5.1-codex"
 	toolQueryModel    = "gpt-5.1-codex"
 	ttsModel          = "gpt-4o-mini-tts"
-	ttsVoice          = "marin" // openai recommends marin or cedar
+	ttsVoice          = "cedar" // openai recommends marin or cedar
 	ttsFormat         = "mp3"
 )
 

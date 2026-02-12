@@ -30,7 +30,15 @@ const (
 	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 2-5 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
 
 	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
-	ImagePromptSuffix = ". Do not depict the player character."
+	ImagePromptSuffix = ". Scenery only, do not depict the player character."
+
+	// Schema field descriptions and max lengths for BuildResponseSchema
+	SchemaMessageMaxLength       = 400
+	SchemaMessageDescription     = "Plot outline, just the raw plot - no coloring'"
+	SchemaStatusValueMaxLength   = 30
+	SchemaStatusDescription      = "Updated status fields after the action"
+	SchemaImagePromptMaxLength   = 250
+	SchemaImagePromptDescription = "Vivid description of the scene for image generation"
 )
 
 func ImageStyleOrDefault(style string) string {
@@ -133,4 +141,45 @@ func GetTemplate(game *obj.Game) (string, error) {
 	}
 
 	return instructions, nil
+}
+
+// BuildResponseSchema builds a game-specific JSON schema for LLM responses.
+// The status object has fixed keys matching the game's status field names,
+// preventing the AI from hallucinating extra fields or dropping existing ones.
+func BuildResponseSchema(statusFieldsJSON string) map[string]interface{} {
+	fieldNames := status.FieldNames(statusFieldsJSON)
+	if fieldNames == nil {
+		fieldNames = []string{}
+	}
+
+	// Build status properties with exact field names as keys
+	statusProperties := make(map[string]interface{}, len(fieldNames))
+	for _, name := range fieldNames {
+		statusProperties[name] = map[string]interface{}{"type": "string", "maxLength": SchemaStatusValueMaxLength}
+	}
+
+	return map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"message": map[string]interface{}{
+				"type":        "string",
+				"maxLength":   SchemaMessageMaxLength,
+				"description": SchemaMessageDescription,
+			},
+			"status": map[string]interface{}{
+				"type":                 "object",
+				"properties":           statusProperties,
+				"required":             fieldNames,
+				"additionalProperties": false,
+				"description":          SchemaStatusDescription,
+			},
+			"imagePrompt": map[string]interface{}{
+				"type":        "string",
+				"maxLength":   SchemaImagePromptMaxLength,
+				"description": SchemaImagePromptDescription,
+			},
+		},
+		"required":             []string{"message", "status", "imagePrompt"},
+		"additionalProperties": false,
+	}
 }

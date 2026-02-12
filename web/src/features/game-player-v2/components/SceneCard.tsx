@@ -131,16 +131,16 @@ export function SceneCard({
             })()}
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
-          {message.hasAudio && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <AudioPlayButton
-                messageId={id}
-                audioStatus={message.audioStatus}
-                audioBlobUrl={message.audioBlobUrl}
-              />
-            </div>
-          )}
         </div>
+        {message.hasAudio && (
+          <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
+            <AudioPlayButton
+              messageId={id}
+              audioStatus={message.audioStatus}
+              audioBlobUrl={message.audioBlobUrl}
+            />
+          </div>
+        )}
       </div>
       <AiInsightPanel
         message={message}
