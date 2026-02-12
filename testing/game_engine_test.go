@@ -80,6 +80,8 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	}
 	s.Require().NotNil(initialMsg, "Should have a game-type initial message")
 	s.Greater(len(initialMsg.Message), 10, "Initial message should have substantial text")
+	s.True(initialMsg.HasImage, "Initial message should have HasImage=true (max tier on OpenAI)")
+	s.True(initialMsg.HasAudio, "Initial message should have HasAudio=true (max tier on OpenAI)")
 	log.Printf("Initial message (len=%d): %s", len(initialMsg.Message), initialMsg.Message)
 
 	// Validate audio on initial message
@@ -93,8 +95,10 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	msg, streamResult, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), "I collect 3 stones")
 	s.Require().NoError(err, "SendGameMessageWithStream failed")
 
-	// Validate text
+	// Validate text and capability flags
 	s.Greater(len(msg.Message), 10, "AI response text should be substantial")
+	s.True(msg.HasImage, "Action response should have HasImage=true (max tier on OpenAI)")
+	s.True(msg.HasAudio, "Action response should have HasAudio=true (max tier on OpenAI)")
 	log.Printf("AI response (len=%d): %s", len(msg.Message), msg.Message)
 
 	// Validate audio on player action response
@@ -180,6 +184,11 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	// Log initial message
 	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
 	initialMsg := sessionResponse.Messages[0]
+
+	// Determine expected capabilities from the platform
+	expectImage := apiKeyShare.ApiKey.Platform == "openai" // OpenAI supports images, Mistral does not
+	expectAudio := false                                   // standard tiers never have audio
+
 	log.Printf("\n=================================================================================================\n")
 	log.Printf("Initial Message (should be in FRENCH):")
 	log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
@@ -215,6 +224,8 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
+		s.Equal(expectImage, msg1.HasImage, "Turn #%d: HasImage should be %v for platform %s", i, expectImage, apiKeyShare.ApiKey.Platform)
+		s.Equal(expectAudio, msg1.HasAudio, "Turn #%d: HasAudio should be %v", i, expectAudio)
 		messageLens = append(messageLens, len(msg1.Message))
 
 		// Verify token usage for each action
@@ -260,6 +271,10 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 
 			s.Require().NotNil(msg.PromptImageGeneration, "Message[%d] PromptImageGeneration should not be nil", i)
 			s.Greater(len(*msg.PromptImageGeneration), 0, "Message[%d] PromptImageGeneration should not be empty", i)
+
+			// Verify capability flags are persisted and loaded correctly
+			s.Equal(expectImage, msg.HasImage, "Message[%d] HasImage should be %v (persisted)", i, expectImage)
+			s.Equal(expectAudio, msg.HasAudio, "Message[%d] HasAudio should be %v (persisted)", i, expectAudio)
 		}
 	}
 
