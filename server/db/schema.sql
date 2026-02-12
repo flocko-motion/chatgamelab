@@ -239,11 +239,11 @@ CREATE TABLE game (
     -- Access rights and payments. public = true: discoverable on the website and playable by anyone.
     public                          boolean NOT NULL DEFAULT false,
     -- If public, a sponsored API key share can be provided to pay for any public plays.
-    public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id),
+    public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
     -- Private share links contain secret random tokens to limit access to the game.
     -- They are sponsored, so invited players don't require their own API key.
     private_share_hash                 text NULL,
-    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id),
+    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
     -- Remaining plays for private share links. NULL = unlimited, >0 = can play, 0 = exhausted.
     private_share_remaining            integer NULL,
 

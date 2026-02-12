@@ -465,6 +465,7 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Head, staff, individual enter workshop mode (keep their role, set active workshop)
+		// Users without a role fall back to AcceptOpenInvite (joins as participant)
 		invite, getErr := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
 		if getErr != nil {
 			if appErr, ok := getErr.(*obj.AppError); ok {
@@ -478,16 +479,26 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteAppError(w, obj.ErrValidation("this is not a workshop invite"))
 			return
 		}
-		if setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID); setErr != nil {
-			if appErr, ok := setErr.(*obj.AppError); ok {
+		setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID)
+		if setErr == nil {
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Workshop entered",
+			})
+			return
+		}
+		// SetActiveWorkshop failed (e.g., user has no role, or workshop not in their org)
+		// Fall back to AcceptOpenInvite which assigns a participant role
+		_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
+		if acceptErr != nil {
+			if appErr, ok := acceptErr.(*obj.AppError); ok {
 				httpx.WriteAppError(w, appErr)
 				return
 			}
-			httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
 			return
 		}
 		httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
-			Message: "Workshop entered",
+			Message: "Invite accepted",
 		})
 		return
 	}

@@ -43,6 +43,8 @@ func extractAIErrorCode(err error) string {
 		return obj.ErrCodeInsufficientQuota
 	case strings.Contains(errStr, "content_policy") || strings.Contains(errStr, "content_filter"):
 		return obj.ErrCodeContentFiltered
+	case strings.Contains(errStr, "invalid_json_schema") || strings.Contains(errStr, "invalid schema"):
+		return obj.ErrCodeInvalidJsonSchema
 	default:
 		// For any other AI API error, return generic AI error
 		return obj.ErrCodeAiError

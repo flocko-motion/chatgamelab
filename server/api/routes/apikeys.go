@@ -376,7 +376,7 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 	// (After deletion it may no longer be loadable.)
 	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load share: "+err.Error())
+		httpx.WriteError(w, http.StatusNotFound, "Share not found")
 		return
 	}
 

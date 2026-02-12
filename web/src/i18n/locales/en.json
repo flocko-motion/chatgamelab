@@ -1099,6 +1099,7 @@
     "generic": "Something went wrong. Please try again.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
+    "invalidJsonSchema": "The game configuration produced an invalid schema for the AI. This is a game setup issue, not an API key problem. Please check the game's status fields and try again.",
     "noApiKey": "No API key is available for this game. The game sponsor may have removed their key, or you need to configure your own API key.",
     "invalidPlatform": "Invalid platform selected. Please choose a valid option.",
     "invalidToken": "Your session has expired or is invalid. Please use your invite link again.",
@@ -1113,6 +1114,7 @@
     "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
     "titles": {
       "aiError": "AI Error",
+      "gameConfig": "Game Configuration Error",
       "authentication": "Authentication Error",
       "billing": "Billing Error",
       "error": "Error",
