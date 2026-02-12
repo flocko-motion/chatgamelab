@@ -312,6 +312,27 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 	return models, nil
 }
 
+// ToolQuery sends a single text prompt and returns a text answer using a fast model.
+func (p *MistralPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
+	req := ConversationsAPIRequest{
+		Model:  toolQueryModel,
+		Inputs: []InputMessage{{Role: "user", Content: prompt}},
+		Store:  false,
+	}
+
+	apiResponse, _, err := callConversationsAPI(ctx, apiKey, req)
+	if err != nil {
+		return "", fmt.Errorf("ToolQuery failed: %w", err)
+	}
+
+	text := extractResponseText(apiResponse)
+	if text == "" {
+		return "", fmt.Errorf("ToolQuery: no text in response")
+	}
+
+	return text, nil
+}
+
 // GenerateTheme generates a visual theme JSON for the game player UI
 func (p *MistralPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
 	log.Debug("Mistral GenerateTheme starting", "session_id", session.ID)

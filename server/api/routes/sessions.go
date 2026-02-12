@@ -570,10 +570,10 @@ func GetMessageImage(w http.ResponseWriter, r *http.Request) {
 // GetMessageAudio godoc
 //
 //	@Summary		Get message audio
-//	@Description	Returns the audio narration for a message (Ogg/Opus format).
+//	@Description	Returns the audio narration for a message (MP3 format).
 //	@Description	No authentication required - message UUIDs are random and unguessable.
 //	@Tags			messages
-//	@Produce		application/ogg
+//	@Produce		audio/mpeg
 //	@Param			id	path		string	true	"Message ID (UUID)"
 //	@Success		200	{file}		binary
 //	@Failure		400	{object}	httpx.ErrorResponse	"Invalid message ID"
@@ -597,7 +597,7 @@ func GetMessageAudio(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "audio/ogg")
+	w.Header().Set("Content-Type", "audio/mpeg")
 	w.Header().Set("Cache-Control", "public, max-age=31536000")
 	w.WriteHeader(http.StatusOK)
 	w.Write(audio)

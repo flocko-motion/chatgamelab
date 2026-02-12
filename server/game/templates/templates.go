@@ -17,12 +17,17 @@ const (
 
 	// PromptMessageStart is sent as the first player input to kick off the game
 	PromptMessageStart = "Start the game. Generate the opening scene. Set the status fields to good initial values for the scenario."
-	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
-	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 1-3 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
+
+	// PromptObjectivizePlayerInput rephrases player input in third person with uncertain outcome.
+	// Used via ToolQuery with a fast model. The %s placeholder is the raw player input.
+	PromptObjectivizePlayerInput = "Rephrase the player's input in third person, making the outcome uncertain. Return ONLY the rephrased text, nothing else.\nExample: 'I attack the wolf and wrestle him to the ground' → 'The player attacks the wolf, hoping to wrestle him to the ground.'\n\nPlayer Input: %s"
 
 	// ReminderExecuteAction is injected as a developer message with every player action
 	// to reinforce brevity constraints that the model tends to forget over long conversations.
-	ReminderExecuteAction = "STRICT OUTPUT RULES: message=telegraph-style (subject-verb-object, no adjectives, max 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
+	ReminderExecuteAction = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
+
+	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
+	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 2-5 sentences MAXIMUM. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric."
 
 	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
 	ImagePromptSuffix = ". Do not depict the player character."

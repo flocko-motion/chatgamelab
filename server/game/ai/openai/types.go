@@ -14,9 +14,10 @@ const (
 	imageGenEndpoint  = "/images/generations"
 	speechEndpoint    = "/audio/speech"
 	translateModel    = "gpt-5.1-codex"
+	toolQueryModel    = "gpt-5.1-codex"
 	ttsModel          = "gpt-4o-mini-tts"
 	ttsVoice          = "marin" // openai recommends marin or cedar
-	ttsFormat         = "opus"
+	ttsFormat         = "mp3"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity

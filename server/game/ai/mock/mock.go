@@ -104,24 +104,15 @@ func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSessi
 }
 
 func (p *MockPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
-	// Generate a minimal valid Ogg page with "OggS" magic bytes for test validation
-	// This is not real audio, just enough to pass header checks in tests
-	oggHeader := []byte{
-		'O', 'g', 'g', 'S', // capture pattern
-		0,                      // version
-		0x02,                   // header type (beginning of stream)
-		0, 0, 0, 0, 0, 0, 0, 0, // granule position
-		0x01, 0x00, 0x00, 0x00, // serial number
-		0x00, 0x00, 0x00, 0x00, // page sequence number
-		0x00, 0x00, 0x00, 0x00, // checksum (placeholder)
-		0x01,                                   // page segments
-		0x13,                                   // segment table (19 bytes)
-		'O', 'p', 'u', 's', 'H', 'e', 'a', 'd', // OpusHead
-		0x01, 0x02, 0x38, 0x01, 0x80, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00, // opus header data
+	// Generate a minimal MP3 frame header for test validation
+	// 0xFF 0xFB = MP3 sync word (MPEG1 Layer3), followed by minimal frame data
+	mp3Frame := []byte{
+		0xFF, 0xFB, 0x90, 0x00, // MP3 frame header (sync word + MPEG1 Layer3 128kbps 44100Hz stereo)
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // padding
 	}
 
-	responseStream.SendAudio(oggHeader, true)
-	return oggHeader, nil
+	responseStream.SendAudio(mp3Frame, true)
+	return mp3Frame, nil
 }
 
 // Translate provides a mock translation implementation

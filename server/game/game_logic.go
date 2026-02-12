@@ -392,6 +392,17 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	gameSchema := status.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
+	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
+	if action.Type == obj.GameSessionMessageTypePlayer && session.ApiKey != nil {
+		prompt := fmt.Sprintf(templates.PromptObjectivizePlayerInput, action.Message)
+		if rephrased, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt); err != nil {
+			log.Warn("ToolQuery rephrasing failed, using original input", "session_id", session.ID, "error", err)
+		} else {
+			log.Debug("player input rephrased", "session_id", session.ID, "original", action.Message, "rephrased", rephrased)
+			action.Message = rephrased
+		}
+	}
+
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
 	log.Debug(fmt.Sprintf("executing AI action, session_id=%s, message_id=%s, schema=%s",
 		session.ID, response.ID, string(gameSchemaJSON)))

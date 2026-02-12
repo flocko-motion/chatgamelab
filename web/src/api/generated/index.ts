@@ -67,12 +67,16 @@ export interface HttpxErrorResponse {
 export interface ObjAiModel {
   /** tier label e.g. "Premium" */
   description?: string;
-  /** generic tier: "high", "medium", "low" */
+  /** generic tier: "high", "medium", "low", "max" */
   id?: string;
   /** concrete model ID e.g. "gpt-5.2" */
   model?: string;
   /** display name e.g. "GPT-5.2" */
   name?: string;
+  /** whether this tier generates audio (TTS) */
+  supportsAudio?: boolean;
+  /** whether this tier generates images */
+  supportsImage?: boolean;
 }
 
 export interface ObjAiPlatform {
@@ -208,7 +212,12 @@ export interface ObjGameSession {
 }
 
 export interface ObjGameSessionMessage {
+  audio?: number[];
   gameSessionId?: string;
+  /** true when audio narration is active for this message */
+  hasAudio?: boolean;
+  /** true when image generation is active for this message */
+  hasImage?: boolean;
   id?: string;
   image?: number[];
   imagePrompt?: string;
@@ -551,7 +560,12 @@ export interface RoutesSessionActionRequest {
 }
 
 export interface RoutesSessionMessageResponse {
+  audio?: number[];
   gameSessionId?: string;
+  /** true when audio narration is active for this message */
+  hasAudio?: boolean;
+  /** true when image generation is active for this message */
+  hasImage?: boolean;
   id?: string;
   image?: number[];
   imagePrompt?: string;
@@ -2002,6 +2016,21 @@ export class Api<
       }),
   };
   messages = {
+    /**
+     * @description Returns the audio narration for a message (Ogg/Opus format). No authentication required - message UUIDs are random and unguessable.
+     *
+     * @tags messages
+     * @name AudioList
+     * @summary Get message audio
+     * @request GET:/messages/{id}/audio
+     */
+    audioList: (id: string, params: RequestParams = {}) =>
+      this.request<File, HttpxErrorResponse>({
+        path: `/messages/${id}/audio`,
+        method: "GET",
+        ...params,
+      }),
+
     /**
      * @description Returns the generated image for a game session message. Checks in-memory cache first (for partial/WIP images), then database. No authentication required - message UUIDs are random and unguessable.
      *

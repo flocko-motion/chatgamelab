@@ -2668,6 +2668,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/messages/{id}/audio": {
+            "get": {
+                "description": "Returns the audio narration for a message (Ogg/Opus format).\nNo authentication required - message UUIDs are random and unguessable.",
+                "produces": [
+                    "application/ogg"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Get message audio",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Message ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid message ID",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Message or audio not found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/messages/{id}/image": {
             "get": {
                 "description": "Returns the generated image for a game session message.\nChecks in-memory cache first (for partial/WIP images), then database.\nNo authentication required - message UUIDs are random and unguessable.",
@@ -4725,7 +4766,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "description": "generic tier: \"high\", \"medium\", \"low\"",
+                    "description": "generic tier: \"high\", \"medium\", \"low\", \"max\"",
                     "type": "string"
                 },
                 "model": {
@@ -4735,6 +4776,14 @@ const docTemplate = `{
                 "name": {
                     "description": "display name e.g. \"GPT-5.2\"",
                     "type": "string"
+                },
+                "supportsAudio": {
+                    "description": "whether this tier generates audio (TTS)",
+                    "type": "boolean"
+                },
+                "supportsImage": {
+                    "description": "whether this tier generates images",
+                    "type": "boolean"
                 }
             }
         },
@@ -5037,8 +5086,22 @@ const docTemplate = `{
         "obj.GameSessionMessage": {
             "type": "object",
             "properties": {
+                "audio": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "gameSessionId": {
                     "type": "string"
+                },
+                "hasAudio": {
+                    "description": "true when audio narration is active for this message",
+                    "type": "boolean"
+                },
+                "hasImage": {
+                    "description": "true when image generation is active for this message",
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"
@@ -5924,8 +5987,22 @@ const docTemplate = `{
         "routes.SessionMessageResponse": {
             "type": "object",
             "properties": {
+                "audio": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "gameSessionId": {
                     "type": "string"
+                },
+                "hasAudio": {
+                    "description": "true when audio narration is active for this message",
+                    "type": "boolean"
+                },
+                "hasImage": {
+                    "description": "true when image generation is active for this message",
+                    "type": "boolean"
                 },
                 "id": {
                     "type": "string"

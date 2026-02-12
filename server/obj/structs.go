@@ -375,8 +375,8 @@ type GameSessionMessage struct {
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
 	Audio        []byte        `json:"audio,omitempty"`
-	HasImage     bool          `json:"hasImage,omitempty"` // true when image generation is active for this message
-	HasAudio     bool          `json:"hasAudio,omitempty"` // true when audio narration is active for this message
+	HasImage     bool          `json:"hasImage"` // true when image generation is active for this message
+	HasAudio     bool          `json:"hasAudio"` // true when audio narration is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
 }
 

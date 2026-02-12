@@ -85,6 +85,8 @@ export interface GameMessageResult {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -93,6 +95,8 @@ export interface RawMessage {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -309,6 +313,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       lastImageUpdateRef.current = 0;
+      const audioChunks: string[] = [];
 
       try {
         const headers = await adapterRef.current.getStreamHeaders();
@@ -398,7 +403,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
                 }
 
                 if (chunk.audioData) {
-                  updateMessage(messageId, { audioStatus: "loading" });
+                  audioChunks.push(chunk.audioData);
                 }
 
                 if (chunk.textDone) {
@@ -411,7 +416,20 @@ export function useStreamingSession(adapter: SessionAdapter) {
                 }
 
                 if (chunk.audioDone) {
-                  updateMessage(messageId, { audioStatus: "ready" });
+                  // Decode accumulated base64 chunks into a blob URL
+                  try {
+                    const binaryStr = audioChunks.map(b64 => atob(b64)).join('');
+                    const bytes = new Uint8Array(binaryStr.length);
+                    for (let i = 0; i < binaryStr.length; i++) {
+                      bytes[i] = binaryStr.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    updateMessage(messageId, { audioStatus: 'ready', audioBlobUrl: blobUrl });
+                  } catch (e) {
+                    apiLogger.error('Failed to create audio blob', { error: e });
+                    updateMessage(messageId, { audioStatus: 'ready' });
+                  }
                 }
 
                 if (chunk.imageDone) {
@@ -487,7 +505,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
             ...sceneMessage,
             text: "",
             isStreaming: true,
-            isImageLoading: !!firstMessage.imagePrompt,
+            isImageLoading: !!firstMessage.hasImage,
+            audioStatus: firstMessage.hasAudio ? 'loading' : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
@@ -561,7 +580,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
               ...sceneMessage,
               text: "",
               isStreaming: true,
-              isImageLoading: !!gameResponse.imagePrompt,
+              isImageLoading: !!gameResponse.hasImage,
+              audioStatus: gameResponse.hasAudio ? 'loading' : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -655,7 +675,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: isInProgress
             ? messages.map((msg, i) =>
               i === messages.length - 1
-                ? { ...msg, isImageLoading: !!msg.imagePrompt }
+                ? { ...msg, isImageLoading: !!msg.hasImage, audioStatus: msg.hasAudio ? 'loading' : undefined }
                 : msg,
             )
             : messages,
@@ -677,7 +697,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
         } else if (
           !isInProgress &&
           lastMessage?.id &&
-          lastMessage.imagePrompt
+          lastMessage.hasImage
         ) {
           try {
             const statusResp = await fetch(

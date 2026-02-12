@@ -12,6 +12,7 @@ const (
 	conversationsEndpoint = "/conversations"
 	mistralModelsEndpoint = "/models"
 	translateModel        = "mistral-small-latest"
+	toolQueryModel        = "mistral-small-latest"
 )
 
 // ModelSession stores the Mistral conversation ID for conversation continuity

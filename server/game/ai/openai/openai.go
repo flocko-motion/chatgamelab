@@ -410,6 +410,31 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 	return models, nil
 }
 
+// ToolQuery sends a single text prompt and returns a text answer using a fast model.
+func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
+	req := ResponsesAPIRequest{
+		Model: toolQueryModel,
+		Input: []InputMessage{{Role: "user", Content: prompt}},
+		Store: false,
+	}
+
+	apiResponse, _, err := callResponsesAPI(ctx, apiKey, req)
+	if err != nil {
+		return "", fmt.Errorf("ToolQuery failed: %w", err)
+	}
+
+	if apiResponse.Error != nil {
+		return "", fmt.Errorf("ToolQuery error: %s", apiResponse.Error.Message)
+	}
+
+	text := extractResponseText(apiResponse)
+	if text == "" {
+		return "", fmt.Errorf("ToolQuery: no text in response")
+	}
+
+	return text, nil
+}
+
 // GenerateTheme generates a visual theme JSON for the game player UI
 func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
 	log.Debug("OpenAI GenerateTheme starting", "session_id", session.ID)

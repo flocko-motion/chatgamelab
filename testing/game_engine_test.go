@@ -109,14 +109,15 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	log.Printf("Audio playthrough test completed successfully!")
 }
 
-// validateAudioStream checks that audio data was received via SSE and has valid Ogg/Opus header
+// validateAudioStream checks that audio data was received via SSE and has valid MP3 header
 func (s *GameEngineTestSuite) validateAudioStream(result *testutil.StreamResult, label string) {
 	s.T().Helper()
 	s.Greater(len(result.AudioData), 0, "%s: audio data should be received via SSE stream", label)
 	log.Printf("%s: audio data received: %d bytes", label, len(result.AudioData))
 
-	s.Require().GreaterOrEqual(len(result.AudioData), 4, "%s: audio data should be at least 4 bytes", label)
-	s.Equal([]byte("OggS"), result.AudioData[:4], "%s: audio should start with Ogg magic bytes (opus format)", label)
+	s.Require().GreaterOrEqual(len(result.AudioData), 2, "%s: audio data should be at least 2 bytes", label)
+	s.Equal(byte(0xFF), result.AudioData[0], "%s: audio should start with MP3 sync byte 0xFF", label)
+	s.Equal(byte(0xFB), result.AudioData[1]&0xFB, "%s: audio should have MP3 frame header", label)
 }
 
 // validateAudioFromDB checks that audio is persisted and accessible via the replay endpoint
@@ -125,7 +126,7 @@ func (s *GameEngineTestSuite) validateAudioFromDB(messageID string, streamResult
 	audioFromDB, err := s.clientAlice.GetMessageAudio(messageID)
 	s.Require().NoError(err, "%s: GetMessageAudio should succeed", label)
 	s.Greater(len(audioFromDB), 0, "%s: audio from DB should not be empty", label)
-	s.Equal([]byte("OggS"), audioFromDB[:4], "%s: audio from DB should start with Ogg magic bytes", label)
+	s.Equal(byte(0xFF), audioFromDB[0], "%s: audio from DB should start with MP3 sync byte 0xFF", label)
 	log.Printf("%s: audio from DB: %d bytes (matches stream: %v)", label, len(audioFromDB), len(audioFromDB) == len(streamResult.AudioData))
 
 	playAudio(audioFromDB, label)
@@ -138,7 +139,7 @@ func playAudio(data []byte, label string) {
 	if err != nil {
 		return
 	}
-	tmpFile, err := os.CreateTemp("", "cgl-audio-*.ogg")
+	tmpFile, err := os.CreateTemp("", "cgl-audio-*.mp3")
 	if err != nil {
 		return
 	}

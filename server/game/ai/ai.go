@@ -62,6 +62,10 @@ type AiPlatform interface {
 	// GenerateTheme - blocking, generates a visual theme JSON based on game description
 	// Returns the raw JSON string response from the AI and token usage
 	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error)
+
+	// ToolQuery - blocking, sends a single text prompt and returns a text answer.
+	// No chat history, no system message, just a simple ping-pong using a fast model.
+	ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error)
 }
 
 func GetAiPlatformInfos() []obj.AiPlatform {

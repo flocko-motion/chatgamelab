@@ -34,8 +34,14 @@ export interface SceneMessage {
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
+  /** Whether this message has image generation (set by backend based on platform capabilities) */
+  hasImage?: boolean;
+  /** Whether this message has audio narration (set by backend based on platform capabilities) */
+  hasAudio?: boolean;
   /** Audio narration status: 'loading' while TTS is generating, 'ready' when available */
   audioStatus?: 'loading' | 'ready';
+  /** Blob URL for streamed audio data (available when audioStatus='ready') */
+  audioBlobUrl?: string;
   /** Raw AI request: status update prompt */
   requestStatusUpdate?: string;
   /** Raw AI request: response schema */
@@ -127,12 +133,12 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
   // Determine image status for non-streaming messages loaded from DB
   let imageStatus: ImageStatus | undefined;
   let imageHash: string | undefined;
-  if (msg.imagePrompt) {
+  if (msg.hasImage) {
     if (msg.stream) {
       // Still streaming - polling will determine actual status
       imageStatus = "generating";
     } else {
-      // Completed message with image prompt - image is persisted
+      // Completed message - image is persisted
       imageStatus = "complete";
       imageHash = "persisted";
     }
@@ -145,7 +151,10 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     statusFields: msg.statusFields,
     imagePrompt: msg.imagePrompt,
     isStreaming: msg.stream,
-    isImageLoading: msg.stream && !!msg.imagePrompt,
+    isImageLoading: msg.stream && !!msg.hasImage,
+    hasImage: msg.hasImage,
+    hasAudio: msg.hasAudio,
+    audioStatus: msg.hasAudio && !msg.stream ? 'ready' : undefined,
     imageStatus,
     imageHash,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
