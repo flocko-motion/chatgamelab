@@ -93,7 +93,10 @@ export function useDeleteApiKey() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
     },
-    onError: handleApiError,
+    onError: (error) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      handleApiError(error);
+    },
   });
 }
 
