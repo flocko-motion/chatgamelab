@@ -444,6 +444,13 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
 	response.PromptImageGeneration = response.ImagePrompt
 
+	// Set capability flags based on platform tier
+	platformInfo := platform.GetPlatformInfo()
+	if model := platformInfo.ResolveModel(session.AiModel); model != nil {
+		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
+		response.HasAudio = model.SupportsAudio
+	}
+
 	// Persist AI session state immediately so the next action can find the conversation/response ID.
 	// (ExpandStory may update it again later with a newer ID, which the goroutine will also persist.)
 	if err := db.UpdateGameSessionAiSession(ctx, session.UserID, session.ID, session.AiSession); err != nil {
@@ -485,8 +492,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 
-		// Phase 4: Generate audio narration if "max" tier (after text is finalized)
-		if session.AiModel == obj.AiModelMax && len(response.Message) > 0 {
+		// Phase 4: Generate audio narration (after text is finalized)
+		if response.HasAudio && len(response.Message) > 0 {
 			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
 			if err != nil {
@@ -499,16 +506,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "has_prompt", response.ImagePrompt != nil)
-		// GenerateImage streams partial images and updates response.Image with final
-		// Note: Image is saved to DB inside stream.SendImage when isDone=true
-		// Use captured imagePrompt to avoid race condition with response pointer
-		if response.ImagePrompt == nil || *response.ImagePrompt == "" {
-			log.Debug("no image prompt, skipping image generation")
-			return
-		}
-		if session.ImageStyle == templates.ImageStyleNoImage {
-			log.Debug("image generation disabled (NO_IMAGE)")
+		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "hasImage", response.HasImage)
+		if !response.HasImage {
+			log.Debug("image generation not active for this message, skipping")
 			return
 		}
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {

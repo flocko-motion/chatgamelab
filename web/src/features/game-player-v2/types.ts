@@ -34,6 +34,8 @@ export interface SceneMessage {
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
+  /** Audio narration status: 'loading' while TTS is generating, 'ready' when available */
+  audioStatus?: 'loading' | 'ready';
   /** Raw AI request: status update prompt */
   requestStatusUpdate?: string;
   /** Raw AI request: response schema */
@@ -57,6 +59,8 @@ export interface StreamChunk {
   textDone?: boolean;
   imageData?: string; // Base64-encoded partial/WIP image data
   imageDone?: boolean;
+  audioData?: string; // Base64-encoded audio chunk
+  audioDone?: boolean;
   error?: string; // Error message from the backend
   errorCode?: string; // Machine-readable error code (maps to frontend i18n)
 }

@@ -107,7 +107,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const activePollingIdRef = useRef<string | null>(null);
   const sseActiveRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  const startPollingRef = useRef<(messageId: string) => void>(() => { });
   const lastImageUpdateRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
@@ -212,7 +212,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
-              JSON.stringify(msg.statusFields)
+            JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
@@ -367,10 +367,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                       .map((msg) =>
                         msg.id === playerMessageId
                           ? {
-                              ...msg,
-                              error: chunk.error,
-                              errorCode: chunk.errorCode,
-                            }
+                            ...msg,
+                            error: chunk.error,
+                            errorCode: chunk.errorCode,
+                          }
                           : msg,
                       ),
                     isWaitingForResponse: false,
@@ -397,6 +397,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   }
                 }
 
+                if (chunk.audioData) {
+                  updateMessage(messageId, { audioStatus: "loading" });
+                }
+
                 if (chunk.textDone) {
                   sseActiveRef.current = false;
                   updateMessage(messageId, { isStreaming: false });
@@ -404,6 +408,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                     ...prev,
                     isWaitingForResponse: false,
                   }));
+                }
+
+                if (chunk.audioDone) {
+                  updateMessage(messageId, { audioStatus: "ready" });
                 }
 
                 if (chunk.imageDone) {
@@ -585,13 +593,13 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: prev.messages.map((msg) =>
             msg.id === playerMessage.id
               ? {
-                  ...msg,
-                  error:
-                    error instanceof Error
-                      ? error.message
-                      : "Failed to send action",
-                  errorCode,
-                }
+                ...msg,
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to send action",
+                errorCode,
+              }
               : msg,
           ),
         }));
@@ -646,10 +654,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
           },
           messages: isInProgress
             ? messages.map((msg, i) =>
-                i === messages.length - 1
-                  ? { ...msg, isImageLoading: !!msg.imagePrompt }
-                  : msg,
-              )
+              i === messages.length - 1
+                ? { ...msg, isImageLoading: !!msg.imagePrompt }
+                : msg,
+            )
             : messages,
           statusFields:
             messages.length > 0

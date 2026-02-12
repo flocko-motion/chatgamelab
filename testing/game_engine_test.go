@@ -4,6 +4,8 @@ package testing
 
 import (
 	"log"
+	"os"
+	"os/exec"
 	"testing"
 
 	"cgl/functional"
@@ -121,6 +123,32 @@ func (s *GameEngineTestSuite) validateAudioFromDB(messageID string, streamResult
 	s.Greater(len(audioFromDB), 0, "%s: audio from DB should not be empty", label)
 	s.Equal([]byte("OggS"), audioFromDB[:4], "%s: audio from DB should start with Ogg magic bytes", label)
 	log.Printf("%s: audio from DB: %d bytes (matches stream: %v)", label, len(audioFromDB), len(audioFromDB) == len(streamResult.AudioData))
+
+	playAudio(audioFromDB, label)
+}
+
+// playAudio writes audio bytes to a temp file and plays them via paplay (blocking).
+// Silently skips if paplay is not available.
+func playAudio(data []byte, label string) {
+	paplay, err := exec.LookPath("paplay")
+	if err != nil {
+		return
+	}
+	tmpFile, err := os.CreateTemp("", "cgl-audio-*.ogg")
+	if err != nil {
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+	if _, err := tmpFile.Write(data); err != nil {
+		tmpFile.Close()
+		return
+	}
+	tmpFile.Close()
+	log.Printf("%s: playing audio via paplay...", label)
+	cmd := exec.Command(paplay, tmpFile.Name())
+	if err := cmd.Run(); err != nil {
+		log.Printf("%s: paplay failed: %v", label, err)
+	}
 }
 
 // GamePlaythrough tests the complete game engine workflow:

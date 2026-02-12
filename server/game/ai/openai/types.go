@@ -15,7 +15,7 @@ const (
 	speechEndpoint    = "/audio/speech"
 	translateModel    = "gpt-5.1-codex"
 	ttsModel          = "gpt-4o-mini-tts"
-	ttsVoice          = "coral"
+	ttsVoice          = "marin" // openai recommends marin or cedar
 	ttsFormat         = "opus"
 )
 

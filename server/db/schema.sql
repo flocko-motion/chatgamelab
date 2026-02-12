@@ -348,6 +348,8 @@ CREATE TABLE game_session_message (
     image_prompt        text NULL,
     image               bytea NULL,
     audio               bytea NULL,
+    has_image           boolean NOT NULL DEFAULT false,
+    has_audio           boolean NOT NULL DEFAULT false,
     -- AI insight fields: raw prompts and responses for educational debug view
     prompt_status_update    text NULL,
     prompt_response_schema  text NULL,

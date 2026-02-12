@@ -25,10 +25,10 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", Description: "Highest + Audio"},
-			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium"},
-			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced"},
-			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy"},
+			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", Description: "Highest + Audio", SupportsImage: true, SupportsAudio: true},
+			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium", SupportsImage: true},
+			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced", SupportsImage: true},
+			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy", SupportsImage: true},
 		},
 	}
 }
