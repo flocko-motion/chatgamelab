@@ -33,7 +33,8 @@ func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(
 	// Upload game and make it public
 	game := Must(user.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
-	Must(user.UpdateGame(gameID, map[string]interface{}{"name": game.Name, "public": true}))
+	game.Public = true
+	Must(user.UpdateGame(gameID, game))
 
 	// Set the key as sponsor for the game
 	Must(user.SetGameSponsor(gameID, shareID))
@@ -130,7 +131,8 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPr
 
 	game := Must(user.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
-	Must(user.UpdateGame(gameID, map[string]interface{}{"name": game.Name, "public": true}))
+	game.Public = true
+	Must(user.UpdateGame(gameID, game))
 	Must(user.SetGameSponsor(gameID, shareID))
 	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
 	s.True(status.Enabled)
