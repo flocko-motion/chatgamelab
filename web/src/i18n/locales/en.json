@@ -620,7 +620,7 @@
         "revoke": "Revoke Link",
         "description": "Create a private share link so that anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
         "loadingKeys": "Loading API keys...",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to pay for guest sessions...",
         "maxSessions": "Max Sessions",
