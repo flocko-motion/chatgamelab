@@ -31,6 +31,9 @@ func IsValidApiKeyPlatform(platform string) bool {
 type AiPlatform interface {
 	GetPlatformInfo() obj.AiPlatform
 
+	// ResolveModelInfo returns the full AiModel definition for the given tier ID, or nil if not found.
+	ResolveModelInfo(tierID string) *obj.AiModel
+
 	// ExecuteAction - blocking, returns structured JSON (plotOutline in Message, statusFields, imagePrompt)
 	// For system messages (first call), action.Message contains the system prompt/instructions
 	// gameSchema is the JSON schema enforcing exact status field names, built by the caller.

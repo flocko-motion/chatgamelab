@@ -33,6 +33,15 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
+func (p *OpenAiPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
+	for _, m := range p.GetPlatformInfo().Models {
+		if m.ID == tierID {
+			return &m
+		}
+	}
+	return nil
+}
+
 func (p *OpenAiPlatform) ResolveModel(model string) string {
 	models := p.GetPlatformInfo().Models
 	for _, m := range models {

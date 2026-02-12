@@ -310,16 +310,6 @@ const (
 	AiModelEconomy  = "low"
 )
 
-// ResolveModel returns the AiModel for the given tier ID, or nil if not found.
-func (p AiPlatform) ResolveModel(tierID string) *AiModel {
-	for i := range p.Models {
-		if p.Models[i].ID == tierID {
-			return &p.Models[i]
-		}
-	}
-	return nil
-}
-
 type StatusField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`

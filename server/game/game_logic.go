@@ -445,8 +445,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response.PromptImageGeneration = response.ImagePrompt
 
 	// Set capability flags based on platform tier
-	platformInfo := platform.GetPlatformInfo()
-	if model := platformInfo.ResolveModel(session.AiModel); model != nil {
+	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
 		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
 		response.HasAudio = model.SupportsAudio
 	}

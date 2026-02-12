@@ -707,6 +707,8 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Status:        statusJSON,
 		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
+		HasImage:      msg.HasImage,
+		HasAudio:      msg.HasAudio,
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -769,6 +771,8 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Status:                statusJSON,
 		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:                 msg.Image,
+		HasImage:              msg.HasImage,
+		HasAudio:              msg.HasAudio,
 		PromptStatusUpdate:    sql.NullString{String: functional.Deref(msg.PromptStatusUpdate, ""), Valid: msg.PromptStatusUpdate != nil},
 		PromptResponseSchema:  sql.NullString{String: functional.Deref(msg.PromptResponseSchema, ""), Valid: msg.PromptResponseSchema != nil},
 		PromptImageGeneration: sql.NullString{String: functional.Deref(msg.PromptImageGeneration, ""), Valid: msg.PromptImageGeneration != nil},
@@ -1229,11 +1233,13 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	msg := &obj.GameSessionMessage{
-		ID:      m.ID,
-		Type:    m.Type,
-		Message: m.Message,
-		Image:   m.Image,
-		Audio:   m.Audio,
+		ID:       m.ID,
+		Type:     m.Type,
+		Message:  m.Message,
+		Image:    m.Image,
+		Audio:    m.Audio,
+		HasImage: m.HasImage,
+		HasAudio: m.HasAudio,
 	}
 
 	// Parse status fields from JSON
@@ -1275,6 +1281,8 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		Message:       m.Message,
 		Image:         m.Image,
 		Audio:         m.Audio,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1320,6 +1328,8 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		Seq:           int(m.Seq),
 		Type:          m.Type,
 		Message:       m.Message,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1369,6 +1379,8 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			Message:       m.Message,
 			Image:         m.Image,
 			Audio:         m.Audio,
+			HasImage:      m.HasImage,
+			HasAudio:      m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1409,6 +1421,8 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 		Seq:           int(m.Seq),
 		Type:          m.Type,
 		Message:       m.Message,
+		HasImage:      m.HasImage,
+		HasAudio:      m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1444,6 +1458,8 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 			Message:       m.Message,
 			Image:         m.Image,
 			Audio:         m.Audio,
+			HasImage:      m.HasImage,
+			HasAudio:      m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
