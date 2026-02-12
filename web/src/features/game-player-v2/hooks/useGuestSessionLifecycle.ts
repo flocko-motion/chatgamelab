@@ -127,5 +127,6 @@ export function useGuestSessionLifecycle(
     handleSendAction,
     isNoApiKeyError: false,
     apiKeyAvailable: true,
+    isPausedForUser: false,
   };
 }
