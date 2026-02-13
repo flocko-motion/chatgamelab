@@ -116,8 +116,8 @@ function useMockStatusFields(): ObjStatusField[] {
 }
 
 // No-op functions for mock context
-const noop = () => {};
-const asyncNoop = async () => {};
+const noop = () => { };
+const asyncNoop = async () => { };
 
 export function ThemePreview({ apiTheme }: ThemePreviewProps) {
   const { t } = useTranslation("common");
@@ -140,6 +140,8 @@ export function ThemePreview({ apiTheme }: ThemePreviewProps) {
       errorObject: null,
       streamError: null,
       theme: apiTheme,
+      aiModel: null,
+      aiPlatform: null,
     }),
     [messages, statusFields, apiTheme],
   );
