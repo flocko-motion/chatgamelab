@@ -25,6 +25,7 @@ type ApiKey struct {
 	Key              string
 	IsDefault        bool
 	LastUsageSuccess sql.NullBool
+	LastErrorCode    sql.NullString
 }
 
 type ApiKeyShare struct {

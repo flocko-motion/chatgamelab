@@ -284,7 +284,7 @@ WHERE id = $1 AND user_id = $2;
 SELECT * FROM api_key WHERE user_id = $1 AND is_default = true;
 
 -- name: UpdateApiKeyLastUsageSuccess :exec
-UPDATE api_key SET last_usage_success = $2, modified_at = now()
+UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
 WHERE id = $1;
 
 -- name: GetApiKeyByID :one

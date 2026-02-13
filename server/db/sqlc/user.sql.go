@@ -219,7 +219,7 @@ INSERT INTO api_key (
   $2, $3, $4,
   $5, $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success, last_error_code
 `
 
 type CreateApiKeyParams struct {
@@ -260,6 +260,7 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 		&i.Key,
 		&i.IsDefault,
 		&i.LastUsageSuccess,
+		&i.LastErrorCode,
 	)
 	return i, err
 }
@@ -738,7 +739,7 @@ func (q *Queries) GetAllUsersWithDetails(ctx context.Context) ([]GetAllUsersWith
 }
 
 const getApiKeyByID = `-- name: GetApiKeyByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success FROM api_key WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success, last_error_code FROM api_key WHERE id = $1
 `
 
 func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, error) {
@@ -756,6 +757,7 @@ func (q *Queries) GetApiKeyByID(ctx context.Context, id uuid.UUID) (ApiKey, erro
 		&i.Key,
 		&i.IsDefault,
 		&i.LastUsageSuccess,
+		&i.LastErrorCode,
 	)
 	return i, err
 }
@@ -788,7 +790,7 @@ func (q *Queries) GetApiKeyIDsByUser(ctx context.Context, userID uuid.UUID) ([]u
 }
 
 const getDefaultApiKey = `-- name: GetDefaultApiKey :one
-SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success FROM api_key WHERE user_id = $1 AND is_default = true
+SELECT id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success, last_error_code FROM api_key WHERE user_id = $1 AND is_default = true
 `
 
 func (q *Queries) GetDefaultApiKey(ctx context.Context, userID uuid.UUID) (ApiKey, error) {
@@ -806,6 +808,7 @@ func (q *Queries) GetDefaultApiKey(ctx context.Context, userID uuid.UUID) (ApiKe
 		&i.Key,
 		&i.IsDefault,
 		&i.LastUsageSuccess,
+		&i.LastErrorCode,
 	)
 	return i, err
 }
@@ -1818,7 +1821,7 @@ UPDATE api_key SET
   modified_at = $3,
   name = $4
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success
+RETURNING id, created_by, created_at, modified_by, modified_at, user_id, name, platform, key, is_default, last_usage_success, last_error_code
 `
 
 type UpdateApiKeyParams struct {
@@ -1848,22 +1851,24 @@ func (q *Queries) UpdateApiKey(ctx context.Context, arg UpdateApiKeyParams) (Api
 		&i.Key,
 		&i.IsDefault,
 		&i.LastUsageSuccess,
+		&i.LastErrorCode,
 	)
 	return i, err
 }
 
 const updateApiKeyLastUsageSuccess = `-- name: UpdateApiKeyLastUsageSuccess :exec
-UPDATE api_key SET last_usage_success = $2, modified_at = now()
+UPDATE api_key SET last_usage_success = $2, last_error_code = $3, modified_at = now()
 WHERE id = $1
 `
 
 type UpdateApiKeyLastUsageSuccessParams struct {
 	ID               uuid.UUID
 	LastUsageSuccess sql.NullBool
+	LastErrorCode    sql.NullString
 }
 
 func (q *Queries) UpdateApiKeyLastUsageSuccess(ctx context.Context, arg UpdateApiKeyLastUsageSuccessParams) error {
-	_, err := q.db.ExecContext(ctx, updateApiKeyLastUsageSuccess, arg.ID, arg.LastUsageSuccess)
+	_, err := q.db.ExecContext(ctx, updateApiKeyLastUsageSuccess, arg.ID, arg.LastUsageSuccess, arg.LastErrorCode)
 	return err
 }
 
