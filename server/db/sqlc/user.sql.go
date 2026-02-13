@@ -103,6 +103,27 @@ func (q *Queries) ClearDefaultApiKey(ctx context.Context, userID uuid.UUID) erro
 	return err
 }
 
+const clearGameOriginalCreator = `-- name: ClearGameOriginalCreator :exec
+UPDATE game SET originally_created_by = NULL
+WHERE originally_created_by = $1
+`
+
+// Clear originally_created_by references to a deleted user
+func (q *Queries) ClearGameOriginalCreator(ctx context.Context, originallyCreatedBy uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearGameOriginalCreator, originallyCreatedBy)
+	return err
+}
+
+const clearInviteAcceptedByUser = `-- name: ClearInviteAcceptedByUser :exec
+UPDATE user_role_invite SET accepted_by = NULL
+WHERE accepted_by = $1
+`
+
+func (q *Queries) ClearInviteAcceptedByUser(ctx context.Context, acceptedBy uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, clearInviteAcceptedByUser, acceptedBy)
+	return err
+}
+
 const clearUserActiveWorkshop = `-- name: ClearUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
 WHERE user_id = $1
@@ -555,11 +576,18 @@ func (q *Queries) DeleteInvite(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
+const deleteInvitesForUser = `-- name: DeleteInvitesForUser :exec
+DELETE FROM user_role_invite WHERE invited_user_id = $1
+`
+
+// Delete invites targeting this user (can't just null invited_user_id due to type check constraint)
+func (q *Queries) DeleteInvitesForUser(ctx context.Context, invitedUserID uuid.NullUUID) error {
+	_, err := q.db.ExecContext(ctx, deleteInvitesForUser, invitedUserID)
+	return err
+}
+
 const deleteUser = `-- name: DeleteUser :exec
-UPDATE app_user
-SET
-  deleted_at = now()
-WHERE id = $1
+DELETE FROM app_user WHERE id = $1
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
