@@ -2,4 +2,4 @@
 -- The audio column was missing from the dev database but exists in schema.sql
 -- This migration adds the audio bytea column to store audio narration data
 
-ALTER TABLE game_session_message ADD COLUMN audio bytea NULL;
+ALTER TABLE game_session_message ADD COLUMN IF NOT EXISTS audio bytea NULL;
