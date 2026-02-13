@@ -27,6 +27,10 @@ env:
 jobs:
   resolve-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
