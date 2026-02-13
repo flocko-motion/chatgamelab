@@ -103,5 +103,19 @@
             ],
             "buildFlags": "-tags=ai_tests"
         },
+        {
+            "name": "Debug TestAudioPlaythroughOpenai",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/testing",
+            "cwd": "${workspaceFolder}/testing",
+            "args": [
+                "-test.run",
+                "TestGameEngineTestSuite/TestAudioPlaythroughOpenai",
+                "-test.v"
+            ],
+            "buildFlags": "-tags=ai_tests"
+        },
     ]
 }

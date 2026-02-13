@@ -8,6 +8,7 @@ import { DebugPanel } from "./DebugPanel";
 import { AiInsightPanel } from "./AiInsightPanel";
 import { StatusChangeIndicator } from "./StatusChangeIndicator";
 import { ThemedText } from "./text-effects";
+import { AudioPlayButton } from "./AudioPlayButton";
 import classes from "./GamePlayer.module.css";
 
 interface SceneCardProps {
@@ -39,10 +40,14 @@ export function SceneCard({
 }: SceneCardProps) {
   const { fontSize, debugMode } = useGamePlayerContext();
   const { theme, GameMessageWrapper, StreamingMessageWrapper } = useGameTheme();
-  const { id, text, imagePrompt, isStreaming } = message;
+  const { id, text, isStreaming } = message;
 
-  // Show image area if we have a prompt or are generating
-  const hasImage = showImages && !!imagePrompt;
+  // Trim trailing whitespace while streaming to prevent height jumps
+  // from newlines arriving before the next paragraph's text
+  const displayText = isStreaming ? text.trimEnd() : text;
+
+  // Show image area based on backend capability flag
+  const hasImage = showImages && !!message.hasImage;
   const cornerStyle = theme.corners?.style ?? "brackets";
   const showDropCap = theme.gameMessage?.dropCap ?? false;
 
@@ -70,7 +75,11 @@ export function SceneCard({
     .filter(Boolean)
     .join(" ");
 
-  const sceneClasses = [classes.gameScene, !hasImage && classes.noImage]
+  const sceneClasses = [
+    classes.gameScene,
+    !hasImage && classes.noImage,
+    isStreaming && classes.gameSceneStreaming,
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -101,7 +110,7 @@ export function SceneCard({
           <SceneImage
             key={id}
             messageId={id}
-            imagePrompt={imagePrompt}
+            imagePrompt={message.imagePrompt}
             imageStatus={message.imageStatus}
             imageHash={message.imageHash}
             imageErrorCode={message.imageErrorCode}
@@ -114,14 +123,14 @@ export function SceneCard({
           >
             {(() => {
               const defaultContent = (
-                <ThemedText text={text} scope="gameMessages" />
+                <ThemedText text={displayText} scope="gameMessages" />
               );
 
               const ActiveWrapper = isStreaming
                 ? (StreamingMessageWrapper ?? GameMessageWrapper)
                 : GameMessageWrapper;
               return ActiveWrapper ? (
-                <ActiveWrapper text={text} isStreaming={isStreaming}>
+                <ActiveWrapper text={displayText} isStreaming={isStreaming}>
                   {defaultContent}
                 </ActiveWrapper>
               ) : (
@@ -131,6 +140,15 @@ export function SceneCard({
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>
+        {message.hasAudio && (
+          <div style={{ position: "absolute", bottom: 12, right: 12 }}>
+            <AudioPlayButton
+              messageId={id}
+              audioStatus={message.audioStatus}
+              audioBlobUrl={message.audioBlobUrl}
+            />
+          </div>
+        )}
       </div>
       <AiInsightPanel
         message={message}

@@ -21,6 +21,7 @@ export const ErrorCodes = {
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",
+  INVALID_JSON_SCHEMA: "invalid_json_schema",
   ORG_VERIFICATION_REQUIRED: "organization_verification_required",
   BILLING_NOT_ACTIVE: "billing_not_active",
   RATE_LIMIT_EXCEEDED: "rate_limit_exceeded",

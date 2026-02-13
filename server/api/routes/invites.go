@@ -311,8 +311,8 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Default to individual if no role specified
-		role = obj.RoleIndividual
+		// Default to staff if no role specified
+		role = obj.RoleStaff
 	}
 
 	var invitedUserID *uuid.UUID
@@ -465,29 +465,47 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Head, staff, individual enter workshop mode (keep their role, set active workshop)
-		invite, getErr := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
-		if getErr != nil {
-			if appErr, ok := getErr.(*obj.AppError); ok {
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff || user.Role.Role == obj.RoleIndividual) {
+			invite, getErr := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
+			if getErr != nil {
+				if appErr, ok := getErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, getErr.Error())
+				return
+			}
+			if invite.WorkshopID == nil {
+				httpx.WriteAppError(w, obj.ErrValidation("this is not a workshop invite"))
+				return
+			}
+			setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID)
+			if setErr != nil {
+				if appErr, ok := setErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+				return
+			}
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Workshop entered",
+			})
+			return
+		}
+
+		// Users without a recognized role (e.g., no role at all) join as participant
+		_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
+		if acceptErr != nil {
+			if appErr, ok := acceptErr.(*obj.AppError); ok {
 				httpx.WriteAppError(w, appErr)
 				return
 			}
-			httpx.WriteError(w, http.StatusInternalServerError, getErr.Error())
-			return
-		}
-		if invite.WorkshopID == nil {
-			httpx.WriteAppError(w, obj.ErrValidation("this is not a workshop invite"))
-			return
-		}
-		if setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID); setErr != nil {
-			if appErr, ok := setErr.(*obj.AppError); ok {
-				httpx.WriteAppError(w, appErr)
-				return
-			}
-			httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
 			return
 		}
 		httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
-			Message: "Workshop entered",
+			Message: "Invite accepted",
 		})
 		return
 	}
@@ -510,22 +528,47 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine invite type and accept accordingly
-	var acceptErr error
 	if invite.InviteToken != nil {
-		// Open invite (workshop) - accept by token
-		_, acceptErr = db.AcceptOpenInvite(r.Context(), *invite.InviteToken, user.ID)
-	} else {
-		// Targeted invite (institution) - accept by ID
-		_, acceptErr = db.AcceptTargetedInvite(r.Context(), inviteID, "", user.ID)
-	}
-
-	if acceptErr != nil {
-		if appErr, ok := acceptErr.(*obj.AppError); ok {
-			httpx.WriteAppError(w, appErr)
+		// Open invite (workshop) — head/staff/individual enter workshop mode, others join as participant
+		if user.Role != nil && (user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff || user.Role.Role == obj.RoleIndividual) {
+			if invite.WorkshopID == nil {
+				httpx.WriteAppError(w, obj.ErrValidation("this is not a workshop invite"))
+				return
+			}
+			setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID)
+			if setErr != nil {
+				if appErr, ok := setErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+				return
+			}
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Workshop entered",
+			})
 			return
 		}
-		httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
-		return
+		_, acceptErr := db.AcceptOpenInvite(r.Context(), *invite.InviteToken, user.ID)
+		if acceptErr != nil {
+			if appErr, ok := acceptErr.(*obj.AppError); ok {
+				httpx.WriteAppError(w, appErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+			return
+		}
+	} else {
+		// Targeted invite (institution) - accept by ID
+		_, acceptErr := db.AcceptTargetedInvite(r.Context(), inviteID, "", user.ID)
+		if acceptErr != nil {
+			if appErr, ok := acceptErr.(*obj.AppError); ok {
+				httpx.WriteAppError(w, appErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
+			return
+		}
 	}
 
 	// Success - return a simple response (don't refetch invite as permissions may have changed)

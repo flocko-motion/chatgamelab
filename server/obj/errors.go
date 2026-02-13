@@ -23,6 +23,7 @@ const (
 
 	// AI-specific error codes
 	ErrCodeAiError                 = "ai_error"
+	ErrCodeInvalidJsonSchema       = "invalid_json_schema"
 	ErrCodeInvalidApiKey           = "invalid_api_key"
 	ErrCodeBillingNotActive        = "billing_not_active"
 	ErrCodeOrgVerificationRequired = "organization_verification_required"

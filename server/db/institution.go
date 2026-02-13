@@ -173,6 +173,10 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 		if r.FreeUseApiKeyShareID.Valid {
 			inst.FreeUseApiKeyShareID = &r.FreeUseApiKeyShareID.UUID
 		}
+		members, err := loadInstitutionMembers(ctx, r.ID)
+		if err == nil {
+			inst.Members = members
+		}
 		institutions = append(institutions, inst)
 	}
 

@@ -85,6 +85,8 @@ export interface GameMessageResult {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -93,6 +95,8 @@ export interface RawMessage {
   id?: string;
   stream?: boolean;
   imagePrompt?: string;
+  hasImage?: boolean;
+  hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -165,7 +169,16 @@ export function useStreamingSession(adapter: SessionAdapter) {
         const response = await fetch(
           `${config.API_BASE_URL}/messages/${messageId}/status`,
         );
-        if (!response.ok) return;
+        if (!response.ok) {
+          // If message doesn't exist (404), stop polling to avoid spam
+          if (response.status === 404) {
+            apiLogger.debug("Message not found, stopping polling", {
+              messageId,
+            });
+            stopPolling();
+          }
+          return;
+        }
 
         const status: MessageStatus = await response.json();
         pollErrorCountRef.current = 0;
@@ -309,6 +322,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       lastImageUpdateRef.current = 0;
+      const audioChunks: string[] = [];
 
       try {
         const headers = await adapterRef.current.getStreamHeaders();
@@ -336,6 +350,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
         resetSilenceTimer(messageId);
         const decoder = new TextDecoder();
         let buffer = "";
+        let textDone = false;
+        let imageDone = false;
+        let audioDone = false;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -397,7 +414,12 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   }
                 }
 
+                if (chunk.audioData) {
+                  audioChunks.push(chunk.audioData);
+                }
+
                 if (chunk.textDone) {
+                  textDone = true;
                   sseActiveRef.current = false;
                   updateMessage(messageId, { isStreaming: false });
                   setState((prev) => ({
@@ -406,12 +428,42 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   }));
                 }
 
+                if (chunk.audioDone) {
+                  audioDone = true;
+                  // Decode accumulated base64 chunks into a blob URL
+                  try {
+                    const binaryStr = audioChunks
+                      .map((b64) => atob(b64))
+                      .join("");
+                    const bytes = new Uint8Array(binaryStr.length);
+                    for (let i = 0; i < binaryStr.length; i++) {
+                      bytes[i] = binaryStr.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: "audio/mpeg" });
+                    const blobUrl = URL.createObjectURL(blob);
+                    updateMessage(messageId, {
+                      audioStatus: "ready",
+                      audioBlobUrl: blobUrl,
+                    });
+                  } catch (e) {
+                    apiLogger.error("Failed to create audio blob", {
+                      error: e,
+                    });
+                    updateMessage(messageId, { audioStatus: "ready" });
+                  }
+                }
+
                 if (chunk.imageDone) {
+                  imageDone = true;
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: "complete",
                     imageHash: `sse-${Date.now()}`,
                   });
+                }
+
+                // Stream is complete when all channels are done
+                if (textDone && imageDone && audioDone) {
                   clearSilenceTimer();
                   stopPolling();
                   return;
@@ -479,7 +531,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
             ...sceneMessage,
             text: "",
             isStreaming: true,
-            isImageLoading: !!firstMessage.imagePrompt,
+            isImageLoading: !!firstMessage.hasImage,
+            audioStatus: firstMessage.hasAudio ? "loading" : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
@@ -501,8 +554,20 @@ export function useStreamingSession(adapter: SessionAdapter) {
         }));
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to start session";
+      // Extract message from Error instances or { error: { message } } API shapes
+      let message = "Failed to start session";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (
+        error &&
+        typeof error === "object" &&
+        "error" in error &&
+        (error as Record<string, unknown>).error &&
+        typeof (error as Record<string, unknown>).error === "object"
+      ) {
+        const nested = (error as { error: { message?: string } }).error;
+        if (nested.message) message = nested.message;
+      }
       setState((prev) => ({
         ...prev,
         phase: "error",
@@ -553,7 +618,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
               ...sceneMessage,
               text: "",
               isStreaming: true,
-              isImageLoading: !!gameResponse.imagePrompt,
+              isImageLoading: !!gameResponse.hasImage,
+              audioStatus: gameResponse.hasAudio ? "loading" : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -579,6 +645,19 @@ export function useStreamingSession(adapter: SessionAdapter) {
         const errorCode = isNetworkError
           ? ErrorCodes.NETWORK_ERROR
           : extractRawErrorCode(error) || undefined;
+        let errorMessage = "Failed to send action";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (
+          error &&
+          typeof error === "object" &&
+          "error" in error &&
+          (error as Record<string, unknown>).error &&
+          typeof (error as Record<string, unknown>).error === "object"
+        ) {
+          const nested = (error as { error: { message?: string } }).error;
+          if (nested.message) errorMessage = nested.message;
+        }
         setState((prev) => ({
           ...prev,
           isWaitingForResponse: false,
@@ -586,10 +665,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
             msg.id === playerMessage.id
               ? {
                   ...msg,
-                  error:
-                    error instanceof Error
-                      ? error.message
-                      : "Failed to send action",
+                  error: errorMessage,
                   errorCode,
                 }
               : msg,
@@ -647,7 +723,11 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: isInProgress
             ? messages.map((msg, i) =>
                 i === messages.length - 1
-                  ? { ...msg, isImageLoading: !!msg.imagePrompt }
+                  ? {
+                      ...msg,
+                      isImageLoading: !!msg.hasImage,
+                      audioStatus: msg.hasAudio ? "loading" : undefined,
+                    }
                   : msg,
               )
             : messages,
@@ -666,11 +746,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           );
           updateMessage(lastMessage.id, { text: "" });
           connectToStream(lastMessage.id);
-        } else if (
-          !isInProgress &&
-          lastMessage?.id &&
-          lastMessage.imagePrompt
-        ) {
+        } else if (!isInProgress && lastMessage?.id && lastMessage.hasImage) {
           try {
             const statusResp = await fetch(
               `${config.API_BASE_URL}/messages/${lastMessage.id}/status`,

@@ -333,13 +333,13 @@ INSERT INTO game_session (
   created_at, modified_by, modified_at,
   game_id, user_id, workshop_id, api_key_id,
   ai_platform, ai_model, ai_session,
-  image_style, status_fields, theme
+  image_style, language, status_fields, theme
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, $6, $7, $8,
   $9, $10, $11,
-  $12, $13, $14
+  $12, $13, $14, $15
 )
 RETURNING *;
 
@@ -422,8 +422,9 @@ UPDATE game_session SET
   ai_model = $10,
   ai_session = $11,
   image_style = $12,
-  status_fields = $13,
-  theme = $14
+  language = $13,
+  status_fields = $14,
+  theme = $15
 WHERE id = $1
 RETURNING *;
 
@@ -471,13 +472,15 @@ INSERT INTO game_session_message (
   created_at, modified_by, modified_at,
   game_session_id, seq,
   type, message,
-  status, image_prompt, image
+  status, image_prompt, image,
+  has_image, has_audio
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
   $6, $7,
-  $8, $9, $10
+  $8, $9, $10,
+  $11, $12
 )
 RETURNING *;
 
@@ -502,13 +505,15 @@ UPDATE game_session_message SET
   status = $9,
   image_prompt = $10,
   image = $11,
-  prompt_status_update = $12,
-  prompt_response_schema = $13,
-  prompt_image_generation = $14,
-  prompt_expand_story = $15,
-  response_raw = $16,
-  token_usage = $17,
-  url_analytics = $18
+  has_image = $12,
+  has_audio = $13,
+  prompt_status_update = $14,
+  prompt_response_schema = $15,
+  prompt_image_generation = $16,
+  prompt_expand_story = $17,
+  response_raw = $18,
+  token_usage = $19,
+  url_analytics = $20
 WHERE id = $1
 RETURNING *;
 
@@ -528,6 +533,16 @@ UPDATE game_session_message SET
   modified_at = now()
 WHERE id = $1
 RETURNING *;
+
+-- name: UpdateGameSessionMessageAudio :one
+UPDATE game_session_message SET
+  audio = $2,
+  modified_at = now()
+WHERE id = $1
+RETURNING *;
+
+-- name: GetGameSessionMessageAudioByID :one
+SELECT id, audio FROM game_session_message WHERE id = $1;
 
 -- name: DeleteGameSessionMessagesBySessionID :exec
 DELETE FROM game_session_message WHERE game_session_id = $1;

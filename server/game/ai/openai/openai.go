@@ -25,22 +25,25 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", Description: "Premium"},
-			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", Description: "Balanced"},
-			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", Description: "Economy"},
+			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Highest + Audio", SupportsImage: true, SupportsAudio: true},
+			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Premium", SupportsImage: true},
+			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", ImageModel: "gpt-image-1", ImageQuality: "medium", Description: "Balanced", SupportsImage: true},
+			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", ImageModel: "gpt-image-1-mini", ImageQuality: "low", Description: "Economy", SupportsImage: true},
 		},
 	}
 }
 
-func (p *OpenAiPlatform) ResolveModel(model string) string {
-	models := p.GetPlatformInfo().Models
-	for _, m := range models {
-		if m.ID == model {
-			return m.Model
-		}
+func (p *OpenAiPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
+	info := p.GetPlatformInfo()
+	return info.ResolveModelWithDowngrade(tierID)
+}
+
+func (p *OpenAiPlatform) ResolveModel(tierID string) string {
+	if m := p.ResolveModelInfo(tierID); m != nil {
+		return m.Model
 	}
 	// fallback: medium tier
-	return models[1].Model
+	return p.GetPlatformInfo().Models[1].Model
 }
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
@@ -247,14 +250,20 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 
 	// Note: imagePrompt check is done in game_logic.go before calling this function
 	// to avoid race conditions with the shared response pointer
-	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle)
+	modelInfo := p.ResolveModelInfo(session.AiModel)
+	imageModel := modelInfo.ImageModel
+	imageQuality := modelInfo.ImageQuality
+	if imageQuality == "" {
+		imageQuality = "low"
+	}
+	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle, "image_model", imageModel, "image_quality", imageQuality)
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,
@@ -272,6 +281,24 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	response.Image = imageData
 
 	return nil
+}
+
+// GenerateAudio generates audio narration from text using OpenAI TTS API
+func (p *OpenAiPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
+	log.Debug("OpenAI GenerateAudio starting", "session_id", session.ID, "text_length", len(text))
+
+	if session.ApiKey == nil {
+		return nil, fmt.Errorf("session has no API key")
+	}
+
+	audioData, err := callSpeechAPI(ctx, session.ApiKey.Key, text, responseStream)
+	if err != nil {
+		log.Error("TTS generation failed", "error", err, "session_id", session.ID)
+		return nil, fmt.Errorf("OpenAI TTS error: %w", err)
+	}
+
+	log.Debug("TTS generation completed", "audio_bytes", len(audioData))
+	return audioData, nil
 }
 
 // Translate translates language files to a target language using OpenAI API
@@ -380,6 +407,31 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 	})
 
 	return models, nil
+}
+
+// ToolQuery sends a single text prompt and returns a text answer using a fast model.
+func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
+	req := ResponsesAPIRequest{
+		Model: toolQueryModel,
+		Input: []InputMessage{{Role: "user", Content: prompt}},
+		Store: false,
+	}
+
+	apiResponse, _, err := callResponsesAPI(ctx, apiKey, req)
+	if err != nil {
+		return "", fmt.Errorf("ToolQuery failed: %w", err)
+	}
+
+	if apiResponse.Error != nil {
+		return "", fmt.Errorf("ToolQuery error: %s", apiResponse.Error.Message)
+	}
+
+	text := extractResponseText(apiResponse)
+	if text == "" {
+		return "", fmt.Errorf("ToolQuery: no text in response")
+	}
+
+	return text, nil
 }
 
 // GenerateTheme generates a visual theme JSON for the game player UI

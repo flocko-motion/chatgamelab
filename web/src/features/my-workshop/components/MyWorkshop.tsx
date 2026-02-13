@@ -175,6 +175,7 @@ export function MyWorkshop() {
     if (game.id && canEdit) {
       setGameToView(game.id);
       setGameToViewReadOnly(false);
+      setGameToViewIsOwner(game.creatorId === currentUserId);
       openViewModal();
     }
   };

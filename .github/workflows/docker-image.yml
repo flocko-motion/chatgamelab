@@ -8,15 +8,15 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to build from'
+        description: "Branch to build from"
         required: true
-        default: 'development'
+        default: "development"
         type: choice
         options:
           - main
           - development
       reason:
-        description: 'Reason for manual build'
+        description: "Reason for manual build"
         required: false
         type: string
 
@@ -25,77 +25,112 @@ env:
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chatgamelab
 
 jobs:
-  semantic-release:
+  resolve-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
-      version: ${{ steps.release.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Display build info
         run: |
-          echo "🚀 Manual build triggered"
+          echo "🚀 Build triggered"
           echo "📂 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
-          echo "💬 Reason: ${{ github.event.inputs.reason || 'No reason provided' }}"
+          echo "💬 Reason: ${{ github.event.inputs.reason || 'push' }}"
           echo "👤 Triggered by: ${{ github.actor }}"
-      
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.inputs.branch || github.ref_name }}
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install semantic-release
+
+      - name: Resolve version (main)
+        if: github.ref_name == 'main'
+        id: main_version
         run: |
-          npm install -g semantic-release
-          npm install -g @semantic-release/github @semantic-release/exec
-      
-      - name: Run semantic-release
-        id: release
-        run: |
-          echo "Running semantic-release on branch: ${{ github.ref_name }}"
-          # Run semantic-release and capture output
+          npm install -g semantic-release @semantic-release/github @semantic-release/exec
           npx semantic-release > /tmp/release.log 2>&1 || true
           cat /tmp/release.log
-          
-          # Extract the published version (clean semver without prerelease)
+
+          # Extract published version
           VERSION=$(grep -oP 'Published release \K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
-          
+
           if [ -z "$VERSION" ]; then
-            # No release was published, check if semantic-release found an existing tag
-            FOUND_TAG=$(grep -oP 'Found git tag v\K[0-9]+\.[0-9]+\.[0-9]+' /tmp/release.log | tail -1)
-            
-            if [ -n "$FOUND_TAG" ]; then
-              VERSION="$FOUND_TAG"
-              echo "No new release, using existing tag: $VERSION"
-            else
-              # Fallback: get the latest tag from git
-              VERSION=$(git tag -l "[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | head -n1 | sed 's/^v//' || echo "1.0.0")
-              echo "No tag found in release log, using latest git tag: $VERSION"
-            fi
+            # No new release — use latest stable tag
+            VERSION=$(git tag -l "v[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | grep -v -- '-' | head -n1 | sed 's/^v//')
+            echo "No new release, using existing tag: $VERSION"
           else
             echo "New version published: $VERSION"
           fi
-          
-          # For development branch, append -dev suffix for Docker images
-          if [ "${{ github.ref_name }}" = "development" ]; then
-            BUILD_VERSION="${VERSION}-dev"
-            echo "Build version for development: $BUILD_VERSION"
-          else
-            BUILD_VERSION="$VERSION"
-            echo "Build version for main: $BUILD_VERSION"
-          fi
-          
-          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve version (development)
+        if: github.ref_name == 'development'
+        id: dev_version
+        run: |
+          # Find the latest stable tag (no prerelease suffix)
+          LATEST_STABLE=$(git tag -l "v[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | grep -v -- '-' | head -n1 | sed 's/^v//')
+
+          if [ -z "$LATEST_STABLE" ]; then
+            LATEST_STABLE="0.0.0"
+          fi
+          echo "Latest stable tag: $LATEST_STABLE"
+
+          # Bump minor version to get the next release version
+          MAJOR=$(echo "$LATEST_STABLE" | cut -d. -f1)
+          MINOR=$(echo "$LATEST_STABLE" | cut -d. -f2)
+          NEXT_MINOR=$((MINOR + 1))
+          NEXT_VERSION="${MAJOR}.${NEXT_MINOR}.0"
+          echo "Next version base: $NEXT_VERSION"
+
+          # Count commits since the latest stable tag
+          COMMIT_COUNT=$(git rev-list "v${LATEST_STABLE}..HEAD" --count 2>/dev/null || echo "0")
+          echo "Commits since v${LATEST_STABLE}: $COMMIT_COUNT"
+
+          BUILD_VERSION="${NEXT_VERSION}-dev.${COMMIT_COUNT}"
+          echo "Dev version: $BUILD_VERSION"
+
+          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set final version output
+        id: version
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "version=${{ steps.main_version.outputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ steps.dev_version.outputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on merged PR (development)
+        if: github.ref_name == 'development'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = '${{ steps.dev_version.outputs.version }}';
+            // Find the PR associated with this merge commit
+            const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+            });
+            for (const pr of commits.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `This PR is included in version ${version} 🎉\n\nYour semantic-release bot 📦🚀`,
+              });
+            }
+
   build-and-push:
-    needs: semantic-release
+    needs: resolve-version
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -133,19 +168,19 @@ jobs:
         run: |
           SERVICE_NAME="${{ matrix.service.name }}"
           BRANCH_NAME="${{ github.ref_name }}"
-          VERSION="${{ needs.semantic-release.outputs.version }}"
-          
+          VERSION="${{ needs.resolve-version.outputs.version }}"
+
           # Base image name
           IMAGE_NAME="${{ env.IMAGE_PREFIX }}-${SERVICE_NAME}"
-          
+
           # Initialize tags array
           TAGS=""
-          
+
           # Always add version tag (if we have one)
           if [ "$VERSION" != "no-release" ] && [ -n "$VERSION" ]; then
             TAGS="${IMAGE_NAME}:${VERSION}"
           fi
-          
+
           # Add branch-specific tags
           if [ "$BRANCH_NAME" = "main" ]; then
             # Main branch: add latest
@@ -162,14 +197,14 @@ jobs:
               TAGS="${IMAGE_NAME}:dev"
             fi
           fi
-          
+
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
           echo "Building tags: ${TAGS}"
 
       - name: Debug version
         run: |
-          echo "Version from semantic-release: ${{ needs.semantic-release.outputs.version }}"
-      
+          echo "Version: ${{ needs.resolve-version.outputs.version }}"
+
       - name: Build and push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
         with:
@@ -180,23 +215,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VERSION=${{ needs.semantic-release.outputs.version }}
+            VERSION=${{ needs.resolve-version.outputs.version }}
             GIT_COMMIT=${{ github.sha }}
             BUILD_TIME=${{ github.event.head_commit.timestamp }}
           labels: |
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
-            org.opencontainers.image.version=${{ needs.semantic-release.outputs.version }}
+            org.opencontainers.image.version=${{ needs.resolve-version.outputs.version }}
 
   webhook:
-    needs: [build-and-push, semantic-release]
+    needs: [build-and-push, resolve-version]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger deployment webhook
         run: |
-          echo "Release version: ${{ needs.semantic-release.outputs.version }}"
-          
+          echo "Release version: ${{ needs.resolve-version.outputs.version }}"
+
           if [ "${{ github.ref_name }}" = "main" ]; then
             echo "Triggering Coolify prod webhook..."
             curl -X POST \
@@ -212,7 +247,7 @@ jobs:
           fi
 
   summary:
-    needs: [build-and-push, semantic-release, webhook]
+    needs: [build-and-push, resolve-version, webhook]
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
@@ -221,11 +256,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Release Version:** \`${{ needs.semantic-release.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Release Version:** \`${{ needs.resolve-version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Images:" >> $GITHUB_STEP_SUMMARY
-          
-          VERSION="${{ needs.semantic-release.outputs.version }}"
+
+          VERSION="${{ needs.resolve-version.outputs.version }}"
           if [ "${{ github.ref_name }}" = "main" ]; then
             if [ "$VERSION" != "no-release" ]; then
               echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY

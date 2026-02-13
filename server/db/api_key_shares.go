@@ -130,6 +130,11 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 		return obj.ErrServerError("failed to clear workshop default api key references")
 	}
 
+	// Clear institution free_use_api_key_share_id references before deleting shares
+	if err := queries().ClearInstitutionFreeUseApiKeyShareByApiKeyID(ctx, key.ID); err != nil {
+		return obj.ErrServerError("failed to clear institution free-use api key references")
+	}
+
 	// Clean up private share guest data before clearing references
 	privateGames, _ := queries().GetGamesWithPrivateShareByApiKeyID(ctx, key.ID)
 	for _, g := range privateGames {
@@ -497,6 +502,7 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 			seenKeys[s.ApiKeyID] = true
 			apiKeys = append(apiKeys, obj.ApiKey{
 				ID:               s.ApiKeyID,
+				Meta:             obj.Meta{CreatedAt: &s.CreatedAt},
 				UserID:           s.OwnerID,
 				UserName:         s.OwnerName,
 				Name:             s.ApiKeyName,

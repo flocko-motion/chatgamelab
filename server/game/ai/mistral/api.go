@@ -15,14 +15,63 @@ import (
 	"strings"
 )
 
-// extractResponseText extracts the text content from a Conversations API response
+// extractResponseText extracts the assistant's text from a Conversations API response.
+// Regular responses have content as a JSON string; tool responses have a ContentChunk array.
 func extractResponseText(apiResponse *ConversationsAPIResponse) string {
 	for _, output := range apiResponse.Outputs {
-		if output.Role == "assistant" && output.Content != "" {
-			return output.Content
+		if output.Role != "assistant" || len(output.Content) == 0 {
+			continue
+		}
+		text := extractText(output.Content)
+		if text != "" {
+			return text
 		}
 	}
 	return ""
+}
+
+// extractFileID extracts the first tool_file file_id from an image generation response
+func extractFileID(apiResponse *ConversationsAPIResponse) string {
+	for _, output := range apiResponse.Outputs {
+		if output.Role != "assistant" || len(output.Content) == 0 {
+			continue
+		}
+		chunks := parseContentChunks(output.Content)
+		for _, chunk := range chunks {
+			if chunk.Type == "tool_file" && chunk.FileID != "" {
+				return chunk.FileID
+			}
+		}
+	}
+	return ""
+}
+
+// extractText returns the text from a content field.
+// Dispatches based on the JSON type: string → return directly, array → join text chunks.
+func extractText(raw json.RawMessage) string {
+	switch raw[0] {
+	case '"':
+		var s string
+		if err := json.Unmarshal(raw, &s); err == nil {
+			return s
+		}
+	case '[':
+		var sb strings.Builder
+		for _, chunk := range parseContentChunks(raw) {
+			if chunk.Type == "text" {
+				sb.WriteString(chunk.Text)
+			}
+		}
+		return sb.String()
+	}
+	return ""
+}
+
+// parseContentChunks unmarshals a JSON array of ContentChunk objects.
+func parseContentChunks(raw json.RawMessage) []ContentChunk {
+	var chunks []ContentChunk
+	_ = json.Unmarshal(raw, &chunks)
+	return chunks
 }
 
 func callConversationsAPI(ctx context.Context, apiKey string, req ConversationsAPIRequest) (*ConversationsAPIResponse, obj.TokenUsage, error) {
@@ -85,54 +134,59 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 	}
 
 	// Parse SSE stream
-	// Mistral streaming uses chat-completion-style events:
-	// - data: {"choices":[{"delta":{"content":"..."}}]} for text chunks
-	// - data: [DONE] for completion
-	// The Conversations API may also include conversation_id and usage in a final event.
+	// Mistral Conversations API streaming uses typed events:
+	// - message.output.delta: text chunk with "content" field
+	// - conversation.response.done: final event with "usage" (and optionally "conversation_id")
+	// - data: [DONE] signals end of stream
 	var textBuilder strings.Builder
 	scanner := bufio.NewScanner(resp.Body)
+	lineCount := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		lineCount++
 		if !strings.HasPrefix(line, "data: ") {
 			continue
 		}
 		data := strings.TrimPrefix(line, "data: ")
 		if data == "[DONE]" {
+			log.Debug("[STREAM] received [DONE]", "total_lines", lineCount)
 			break
 		}
 
-		// Try to parse as a conversation event with outputs (non-streaming final response)
-		var convResp ConversationsAPIResponse
-		if json.Unmarshal([]byte(data), &convResp) == nil && convResp.ConversationID != "" {
-			newConversationID = convResp.ConversationID
-			usage = convResp.Usage.toTokenUsage()
-			// If there's content in outputs, append it
-			for _, output := range convResp.Outputs {
-				if output.Content != "" {
-					textBuilder.WriteString(output.Content)
-					responseStream.SendText(output.Content, false)
-				}
-			}
+		// Peek at the event type
+		var event struct {
+			Type string `json:"type"`
+		}
+		if err := json.Unmarshal([]byte(data), &event); err != nil {
+			log.Debug("[STREAM] unparseable SSE event", "data", data[:min(len(data), 300)])
 			continue
 		}
 
-		// Try chat-completion-style delta events
-		var chatChunk struct {
-			Choices []struct {
-				Delta struct {
-					Content string `json:"content"`
-				} `json:"delta"`
-			} `json:"choices"`
-			Usage *apiUsage `json:"usage,omitempty"`
-		}
-		if json.Unmarshal([]byte(data), &chatChunk) == nil {
-			if len(chatChunk.Choices) > 0 && chatChunk.Choices[0].Delta.Content != "" {
-				textBuilder.WriteString(chatChunk.Choices[0].Delta.Content)
-				responseStream.SendText(chatChunk.Choices[0].Delta.Content, false)
+		switch event.Type {
+		case "message.output.delta":
+			log.Debug("[STREAM] raw delta event", "data", data[:min(len(data), 500)])
+			var delta sseOutputDelta
+			if err := json.Unmarshal([]byte(data), &delta); err != nil {
+				log.Debug("[STREAM] delta unmarshal error", "error", err)
+			} else {
+				log.Debug("[STREAM] delta parsed", "content_len", len(delta.Content), "content_preview", delta.Content[:min(len(delta.Content), 100)])
+				if delta.Content != "" {
+					textBuilder.WriteString(delta.Content)
+					responseStream.SendText(delta.Content, false)
+				}
 			}
-			if chatChunk.Usage != nil {
-				usage = chatChunk.Usage.toTokenUsage()
+		case "conversation.response.done":
+			log.Debug("[STREAM] raw done event", "data", data[:min(len(data), 500)])
+			var done sseResponseDone
+			if err := json.Unmarshal([]byte(data), &done); err == nil {
+				usage = done.Usage.toTokenUsage()
+				if done.ConversationID != "" {
+					newConversationID = done.ConversationID
+				}
+				log.Debug("[STREAM] response done", "usage", usage, "conversation_id", done.ConversationID)
 			}
+		default:
+			log.Debug("[STREAM] unhandled event type", "type", event.Type, "data_len", len(data))
 		}
 	}
 
@@ -140,4 +194,50 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 	// Signal text streaming complete
 	responseStream.SendText("", true)
 	return textBuilder.String(), newConversationID, usage, nil
+}
+
+// callImageConversationAPI creates a new conversation with the image_generation tool.
+// This is a separate conversation from the game conversation - image generation requires
+// the tool to be declared at conversation creation time.
+func callImageConversationAPI(ctx context.Context, apiKey string, req ImageConversationRequest) (*ConversationsAPIResponse, error) {
+	client := newApiClient(apiKey)
+
+	var apiResp ConversationsAPIResponse
+	if err := client.PostJson(ctx, conversationsEndpoint, req, &apiResp); err != nil {
+		return nil, fmt.Errorf("image conversation API failed: %w", err)
+	}
+
+	log.Debug("image conversation API completed", "conversation_id", apiResp.ConversationID)
+	return &apiResp, nil
+}
+
+// downloadFile downloads file content from the Mistral Files API.
+// Used to retrieve generated images by their file_id.
+func downloadFile(ctx context.Context, apiKey string, fileID string) ([]byte, error) {
+	endpoint := mistralBaseURL + filesEndpoint + "/" + fileID + "/content"
+
+	httpReq, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create download request: %w", err)
+	}
+	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
+
+	resp, err := http.DefaultClient.Do(httpReq)
+	if err != nil {
+		return nil, fmt.Errorf("file download request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("file download returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file content: %w", err)
+	}
+
+	log.Debug("file downloaded", "file_id", fileID, "size_bytes", len(data))
+	return data, nil
 }

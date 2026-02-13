@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"strings"
+	"time"
 
 	"cgl/api/httpx"
 	"cgl/db"
@@ -99,6 +100,10 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Trim whitespace from all inputs (users often paste keys with trailing newlines/spaces)
+	req.Platform = strings.TrimSpace(req.Platform)
+	req.Key = strings.TrimSpace(req.Key)
+
 	if req.Platform == "" {
 		httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeValidation, "Platform is required")
 		return
@@ -108,7 +113,14 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	share, err := db.CreateApiKeyWithSelfShare(r.Context(), user.ID, req.Name, req.Platform, req.Key)
+	// Default name: capitalize platform + today's date, e.g. "Mistral 12.02.26"
+	name := strings.TrimSpace(req.Name)
+	if name == "" {
+		platform := strings.ToUpper(req.Platform[:1]) + req.Platform[1:]
+		name = platform + " " + time.Now().Format("02.01.06")
+	}
+
+	share, err := db.CreateApiKeyWithSelfShare(r.Context(), user.ID, name, req.Platform, req.Key)
 	if err != nil {
 		// Check if it's a platform validation error
 		if strings.Contains(err.Error(), "unknown platform") {
@@ -376,7 +388,7 @@ func DeleteApiKey(w http.ResponseWriter, r *http.Request) {
 	// (After deletion it may no longer be loadable.)
 	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
 	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load share: "+err.Error())
+		httpx.WriteError(w, http.StatusNotFound, "Share not found")
 		return
 	}
 

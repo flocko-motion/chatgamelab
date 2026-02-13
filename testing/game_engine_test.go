@@ -4,6 +4,8 @@ package testing
 
 import (
 	"log"
+	"os"
+	"os/exec"
 	"testing"
 
 	"cgl/functional"
@@ -27,6 +29,119 @@ func (s *GameEngineTestSuite) SetupSuite() {
 
 func TestGameEngineTestSuite(t *testing.T) {
 	suite.Run(t, new(GameEngineTestSuite))
+}
+
+// TestAudioPlaythroughOpenai tests the audio output feature with the "max" quality tier.
+// Uses OpenAI's gpt-4o-mini-tts to generate audio narration alongside text and image.
+func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
+	// Add OpenAI API key
+	apiKeyShare := Must(s.clientAlice.AddApiKey(ai.GetApiKeyOpenAI(), "Test OpenAI Audio Key", "openai"))
+	s.T().Logf("Added API key: %s", apiKeyShare.ID)
+
+	// Set quality tier to "max" (= high text model + audio)
+	err := s.clientAlice.SetUserAiQualityTier("max")
+	s.Require().NoError(err, "Failed to set AI quality tier to max")
+	s.T().Logf("Set AI quality tier to max")
+
+	// Upload a simple test game
+	game := Must(s.clientAlice.UploadGame("stone-collector"))
+	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
+
+	// Create game session and consume the initial SSE stream (text + image + audio)
+	sessionResponse, initialStream, err := s.clientAlice.CreateGameSessionWithStream(game.ID.String())
+	s.Require().NoError(err, "CreateGameSessionWithStream failed")
+	s.T().Logf("Created game session: %s (model: %s, platform: %s)", sessionResponse.ID, sessionResponse.AiModel, sessionResponse.AiPlatform)
+
+	// Verify session was created with "max" tier
+	s.Equal("max", sessionResponse.AiModel, "Session should use max tier")
+	s.Equal("openai", sessionResponse.AiPlatform, "Session should use openai platform")
+
+	// Validate initial message has text + audio
+	s.Require().NotEmpty(sessionResponse.Messages, "Session should have messages")
+	// Find the game-type message (index 1, after system message)
+	var initialMsg *obj.GameSessionMessage
+	for i := range sessionResponse.Messages {
+		if sessionResponse.Messages[i].Type == "game" {
+			initialMsg = &sessionResponse.Messages[i]
+			break
+		}
+	}
+	s.Require().NotNil(initialMsg, "Should have a game-type initial message")
+	s.Greater(len(initialMsg.Message), 10, "Initial message should have substantial text")
+	s.True(initialMsg.HasImage, "Initial message should have HasImage=true (max tier on OpenAI)")
+	s.True(initialMsg.HasAudio, "Initial message should have HasAudio=true (max tier on OpenAI)")
+	log.Printf("Initial message (len=%d): %s", len(initialMsg.Message), initialMsg.Message)
+
+	// Validate audio on initial message
+	s.Require().NotNil(initialStream, "Initial stream result should not be nil")
+	s.validateAudioStream(initialStream, "initial message")
+
+	// Validate audio is persisted in DB and accessible via replay endpoint
+	s.validateAudioFromDB(initialMsg.ID.String(), initialStream, "initial message")
+
+	// Send a player action and consume the SSE stream (text + image + audio)
+	msg, streamResult, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), "I collect 3 stones")
+	s.Require().NoError(err, "SendGameMessageWithStream failed")
+
+	// Validate text and capability flags
+	s.Greater(len(msg.Message), 10, "AI response text should be substantial")
+	s.True(msg.HasImage, "Action response should have HasImage=true (max tier on OpenAI)")
+	s.True(msg.HasAudio, "Action response should have HasAudio=true (max tier on OpenAI)")
+	log.Printf("AI response (len=%d): %s", len(msg.Message), msg.Message)
+
+	// Validate audio on player action response
+	s.Require().NotNil(streamResult, "Stream result should not be nil")
+	s.validateAudioStream(streamResult, "action response")
+	s.validateAudioFromDB(msg.ID.String(), streamResult, "action response")
+
+	log.Printf("Audio playthrough test completed successfully!")
+}
+
+// validateAudioStream checks that audio data was received via SSE and has valid MP3 header
+func (s *GameEngineTestSuite) validateAudioStream(result *testutil.StreamResult, label string) {
+	s.T().Helper()
+	s.Greater(len(result.AudioData), 0, "%s: audio data should be received via SSE stream", label)
+	log.Printf("%s: audio data received: %d bytes", label, len(result.AudioData))
+
+	s.Require().GreaterOrEqual(len(result.AudioData), 2, "%s: audio data should be at least 2 bytes", label)
+	s.Equal(byte(0xFF), result.AudioData[0], "%s: audio should start with MP3 sync byte 0xFF", label)
+	s.Equal(byte(0xFB), result.AudioData[1]&0xFB, "%s: audio should have MP3 frame header", label)
+}
+
+// validateAudioFromDB checks that audio is persisted and accessible via the replay endpoint
+func (s *GameEngineTestSuite) validateAudioFromDB(messageID string, streamResult *testutil.StreamResult, label string) {
+	s.T().Helper()
+	audioFromDB, err := s.clientAlice.GetMessageAudio(messageID)
+	s.Require().NoError(err, "%s: GetMessageAudio should succeed", label)
+	s.Greater(len(audioFromDB), 0, "%s: audio from DB should not be empty", label)
+	s.Equal(byte(0xFF), audioFromDB[0], "%s: audio from DB should start with MP3 sync byte 0xFF", label)
+	log.Printf("%s: audio from DB: %d bytes (matches stream: %v)", label, len(audioFromDB), len(audioFromDB) == len(streamResult.AudioData))
+
+	playAudio(audioFromDB, label)
+}
+
+// playAudio writes audio bytes to a temp file and plays them via paplay (blocking).
+// Silently skips if paplay is not available.
+func playAudio(data []byte, label string) {
+	paplay, err := exec.LookPath("paplay")
+	if err != nil {
+		return
+	}
+	tmpFile, err := os.CreateTemp("", "cgl-audio-*.mp3")
+	if err != nil {
+		return
+	}
+	defer os.Remove(tmpFile.Name())
+	if _, err := tmpFile.Write(data); err != nil {
+		tmpFile.Close()
+		return
+	}
+	tmpFile.Close()
+	log.Printf("%s: playing audio via paplay...", label)
+	cmd := exec.Command(paplay, tmpFile.Name())
+	if err := cmd.Run(); err != nil {
+		log.Printf("%s: paplay failed: %v", label, err)
+	}
 }
 
 func (s *GameEngineTestSuite) TestGamePlaythroughOpenai() {
@@ -60,7 +175,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	s.T().Logf("Verified language preference: %s", me.Language)
 
 	// Create and upload predictable test game
-	game := Must(s.clientAlice.UploadGame("stone-collector-de"))
+	game := Must(s.clientAlice.UploadGame("stone-collector"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
 	// Create game session - game should be auto-translated to French
@@ -70,6 +185,11 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	// Log initial message
 	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
 	initialMsg := sessionResponse.Messages[0]
+
+	// Determine expected capabilities from the platform
+	expectImage := apiKeyShare.ApiKey.Platform == "openai" // OpenAI supports images, Mistral does not
+	expectAudio := false                                   // standard tiers never have audio
+
 	log.Printf("\n=================================================================================================\n")
 	log.Printf("Initial Message (should be in FRENCH):")
 	log.Printf("  Analytics: %s", functional.MaybeToString(initialMsg.URLAnalytics, "nil"))
@@ -105,6 +225,8 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
+		s.Equal(expectImage, msg1.HasImage, "Turn #%d: HasImage should be %v for platform %s", i, expectImage, apiKeyShare.ApiKey.Platform)
+		s.Equal(expectAudio, msg1.HasAudio, "Turn #%d: HasAudio should be %v", i, expectAudio)
 		messageLens = append(messageLens, len(msg1.Message))
 
 		// Verify token usage for each action
@@ -150,6 +272,10 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 
 			s.Require().NotNil(msg.PromptImageGeneration, "Message[%d] PromptImageGeneration should not be nil", i)
 			s.Greater(len(*msg.PromptImageGeneration), 0, "Message[%d] PromptImageGeneration should not be empty", i)
+
+			// Verify capability flags are persisted and loaded correctly
+			s.Equal(expectImage, msg.HasImage, "Message[%d] HasImage should be %v (persisted)", i, expectImage)
+			s.Equal(expectAudio, msg.HasAudio, "Message[%d] HasAudio should be %v (persisted)", i, expectAudio)
 		}
 	}
 

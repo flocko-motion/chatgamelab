@@ -102,6 +102,7 @@ type GameSession struct {
 	AiModel                  string
 	AiSession                json.RawMessage
 	ImageStyle               string
+	Language                 string
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
@@ -121,6 +122,9 @@ type GameSessionMessage struct {
 	Status                sql.NullString
 	ImagePrompt           sql.NullString
 	Image                 []byte
+	Audio                 []byte
+	HasImage              bool
+	HasAudio              bool
 	PromptStatusUpdate    sql.NullString
 	PromptResponseSchema  sql.NullString
 	PromptImageGeneration sql.NullString

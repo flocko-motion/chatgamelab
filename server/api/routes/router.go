@@ -26,8 +26,8 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/system/settings/free-use-key", httpx.RequireAuth(SetSystemFreeUseApiKey))
 
 	// Games
-	mux.Handle("GET /api/games", httpx.OptionalAuth(GetGames))
-	mux.Handle("GET /api/games/{id}", httpx.OptionalAuth(GetGameByID))
+	mux.Handle("GET /api/games", httpx.RequireAuth(GetGames))
+	mux.Handle("GET /api/games/{id}", httpx.RequireAuth(GetGameByID))
 	mux.Handle("GET /api/games/{id}/yaml", httpx.RequireAuth(GetGameYAML))
 	mux.Handle("GET /api/games/{id}/sessions", httpx.RequireAuth(GetGameSessions))
 	mux.Handle("POST /api/games/new", httpx.RequireAuth(CreateGame))
@@ -135,6 +135,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/messages/{id}/status", GetMessageStatus)
 	mux.HandleFunc("GET /api/messages/{id}/image", GetMessageImage)
 	mux.HandleFunc("GET /api/messages/{id}/image/status", GetMessageImageStatus)
+	mux.HandleFunc("GET /api/messages/{id}/audio", GetMessageAudio)
 
 	// Admin
 	mux.Handle("POST /api/restart", httpx.RequireAuth(PostRestart))

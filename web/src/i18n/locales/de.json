@@ -94,6 +94,7 @@
   "common": {
     "actions": "Aktionen",
     "aiQualityTier": {
+      "max": "Max (Premium + Audio)",
       "high": "Hoch (Premium)",
       "label": "KI-Qualitätsstufe",
       "low": "Niedrig (Sparsam)",
@@ -1148,6 +1149,7 @@
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
+    "invalidJsonSchema": "Die Spielkonfiguration hat ein ungültiges Schema für die KI erzeugt. Dies ist ein Problem mit der Spieleinrichtung, nicht mit dem API-Schlüssel. Bitte überprüfe die Statusfelder des Spiels und versuche es erneut.",
     "noApiKey": "Für dieses Spiel ist kein API-Schlüssel verfügbar. Der Sponsor hat möglicherweise seinen Schlüssel entfernt, oder du musst einen eigenen API-Schlüssel einrichten.",
     "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte wähle eine gültige Option.",
     "invalidToken": "Deine Sitzung ist abgelaufen oder ungültig. Bitte verwende deinen Einladungslink erneut.",
@@ -1162,6 +1164,7 @@
     "workshopInactive": "Dieser Workshop wurde deaktiviert. Bitte wende dich an deinen Lehrer oder Workshop-Organisator.",
     "titles": {
       "aiError": "KI-Fehler",
+      "gameConfig": "Spielkonfigurationsfehler",
       "authentication": "Authentifizierungsfehler",
       "billing": "Zahlungsfehler",
       "error": "Fehler",

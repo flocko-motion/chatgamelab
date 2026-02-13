@@ -239,11 +239,11 @@ CREATE TABLE game (
     -- Access rights and payments. public = true: discoverable on the website and playable by anyone.
     public                          boolean NOT NULL DEFAULT false,
     -- If public, a sponsored API key share can be provided to pay for any public plays.
-    public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id),
+    public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
     -- Private share links contain secret random tokens to limit access to the game.
     -- They are sponsored, so invited players don't require their own API key.
     private_share_hash                 text NULL,
-    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id),
+    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
     -- Remaining plays for private share links. NULL = unlimited, >0 = can play, 0 = exhausted.
     private_share_remaining            integer NULL,
 
@@ -317,6 +317,8 @@ CREATE TABLE game_session (
     -- JSON with arbitrary details to be used within that model and within that session.
     ai_session      jsonb NOT NULL,
     image_style     text NOT NULL,
+    -- Language used for this session (ISO 639-1 code), locked at creation time from user preference.
+    language        text NOT NULL DEFAULT 'en',
     -- Defines the status fields available in the game; copied from game.status_fields at launch.
     status_fields   text NOT NULL,
     -- AI-generated visual theme for the game player UI (JSON)
@@ -347,6 +349,9 @@ CREATE TABLE game_session_message (
     status              text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
+    audio               bytea NULL,
+    has_image           boolean NOT NULL DEFAULT false,
+    has_audio           boolean NOT NULL DEFAULT false,
     -- AI insight fields: raw prompts and responses for educational debug view
     prompt_status_update    text NULL,
     prompt_response_schema  text NULL,
