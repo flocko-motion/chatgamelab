@@ -47,6 +47,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 import type { ObjAiPlatform } from "@/api/generated";
 import env from "@/config/env";
+import { translateErrorCode } from "@/common/lib/errorHelpers";
 import { ApiKeyShares } from "./ApiKeyShares";
 
 export function ApiKeyManagement() {
@@ -269,6 +270,13 @@ export function ApiKeyManagement() {
                       )}
                     </Group>
                   </Group>
+                  {defaultKey.lastUsageSuccess === false &&
+                    defaultKey.lastErrorCode && (
+                      <Text size="xs" c="red.5" mt={4}>
+                        {translateErrorCode(defaultKey.lastErrorCode)
+                          ?.message || defaultKey.lastErrorCode}
+                      </Text>
+                    )}
                 </Box>
               ) : (
                 <Box style={{ flex: 1 }}>
@@ -291,7 +299,8 @@ export function ApiKeyManagement() {
         const defaultPlatform = platforms?.find(
           (p) => p.id === defaultKey?.platform,
         );
-        const availableTiers = defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
+        const availableTiers =
+          defaultPlatform?.models?.map((m) => m.id ?? "") ?? [];
         return (
           <Card shadow="sm" p="lg" radius="md" withBorder>
             <Stack gap="sm">
@@ -304,7 +313,8 @@ export function ApiKeyManagement() {
               <Select
                 data={getAiQualityTierOptions(t, {
                   includeEmpty: true,
-                  availableTiers: availableTiers.length > 0 ? availableTiers : undefined,
+                  availableTiers:
+                    availableTiers.length > 0 ? availableTiers : undefined,
                 })}
                 value={backendUser?.aiQualityTier || ""}
                 onChange={(value) => {
@@ -355,8 +365,12 @@ export function ApiKeyManagement() {
               const platformKeys = apiKeys
                 .filter((k) => k.platform === platform.id)
                 .sort((a, b) => {
-                  const dateA = a.meta?.createdAt ? new Date(a.meta.createdAt).getTime() : 0;
-                  const dateB = b.meta?.createdAt ? new Date(b.meta.createdAt).getTime() : 0;
+                  const dateA = a.meta?.createdAt
+                    ? new Date(a.meta.createdAt).getTime()
+                    : 0;
+                  const dateB = b.meta?.createdAt
+                    ? new Date(b.meta.createdAt).getTime()
+                    : 0;
                   return dateA - dateB;
                 });
               return (
@@ -427,9 +441,9 @@ export function ApiKeyManagement() {
                                     : `1px solid ${theme.colors.gray[2]}`,
                                 ...(isDefault
                                   ? {
-                                    backgroundColor:
-                                      "var(--mantine-color-accent-0)",
-                                  }
+                                      backgroundColor:
+                                        "var(--mantine-color-accent-0)",
+                                    }
                                   : {}),
                               }}
                             >
@@ -477,8 +491,7 @@ export function ApiKeyManagement() {
                                   <Text
                                     size="sm"
                                     fw={isDefault ? 700 : 600}
-                                    truncate
-                                    title={`${key.name || t("apiKeys.unnamed")} — ${key.meta?.createdAt ? new Date(key.meta.createdAt).toLocaleString() : "no date"}`}
+                                    style={{ wordBreak: "break-word" }}
                                   >
                                     {key.name || t("apiKeys.unnamed")}
                                   </Text>
@@ -491,10 +504,17 @@ export function ApiKeyManagement() {
                                     {t("apiKeys.addedOn")}:{" "}
                                     {key.meta?.createdAt
                                       ? new Date(
-                                        key.meta.createdAt,
-                                      ).toLocaleString()
+                                          key.meta.createdAt,
+                                        ).toLocaleString()
                                       : "-"}
                                   </Text>
+                                  {usageStatus === false &&
+                                    key.lastErrorCode && (
+                                      <Text size="xs" c="red.5" mt={2}>
+                                        {translateErrorCode(key.lastErrorCode)
+                                          ?.message || key.lastErrorCode}
+                                      </Text>
+                                    )}
                                 </Box>
                                 <Group
                                   gap={4}
@@ -502,7 +522,6 @@ export function ApiKeyManagement() {
                                   wrap="nowrap"
                                   style={{
                                     flexShrink: 0,
-                                    minWidth: 120,
                                     justifyContent: "flex-end",
                                   }}
                                 >

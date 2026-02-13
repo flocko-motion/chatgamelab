@@ -1156,6 +1156,7 @@
     "network": "Netzwerkfehler. Bitte überprüfe deine Verbindung.",
     "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
     "orgVerificationRequired": "Deine OpenAI-Organisation muss verifiziert werden, damit die Bildgenerierung funktioniert. Bitte verifiziere dich auf https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "Die KI hat den Gesprächsverlauf verloren. Bitte starte eine neue Sitzung, um weiterzuspielen.",
     "rateLimitExceeded": "Zu viele Anfragen. Bitte warte einen Moment und versuche es erneut.",
     "server": "Serverfehler. Bitte versuche es später erneut.",
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",

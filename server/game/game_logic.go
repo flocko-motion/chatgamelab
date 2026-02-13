@@ -43,6 +43,8 @@ func extractAIErrorCode(err error) string {
 		return obj.ErrCodeInsufficientQuota
 	case strings.Contains(errStr, "content_policy") || strings.Contains(errStr, "content_filter"):
 		return obj.ErrCodeContentFiltered
+	case strings.Contains(errStr, "previous_response_not_found"):
+		return obj.ErrCodePreviousResponseNotFound
 	case strings.Contains(errStr, "invalid_json_schema") || strings.Contains(errStr, "invalid schema"):
 		return obj.ErrCodeInvalidJsonSchema
 	default:
@@ -161,7 +163,8 @@ func generateSessionSetup(
 			return result, nil
 		}
 
-		// Key-related error — discard translation (same broken key), try next candidate
+		// Key-related error — mark key as failed and discard translation (same broken key), try next candidate
+		db.UpdateApiKeyLastUsageSuccess(ctx, candidate.Share.ApiKey.ID, false, errCode)
 		log.Info("API key failed during theme generation, trying next candidate", "candidate_index", i, "error_code", errCode)
 	}
 
@@ -457,10 +460,16 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
 	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
-	if action.Type == obj.GameSessionMessageTypePlayer && session.ApiKey != nil {
+	// Skip if the key's last usage failed — avoids wasting a round-trip on a known-broken key
+	keyUsable := session.ApiKey != nil && (session.ApiKey.LastUsageSuccess == nil || *session.ApiKey.LastUsageSuccess)
+	if action.Type == obj.GameSessionMessageTypePlayer && keyUsable {
 		prompt := fmt.Sprintf(templates.PromptObjectivizePlayerInput, lang.GetLanguageName(session.Language), action.Message)
 		if rephrased, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt); err != nil {
 			log.Warn("ToolQuery rephrasing failed, using original input", "session_id", session.ID, "error", err)
+			// Mark key as failed if ToolQuery hit a key-related error (e.g. insufficient_quota)
+			if errCode := extractAIErrorCode(err); isKeyRelatedError(errCode) {
+				db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, false, errCode)
+			}
 		} else {
 			log.Debug("player input rephrased", "session_id", session.ID, "original", action.Message, "rephrased", rephrased)
 			action.Message = rephrased
@@ -473,12 +482,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	usage, err := platform.ExecuteAction(ctx, session, action, response, gameSchema)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
-		// Track API key usage failure
-		if session.ApiKey != nil {
-			db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, false)
-		}
-		// Extract AI error code and clear API key for key-related errors
+		// Extract AI error code and track failure with the specific code
 		errorCode := extractAIErrorCode(err)
+		// Track API key usage failure with the specific error code
+		if session.ApiKey != nil {
+			db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, false, errorCode)
+		}
 		responseStream.SendError(errorCode, err.Error())
 
 		// Delete the placeholder message instead of saving empty/error content

@@ -231,14 +231,21 @@ func GetDefaultApiKeyForUser(ctx context.Context, userID uuid.UUID) (*obj.ApiKey
 		Key:              key.Key,
 		IsDefault:        key.IsDefault,
 		LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+		LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
 	}, nil
 }
 
-// UpdateApiKeyLastUsageSuccess updates the last_usage_success flag on an API key.
-func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, success bool) {
+// UpdateApiKeyLastUsageSuccess updates the last_usage_success flag and error code on an API key.
+// On success, the error code is cleared. On failure, the error code is stored.
+func UpdateApiKeyLastUsageSuccess(ctx context.Context, apiKeyID uuid.UUID, success bool, errorCode ...string) {
+	var lastErrorCode sql.NullString
+	if !success && len(errorCode) > 0 && errorCode[0] != "" {
+		lastErrorCode = sql.NullString{String: errorCode[0], Valid: true}
+	}
 	_ = queries().UpdateApiKeyLastUsageSuccess(ctx, db.UpdateApiKeyLastUsageSuccessParams{
 		ID:               apiKeyID,
 		LastUsageSuccess: sql.NullBool{Bool: success, Valid: true},
+		LastErrorCode:    lastErrorCode,
 	})
 }
 
@@ -412,6 +419,7 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			KeyShortened:     functional.ShortenLeft(s.KeyKey, apiKeyShortenLength),
 			IsDefault:        s.KeyIsDefault,
 			LastUsageSuccess: sqlNullBoolToMaybeBool(s.KeyLastUsageSuccess),
+			LastErrorCode:    sqlNullStringToMaybeString(s.KeyLastErrorCode),
 		},
 	}
 	if s.UserID.Valid {
@@ -466,6 +474,7 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 				KeyShortened:     functional.ShortenLeft(s.ApiKeyKey, apiKeyShortenLength),
 				IsDefault:        s.ApiKeyIsDefault,
 				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
+				LastErrorCode:    sqlNullStringToMaybeString(s.ApiKeyLastErrorCode),
 			},
 			AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
 		}
@@ -510,6 +519,7 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 				KeyShortened:     functional.ShortenLeft(s.ApiKeyKey, apiKeyShortenLength),
 				IsDefault:        s.ApiKeyIsDefault,
 				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
+				LastErrorCode:    sqlNullStringToMaybeString(s.ApiKeyLastErrorCode),
 			})
 			// Track keys owned by this user
 			if s.OwnerID == userID {
@@ -809,6 +819,7 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			KeyShortened:     functional.ShortenLeft(key.Key, apiKeyShortenLength),
 			IsDefault:        key.IsDefault,
 			LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+			LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
 		},
 		AllowPublicGameSponsoring: share.AllowPublicGameSponsoring,
 	}

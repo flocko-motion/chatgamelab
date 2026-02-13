@@ -299,7 +299,7 @@ func runPendingMigrations() error {
 	}
 
 	if len(pendingMigrations) == 0 {
-		log.Debug("no pending migrations")
+		log.Info("no pending migrations", "current_version", currentVersion)
 		return nil
 	}
 

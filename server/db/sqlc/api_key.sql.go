@@ -255,6 +255,7 @@ SELECT
   k.key AS key_key,
   k.is_default AS key_is_default,
   k.last_usage_success AS key_last_usage_success,
+  k.last_error_code AS key_last_error_code,
   o.name AS key_owner_name
 FROM api_key_share s
 JOIN api_key k ON k.id = s.api_key_id
@@ -281,6 +282,7 @@ type GetApiKeyShareByIDRow struct {
 	KeyKey                    string
 	KeyIsDefault              bool
 	KeyLastUsageSuccess       sql.NullBool
+	KeyLastErrorCode          sql.NullString
 	KeyOwnerName              string
 }
 
@@ -306,6 +308,7 @@ func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiK
 		&i.KeyKey,
 		&i.KeyIsDefault,
 		&i.KeyLastUsageSuccess,
+		&i.KeyLastErrorCode,
 		&i.KeyOwnerName,
 	)
 	return i, err
@@ -491,6 +494,7 @@ SELECT
   k.key AS api_key_key,
   k.is_default AS api_key_is_default,
   k.last_usage_success AS api_key_last_usage_success,
+  k.last_error_code AS api_key_last_error_code,
   k.user_id AS owner_id,
   owner.name AS owner_name
 FROM api_key_share s
@@ -516,6 +520,7 @@ type GetApiKeySharesByUserIDRow struct {
 	ApiKeyKey                 string
 	ApiKeyIsDefault           bool
 	ApiKeyLastUsageSuccess    sql.NullBool
+	ApiKeyLastErrorCode       sql.NullString
 	OwnerID                   uuid.UUID
 	OwnerName                 string
 }
@@ -546,6 +551,7 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 			&i.ApiKeyKey,
 			&i.ApiKeyIsDefault,
 			&i.ApiKeyLastUsageSuccess,
+			&i.ApiKeyLastErrorCode,
 			&i.OwnerID,
 			&i.OwnerName,
 		); err != nil {

@@ -1107,6 +1107,7 @@
     "network": "Network error. Please check your connection.",
     "notFound": "The requested resource was not found.",
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "The AI lost track of this conversation. This can happen when a session has been inactive for a while. Please start a new session to continue playing.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
     "duplicateName": "The name for this game is already in use. Please choose a different name.",
