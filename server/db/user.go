@@ -316,8 +316,9 @@ func IsEmailTakenByOther(ctx context.Context, email string, excludeUserID uuid.U
 	})
 }
 
-// DeleteUser soft-deletes a user and cleans up all their data:
-// sessions, API keys (with cascade), shares, roles, favourites, workshop participant records.
+// DeleteUser hard-deletes a user and cleans up all their data:
+// sessions, API keys (with cascade), shares, roles, favourites, workshop participant records,
+// invites, and originally_created_by references.
 func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// 1. Delete session messages and sessions
 	if err := queries().DeleteGameSessionMessagesByUserID(ctx, id); err != nil {
@@ -383,7 +384,15 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 	// 7. Clear system free-use API key if it references this user's keys
 	_ = ClearSystemSettingsFreeUseApiKeyByOwner(ctx, id)
 
-	// 8. Soft-delete the user
+	// 8. Clean up invite references (FK constraints block hard delete)
+	nullID := uuid.NullUUID{UUID: id, Valid: true}
+	_ = queries().DeleteInvitesForUser(ctx, nullID)
+	_ = queries().ClearInviteAcceptedByUser(ctx, nullID)
+
+	// 9. Clear originally_created_by on cloned games owned by others
+	_ = queries().ClearGameOriginalCreator(ctx, nullID)
+
+	// 10. Hard-delete the user
 	return queries().DeleteUser(ctx, id)
 }
 

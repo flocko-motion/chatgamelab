@@ -65,7 +65,9 @@ button:focus-visible {
   }
 }
 
-/* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px) */
+/* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px).
+   Mantine v8 uses CSS modules (hashed classes), so we target elements via
+   the data-variant attribute that Mantine's Box renders on all input elements. */
 @media screen and (max-width: 48em) {
   input[type="text"],
   input[type="email"],
@@ -77,7 +79,8 @@ button:focus-visible {
   input:not([type]),
   textarea,
   select,
-  .mantine-Input-input {
+  input[data-variant],
+  textarea[data-variant] {
     font-size: 16px !important;
   }
 }

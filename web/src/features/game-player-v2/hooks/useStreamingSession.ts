@@ -169,7 +169,16 @@ export function useStreamingSession(adapter: SessionAdapter) {
         const response = await fetch(
           `${config.API_BASE_URL}/messages/${messageId}/status`,
         );
-        if (!response.ok) return;
+        if (!response.ok) {
+          // If message doesn't exist (404), stop polling to avoid spam
+          if (response.status === 404) {
+            apiLogger.debug("Message not found, stopping polling", {
+              messageId,
+            });
+            stopPolling();
+          }
+          return;
+        }
 
         const status: MessageStatus = await response.json();
         pollErrorCountRef.current = 0;

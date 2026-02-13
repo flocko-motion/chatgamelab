@@ -190,10 +190,7 @@ UPDATE app_user SET
 WHERE id = $1;
 
 -- name: DeleteUser :exec
-UPDATE app_user
-SET
-  deleted_at = now()
-WHERE id = $1;
+DELETE FROM app_user WHERE id = $1;
 
 -- user_role -------------------------------------------------------------
 
@@ -519,3 +516,16 @@ SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant';
 -- name: DeleteUserRolesByWorkshopID :exec
 -- Delete all participant roles scoped to a workshop
 DELETE FROM user_role WHERE workshop_id = $1 AND role = 'participant';
+
+-- name: DeleteInvitesForUser :exec
+-- Delete invites targeting this user (can't just null invited_user_id due to type check constraint)
+DELETE FROM user_role_invite WHERE invited_user_id = $1;
+
+-- name: ClearInviteAcceptedByUser :exec
+UPDATE user_role_invite SET accepted_by = NULL
+WHERE accepted_by = $1;
+
+-- name: ClearGameOriginalCreator :exec
+-- Clear originally_created_by references to a deleted user
+UPDATE game SET originally_created_by = NULL
+WHERE originally_created_by = $1;

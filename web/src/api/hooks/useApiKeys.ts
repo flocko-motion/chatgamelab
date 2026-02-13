@@ -92,6 +92,7 @@ export function useDeleteApiKey() {
         .then((response) => response.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({ queryKey: queryKeys.games });
     },
     onError: (error) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });

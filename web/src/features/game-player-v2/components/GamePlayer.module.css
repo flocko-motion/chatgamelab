@@ -432,6 +432,13 @@
   51%, 100% { opacity: 0; }
 }
 
+/* During streaming: extra bottom padding absorbs minor height jumps
+   and a line-height transition smooths text reflow */
+.gameScene.gameSceneStreaming .narrativeText {
+  padding-bottom: 1.5em;
+  transition: padding-bottom 0.3s ease-out;
+}
+
 .gameScene.noImage {
   padding: var(--mantine-spacing-xl);
 }
