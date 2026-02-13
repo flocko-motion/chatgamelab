@@ -121,6 +121,7 @@ type GameSessionMessage struct {
 	Type                  string
 	Message               string
 	Status                sql.NullString
+	Plot                  sql.NullString
 	ImagePrompt           sql.NullString
 	Image                 []byte
 	Audio                 []byte

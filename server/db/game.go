@@ -707,6 +707,7 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Type:          msg.Type,
 		Message:       msg.Message,
 		Status:        statusJSON,
+		Plot:          sql.NullString{String: functional.Deref(msg.Plot, ""), Valid: msg.Plot != nil},
 		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
@@ -771,6 +772,7 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Type:                  msg.Type,
 		Message:               msg.Message,
 		Status:                statusJSON,
+		Plot:                  sql.NullString{String: functional.Deref(msg.Plot, ""), Valid: msg.Plot != nil},
 		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:                 msg.Image,
 		HasImage:              msg.HasImage,
@@ -1264,7 +1266,10 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1314,7 +1319,10 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1362,7 +1370,10 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1414,7 +1425,10 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 		}
 
-		// Set image prompt
+		// Set plot and image prompt
+		if m.Plot.Valid {
+			msg.Plot = &m.Plot.String
+		}
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
@@ -1454,6 +1468,9 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 	if m.Status.Valid && m.Status.String != "" {
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1491,6 +1508,9 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 		}
 		if m.Status.Valid && m.Status.String != "" {
 			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+		}
+		if m.Plot.Valid {
+			msg.Plot = &m.Plot.String
 		}
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String

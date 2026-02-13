@@ -111,7 +111,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const activePollingIdRef = useRef<string | null>(null);
   const sseActiveRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  const startPollingRef = useRef<(messageId: string) => void>(() => { });
   const lastImageUpdateRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
@@ -225,7 +225,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
-              JSON.stringify(msg.statusFields)
+            JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
@@ -315,7 +315,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
   const connectToStream = useCallback(
     async (messageId: string, playerMessageId?: string) => {
+      console.log('[SSE-DEBUG] connectToStream called', { messageId, playerMessageId, hasExistingController: !!abortControllerRef.current });
       if (abortControllerRef.current) {
+        console.log('[SSE-DEBUG] aborting previous controller');
         abortControllerRef.current.abort();
       }
 
@@ -384,10 +386,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                       .map((msg) =>
                         msg.id === playerMessageId
                           ? {
-                              ...msg,
-                              error: chunk.error,
-                              errorCode: chunk.errorCode,
-                            }
+                            ...msg,
+                            error: chunk.error,
+                            errorCode: chunk.errorCode,
+                          }
                           : msg,
                       ),
                     isWaitingForResponse: false,
@@ -484,11 +486,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
         sseActiveRef.current = false;
         clearSilenceTimer();
         if ((error as Error).name !== "AbortError") {
+          console.log('[SSE-DEBUG] SSE connection lost (non-abort)', { error, messageId });
           apiLogger.error("SSE connection lost, activating polling", {
             error,
             messageId,
           });
           startPolling(messageId);
+        } else {
+          console.log('[SSE-DEBUG] SSE aborted (AbortError)', { messageId });
         }
       }
     },
@@ -540,11 +545,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
         theme: sessionResponse.theme || null,
       }));
 
-      if (sessionResponse.id) {
-        adapterRef.current.onSessionCreated?.(sessionResponse.id);
-      }
-
       if (firstMessage.id && firstMessage.stream) {
+        console.log('[SSE-DEBUG] startSession: calling connectToStream', { messageId: firstMessage.id });
         connectToStream(firstMessage.id);
       } else {
         setState((prev) => ({
@@ -552,6 +554,17 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: [sceneMessage],
           isWaitingForResponse: false,
         }));
+      }
+
+      // Defer cache invalidation so the SSE fetch is established before
+      // query invalidation triggers a parent re-render/remount.
+      const createdSessionId = sessionResponse.id as string | undefined;
+      if (createdSessionId) {
+        const sid = createdSessionId;
+        setTimeout(() => {
+          console.log('[SSE-DEBUG] calling onSessionCreated (deferred)', { sessionId: sid });
+          adapterRef.current.onSessionCreated?.(sid);
+        }, 1000);
       }
     } catch (error) {
       // Extract message from Error instances or { error: { message } } API shapes
@@ -664,10 +677,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
           messages: prev.messages.map((msg) =>
             msg.id === playerMessage.id
               ? {
-                  ...msg,
-                  error: errorMessage,
-                  errorCode,
-                }
+                ...msg,
+                error: errorMessage,
+                errorCode,
+              }
               : msg,
           ),
         }));
@@ -722,14 +735,16 @@ export function useStreamingSession(adapter: SessionAdapter) {
           },
           messages: isInProgress
             ? messages.map((msg, i) =>
-                i === messages.length - 1
-                  ? {
-                      ...msg,
-                      isImageLoading: !!msg.hasImage,
-                      audioStatus: msg.hasAudio ? "loading" : undefined,
-                    }
-                  : msg,
-              )
+              i === messages.length - 1
+                ? {
+                  ...msg,
+                  text: "",
+                  isStreaming: true,
+                  isImageLoading: !!msg.hasImage,
+                  audioStatus: msg.hasAudio ? "loading" : undefined,
+                }
+                : msg,
+            )
             : messages,
           statusFields:
             messages.length > 0
@@ -740,11 +755,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
         }));
 
         if (isInProgress && lastMessage?.id) {
-          apiLogger.debug(
-            "Session has in-progress message, connecting to stream",
-            { messageId: lastMessage.id },
-          );
-          updateMessage(lastMessage.id, { text: "" });
+          console.log('[SSE-DEBUG] loadExistingSession: reconnecting to stream', { messageId: lastMessage.id });
           connectToStream(lastMessage.id);
         } else if (!isInProgress && lastMessage?.id && lastMessage.hasImage) {
           try {
@@ -822,6 +833,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      console.log('[SSE-DEBUG] useStreamingSession UNMOUNT cleanup, aborting controller:', !!abortControllerRef.current);
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }

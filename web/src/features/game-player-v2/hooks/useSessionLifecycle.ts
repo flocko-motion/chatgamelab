@@ -108,7 +108,9 @@ export function useSessionLifecycle({
 
   // Load existing session (continuation)
   useEffect(() => {
+    console.log('[SSE-DEBUG] loadExistingSession effect', { sessionId, phase: state.phase, isContinuation });
     if (sessionId && state.phase === "idle") {
+      console.log('[SSE-DEBUG] loadExistingSession effect: calling loadExistingSession', { sessionId });
       loadExistingSession(sessionId);
     }
   }, [sessionId, state.phase, loadExistingSession]);

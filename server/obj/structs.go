@@ -418,6 +418,7 @@ type GameSessionMessage struct {
 
 	// JSON encoded status fields.
 	StatusFields []StatusField `json:"statusFields"`
+	Plot         *string       `json:"plot,omitempty"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
 	Audio        []byte        `json:"audio,omitempty"`

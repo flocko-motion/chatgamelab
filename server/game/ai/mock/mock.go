@@ -54,8 +54,9 @@ func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSessi
 		mockStatusMap[name] = fmt.Sprintf("%d", rand.Intn(100))
 	}
 
-	// Fill in the pre-created message with lorem ipsum text
-	response.Message = lorem.Paragraph(3, 5)
+	// Fill in the pre-created message with lorem ipsum plot outline
+	plot := lorem.Paragraph(3, 5)
+	response.Plot = &plot
 	response.StatusFields = status.MapToFields(mockStatusMap, fieldNames, nil)
 	response.ImagePrompt = functional.Ptr(lorem.Sentence(5, 10))
 	response.GameSessionID = session.ID

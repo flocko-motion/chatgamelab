@@ -529,9 +529,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		log.Warn("failed to persist AI session state after ExecuteAction", "session_id", session.ID, "error", err)
 	}
 
-	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
-	// This is returned to client immediately
-	log.Info("[AI] plotOutline (initial)", "session_id", session.ID, "text", response.Message)
+	// Save the structured response (statusFields, plot, imagePrompt, prompts) to DB.
+	// Plot holds the plot outline; Message stays empty until ExpandStory writes the prose.
+	log.Info("[AI] plotOutline (initial)", "session_id", session.ID, "text", functional.Deref(response.Plot, ""))
 	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
 	// Capture values before goroutines to avoid race conditions

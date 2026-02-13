@@ -348,6 +348,7 @@ CREATE TABLE game_session_message (
     message             text NOT NULL,
     -- JSON encoded status fields.
     status              text NULL,
+    plot                text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
     audio               bytea NULL,
