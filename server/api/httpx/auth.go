@@ -62,8 +62,6 @@ func getAuth0Validator() *validator.Validator {
 		log.Error("failed to set up auth0 validator", "error", err)
 		return nil
 	}
-	log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
-
 	return auth0Validator
 }
 
@@ -200,8 +198,6 @@ func Authenticate(next http.Handler) http.Handler {
 			log.Error("failed to set up auth0 validator", "error", err)
 			return nil
 		}
-		log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
-
 		auth0Middleware = jwtmiddleware.New(
 			jwtValidator.ValidateToken,
 			jwtmiddleware.WithErrorHandler(func(w http.ResponseWriter, r *http.Request, err error) {
@@ -266,7 +262,6 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			log.Debug("participant token authenticated", "user_id", user.ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
@@ -289,7 +284,6 @@ func Authenticate(next http.Handler) http.Handler {
 			}
 
 			user = db.CheckAndPromoteAdmin(r.Context(), user)
-			log.Debug("CGL JWT authenticated", "user_id", userId, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
@@ -335,7 +329,6 @@ func Authenticate(next http.Handler) http.Handler {
 			}
 
 			user = db.CheckAndPromoteAdmin(r.Context(), user)
-			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 		})).ServeHTTP(w, r)
 	})
@@ -398,8 +391,6 @@ func RequireAuth0Token(h http.HandlerFunc) http.Handler {
 			WriteError(w, http.StatusUnauthorized, "Invalid token: missing subject")
 			return
 		}
-
-		log.Debug("auth0 token validated for registration", "auth0_id", auth0ID)
 
 		// Store Auth0 ID in context for the handler to use
 		ctx := context.WithValue(r.Context(), auth0IDContextKey, auth0ID)

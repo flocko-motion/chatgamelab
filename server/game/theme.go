@@ -105,12 +105,9 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 		return nil, obj.TokenUsage{}, obj.ErrInvalidApiKey("session or API key is nil")
 	}
 
-	log.Debug("generating theme for game", "game_id", game.ID, "game_name", game.Name)
-
 	// Get AI platform
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
-		log.Debug("failed to get AI platform for theme generation", "error", err)
 		return nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to get AI platform", err)
 	}
 
@@ -155,7 +152,6 @@ Generate the JSON theme. Remember: use defaults for most options, only customize
 	)
 
 	// Call AI to generate theme
-	log.Debug("calling AI to generate theme")
 	response, usage, err := platform.GenerateTheme(ctx, session, ThemeGenerationPrompt, userPrompt)
 	if err != nil {
 		log.Debug("AI theme generation failed", "error", err)
@@ -165,12 +161,10 @@ Generate the JSON theme. Remember: use defaults for most options, only customize
 	// Parse the JSON response
 	theme, err := parseThemeResponse(response)
 	if err != nil {
-		log.Debug("failed to parse theme response", "error", err, "response", response)
 		// Return default theme on parse error
 		return defaultTheme(), usage, nil
 	}
 
-	log.Debug("theme generated successfully", "theme", theme)
 	return theme, usage, nil
 }
 
