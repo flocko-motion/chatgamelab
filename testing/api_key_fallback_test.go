@@ -193,7 +193,7 @@ func (s *ApiKeyFallbackTestSuite) TestContinueSessionWithFallback() {
 	// Send a message — should fall back to system free-use key
 	response, err := user.SendGameMessage(session.ID.String(), "look around")
 	s.NoError(err, "sending message should succeed via fallback to system free-use key")
-	s.NotEmpty(response.Message, "response should have a message")
+	s.NotNil(response.Plot, "response should have a plot outline")
 	s.T().Logf("Message sent successfully via fallback")
 
 	// Clean up
