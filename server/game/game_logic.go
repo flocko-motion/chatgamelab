@@ -248,7 +248,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
 		log.Debug("failed to get user for language preference", "user_id", userID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
 	}
 
 	// Run theme generation + translation with fallback across candidates.

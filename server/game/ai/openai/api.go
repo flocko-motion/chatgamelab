@@ -55,13 +55,13 @@ func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIReques
 func callStreamingResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIRequest, responseStream *stream.Stream) (fullText string, responseID string, usage obj.TokenUsage, err error) {
 	reqBody, err := json.Marshal(req)
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to marshal request: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to marshal request", err)
 	}
 
 	responsesURL := openaiBaseURL + responsesEndpoint
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", responsesURL, bytes.NewReader(reqBody))
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to create request: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -69,13 +69,13 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("request failed: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "request failed", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", "", obj.TokenUsage{}, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return "", "", obj.TokenUsage{}, obj.ErrAiErrorf("API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	// Parse SSE stream
@@ -133,12 +133,12 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 
 	reqJSON, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal TTS request: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to marshal TTS request", err)
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", speechURL, bytes.NewReader(reqJSON))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create TTS request: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to create TTS request", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -146,13 +146,13 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("TTS request failed: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "TTS request failed", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("TTS API returned status %d: %s", resp.StatusCode, string(body))
+		return nil, obj.ErrAiErrorf("TTS API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	// Read streaming audio response in chunks
@@ -171,7 +171,7 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 			break
 		}
 		if readErr != nil {
-			return nil, fmt.Errorf("TTS read error: %w", readErr)
+			return nil, obj.WrapError(obj.ErrCodeAiError, "TTS read error", readErr)
 		}
 	}
 
@@ -208,12 +208,12 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 
 	reqJSON, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to marshal request", err)
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", imageGenURL, bytes.NewReader(reqJSON))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -221,13 +221,13 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "request failed", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return nil, obj.ErrAiErrorf("API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	// Parse SSE stream for image events

@@ -102,7 +102,7 @@ Health/Leben→❤️, Gold/Münzen→🪙, Energy/Energie→⚡, Mana→🔮, F
 // GenerateTheme generates a visual theme for the game based on its description
 func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game, userLanguage string) (*obj.GameTheme, obj.TokenUsage, error) {
 	if session == nil || session.ApiKey == nil {
-		return nil, obj.TokenUsage{}, fmt.Errorf("session or API key is nil")
+		return nil, obj.TokenUsage{}, obj.ErrInvalidApiKey("session or API key is nil")
 	}
 
 	log.Debug("generating theme for game", "game_id", game.ID, "game_name", game.Name)
@@ -111,7 +111,7 @@ func GenerateTheme(ctx context.Context, session *obj.GameSession, game *obj.Game
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Debug("failed to get AI platform for theme generation", "error", err)
-		return nil, obj.TokenUsage{}, fmt.Errorf("failed to get AI platform: %w", err)
+		return nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to get AI platform", err)
 	}
 
 	// Build the user prompt with game details
@@ -159,7 +159,7 @@ Generate the JSON theme. Remember: use defaults for most options, only customize
 	response, usage, err := platform.GenerateTheme(ctx, session, ThemeGenerationPrompt, userPrompt)
 	if err != nil {
 		log.Debug("AI theme generation failed", "error", err)
-		return nil, usage, fmt.Errorf("failed to generate theme: %w", err)
+		return nil, usage, obj.WrapError(obj.ErrCodeAiError, "failed to generate theme", err)
 	}
 
 	// Parse the JSON response
@@ -185,7 +185,7 @@ func parseThemeResponse(response string) (*obj.GameTheme, error) {
 
 	var theme obj.GameTheme
 	if err := json.Unmarshal([]byte(response), &theme); err != nil {
-		return nil, fmt.Errorf("failed to parse theme JSON: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to parse theme JSON", err)
 	}
 
 	// Validate and set defaults for missing/invalid values

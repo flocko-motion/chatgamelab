@@ -100,7 +100,7 @@ func GetTemplate(game *obj.Game) (string, error) {
 	var statusFields []obj.StatusField
 	if game.StatusFields != "" {
 		if err := json.Unmarshal([]byte(game.StatusFields), &statusFields); err != nil {
-			return "", fmt.Errorf("failed to unmarshal status fields while parsing game: %w", err)
+			return "", obj.WrapError(obj.ErrCodeServerError, "failed to unmarshal status fields while parsing game", err)
 		}
 	}
 	statusMap := status.FieldsToMap(statusFields)

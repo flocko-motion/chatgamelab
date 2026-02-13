@@ -8,7 +8,6 @@ import (
 	"cgl/game/stream"
 	"cgl/obj"
 	"context"
-	"fmt"
 	"slices"
 )
 
@@ -93,7 +92,7 @@ func getAiPlatform(platformName string) (AiPlatform, error) {
 	case Mock:
 		platform = &mock.MockPlatform{}
 	default:
-		return nil, fmt.Errorf("unknown ai platform: %s", platformName)
+		return nil, obj.ErrInvalidPlatformf("unknown ai platform: %s", platformName)
 	}
 	return platform, nil
 }

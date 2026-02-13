@@ -3,7 +3,6 @@ package status
 import (
 	"cgl/obj"
 	"encoding/json"
-	"fmt"
 )
 
 // ParseGameResponse parses raw AI JSON text into the response message fields.
@@ -13,7 +12,7 @@ import (
 func ParseGameResponse(responseText string, sessionStatusFields string, actionStatusFields []obj.StatusField, response *obj.GameSessionMessage) error {
 	var aiResp obj.GameSessionMessageAi
 	if err := json.Unmarshal([]byte(responseText), &aiResp); err != nil {
-		return fmt.Errorf("failed to parse game response: %w", err)
+		return obj.WrapError(obj.ErrCodeAiError, "failed to parse game response", err)
 	}
 
 	fieldNames := FieldNames(sessionStatusFields)
