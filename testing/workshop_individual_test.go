@@ -207,6 +207,115 @@ func (s *WorkshopIndividualTestSuite) TestParticipantCannotUpdateSettings() {
 	s.T().Logf("Correctly denied participant settings update: %v", err)
 }
 
+// TestIndividualRolePreservedAfterJoining verifies that an individual's role is NOT
+// overwritten to participant when joining a workshop via invite token.
+func (s *WorkshopIndividualTestSuite) TestIndividualRolePreservedAfterJoining() {
+	_, _, _, inviteToken := s.workshopWithKey("ind-role-keep")
+
+	individual := s.CreateUser("ind-role-keeper")
+	me := Must(individual.GetMe())
+	s.Equal(obj.RoleIndividual, me.Role.Role, "should start as individual")
+
+	// Join workshop via token
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+
+	// Role must still be individual (not participant)
+	me = Must(individual.GetMe())
+	s.Equal(obj.RoleIndividual, me.Role.Role, "role must remain individual after joining workshop")
+	s.Require().NotNil(me.Role.Workshop, "should have active workshop set")
+	s.T().Logf("Individual role preserved: %s (workshop: %s)", me.Role.Role, me.Role.Workshop.ID)
+}
+
+// TestIndividualLeavesWorkshopReturnsToNormalView verifies that an individual
+// can leave a workshop and return to their normal individual view.
+func (s *WorkshopIndividualTestSuite) TestIndividualLeavesWorkshopReturnsToNormalView() {
+	_, _, gameIDStr, inviteToken := s.workshopWithKey("ind-leave")
+
+	individual := s.CreateUser("ind-leaver")
+
+	// Join workshop
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+	me := Must(individual.GetMe())
+	s.Require().NotNil(me.Role.Workshop, "should be in workshop after joining")
+
+	// Individual can see workshop games
+	games := Must(individual.ListGames())
+	s.True(containsGameByID(games, gameIDStr), "should see workshop games while in workshop")
+
+	// Leave workshop (set active workshop to nil)
+	Must(individual.SetActiveWorkshop(nil))
+
+	// Verify back to normal individual view
+	me = Must(individual.GetMe())
+	s.Equal(obj.RoleIndividual, me.Role.Role, "role should still be individual after leaving")
+	s.Nil(me.Role.Workshop, "should have no active workshop after leaving")
+	s.T().Logf("Individual left workshop, back to normal view")
+
+	// Workshop games should no longer be visible
+	games = Must(individual.ListGames())
+	s.False(containsGameByID(games, gameIDStr), "should NOT see workshop games after leaving")
+	s.T().Logf("Workshop games no longer visible after leaving")
+}
+
+// TestIndividualCanRejoinWorkshopAfterLeaving verifies that an individual can
+// leave and rejoin a workshop without issues.
+func (s *WorkshopIndividualTestSuite) TestIndividualCanRejoinWorkshopAfterLeaving() {
+	_, wsIDStr, _, inviteToken := s.workshopWithKey("ind-rejoin")
+
+	individual := s.CreateUser("ind-rejoiner")
+
+	// Join → leave → rejoin
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+	me := Must(individual.GetMe())
+	s.Require().NotNil(me.Role.Workshop)
+
+	Must(individual.SetActiveWorkshop(nil))
+	me = Must(individual.GetMe())
+	s.Nil(me.Role.Workshop, "should have no workshop after leaving")
+
+	// Rejoin
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+	me = Must(individual.GetMe())
+	s.Equal(obj.RoleIndividual, me.Role.Role, "role should still be individual after rejoin")
+	s.Require().NotNil(me.Role.Workshop, "should be in workshop after rejoin")
+	s.Equal(wsIDStr, me.Role.Workshop.ID.String(), "should be in the same workshop")
+	s.T().Logf("Individual successfully rejoined workshop")
+}
+
+// TestTargetedInviteWithIndividualRoleRejected verifies that creating a targeted
+// institution invite with role 'individual' is rejected.
+func (s *WorkshopIndividualTestSuite) TestTargetedInviteWithIndividualRoleRejected() {
+	admin := s.DevUser()
+	inst := Must(admin.CreateInstitution("No Individual Invite Org"))
+	target := s.CreateUser("ind-target")
+
+	// Attempt to create targeted invite with 'individual' role — should fail
+	_, err := admin.InviteToInstitution(inst.ID.String(), "individual", target.ID)
+	s.Error(err, "targeted invite with 'individual' role should be rejected")
+	s.T().Logf("Correctly rejected individual targeted invite: %v", err)
+}
+
+// TestTargetedInviteWithHeadStaffStillWorks verifies that targeted institution
+// invites with head/staff roles still work correctly.
+func (s *WorkshopIndividualTestSuite) TestTargetedInviteWithHeadStaffStillWorks() {
+	admin := s.DevUser()
+	inst := Must(admin.CreateInstitution("Head Staff Invite Org"))
+
+	// Head invite should work
+	headTarget := s.CreateUser("head-target")
+	invite, err := admin.InviteToInstitution(inst.ID.String(), "head", headTarget.ID)
+	s.NoError(err, "targeted invite with 'head' role should work")
+	s.NotEmpty(invite.ID)
+	s.T().Logf("Head invite created: %s", invite.ID)
+
+	// Staff invite should work
+	staffTarget := s.CreateUser("staff-target")
+	invite, err = admin.InviteToInstitution(inst.ID.String(), "staff", staffTarget.ID)
+	s.NoError(err, "targeted invite with 'staff' role should work")
+	s.NotEmpty(invite.ID)
+	s.T().Logf("Staff invite created: %s", invite.ID)
+}
+
 // containsGameByID checks if a game list contains a game with the given ID string.
 func containsGameByID(games []obj.Game, gameID string) bool {
 	parsed, err := uuid.Parse(gameID)

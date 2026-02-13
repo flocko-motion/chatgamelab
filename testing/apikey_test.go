@@ -142,6 +142,52 @@ func (s *ApiKeyTestSuite) TestMistralKeyLifecycle() {
 	s.T().Logf("All keys removed")
 }
 
+// TestApiKeyTrimWhitespace verifies that leading and trailing whitespace is trimmed
+// from the API key value, name, and platform when creating a key.
+func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
+	user := s.CreateUser("trim-ws")
+
+	// Create a key with whitespace in the key value and name
+	key := Must(user.AddApiKey("  mock-trim-key  ", "  Trimmed Key  ", "  mock  "))
+	s.NotEmpty(key.ID)
+	s.T().Logf("Created key with whitespace: shareID=%s", key.ID)
+
+	// Verify the key was created successfully (platform was trimmed and recognized)
+	keys := Must(user.GetApiKeys())
+	s.Len(keys.ApiKeys, 1, "should have 1 key")
+
+	apiKey := keys.ApiKeys[0]
+
+	// Name should be trimmed
+	s.Equal("Trimmed Key", apiKey.Name, "key name should be trimmed")
+
+	// Platform should be trimmed
+	s.Equal("mock", apiKey.Platform, "platform should be trimmed")
+
+	// KeyShortened is the last 6 chars of the stored key — if trimmed correctly,
+	// "mock-trim-key" → shortened "im-key" (no trailing spaces)
+	s.Equal("im-key", apiKey.KeyShortened, "key value should be trimmed (no trailing whitespace in shortened)")
+	s.T().Logf("Key stored correctly: name=%q, platform=%q, shortened=%q", apiKey.Name, apiKey.Platform, apiKey.KeyShortened)
+
+	// Clean up
+	MustSucceed(user.DeleteApiKey(key.ID.String(), true))
+}
+
+// TestApiKeyTrimWhitespaceOnlyFails verifies that whitespace-only values are rejected.
+func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespaceOnlyFails() {
+	user := s.CreateUser("trim-empty")
+
+	// Key with whitespace-only value should fail
+	_, err := user.AddApiKey("   ", "Some Name", "mock")
+	s.Error(err, "whitespace-only key value should be rejected")
+	s.T().Logf("Whitespace-only key correctly rejected: %v", err)
+
+	// Key with whitespace-only platform should fail
+	_, err = user.AddApiKey("mock-key-123", "Some Name", "   ")
+	s.Error(err, "whitespace-only platform should be rejected")
+	s.T().Logf("Whitespace-only platform correctly rejected: %v", err)
+}
+
 // TestApiKeyShareWithOrgAndCleanup tests the full lifecycle: add keys, join org,
 // share with org, switch defaults, remove shared key, remove all keys.
 func (s *ApiKeyTestSuite) TestApiKeyShareWithOrgAndCleanup() {
