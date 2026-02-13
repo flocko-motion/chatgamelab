@@ -301,13 +301,13 @@ func CreateInstitutionInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Role is required - must be head or staff (individuals join workshops via open token links)
+	// Role is required - must be head, staff, or individual
 	var role obj.Role
 	if req.Role != "" {
 		role = obj.Role(req.Role)
-		if role != obj.RoleHead && role != obj.RoleStaff {
+		if role != obj.RoleHead && role != obj.RoleStaff && role != obj.RoleIndividual {
 			log.Warn("invalid role for institution invite", "user_id", user.ID, "role", req.Role)
-			httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head' or 'staff'"))
+			httpx.WriteAppError(w, obj.ErrValidation("Role must be 'head', 'staff', or 'individual'"))
 			return
 		}
 	} else {
