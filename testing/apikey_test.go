@@ -164,9 +164,9 @@ func (s *ApiKeyTestSuite) TestApiKeyTrimWhitespace() {
 	// Platform should be trimmed
 	s.Equal("mock", apiKey.Platform, "platform should be trimmed")
 
-	// KeyShortened is the last 6 chars of the stored key — if trimmed correctly,
-	// "mock-trim-key" → shortened "im-key" (no trailing spaces)
-	s.Equal("im-key", apiKey.KeyShortened, "key value should be trimmed (no trailing whitespace in shortened)")
+	// KeyShortened uses ShortenLeft with length 6: ".." + last 4 chars
+	// "mock-trim-key" → "..-key" (no trailing spaces from original "  mock-trim-key  ")
+	s.Equal("..-key", apiKey.KeyShortened, "key value should be trimmed (no trailing whitespace in shortened)")
 	s.T().Logf("Key stored correctly: name=%q, platform=%q, shortened=%q", apiKey.Name, apiKey.Platform, apiKey.KeyShortened)
 
 	// Clean up
