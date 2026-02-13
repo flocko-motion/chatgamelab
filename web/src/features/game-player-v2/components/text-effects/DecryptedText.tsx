@@ -1,14 +1,15 @@
 /**
  * DecryptedText effect for AI messages.
  * Adapted from ReactBits (https://reactbits.dev/text-animations/decrypted-text)
- * 
+ *
  * Shows scrambled characters that progressively reveal the real text.
  * Designed for the hacker/terminal theme.
  */
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from "react";
 
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+const CHARS =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 
 interface DecryptedTextProps {
   text: string;
@@ -16,21 +17,21 @@ interface DecryptedTextProps {
   speed?: number;
 }
 
-export function DecryptedText({ text, speed = 25 }: DecryptedTextProps) {
+export function DecryptedText({ text, speed = 20 }: DecryptedTextProps) {
   const [displayText, setDisplayText] = useState(text);
   const revealedCountRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const scramble = useCallback((original: string, revealedCount: number) => {
-    const chars = CHARS.split('');
+    const chars = CHARS.split("");
     return original
-      .split('')
+      .split("")
       .map((char, i) => {
-        if (char === ' ' || char === '\n') return char;
+        if (char === " " || char === "\n") return char;
         if (i < revealedCount) return original[i];
         return chars[Math.floor(Math.random() * chars.length)];
       })
-      .join('');
+      .join("");
   }, []);
 
   useEffect(() => {
@@ -60,8 +61,8 @@ export function DecryptedText({ text, speed = 25 }: DecryptedTextProps) {
         return;
       }
 
-      // Reveal next character
-      currentRevealed++;
+      // Reveal next characters (2 per tick for snappier feel)
+      currentRevealed = Math.min(currentRevealed + 2, text.length);
       revealedCountRef.current = currentRevealed;
       setDisplayText(scramble(text, currentRevealed));
     }, speed);
