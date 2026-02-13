@@ -42,6 +42,10 @@ export function SceneCard({
   const { theme, GameMessageWrapper, StreamingMessageWrapper } = useGameTheme();
   const { id, text, isStreaming } = message;
 
+  // Trim trailing whitespace while streaming to prevent height jumps
+  // from newlines arriving before the next paragraph's text
+  const displayText = isStreaming ? text.trimEnd() : text;
+
   // Show image area based on backend capability flag
   const hasImage = showImages && !!message.hasImage;
   const cornerStyle = theme.corners?.style ?? "brackets";
@@ -60,8 +64,8 @@ export function SceneCard({
   const cornerStyleClass =
     cornerStyle !== "none"
       ? classes[
-      `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
-      ]
+          `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
+        ]
       : "";
 
   const narrativeClasses = [
@@ -71,7 +75,11 @@ export function SceneCard({
     .filter(Boolean)
     .join(" ");
 
-  const sceneClasses = [classes.gameScene, !hasImage && classes.noImage]
+  const sceneClasses = [
+    classes.gameScene,
+    !hasImage && classes.noImage,
+    isStreaming && classes.gameSceneStreaming,
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -115,14 +123,14 @@ export function SceneCard({
           >
             {(() => {
               const defaultContent = (
-                <ThemedText text={text} scope="gameMessages" />
+                <ThemedText text={displayText} scope="gameMessages" />
               );
 
               const ActiveWrapper = isStreaming
                 ? (StreamingMessageWrapper ?? GameMessageWrapper)
                 : GameMessageWrapper;
               return ActiveWrapper ? (
-                <ActiveWrapper text={text} isStreaming={isStreaming}>
+                <ActiveWrapper text={displayText} isStreaming={isStreaming}>
                   {defaultContent}
                 </ActiveWrapper>
               ) : (
@@ -133,7 +141,7 @@ export function SceneCard({
           </div>
         </div>
         {message.hasAudio && (
-          <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
+          <div style={{ position: "absolute", bottom: 12, right: 12 }}>
             <AudioPlayButton
               messageId={id}
               audioStatus={message.audioStatus}
