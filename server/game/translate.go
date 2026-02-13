@@ -15,12 +15,12 @@ import (
 // Returns the translated game, a mapping of original→translated status field names, and token usage.
 func TranslateGame(ctx context.Context, session *obj.GameSession, game *obj.Game, targetLang string) (*obj.Game, map[string]string, obj.TokenUsage, error) {
 	if session == nil || session.ApiKey == nil {
-		return nil, nil, obj.TokenUsage{}, fmt.Errorf("session or API key is nil")
+		return nil, nil, obj.TokenUsage{}, obj.ErrInvalidApiKey("session or API key is nil")
 	}
 
 	// Validate target language
 	if !lang.IsValidLanguageCode(targetLang) {
-		return nil, nil, obj.TokenUsage{}, fmt.Errorf("unsupported language code: %s", targetLang)
+		return nil, nil, obj.TokenUsage{}, obj.ErrValidationf("unsupported language code: %s", targetLang)
 	}
 
 	// Get language name for better AI context
@@ -30,7 +30,7 @@ func TranslateGame(ctx context.Context, session *obj.GameSession, game *obj.Game
 	// Get AI platform
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
-		return nil, nil, obj.TokenUsage{}, fmt.Errorf("failed to get AI platform: %w", err)
+		return nil, nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to get AI platform", err)
 	}
 
 	// Prepare game content for translation
@@ -56,20 +56,20 @@ func TranslateGame(ctx context.Context, session *obj.GameSession, game *obj.Game
 	// Convert to JSON for AI
 	contentJSON, err := json.Marshal(gameContent)
 	if err != nil {
-		return nil, nil, obj.TokenUsage{}, fmt.Errorf("failed to marshal game content: %w", err)
+		return nil, nil, obj.TokenUsage{}, obj.WrapError(obj.ErrCodeServerError, "failed to marshal game content", err)
 	}
 
 	// Call AI translation
 	log.Debug("calling AI to translate game content", "target_lang", targetLang)
 	translatedJSON, usage, err := platform.Translate(ctx, session.ApiKey.Key, []string{string(contentJSON)}, targetLang)
 	if err != nil {
-		return nil, nil, usage, fmt.Errorf("AI translation failed: %w", err)
+		return nil, nil, usage, obj.WrapError(obj.ErrCodeAiError, "AI translation failed", err)
 	}
 
 	// Parse translated content
 	var translatedContent map[string]string
 	if err := json.Unmarshal([]byte(translatedJSON), &translatedContent); err != nil {
-		return nil, nil, usage, fmt.Errorf("failed to parse translated content: %w", err)
+		return nil, nil, usage, obj.WrapError(obj.ErrCodeAiError, "failed to parse translated content", err)
 	}
 
 	// Create a copy of the game with translated content

@@ -12,7 +12,7 @@ import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { useGameSession } from "./useGameSession";
-import type { GameInfo } from "../types";
+import type { GameInfo, PlayerActionInput } from "../types";
 
 interface UseSessionLifecycleOptions {
   gameId?: string;
@@ -42,7 +42,7 @@ export interface SessionLifecycle {
 
   // Navigation
   handleBack: () => void;
-  handleSendAction: (message: string) => Promise<void>;
+  handleSendAction: (input: PlayerActionInput) => Promise<void>;
 
   // Error detection
   isNoApiKeyError: boolean;
@@ -108,7 +108,9 @@ export function useSessionLifecycle({
 
   // Load existing session (continuation)
   useEffect(() => {
+    console.log('[SSE-DEBUG] loadExistingSession effect', { sessionId, phase: state.phase, isContinuation });
     if (sessionId && state.phase === "idle") {
+      console.log('[SSE-DEBUG] loadExistingSession effect: calling loadExistingSession', { sessionId });
       loadExistingSession(sessionId);
     }
   }, [sessionId, state.phase, loadExistingSession]);
@@ -190,8 +192,8 @@ export function useSessionLifecycle({
   }, [state.streamError, clearStreamError]);
 
   const handleSendAction = useCallback(
-    async (message: string) => {
-      await sendAction(message);
+    async (input: PlayerActionInput) => {
+      await sendAction(input);
     },
     [sendAction],
   );

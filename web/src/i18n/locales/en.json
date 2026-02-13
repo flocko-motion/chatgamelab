@@ -394,7 +394,12 @@
       },
       "input": {
         "placeholder": "What do you do?",
-        "send": "Send action"
+        "send": "Send action",
+        "audioStart": "Record voice message",
+        "audioStop": "Send recording",
+        "audioCancel": "Cancel recording",
+        "audioRecording": "Recording…",
+        "audioProcessing": "Processing…"
       },
       "loading": {
         "game": "Loading game...",

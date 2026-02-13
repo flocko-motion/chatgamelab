@@ -87,6 +87,16 @@ export interface GameSessionConfig {
   model?: string;
 }
 
+/** Input from the player — either typed text or recorded audio. */
+export interface PlayerActionInput {
+  /** Text message (for typed input) */
+  message?: string;
+  /** Base64-encoded audio data (for voice input) */
+  audioBase64?: string;
+  /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
+  audioMimeType?: string;
+}
+
 export interface GameInfo {
   id?: string;
   name?: string;
@@ -123,6 +133,10 @@ export interface GamePlayerState {
   streamError: StreamError | null;
   /** AI-generated visual theme from the session */
   theme: ObjGameTheme | null;
+  /** Quality tier used for this session (e.g. "low", "medium", "high") */
+  aiModel: string | null;
+  /** AI platform used for this session (e.g. "openai", "mistral") */
+  aiPlatform: string | null;
 }
 
 // ============================================================================

@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -230,7 +231,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	log.Info("resolved API key candidates", "count", len(candidates), "primary_key", candidates[0].Share.ApiKey.Name, "primary_platform", candidates[0].Share.ApiKey.Platform)
 
 	// Get the game
-	log.Debug("loading game", "game_id", gameID)
 	game, err := db.GetGameByID(ctx, &userID, gameID)
 	if err != nil {
 		log.Debug("game not found", "game_id", gameID, "error", err)
@@ -238,9 +238,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Delete any existing sessions for this user+game (restart scenario)
-	log.Debug("deleting existing sessions", "user_id", userID, "game_id", gameID)
 	if err := db.DeleteUserGameSessions(ctx, userID, gameID); err != nil {
-		log.Debug("failed to delete existing sessions", "error", err)
+		log.Warn("failed to delete existing sessions", "error", err)
 		// Non-fatal - continue with session creation
 	}
 
@@ -248,7 +247,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
 		log.Debug("failed to get user for language preference", "user_id", userID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
 	}
 
 	// Run theme generation + translation with fallback across candidates.
@@ -284,7 +283,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Generate system message from (possibly translated) game
-	log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
 	systemMessage, err := templates.GetTemplate(game)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
@@ -292,7 +290,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Persist to database with theme
-	log.Debug("persisting session to database")
 	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
@@ -425,25 +422,45 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
 	}
 
+	// Phase 0a: Transcribe audio input to text (if player sent voice instead of text)
+	// Done before storing the action message so the DB record already has the transcribed text.
+	var transcription string // populated if audio was transcribed, returned to client
+	if action.Type == obj.GameSessionMessageTypePlayer && action.AudioBase64 != "" && action.AudioMimeType != "" {
+		audioData, decErr := base64.StdEncoding.DecodeString(action.AudioBase64)
+		if decErr != nil {
+			log.Warn("failed to decode audio base64", "session_id", session.ID, "error", decErr)
+		} else {
+			log.Debug("transcribing player audio input", "session_id", session.ID, "audio_bytes", len(audioData), "mime_type", action.AudioMimeType)
+			transcribed, transcribeErr := platform.TranscribeAudio(ctx, session.ApiKey.Key, audioData, action.AudioMimeType)
+			if transcribeErr != nil {
+				log.Warn("audio transcription failed, falling back to empty message", "session_id", session.ID, "error", transcribeErr)
+			} else {
+				log.Debug("audio transcribed", "session_id", session.ID, "text", transcribed)
+				action.Message = transcribed
+				transcription = transcribed
+			}
+		}
+	}
+
 	// Store the action message (player or system) so it appears in session history.
 	// Track the message ID so we can delete it if the AI action fails.
 	var actionMessageID *uuid.UUID
-	log.Debug("storing action message", "session_id", session.ID, "type", action.Type)
 	actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
 	if err != nil {
-		log.Debug("failed to store action message", "session_id", session.ID, "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
 	}
 	actionMessageID = &actionMsg.ID
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
-	log.Debug("creating streaming message", "session_id", session.ID)
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
 	if err != nil {
-		log.Debug("failed to create streaming message", "session_id", session.ID, "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
 	}
-	log.Debug("streaming message created", "message_id", response.ID)
+
+	// Attach transcription to the response so the client can display what was recognized
+	if transcription != "" {
+		response.Transcription = transcription
+	}
 
 	// Create stream for SSE with ImageSaver and AudioSaver to persist before signaling done
 	responseStream := stream.Get().Create(ctx, response,
@@ -459,7 +476,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	gameSchema := templates.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
-	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
+	// Phase 0b: Rephrase player input in third person with uncertain outcome (best-effort)
 	// Skip if the key's last usage failed — avoids wasting a round-trip on a known-broken key
 	keyUsable := session.ApiKey != nil && (session.ApiKey.LastUsageSuccess == nil || *session.ApiKey.LastUsageSuccess)
 	if action.Type == obj.GameSessionMessageTypePlayer && keyUsable {
@@ -477,8 +494,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
-	log.Debug(fmt.Sprintf("executing AI action, session_id=%s, message_id=%s, schema=%s",
-		session.ID, response.ID, string(gameSchemaJSON)))
+	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
 	usage, err := platform.ExecuteAction(ctx, session, action, response, gameSchema)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
@@ -513,7 +529,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
-	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
 	// Track API key usage success
 	if session.ApiKey != nil {
 		db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, true)
@@ -526,11 +541,17 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
-	response.PromptImageGeneration = response.ImagePrompt
+	if response.ImagePrompt != nil {
+		plotOutline := ""
+		if response.Plot != nil {
+			plotOutline = functional.Deref(response.Plot, "")
+		}
+		response.PromptImageGeneration = functional.Ptr(templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle))
+	}
 
 	// Set capability flags based on platform tier
 	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
-		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
+		response.HasImage = model.SupportsImage && functional.Deref(response.ImagePrompt, "") != "" && session.ImageStyle != templates.ImageStyleNoImage
 		response.HasAudio = model.SupportsAudio
 	}
 
@@ -540,8 +561,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		log.Warn("failed to persist AI session state after ExecuteAction", "session_id", session.ID, "error", err)
 	}
 
-	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
-	// This is returned to client immediately
+	// Save the structured response (statusFields, plot, imagePrompt, prompts) to DB.
+	// Plot holds the plot outline; Message stays empty until ExpandStory writes the prose.
+	log.Info("[AI] plotOutline (initial)", "session_id", session.ID, "text", functional.Deref(response.Plot, ""))
 	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
 	// Capture values before goroutines to avoid race conditions
@@ -555,13 +577,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		defer unlock()
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
-		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
+		_, err := platform.ExpandStory(context.Background(), session, response, responseStream)
 		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
-			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
+			log.Info("[AI] prose (final)", "session_id", session.ID, "text", response.Message)
 		}
-		log.Debug("ExpandStory token usage", "session_id", session.ID, "input_tokens", expandUsage.InputTokens, "output_tokens", expandUsage.OutputTokens, "total_tokens", expandUsage.TotalTokens)
 
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
@@ -570,31 +591,26 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Update session with new AI state (response IDs for conversation continuity)
-		log.Debug("[TRACE] persisting AiSession to DB", "session_id", session.ID, "ai_session", session.AiSession)
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
 		if !response.HasAudio || len(response.Message) == 0 {
-			log.Debug("audio generation not active for this message, signaling audioDone")
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
-			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
 			if err != nil {
 				log.Warn("GenerateAudio failed", "session_id", session.ID, "error", err)
 			} else {
 				response.Audio = audioData
-				log.Debug("GenerateAudio completed", "session_id", session.ID, "audio_bytes", len(audioData))
+				log.Debug("audio generated", "session_id", session.ID, "audio_bytes", len(audioData))
 			}
 		}
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "hasImage", response.HasImage)
 		if !response.HasImage {
-			log.Debug("image generation not active for this message, signaling imageDone")
 			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true})
 			return
 		}
@@ -616,8 +632,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 					log.Warn("failed to clear session API key", "error", dbErr)
 				}
 			}
-		} else {
-			log.Debug("GenerateImage completed", "session_id", session.ID, "image_size", len(response.Image))
 		}
 	}()
 

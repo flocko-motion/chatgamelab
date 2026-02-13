@@ -1,7 +1,7 @@
 import { Alert } from "@mantine/core";
 import { IconKeyOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { SceneMessage } from "../types";
+import type { SceneMessage, PlayerActionInput } from "../types";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
 import { SceneDivider } from "./SceneDivider";
@@ -14,7 +14,8 @@ interface MessageListProps {
   isWaitingForResponse: boolean;
   isImageGenerationDisabled: boolean;
   apiKeyUnavailable?: boolean;
-  onSendAction: (message: string) => Promise<void>;
+  audioEnabled?: boolean;
+  onSendAction: (input: PlayerActionInput) => Promise<void>;
   onRetryLastAction: () => void;
 }
 
@@ -23,6 +24,7 @@ export function MessageList({
   isWaitingForResponse,
   isImageGenerationDisabled,
   apiKeyUnavailable,
+  audioEnabled,
   onSendAction,
   onRetryLastAction,
 }: MessageListProps) {
@@ -101,6 +103,7 @@ export function MessageList({
             onSend={onSendAction}
             disabled={isWaitingForResponse}
             placeholder={t("gamePlayer.input.placeholder")}
+            audioEnabled={audioEnabled}
           />
         </div>,
       );

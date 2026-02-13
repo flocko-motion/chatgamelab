@@ -8,16 +8,18 @@ import (
 )
 
 const (
-	openaiBaseURL     = "https://api.openai.com/v1"
-	responsesEndpoint = "/responses"
-	modelsEndpoint    = "/models"
-	imageGenEndpoint  = "/images/generations"
-	speechEndpoint    = "/audio/speech"
-	translateModel    = "gpt-5.1-codex"
-	toolQueryModel    = "gpt-5.1-codex"
-	ttsModel          = "gpt-4o-mini-tts"
-	ttsVoice          = "cedar" // openai recommends marin or cedar
-	ttsFormat         = "mp3"
+	openaiBaseURL         = "https://api.openai.com/v1"
+	responsesEndpoint     = "/responses"
+	modelsEndpoint        = "/models"
+	imageGenEndpoint      = "/images/generations"
+	speechEndpoint        = "/audio/speech"
+	transcriptionEndpoint = "/audio/transcriptions"
+	transcriptionModel    = "gpt-4o-mini-transcribe"
+	translateModel        = "gpt-5.1-codex"
+	toolQueryModel        = "gpt-5.1-codex"
+	ttsModel              = "gpt-4o-mini-tts"
+	ttsVoice              = "cedar" // openai recommends marin or cedar
+	ttsFormat             = "mp3"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity

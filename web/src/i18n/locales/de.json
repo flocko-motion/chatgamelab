@@ -394,7 +394,12 @@
       },
       "input": {
         "placeholder": "Was tust du?",
-        "send": "Aktion senden"
+        "send": "Aktion senden",
+        "audioStart": "Sprachnachricht aufnehmen",
+        "audioStop": "Aufnahme senden",
+        "audioCancel": "Aufnahme abbrechen",
+        "audioRecording": "Aufnahme läuft\u2026",
+        "audioProcessing": "Verarbeitung\u2026"
       },
       "loading": {
         "game": "Spiel wird geladen...",

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { useGuestGameSession } from "./useGuestGameSession";
-import type { GameInfo } from "../types";
+import type { GameInfo, PlayerActionInput } from "../types";
 import type { SessionLifecycle } from "./useSessionLifecycle";
 import type { GuestStartMode } from "../components/GuestWelcome";
 
@@ -92,8 +92,8 @@ export function useGuestSessionLifecycle(
   }, [state.streamError, clearStreamError]);
 
   const handleSendAction = useCallback(
-    async (message: string) => {
-      await sendAction(message);
+    async (input: PlayerActionInput) => {
+      await sendAction(input);
     },
     [sendAction],
   );

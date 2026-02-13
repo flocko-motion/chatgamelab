@@ -128,6 +128,8 @@ export function GuestGamePlayer({
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}
+            aiModel={lifecycle.state.aiModel}
+            aiPlatform={lifecycle.state.aiPlatform}
             fontSize={settings.fontSize}
             increaseFontSize={settings.increaseFontSize}
             decreaseFontSize={settings.decreaseFontSize}

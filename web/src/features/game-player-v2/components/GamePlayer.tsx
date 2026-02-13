@@ -122,6 +122,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}
+            aiModel={lifecycle.state.aiModel}
+            aiPlatform={lifecycle.state.aiPlatform}
             fontSize={settings.fontSize}
             increaseFontSize={settings.increaseFontSize}
             decreaseFontSize={settings.decreaseFontSize}
@@ -152,6 +154,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               isWaitingForResponse={lifecycle.state.isWaitingForResponse}
               isImageGenerationDisabled={settings.isImageGenerationDisabled}
               apiKeyUnavailable={!lifecycle.apiKeyAvailable}
+              audioEnabled={lifecycle.state.messages.some((m) => m.hasAudio)}
               onSendAction={lifecycle.handleSendAction}
               onRetryLastAction={lifecycle.retryLastAction}
             />

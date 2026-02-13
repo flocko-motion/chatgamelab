@@ -8,7 +8,6 @@ import (
 	"cgl/game/stream"
 	"cgl/obj"
 	"context"
-	"fmt"
 	"slices"
 )
 
@@ -63,6 +62,11 @@ type AiPlatform interface {
 	// Returns the raw JSON string response from the AI and token usage
 	GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error)
 
+	// TranscribeAudio - blocking, transcribes audio data to text using the platform's STT model.
+	// audioData is the raw audio bytes, mimeType indicates the format (e.g. "audio/webm;codecs=opus").
+	// Returns the transcribed text.
+	TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error)
+
 	// ToolQuery - blocking, sends a single text prompt and returns a text answer.
 	// No chat history, no system message, just a simple ping-pong using a fast model.
 	ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error)
@@ -93,7 +97,7 @@ func getAiPlatform(platformName string) (AiPlatform, error) {
 	case Mock:
 		platform = &mock.MockPlatform{}
 	default:
-		return nil, fmt.Errorf("unknown ai platform: %s", platformName)
+		return nil, obj.ErrInvalidPlatformf("unknown ai platform: %s", platformName)
 	}
 	return platform, nil
 }

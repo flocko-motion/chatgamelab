@@ -5,7 +5,6 @@ import (
 
 	"cgl/api/httpx"
 	"cgl/db"
-	"cgl/log"
 )
 
 // GetFavouriteGames godoc
@@ -21,8 +20,6 @@ import (
 //	@Router			/games/favourites [get]
 func GetFavouriteGames(w http.ResponseWriter, r *http.Request) {
 	user := httpx.UserFromRequest(r)
-
-	log.Debug("getting favourite games", "user_id", user.ID)
 
 	games, err := db.GetFavouriteGames(r.Context(), user.ID)
 	if err != nil {
@@ -55,8 +52,6 @@ func AddFavouriteGame(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
-	log.Debug("adding favourite game", "game_id", gameID, "user_id", user.ID)
-
 	if err := db.AddFavouriteGame(r.Context(), user.ID, gameID); err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to add favourite: "+err.Error())
 		return
@@ -86,8 +81,6 @@ func RemoveFavouriteGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
-
-	log.Debug("removing favourite game", "game_id", gameID, "user_id", user.ID)
 
 	if err := db.RemoveFavouriteGame(r.Context(), user.ID, gameID); err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to remove favourite: "+err.Error())

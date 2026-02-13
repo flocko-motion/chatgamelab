@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"bytes"
 	"cgl/functional"
 	"cgl/game/imagecache"
 	"cgl/game/status"
@@ -13,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"sort"
 	"strings"
@@ -25,10 +27,40 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "openai",
 		Name: "OpenAI",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelMax, Name: "GPT-5.2 + Audio", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Highest + Audio", SupportsImage: true, SupportsAudio: true},
-			{ID: obj.AiModelPremium, Name: "GPT-5.2", Model: "gpt-5.2", ImageModel: "gpt-image-1.5", ImageQuality: "medium", Description: "Premium", SupportsImage: true},
-			{ID: obj.AiModelBalanced, Name: "GPT-5.1", Model: "gpt-5.1", ImageModel: "gpt-image-1", ImageQuality: "medium", Description: "Balanced", SupportsImage: true},
-			{ID: obj.AiModelEconomy, Name: "GPT-5 Mini", Model: "gpt-5-mini", ImageModel: "gpt-image-1-mini", ImageQuality: "low", Description: "Economy", SupportsImage: true},
+			{
+				ID:            obj.AiModelMax,
+				Name:          "GPT-5.2 + Audio",
+				Model:         "gpt-5.2",
+				ImageModel:    "gpt-image-1.5",
+				ImageQuality:  "medium",
+				Description:   "Highest + Audio",
+				SupportsImage: true,
+				SupportsAudio: true,
+			}, {
+				ID:            obj.AiModelPremium,
+				Name:          "GPT-5.2",
+				Model:         "gpt-5.2",
+				ImageModel:    "gpt-image-1.5",
+				ImageQuality:  "medium",
+				Description:   "Premium",
+				SupportsImage: true,
+			}, {
+				ID:            obj.AiModelBalanced,
+				Name:          "GPT-5.1",
+				Model:         "gpt-5.1",
+				ImageModel:    "gpt-image-1.5",
+				ImageQuality:  "low",
+				Description:   "Balanced",
+				SupportsImage: true,
+			}, {
+				ID:            obj.AiModelEconomy,
+				Name:          "GPT-5 Mini",
+				Model:         "gpt-5-mini",
+				ImageModel:    "gpt-image-1-mini",
+				ImageQuality:  "low",
+				Description:   "Economy",
+				SupportsImage: true,
+			},
 		},
 	}
 }
@@ -48,17 +80,16 @@ func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
-	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
 	if session.ApiKey == nil {
-		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
+		return obj.TokenUsage{}, obj.ErrInvalidApiKey("session has no API key")
 	}
 
 	// Parse the model session
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
 		log.Warn("failed to parse model session", "error", err, "ai_session_raw", session.AiSession)
-		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
+		return obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to parse model session", err)
 	}
 
 	// Serialize the player action as JSON input (minimal AI-facing structure)
@@ -98,11 +129,10 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 
 	responseStream := stream.Get().Lookup(response.ID)
 	if responseStream == nil {
-		return obj.TokenUsage{}, fmt.Errorf("stream not found for message %s", response.ID)
+		return obj.TokenUsage{}, obj.ErrServerErrorf("stream not found for message %s", response.ID)
 	}
 
 	// Make the API call
-	log.Debug("calling OpenAI Responses API", "model", req.Model, "has_previous_response", req.PreviousResponseID != "")
 	apiResponse, usage, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
 		log.Error("OpenAI API call failed",
@@ -110,9 +140,8 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			"session_id", session.ID,
 			"model", req.Model,
 		)
-		return obj.TokenUsage{}, fmt.Errorf("OpenAI API error: %w", err)
+		return obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "OpenAI API error", err)
 	}
-	log.Debug("OpenAI API call completed", "response_id", apiResponse.ID, "status", apiResponse.Status)
 
 	if apiResponse.Status != "completed" {
 		incompleteReason := ""
@@ -141,19 +170,18 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 			"session_id", session.ID,
 			"model", req.Model,
 		)
-		return usage, fmt.Errorf("%s", errMsg)
+		return usage, obj.ErrAiError(errMsg)
 	}
 
 	// Extract the text response
 	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
-		return usage, fmt.Errorf("no text response from OpenAI")
+		return usage, obj.ErrAiError("no text response from OpenAI")
 	}
 
 	response.ResponseRaw = &responseText
 
 	// Parse the AI response and convert to internal format
-	log.Debug("parsing AI response", "response_length", len(responseText), "response_text", responseText)
 	if err := status.ParseGameResponse(responseText, session.StatusFields, action.StatusFields, response); err != nil {
 		log.Error("failed to parse game response", "error", err, "response_text", responseText)
 		return usage, err
@@ -164,7 +192,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	response.URLAnalytics = functional.Ptr("https://platform.openai.com/logs/" + apiResponse.ID)
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return usage, fmt.Errorf("failed to marshal model session: %w", err)
+		return usage, obj.WrapError(obj.ErrCodeAiError, "failed to marshal model session", err)
 	}
 	session.AiSession = string(sessionJSON)
 
@@ -180,13 +208,13 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	log.Debug("OpenAI ExpandStory starting", "session_id", session.ID, "message_id", response.ID)
 
 	if session.ApiKey == nil {
-		return obj.TokenUsage{}, fmt.Errorf("session has no API key")
+		return obj.TokenUsage{}, obj.ErrInvalidApiKey("session has no API key")
 	}
 
 	// Parse the model session to get previous response ID
 	var modelSession ModelSession
 	if err := json.Unmarshal([]byte(session.AiSession), &modelSession); err != nil {
-		return obj.TokenUsage{}, fmt.Errorf("failed to parse model session: %w", err)
+		return obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to parse model session", err)
 	}
 
 	// Build streaming request - plain text, no JSON schema
@@ -204,7 +232,6 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	}
 
 	// Make streaming API call
-	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, usage, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
 		// For story expansion, partial text is still usable - don't fail if we got some output
@@ -221,10 +248,9 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 				"session_id", session.ID,
 				"model", model,
 			)
-			return usage, fmt.Errorf("OpenAI streaming API error: %w", err)
+			return usage, obj.WrapError(obj.ErrCodeAiError, "OpenAI streaming API error", err)
 		}
 	}
-	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
 
 	// Update response with full text
 	response.Message = fullText
@@ -233,7 +259,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	modelSession.ResponseID = newResponseID
 	sessionJSON, err := json.Marshal(modelSession)
 	if err != nil {
-		return usage, fmt.Errorf("failed to marshal model session: %w", err)
+		return usage, obj.WrapError(obj.ErrCodeAiError, "failed to marshal model session", err)
 	}
 	session.AiSession = string(sessionJSON)
 
@@ -245,7 +271,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	log.Debug("OpenAI GenerateImage starting", "session_id", session.ID, "message_id", response.ID)
 
 	if session.ApiKey == nil {
-		return fmt.Errorf("session has no API key")
+		return obj.ErrInvalidApiKey("session has no API key")
 	}
 
 	// Note: imagePrompt check is done in game_logic.go before calling this function
@@ -256,14 +282,20 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	if imageQuality == "" {
 		imageQuality = "low"
 	}
-	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle, "image_model", imageModel, "image_quality", imageQuality)
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
+	// Build rich image prompt with full context (setting, current scene, visual, style)
+	plotOutline := ""
+	if response.Plot != nil {
+		plotOutline = *response.Plot
+	}
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,
@@ -273,9 +305,8 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 		errorCode := extractImageErrorCode(err)
 		cache.SetError(response.ID, errorCode, err.Error()) // Mark as failed so frontend knows to stop polling
 
-		return fmt.Errorf("OpenAI image generation error: %w", err)
+		return obj.WrapError(obj.ErrCodeAiError, "OpenAI image generation error", err)
 	}
-	log.Debug("image generation completed", "image_size", len(imageData))
 
 	// Update response with final image
 	response.Image = imageData
@@ -288,16 +319,15 @@ func (p *OpenAiPlatform) GenerateAudio(ctx context.Context, session *obj.GameSes
 	log.Debug("OpenAI GenerateAudio starting", "session_id", session.ID, "text_length", len(text))
 
 	if session.ApiKey == nil {
-		return nil, fmt.Errorf("session has no API key")
+		return nil, obj.ErrInvalidApiKey("session has no API key")
 	}
 
 	audioData, err := callSpeechAPI(ctx, session.ApiKey.Key, text, responseStream)
 	if err != nil {
 		log.Error("TTS generation failed", "error", err, "session_id", session.ID)
-		return nil, fmt.Errorf("OpenAI TTS error: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "OpenAI TTS error", err)
 	}
 
-	log.Debug("TTS generation completed", "audio_bytes", len(audioData))
 	return audioData, nil
 }
 
@@ -322,30 +352,30 @@ func (p *OpenAiPlatform) Translate(ctx context.Context, apiKey string, input []s
 
 	apiResponse, usage, err := callResponsesAPI(ctx, apiKey, req)
 	if err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("failed to translate: %w", err)
+		return "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to translate", err)
 	}
 
 	// Check for API-level errors (HTTP 200 but failed response)
 	if apiResponse.Error != nil {
-		return "", usage, fmt.Errorf("OpenAI error: %s", apiResponse.Error.Message)
+		return "", usage, obj.ErrAiErrorf("OpenAI error: %s", apiResponse.Error.Message)
 	}
 	if apiResponse.Status != "" && apiResponse.Status != "completed" {
 		reason := apiResponse.Status
 		if apiResponse.IncompleteDetails != nil {
 			reason += ": " + apiResponse.IncompleteDetails.Reason
 		}
-		return "", usage, fmt.Errorf("OpenAI response not completed: %s", reason)
+		return "", usage, obj.ErrAiErrorf("OpenAI response not completed: %s", reason)
 	}
 
 	responseText := extractResponseText(apiResponse)
 	if responseText == "" {
-		return "", usage, fmt.Errorf("no text response from OpenAI (status: %s)", apiResponse.Status)
+		return "", usage, obj.ErrAiErrorf("no text response from OpenAI (status: %s)", apiResponse.Status)
 	}
 
 	// Validate it's valid JSON
 	var translated map[string]interface{}
 	if err := json.Unmarshal([]byte(responseText), &translated); err != nil {
-		return "", usage, fmt.Errorf("failed to parse translated JSON: %w", err)
+		return "", usage, obj.WrapError(obj.ErrCodeAiError, "failed to parse translated JSON", err)
 	}
 
 	return functional.MustAnyToJson(translated), usage, nil
@@ -365,7 +395,7 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 	}
 
 	if err := client.GetJson(ctx, modelsEndpoint, &response); err != nil {
-		return nil, fmt.Errorf("failed to get models: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to get models", err)
 	}
 
 	// Check if we should show all models without filtering
@@ -409,6 +439,66 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 	return models, nil
 }
 
+// TranscribeAudio transcribes audio data to text
+func (p *OpenAiPlatform) TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	// Determine file extension from MIME type
+	ext := ".webm"
+	switch {
+	case strings.Contains(mimeType, "ogg"):
+		ext = ".ogg"
+	case strings.Contains(mimeType, "mp3") || strings.Contains(mimeType, "mpeg"):
+		ext = ".mp3"
+	case strings.Contains(mimeType, "mp4"):
+		ext = ".mp4"
+	case strings.Contains(mimeType, "wav"):
+		ext = ".wav"
+	}
+
+	// Build multipart form
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	_ = writer.WriteField("model", transcriptionModel)
+	part, err := writer.CreateFormFile("file", "audio"+ext)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create form file", err)
+	}
+	if _, err := part.Write(audioData); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to write audio data", err)
+	}
+	writer.Close()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", openaiBaseURL+transcriptionEndpoint, &buf)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "transcription request failed", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to read transcription response", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", obj.ErrAiErrorf("transcription API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var result struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to parse transcription response", err)
+	}
+
+	return strings.TrimSpace(result.Text), nil
+}
+
 // ToolQuery sends a single text prompt and returns a text answer using a fast model.
 func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
 	req := ResponsesAPIRequest{
@@ -419,16 +509,16 @@ func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt st
 
 	apiResponse, _, err := callResponsesAPI(ctx, apiKey, req)
 	if err != nil {
-		return "", fmt.Errorf("ToolQuery failed: %w", err)
+		return "", obj.WrapError(obj.ErrCodeAiError, "ToolQuery failed", err)
 	}
 
 	if apiResponse.Error != nil {
-		return "", fmt.Errorf("ToolQuery error: %s", apiResponse.Error.Message)
+		return "", obj.ErrAiErrorf("ToolQuery error: %s", apiResponse.Error.Message)
 	}
 
 	text := extractResponseText(apiResponse)
 	if text == "" {
-		return "", fmt.Errorf("ToolQuery: no text in response")
+		return "", obj.ErrAiError("ToolQuery: no text in response")
 	}
 
 	return text, nil
@@ -436,10 +526,8 @@ func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt st
 
 // GenerateTheme generates a visual theme JSON for the game player UI
 func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
-	log.Debug("OpenAI GenerateTheme starting", "session_id", session.ID)
-
 	if session.ApiKey == nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("session has no API key")
+		return "", obj.TokenUsage{}, obj.ErrInvalidApiKey("session has no API key")
 	}
 
 	api := p.newApi(session.ApiKey.Key)
@@ -455,33 +543,33 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 
 	reqBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("failed to marshal request: %w", err)
+		return "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to marshal request", err)
 	}
 
 	resp, err := api.Post(ctx, responsesEndpoint, reqBytes)
 	if err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("API request failed: %w", err)
+		return "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "API request failed", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("failed to read response: %w", err)
+		return "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to read response", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", obj.TokenUsage{}, fmt.Errorf("API error (status %d): %s", resp.StatusCode, string(body))
+		return "", obj.TokenUsage{}, obj.ErrAiErrorf("API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	var apiResp ResponsesAPIResponse
 	if err := json.Unmarshal(body, &apiResp); err != nil {
-		return "", obj.TokenUsage{}, fmt.Errorf("failed to parse response: %w", err)
+		return "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to parse response", err)
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
 
 	if apiResp.Error != nil {
-		return "", usage, fmt.Errorf("API error: %s", apiResp.Error.Message)
+		return "", usage, obj.ErrAiErrorf("API error: %s", apiResp.Error.Message)
 	}
 
 	// Extract text from response
@@ -489,12 +577,11 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 		if output.Type == "message" {
 			for _, content := range output.Content {
 				if content.Type == "output_text" || content.Type == "text" {
-					log.Debug("OpenAI GenerateTheme completed", "response_length", len(content.Text))
 					return content.Text, usage, nil
 				}
 			}
 		}
 	}
 
-	return "", usage, fmt.Errorf("no text content in response")
+	return "", usage, obj.ErrAiError("no text content in response")
 }
