@@ -2670,9 +2670,9 @@ const docTemplate = `{
         },
         "/messages/{id}/audio": {
             "get": {
-                "description": "Returns the audio narration for a message (Ogg/Opus format).\nNo authentication required - message UUIDs are random and unguessable.",
+                "description": "Returns the audio narration for a message (MP3 format).\nNo authentication required - message UUIDs are random and unguessable.",
                 "produces": [
-                    "application/ogg"
+                    "audio/mpeg"
                 ],
                 "tags": [
                     "messages"
@@ -4715,6 +4715,10 @@ const docTemplate = `{
                     "description": "Set to true when image generation fails due to organization verification required",
                     "type": "boolean"
                 },
+                "language": {
+                    "description": "Language used for this session (ISO 639-1 code), locked at creation time from user preference.",
+                    "type": "string"
+                },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
@@ -4769,6 +4773,14 @@ const docTemplate = `{
                     "description": "generic tier: \"high\", \"medium\", \"low\", \"max\"",
                     "type": "string"
                 },
+                "imageModel": {
+                    "description": "model used for image generation (if different from Model)",
+                    "type": "string"
+                },
+                "imageQuality": {
+                    "description": "image quality: \"high\", \"medium\", \"low\" (default: \"low\")",
+                    "type": "string"
+                },
                 "model": {
                     "description": "concrete model ID e.g. \"gpt-5.2\"",
                     "type": "string"
@@ -4820,6 +4832,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "keyShortened": {
+                    "type": "string"
+                },
+                "lastErrorCode": {
                     "type": "string"
                 },
                 "lastUsageSuccess": {
@@ -5056,6 +5071,10 @@ const docTemplate = `{
                 "isOrganisationUnverified": {
                     "description": "Set to true when image generation fails due to organization verification required",
                     "type": "boolean"
+                },
+                "language": {
+                    "description": "Language used for this session (ISO 639-1 code), locked at creation time from user preference.",
+                    "type": "string"
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
@@ -5746,6 +5765,10 @@ const docTemplate = `{
                     "description": "Set to true when image generation fails due to organization verification required",
                     "type": "boolean"
                 },
+                "language": {
+                    "description": "Language used for this session (ISO 639-1 code), locked at creation time from user preference.",
+                    "type": "string"
+                },
                 "messages": {
                     "type": "array",
                     "items": {
@@ -6103,6 +6126,10 @@ const docTemplate = `{
                 "isOrganisationUnverified": {
                     "description": "Set to true when image generation fails due to organization verification required",
                     "type": "boolean"
+                },
+                "language": {
+                    "description": "Language used for this session (ISO 639-1 code), locked at creation time from user preference.",
+                    "type": "string"
                 },
                 "messages": {
                     "type": "array",
