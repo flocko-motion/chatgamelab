@@ -100,6 +100,10 @@ func CreateApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Trim whitespace from all inputs (users often paste keys with trailing newlines/spaces)
+	req.Platform = strings.TrimSpace(req.Platform)
+	req.Key = strings.TrimSpace(req.Key)
+
 	if req.Platform == "" {
 		httpx.WriteErrorWithCode(w, http.StatusBadRequest, obj.ErrCodeValidation, "Platform is required")
 		return

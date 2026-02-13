@@ -22,6 +22,20 @@ func (q *Queries) ClearInstitutionFreeUseApiKeyShare(ctx context.Context, id uui
 	return err
 }
 
+const clearInstitutionFreeUseApiKeyShareByApiKeyID = `-- name: ClearInstitutionFreeUseApiKeyShareByApiKeyID :exec
+UPDATE institution
+SET free_use_api_key_share_id = NULL, modified_at = now()
+WHERE free_use_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+)
+`
+
+// Clear institution free-use API key when an API key is deleted (find shares for that key)
+func (q *Queries) ClearInstitutionFreeUseApiKeyShareByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, clearInstitutionFreeUseApiKeyShareByApiKeyID, apiKeyID)
+	return err
+}
+
 const createInstitution = `-- name: CreateInstitution :one
 
 INSERT INTO institution (

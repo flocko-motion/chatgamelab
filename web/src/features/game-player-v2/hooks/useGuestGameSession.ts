@@ -60,10 +60,14 @@ export function useGuestGameSession(token: string) {
         });
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message ||
-              `Failed to create session (${response.status})`,
-          );
+          throw {
+            error: {
+              code: errorData.code,
+              message:
+                errorData.message ||
+                `Failed to create session (${response.status})`,
+            },
+          };
         }
         return response.json();
       },
@@ -80,10 +84,14 @@ export function useGuestGameSession(token: string) {
         });
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.message ||
-              `Failed to send action (${response.status})`,
-          );
+          throw {
+            error: {
+              code: errorData.code,
+              message:
+                errorData.message ||
+                `Failed to send action (${response.status})`,
+            },
+          };
         }
         return response.json();
       },

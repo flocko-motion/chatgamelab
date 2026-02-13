@@ -2,11 +2,9 @@ package game
 
 import (
 	"context"
-	"sync"
 
 	"cgl/db"
 	"cgl/functional"
-	"cgl/game/ai"
 	"cgl/game/templates"
 	"cgl/log"
 	"cgl/obj"
@@ -140,79 +138,26 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 
 	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
 
-	// Parse game template
+	// Build a single-element candidate list for generateSessionSetup
+	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel}}
+
+	// Run theme generation + translation; fails early on key-related errors
+	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
+	if httpErr != nil {
+		return nil, nil, httpErr
+	}
+
+	theme := setup.theme
+	sessionUsage := setup.usage
+
+	if setup.translatedGame != nil {
+		game = setup.translatedGame
+	}
+
+	// Generate system message from (possibly translated) game
 	systemMessage, err := templates.GetTemplate(game)
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-	}
-
-	// Validate AI platform
-	if _, err := ai.GetAiPlatform(share.ApiKey.Platform); err != nil {
-		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeInvalidPlatform, err.Error())
-	}
-
-	// Create temporary session for theme/translation
-	tempSession := &obj.GameSession{
-		GameID:       game.ID,
-		GameName:     game.Name,
-		UserID:       user.ID,
-		ApiKeyID:     &share.ApiKey.ID,
-		ApiKey:       share.ApiKey,
-		AiPlatform:   share.ApiKey.Platform,
-		AiModel:      aiModel,
-		ImageStyle:   templates.ImageStyleOrDefault(game.ImageStyle),
-		StatusFields: game.StatusFields,
-	}
-
-	// Run theme generation and game translation in parallel (same as CreateSession)
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	var theme *obj.GameTheme
-	var translatedGame *obj.Game
-	var sessionUsage obj.TokenUsage
-
-	if game.Theme != nil {
-		theme = game.Theme
-	} else {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
-			mu.Lock()
-			sessionUsage = sessionUsage.Add(themeUsage)
-			mu.Unlock()
-			if err != nil {
-				log.Warn("guest session: theme generation failed, using default", "error", err)
-			} else {
-				theme = t
-			}
-		}()
-	}
-
-	if user.Language != "" && user.Language != "en" {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			translated, _, translateUsage, err := TranslateGame(ctx, tempSession, game, user.Language)
-			mu.Lock()
-			sessionUsage = sessionUsage.Add(translateUsage)
-			mu.Unlock()
-			if err != nil {
-				log.Warn("guest session: translation failed, using original", "error", err)
-			} else {
-				translatedGame = translated
-			}
-		}()
-	}
-
-	wg.Wait()
-
-	if translatedGame != nil {
-		game = translatedGame
-		systemMessage, err = templates.GetTemplate(game)
-		if err != nil {
-			return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-		}
 	}
 
 	// Persist session

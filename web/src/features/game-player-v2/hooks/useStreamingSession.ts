@@ -111,7 +111,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const activePollingIdRef = useRef<string | null>(null);
   const sseActiveRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPollingRef = useRef<(messageId: string) => void>(() => { });
+  const startPollingRef = useRef<(messageId: string) => void>(() => {});
   const lastImageUpdateRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
@@ -216,7 +216,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
-            JSON.stringify(msg.statusFields)
+              JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
@@ -375,10 +375,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                       .map((msg) =>
                         msg.id === playerMessageId
                           ? {
-                            ...msg,
-                            error: chunk.error,
-                            errorCode: chunk.errorCode,
-                          }
+                              ...msg,
+                              error: chunk.error,
+                              errorCode: chunk.errorCode,
+                            }
                           : msg,
                       ),
                     isWaitingForResponse: false,
@@ -423,17 +423,24 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   audioDone = true;
                   // Decode accumulated base64 chunks into a blob URL
                   try {
-                    const binaryStr = audioChunks.map(b64 => atob(b64)).join('');
+                    const binaryStr = audioChunks
+                      .map((b64) => atob(b64))
+                      .join("");
                     const bytes = new Uint8Array(binaryStr.length);
                     for (let i = 0; i < binaryStr.length; i++) {
                       bytes[i] = binaryStr.charCodeAt(i);
                     }
-                    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                    const blob = new Blob([bytes], { type: "audio/mpeg" });
                     const blobUrl = URL.createObjectURL(blob);
-                    updateMessage(messageId, { audioStatus: 'ready', audioBlobUrl: blobUrl });
+                    updateMessage(messageId, {
+                      audioStatus: "ready",
+                      audioBlobUrl: blobUrl,
+                    });
                   } catch (e) {
-                    apiLogger.error('Failed to create audio blob', { error: e });
-                    updateMessage(messageId, { audioStatus: 'ready' });
+                    apiLogger.error("Failed to create audio blob", {
+                      error: e,
+                    });
+                    updateMessage(messageId, { audioStatus: "ready" });
                   }
                 }
 
@@ -516,7 +523,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
             text: "",
             isStreaming: true,
             isImageLoading: !!firstMessage.hasImage,
-            audioStatus: firstMessage.hasAudio ? 'loading' : undefined,
+            audioStatus: firstMessage.hasAudio ? "loading" : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
@@ -538,8 +545,20 @@ export function useStreamingSession(adapter: SessionAdapter) {
         }));
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to start session";
+      // Extract message from Error instances or { error: { message } } API shapes
+      let message = "Failed to start session";
+      if (error instanceof Error) {
+        message = error.message;
+      } else if (
+        error &&
+        typeof error === "object" &&
+        "error" in error &&
+        (error as Record<string, unknown>).error &&
+        typeof (error as Record<string, unknown>).error === "object"
+      ) {
+        const nested = (error as { error: { message?: string } }).error;
+        if (nested.message) message = nested.message;
+      }
       setState((prev) => ({
         ...prev,
         phase: "error",
@@ -591,7 +610,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudio ? 'loading' : undefined,
+              audioStatus: gameResponse.hasAudio ? "loading" : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -617,19 +636,29 @@ export function useStreamingSession(adapter: SessionAdapter) {
         const errorCode = isNetworkError
           ? ErrorCodes.NETWORK_ERROR
           : extractRawErrorCode(error) || undefined;
+        let errorMessage = "Failed to send action";
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (
+          error &&
+          typeof error === "object" &&
+          "error" in error &&
+          (error as Record<string, unknown>).error &&
+          typeof (error as Record<string, unknown>).error === "object"
+        ) {
+          const nested = (error as { error: { message?: string } }).error;
+          if (nested.message) errorMessage = nested.message;
+        }
         setState((prev) => ({
           ...prev,
           isWaitingForResponse: false,
           messages: prev.messages.map((msg) =>
             msg.id === playerMessage.id
               ? {
-                ...msg,
-                error:
-                  error instanceof Error
-                    ? error.message
-                    : "Failed to send action",
-                errorCode,
-              }
+                  ...msg,
+                  error: errorMessage,
+                  errorCode,
+                }
               : msg,
           ),
         }));
@@ -684,10 +713,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
           },
           messages: isInProgress
             ? messages.map((msg, i) =>
-              i === messages.length - 1
-                ? { ...msg, isImageLoading: !!msg.hasImage, audioStatus: msg.hasAudio ? 'loading' : undefined }
-                : msg,
-            )
+                i === messages.length - 1
+                  ? {
+                      ...msg,
+                      isImageLoading: !!msg.hasImage,
+                      audioStatus: msg.hasAudio ? "loading" : undefined,
+                    }
+                  : msg,
+              )
             : messages,
           statusFields:
             messages.length > 0
@@ -704,11 +737,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           );
           updateMessage(lastMessage.id, { text: "" });
           connectToStream(lastMessage.id);
-        } else if (
-          !isInProgress &&
-          lastMessage?.id &&
-          lastMessage.hasImage
-        ) {
+        } else if (!isInProgress && lastMessage?.id && lastMessage.hasImage) {
           try {
             const statusResp = await fetch(
               `${config.API_BASE_URL}/messages/${lastMessage.id}/status`,
