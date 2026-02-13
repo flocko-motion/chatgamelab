@@ -75,6 +75,14 @@ DELETE FROM workshop WHERE institution_id = $1;
 -- name: ClearInstitutionFreeUseApiKeyShare :exec
 UPDATE institution SET free_use_api_key_share_id = NULL WHERE id = $1;
 
+-- name: ClearInstitutionFreeUseApiKeyShareByApiKeyID :exec
+-- Clear institution free-use API key when an API key is deleted (find shares for that key)
+UPDATE institution
+SET free_use_api_key_share_id = NULL, modified_at = now()
+WHERE free_use_api_key_share_id IN (
+  SELECT id FROM api_key_share WHERE api_key_id = $1
+);
+
 -- name: GetInstitutionMembers :many
 SELECT u.id, u.name, u.email, r.role
 FROM app_user u
