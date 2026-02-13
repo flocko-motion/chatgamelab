@@ -63,6 +63,147 @@ func isKeyRelatedError(errorCode string) bool {
 	}
 }
 
+// sessionSetupResult holds the output of generateSessionSetup.
+type sessionSetupResult struct {
+	candidateIndex int               // index of the candidate that succeeded
+	theme          *obj.GameTheme    // generated or game-level theme (may be nil → default)
+	translatedGame *obj.Game         // translated game (nil if not needed or failed)
+	fieldNameMap   map[string]string // original→translated field name mapping
+	usage          obj.TokenUsage    // accumulated token usage for theme+translation
+}
+
+// generateSessionSetup runs theme generation and game translation in parallel using
+// the given API key candidates. If theme generation fails with a key-related error,
+// the next candidate is tried (translation results from the failed key are discarded).
+//
+// Returns an error only when ALL candidates fail with key-related errors during
+// theme generation — this means every key is broken and there's no point continuing.
+// Non-key errors (e.g. parse failures) are treated as non-fatal (default theme used).
+func generateSessionSetup(
+	ctx context.Context,
+	candidates []resolvedKey,
+	game *obj.Game,
+	user *obj.User,
+) (*sessionSetupResult, *obj.HTTPError) {
+	result := &sessionSetupResult{}
+	needsTranslation := user.Language != "" && user.Language != "en"
+
+	// If game already has a theme, skip AI generation entirely
+	if game.Theme != nil {
+		log.Debug("using game-level theme override", "game_id", game.ID, "preset", game.Theme.Preset)
+		result.theme = game.Theme
+		result.candidateIndex = 0
+		// Still run translation (no key validation via theme, but best-effort)
+		result.translatedGame, result.fieldNameMap, result.usage = translateIfNeeded(ctx, candidates[0], game, user)
+		return result, nil
+	}
+
+	// Try each candidate: run theme + translation in parallel, check for key errors after both finish
+	var lastErr error
+	var lastErrCode string
+	for i, candidate := range candidates {
+		if _, platformErr := ai.GetAiPlatform(candidate.Share.ApiKey.Platform); platformErr != nil {
+			log.Debug("candidate has invalid platform, skipping", "index", i, "platform", candidate.Share.ApiKey.Platform)
+			continue
+		}
+
+		tempSession := makeTempSession(candidate, game, user.ID)
+		start := time.Now()
+
+		// Run theme generation and translation in parallel
+		var wg sync.WaitGroup
+		var theme *obj.GameTheme
+		var themeUsage obj.TokenUsage
+		var themeErr error
+		var translatedGame *obj.Game
+		var fieldNameMap map[string]string
+		var translateUsage obj.TokenUsage
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			log.Debug("generating visual theme", "game_id", game.ID, "candidate_index", i, "key_name", candidate.Share.ApiKey.Name)
+			theme, themeUsage, themeErr = GenerateTheme(ctx, tempSession, game, user.Language)
+		}()
+
+		if needsTranslation {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				translatedGame, fieldNameMap, translateUsage = translateIfNeeded(ctx, candidate, game, user)
+			}()
+		}
+
+		wg.Wait()
+		result.usage = result.usage.Add(themeUsage).Add(translateUsage)
+
+		if themeErr == nil {
+			log.Debug("theme generated successfully", "preset", theme.Preset, "seconds", time.Since(start).Seconds())
+			result.theme = theme
+			result.candidateIndex = i
+			result.translatedGame = translatedGame
+			result.fieldNameMap = fieldNameMap
+			return result, nil
+		}
+
+		// Theme generation failed — check if it's a key error
+		errCode := extractAIErrorCode(themeErr)
+		lastErr = themeErr
+		lastErrCode = errCode
+		log.Warn("theme generation failed", "candidate_index", i, "key_name", candidate.Share.ApiKey.Name, "error", themeErr, "error_code", errCode, "seconds", time.Since(start).Seconds())
+
+		if !isKeyRelatedError(errCode) {
+			// Non-key error (e.g. parse failure, timeout) — use default theme, keep translation
+			log.Debug("non-key error during theme generation, using default theme")
+			result.candidateIndex = i
+			result.translatedGame = translatedGame
+			result.fieldNameMap = fieldNameMap
+			return result, nil
+		}
+
+		// Key-related error — discard translation (same broken key), try next candidate
+		log.Info("API key failed during theme generation, trying next candidate", "candidate_index", i, "error_code", errCode)
+	}
+
+	// All candidates exhausted with key-related errors
+	log.Warn("all API key candidates failed during theme generation", "last_error", lastErr)
+	return nil, obj.NewHTTPErrorWithCode(500, lastErrCode, fmt.Sprintf("All API keys failed: %v", lastErr))
+}
+
+// makeTempSession creates a temporary session object for theme/translation AI calls.
+func makeTempSession(candidate resolvedKey, game *obj.Game, userID uuid.UUID) *obj.GameSession {
+	return &obj.GameSession{
+		GameID:       game.ID,
+		GameName:     game.Name,
+		UserID:       userID,
+		ApiKeyID:     &candidate.Share.ApiKey.ID,
+		ApiKey:       candidate.Share.ApiKey,
+		AiPlatform:   candidate.Share.ApiKey.Platform,
+		AiModel:      candidate.AiQualityTier,
+		ImageStyle:   templates.ImageStyleOrDefault(game.ImageStyle),
+		StatusFields: game.StatusFields,
+	}
+}
+
+// translateIfNeeded runs game translation if the user's language is not English.
+// Returns nil translatedGame if translation is not needed or fails (non-fatal).
+func translateIfNeeded(ctx context.Context, candidate resolvedKey, game *obj.Game, user *obj.User) (*obj.Game, map[string]string, obj.TokenUsage) {
+	if user.Language == "" || user.Language == "en" {
+		return nil, nil, obj.TokenUsage{}
+	}
+
+	tempSession := makeTempSession(candidate, game, user.ID)
+	start := time.Now()
+	log.Debug("translating game to user language", "game_id", game.ID, "target_lang", user.Language)
+	translated, fieldNameMap, usage, err := TranslateGame(ctx, tempSession, game, user.Language)
+	if err != nil {
+		log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err, "seconds", time.Since(start).Seconds())
+		return nil, nil, usage
+	}
+	log.Debug("game translated successfully", "target_lang", user.Language, "seconds", time.Since(start).Seconds())
+	return translated, fieldNameMap, usage
+}
+
 // CreateSession creates a new game session for a user.
 // The API key and AI quality tier are resolved server-side using the following priority:
 //  1. Workshop key + workshop.aiQualityTier
@@ -83,10 +224,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		return nil, nil, httpErr
 	}
 
-	// Use the highest-priority candidate; fallbacks are tried later if this one fails
-	share := candidates[0].Share
-	aiModel := candidates[0].AiQualityTier
-	log.Info("using API key for session", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform, "share_id", share.ID, "ai_quality_tier", aiModel, "fallback_count", len(candidates)-1)
+	log.Info("resolved API key candidates", "count", len(candidates), "primary_key", candidates[0].Share.ApiKey.Name, "primary_platform", candidates[0].Share.ApiKey.Platform)
 
 	// Get the game
 	log.Debug("loading game", "game_id", gameID)
@@ -103,15 +241,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		// Non-fatal - continue with session creation
 	}
 
-	// Validate AI platform
-	log.Debug("resolving AI platform", "platform", share.ApiKey.Platform, "requested_model", aiModel)
-	_, err = ai.GetAiPlatform(share.ApiKey.Platform)
-	if err != nil {
-		log.Debug("failed to get AI platform", "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeInvalidPlatform, err.Error())
-	}
-	log.Debug("AI platform resolved", "platform", share.ApiKey.Platform)
-
 	// Get user to check language preference
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
@@ -119,97 +248,39 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
 	}
 
-	// Create temporary session object for theme generation (needs ApiKey)
-	tempSession := &obj.GameSession{
-		GameID:       game.ID,
-		GameName:     game.Name,
-		UserID:       userID,
-		ApiKeyID:     &share.ApiKey.ID,
-		ApiKey:       share.ApiKey,
-		AiPlatform:   share.ApiKey.Platform,
-		AiModel:      aiModel,
-		ImageStyle:   templates.ImageStyleOrDefault(game.ImageStyle),
-		StatusFields: game.StatusFields,
+	// Run theme generation + translation with fallback across candidates.
+	// If all keys fail with key-related errors, we fail early here.
+	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
+	if httpErr != nil {
+		return nil, nil, httpErr
 	}
 
-	// Run theme generation and game translation in parallel
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-	var theme *obj.GameTheme
-	var translatedGame *obj.Game
-	var sessionUsage obj.TokenUsage
+	// Use the candidate that succeeded for theme generation
+	share := candidates[setup.candidateIndex].Share
+	aiModel := candidates[setup.candidateIndex].AiQualityTier
+	theme := setup.theme
+	sessionUsage := setup.usage
 
-	// Use game-level theme if set, otherwise generate via AI
-	if game.Theme != nil {
-		log.Debug("using game-level theme override", "game_id", gameID, "preset", game.Theme.Preset)
-		theme = game.Theme
-	} else {
-		// Start theme generation
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			start := time.Now()
-			log.Debug("generating visual theme", "game_id", gameID, "game_name", game.Name)
-			t, themeUsage, err := GenerateTheme(ctx, tempSession, game, user.Language)
-			mu.Lock()
-			sessionUsage = sessionUsage.Add(themeUsage)
-			mu.Unlock()
-			if err != nil {
-				log.Warn("failed to generate theme, using default", "error", err, "seconds", time.Since(start).Seconds())
-			} else {
-				log.Debug("theme generated successfully", "preset", t.Preset, "seconds", time.Since(start).Seconds())
-				theme = t
-			}
-		}()
-	}
-
-	// Start game translation if user language is not English
-	var fieldNameMap map[string]string
-	if user.Language != "" && user.Language != "en" {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			start := time.Now()
-			log.Debug("translating game to user language", "game_id", gameID, "target_lang", user.Language)
-			translated, fnMap, translateUsage, err := TranslateGame(ctx, tempSession, game, user.Language)
-			mu.Lock()
-			sessionUsage = sessionUsage.Add(translateUsage)
-			mu.Unlock()
-			if err != nil {
-				log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err, "seconds", time.Since(start).Seconds())
-			} else {
-				log.Debug("game translated successfully", "target_lang", user.Language, "seconds", time.Since(start).Seconds())
-				translatedGame = translated
-				fieldNameMap = fnMap
-			}
-		}()
-	}
-
-	// Wait for both operations to complete
-	wg.Wait()
-	log.Debug("session setup token usage", "input_tokens", sessionUsage.InputTokens, "output_tokens", sessionUsage.OutputTokens, "total_tokens", sessionUsage.TotalTokens)
-
-	// Use translated game if available
-	if translatedGame != nil {
-		game = translatedGame
+	// Apply translation if available
+	if setup.translatedGame != nil {
+		game = setup.translatedGame
 
 		// Rewrite theme statusEmojis keys from original to translated field names
-		if theme != nil && len(theme.StatusEmojis) > 0 && len(fieldNameMap) > 0 {
+		if theme != nil && len(theme.StatusEmojis) > 0 && len(setup.fieldNameMap) > 0 {
 			translatedEmojis := make(map[string]string, len(theme.StatusEmojis))
 			for originalName, emoji := range theme.StatusEmojis {
-				if translatedName, ok := fieldNameMap[originalName]; ok {
+				if translatedName, ok := setup.fieldNameMap[originalName]; ok {
 					translatedEmojis[translatedName] = emoji
 				} else {
 					translatedEmojis[originalName] = emoji
 				}
 			}
 			theme.StatusEmojis = translatedEmojis
-			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", fieldNameMap)
+			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", setup.fieldNameMap)
 		}
 	}
 
 	// Generate system message from (possibly translated) game
-	// This is done after translation so the system message contains translated content
 	log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
 	systemMessage, err := templates.GetTemplate(game)
 	if err != nil {
@@ -229,8 +300,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	// Attach API key for response
 	session.ApiKey = share.ApiKey
 
-	// First action is a system message containing the game instructions.
-	// Try the primary key first; on key-related failure, retry with fallback candidates.
+	// First action: system message containing the game instructions.
+	// Start with the candidate that worked for theme generation; retry with remaining fallbacks on key errors.
 	log.Debug("executing initial system action", "session_id", session.ID)
 	startAction := obj.GameSessionMessage{
 		GameSessionID: session.ID,
@@ -239,27 +310,24 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 	response, httpErr := DoSessionAction(ctx, session, startAction)
 
-	// Retry with fallback candidates on key-related errors
-	if httpErr != nil && len(candidates) > 1 {
+	// Retry with remaining fallback candidates on key-related errors
+	remainingCandidates := candidates[setup.candidateIndex+1:]
+	if httpErr != nil && len(remainingCandidates) > 0 {
 		errorCode := httpErr.Code
 		if isKeyRelatedError(errorCode) {
-			// Clean up the failed session before retrying
 			log.Debug("initial action failed with key error, trying fallback", "session_id", session.ID, "error_code", errorCode)
 			if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 				log.Warn("failed to delete empty session before fallback", "session_id", session.ID, "error", delErr)
 			}
 
-			for i := 1; i < len(candidates); i++ {
-				fallback := candidates[i]
-				log.Info("retrying with fallback API key", "attempt", i+1, "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform)
+			for _, fallback := range remainingCandidates {
+				log.Info("retrying with fallback API key", "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform)
 
-				// Validate platform
 				if _, platformErr := ai.GetAiPlatform(fallback.Share.ApiKey.Platform); platformErr != nil {
 					log.Debug("fallback key has invalid platform, skipping", "platform", fallback.Share.ApiKey.Platform)
 					continue
 				}
 
-				// Create a new session with the fallback key
 				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
 				if err != nil {
 					log.Debug("failed to create fallback session", "error", err)
@@ -270,20 +338,17 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 				startAction.GameSessionID = session.ID
 				response, httpErr = DoSessionAction(ctx, session, startAction)
 				if httpErr == nil {
-					// Fallback succeeded
 					share = fallback.Share
 					aiModel = fallback.AiQualityTier
 					log.Info("fallback API key succeeded", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform)
 					break
 				}
 
-				// Clean up failed fallback session
-				log.Debug("fallback key also failed", "attempt", i+1, "error", httpErr.Message)
+				log.Debug("fallback key also failed", "error", httpErr.Message)
 				if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 					log.Warn("failed to delete fallback session", "session_id", session.ID, "error", delErr)
 				}
 
-				// Only continue retrying for key-related errors
 				if !isKeyRelatedError(httpErr.Code) {
 					break
 				}
@@ -292,7 +357,6 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	if httpErr != nil {
-		// Final cleanup if all candidates failed
 		log.Debug("initial action failed, deleting empty session", "session_id", session.ID, "error", httpErr.Message)
 		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
 			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
