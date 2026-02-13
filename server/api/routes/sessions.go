@@ -18,8 +18,10 @@ import (
 
 // Request/Response types for sessions
 type SessionActionRequest struct {
-	Message      string            `json:"message"`
-	StatusFields []obj.StatusField `json:"statusFields,omitempty"` // Current status to pass to AI
+	Message       string            `json:"message"`
+	StatusFields  []obj.StatusField `json:"statusFields,omitempty"`  // Current status to pass to AI
+	AudioBase64   string            `json:"audioBase64,omitempty"`   // Base64-encoded audio from voice input
+	AudioMimeType string            `json:"audioMimeType,omitempty"` // MIME type of the audio (e.g. "audio/webm;codecs=opus")
 }
 
 type SessionResponse struct {
@@ -175,6 +177,8 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		Type:          obj.GameSessionMessageTypePlayer,
 		Message:       req.Message,
 		StatusFields:  currentStatus,
+		AudioBase64:   req.AudioBase64,
+		AudioMimeType: req.AudioMimeType,
 	}
 
 	// Re-resolve API key and execute action with fallback retry logic

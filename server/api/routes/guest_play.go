@@ -154,6 +154,8 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 		Type:          obj.GameSessionMessageTypePlayer,
 		Message:       req.Message,
 		StatusFields:  currentStatus,
+		AudioBase64:   req.AudioBase64,
+		AudioMimeType: req.AudioMimeType,
 	}
 
 	// Re-resolve API key from the private share

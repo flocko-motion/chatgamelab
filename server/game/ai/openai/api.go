@@ -6,13 +6,11 @@ import (
 	"cgl/apiclient"
 	"cgl/game/imagecache"
 	"cgl/game/stream"
-	"cgl/game/templates"
 	"cgl/log"
 	"cgl/obj"
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -183,19 +181,12 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 // callImageGenerationAPI generates an image with streaming partial images
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
-func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, prompt string, style string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
+func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, prompt string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
 	imageGenURL := openaiBaseURL + imageGenEndpoint
-
-	// Note: style parameter is only supported for dall-e-3, not gpt-image-1
-	// For gpt-image-1, we include the style in the prompt instead
-	fullPrompt := prompt + templates.ImagePromptSuffix
-	if style != "" {
-		fullPrompt = fmt.Sprintf("%s Style: %s", fullPrompt, style)
-	}
 
 	reqBody := map[string]interface{}{
 		"model":          imageModel,
-		"prompt":         fullPrompt,
+		"prompt":         prompt,
 		"n":              1,
 		"size":           "1024x1024",
 		"quality":        imageQuality,

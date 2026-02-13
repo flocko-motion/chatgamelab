@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- Hook and context must be co-located */
 import { createContext, useContext, type ReactNode } from "react";
-import type { GamePlayerState, GameSessionConfig } from "../types";
+import type { GamePlayerState, GameSessionConfig, PlayerActionInput } from "../types";
 
 // ============================================================================
 // Context Types
@@ -13,7 +13,7 @@ export interface GamePlayerContextValue {
 
   // Actions
   startSession: (config: GameSessionConfig) => Promise<void>;
-  sendAction: (message: string) => Promise<void>;
+  sendAction: (input: PlayerActionInput) => Promise<void>;
   loadExistingSession: (sessionId: string) => Promise<void>;
   retryLastAction: () => void;
   resetGame: () => void;

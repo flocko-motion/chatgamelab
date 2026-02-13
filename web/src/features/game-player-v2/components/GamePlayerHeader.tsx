@@ -6,6 +6,7 @@ import {
   Box,
   Menu,
   Checkbox,
+  Badge,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
@@ -26,6 +27,10 @@ import classes from "./GamePlayer.module.css";
 interface GamePlayerHeaderProps {
   gameName?: string;
   gameDescription?: string;
+
+  // AI info
+  aiModel?: string | null;
+  aiPlatform?: string | null;
 
   // Font size
   fontSize: FontSize;
@@ -63,6 +68,8 @@ function HeaderWithTheme({ children }: { children: React.ReactNode }) {
 export function GamePlayerHeader({
   gameName,
   gameDescription,
+  aiModel,
+  aiPlatform,
   fontSize,
   increaseFontSize,
   decreaseFontSize,
@@ -106,6 +113,16 @@ export function GamePlayerHeader({
           </Box>
         </Group>
         <Group gap="xs" wrap="nowrap">
+          {(aiPlatform || aiModel) && (
+            <Badge
+              variant="light"
+              color="gray"
+              size="sm"
+              style={{ flexShrink: 0 }}
+            >
+              {[aiPlatform, aiModel].filter(Boolean).join(" / ")}
+            </Badge>
+          )}
           <Menu shadow="md" width={200} position="bottom-end">
             <Menu.Target>
               <Tooltip

@@ -2,6 +2,7 @@ package game
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -421,6 +422,26 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
 	}
 
+	// Phase 0a: Transcribe audio input to text (if player sent voice instead of text)
+	// Done before storing the action message so the DB record already has the transcribed text.
+	var transcription string // populated if audio was transcribed, returned to client
+	if action.Type == obj.GameSessionMessageTypePlayer && action.AudioBase64 != "" && action.AudioMimeType != "" {
+		audioData, decErr := base64.StdEncoding.DecodeString(action.AudioBase64)
+		if decErr != nil {
+			log.Warn("failed to decode audio base64", "session_id", session.ID, "error", decErr)
+		} else {
+			log.Debug("transcribing player audio input", "session_id", session.ID, "audio_bytes", len(audioData), "mime_type", action.AudioMimeType)
+			transcribed, transcribeErr := platform.TranscribeAudio(ctx, session.ApiKey.Key, audioData, action.AudioMimeType)
+			if transcribeErr != nil {
+				log.Warn("audio transcription failed, falling back to empty message", "session_id", session.ID, "error", transcribeErr)
+			} else {
+				log.Debug("audio transcribed", "session_id", session.ID, "text", transcribed)
+				action.Message = transcribed
+				transcription = transcribed
+			}
+		}
+	}
+
 	// Store the action message (player or system) so it appears in session history.
 	// Track the message ID so we can delete it if the AI action fails.
 	var actionMessageID *uuid.UUID
@@ -434,6 +455,11 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
 	if err != nil {
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
+	}
+
+	// Attach transcription to the response so the client can display what was recognized
+	if transcription != "" {
+		response.Transcription = transcription
 	}
 
 	// Create stream for SSE with ImageSaver and AudioSaver to persist before signaling done
@@ -450,7 +476,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	gameSchema := templates.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
-	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
+	// Phase 0b: Rephrase player input in third person with uncertain outcome (best-effort)
 	// Skip if the key's last usage failed — avoids wasting a round-trip on a known-broken key
 	keyUsable := session.ApiKey != nil && (session.ApiKey.LastUsageSuccess == nil || *session.ApiKey.LastUsageSuccess)
 	if action.Type == obj.GameSessionMessageTypePlayer && keyUsable {
@@ -515,11 +541,17 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
 	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
-	response.PromptImageGeneration = response.ImagePrompt
+	if response.ImagePrompt != nil {
+		plotOutline := ""
+		if response.Plot != nil {
+			plotOutline = functional.Deref(response.Plot, "")
+		}
+		response.PromptImageGeneration = functional.Ptr(templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle))
+	}
 
 	// Set capability flags based on platform tier
 	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
-		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
+		response.HasImage = model.SupportsImage && functional.Deref(response.ImagePrompt, "") != "" && session.ImageStyle != templates.ImageStyleNoImage
 		response.HasAudio = model.SupportsAudio
 	}
 

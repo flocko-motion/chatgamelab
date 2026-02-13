@@ -409,6 +409,14 @@ type GameSessionMessage struct {
 	// Plain text of the scene (system message, player action, or game response).
 	Message string `json:"message"`
 
+	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
+	AudioBase64   string `json:"-"`
+	AudioMimeType string `json:"-"`
+
+	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
+	// Returned in the action response so the client can display what was recognized.
+	Transcription string `json:"transcription,omitempty"`
+
 	PromptStatusUpdate    *string `json:"requestStatusUpdate,omitempty"`
 	PromptResponseSchema  *string `json:"requestResponseSchema,omitempty"`
 	PromptImageGeneration *string `json:"requestImageGeneration,omitempty"`

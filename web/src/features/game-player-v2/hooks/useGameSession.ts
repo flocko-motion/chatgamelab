@@ -37,11 +37,14 @@ export function useGameSession(gameId: string) {
         sessionId: string,
         message: string,
         statusFields,
+        audio,
       ): Promise<GameMessageResult> => {
-        const response = await api.sessions.sessionsCreate(sessionId, {
-          message,
-          statusFields,
-        });
+        const body: Record<string, unknown> = { message, statusFields };
+        if (audio) {
+          body.audioBase64 = audio.base64;
+          body.audioMimeType = audio.mimeType;
+        }
+        const response = await api.sessions.sessionsCreate(sessionId, body as never);
         return response.data;
       },
 

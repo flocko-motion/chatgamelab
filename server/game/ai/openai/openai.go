@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"bytes"
 	"cgl/functional"
 	"cgl/game/imagecache"
 	"cgl/game/status"
@@ -13,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"sort"
 	"strings"
@@ -285,8 +287,15 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
+	// Build rich image prompt with full context (setting, current scene, visual, style)
+	plotOutline := ""
+	if response.Plot != nil {
+		plotOutline = *response.Plot
+	}
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, *response.ImagePrompt, session.ImageStyle, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,
@@ -428,6 +437,66 @@ func (p *OpenAiPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.A
 	})
 
 	return models, nil
+}
+
+// TranscribeAudio transcribes audio data to text
+func (p *OpenAiPlatform) TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	// Determine file extension from MIME type
+	ext := ".webm"
+	switch {
+	case strings.Contains(mimeType, "ogg"):
+		ext = ".ogg"
+	case strings.Contains(mimeType, "mp3") || strings.Contains(mimeType, "mpeg"):
+		ext = ".mp3"
+	case strings.Contains(mimeType, "mp4"):
+		ext = ".mp4"
+	case strings.Contains(mimeType, "wav"):
+		ext = ".wav"
+	}
+
+	// Build multipart form
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	_ = writer.WriteField("model", transcriptionModel)
+	part, err := writer.CreateFormFile("file", "audio"+ext)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create form file", err)
+	}
+	if _, err := part.Write(audioData); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to write audio data", err)
+	}
+	writer.Close()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", openaiBaseURL+transcriptionEndpoint, &buf)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "transcription request failed", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to read transcription response", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", obj.ErrAiErrorf("transcription API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var result struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to parse transcription response", err)
+	}
+
+	return strings.TrimSpace(result.Text), nil
 }
 
 // ToolQuery sends a single text prompt and returns a text answer using a fast model.

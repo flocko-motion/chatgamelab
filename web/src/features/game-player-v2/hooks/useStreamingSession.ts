@@ -7,6 +7,7 @@ import type {
   StreamChunk,
   MessageStatus,
   GamePlayerState,
+  PlayerActionInput,
 } from "../types";
 import { mapApiMessageToScene } from "../types";
 
@@ -23,6 +24,8 @@ export const INITIAL_STATE: GamePlayerState = {
   errorObject: null,
   streamError: null,
   theme: null,
+  aiModel: null,
+  aiPlatform: null,
 };
 
 const POLL_INTERVAL = 3000;
@@ -53,6 +56,7 @@ export interface SessionAdapter {
     sessionId: string,
     message: string,
     statusFields: SceneMessage["statusFields"],
+    audio?: { base64: string; mimeType: string },
   ) => Promise<GameMessageResult>;
 
   /** Load an existing session by ID. Return the raw session response. */
@@ -69,6 +73,8 @@ export interface SessionCreateResult {
   gameDescription?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
+  aiModel?: string;
+  aiPlatform?: string;
 }
 
 export interface SessionLoadResult {
@@ -79,6 +85,8 @@ export interface SessionLoadResult {
   apiKeyId?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
+  aiModel?: string;
+  aiPlatform?: string;
 }
 
 export interface GameMessageResult {
@@ -88,6 +96,7 @@ export interface GameMessageResult {
   hasImage?: boolean;
   hasAudio?: boolean;
   statusFields?: SceneMessage["statusFields"];
+  transcription?: string;
 }
 
 /** Raw message shape from the API (before mapping to SceneMessage). */
@@ -543,6 +552,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
         statusFields: firstMessage.statusFields || [],
         isWaitingForResponse: true,
         theme: sessionResponse.theme || null,
+        aiModel: sessionResponse.aiModel || null,
+        aiPlatform: sessionResponse.aiPlatform || null,
       }));
 
       if (firstMessage.id && firstMessage.stream) {
@@ -591,13 +602,16 @@ export function useStreamingSession(adapter: SessionAdapter) {
   }, [connectToStream]);
 
   const sendAction = useCallback(
-    async (message: string) => {
+    async (input: PlayerActionInput) => {
       if (!state.sessionId || state.isWaitingForResponse) return;
+
+      const displayText =
+        input.message || (input.audioBase64 ? "\uD83C\uDFA4" : "");
 
       const playerMessage: SceneMessage = {
         id: crypto.randomUUID(),
         type: "player",
-        text: message,
+        text: displayText,
         timestamp: new Date(),
       };
 
@@ -615,10 +629,15 @@ export function useStreamingSession(adapter: SessionAdapter) {
       }));
 
       try {
+        const audio =
+          input.audioBase64 && input.audioMimeType
+            ? { base64: input.audioBase64, mimeType: input.audioMimeType }
+            : undefined;
         const gameResponse = await adapterRef.current.sendAction(
           state.sessionId,
-          message,
+          input.message || "",
           state.statusFields,
+          audio,
         );
 
         const sceneMessage = mapApiMessageToScene(gameResponse);
@@ -626,7 +645,12 @@ export function useStreamingSession(adapter: SessionAdapter) {
         setState((prev) => ({
           ...prev,
           messages: [
-            ...prev.messages,
+            // If the backend returned a transcription, update the player message text
+            ...prev.messages.map((msg) =>
+              msg.id === playerMessage.id && gameResponse.transcription
+                ? { ...msg, text: gameResponse.transcription }
+                : msg,
+            ),
             {
               ...sceneMessage,
               text: "",
@@ -706,7 +730,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     }));
 
     setTimeout(() => {
-      sendAction(failedMessage.text);
+      sendAction({ message: failedMessage.text });
     }, 0);
   }, [state.messages, sendAction]);
 
@@ -752,6 +776,8 @@ export function useStreamingSession(adapter: SessionAdapter) {
               : [],
           isWaitingForResponse: isInProgress,
           theme: session.theme || null,
+          aiModel: session.aiModel || null,
+          aiPlatform: session.aiPlatform || null,
         }));
 
         if (isInProgress && lastMessage?.id) {

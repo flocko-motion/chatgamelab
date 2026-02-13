@@ -210,11 +210,12 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 		return obj.ErrInvalidApiKey("session has no API key")
 	}
 
-	// Build the image prompt with style suffix
-	fullPrompt := *response.ImagePrompt + templates.ImagePromptSuffix
-	if session.ImageStyle != "" {
-		fullPrompt = fmt.Sprintf("%s Style: %s", fullPrompt, session.ImageStyle)
+	// Build rich image prompt with full context (setting, current scene, visual, style)
+	plotOutline := ""
+	if response.Plot != nil {
+		plotOutline = *response.Plot
 	}
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	modelInfo := p.ResolveModelInfo(session.AiModel)
 	imageModel := modelInfo.ImageModel
@@ -344,6 +345,11 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 	})
 
 	return models, nil
+}
+
+// TranscribeAudio is not supported on Mistral - no native STT API.
+func (p *MistralPlatform) TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	return "", fmt.Errorf("audio transcription is not supported on Mistral")
 }
 
 // ToolQuery sends a single text prompt and returns a text answer using a fast model.

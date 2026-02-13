@@ -183,6 +183,11 @@ func (p *MockPlatform) GenerateTheme(ctx context.Context, session *obj.GameSessi
 	return themes[rand.Intn(len(themes))], obj.TokenUsage{}, nil
 }
 
+// TranscribeAudio returns a mock transcription for testing
+func (p *MockPlatform) TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	return "mock transcribed audio input", nil
+}
+
 // ToolQuery returns a mock response for testing
 func (p *MockPlatform) ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error) {
 	return "mock-tool-query-response", nil

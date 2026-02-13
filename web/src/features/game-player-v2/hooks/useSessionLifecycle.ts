@@ -12,7 +12,7 @@ import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
 import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { useGameSession } from "./useGameSession";
-import type { GameInfo } from "../types";
+import type { GameInfo, PlayerActionInput } from "../types";
 
 interface UseSessionLifecycleOptions {
   gameId?: string;
@@ -42,7 +42,7 @@ export interface SessionLifecycle {
 
   // Navigation
   handleBack: () => void;
-  handleSendAction: (message: string) => Promise<void>;
+  handleSendAction: (input: PlayerActionInput) => Promise<void>;
 
   // Error detection
   isNoApiKeyError: boolean;
@@ -192,8 +192,8 @@ export function useSessionLifecycle({
   }, [state.streamError, clearStreamError]);
 
   const handleSendAction = useCallback(
-    async (message: string) => {
-      await sendAction(message);
+    async (input: PlayerActionInput) => {
+      await sendAction(input);
     },
     [sendAction],
   );

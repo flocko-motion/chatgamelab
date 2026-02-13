@@ -48,6 +48,33 @@ func ImageStyleOrDefault(style string) string {
 	return style
 }
 
+// BuildImagePrompt composes a rich prompt for image generation by combining
+// the game's description, the current plot outline, the AI's image prompt,
+// and the configured image style. This gives the image generator enough
+// context to produce scene-accurate illustrations.
+func BuildImagePrompt(gameDescription string, plotOutline string, imagePrompt string, imageStyle string) string {
+	var parts []string
+
+	if gameDescription != "" {
+		parts = append(parts, fmt.Sprintf("Setting: %s", gameDescription))
+	}
+	if plotOutline != "" {
+		parts = append(parts, fmt.Sprintf("Current scene: %s", plotOutline))
+	}
+	if imagePrompt != "" {
+		parts = append(parts, fmt.Sprintf("Visual: %s", imagePrompt))
+	}
+
+	prompt := strings.Join(parts, "\n")
+	prompt += ImagePromptSuffix
+
+	if imageStyle != "" {
+		prompt = fmt.Sprintf("%s\nStyle: %s", prompt, imageStyle)
+	}
+
+	return prompt
+}
+
 const systemTemplate = `You are a text-adventure game master API. You receive player actions and respond as the game world.
 
 Your role:
