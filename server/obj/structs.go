@@ -148,6 +148,7 @@ type ApiKey struct {
 	KeyShortened     string    `json:"keyShortened"`
 	IsDefault        bool      `json:"isDefault"`
 	LastUsageSuccess *bool     `json:"lastUsageSuccess"`
+	LastErrorCode    *string   `json:"lastErrorCode,omitempty"`
 }
 
 // ApiKeyShare represents how an API key is shared with a user, workshop, institution, or game.

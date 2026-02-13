@@ -98,6 +98,10 @@ const ERROR_CODE_I18N_MAP: Record<
     titleKey: "errors:titles.gameConfig",
     messageKey: "errors:invalidJsonSchema",
   },
+  [ErrorCodes.PREVIOUS_RESPONSE_NOT_FOUND]: {
+    titleKey: "errors:titles.aiError",
+    messageKey: "errors:previousResponseNotFound",
+  },
   [ErrorCodes.AI_ERROR]: {
     titleKey: "errors:titles.aiError",
     messageKey: "errors:aiError",

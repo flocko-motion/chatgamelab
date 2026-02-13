@@ -972,6 +972,7 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 				Key:              key.Key,
 				IsDefault:        key.IsDefault,
 				LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+				LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
 			}
 		}
 	}
@@ -1051,6 +1052,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 				Key:              key.Key,
 				IsDefault:        key.IsDefault,
 				LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
+				LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
 			}
 		}
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one

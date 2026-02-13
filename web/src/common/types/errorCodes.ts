@@ -27,6 +27,7 @@ export const ErrorCodes = {
   RATE_LIMIT_EXCEEDED: "rate_limit_exceeded",
   INSUFFICIENT_QUOTA: "insufficient_quota",
   CONTENT_FILTERED: "content_filtered",
+  PREVIOUS_RESPONSE_NOT_FOUND: "previous_response_not_found",
   AI_ERROR: "ai_error",
   // Client-side error codes (not from backend)
   NETWORK_ERROR: "network_error",

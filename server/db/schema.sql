@@ -189,7 +189,8 @@ CREATE TABLE api_key (
     platform        text NOT NULL, -- e.g. 'openai', 'anthropic', ..
     key             text NOT NULL,
     is_default      boolean NOT NULL DEFAULT false,
-    last_usage_success boolean NULL -- null=unknown, true=last usage succeeded, false=last usage failed
+    last_usage_success boolean NULL, -- null=unknown, true=last usage succeeded, false=last usage failed
+    last_error_code text NULL -- machine-readable error code from last failure, cleared on success
 );
 
 -- Only one default key per user (partial unique index on true values only)
