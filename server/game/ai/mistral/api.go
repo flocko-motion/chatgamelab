@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -195,6 +196,67 @@ func callImageConversationAPI(ctx context.Context, apiKey string, req ImageConve
 
 	log.Debug("image conversation API completed", "conversation_id", apiResp.ConversationID)
 	return &apiResp, nil
+}
+
+// callTranscriptionAPI sends audio data to Mistral's /audio/transcriptions endpoint.
+// Uses multipart form upload with model and file fields, returns the transcribed text.
+func callTranscriptionAPI(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	// Determine file extension from MIME type
+	ext := ".webm"
+	switch {
+	case strings.Contains(mimeType, "ogg"):
+		ext = ".ogg"
+	case strings.Contains(mimeType, "mp3") || strings.Contains(mimeType, "mpeg"):
+		ext = ".mp3"
+	case strings.Contains(mimeType, "mp4"):
+		ext = ".mp4"
+	case strings.Contains(mimeType, "wav"):
+		ext = ".wav"
+	}
+
+	// Build multipart form
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	_ = writer.WriteField("model", transcriptionModel)
+	part, err := writer.CreateFormFile("file", "audio"+ext)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create form file", err)
+	}
+	if _, err := part.Write(audioData); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to write audio data", err)
+	}
+	writer.Close()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", mistralBaseURL+transcriptionEndpoint, &buf)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "transcription request failed", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to read transcription response", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", obj.ErrAiErrorf("transcription API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var result struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to parse transcription response", err)
+	}
+
+	return strings.TrimSpace(result.Text), nil
 }
 
 // downloadFile downloads file content from the Mistral Files API.

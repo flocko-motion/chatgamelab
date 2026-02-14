@@ -552,7 +552,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// Set capability flags based on platform tier
 	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
 		response.HasImage = model.SupportsImage && functional.Deref(response.ImagePrompt, "") != "" && session.ImageStyle != templates.ImageStyleNoImage
-		response.HasAudio = model.SupportsAudio
+		response.HasAudioIn = model.SupportsAudioIn
+		response.HasAudioOut = model.SupportsAudioOut
 	}
 
 	// Persist AI session state immediately so the next action can find the conversation/response ID.
@@ -596,7 +597,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudio || len(response.Message) == 0 {
+		if !response.HasAudioOut || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)

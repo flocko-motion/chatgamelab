@@ -399,7 +399,9 @@
         "audioStop": "Send recording",
         "audioCancel": "Cancel recording",
         "audioRecording": "Recording…",
-        "audioProcessing": "Processing…"
+        "audioProcessing": "Processing…",
+        "audioUnavailableTitle": "Voice Input Not Available",
+        "audioUnavailableMessage": "Voice input is not available with the current API key settings. To use voice input, switch to a higher quality tier (Premium or Max)."
       },
       "loading": {
         "game": "Loading game...",

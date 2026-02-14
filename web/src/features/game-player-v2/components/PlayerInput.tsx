@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { IconPlayerPlay, IconMicrophone } from '@tabler/icons-react';
 import { useGameTheme, THEME_COLORS, CARD_BG_COLORS, FONT_COLORS } from '../theme';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
+import { showErrorModal } from '@/common/lib/globalErrorModal';
 import type { PlayerActionInput } from '../types';
 
 interface PlayerInputProps {
@@ -60,14 +61,22 @@ export function PlayerInput({ onSend, disabled = false, placeholder, audioEnable
 
   return (
     <Group gap="sm" wrap="nowrap">
-      {audioEnabled && recorder.isSupported && (
+      {recorder.isSupported && (
         <ActionIcon
           variant={isActive ? 'filled' : 'subtle'}
           size="lg"
           radius="xl"
+          onClick={() => {
+            if (!audioEnabled) {
+              showErrorModal({
+                title: t('gamePlayer.input.audioUnavailableTitle'),
+                message: t('gamePlayer.input.audioUnavailableMessage'),
+              });
+            }
+          }}
           onPointerDown={(e) => {
             e.preventDefault();
-            if (!disabled && !isActive) recorder.startRecording();
+            if (!disabled && !isActive && audioEnabled) recorder.startRecording();
           }}
           onPointerUp={() => { if (isRecording) recorder.stopRecording(); }}
           onPointerLeave={() => { if (isRecording) recorder.stopRecording(); }}
@@ -77,7 +86,7 @@ export function PlayerInput({ onSend, disabled = false, placeholder, audioEnable
           style={{
             background: isActive ? 'var(--mantine-color-red-6)' : undefined,
             color: isActive ? 'white' : playerFontColor,
-            opacity: disabled ? 0.55 : 1,
+            opacity: disabled || !audioEnabled ? 0.35 : 1,
             touchAction: 'none',
             transition: 'background 0.15s, color 0.15s',
           }}

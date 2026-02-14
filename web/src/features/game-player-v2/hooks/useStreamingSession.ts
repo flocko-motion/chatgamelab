@@ -94,7 +94,8 @@ export interface GameMessageResult {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
   transcription?: string;
 }
@@ -105,7 +106,8 @@ export interface RawMessage {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -546,7 +548,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
             text: "",
             isStreaming: true,
             isImageLoading: !!firstMessage.hasImage,
-            audioStatus: firstMessage.hasAudio ? "loading" : undefined,
+            audioStatus: firstMessage.hasAudioOut ? "loading" : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
@@ -656,7 +658,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudio ? "loading" : undefined,
+              audioStatus: gameResponse.hasAudioOut ? "loading" : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -765,7 +767,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   text: "",
                   isStreaming: true,
                   isImageLoading: !!msg.hasImage,
-                  audioStatus: msg.hasAudio ? "loading" : undefined,
+                  audioStatus: msg.hasAudioOut ? "loading" : undefined,
                 }
                 : msg,
             )

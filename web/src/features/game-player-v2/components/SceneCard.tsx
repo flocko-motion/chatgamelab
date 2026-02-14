@@ -64,8 +64,8 @@ export function SceneCard({
   const cornerStyleClass =
     cornerStyle !== "none"
       ? classes[
-          `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
-        ]
+      `corner${cornerStyle.charAt(0).toUpperCase() + cornerStyle.slice(1)}`
+      ]
       : "";
 
   const narrativeClasses = [
@@ -140,7 +140,7 @@ export function SceneCard({
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>
-        {message.hasAudio && (
+        {message.hasAudioOut && (
           <div style={{ position: "absolute", bottom: 12, right: 12 }}>
             <AudioPlayButton
               messageId={id}

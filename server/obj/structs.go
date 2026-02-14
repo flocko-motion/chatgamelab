@@ -298,14 +298,15 @@ type AiPlatform struct {
 }
 
 type AiModel struct {
-	ID            string `json:"id"`                      // generic tier: "high", "medium", "low", "max"
-	Name          string `json:"name"`                    // display name e.g. "GPT-5.2"
-	Model         string `json:"model"`                   // concrete model ID e.g. "gpt-5.2"
-	ImageModel    string `json:"imageModel,omitempty"`    // model used for image generation (if different from Model)
-	ImageQuality  string `json:"imageQuality,omitempty"`  // image quality: "high", "medium", "low" (default: "low")
-	Description   string `json:"description"`             // tier label e.g. "Premium"
-	SupportsImage bool   `json:"supportsImage,omitempty"` // whether this tier generates images
-	SupportsAudio bool   `json:"supportsAudio,omitempty"` // whether this tier generates audio (TTS)
+	ID               string `json:"id"`                         // generic tier: "high", "medium", "low", "max"
+	Name             string `json:"name"`                       // display name e.g. "GPT-5.2"
+	Model            string `json:"model"`                      // concrete model ID e.g. "gpt-5.2"
+	ImageModel       string `json:"imageModel,omitempty"`       // model used for image generation (if different from Model)
+	ImageQuality     string `json:"imageQuality,omitempty"`     // image quality: "high", "medium", "low" (default: "low")
+	Description      string `json:"description"`                // tier label e.g. "Premium"
+	SupportsImage    bool   `json:"supportsImage,omitempty"`    // whether this tier generates images
+	SupportsAudioIn  bool   `json:"supportsAudioIn,omitempty"`  // whether this tier supports voice input (STT transcription)
+	SupportsAudioOut bool   `json:"supportsAudioOut,omitempty"` // whether this tier generates audio narration (TTS)
 }
 
 const (
@@ -430,8 +431,9 @@ type GameSessionMessage struct {
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
 	Audio        []byte        `json:"audio,omitempty"`
-	HasImage     bool          `json:"hasImage"` // true when image generation is active for this message
-	HasAudio     bool          `json:"hasAudio"` // true when audio narration is active for this message
+	HasImage     bool          `json:"hasImage"`    // true when image generation is active for this message
+	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
+	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
 }
 

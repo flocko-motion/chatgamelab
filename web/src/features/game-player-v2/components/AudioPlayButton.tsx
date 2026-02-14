@@ -3,6 +3,7 @@ import { ActionIcon, Tooltip, Loader } from "@mantine/core";
 import { IconVolume, IconPlayerStop } from "@tabler/icons-react";
 import { config } from "@/config/env";
 import { apiLogger } from "@/config/logger";
+import { stopAllAudio, registerAudioSource } from "../lib/audioManager";
 
 type AudioState = "idle" | "loading" | "playing";
 
@@ -28,12 +29,15 @@ export function AudioPlayButton({
   const [state, setState] = useState<AudioState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fetchedUrlRef = useRef<string | null>(null);
+  const unregisterRef = useRef<(() => void) | null>(null);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+    unregisterRef.current?.();
+    unregisterRef.current = null;
     setState("idle");
   }, []);
 
@@ -45,6 +49,8 @@ export function AudioPlayButton({
 
     if (audioStatus === "loading") return;
 
+    // Stop any other audio (playback or recording) before we start
+    stopAllAudio();
     setState("loading");
 
     try {
@@ -64,21 +70,40 @@ export function AudioPlayButton({
 
       if (!audioRef.current) {
         audioRef.current = new Audio();
-        audioRef.current.addEventListener("ended", () => setState("idle"));
+        audioRef.current.addEventListener("ended", () => {
+          unregisterRef.current?.();
+          unregisterRef.current = null;
+          setState("idle");
+        });
         audioRef.current.addEventListener("error", () => {
           apiLogger.error("Audio playback error", { messageId });
+          unregisterRef.current?.();
+          unregisterRef.current = null;
           setState("idle");
         });
       }
 
       audioRef.current.src = url;
       await audioRef.current.play();
+      // Register so other audio sources can stop us
+      unregisterRef.current = registerAudioSource(stop);
       setState("playing");
     } catch (error) {
       apiLogger.error("Failed to play audio", { messageId, error });
       setState("idle");
     }
   }, [messageId, state, audioStatus, audioBlobUrl, stop]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      unregisterRef.current?.();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   // Auto-play when streamed audio becomes available
   const prevBlobUrlRef = useRef<string | undefined>(undefined);
