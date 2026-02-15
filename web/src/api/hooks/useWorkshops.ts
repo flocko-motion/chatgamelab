@@ -189,7 +189,10 @@ export function useCreateWorkshopInvite() {
 }
 
 /**
- * Hook to set workshop default API key for participants
+ * Hook to set workshop default API key for participants.
+ * Supports two flows:
+ * - apiKeyShareId: use an existing share (e.g. org-shared key)
+ * - apiKeyId: use a personal key (backend auto-creates a workshop-scoped share)
  */
 export function useSetWorkshopApiKey() {
   const api = useRequiredAuthenticatedApi();
@@ -198,10 +201,12 @@ export function useSetWorkshopApiKey() {
   return useMutation({
     mutationFn: async (data: {
       workshopId: string;
-      apiKeyShareId: string | null;
+      apiKeyShareId?: string | null;
+      apiKeyId?: string | null;
     }) => {
       const response = await api.workshops.apiKeyUpdate(data.workshopId, {
         apiKeyShareId: data.apiKeyShareId || undefined,
+        apiKeyId: data.apiKeyId || undefined,
       });
       return response.data;
     },

@@ -696,6 +696,7 @@ export interface RoutesSetUserRoleRequest {
 }
 
 export interface RoutesSetWorkshopApiKeyRequest {
+  apiKeyId?: string;
   apiKeyShareId?: string;
 }
 
