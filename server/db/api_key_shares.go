@@ -333,6 +333,20 @@ func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID u
 	return &result.ID, nil
 }
 
+// CreateWorkshopApiKeyShare creates a workshop-scoped share for a personal API key.
+// The user must own the key. Returns the new share ID.
+func CreateWorkshopApiKeyShare(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, workshopID uuid.UUID) (*uuid.UUID, error) {
+	key, err := queries().GetApiKeyByID(ctx, apiKeyID)
+	if err != nil {
+		return nil, obj.ErrNotFound("api key not found")
+	}
+	if key.UserID != userID {
+		return nil, obj.ErrForbidden("only the owner can share this key")
+	}
+
+	return createApiKeyShareInternal(ctx, userID, apiKeyID, nil, &workshopID, nil, nil, false)
+}
+
 // DeleteApiKeyShare deletes a single share.
 // Allowed by: key owner, share target user, or head/staff of the institution the share targets.
 func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) error {

@@ -270,9 +270,11 @@ func DeleteWorkshop(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// SetWorkshopApiKeyRequest represents the request to set a workshop's default API key
+// SetWorkshopApiKeyRequest represents the request to set a workshop's default API key.
+// Either apiKeyShareId (existing share) or apiKeyId (personal key, auto-creates workshop share) can be provided.
 type SetWorkshopApiKeyRequest struct {
 	ApiKeyShareID *string `json:"apiKeyShareId"`
+	ApiKeyID      *string `json:"apiKeyId"`
 }
 
 // SetWorkshopApiKey godoc
@@ -306,7 +308,25 @@ func SetWorkshopApiKey(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var apiKeyShareID *uuid.UUID
-	if req.ApiKeyShareID != nil && *req.ApiKeyShareID != "" {
+
+	if req.ApiKeyID != nil && *req.ApiKeyID != "" {
+		// Personal key flow: auto-create a workshop-scoped share
+		apiKeyID, err := uuid.Parse(*req.ApiKeyID)
+		if err != nil {
+			httpx.WriteAppError(w, obj.ErrValidation("Invalid API key ID"))
+			return
+		}
+		newShareID, err := db.CreateWorkshopApiKeyShare(r.Context(), user.ID, apiKeyID, id)
+		if err != nil {
+			if appErr, ok := err.(*obj.AppError); ok {
+				httpx.WriteAppError(w, appErr)
+				return
+			}
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to create workshop share: "+err.Error())
+			return
+		}
+		apiKeyShareID = newShareID
+	} else if req.ApiKeyShareID != nil && *req.ApiKeyShareID != "" {
 		parsed, err := uuid.Parse(*req.ApiKeyShareID)
 		if err != nil {
 			httpx.WriteAppError(w, obj.ErrValidation("Invalid API key share ID"))
