@@ -6,6 +6,7 @@ import (
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/game"
+	"cgl/log"
 	"cgl/obj"
 )
 
@@ -79,11 +80,16 @@ func PlayGuestCreateSession(w http.ResponseWriter, r *http.Request) {
 	// Body is optional — ignore parse errors (empty body is fine)
 	_ = httpx.ReadJSON(r, &req)
 
+	log.Debug("guest play: creating session", "token_prefix", token[:min(8, len(token))], "language", req.Language)
+
 	session, firstMessage, httpErr := game.CreateGuestSession(r.Context(), token, req.Language)
 	if httpErr != nil {
+		log.Debug("guest play: session creation failed", "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
+	log.Debug("guest play: session created", "session_id", session.ID, "message_id", firstMessage.ID)
+
 	// Strip sensitive fields from response
 	responseSession := *session
 	responseSession.ApiKey = nil

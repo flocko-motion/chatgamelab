@@ -50,6 +50,8 @@ func GetUserSessions(w http.ResponseWriter, r *http.Request) {
 		SortField: httpx.QueryParam(r, "sortBy"),
 	}
 
+	log.Debug("getting user sessions", "user_id", user.ID, "search", filters.Search, "sortBy", filters.SortField)
+
 	sessions, err := db.GetGameSessionsByUserID(r.Context(), user.ID, filters)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get sessions: "+err.Error())
@@ -83,6 +85,8 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 	if user != nil {
 		userID = &user.ID
 	}
+
+	log.Debug("getting session", "session_id", sessionID, "user_id", userID)
 
 	session, err := db.GetGameSessionByID(r.Context(), userID, sessionID)
 	if err != nil {
@@ -152,6 +156,8 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
+	log.Debug("session action request", "session_id", sessionID, "user_id", userID)
+
 	var req SessionActionRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -164,6 +170,8 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusNotFound, "Session not found")
 		return
 	}
+	log.Debug("[TRACE] session loaded from DB for action", "session_id", session.ID, "ai_session", session.AiSession, "platform", session.AiPlatform)
+
 	// Get current status fields from the latest message in the session
 	var currentStatus []obj.StatusField
 	latestMsg, err := db.GetLatestGameSessionMessage(r.Context(), *userID, sessionID)
@@ -182,12 +190,14 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Re-resolve API key and execute action with fallback retry logic
+	log.Debug("executing session action", "session_id", session.ID, "message_length", len(req.Message))
 	response, httpErr := game.DoSessionActionWithFallback(r.Context(), session, action)
 	if httpErr != nil {
 		log.Warn("session action failed", "session_id", session.ID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
+	log.Debug("session action completed", "session_id", session.ID, "response_id", response.ID)
 
 	// Return full message (without image/audio bytes - served via separate endpoints)
 	response.Image = nil
@@ -216,6 +226,8 @@ func GetGameSessions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
+	log.Debug("getting game sessions", "game_id", gameID, "user_id", user.ID)
+
 	sessions, err := db.GetGameSessionsByGameID(r.Context(), user.ID, gameID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get sessions: "+err.Error())
@@ -248,11 +260,15 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("creating game session", "game_id", gameID, "user_id", user.ID)
+
 	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID)
 	if httpErr != nil {
+		log.Debug("session creation failed", "game_id", gameID, "error", httpErr.Message)
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
+	log.Debug("session created", "game_id", gameID, "session_id", session.ID, "message_id", firstMessage.ID)
 
 	// Create a copy for response to avoid modifying session used by async goroutines
 	responseSession := *session
@@ -293,6 +309,8 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("deleting session", "session_id", sessionID, "user_id", user.ID)
+
 	if err := db.DeleteGameSession(r.Context(), user.ID, sessionID); err != nil {
 		if err.Error() == "access denied: not the owner of this session" {
 			httpx.WriteError(w, http.StatusForbidden, err.Error())
@@ -306,6 +324,7 @@ func DeleteSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("session deleted", "session_id", sessionID)
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "deleted"})
 }
 
@@ -334,6 +353,8 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("updating session API key", "session_id", sessionID, "user_id", user.ID)
+
 	session, err := db.ResolveAndUpdateGameSessionApiKey(r.Context(), user.ID, sessionID)
 	if err != nil {
 		if httpErr, ok := err.(*obj.HTTPError); ok {
@@ -344,6 +365,7 @@ func UpdateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("session updated", "session_id", sessionID)
 	httpx.WriteJSON(w, http.StatusOK, session)
 }
 
@@ -630,53 +652,36 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Stream chunks to client until text, image, and audio are all done
-	log.Debug("[SSE] client connected", "message_id", messageID, "buffered_chunks", len(s.Chunks), "closed", s.IsClosed())
+	log.Debug("[SSE] client connected", "message_id", messageID)
 	textDone := false
 	imageDone := false
 	audioDone := false
 	chunkCount := 0
 
-	// Detect client disconnect
-	clientGone := r.Context().Done()
+	for chunk := range s.Chunks {
+		chunkCount++
+		data, _ := json.Marshal(chunk)
+		log.Debug("[SSE] sending chunk to client", "message_id", messageID, "chunk_num", chunkCount, "text_len", len(chunk.Text), "textDone", chunk.TextDone, "imageDone", chunk.ImageDone, "audioDone", chunk.AudioDone)
+		fmt.Fprintf(w, "data: %s\n\n", data)
+		flusher.Flush()
 
-	for {
-		select {
-		case <-clientGone:
-			log.Warn("[SSE] client disconnected", "message_id", messageID, "chunks_sent", chunkCount, "textDone", textDone, "imageDone", imageDone, "audioDone", audioDone)
-			// Don't Remove the stream — producers are still writing.
-			// The stream will be cleaned up when it completes normally or by the timeout.
-			return
-		case chunk, ok := <-s.Chunks:
-			if !ok {
-				log.Debug("[SSE] channel closed", "message_id", messageID, "chunks_sent", chunkCount)
-				goto done
-			}
-			chunkCount++
-			data, _ := json.Marshal(chunk)
-			fmt.Fprintf(w, "data: %s\n\n", data)
-			flusher.Flush()
-
-			if chunk.TextDone {
-				textDone = true
-			}
-			if chunk.ImageDone {
-				imageDone = true
-			}
-			if chunk.AudioDone {
-				audioDone = true
-			}
-			if chunk.Error != "" {
-				goto done
-			}
-			// Stream is complete when all active channels are done
-			if textDone && imageDone && audioDone {
-				goto done
-			}
+		if chunk.TextDone {
+			textDone = true
+		}
+		if chunk.ImageDone {
+			imageDone = true
+		}
+		if chunk.AudioDone {
+			audioDone = true
+		}
+		if chunk.Error != "" {
+			break
+		}
+		// Stream is complete when all active channels are done
+		if textDone && imageDone && audioDone {
+			break
 		}
 	}
-
-done:
-	log.Debug("[SSE] stream completed", "message_id", messageID, "chunks", chunkCount, "textDone", textDone, "imageDone", imageDone, "audioDone", audioDone)
 
 	// Cleanup
 	registry.Remove(messageID)

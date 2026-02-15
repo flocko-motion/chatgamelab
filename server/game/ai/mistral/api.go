@@ -85,6 +85,7 @@ func callConversationsAPI(ctx context.Context, apiKey string, req ConversationsA
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
+	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	return &apiResp, usage, nil
 }
 
@@ -100,6 +101,7 @@ func callConversationsAppendAPI(ctx context.Context, apiKey string, conversation
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
+	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	return &apiResp, usage, nil
 }
 
@@ -147,6 +149,7 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 		}
 		data := strings.TrimPrefix(line, "data: ")
 		if data == "[DONE]" {
+			log.Debug("[STREAM] received [DONE]", "total_lines", lineCount)
 			break
 		}
 
@@ -155,29 +158,39 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 			Type string `json:"type"`
 		}
 		if err := json.Unmarshal([]byte(data), &event); err != nil {
+			log.Debug("[STREAM] unparseable SSE event", "data", data[:min(len(data), 300)])
 			continue
 		}
 
 		switch event.Type {
 		case "message.output.delta":
+			log.Debug("[STREAM] raw delta event", "data", data[:min(len(data), 500)])
 			var delta sseOutputDelta
-			if err := json.Unmarshal([]byte(data), &delta); err == nil && delta.Content != "" {
-				textBuilder.WriteString(delta.Content)
-				responseStream.SendText(delta.Content, false)
+			if err := json.Unmarshal([]byte(data), &delta); err != nil {
+				log.Debug("[STREAM] delta unmarshal error", "error", err)
+			} else {
+				log.Debug("[STREAM] delta parsed", "content_len", len(delta.Content), "content_preview", delta.Content[:min(len(delta.Content), 100)])
+				if delta.Content != "" {
+					textBuilder.WriteString(delta.Content)
+					responseStream.SendText(delta.Content, false)
+				}
 			}
 		case "conversation.response.done":
+			log.Debug("[STREAM] raw done event", "data", data[:min(len(data), 500)])
 			var done sseResponseDone
 			if err := json.Unmarshal([]byte(data), &done); err == nil {
 				usage = done.Usage.toTokenUsage()
 				if done.ConversationID != "" {
 					newConversationID = done.ConversationID
 				}
+				log.Debug("[STREAM] response done", "usage", usage, "conversation_id", done.ConversationID)
 			}
 		default:
-			// Ignore other event types (e.g. conversation.response.started)
+			log.Debug("[STREAM] unhandled event type", "type", event.Type, "data_len", len(data))
 		}
 	}
 
+	log.Debug("streaming API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	// Signal text streaming complete
 	responseStream.SendText("", true)
 	return textBuilder.String(), newConversationID, usage, nil

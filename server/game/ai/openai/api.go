@@ -43,6 +43,7 @@ func callResponsesAPI(ctx context.Context, apiKey string, req ResponsesAPIReques
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
+	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	return &apiResp, usage, nil
 }
 
@@ -109,6 +110,7 @@ func callStreamingResponsesAPI(ctx context.Context, apiKey string, req Responses
 		}
 	}
 
+	log.Debug("streaming API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	// Signal text streaming complete
 	responseStream.SendText("", true)
 	return textBuilder.String(), responseID, usage, nil

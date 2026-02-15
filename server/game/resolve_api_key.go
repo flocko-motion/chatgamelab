@@ -75,6 +75,7 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
 	}
 
+	log.Debug("resolved API key candidates", "user_id", userID, "game_id", gameID, "count", len(candidates))
 	return candidates, nil
 }
 
@@ -147,6 +148,7 @@ func resolveWorkshopKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShare, 
 		return nil, nil
 	}
 
+	log.Debug("resolved workshop key", "workshop_id", user.Role.Workshop.ID, "share_id", share.ID, "platform", share.ApiKey.Platform, "tier", workshop.AiQualityTier)
 	return share, workshop.AiQualityTier
 }
 
@@ -163,6 +165,7 @@ func resolveSponsoredGameKey(ctx context.Context, userID uuid.UUID, gameID uuid.
 		return nil
 	}
 
+	log.Debug("resolved sponsored game key", "game_id", gameID, "share_id", share.ID, "platform", share.ApiKey.Platform)
 	return share
 }
 
@@ -189,6 +192,7 @@ func resolveInstitutionFreeUseKey(ctx context.Context, user *obj.User) (*obj.Api
 		return share, nil
 	}
 
+	log.Debug("resolved institution free-use key", "institution_id", institution.ID, "share_id", share.ID, "platform", share.ApiKey.Platform, "tier", institution.FreeUseAiQualityTier)
 	return share, institution.FreeUseAiQualityTier
 }
 
@@ -205,6 +209,7 @@ func resolveSystemFreeUseKey(ctx context.Context, settings *obj.SystemSettings) 
 		return nil, nil
 	}
 
+	log.Debug("resolved system free-use key", "api_key_id", apiKey.ID, "platform", apiKey.Platform, "tier", settings.FreeUseAiQualityTier)
 	return &obj.ApiKeyShare{
 		ApiKeyID: apiKey.ID,
 		ApiKey:   apiKey,
@@ -224,5 +229,6 @@ func resolveUserDefaultKey(ctx context.Context, user *obj.User) (*obj.ApiKeyShar
 		return nil, nil
 	}
 
+	log.Debug("resolved user default key", "key_id", defaultKey.ID, "share_id", share.ID, "platform", defaultKey.Platform, "tier", user.AiQualityTier)
 	return share, user.AiQualityTier
 }

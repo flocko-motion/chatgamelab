@@ -145,6 +145,8 @@ func UpdateUserLanguage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Debug("updating user language", "user_id", user.ID, "language", req.Language)
+
 	err := db.UpdateUserLanguage(ctx, user.ID, user.ID, req.Language)
 	if err != nil {
 		log.Error("failed to update user language", "user_id", user.ID, "error", err)
@@ -183,6 +185,8 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
+
+	log.Debug("getting user by ID", "user_id", targetID, "requested_by", currentUser.ID)
 
 	// Permission check: own profile, admin, or head/staff for org members
 	if err := db.CanReadUser(r.Context(), currentUser.ID, targetID); err != nil {
@@ -223,6 +227,8 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
+
+	log.Debug("updating user", "target_user_id", userID, "current_user_id", currentUser.ID)
 
 	// Permission check: self, admin, or staff/head managing participants in their institution
 	canUpdate := false

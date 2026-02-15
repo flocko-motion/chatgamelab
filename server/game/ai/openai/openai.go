@@ -82,6 +82,7 @@ func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
+	log.Debug("OpenAI ExecuteAction starting", "session_id", session.ID, "action_type", action.Type, "model", model)
 
 	if session.ApiKey == nil {
 		return obj.TokenUsage{}, obj.ErrInvalidApiKey("session has no API key")
@@ -135,6 +136,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	}
 
 	// Make the API call
+	log.Debug("calling OpenAI Responses API", "model", req.Model, "has_previous_response", req.PreviousResponseID != "")
 	apiResponse, usage, err := callResponsesAPI(ctx, session.ApiKey.Key, req)
 	if err != nil {
 		log.Error("OpenAI API call failed",
@@ -144,6 +146,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		)
 		return obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "OpenAI API error", err)
 	}
+	log.Debug("OpenAI API call completed", "response_id", apiResponse.ID, "status", apiResponse.Status)
 
 	if apiResponse.Status != "completed" {
 		incompleteReason := ""
@@ -184,6 +187,7 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 	response.ResponseRaw = &responseText
 
 	// Parse the AI response and convert to internal format
+	log.Debug("parsing AI response", "response_length", len(responseText), "response_text", responseText)
 	if err := status.ParseGameResponse(responseText, session.StatusFields, action.StatusFields, response); err != nil {
 		log.Error("failed to parse game response", "error", err, "response_text", responseText)
 		return usage, err
@@ -234,6 +238,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	}
 
 	// Make streaming API call
+	log.Debug("calling OpenAI streaming API for story expansion")
 	fullText, newResponseID, usage, err := callStreamingResponsesAPI(ctx, session.ApiKey.Key, req, responseStream)
 	if err != nil {
 		// For story expansion, partial text is still usable - don't fail if we got some output
@@ -253,6 +258,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 			return usage, obj.WrapError(obj.ErrCodeAiError, "OpenAI streaming API error", err)
 		}
 	}
+	log.Debug("story expansion completed", "text_length", len(fullText), "new_response_id", newResponseID)
 
 	// Update response with full text
 	response.Message = fullText
@@ -284,6 +290,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	if imageQuality == "" {
 		imageQuality = "low"
 	}
+	log.Debug("generating image", "prompt_length", len(*response.ImagePrompt), "style", session.ImageStyle, "image_model", imageModel, "image_quality", imageQuality)
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
@@ -310,6 +317,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 
 		return obj.WrapError(obj.ErrCodeAiError, "OpenAI image generation error", err)
 	}
+	log.Debug("image generation completed", "image_size", len(imageData))
 
 	// Update response with final image
 	response.Image = imageData
@@ -331,6 +339,7 @@ func (p *OpenAiPlatform) GenerateAudio(ctx context.Context, session *obj.GameSes
 		return nil, obj.WrapError(obj.ErrCodeAiError, "OpenAI TTS error", err)
 	}
 
+	log.Debug("TTS generation completed", "audio_bytes", len(audioData))
 	return audioData, nil
 }
 
@@ -529,6 +538,8 @@ func (p *OpenAiPlatform) ToolQuery(ctx context.Context, apiKey string, prompt st
 
 // GenerateTheme generates a visual theme JSON for the game player UI
 func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSession, systemPrompt, userPrompt string) (string, obj.TokenUsage, error) {
+	log.Debug("OpenAI GenerateTheme starting", "session_id", session.ID)
+
 	if session.ApiKey == nil {
 		return "", obj.TokenUsage{}, obj.ErrInvalidApiKey("session has no API key")
 	}
@@ -580,6 +591,7 @@ func (p *OpenAiPlatform) GenerateTheme(ctx context.Context, session *obj.GameSes
 		if output.Type == "message" {
 			for _, content := range output.Content {
 				if content.Type == "output_text" || content.Type == "text" {
+					log.Debug("OpenAI GenerateTheme completed", "response_length", len(content.Text))
 					return content.Text, usage, nil
 				}
 			}

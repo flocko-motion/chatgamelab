@@ -44,6 +44,7 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 	sortDir := r.URL.Query().Get("sortDir")
 	filter := r.URL.Query().Get("filter")
 
+	log.Debug("listing games", "user_id", userID, "search", searchQuery, "sortBy", sortBy, "sortDir", sortDir, "filter", filter)
 	filters := &db.GetGamesFilters{
 		Search:    searchQuery,
 		SortField: sortBy,
@@ -104,7 +105,9 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 		game.Public = *req.Public
 	}
 
+	log.Debug("creating game", "user_id", user.ID, "name", game.Name)
 	if err := db.CreateGame(r.Context(), user.ID, &game); err != nil {
+		log.Debug("game creation failed", "error", err)
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
 			return
@@ -112,6 +115,8 @@ func CreateGame(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create game: "+err.Error())
 		return
 	}
+	log.Debug("game created", "game_id", game.ID)
+
 	created, err := db.GetGameByID(r.Context(), &user.ID, game.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load created game: "+err.Error())
@@ -145,6 +150,8 @@ func GetGameByID(w http.ResponseWriter, r *http.Request) {
 		userID = &user.ID
 	}
 
+	log.Debug("getting game by ID", "game_id", gameID, "user_id", userID)
+
 	game, err := db.GetGameByID(r.Context(), userID, gameID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Game not found")
@@ -177,6 +184,8 @@ func UpdateGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
+
+	log.Debug("updating game", "game_id", gameID, "user_id", user.ID)
 
 	var updatedGame obj.Game
 	if err := httpx.ReadJSON(r, &updatedGame); err != nil {
@@ -231,6 +240,8 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 
 	user := httpx.UserFromRequest(r)
 
+	log.Debug("deleting game", "game_id", gameID, "user_id", user.ID)
+
 	deleted, err := db.GetGameByID(r.Context(), &user.ID, gameID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Game not found")
@@ -238,9 +249,12 @@ func DeleteGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.DeleteGame(r.Context(), user.ID, gameID); err != nil {
+		log.Debug("game deletion failed", "game_id", gameID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete game: "+err.Error())
 		return
 	}
+	log.Debug("game deleted", "game_id", gameID)
+
 	httpx.WriteJSON(w, http.StatusOK, deleted)
 }
 
@@ -266,6 +280,8 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
+
+	log.Debug("cloning game", "game_id", gameID, "user_id", user.ID)
 
 	// Get the source game (allow cloning public games or own games)
 	sourceGame, err := db.GetGameByID(r.Context(), nil, gameID)
@@ -305,13 +321,18 @@ func CloneGame(w http.ResponseWriter, r *http.Request) {
 		OriginallyCreatedBy:    originalCreator,
 	}
 
+	log.Debug("creating cloned game", "user_id", user.ID, "source_game_id", gameID, "name", clonedGame.Name)
 	if err := db.CreateGame(r.Context(), user.ID, &clonedGame); err != nil {
+		log.Debug("game clone failed", "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to clone game: "+err.Error())
 		return
 	}
+	log.Debug("game cloned", "new_game_id", clonedGame.ID)
+
 	// Increment the clone count on the source game
 	if err := db.IncrementGameCloneCount(r.Context(), gameID); err != nil {
-		log.Warn("failed to increment clone count", "error", err)
+		log.Debug("failed to increment clone count", "error", err)
+		// Don't fail the request, just log the error
 	}
 
 	created, err := db.GetGameByID(r.Context(), &user.ID, clonedGame.ID)
