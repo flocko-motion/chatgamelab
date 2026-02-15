@@ -35,7 +35,6 @@ import {
   IconChevronRight,
   IconUser,
   IconCalendar,
-  IconKey,
   IconLink,
   IconClock,
   IconLogin,
@@ -54,7 +53,6 @@ import {
   useDeleteWorkshop,
   useCreateWorkshopInvite,
   useRevokeInvite,
-  useInstitutionApiKeys,
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
@@ -70,6 +68,7 @@ import { PlusIconButton } from "@/common/components/buttons";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { WorkshopApiKeySelect } from "./WorkshopApiKeySelect";
 import {
   ObjRole,
   type ObjWorkshop,
@@ -161,8 +160,6 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
     sortDir,
     activeOnly: hideInactive || undefined,
   });
-  // Use institution API keys - only keys shared with the organization should be available for workshops
-  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
   const createWorkshop = useCreateWorkshop();
   const updateWorkshop = useUpdateWorkshop();
   const deleteWorkshop = useDeleteWorkshop();
@@ -172,15 +169,6 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
-
-  // Build API key options for select - only institution-shared keys
-  const apiKeyOptions = [
-    { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
-    ...(institutionApiKeys?.map((key) => ({
-      value: key.id || "",
-      label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
-    })) || []),
-  ];
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -229,9 +217,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
 
   const handleSetApiKey = async (
     workshopId: string,
-    apiKeyShareId: string | null,
+    data: { apiKeyShareId?: string | null; apiKeyId?: string | null },
   ) => {
-    await setWorkshopApiKey.mutateAsync({ workshopId, apiKeyShareId });
+    await setWorkshopApiKey.mutateAsync({ workshopId, ...data });
   };
 
   const handleOpenDeleteModal = (workshop: ObjWorkshop) => {
@@ -722,23 +710,19 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                       {/* Default API Key Section */}
                       <Stack gap="xs">
                         <Group gap="xs">
-                          <IconKey size={14} />
                           <Text size="sm" fw={500}>
                             {t("myOrganization.workshops.defaultApiKey")}
                           </Text>
                         </Group>
-                        <Select
-                          size="xs"
-                          data={apiKeyOptions}
-                          value={workshop.defaultApiKeyShareId || ""}
-                          onChange={(value) =>
-                            handleSetApiKey(workshop.id!, value || null)
+                        <WorkshopApiKeySelect
+                          institutionId={institutionId}
+                          workshopId={workshop.id!}
+                          value={workshop.defaultApiKeyShareId || null}
+                          onChange={(data) =>
+                            handleSetApiKey(workshop.id!, data)
                           }
-                          placeholder={t(
-                            "myOrganization.workshops.selectApiKey",
-                          )}
-                          clearable
                           disabled={setWorkshopApiKey.isPending}
+                          size="xs"
                         />
                         <Text size="xs" c="dimmed">
                           {t("myOrganization.workshops.defaultApiKeyHint")}

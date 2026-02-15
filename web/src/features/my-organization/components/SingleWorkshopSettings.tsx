@@ -27,7 +27,6 @@ import {
   IconAlertCircle,
   IconUser,
   IconCalendar,
-  IconKey,
   IconLink,
   IconClock,
   IconPlayerPlay,
@@ -40,12 +39,12 @@ import {
   useUpdateWorkshop,
   useCreateWorkshopInvite,
   useRevokeInvite,
-  useInstitutionApiKeys,
   useSetWorkshopApiKey,
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
 } from "@/api/hooks";
+import { WorkshopApiKeySelect } from "./WorkshopApiKeySelect";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
@@ -89,7 +88,6 @@ export function SingleWorkshopSettings({
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
 
-  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
   const updateWorkshop = useUpdateWorkshop();
   const createInvite = useCreateWorkshopInvite();
   const revokeInvite = useRevokeInvite();
@@ -97,15 +95,6 @@ export function SingleWorkshopSettings({
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
-
-  // Build API key options for select - only institution-shared keys
-  const apiKeyOptions = [
-    { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
-    ...(institutionApiKeys?.map((key) => ({
-      value: key.id || "",
-      label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
-    })) || []),
-  ];
 
   const aiQualityTierOptions = getAiQualityTierOptions(t, {
     includeEmpty: true,
@@ -129,8 +118,11 @@ export function SingleWorkshopSettings({
     closeInviteLinkModal();
   };
 
-  const handleSetApiKey = async (apiKeyShareId: string | null) => {
-    await setWorkshopApiKey.mutateAsync({ workshopId, apiKeyShareId });
+  const handleSetApiKey = async (data: {
+    apiKeyShareId?: string | null;
+    apiKeyId?: string | null;
+  }) => {
+    await setWorkshopApiKey.mutateAsync({ workshopId, ...data });
   };
 
   // Participant handlers
@@ -310,21 +302,17 @@ export function SingleWorkshopSettings({
           {/* Default API Key Section */}
           <Stack gap="xs">
             <Group gap="xs">
-              <IconKey size={14} />
               <Text size="sm" fw={500}>
                 {t("myOrganization.workshops.defaultApiKey")}
               </Text>
             </Group>
-            <Select
-              size="sm"
-              data={apiKeyOptions}
-              value={workshop.defaultApiKeyShareId || ""}
-              onChange={(value: string | null) =>
-                handleSetApiKey(value || null)
-              }
-              placeholder={t("myOrganization.workshops.selectApiKey")}
-              clearable
+            <WorkshopApiKeySelect
+              institutionId={institutionId}
+              workshopId={workshopId}
+              value={workshop.defaultApiKeyShareId || null}
+              onChange={handleSetApiKey}
               disabled={setWorkshopApiKey.isPending}
+              size="sm"
             />
             <Text size="xs" c="dimmed">
               {t("myOrganization.workshops.defaultApiKeyHint")}
