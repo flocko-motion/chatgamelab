@@ -814,6 +814,17 @@ func (u *UserClient) SetWorkshopApiKey(workshopID string, apiKeyShareID *string)
 	return result, err
 }
 
+// SetWorkshopApiKeyByKeyId sets a personal API key as the workshop default (composable high-level API)
+// This auto-creates a workshop-scoped share on the backend.
+func (u *UserClient) SetWorkshopApiKeyByKeyId(workshopID string, apiKeyID string) (obj.Workshop, error) {
+	u.t.Helper()
+	var result obj.Workshop
+	err := u.Put("workshops/"+workshopID+"/api-key", routes.SetWorkshopApiKeyRequest{
+		ApiKeyID: &apiKeyID,
+	}, &result)
+	return result, err
+}
+
 // SetActiveWorkshop sets the user's active workshop context (composable high-level API)
 // Pass nil to leave workshop mode.
 func (u *UserClient) SetActiveWorkshop(workshopID *string) (obj.User, error) {
