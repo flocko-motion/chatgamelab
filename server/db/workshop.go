@@ -638,6 +638,25 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		return nil, err
 	}
 
+	// If the workshop currently has a default key share, check if it's a workshop-specific
+	// share (not an org share). If so, auto-delete it since it was created solely for this workshop
+	// — but only if no other workshops also reference it.
+	if existing.DefaultApiKeyShareID.Valid {
+		oldShareID := existing.DefaultApiKeyShareID.UUID
+		// Only clean up if we're actually changing the share (not setting the same one)
+		shouldCleanup := apiKeyShareID == nil || *apiKeyShareID != oldShareID
+		if shouldCleanup {
+			oldShare, err := queries().GetApiKeyShareByID(ctx, oldShareID)
+			if err == nil && oldShare.WorkshopID.Valid && !oldShare.InstitutionID.Valid {
+				// This is a workshop-specific share — only delete if no other workshops use it
+				count, countErr := queries().CountWorkshopsUsingShare(ctx, uuid.NullUUID{UUID: oldShareID, Valid: true})
+				if countErr == nil && count <= 1 {
+					_ = queries().DeleteApiKeyShare(ctx, oldShareID)
+				}
+			}
+		}
+	}
+
 	// Build params
 	arg := db.SetWorkshopDefaultApiKeyParams{
 		ID:         workshopID,

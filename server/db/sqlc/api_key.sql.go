@@ -118,6 +118,18 @@ func (q *Queries) ClearWorkshopDefaultApiKeyShareByShareID(ctx context.Context, 
 	return err
 }
 
+const countWorkshopsUsingShare = `-- name: CountWorkshopsUsingShare :one
+SELECT COUNT(*) FROM workshop WHERE default_api_key_share_id = $1 AND deleted_at IS NULL
+`
+
+// Count how many workshops reference a given share as their default API key
+func (q *Queries) CountWorkshopsUsingShare(ctx context.Context, defaultApiKeyShareID uuid.NullUUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countWorkshopsUsingShare, defaultApiKeyShareID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (

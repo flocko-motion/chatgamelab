@@ -202,6 +202,10 @@ DELETE FROM api_key_share s
 WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
   AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2);
 
+-- name: CountWorkshopsUsingShare :one
+-- Count how many workshops reference a given share as their default API key
+SELECT COUNT(*) FROM workshop WHERE default_api_key_share_id = $1 AND deleted_at IS NULL;
+
 -- name: UpdateApiKeyShareAllowPublicGameSponsoring :exec
 UPDATE api_key_share
 SET allow_public_game_sponsoring = $2, modified_at = now()
