@@ -13,6 +13,8 @@ interface AudioPlayButtonProps {
   audioStatus?: "loading" | "ready";
   /** Blob URL from streamed audio data (set by SSE consumer) */
   audioBlobUrl?: string;
+  /** Global narration mute state from player settings */
+  isAudioMuted: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export function AudioPlayButton({
   messageId,
   audioStatus,
   audioBlobUrl,
+  isAudioMuted,
 }: AudioPlayButtonProps) {
   const [state, setState] = useState<AudioState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -47,7 +50,7 @@ export function AudioPlayButton({
       return;
     }
 
-    if (audioStatus === "loading") return;
+    if (audioStatus === "loading" || isAudioMuted) return;
 
     // Stop any other audio (playback or recording) before we start
     stopAllAudio();
@@ -92,7 +95,13 @@ export function AudioPlayButton({
       apiLogger.error("Failed to play audio", { messageId, error });
       setState("idle");
     }
-  }, [messageId, state, audioStatus, audioBlobUrl, stop]);
+  }, [messageId, state, audioStatus, audioBlobUrl, isAudioMuted, stop]);
+
+  useEffect(() => {
+    if (isAudioMuted) {
+      stop();
+    }
+  }, [isAudioMuted, stop]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -108,11 +117,16 @@ export function AudioPlayButton({
   // Auto-play when streamed audio becomes available
   const prevBlobUrlRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (audioBlobUrl && !prevBlobUrlRef.current && state === "idle") {
+    if (
+      !isAudioMuted &&
+      audioBlobUrl &&
+      !prevBlobUrlRef.current &&
+      state === "idle"
+    ) {
       play();
     }
     prevBlobUrlRef.current = audioBlobUrl;
-  }, [audioBlobUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [audioBlobUrl, isAudioMuted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Still generating - show spinner
   if (audioStatus === "loading") {

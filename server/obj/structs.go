@@ -252,12 +252,16 @@ type GameSession struct {
 	ID   uuid.UUID `json:"id"`
 	Meta Meta      `json:"meta"`
 
-	GameID          uuid.UUID  `json:"gameId"`
-	GameName        string     `json:"gameName"`
-	GameDescription string     `json:"gameDescription"`
-	UserID          uuid.UUID  `json:"userId"`
-	WorkshopID      *uuid.UUID `json:"workshopId,omitempty"`
-	UserName        string     `json:"userName"`
+	GameID          uuid.UUID `json:"gameId"`
+	GameName        string    `json:"gameName"`
+	GameDescription string    `json:"gameDescription"`
+	GameScenario    string    `json:"gameScenario"`
+	// Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+	// Persisted indirectly via AiSession cache, not as its own DB column.
+	GameScenarioImagePrompt string     `json:"gameScenarioImagePrompt,omitempty"`
+	UserID                  uuid.UUID  `json:"userId"`
+	WorkshopID              *uuid.UUID `json:"workshopId,omitempty"`
+	UserName                string     `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
 	// Nullable: key may be deleted, session can continue with a new key.
 	ApiKeyID *uuid.UUID `json:"apiKeyId,omitempty"`

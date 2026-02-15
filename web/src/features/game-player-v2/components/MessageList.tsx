@@ -13,6 +13,7 @@ interface MessageListProps {
   messages: SceneMessage[];
   isWaitingForResponse: boolean;
   isImageGenerationDisabled: boolean;
+  isAudioMuted: boolean;
   apiKeyUnavailable?: boolean;
   audioEnabled?: boolean;
   onSendAction: (input: PlayerActionInput) => Promise<void>;
@@ -23,6 +24,7 @@ export function MessageList({
   messages,
   isWaitingForResponse,
   isImageGenerationDisabled,
+  isAudioMuted,
   apiKeyUnavailable,
   audioEnabled,
   onSendAction,
@@ -61,6 +63,7 @@ export function MessageList({
           key={message.id}
           message={message}
           showImages={showImages}
+          isAudioMuted={isAudioMuted}
           previousStatusFields={previousGameStatusFields}
           systemPrompt={isFirstGameMessage ? systemPromptText : undefined}
           isFirstGameMessage={isFirstGameMessage}

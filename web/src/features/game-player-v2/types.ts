@@ -124,6 +124,8 @@ export interface StreamError {
 export interface GamePlayerState {
   phase: GamePhase;
   sessionId: string | null;
+  /** Fixed language of this game session (e.g. "en", "de") */
+  sessionLanguage: string | null;
   gameInfo: GameInfo | null;
   messages: SceneMessage[];
   statusFields: ObjStatusField[];

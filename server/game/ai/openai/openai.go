@@ -289,12 +289,13 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
-	// Build rich image prompt with full context (setting, current scene, visual, style)
+	// Build rich image prompt with full context (idea, scenario, current scene, visual, style)
 	plotOutline := ""
 	if response.Plot != nil {
 		plotOutline = *response.Plot
 	}
-	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+	scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	// Build image generation request - writes to cache for polling
 	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)

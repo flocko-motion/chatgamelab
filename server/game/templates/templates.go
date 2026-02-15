@@ -27,12 +27,14 @@ const (
 	// to reinforce brevity constraints that the model tends to forget over long conversations.
 	ReminderExecuteAction = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
 
+	// PromptCondenseScenarioForImage is used with ToolQuery to compress long game
+	// scenarios into a short, stable setting context for image generation prompts.
+	// The %s placeholder is replaced with the full game scenario.
+	PromptCondenseScenarioForImage = "Summarize this game scenario into one short scene-guidance line for image generation.\nRules:\n- Max 20 words\n- Focus on stable setting/theme (era, location, atmosphere)\n- No specific actions or plot events\n- Return ONLY the summary line\n\nScenario:\n%s"
+
 	// promptNarratePlotOutlineTemplate is the template for the narration prompt.
 	// The %s placeholder is replaced with the target language name.
 	promptNarratePlotOutlineTemplate = "NARRATE the summary into prose in the players language (%s). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
-
-	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
-	ImagePromptSuffix = ". Scenery only, do not depict the player character."
 
 	// Schema field descriptions and max lengths for BuildResponseSchema
 	SchemaMessageMaxLength       = 400
@@ -56,29 +58,32 @@ func ImageStyleOrDefault(style string) string {
 	return style
 }
 
-// BuildImagePrompt composes a rich prompt for image generation by combining
-// the game's description, the current plot outline, the AI's image prompt,
-// and the configured image style. This gives the image generator enough
-// context to produce scene-accurate illustrations.
-func BuildImagePrompt(gameDescription string, plotOutline string, imagePrompt string, imageStyle string) string {
+// BuildImagePrompt composes an instruction-oriented prompt for image generation.
+// It explicitly states that the model is creating scene illustrations for a
+// text-adventure game, then provides scenario, current scene, visual details,
+// and optional style guidance.
+func BuildImagePrompt(gameDescription string, gameScenario string, plotOutline string, imagePrompt string, imageStyle string) string {
 	var parts []string
+	parts = append(parts, "You are generating scene illustrations for a text-adventure game.")
 
 	if gameDescription != "" {
-		parts = append(parts, fmt.Sprintf("Setting: %s", gameDescription))
+		parts = append(parts, fmt.Sprintf("The game idea is: %s", gameDescription))
+	}
+	if gameScenario != "" {
+		parts = append(parts, fmt.Sprintf("The game scenario is: %s", gameScenario))
 	}
 	if plotOutline != "" {
-		parts = append(parts, fmt.Sprintf("Current scene: %s", plotOutline))
+		parts = append(parts, fmt.Sprintf("The current scene is: %s", plotOutline))
 	}
 	if imagePrompt != "" {
-		parts = append(parts, fmt.Sprintf("Visual: %s", imagePrompt))
+		parts = append(parts, fmt.Sprintf("The visual should show: %s", imagePrompt))
 	}
+	if imageStyle != "" {
+		parts = append(parts, fmt.Sprintf("The artistic style should be: %s", imageStyle))
+	}
+	parts = append(parts, "Important: Scenery only, do not depict the player character.")
 
 	prompt := strings.Join(parts, "\n")
-	prompt += ImagePromptSuffix
-
-	if imageStyle != "" {
-		prompt = fmt.Sprintf("%s\nStyle: %s", prompt, imageStyle)
-	}
 
 	return prompt
 }

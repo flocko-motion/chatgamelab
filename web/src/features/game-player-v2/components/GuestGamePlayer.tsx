@@ -94,6 +94,8 @@ export function GuestGamePlayer({
 
   if (stateScreen) return stateScreen;
 
+  const hasAudioOut = lifecycle.state.messages.some((m) => !!m.hasAudioOut);
+
   const contextValue: GamePlayerContextValue = {
     state: lifecycle.state,
     startSession: lifecycle.startSession,
@@ -128,8 +130,12 @@ export function GuestGamePlayer({
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}
+            sessionLanguage={lifecycle.state.sessionLanguage}
             aiModel={lifecycle.state.aiModel}
             aiPlatform={lifecycle.state.aiPlatform}
+            hasAudioOut={hasAudioOut}
+            isAudioMuted={settings.isAudioMuted}
+            onToggleAudioMuted={settings.toggleAudioMuted}
             fontSize={settings.fontSize}
             increaseFontSize={settings.increaseFontSize}
             decreaseFontSize={settings.decreaseFontSize}
@@ -159,6 +165,7 @@ export function GuestGamePlayer({
               messages={lifecycle.state.messages}
               isWaitingForResponse={lifecycle.state.isWaitingForResponse}
               isImageGenerationDisabled={settings.isImageGenerationDisabled}
+              isAudioMuted={settings.isAudioMuted}
               apiKeyUnavailable={false}
               onSendAction={lifecycle.handleSendAction}
               onRetryLastAction={lifecycle.retryLastAction}

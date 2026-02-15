@@ -388,8 +388,10 @@
         "disableTextEffects": "Disable text effects",
         "fontSize": "Font size",
         "increaseFont": "Larger",
+        "muteAudio": "Mute narration",
         "resetFont": "Reset",
         "settings": "Settings",
+        "unmuteAudio": "Unmute narration",
         "useNeutralTheme": "Use neutral theme"
       },
       "input": {

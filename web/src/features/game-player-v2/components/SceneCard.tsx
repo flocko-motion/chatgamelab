@@ -14,6 +14,7 @@ import classes from "./GamePlayer.module.css";
 interface SceneCardProps {
   message: SceneMessage;
   showImages: boolean;
+  isAudioMuted: boolean;
   previousStatusFields?: ObjStatusField[];
   /** System prompt text to show on the first game message */
   systemPrompt?: string;
@@ -34,6 +35,7 @@ const FONT_SIZE_MAP = {
 export function SceneCard({
   message,
   showImages,
+  isAudioMuted,
   previousStatusFields,
   systemPrompt,
   isFirstGameMessage,
@@ -140,12 +142,13 @@ export function SceneCard({
             {isStreaming && text.length > 0 && <StreamingIndicator />}
           </div>
         </div>
-        {message.hasAudioOut && (
+        {message.hasAudioOut && !isAudioMuted && (
           <div style={{ position: "absolute", bottom: 12, right: 12 }}>
             <AudioPlayButton
               messageId={id}
               audioStatus={message.audioStatus}
               audioBlobUrl={message.audioBlobUrl}
+              isAudioMuted={isAudioMuted}
             />
           </div>
         )}

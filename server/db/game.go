@@ -666,6 +666,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		GameID:          result.GameID,
 		GameName:        game.Name,
 		GameDescription: game.Description,
+		GameScenario:    game.SystemMessageScenario,
 		UserID:          result.UserID,
 		WorkshopID:      nullUUIDToPtr(result.WorkshopID),
 		ApiKeyID:        nullUUIDToPtr(result.ApiKeyID),
@@ -961,6 +962,7 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 	if err == nil {
 		session.GameName = game.Name
 		session.GameDescription = game.Description
+		session.GameScenario = game.SystemMessageScenario
 	}
 
 	if s.ApiKeyID.Valid {
@@ -1040,6 +1042,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	if err == nil {
 		session.GameName = game.Name
 		session.GameDescription = game.Description
+		session.GameScenario = game.SystemMessageScenario
 	}
 
 	// Load API key (if present - may be null if the key was deleted)

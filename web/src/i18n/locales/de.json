@@ -388,8 +388,10 @@
         "disableTextEffects": "Texteffekte deaktivieren",
         "fontSize": "Schriftgröße",
         "increaseFont": "Größer",
+        "muteAudio": "Erzaehlton ausschalten",
         "resetFont": "Zurücksetzen",
         "settings": "Einstellungen",
+        "unmuteAudio": "Erzaehlton einschalten",
         "useNeutralTheme": "Neutrales Design verwenden"
       },
       "input": {

@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import type { FontSize } from "../context";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
+import { stopAllAudio } from "../lib/audioManager";
 
 const FONT_SIZES: FontSize[] = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl"];
 
@@ -35,6 +36,10 @@ export interface GamePlayerSettings {
   // Image generation
   isImageGenerationDisabled: boolean;
   disableImageGeneration: (errorCode: string) => void;
+
+  // Audio narration
+  isAudioMuted: boolean;
+  toggleAudioMuted: () => void;
 }
 
 export function useGamePlayerSettings(): GamePlayerSettings {
@@ -49,6 +54,7 @@ export function useGamePlayerSettings(): GamePlayerSettings {
   const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] =
     useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
 
   const openLightbox = useCallback((url: string, alt?: string) => {
     setLightboxImage({ url, alt });
@@ -85,6 +91,16 @@ export function useGamePlayerSettings(): GamePlayerSettings {
     showErrorModal({ code: errorCode });
   }, []);
 
+  const toggleAudioMuted = useCallback(() => {
+    setIsAudioMuted((current) => {
+      const next = !current;
+      if (next) {
+        stopAllAudio();
+      }
+      return next;
+    });
+  }, []);
+
   return {
     lightboxImage,
     openLightbox,
@@ -103,5 +119,7 @@ export function useGamePlayerSettings(): GamePlayerSettings {
     setUseNeutralTheme,
     isImageGenerationDisabled,
     disableImageGeneration,
+    isAudioMuted,
+    toggleAudioMuted,
   };
 }

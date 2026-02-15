@@ -232,12 +232,13 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 		return obj.ErrInvalidApiKey("session has no API key")
 	}
 
-	// Build rich image prompt with full context (setting, current scene, visual, style)
+	// Build rich image prompt with full context (idea, scenario, current scene, visual, style)
 	plotOutline := ""
 	if response.Plot != nil {
 		plotOutline = *response.Plot
 	}
-	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+	scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	modelInfo := p.ResolveModelInfo(session.AiModel)
 	imageModel := modelInfo.ImageModel

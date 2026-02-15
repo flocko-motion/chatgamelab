@@ -4,7 +4,7 @@ import { queryKeys } from "@/api/queryKeys";
 import { useAuthenticatedApi } from "@/api/useAuthenticatedApi";
 import { apiLogger } from "@/config/logger";
 import { isStaticLanguage, DEFAULT_LANGUAGE } from "../../i18n/config";
-import languagesData from "../../i18n/locales/languages.json";
+import { LANGUAGE_OPTIONS } from "../../i18n/languages";
 
 export const useBackendTranslation = (namespace = "common") => {
   const { t, i18n, ready } = useTranslation(namespace);
@@ -58,9 +58,9 @@ export const useLanguageSwitcher = () => {
     }
   };
 
-  const allLanguages = languagesData.map((lang) => ({
+  const allLanguages = LANGUAGE_OPTIONS.map((lang) => ({
     code: lang.code,
-    name: lang.label,
+    name: lang.name,
     isStatic: isStaticLanguage(lang.code),
   }));
 
