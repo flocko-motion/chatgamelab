@@ -24,3 +24,10 @@ go run github.com/swaggo/swag/cmd/swag@v1.16.3 init \
   --parseInternal
 
 echo "OpenAPI generated in ./docs"
+
+# Copy swagger.json to web directory for frontend API generation
+WEB_DIR="$ROOT_DIR/../web"
+if [ -d "$WEB_DIR" ]; then
+  cp "$DOCS_DIR/swagger.json" "$WEB_DIR/swagger.json"
+  echo "Copied swagger.json to $WEB_DIR"
+fi

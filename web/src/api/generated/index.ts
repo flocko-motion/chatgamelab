@@ -41,10 +41,18 @@ export interface DbUserSessionWithGame {
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
+  gameScenario?: string;
+  /**
+   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+   * Persisted indirectly via AiSession cache, not as its own DB column.
+   */
+  gameScenarioImagePrompt?: string;
   id?: string;
   imageStyle?: string;
   /** Set to true when image generation fails due to organization verification required */
   isOrganisationUnverified?: boolean;
+  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
+  language?: string;
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
@@ -69,12 +77,18 @@ export interface ObjAiModel {
   description?: string;
   /** generic tier: "high", "medium", "low", "max" */
   id?: string;
+  /** model used for image generation (if different from Model) */
+  imageModel?: string;
+  /** image quality: "high", "medium", "low" (default: "low") */
+  imageQuality?: string;
   /** concrete model ID e.g. "gpt-5.2" */
   model?: string;
   /** display name e.g. "GPT-5.2" */
   name?: string;
-  /** whether this tier generates audio (TTS) */
-  supportsAudio?: boolean;
+  /** whether this tier supports voice input (STT transcription) */
+  supportsAudioIn?: boolean;
+  /** whether this tier generates audio narration (TTS) */
+  supportsAudioOut?: boolean;
   /** whether this tier generates images */
   supportsImage?: boolean;
 }
@@ -198,10 +212,18 @@ export interface ObjGameSession {
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
+  gameScenario?: string;
+  /**
+   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+   * Persisted indirectly via AiSession cache, not as its own DB column.
+   */
+  gameScenarioImagePrompt?: string;
   id?: string;
   imageStyle?: string;
   /** Set to true when image generation fails due to organization verification required */
   isOrganisationUnverified?: boolean;
+  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
+  language?: string;
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
@@ -215,8 +237,10 @@ export interface ObjGameSession {
 export interface ObjGameSessionMessage {
   audio?: number[];
   gameSessionId?: string;
-  /** true when audio narration is active for this message */
-  hasAudio?: boolean;
+  /** true when voice input (STT) is available for this session tier */
+  hasAudioIn?: boolean;
+  /** true when audio narration (TTS) is active for this message */
+  hasAudioOut?: boolean;
   /** true when image generation is active for this message */
   hasImage?: boolean;
   id?: string;
@@ -225,6 +249,7 @@ export interface ObjGameSessionMessage {
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
   meta?: ObjMeta;
+  plot?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -236,6 +261,11 @@ export interface ObjGameSessionMessage {
   statusFields?: ObjStatusField[];
   stream?: boolean;
   tokenUsage?: ObjTokenUsage;
+  /**
+   * Transcription holds the text result of audio-to-text conversion (transient, not persisted).
+   * Returned in the action response so the client can display what was recognized.
+   */
+  transcription?: string;
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
   urlAnalytics?: string;
@@ -458,10 +488,18 @@ export interface RoutesGuestSessionResponse {
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
+  gameScenario?: string;
+  /**
+   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+   * Persisted indirectly via AiSession cache, not as its own DB column.
+   */
+  gameScenarioImagePrompt?: string;
   id?: string;
   imageStyle?: string;
   /** Set to true when image generation fails due to organization verification required */
   isOrganisationUnverified?: boolean;
+  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
+  language?: string;
   messages?: RoutesSessionMessageResponse[];
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -555,6 +593,10 @@ export interface RoutesRolesResponse {
 }
 
 export interface RoutesSessionActionRequest {
+  /** Base64-encoded audio from voice input */
+  audioBase64?: string;
+  /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
+  audioMimeType?: string;
   message?: string;
   /** Current status to pass to AI */
   statusFields?: ObjStatusField[];
@@ -563,8 +605,10 @@ export interface RoutesSessionActionRequest {
 export interface RoutesSessionMessageResponse {
   audio?: number[];
   gameSessionId?: string;
-  /** true when audio narration is active for this message */
-  hasAudio?: boolean;
+  /** true when voice input (STT) is available for this session tier */
+  hasAudioIn?: boolean;
+  /** true when audio narration (TTS) is active for this message */
+  hasAudioOut?: boolean;
   /** true when image generation is active for this message */
   hasImage?: boolean;
   id?: string;
@@ -573,6 +617,7 @@ export interface RoutesSessionMessageResponse {
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
   meta?: ObjMeta;
+  plot?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -584,6 +629,11 @@ export interface RoutesSessionMessageResponse {
   statusFields?: ObjStatusField[];
   stream?: boolean;
   tokenUsage?: ObjTokenUsage;
+  /**
+   * Transcription holds the text result of audio-to-text conversion (transient, not persisted).
+   * Returned in the action response so the client can display what was recognized.
+   */
+  transcription?: string;
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
   urlAnalytics?: string;
@@ -604,10 +654,18 @@ export interface RoutesSessionResponse {
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
+  gameScenario?: string;
+  /**
+   * Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+   * Persisted indirectly via AiSession cache, not as its own DB column.
+   */
+  gameScenarioImagePrompt?: string;
   id?: string;
   imageStyle?: string;
   /** Set to true when image generation fails due to organization verification required */
   isOrganisationUnverified?: boolean;
+  /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
+  language?: string;
   messages?: ObjGameSessionMessage[];
   meta?: ObjMeta;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -752,10 +810,8 @@ export interface ApiConfig<SecurityDataType = unknown> {
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<
-  D extends unknown,
-  E extends unknown = unknown,
-> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -2020,7 +2076,7 @@ export class Api<
   };
   messages = {
     /**
-     * @description Returns the audio narration for a message (Ogg/Opus format). No authentication required - message UUIDs are random and unguessable.
+     * @description Returns the audio narration for a message (MP3 format). No authentication required - message UUIDs are random and unguessable.
      *
      * @tags messages
      * @name AudioList
