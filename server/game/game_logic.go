@@ -306,7 +306,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Generate system message from (possibly translated) game
-    log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
+	log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
 	systemMessage, err := templates.GetTemplate(game, user.Language)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
@@ -628,14 +628,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		defer unlock()
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
-		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
+		_, err := platform.ExpandStory(context.Background(), session, response, responseStream)
 		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
 			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
 		}
-		log.Debug("ExpandStory token usage", "session_id", session.ID, "input_tokens", expandUsage.InputTokens, "output_tokens", expandUsage.OutputTokens, "total_tokens", expandUsage.TotalTokens)
-
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
 		if err := db.UpdateGameSessionMessage(context.Background(), session.UserID, *response); err != nil {
@@ -649,7 +647,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudio || len(response.Message) == 0 {
+		if !response.HasAudioOut || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
 			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))

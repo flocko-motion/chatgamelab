@@ -7,6 +7,7 @@ import (
 	"cgl/obj"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // WorkshopEvents godoc
@@ -55,6 +56,10 @@ func WorkshopEvents(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "event: connected\ndata: {\"workshopId\":\"%s\"}\n\n", workshopID)
 	flusher.Flush()
 
+	// Heartbeat keeps the connection alive through proxies (nginx, Cloudflare, etc.)
+	heartbeat := time.NewTicker(30 * time.Second)
+	defer heartbeat.Stop()
+
 	// Stream events until client disconnects
 	for {
 		select {
@@ -68,6 +73,11 @@ func WorkshopEvents(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Fprintf(w, "event: %s\ndata: {}\n\n", event.Type)
 			}
+			flusher.Flush()
+
+		case <-heartbeat.C:
+			// SSE comment line — ignored by EventSource but resets proxy idle timers
+			fmt.Fprintf(w, ": keepalive\n\n")
 			flusher.Flush()
 
 		case <-r.Context().Done():

@@ -125,24 +125,21 @@ export function GamePlayerHeader({
           </Box>
         </Group>
         <Group gap="xs" wrap="nowrap">
-          {sessionLanguageLabel && (
+          {(sessionLanguageLabel || aiPlatform || aiModel) && (
             <Badge
               variant="light"
               color="gray"
               size="sm"
-              style={{ flexShrink: 0 }}
+              style={{ flexShrink: 0, height: "auto", padding: "4px 8px" }}
             >
-              {sessionLanguageLabel}
-            </Badge>
-          )}
-          {(aiPlatform || aiModel) && (
-            <Badge
-              variant="light"
-              color="gray"
-              size="sm"
-              style={{ flexShrink: 0 }}
-            >
-              {[aiPlatform, aiModel].filter(Boolean).join(" / ")}
+              <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.3 }}>
+                {(aiPlatform || aiModel) && (
+                  <span>{[aiPlatform, aiModel].filter(Boolean).join(" / ")}</span>
+                )}
+                {sessionLanguageLabel && (
+                  <span>{sessionLanguageLabel}</span>
+                )}
+              </Box>
             </Badge>
           )}
           {hasAudioOut && (
