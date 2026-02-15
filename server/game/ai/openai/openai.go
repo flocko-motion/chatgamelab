@@ -225,7 +225,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	req := ResponsesAPIRequest{
 		Model: model,
 		Input: []InputMessage{
-			{Role: "developer", Content: templates.PromptNarratePlotOutline},
+			{Role: "developer", Content: templates.PromptNarratePlotOutline(session.Language)},
 		},
 		Store:              true,
 		Stream:             true,

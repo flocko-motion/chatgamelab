@@ -3,6 +3,7 @@ package templates
 import (
 	"cgl/functional"
 	"cgl/game/status"
+	"cgl/lang"
 	"cgl/obj"
 	"encoding/json"
 	"fmt"
@@ -26,8 +27,9 @@ const (
 	// to reinforce brevity constraints that the model tends to forget over long conversations.
 	ReminderExecuteAction = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
 
-	// PromptNarratePlotOutline is sent after each JSON response to get prose narration
-	PromptNarratePlotOutline = "NARRATE the summary into prose. STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
+	// promptNarratePlotOutlineTemplate is the template for the narration prompt.
+	// The %s placeholder is replaced with the target language name.
+	promptNarratePlotOutlineTemplate = "NARRATE the summary into prose in the players language (%s). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next."
 
 	// ImagePromptSuffix is appended to every image generation prompt to avoid inconsistent player depictions.
 	ImagePromptSuffix = ". Scenery only, do not depict the player character."
@@ -40,6 +42,12 @@ const (
 	SchemaImagePromptMaxLength   = 250
 	SchemaImagePromptDescription = "Vivid description of the scene for image generation"
 )
+
+// PromptNarratePlotOutline returns the narration prompt with the target language injected.
+// languageCode is an ISO 639-1 code (e.g. "en", "de").
+func PromptNarratePlotOutline(languageCode string) string {
+	return fmt.Sprintf(promptNarratePlotOutlineTemplate, lang.GetLanguageName(languageCode))
+}
 
 func ImageStyleOrDefault(style string) string {
 	if style == "" {
@@ -88,7 +96,7 @@ Your role:
 RESPONSE PHASES:
 We communicate in alternating phases:
 1. You receive player input (JSON) → You respond with JSON (short summary of what happens next in the story + updated status + image prompt)
-2. I ask you to NARRATE → ` + PromptNarratePlotOutline + `
+2. I ask you to NARRATE → {{NARRATE_PROMPT}}
 
 ---
 PHASE 1: JSON RESPONSE
@@ -123,7 +131,7 @@ The scenario:
 {{SCENARIO}}
 {{GAME_START}}`
 
-func GetTemplate(game *obj.Game) (string, error) {
+func GetTemplate(game *obj.Game, languageCode string) (string, error) {
 	var statusFields []obj.StatusField
 	if game.StatusFields != "" {
 		if err := json.Unmarshal([]byte(game.StatusFields), &statusFields); err != nil {
@@ -153,6 +161,7 @@ func GetTemplate(game *obj.Game) (string, error) {
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_PLAYER}}", obj.GameSessionMessageTypePlayer)
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_SYSTEM}}", obj.GameSessionMessageTypeSystem)
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.SystemMessageScenario)
+	instructions = strings.ReplaceAll(instructions, "{{NARRATE_PROMPT}}", PromptNarratePlotOutline(languageCode))
 
 	// Append game start instructions if provided by the game creator
 	if game.SystemMessageGameStart != "" {

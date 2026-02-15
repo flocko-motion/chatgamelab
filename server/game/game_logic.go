@@ -283,7 +283,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Generate system message from (possibly translated) game
-	systemMessage, err := templates.GetTemplate(game)
+	systemMessage, err := templates.GetTemplate(game, user.Language)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
@@ -540,7 +540,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language))
 	if response.ImagePrompt != nil {
 		plotOutline := ""
 		if response.Plot != nil {
