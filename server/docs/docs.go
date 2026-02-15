@@ -6266,6 +6266,9 @@ const docTemplate = `{
         "routes.SetWorkshopApiKeyRequest": {
             "type": "object",
             "properties": {
+                "apiKeyId": {
+                    "type": "string"
+                },
                 "apiKeyShareId": {
                     "type": "string"
                 }
