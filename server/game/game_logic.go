@@ -66,6 +66,27 @@ func isKeyRelatedError(errorCode string) bool {
 	}
 }
 
+func buildScenarioImagePrompt(ctx context.Context, session *obj.GameSession, platform ai.AiPlatform) string {
+	rawScenario := strings.TrimSpace(session.GameScenario)
+	if rawScenario == "" {
+		return ""
+	}
+
+	// Keep short scenarios as-is.
+	if len(rawScenario) <= 500 || session.ApiKey == nil {
+		return rawScenario
+	}
+
+	prompt := fmt.Sprintf(templates.PromptCondenseScenarioForImage, rawScenario)
+	condensed, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt)
+	if err != nil {
+		log.Warn("ToolQuery scenario condensation failed, using original scenario", "session_id", session.ID, "error", err)
+		return ""
+	}
+
+	return strings.TrimSpace(condensed)
+}
+
 // sessionSetupResult holds the output of generateSessionSetup.
 type sessionSetupResult struct {
 	candidateIndex int               // index of the candidate that succeeded
@@ -283,7 +304,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	}
 
 	// Generate system message from (possibly translated) game
-	systemMessage, err := templates.GetTemplate(game)
+	systemMessage, err := templates.GetTemplate(game, user.Language)
 	if err != nil {
 		log.Debug("failed to get game template", "game_id", gameID, "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
@@ -299,6 +320,22 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Attach API key for response
 	session.ApiKey = share.ApiKey
+	prepareScenarioImagePrompt := func(s *obj.GameSession) {
+		if s == nil {
+			return
+		}
+		platform, platformErr := ai.GetAiPlatform(s.AiPlatform)
+		if platformErr != nil {
+			log.Warn("failed to get AI platform for scenario image prompt", "session_id", s.ID, "error", platformErr)
+			return
+		}
+		model := platform.ResolveModelInfo(s.AiModel)
+		if model == nil || !model.SupportsImage || s.ImageStyle == templates.ImageStyleNoImage {
+			return
+		}
+		s.GameScenarioImagePrompt = buildScenarioImagePrompt(ctx, s, platform)
+	}
+	prepareScenarioImagePrompt(session)
 
 	// First action: system message containing the game instructions.
 	// Start with the candidate that worked for theme generation; retry with remaining fallbacks on key errors.
@@ -334,6 +371,7 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 					continue
 				}
 				session.ApiKey = fallback.Share.ApiKey
+				prepareScenarioImagePrompt(session)
 
 				startAction.GameSessionID = session.ID
 				response, httpErr = DoSessionAction(ctx, session, startAction)
@@ -540,19 +578,21 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language))
 	if response.ImagePrompt != nil {
+		scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
 		plotOutline := ""
 		if response.Plot != nil {
 			plotOutline = functional.Deref(response.Plot, "")
 		}
-		response.PromptImageGeneration = functional.Ptr(templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle))
+		response.PromptImageGeneration = functional.Ptr(templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle))
 	}
 
 	// Set capability flags based on platform tier
 	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
 		response.HasImage = model.SupportsImage && functional.Deref(response.ImagePrompt, "") != "" && session.ImageStyle != templates.ImageStyleNoImage
-		response.HasAudio = model.SupportsAudio
+		response.HasAudioIn = model.SupportsAudioIn
+		response.HasAudioOut = model.SupportsAudioOut
 	}
 
 	// Persist AI session state immediately so the next action can find the conversation/response ID.
@@ -596,7 +636,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudio || len(response.Message) == 0 {
+		if !response.HasAudioOut || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)

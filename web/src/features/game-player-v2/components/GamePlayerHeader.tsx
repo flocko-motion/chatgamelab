@@ -11,6 +11,8 @@ import {
 import { useTranslation } from "react-i18next";
 import {
   IconArrowLeft,
+  IconVolume,
+  IconVolumeOff,
   IconTextIncrease,
   IconTextDecrease,
   IconTypography,
@@ -18,6 +20,7 @@ import {
   IconRestore,
 } from "@tabler/icons-react";
 import env from "@/config/env";
+import { getNativeLanguageName } from "@/i18n/languages";
 import type { FontSize } from "../context";
 import type { PartialGameTheme } from "../theme/types";
 import { useGameTheme } from "../theme";
@@ -27,10 +30,14 @@ import classes from "./GamePlayer.module.css";
 interface GamePlayerHeaderProps {
   gameName?: string;
   gameDescription?: string;
+  sessionLanguage?: string | null;
 
   // AI info
   aiModel?: string | null;
   aiPlatform?: string | null;
+  hasAudioOut?: boolean;
+  isAudioMuted: boolean;
+  onToggleAudioMuted: () => void;
 
   // Font size
   fontSize: FontSize;
@@ -68,8 +75,12 @@ function HeaderWithTheme({ children }: { children: React.ReactNode }) {
 export function GamePlayerHeader({
   gameName,
   gameDescription,
+  sessionLanguage,
   aiModel,
   aiPlatform,
+  hasAudioOut,
+  isAudioMuted,
+  onToggleAudioMuted,
   fontSize,
   increaseFontSize,
   decreaseFontSize,
@@ -85,6 +96,7 @@ export function GamePlayerHeader({
   onThemeChange,
 }: GamePlayerHeaderProps) {
   const { t } = useTranslation("common");
+  const sessionLanguageLabel = getNativeLanguageName(sessionLanguage);
 
   return (
     <HeaderWithTheme>
@@ -113,6 +125,16 @@ export function GamePlayerHeader({
           </Box>
         </Group>
         <Group gap="xs" wrap="nowrap">
+          {sessionLanguageLabel && (
+            <Badge
+              variant="light"
+              color="gray"
+              size="sm"
+              style={{ flexShrink: 0 }}
+            >
+              {sessionLanguageLabel}
+            </Badge>
+          )}
           {(aiPlatform || aiModel) && (
             <Badge
               variant="light"
@@ -122,6 +144,34 @@ export function GamePlayerHeader({
             >
               {[aiPlatform, aiModel].filter(Boolean).join(" / ")}
             </Badge>
+          )}
+          {hasAudioOut && (
+            <Tooltip
+              label={
+                isAudioMuted
+                  ? t("gamePlayer.header.unmuteAudio")
+                  : t("gamePlayer.header.muteAudio")
+              }
+              position="bottom"
+            >
+              <ActionIcon
+                variant="subtle"
+                color={isAudioMuted ? "violet" : "gray"}
+                aria-label={
+                  isAudioMuted
+                    ? t("gamePlayer.header.unmuteAudio")
+                    : t("gamePlayer.header.muteAudio")
+                }
+                size="lg"
+                onClick={onToggleAudioMuted}
+              >
+                {isAudioMuted ? (
+                  <IconVolumeOff size={18} />
+                ) : (
+                  <IconVolume size={18} />
+                )}
+              </ActionIcon>
+            </Tooltip>
           )}
           <Menu shadow="md" width={200} position="bottom-end">
             <Menu.Target>

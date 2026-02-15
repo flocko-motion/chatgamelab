@@ -36,8 +36,10 @@ export interface SceneMessage {
   errorCode?: string;
   /** Whether this message has image generation (set by backend based on platform capabilities) */
   hasImage?: boolean;
-  /** Whether this message has audio narration (set by backend based on platform capabilities) */
-  hasAudio?: boolean;
+  /** Whether voice input (STT) is available for this session tier (runtime capability, not persisted) */
+  hasAudioIn?: boolean;
+  /** Whether this message has audio narration (TTS, set by backend based on platform capabilities) */
+  hasAudioOut?: boolean;
   /** Audio narration status: 'loading' while TTS is generating, 'ready' when available */
   audioStatus?: 'loading' | 'ready';
   /** Blob URL for streamed audio data (available when audioStatus='ready') */
@@ -122,6 +124,8 @@ export interface StreamError {
 export interface GamePlayerState {
   phase: GamePhase;
   sessionId: string | null;
+  /** Fixed language of this game session (e.g. "en", "de") */
+  sessionLanguage: string | null;
   gameInfo: GameInfo | null;
   messages: SceneMessage[];
   statusFields: ObjStatusField[];
@@ -167,8 +171,9 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     isStreaming: msg.stream,
     isImageLoading: msg.stream && !!msg.hasImage,
     hasImage: msg.hasImage,
-    hasAudio: msg.hasAudio,
-    audioStatus: msg.hasAudio && !msg.stream ? 'ready' : undefined,
+    hasAudioIn: msg.hasAudioIn,
+    hasAudioOut: msg.hasAudioOut,
+    audioStatus: msg.hasAudioOut && !msg.stream ? 'ready' : undefined,
     imageStatus,
     imageHash,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),

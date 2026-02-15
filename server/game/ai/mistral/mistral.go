@@ -21,9 +21,31 @@ func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 		ID:   "mistral",
 		Name: "Mistral",
 		Models: []obj.AiModel{
-			{ID: obj.AiModelPremium, Name: "Mistral Large", Model: "mistral-large-latest", ImageModel: "mistral-small-latest", Description: "Premium", SupportsImage: true},
-			{ID: obj.AiModelBalanced, Name: "Mistral Medium", Model: "mistral-medium-latest", ImageModel: "mistral-small-latest", Description: "Balanced", SupportsImage: true},
-			{ID: obj.AiModelEconomy, Name: "Mistral Small", Model: "mistral-small-latest", ImageModel: "mistral-small-latest", Description: "Economy", SupportsImage: true},
+			{
+				ID:              obj.AiModelPremium,
+				Name:            "Mistral Large",
+				Model:           "mistral-large-latest",
+				ImageModel:      "mistral-small-latest",
+				Description:     "Premium",
+				SupportsImage:   true,
+				SupportsAudioIn: true,
+			},
+			{
+				ID:            obj.AiModelBalanced,
+				Name:          "Mistral Medium",
+				Model:         "mistral-medium-latest",
+				ImageModel:    "mistral-small-latest",
+				Description:   "Balanced",
+				SupportsImage: true,
+			},
+			{
+				ID:            obj.AiModelEconomy,
+				Name:          "Mistral Small",
+				Model:         "mistral-small-latest",
+				ImageModel:    "mistral-small-latest",
+				Description:   "Economy",
+				SupportsImage: true,
+			},
 		},
 	}
 }
@@ -156,7 +178,7 @@ func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSess
 	// Must explicitly set response_format to text to override the inherited json_schema from ExecuteAction
 	req := ConversationsAppendRequest{
 		Inputs: []InputMessage{
-			{Role: "user", Content: templates.PromptNarratePlotOutline},
+			{Role: "user", Content: templates.PromptNarratePlotOutline(session.Language)},
 		},
 		Store:  true,
 		Stream: true,
@@ -210,12 +232,13 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 		return obj.ErrInvalidApiKey("session has no API key")
 	}
 
-	// Build rich image prompt with full context (setting, current scene, visual, style)
+	// Build rich image prompt with full context (idea, scenario, current scene, visual, style)
 	plotOutline := ""
 	if response.Plot != nil {
 		plotOutline = *response.Plot
 	}
-	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+	scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	modelInfo := p.ResolveModelInfo(session.AiModel)
 	imageModel := modelInfo.ImageModel
@@ -347,9 +370,9 @@ func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.
 	return models, nil
 }
 
-// TranscribeAudio is not supported on Mistral - no native STT API.
+// TranscribeAudio transcribes audio data to text using Mistral's Voxtral transcription API.
 func (p *MistralPlatform) TranscribeAudio(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
-	return "", fmt.Errorf("audio transcription is not supported on Mistral")
+	return callTranscriptionAPI(ctx, apiKey, audioData, mimeType)
 }
 
 // ToolQuery sends a single text prompt and returns a text answer using a fast model.

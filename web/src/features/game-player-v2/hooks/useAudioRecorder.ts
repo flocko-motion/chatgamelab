@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { uiLogger } from "@/config/logger";
+import { stopAllAudio, registerAudioSource } from "../lib/audioManager";
 
 // ── Constants ────────────────────────────────────────────────────────────
 
@@ -82,6 +83,7 @@ export function useAudioRecorder(
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
   const pendingStopRef = useRef(false);
+  const unregisterRef = useRef<(() => void) | null>(null);
 
   const isSupported =
     typeof navigator !== "undefined" &&
@@ -104,6 +106,8 @@ export function useAudioRecorder(
     }
     mediaRecorderRef.current = null;
     chunksRef.current = [];
+    unregisterRef.current?.();
+    unregisterRef.current = null;
   }, []);
 
   const startRecording = useCallback(() => {
@@ -114,6 +118,9 @@ export function useAudioRecorder(
       setError("Audio recording is not supported in this browser");
       return;
     }
+
+    // Stop any other audio (playback or recording) before we start
+    stopAllAudio();
 
     setError(null);
     pendingStopRef.current = false;
@@ -169,6 +176,13 @@ export function useAudioRecorder(
         // Start recording
         recorder.start(250); // Collect data every 250ms
         startTimeRef.current = Date.now();
+        // Register so other audio sources can stop us
+        unregisterRef.current = registerAudioSource(() => {
+          if (mediaRecorderRef.current?.state === "recording") {
+            chunksRef.current = [];
+            mediaRecorderRef.current.stop();
+          }
+        });
         setState("recording");
 
         // If user already released the button during permission request, stop immediately

@@ -28,22 +28,24 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		Name: "OpenAI",
 		Models: []obj.AiModel{
 			{
-				ID:            obj.AiModelMax,
-				Name:          "GPT-5.2 + Audio",
-				Model:         "gpt-5.2",
-				ImageModel:    "gpt-image-1.5",
-				ImageQuality:  "medium",
-				Description:   "Highest + Audio",
-				SupportsImage: true,
-				SupportsAudio: true,
+				ID:               obj.AiModelMax,
+				Name:             "GPT-5.2 + Audio",
+				Model:            "gpt-5.2",
+				ImageModel:       "gpt-image-1.5",
+				ImageQuality:     "medium",
+				Description:      "Highest + Audio",
+				SupportsImage:    true,
+				SupportsAudioIn:  true,
+				SupportsAudioOut: true,
 			}, {
-				ID:            obj.AiModelPremium,
-				Name:          "GPT-5.2",
-				Model:         "gpt-5.2",
-				ImageModel:    "gpt-image-1.5",
-				ImageQuality:  "medium",
-				Description:   "Premium",
-				SupportsImage: true,
+				ID:              obj.AiModelPremium,
+				Name:            "GPT-5.2",
+				Model:           "gpt-5.2",
+				ImageModel:      "gpt-image-1.5",
+				ImageQuality:    "medium",
+				Description:     "Premium",
+				SupportsImage:   true,
+				SupportsAudioIn: true,
 			}, {
 				ID:            obj.AiModelBalanced,
 				Name:          "GPT-5.1",
@@ -223,7 +225,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	req := ResponsesAPIRequest{
 		Model: model,
 		Input: []InputMessage{
-			{Role: "developer", Content: templates.PromptNarratePlotOutline},
+			{Role: "developer", Content: templates.PromptNarratePlotOutline(session.Language)},
 		},
 		Store:              true,
 		Stream:             true,
@@ -287,12 +289,13 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	cache := imagecache.Get()
 	cache.Create(response.ID, imagecache.ImageSaverFunc(responseStream.ImageSaver))
 
-	// Build rich image prompt with full context (setting, current scene, visual, style)
+	// Build rich image prompt with full context (idea, scenario, current scene, visual, style)
 	plotOutline := ""
 	if response.Plot != nil {
 		plotOutline = *response.Plot
 	}
-	fullPrompt := templates.BuildImagePrompt(session.GameDescription, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
+	scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
+	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	// Build image generation request - writes to cache for polling
 	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)

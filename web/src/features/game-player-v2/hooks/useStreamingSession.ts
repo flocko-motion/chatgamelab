@@ -16,6 +16,7 @@ import { mapApiMessageToScene } from "../types";
 export const INITIAL_STATE: GamePlayerState = {
   phase: "idle",
   sessionId: null,
+  sessionLanguage: null,
   gameInfo: null,
   messages: [],
   statusFields: [],
@@ -71,6 +72,7 @@ export interface SessionCreateResult {
   gameId?: string;
   gameName?: string;
   gameDescription?: string;
+  language?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
   aiModel?: string;
@@ -82,6 +84,7 @@ export interface SessionLoadResult {
   gameId?: string;
   gameName?: string;
   gameDescription?: string;
+  language?: string;
   apiKeyId?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
@@ -94,7 +97,8 @@ export interface GameMessageResult {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
   transcription?: string;
 }
@@ -105,7 +109,8 @@ export interface RawMessage {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -546,11 +551,12 @@ export function useStreamingSession(adapter: SessionAdapter) {
             text: "",
             isStreaming: true,
             isImageLoading: !!firstMessage.hasImage,
-            audioStatus: firstMessage.hasAudio ? "loading" : undefined,
+            audioStatus: firstMessage.hasAudioOut ? "loading" : undefined,
           },
         ],
         statusFields: firstMessage.statusFields || [],
         isWaitingForResponse: true,
+        sessionLanguage: sessionResponse.language || null,
         theme: sessionResponse.theme || null,
         aiModel: sessionResponse.aiModel || null,
         aiPlatform: sessionResponse.aiPlatform || null,
@@ -656,7 +662,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudio ? "loading" : undefined,
+              audioStatus: gameResponse.hasAudioOut ? "loading" : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -765,7 +771,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   text: "",
                   isStreaming: true,
                   isImageLoading: !!msg.hasImage,
-                  audioStatus: msg.hasAudio ? "loading" : undefined,
+                  audioStatus: msg.hasAudioOut ? "loading" : undefined,
                 }
                 : msg,
             )
@@ -775,6 +781,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
               ? messages[messages.length - 1].statusFields || []
               : [],
           isWaitingForResponse: isInProgress,
+          sessionLanguage: session.language || null,
           theme: session.theme || null,
           aiModel: session.aiModel || null,
           aiPlatform: session.aiPlatform || null,

@@ -4705,6 +4705,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4789,8 +4796,12 @@ const docTemplate = `{
                     "description": "display name e.g. \"GPT-5.2\"",
                     "type": "string"
                 },
-                "supportsAudio": {
-                    "description": "whether this tier generates audio (TTS)",
+                "supportsAudioIn": {
+                    "description": "whether this tier supports voice input (STT transcription)",
+                    "type": "boolean"
+                },
+                "supportsAudioOut": {
+                    "description": "whether this tier generates audio narration (TTS)",
                     "type": "boolean"
                 },
                 "supportsImage": {
@@ -5062,6 +5073,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5114,8 +5132,12 @@ const docTemplate = `{
                 "gameSessionId": {
                     "type": "string"
                 },
-                "hasAudio": {
-                    "description": "true when audio narration is active for this message",
+                "hasAudioIn": {
+                    "description": "true when voice input (STT) is available for this session tier",
+                    "type": "boolean"
+                },
+                "hasAudioOut": {
+                    "description": "true when audio narration (TTS) is active for this message",
                     "type": "boolean"
                 },
                 "hasImage": {
@@ -5140,6 +5162,9 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
+                },
+                "plot": {
+                    "type": "string"
                 },
                 "requestExpandStory": {
                     "type": "string"
@@ -5172,6 +5197,10 @@ const docTemplate = `{
                 },
                 "tokenUsage": {
                     "$ref": "#/definitions/obj.TokenUsage"
+                },
+                "transcription": {
+                    "description": "Transcription holds the text result of audio-to-text conversion (transient, not persisted).\nReturned in the action response so the client can display what was recognized.",
+                    "type": "string"
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
@@ -5755,6 +5784,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5995,6 +6031,14 @@ const docTemplate = `{
         "routes.SessionActionRequest": {
             "type": "object",
             "properties": {
+                "audioBase64": {
+                    "description": "Base64-encoded audio from voice input",
+                    "type": "string"
+                },
+                "audioMimeType": {
+                    "description": "MIME type of the audio (e.g. \"audio/webm;codecs=opus\")",
+                    "type": "string"
+                },
                 "message": {
                     "type": "string"
                 },
@@ -6019,8 +6063,12 @@ const docTemplate = `{
                 "gameSessionId": {
                     "type": "string"
                 },
-                "hasAudio": {
-                    "description": "true when audio narration is active for this message",
+                "hasAudioIn": {
+                    "description": "true when voice input (STT) is available for this session tier",
+                    "type": "boolean"
+                },
+                "hasAudioOut": {
+                    "description": "true when audio narration (TTS) is active for this message",
                     "type": "boolean"
                 },
                 "hasImage": {
@@ -6045,6 +6093,9 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
+                },
+                "plot": {
+                    "type": "string"
                 },
                 "requestExpandStory": {
                     "type": "string"
@@ -6077,6 +6128,10 @@ const docTemplate = `{
                 },
                 "tokenUsage": {
                     "$ref": "#/definitions/obj.TokenUsage"
+                },
+                "transcription": {
+                    "description": "Transcription holds the text result of audio-to-text conversion (transient, not persisted).\nReturned in the action response so the client can display what was recognized.",
+                    "type": "string"
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
@@ -6115,6 +6170,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "gameName": {
+                    "type": "string"
+                },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
                     "type": "string"
                 },
                 "id": {

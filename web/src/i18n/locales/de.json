@@ -388,8 +388,10 @@
         "disableTextEffects": "Texteffekte deaktivieren",
         "fontSize": "Schriftgröße",
         "increaseFont": "Größer",
+        "muteAudio": "Erzaehlton ausschalten",
         "resetFont": "Zurücksetzen",
         "settings": "Einstellungen",
+        "unmuteAudio": "Erzaehlton einschalten",
         "useNeutralTheme": "Neutrales Design verwenden"
       },
       "input": {
@@ -399,7 +401,9 @@
         "audioStop": "Aufnahme senden",
         "audioCancel": "Aufnahme abbrechen",
         "audioRecording": "Aufnahme läuft\u2026",
-        "audioProcessing": "Verarbeitung\u2026"
+        "audioProcessing": "Verarbeitung\u2026",
+        "audioUnavailableTitle": "Spracheingabe nicht verfügbar",
+        "audioUnavailableMessage": "Spracheingabe ist mit den aktuellen API-Key-Einstellungen nicht verfügbar. Wechsle zu einer höheren Qualitätsstufe (Premium oder Max), um Spracheingabe zu nutzen."
       },
       "loading": {
         "game": "Spiel wird geladen...",

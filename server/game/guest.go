@@ -155,7 +155,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	}
 
 	// Generate system message from (possibly translated) game
-	systemMessage, err := templates.GetTemplate(game)
+	systemMessage, err := templates.GetTemplate(game, user.Language)
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
 	}

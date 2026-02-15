@@ -142,6 +142,7 @@ export function ThemePreview({ apiTheme }: ThemePreviewProps) {
       theme: apiTheme,
       aiModel: null,
       aiPlatform: null,
+      sessionLanguage: null,
     }),
     [messages, statusFields, apiTheme],
   );
@@ -225,6 +226,7 @@ function PreviewShell({
               messages={messages}
               isWaitingForResponse={true}
               isImageGenerationDisabled={true}
+              isAudioMuted={false}
               onSendAction={asyncNoop}
               onRetryLastAction={noop}
             />
