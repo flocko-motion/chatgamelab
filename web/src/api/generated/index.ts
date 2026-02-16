@@ -26,6 +26,15 @@ export enum ObjInviteStatus {
   InviteStatusRevoked = "revoked",
 }
 
+export enum ObjApiKeyType {
+  ApiKeyTypePersonal = "personal",
+  ApiKeyTypeWorkshop = "workshop",
+  ApiKeyTypeOrganizationFreeUse = "organization_free_use",
+  ApiKeyTypeChatGameLabFreeUse = "chatgamelab_free_use",
+  ApiKeyTypeSponsor = "sponsor",
+  ApiKeyTypePrivateShare = "private_share",
+}
+
 export interface DbUserSessionWithGame {
   aiModel?: string;
   /** AI model used for playing. */
@@ -38,6 +47,8 @@ export interface DbUserSessionWithGame {
    * Nullable: key may be deleted, session can continue with a new key.
    */
   apiKeyId?: string;
+  /** Type of API key used for this session */
+  apiKeyType?: ObjApiKeyType;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
@@ -209,6 +220,8 @@ export interface ObjGameSession {
    * Nullable: key may be deleted, session can continue with a new key.
    */
   apiKeyId?: string;
+  /** Type of API key used for this session */
+  apiKeyType?: ObjApiKeyType;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
@@ -235,6 +248,8 @@ export interface ObjGameSession {
 }
 
 export interface ObjGameSessionMessage {
+  /** Type of API key used for this message */
+  apiKeyType?: ObjApiKeyType;
   audio?: number[];
   gameSessionId?: string;
   /** true when voice input (STT) is available for this session tier */
@@ -485,6 +500,8 @@ export interface RoutesGuestSessionResponse {
    * Nullable: key may be deleted, session can continue with a new key.
    */
   apiKeyId?: string;
+  /** Type of API key used for this session */
+  apiKeyType?: ObjApiKeyType;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;
@@ -603,6 +620,8 @@ export interface RoutesSessionActionRequest {
 }
 
 export interface RoutesSessionMessageResponse {
+  /** Type of API key used for this message */
+  apiKeyType?: ObjApiKeyType;
   audio?: number[];
   gameSessionId?: string;
   /** true when voice input (STT) is available for this session tier */
@@ -651,6 +670,8 @@ export interface RoutesSessionResponse {
    * Nullable: key may be deleted, session can continue with a new key.
    */
   apiKeyId?: string;
+  /** Type of API key used for this session */
+  apiKeyType?: ObjApiKeyType;
   gameDescription?: string;
   gameId?: string;
   gameName?: string;

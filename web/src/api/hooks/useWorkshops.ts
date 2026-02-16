@@ -222,6 +222,12 @@ export function useSetWorkshopApiKey() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.workshop(variables.workshopId),
       });
+      // Invalidate institution API keys to fetch newly created workshop-specific shares
+      if (updatedWorkshop.institution?.id) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.institutionApiKeys(updatedWorkshop.institution.id),
+        });
+      }
     },
   });
 }
