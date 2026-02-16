@@ -93,14 +93,6 @@
   },
   "common": {
     "actions": "Actions",
-    "aiQualityTier": {
-      "max": "Max (Premium + Audio)",
-      "high": "High (Premium)",
-      "label": "AI Quality Tier",
-      "low": "Low (Economy)",
-      "medium": "Medium (Balanced)",
-      "serverDefault": "Server Default"
-    },
     "admin": {
       "invites": {
         "actions": "Actions",
@@ -211,6 +203,14 @@
         "title": "Manage Users"
       }
     },
+    "aiQualityTier": {
+      "high": "High (Premium)",
+      "label": "AI Quality Tier",
+      "low": "Low (Economy)",
+      "max": "Max (Premium + Audio)",
+      "medium": "Medium (Balanced)",
+      "serverDefault": "Server Default"
+    },
     "allGames": {
       "continue": "Play",
       "copyConfirm": {
@@ -242,20 +242,15 @@
       "unfavorite": "Remove from favorites"
     },
     "apiKeys": {
-      "aiQualityTier": {
-        "description": "Choose the AI quality level for your games when using your own API key. Higher tiers cost more but may have higher quality. Leave empty to use the server default."
-      },
       "aboutSection": {
         "description": "API keys are used to connect to AI platforms for generating game content. The selected key (marked with a checkmark) will be used by default when creating new game sessions.",
         "title": "About API Keys"
       },
       "addKey": "Add Key",
       "addedOn": "Added",
-      "currentDefault": {
-        "label": "Active API Key",
-        "none": "No default key configured. Add a key to get started."
+      "aiQualityTier": {
+        "description": "Choose the AI quality level for your games when using your own API key. Higher tiers cost more but may have higher quality. Leave empty to use the server default."
       },
-      "default": "Default",
       "createModal": {
         "keyDescription": "Your key will be encrypted and stored securely.",
         "keyLabel": "API Key",
@@ -267,6 +262,11 @@
         "submit": "Add Key",
         "title": "Add New API Key"
       },
+      "currentDefault": {
+        "label": "Active API Key",
+        "none": "No default key configured. Add a key to get started."
+      },
+      "default": "Default",
       "deleteModal": {
         "message": "Are you sure you want to delete \"{{name}}\"?",
         "title": "Delete API Key",
@@ -283,6 +283,22 @@
       "keys": "keys",
       "platform": "Platform",
       "setDefault": "Set as default",
+      "shares": {
+        "goToOrg": "Manage",
+        "noOrgShares": "Not shared with any organization",
+        "noSponsorships": "No game sponsorships",
+        "orgShares": "Organization Shares",
+        "privateShares": "Private Share Links",
+        "remaining": "{{count}} remaining",
+        "removeSponsor": "Remove sponsorship",
+        "revokePrivateShare": "Revoke share link",
+        "sponsorships": "Game Sponsorships",
+        "toggle": "Shares \u0026 Sponsorships",
+        "unknownGame": "Unknown game",
+        "unknownOrg": "Unknown organization",
+        "unknownUser": "Unknown user",
+        "unknownWorkshop": "Unknown workshop"
+      },
       "status": {
         "failed": "Key is not working",
         "unknown": "Key not yet used",
@@ -291,22 +307,6 @@
       "subtitle": "Manage your API keys for AI platforms.",
       "title": "API Key Management",
       "unnamed": "Unnamed Key",
-      "shares": {
-        "toggle": "Shares & Sponsorships",
-        "orgShares": "Organization Shares",
-        "sponsorships": "Game Sponsorships",
-        "noOrgShares": "Not shared with any organization",
-        "noSponsorships": "No game sponsorships",
-        "unknownOrg": "Unknown organization",
-        "unknownWorkshop": "Unknown workshop",
-        "unknownUser": "Unknown user",
-        "unknownGame": "Unknown game",
-        "goToOrg": "Manage",
-        "privateShares": "Private Share Links",
-        "remaining": "{{count}} remaining",
-        "removeSponsor": "Remove sponsorship",
-        "revokePrivateShare": "Revoke share link"
-      },
       "unsupportedPlatform": {
         "badge": "unsupported",
         "hint": "This platform is currently not supported. You can only remove existing keys."
@@ -319,8 +319,14 @@
     "create": "Create",
     "delete": "Delete",
     "deleteGame": "Delete Game",
+    "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
+    "demoteTitle": "Demote to Teacher",
+    "demoteToStaff": "Demote to Teacher",
     "edit": "Edit",
     "editGame": "Edit Game",
+    "email": "Email",
+    "emailPlaceholder": "Enter email address",
+    "empty": "No members in this organization.",
     "error": "Error",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
@@ -329,19 +335,19 @@
     },
     "gamePlayer": {
       "aiInsight": {
-        "title": "AI Request / Response",
-        "toggle": "AI Insight",
         "sections": {
-          "systemPrompt": "Game instructions for the AI",
+          "expandStory": "Instructions to the AI for writing out the story",
+          "imageGeneration": "Instructions from the AI for image generation",
+          "rawResponse": "Unprocessed AI response",
           "responseSchema": "Required structure of the AI response",
           "statusUpdate": "Prompt sent to AI",
-          "expandStory": "Instructions to the AI for writing out the story",
-          "rawResponse": "Unprocessed AI response",
-          "imageGeneration": "Instructions from the AI for image generation"
+          "systemPrompt": "Game instructions for the AI"
         },
+        "title": "AI Request / Response",
+        "toggle": "AI Insight",
         "tokens": {
-          "sent": "tokens sent",
-          "received": "tokens received"
+          "received": "tokens received",
+          "sent": "tokens sent"
         }
       },
       "debug": {
@@ -395,15 +401,15 @@
         "useNeutralTheme": "Use neutral theme"
       },
       "input": {
-        "placeholder": "What do you do?",
-        "send": "Send action",
+        "audioCancel": "Cancel recording",
+        "audioProcessing": "Processing…",
+        "audioRecording": "Recording…",
         "audioStart": "Record voice message",
         "audioStop": "Send recording",
-        "audioCancel": "Cancel recording",
-        "audioRecording": "Recording…",
-        "audioProcessing": "Processing…",
+        "audioUnavailableMessage": "Voice input is not available with the current API key settings. To use voice input, switch to a higher quality tier (Premium or Max).",
         "audioUnavailableTitle": "Voice Input Not Available",
-        "audioUnavailableMessage": "Voice input is not available with the current API key settings. To use voice input, switch to a higher quality tier (Premium or Max)."
+        "placeholder": "What do you do?",
+        "send": "Send action"
       },
       "loading": {
         "game": "Loading game...",
@@ -421,6 +427,13 @@
       "unnamed": "Unnamed"
     },
     "games": {
+      "actions": {
+        "delete": "Delete",
+        "edit": "Edit",
+        "export": "Export",
+        "play": "Play",
+        "view": "View"
+      },
       "badges": {
         "myGame": "My Game",
         "public": "Public",
@@ -463,105 +476,6 @@
           "title": "Unsaved Changes"
         }
       },
-      "actions": {
-        "delete": "Delete",
-        "edit": "Edit",
-        "export": "Export",
-        "play": "Play",
-        "view": "View"
-      },
-      "theme": {
-        "button": "Theme",
-        "changeDesign": "Change Design",
-        "modalTitle": "Game Theme",
-        "preset": "Preset",
-        "presetDescription": "Choose a visual style for your game",
-        "animation": "Background Animation",
-        "animationDescription": "Override the preset's default animation",
-        "animationDefault": "Preset default",
-        "thinkingText": "Thinking Text",
-        "thinkingTextDescription": "Text shown while the AI is thinking",
-        "thinkingTextPlaceholder": "e.g., The story unfolds...",
-        "preview": "Preview",
-        "apply": "Apply Theme",
-        "remove": "Remove Theme",
-        "removeConfirm": "Remove the custom theme? The AI will generate one per session instead.",
-        "currentTheme": "Theme: {{preset}}",
-        "noTheme": "No theme selected. The AI will generate the theme for each game session.",
-        "samplePlayer": "I open the old wooden door...",
-        "sampleGame": "The door creaks open, revealing a dimly lit chamber. Ancient runes glow faintly on the stone walls. A mysterious chest sits in the center of the room.",
-        "sampleGame2": "You carefully approach the chest. As your fingers touch the cold metal latch, the runes on the walls begin to pulse with a brighter light. A low hum fills the chamber.",
-        "sampleStatus": "Health",
-        "presets": {
-          "default": "Default",
-          "minimal": "Minimal",
-          "horror": "Horror",
-          "adventure": "Adventure",
-          "detective": "Detective",
-          "noir": "Noir",
-          "steampunk": "Steampunk",
-          "zombie": "Zombie",
-          "barbie": "Barbie",
-          "retro": "Retro",
-          "western": "Western",
-          "desert": "Desert",
-          "school": "School",
-          "candy": "Candy",
-          "superhero": "Superhero",
-          "sunshine": "Sunshine",
-          "storybook": "Storybook",
-          "educational": "Educational",
-          "scifi": "Sci-Fi",
-          "cyberpunk": "Cyberpunk",
-          "medieval": "Medieval",
-          "mystery": "Mystery",
-          "mystic": "Mystic",
-          "space": "Space",
-          "terminal": "Terminal",
-          "hacker": "Hacker",
-          "playful": "Playful",
-          "nature": "Nature",
-          "ocean": "Ocean",
-          "underwater": "Underwater",
-          "pirate": "Pirate",
-          "fire": "Fire",
-          "tech": "Tech",
-          "greenFantasy": "Green Fantasy",
-          "abstract": "Abstract",
-          "romance": "Romance",
-          "glitch": "Glitch",
-          "snowy": "Snowy",
-          "fairy": "Fairy",
-          "jungle": "Jungle",
-          "garden": "Garden",
-          "circus": "Circus",
-          "nautical": "Nautical",
-          "matrix": "Matrix"
-        },
-        "animations": {
-          "none": "None",
-          "stars": "Stars",
-          "bubbles": "Bubbles",
-          "fireflies": "Fireflies",
-          "snow": "Snow",
-          "bits": "1-0-Bits",
-          "matrixRain": "Matrix Rain",
-          "embers": "Embers",
-          "hyperspace": "Hyperspace",
-          "sparkles": "Sparkles",
-          "hearts": "Hearts",
-          "glitch": "Glitch",
-          "circuits": "Circuits",
-          "leaves": "Leaves",
-          "geometric": "Geometric",
-          "confetti": "Confetti",
-          "confettiExplosion": "Confetti Explosion",
-          "waves": "Waves",
-          "glowworm": "Will-o'-Wisps",
-          "sun": "Sun",
-          "tumbleweed": "Tumbleweed"
-        }
-      },
       "empty": {
         "description": "Create your first game to get started with interactive AI-powered adventures.",
         "title": "No games yet"
@@ -585,6 +499,31 @@
         "importButton": "Import Game"
       },
       "playNow": "Play Now",
+      "privateShare": {
+        "active": "Private sharing is active. Anyone with the link below can play this game anonymously.",
+        "copyLink": "Copy link",
+        "description": "Create a private share link so that anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
+        "edit": "Edit Settings",
+        "editSettings": "Edit Share Settings",
+        "enable": "Create Share Link",
+        "loading": "Loading share status...",
+        "loadingKeys": "Loading API keys...",
+        "maxSessions": "Max Sessions",
+        "maxSessionsDescription": "Leave empty for unlimited sessions.",
+        "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
+        "remainingSessions": "{{count}} session(s) remaining",
+        "revoke": "Revoke Link",
+        "selectKey": "Select an API Key",
+        "selectKeyPlaceholder": "Choose a key to pay for guest sessions...",
+        "shareLink": "Share Link",
+        "title": "Private Share Link",
+        "unlimited": "Unlimited",
+        "update": "Update Share Link"
+      },
+      "sharing": {
+        "active": "Active",
+        "sectionTitle": "Sharing \u0026 Sponsoring"
+      },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
         "createdAt-desc": "Created (Newest)",
@@ -600,6 +539,31 @@
         "visibility-asc": "Private Games First",
         "visibility-desc": "Public Games First"
       },
+      "sponsor": {
+        "apiKey": "API Key:",
+        "back": "Back",
+        "confirm": "Confirm Sponsoring",
+        "confirmExplanation": "By sponsoring this game, your API key will be used to pay for every session of this game. Anyone who plays it will use your key - the cost of each session will be charged to your account.",
+        "confirmNote": "You can remove the sponsoring at any time from the game settings or the API key management.",
+        "currentlySponsored": "This game is currently sponsored. The sponsor's API key pays for every session of this game.",
+        "description": "Sponsor this game so that anyone can play it for free. Your API key will cover the AI costs for every session of this game.",
+        "gameName": "Game:",
+        "gameStartMessage": "This game is sponsored - someone is generously covering the AI costs so you can play for free. Enjoy!",
+        "gameStartOk": "Let's Go!",
+        "gameStartTitle": "Free to Play!",
+        "loadingKeys": "Loading API keys...",
+        "manageSponsor": "Manage Sponsor",
+        "next": "Next",
+        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "privateWarning": "Making this game private will remove the public sponsorship.",
+        "removeSponsor": "Remove Sponsoring",
+        "selectKey": "Select an API Key",
+        "selectKeyPlaceholder": "Choose a key to sponsor with...",
+        "sponsorGame": "Sponsor Game",
+        "sponsored": "Sponsored",
+        "sponsoredTooltip": "This game is sponsored - you can play it for free! The game creator or a supporter is covering the AI costs.",
+        "title": "Sponsor Game"
+      },
       "statusFieldsEditor": {
         "addField": "Add new value",
         "namePlaceholder": "Name (e.g., Health)",
@@ -611,62 +575,104 @@
         "basicInfo": "General info about the game. This is just for you and won't affect gameplay.",
         "importExport": "Import/Export",
         "quickStart": "Quick Start",
-        "story": "Story & AI",
+        "story": "Story \u0026 AI",
         "storyInfo": "Everything here is sent to the AI to shape your game world and story.",
         "style": "Design",
         "styleInfo": "Optional settings for the look of the game while playing."
       },
+      "theme": {
+        "animation": "Background Animation",
+        "animationDefault": "Preset default",
+        "animationDescription": "Override the preset's default animation",
+        "animations": {
+          "bits": "1-0-Bits",
+          "bubbles": "Bubbles",
+          "circuits": "Circuits",
+          "confetti": "Confetti",
+          "confettiExplosion": "Confetti Explosion",
+          "embers": "Embers",
+          "fireflies": "Fireflies",
+          "geometric": "Geometric",
+          "glitch": "Glitch",
+          "glowworm": "Will-o'-Wisps",
+          "hearts": "Hearts",
+          "hyperspace": "Hyperspace",
+          "leaves": "Leaves",
+          "matrixRain": "Matrix Rain",
+          "none": "None",
+          "snow": "Snow",
+          "sparkles": "Sparkles",
+          "stars": "Stars",
+          "sun": "Sun",
+          "tumbleweed": "Tumbleweed",
+          "waves": "Waves"
+        },
+        "apply": "Apply Theme",
+        "button": "Theme",
+        "changeDesign": "Change Design",
+        "currentTheme": "Theme: {{preset}}",
+        "modalTitle": "Game Theme",
+        "noTheme": "No theme selected. The AI will generate the theme for each game session.",
+        "preset": "Preset",
+        "presetDescription": "Choose a visual style for your game",
+        "presets": {
+          "abstract": "Abstract",
+          "adventure": "Adventure",
+          "barbie": "Barbie",
+          "candy": "Candy",
+          "circus": "Circus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Default",
+          "desert": "Desert",
+          "detective": "Detective",
+          "educational": "Educational",
+          "fairy": "Fairy",
+          "fire": "Fire",
+          "garden": "Garden",
+          "glitch": "Glitch",
+          "greenFantasy": "Green Fantasy",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Jungle",
+          "matrix": "Matrix",
+          "medieval": "Medieval",
+          "minimal": "Minimal",
+          "mystery": "Mystery",
+          "mystic": "Mystic",
+          "nature": "Nature",
+          "nautical": "Nautical",
+          "noir": "Noir",
+          "ocean": "Ocean",
+          "pirate": "Pirate",
+          "playful": "Playful",
+          "retro": "Retro",
+          "romance": "Romance",
+          "school": "School",
+          "scifi": "Sci-Fi",
+          "snowy": "Snowy",
+          "space": "Space",
+          "steampunk": "Steampunk",
+          "storybook": "Storybook",
+          "sunshine": "Sunshine",
+          "superhero": "Superhero",
+          "tech": "Tech",
+          "terminal": "Terminal",
+          "underwater": "Underwater",
+          "western": "Western",
+          "zombie": "Zombie"
+        },
+        "preview": "Preview",
+        "remove": "Remove Theme",
+        "removeConfirm": "Remove the custom theme? The AI will generate one per session instead.",
+        "sampleGame": "The door creaks open, revealing a dimly lit chamber. Ancient runes glow faintly on the stone walls. A mysterious chest sits in the center of the room.",
+        "sampleGame2": "You carefully approach the chest. As your fingers touch the cold metal latch, the runes on the walls begin to pulse with a brighter light. A low hum fills the chamber.",
+        "samplePlayer": "I open the old wooden door...",
+        "sampleStatus": "Health",
+        "thinkingText": "Thinking Text",
+        "thinkingTextDescription": "Text shown while the AI is thinking",
+        "thinkingTextPlaceholder": "e.g., The story unfolds..."
+      },
       "title": "My Created Games",
-      "sharing": {
-        "sectionTitle": "Sharing & Sponsoring",
-        "active": "Active"
-      },
-      "privateShare": {
-        "title": "Private Share Link",
-        "loading": "Loading share status...",
-        "active": "Private sharing is active. Anyone with the link below can play this game anonymously.",
-        "remainingSessions": "{{count}} session(s) remaining",
-        "copyLink": "Copy link",
-        "revoke": "Revoke Link",
-        "description": "Create a private share link so that anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
-        "loadingKeys": "Loading API keys...",
-        "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
-        "selectKey": "Select an API Key",
-        "selectKeyPlaceholder": "Choose a key to pay for guest sessions...",
-        "maxSessions": "Max Sessions",
-        "maxSessionsDescription": "Leave empty for unlimited sessions.",
-        "unlimited": "Unlimited",
-        "enable": "Create Share Link",
-        "shareLink": "Share Link",
-        "edit": "Edit Settings",
-        "editSettings": "Edit Share Settings",
-        "update": "Update Share Link"
-      },
-      "sponsor": {
-        "apiKey": "API Key:",
-        "back": "Back",
-        "confirm": "Confirm Sponsoring",
-        "confirmExplanation": "By sponsoring this game, your API key will be used to pay for every session of this game. Anyone who plays it will use your key - the cost of each session will be charged to your account.",
-        "confirmNote": "You can remove the sponsoring at any time from the game settings or the API key management.",
-        "currentlySponsored": "This game is currently sponsored. The sponsor's API key pays for every session of this game.",
-        "description": "Sponsor this game so that anyone can play it for free. Your API key will cover the AI costs for every session of this game.",
-        "gameName": "Game:",
-        "loadingKeys": "Loading API keys...",
-        "manageSponsor": "Manage Sponsor",
-        "next": "Next",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
-        "removeSponsor": "Remove Sponsoring",
-        "selectKey": "Select an API Key",
-        "selectKeyPlaceholder": "Choose a key to sponsor with...",
-        "sponsored": "Sponsored",
-        "sponsoredTooltip": "This game is sponsored - you can play it for free! The game creator or a supporter is covering the AI costs.",
-        "sponsorGame": "Sponsor Game",
-        "gameStartTitle": "Free to Play!",
-        "gameStartMessage": "This game is sponsored - someone is generously covering the AI costs so you can play for free. Enjoy!",
-        "gameStartOk": "Let's Go!",
-        "privateWarning": "Making this game private will remove the public sponsorship.",
-        "title": "Sponsor Game"
-      },
       "viewModal": {
         "readOnlyNotice": "This game was created by another user. You can view the details but cannot edit. Use \"Copy\" to create your own editable version.",
         "title": "Game Details"
@@ -674,6 +680,19 @@
       "visibility": {
         "private": "Private",
         "public": "Public"
+      }
+    },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Go to ChatGameLab",
+        "continueGame": "Continue Game",
+        "expired": "This share link has reached its play limit. No more sessions are available.",
+        "headline": "You have been invited to play a free AI-powered text adventure!",
+        "invalidLink": "This share link is invalid or no longer exists.",
+        "loadError": "Could not load game information. Please try again.",
+        "restartGame": "Start Over",
+        "sessionExists": "You already have a game in progress. You can continue where you left off or start a new game.",
+        "startPlaying": "Start Playing"
       }
     },
     "header": {
@@ -689,19 +708,6 @@
       "organization": "Organization",
       "profile": "Profile",
       "workshop": "Workshop"
-    },
-    "guestPlay": {
-      "welcome": {
-        "backToHome": "Go to ChatGameLab",
-        "continueGame": "Continue Game",
-        "expired": "This share link has reached its play limit. No more sessions are available.",
-        "headline": "You have been invited to play a free AI-powered text adventure!",
-        "invalidLink": "This share link is invalid or no longer exists.",
-        "loadError": "Could not load game information. Please try again.",
-        "restartGame": "Start Over",
-        "sessionExists": "You already have a game in progress. You can continue where you left off or start a new game.",
-        "startPlaying": "Start Playing"
-      }
     },
     "home": {
       "features": {
@@ -726,6 +732,14 @@
       "loginCta": "Login and Explore",
       "splashDescription": "An educational platform for creating and playing AI-powered text-adventure games. Perfect for teachers, students, and creative storytellers."
     },
+    "inviteAlreadyExists": "A pending invitation already exists for this email address.",
+    "inviteError": "Failed to send invitation. Please try again.",
+    "inviteTeacher": "Invite Teacher",
+    "inviteTeacherDescription": "Send an invitation to a teacher to join your organization.",
+    "inviteTeacherTitle": "Invite Teacher",
+    "inviteUser": "Invite User",
+    "inviteUserDescription": "Send an invitation to a user to join your organization without a specific role.",
+    "inviteUserTitle": "Invite User",
     "invites": {
       "accept": {
         "inviteMessage": "You have been invited to join a workshop of organization \"{{organization}}\".",
@@ -733,6 +747,11 @@
         "joinButton": "Join Workshop",
         "title": "Join Workshop",
         "titleWithWorkshop": "Join Workshop \"{{workshop}}\""
+      },
+      "alreadyMember": {
+        "enterButton": "Enter Workshop",
+        "message": "Would you like to join the workshop \"{{workshop}}\"? You will enter workshop mode and create games in this workshop context.",
+        "title": "Join Workshop"
       },
       "errors": {
         "acceptFailed": "Failed to accept invite. Please try again.",
@@ -747,11 +766,6 @@
       "success": {
         "message": "You've successfully joined the workshop. Redirecting...",
         "title": "Welcome!"
-      },
-      "alreadyMember": {
-        "enterButton": "Enter Workshop",
-        "message": "Would you like to join the workshop \"{{workshop}}\"? You will enter workshop mode and create games in this workshop context.",
-        "title": "Join Workshop"
       },
       "switchWorkshop": {
         "message": "Your games and progress in the current workshop will remain, but you won't be able to access them until you rejoin.",
@@ -769,8 +783,13 @@
       "wipHint": "More languages are work in progress. Only English and German are available right now.",
       "wipLabel": "WIP"
     },
+    "leaveConfirm": "Are you sure you want to leave \"{{name}}\"?",
+    "leaveOrganization": "Leave Organization",
+    "leaveTitle": "Leave Organization",
+    "leaveWarning": "You will lose access to all organization resources and members.",
     "loading": "Loading...",
     "logout": "Logout",
+    "me": "Me",
     "myGames": {
       "continue": "Play",
       "copyConfirm": {
@@ -806,6 +825,13 @@
         "allowPublicSponsoring": "Allow public sponsoring",
         "allowPublicSponsoringDesc": "This key can be used to sponsor games for all users.",
         "filterByPlatform": "Filter by platform",
+        "freeUseKey": {
+          "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
+          "remove": "Remove",
+          "selectPlaceholder": "Select a shared key...",
+          "title": "Free-Use Key",
+          "unknownKey": "Unknown key"
+        },
         "keyName": "Key Name",
         "loadError": "Failed to load organization API keys.",
         "noKeys": "No API keys shared with this organization yet.",
@@ -820,14 +846,7 @@
         "share": "Share",
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
-        "title": "Organization API Keys",
-        "freeUseKey": {
-          "title": "Free-Use Key",
-          "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
-          "selectPlaceholder": "Select a shared key...",
-          "remove": "Remove",
-          "unknownKey": "Unknown key"
-        }
+        "title": "Organization API Keys"
       },
       "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
       "demoteTitle": "Demote to Teacher",
@@ -843,12 +862,12 @@
       "inviteUser": "Invite User",
       "inviteUserDescription": "Send an invitation to a user to join your organization without a specific role.",
       "inviteUserTitle": "Invite User",
+      "lastHeadError": "You are the last head of this organization. Please contact the site administrators if you need to leave.",
       "leaveConfirm": "Are you sure you want to leave \"{{name}}\"?",
+      "leaveError": "Failed to leave the organization. Please try again.",
       "leaveOrganization": "Leave Organization",
       "leaveTitle": "Leave Organization",
       "leaveWarning": "You will lose access to all organization resources and members.",
-      "lastHeadError": "You are the last head of this organization. Please contact the site administrators if you need to leave.",
-      "leaveError": "Failed to leave the organization. Please try again.",
       "me": "Me",
       "name": "Name",
       "noEmail": "No email",
@@ -880,18 +899,19 @@
         "active": "Active",
         "activeDescription": "Active workshops allow participants to join and create games.",
         "activeLabel": "Active",
+        "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "anonymousParticipant": "Anonymous participant",
         "create": "Create Workshop",
         "createFirst": "Create Your First Workshop",
         "createInviteLink": "Create Invite Link",
         "createTitle": "Create Workshop",
-        "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "deactivate": "Deactivate",
         "defaultApiKey": "Default API Key",
         "defaultApiKeyHint": "Participants will use this API key when playing games.",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
         "deleteTitle": "Delete Workshop",
         "deleteWarning": "All games and sessions in this workshop will be deleted. This cannot be undone.",
+        "designEditingEnabled": "Allow participants to edit game design (theme)",
         "editParticipant": "Edit name",
         "empty": "No workshops yet.",
         "enterWorkshop": "Enter Workshop Mode",
@@ -905,6 +925,8 @@
         "inviteLinkDescription": "Share this link with participants to let them join the workshop.",
         "inviteLinkTitle": "Invite Link for {{name}}",
         "inviteUsage": "Usage",
+        "isPaused": "Pause workshop",
+        "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
         "joined": "Joined",
         "linkCopied": "Link Copied",
         "linkCopiedMessage": "The invite link has been copied to your clipboard.",
@@ -930,10 +952,6 @@
         "settings": "Settings",
         "shareParticipantLink": "Copy individual invite link for this participant",
         "showOtherParticipantsGames": "Show other participants' games",
-        "designEditingEnabled": "Allow participants to edit game design (theme)",
-        "isPaused": "Pause workshop",
-        "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
-        "unpause": "Unpause workshop",
         "showPublicGames": "Show public games to participants",
         "sort": {
           "createdAtAsc": "Oldest first",
@@ -946,10 +964,17 @@
         },
         "subtitle": "Manage workshops and invite participants to collaborate on games.",
         "title": "Workshops",
+        "unpause": "Unpause workshop",
         "usedCount": "{{count}} uses",
         "viewInviteLink": "View Invite Link"
       }
     },
+    "name": "Name",
+    "noEmail": "No email",
+    "noOrganization": "No Organization",
+    "noOrganizationDescription": "You are not a member of any organization.",
+    "noResults": "No members match your search.",
+    "noRole": "No role",
     "notifications": {
       "accept": "Accept",
       "decline": "Decline",
@@ -982,8 +1007,42 @@
       "unfavorite": "Remove from favorites"
     },
     "profile": "Profile",
+    "promoteConfirm": "Are you sure you want to promote \"{{name}}\" ({{email}}) to Head?",
+    "promoteTitle": "Promote to Head",
+    "promoteToHead": "Promote to Head",
+    "promoteWarning": "This user will gain the ability to manage organization members and invite teachers.",
+    "removeConfirm": "Are you sure you want to remove \"{{name}}\" from the organization?",
+    "removeMember": "Remove member",
+    "removeTitle": "Remove Member",
+    "removeWarning": "This user will lose access to the organization.",
+    "role": "Role",
     "save": "Save",
     "search": "Search",
+    "searchPlaceholder": "Search members...",
+    "serverSettings": {
+      "defaultTier": {
+        "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality.",
+        "title": "Default AI Quality Tier"
+      },
+      "freeUseKey": {
+        "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
+        "noKeys": "You have no API keys. Add one in your API Key settings first.",
+        "notWorking": "Not working",
+        "remove": "Remove",
+        "replacePlaceholder": "Replace with one of your API keys...",
+        "selectPlaceholder": "Select one of your API keys...",
+        "title": "Free-Use API Key",
+        "unknownKey": "Unknown key (may have been deleted)",
+        "untested": "Untested",
+        "working": "Working"
+      },
+      "freeUseTier": {
+        "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier.",
+        "title": "Free-Use AI Quality Tier"
+      },
+      "notAuthorized": "You don't have permission to access server settings. Admin access required.",
+      "title": "Server Settings"
+    },
     "sessions": {
       "continueGame": "Continue Game",
       "deleteConfirm": {
@@ -1003,6 +1062,13 @@
         "lastPlayed": "Last Played",
         "model": "Model"
       },
+      "freeUseKey": {
+        "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
+        "remove": "Remove",
+        "selectPlaceholder": "Select a shared key...",
+        "title": "Free-Use Key",
+        "unknownKey": "Unknown key"
+      },
       "noDescription": "No description",
       "sort": {
         "game": "Game",
@@ -1014,31 +1080,15 @@
       "title": "Continue Playing",
       "untitledGame": "Untitled Game"
     },
-    "serverSettings": {
-      "title": "Server Settings",
-      "notAuthorized": "You don't have permission to access server settings. Admin access required.",
-      "defaultTier": {
-        "title": "Default AI Quality Tier",
-        "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality."
-      },
-      "freeUseKey": {
-        "title": "Free-Use API Key",
-        "description": "Set a global free-use API key so that all users on this server can play games without needing their own key. This key is used as a fallback when no workshop or organization key is available.",
-        "selectPlaceholder": "Select one of your API keys...",
-        "replacePlaceholder": "Replace with one of your API keys...",
-        "remove": "Remove",
-        "working": "Working",
-        "notWorking": "Not working",
-        "untested": "Untested",
-        "unknownKey": "Unknown key (may have been deleted)",
-        "noKeys": "You have no API keys. Add one in your API Key settings first."
-      },
-      "freeUseTier": {
-        "title": "Free-Use AI Quality Tier",
-        "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier."
-      }
-    },
     "settings": "Settings",
+    "showing": "{{count}} members",
+    "sort": {
+      "label": "Sort by",
+      "name-asc": "Name (A-Z)",
+      "name-desc": "Name (Z-A)",
+      "role-asc": "Role (A-Z)",
+      "role-desc": "Role (Z-A)"
+    },
     "unnamed": "Unnamed",
     "viewGame": "View Game"
   },
@@ -1105,30 +1155,29 @@
     "billingNotActive": "Your OpenAI account is not active. Please check your billing details at https://platform.openai.com/settings/organization/billing.",
     "conflict": "This action conflicts with existing data. Please try again.",
     "contentFiltered": "Your request was filtered by the AI's content policy. Please try rephrasing.",
+    "duplicateName": "The name for this game is already in use. Please choose a different name.",
     "forbidden": "You don't have permission to perform this action.",
     "generic": "Something went wrong. Please try again.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "invalidJsonSchema": "The game configuration produced an invalid schema for the AI. This is a game setup issue, not an API key problem. Please check the game's status fields and try again.",
-    "noApiKey": "No API key is available for this game. The game sponsor may have removed their key, or you need to configure your own API key.",
     "invalidPlatform": "Invalid platform selected. Please choose a valid option.",
     "invalidToken": "Your session has expired or is invalid. Please use your invite link again.",
+    "nameProfane": "This name is not allowed. Please choose a different name.",
+    "nameTooLong": "The name is too long. Please choose a shorter name.",
     "network": "Network error. Please check your connection.",
+    "noApiKey": "No API key is available for this game. The game sponsor may have removed their key, or you need to configure your own API key.",
     "notFound": "The requested resource was not found.",
     "orgVerificationRequired": "Your OpenAI organization needs verification to use the image generation feature. Please verify at https://platform.openai.com/settings/organization/general.",
     "previousResponseNotFound": "The AI lost track of this conversation. This can happen when a session has been inactive for a while. Please start a new session to continue playing.",
     "rateLimitExceeded": "Too many requests. Please wait a moment and try again.",
     "server": "Server error. Please try again later.",
-    "duplicateName": "The name for this game is already in use. Please choose a different name.",
-    "nameProfane": "This name is not allowed. Please choose a different name.",
-    "nameTooLong": "The name is too long. Please choose a shorter name.",
-    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer.",
     "titles": {
       "aiError": "AI Error",
-      "gameConfig": "Game Configuration Error",
       "authentication": "Authentication Error",
       "billing": "Billing Error",
       "error": "Error",
+      "gameConfig": "Game Configuration Error",
       "network": "Network Error",
       "noApiKey": "No API Key",
       "notFound": "Not Found",
@@ -1140,7 +1189,8 @@
     "unauthorized": "Please log in to continue.",
     "unexpected": "An unexpected error occurred.",
     "userNotRegistered": "You need to complete registration before continuing.",
-    "validation": "Please check your input and try again."
+    "validation": "Please check your input and try again.",
+    "workshopInactive": "This workshop has been deactivated. Please contact your teacher or workshop organizer."
   },
   "myWorkshop": {
     "empty": {

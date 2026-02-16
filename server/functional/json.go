@@ -307,3 +307,159 @@ func deepCopyWithPlaceholder(v interface{}, placeholder string) interface{} {
 		return placeholder
 	}
 }
+
+// CollectFieldValues recursively collects all leaf field values from a JSON object.
+// Returns a map from field path to slice of values (one per source JSON).
+func CollectFieldValues(jsonStr string) (map[string]string, error) {
+	var obj interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
+	}
+	result := make(map[string]string)
+	collectFieldValues(obj, "", result)
+	return result, nil
+}
+
+// collectFieldValues recursively collects all leaf field values from a JSON object
+func collectFieldValues(v interface{}, path string, result map[string]string) {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		for _, key := range getSortedKeys(val) {
+			newPath := key
+			if path != "" {
+				newPath = path + "." + key
+			}
+			collectFieldValues(val[key], newPath, result)
+		}
+	case []interface{}:
+		for i, child := range val {
+			newPath := fmt.Sprintf("%s[%d]", path, i)
+			collectFieldValues(child, newPath, result)
+		}
+	case string:
+		result[path] = val
+	case float64, bool, nil:
+		// Convert to string
+		result[path] = fmt.Sprintf("%v", val)
+	}
+}
+
+// ExtractFieldsByPaths extracts only the fields whose paths are in the includePaths set.
+// Returns a new JSON string containing only those fields, preserving structure.
+func ExtractFieldsByPaths(jsonStr string, includePaths map[string]bool) (string, error) {
+	var obj interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
+		return "", fmt.Errorf("failed to parse JSON: %w", err)
+	}
+
+	if len(includePaths) == 0 {
+		return "{}", nil
+	}
+
+	// Extract only specified fields
+	result := extractFields(obj, "", includePaths)
+	if result == nil {
+		return "{}", nil
+	}
+
+	out, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+
+	return string(out) + "\n", nil
+}
+
+// extractFields recursively extracts only the fields whose paths are in the includePaths set
+func extractFields(v interface{}, path string, includePaths map[string]bool) interface{} {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		result := make(map[string]interface{})
+		for _, key := range getSortedKeys(val) {
+			newPath := key
+			if path != "" {
+				newPath = path + "." + key
+			}
+			extracted := extractFields(val[key], newPath, includePaths)
+			if extracted != nil {
+				result[key] = extracted
+			}
+		}
+		if len(result) > 0 {
+			return result
+		}
+		return nil
+	case []interface{}:
+		result := make([]interface{}, 0)
+		for i, child := range val {
+			newPath := fmt.Sprintf("%s[%d]", path, i)
+			extracted := extractFields(child, newPath, includePaths)
+			if extracted != nil {
+				result = append(result, extracted)
+			}
+		}
+		if len(result) > 0 {
+			return result
+		}
+		return nil
+	default:
+		// Leaf value - check if this path should be included
+		if includePaths[path] {
+			return val
+		}
+		return nil
+	}
+}
+
+// MergeJSON recursively merges srcJSON into dstJSON, overwriting values in dst.
+// Returns the merged result as a JSON string.
+func MergeJSON(dstJSON, srcJSON string) (string, error) {
+	var dst, src interface{}
+
+	if err := json.Unmarshal([]byte(dstJSON), &dst); err != nil {
+		return "", fmt.Errorf("failed to parse destination JSON: %w", err)
+	}
+
+	if err := json.Unmarshal([]byte(srcJSON), &src); err != nil {
+		return "", fmt.Errorf("failed to parse source JSON: %w", err)
+	}
+
+	mergeInto(dst, src)
+
+	out, err := json.MarshalIndent(dst, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+
+	return string(out) + "\n", nil
+}
+
+// mergeInto recursively merges src into dst, overwriting values in dst
+func mergeInto(dst, src interface{}) {
+	dstMap, dstIsMap := dst.(map[string]interface{})
+	srcMap, srcIsMap := src.(map[string]interface{})
+
+	if !dstIsMap || !srcIsMap {
+		return
+	}
+
+	for key, srcVal := range srcMap {
+		dstVal, exists := dstMap[key]
+		if !exists {
+			// Key doesn't exist in dst, just copy it
+			dstMap[key] = srcVal
+			continue
+		}
+
+		// Both are maps - recurse
+		if _, dstIsMap := dstVal.(map[string]interface{}); dstIsMap {
+			if _, srcIsMap := srcVal.(map[string]interface{}); srcIsMap {
+				mergeInto(dstVal, srcVal)
+				continue
+			}
+		}
+
+		// Otherwise, overwrite with src value
+		dstMap[key] = srcVal
+	}
+}

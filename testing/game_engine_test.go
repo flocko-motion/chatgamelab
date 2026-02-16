@@ -69,7 +69,7 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	s.Require().NotNil(initialMsg, "Should have a game-type initial message")
 	s.Greater(len(initialMsg.Message), 10, "Initial message should have substantial text")
 	s.True(initialMsg.HasImage, "Initial message should have HasImage=true (max tier on OpenAI)")
-	s.True(initialMsg.HasAudio, "Initial message should have HasAudio=true (max tier on OpenAI)")
+	s.True(initialMsg.HasAudioOut, "Initial message should have HasAudioOut=true (max tier on OpenAI)")
 	log.Printf("Initial message (len=%d): %s", len(initialMsg.Message), initialMsg.Message)
 
 	// Validate audio on initial message
@@ -86,7 +86,7 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	// Validate text and capability flags
 	s.Greater(len(msg.Message), 10, "AI response text should be substantial")
 	s.True(msg.HasImage, "Action response should have HasImage=true (max tier on OpenAI)")
-	s.True(msg.HasAudio, "Action response should have HasAudio=true (max tier on OpenAI)")
+	s.True(msg.HasAudioOut, "Action response should have HasAudioOut=true (max tier on OpenAI)")
 	log.Printf("AI response (len=%d): %s", len(msg.Message), msg.Message)
 
 	// Validate audio on player action response
@@ -226,7 +226,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
 		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
 		s.Equal(expectImage, msg1.HasImage, "Turn #%d: HasImage should be %v for platform %s", i, expectImage, apiKeyShare.ApiKey.Platform)
-		s.Equal(expectAudio, msg1.HasAudio, "Turn #%d: HasAudio should be %v", i, expectAudio)
+		s.Equal(expectAudio, msg1.HasAudioOut, "Turn #%d: HasAudioOut should be %v", i, expectAudio)
 		messageLens = append(messageLens, len(msg1.Message))
 
 		// Verify token usage for each action
@@ -275,7 +275,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 
 			// Verify capability flags are persisted and loaded correctly
 			s.Equal(expectImage, msg.HasImage, "Message[%d] HasImage should be %v (persisted)", i, expectImage)
-			s.Equal(expectAudio, msg.HasAudio, "Message[%d] HasAudio should be %v (persisted)", i, expectAudio)
+			s.Equal(expectAudio, msg.HasAudioOut, "Message[%d] HasAudioOut should be %v (persisted)", i, expectAudio)
 		}
 	}
 

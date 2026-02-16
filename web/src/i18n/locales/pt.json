@@ -1,20 +1,20 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
+  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "login": {
       "auth0Button": "Entrar com Auth0",
-      "devMode": "Modo de desenvolvimento",
+      "devMode": "Modo de Desenvolvimento",
       "devModeAlert": {
         "message": "Esta é a página de login de desenvolvimento. Em produção, você será redirecionado diretamente para o Auth0.",
-        "title": "Modo de desenvolvimento"
+        "title": "Modo de Desenvolvimento"
       },
       "devModeDescription": "Login rápido para desenvolvimento e testes",
       "redirecting": {
-        "message": "Por favor, aguarde enquanto redirecionamos você para a página de login.",
+        "message": "Aguarde enquanto o redirecionamos para a página de login.",
         "title": "Redirecionando para o Auth0..."
       },
       "role": {
-        "admin": "Entrar como Administrador",
+        "admin": "Entrar como Admin",
         "guest": "Entrar como Convidado",
         "student": "Entrar como Estudante",
         "teacher": "Entrar como Professor"
@@ -22,69 +22,70 @@
     },
     "participant": {
       "leaveConfirm": {
-        "confirm": "Sair do workshop",
-        "message": "Tem certeza de que deseja sair deste workshop? Você precisará de um novo link de convite para entrar novamente.",
-        "title": "Sair do workshop?"
+        "confirm": "Sair do Workshop",
+        "message": "Tem certeza de que deseja sair deste workshop? Você precisará de um novo link de convite para voltar.",
+        "title": "Sair do Workshop?"
       },
-      "leaveWorkshop": "Sair do workshop",
+      "leaveWorkshop": "Sair do Workshop",
       "organization": "Organização",
-      "role": "Participante do workshop",
+      "role": "Participante do Workshop",
       "workshop": "Workshop"
     },
     "profile": {
-      "gamesCreated": "Jogos criados",
-      "gamesPlayed": "Jogos jogados",
+      "gamesCreated": "Jogos Criados",
+      "gamesPlayed": "Jogos Jogados",
       "memberSince": "Registrado desde",
-      "messagesSent": "Mensagens enviadas",
+      "messagesSent": "Mensagens Enviadas",
       "noOrganization": "Sem organização",
       "noRole": "Nenhuma função atribuída",
       "organization": "Organização",
-      "organizationSection": "Organização \u00026 Função",
+      "organizationSection": "Organização \u000e Função",
       "role": "Função",
       "roles": {
         "admin": "Administrador",
-        "head": "Professor responsável",
-        "participant": "Convidado",
-        "staff": "Membro da equipe"
+        "head": "Chefe da Organização",
+        "individual": "Individual",
+        "participant": "Participante",
+        "staff": "Líder de Workshop"
       },
       "statisticsSection": "Estatísticas",
       "title": "Perfil",
-      "totalPlaysOnGames": "Total de jogadas nos meus jogos"
+      "totalPlaysOnGames": "Total de Jogadas nos Meus Jogos"
     },
     "register": {
       "cancelButton": "Cancelar",
       "emailDescription": "Usaremos isto para notificações importantes.",
-      "emailLabel": "Endereço de e-mail",
+      "emailLabel": "Endereço de E-mail",
       "emailPlaceholder": "Digite seu e-mail",
       "errors": {
-        "emailInvalid": "Por favor, insira um endereço de e-mail válido",
+        "emailInvalid": "Insira um endereço de e-mail válido",
         "emailRequired": "E-mail é obrigatório",
         "nameRequired": "Nome é obrigatório",
         "nameTaken": "Este nome já está em uso",
         "nameTooLong": "O nome deve ter no máximo 24 caracteres",
-        "registrationFailed": "Falha no registro. Por favor, tente novamente."
+        "registrationFailed": "Falha no cadastro. Tente novamente."
       },
-      "nameDescription": "É assim que outros usuários irão ver você. Máx. 24 caracteres.",
-      "nameLabel": "Nome de exibição",
+      "nameDescription": "É assim que outros usuários verão você. Máx. 24 caracteres.",
+      "nameLabel": "Nome de Exibição",
       "namePlaceholder": "Digite seu nome de exibição",
-      "submitButton": "Criar conta",
+      "submitButton": "Criar Conta",
       "submitting": "Criando conta...",
       "subtitle": "Só mais alguns detalhes para começar",
-      "title": "Complete seu perfil"
+      "title": "Complete Seu Perfil"
     },
     "settings": {
       "accountSection": "Conta",
-      "emailChangeNote": "Para alterar seu endereço de e-mail, por favor contate o administrador do site.",
+      "emailChangeNote": "Para alterar seu endereço de e-mail, entre em contato com o administrador do site.",
       "errors": {
         "nameRequired": "Nome é obrigatório",
         "nameTaken": "Este nome já está em uso",
         "nameTooLong": "O nome deve ter no máximo 24 caracteres",
-        "saveFailed": "Falha ao salvar alterações. Por favor, tente novamente."
+        "saveFailed": "Falha ao salvar as alterações. Tente novamente."
       },
-      "nameDescription": "É assim que outros usuários irão ver você. Máx. 24 caracteres.",
-      "nameLabel": "Nome de exibição",
+      "nameDescription": "É assim que outros usuários verão você. Máx. 24 caracteres.",
+      "nameLabel": "Nome de Exibição",
       "namePlaceholder": "Digite seu nome de exibição",
-      "saveButton": "Salvar alterações",
+      "saveButton": "Salvar Alterações",
       "saved": "Alterações salvas com sucesso",
       "saving": "Salvando...",
       "subtitle": "Gerencie as configurações da sua conta",
@@ -96,7 +97,7 @@
     "admin": {
       "invites": {
         "actions": "Ações",
-        "empty": "Sem convites pendentes.",
+        "empty": "Nenhum convite pendente.",
         "invitedEmail": "E-mail convidado",
         "modifiedAt": "Modificado",
         "noResults": "Nenhum convite corresponde à sua busca.",
@@ -104,10 +105,10 @@
         "revokeConfirm": {
           "confirm": "Excluir",
           "message": "Tem certeza de que deseja excluir este convite? Esta ação não pode ser desfeita.",
-          "title": "Excluir convite"
+          "title": "Excluir Convite"
         },
         "role": "Função",
-        "searchPlaceholder": "Pesquisar por e-mail, função, status ou organização...",
+        "searchPlaceholder": "Pesquise por e-mail, função, status ou organização...",
         "sort": {
           "label": "Ordenar por",
           "modifiedAt-asc": "Modificado (Mais antigo)",
@@ -127,20 +128,20 @@
           "pending": "Pendente",
           "revoked": "Revogado"
         },
-        "title": "Convites pendentes"
+        "title": "Convites Pendentes"
       },
       "organizations": {
         "actions": "Ações",
-        "create": "Criar organização",
-        "createTitle": "Criar nova organização",
+        "create": "Criar Organização",
+        "createTitle": "Criar Nova Organização",
         "deleteConfirm": "Tem certeza de que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
-        "deleteTitle": "Excluir organização",
-        "editTitle": "Editar organização",
-        "email": "Endereço de e-mail",
+        "deleteTitle": "Excluir Organização",
+        "editTitle": "Editar Organização",
+        "email": "Endereço de E-mail",
         "emailPlaceholder": "Digite o endereço de e-mail",
         "empty": "Ainda não há organizações. Crie uma para começar.",
-        "inviteDescription": "Envie um convite para ingressar em {{name}} como responsável pela organização.",
-        "inviteTitle": "Convidar para organização",
+        "inviteDescription": "Envie um convite para ingressar em {{name}} como o chefe da organização.",
+        "inviteTitle": "Convidar para a Organização",
         "memberEmail": "E-mail",
         "memberName": "Nome",
         "memberRole": "Função",
@@ -149,43 +150,44 @@
         "membersList": "Membros",
         "name": "Nome",
         "namePlaceholder": "Digite o nome da organização",
-        "noMembers": "Sem membros nesta organização.",
+        "noMembers": "Nenhum membro nesta organização.",
         "removeMember": "Remover membro",
         "removeMemberConfirm": "Tem certeza de que deseja remover {{name}} desta organização?",
         "searchPlaceholder": "Pesquisar organizações...",
-        "sendInvite": "Enviar convite",
-        "title": "Gerenciar organizações"
+        "sendInvite": "Enviar Convite",
+        "title": "Gerenciar Organizações"
       },
       "users": {
         "actions": "Ações",
         "deleteConfirm": "Tem certeza de que deseja excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
-        "deleteTitle": "Excluir usuário",
+        "deleteTitle": "Excluir Usuário",
         "editEmail": "Editar e-mail",
-        "editTitle": "Editar usuário",
+        "editTitle": "Editar Usuário",
         "editingUser": "Editando usuário: {{name}}",
         "email": "E-mail",
         "emailPlaceholder": "Digite o endereço de e-mail",
         "empty": "Nenhum usuário encontrado.",
         "hideGuests": "Ocultar convidados ({{count}})",
+        "hideGuestsShort": "Convidados ({{count}})",
         "joined": "Ingressou",
         "loadError": "Falha ao carregar usuários",
-        "makeAdmin": "Tornar administrador",
+        "makeAdmin": "Tornar admin",
         "me": "Eu",
         "name": "Nome",
         "noEmail": "Sem e-mail",
         "noResults": "Nenhum usuário corresponde à sua busca.",
         "noRole": "Sem função",
         "organization": "Organização",
-        "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a administrador?",
-        "promoteTitle": "Promover a administrador",
-        "promoteWarning": "Este usuário ganhará acesso administrativo total ao sistema.",
-        "removeAdmin": "Remover administrador",
-        "removeAdminConfirm": "Tem certeza de que deseja remover a função de administrador de \"{{name}}\" ({{email}})?",
-        "removeAdminTitle": "Remover função de administrador",
+        "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a admin?",
+        "promoteTitle": "Promover a Admin",
+        "promoteWarning": "Este usuário terá acesso administrativo completo ao sistema.",
+        "removeAdmin": "Remover admin",
+        "removeAdminConfirm": "Tem certeza de que deseja remover o papel de admin de \"{{name}}\" ({{email}})?",
+        "removeAdminTitle": "Remover Papel de Admin",
         "removeAdminWarning": "Este usuário perderá todos os privilégios administrativos.",
         "role": "Função",
         "searchPlaceholder": "Pesquisar por nome, e-mail, função ou organização...",
-        "showing": "Mostrando {{count}} de {{total}} usuários",
+        "showing": "Exibindo {{count}} de {{total}} usuários",
         "sort": {
           "email-asc": "E-mail (A-Z)",
           "email-desc": "E-mail (Z-A)",
@@ -199,157 +201,226 @@
           "role-asc": "Função (A-Z)",
           "role-desc": "Função (Z-A)"
         },
-        "title": "Gerenciar usuários"
+        "title": "Gerenciar Usuários"
       }
     },
+    "aiQualityTier": {
+      "high": "Alto (Premium)",
+      "label": "Nível de Qualidade da IA",
+      "low": "Baixo (Econômico)",
+      "max": "Máx (Premium + Áudio)",
+      "medium": "Médio (Equilibrado)",
+      "serverDefault": "Padrão do Servidor"
+    },
     "allGames": {
-      "continue": "Continuar",
+      "continue": "Jogar",
       "copyConfirm": {
-        "confirm": "Copiar jogo",
-        "message": "Isto criará uma cópia de \"{{name}}\" em seus jogos.",
-        "title": "Copiar jogo"
+        "confirm": "Copiar Jogo",
+        "message": "Isto criará uma cópia de \"{{name}}\" nos seus jogos.",
+        "title": "Copiar Jogo"
       },
-      "copyGame": "Copiar jogo",
+      "copyGame": "Copiar Jogo",
       "empty": {
         "description": "Tente ajustar seus filtros ou volte mais tarde para novos jogos.",
         "title": "Nenhum jogo encontrado"
       },
       "favorite": "Adicionar aos favoritos",
       "filters": {
-        "all": "Todos os jogos",
+        "all": "Todos os Jogos",
         "favorites": "Favoritos",
-        "own": "Meus jogos",
-        "public": "Público"
+        "own": "Meus Jogos",
+        "public": "Público",
+        "sponsored": "Patrocinados"
       },
       "play": "Jogar",
       "restart": "Reiniciar",
       "restartConfirm": {
         "confirm": "Reiniciar",
         "message": "Tem certeza de que deseja reiniciar \"{{game}}\"? Seu progresso atual será perdido.",
-        "title": "Reiniciar jogo"
+        "title": "Reiniciar Jogo"
       },
-      "title": "Todos os jogos",
+      "title": "Todos os Jogos",
       "unfavorite": "Remover dos favoritos"
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "Chaves de API são usadas para conectar-se a plataformas de IA para gerar conteúdo dos jogos.",
-        "title": "Sobre as chaves de API"
+        "description": "As chaves de API são usadas para conectar-se a plataformas de IA para gerar conteúdo de jogos. A chave selecionada (marcada com um visto) será usada por padrão ao criar novas sessões de jogo.",
+        "title": "Sobre as Chaves de API"
       },
-      "addKey": "Adicionar chave",
-      "addedOn": "Adicionado em",
+      "addKey": "Adicionar Chave",
+      "addedOn": "Adicionada",
+      "aiQualityTier": {
+        "description": "Escolha o nível de qualidade da IA para seus jogos ao usar sua própria chave de API. Níveis mais altos custam mais, mas podem ter qualidade superior. Deixe vazio para usar o padrão do servidor."
+      },
       "createModal": {
         "keyDescription": "Sua chave será criptografada e armazenada com segurança.",
         "keyLabel": "Chave de API",
         "keyPlaceholder": "Digite sua chave de API",
-        "nameLabel": "Nome da chave",
-        "namePlaceholder": "ex.: Minha chave OpenAI",
+        "nameLabel": "Nome da Chave",
+        "namePlaceholder": "ex.: Minha Chave OpenAI",
         "platformLabel": "Plataforma",
         "platformPlaceholder": "Selecione uma plataforma",
-        "submit": "Adicionar chave",
-        "title": "Adicionar nova chave de API"
+        "submit": "Adicionar Chave",
+        "title": "Adicionar Nova Chave de API"
       },
+      "currentDefault": {
+        "label": "Chave de API Ativa",
+        "none": "Nenhuma chave padrão configurada. Adicione uma chave para começar."
+      },
+      "default": "Padrão",
       "deleteModal": {
         "message": "Tem certeza de que deseja excluir \"{{name}}\"?",
-        "title": "Excluir chave de API",
-        "warning": "Esta ação não pode ser desfeita. A chave será excluída permanentemente."
+        "title": "Excluir Chave de API",
+        "warning": "Esta ação não pode ser desfeita. A chave será permanentemente excluída."
       },
       "errors": {
-        "invalidPlatform": "Plataforma selecionada inválida. Por favor, escolha uma plataforma de IA válida.",
+        "invalidPlatform": "Plataforma inválida selecionada. Escolha uma plataforma de IA válida.",
         "keyRequired": "Chave de API é obrigatória",
-        "loadFailed": "Falha ao carregar chaves de API. Por favor, tente novamente.",
+        "loadFailed": "Falha ao carregar chaves de API. Tente novamente.",
         "nameRequired": "Nome é obrigatório",
         "platformRequired": "Plataforma é obrigatória"
       },
-      "key": "chave",
-      "keys": "chaves",
+      "key": "Chave",
+      "keys": "Chaves",
+      "platform": "Plataforma",
+      "setDefault": "Definir como padrão",
+      "shares": {
+        "goToOrg": "Gerenciar",
+        "noOrgShares": "Não compartilhada com nenhuma organização",
+        "noSponsorships": "Sem patrocínios de jogos",
+        "orgShares": "Compartilhamentos com Organização",
+        "privateShares": "Links de Compartilhamento Privado",
+        "remaining": "{{count}} restante(s)",
+        "removeSponsor": "Remover patrocínio",
+        "revokePrivateShare": "Revogar link de compartilhamento",
+        "sponsorships": "Patrocínios de Jogos",
+        "toggle": "Compartilhamentos \u000e Patrocínios",
+        "unknownGame": "Jogo desconhecido",
+        "unknownOrg": "Organização desconhecida",
+        "unknownUser": "Usuário desconhecido",
+        "unknownWorkshop": "Workshop desconhecido"
+      },
+      "status": {
+        "failed": "A chave não está funcionando",
+        "unknown": "Chave ainda não usada",
+        "working": "A chave está funcionando"
+      },
       "subtitle": "Gerencie suas chaves de API para plataformas de IA.",
-      "title": "Gerenciamento de chaves de API",
+      "title": "Gerenciamento de Chaves de API",
       "unnamed": "Chave sem nome",
       "unsupportedPlatform": {
-        "badge": "não suportado",
+        "badge": "não suportada",
         "hint": "Esta plataforma atualmente não é suportada. Você só pode remover chaves existentes."
       }
     },
     "back": "Voltar",
     "cancel": "Cancelar",
     "close": "Fechar",
-    "copyGame": "Copiar jogo",
+    "copyGame": "Copiar Jogo",
     "create": "Criar",
     "delete": "Excluir",
-    "deleteGame": "Excluir jogo",
+    "deleteGame": "Excluir Jogo",
+    "demoteConfirm": "Tem certeza de que deseja rebaixar \"{{name}}\" ({{email}}) para Professor?",
+    "demoteTitle": "Rebaixar para Professor",
+    "demoteToStaff": "Rebaixar para Professor",
     "edit": "Editar",
-    "editGame": "Editar jogo",
+    "editGame": "Editar Jogo",
+    "email": "E-mail",
+    "emailPlaceholder": "Digite o endereço de e-mail",
+    "empty": "Nenhum membro nesta organização.",
     "error": "Erro",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Instituto de Pesquisa e Inovação Educacional",
+      "jffTitle": "JFF - Instituto para Pesquisa e Inovação Educacional",
       "programmedBy": "Programado por"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "sections": {
+          "expandStory": "Instruções para a IA escrever a história",
+          "imageGeneration": "Instruções da IA para geração de imagens",
+          "rawResponse": "Resposta não processada da IA",
+          "responseSchema": "Estrutura exigida da resposta da IA",
+          "statusUpdate": "Prompt enviado à IA",
+          "systemPrompt": "Instruções do jogo para a IA"
+        },
+        "title": "Solicitação / Resposta da IA",
+        "toggle": "Visão da IA",
+        "tokens": {
+          "received": "tokens recebidos",
+          "sent": "tokens enviados"
+        }
+      },
       "debug": {
         "fields": {
-          "id": "ID da mensagem",
-          "imagePrompt": "Prompt da imagem",
-          "isStreaming": "Transmitindo",
+          "id": "ID da Mensagem",
+          "imagePrompt": "Prompt de Imagem",
+          "isStreaming": "Streaming",
           "seq": "Sequência",
-          "statusFields": "Campos de status",
-          "timestamp": "Carimbo de data/hora",
+          "statusFields": "Campos de Status",
+          "timestamp": "Carimbo de data e hora",
           "type": "Tipo"
         },
         "hints": {
-          "id": "Identificador único para esta mensagem",
-          "imagePrompt": "Prompt enviado para a IA de geração de imagens",
+          "id": "Identificador exclusivo desta mensagem",
+          "imagePrompt": "Prompt enviado para a IA de geração de imagem",
           "isStreaming": "Se o conteúdo ainda está sendo recebido",
           "seq": "Ordem na conversa",
-          "statusFields": "Variáveis de estado do jogo rastreadas pela IA",
+          "statusFields": "Variáveis do estado do jogo acompanhadas pela IA",
           "timestamp": "Quando esta mensagem foi criada",
           "type": "player = entrada do usuário, game = resposta da IA, system = contexto"
         },
-        "title": "Informações de depuração"
+        "title": "Informações de Depuração"
       },
       "error": {
-        "backToGames": "Voltar para os jogos",
+        "backToGames": "Voltar aos Jogos",
         "gameNotFound": "Jogo não encontrado",
-        "missingFields": "O jogo está sem os campos obrigatórios:",
+        "missingFields": "O jogo está faltando campos obrigatórios:",
+        "noApiKey": {
+          "banner": "A chave de API usada anteriormente para este jogo não está mais disponível. Para continuar jogando, adicione sua própria chave de API nas configurações da sua conta.",
+          "goToSettings": "Configurações de Chave de API",
+          "personal": "Você precisa configurar uma chave de API antes de jogar. Vá para as configurações de Chave de API para adicionar uma.",
+          "title": "Nenhuma Chave de API Disponível",
+          "workshop": "Nenhuma chave de API está configurada para este workshop. Entre em contato com o administrador do seu workshop."
+        },
+        "retry": "Tentar novamente",
+        "sendFailed": "Falha ao enviar mensagem. Tente novamente.",
         "sessionFailed": "Falha ao iniciar a sessão do jogo"
       },
       "header": {
-        "back": "Voltar para os jogos",
+        "back": "Voltar aos jogos",
         "debug": "Depurar",
-        "decreaseFont": "Diminuir tamanho da fonte",
+        "decreaseFont": "Menor",
         "disableAnimations": "Desativar animações",
-        "increaseFont": "Aumentar tamanho da fonte",
+        "disableTextEffects": "Desativar efeitos de texto",
+        "fontSize": "Tamanho da fonte",
+        "increaseFont": "Maior",
+        "muteAudio": "Silenciar narração",
+        "resetFont": "Redefinir",
         "settings": "Configurações",
+        "unmuteAudio": "Ativar narração",
         "useNeutralTheme": "Usar tema neutro"
       },
       "input": {
+        "audioCancel": "Cancelar gravação",
+        "audioProcessing": "Processando…",
+        "audioRecording": "Gravando…",
+        "audioStart": "Gravar mensagem de voz",
+        "audioStop": "Enviar gravação",
+        "audioUnavailableMessage": "A entrada de voz não está disponível com as configurações atuais de chave de API. Para usar voz, altere para um nível de qualidade mais alto (Premium ou Máx).",
+        "audioUnavailableTitle": "Entrada de Voz Indisponível",
         "placeholder": "O que você faz?",
         "send": "Enviar ação"
       },
       "loading": {
         "game": "Carregando jogo...",
+        "resolvingKey": "Resolvendo chave de API...",
         "starting": "Iniciando sessão do jogo...",
         "startingHint": "A IA está preparando sua aventura"
       },
       "needsApiKey": {
-        "description": "A chave de API usada para esta sessão não está mais disponível. Por favor, selecione uma nova para continuar jogando.",
-        "reason": "Sua chave de API anterior não está mais disponível. Para continuar o jogo, selecione uma nova.",
-        "title": "Chave de API necessária"
-      },
-      "selectApiKey": {
-        "keyDescription": "Selecione a chave de API a ser usada nesta sessão de jogo",
-        "keyLabel": "Chave de API",
-        "keyPlaceholder": "Selecione uma chave de API",
-        "loadError": "Falha ao carregar chaves de API",
-        "mine": "Minhas",
-        "modelDescription": "Opcionalmente, selecione um modelo específico de IA",
-        "modelLabel": "Modelo de IA",
-        "modelPlaceholder": "Modelo padrão",
-        "noKeys": "Você precisa de pelo menos uma chave de API para jogar. Adicione uma em Configurações → Chaves de API.",
-        "playing": "Jogando",
-        "startGame": "Iniciar jogo",
-        "title": "Selecionar chave de API"
+        "description": "A chave de API usada para esta sessão não está mais disponível.",
+        "title": "Chave de API Necessária"
       },
       "statusChange": {
         "effect": "Efeito:"
@@ -357,55 +428,63 @@
       "unnamed": "Sem nome"
     },
     "games": {
+      "actions": {
+        "delete": "Excluir",
+        "edit": "Editar",
+        "export": "Exportar",
+        "play": "Jogar",
+        "view": "Visualizar"
+      },
       "badges": {
-        "myGame": "Meu jogo",
+        "myGame": "Meu Jogo",
         "public": "Público",
         "workshop": "Workshop"
       },
-      "createButton": "Criar jogo",
+      "createButton": "Criar Jogo",
       "createModal": {
-        "descriptionPlaceholder": "Sobre o que é o seu jogo?",
-        "namePlaceholder": "ex.: Aventura espacial",
-        "publicDescription": "Jogos públicos são descobertos por todos.",
+        "descriptionPlaceholder": "Sobre o que é seu jogo?",
+        "namePlaceholder": "ex.: Aventura Espacial",
+        "publicDescription": "Jogos públicos podem ser descobertos por todos.",
         "publicLabel": "Tornar este jogo público",
-        "submit": "Criar jogo",
-        "title": "Criar novo jogo"
+        "submit": "Criar Jogo",
+        "title": "Criar Novo Jogo"
       },
       "deleteModal": {
         "message": "Tem certeza de que deseja excluir \"{{name}}\"?",
-        "title": "Excluir jogo",
+        "title": "Excluir Jogo",
         "warning": "Esta ação não pode ser desfeita. Todos os dados do jogo serão permanentemente excluídos."
       },
       "editFields": {
-        "description": "Dê ao jogo uma breve descrição. Isso é só para você e não afetará a jogabilidade.",
+        "description": "Dê ao jogo uma breve descrição. Isto é apenas para você e não afeta a jogabilidade.",
         "gameStart": "Como o jogo começa?",
         "gameStartHint": "O que acontece no início? Descreva a primeira cena que o jogador vê. Como o jogador é recebido?",
-        "gameStartPlaceholder": "Você acorda na borda de uma floresta escura. Um caminho estreito leva mais fundo entre as árvores...",
-        "imageStyle": "Qual estilo as imagens do jogo devem ter?",
+        "gameStartPlaceholder": "Você acorda à beira de uma floresta escura. Um caminho estreito leva mais fundo entre as árvores...",
+        "imageStyle": "Que estilo as imagens do jogo devem ter?",
         "imageStyleHint": "Por exemplo: cartoon, realista, pixel art, aquarela...",
-        "name": "Nome do jogo",
+        "name": "Nome do Jogo",
         "scenario": "Sobre o que é o jogo?",
-        "scenarioHint": "Descreva brevemente: Como o jogo funciona? Como é o mundo? Linguagem \u00026 tom (ex.: Espanhol para alunos do sexto ano)?\nQual papel o jogador tem? Escreva \"O jogador ...\".\nSe você quer que a IA assuma o papel de uma pessoa específica escreva \"Você é ...\".",
+        "scenarioHint": "Descreva brevemente: Como o jogo funciona? Como é o mundo? Idioma \u000e Tom (por ex. espanhol para alunos da sexta série)?\nQual é o papel do jogador? Escreva \"O jogador ...\".\nSe quiser que a IA assuma o papel de uma pessoa específica, escreva \"Você é ...\".",
         "scenarioPlaceholder": "Você é um explorador em uma floresta misteriosa. Seu objetivo é encontrar o tesouro escondido...",
         "statusFields": "Valores do jogo",
-        "statusFieldsHint": "Quais valores o jogo deve acompanhar? Por exemplo vida, pontos ou munição. O jogo lembra desses valores e os atualiza durante a jogatina."
+        "statusFieldsHint": "O que o jogo deve acompanhar? Por exemplo vida, pontos ou munição. O jogo lembra desses valores e os atualiza enquanto joga."
       },
       "editModal": {
-        "title": "Editar jogo",
+        "title": "Editar Jogo",
         "unsavedChanges": {
-          "discard": "Descartar alterações",
+          "discard": "Descartar Alterações",
           "keepEditing": "Continuar editando",
           "message": "Você tem alterações não salvas. Tem certeza de que deseja descartá-las?",
-          "title": "Alterações não salvas"
+          "title": "Alterações Não Salvas"
         }
       },
       "empty": {
-        "description": "Crie seu primeiro jogo para começar com aventuras interativas impulsionadas por IA.",
+        "description": "Crie seu primeiro jogo para começar com aventuras interativas movidas por IA.",
         "title": "Ainda não há jogos"
       },
       "errors": {
-        "loadFailed": "Falha ao carregar jogos. Por favor, tente novamente.",
-        "nameRequired": "Nome do jogo é obrigatório"
+        "loadFailed": "Falha ao carregar jogos. Tente novamente.",
+        "nameRequired": "Nome do jogo é obrigatório",
+        "nameTooLong": "O nome do jogo deve ter 70 caracteres ou menos"
       },
       "fields": {
         "created": "Criado",
@@ -417,10 +496,35 @@
         "visibility": "Visibilidade"
       },
       "importExport": {
-        "exportButton": "Exportar jogo",
-        "importButton": "Importar jogo"
+        "exportButton": "Exportar Jogo",
+        "importButton": "Importar Jogo"
       },
-      "playNow": "Jogar agora",
+      "playNow": "Jogar Agora",
+      "privateShare": {
+        "active": "O compartilhamento privado está ativo. Qualquer pessoa com o link abaixo pode jogar este jogo anonimamente.",
+        "copyLink": "Copiar link",
+        "description": "Crie um link de compartilhamento privado para que qualquer pessoa com ele possa jogar este jogo anonimamente. Você escolhe qual chave de API paga pelas sessões.",
+        "edit": "Editar Configurações",
+        "editSettings": "Editar Configurações de Compartilhamento",
+        "enable": "Criar Link de Compartilhamento",
+        "loading": "Carregando status de compartilhamento...",
+        "loadingKeys": "Carregando chaves de API...",
+        "maxSessions": "Máx de Sessões",
+        "maxSessionsDescription": "Deixe vazio para sessões ilimitadas.",
+        "noEligibleKeys": "Nenhuma chave de API funcional disponível. Adicione uma chave de API primeiro nas configurações de Chaves de API.",
+        "remainingSessions": "{{count}} sessão(ões) restantes",
+        "revoke": "Revogar Link",
+        "selectKey": "Selecione uma Chave de API",
+        "selectKeyPlaceholder": "Escolha uma chave para pagar pelas sessões dos convidados...",
+        "shareLink": "Link de Compartilhamento",
+        "title": "Link de Compartilhamento Privado",
+        "unlimited": "Ilimitado",
+        "update": "Atualizar Link de Compartilhamento"
+      },
+      "sharing": {
+        "active": "Ativo",
+        "sectionTitle": "Compartilhamento \u000e Patrocínio"
+      },
       "sort": {
         "createdAt-asc": "Criado (Mais antigo)",
         "createdAt-desc": "Criado (Mais recente)",
@@ -431,10 +535,35 @@
         "modifiedAt-desc": "Modificado (Mais recente)",
         "name-asc": "Nome (A-Z)",
         "name-desc": "Nome (Z-A)",
-        "playCount-asc": "Menos jogados",
-        "playCount-desc": "Mais jogados",
-        "visibility-asc": "Jogos privados primeiro",
-        "visibility-desc": "Jogos públicos primeiro"
+        "playCount-asc": "Menos Jogados",
+        "playCount-desc": "Mais Jogados",
+        "visibility-asc": "Jogos Privados Primeiro",
+        "visibility-desc": "Jogos Públicos Primeiro"
+      },
+      "sponsor": {
+        "apiKey": "Chave de API:",
+        "back": "Voltar",
+        "confirm": "Confirmar Patrocínio",
+        "confirmExplanation": "Ao patrocinar este jogo, sua chave de API será usada para pagar cada sessão deste jogo. Qualquer pessoa que o jogar usará sua chave - o custo de cada sessão será cobrado na sua conta.",
+        "confirmNote": "Você pode remover o patrocínio a qualquer momento nas configurações do jogo ou no gerenciamento de chaves de API.",
+        "currentlySponsored": "Este jogo está atualmente patrocinado. A chave de API do patrocinador paga por cada sessão deste jogo.",
+        "description": "Patrocine este jogo para que qualquer pessoa possa jogá-lo gratuitamente. Sua chave de API cobrirá os custos de IA de cada sessão deste jogo.",
+        "gameName": "Jogo:",
+        "gameStartMessage": "Este jogo é patrocinado - alguém está generosamente cobrindo os custos de IA para que você jogue de graça. Aproveite!",
+        "gameStartOk": "Vamos lá!",
+        "gameStartTitle": "Grátis para Jogar!",
+        "loadingKeys": "Carregando chaves de API...",
+        "manageSponsor": "Gerenciar Patrocínio",
+        "next": "Avançar",
+        "noEligibleKeys": "Você não tem chaves de API com patrocínio público habilitado. Vá para as configurações de Chaves de API e ative \"Permitir patrocínio público\" em uma chave primeiro.",
+        "privateWarning": "Tornar este jogo privado removerá o patrocínio público.",
+        "removeSponsor": "Remover Patrocínio",
+        "selectKey": "Selecione uma Chave de API",
+        "selectKeyPlaceholder": "Escolha uma chave para patrocinar...",
+        "sponsorGame": "Patrocinar Jogo",
+        "sponsored": "Patrocinado",
+        "sponsoredTooltip": "Este jogo é patrocinado - você pode jogar de graça! O criador do jogo ou um apoiador está cobrindo os custos de IA.",
+        "title": "Patrocinar Jogo"
       },
       "statusFieldsEditor": {
         "addField": "Adicionar novo valor",
@@ -443,32 +572,137 @@
         "valuePlaceholder": "Valor inicial (ex.: 100)"
       },
       "tabs": {
-        "basic": "Noções básicas",
-        "basicInfo": "Informações gerais sobre o jogo. Isto é só para você e não afetará a jogabilidade.",
+        "basic": "Básico",
+        "basicInfo": "Informações gerais sobre o jogo. Isto é apenas para você e não afeta a jogabilidade.",
         "importExport": "Importar/Exportar",
-        "quickStart": "Início rápido",
-        "story": "História \u00026 IA",
-        "storyInfo": "Tudo aqui é enviado para a IA para moldar seu mundo e história do jogo.",
+        "quickStart": "Início Rápido",
+        "story": "História \u000e IA",
+        "storyInfo": "Tudo aqui é enviado para a IA moldar o mundo e a história do seu jogo.",
         "style": "Design",
-        "styleInfo": "Configurações opcionais para a aparência do jogo durante a jogatina."
+        "styleInfo": "Configurações opcionais para o visual do jogo durante a partida."
       },
-      "title": "Meus jogos criados",
+      "theme": {
+        "animation": "Animação de Fundo",
+        "animationDefault": "Padrão predefinido",
+        "animationDescription": "Substitua a animação padrão do preset",
+        "animations": {
+          "bits": "1-0-Bits",
+          "bubbles": "Bolhas",
+          "circuits": "Circuitos",
+          "confetti": "Confete",
+          "confettiExplosion": "Explosão de Confete",
+          "embers": "Brasas",
+          "fireflies": "Vagalumes",
+          "geometric": "Geométrico",
+          "glitch": "Glitch",
+          "glowworm": "Fogo-fátuo",
+          "hearts": "Corações",
+          "hyperspace": "Hiperespaço",
+          "leaves": "Folhas",
+          "matrixRain": "Chuva de Matrix",
+          "none": "Nenhuma",
+          "snow": "Neve",
+          "sparkles": "Brilhos",
+          "stars": "Estrelas",
+          "sun": "Sol",
+          "tumbleweed": "Erva-rolante",
+          "waves": "Ondas"
+        },
+        "apply": "Aplicar Tema",
+        "button": "Tema",
+        "changeDesign": "Alterar Design",
+        "currentTheme": "Tema: {{preset}}",
+        "modalTitle": "Tema do Jogo",
+        "noTheme": "Nenhum tema selecionado. A IA gerará o tema para cada sessão de jogo.",
+        "preset": "Predefinição",
+        "presetDescription": "Escolha um estilo visual para o seu jogo",
+        "presets": {
+          "abstract": "Abstrato",
+          "adventure": "Aventura",
+          "barbie": "Barbie",
+          "candy": "Doce",
+          "circus": "Circo",
+          "cyberpunk": "Cyberpunk",
+          "default": "Padrão",
+          "desert": "Deserto",
+          "detective": "Detetive",
+          "educational": "Educacional",
+          "fairy": "Fada",
+          "fire": "Fogo",
+          "garden": "Jardim",
+          "glitch": "Glitch",
+          "greenFantasy": "Fantasia Verde",
+          "hacker": "Hacker",
+          "horror": "Terror",
+          "jungle": "Selva",
+          "matrix": "Matrix",
+          "medieval": "Medieval",
+          "minimal": "Minimalista",
+          "mystery": "Mistério",
+          "mystic": "Místico",
+          "nature": "Natureza",
+          "nautical": "Náutico",
+          "noir": "Noir",
+          "ocean": "Oceano",
+          "pirate": "Pirata",
+          "playful": "Divertido",
+          "retro": "Retrô",
+          "romance": "Romance",
+          "school": "Escola",
+          "scifi": "Ficção Científica",
+          "snowy": "Nevado",
+          "space": "Espaço",
+          "steampunk": "Steampunk",
+          "storybook": "Livro de Histórias",
+          "sunshine": "Sol",
+          "superhero": "Super-herói",
+          "tech": "Tech",
+          "terminal": "Terminal",
+          "underwater": "Subaquático",
+          "western": "Faroeste",
+          "zombie": "Zumbi"
+        },
+        "preview": "Prévia",
+        "remove": "Remover Tema",
+        "removeConfirm": "Remover o tema personalizado? A IA gerará um por sessão em vez disso.",
+        "sampleGame": "A porta range ao abrir, revelando uma câmara mal iluminada. Runas antigas brilham fracamente nas paredes de pedra. Um baú misterioso fica no centro da sala.",
+        "sampleGame2": "Você se aproxima cuidadosamente do baú. Quando seus dedos tocam o trinco de metal frio, as runas nas paredes começam a pulsar com uma luz mais forte. Um zumbido baixo preenche a câmara.",
+        "samplePlayer": "Eu abro a velha porta de madeira...",
+        "sampleStatus": "Vida",
+        "thinkingText": "Texto de Processamento",
+        "thinkingTextDescription": "Texto mostrado enquanto a IA está pensando",
+        "thinkingTextPlaceholder": "ex.: A história está se desenrolando..."
+      },
+      "title": "Meus Jogos Criados",
       "viewModal": {
-        "readOnlyNotice": "Este jogo foi criado por outro usuário. Você pode ver os detalhes, mas não pode editar. Use \"Copiar\" para criar sua própria versão editável.",
-        "title": "Detalhes do jogo"
+        "readOnlyNotice": "Este jogo foi criado por outro usuário. Você pode ver os detalhes, mas não editar. Use \"Copiar\" para criar sua própria versão editável.",
+        "title": "Detalhes do Jogo"
       },
       "visibility": {
         "private": "Privado",
         "public": "Público"
       }
     },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Ir para o ChatGameLab",
+        "continueGame": "Continuar Jogo",
+        "expired": "Este link de compartilhamento atingiu seu limite de jogadas. Não há mais sessões disponíveis.",
+        "headline": "Você foi convidado para jogar uma aventura de texto com IA gratuitamente!",
+        "invalidLink": "Este link de compartilhamento é inválido ou não existe mais.",
+        "loadError": "Não foi possível carregar as informações do jogo. Tente novamente.",
+        "restartGame": "Recomeçar",
+        "sessionExists": "Você já tem um jogo em andamento. Pode continuar de onde parou ou iniciar um novo jogo.",
+        "startPlaying": "Começar a Jogar"
+      }
+    },
     "header": {
       "apiKeys": "Chaves de API",
       "closeNavigation": "Fechar menu de navegação",
       "contact": "Contato",
-      "goToDashboard": "Ir para o painel",
-      "leaveWorkshopMode": "Sair do modo workshop",
-      "leaveWorkshopModeTooltip": "Sair do modo workshop e retornar à visualização normal",
+      "goToDashboard": "Ir para o Painel",
+      "leaveWorkshopMode": "Sair do modo Workshop",
+      "leaveWorkshopModeTooltip": "Saia do modo workshop e volte à visualização normal",
       "logout": "Sair",
       "openNavigation": "Abrir menu de navegação",
       "openUserMenu": "Abrir menu do usuário",
@@ -479,53 +713,66 @@
     "home": {
       "features": {
         "create": {
-          "description": "Crie aventuras textuais interativas impulsionadas por IA",
-          "title": "Criar aventuras"
+          "description": "Crie aventuras de texto interativas com tecnologia de IA",
+          "title": "Crie Aventuras"
         },
         "learn": {
-          "description": "Perfeito para workshops educacionais e atividades em sala de aula",
-          "title": "Aprender \u00026 Ensinar"
+          "description": "Perfeito para oficinas educacionais e atividades em sala de aula",
+          "title": "Aprenda \u000e Ensine"
         },
         "play": {
-          "description": "Junte-se a amigos em sessões colaborativas de contação de histórias",
-          "title": "Jogar em grupo"
+          "description": "Junte-se aos amigos em sessões colaborativas de narrativa",
+          "title": "Joguem Juntos"
         },
         "title": "Por que escolher o ChatGameLab?",
         "understand": {
-          "description": "Explore como modelos de IA criam histórias e aprenda como eles funcionam",
-          "title": "Entender a IA"
+          "description": "Explore como modelos de IA criam histórias e aprenda como funcionam",
+          "title": "Entenda a IA"
         }
       },
-      "loginCta": "Entrar e explorar",
-      "splashDescription": "Uma plataforma educacional para criar e jogar jogos de aventura textual com IA. Perfeita para professores, estudantes e contadores de histórias criativos."
+      "loginCta": "Entre e Explore",
+      "splashDescription": "Uma plataforma educacional para criar e jogar jogos de aventura em texto com IA. Perfeita para professores, estudantes e contadores de histórias criativos."
     },
+    "inviteAlreadyExists": "Já existe um convite pendente para este endereço de e-mail.",
+    "inviteError": "Falha ao enviar o convite. Tente novamente.",
+    "inviteTeacher": "Convidar Professor",
+    "inviteTeacherDescription": "Envie um convite para um professor ingressar na sua organização.",
+    "inviteTeacherTitle": "Convidar Professor",
+    "inviteUser": "Convidar Usuário",
+    "inviteUserDescription": "Envie um convite para um usuário ingressar na sua organização sem uma função específica.",
+    "inviteUserTitle": "Convidar Usuário",
     "invites": {
       "accept": {
-        "inviteMessage": "Você foi convidado a participar de um workshop da organização \"{{organization}}\".",
-        "inviteMessageSimple": "Você foi convidado a participar deste workshop.",
-        "joinButton": "Entrar no workshop",
-        "title": "Entrar no workshop",
-        "titleWithWorkshop": "Entrar no workshop \"{{workshop}}\""
+        "inviteMessage": "Você foi convidado para entrar em um workshop da organização \"{{organization}}\".",
+        "inviteMessageSimple": "Você foi convidado para participar deste workshop.",
+        "joinButton": "Entrar no Workshop",
+        "title": "Entrar no Workshop",
+        "titleWithWorkshop": "Entrar no Workshop \"{{workshop}}\""
+      },
+      "alreadyMember": {
+        "enterButton": "Entrar no Workshop",
+        "message": "Gostaria de ingressar no workshop \"{{workshop}}\"? Você entrará no modo workshop e criará jogos neste contexto.",
+        "title": "Entrar no Workshop"
       },
       "errors": {
-        "acceptFailed": "Falha ao aceitar o convite. Por favor, tente novamente.",
+        "acceptFailed": "Falha ao aceitar o convite. Tente novamente.",
         "expired": "Este link de convite expirou.",
-        "loadFailed": "Falha ao carregar os detalhes do convite. Por favor, tente novamente.",
+        "loadFailed": "Falha ao carregar detalhes do convite. Tente novamente.",
         "notFound": "Este link de convite é inválido ou foi revogado."
       },
-      "goHome": "Ir para a página inicial",
+      "goHome": "Ir para a Home",
       "participant": {
-        "loggingIn": "Conectando você..."
+        "loggingIn": "Fazendo login..."
       },
       "success": {
-        "message": "Você entrou no workshop com sucesso. Redirecionando...",
+        "message": "Você ingressou no workshop com sucesso. Redirecionando...",
         "title": "Bem-vindo!"
       },
       "switchWorkshop": {
-        "message": "Seus jogos e progresso no workshop atual permanecerão, mas você não poderá acessá-los até voltar a participar.",
-        "stayButton": "Permanecer no workshop atual",
-        "switchButton": "Mudar de workshop",
-        "title": "Trocar de workshop?",
+        "message": "Seus jogos e progresso no workshop atual permanecerão, mas você não poderá acessá-los até retornar.",
+        "stayButton": "Permanecer no Workshop Atual",
+        "switchButton": "Trocar de Workshop",
+        "title": "Trocar de Workshop?",
         "warning": "Você está atualmente no workshop \"{{currentWorkshop}}\". Entrar em \"{{newWorkshop}}\" fará com que você saia do workshop atual."
       }
     },
@@ -535,20 +782,25 @@
     },
     "languageSwitcher": {
       "wipHint": "Mais idiomas estão em desenvolvimento. Apenas inglês e alemão estão disponíveis no momento.",
-      "wipLabel": "WIP"
+      "wipLabel": "EM PROG."
     },
+    "leaveConfirm": "Tem certeza de que deseja sair de \"{{name}}\"?",
+    "leaveOrganization": "Sair da Organização",
+    "leaveTitle": "Sair da Organização",
+    "leaveWarning": "Você perderá acesso a todos os recursos e membros da organização.",
     "loading": "Carregando...",
     "logout": "Sair",
+    "me": "Eu",
     "myGames": {
-      "continue": "Continuar",
+      "continue": "Jogar",
       "copyConfirm": {
-        "confirm": "Copiar jogo",
-        "message": "Isto criará uma cópia de \"{{name}}\" em seus jogos.",
-        "title": "Copiar jogo"
+        "confirm": "Copiar Jogo",
+        "message": "Isto criará uma cópia de \"{{name}}\" nos seus jogos.",
+        "title": "Copiar Jogo"
       },
-      "copyGame": "Copiar jogo",
+      "copyGame": "Copiar Jogo",
       "empty": {
-        "description": "Crie seu primeiro jogo para começar com aventuras interativas impulsionadas por IA.",
+        "description": "Crie seu primeiro jogo para começar com aventuras interativas movidas por IA.",
         "title": "Ainda não há jogos"
       },
       "favorite": "Adicionar aos favoritos",
@@ -561,67 +813,76 @@
       "restartConfirm": {
         "confirm": "Reiniciar",
         "message": "Tem certeza de que deseja reiniciar \"{{game}}\"? Seu progresso atual será perdido.",
-        "title": "Reiniciar jogo"
+        "title": "Reiniciar Jogo"
       },
-      "title": "Meus jogos",
+      "title": "Meus Jogos",
       "unfavorite": "Remover dos favoritos"
     },
     "myOrganization": {
       "actions": "Ações",
       "apiKeys": {
-        "aboutDescription": "Chaves de API compartilhadas aqui ficam disponíveis para todos os membros da sua organização jogarem. Apenas responsáveis e professores podem gerenciar essas chaves.",
-        "aboutTitle": "Chaves de API da organização",
+        "aboutDescription": "As chaves de API compartilhadas aqui ficam disponíveis para todos os membros da sua organização para jogar jogos. Apenas chefes e professores podem gerenciar essas chaves.",
+        "aboutTitle": "Chaves de API da Organização",
         "allowPublicSponsoring": "Permitir patrocínio público",
         "allowPublicSponsoringDesc": "Esta chave pode ser usada para patrocinar jogos para todos os usuários.",
         "filterByPlatform": "Filtrar por plataforma",
-        "keyName": "Nome da chave",
+        "freeUseKey": {
+          "description": "Defina uma chave de uso livre para permitir que todos os membros da organização joguem sem precisar da própria chave de API. Apenas chaves já compartilhadas com esta organização podem ser selecionadas.",
+          "remove": "Remover",
+          "selectPlaceholder": "Selecione uma chave compartilhada...",
+          "title": "Chave de Uso Livre",
+          "unknownKey": "Chave desconhecida"
+        },
+        "keyName": "Nome da Chave",
         "loadError": "Falha ao carregar as chaves de API da organização.",
-        "noKeys": "Nenhuma chave de API compartilhada com esta organização ainda.",
+        "noKeys": "Ainda não há chaves de API compartilhadas com esta organização.",
         "noResults": "Nenhuma chave de API corresponde à sua busca.",
-        "notAuthorized": "Você não tem permissão para gerenciar chaves de API da organização. Apenas responsáveis e professores podem acessar esta página.",
+        "notAuthorized": "Você não tem permissão para gerenciar as chaves de API da organização. Apenas chefes e professores podem acessar esta página.",
         "owner": "Proprietário",
         "platform": "Plataforma",
-        "publicSponsoring": "Patrocínio público",
+        "publicSponsoring": "Patrocínio Público",
         "searchPlaceholder": "Pesquisar por nome ou proprietário...",
-        "selectKey": "Selecionar chave de API",
+        "selectKey": "Selecionar Chave de API",
         "selectKeyPlaceholder": "Escolha uma chave para compartilhar...",
         "share": "Compartilhar",
-        "shareKey": "Compartilhar chave",
-        "shareKeyTitle": "Compartilhar chave de API com a organização",
-        "title": "Chaves de API da organização"
+        "shareKey": "Compartilhar Chave",
+        "shareKeyTitle": "Compartilhar Chave de API com a Organização",
+        "title": "Chaves de API da Organização"
       },
       "demoteConfirm": "Tem certeza de que deseja rebaixar \"{{name}}\" ({{email}}) para Professor?",
       "demoteTitle": "Rebaixar para Professor",
       "demoteToStaff": "Rebaixar para Professor",
       "email": "E-mail",
       "emailPlaceholder": "Digite o endereço de e-mail",
-      "empty": "Sem membros nesta organização.",
+      "empty": "Nenhum membro nesta organização.",
       "inviteAlreadyExists": "Já existe um convite pendente para este endereço de e-mail.",
-      "inviteError": "Falha ao enviar convite. Por favor, tente novamente.",
-      "inviteTeacher": "Convidar professor",
-      "inviteTeacherDescription": "Envie um convite para um professor se juntar à sua organização.",
-      "inviteTeacherTitle": "Convidar professor",
-      "inviteUser": "Convidar usuário",
-      "inviteUserDescription": "Envie um convite para um usuário se juntar à sua organização sem uma função específica.",
-      "inviteUserTitle": "Convidar usuário",
+      "inviteError": "Falha ao enviar o convite. Tente novamente.",
+      "inviteTeacher": "Convidar Professor",
+      "inviteTeacherDescription": "Envie um convite para um professor ingressar na sua organização.",
+      "inviteTeacherTitle": "Convidar Professor",
+      "inviteUser": "Convidar Usuário",
+      "inviteUserDescription": "Envie um convite para um usuário ingressar na sua organização sem uma função específica.",
+      "inviteUserTitle": "Convidar Usuário",
+      "lastHeadError": "Você é o último chefe desta organização. Entre em contato com os administradores do site se precisar sair.",
       "leaveConfirm": "Tem certeza de que deseja sair de \"{{name}}\"?",
-      "leaveOrganization": "Sair da organização",
-      "leaveTitle": "Sair da organização",
+      "leaveError": "Falha ao sair da organização. Tente novamente.",
+      "leaveOrganization": "Sair da Organização",
+      "leaveTitle": "Sair da Organização",
       "leaveWarning": "Você perderá acesso a todos os recursos e membros da organização.",
       "me": "Eu",
       "name": "Nome",
       "noEmail": "Sem e-mail",
-      "noOrganization": "Sem organização",
+      "noOrganization": "Nenhuma Organização",
       "noOrganizationDescription": "Você não é membro de nenhuma organização.",
       "noResults": "Nenhum membro corresponde à sua busca.",
       "noRole": "Sem função",
-      "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a Responsável?",
-      "promoteTitle": "Promover a responsável",
-      "promoteToHead": "Promover a responsável",
-      "promoteWarning": "Este usuário ganhará a habilidade de gerenciar membros da organização e convidar professores.",
+      "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a Chefe?",
+      "promoteTitle": "Promover a Chefe",
+      "promoteToHead": "Promover a Chefe",
+      "promoteWarning": "Este usuário poderá gerenciar membros da organização e convidar professores.",
       "removeConfirm": "Tem certeza de que deseja remover \"{{name}}\" da organização?",
       "removeMember": "Remover membro",
-      "removeTitle": "Remover membro",
+      "removeTitle": "Remover Membro",
       "removeWarning": "Este usuário perderá acesso à organização.",
       "role": "Função",
       "searchPlaceholder": "Pesquisar membros...",
@@ -633,53 +894,52 @@
         "role-asc": "Função (A-Z)",
         "role-desc": "Função (Z-A)"
       },
-      "title": "Minha organização",
+      "title": "Minha Organização",
       "workshops": {
         "activate": "Ativar",
         "active": "Ativo",
-        "activeDescription": "Workshops ativos permitem que participantes entrem e criem jogos.",
+        "activeDescription": "Workshops ativos permitem que os participantes entrem e criem jogos.",
         "activeLabel": "Ativo",
+        "aiQualityTierHint": "Nível de qualidade para respostas da IA. Níveis mais altos custam mais, mas podem ter qualidade superior. Vazio usa o padrão do servidor.",
         "anonymousParticipant": "Participante anônimo",
-        "create": "Criar workshop",
-        "createFirst": "Crie seu primeiro workshop",
-        "createInviteLink": "Criar link de convite",
-        "createTitle": "Criar workshop",
+        "create": "Criar Workshop",
+        "createFirst": "Crie Seu Primeiro Workshop",
+        "createInviteLink": "Criar Link de Convite",
+        "createTitle": "Criar Workshop",
         "deactivate": "Desativar",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
-        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
-        "defaultApiKey": "Chave de API padrão",
-        "defaultApiKeyHint": "Participantes usarão esta chave de API ao jogar.",
+        "defaultApiKey": "Chave de API Padrão",
+        "defaultApiKeyHint": "Os participantes usarão esta chave de API ao jogar.",
         "deleteConfirm": "Tem certeza de que deseja excluir \"{{name}}\"?",
-        "deleteTitle": "Excluir workshop",
+        "deleteTitle": "Excluir Workshop",
         "deleteWarning": "Todos os jogos e sessões deste workshop serão excluídos. Isto não pode ser desfeito.",
+        "designEditingEnabled": "Permitir que os participantes editem o design do jogo (tema)",
         "editParticipant": "Editar nome",
         "empty": "Ainda não há workshops.",
-        "enterWorkshop": "Entrar no modo workshop",
+        "enterWorkshop": "Entrar no Modo Workshop",
         "games": "Jogos",
         "hideInactive": "Ocultar inativos",
         "inactive": "Inativo",
         "inviteCreatedAt": "Criado",
         "inviteDescription": "Gere um link de convite que os participantes possam usar para entrar neste workshop.",
         "inviteExpiresAt": "Expira",
-        "inviteLink": "Link de convite",
-        "inviteLinkDescription": "Compartilhe este link com os participantes para permitir que entrem no workshop.",
-        "inviteLinkTitle": "Link de convite para {{name}}",
+        "inviteLink": "Link de Convite",
+        "inviteLinkDescription": "Compartilhe este link com os participantes para que entrem no workshop.",
+        "inviteLinkTitle": "Link de Convite para {{name}}",
         "inviteUsage": "Uso",
+        "isPaused": "Pausar workshop",
+        "isPausedHint": "Quando pausado, os participantes veem uma sobreposição bloqueada e não podem interagir com os jogos",
         "joined": "Ingressou",
         "linkCopied": "Link copiado",
         "linkCopiedMessage": "O link de convite foi copiado para sua área de transferência.",
         "loadError": "Falha ao carregar workshops.",
-        "nameLabel": "Nome do workshop",
-        "namePlaceholder": "ex.: Acampamento de verão 2024",
+        "nameLabel": "Nome do Workshop",
+        "namePlaceholder": "ex.: Acampamento de Verão 2024",
         "noActiveInvite": "Nenhum link de convite ativo disponível.",
-        "noDefaultApiKey": "Sem chave de API padrão",
+        "noDefaultApiKey": "Nenhuma chave de API padrão",
         "noDefaultModel": "Usar padrão da plataforma",
         "noParticipantToken": "Este participante não tem um link de convite. Apenas participantes anônimos (convidados) têm links de convite reutilizáveis.",
-        "noParticipants": "Ainda sem participantes",
-        "notAuthorized": "Você não tem permissão para gerenciar workshops. Apenas responsáveis e professores podem acessar esta página.",
+        "noParticipants": "Ainda não há participantes",
+        "notAuthorized": "Você não tem permissão para gerenciar workshops. Apenas chefes e professores podem acessar esta página.",
         "participantGames": "{{count}} jogos",
         "participantJoined": "Ingressou em {{date}}",
         "participantName": "Nome do participante",
@@ -687,17 +947,16 @@
         "removeParticipant": "Remover participante",
         "removeParticipantConfirm": "Tem certeza de que deseja remover \"{{name}}\" deste workshop?",
         "removeParticipantMessage": "Tem certeza de que deseja remover \"{{name}}\" deste workshop? Esta ação não pode ser desfeita.",
-        "removeParticipantTitle": "Remover participante",
-        "revokeInvite": "Revogar link de convite",
-        "selectApiKey": "Selecionar uma chave de API",
+        "removeParticipantTitle": "Remover Participante",
+        "revokeInvite": "Revogar Link de Convite",
+        "selectApiKey": "Selecione uma chave de API",
         "settings": "Configurações",
         "shareParticipantLink": "Copiar link de convite individual para este participante",
-        "serverDefault": "Server Default",
         "showOtherParticipantsGames": "Mostrar jogos de outros participantes",
         "showPublicGames": "Mostrar jogos públicos aos participantes",
         "sort": {
           "createdAtAsc": "Mais antigos primeiro",
-          "createdAtDesc": "Mais recentes primeiro",
+          "createdAtDesc": "Mais novos primeiro",
           "label": "Ordenar por",
           "nameAsc": "Nome (A-Z)",
           "nameDesc": "Nome (Z-A)",
@@ -706,18 +965,25 @@
         },
         "subtitle": "Gerencie workshops e convide participantes para colaborar em jogos.",
         "title": "Workshops",
+        "unpause": "Retomar workshop",
         "usedCount": "{{count}} usos",
-        "viewInviteLink": "Ver link de convite"
+        "viewInviteLink": "Ver Link de Convite"
       }
     },
+    "name": "Nome",
+    "noEmail": "Sem e-mail",
+    "noOrganization": "Nenhuma Organização",
+    "noOrganizationDescription": "Você não é membro de nenhuma organização.",
+    "noResults": "Nenhum membro corresponde à sua busca.",
+    "noRole": "Sem função",
     "notifications": {
       "accept": "Aceitar",
       "decline": "Recusar",
       "declineConfirm": "Tem certeza de que deseja recusar este convite?",
-      "declineTitle": "Recusar convite",
-      "empty": "Nenhuma notificação nova.",
-      "inviteDescription": "Você foi convidado a participar como {{role}}.",
-      "inviteToJoin": "Convite para organização",
+      "declineTitle": "Recusar Convite",
+      "empty": "Sem novas notificações.",
+      "inviteDescription": "Você foi convidado para participar como {{role}}.",
+      "inviteToJoin": "Convite da Organização",
       "title": "Notificações"
     },
     "play": {
@@ -728,55 +994,104 @@
       },
       "favorite": "Adicionar aos favoritos",
       "filters": {
-        "all": "Todos os jogos",
+        "all": "Todos os Jogos",
         "favorites": "Favoritos",
         "organization": "Organização",
-        "own": "Meus jogos",
+        "own": "Meus Jogos",
         "public": "Público"
       },
       "owner": "Meus",
       "playGame": "Jogar este jogo",
       "playNow": "Jogar agora",
-      "selectGameTitle": "Selecionar um jogo",
-      "title": "Selecionar um jogo",
+      "selectGameTitle": "Selecione um Jogo",
+      "title": "Selecione um Jogo",
       "unfavorite": "Remover dos favoritos"
     },
     "profile": "Perfil",
+    "promoteConfirm": "Tem certeza de que deseja promover \"{{name}}\" ({{email}}) a Chefe?",
+    "promoteTitle": "Promover a Chefe",
+    "promoteToHead": "Promover a Chefe",
+    "promoteWarning": "Este usuário poderá gerenciar membros da organização e convidar professores.",
+    "removeConfirm": "Tem certeza de que deseja remover \"{{name}}\" da organização?",
+    "removeMember": "Remover membro",
+    "removeTitle": "Remover Membro",
+    "removeWarning": "Este usuário perderá acesso à organização.",
+    "role": "Função",
     "save": "Salvar",
     "search": "Pesquisar",
+    "searchPlaceholder": "Pesquisar membros...",
+    "serverSettings": {
+      "defaultTier": {
+        "description": "O nível padrão em todo o servidor usado quando nenhum nível específico é configurado no workshop, instituição ou usuário. Níveis mais altos custam mais, mas podem ter qualidade superior.",
+        "title": "Nível de Qualidade da IA Padrão"
+      },
+      "freeUseKey": {
+        "description": "Defina uma chave de API de uso livre global para que todos os usuários neste servidor possam jogar sem precisar da própria chave. Esta chave é usada como fallback quando nenhuma chave de workshop ou organização está disponível.",
+        "noKeys": "Você não tem chaves de API. Adicione uma nas configurações de Chave de API primeiro.",
+        "notWorking": "Não está funcionando",
+        "remove": "Remover",
+        "replacePlaceholder": "Substitua por uma de suas chaves de API...",
+        "selectPlaceholder": "Selecione uma de suas chaves de API...",
+        "title": "Chave de API de Uso Livre",
+        "unknownKey": "Chave desconhecida (pode ter sido excluída)",
+        "untested": "Não testada",
+        "working": "Funcionando"
+      },
+      "freeUseTier": {
+        "description": "Nível de qualidade usado quando a chave de uso livre está ativa. Níveis mais altos custam mais, mas podem ter qualidade superior. Deixe vazio para usar o nível padrão.",
+        "title": "Nível de Qualidade da IA para Uso Livre"
+      },
+      "notAuthorized": "Você não tem permissão para acessar as configurações do servidor. Acesso de admin necessário.",
+      "title": "Configurações do Servidor"
+    },
     "sessions": {
-      "continueGame": "Continuar jogo",
+      "continueGame": "Continuar Jogo",
       "deleteConfirm": {
-        "message": "Tem certeza de que deseja excluir esta sessão para \"{{game}}\"? Esta ação não pode ser desfeita.",
-        "title": "Excluir sessão"
+        "message": "Tem certeza de que deseja excluir esta sessão de \"{{game}}\"? Esta ação não pode ser desfeita.",
+        "title": "Excluir Sessão"
       },
       "empty": {
-        "description": "Inicie um novo jogo para começar sua aventura!",
+        "description": "Comece um novo jogo para iniciar sua aventura!",
         "noResults": "Nenhum jogo correspondente encontrado",
         "title": "Ainda não jogou nenhum jogo"
       },
       "errors": {
-        "loadFailed": "Falha ao carregar seus jogos. Por favor, tente novamente."
+        "loadFailed": "Falha ao carregar seus jogos. Tente novamente."
       },
       "fields": {
         "game": "Jogo",
-        "lastPlayed": "Último jogo",
+        "lastPlayed": "Última vez jogado",
         "model": "Modelo"
+      },
+      "freeUseKey": {
+        "description": "Defina uma chave de uso livre para permitir que todos os membros da organização joguem sem precisar da própria chave de API. Apenas chaves já compartilhadas com esta organização podem ser selecionadas.",
+        "remove": "Remover",
+        "selectPlaceholder": "Selecione uma chave compartilhada...",
+        "title": "Chave de Uso Livre",
+        "unknownKey": "Chave desconhecida"
       },
       "noDescription": "Sem descrição",
       "sort": {
         "game": "Jogo",
         "label": "Ordenar por",
-        "lastPlayed": "Último jogo",
+        "lastPlayed": "Última vez jogado",
         "model": "Modelo"
       },
-      "startNewGame": "Iniciar novo jogo",
-      "title": "Continuar jogando",
+      "startNewGame": "Iniciar Novo Jogo",
+      "title": "Continue Jogando",
       "untitledGame": "Jogo sem título"
     },
     "settings": "Configurações",
+    "showing": "{{count}} membros",
+    "sort": {
+      "label": "Ordenar por",
+      "name-asc": "Nome (A-Z)",
+      "name-desc": "Nome (Z-A)",
+      "role-asc": "Função (A-Z)",
+      "role-desc": "Função (Z-A)"
+    },
     "unnamed": "Sem nome",
-    "viewGame": "Visualizar jogo"
+    "viewGame": "Ver Jogo"
   },
   "dashboard": {
     "cards": {
@@ -792,120 +1107,140 @@
         "title": "Sobre o ChatGameLab"
       },
       "lastPlayed": {
-        "empty": "Ainda não há histórico de jogos. Comece a jogar!",
-        "title": "Últimos jogados",
-        "viewAll": "Todos os jogos"
+        "empty": "Ainda não há histórico de jogo. Comece a jogar!",
+        "title": "Últimos Jogados",
+        "viewAll": "Todos os Jogos"
       },
       "myGames": {
         "empty": "Ainda não há jogos. Crie seu primeiro jogo!",
-        "title": "Meus jogos",
-        "viewAll": "Todas as criações"
+        "title": "Meus Jogos",
+        "viewAll": "Todas as Criações"
       },
       "myWorkshops": {
-        "empty": "Sem workshops ativos. Crie um workshop em sua organização!",
-        "title": "Meus workshops",
-        "viewAll": "Todos os workshops"
+        "empty": "Nenhum workshop ativo. Crie um workshop na sua organização!",
+        "title": "Meus Workshops",
+        "viewAll": "Todos os Workshops"
       },
       "newGames": {
-        "empty": "Ainda não há jogos disponíveis.",
-        "title": "Novos jogos",
-        "viewAll": "Todos os jogos"
+        "empty": "Nenhum jogo disponível ainda.",
+        "title": "Novos Jogos",
+        "viewAll": "Todos os Jogos"
       },
       "popularGames": {
-        "empty": "Ainda não há jogos disponíveis.",
+        "empty": "Nenhum jogo disponível ainda.",
         "plays": "{{count}} jogadas",
-        "title": "Jogos populares",
-        "viewAll": "Todos os jogos"
+        "title": "Jogos Populares",
+        "viewAll": "Todos os Jogos"
       }
     },
     "quickActions": {
-      "createNewGame": "Criar novo jogo",
-      "createRoom": "Criar sala",
-      "inviteMembers": "Convidar membros",
-      "startNewGame": "Iniciar novo jogo",
-      "title": "Ações rápidas"
+      "createNewGame": "Criar Novo Jogo",
+      "createWorkshop": "Criar Workshop",
+      "importGame": "Importar Jogo",
+      "inviteMembers": "Convidar Membros",
+      "startNewGame": "Iniciar Novo Jogo",
+      "title": "Ações Rápidas"
     },
     "untitled": "Sem título",
     "untitledGame": "Jogo sem título",
     "version": {
       "mismatch": {
-        "message": "A versão do frontend \u0003\u003cfrontendVersion\u0003\u003e{{frontendVersion}}\u0003\u003c/frontendVersion\u0003\u003e não corresponde à versão do backend \u0003\u003cbackendVersion\u0003\u003e{{backendVersion}}\u0003\u003c/backendVersion\u0003\u003e. Isso pode causar comportamento inesperado. Contate o suporte se os problemas persistirem.",
-        "title": "Detectado conflito de versões"
+        "message": "A versão do frontend \ffrontendVersion\f/frontendVersion\u000e{{frontendVersion}}\f/frontendVersion\u000e não corresponde à versão do backend \fbackendVersion\f/backendVersion\u000e{{backendVersion}}\f/backendVersion\u000e. Isso pode causar comportamento inesperado. Contate o suporte se os problemas persistirem.",
+        "title": "Incompatibilidade de Versão Detectada"
       }
     }
   },
   "errors": {
-    "aiError": "O serviço de IA encontrou um erro. Por favor, tente novamente.",
-    "backendUserFetch": "Falha ao carregar dados do usuário do servidor. Por favor, tente novamente.",
-    "billingNotActive": "Sua conta OpenAI não está ativa. Verifique seus dados de faturamento em https://platform.openai.com/settings/organization/billing.",
-    "conflict": "Esta ação entra em conflito com dados existentes. Por favor, tente novamente.",
-    "contentFiltered": "Sua solicitação foi filtrada pela política de conteúdo da IA. Tente reformular.",
+    "aiError": "O serviço de IA encontrou um erro. Tente novamente.",
+    "backendUserFetch": "Falha ao carregar os dados do usuário do servidor. Tente novamente.",
+    "billingNotActive": "Sua conta OpenAI não está ativa. Verifique seus detalhes de cobrança em https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Esta ação conflita com dados existentes. Tente novamente.",
+    "contentFiltered": "Seu pedido foi filtrado pela política de conteúdo da IA. Tente reformular.",
+    "duplicateName": "O nome deste jogo já está em uso. Escolha um nome diferente.",
     "forbidden": "Você não tem permissão para executar esta ação.",
-    "generic": "Algo deu errado. Por favor, tente novamente.",
-    "insufficientQuota": "Sua chave de API ficou sem créditos. Por favor, adicione mais créditos ou use outra chave de API.",
+    "generic": "Algo deu errado. Tente novamente.",
+    "insufficientQuota": "Sua chave de API ficou sem créditos. Adicione mais créditos ou use outra chave de API.",
     "invalidApiKey": "Sua chave de API é inválida ou expirou. Verifique sua chave de API em Configurações.",
-    "invalidPlatform": "Plataforma selecionada inválida. Por favor, escolha uma opção válida.",
-    "invalidToken": "Sua sessão expirou ou é inválida. Por favor, use novamente seu link de convite.",
+    "invalidJsonSchema": "A configuração do jogo produziu um esquema inválido para a IA. Trata-se de um problema de configuração do jogo, não da chave de API. Verifique os campos de status do jogo e tente novamente.",
+    "invalidPlatform": "Plataforma inválida selecionada. Escolha uma opção válida.",
+    "invalidToken": "Sua sessão expirou ou é inválida. Use novamente seu link de convite.",
+    "nameProfane": "Este nome não é permitido. Escolha um nome diferente.",
+    "nameTooLong": "O nome é muito longo. Escolha um nome mais curto.",
     "network": "Erro de rede. Verifique sua conexão.",
+    "noApiKey": "Nenhuma chave de API está disponível para este jogo. O patrocinador pode ter removido a chave ou você precisa configurar a sua.",
     "notFound": "O recurso solicitado não foi encontrado.",
-    "orgVerificationRequired": "Sua organização OpenAI precisa de verificação para usar a geração de imagens. Por favor, verifique em https://platform.openai.com/settings/organization/general.",
+    "orgVerificationRequired": "Sua organização OpenAI precisa de verificação para usar o recurso de geração de imagens. Verifique em https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "A IA perdeu o contexto desta conversa. Isso pode acontecer quando uma sessão fica inativa por um tempo. Inicie uma nova sessão para continuar jogando.",
     "rateLimitExceeded": "Muitas solicitações. Aguarde um momento e tente novamente.",
-    "server": "Erro do servidor. Por favor, tente novamente mais tarde.",
+    "server": "Erro do servidor. Tente novamente mais tarde.",
     "titles": {
       "aiError": "Erro de IA",
-      "authentication": "Erro de autenticação",
-      "billing": "Erro de faturamento",
+      "authentication": "Erro de Autenticação",
+      "billing": "Erro de Cobrança",
       "error": "Erro",
-      "network": "Erro de rede",
-      "notFound": "Não encontrado",
-      "permission": "Permissão negada",
-      "server": "Erro do servidor",
-      "validation": "Erro de validação",
-      "workshopInactive": "Workshop inativo"
+      "gameConfig": "Erro de Configuração do Jogo",
+      "network": "Erro de Rede",
+      "noApiKey": "Sem Chave de API",
+      "notFound": "Não Encontrado",
+      "permission": "Permissão Negada",
+      "server": "Erro do Servidor",
+      "validation": "Erro de Validação",
+      "workshopInactive": "Workshop Inativo"
     },
-    "unauthorized": "Por favor, faça login para continuar.",
+    "unauthorized": "Faça login para continuar.",
     "unexpected": "Ocorreu um erro inesperado.",
-    "userNotRegistered": "Você precisa completar o registro antes de continuar.",
-    "validation": "Por favor, verifique sua entrada e tente novamente.",
+    "userNotRegistered": "Você precisa concluir o cadastro antes de continuar.",
+    "validation": "Verifique sua entrada e tente novamente.",
     "workshopInactive": "Este workshop foi desativado. Contate seu professor ou organizador do workshop."
   },
   "myWorkshop": {
     "empty": {
-      "description": "Comece a jogar para vê-los aqui, ou crie o seu próprio!",
+      "description": "Comece a jogar para vê-los aqui, ou crie os seus!",
       "title": "Ainda não há jogos"
     },
     "filters": {
-      "all": "Todos os jogos",
-      "mine": "Meus jogos",
-      "public": "Jogos públicos",
-      "workshop": "Jogos do workshop"
+      "all": "Todos os Jogos",
+      "mine": "Meus Jogos",
+      "public": "Jogos Públicos",
+      "workshop": "Jogos do Workshop"
     },
     "gameType": "Jogo",
-    "organizator": "Organizador: {{name}}",
-    "settings": {
-      "currentWorkshop": "Workshop atual",
-      "notInWorkshopMode": "Você não está em modo workshop. Por favor, entre em um workshop primeiro.",
-      "title": "Configurações do workshop"
+    "members": {
+      "empty": "Ainda não há membros",
+      "title": "Membros do Workshop"
     },
-    "title": "Meu workshop",
+    "organizator": "Organizador: {{name}}",
+    "paused": {
+      "description": "O workshop está pausado no momento. Aguarde instruções dos organizadores.",
+      "title": "Workshop Pausado"
+    },
+    "settings": {
+      "currentWorkshop": "Workshop Atual",
+      "notInWorkshopMode": "Você não está em modo workshop. Entre em um workshop primeiro.",
+      "title": "Configurações do Workshop"
+    },
+    "title": "Meu Workshop",
     "you": "Você"
   },
   "navigation": {
-    "allGames": "Todos os jogos",
-    "create": "Crie seu próprio jogo",
+    "adminPanel": "Painel de Admin",
+    "allGames": "Todos os Jogos",
+    "create": "Crie Seu Próprio Jogo",
+    "createGame": "Criar Jogo",
     "dashboard": "Painel",
     "games": "Jogos",
     "groups": "Grupos",
-    "manageOrganizations": "Gerenciar organizações",
-    "manageUsers": "Gerenciar usuários",
-    "myGames": "Meus jogos",
-    "myOrganization": "Minha organização",
-    "myWorkshop": "Meu workshop",
+    "manageOrganizations": "Gerenciar Organizações",
+    "manageUsers": "Gerenciar Usuários",
+    "myGames": "Meus Jogos",
+    "myOrganization": "Minha Organização",
+    "myWorkshop": "Meu Workshop",
     "orgApiKeys": "Chaves de API",
     "orgMembers": "Membros",
     "orgWorkshops": "Workshops",
-    "play": "Jogar um jogo",
+    "play": "Jogar um Jogo",
     "rooms": "Salas",
-    "workshopSettings": "Configurações do workshop"
+    "serverSettings": "Configurações do Servidor",
+    "workshopSettings": "Configurações do Workshop"
   }
 }

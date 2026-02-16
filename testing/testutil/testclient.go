@@ -531,8 +531,8 @@ func (u *UserClient) CreateGameSessionWithStream(gameID string) (routes.SessionR
 		return routes.SessionResponse{}, nil, fmt.Errorf("no session returned")
 	}
 
-	// PHASE 2: Send empty action to trigger opening scene generation
-	openingMsg, streamResult, err := u.SendGameMessageWithStream(resp.GameSession.ID.String(), "")
+	// PHASE 2: Send "init" system action to trigger opening scene generation
+	openingMsg, streamResult, err := u.SendSystemMessage(resp.GameSession.ID.String(), "init")
 	if err != nil {
 		return routes.SessionResponse{}, nil, fmt.Errorf("failed to trigger opening scene: %w", err)
 	}
@@ -572,33 +572,51 @@ type StreamResult struct {
 	AudioData []byte
 }
 
-// SendGameMessageWithStream sends a message and consumes the SSE stream to get the full expanded story
-func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, *StreamResult, error) {
+// sendActionWithStream sends an action and consumes the SSE stream to get the full expanded story
+func (u *UserClient) sendActionWithStream(sessionID string, req routes.SessionActionRequest) (obj.GameSessionMessage, *StreamResult, error) {
 	u.t.Helper()
 
-	// Get initial response with plot outline
-	initialResponse, err := u.SendGameMessage(sessionID, message)
+	// Send action
+	var response obj.GameSessionMessage
+	err := u.Post("sessions/"+sessionID, req, &response)
 	if err != nil {
 		return obj.GameSessionMessage{}, nil, err
 	}
 
 	// If not streaming, return the initial response
-	if !initialResponse.Stream {
-		return initialResponse, &StreamResult{Text: initialResponse.Message, ImageData: initialResponse.Image}, nil
+	if !response.Stream {
+		return response, &StreamResult{Text: response.Message, ImageData: response.Image}, nil
 	}
 
 	// Consume the SSE stream to get full expanded story
-	result, err := u.consumeMessageStream(initialResponse.ID.String())
+	result, err := u.consumeMessageStream(response.ID.String())
 	if err != nil {
 		return obj.GameSessionMessage{}, nil, fmt.Errorf("failed to consume stream: %w", err)
 	}
 
 	// Update response with full content
-	initialResponse.Message = result.Text
-	initialResponse.Image = result.ImageData
-	initialResponse.Stream = false
+	response.Message = result.Text
+	response.Image = result.ImageData
+	response.Stream = false
 
-	return initialResponse, result, nil
+	return response, result, nil
+}
+
+// SendSystemMessage sends a system-type message to a game session (e.g., "init" for opening scene)
+func (u *UserClient) SendSystemMessage(sessionID string, message string) (obj.GameSessionMessage, *StreamResult, error) {
+	u.t.Helper()
+	return u.sendActionWithStream(sessionID, routes.SessionActionRequest{
+		Type:    "system",
+		Message: message,
+	})
+}
+
+// SendGameMessageWithStream sends a message and consumes the SSE stream to get the full expanded story
+func (u *UserClient) SendGameMessageWithStream(sessionID string, message string) (obj.GameSessionMessage, *StreamResult, error) {
+	u.t.Helper()
+	return u.sendActionWithStream(sessionID, routes.SessionActionRequest{
+		Message: message,
+	})
 }
 
 // consumeMessageStream connects to SSE endpoint and consumes all chunks
