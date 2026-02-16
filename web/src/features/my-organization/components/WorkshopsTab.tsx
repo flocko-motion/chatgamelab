@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/providers/AuthProvider";
 import {
   Stack,
@@ -57,6 +57,7 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useInstitutionApiKeys,
 } from "@/api/hooks";
 import {
   ExpandableSearch,
@@ -169,6 +170,44 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
+  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
+
+  // Helper to get API key type for a workshop
+  const getApiKeyTypeInfo = useCallback(
+    (workshopApiKeyShareId: string | undefined) => {
+      if (!workshopApiKeyShareId || !institutionApiKeys) {
+        return null;
+      }
+
+      const share = institutionApiKeys.find((s) => s.id === workshopApiKeyShareId);
+      if (!share) return null;
+
+      const ownerName = share.apiKey?.userName || share.user?.name || t("myOrganization.workshops.unknownOwner");
+
+      // Workshop-specific share (has workshop but not institution)
+      if (share.workshop && !share.institution) {
+        return {
+          type: "workshop",
+          label: t("myOrganization.workshops.apiKeyTypes.workshop"),
+          color: "violet",
+          ownerName,
+        };
+      }
+
+      // Organization share (has institution)
+      if (share.institution) {
+        return {
+          type: "organization",
+          label: t("myOrganization.workshops.apiKeyTypes.organization"),
+          color: "blue",
+          ownerName,
+        };
+      }
+
+      return null;
+    },
+    [institutionApiKeys, t]
+  );
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -713,6 +752,22 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                           <Text size="sm" fw={500}>
                             {t("myOrganization.workshops.defaultApiKey")}
                           </Text>
+                          {(() => {
+                            const apiKeyTypeInfo = getApiKeyTypeInfo(
+                              workshop.defaultApiKeyShareId
+                            );
+                            return (
+                              apiKeyTypeInfo && (
+                                <Badge
+                                  size="xs"
+                                  color={apiKeyTypeInfo.color}
+                                  variant="light"
+                                >
+                                  {apiKeyTypeInfo.label}
+                                </Badge>
+                              )
+                            );
+                          })()}
                         </Group>
                         <WorkshopApiKeySelect
                           institutionId={institutionId}
@@ -724,6 +779,23 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                           disabled={setWorkshopApiKey.isPending}
                           size="xs"
                         />
+                        {(() => {
+                          const apiKeyTypeInfo = getApiKeyTypeInfo(
+                            workshop.defaultApiKeyShareId
+                          );
+                          return (
+                            apiKeyTypeInfo && (
+                              <Group gap="xs">
+                                <Text size="xs" c="dimmed">
+                                  {t("myOrganization.workshops.keyOwner")}:
+                                </Text>
+                                <Text size="xs" fw={500}>
+                                  {apiKeyTypeInfo.ownerName}
+                                </Text>
+                              </Group>
+                            )
+                          );
+                        })()}
                         <Text size="xs" c="dimmed">
                           {t("myOrganization.workshops.defaultApiKeyHint")}
                         </Text>

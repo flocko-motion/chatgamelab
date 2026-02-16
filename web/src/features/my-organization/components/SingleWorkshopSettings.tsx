@@ -18,6 +18,7 @@ import {
   Table,
   Select,
 } from "@mantine/core";
+import { useMemo } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
@@ -43,6 +44,7 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useInstitutionApiKeys,
 } from "@/api/hooks";
 import { WorkshopApiKeySelect } from "./WorkshopApiKeySelect";
 import { TextButton } from "@/common/components/buttons/TextButton";
@@ -87,6 +89,7 @@ export function SingleWorkshopSettings({
     useState<ObjWorkshopParticipant | null>(null);
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
+  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
 
   const updateWorkshop = useUpdateWorkshop();
   const createInvite = useCreateWorkshopInvite();
@@ -99,6 +102,43 @@ export function SingleWorkshopSettings({
   const aiQualityTierOptions = getAiQualityTierOptions(t, {
     includeEmpty: true,
   });
+
+  // Determine the API key type based on the share
+  const apiKeyTypeInfo = useMemo(() => {
+    if (!workshop?.defaultApiKeyShareId || !institutionApiKeys) {
+      return null;
+    }
+
+    const share = institutionApiKeys.find(
+      (s) => s.id === workshop.defaultApiKeyShareId
+    );
+
+    if (!share) return null;
+
+    const ownerName = share.apiKey?.userName || share.user?.name || t("myOrganization.workshops.unknownOwner");
+
+    // Workshop-specific share (has workshop but not institution)
+    if (share.workshop && !share.institution) {
+      return {
+        type: "workshop",
+        label: t("myOrganization.workshops.apiKeyTypes.workshop"),
+        color: "violet",
+        ownerName,
+      };
+    }
+
+    // Organization share (has institution)
+    if (share.institution) {
+      return {
+        type: "organization",
+        label: t("myOrganization.workshops.apiKeyTypes.organization"),
+        color: "blue",
+        ownerName,
+      };
+    }
+
+    return null;
+  }, [workshop?.defaultApiKeyShareId, institutionApiKeys, t]);
 
   const handleCreateAndViewInvite = async () => {
     if (!workshopId) return;
@@ -305,6 +345,11 @@ export function SingleWorkshopSettings({
               <Text size="sm" fw={500}>
                 {t("myOrganization.workshops.defaultApiKey")}
               </Text>
+              {apiKeyTypeInfo && (
+                <Badge size="sm" color={apiKeyTypeInfo.color} variant="light">
+                  {apiKeyTypeInfo.label}
+                </Badge>
+              )}
             </Group>
             <WorkshopApiKeySelect
               institutionId={institutionId}
@@ -314,6 +359,16 @@ export function SingleWorkshopSettings({
               disabled={setWorkshopApiKey.isPending}
               size="sm"
             />
+            {apiKeyTypeInfo && (
+              <Group gap="xs">
+                <Text size="xs" c="dimmed">
+                  {t("myOrganization.workshops.keyOwner")}:
+                </Text>
+                <Text size="xs" fw={500}>
+                  {apiKeyTypeInfo.ownerName}
+                </Text>
+              </Group>
+            )}
             <Text size="xs" c="dimmed">
               {t("myOrganization.workshops.defaultApiKeyHint")}
             </Text>
