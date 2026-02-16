@@ -326,8 +326,14 @@ CREATE TABLE game_session (
     theme           jsonb NULL,
     -- Set to true when image generation fails due to organization verification required
     is_organisation_unverified boolean NOT NULL DEFAULT false,
+    -- Type of API key used for this session (personal, workshop, organization_free_use, chatgamelab_free_use, sponsor, private_share)
+    api_key_type    text NULL,
 
-    deleted_at      timestamptz NULL
+    deleted_at      timestamptz NULL,
+
+    CONSTRAINT game_session_api_key_type_chk CHECK (api_key_type IS NULL OR api_key_type IN (
+        'personal', 'workshop', 'organization_free_use', 'chatgamelab_free_use', 'sponsor', 'private_share'
+    ))
 );
 
 -- GameSessionMessage
@@ -362,10 +368,15 @@ CREATE TABLE game_session_message (
     response_raw            text NULL,
     token_usage             jsonb NULL,
     url_analytics           text NULL,
+    -- Type of API key used for this message (personal, workshop, organization_free_use, chatgamelab_free_use, sponsor, private_share)
+    api_key_type            text NULL,
 
     deleted_at          timestamptz NULL,
 
-    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
+    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system')),
+    CONSTRAINT game_session_message_api_key_type_chk CHECK (api_key_type IS NULL OR api_key_type IN (
+        'personal', 'workshop', 'organization_free_use', 'chatgamelab_free_use', 'sponsor', 'private_share'
+    ))
 );
 -- SystemSettings
 -- Global system settings (single row table)
