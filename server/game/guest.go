@@ -139,7 +139,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
 
 	// Build a single-element candidate list for generateSessionSetup
-	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel}}
+	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel, KeyType: obj.ApiKeyTypePrivateShare}}
 
 	// Run theme generation + translation; fails early on key-related errors
 	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
@@ -161,7 +161,8 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	}
 
 	// Persist session
-	session, err := db.CreateGameSession(ctx, user.ID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
+	keyType := obj.ApiKeyTypePrivateShare
+	session, err := db.CreateGameSession(ctx, user.ID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, &keyType)
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
 	}
@@ -208,5 +209,7 @@ func ResolveGuestSessionApiKey(ctx context.Context, session *obj.GameSession, ga
 	session.ApiKey = share.ApiKey
 	session.ApiKeyID = &share.ApiKey.ID
 	session.AiPlatform = share.ApiKey.Platform
+	keyType := obj.ApiKeyTypePrivateShare
+	session.ApiKeyType = &keyType
 	return nil
 }

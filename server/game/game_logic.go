@@ -315,7 +315,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Persist to database with theme
 	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
+	keyType := candidates[setup.candidateIndex].KeyType
+	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, &keyType)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
@@ -369,7 +370,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 					continue
 				}
 
-				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
+				fallbackKeyType := fallback.KeyType
+				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language, &fallbackKeyType)
 				if err != nil {
 					log.Debug("failed to create fallback session", "error", err)
 					continue
@@ -486,6 +488,8 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Store the action message (player or system) so it appears in session history.
 	// Track the message ID so we can delete it if the AI action fails.
+	// Inherit ApiKeyType from session
+	action.ApiKeyType = session.ApiKeyType
 	var actionMessageID *uuid.UUID
 	log.Debug("storing action message", "session_id", session.ID, "type", action.Type)
 	actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
@@ -496,12 +500,14 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	actionMessageID = &actionMsg.ID
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
+	// Inherit ApiKeyType from session
 	log.Debug("creating streaming message", "session_id", session.ID)
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
 	if err != nil {
 		log.Debug("failed to create streaming message", "session_id", session.ID, "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
 	}
+	response.ApiKeyType = session.ApiKeyType
 	log.Debug("streaming message created", "message_id", response.ID)
 
 	// Attach transcription to the response so the client can display what was recognized

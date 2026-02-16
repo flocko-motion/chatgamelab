@@ -10,10 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// resolvedKey holds the resolved API key share and the AI quality tier from the same source.
+// resolvedKey holds the resolved API key share, the AI quality tier, and the key type from the same source.
 type resolvedKey struct {
 	Share         *obj.ApiKeyShare
-	AiQualityTier string // resolved tier (high/medium/low), never empty
+	AiQualityTier string         // resolved tier (high/medium/low), never empty
+	KeyType       obj.ApiKeyType // type of key (personal, workshop, organization_free_use, etc.)
 }
 
 const maxCandidates = 3
@@ -46,28 +47,28 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 	var candidates []resolvedKey
 	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
 
-	add := func(share *obj.ApiKeyShare, tier string) {
+	add := func(share *obj.ApiKeyShare, tier string, keyType obj.ApiKeyType) {
 		if share == nil || share.ApiKey == nil || seen[share.ApiKey.ID] || len(candidates) >= maxCandidates {
 			return
 		}
 		seen[share.ApiKey.ID] = true
-		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier})
+		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType})
 	}
 
 	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop)
 	}
 	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
-		add(share, defaultTier)
+		add(share, defaultTier, obj.ApiKeyTypeSponsor)
 	}
 	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeOrganizationFreeUse)
 	}
 	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal)
 	}
 	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeChatGameLabFreeUse)
 	}
 
 	if len(candidates) == 0 {
@@ -121,6 +122,7 @@ func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
 	session.ApiKeyID = &resolved.Share.ApiKey.ID
 	session.AiPlatform = resolved.Share.ApiKey.Platform
 	session.AiModel = resolved.AiQualityTier
+	session.ApiKeyType = &resolved.KeyType
 }
 
 // tierOrDefault returns tier if non-empty, otherwise the default.
