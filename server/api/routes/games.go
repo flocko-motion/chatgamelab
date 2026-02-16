@@ -44,7 +44,6 @@ func GetGames(w http.ResponseWriter, r *http.Request) {
 	sortDir := r.URL.Query().Get("sortDir")
 	filter := r.URL.Query().Get("filter")
 
-	log.Debug("listing games", "user_id", userID, "search", searchQuery, "sortBy", sortBy, "sortDir", sortDir, "filter", filter)
 	filters := &db.GetGamesFilters{
 		Search:    searchQuery,
 		SortField: sortBy,

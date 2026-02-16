@@ -661,7 +661,7 @@ func GetMessageStream(w http.ResponseWriter, r *http.Request) {
 	for chunk := range s.Chunks {
 		chunkCount++
 		data, _ := json.Marshal(chunk)
-		log.Debug("[SSE] sending chunk to client", "message_id", messageID, "chunk_num", chunkCount, "text_len", len(chunk.Text), "textDone", chunk.TextDone, "imageDone", chunk.ImageDone, "audioDone", chunk.AudioDone)
+		//log.Debug("[SSE] sending chunk to client", "message_id", messageID, "chunk_num", chunkCount, "text_len", len(chunk.Text), "textDone", chunk.TextDone, "imageDone", chunk.ImageDone, "audioDone", chunk.AudioDone)
 		fmt.Fprintf(w, "data: %s\n\n", data)
 		flusher.Flush()
 

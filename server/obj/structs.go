@@ -281,6 +281,8 @@ type GameSession struct {
 	Theme *GameTheme `json:"theme,omitempty"`
 	// Set to true when image generation fails due to organization verification required
 	IsOrganisationUnverified bool `json:"isOrganisationUnverified,omitempty"`
+	// Type of API key used for this session
+	ApiKeyType *ApiKeyType `json:"apiKeyType,omitempty"`
 }
 
 // GameTheme defines the visual theme for the game player UI.
@@ -318,6 +320,18 @@ const (
 	AiModelPremium  = "high"
 	AiModelBalanced = "medium"
 	AiModelEconomy  = "low"
+)
+
+// ApiKeyType represents the source/type of API key used for a session or message
+type ApiKeyType string
+
+const (
+	ApiKeyTypePersonal            ApiKeyType = "personal"
+	ApiKeyTypeWorkshop            ApiKeyType = "workshop"
+	ApiKeyTypeOrganizationFreeUse ApiKeyType = "organization_free_use"
+	ApiKeyTypeChatGameLabFreeUse  ApiKeyType = "chatgamelab_free_use"
+	ApiKeyTypeSponsor             ApiKeyType = "sponsor"
+	ApiKeyTypePrivateShare        ApiKeyType = "private_share"
 )
 
 // aiModelPriority defines the tier ordering from highest to lowest.
@@ -439,6 +453,8 @@ type GameSessionMessage struct {
 	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
 	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
+	// Type of API key used for this message
+	ApiKeyType *ApiKeyType `json:"apiKeyType,omitempty"`
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
