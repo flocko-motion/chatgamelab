@@ -523,8 +523,9 @@ func (s *WorkshopApiKeyTestSuite) TestPersonalKeyShareReplacedByOrgShare() {
 	s.T().Logf("Both API keys still exist, workshop-specific share was cleaned up")
 }
 
-// TestPersonalKeyShareUsedByMultipleWorkshops tests that a workshop-specific share
-// used by multiple workshops is NOT deleted when removed from just one workshop.
+// TestPersonalKeyShareUsedByMultipleWorkshops tests that when the same personal key
+// is used for multiple workshops, each workshop gets its own workshop-specific share.
+// Clearing one workshop's key should only delete that workshop's share, not affect the other.
 func (s *WorkshopApiKeyTestSuite) TestPersonalKeyShareUsedByMultipleWorkshops() {
 	admin := s.DevUser()
 
@@ -540,17 +541,21 @@ func (s *WorkshopApiKeyTestSuite) TestPersonalKeyShareUsedByMultipleWorkshops() 
 	s.T().Logf("Head added personal key: apiKeyID=%s", keyShare.ApiKeyID)
 
 	// Head creates two workshops and sets the same personal key on both via apiKeyId
+	// Each call creates a separate workshop-specific share
 	workshop1 := Must(head.CreateWorkshop(inst.ID.String(), "Multi WS 1"))
 	ws1IDStr := workshop1.ID.String()
 	updatedWs1 := Must(head.SetWorkshopApiKeyByKeyId(ws1IDStr, keyShare.ApiKeyID.String()))
-	shareID := updatedWs1.DefaultApiKeyShareID.String()
-	s.T().Logf("Workshop 1 set with personal key, share: %s", shareID)
+	share1ID := updatedWs1.DefaultApiKeyShareID.String()
+	s.T().Logf("Workshop 1 set with personal key, share: %s", share1ID)
 
-	// Set the SAME share on workshop 2 (head uses the share ID directly)
 	workshop2 := Must(head.CreateWorkshop(inst.ID.String(), "Multi WS 2"))
 	ws2IDStr := workshop2.ID.String()
-	Must(head.SetWorkshopApiKey(ws2IDStr, &shareID))
-	s.T().Logf("Workshop 2 set with same share: %s", shareID)
+	updatedWs2 := Must(head.SetWorkshopApiKeyByKeyId(ws2IDStr, keyShare.ApiKeyID.String()))
+	share2ID := updatedWs2.DefaultApiKeyShareID.String()
+	s.T().Logf("Workshop 2 set with personal key, share: %s", share2ID)
+
+	// The two shares should be different (each workshop gets its own)
+	s.NotEqual(share1ID, share2ID, "each workshop should have its own workshop-specific share")
 
 	// Upload a game for testing
 	game := Must(head.UploadGame("alien-first-contact"))
@@ -579,10 +584,10 @@ func (s *WorkshopApiKeyTestSuite) TestPersonalKeyShareUsedByMultipleWorkshops() 
 	s.Nil(ws1.DefaultApiKeyShareID, "workshop 1 key should be cleared")
 	s.T().Logf("Workshop 1 key cleared")
 
-	// Workshop 2 should still have the share and participant 2 should still have access
+	// Workshop 2 should still have its share and participant 2 should still have access
 	ws2 := Must(head.GetWorkshop(ws2IDStr))
-	s.NotNil(ws2.DefaultApiKeyShareID, "workshop 2 should still have the share")
-	s.Equal(shareID, ws2.DefaultApiKeyShareID.String(), "workshop 2 share should be unchanged")
+	s.NotNil(ws2.DefaultApiKeyShareID, "workshop 2 should still have its share")
+	s.Equal(share2ID, ws2.DefaultApiKeyShareID.String(), "workshop 2 share should be unchanged")
 
 	avail2After := Must(participant2.GetApiKeyStatus(game.ID.String()))
 	s.True(avail2After, "participant 2 should still have API key available after clearing workshop 1")
@@ -603,7 +608,8 @@ func (s *WorkshopApiKeyTestSuite) TestPersonalKeyShareUsedByMultipleWorkshops() 
 }
 
 // TestApiKeyDeletionCascadesToWorkshopShares tests that deleting an API key
-// also removes workshop-specific shares and clears the workshops that referenced them.
+// cascades to all workshop-specific shares created from it and clears all workshops
+// that referenced those shares.
 func (s *WorkshopApiKeyTestSuite) TestApiKeyDeletionCascadesToWorkshopShares() {
 	admin := s.DevUser()
 
@@ -615,19 +621,24 @@ func (s *WorkshopApiKeyTestSuite) TestApiKeyDeletionCascadesToWorkshopShares() {
 	s.T().Logf("Head joined institution")
 
 	// Head creates a personal key and sets it on two workshops
+	// Each workshop gets its own workshop-specific share
 	keyShare := Must(head.AddApiKey("mock-cascade-key", "Cascade Key", "mock"))
 	s.T().Logf("Head added personal key: apiKeyID=%s", keyShare.ApiKeyID)
 
 	workshop1 := Must(head.CreateWorkshop(inst.ID.String(), "Cascade WS 1"))
 	ws1IDStr := workshop1.ID.String()
 	updatedWs1 := Must(head.SetWorkshopApiKeyByKeyId(ws1IDStr, keyShare.ApiKeyID.String()))
-	shareID := updatedWs1.DefaultApiKeyShareID.String()
-	s.T().Logf("Workshop 1 set with personal key, share: %s", shareID)
+	share1ID := updatedWs1.DefaultApiKeyShareID.String()
+	s.T().Logf("Workshop 1 set with personal key, share: %s", share1ID)
 
 	workshop2 := Must(head.CreateWorkshop(inst.ID.String(), "Cascade WS 2"))
 	ws2IDStr := workshop2.ID.String()
-	Must(head.SetWorkshopApiKey(ws2IDStr, &shareID))
-	s.T().Logf("Workshop 2 set with same share")
+	updatedWs2 := Must(head.SetWorkshopApiKeyByKeyId(ws2IDStr, keyShare.ApiKeyID.String()))
+	share2ID := updatedWs2.DefaultApiKeyShareID.String()
+	s.T().Logf("Workshop 2 set with personal key, share: %s", share2ID)
+
+	// The two shares should be different
+	s.NotEqual(share1ID, share2ID, "each workshop should have its own workshop-specific share")
 
 	// Upload a game and create participants
 	game := Must(head.UploadGame("alien-first-contact"))
