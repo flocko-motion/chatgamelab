@@ -4696,6 +4696,14 @@ const docTemplate = `{
                     "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
+                "apiKeyType": {
+                    "description": "Type of API key used for this session",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
+                },
                 "gameDescription": {
                     "type": "string"
                 },
@@ -4906,6 +4914,25 @@ const docTemplate = `{
                 }
             }
         },
+        "obj.ApiKeyType": {
+            "type": "string",
+            "enum": [
+                "personal",
+                "workshop",
+                "organization_free_use",
+                "chatgamelab_free_use",
+                "sponsor",
+                "private_share"
+            ],
+            "x-enum-varnames": [
+                "ApiKeyTypePersonal",
+                "ApiKeyTypeWorkshop",
+                "ApiKeyTypeOrganizationFreeUse",
+                "ApiKeyTypeChatGameLabFreeUse",
+                "ApiKeyTypeSponsor",
+                "ApiKeyTypePrivateShare"
+            ]
+        },
         "obj.AvailableKey": {
             "type": "object",
             "properties": {
@@ -5064,6 +5091,14 @@ const docTemplate = `{
                     "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
+                "apiKeyType": {
+                    "description": "Type of API key used for this session",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
+                },
                 "gameDescription": {
                     "type": "string"
                 },
@@ -5123,6 +5158,14 @@ const docTemplate = `{
         "obj.GameSessionMessage": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "Type of API key used for this message",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
+                },
                 "audio": {
                     "type": "array",
                     "items": {
@@ -5775,6 +5818,14 @@ const docTemplate = `{
                     "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
                 },
+                "apiKeyType": {
+                    "description": "Type of API key used for this session",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
+                },
                 "gameDescription": {
                     "type": "string"
                 },
@@ -6054,6 +6105,14 @@ const docTemplate = `{
         "routes.SessionMessageResponse": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "Type of API key used for this message",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
+                },
                 "audio": {
                     "type": "array",
                     "items": {
@@ -6162,6 +6221,14 @@ const docTemplate = `{
                 "apiKeyId": {
                     "description": "API key used to pay for this session (sponsored or user-owned), implicitly defines platform.\nNullable: key may be deleted, session can continue with a new key.",
                     "type": "string"
+                },
+                "apiKeyType": {
+                    "description": "Type of API key used for this session",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/obj.ApiKeyType"
+                        }
+                    ]
                 },
                 "gameDescription": {
                     "type": "string"
