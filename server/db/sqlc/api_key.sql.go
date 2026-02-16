@@ -428,7 +428,9 @@ SELECT
 FROM api_key_share s
 JOIN api_key k ON k.id = s.api_key_id
 JOIN app_user owner ON owner.id = k.user_id
+LEFT JOIN workshop w ON w.id = s.workshop_id
 WHERE s.institution_id = $1
+   OR (s.workshop_id IS NOT NULL AND w.institution_id = $1 AND w.deleted_at IS NULL)
 `
 
 type GetApiKeySharesByInstitutionIDRow struct {
@@ -449,6 +451,9 @@ type GetApiKeySharesByInstitutionIDRow struct {
 	OwnerName                 string
 }
 
+// Returns all API key shares for an institution, including:
+// 1. Shares directly targeting the institution (institution_id set)
+// 2. Workshop-specific shares for workshops belonging to this institution
 func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
 	rows, err := q.db.QueryContext(ctx, getApiKeySharesByInstitutionID, institutionID)
 	if err != nil {

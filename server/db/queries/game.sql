@@ -333,13 +333,13 @@ INSERT INTO game_session (
   created_at, modified_by, modified_at,
   game_id, user_id, workshop_id, api_key_id,
   ai_platform, ai_model, ai_session,
-  image_style, language, status_fields, theme
+  image_style, language, status_fields, theme, api_key_type
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, $6, $7, $8,
   $9, $10, $11,
-  $12, $13, $14, $15
+  $12, $13, $14, $15, $16
 )
 RETURNING *;
 
@@ -445,7 +445,8 @@ UPDATE game_session SET
   modified_at = now(),
   api_key_id = $2,
   ai_platform = $3,
-  ai_model = $4
+  ai_model = $4,
+  api_key_type = $5
 WHERE id = $1
 RETURNING *;
 
@@ -473,14 +474,14 @@ INSERT INTO game_session_message (
   game_session_id, seq,
   type, message,
   status, plot, image_prompt, image,
-  has_image, has_audio
+  has_image, has_audio, api_key_type
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
   $6, $7,
   $8, $9, $10, $11,
-  $12, $13
+  $12, $13, $14
 )
 RETURNING *;
 
@@ -514,7 +515,8 @@ UPDATE game_session_message SET
   prompt_expand_story = $18,
   response_raw = $19,
   token_usage = $20,
-  url_analytics = $21
+  url_analytics = $21,
+  api_key_type = $22
 WHERE id = $1
 RETURNING *;
 

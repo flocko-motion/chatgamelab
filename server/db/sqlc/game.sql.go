@@ -166,15 +166,15 @@ INSERT INTO game_session (
   created_at, modified_by, modified_at,
   game_id, user_id, workshop_id, api_key_id,
   ai_platform, ai_model, ai_session,
-  image_style, language, status_fields, theme
+  image_style, language, status_fields, theme, api_key_type
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, $6, $7, $8,
   $9, $10, $11,
-  $12, $13, $14, $15
+  $12, $13, $14, $15, $16
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at
 `
 
 type CreateGameSessionParams struct {
@@ -193,6 +193,7 @@ type CreateGameSessionParams struct {
 	Language     string
 	StatusFields string
 	Theme        pqtype.NullRawMessage
+	ApiKeyType   sql.NullString
 }
 
 // game_session ---------------------------------------------------------
@@ -213,6 +214,7 @@ func (q *Queries) CreateGameSession(ctx context.Context, arg CreateGameSessionPa
 		arg.Language,
 		arg.StatusFields,
 		arg.Theme,
+		arg.ApiKeyType,
 	)
 	var i GameSession
 	err := row.Scan(
@@ -233,6 +235,7 @@ func (q *Queries) CreateGameSession(ctx context.Context, arg CreateGameSessionPa
 		&i.StatusFields,
 		&i.Theme,
 		&i.IsOrganisationUnverified,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -246,16 +249,16 @@ INSERT INTO game_session_message (
   game_session_id, seq,
   type, message,
   status, plot, image_prompt, image,
-  has_image, has_audio
+  has_image, has_audio, api_key_type
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
   $6, $7,
   $8, $9, $10, $11,
-  $12, $13
+  $12, $13, $14
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at
 `
 
 type CreateGameSessionMessageParams struct {
@@ -272,6 +275,7 @@ type CreateGameSessionMessageParams struct {
 	Image         []byte
 	HasImage      bool
 	HasAudio      bool
+	ApiKeyType    sql.NullString
 }
 
 // game_session_message -------------------------------------------------
@@ -290,6 +294,7 @@ func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSe
 		arg.Image,
 		arg.HasImage,
 		arg.HasAudio,
+		arg.ApiKeyType,
 	)
 	var i GameSessionMessage
 	err := row.Scan(
@@ -316,6 +321,7 @@ func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSe
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -544,7 +550,7 @@ func (q *Queries) DeleteUserGameSessions(ctx context.Context, arg DeleteUserGame
 }
 
 const getAllGameSessionMessages = `-- name: GetAllGameSessionMessages :many
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
 `
 
 func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID uuid.UUID) ([]GameSessionMessage, error) {
@@ -580,6 +586,7 @@ func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID u
 			&i.ResponseRaw,
 			&i.TokenUsage,
 			&i.UrlAnalytics,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -735,7 +742,7 @@ func (q *Queries) GetGameIDsVisibleToUser(ctx context.Context, arg GetGameIDsVis
 }
 
 const getGameSessionByID = `-- name: GetGameSessionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at FROM game_session WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at FROM game_session WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSession, error) {
@@ -759,6 +766,7 @@ func (q *Queries) GetGameSessionByID(ctx context.Context, id uuid.UUID) (GameSes
 		&i.StatusFields,
 		&i.Theme,
 		&i.IsOrganisationUnverified,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -781,7 +789,7 @@ func (q *Queries) GetGameSessionMessageAudioByID(ctx context.Context, id uuid.UU
 }
 
 const getGameSessionMessageByID = `-- name: GetGameSessionMessageByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at FROM game_session_message WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (GameSessionMessage, error) {
@@ -811,13 +819,14 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const getGameSessionsByGameID = `-- name: GetGameSessionsByGameID :many
-SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at FROM game_session WHERE game_id = $1 ORDER BY created_at DESC
+SELECT id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at FROM game_session WHERE game_id = $1 ORDER BY created_at DESC
 `
 
 func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID) ([]GameSession, error) {
@@ -847,6 +856,7 @@ func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID)
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -864,7 +874,7 @@ func (q *Queries) GetGameSessionsByGameID(ctx context.Context, gameID uuid.UUID)
 
 const getGameSessionsByUserID = `-- name: GetGameSessionsByUserID :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -891,6 +901,7 @@ type GetGameSessionsByUserIDRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -922,6 +933,7 @@ func (q *Queries) GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID)
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -940,7 +952,7 @@ func (q *Queries) GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID)
 
 const getGameSessionsByUserIDSortByGame = `-- name: GetGameSessionsByUserIDSortByGame :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -967,6 +979,7 @@ type GetGameSessionsByUserIDSortByGameRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -998,6 +1011,7 @@ func (q *Queries) GetGameSessionsByUserIDSortByGame(ctx context.Context, userID 
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -1016,7 +1030,7 @@ func (q *Queries) GetGameSessionsByUserIDSortByGame(ctx context.Context, userID 
 
 const getGameSessionsByUserIDSortByModel = `-- name: GetGameSessionsByUserIDSortByModel :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -1043,6 +1057,7 @@ type GetGameSessionsByUserIDSortByModelRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -1074,6 +1089,7 @@ func (q *Queries) GetGameSessionsByUserIDSortByModel(ctx context.Context, userID
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -1727,7 +1743,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCountAsc(ctx context.Context,
 }
 
 const getLatestGameSessionMessage = `-- name: GetLatestGameSessionMessage :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
 `
 
 func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID uuid.UUID) (GameSessionMessage, error) {
@@ -1757,6 +1773,7 @@ func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -2818,7 +2835,7 @@ func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) erro
 
 const searchGameSessionsByUserID = `-- name: SearchGameSessionsByUserID :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -2850,6 +2867,7 @@ type SearchGameSessionsByUserIDRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -2881,6 +2899,7 @@ func (q *Queries) SearchGameSessionsByUserID(ctx context.Context, arg SearchGame
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -2899,7 +2918,7 @@ func (q *Queries) SearchGameSessionsByUserID(ctx context.Context, arg SearchGame
 
 const searchGameSessionsByUserIDSortByGame = `-- name: SearchGameSessionsByUserIDSortByGame :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -2931,6 +2950,7 @@ type SearchGameSessionsByUserIDSortByGameRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -2962,6 +2982,7 @@ func (q *Queries) SearchGameSessionsByUserIDSortByGame(ctx context.Context, arg 
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -2980,7 +3001,7 @@ func (q *Queries) SearchGameSessionsByUserIDSortByGame(ctx context.Context, arg 
 
 const searchGameSessionsByUserIDSortByModel = `-- name: SearchGameSessionsByUserIDSortByModel :many
 SELECT
-  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.deleted_at,
+  gs.id, gs.created_by, gs.created_at, gs.modified_by, gs.modified_at, gs.game_id, gs.user_id, gs.workshop_id, gs.api_key_id, gs.ai_platform, gs.ai_model, gs.ai_session, gs.image_style, gs.language, gs.status_fields, gs.theme, gs.is_organisation_unverified, gs.api_key_type, gs.deleted_at,
   g.name as game_name
 FROM game_session gs
 JOIN game g ON gs.game_id = g.id
@@ -3012,6 +3033,7 @@ type SearchGameSessionsByUserIDSortByModelRow struct {
 	StatusFields             string
 	Theme                    pqtype.NullRawMessage
 	IsOrganisationUnverified bool
+	ApiKeyType               sql.NullString
 	DeletedAt                sql.NullTime
 	GameName                 string
 }
@@ -3043,6 +3065,7 @@ func (q *Queries) SearchGameSessionsByUserIDSortByModel(ctx context.Context, arg
 			&i.StatusFields,
 			&i.Theme,
 			&i.IsOrganisationUnverified,
+			&i.ApiKeyType,
 			&i.DeletedAt,
 			&i.GameName,
 		); err != nil {
@@ -4853,7 +4876,7 @@ UPDATE game_session SET
   status_fields = $14,
   theme = $15
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at
 `
 
 type UpdateGameSessionParams struct {
@@ -4911,6 +4934,7 @@ func (q *Queries) UpdateGameSession(ctx context.Context, arg UpdateGameSessionPa
 		&i.StatusFields,
 		&i.Theme,
 		&i.IsOrganisationUnverified,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -4921,7 +4945,7 @@ UPDATE game_session SET
   ai_session = $2,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at
 `
 
 type UpdateGameSessionAiSessionParams struct {
@@ -4950,6 +4974,7 @@ func (q *Queries) UpdateGameSessionAiSession(ctx context.Context, arg UpdateGame
 		&i.StatusFields,
 		&i.Theme,
 		&i.IsOrganisationUnverified,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -4960,9 +4985,10 @@ UPDATE game_session SET
   modified_at = now(),
   api_key_id = $2,
   ai_platform = $3,
-  ai_model = $4
+  ai_model = $4,
+  api_key_type = $5
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_id, user_id, workshop_id, api_key_id, ai_platform, ai_model, ai_session, image_style, language, status_fields, theme, is_organisation_unverified, api_key_type, deleted_at
 `
 
 type UpdateGameSessionApiKeyParams struct {
@@ -4970,6 +4996,7 @@ type UpdateGameSessionApiKeyParams struct {
 	ApiKeyID   uuid.NullUUID
 	AiPlatform string
 	AiModel    string
+	ApiKeyType sql.NullString
 }
 
 func (q *Queries) UpdateGameSessionApiKey(ctx context.Context, arg UpdateGameSessionApiKeyParams) (GameSession, error) {
@@ -4978,6 +5005,7 @@ func (q *Queries) UpdateGameSessionApiKey(ctx context.Context, arg UpdateGameSes
 		arg.ApiKeyID,
 		arg.AiPlatform,
 		arg.AiModel,
+		arg.ApiKeyType,
 	)
 	var i GameSession
 	err := row.Scan(
@@ -4998,6 +5026,7 @@ func (q *Queries) UpdateGameSessionApiKey(ctx context.Context, arg UpdateGameSes
 		&i.StatusFields,
 		&i.Theme,
 		&i.IsOrganisationUnverified,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -5024,9 +5053,10 @@ UPDATE game_session_message SET
   prompt_expand_story = $18,
   response_raw = $19,
   token_usage = $20,
-  url_analytics = $21
+  url_analytics = $21,
+  api_key_type = $22
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at
 `
 
 type UpdateGameSessionMessageParams struct {
@@ -5051,6 +5081,7 @@ type UpdateGameSessionMessageParams struct {
 	ResponseRaw           sql.NullString
 	TokenUsage            pqtype.NullRawMessage
 	UrlAnalytics          sql.NullString
+	ApiKeyType            sql.NullString
 }
 
 func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSessionMessageParams) (GameSessionMessage, error) {
@@ -5076,6 +5107,7 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		arg.ResponseRaw,
 		arg.TokenUsage,
 		arg.UrlAnalytics,
+		arg.ApiKeyType,
 	)
 	var i GameSessionMessage
 	err := row.Scan(
@@ -5102,6 +5134,7 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -5112,7 +5145,7 @@ UPDATE game_session_message SET
   audio = $2,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at
 `
 
 type UpdateGameSessionMessageAudioParams struct {
@@ -5147,6 +5180,7 @@ func (q *Queries) UpdateGameSessionMessageAudio(ctx context.Context, arg UpdateG
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -5157,7 +5191,7 @@ UPDATE game_session_message SET
   image = $2,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, deleted_at
 `
 
 type UpdateGameSessionMessageImageParams struct {
@@ -5192,6 +5226,7 @@ func (q *Queries) UpdateGameSessionMessageImage(ctx context.Context, arg UpdateG
 		&i.ResponseRaw,
 		&i.TokenUsage,
 		&i.UrlAnalytics,
+		&i.ApiKeyType,
 		&i.DeletedAt,
 	)
 	return i, err

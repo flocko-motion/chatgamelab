@@ -95,6 +95,9 @@ DELETE FROM api_key_share WHERE id = $1;
 DELETE FROM api_key_share WHERE api_key_id = $1;
 
 -- name: GetApiKeySharesByInstitutionID :many
+-- Returns all API key shares for an institution, including:
+-- 1. Shares directly targeting the institution (institution_id set)
+-- 2. Workshop-specific shares for workshops belonging to this institution
 SELECT
   s.id,
   s.created_by,
@@ -114,7 +117,9 @@ SELECT
 FROM api_key_share s
 JOIN api_key k ON k.id = s.api_key_id
 JOIN app_user owner ON owner.id = k.user_id
-WHERE s.institution_id = $1;
+LEFT JOIN workshop w ON w.id = s.workshop_id
+WHERE s.institution_id = $1
+   OR (s.workshop_id IS NOT NULL AND w.institution_id = $1 AND w.deleted_at IS NULL);
 
 -- name: ClearUserDefaultApiKeyShareByApiKeyID :exec
 UPDATE app_user
