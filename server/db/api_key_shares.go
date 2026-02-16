@@ -619,6 +619,12 @@ func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institu
 
 	result := make([]obj.ApiKeyShare, 0, len(shares))
 	for _, s := range shares {
+		// Only expose key name to the owner, hide it from colleagues
+		keyName := s.ApiKeyName
+		if s.OwnerID != userID {
+			keyName = "" // Hide key name from non-owners
+		}
+
 		share := obj.ApiKeyShare{
 			ID: s.ID,
 			Meta: obj.Meta{
@@ -632,12 +638,17 @@ func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institu
 				ID:       s.ApiKeyID,
 				UserID:   s.OwnerID,
 				UserName: s.OwnerName,
-				Name:     s.ApiKeyName,
+				Name:     keyName,
 				Platform: s.ApiKeyPlatform,
 				// Key is never exposed
 			},
 			AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
-			Institution:               &obj.Institution{ID: institutionID},
+		}
+		if s.InstitutionID.Valid {
+			share.Institution = &obj.Institution{ID: s.InstitutionID.UUID}
+		}
+		if s.WorkshopID.Valid {
+			share.Workshop = &obj.Workshop{ID: s.WorkshopID.UUID}
 		}
 		result = append(result, share)
 	}

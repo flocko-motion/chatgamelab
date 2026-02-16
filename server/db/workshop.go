@@ -638,6 +638,18 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		return nil, err
 	}
 
+	// If setting a new share (not clearing), validate it
+	if apiKeyShareID != nil {
+		newShare, err := queries().GetApiKeyShareByID(ctx, *apiKeyShareID)
+		if err != nil {
+			return nil, obj.ErrNotFound("API key share not found")
+		}
+		// If the share is workshop-specific (has workshop_id set), it can only be used by that workshop
+		if newShare.WorkshopID.Valid && newShare.WorkshopID.UUID != workshopID {
+			return nil, obj.ErrForbidden("this API key share is specific to another workshop")
+		}
+	}
+
 	// If the workshop currently has a default key share, check if it's a workshop-specific
 	// share (not an org share). If so, auto-delete it since it was created solely for this workshop
 	// — but only if no other workshops also reference it.

@@ -608,7 +608,8 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string) (*obj.GameSession, error) {
+// - apiKeyType: the type of API key being used (personal, workshop, etc.)
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string, apiKeyType *obj.ApiKeyType) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
 	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
@@ -631,6 +632,11 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 	}
 
 	now := time.Now()
+	var apiKeyTypeStr sql.NullString
+	if apiKeyType != nil {
+		apiKeyTypeStr = sql.NullString{String: string(*apiKeyType), Valid: true}
+	}
+
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:    now,
@@ -647,6 +653,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		Language:     language,
 		StatusFields: game.StatusFields,
 		Theme:        themeJSON,
+		ApiKeyType:   apiKeyTypeStr,
 	}
 
 	result, err := queries().CreateGameSession(ctx, arg)
@@ -655,6 +662,12 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 	}
 
 	// Construct and return the session object
+	var resultApiKeyType *obj.ApiKeyType
+	if result.ApiKeyType.Valid {
+		kt := obj.ApiKeyType(result.ApiKeyType.String)
+		resultApiKeyType = &kt
+	}
+
 	return &obj.GameSession{
 		ID: result.ID,
 		Meta: obj.Meta{
@@ -677,6 +690,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		Language:        result.Language,
 		StatusFields:    result.StatusFields,
 		Theme:           theme,
+		ApiKeyType:      resultApiKeyType,
 	}, nil
 }
 
@@ -699,6 +713,11 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		statusJSON = sql.NullString{String: string(statusBytes), Valid: true}
 	}
 
+	var apiKeyTypeStr sql.NullString
+	if msg.ApiKeyType != nil {
+		apiKeyTypeStr = sql.NullString{String: string(*msg.ApiKeyType), Valid: true}
+	}
+
 	arg := db.CreateGameSessionMessageParams{
 		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
 		CreatedAt:     now,
@@ -713,6 +732,7 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
 		HasAudio:      msg.HasAudioOut,
+		ApiKeyType:    apiKeyTypeStr,
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -763,6 +783,11 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		tokenUsageJSON = pqtype.NullRawMessage{RawMessage: tokenBytes, Valid: true}
 	}
 
+	var apiKeyTypeStr sql.NullString
+	if msg.ApiKeyType != nil {
+		apiKeyTypeStr = sql.NullString{String: string(*msg.ApiKeyType), Valid: true}
+	}
+
 	arg := db.UpdateGameSessionMessageParams{
 		ID:                    msg.ID,
 		CreatedBy:             uuid.NullUUID{},
@@ -785,6 +810,7 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
+		ApiKeyType:            apiKeyTypeStr,
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1006,6 +1032,12 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		return nil, err
 	}
 
+	var apiKeyType *obj.ApiKeyType
+	if s.ApiKeyType.Valid {
+		kt := obj.ApiKeyType(s.ApiKeyType.String)
+		apiKeyType = &kt
+	}
+
 	session := &obj.GameSession{
 		ID:           s.ID,
 		GameID:       s.GameID,
@@ -1017,6 +1049,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		ImageStyle:   s.ImageStyle,
 		Language:     s.Language,
 		StatusFields: s.StatusFields,
+		ApiKeyType:   apiKeyType,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -1299,6 +1332,12 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		return nil, err
 	}
 
+	var msgApiKeyType *obj.ApiKeyType
+	if m.ApiKeyType.Valid {
+		kt := obj.ApiKeyType(m.ApiKeyType.String)
+		msgApiKeyType = &kt
+	}
+
 	msg := &obj.GameSessionMessage{
 		ID:            m.ID,
 		GameSessionID: m.GameSessionID,
@@ -1309,6 +1348,7 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		Audio:         m.Audio,
 		HasImage:      m.HasImage,
 		HasAudioOut:   m.HasAudio,
+		ApiKeyType:    msgApiKeyType,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1352,6 +1392,12 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		return nil, obj.ErrNotFound("latest message not found")
 	}
 
+	var msgApiKeyType *obj.ApiKeyType
+	if m.ApiKeyType.Valid {
+		kt := obj.ApiKeyType(m.ApiKeyType.String)
+		msgApiKeyType = &kt
+	}
+
 	msg := &obj.GameSessionMessage{
 		ID:            m.ID,
 		GameSessionID: m.GameSessionID,
@@ -1360,6 +1406,7 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		Message:       m.Message,
 		HasImage:      m.HasImage,
 		HasAudioOut:   m.HasAudio,
+		ApiKeyType:    msgApiKeyType,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1405,6 +1452,12 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 
 	result := make([]obj.GameSessionMessage, 0, len(messages))
 	for _, m := range messages {
+		var msgApiKeyType *obj.ApiKeyType
+		if m.ApiKeyType.Valid {
+			kt := obj.ApiKeyType(m.ApiKeyType.String)
+			msgApiKeyType = &kt
+		}
+
 		msg := obj.GameSessionMessage{
 			ID:            m.ID,
 			GameSessionID: m.GameSessionID,
@@ -1415,6 +1468,7 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			Audio:         m.Audio,
 			HasImage:      m.HasImage,
 			HasAudioOut:   m.HasAudio,
+			ApiKeyType:    msgApiKeyType,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
