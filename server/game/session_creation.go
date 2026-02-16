@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"cgl/db"
-	"cgl/functional"
 	"cgl/game/ai"
 	"cgl/game/templates"
 	"cgl/log"
@@ -286,7 +285,6 @@ func createSessionInternal(
 	share := candidates[setup.candidateIndex].Share
 	aiModel := candidates[setup.candidateIndex].AiQualityTier
 	theme := setup.theme
-	sessionUsage := setup.usage
 
 	// Apply translation if available
 	if setup.translatedGame != nil {
@@ -308,13 +306,6 @@ func createSessionInternal(
 		}
 	}
 
-	// Generate system message from (possibly translated) game
-	systemMessage, err := templates.GetTemplate(game, user.Language)
-	if err != nil {
-		log.Debug("failed to get game template", "game_id", game.ID, "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-	}
-
 	// Persist to database with theme
 	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
 	if err != nil {
@@ -329,75 +320,25 @@ func createSessionInternal(
 	// Apply scenario image prompt from parallel setup (already calculated)
 	session.GameScenarioImagePrompt = setup.scenarioImagePrompt
 
-	// First action: system message containing the game instructions.
-	// Start with the candidate that worked for theme generation; retry with remaining fallbacks if shouldRetry allows.
-	log.Debug("executing initial system action", "session_id", session.ID)
-	startAction := obj.GameSessionMessage{
+	// TWO-PHASE INITIALIZATION: Create system message to persist translated scenario
+	// This message will be loaded during the "init" action  in DoSessionAction and sent to the AI
+	systemMessage, tmplErr := templates.GetTemplate(game, user.Language)
+	if tmplErr != nil {
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to generate system message")
+	}
+
+	systemMsg := obj.GameSessionMessage{
 		GameSessionID: session.ID,
 		Type:          obj.GameSessionMessageTypeSystem,
 		Message:       systemMessage,
 	}
-	response, httpErr := DoSessionAction(ctx, session, startAction)
-
-	// Retry with remaining fallback candidates if shouldRetry function allows
-	remainingCandidates := candidates[setup.candidateIndex+1:]
-	if httpErr != nil && len(remainingCandidates) > 0 && shouldRetry != nil {
-		errorCode := httpErr.Code
-		attemptIndex := setup.candidateIndex + 1
-
-		for i, fallback := range remainingCandidates {
-			// Ask shouldRetry if we should try this candidate
-			if !shouldRetry(errorCode, attemptIndex+i, fallback) {
-				log.Debug("shouldRetry returned false, stopping fallback attempts", "error_code", errorCode, "attempt", attemptIndex+i)
-				break
-			}
-
-			log.Info("retrying with fallback API key", "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform, "attempt", attemptIndex+i)
-
-			// Delete the failed session before creating a new one
-			if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-				log.Warn("failed to delete empty session before fallback", "session_id", session.ID, "error", delErr)
-			}
-
-			// Validate platform
-			if _, platformErr := ai.GetAiPlatform(fallback.Share.ApiKey.Platform); platformErr != nil {
-				log.Debug("fallback key has invalid platform, skipping", "platform", fallback.Share.ApiKey.Platform)
-				continue
-			}
-
-			// Create new session with fallback key
-			session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
-			if err != nil {
-				log.Debug("failed to create fallback session", "error", err)
-				continue
-			}
-			session.ApiKey = fallback.Share.ApiKey
-			session.GameScenarioImagePrompt = setup.scenarioImagePrompt
-
-			// Retry the action
-			startAction.GameSessionID = session.ID
-			response, httpErr = DoSessionAction(ctx, session, startAction)
-			if httpErr == nil {
-				share = fallback.Share
-				aiModel = fallback.AiQualityTier
-				log.Info("fallback API key succeeded", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform)
-				break
-			}
-
-			log.Debug("fallback key also failed", "error", httpErr.Message)
-			errorCode = httpErr.Code
-		}
+	_, err = db.CreateGameSessionMessage(ctx, userID, systemMsg)
+	if err != nil {
+		log.Warn("failed to create system message", "session_id", session.ID, "error", err)
+		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create system message")
 	}
 
-	// If still failed, clean up and return error
-	if httpErr != nil {
-		log.Debug("initial action failed, deleting empty session", "session_id", session.ID, "error", httpErr.Message)
-		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
-		}
-		return nil, nil, httpErr
-	}
-	response.PromptStatusUpdate = functional.Ptr(systemMessage)
+	log.Debug("session created with system message (two-phase: AI action pending)", "session_id", session.ID)
 
 	// Increment play count only for non-creator plays
 	if !game.Meta.CreatedBy.Valid || game.Meta.CreatedBy.UUID != userID {
@@ -406,13 +347,7 @@ func createSessionInternal(
 		}
 	}
 
-	// Accumulate setup usage (theme + translation) with action usage
-	if response.TokenUsage != nil {
-		totalUsage := sessionUsage.Add(*response.TokenUsage)
-		response.TokenUsage = &totalUsage
-	} else {
-		response.TokenUsage = &sessionUsage
-	}
-
-	return session, response, nil
+	// Return session without messages (phase 1 complete)
+	// Note: No token usage from AI action yet - that happens in phase 2
+	return session, nil, nil
 }

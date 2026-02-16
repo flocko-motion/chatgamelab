@@ -79,7 +79,7 @@ func PlayGuestCreateSession(w http.ResponseWriter, r *http.Request) {
 	// Body is optional — ignore parse errors (empty body is fine)
 	_ = httpx.ReadJSON(r, &req)
 
-	session, firstMessage, httpErr := game.CreateGuestSession(r.Context(), token, req.Language)
+	session, _, httpErr := game.CreateGuestSession(r.Context(), token, req.Language)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -89,13 +89,11 @@ func PlayGuestCreateSession(w http.ResponseWriter, r *http.Request) {
 	responseSession.ApiKey = nil
 	responseSession.AiSession = ""
 
-	responseMessage := *firstMessage
-	responseMessage.Image = nil
-	responseMessage.Audio = nil
-
+	// TWO-PHASE INITIALIZATION: Return session without messages
+	// Frontend will call sendAction("") to trigger opening scene generation
 	httpx.WriteJSON(w, http.StatusOK, GuestSessionResponse{
 		GameSession: &responseSession,
-		Messages:    []SessionMessageResponse{toSessionMessageResponse(responseMessage)},
+		Messages:    []SessionMessageResponse{}, // Empty - no initial message
 	})
 }
 

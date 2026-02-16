@@ -34,6 +34,9 @@ export function MessageList({
   const showImages = !isImageGenerationDisabled;
   const elements: React.ReactNode[] = [];
 
+  // Filter out internal messages (like "init" action)
+  const visibleMessages = messages.filter(msg => !msg.isInternal);
+
   // Track previous game message's status fields for showing changes
   let previousGameStatusFields: SceneMessage["statusFields"] = undefined;
 
@@ -41,7 +44,7 @@ export function MessageList({
   let systemPromptText = "";
   let isFirstGameMessage = true;
 
-  messages.forEach((message, index) => {
+  visibleMessages.forEach((message, index) => {
     if (message.type === "player") {
       elements.push(
         <PlayerAction
@@ -55,7 +58,7 @@ export function MessageList({
     } else if (message.type === "system") {
       systemPromptText += (systemPromptText ? "\n\n" : "") + message.text;
     } else {
-      if (index > 0 && messages[index - 1]?.type !== "system") {
+      if (index > 0 && visibleMessages[index - 1]?.type !== "system") {
         elements.push(<SceneDivider key={`divider-${message.id}`} />);
       }
       elements.push(
@@ -77,15 +80,16 @@ export function MessageList({
     }
   });
 
-  if (isWaitingForResponse && messages.length > 0) {
-    const lastMessage = messages[messages.length - 1];
+  if (isWaitingForResponse && visibleMessages.length > 0) {
+    const lastMessage = visibleMessages[visibleMessages.length - 1];
     if (lastMessage.type === "player" || !lastMessage.isStreaming) {
       elements.push(<TypingIndicator key="typing" />);
     }
   }
 
   // Show input inline when user can type, or a banner if API key is unavailable
-  if (!isWaitingForResponse && messages.length > 0) {
+  // Only show input after the first real (non-internal) message has arrived
+  if (!isWaitingForResponse && visibleMessages.length > 0) {
     if (apiKeyUnavailable) {
       elements.push(
         <div key="api-key-banner" className={classes.inlineInput}>

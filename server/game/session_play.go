@@ -124,14 +124,38 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 	}
 
-	// Store the action message (player or system) so it appears in session history.
-	// Track the message ID so we can delete it if the AI action fails.
-	var actionMessageID *uuid.UUID
-	actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
-	if err != nil {
-		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
+	// TWO-PHASE INITIALIZATION: Detect opening scene generation
+	// Frontend sends system action with "init" message to trigger opening scene
+	messageCount, countErr := db.CountGameSessionMessages(ctx, session.ID)
+	if countErr != nil {
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to count session messages")
 	}
-	actionMessageID = &actionMsg.ID
+
+	isOpeningScene := messageCount == 1 && action.Type == obj.GameSessionMessageTypeSystem && strings.TrimSpace(action.Message) == "init"
+	var actionMessageID *uuid.UUID
+
+	if isOpeningScene {
+		log.Debug("detected opening scene generation (system action 'init')", "session_id", session.ID)
+		// Load the system message that was created during session creation
+		// It contains the translated scenario and game instructions
+		systemMsg, loadErr := db.GetLatestGameSessionMessage(ctx, session.UserID, session.ID)
+		if loadErr != nil || systemMsg == nil || systemMsg.Type != obj.GameSessionMessageTypeSystem {
+			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to load system message for opening scene")
+		}
+		// Use the existing system message (with full content) instead of the init trigger
+		// Don't store the init trigger - the system message already exists
+		action = *systemMsg
+		actionMessageID = &systemMsg.ID
+		log.Debug("opening scene: using existing system message", "session_id", session.ID, "message_length", len(action.Message))
+	} else {
+		// Store the action message (player or system) so it appears in session history.
+		// Track the message ID so we can delete it if the AI action fails.
+		actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
+		if err != nil {
+			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
+		}
+		actionMessageID = &actionMsg.ID
+	}
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)

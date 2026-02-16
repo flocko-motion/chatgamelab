@@ -6048,6 +6048,10 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/obj.StatusField"
                     }
+                },
+                "type": {
+                    "description": "Message type: \"player\" or \"system\" (defaults to \"player\")",
+                    "type": "string"
                 }
             }
         },

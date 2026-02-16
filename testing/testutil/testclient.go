@@ -516,38 +516,31 @@ func (u *UserClient) CreateGameSession(gameID string) (routes.SessionResponse, e
 }
 
 // CreateGameSessionWithStream creates a session and consumes the SSE stream for the initial message.
+// TWO-PHASE INITIALIZATION: Creates session (phase 1), then sends empty action to trigger opening scene (phase 2).
 // Returns the session response with the initial message fully populated (text, image, audio).
 func (u *UserClient) CreateGameSessionWithStream(gameID string) (routes.SessionResponse, *StreamResult, error) {
 	u.t.Helper()
 
+	// PHASE 1: Create session (returns empty messages array)
 	resp, err := u.CreateGameSession(gameID)
 	if err != nil {
 		return routes.SessionResponse{}, nil, err
 	}
 
-	if len(resp.Messages) == 0 {
-		return resp, nil, nil
+	if resp.GameSession == nil {
+		return routes.SessionResponse{}, nil, fmt.Errorf("no session returned")
 	}
 
-	// The initial game message (index 1, after system message) may be streaming
-	// Find the streaming message
-	for i := range resp.Messages {
-		msg := &resp.Messages[i]
-		if msg.Stream {
-			result, err := u.consumeMessageStream(msg.ID.String())
-			if err != nil {
-				return routes.SessionResponse{}, nil, fmt.Errorf("failed to consume initial stream: %w", err)
-			}
-			msg.Message = result.Text
-			msg.Image = result.ImageData
-			msg.Audio = result.AudioData
-			msg.Stream = false
-			return resp, result, nil
-		}
+	// PHASE 2: Send empty action to trigger opening scene generation
+	openingMsg, streamResult, err := u.SendGameMessageWithStream(resp.GameSession.ID.String(), "")
+	if err != nil {
+		return routes.SessionResponse{}, nil, fmt.Errorf("failed to trigger opening scene: %w", err)
 	}
 
-	// No streaming message found
-	return resp, &StreamResult{}, nil
+	// Add the opening message to the response
+	resp.Messages = []obj.GameSessionMessage{openingMsg}
+
+	return resp, streamResult, nil
 }
 
 // GetGameSession loads a session with all messages (composable high-level API)
