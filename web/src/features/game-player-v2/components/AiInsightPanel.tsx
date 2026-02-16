@@ -66,6 +66,7 @@ export function AiInsightPanel({
     message.requestStatusUpdate ||
     message.requestImageGeneration ||
     message.responseRaw ||
+    message.apiKeyType ||
     (isFirstGameMessage && systemPrompt);
 
   if (!hasAnyData) return null;
@@ -89,6 +90,13 @@ export function AiInsightPanel({
             {t("gamePlayer.aiInsight.title")}
           </div>
           <div className={classes.sections}>
+            {message.apiKeyType && (
+              <CollapsibleSection
+                label={t("gamePlayer.aiInsight.sections.apiKeyType")}
+                content={t(`gamePlayer.aiInsight.keyTypes.${message.apiKeyType}`)}
+                defaultOpen
+              />
+            )}
             {isFirstGameMessage && systemPrompt && (
               <CollapsibleSection
                 label={t("gamePlayer.aiInsight.sections.systemPrompt")}
