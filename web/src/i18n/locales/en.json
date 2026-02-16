@@ -332,12 +332,21 @@
         "title": "AI Request / Response",
         "toggle": "AI Insight",
         "sections": {
+          "apiKeyType": "Used API Key",
           "systemPrompt": "Game instructions for the AI",
           "responseSchema": "Required structure of the AI response",
           "statusUpdate": "Prompt sent to AI",
           "expandStory": "Instructions to the AI for writing out the story",
           "rawResponse": "Unprocessed AI response",
           "imageGeneration": "Instructions from the AI for image generation"
+        },
+        "keyTypes": {
+          "personal": "Personal API Key",
+          "workshop": "Workshop API Key",
+          "organization_free_use": "Organization Free-Use Key",
+          "chatgamelab_free_use": "ChatGameLab Free-Use Key",
+          "sponsor": "Game Sponsor Key",
+          "private_share": "Private Share Link Key"
         },
         "tokens": {
           "sent": "tokens sent",
@@ -887,13 +896,22 @@
         "createTitle": "Create Workshop",
         "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
         "deactivate": "Deactivate",
-        "defaultApiKey": "Default API Key",
-        "defaultApiKeyHint": "Participants will use this API key when playing games.",
+        "defaultApiKey": "Workshop API Key",
+        "defaultApiKeyHint": "The API key used for this workshop. Participants will use this key when playing games.",
         "apiKeyGroupOrg": "Organization Keys",
         "apiKeyGroupPersonal": "My Personal Keys",
+        "apiKeyGroupColleague": "Personal Key from Colleague",
         "personalKeyConfirmTitle": "Use Personal Key for Workshop",
         "personalKeyConfirmMessage": "This key will only be shared with this workshop. Other members of your organization will not be able to use it for other purposes. If you want to make it available across the organization, share it in the API Keys tab of your organization settings.",
         "personalKeyConfirmButton": "Use for This Workshop",
+        "apiKeyTypes": {
+          "workshop": "Personal/Workshop",
+          "organization": "Organization"
+        },
+        "keyOwner": "Owner",
+        "unknownOwner": "Unknown",
+        "colleagueKey": "{{name}}'s personal key",
+        "colleagueKeyLabel": "Personal key from {{name}}",
         "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
         "deleteTitle": "Delete Workshop",
         "deleteWarning": "All games and sessions in this workshop will be deleted. This cannot be undone.",

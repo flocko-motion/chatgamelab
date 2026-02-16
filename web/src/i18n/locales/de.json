@@ -332,12 +332,21 @@
         "title": "KI-Anfrage / Antwort",
         "toggle": "KI-Einblick",
         "sections": {
+          "apiKeyType": "Verwendeter API-Schlüssel",
           "systemPrompt": "Spielanweisungen an die KI",
           "responseSchema": "Vorgabe an die KI über den Aufbau der Antwort",
           "statusUpdate": "Prompt an die KI",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "rawResponse": "Unbearbeitete KI-Antwort",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung"
+        },
+        "keyTypes": {
+          "personal": "Persönlicher API-Schlüssel",
+          "workshop": "Workshop-API-Schlüssel",
+          "organization_free_use": "Organisations-Freischlüssel",
+          "chatgamelab_free_use": "ChatGameLab-Freischlüssel",
+          "sponsor": "Spiel-Sponsor-Schlüssel",
+          "private_share": "Privater-Link-Schlüssel"
         },
         "tokens": {
           "sent": "Tokens gesendet",
@@ -887,13 +896,22 @@
         "createTitle": "Workshop erstellen",
         "aiQualityTierHint": "Qualitätsstufe für KI-Antworten. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer verwendet die Servereinstellung.",
         "deactivate": "Deaktivieren",
-        "defaultApiKey": "Standard-API-Schlüssel",
-        "defaultApiKeyHint": "Teilnehmer verwenden diesen API-Schlüssel beim Spielen.",
+        "defaultApiKey": "Workshop-API-Schlüssel",
+        "defaultApiKeyHint": "Der API-Schlüssel für diesen Workshop. Teilnehmer verwenden diesen Schlüssel beim Spielen.",
         "apiKeyGroupOrg": "Organisations-Schlüssel",
         "apiKeyGroupPersonal": "Meine persönlichen Schlüssel",
+        "apiKeyGroupColleague": "Persönlicher Schlüssel von Kollege",
         "personalKeyConfirmTitle": "Persönlichen Schlüssel für Workshop verwenden",
         "personalKeyConfirmMessage": "Dieser Schlüssel wird nur für diesen Workshop freigegeben. Andere Mitglieder Ihrer Organisation können ihn nicht für andere Zwecke verwenden. Wenn Sie ihn organisationsweit verfügbar machen möchten, teilen Sie ihn im API-Schlüssel-Tab Ihrer Organisationseinstellungen.",
         "personalKeyConfirmButton": "Für diesen Workshop verwenden",
+        "apiKeyTypes": {
+          "workshop": "Persönlich/Workshop",
+          "organization": "Organisation"
+        },
+        "keyOwner": "Besitzer",
+        "unknownOwner": "Unbekannt",
+        "colleagueKey": "Persönlicher Schlüssel von {{name}}",
+        "colleagueKeyLabel": "Persönlicher Schlüssel von {{name}}",
         "deleteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten?",
         "deleteTitle": "Workshop löschen",
         "deleteWarning": "Alle Spiele und Sitzungen in diesem Workshop werden gelöscht. Dies kann nicht rückgängig gemacht werden.",
