@@ -42,9 +42,10 @@ if [[ -n "$CI" ]]; then
 elif $VERBOSE; then
     FORMAT="standard-verbose"
 else
-    FORMAT="testname"
+    # Show dots for progress, then detailed failure summary at the end
+    FORMAT="dots-v2"
 fi
 
-$GOTESTSUM --format "$FORMAT" -- -v $BUILD_TAGS ./...
+$GOTESTSUM --format "$FORMAT" --format-hide-empty-pkg -- -v $BUILD_TAGS ./...
 
 exit $?

@@ -647,13 +647,18 @@ func (u *UserClient) consumeMessageStream(messageID string) (*StreamResult, erro
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
+	return parseSSEStream(resp.Body)
+}
+
+// parseSSEStream parses an SSE stream body and accumulates text, image, and audio data
+func parseSSEStream(body io.Reader) (*StreamResult, error) {
 	var fullText strings.Builder
 	var imageData []byte
 	var audioData []byte
 	textDone := false
 	imageDone := false
 	audioDone := false
-	scanner := bufio.NewScanner(resp.Body)
+	scanner := bufio.NewScanner(body)
 	// Increase buffer for large SSE lines (base64-encoded image data)
 	scanner.Buffer(make([]byte, 0, 64*1024), 10*1024*1024) // 10MB max
 
@@ -1260,6 +1265,34 @@ func (p *PublicClient) GuestCreateSession(token string) (routes.GuestSessionResp
 	return result, err
 }
 
+// GuestCreateSessionWithStream creates a guest session and triggers opening scene generation.
+// TWO-PHASE INITIALIZATION: Creates session (phase 1), then sends "init" system action (phase 2).
+// Returns the session response with the opening message fully populated.
+func (p *PublicClient) GuestCreateSessionWithStream(token string) (routes.GuestSessionResponse, *StreamResult, error) {
+	p.t.Helper()
+
+	// PHASE 1: Create session (returns empty messages array)
+	resp, err := p.GuestCreateSession(token)
+	if err != nil {
+		return routes.GuestSessionResponse{}, nil, err
+	}
+
+	if resp.GameSession == nil {
+		return routes.GuestSessionResponse{}, nil, fmt.Errorf("no session returned")
+	}
+
+	// PHASE 2: Send "init" system action to trigger opening scene generation
+	openingMsg, streamResult, err := p.GuestSendSystemMessage(token, resp.GameSession.ID.String(), "init")
+	if err != nil {
+		return routes.GuestSessionResponse{}, nil, fmt.Errorf("failed to trigger opening scene: %w", err)
+	}
+
+	// Add the opening message to the response
+	resp.Messages = []routes.SessionMessageResponse{{GameSessionMessage: openingMsg}}
+
+	return resp, streamResult, nil
+}
+
 // GuestGetSession loads a guest session via a share token (composable high-level API)
 func (p *PublicClient) GuestGetSession(token, sessionID string) (routes.SessionResponse, error) {
 	p.t.Helper()
@@ -1276,6 +1309,75 @@ func (p *PublicClient) GuestSendAction(token, sessionID, message string) (obj.Ga
 		Message: message,
 	}, &result)
 	return result, err
+}
+
+// guestSendActionWithStream sends an action to a guest session and consumes the SSE stream
+func (p *PublicClient) guestSendActionWithStream(token, sessionID string, req routes.SessionActionRequest) (obj.GameSessionMessage, *StreamResult, error) {
+	p.t.Helper()
+
+	// Send action
+	var response obj.GameSessionMessage
+	err := p.Post("play/"+token+"/sessions/"+sessionID, req, &response)
+	if err != nil {
+		return obj.GameSessionMessage{}, nil, err
+	}
+
+	// If not streaming, return the initial response
+	if !response.Stream {
+		return response, &StreamResult{Text: response.Message, ImageData: response.Image}, nil
+	}
+
+	// Consume the SSE stream (no auth required for message streams)
+	result, err := consumeMessageStreamNoAuth(p.t, response.ID.String())
+	if err != nil {
+		return obj.GameSessionMessage{}, nil, fmt.Errorf("failed to consume stream: %w", err)
+	}
+
+	// Update response with full content
+	response.Message = result.Text
+	response.Image = result.ImageData
+	response.Stream = false
+
+	return response, result, nil
+}
+
+// GuestSendSystemMessage sends a system-type message to a guest session (e.g., "init" for opening scene)
+func (p *PublicClient) GuestSendSystemMessage(token, sessionID, message string) (obj.GameSessionMessage, *StreamResult, error) {
+	p.t.Helper()
+	return p.guestSendActionWithStream(token, sessionID, routes.SessionActionRequest{
+		Type:    "system",
+		Message: message,
+	})
+}
+
+// consumeMessageStreamNoAuth connects to SSE endpoint and consumes all chunks (no auth required)
+func consumeMessageStreamNoAuth(t *testing.T, messageID string) (*StreamResult, error) {
+	t.Helper()
+
+	serverURL, err := config.GetServerURL()
+	if err != nil {
+		return nil, fmt.Errorf("no server configured: %w", err)
+	}
+
+	url := fmt.Sprintf("%s/api/messages/%s/stream", serverURL, messageID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Accept", "text/event-stream")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
+	}
+
+	return parseSSEStream(resp.Body)
 }
 
 // AssertEqual checks if two values are equal

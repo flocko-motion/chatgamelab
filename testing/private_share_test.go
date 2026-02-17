@@ -173,11 +173,13 @@ func (s *PrivateShareTestSuite) TestGuestCanCreateSession() {
 	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
 
 	pub := s.Public()
-	resp, err := pub.GuestCreateSession(status.Token)
+	resp, streamResult, err := pub.GuestCreateSessionWithStream(status.Token)
 	s.NoError(err, "guest should be able to create session")
 	s.NotNil(resp.GameSession, "session should not be nil")
 	s.NotEmpty(resp.GameSession.ID, "session ID should not be empty")
 	s.GreaterOrEqual(len(resp.Messages), 1, "should have at least 1 initial message")
+	s.NotNil(streamResult, "stream result should not be nil")
+	s.Greater(len(streamResult.Text), 10, "opening scene should have substantial text")
 	s.T().Logf("Guest created session: %s with %d messages", resp.GameSession.ID, len(resp.Messages))
 }
 
