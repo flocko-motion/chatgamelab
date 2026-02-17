@@ -1,30 +1,30 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
+  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "login": {
       "auth0Button": "Prijava z Auth0",
-      "devMode": "Način za razvoj",
+      "devMode": "Razvojni način",
       "devModeAlert": {
-        "message": "To je razvojna stran za prijavo. V produkciji boste preusmerjeni neposredno na Auth0.",
+        "message": "To je razvojna prijavna stran. V produkciji boste preusmerjeni neposredno na Auth0.",
         "title": "Razvojni način"
       },
-      "devModeDescription": "Hitro prijavljanje za razvoj in testiranje",
+      "devModeDescription": "Hitra prijava za razvoj in testiranje",
       "redirecting": {
-        "message": "Prosimo počakajte, medtem ko vas preusmerjamo na stran za prijavo.",
+        "message": "Prosimo, počakajte, da vas preusmerimo na prijavno stran.",
         "title": "Preusmerjanje na Auth0..."
       },
       "role": {
-        "admin": "Prijava kot skrbnik",
+        "admin": "Prijava kot administrator",
         "guest": "Prijava kot gost",
-        "student": "Prijava kot učenec",
+        "student": "Prijava kot študent",
         "teacher": "Prijava kot učitelj"
       }
     },
     "participant": {
       "leaveConfirm": {
         "confirm": "Zapusti delavnico",
-        "message": "Ali ste prepričani, da želite zapustiti to delavnico? Potrebovali boste novo povezavo za vabilo, da se ponovno pridružite.",
-        "title": "Zapustiti delavnico?"
+        "message": "Ali ste prepričani, da želite zapustiti to delavnico? Za ponovno pridružitev boste potrebovali novo povezavo s povabilom.",
+        "title": "Zapusti delavnico?"
       },
       "leaveWorkshop": "Zapusti delavnico",
       "organization": "Organizacija",
@@ -33,19 +33,20 @@
     },
     "profile": {
       "gamesCreated": "Ustvarjene igre",
-      "gamesPlayed": "Grajene igre",
+      "gamesPlayed": "Odigrene igre",
       "memberSince": "Registriran od",
       "messagesSent": "Poslana sporočila",
       "noOrganization": "Brez organizacije",
-      "noRole": "Brez dodeljene vloge",
+      "noRole": "Vloga ni dodeljena",
       "organization": "Organizacija",
-      "organizationSection": "Organizacija \u00026 Vloga",
+      "organizationSection": "Organizacija in vloga",
       "role": "Vloga",
       "roles": {
         "admin": "Administrator",
-        "head": "Vodja",
+        "head": "Vodja organizacije",
+        "individual": "Posameznik",
         "participant": "Udeleženec",
-        "staff": "Osebje"
+        "staff": "Vodja delavnice"
       },
       "statisticsSection": "Statistika",
       "title": "Profil",
@@ -53,15 +54,15 @@
     },
     "register": {
       "cancelButton": "Prekliči",
-      "emailDescription": "To bomo uporabili za pomembna obvestila.",
+      "emailDescription": "Uporabili ga bomo za pomembna obvestila.",
       "emailLabel": "E-poštni naslov",
       "emailPlaceholder": "Vnesite svoj e-poštni naslov",
       "errors": {
-        "emailInvalid": "Prosimo vnesite veljaven e-poštni naslov",
+        "emailInvalid": "Vnesite veljaven e-poštni naslov",
         "emailRequired": "E-pošta je obvezna",
         "nameRequired": "Ime je obvezno",
         "nameTaken": "To ime je že zasedeno",
-        "nameTooLong": "Ime sme imeti največ 24 znakov",
+        "nameTooLong": "Ime je lahko dolgo največ 24 znakov",
         "registrationFailed": "Registracija ni uspela. Poskusite znova."
       },
       "nameDescription": "Tako vas bodo videli drugi uporabniki. Največ 24 znakov.",
@@ -69,55 +70,55 @@
       "namePlaceholder": "Vnesite svoje prikazno ime",
       "submitButton": "Ustvari račun",
       "submitting": "Ustvarjanje računa...",
-      "subtitle": "Še nekaj podrobnosti za začetek",
-      "title": "Dopolnite svoj profil"
+      "subtitle": "Še nekaj podrobnosti, da začnemo",
+      "title": "Dokončajte svoj profil"
     },
     "settings": {
       "accountSection": "Račun",
-      "emailChangeNote": "Za spremembo e-poštnega naslova se obrnite na skrbnika strani.",
+      "emailChangeNote": "Za spremembo e-poštnega naslova kontaktirajte skrbnika strani.",
       "errors": {
         "nameRequired": "Ime je obvezno",
         "nameTaken": "To ime je že zasedeno",
-        "nameTooLong": "Ime sme imeti največ 24 znakov",
-        "saveFailed": "Shranjevanje ni uspelo. Poskusite znova."
+        "nameTooLong": "Ime je lahko dolgo največ 24 znakov",
+        "saveFailed": "Shranjevanje sprememb ni uspelo. Poskusite znova."
       },
       "nameDescription": "Tako vas bodo videli drugi uporabniki. Največ 24 znakov.",
       "nameLabel": "Prikazno ime",
       "namePlaceholder": "Vnesite svoje prikazno ime",
       "saveButton": "Shrani spremembe",
-      "saved": "Spremembe so bile uspešno shranjene",
-      "saving": "Shranjujem...",
+      "saved": "Spremembe uspešno shranjene",
+      "saving": "Shranjevanje...",
       "subtitle": "Upravljajte nastavitve svojega računa",
       "title": "Nastavitve"
     }
   },
   "common": {
-    "actions": "Akcije",
+    "actions": "Dejanja",
     "admin": {
       "invites": {
-        "actions": "Akcije",
-        "empty": "Ni čakajočih vabil.",
-        "invitedEmail": "Povabljeni e-poštni naslov",
+        "actions": "Dejanja",
+        "empty": "Ni čakajočih povabil.",
+        "invitedEmail": "Povabljen e-poštni naslov",
         "modifiedAt": "Spremenjeno",
-        "noResults": "Nobeno vabilo ne ustreza vašemu iskanju.",
+        "noResults": "Nobeno povabilo ne ustreza vašemu iskanju.",
         "organization": "Organizacija",
         "revokeConfirm": {
           "confirm": "Izbriši",
-          "message": "Ali ste prepričani, da želite izbrisati to vabilo? To dejanje ni mogoče razveljaviti.",
-          "title": "Izbriši vabilo"
+          "message": "Ali ste prepričani, da želite izbrisati to povabilo? Tega dejanja ni mogoče razveljaviti.",
+          "title": "Izbriši povabilo"
         },
         "role": "Vloga",
-        "searchPlaceholder": "Iskanje po e-pošti, vlogi, statusu ali organizaciji...",
+        "searchPlaceholder": "Išči po e-pošti, vlogi, statusu ali organizaciji...",
         "sort": {
           "label": "Razvrsti po",
           "modifiedAt-asc": "Spremenjeno (najstarejše)",
           "modifiedAt-desc": "Spremenjeno (najnovejše)",
-          "organization-asc": "Organizacija (A-Z)",
-          "organization-desc": "Organizacija (Z-A)",
-          "role-asc": "Vloga (A-Z)",
-          "role-desc": "Vloga (Z-A)",
-          "status-asc": "Status (A-Z)",
-          "status-desc": "Status (Z-A)"
+          "organization-asc": "Organizacija (A-Ž)",
+          "organization-desc": "Organizacija (Ž-A)",
+          "role-asc": "Vloga (A-Ž)",
+          "role-desc": "Vloga (Ž-A)",
+          "status-asc": "Status (A-Ž)",
+          "status-desc": "Status (Ž-A)"
         },
         "status": "Status",
         "statuses": {
@@ -125,21 +126,21 @@
           "declined": "Zavrnjeno",
           "expired": "Poteklo",
           "pending": "V čakanju",
-          "revoked": "Preklicano"
+          "revoked": "Razveljavljeno"
         },
-        "title": "Čakajoča vabila"
+        "title": "Čakajoča povabila"
       },
       "organizations": {
-        "actions": "Akcije",
+        "actions": "Dejanja",
         "create": "Ustvari organizacijo",
         "createTitle": "Ustvari novo organizacijo",
-        "deleteConfirm": "Ali ste prepričani, da želite izbrisati \"{{name}}\"? To dejanje ni mogoče razveljaviti.",
+        "deleteConfirm": "Ali ste prepričani, da želite izbrisati »{{name}}«? Tega dejanja ni mogoče razveljaviti.",
         "deleteTitle": "Izbriši organizacijo",
         "editTitle": "Uredi organizacijo",
-        "email": "E-pošta",
+        "email": "E-poštni naslov",
         "emailPlaceholder": "Vnesite e-poštni naslov",
-        "empty": "Še ni organizacij. Ustvarite eno za začetek.",
-        "inviteDescription": "Pošljite povabilo za pridružitev k {{name}} kot vodja organizacije.",
+        "empty": "Ni še organizacij. Ustvarite eno za začetek.",
+        "inviteDescription": "Pošljite povabilo, da se pridružijo {{name}} kot vodja organizacije.",
         "inviteTitle": "Povabi v organizacijo",
         "memberEmail": "E-pošta",
         "memberName": "Ime",
@@ -152,13 +153,13 @@
         "noMembers": "V tej organizaciji ni članov.",
         "removeMember": "Odstrani člana",
         "removeMemberConfirm": "Ali ste prepričani, da želite odstraniti {{name}} iz te organizacije?",
-        "searchPlaceholder": "Iskanje organizacij...",
+        "searchPlaceholder": "Išči organizacije...",
         "sendInvite": "Pošlji povabilo",
         "title": "Upravljanje organizacij"
       },
       "users": {
-        "actions": "Akcije",
-        "deleteConfirm": "Ali ste prepričani, da želite izbrisati \"{{name}}\"? To dejanje ni mogoče razveljaviti.",
+        "actions": "Dejanja",
+        "deleteConfirm": "Ali ste prepričani, da želite izbrisati »{{name}}«? Tega dejanja ni mogoče razveljaviti.",
         "deleteTitle": "Izbriši uporabnika",
         "editEmail": "Uredi e-pošto",
         "editTitle": "Uredi uporabnika",
@@ -167,46 +168,55 @@
         "emailPlaceholder": "Vnesite e-poštni naslov",
         "empty": "Ni najdenih uporabnikov.",
         "hideGuests": "Skrij goste ({{count}})",
+        "hideGuestsShort": "Gosti ({{count}})",
         "joined": "Pridružen",
-        "loadError": "Neuspešno nalaganje uporabnikov",
-        "makeAdmin": "Naredi skrbnika",
+        "loadError": "Nalaganje uporabnikov ni uspelo",
+        "makeAdmin": "Dodeli vlogo administratorja",
         "me": "Jaz",
         "name": "Ime",
         "noEmail": "Brez e-pošte",
         "noResults": "Noben uporabnik ne ustreza vašemu iskanju.",
         "noRole": "Brez vloge",
         "organization": "Organizacija",
-        "promoteConfirm": "Ali ste prepričani, da želite povišati \"{{name}}\" ({{email}}) v skrbnika?",
-        "promoteTitle": "Povišaj v skrbnika",
-        "promoteWarning": "Ta uporabnik bo pridobil poln administratorski dostop do sistema.",
-        "removeAdmin": "Odstrani skrbnika",
-        "removeAdminConfirm": "Ali ste prepričani, da želite odstraniti skrbniško vlogo od \"{{name}}\" ({{email}})?",
-        "removeAdminTitle": "Odstrani skrbniško vlogo",
-        "removeAdminWarning": "Ta uporabnik bo izgubil vse administratorske privilegije.",
+        "promoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) povišati v administratorja?",
+        "promoteTitle": "Povišaj v administratorja",
+        "promoteWarning": "Ta uporabnik bo pridobil poln administrativni dostop do sistema.",
+        "removeAdmin": "Odstrani administratorja",
+        "removeAdminConfirm": "Ali ste prepričani, da želite odstraniti administratorsko vlogo uporabniku »{{name}}« ({{email}})?",
+        "removeAdminTitle": "Odstrani administratorsko vlogo",
+        "removeAdminWarning": "Ta uporabnik bo izgubil vse administrativne pravice.",
         "role": "Vloga",
-        "searchPlaceholder": "Iskanje po imenu, e-pošti, vlogi ali organizaciji...",
-        "showing": "Prikazano {{count}} od {{total}} uporabnikov",
+        "searchPlaceholder": "Išči po imenu, e-pošti, vlogi ali organizaciji...",
+        "showing": "Prikazanih {{count}} od {{total}} uporabnikov",
         "sort": {
-          "email-asc": "E-pošta (A-Z)",
-          "email-desc": "E-pošta (Z-A)",
-          "joined-asc": "Pridružen (najstarejše)",
-          "joined-desc": "Pridružen (najnovejše)",
+          "email-asc": "E-pošta (A-Ž)",
+          "email-desc": "E-pošta (Ž-A)",
+          "joined-asc": "Pridružen (najstarejši)",
+          "joined-desc": "Pridružen (najnovejši)",
           "label": "Razvrsti po",
-          "name-asc": "Ime (A-Z)",
-          "name-desc": "Ime (Z-A)",
-          "organization-asc": "Organizacija (A-Z)",
-          "organization-desc": "Organizacija (Z-A)",
-          "role-asc": "Vloga (A-Z)",
-          "role-desc": "Vloga (Z-A)"
+          "name-asc": "Ime (A-Ž)",
+          "name-desc": "Ime (Ž-A)",
+          "organization-asc": "Organizacija (A-Ž)",
+          "organization-desc": "Organizacija (Ž-A)",
+          "role-asc": "Vloga (A-Ž)",
+          "role-desc": "Vloga (Ž-A)"
         },
         "title": "Upravljanje uporabnikov"
       }
     },
+    "aiQualityTier": {
+      "high": "Visoka (Premium)",
+      "label": "Kakovostni razred AI",
+      "low": "Nizka (Varčna)",
+      "max": "Najvišja (Premium + avdio)",
+      "medium": "Srednja (Uravnotežena)",
+      "serverDefault": "Privzeto na strežniku"
+    },
     "allGames": {
-      "continue": "Nadaljuj",
+      "continue": "Igraj",
       "copyConfirm": {
         "confirm": "Kopiraj igro",
-        "message": "To bo ustvarilo kopijo \"{{name}}\" v vaših igrah.",
+        "message": "To bo ustvarilo kopijo »{{name}}« med vašimi igrami.",
         "title": "Kopiraj igro"
       },
       "copyGame": "Kopiraj igro",
@@ -219,56 +229,88 @@
         "all": "Vse igre",
         "favorites": "Priljubljene",
         "own": "Moje igre",
-        "public": "Javne"
+        "public": "Javne",
+        "sponsored": "Sponzorirane"
       },
       "play": "Igraj",
-      "restart": "Ponovno zaženi",
+      "restart": "Začni znova",
       "restartConfirm": {
-        "confirm": "Ponovno zaženi",
-        "message": "Ali ste prepričani, da želite znova zagnati \"{{game}}\"? Vaš trenutni napredek bo izgubljen.",
-        "title": "Ponovno zaženi igro"
+        "confirm": "Ponovni začetek",
+        "message": "Ali ste prepričani, da želite znova zagnati »{{game}}«? Trenutni napredek bo izgubljen.",
+        "title": "Ponovni zagon igre"
       },
       "title": "Vse igre",
       "unfavorite": "Odstrani iz priljubljenih"
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "API ključi se uporabljajo za povezavo s platformami AI za generiranje vsebine iger.",
-        "title": "O API ključih"
+        "description": "Ključi API se uporabljajo za povezavo z AI platformami za ustvarjanje vsebine igre. Izbrani ključ (označen s kljukico) bo privzeto uporabljen pri ustvarjanju novih sej igre.",
+        "title": "O ključih API"
       },
       "addKey": "Dodaj ključ",
       "addedOn": "Dodano",
+      "aiQualityTier": {
+        "description": "Izberite kakovostni nivo AI za svoje igre, ko uporabljate svoj ključ API. Višji razredi so dražji, a lahko nudijo višjo kakovost. Pustite prazno za strežniški privzeti razred."
+      },
       "createModal": {
         "keyDescription": "Vaš ključ bo šifriran in varno shranjen.",
-        "keyLabel": "API ključ",
-        "keyPlaceholder": "Vnesite svoj API ključ",
+        "keyLabel": "Ključ API",
+        "keyPlaceholder": "Vnesite svoj ključ API",
         "nameLabel": "Ime ključa",
         "namePlaceholder": "npr. Moj OpenAI ključ",
         "platformLabel": "Platforma",
         "platformPlaceholder": "Izberite platformo",
         "submit": "Dodaj ključ",
-        "title": "Dodaj nov API ključ"
+        "title": "Dodaj novi ključ API"
       },
+      "currentDefault": {
+        "label": "Aktivni ključ API",
+        "none": "Privzeti ključ ni nastavljen. Najprej dodajte ključ."
+      },
+      "default": "Privzeto",
       "deleteModal": {
-        "message": "Ali ste prepričani, da želite izbrisati \"{{name}}\"?",
-        "title": "Izbriši API ključ",
-        "warning": "To dejanje ni mogoče razveljaviti. Ključ bo trajno izbrisan."
+        "message": "Ali ste prepričani, da želite izbrisati »{{name}}«?",
+        "title": "Izbriši ključ API",
+        "warning": "Tega dejanja ni mogoče razveljaviti. Ključ bo trajno izbrisan."
       },
       "errors": {
-        "invalidPlatform": "Izbrana platforma ni veljavna. Prosimo izberite veljavno AI platformo.",
-        "keyRequired": "API ključ je obvezen",
-        "loadFailed": "Neuspešno nalaganje API ključev. Poskusite znova.",
+        "invalidPlatform": "Izbrana je neveljavna platforma. Izberite veljavno AI platformo.",
+        "keyRequired": "Ključ API je obvezen",
+        "loadFailed": "Nalaganje ključev API ni uspelo. Poskusite znova.",
         "nameRequired": "Ime je obvezno",
         "platformRequired": "Platforma je obvezna"
       },
       "key": "ključ",
       "keys": "ključi",
-      "subtitle": "Upravljajte svoje API ključe za AI platforme.",
-      "title": "Upravljanje API ključev",
-      "unnamed": "Brezimenski ključ",
+      "platform": "Platforma",
+      "setDefault": "Nastavi kot privzeto",
+      "shares": {
+        "goToOrg": "Upravljaj",
+        "noOrgShares": "Ni deljeno z nobeno organizacijo",
+        "noSponsorships": "Ni sponzorstev iger",
+        "orgShares": "Delitve z organizacijami",
+        "privateShares": "Zasebne deljene povezave",
+        "remaining": "še {{count}}",
+        "removeSponsor": "Odstrani sponzorstvo",
+        "revokePrivateShare": "Prekliči deljeno povezavo",
+        "sponsorships": "Sponzorstva iger",
+        "toggle": "Delitve in sponzorstva",
+        "unknownGame": "Neznana igra",
+        "unknownOrg": "Neznana organizacija",
+        "unknownUser": "Neznan uporabnik",
+        "unknownWorkshop": "Neznana delavnica"
+      },
+      "status": {
+        "failed": "Ključ ne deluje",
+        "unknown": "Ključ še ni uporabljen",
+        "working": "Ključ deluje"
+      },
+      "subtitle": "Upravljajte svoje ključe API za AI platforme.",
+      "title": "Upravljanje ključev API",
+      "unnamed": "Neimenovan ključ",
       "unsupportedPlatform": {
-        "badge": "nepodprto",
-        "hint": "Ta platforma trenutno ni podprta. Lahko samo odstranite obstoječe ključe."
+        "badge": "ni podprto",
+        "hint": "Ta platforma trenutno ni podprta. Lahko le odstranite obstoječe ključe."
       }
     },
     "back": "Nazaj",
@@ -278,117 +320,153 @@
     "create": "Ustvari",
     "delete": "Izbriši",
     "deleteGame": "Izbriši igro",
+    "demoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) degradirati na učitelja?",
+    "demoteTitle": "Degradiraj na učitelja",
+    "demoteToStaff": "Degradiraj na učitelja",
     "edit": "Uredi",
     "editGame": "Uredi igro",
+    "email": "E-pošta",
+    "emailPlaceholder": "Vnesite e-poštni naslov",
+    "empty": "V tej organizaciji ni članov.",
     "error": "Napaka",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institut für Medienpädagogik",
-      "programmedBy": "Programirano avtor"
+      "jffTitle": "JFF - Institut za izobraževalne raziskave in inovacije",
+      "programmedBy": "Programiral"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "sections": {
+          "expandStory": "Navodila za AI za zapis zgodbe",
+          "imageGeneration": "Navodila AI za ustvarjanje slike",
+          "rawResponse": "Neobdelan odgovor AI",
+          "responseSchema": "Zahtevana struktura odgovora AI",
+          "statusUpdate": "Poziv poslan AI",
+          "systemPrompt": "Navodila za igro za AI"
+        },
+        "title": "Zahteva/odgovor AI",
+        "toggle": "Vpogled v AI",
+        "tokens": {
+          "received": "prejeti žetoni",
+          "sent": "poslani žetoni"
+        }
+      },
       "debug": {
         "fields": {
           "id": "ID sporočila",
-          "imagePrompt": "Prompt za sliko",
-          "isStreaming": "Streaming",
+          "imagePrompt": "Poziv za sliko",
+          "isStreaming": "Pretakanje",
           "seq": "Zaporedje",
           "statusFields": "Polja stanja",
           "timestamp": "Časovni žig",
-          "type": "Tip"
+          "type": "Vrsta"
         },
         "hints": {
-          "id": "Enoličen identifikator tega sporočila",
-          "imagePrompt": "Prompt, poslan AI za generiranje slike",
-          "isStreaming": "Če se vsebina še vedno sprejema",
+          "id": "Edinstveni identifikator tega sporočila",
+          "imagePrompt": "Poziv poslan AI za ustvarjanje slike",
+          "isStreaming": "Ali se vsebina še prenaša",
           "seq": "Vrstni red v pogovoru",
-          "statusFields": "Spremenljivke stanja igre, ki jih spremlja AI",
-          "timestamp": "Kdaj je bilo to sporočilo ustvarjeno",
-          "type": "player = uporabnikov vnos, game = AI odgovor, system = kontekst"
+          "statusFields": "Spremenljivke stanja igre, ki jih sledi AI",
+          "timestamp": "Kdaj je bilo sporočilo ustvarjeno",
+          "type": "player = vnos uporabnika, game = odgovor AI, system = kontekst"
         },
-        "title": "Podatki za odpravljanje napak"
+        "title": "Razhroščevalni podatki"
       },
       "error": {
-        "backToGames": "Nazaj k igram",
+        "backToGames": "Nazaj na igre",
         "gameNotFound": "Igra ni najdena",
-        "missingFields": "Igrau manjkajo zahtevana polja:",
+        "missingFields": "Igra nima zahtevanih polj:",
+        "noApiKey": {
+          "banner": "Ključ API, ki je bil prej uporabljen za to igro, ni več na voljo. Za nadaljevanje dodajte svoj ključ API v nastavitvah računa.",
+          "goToSettings": "Nastavitve ključev API",
+          "personal": "Pred igranjem morate nastaviti ključ API. Pojdite v nastavitve ključev API in dodajte ključ.",
+          "title": "Ključ API ni na voljo",
+          "workshop": "Za to delavnico ni konfiguriran ključ API. Obrnite se na skrbnika delavnice."
+        },
+        "retry": "Poskusi znova",
+        "sendFailed": "Pošiljanje sporočila ni uspelo. Poskusite znova.",
         "sessionFailed": "Zagon seje igre ni uspel"
       },
       "header": {
-        "back": "Nazaj k igram",
+        "back": "Nazaj na igre",
         "debug": "Razhroščevanje",
-        "decreaseFont": "Pomanjšaj pisavo",
+        "decreaseFont": "Manjše",
         "disableAnimations": "Onemogoči animacije",
-        "increaseFont": "Povečaj pisavo",
+        "disableTextEffects": "Onemogoči besedilne učinke",
+        "fontSize": "Velikost pisave",
+        "increaseFont": "Večje",
+        "muteAudio": "Utišaj pripoved",
+        "resetFont": "Ponastavi",
         "settings": "Nastavitve",
+        "unmuteAudio": "Vklopi pripoved",
         "useNeutralTheme": "Uporabi nevtralno temo"
       },
       "input": {
-        "placeholder": "Kaj naredite?",
+        "audioCancel": "Prekliči snemanje",
+        "audioProcessing": "Obdelava…",
+        "audioRecording": "Snemanje…",
+        "audioStart": "Posnemi glasovno sporočilo",
+        "audioStop": "Pošlji posnetek",
+        "audioUnavailableMessage": "Glasovni vnos ni na voljo z trenutnimi nastavitvami ključa API. Za glasovni vnos preklopite na višji kakovostni razred (Premium ali Max).",
+        "audioUnavailableTitle": "Glasovni vnos ni na voljo",
+        "placeholder": "Kaj narediš?",
         "send": "Pošlji dejanje"
       },
       "loading": {
         "game": "Nalaganje igre...",
+        "resolvingKey": "Preverjanje ključa API...",
         "starting": "Zagon seje igre...",
-        "startingHint": "AI pripravlja vašo avanturo"
+        "startingHint": "AI pripravlja tvojo pustolovščino"
       },
       "needsApiKey": {
-        "description": "API ključ, uporabljen za to sejo, ni več na voljo. Izberite novega, da nadaljujete z igranjem.",
-        "reason": "Vaš prejšnji API ključ ni več na voljo. Če želite nadaljevati z igro, izberite novega.",
-        "title": "Potrebujete API ključ"
-      },
-      "selectApiKey": {
-        "keyDescription": "Izberite API ključ, ki ga želite uporabiti za to sejo igre",
-        "keyLabel": "API ključ",
-        "keyPlaceholder": "Izberite API ključ",
-        "loadError": "Neuspešno nalaganje API ključev",
-        "mine": "Moji",
-        "modelDescription": "Neobvezno izberite določen AI model",
-        "modelLabel": "AI model",
-        "modelPlaceholder": "Privzeti model",
-        "noKeys": "Za igranje potrebujete vsaj en API ključ. Dodajte ga v Nastavitve → API ključi.",
-        "playing": "Igra",
-        "startGame": "Začni igro",
-        "title": "Izberite API ključ"
+        "description": "Ključ API, uporabljen za to sejo, ni več na voljo.",
+        "title": "Potreben je ključ API"
       },
       "statusChange": {
         "effect": "Učinek:"
       },
-      "unnamed": "Brez naslova"
+      "unnamed": "Neimenovana"
     },
     "games": {
+      "actions": {
+        "delete": "Izbriši",
+        "edit": "Uredi",
+        "export": "Izvozi",
+        "play": "Igraj",
+        "view": "Poglej"
+      },
       "badges": {
         "myGame": "Moja igra",
-        "public": "Javno",
+        "public": "Javna",
         "workshop": "Delavnica"
       },
       "createButton": "Ustvari igro",
       "createModal": {
-        "descriptionPlaceholder": "O čem je vaša igra?",
-        "namePlaceholder": "npr. Vesoljsko pustolovščina",
-        "publicDescription": "Javne igre so odkrite vsem.",
+        "descriptionPlaceholder": "O čem govori vaša igra?",
+        "namePlaceholder": "npr. Vesoljska pustolovščina",
+        "publicDescription": "Javne igre lahko najde vsak.",
         "publicLabel": "Naredi to igro javno",
         "submit": "Ustvari igro",
         "title": "Ustvari novo igro"
       },
       "deleteModal": {
-        "message": "Ali ste prepričani, da želite izbrisati \"{{name}}\"?",
+        "message": "Ali ste prepričani, da želite izbrisati »{{name}}«?",
         "title": "Izbriši igro",
-        "warning": "To dejanje ni mogoče razveljaviti. Vsi podatki o igri bodo trajno izbrisani."
+        "warning": "Tega dejanja ni mogoče razveljaviti. Vsi podatki igre bodo trajno izbrisani."
       },
       "editFields": {
-        "description": "Dajte igri kratek opis. To je samo za vas in ne vpliva na potek igre.",
+        "description": "Igro na kratko opišite. To je samo za vas in ne vpliva na igranje.",
         "gameStart": "Kako se igra začne?",
-        "gameStartHint": "Kaj se zgodi na začetku? Opišite prvo sceno, ki jo igralec vidi. Kako je igralec nagovorjen?",
-        "gameStartPlaceholder": "Prebudiš se na robu temnega gozda. Ozka pot vodi globlje v drevje...",
+        "gameStartHint": "Kaj se zgodi na začetku? Opišite prvi prizor, ki ga vidi igralec. Kako je igralec pozdravljen?",
+        "gameStartPlaceholder": "Zbudite se na robu temnega gozda. Ozka pot vodi globlje med drevesa...",
         "imageStyle": "Kakšen slog naj imajo slike igre?",
-        "imageStyleHint": "Na primer: risanka, realistično, pikselna umetnost, akvarel...",
+        "imageStyleHint": "Na primer: risanka, realistično, piksel art, akvarel...",
         "name": "Ime igre",
-        "scenario": "O čem je igra?",
-        "scenarioHint": "Na kratko opišite: Kako igra deluje? Kakšen je svet? Jezik in ton (npr. špansko za šestošolce)?\nKakšno vlogo ima igralec? Napišite \"Igralec ...\".\nČe želite, da AI prevzame vlogo določene osebe, napišite \"Ti si ...\".",
-        "scenarioPlaceholder": "Igralec je raziskovalec v skrivnostnem gozdu. Cilj je najti skriti zaklad...",
+        "scenario": "O čem govori igra?",
+        "scenarioHint": "Na kratko opišite: kako igra deluje? Kakšen je svet? Jezik in ton (npr. španščina za šestošolce)?\nKakšno vlogo ima igralec? Napišite »Igralec ...«. \nČe želite, da AI prevzame vlogo določene osebe, napišite »Ti si ...«.",
+        "scenarioPlaceholder": "Ste raziskovalec v skrivnostnem gozdu. Vaš cilj je najti skriti zaklad...",
         "statusFields": "Vrednosti igre",
-        "statusFieldsHint": "Katere vrednosti naj igra spremlja? Na primer zdravje, točke ali strelivo. Igra si zapomni te vrednosti in jih med igranjem posodablja."
+        "statusFieldsHint": "Kaj naj igra spremlja? Na primer zdravje, točke ali strelivo. Igra si te vrednosti zapomni in jih med igranjem posodablja."
       },
       "editModal": {
         "title": "Uredi igro",
@@ -400,12 +478,13 @@
         }
       },
       "empty": {
-        "description": "Ustvarite svojo prvo igro za začetek z interaktivnimi AI-podprtimi pustolovščinami.",
+        "description": "Ustvarite svojo prvo igro in začnite z interaktivnimi pustolovščinami z AI.",
         "title": "Še ni iger"
       },
       "errors": {
-        "loadFailed": "Neuspešno nalaganje iger. Poskusite znova.",
-        "nameRequired": "Ime igre je obvezno"
+        "loadFailed": "Nalaganje iger ni uspelo. Poskusite znova.",
+        "nameRequired": "Ime igre je obvezno",
+        "nameTooLong": "Ime igre mora imeti največ 70 znakov"
       },
       "fields": {
         "created": "Ustvarjeno",
@@ -413,7 +492,7 @@
         "me": "Jaz",
         "modified": "Spremenjeno",
         "name": "Ime",
-        "playCount": "Število igranj",
+        "playCount": "Igranja",
         "visibility": "Vidnost"
       },
       "importExport": {
@@ -421,20 +500,70 @@
         "importButton": "Uvozi igro"
       },
       "playNow": "Igraj zdaj",
+      "privateShare": {
+        "active": "Zasebno deljenje je aktivno. Kdor ima spodnjo povezavo, lahko anonimno igra to igro.",
+        "copyLink": "Kopiraj povezavo",
+        "description": "Ustvarite zasebno povezavo za deljenje, da lahko kdor koli z njo anonimno igra to igro. Vi izberete, kateri ključ API plača seje.",
+        "edit": "Uredi nastavitve",
+        "editSettings": "Uredi nastavitve deljenja",
+        "enable": "Ustvari povezavo za deljenje",
+        "loading": "Nalaganje statusa deljenja...",
+        "loadingKeys": "Nalaganje ključev API...",
+        "maxSessions": "Največ sej",
+        "maxSessionsDescription": "Pustite prazno za neomejene seje.",
+        "noEligibleKeys": "Ni razpoložljivega delujočega ključa API. Najprej dodajte ključ v nastavitvah ključev API.",
+        "remainingSessions": "Preostaja {{count}} sej",
+        "revoke": "Prekliči povezavo",
+        "selectKey": "Izberite ključ API",
+        "selectKeyPlaceholder": "Izberite ključ za plačilo sej gostov...",
+        "shareLink": "Povezava za deljenje",
+        "title": "Zasebna povezava za deljenje",
+        "unlimited": "Neomejeno",
+        "update": "Posodobi povezavo za deljenje"
+      },
+      "sharing": {
+        "active": "Aktivno",
+        "sectionTitle": "Deljenje in sponzoriranje"
+      },
       "sort": {
         "createdAt-asc": "Ustvarjeno (najstarejše)",
         "createdAt-desc": "Ustvarjeno (najnovejše)",
-        "creator-asc": "Ustvarjalec (A-Z)",
-        "creator-desc": "Ustvarjalec (Z-A)",
+        "creator-asc": "Ustvarjalec (A-Ž)",
+        "creator-desc": "Ustvarjalec (Ž-A)",
         "label": "Razvrsti po",
         "modifiedAt-asc": "Spremenjeno (najstarejše)",
         "modifiedAt-desc": "Spremenjeno (najnovejše)",
-        "name-asc": "Ime (A-Z)",
-        "name-desc": "Ime (Z-A)",
-        "playCount-asc": "Najmanj odigrano",
-        "playCount-desc": "Najbolj odigrano",
-        "visibility-asc": "Zasebne najprej",
-        "visibility-desc": "Javne najprej"
+        "name-asc": "Ime (A-Ž)",
+        "name-desc": "Ime (Ž-A)",
+        "playCount-asc": "Najmanj igrane",
+        "playCount-desc": "Največ igrane",
+        "visibility-asc": "Najprej zasebne igre",
+        "visibility-desc": "Najprej javne igre"
+      },
+      "sponsor": {
+        "apiKey": "Ključ API:",
+        "back": "Nazaj",
+        "confirm": "Potrdi sponzorstvo",
+        "confirmExplanation": "S sponzoriranjem te igre bo vaš ključ API plačal vsako sejo te igre. Vsak, ki bo igral, bo uporabil vaš ključ – strošek vsake seje bo bremenil vaš račun.",
+        "confirmNote": "Sponzorstvo lahko kadarkoli odstranite v nastavitvah igre ali upravljanju ključev API.",
+        "currentlySponsored": "Ta igra je trenutno sponzorirana. Sponzorjev ključ API plača vsako sejo te igre.",
+        "description": "Sponzorirajte to igro, da jo lahko kdorkoli igra brezplačno. Vaš ključ API bo pokril stroške AI za vsako sejo.",
+        "gameName": "Igra:",
+        "gameStartMessage": "Ta igra je sponzorirana – nekdo velikodušno krije stroške AI, da lahko igrate brezplačno. Uživajte!",
+        "gameStartOk": "Gremo!",
+        "gameStartTitle": "Brezplačno igranje!",
+        "loadingKeys": "Nalaganje ključev API...",
+        "manageSponsor": "Upravljaj sponzorstvo",
+        "next": "Naprej",
+        "noEligibleKeys": "Nimate ključev API z omogočenim javnim sponzoriranjem. Pojdite v nastavitve ključev API in najprej omogočite »Dovoli javno sponzoriranje« na ključu.",
+        "privateWarning": "Če igro naredite zasebno, boste odstranili javno sponzorstvo.",
+        "removeSponsor": "Odstrani sponzorstvo",
+        "selectKey": "Izberite ključ API",
+        "selectKeyPlaceholder": "Izberite ključ za sponzoriranje...",
+        "sponsorGame": "Sponzoriraj igro",
+        "sponsored": "Sponzorirano",
+        "sponsoredTooltip": "Ta igra je sponzorirana – lahko jo igrate brezplačno! Ustvarjalec ali podpornik krije stroške AI.",
+        "title": "Sponzoriraj igro"
       },
       "statusFieldsEditor": {
         "addField": "Dodaj novo vrednost",
@@ -444,31 +573,136 @@
       },
       "tabs": {
         "basic": "Osnove",
-        "basicInfo": "Splošne informacije o igri. To je samo za vas in ne vpliva na potek igre.",
-        "importExport": "Uvoz/Izvoz",
-        "quickStart": "Hiter začetek",
-        "story": "Zgodba \u00026 AI",
-        "storyInfo": "Vse tukaj se pošlje AI za oblikovanje sveta in zgodbe vaše igre.",
-        "style": "Videz",
-        "styleInfo": "Neobvezne nastavitve za videz igre med igranjem."
+        "basicInfo": "Splošne informacije o igri. To je samo za vas in ne vpliva na igranje.",
+        "importExport": "Uvoz/izvoz",
+        "quickStart": "Hitri začetek",
+        "story": "Zgodba in AI",
+        "storyInfo": "Vse tukaj poslano AI oblikuje vaš igralni svet in zgodbo.",
+        "style": "Oblika",
+        "styleInfo": "Neobvezne nastavitve videza igre med igranjem."
+      },
+      "theme": {
+        "animation": "Animacija ozadja",
+        "animationDefault": "Privzeta predloga",
+        "animationDescription": "Prepiši privzeto animacijo predloge",
+        "animations": {
+          "bits": "1-0-biti",
+          "bubbles": "Mehurčki",
+          "circuits": "Toki",
+          "confetti": "Konfeti",
+          "confettiExplosion": "Eksplozija konfeta",
+          "embers": "Žerjavica",
+          "fireflies": "Kresničke",
+          "geometric": "Geometrijsko",
+          "glitch": "Glitch",
+          "glowworm": "Svetlikavci",
+          "hearts": "Srca",
+          "hyperspace": "Hipersvemir",
+          "leaves": "Listje",
+          "matrixRain": "Matrica dež",
+          "none": "Brez",
+          "snow": "Sneg",
+          "sparkles": "Iskrice",
+          "stars": "Zvezde",
+          "sun": "Sonca",
+          "tumbleweed": "Vrtenke",
+          "waves": "Valovi"
+        },
+        "apply": "Uporabi temo",
+        "button": "Tema",
+        "changeDesign": "Spremeni dizajn",
+        "currentTheme": "Tema: {{preset}}",
+        "modalTitle": "Tema igre",
+        "noTheme": "Tema ni izbrana. AI bo za vsako sejo ustvaril temo.",
+        "preset": "Predloga",
+        "presetDescription": "Izberite vizualni slog za svojo igro",
+        "presets": {
+          "abstract": "Abstraktno",
+          "adventure": "Pustolovščina",
+          "barbie": "Barbie",
+          "candy": "Sladkarije",
+          "circus": "Cirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Privzeto",
+          "desert": "Puščava",
+          "detective": "Detektiv",
+          "educational": "Izobraževalno",
+          "fairy": "Pravljica",
+          "fire": "Ogenj",
+          "garden": "Vrt",
+          "glitch": "Glitch",
+          "greenFantasy": "Zelena fantazija",
+          "hacker": "Heker",
+          "horror": "Grozljivka",
+          "jungle": "Džungla",
+          "matrix": "Matrica",
+          "medieval": "Srednjeveško",
+          "minimal": "Minimalistično",
+          "mystery": "Misterij",
+          "mystic": "Mistična",
+          "nature": "Narava",
+          "nautical": "Navtično",
+          "noir": "Noir",
+          "ocean": "Ocean",
+          "pirate": "Pirat",
+          "playful": "Igrivo",
+          "retro": "Retro",
+          "romance": "Romantično",
+          "school": "Šola",
+          "scifi": "Znanstvena fantastika",
+          "snowy": "Snežno",
+          "space": "Vesolje",
+          "steampunk": "Steampunk",
+          "storybook": "Pravljica",
+          "sunshine": "Sonček",
+          "superhero": "Superjunak",
+          "tech": "Tehno",
+          "terminal": "Terminal",
+          "underwater": "Podvodno",
+          "western": "Vestern",
+          "zombie": "Zombi"
+        },
+        "preview": "Predogled",
+        "remove": "Odstrani temo",
+        "removeConfirm": "Odstraniti prilagojeno temo? Namesto tega bo AI ustvaril temo za vsako sejo.",
+        "sampleGame": "Vrata zaškripajo in razkrijejo mračno osvetljeno dvorano. Starodavni simboli rahlo žarijo na kamnitih stenah. V sredini prostora stoji skrivnostna skrinja.",
+        "sampleGame2": "Počasi se približate skrinji. Ko se prsti dotaknejo hladne kovinske zaponke, simboli na stenah začnejo utripati z močnejšo svetlobo. Sobo napolni nizek brenčeč zvok.",
+        "samplePlayer": "Odprem stara lesena vrata...",
+        "sampleStatus": "Zdravje",
+        "thinkingText": "Besedilo razmišljanja",
+        "thinkingTextDescription": "Besedilo, prikazano medtem ko AI razmišlja",
+        "thinkingTextPlaceholder": "npr. Zgodba se razvija..."
       },
       "title": "Moje ustvarjene igre",
       "viewModal": {
-        "readOnlyNotice": "To igro je ustvaril drug uporabnik. Podrobnosti si lahko ogledate, vendar je ne morete urejati. Uporabite »Kopiraj«, da ustvarite svojo urejeno različico.",
+        "readOnlyNotice": "To igro je ustvaril drug uporabnik. Lahko si ogledate podrobnosti, vendar ne morete urejati. Uporabite »Kopiraj«, da ustvarite svojo urejevalno različico.",
         "title": "Podrobnosti igre"
       },
       "visibility": {
-        "private": "Zasebno",
-        "public": "Javno"
+        "private": "Zasebna",
+        "public": "Javna"
+      }
+    },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Pojdi na ChatGameLab",
+        "continueGame": "Nadaljuj igro",
+        "expired": "Ta povezava za deljenje je dosegla omejitev igranj. Ni več razpoložljivih sej.",
+        "headline": "Povabljeni ste bili, da igrate brezplačno besedilno pustolovščino, ki jo poganja AI!",
+        "invalidLink": "Ta povezava za deljenje je neveljavna ali ne obstaja več.",
+        "loadError": "Podatkov o igri ni bilo mogoče naložiti. Poskusite znova.",
+        "restartGame": "Začni znova",
+        "sessionExists": "Igro že imate v teku. Lahko nadaljujete tam, kjer ste končali, ali začnete novo igro.",
+        "startPlaying": "Začni igrati"
       }
     },
     "header": {
-      "apiKeys": "API ključi",
+      "apiKeys": "Ključi API",
       "closeNavigation": "Zapri navigacijski meni",
       "contact": "Kontakt",
       "goToDashboard": "Pojdi na nadzorno ploščo",
       "leaveWorkshopMode": "Zapusti način delavnice",
-      "leaveWorkshopModeTooltip": "Zapusti način delavnice in se vrni v običajen pogled",
+      "leaveWorkshopModeTooltip": "Zapusti način delavnice in se vrni na običajen pogled",
       "logout": "Odjava",
       "openNavigation": "Odpri navigacijski meni",
       "openUserMenu": "Odpri uporabniški meni",
@@ -480,14 +714,14 @@
       "features": {
         "create": {
           "description": "Oblikujte interaktivne besedilne pustolovščine, ki jih poganja AI",
-          "title": "Ustvarjajte pustolovščine"
+          "title": "Ustvarjaj pustolovščine"
         },
         "learn": {
-          "description": "Popolno za izobraževalne delavnice in dejavnosti v razredu",
+          "description": "Odlično za izobraževalne delavnice in šolske aktivnosti",
           "title": "Uči in poučuj"
         },
         "play": {
-          "description": "Pridružite se prijateljem pri sodelovalnem pripovedovanju zgodb",
+          "description": "Pridružite se prijateljem v sodelovalnih pripovednih sejah",
           "title": "Igrajte skupaj"
         },
         "title": "Zakaj izbrati ChatGameLab?",
@@ -496,37 +730,50 @@
           "title": "Razumite AI"
         }
       },
-      "loginCta": "Prijavite se in raziskujte",
-      "splashDescription": "Izobraževalna platforma za ustvarjanje in igranje AI-podprtih besedilnih pustolovščin. Idealno za učitelje, učence in ustvarjalne pripovedovalce."
+      "loginCta": "Prijavite se in raziščite",
+      "splashDescription": "Izobraževalna platforma za ustvarjanje in igranje besedilnih pustolovščin z AI. Popolno za učitelje, študente in kreativne pripovedovalce."
     },
+    "inviteAlreadyExists": "Za ta e-poštni naslov že obstaja čakajoče povabilo.",
+    "inviteError": "Pošiljanje povabila ni uspelo. Poskusite znova.",
+    "inviteTeacher": "Povabi učitelja",
+    "inviteTeacherDescription": "Pošlji povabilo učitelju, da se pridruži tvoji organizaciji.",
+    "inviteTeacherTitle": "Povabi učitelja",
+    "inviteUser": "Povabi uporabnika",
+    "inviteUserDescription": "Pošlji povabilo uporabniku, da se pridruži tvoji organizaciji brez določene vloge.",
+    "inviteUserTitle": "Povabi uporabnika",
     "invites": {
       "accept": {
-        "inviteMessage": "Vabili so vas, da se pridružite delavnici organizacije \"{{organization}}\".",
-        "inviteMessageSimple": "Vabili so vas, da se pridružite tej delavnici.",
+        "inviteMessage": "Povabljeni ste, da se pridružite delavnici organizacije »{{organization}}«.",
+        "inviteMessageSimple": "Povabljeni ste, da se pridružite tej delavnici.",
         "joinButton": "Pridruži se delavnici",
         "title": "Pridruži se delavnici",
-        "titleWithWorkshop": "Pridruži se delavnici \"{{workshop}}\""
+        "titleWithWorkshop": "Pridruži se delavnici »{{workshop}}«"
+      },
+      "alreadyMember": {
+        "enterButton": "Vstopi v delavnico",
+        "message": "Želite vstopiti v delavnico »{{workshop}}«? Vstopili boste v način delavnice in ustvarjali igre v kontekstu te delavnice.",
+        "title": "Pridruži se delavnici"
       },
       "errors": {
-        "acceptFailed": "Sprejetje vabila ni uspelo. Poskusite znova.",
-        "expired": "Ta povezava za vabilo je potekla.",
-        "loadFailed": "Podrobnosti vabila ni bilo mogoče naložiti. Poskusite znova.",
-        "notFound": "Ta povezava za vabilo ni veljavna ali je bila preklicana."
+        "acceptFailed": "Sprejem povabila ni uspel. Poskusite znova.",
+        "expired": "Ta povezava za povabilo je potekla.",
+        "loadFailed": "Podrobnosti povabila ni bilo mogoče naložiti. Poskusite znova.",
+        "notFound": "Ta povezava za povabilo je neveljavna ali je bila preklicana."
       },
-      "goHome": "Na domačo stran",
+      "goHome": "Pojdi na domačo stran",
       "participant": {
         "loggingIn": "Prijavljamo vas..."
       },
       "success": {
-        "message": "Uspešno ste se pridružili delavnici. Preusmerjanje...",
+        "message": "Uspešno ste se pridružili delavnici. Preusmerjamo...",
         "title": "Dobrodošli!"
       },
       "switchWorkshop": {
-        "message": "Vaše igre in napredek v trenutni delavnici bodo ostali, vendar do njih ne boste mogli dostopati, dokler se znova ne pridružite.",
-        "stayButton": "Ostanite v trenutni delavnici",
+        "message": "Vaše igre in napredek v trenutni delavnici bodo ostali, vendar do njih ne boste imeli dostopa, dokler se ponovno ne pridružite.",
+        "stayButton": "Ostani v trenutni delavnici",
         "switchButton": "Zamenjaj delavnico",
-        "title": "Zamenjati delavnico?",
-        "warning": "Trenutno ste v delavnici \"{{currentWorkshop}}\". Pridružitev \"{{newWorkshop}}\" vas bo odstranila iz trenutne delavnice."
+        "title": "Zamenjam delavnico?",
+        "warning": "Trenutno ste v delavnici »{{currentWorkshop}}«. Če se pridružite »{{newWorkshop}}«, boste zapustili trenutno delavnico."
       }
     },
     "labels": {
@@ -534,21 +781,26 @@
       "yes": "Da"
     },
     "languageSwitcher": {
-      "wipHint": "Več jezikov je v pripravi. Trenutno sta na voljo samo angleščina in nemščina.",
-      "wipLabel": "WIP"
+      "wipHint": "Več jezikov je še v izdelavi. Trenutno sta na voljo samo angleščina in nemščina.",
+      "wipLabel": "V izdelavi"
     },
+    "leaveConfirm": "Ali ste prepričani, da želite zapustiti »{{name}}«?",
+    "leaveOrganization": "Zapusti organizacijo",
+    "leaveTitle": "Zapusti organizacijo",
+    "leaveWarning": "Izgubili boste dostop do vseh virov in članov organizacije.",
     "loading": "Nalaganje...",
     "logout": "Odjava",
+    "me": "Jaz",
     "myGames": {
-      "continue": "Nadaljuj",
+      "continue": "Igraj",
       "copyConfirm": {
         "confirm": "Kopiraj igro",
-        "message": "To bo ustvarilo kopijo \"{{name}}\" v vaših igrah.",
+        "message": "To bo ustvarilo kopijo »{{name}}« med vašimi igrami.",
         "title": "Kopiraj igro"
       },
       "copyGame": "Kopiraj igro",
       "empty": {
-        "description": "Ustvarite svojo prvo igro, da začnete z interaktivnimi AI-podprtimi pustolovščinami.",
+        "description": "Ustvarite svojo prvo igro in začnite z interaktivnimi pustolovščinami z AI.",
         "title": "Še ni iger"
       },
       "favorite": "Dodaj med priljubljene",
@@ -557,54 +809,63 @@
         "favorites": "Priljubljene"
       },
       "play": "Igraj",
-      "restart": "Ponovno zaženi",
+      "restart": "Začni znova",
       "restartConfirm": {
-        "confirm": "Ponovno zaženi",
-        "message": "Ali ste prepričani, da želite znova zagnati \"{{game}}\"? Vaš trenutni napredek bo izgubljen.",
-        "title": "Ponovno zaženi igro"
+        "confirm": "Ponovni začetek",
+        "message": "Ali ste prepričani, da želite znova zagnati »{{game}}«? Trenutni napredek bo izgubljen.",
+        "title": "Ponovni zagon igre"
       },
       "title": "Moje igre",
       "unfavorite": "Odstrani iz priljubljenih"
     },
     "myOrganization": {
-      "actions": "Akcije",
+      "actions": "Dejanja",
       "apiKeys": {
-        "aboutDescription": "Tukaj deljeni API ključi so na voljo vsem članom vaše organizacije za igranje iger. Ključe lahko upravljajo le vodje in učitelji.",
-        "aboutTitle": "Organizacijski API ključi",
+        "aboutDescription": "Tukaj deljeni ključi API so na voljo vsem članom vaše organizacije za igranje iger. Ključe lahko upravljajo samo vodje in učitelji.",
+        "aboutTitle": "Organizacijski ključi API",
         "allowPublicSponsoring": "Dovoli javno sponzoriranje",
-        "allowPublicSponsoringDesc": "Ta ključ se lahko uporabi za sponzoriranje iger za vse uporabnike.",
+        "allowPublicSponsoringDesc": "Ta ključ se lahko uporablja za sponzoriranje iger za vse uporabnike.",
         "filterByPlatform": "Filtriraj po platformi",
+        "freeUseKey": {
+          "description": "Nastavite ključ za brezplačno uporabo, da lahko vsi člani organizacije igrajo brez lastnega ključa API. Izberete lahko samo ključe, ki so že deljeni s to organizacijo.",
+          "remove": "Odstrani",
+          "selectPlaceholder": "Izberite deljeni ključ...",
+          "title": "Ključ za brezplačno uporabo",
+          "unknownKey": "Neznan ključ"
+        },
         "keyName": "Ime ključa",
-        "loadError": "Napaka pri nalaganju organizacijskih API ključev.",
-        "noKeys": "Še niso bili deljeni nobeni API ključi z to organizacijo.",
-        "noResults": "Noben API ključ ne ustreza vašemu iskanju.",
-        "notAuthorized": "Nimate dovoljenja za upravljanje organizacijskih API ključev. Samo vodje in učitelji lahko dostopajo do te strani.",
+        "loadError": "Nalaganje organizacijskih ključev API ni uspelo.",
+        "noKeys": "Noben ključ API še ni deljen s to organizacijo.",
+        "noResults": "Noben ključ API ne ustreza vašemu iskanju.",
+        "notAuthorized": "Nimate dovoljenja za upravljanje organizacijskih ključev API. Dostop imajo samo vodje in učitelji.",
         "owner": "Lastnik",
         "platform": "Platforma",
-        "publicSponsoring": "Javno sponzorstvo",
+        "publicSponsoring": "Javno sponzoriranje",
         "searchPlaceholder": "Išči po imenu ali lastniku...",
-        "selectKey": "Izberite API ključ",
+        "selectKey": "Izberite ključ API",
         "selectKeyPlaceholder": "Izberite ključ za deljenje...",
         "share": "Deli",
         "shareKey": "Deli ključ",
-        "shareKeyTitle": "Deli API ključ z organizacijo",
-        "title": "Organizacijski API ključi"
+        "shareKeyTitle": "Deli ključ API z organizacijo",
+        "title": "Organizacijski ključi API"
       },
-      "demoteConfirm": "Ali ste prepričani, da želite degradirati \"{{name}}\" ({{email}}) v učitelja?",
-      "demoteTitle": "Degradiraj v učitelja",
-      "demoteToStaff": "Degradiraj v učitelja",
+      "demoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) degradirati na učitelja?",
+      "demoteTitle": "Degradiraj na učitelja",
+      "demoteToStaff": "Degradiraj na učitelja",
       "email": "E-pošta",
       "emailPlaceholder": "Vnesite e-poštni naslov",
       "empty": "V tej organizaciji ni članov.",
       "inviteAlreadyExists": "Za ta e-poštni naslov že obstaja čakajoče povabilo.",
       "inviteError": "Pošiljanje povabila ni uspelo. Poskusite znova.",
       "inviteTeacher": "Povabi učitelja",
-      "inviteTeacherDescription": "Pošljite povabilo učitelju, da se pridruži vaši organizaciji.",
+      "inviteTeacherDescription": "Pošlji povabilo učitelju, da se pridruži tvoji organizaciji.",
       "inviteTeacherTitle": "Povabi učitelja",
       "inviteUser": "Povabi uporabnika",
-      "inviteUserDescription": "Pošljite povabilo uporabniku, da se pridruži vaši organizaciji brez določene vloge.",
+      "inviteUserDescription": "Pošlji povabilo uporabniku, da se pridruži tvoji organizaciji brez določene vloge.",
       "inviteUserTitle": "Povabi uporabnika",
-      "leaveConfirm": "Ali ste prepričani, da želite zapustiti \"{{name}}\"?",
+      "lastHeadError": "Vi ste zadnji vodja te organizacije. Če želite oditi, kontaktirajte skrbnike strani.",
+      "leaveConfirm": "Ali ste prepričani, da želite zapustiti »{{name}}«?",
+      "leaveError": "Odhod iz organizacije ni uspel. Poskusite znova.",
       "leaveOrganization": "Zapusti organizacijo",
       "leaveTitle": "Zapusti organizacijo",
       "leaveWarning": "Izgubili boste dostop do vseh virov in članov organizacije.",
@@ -615,11 +876,11 @@
       "noOrganizationDescription": "Niste član nobene organizacije.",
       "noResults": "Noben član ne ustreza vašemu iskanju.",
       "noRole": "Brez vloge",
-      "promoteConfirm": "Ali ste prepričani, da želite povišati \"{{name}}\" ({{email}}) v vodjo?",
+      "promoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) povišati v vodjo?",
       "promoteTitle": "Povišaj v vodjo",
       "promoteToHead": "Povišaj v vodjo",
-      "promoteWarning": "Ta uporabnik bo pridobil možnost upravljanja članov organizacije in vabila učitelje.",
-      "removeConfirm": "Ali ste prepričani, da želite odstraniti \"{{name}}\" iz organizacije?",
+      "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
+      "removeConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz organizacije?",
       "removeMember": "Odstrani člana",
       "removeTitle": "Odstrani člana",
       "removeWarning": "Ta uporabnik bo izgubil dostop do organizacije.",
@@ -628,100 +889,105 @@
       "showing": "{{count}} članov",
       "sort": {
         "label": "Razvrsti po",
-        "name-asc": "Ime (A-Z)",
-        "name-desc": "Ime (Z-A)",
-        "role-asc": "Vloga (A-Z)",
-        "role-desc": "Vloga (Z-A)"
+        "name-asc": "Ime (A-Ž)",
+        "name-desc": "Ime (Ž-A)",
+        "role-asc": "Vloga (A-Ž)",
+        "role-desc": "Vloga (Ž-A)"
       },
       "title": "Moja organizacija",
       "workshops": {
         "activate": "Aktiviraj",
-        "active": "Aktivno",
+        "active": "Aktivna",
         "activeDescription": "Aktivne delavnice omogočajo udeležencem, da se pridružijo in ustvarjajo igre.",
-        "activeLabel": "Aktivno",
+        "activeLabel": "Aktivna",
+        "aiQualityTierHint": "Kakovostni nivo odgovorov AI. Višji razredi so dražji, a lahko bolj kakovostni. Prazno uporabi strežniški privzeti razred.",
         "anonymousParticipant": "Anonimni udeleženec",
         "create": "Ustvari delavnico",
-        "createFirst": "Ustvarite svojo prvo delavnico",
-        "createInviteLink": "Ustvari povezavo za vabilo",
+        "createFirst": "Ustvari svojo prvo delavnico",
+        "createInviteLink": "Ustvari povezavo s povabilom",
         "createTitle": "Ustvari delavnico",
         "deactivate": "Deaktiviraj",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
-        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
-        "defaultApiKey": "Privzeti API ključ",
-        "defaultApiKeyHint": "Udeleženci bodo pri igranju uporabljali ta API ključ.",
-        "deleteConfirm": "Ali ste prepričani, da želite izbrisati \"{{name}}\"?",
+        "defaultApiKey": "Privzeti ključ API",
+        "defaultApiKeyHint": "Udeleženci bodo pri igranju uporabljali ta ključ API.",
+        "deleteConfirm": "Ali ste prepričani, da želite izbrisati »{{name}}«?",
         "deleteTitle": "Izbriši delavnico",
-        "deleteWarning": "Vse igre in seje v tej delavnici bodo izbrisane. To ni mogoče razveljaviti.",
+        "deleteWarning": "Vse igre in seje v tej delavnici bodo izbrisane. Tega ni mogoče razveljaviti.",
+        "designEditingEnabled": "Dovoli udeležencem urejanje dizajna igre (tema)",
         "editParticipant": "Uredi ime",
         "empty": "Še ni delavnic.",
         "enterWorkshop": "Vstopi v način delavnice",
         "games": "Igre",
         "hideInactive": "Skrij neaktivne",
-        "inactive": "Neaktivno",
+        "inactive": "Neaktivna",
         "inviteCreatedAt": "Ustvarjeno",
-        "inviteDescription": "Ustvarite povezavo za vabilo, ki jo lahko udeleženci uporabijo za pridružitev tej delavnici.",
+        "inviteDescription": "Ustvari povezavo s povabilom, ki jo udeleženci lahko uporabijo za pridružitev tej delavnici.",
         "inviteExpiresAt": "Poteče",
-        "inviteLink": "Povezava za vabilo",
-        "inviteLinkDescription": "Delite to povezavo z udeleženci, da jih povabite v delavnico.",
-        "inviteLinkTitle": "Povezava za vabilo za {{name}}",
+        "inviteLink": "Povezava s povabilom",
+        "inviteLinkDescription": "Deli to povezavo z udeleženci, da se lahko pridružijo delavnici.",
+        "inviteLinkTitle": "Povezava s povabilom za {{name}}",
         "inviteUsage": "Uporaba",
+        "isPaused": "Začasno ustavi delavnico",
+        "isPausedHint": "Ko je delavnica ustavljena, udeleženci vidijo zaklenjen zaslon in ne morejo sodelovati v igrah",
         "joined": "Pridružen",
         "linkCopied": "Povezava kopirana",
-        "linkCopiedMessage": "Povezava za vabilo je bila kopirana v odložišče.",
-        "loadError": "Napaka pri nalaganju delavnic.",
+        "linkCopiedMessage": "Povezava s povabilom je bila kopirana v odložišče.",
+        "loadError": "Nalaganje delavnic ni uspelo.",
         "nameLabel": "Ime delavnice",
         "namePlaceholder": "npr. Poletni tabor 2024",
-        "noActiveInvite": "Ni aktivne povezave za vabilo.",
-        "noDefaultApiKey": "Brez privzetega API ključa",
-        "noDefaultModel": "Uporabi privzeto platformo",
-        "noParticipantToken": "Ta udeleženec nima povezave za vabilo. Samo anonimni udeleženci (gosti) imajo ponovno uporabne povezave.",
+        "noActiveInvite": "Ni aktivne povezave s povabilom.",
+        "noDefaultApiKey": "Ni privzetega ključa API",
+        "noDefaultModel": "Uporabi privzeto platforme",
+        "noParticipantToken": "Ta udeleženec nima povezave s povabilom. Le anonimni udeleženci (gosti) imajo ponovno uporabne povezave.",
         "noParticipants": "Še ni udeležencev",
-        "notAuthorized": "Nimate dovoljenja za upravljanje delavnic. Samo vodje in učitelji lahko dostopajo do te strani.",
+        "notAuthorized": "Nimate dovoljenja za upravljanje delavnic. Dostop imajo samo vodje in učitelji.",
         "participantGames": "{{count}} iger",
         "participantJoined": "Pridružen {{date}}",
         "participantName": "Ime udeleženca",
         "participants": "Udeleženci",
         "removeParticipant": "Odstrani udeleženca",
-        "removeParticipantConfirm": "Ali ste prepričani, da želite odstraniti \"{{name}}\" iz te delavnice?",
-        "removeParticipantMessage": "Ali ste prepričani, da želite odstraniti \"{{name}}\" iz te delavnice? To dejanje ni mogoče razveljaviti.",
+        "removeParticipantConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz te delavnice?",
+        "removeParticipantMessage": "Ali ste prepričani, da želite odstraniti »{{name}}« iz te delavnice? Tega dejanja ni mogoče razveljaviti.",
         "removeParticipantTitle": "Odstrani udeleženca",
-        "revokeInvite": "Prekliči povezavo za vabilo",
-        "selectApiKey": "Izberite API ključ",
+        "revokeInvite": "Prekliči povezavo s povabilom",
+        "selectApiKey": "Izberite ključ API",
         "settings": "Nastavitve",
-        "shareParticipantLink": "Kopirajte individualno povezavo za vabilo za tega udeleženca",
-        "serverDefault": "Server Default",
+        "shareParticipantLink": "Kopiraj individualno povezavo s povabilom za tega udeleženca",
         "showOtherParticipantsGames": "Prikaži igre drugih udeležencev",
         "showPublicGames": "Prikaži javne igre udeležencem",
         "sort": {
-          "createdAtAsc": "Najstarejše prve",
-          "createdAtDesc": "Najnovejše prve",
+          "createdAtAsc": "Najstarejše najprej",
+          "createdAtDesc": "Najnovejše najprej",
           "label": "Razvrsti po",
-          "nameAsc": "Ime (A-Z)",
-          "nameDesc": "Ime (Z-A)",
+          "nameAsc": "Ime (A-Ž)",
+          "nameDesc": "Ime (Ž-A)",
           "participantsAsc": "Najmanj udeležencev",
           "participantsDesc": "Največ udeležencev"
         },
-        "subtitle": "Upravljajte delavnice in povabite udeležence k sodelovanju pri ustvarjanju iger.",
+        "subtitle": "Upravljajte delavnice in povabite udeležence k sodelovanju pri igrah.",
         "title": "Delavnice",
-        "usedCount": "{{count}} uporabe",
-        "viewInviteLink": "Poglej povezavo za vabilo"
+        "unpause": "Nadaljuj delavnico",
+        "usedCount": "{{count}} uporab",
+        "viewInviteLink": "Prikaži povezavo s povabilom"
       }
     },
+    "name": "Ime",
+    "noEmail": "Brez e-pošte",
+    "noOrganization": "Brez organizacije",
+    "noOrganizationDescription": "Niste član nobene organizacije.",
+    "noResults": "Noben član ne ustreza vašemu iskanju.",
+    "noRole": "Brez vloge",
     "notifications": {
       "accept": "Sprejmi",
       "decline": "Zavrni",
       "declineConfirm": "Ali ste prepričani, da želite zavrniti to povabilo?",
       "declineTitle": "Zavrni povabilo",
       "empty": "Ni novih obvestil.",
-      "inviteDescription": "Bili ste povabljeni, da se pridružite kot {{role}}.",
+      "inviteDescription": "Povabljeni ste bili, da se pridružite kot {{role}}.",
       "inviteToJoin": "Povabilo v organizacijo",
       "title": "Obvestila"
     },
     "play": {
-      "cloneGame": "Kopiraj v moje igre",
+      "cloneGame": "Kloniraj v moje igre",
       "empty": {
         "description": "Poskusite prilagoditi filtre ali preverite kasneje za nove igre.",
         "title": "Ni najdenih iger"
@@ -732,51 +998,100 @@
         "favorites": "Priljubljene",
         "organization": "Organizacija",
         "own": "Moje igre",
-        "public": "Javno"
+        "public": "Javne"
       },
       "owner": "Moje",
-      "playGame": "Predvajaj to igro",
+      "playGame": "Igraj to igro",
       "playNow": "Igraj zdaj",
       "selectGameTitle": "Izberite igro",
       "title": "Izberite igro",
       "unfavorite": "Odstrani iz priljubljenih"
     },
     "profile": "Profil",
+    "promoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) povišati v vodjo?",
+    "promoteTitle": "Povišaj v vodjo",
+    "promoteToHead": "Povišaj v vodjo",
+    "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
+    "removeConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz organizacije?",
+    "removeMember": "Odstrani člana",
+    "removeTitle": "Odstrani člana",
+    "removeWarning": "Ta uporabnik bo izgubil dostop do organizacije.",
+    "role": "Vloga",
     "save": "Shrani",
-    "search": "Iskanje",
+    "search": "Išči",
+    "searchPlaceholder": "Išči člane...",
+    "serverSettings": {
+      "defaultTier": {
+        "description": "Strežniški rezervni razred, uporabljen, ko ni določen poseben razred na ravni delavnice, institucije ali uporabnika. Višji razredi so dražji, a lahko bolj kakovostni.",
+        "title": "Privzeti kakovostni razred AI"
+      },
+      "freeUseKey": {
+        "description": "Nastavite globalni ključ API za brezplačno uporabo, da lahko vsi uporabniki na tem strežniku igrajo igre brez lastnega ključa. Ta ključ se uporablja kot rezerva, ko ni na voljo ključa delavnice ali organizacije.",
+        "noKeys": "Nimate ključev API. Najprej dodajte enega v nastavitvah ključev API.",
+        "notWorking": "Ne deluje",
+        "remove": "Odstrani",
+        "replacePlaceholder": "Zamenjaj z enim od svojih ključev API...",
+        "selectPlaceholder": "Izberite enega od svojih ključev API...",
+        "title": "Ključ API za brezplačno uporabo",
+        "unknownKey": "Neznan ključ (morda je bil izbrisan)",
+        "untested": "Ni preizkušen",
+        "working": "Deluje"
+      },
+      "freeUseTier": {
+        "description": "Kakovostni razred, uporabljen, ko je aktiven ključ API za brezplačno uporabo. Višji razredi so dražji, a lahko bolj kakovostni. Pustite prazno za privzeti razred.",
+        "title": "Kakovostni razred AI za brezplačno uporabo"
+      },
+      "notAuthorized": "Nimate dovoljenja za dostop do strežniških nastavitev. Potreben je adminsitratorski dostop.",
+      "title": "Nastavitve strežnika"
+    },
     "sessions": {
       "continueGame": "Nadaljuj igro",
       "deleteConfirm": {
-        "message": "Ali ste prepričani, da želite izbrisati to sejo za \"{{game}}\"? To dejanje ni mogoče razveljaviti.",
+        "message": "Ali ste prepričani, da želite izbrisati to sejo za »{{game}}«? Tega dejanja ni mogoče razveljaviti.",
         "title": "Izbriši sejo"
       },
       "empty": {
-        "description": "Začnite novo igro, da začnete svoje pustolovščine!",
-        "noResults": "Ni ustreznih iger",
+        "description": "Začnite novo igro, da začnete pustolovščino!",
+        "noResults": "Ni najdenih ustreznih iger",
         "title": "Še ni odigranih iger"
       },
       "errors": {
-        "loadFailed": "Vaših iger ni bilo mogoče naložiti. Poskusite znova."
+        "loadFailed": "Nalaganje vaših iger ni uspelo. Poskusite znova."
       },
       "fields": {
         "game": "Igra",
-        "lastPlayed": "Zadnje igrano",
+        "lastPlayed": "Nazadnje igrano",
         "model": "Model"
+      },
+      "freeUseKey": {
+        "description": "Nastavite ključ za brezplačno uporabo, da lahko vsi člani organizacije igrajo brez lastnega ključa API. Izberete lahko samo ključe, ki so že deljeni s to organizacijo.",
+        "remove": "Odstrani",
+        "selectPlaceholder": "Izberite deljeni ključ...",
+        "title": "Ključ za brezplačno uporabo",
+        "unknownKey": "Neznan ključ"
       },
       "noDescription": "Brez opisa",
       "sort": {
         "game": "Igra",
         "label": "Razvrsti po",
-        "lastPlayed": "Zadnje igrano",
+        "lastPlayed": "Nazadnje igrano",
         "model": "Model"
       },
       "startNewGame": "Začni novo igro",
       "title": "Nadaljuj z igranjem",
-      "untitledGame": "Igra brez naslova"
+      "untitledGame": "Neimenovana igra"
     },
     "settings": "Nastavitve",
-    "unnamed": "Brez imena",
-    "viewGame": "Poglej igro"
+    "showing": "{{count}} članov",
+    "sort": {
+      "label": "Razvrsti po",
+      "name-asc": "Ime (A-Ž)",
+      "name-desc": "Ime (Ž-A)",
+      "role-asc": "Vloga (A-Ž)",
+      "role-desc": "Vloga (Ž-A)"
+    },
+    "unnamed": "Neimenovano",
+    "viewGame": "Ogled igre"
   },
   "dashboard": {
     "cards": {
@@ -792,14 +1107,14 @@
         "title": "O ChatGameLab"
       },
       "lastPlayed": {
-        "empty": "Še ni zgodovine igranja. Začnite igrati igro!",
-        "title": "Zadnje igrano",
+        "empty": "Ni zgodovine igranja. Začnite igrati igro!",
+        "title": "Nazadnje igrano",
         "viewAll": "Vse igre"
       },
       "myGames": {
         "empty": "Še ni iger. Ustvarite svojo prvo igro!",
         "title": "Moje igre",
-        "viewAll": "Vse ustvaritve"
+        "viewAll": "Vse stvaritve"
       },
       "myWorkshops": {
         "empty": "Ni aktivnih delavnic. Ustvarite delavnico v svoji organizaciji!",
@@ -807,12 +1122,12 @@
         "viewAll": "Vse delavnice"
       },
       "newGames": {
-        "empty": "Še ni razpoložljivih iger.",
+        "empty": "Trenutno ni razpoložljivih iger.",
         "title": "Nove igre",
         "viewAll": "Vse igre"
       },
       "popularGames": {
-        "empty": "Še ni razpoložljivih iger.",
+        "empty": "Trenutno ni razpoložljivih iger.",
         "plays": "{{count}} igranj",
         "title": "Priljubljene igre",
         "viewAll": "Vse igre"
@@ -820,58 +1135,67 @@
     },
     "quickActions": {
       "createNewGame": "Ustvari novo igro",
-      "createRoom": "Ustvari sobo",
+      "createWorkshop": "Ustvari delavnico",
+      "importGame": "Uvozi igro",
       "inviteMembers": "Povabi člane",
       "startNewGame": "Začni novo igro",
-      "title": "Hitre akcije"
+      "title": "Hitra dejanja"
     },
-    "untitled": "Brez naslova",
-    "untitledGame": "Igra brez naslova",
+    "untitled": "Neimenovano",
+    "untitledGame": "Neimenovana igra",
     "version": {
       "mismatch": {
-        "message": "Frontend različica {{frontendVersion}} se ne ujema z backend različico {{backendVersion}}. To lahko povzroči nepričakovano vedenje. Obrnite se na podporo, če težave vztrajajo.",
-        "title": "Zaznan neskladje različic"
+        "message": "Različica sprednjega dela \u001cfrontendVersion\u001d{{frontendVersion}}\u001c/frontendVersion\u001d se ne ujema z različico zaledja \u001cbackendVersion\u001d{{backendVersion}}\u001c/backendVersion\u001d. To lahko povzroči nepričakovano obnašanje. Če težave ostanejo, kontaktirajte podporo.",
+        "title": "Zaznano neskladje različic"
       }
     }
   },
   "errors": {
     "aiError": "Storitev AI je naletela na napako. Poskusite znova.",
-    "backendUserFetch": "Neuspešno nalaganje podatkov uporabnika s strežnika. Poskusite znova.",
-    "billingNotActive": "Vaš OpenAI račun ni aktiven. Prosimo preverite plačilne podatke na https://platform.openai.com/settings/organization/billing.",
+    "backendUserFetch": "Podatkov o uporabniku ni bilo mogoče naložiti s strežnika. Poskusite znova.",
+    "billingNotActive": "Vaš račun OpenAI ni aktiven. Preverite podatke o zaračunavanju na https://platform.openai.com/settings/organization/billing.",
     "conflict": "To dejanje je v konfliktu z obstoječimi podatki. Poskusite znova.",
-    "contentFiltered": "Vašo zahtevo je filtrirala politika vsebin AI. Poskusite drugače formulirati.",
+    "contentFiltered": "Vašo zahtevo je filtrirala vsebinska politika AI. Poskusite preoblikovati zahtevo.",
+    "duplicateName": "Ime te igre je že v uporabi. Izberite drugo ime.",
     "forbidden": "Nimate dovoljenja za izvedbo tega dejanja.",
     "generic": "Nekaj je šlo narobe. Poskusite znova.",
-    "insufficientQuota": "Vaš API ključ je porabil vsa sredstva. Dodajte več sredstev ali uporabite drug API ključ.",
-    "invalidApiKey": "Vaš API ključ je neveljaven ali potekel. Preverite svoj API ključ v Nastavitvah.",
-    "invalidPlatform": "Izbrana platforma ni veljavna. Prosimo izberite veljavno možnost.",
-    "invalidToken": "Vaša seja je potekla ali ni veljavna. Prosimo uporabite svoj povabilni povezavo ponovno.",
-    "network": "Napaka omrežja. Preverite svojo povezavo.",
-    "notFound": "Zahtevan vir ni bil najden.",
-    "orgVerificationRequired": "Vaša OpenAI organizacija mora biti potrjena za uporabo funkcije ustvarjanja slik. Prosimo preverite na https://platform.openai.com/settings/organization/general.",
+    "insufficientQuota": "Vaš ključ API je porabil kredite. Dodajte več kreditov ali uporabite drug ključ API.",
+    "invalidApiKey": "Vaš ključ API je neveljaven ali potekel. Preverite ga v nastavitvah.",
+    "invalidJsonSchema": "Konfiguracija igre je ustvarila neveljavno shemo za AI. To je težava nastavitve igre, ne ključa API. Preverite vrednosti stanja igre in poskusite znova.",
+    "invalidPlatform": "Izbrana je neveljavna platforma. Izberite veljavno možnost.",
+    "invalidToken": "Vaša seja je potekla ali je neveljavna. Ponovno uporabite povezavo s povabilom.",
+    "nameProfane": "To ime ni dovoljeno. Izberite drugo ime.",
+    "nameTooLong": "Ime je predolgo. Izberite krajše ime.",
+    "network": "Omrežna napaka. Preverite povezavo.",
+    "noApiKey": "Za to igro ni na voljo ključa API. Sponzor igre ga je morda odstranil ali pa morate konfigurirati svoj ključ API.",
+    "notFound": "Zahtevani vir ni bil najden.",
+    "orgVerificationRequired": "Vaša organizacija OpenAI potrebuje verifikacijo za uporabo funkcije ustvarjanja slik. Preverite na https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "AI je izgubil sled pogovora. To se lahko zgodi, ko je seja nekaj časa neaktivna. Za nadaljevanje začnite novo sejo.",
     "rateLimitExceeded": "Preveč zahtev. Počakajte trenutek in poskusite znova.",
     "server": "Napaka strežnika. Poskusite kasneje.",
     "titles": {
       "aiError": "Napaka AI",
-      "authentication": "Napaka pri preverjanju pristnosti",
-      "billing": "Napaka pri obračunavanju",
+      "authentication": "Napaka overjanja",
+      "billing": "Napaka pri zaračunavanju",
       "error": "Napaka",
-      "network": "Napaka omrežja",
+      "gameConfig": "Napaka konfiguracije igre",
+      "network": "Omrežna napaka",
+      "noApiKey": "Ni ključa API",
       "notFound": "Ni najdeno",
-      "permission": "Dostop zavrnjen",
+      "permission": "Dovoljenje zavrnjeno",
       "server": "Napaka strežnika",
-      "validation": "Napaka preverjanja",
+      "validation": "Napaka validacije",
       "workshopInactive": "Delavnica ni aktivna"
     },
-    "unauthorized": "Prosimo prijavite se za nadaljevanje.",
+    "unauthorized": "Za nadaljevanje se prijavite.",
     "unexpected": "Prišlo je do nepričakovane napake.",
     "userNotRegistered": "Pred nadaljevanjem morate dokončati registracijo.",
-    "validation": "Preverite vnos in poskusite znova.",
-    "workshopInactive": "Ta delavnica je bila deaktivirana. Obrnite se na svojega učitelja ali organizatorja delavnice."
+    "validation": "Preverite svoje vnose in poskusite znova.",
+    "workshopInactive": "Ta delavnica je deaktivirana. Obrnite se na učitelja ali organizatorja delavnice."
   },
   "myWorkshop": {
     "empty": {
-      "description": "Začnite igrati igre, da jih vidite tukaj, ali ustvarite svojo!",
+      "description": "Začnite igrati igre, da jih boste videli tukaj, ali ustvarite svojo!",
       "title": "Še ni iger"
     },
     "filters": {
@@ -881,31 +1205,42 @@
       "workshop": "Igre delavnice"
     },
     "gameType": "Igra",
+    "members": {
+      "empty": "Še ni članov",
+      "title": "Člani delavnice"
+    },
     "organizator": "Organizator: {{name}}",
+    "paused": {
+      "description": "Delavnica je trenutno ustavljena. Počakajte na navodila organizatorjev delavnice.",
+      "title": "Delavnica ustavljena"
+    },
     "settings": {
       "currentWorkshop": "Trenutna delavnica",
-      "notInWorkshopMode": "Niste v načinu delavnice. Prosimo, najprej vstopite v delavnico.",
+      "notInWorkshopMode": "Niste v načinu delavnice. Najprej vstopite v delavnico.",
       "title": "Nastavitve delavnice"
     },
     "title": "Moja delavnica",
     "you": "Vi"
   },
   "navigation": {
+    "adminPanel": "Administratorska plošča",
     "allGames": "Vse igre",
-    "create": "Ustvarite svojo igro",
+    "create": "Ustvari svojo igro",
+    "createGame": "Ustvari igro",
     "dashboard": "Nadzorna plošča",
     "games": "Igre",
     "groups": "Skupine",
-    "manageOrganizations": "Upravljajte organizacije",
-    "manageUsers": "Upravljajte uporabnike",
+    "manageOrganizations": "Upravljaj organizacije",
+    "manageUsers": "Upravljaj uporabnike",
     "myGames": "Moje igre",
     "myOrganization": "Moja organizacija",
     "myWorkshop": "Moja delavnica",
-    "orgApiKeys": "API ključi",
+    "orgApiKeys": "Ključi API",
     "orgMembers": "Člani",
     "orgWorkshops": "Delavnice",
     "play": "Igraj igro",
     "rooms": "Sobe",
+    "serverSettings": "Nastavitve strežnika",
     "workshopSettings": "Nastavitve delavnice"
   }
 }

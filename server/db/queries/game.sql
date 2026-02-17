@@ -490,6 +490,9 @@ SELECT * FROM game_session_message WHERE id = $1;
 -- name: GetLatestGameSessionMessage :one
 SELECT * FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1;
 
+-- name: CountGameSessionMessages :one
+SELECT COUNT(*)::int AS count FROM game_session_message WHERE game_session_id = $1;
+
 -- name: GetAllGameSessionMessages :many
 SELECT * FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC;
 

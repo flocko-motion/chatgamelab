@@ -33,6 +33,17 @@ func (q *Queries) ClearPrivateShareGameIDByGameID(ctx context.Context, privateSh
 	return err
 }
 
+const countGameSessionMessages = `-- name: CountGameSessionMessages :one
+SELECT COUNT(*)::int AS count FROM game_session_message WHERE game_session_id = $1
+`
+
+func (q *Queries) CountGameSessionMessages(ctx context.Context, gameSessionID uuid.UUID) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countGameSessionMessages, gameSessionID)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createGame = `-- name: CreateGame :one
 
 

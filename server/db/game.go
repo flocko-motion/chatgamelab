@@ -2107,6 +2107,15 @@ func CountGuestUsersByGameID(ctx context.Context, gameID uuid.UUID) (int, error)
 	return int(count), nil
 }
 
+// CountGameSessionMessages returns the number of messages in a game session.
+func CountGameSessionMessages(ctx context.Context, sessionID uuid.UUID) (int, error) {
+	count, err := queries().CountGameSessionMessages(ctx, sessionID)
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
 func stringPtrToNullString(s *string) sql.NullString {
 	if s == nil {
 		return sql.NullString{}

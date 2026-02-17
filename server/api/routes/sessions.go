@@ -18,6 +18,7 @@ import (
 
 // Request/Response types for sessions
 type SessionActionRequest struct {
+	Type          string            `json:"type,omitempty"` // Message type: "player" or "system" (defaults to "player")
 	Message       string            `json:"message"`
 	StatusFields  []obj.StatusField `json:"statusFields,omitempty"`  // Current status to pass to AI
 	AudioBase64   string            `json:"audioBase64,omitempty"`   // Base64-encoded audio from voice input
@@ -171,10 +172,16 @@ func PostSessionAction(w http.ResponseWriter, r *http.Request) {
 		currentStatus = latestMsg.StatusFields
 	}
 
-	// Create player action message with current status for AI context
+	// Create action message with current status for AI context
+	// Type defaults to "player" if not specified
+	messageType := req.Type
+	if messageType == "" {
+		messageType = obj.GameSessionMessageTypePlayer
+	}
+
 	action := obj.GameSessionMessage{
 		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypePlayer,
+		Type:          messageType,
 		Message:       req.Message,
 		StatusFields:  currentStatus,
 		AudioBase64:   req.AudioBase64,
@@ -248,7 +255,7 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, firstMessage, httpErr := game.CreateSession(r.Context(), user.ID, gameID)
+	session, _, httpErr := game.CreateSession(r.Context(), user.ID, gameID)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -259,13 +266,11 @@ func CreateGameSession(w http.ResponseWriter, r *http.Request) {
 	responseSession.ApiKey = nil
 	responseSession.AiSession = ""
 
-	responseMessage := *firstMessage
-	responseMessage.Image = nil
-	responseMessage.Audio = nil
-
+	// TWO-PHASE INITIALIZATION: Return session without messages
+	// Frontend will call sendAction("") to trigger opening scene generation
 	httpx.WriteJSON(w, http.StatusOK, SessionResponse{
 		GameSession: &responseSession,
-		Messages:    []obj.GameSessionMessage{responseMessage},
+		Messages:    []obj.GameSessionMessage{}, // Empty - no initial message
 	})
 }
 

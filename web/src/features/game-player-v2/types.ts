@@ -34,6 +34,8 @@ export interface SceneMessage {
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
+  /** Mark internal/system messages (like "init") that should be hidden from UI */
+  isInternal?: boolean;
   /** Whether this message has image generation (set by backend based on platform capabilities) */
   hasImage?: boolean;
   /** Whether voice input (STT) is available for this session tier (runtime capability, not persisted) */
@@ -97,6 +99,8 @@ export interface PlayerActionInput {
   audioBase64?: string;
   /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
   audioMimeType?: string;
+  /** Mark as internal/system message (like "init") that should be hidden from UI */
+  isInternal?: boolean;
 }
 
 export interface GameInfo {

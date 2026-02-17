@@ -106,14 +106,23 @@ export function useSessionLifecycle({
     resetGame,
   } = useGameSession(gameId || "");
 
-  // Load existing session (continuation)
+  // Load existing session (continuation or after creation)
+  // Only load when we're actually on the /sessions/{id} route
+  const currentPath = router.state.location.pathname;
+  const isOnSessionRoute = currentPath.startsWith('/sessions/');
+  const loadAttemptedRef = useRef<string | null>(null);
+
   useEffect(() => {
-    console.log('[SSE-DEBUG] loadExistingSession effect', { sessionId, phase: state.phase, isContinuation });
-    if (sessionId && state.phase === "idle") {
-      console.log('[SSE-DEBUG] loadExistingSession effect: calling loadExistingSession', { sessionId });
+    // Only load if:
+    // 1. We have a sessionId in params
+    // 2. State is idle (not already loaded/loading)
+    // 3. We're actually on the /sessions/{id} route (not /games/{id}/play)
+    // 4. We haven't already attempted to load this session (prevents React StrictMode double-invoke)
+    if (sessionId && state.phase === "idle" && isOnSessionRoute && loadAttemptedRef.current !== sessionId) {
+      loadAttemptedRef.current = sessionId;
       loadExistingSession(sessionId);
     }
-  }, [sessionId, state.phase, loadExistingSession]);
+  }, [sessionId, state.phase, loadExistingSession, currentPath, isOnSessionRoute]);
 
   // Auto-start new sessions: API key is resolved server-side
   const autoStartAttemptedRef = useRef(false);
@@ -135,7 +144,8 @@ export function useSessionLifecycle({
   const urlReplacedRef = useRef(false);
   useEffect(() => {
     if (isContinuation || urlReplacedRef.current) return;
-    if (state.sessionId && state.phase === "playing") {
+    // Navigate when sessionId is set and we're not on the session route yet
+    if (state.sessionId && !isOnSessionRoute) {
       urlReplacedRef.current = true;
       navigate({
         to: "/sessions/$sessionId",
@@ -143,7 +153,7 @@ export function useSessionLifecycle({
         replace: true,
       });
     }
-  }, [isContinuation, state.sessionId, state.phase, navigate]);
+  }, [isContinuation, state.sessionId, navigate, isOnSessionRoute]);
 
   // Auto-resolve API key for sessions that lost their key (needs-api-key phase)
   useEffect(() => {
