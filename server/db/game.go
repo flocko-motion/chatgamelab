@@ -713,6 +713,7 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
 		HasAudio:      msg.HasAudioOut,
+		ApiKeyType:    sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -785,6 +786,7 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
+		ApiKeyType:            sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1228,6 +1230,9 @@ func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 		if err := json.Unmarshal(m.TokenUsage.RawMessage, &tu); err == nil {
 			msg.TokenUsage = &tu
 		}
+	}
+	if m.ApiKeyType.Valid {
+		msg.ApiKeyType = m.ApiKeyType.String
 	}
 }
 

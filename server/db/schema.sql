@@ -363,10 +363,13 @@ CREATE TABLE game_session_message (
     response_raw            text NULL,
     token_usage             jsonb NULL,
     url_analytics           text NULL,
+    -- Type of API key used to generate this message (shown in AI Insight panel)
+    api_key_type            text NULL,
 
     deleted_at          timestamptz NULL,
 
-    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
+    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system')),
+    CONSTRAINT game_session_message_api_key_type_chk CHECK (api_key_type IS NULL OR api_key_type IN ('workshop', 'sponsor', 'institution_free_use', 'personal', 'system_free_use', 'private_share'))
 );
 -- SystemSettings
 -- Global system settings (single row table)
