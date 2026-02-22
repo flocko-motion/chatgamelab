@@ -1071,6 +1071,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
 // priority chain (workshop → sponsored game → institution free-use → user default → system free-use) and updates the session.
 // Used when resuming a session whose API key was deleted.
+// Only accepts keys from the same AI platform as the session to prevent mid-session platform switches.
 func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	// Load and verify session ownership
 	session, err := loadSessionByID(ctx, sessionID)
@@ -1079,6 +1080,15 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	}
 	if session.UserID != userID {
 		return nil, obj.ErrForbidden("not the owner of this session")
+	}
+
+	// Only accept keys from the same platform as the session.
+	// Switching platforms mid-session would break AiSession state (platform-specific conversation IDs).
+	requiredPlatform := session.AiPlatform
+
+	// matchesPlatform returns false if the share's platform doesn't match the session's locked platform.
+	matchesPlatform := func(s *obj.ApiKeyShare) bool {
+		return s != nil && s.ApiKey != nil && (requiredPlatform == "" || s.ApiKey.Platform == requiredPlatform)
 	}
 
 	// Resolve the API key and AI quality tier using the same priority chain as session creation:
@@ -1099,8 +1109,9 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if userErr == nil && user.Role != nil && user.Role.Workshop != nil {
 		workshop, wsErr := GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
 		if wsErr == nil && workshop.DefaultApiKeyShareID != nil {
-			share, _ = GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
-			if share != nil {
+			candidate, _ := GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
+			if matchesPlatform(candidate) {
+				share = candidate
 				sourceTier = workshop.AiQualityTier
 			}
 		}
@@ -1110,17 +1121,18 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil {
 		game, gameErr := loadGameByID(ctx, session.GameID)
 		if gameErr == nil && game.PublicSponsoredApiKeyShareID != nil {
-			sponsorShare, shareErr := GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
-			if shareErr == nil {
-				share = sponsorShare
+			candidate, shareErr := GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
+			if shareErr == nil && matchesPlatform(candidate) {
+				share = candidate
 			}
 		}
 	}
 
 	// 3. Check institution free-use key
 	if share == nil && userErr == nil && user.Role != nil && user.Role.Institution != nil && user.Role.Institution.FreeUseApiKeyShareID != nil {
-		share, _ = GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
-		if share != nil {
+		candidate, _ := GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
+		if matchesPlatform(candidate) {
+			share = candidate
 			institution, instErr := GetInstitutionByID(ctx, userID, user.Role.Institution.ID)
 			if instErr == nil {
 				sourceTier = institution.FreeUseAiQualityTier
@@ -1132,8 +1144,9 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil && userErr == nil {
 		defaultKey, _ := GetDefaultApiKeyForUser(ctx, userID)
 		if defaultKey != nil {
-			share, _ = GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
-			if share != nil {
+			candidate, _ := GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
+			if matchesPlatform(candidate) {
+				share = candidate
 				sourceTier = user.AiQualityTier
 			}
 		}
@@ -1143,15 +1156,21 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil && settings != nil && settings.FreeUseApiKeyID != nil {
 		apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
 		if keyErr == nil {
-			share = &obj.ApiKeyShare{
+			candidate := &obj.ApiKeyShare{
 				ApiKeyID: apiKey.ID,
 				ApiKey:   apiKey,
 			}
-			sourceTier = settings.FreeUseAiQualityTier
+			if matchesPlatform(candidate) {
+				share = candidate
+				sourceTier = settings.FreeUseAiQualityTier
+			}
 		}
 	}
 
 	if share == nil || share.ApiKey == nil {
+		if requiredPlatform != "" {
+			return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available for platform " + requiredPlatform + ". All available keys use a different AI platform."}
+		}
 		return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available. Please configure an API key in your settings."}
 	}
 
