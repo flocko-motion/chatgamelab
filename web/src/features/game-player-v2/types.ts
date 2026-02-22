@@ -125,6 +125,8 @@ export type GamePhase =
 export interface StreamError {
   code: string | null;
   message: string;
+  /** True when the error came from the 'init' opening scene action on a fresh session */
+  isInitFailure?: boolean;
 }
 
 export interface GamePlayerState {

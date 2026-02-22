@@ -6,6 +6,7 @@ import {
   useGame,
   useApiKeyStatus,
   useWorkshopEvents,
+  useDeleteSession,
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
 import { useWorkshopMode } from "@/providers/WorkshopModeProvider";
@@ -94,6 +95,8 @@ export function useSessionLifecycle({
     isLoading: gameLoading,
     error: gameError,
   } = useGame(isContinuation ? undefined : gameId);
+
+  const deleteSession = useDeleteSession();
 
   const {
     state,
@@ -188,26 +191,6 @@ export function useSessionLifecycle({
     }
   }, [state.messages, scrollToBottom]);
 
-  // Show global error modal for recoverable mid-game errors (AI errors, send failures)
-  useEffect(() => {
-    if (state.streamError) {
-      showErrorModal({
-        code: state.streamError.code ?? undefined,
-        message: !state.streamError.code
-          ? state.streamError.message
-          : undefined,
-        onDismiss: clearStreamError,
-      });
-    }
-  }, [state.streamError, clearStreamError]);
-
-  const handleSendAction = useCallback(
-    async (input: PlayerActionInput) => {
-      await sendAction(input);
-    },
-    [sendAction],
-  );
-
   const handleBack = useCallback(() => {
     // Invalidate queries so the games/sessions lists refresh with any new sessions
     queryClient.invalidateQueries({ queryKey: queryKeys.games });
@@ -220,6 +203,37 @@ export function useSessionLifecycle({
       navigate({ to: "/" });
     }
   }, [queryClient, router, navigate]);
+
+  // Show global error modal for recoverable mid-game errors (AI errors, send failures)
+  useEffect(() => {
+    if (state.streamError) {
+      const isInitFailure = state.streamError.isInitFailure;
+      const sessionIdToDelete = isInitFailure ? state.sessionId : null;
+
+      showErrorModal({
+        code: state.streamError.code ?? undefined,
+        message: !state.streamError.code
+          ? state.streamError.message
+          : undefined,
+        onDismiss: () => {
+          clearStreamError();
+          if (isInitFailure && sessionIdToDelete) {
+            // Delete the broken empty session and go back
+            deleteSession.mutate(sessionIdToDelete);
+            resetGame();
+            handleBack();
+          }
+        },
+      });
+    }
+  }, [state.streamError, clearStreamError, state.sessionId, deleteSession, resetGame, handleBack]);
+
+  const handleSendAction = useCallback(
+    async (input: PlayerActionInput) => {
+      await sendAction(input);
+    },
+    [sendAction],
+  );
 
   // Check if the error is a "no API key" error
   const isNoApiKeyError =
