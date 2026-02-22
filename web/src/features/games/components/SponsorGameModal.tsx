@@ -52,7 +52,8 @@ export function SponsorGameModal({
   // Deduplicate by share ID.
   const keys = apiKeys?.apiKeys ?? [];
   const personalShares = apiKeys?.shares ?? [];
-  const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
+  type EligibleShare = ObjApiKeyShare & { apiKey?: (typeof keys)[number]; _source: "personal" | "org" };
+  const eligibleKeys: EligibleShare[] = [];
   const seenShareIds = new Set<string>();
 
   for (const share of personalShares) {
@@ -61,7 +62,7 @@ export function SponsorGameModal({
     const apiKey = keys.find((k) => k.id === share.apiKeyId);
     if (apiKey?.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share, apiKey });
+    eligibleKeys.push({ ...share, apiKey, _source: "personal" });
   }
 
   for (const share of (institutionKeys ?? [])) {
@@ -69,7 +70,7 @@ export function SponsorGameModal({
     if (seenShareIds.has(share.id)) continue;
     if (share.apiKey?.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share });
+    eligibleKeys.push({ ...share, _source: "org" });
   }
 
   const selectedShare = eligibleKeys.find((s) => s.id === selectedShareId);
@@ -116,6 +117,7 @@ export function SponsorGameModal({
   const selectData = eligibleKeys.map((share) => ({
     value: share.id!,
     label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
+    group: share._source === "org" ? t("games.sponsor.groupOrg") : t("games.sponsor.groupPersonal"),
   }));
 
   return (
