@@ -314,8 +314,9 @@ func createSessionInternal(
 	}
 	log.Debug("session created", "session_id", session.ID)
 
-	// Attach API key for response
+	// Attach API key and key type for response
 	session.ApiKey = share.ApiKey
+	session.ApiKeyType = candidates[setup.candidateIndex].KeyType
 
 	// Apply scenario image prompt from parallel setup (already calculated)
 	session.GameScenarioImagePrompt = setup.scenarioImagePrompt

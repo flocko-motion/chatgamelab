@@ -14,6 +14,7 @@ import (
 type resolvedKey struct {
 	Share         *obj.ApiKeyShare
 	AiQualityTier string // resolved tier (high/medium/low), never empty
+	KeyType       string // source type: obj.ApiKeyType* constants
 }
 
 const maxCandidates = 3
@@ -46,28 +47,28 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 	var candidates []resolvedKey
 	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
 
-	add := func(share *obj.ApiKeyShare, tier string) {
+	add := func(share *obj.ApiKeyShare, tier string, keyType string) {
 		if share == nil || share.ApiKey == nil || seen[share.ApiKey.ID] || len(candidates) >= maxCandidates {
 			return
 		}
 		seen[share.ApiKey.ID] = true
-		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier})
+		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType})
 	}
 
 	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop)
 	}
 	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
-		add(share, defaultTier)
+		add(share, defaultTier, obj.ApiKeyTypeSponsor)
 	}
 	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeInstitutionFreeUse)
 	}
 	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal)
 	}
 	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
-		add(share, tierOrDefault(tier, defaultTier))
+		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeSystemFreeUse)
 	}
 
 	if len(candidates) == 0 {
@@ -120,6 +121,7 @@ func applyResolvedKey(session *obj.GameSession, resolved *resolvedKey) {
 	session.ApiKeyID = &resolved.Share.ApiKey.ID
 	session.AiPlatform = resolved.Share.ApiKey.Platform
 	session.AiModel = resolved.AiQualityTier
+	session.ApiKeyType = resolved.KeyType
 }
 
 // tierOrDefault returns tier if non-empty, otherwise the default.
