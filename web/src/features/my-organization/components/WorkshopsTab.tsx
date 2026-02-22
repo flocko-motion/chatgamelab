@@ -767,6 +767,9 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                           }
                           disabled={updateWorkshop.isPending}
                         />
+                        <Text size="xs" c="dimmed" fs="italic">
+                          {t("aiQualityTier.newSessionsOnly")}
+                        </Text>
                         <Switch
                           size="xs"
                           label={t("myOrganization.workshops.showPublicGames")}

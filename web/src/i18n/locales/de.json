@@ -209,6 +209,7 @@
       "low": "Niedrig (Sparsam)",
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgewogen)",
+      "newSessionsOnly": "Diese Stufe gilt nur für neue Sitzungen. Bestehende Sitzungen behalten die Stufe, mit der sie gestartet wurden.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {

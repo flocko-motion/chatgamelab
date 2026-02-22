@@ -351,6 +351,9 @@ export function SingleWorkshopSettings({
               }
               disabled={updateWorkshop.isPending}
             />
+            <Text size="xs" c="dimmed" fs="italic">
+              {t("aiQualityTier.newSessionsOnly")}
+            </Text>
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showPublicGames")}

@@ -209,6 +209,7 @@
       "low": "Low (Economy)",
       "max": "Max (Premium + Audio)",
       "medium": "Medium (Balanced)",
+      "newSessionsOnly": "This tier applies to new sessions only. Existing sessions keep the tier they started with.",
       "serverDefault": "Server Default"
     },
     "allGames": {
