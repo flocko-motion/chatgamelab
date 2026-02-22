@@ -113,15 +113,28 @@ export function SponsorGameModal({
     }
   };
 
-  const selectData = eligibleKeys.map((share) => {
-    const source = share.institution
-      ? t("games.sponsor.sourceOrg")
-      : t("games.sponsor.sourcePersonal");
-    return {
+  const personalItems = eligibleKeys
+    .filter((s) => !s.institution)
+    .map((share) => ({
       value: share.id!,
-      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"}) · ${source}`,
-    };
-  });
+      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
+    }));
+  const orgItems = eligibleKeys
+    .filter((s) => !!s.institution)
+    .map((share) => ({
+      value: share.id!,
+      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
+    }));
+
+  const selectData: ({ group: string; items: { value: string; label: string }[] } | { value: string; label: string })[] = [];
+  if (personalItems.length > 0 && orgItems.length > 0) {
+    selectData.push({ group: t("games.sponsor.sourcePersonal"), items: personalItems });
+    selectData.push({ group: t("games.sponsor.sourceOrg"), items: orgItems });
+  } else if (personalItems.length > 0) {
+    selectData.push(...personalItems);
+  } else {
+    selectData.push(...orgItems);
+  }
 
   return (
     <Modal
