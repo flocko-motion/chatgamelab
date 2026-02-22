@@ -668,19 +668,32 @@ export function useStreamingSession(adapter: SessionAdapter) {
           const nested = (error as { error: { message?: string } }).error;
           if (nested.message) errorMessage = nested.message;
         }
-        setState((prev) => ({
-          ...prev,
-          isWaitingForResponse: false,
-          messages: prev.messages.map((msg) =>
-            msg.id === playerMessage.id
-              ? {
-                ...msg,
-                error: errorMessage,
-                errorCode,
-              }
-              : msg,
-          ),
-        }));
+
+        if (input.isInternal) {
+          // Internal actions (e.g. "init" opening scene) are hidden from the UI.
+          // Attaching the error to the hidden message would silently swallow it,
+          // so escalate to streamError so the error modal is shown.
+          setState((prev) => ({
+            ...prev,
+            isWaitingForResponse: false,
+            messages: prev.messages.filter((msg) => msg.id !== playerMessage.id),
+            streamError: { code: errorCode ?? null, message: errorMessage },
+          }));
+        } else {
+          setState((prev) => ({
+            ...prev,
+            isWaitingForResponse: false,
+            messages: prev.messages.map((msg) =>
+              msg.id === playerMessage.id
+                ? {
+                  ...msg,
+                  error: errorMessage,
+                  errorCode,
+                }
+                : msg,
+            ),
+          }));
+        }
       }
     },
     [
