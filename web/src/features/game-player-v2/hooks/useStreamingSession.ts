@@ -677,7 +677,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
             ...prev,
             isWaitingForResponse: false,
             messages: prev.messages.filter((msg) => msg.id !== playerMessage.id),
-            streamError: { code: errorCode ?? null, message: errorMessage },
+            streamError: { code: errorCode ?? null, message: errorMessage, isInitFailure: true },
           }));
         } else {
           setState((prev) => ({
