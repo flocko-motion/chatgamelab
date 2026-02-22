@@ -93,6 +93,8 @@ export function useDeleteApiKey() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
     },
     onError: (error) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
@@ -176,6 +178,10 @@ export function useRemoveInstitutionApiKeyShare() {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
       queryClient.invalidateQueries({
         queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institution(variables.institutionId),
       });
     },
     onError: handleApiError,
