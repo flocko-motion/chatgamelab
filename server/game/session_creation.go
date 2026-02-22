@@ -326,6 +326,12 @@ func createSessionInternal(
 	if tmplErr != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to generate system message")
 	}
+	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+		if constraints != "" {
+			systemMessage += "\n\n---\nADDITIONAL CONSTRAINTS (set by workshop facilitator):\n" + constraints
+		}
+	}
 
 	systemMsg := obj.GameSessionMessage{
 		GameSessionID: session.ID,

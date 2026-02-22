@@ -17,6 +17,7 @@ import {
   Code,
   Table,
   Select,
+  Textarea,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -190,6 +191,7 @@ export function SingleWorkshopSettings({
       showOtherParticipantsGames: boolean;
       designEditingEnabled: boolean;
       aiQualityTier: string;
+      promptConstraints: string;
       isPaused: boolean;
     }>,
   ) => {
@@ -209,6 +211,8 @@ export function SingleWorkshopSettings({
         settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
+      promptConstraints:
+        settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
@@ -351,6 +355,26 @@ export function SingleWorkshopSettings({
               }
               disabled={updateWorkshop.isPending}
             />
+            <Textarea
+              label={t("myOrganization.workshops.promptConstraintsLabel")}
+              placeholder={t(
+                "myOrganization.workshops.promptConstraintsPlaceholder",
+              )}
+              description={t("myOrganization.workshops.promptConstraintsHint")}
+              size="sm"
+              minRows={3}
+              autosize
+              defaultValue={workshop.promptConstraints || ""}
+              key={`prompt-constraints-${workshop.id}-${workshop.promptConstraints || ""}`}
+              disabled={updateWorkshop.isPending}
+              onBlur={(event) => {
+                const nextValue = event.currentTarget.value;
+                if ((workshop.promptConstraints || "") === nextValue) {
+                  return;
+                }
+                handleUpdateWorkshopSettings({ promptConstraints: nextValue });
+              }}
+            />
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showPublicGames")}
@@ -407,8 +431,8 @@ export function SingleWorkshopSettings({
                   {workshop.participants.map((participant) => {
                     const joinedDate = participant.meta?.createdAt
                       ? new Date(
-                          participant.meta.createdAt,
-                        ).toLocaleDateString()
+                        participant.meta.createdAt,
+                      ).toLocaleDateString()
                       : null;
                     const isEditing = editingParticipant?.id === participant.id;
 
@@ -507,29 +531,29 @@ export function SingleWorkshopSettings({
                               <>
                                 {participant.role ===
                                   ObjRole.RoleParticipant && (
-                                  <Tooltip
-                                    label={t(
-                                      "myOrganization.workshops.shareParticipantLink",
-                                    )}
-                                  >
-                                    <ActionIcon
-                                      variant="subtle"
-                                      color="blue"
-                                      size="sm"
-                                      loading={getParticipantToken.isPending}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (participant.id) {
-                                          handleGetParticipantShareLink(
-                                            participant.id,
-                                          );
-                                        }
-                                      }}
+                                    <Tooltip
+                                      label={t(
+                                        "myOrganization.workshops.shareParticipantLink",
+                                      )}
                                     >
-                                      <IconLink size={14} />
-                                    </ActionIcon>
-                                  </Tooltip>
-                                )}
+                                      <ActionIcon
+                                        variant="subtle"
+                                        color="blue"
+                                        size="sm"
+                                        loading={getParticipantToken.isPending}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (participant.id) {
+                                            handleGetParticipantShareLink(
+                                              participant.id,
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        <IconLink size={14} />
+                                      </ActionIcon>
+                                    </Tooltip>
+                                  )}
                                 <Tooltip
                                   label={t(
                                     "myOrganization.workshops.editParticipant",
@@ -589,8 +613,8 @@ export function SingleWorkshopSettings({
                     {workshop.participants.map((participant) => {
                       const joinedDate = participant.meta?.createdAt
                         ? new Date(
-                            participant.meta.createdAt,
-                          ).toLocaleDateString()
+                          participant.meta.createdAt,
+                        ).toLocaleDateString()
                         : null;
                       const isEditing =
                         editingParticipant?.id === participant.id;
@@ -666,29 +690,29 @@ export function SingleWorkshopSettings({
                                 <>
                                   {participant.role ===
                                     ObjRole.RoleParticipant && (
-                                    <Tooltip
-                                      label={t(
-                                        "myOrganization.workshops.shareParticipantLink",
-                                      )}
-                                    >
-                                      <ActionIcon
-                                        variant="subtle"
-                                        color="blue"
-                                        size="sm"
-                                        loading={getParticipantToken.isPending}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (participant.id) {
-                                            handleGetParticipantShareLink(
-                                              participant.id,
-                                            );
-                                          }
-                                        }}
+                                      <Tooltip
+                                        label={t(
+                                          "myOrganization.workshops.shareParticipantLink",
+                                        )}
                                       >
-                                        <IconLink size={14} />
-                                      </ActionIcon>
-                                    </Tooltip>
-                                  )}
+                                        <ActionIcon
+                                          variant="subtle"
+                                          color="blue"
+                                          size="sm"
+                                          loading={getParticipantToken.isPending}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (participant.id) {
+                                              handleGetParticipantShareLink(
+                                                participant.id,
+                                              );
+                                            }
+                                          }}
+                                        >
+                                          <IconLink size={14} />
+                                        </ActionIcon>
+                                      </Tooltip>
+                                    )}
                                   <Tooltip
                                     label={t(
                                       "myOrganization.workshops.editParticipant",
@@ -783,8 +807,8 @@ export function SingleWorkshopSettings({
                     {t("myOrganization.workshops.inviteExpires", {
                       date: new Date(
                         existingInvite?.expiresAt ||
-                          newlyCreatedInvite?.expiresAt ||
-                          "",
+                        newlyCreatedInvite?.expiresAt ||
+                        "",
                       ).toLocaleDateString(),
                     })}
                   </Text>

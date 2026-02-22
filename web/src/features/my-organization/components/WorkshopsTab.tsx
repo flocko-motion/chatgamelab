@@ -20,6 +20,7 @@ import {
   Select,
   Code,
   Table,
+  Textarea,
 } from "@mantine/core";
 import { useDisclosure, useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -303,6 +304,7 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
       showOtherParticipantsGames: boolean;
       designEditingEnabled: boolean;
       aiQualityTier: string;
+      promptConstraints: string;
       isPaused: boolean;
     }>,
   ) => {
@@ -322,6 +324,8 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
         settings.designEditingEnabled ?? workshop.designEditingEnabled ?? false,
       aiQualityTier:
         settings.aiQualityTier ?? workshop.aiQualityTier ?? undefined,
+      promptConstraints:
+        settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
@@ -536,11 +540,11 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                 label={
                                   existingInvite
                                     ? t(
-                                        "myOrganization.workshops.viewInviteLink",
-                                      )
+                                      "myOrganization.workshops.viewInviteLink",
+                                    )
                                     : t(
-                                        "myOrganization.workshops.createInviteLink",
-                                      )
+                                      "myOrganization.workshops.createInviteLink",
+                                    )
                                 }
                               >
                                 <ActionIcon
@@ -657,8 +661,8 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                 existingInvite
                                   ? t("myOrganization.workshops.viewInviteLink")
                                   : t(
-                                      "myOrganization.workshops.createInviteLink",
-                                    )
+                                    "myOrganization.workshops.createInviteLink",
+                                  )
                               }
                             >
                               <ActionIcon
@@ -767,6 +771,32 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                           }
                           disabled={updateWorkshop.isPending}
                         />
+                        <Textarea
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.promptConstraintsLabel",
+                          )}
+                          placeholder={t(
+                            "myOrganization.workshops.promptConstraintsPlaceholder",
+                          )}
+                          description={t(
+                            "myOrganization.workshops.promptConstraintsHint",
+                          )}
+                          minRows={3}
+                          autosize
+                          defaultValue={workshop.promptConstraints || ""}
+                          key={`prompt-constraints-${workshop.id}-${workshop.promptConstraints || ""}`}
+                          disabled={updateWorkshop.isPending}
+                          onBlur={(event) => {
+                            const nextValue = event.currentTarget.value;
+                            if ((workshop.promptConstraints || "") === nextValue) {
+                              return;
+                            }
+                            handleUpdateWorkshopSettings(workshop, {
+                              promptConstraints: nextValue,
+                            });
+                          }}
+                        />
                         <Switch
                           size="xs"
                           label={t("myOrganization.workshops.showPublicGames")}
@@ -827,14 +857,14 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                           {workshop.participants?.length || 0})
                         </Text>
                         {workshop.participants &&
-                        workshop.participants.length > 0 ? (
+                          workshop.participants.length > 0 ? (
                           isMobile ? (
                             <Stack gap="sm">
                               {workshop.participants.map((participant) => {
                                 const joinedDate = participant.meta?.createdAt
                                   ? new Date(
-                                      participant.meta.createdAt,
-                                    ).toLocaleDateString()
+                                    participant.meta.createdAt,
+                                  ).toLocaleDateString()
                                   : null;
                                 const isEditing =
                                   editingParticipant?.id === participant.id;
@@ -957,31 +987,31 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                           <>
                                             {participant.role ===
                                               ObjRole.RoleParticipant && (
-                                              <Tooltip
-                                                label={t(
-                                                  "myOrganization.workshops.shareParticipantLink",
-                                                )}
-                                              >
-                                                <ActionIcon
-                                                  variant="subtle"
-                                                  color="blue"
-                                                  size="sm"
-                                                  loading={
-                                                    getParticipantToken.isPending
-                                                  }
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (participant.id) {
-                                                      handleGetParticipantShareLink(
-                                                        participant.id,
-                                                      );
-                                                    }
-                                                  }}
+                                                <Tooltip
+                                                  label={t(
+                                                    "myOrganization.workshops.shareParticipantLink",
+                                                  )}
                                                 >
-                                                  <IconLink size={14} />
-                                                </ActionIcon>
-                                              </Tooltip>
-                                            )}
+                                                  <ActionIcon
+                                                    variant="subtle"
+                                                    color="blue"
+                                                    size="sm"
+                                                    loading={
+                                                      getParticipantToken.isPending
+                                                    }
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      if (participant.id) {
+                                                        handleGetParticipantShareLink(
+                                                          participant.id,
+                                                        );
+                                                      }
+                                                    }}
+                                                  >
+                                                    <IconLink size={14} />
+                                                  </ActionIcon>
+                                                </Tooltip>
+                                              )}
                                             <Tooltip
                                               label={t(
                                                 "myOrganization.workshops.editParticipant",
@@ -1051,8 +1081,8 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                 {workshop.participants.map((participant) => {
                                   const joinedDate = participant.meta?.createdAt
                                     ? new Date(
-                                        participant.meta.createdAt,
-                                      ).toLocaleDateString()
+                                      participant.meta.createdAt,
+                                    ).toLocaleDateString()
                                     : null;
                                   const isEditing =
                                     editingParticipant?.id === participant.id;
@@ -1135,31 +1165,31 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
                                             <>
                                               {participant.role ===
                                                 ObjRole.RoleParticipant && (
-                                                <Tooltip
-                                                  label={t(
-                                                    "myOrganization.workshops.shareParticipantLink",
-                                                  )}
-                                                >
-                                                  <ActionIcon
-                                                    variant="subtle"
-                                                    color="blue"
-                                                    size="sm"
-                                                    loading={
-                                                      getParticipantToken.isPending
-                                                    }
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      if (participant.id) {
-                                                        handleGetParticipantShareLink(
-                                                          participant.id,
-                                                        );
-                                                      }
-                                                    }}
+                                                  <Tooltip
+                                                    label={t(
+                                                      "myOrganization.workshops.shareParticipantLink",
+                                                    )}
                                                   >
-                                                    <IconLink size={16} />
-                                                  </ActionIcon>
-                                                </Tooltip>
-                                              )}
+                                                    <ActionIcon
+                                                      variant="subtle"
+                                                      color="blue"
+                                                      size="sm"
+                                                      loading={
+                                                        getParticipantToken.isPending
+                                                      }
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (participant.id) {
+                                                          handleGetParticipantShareLink(
+                                                            participant.id,
+                                                          );
+                                                        }
+                                                      }}
+                                                    >
+                                                      <IconLink size={16} />
+                                                    </ActionIcon>
+                                                  </Tooltip>
+                                                )}
                                               <Tooltip
                                                 label={t(
                                                   "myOrganization.workshops.editParticipant",

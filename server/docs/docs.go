@@ -5570,6 +5570,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/obj.WorkshopParticipant"
                     }
                 },
+                "promptConstraints": {
+                    "type": "string"
+                },
                 "public": {
                     "type": "boolean"
                 },
@@ -6362,6 +6365,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "promptConstraints": {
                     "type": "string"
                 },
                 "public": {

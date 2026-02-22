@@ -398,6 +398,7 @@ export interface ObjWorkshop {
   meta?: ObjMeta;
   name?: string;
   participants?: ObjWorkshopParticipant[];
+  promptConstraints?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
@@ -600,6 +601,8 @@ export interface RoutesSessionActionRequest {
   message?: string;
   /** Current status to pass to AI */
   statusFields?: ObjStatusField[];
+  /** Message type: "player" or "system" (defaults to "player") */
+  type?: string;
 }
 
 export interface RoutesSessionMessageResponse {
@@ -738,6 +741,7 @@ export interface RoutesUpdateWorkshopRequest {
   designEditingEnabled?: boolean;
   isPaused?: boolean;
   name?: string;
+  promptConstraints?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;

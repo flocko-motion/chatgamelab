@@ -1366,6 +1366,7 @@ SELECT
   w.show_public_games AS workshop_show_public_games,
   w.show_other_participants_games AS workshop_show_other_participants_games,
   w.ai_quality_tier AS workshop_ai_quality_tier,
+  w.prompt_constraints AS workshop_prompt_constraints,
   w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
   r.active_workshop_id,
@@ -1373,6 +1374,7 @@ SELECT
   aw.show_public_games AS active_workshop_show_public_games,
   aw.show_other_participants_games AS active_workshop_show_other_participants_games,
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
+  aw.prompt_constraints AS active_workshop_prompt_constraints,
   aw.design_editing_enabled AS active_workshop_design_editing_enabled,
   aw.is_paused AS active_workshop_is_paused
 FROM app_user u
@@ -1415,6 +1417,7 @@ type GetUserDetailsByIDRow struct {
 	WorkshopShowPublicGames                  sql.NullBool
 	WorkshopShowOtherParticipantsGames       sql.NullBool
 	WorkshopAiQualityTier                    sql.NullString
+	WorkshopPromptConstraints                sql.NullString
 	WorkshopDesignEditingEnabled             sql.NullBool
 	WorkshopIsPaused                         sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
@@ -1422,6 +1425,7 @@ type GetUserDetailsByIDRow struct {
 	ActiveWorkshopShowPublicGames            sql.NullBool
 	ActiveWorkshopShowOtherParticipantsGames sql.NullBool
 	ActiveWorkshopAiQualityTier              sql.NullString
+	ActiveWorkshopPromptConstraints          sql.NullString
 	ActiveWorkshopDesignEditingEnabled       sql.NullBool
 	ActiveWorkshopIsPaused                   sql.NullBool
 }
@@ -1452,6 +1456,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopShowPublicGames,
 		&i.WorkshopShowOtherParticipantsGames,
 		&i.WorkshopAiQualityTier,
+		&i.WorkshopPromptConstraints,
 		&i.WorkshopDesignEditingEnabled,
 		&i.WorkshopIsPaused,
 		&i.ActiveWorkshopID,
@@ -1459,6 +1464,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.ActiveWorkshopShowPublicGames,
 		&i.ActiveWorkshopShowOtherParticipantsGames,
 		&i.ActiveWorkshopAiQualityTier,
+		&i.ActiveWorkshopPromptConstraints,
 		&i.ActiveWorkshopDesignEditingEnabled,
 		&i.ActiveWorkshopIsPaused,
 	)

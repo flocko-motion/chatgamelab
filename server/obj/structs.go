@@ -120,6 +120,7 @@ type Workshop struct {
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 	// Workshop settings (configured by staff/heads)
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
+	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
