@@ -113,15 +113,15 @@ export function SponsorGameModal({
     }
   };
 
-  const orgKeyShareIds = new Set((institutionKeys ?? []).map((s) => s.id));
-
-  const selectData = eligibleKeys.map((share) => ({
-    value: share.id!,
-    label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
-    group: orgKeyShareIds.has(share.id)
-      ? t("games.sponsor.groupOrg")
-      : t("games.sponsor.groupPersonal"),
-  }));
+  const selectData = eligibleKeys.map((share) => {
+    const source = share.institution
+      ? t("games.sponsor.sourceOrg")
+      : t("games.sponsor.sourcePersonal");
+    return {
+      value: share.id!,
+      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"}) · ${source}`,
+    };
+  });
 
   return (
     <Modal
@@ -215,24 +215,7 @@ export function SponsorGameModal({
                 <Badge size="sm" variant="light">
                   {selectedShare.apiKey?.platform}
                 </Badge>
-                {orgKeyShareIds.has(selectedShare.id) ? (
-                  <Badge size="sm" color="violet" variant="light">
-                    {t("games.sponsor.groupOrg")}
-                  </Badge>
-                ) : (
-                  <Badge size="sm" color="gray" variant="light">
-                    {t("games.sponsor.groupPersonal")}
-                  </Badge>
-                )}
               </Group>
-              {orgKeyShareIds.has(selectedShare.id) && selectedShare.apiKey?.userName && (
-                <Group gap="xs">
-                  <Text size="sm" fw={600}>
-                    {t("games.sponsor.keyOwner")}
-                  </Text>
-                  <Text size="sm">{selectedShare.apiKey.userName}</Text>
-                </Group>
-              )}
             </Stack>
 
             <Text size="sm" c="dimmed">

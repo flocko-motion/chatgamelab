@@ -570,12 +570,11 @@
         "removeSponsor": "Sponsoring entfernen",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wähle einen Schlüssel zum Sponsern...",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
         "sponsorGame": "Spiel sponsern",
         "sponsored": "Gesponsert",
         "sponsoredTooltip": "Dieses Spiel wird gesponsert - du kannst es kostenlos spielen! Der Ersteller oder ein Unterstützer übernimmt die KI-Kosten.",
-        "groupOrg": "Organisation",
-        "groupPersonal": "Persönlich",
-        "keyOwner": "Schlüsselinhaber:",
         "title": "Spiel sponsern"
       },
       "statusFieldsEditor": {
