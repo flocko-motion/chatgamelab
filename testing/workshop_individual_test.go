@@ -3,6 +3,7 @@ package testing
 import (
 	"cgl/obj"
 	"cgl/testing/testutil"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -119,6 +120,47 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCanPlayGameWithWorkshopKey()
 	available := Must(individual.GetApiKeyStatus(gameIDStr))
 	s.True(available, "individual should have API key available via workshop key")
 	s.T().Logf("Individual: API key available = %v", available)
+}
+
+// TestSessionSystemMessageIncludesWorkshopPromptConstraints verifies that
+// workshop-level prompt constraints are injected into the persisted system message.
+func (s *WorkshopIndividualTestSuite) TestSessionSystemMessageIncludesWorkshopPromptConstraints() {
+	head, wsIDStr, gameIDStr, inviteToken := s.workshopWithKey("ind-prompt-constraints")
+
+	constraints := "Always use simple language suitable for 10-year-olds."
+	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
+		"name":                       "ind-prompt-constraints Workshop",
+		"active":                     true,
+		"public":                     false,
+		"showPublicGames":            false,
+		"showOtherParticipantsGames": true,
+		"designEditingEnabled":       false,
+		"isPaused":                   false,
+		"promptConstraints":          constraints,
+	}))
+
+	// Individual joins workshop and creates session
+	individual := s.CreateUser("ind-prompt-player")
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+
+	session := Must(individual.CreateGameSession(gameIDStr))
+	loaded := Must(individual.GetGameSession(session.ID.String()))
+
+	foundSystemMessage := false
+	foundConstraints := false
+	for _, msg := range loaded.Messages {
+		if msg.Type != obj.GameSessionMessageTypeSystem {
+			continue
+		}
+		foundSystemMessage = true
+		if strings.Contains(msg.Message, constraints) {
+			foundConstraints = true
+			break
+		}
+	}
+
+	s.True(foundSystemMessage, "expected at least one system message in created session")
+	s.True(foundConstraints, "expected workshop prompt constraints in system message")
 }
 
 // TestIndividualCannotUpdateWorkshopSettings verifies that an individual in workshop mode
