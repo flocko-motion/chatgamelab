@@ -54,8 +54,8 @@ import {
   useDeleteWorkshop,
   useCreateWorkshopInvite,
   useRevokeInvite,
-  useInstitutionApiKeys,
   useSetWorkshopApiKey,
+  useShareApiKeyWithInstitution,
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
@@ -70,6 +70,8 @@ import { PlusIconButton } from "@/common/components/buttons";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import {
   ObjRole,
   type ObjWorkshop,
@@ -80,11 +82,12 @@ import { parseSortValue } from "@/common/lib/sort";
 
 interface WorkshopsTabProps {
   institutionId: string;
+  institutionName?: string;
   /** Auto-open the create workshop modal on mount */
   autoCreate?: boolean;
 }
 
-export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
+export function WorkshopsTab({ institutionId, institutionName, autoCreate }: WorkshopsTabProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
@@ -161,26 +164,33 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
     sortDir,
     activeOnly: hideInactive || undefined,
   });
-  // Use institution API keys - only keys shared with the organization should be available for workshops
-  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
+  // Combined org + personal key options for workshop key selectors
+  const {
+    options: apiKeyOptions,
+    personalKeyIds,
+    personalSelfShareIds,
+    personalKeyNames,
+  } = useOrgKeyOptions(institutionId, {
+    includeEmpty: true,
+    emptyLabel: t("myOrganization.workshops.noDefaultApiKey"),
+  });
   const createWorkshop = useCreateWorkshop();
   const updateWorkshop = useUpdateWorkshop();
   const deleteWorkshop = useDeleteWorkshop();
   const createInvite = useCreateWorkshopInvite();
   const revokeInvite = useRevokeInvite();
   const setWorkshopApiKey = useSetWorkshopApiKey();
+  const shareApiKeyWithInstitution = useShareApiKeyWithInstitution();
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
 
-  // Build API key options for select - only institution-shared keys
-  const apiKeyOptions = [
-    { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
-    ...(institutionApiKeys?.map((key) => ({
-      value: key.id || "",
-      label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
-    })) || []),
-  ];
+  // Auto-share confirmation state
+  const [autoSharePending, setAutoSharePending] = useState<{
+    workshopId: string;
+    optionValue: string; // "personal:<apiKeyId>"
+  } | null>(null);
+  const [autoShareError, setAutoShareError] = useState<string | null>(null);
 
   const handleCreateWorkshop = async () => {
     if (!newWorkshopName.trim()) return;
@@ -231,7 +241,39 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
     workshopId: string,
     apiKeyShareId: string | null,
   ) => {
+    // If user selected a personal key, open confirmation modal instead of setting directly
+    if (apiKeyShareId && personalKeyIds.has(apiKeyShareId)) {
+      setAutoSharePending({ workshopId, optionValue: apiKeyShareId });
+      setAutoShareError(null);
+      return;
+    }
     await setWorkshopApiKey.mutateAsync({ workshopId, apiKeyShareId });
+  };
+
+  const handleAutoShareConfirm = async () => {
+    if (!autoSharePending) return;
+    const selfShareId = personalSelfShareIds.get(autoSharePending.optionValue);
+    if (!selfShareId) return;
+
+    try {
+      // Step 1: Share the personal key with the institution
+      const newShare = await shareApiKeyWithInstitution.mutateAsync({
+        shareId: selfShareId,
+        institutionId,
+        allowPublicGameSponsoring: false,
+      });
+      // Step 2: Set the new institution share as the workshop's default key
+      if (newShare?.id) {
+        await setWorkshopApiKey.mutateAsync({
+          workshopId: autoSharePending.workshopId,
+          apiKeyShareId: newShare.id,
+        });
+      }
+      setAutoSharePending(null);
+      setAutoShareError(null);
+    } catch {
+      setAutoShareError(t("myOrganization.apiKeys.loadError"));
+    }
   };
 
   const handleOpenDeleteModal = (workshop: ObjWorkshop) => {
@@ -1437,6 +1479,26 @@ export function WorkshopsTab({ institutionId, autoCreate }: WorkshopsTabProps) {
         confirmIcon={<IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}
+      />
+
+      {/* Auto-share personal key confirmation */}
+      <AutoShareConfirmModal
+        opened={!!autoSharePending}
+        onClose={() => {
+          setAutoSharePending(null);
+          setAutoShareError(null);
+        }}
+        onConfirm={handleAutoShareConfirm}
+        keyName={
+          autoSharePending
+            ? (personalKeyNames.get(autoSharePending.optionValue) ?? "")
+            : ""
+        }
+        orgName={institutionName ?? institutionId}
+        isLoading={
+          shareApiKeyWithInstitution.isPending || setWorkshopApiKey.isPending
+        }
+        error={autoShareError}
       />
     </>
   );

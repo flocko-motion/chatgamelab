@@ -41,6 +41,8 @@ import {
   useSetInstitutionFreeUseKey,
 } from "@/api/hooks";
 import type { ObjApiKeyShare } from "@/api/generated";
+import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 
 interface ApiKeysTabProps {
   institutionId: string;
@@ -77,6 +79,18 @@ export function ApiKeysTab({
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
   const setFreeUseKey = useSetInstitutionFreeUseKey();
+
+  // Combined org + personal key options for free-use key selector
+  const {
+    options: freeUseKeyOptions,
+    personalKeyIds: freeUsePersonalKeyIds,
+    personalSelfShareIds: freeUsePersonalSelfShareIds,
+    personalKeyNames: freeUsePersonalKeyNames,
+  } = useOrgKeyOptions(institutionId);
+
+  // Auto-share confirmation state for free-use key
+  const [freeUseAutoSharePending, setFreeUseAutoSharePending] = useState<string | null>(null);
+  const [freeUseAutoShareError, setFreeUseAutoShareError] = useState<string | null>(null);
 
   // Get unique platforms for filter
   const platforms = useMemo(() => {
@@ -147,6 +161,32 @@ export function ApiKeysTab({
       shareId: share.id,
       institutionId,
     });
+  };
+
+  const handleFreeUseAutoShareConfirm = async () => {
+    if (!freeUseAutoSharePending) return;
+    const selfShareId = freeUsePersonalSelfShareIds.get(freeUseAutoSharePending);
+    if (!selfShareId) return;
+
+    try {
+      // Step 1: Share the personal key with the institution
+      const newShare = await shareApiKey.mutateAsync({
+        shareId: selfShareId,
+        institutionId,
+        allowPublicGameSponsoring: false,
+      });
+      // Step 2: Set the new institution share as the free-use key
+      if (newShare?.id) {
+        await setFreeUseKey.mutateAsync({
+          institutionId,
+          shareId: newShare.id,
+        });
+      }
+      setFreeUseAutoSharePending(null);
+      setFreeUseAutoShareError(null);
+    } catch {
+      setFreeUseAutoShareError(t("myOrganization.apiKeys.loadError"));
+    }
   };
 
   if (isLoading) {
@@ -385,21 +425,21 @@ export function ApiKeysTab({
               placeholder={t(
                 "myOrganization.apiKeys.freeUseKey.selectPlaceholder",
               )}
-              data={
-                institutionKeys?.map((share) => ({
-                  value: share.id || "",
-                  label: `${share.apiKey?.name || t("unnamed")} (${share.apiKey?.platform})`,
-                })) ?? []
-              }
+              data={freeUseKeyOptions}
               onChange={(value) => {
-                if (value) {
-                  setFreeUseKey.mutate({
-                    institutionId,
-                    shareId: value,
-                  });
+                if (!value) return;
+                // If user selected a personal key, open confirmation modal
+                if (freeUsePersonalKeyIds.has(value)) {
+                  setFreeUseAutoSharePending(value);
+                  setFreeUseAutoShareError(null);
+                  return;
                 }
+                setFreeUseKey.mutate({
+                  institutionId,
+                  shareId: value,
+                });
               }}
-              disabled={!hasKeys || setFreeUseKey.isPending}
+              disabled={setFreeUseKey.isPending}
               clearable={false}
               size="sm"
               style={{ maxWidth: 400 }}
@@ -447,6 +487,24 @@ export function ApiKeysTab({
           </Group>
         </Stack>
       </Modal>
+
+      {/* Auto-share personal key confirmation for free-use key */}
+      <AutoShareConfirmModal
+        opened={!!freeUseAutoSharePending}
+        onClose={() => {
+          setFreeUseAutoSharePending(null);
+          setFreeUseAutoShareError(null);
+        }}
+        onConfirm={handleFreeUseAutoShareConfirm}
+        keyName={
+          freeUseAutoSharePending
+            ? (freeUsePersonalKeyNames.get(freeUseAutoSharePending) ?? "")
+            : ""
+        }
+        orgName={institutionName ?? institutionId}
+        isLoading={shareApiKey.isPending || setFreeUseKey.isPending}
+        error={freeUseAutoShareError}
+      />
     </Stack>
   );
 }

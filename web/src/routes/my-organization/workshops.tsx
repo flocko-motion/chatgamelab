@@ -76,7 +76,7 @@ function OrganizationWorkshopsPage() {
         </Stack>
 
         {/* Workshops content */}
-        <WorkshopsTab institutionId={institutionId} autoCreate={action === 'create'} />
+        <WorkshopsTab institutionId={institutionId} institutionName={institution?.name} autoCreate={action === 'create'} />
       </Stack>
     </Container>
   );

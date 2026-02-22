@@ -837,9 +837,9 @@
         "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
         "filterByPlatform": "Nach Plattform filtern",
         "freeUseKey": {
-          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen. Nur bereits mit dieser Organisation geteilte Schlüssel können ausgewählt werden.",
+          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen.",
           "remove": "Entfernen",
-          "selectPlaceholder": "Geteilten Schlüssel auswählen...",
+          "selectPlaceholder": "Schlüssel auswählen...",
           "title": "Freier Nutzungsschlüssel",
           "unknownKey": "Unbekannter Schlüssel"
         },
@@ -858,6 +858,12 @@
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
         "title": "Organisations-API-Schlüssel"
+      },
+      "autoShare": {
+        "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden.",
+        "confirmTitle": "Schlüssel mit Organisation teilen",
+        "orgKeyGroup": "Organisationsschlüssel",
+        "personalKeyGroup": "Persönliche Schlüssel"
       },
       "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
       "demoteTitle": "Zum Lehrer herabstufen",
