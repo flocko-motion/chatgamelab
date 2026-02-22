@@ -860,7 +860,7 @@
         "title": "Organization API Keys"
       },
       "autoShare": {
-        "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops.",
+        "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops. You can remove this sharing later in your personal API key management or the organization API key management.",
         "confirmTitle": "Share Key with Organization",
         "orgKeyGroup": "Organization Keys",
         "personalKeyGroup": "Personal Keys"

@@ -860,7 +860,7 @@
         "title": "Organisations-API-Schlüssel"
       },
       "autoShare": {
-        "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden.",
+        "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden. Sie können diese Freigabe später in Ihrer persönlichen API-Schlüsselverwaltung oder der Organisations-API-Schlüsselverwaltung wieder entfernen.",
         "confirmTitle": "Schlüssel mit Organisation teilen",
         "orgKeyGroup": "Organisationsschlüssel",
         "personalKeyGroup": "Persönliche Schlüssel"
