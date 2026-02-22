@@ -92,6 +92,33 @@
   opacity: 0.8;
 }
 
+.usedKeySection {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-bottom: 1px solid color-mix(in srgb, var(--game-ai-border-color, var(--mantine-color-gray-3)) 50%, transparent 50%);
+  font-size: var(--mantine-font-size-sm);
+  font-family: var(--game-message-font, var(--mantine-font-family));
+}
+
+.usedKeyIcon {
+  color: var(--game-ai-font-color, var(--mantine-color-violet-5));
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.usedKeyLabel {
+  color: var(--game-ai-font-color, var(--mantine-color-gray-6));
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.usedKeyValue {
+  color: var(--game-ai-font-color, var(--mantine-color-gray-8));
+  font-weight: 500;
+}
+
 .sections {
   display: flex;
   flex-direction: column;

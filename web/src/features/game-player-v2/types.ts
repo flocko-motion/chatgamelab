@@ -62,6 +62,8 @@ export interface SceneMessage {
     outputTokens?: number;
     totalTokens?: number;
   };
+  /** Source type of API key used to generate this message (shown in AI Insight) */
+  apiKeyType?: string;
 }
 
 export interface StreamChunk {
@@ -188,6 +190,7 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     requestExpandStory: msg.requestExpandStory ?? undefined,
     responseRaw: msg.responseRaw ?? undefined,
     tokenUsage: msg.tokenUsage ?? undefined,
+    apiKeyType: msg.apiKeyType ?? undefined,
   };
 }
 
