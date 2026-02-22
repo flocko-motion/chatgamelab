@@ -161,6 +161,56 @@ func (s *ApiKeyFallbackTestSuite) TestFallbackSkipsSamePlatformDuplicates() {
 	Must(admin.SetSystemFreeUseApiKey(nil))
 }
 
+// TestPlatformLockedOnExistingSession verifies that when a session was created with
+// a specific AI platform (e.g. mock), the backend will NOT fall back to a key from
+// a different platform (e.g. openai) when sending messages in that session.
+//
+// Setup:
+//   - User has a working mock key (priority 4) → session created with mock platform
+//   - Admin sets an openai key as system free-use (priority 5, different platform)
+//   - User's mock key is deleted
+//
+// Expected: session action fails with "no API key available for platform mock"
+// (the openai system free-use key is rejected because it's a different platform).
+func (s *ApiKeyFallbackTestSuite) TestPlatformLockedOnExistingSession() {
+	admin := s.DevUser()
+
+	// Admin sets an openai key as system free-use (wrong platform for mock sessions)
+	openaiKey := Must(admin.AddApiKey("sk-fake-openai-platform-key", "OpenAI System Key", "openai"))
+	openaiKeyIDStr := openaiKey.ApiKeyID.String()
+	Must(admin.SetSystemFreeUseApiKey(&openaiKeyIDStr))
+	s.T().Logf("System free-use key set (openai)")
+
+	// Create user with a working mock key as default (priority 4)
+	user := s.CreateUser("user-platform-lock")
+	mockKey := Must(user.AddApiKey("mock-platform-lock-key", "Mock Key", "mock"))
+	Must(user.SetDefaultApiKey(mockKey.ID.String()))
+	s.T().Logf("User has mock key as default")
+
+	// User uploads a game
+	game := Must(user.UploadGame("alien-first-contact"))
+	s.T().Logf("User uploaded game: %s", game.Name)
+
+	// Create session — uses mock key (priority 4 wins over openai system free-use)
+	session, err := user.CreateGameSession(game.ID.String())
+	s.NoError(err, "session creation should succeed with mock key")
+	s.NotEmpty(session.ID)
+	s.T().Logf("Session created with mock platform: %s", session.ID)
+
+	// Delete the user's mock key — now only the openai system free-use key remains
+	MustSucceed(user.DeleteApiKey(mockKey.ID.String(), true))
+	s.T().Logf("User's mock key deleted — only openai system free-use remains")
+
+	// Send a message — should FAIL because the session is locked to mock platform
+	// and the only available key (openai) is a different platform
+	_, err = user.SendGameMessage(session.ID.String(), "look around")
+	s.Error(err, "session action should fail: no same-platform key available")
+	s.T().Logf("Correctly rejected cross-platform fallback: %v", err)
+
+	// Clean up
+	Must(admin.SetSystemFreeUseApiKey(nil))
+}
+
 // TestContinueSessionWithFallback tests that when resuming a session
 // (sending a message), if the originally resolved key is now broken,
 // the backend falls back to the next available key.
