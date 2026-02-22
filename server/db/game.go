@@ -1775,13 +1775,25 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 		return err
 	}
 
-	// Verify the share exists and the user owns the underlying key
+	// Verify the share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, apiKeyShareID)
 	if err != nil {
 		return obj.ErrNotFound("api key share not found")
 	}
 	if share.KeyOwnerID != userID {
-		return obj.ErrForbidden("only the key owner can sponsor a game")
+		// Also allow head/staff of the institution the share belongs to
+		authorized := false
+		if share.InstitutionID.Valid {
+			caller, err := GetUserByID(ctx, userID)
+			if err == nil && caller.Role != nil && caller.Role.Institution != nil &&
+				caller.Role.Institution.ID == share.InstitutionID.UUID &&
+				(caller.Role.Role == obj.RoleHead || caller.Role.Role == obj.RoleStaff) {
+				authorized = true
+			}
+		}
+		if !authorized {
+			return obj.ErrForbidden("only the key owner or an institution head/staff can sponsor a game with this key")
+		}
 	}
 
 	// Verify the key has been proven to work (last_usage_success must be true)
