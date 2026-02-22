@@ -95,6 +95,7 @@ export function useDeleteApiKey() {
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
       queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
       queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
+      queryClient.invalidateQueries({ queryKey: ["institutionApiKeys"] });
     },
     onError: (error) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });

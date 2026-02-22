@@ -16,6 +16,7 @@ interface MessageListProps {
   isImageGenerationDisabled: boolean;
   isAudioMuted: boolean;
   apiKeyUnavailable?: boolean;
+  apiKeyPlatform?: string | null;
   audioEnabled?: boolean;
   onSendAction: (input: PlayerActionInput) => Promise<void>;
   onRetryLastAction: () => void;
@@ -27,6 +28,7 @@ export function MessageList({
   isImageGenerationDisabled,
   isAudioMuted,
   apiKeyUnavailable,
+  apiKeyPlatform,
   audioEnabled,
   onSendAction,
   onRetryLastAction,
@@ -116,7 +118,7 @@ export function MessageList({
             icon={<IconKeyOff size={18} />}
             radius="md"
           >
-            {t("gamePlayer.error.noApiKey.banner")}
+            {t("gamePlayer.error.noApiKey.banner", { platform: apiKeyPlatform ?? "" })}
           </Alert>
         </div>,
       );

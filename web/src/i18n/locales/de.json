@@ -387,7 +387,7 @@
         "gameNotFound": "Spiel nicht gefunden",
         "missingFields": "Dem Spiel fehlen erforderliche Felder:",
         "noApiKey": {
-          "banner": "Der zuvor verwendete API-Schlüssel für dieses Spiel ist nicht mehr verfügbar. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
+          "banner": "Kein verwendbarer API-Schlüssel für Plattform {{platform}} gefunden. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
           "goToSettings": "API-Schlüssel Einstellungen",
           "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
           "title": "Kein API-Schlüssel verfügbar",

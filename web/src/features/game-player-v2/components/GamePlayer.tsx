@@ -161,6 +161,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               isImageGenerationDisabled={settings.isImageGenerationDisabled}
               isAudioMuted={settings.isAudioMuted}
               apiKeyUnavailable={!lifecycle.apiKeyAvailable}
+              apiKeyPlatform={lifecycle.state.aiPlatform}
               audioEnabled={lifecycle.state.messages.some((m) => m.hasAudioIn)}
               onSendAction={lifecycle.handleSendAction}
               onRetryLastAction={lifecycle.retryLastAction}

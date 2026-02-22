@@ -387,7 +387,7 @@
         "gameNotFound": "Game not found",
         "missingFields": "Game is missing required fields:",
         "noApiKey": {
-          "banner": "The API key previously used for this game is no longer available. To continue playing, add your own API key in your account settings.",
+          "banner": "No usable API key found for platform {{platform}}. To continue playing, add your own API key in your account settings.",
           "goToSettings": "API Key Settings",
           "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
           "title": "No API Key Available",
