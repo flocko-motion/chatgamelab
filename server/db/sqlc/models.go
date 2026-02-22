@@ -134,6 +134,7 @@ type GameSessionMessage struct {
 	ResponseRaw           sql.NullString
 	TokenUsage            pqtype.NullRawMessage
 	UrlAnalytics          sql.NullString
+	ApiKeyType            sql.NullString
 	DeletedAt             sql.NullTime
 }
 

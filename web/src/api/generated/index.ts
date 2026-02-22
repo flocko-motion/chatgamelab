@@ -235,6 +235,8 @@ export interface ObjGameSession {
 }
 
 export interface ObjGameSessionMessage {
+  /** source of API key used (workshop, sponsor, personal, etc.) */
+  apiKeyType?: string;
   audio?: number[];
   gameSessionId?: string;
   /** true when voice input (STT) is available for this session tier */
@@ -606,6 +608,8 @@ export interface RoutesSessionActionRequest {
 }
 
 export interface RoutesSessionMessageResponse {
+  /** source of API key used (workshop, sponsor, personal, etc.) */
+  apiKeyType?: string;
   audio?: number[];
   gameSessionId?: string;
   /** true when voice input (STT) is available for this session tier */
