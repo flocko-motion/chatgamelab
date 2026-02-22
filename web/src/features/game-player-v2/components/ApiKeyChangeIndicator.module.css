@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-xs);
+  padding: 4px var(--mantine-spacing-sm);
+  margin: 2px 0;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--mantine-color-gray-4) 60%, transparent 40%);
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--mantine-color-gray-5);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.icon {
+  color: var(--mantine-color-gray-5);
+  opacity: 0.8;
+}
