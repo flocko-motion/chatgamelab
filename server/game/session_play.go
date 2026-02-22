@@ -163,6 +163,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
 	}
 
+	// Tag the AI response with the API key source type (shown in AI Insight panel)
+	response.ApiKeyType = session.ApiKeyType
+
 	// Attach transcription to the response so the client can display what was recognized
 	if transcription != "" {
 		response.Transcription = transcription

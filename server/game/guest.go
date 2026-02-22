@@ -137,7 +137,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
 
 	// Build a single-element candidate list for createSessionInternal
-	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel}}
+	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel, KeyType: obj.ApiKeyTypePrivateShare}}
 
 	// Use shared internal implementation
 	// Guest users: no retries (nil), don't delete existing sessions (false)
@@ -154,5 +154,6 @@ func ResolveGuestSessionApiKey(ctx context.Context, session *obj.GameSession, ga
 	session.ApiKey = share.ApiKey
 	session.ApiKeyID = &share.ApiKey.ID
 	session.AiPlatform = share.ApiKey.Platform
+	session.ApiKeyType = obj.ApiKeyTypePrivateShare
 	return nil
 }

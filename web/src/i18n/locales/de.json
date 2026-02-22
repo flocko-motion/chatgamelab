@@ -209,6 +209,7 @@
       "low": "Niedrig (Sparsam)",
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgewogen)",
+      "newSessionsOnly": "Diese Stufe gilt nur für neue Sitzungen. Bestehende Sitzungen behalten die Stufe, mit der sie gestartet wurden.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -348,7 +349,17 @@
         "tokens": {
           "received": "Tokens empfangen",
           "sent": "Tokens gesendet"
-        }
+        },
+        "usedApiKey": {
+          "label": "Verwendeter API-Schlüssel",
+          "workshop": "Der Schlüssel deines Workshops wurde verwendet",
+          "sponsor": "Ein Sponsor-Schlüssel wurde verwendet",
+          "institution_free_use": "Der Freikontingent-Schlüssel deiner Organisation wurde verwendet",
+          "personal": "Dein persönlicher Schlüssel wurde verwendet",
+          "system_free_use": "Ein globaler Freikontingent-Schlüssel wurde verwendet",
+          "private_share": "Der Freigabelink-Schlüssel wurde verwendet"
+        },
+        "apiKeyChanged": "Verwendeter API-Schlüssel geändert"
       },
       "debug": {
         "fields": {
@@ -376,7 +387,7 @@
         "gameNotFound": "Spiel nicht gefunden",
         "missingFields": "Dem Spiel fehlen erforderliche Felder:",
         "noApiKey": {
-          "banner": "Der zuvor verwendete API-Schlüssel für dieses Spiel ist nicht mehr verfügbar. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
+          "banner": "Kein verwendbarer API-Schlüssel für Plattform {{platform}} gefunden. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
           "goToSettings": "API-Schlüssel Einstellungen",
           "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
           "title": "Kein API-Schlüssel verfügbar",
@@ -559,6 +570,8 @@
         "removeSponsor": "Sponsoring entfernen",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wähle einen Schlüssel zum Sponsern...",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
         "sponsorGame": "Spiel sponsern",
         "sponsored": "Gesponsert",
         "sponsoredTooltip": "Dieses Spiel wird gesponsert - du kannst es kostenlos spielen! Der Ersteller oder ein Unterstützer übernimmt die KI-Kosten.",
@@ -826,9 +839,9 @@
         "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
         "filterByPlatform": "Nach Plattform filtern",
         "freeUseKey": {
-          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen. Nur bereits mit dieser Organisation geteilte Schlüssel können ausgewählt werden.",
+          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen.",
           "remove": "Entfernen",
-          "selectPlaceholder": "Geteilten Schlüssel auswählen...",
+          "selectPlaceholder": "Schlüssel auswählen...",
           "title": "Freier Nutzungsschlüssel",
           "unknownKey": "Unbekannter Schlüssel"
         },
@@ -847,6 +860,12 @@
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
         "title": "Organisations-API-Schlüssel"
+      },
+      "autoShare": {
+        "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden. Sie können diese Freigabe später in Ihrer persönlichen API-Schlüsselverwaltung oder der Organisations-API-Schlüsselverwaltung wieder entfernen.",
+        "confirmTitle": "Schlüssel mit Organisation teilen",
+        "orgKeyGroup": "Organisationsschlüssel",
+        "personalKeyGroup": "Persönliche Schlüssel"
       },
       "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
       "demoteTitle": "Zum Lehrer herabstufen",

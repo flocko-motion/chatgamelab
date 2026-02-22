@@ -5123,6 +5123,10 @@ const docTemplate = `{
         "obj.GameSessionMessage": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "source of API key used (workshop, sponsor, personal, etc.)",
+                    "type": "string"
+                },
                 "audio": {
                     "type": "array",
                     "items": {
@@ -6058,6 +6062,10 @@ const docTemplate = `{
         "routes.SessionMessageResponse": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "source of API key used (workshop, sponsor, personal, etc.)",
+                    "type": "string"
+                },
                 "audio": {
                     "type": "array",
                     "items": {

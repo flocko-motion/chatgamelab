@@ -5,6 +5,7 @@ import type { SceneMessage, PlayerActionInput } from "../types";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
 import { SceneDivider } from "./SceneDivider";
+import { ApiKeyChangeIndicator } from "./ApiKeyChangeIndicator";
 import { TypingIndicator } from "./TypingIndicator";
 import { PlayerInput } from "./PlayerInput";
 import classes from "./GamePlayer.module.css";
@@ -15,6 +16,7 @@ interface MessageListProps {
   isImageGenerationDisabled: boolean;
   isAudioMuted: boolean;
   apiKeyUnavailable?: boolean;
+  apiKeyPlatform?: string | null;
   audioEnabled?: boolean;
   onSendAction: (input: PlayerActionInput) => Promise<void>;
   onRetryLastAction: () => void;
@@ -26,6 +28,7 @@ export function MessageList({
   isImageGenerationDisabled,
   isAudioMuted,
   apiKeyUnavailable,
+  apiKeyPlatform,
   audioEnabled,
   onSendAction,
   onRetryLastAction,
@@ -39,6 +42,8 @@ export function MessageList({
 
   // Track previous game message's status fields for showing changes
   let previousGameStatusFields: SceneMessage["statusFields"] = undefined;
+  // Track previous game message's API key type for showing key changes
+  let previousGameApiKeyType: string | undefined = undefined;
 
   // Collect system prompt text from system messages for the first game message
   let systemPromptText = "";
@@ -61,6 +66,17 @@ export function MessageList({
       if (index > 0 && visibleMessages[index - 1]?.type !== "system") {
         elements.push(<SceneDivider key={`divider-${message.id}`} />);
       }
+      // Show key change hint when API key type changes between game messages
+      if (
+        !isFirstGameMessage &&
+        message.apiKeyType &&
+        previousGameApiKeyType &&
+        message.apiKeyType !== previousGameApiKeyType
+      ) {
+        elements.push(
+          <ApiKeyChangeIndicator key={`key-change-${message.id}`} />,
+        );
+      }
       elements.push(
         <SceneCard
           key={message.id}
@@ -73,9 +89,12 @@ export function MessageList({
         />,
       );
       isFirstGameMessage = false;
-      // Update previous status fields for next game message
+      // Update previous status fields and key type for next game message
       if (message.statusFields?.length) {
         previousGameStatusFields = message.statusFields;
+      }
+      if (message.apiKeyType) {
+        previousGameApiKeyType = message.apiKeyType;
       }
     }
   });
@@ -99,7 +118,7 @@ export function MessageList({
             icon={<IconKeyOff size={18} />}
             radius="md"
           >
-            {t("gamePlayer.error.noApiKey.banner")}
+            {t("gamePlayer.error.noApiKey.banner", { platform: apiKeyPlatform ?? "" })}
           </Alert>
         </div>,
       );

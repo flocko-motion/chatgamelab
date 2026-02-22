@@ -84,6 +84,7 @@ function WorkshopSettingsPage() {
         <SingleWorkshopSettings
           workshopId={activeWorkshopId}
           institutionId={institutionId}
+          institutionName={backendUser?.role?.institution?.name}
         />
       </Stack>
     </Container>

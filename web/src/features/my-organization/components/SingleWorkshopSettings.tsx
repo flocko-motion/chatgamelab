@@ -40,8 +40,8 @@ import {
   useUpdateWorkshop,
   useCreateWorkshopInvite,
   useRevokeInvite,
-  useInstitutionApiKeys,
   useSetWorkshopApiKey,
+  useShareApiKeyWithInstitution,
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
@@ -50,6 +50,8 @@ import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 import { useAuth } from "@/providers/AuthProvider";
@@ -57,11 +59,13 @@ import { useAuth } from "@/providers/AuthProvider";
 interface SingleWorkshopSettingsProps {
   workshopId: string;
   institutionId: string;
+  institutionName?: string;
 }
 
 export function SingleWorkshopSettings({
   workshopId,
   institutionId,
+  institutionName,
 }: SingleWorkshopSettingsProps) {
   const { t } = useTranslation("common");
   const { isMobile } = useResponsiveDesign();
@@ -89,23 +93,28 @@ export function SingleWorkshopSettings({
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
 
-  const { data: institutionApiKeys } = useInstitutionApiKeys(institutionId);
+  // Combined org + personal key options for workshop key selector
+  const {
+    options: apiKeyOptions,
+    personalKeyIds,
+    personalSelfShareIds,
+    personalKeyNames,
+  } = useOrgKeyOptions(institutionId, {
+    includeEmpty: true,
+    emptyLabel: t("myOrganization.workshops.noDefaultApiKey"),
+  });
   const updateWorkshop = useUpdateWorkshop();
   const createInvite = useCreateWorkshopInvite();
   const revokeInvite = useRevokeInvite();
   const setWorkshopApiKey = useSetWorkshopApiKey();
+  const shareApiKeyWithInstitution = useShareApiKeyWithInstitution();
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
 
-  // Build API key options for select - only institution-shared keys
-  const apiKeyOptions = [
-    { value: "", label: t("myOrganization.workshops.noDefaultApiKey") },
-    ...(institutionApiKeys?.map((key) => ({
-      value: key.id || "",
-      label: key.apiKey?.name || key.apiKey?.platform || "Unknown",
-    })) || []),
-  ];
+  // Auto-share confirmation state
+  const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
+  const [autoShareError, setAutoShareError] = useState<string | null>(null);
 
   const aiQualityTierOptions = getAiQualityTierOptions(t, {
     includeEmpty: true,
@@ -130,7 +139,37 @@ export function SingleWorkshopSettings({
   };
 
   const handleSetApiKey = async (apiKeyShareId: string | null) => {
+    // If user selected a personal key, open confirmation modal
+    if (apiKeyShareId && personalKeyIds.has(apiKeyShareId)) {
+      setAutoSharePending(apiKeyShareId);
+      setAutoShareError(null);
+      return;
+    }
     await setWorkshopApiKey.mutateAsync({ workshopId, apiKeyShareId });
+  };
+
+  const handleAutoShareConfirm = async () => {
+    if (!autoSharePending) return;
+    const selfShareId = personalSelfShareIds.get(autoSharePending);
+    if (!selfShareId) return;
+
+    try {
+      const newShare = await shareApiKeyWithInstitution.mutateAsync({
+        shareId: selfShareId,
+        institutionId,
+        allowPublicGameSponsoring: false,
+      });
+      if (newShare?.id) {
+        await setWorkshopApiKey.mutateAsync({
+          workshopId,
+          apiKeyShareId: newShare.id,
+        });
+      }
+      setAutoSharePending(null);
+      setAutoShareError(null);
+    } catch {
+      setAutoShareError(t("myOrganization.apiKeys.loadError"));
+    }
   };
 
   // Participant handlers
@@ -351,6 +390,9 @@ export function SingleWorkshopSettings({
               }
               disabled={updateWorkshop.isPending}
             />
+            <Text size="xs" c="dimmed" fs="italic">
+              {t("aiQualityTier.newSessionsOnly")}
+            </Text>
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showPublicGames")}
@@ -828,6 +870,26 @@ export function SingleWorkshopSettings({
         confirmIcon={<IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}
+      />
+
+      {/* Auto-share personal key confirmation */}
+      <AutoShareConfirmModal
+        opened={!!autoSharePending}
+        onClose={() => {
+          setAutoSharePending(null);
+          setAutoShareError(null);
+        }}
+        onConfirm={handleAutoShareConfirm}
+        keyName={
+          autoSharePending
+            ? (personalKeyNames.get(autoSharePending) ?? "")
+            : ""
+        }
+        orgName={institutionName ?? institutionId}
+        isLoading={
+          shareApiKeyWithInstitution.isPending || setWorkshopApiKey.isPending
+        }
+        error={autoShareError}
       />
     </>
   );

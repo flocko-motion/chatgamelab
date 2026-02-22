@@ -62,6 +62,8 @@ export interface SceneMessage {
     outputTokens?: number;
     totalTokens?: number;
   };
+  /** Source type of API key used to generate this message (shown in AI Insight) */
+  apiKeyType?: string;
 }
 
 export interface StreamChunk {
@@ -123,6 +125,8 @@ export type GamePhase =
 export interface StreamError {
   code: string | null;
   message: string;
+  /** True when the error came from the 'init' opening scene action on a fresh session */
+  isInitFailure?: boolean;
 }
 
 export interface GamePlayerState {
@@ -188,6 +192,7 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     requestExpandStory: msg.requestExpandStory ?? undefined,
     responseRaw: msg.responseRaw ?? undefined,
     tokenUsage: msg.tokenUsage ?? undefined,
+    apiKeyType: msg.apiKeyType ?? undefined,
   };
 }
 

@@ -894,3 +894,22 @@ func canAccessInvite(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 		return obj.ErrForbidden("unknown operation")
 	}
 }
+
+// canUseShareForSponsoring checks if a user is authorized to use an API key share for game sponsoring.
+// Allowed if:
+//   - The user owns the underlying API key, OR
+//   - The share belongs to an institution and the user is head/staff of that institution
+func canUseShareForSponsoring(ctx context.Context, userID uuid.UUID, share sqlc.GetApiKeyShareByIDRow) error {
+	if share.KeyOwnerID == userID {
+		return nil
+	}
+	if share.InstitutionID.Valid {
+		caller, err := GetUserByID(ctx, userID)
+		if err == nil && caller.Role != nil && caller.Role.Institution != nil &&
+			caller.Role.Institution.ID == share.InstitutionID.UUID &&
+			(caller.Role.Role == obj.RoleHead || caller.Role.Role == obj.RoleStaff) {
+			return nil
+		}
+	}
+	return obj.ErrForbidden("only the key owner or an institution head/staff can sponsor a game with this key")
+}

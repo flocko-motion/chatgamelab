@@ -17,7 +17,8 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
-import { useApiKeys, useSponsorGame, useRemoveGameSponsor } from "@/api/hooks";
+import { useApiKeys, useInstitutionApiKeys, useSponsorGame, useRemoveGameSponsor } from "@/api/hooks";
+import { useAuth } from "@/providers/AuthProvider";
 import type { ObjGame, ObjApiKeyShare } from "@/api/generated";
 
 interface SponsorGameModalProps {
@@ -33,7 +34,11 @@ export function SponsorGameModal({
 }: SponsorGameModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
-  const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
+  const { backendUser } = useAuth();
+  const institutionId = backendUser?.role?.institution?.id;
+  const { data: apiKeys, isLoading: personalKeysLoading } = useApiKeys();
+  const { data: institutionKeys, isLoading: instKeysLoading } = useInstitutionApiKeys(institutionId ?? "");
+  const keysLoading = personalKeysLoading || instKeysLoading;
   const sponsorGame = useSponsorGame();
   const removeSponsor = useRemoveGameSponsor();
 
@@ -42,20 +47,29 @@ export function SponsorGameModal({
 
   const isSponsored = !!game?.publicSponsoredApiKeyShareId;
 
-  // Filter to only show keys that have at least one share with public sponsoring enabled.
-  // Deduplicate by API key ID so each key appears only once in the dropdown.
+  // Filter to only show shares with public sponsoring enabled.
+  // Include both personal shares and institution-shared keys (for head/staff).
+  // Deduplicate by share ID.
   const keys = apiKeys?.apiKeys ?? [];
-  const shares = apiKeys?.shares ?? [];
-  const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number] })[] =
-    [];
-  const seenKeyIds = new Set<string>();
-  for (const share of shares) {
-    if (!share.allowPublicGameSponsoring || !share.apiKeyId) continue;
-    if (seenKeyIds.has(share.apiKeyId)) continue;
+  const personalShares = apiKeys?.shares ?? [];
+  const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
+  const seenShareIds = new Set<string>();
+
+  for (const share of personalShares) {
+    if (!share.allowPublicGameSponsoring || !share.id) continue;
+    if (seenShareIds.has(share.id)) continue;
     const apiKey = keys.find((k) => k.id === share.apiKeyId);
     if (apiKey?.lastUsageSuccess === false) continue;
-    seenKeyIds.add(share.apiKeyId);
+    seenShareIds.add(share.id);
     eligibleKeys.push({ ...share, apiKey });
+  }
+
+  for (const share of (institutionKeys ?? [])) {
+    if (!share.allowPublicGameSponsoring || !share.id) continue;
+    if (seenShareIds.has(share.id)) continue;
+    if (share.apiKey?.lastUsageSuccess === false) continue;
+    seenShareIds.add(share.id);
+    eligibleKeys.push({ ...share });
   }
 
   const selectedShare = eligibleKeys.find((s) => s.id === selectedShareId);
@@ -99,10 +113,23 @@ export function SponsorGameModal({
     }
   };
 
-  const selectData = eligibleKeys.map((share) => ({
-    value: share.id!,
-    label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
-  }));
+  const personalItems = eligibleKeys
+    .filter((s) => !s.institution)
+    .map((share) => ({
+      value: share.id!,
+      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
+    }));
+  const orgItems = eligibleKeys
+    .filter((s) => !!s.institution)
+    .map((share) => ({
+      value: share.id!,
+      label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
+    }));
+
+  const selectData = [
+    ...(personalItems.length > 0 ? [{ group: t("games.sponsor.sourcePersonal"), items: personalItems }] : []),
+    ...(orgItems.length > 0 ? [{ group: t("games.sponsor.sourceOrg"), items: orgItems }] : []),
+  ];
 
   return (
     <Modal
@@ -201,6 +228,10 @@ export function SponsorGameModal({
 
             <Text size="sm" c="dimmed">
               {t("games.sponsor.confirmNote")}
+            </Text>
+
+            <Text size="xs" c="dimmed" fs="italic">
+              {t("aiQualityTier.newSessionsOnly")}
             </Text>
 
             <Group justify="flex-end" mt="md" gap="sm">

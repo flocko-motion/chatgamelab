@@ -93,6 +93,9 @@ export function useDeleteApiKey() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
       queryClient.invalidateQueries({ queryKey: queryKeys.games });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      queryClient.invalidateQueries({ queryKey: queryKeys.institutions });
+      queryClient.invalidateQueries({ queryKey: ["institutionApiKeys"] });
     },
     onError: (error) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
@@ -177,6 +180,10 @@ export function useRemoveInstitutionApiKeyShare() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.institutionApiKeys(variables.institutionId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.institution(variables.institutionId),
+      });
     },
     onError: handleApiError,
   });
@@ -205,6 +212,32 @@ export function useSetInstitutionFreeUseKey() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.institutionApiKeys(variables.institutionId),
       });
+    },
+    onError: handleApiError,
+  });
+}
+
+// Update allowPublicGameSponsoring on an existing share (owner only)
+export function useUpdateApiKeyShareSponsoring() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjApiKeyShare,
+    HttpxErrorResponse,
+    { shareId: string; allow: boolean; institutionId?: string }
+  >({
+    mutationFn: ({ shareId, allow }) =>
+      api.apikeys
+        .sponsoringPartialUpdate(shareId, { allowPublicGameSponsoring: allow })
+        .then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      if (variables.institutionId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+        });
+      }
     },
     onError: handleApiError,
   });

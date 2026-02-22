@@ -209,6 +209,7 @@
       "low": "Low (Economy)",
       "max": "Max (Premium + Audio)",
       "medium": "Medium (Balanced)",
+      "newSessionsOnly": "This tier applies to new sessions only. Existing sessions keep the tier they started with.",
       "serverDefault": "Server Default"
     },
     "allGames": {
@@ -348,7 +349,17 @@
         "tokens": {
           "received": "tokens received",
           "sent": "tokens sent"
-        }
+        },
+        "usedApiKey": {
+          "label": "Used API Key",
+          "workshop": "The key of your workshop was used",
+          "sponsor": "A sponsor key was used",
+          "institution_free_use": "Your organization's free-use key was used",
+          "personal": "Your personal key was used",
+          "system_free_use": "A global free-use key was used",
+          "private_share": "The share link key was used"
+        },
+        "apiKeyChanged": "Used API Key changed"
       },
       "debug": {
         "fields": {
@@ -376,7 +387,7 @@
         "gameNotFound": "Game not found",
         "missingFields": "Game is missing required fields:",
         "noApiKey": {
-          "banner": "The API key previously used for this game is no longer available. To continue playing, add your own API key in your account settings.",
+          "banner": "No usable API key found for platform {{platform}}. To continue playing, add your own API key in your account settings.",
           "goToSettings": "API Key Settings",
           "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
           "title": "No API Key Available",
@@ -559,6 +570,8 @@
         "removeSponsor": "Remove Sponsoring",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to sponsor with...",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
         "sponsorGame": "Sponsor Game",
         "sponsored": "Sponsored",
         "sponsoredTooltip": "This game is sponsored - you can play it for free! The game creator or a supporter is covering the AI costs.",
@@ -826,9 +839,9 @@
         "allowPublicSponsoringDesc": "This key can be used to sponsor games for all users.",
         "filterByPlatform": "Filter by platform",
         "freeUseKey": {
-          "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
+          "description": "Set a free-use key to allow all organization members to play games without needing their own API key.",
           "remove": "Remove",
-          "selectPlaceholder": "Select a shared key...",
+          "selectPlaceholder": "Select a key...",
           "title": "Free-Use Key",
           "unknownKey": "Unknown key"
         },
@@ -847,6 +860,12 @@
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
         "title": "Organization API Keys"
+      },
+      "autoShare": {
+        "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops. You can remove this sharing later in your personal API key management or the organization API key management.",
+        "confirmTitle": "Share Key with Organization",
+        "orgKeyGroup": "Organization Keys",
+        "personalKeyGroup": "Personal Keys"
       },
       "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
       "demoteTitle": "Demote to Teacher",
