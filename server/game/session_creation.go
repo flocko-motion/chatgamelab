@@ -36,7 +36,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 	log.Debug("creating session", "user_id", userID, "game_id", gameID)
 
 	// Resolve all API key candidates using priority chain (up to 3, deduplicated)
-	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID)
+	// No platform filter for new sessions — first successful candidate determines the platform.
+	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID, "")
 	if httpErr != nil {
 		return nil, nil, httpErr
 	}

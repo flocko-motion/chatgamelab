@@ -31,7 +31,9 @@ const maxCandidates = 3
 //  5. System free-use key + system_settings.freeUseAiQualityTier
 //
 // If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
-func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) ([]resolvedKey, *obj.HTTPError) {
+// platformFilter restricts candidates to a specific AI platform (e.g. "openai").
+// Pass "" to accept any platform (used during session creation).
+func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, platformFilter string) ([]resolvedKey, *obj.HTTPError) {
 	user, err := db.GetUserByID(ctx, userID)
 	if err != nil {
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get user")
@@ -49,6 +51,12 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	add := func(share *obj.ApiKeyShare, tier string, keyType string) {
 		if share == nil || share.ApiKey == nil || seen[share.ApiKey.ID] || len(candidates) >= maxCandidates {
+			return
+		}
+		// For existing sessions: only accept keys from the same AI platform.
+		// This prevents switching platforms mid-session (e.g. OpenAI→Mistral),
+		// which would break AiSession state (platform-specific conversation IDs).
+		if platformFilter != "" && share.ApiKey.Platform != platformFilter {
 			return
 		}
 		seen[share.ApiKey.ID] = true
@@ -72,6 +80,10 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 	}
 
 	if len(candidates) == 0 {
+		if platformFilter != "" {
+			log.Debug("no API key available for session platform", "user_id", userID, "game_id", gameID, "platform", platformFilter)
+			return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available for platform "+platformFilter+". All available keys use a different AI platform.")
+		}
 		log.Debug("no API key available for session", "user_id", userID, "game_id", gameID)
 		return nil, obj.NewHTTPErrorWithCode(400, obj.ErrCodeNoApiKey, "No API key available. Please configure an API key in your settings.")
 	}
@@ -81,8 +93,9 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 // resolveApiKeyForSession resolves the highest-priority API key for a session.
 // Convenience wrapper around resolveApiKeyCandidates that returns only the first match.
+// No platform filter — used for new session creation where any platform is acceptable.
 func resolveApiKeyForSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*resolvedKey, *obj.HTTPError) {
-	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID)
+	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID, "")
 	if httpErr != nil {
 		return nil, httpErr
 	}
@@ -100,19 +113,21 @@ func IsApiKeyAvailable(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) 
 // It updates session.ApiKey, session.AiPlatform, and session.AiModel in-place.
 // This must be called before every DoSessionAction to ensure the key is still valid
 // (e.g. sponsorship may have been removed since the session was created).
+// Filters by session.AiPlatform to prevent switching platforms mid-session.
 func ResolveSessionApiKey(ctx context.Context, session *obj.GameSession) *obj.HTTPError {
-	resolved, httpErr := resolveApiKeyForSession(ctx, session.UserID, session.GameID)
+	candidates, httpErr := resolveApiKeyCandidates(ctx, session.UserID, session.GameID, session.AiPlatform)
 	if httpErr != nil {
 		return httpErr
 	}
-	applyResolvedKey(session, resolved)
+	applyResolvedKey(session, &candidates[0])
 	return nil
 }
 
 // ResolveSessionApiKeyCandidates re-resolves all API key candidates for an existing session.
 // Returns the ordered list of candidates for retry logic.
+// Filters by session.AiPlatform to prevent switching platforms mid-session.
 func ResolveSessionApiKeyCandidates(ctx context.Context, session *obj.GameSession) ([]resolvedKey, *obj.HTTPError) {
-	return resolveApiKeyCandidates(ctx, session.UserID, session.GameID)
+	return resolveApiKeyCandidates(ctx, session.UserID, session.GameID, session.AiPlatform)
 }
 
 // applyResolvedKey updates session fields from a resolved key candidate.
