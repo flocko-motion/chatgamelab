@@ -126,15 +126,10 @@ export function SponsorGameModal({
       label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
     }));
 
-  const selectData: ({ group: string; items: { value: string; label: string }[] } | { value: string; label: string })[] = [];
-  if (personalItems.length > 0 && orgItems.length > 0) {
-    selectData.push({ group: t("games.sponsor.sourcePersonal"), items: personalItems });
-    selectData.push({ group: t("games.sponsor.sourceOrg"), items: orgItems });
-  } else if (personalItems.length > 0) {
-    selectData.push(...personalItems);
-  } else {
-    selectData.push(...orgItems);
-  }
+  const selectData = [
+    ...(personalItems.length > 0 ? [{ group: t("games.sponsor.sourcePersonal"), items: personalItems }] : []),
+    ...(orgItems.length > 0 ? [{ group: t("games.sponsor.sourceOrg"), items: orgItems }] : []),
+  ];
 
   return (
     <Modal
