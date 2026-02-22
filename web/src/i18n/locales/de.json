@@ -568,13 +568,14 @@
         "noEligibleKeys": "Du hast keine API-Schlüssel mit aktiviertem öffentlichen Sponsoring. Gehe zu den API-Schlüssel-Einstellungen und aktiviere \"Öffentliches Sponsoring erlauben\" bei einem Schlüssel.",
         "privateWarning": "Wenn du dieses Spiel privat machst, wird das öffentliche Sponsoring entfernt.",
         "removeSponsor": "Sponsoring entfernen",
-        "groupOrg": "Organisations-Schlüssel",
-        "groupPersonal": "Persönlicher Schlüssel",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wähle einen Schlüssel zum Sponsern...",
         "sponsorGame": "Spiel sponsern",
         "sponsored": "Gesponsert",
         "sponsoredTooltip": "Dieses Spiel wird gesponsert - du kannst es kostenlos spielen! Der Ersteller oder ein Unterstützer übernimmt die KI-Kosten.",
+        "groupOrg": "Organisation",
+        "groupPersonal": "Persönlich",
+        "keyOwner": "Schlüsselinhaber:",
         "title": "Spiel sponsern"
       },
       "statusFieldsEditor": {

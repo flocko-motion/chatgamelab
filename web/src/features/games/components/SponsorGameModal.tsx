@@ -52,8 +52,7 @@ export function SponsorGameModal({
   // Deduplicate by share ID.
   const keys = apiKeys?.apiKeys ?? [];
   const personalShares = apiKeys?.shares ?? [];
-  type EligibleShare = ObjApiKeyShare & { apiKey?: (typeof keys)[number]; _source: "personal" | "org" };
-  const eligibleKeys: EligibleShare[] = [];
+  const eligibleKeys: (ObjApiKeyShare & { apiKey?: (typeof keys)[number]; label?: string })[] = [];
   const seenShareIds = new Set<string>();
 
   for (const share of personalShares) {
@@ -62,7 +61,7 @@ export function SponsorGameModal({
     const apiKey = keys.find((k) => k.id === share.apiKeyId);
     if (apiKey?.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share, apiKey, _source: "personal" });
+    eligibleKeys.push({ ...share, apiKey });
   }
 
   for (const share of (institutionKeys ?? [])) {
@@ -70,7 +69,7 @@ export function SponsorGameModal({
     if (seenShareIds.has(share.id)) continue;
     if (share.apiKey?.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);
-    eligibleKeys.push({ ...share, _source: "org" });
+    eligibleKeys.push({ ...share });
   }
 
   const selectedShare = eligibleKeys.find((s) => s.id === selectedShareId);
@@ -114,10 +113,14 @@ export function SponsorGameModal({
     }
   };
 
+  const orgKeyShareIds = new Set((institutionKeys ?? []).map((s) => s.id));
+
   const selectData = eligibleKeys.map((share) => ({
     value: share.id!,
     label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"})`,
-    group: share._source === "org" ? t("games.sponsor.groupOrg") : t("games.sponsor.groupPersonal"),
+    group: orgKeyShareIds.has(share.id)
+      ? t("games.sponsor.groupOrg")
+      : t("games.sponsor.groupPersonal"),
   }));
 
   return (
@@ -212,7 +215,24 @@ export function SponsorGameModal({
                 <Badge size="sm" variant="light">
                   {selectedShare.apiKey?.platform}
                 </Badge>
+                {orgKeyShareIds.has(selectedShare.id) ? (
+                  <Badge size="sm" color="violet" variant="light">
+                    {t("games.sponsor.groupOrg")}
+                  </Badge>
+                ) : (
+                  <Badge size="sm" color="gray" variant="light">
+                    {t("games.sponsor.groupPersonal")}
+                  </Badge>
+                )}
               </Group>
+              {orgKeyShareIds.has(selectedShare.id) && selectedShare.apiKey?.userName && (
+                <Group gap="xs">
+                  <Text size="sm" fw={600}>
+                    {t("games.sponsor.keyOwner")}
+                  </Text>
+                  <Text size="sm">{selectedShare.apiKey.userName}</Text>
+                </Group>
+              )}
             </Stack>
 
             <Text size="sm" c="dimmed">
