@@ -331,6 +331,9 @@ export function ApiKeyManagement() {
                 size="sm"
                 style={{ maxWidth: 300 }}
               />
+              <Text size="xs" c="dimmed" fs="italic">
+                {t("aiQualityTier.newSessionsOnly")}
+              </Text>
             </Stack>
           </Card>
         );

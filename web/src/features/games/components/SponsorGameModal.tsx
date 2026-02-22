@@ -203,6 +203,10 @@ export function SponsorGameModal({
               {t("games.sponsor.confirmNote")}
             </Text>
 
+            <Text size="xs" c="dimmed" fs="italic">
+              {t("aiQualityTier.newSessionsOnly")}
+            </Text>
+
             <Group justify="flex-end" mt="md" gap="sm">
               <CancelButton onClick={handleBack}>
                 {t("games.sponsor.back")}
