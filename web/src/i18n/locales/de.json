@@ -348,7 +348,17 @@
         "tokens": {
           "received": "Tokens empfangen",
           "sent": "Tokens gesendet"
-        }
+        },
+        "usedApiKey": {
+          "label": "Verwendeter API-Schlüssel",
+          "workshop": "Der Schlüssel deines Workshops wurde verwendet",
+          "sponsor": "Ein Sponsor-Schlüssel wurde verwendet",
+          "institution_free_use": "Der Freikontingent-Schlüssel deiner Organisation wurde verwendet",
+          "personal": "Dein persönlicher Schlüssel wurde verwendet",
+          "system_free_use": "Ein globaler Freikontingent-Schlüssel wurde verwendet",
+          "private_share": "Der Freigabelink-Schlüssel wurde verwendet"
+        },
+        "apiKeyChanged": "Verwendeter API-Schlüssel geändert"
       },
       "debug": {
         "fields": {

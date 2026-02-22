@@ -348,7 +348,17 @@
         "tokens": {
           "received": "tokens received",
           "sent": "tokens sent"
-        }
+        },
+        "usedApiKey": {
+          "label": "Used API Key",
+          "workshop": "The key of your workshop was used",
+          "sponsor": "A sponsor key was used",
+          "institution_free_use": "Your organization's free-use key was used",
+          "personal": "Your personal key was used",
+          "system_free_use": "A global free-use key was used",
+          "private_share": "The share link key was used"
+        },
+        "apiKeyChanged": "Used API Key changed"
       },
       "debug": {
         "fields": {
