@@ -570,12 +570,11 @@
         "removeSponsor": "Remove Sponsoring",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to sponsor with...",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
         "sponsorGame": "Sponsor Game",
         "sponsored": "Sponsored",
         "sponsoredTooltip": "This game is sponsored - you can play it for free! The game creator or a supporter is covering the AI costs.",
-        "groupOrg": "Organization",
-        "groupPersonal": "Personal",
-        "keyOwner": "Key Owner:",
         "title": "Sponsor Game"
       },
       "statusFieldsEditor": {
