@@ -217,6 +217,32 @@ export function useSetInstitutionFreeUseKey() {
   });
 }
 
+// Update allowPublicGameSponsoring on an existing share (owner only)
+export function useUpdateApiKeyShareSponsoring() {
+  const queryClient = useQueryClient();
+  const api = useRequiredAuthenticatedApi();
+
+  return useMutation<
+    ObjApiKeyShare,
+    HttpxErrorResponse,
+    { shareId: string; allow: boolean; institutionId?: string }
+  >({
+    mutationFn: ({ shareId, allow }) =>
+      api.apikeys
+        .sponsoringPartialUpdate(shareId, { allowPublicGameSponsoring: allow })
+        .then((response) => response.data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      if (variables.institutionId) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.institutionApiKeys(variables.institutionId),
+        });
+      }
+    },
+    onError: handleApiError,
+  });
+}
+
 // Available Keys for Game hook
 export function useAvailableKeysForGame(gameId: string | undefined) {
   const api = useRequiredAuthenticatedApi();

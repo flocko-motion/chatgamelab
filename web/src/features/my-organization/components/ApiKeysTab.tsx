@@ -39,6 +39,7 @@ import {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
+  useUpdateApiKeyShareSponsoring,
 } from "@/api/hooks";
 import type { ObjApiKeyShare } from "@/api/generated";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
@@ -79,6 +80,7 @@ export function ApiKeysTab({
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
   const setFreeUseKey = useSetInstitutionFreeUseKey();
+  const updateSponsoring = useUpdateApiKeyShareSponsoring();
 
   // Combined org + personal key options for free-use key selector
   const {
@@ -324,13 +326,26 @@ export function ApiKeysTab({
                     </Table.Td>
                     {!isMobile && (
                       <Table.Td>
-                        {share.allowPublicGameSponsoring ? (
-                          <Badge color="red" variant="light" size="sm">
-                            {t("labels.yes")}
-                          </Badge>
+                        {share.apiKey?.userId === backendUser?.id ? (
+                          <Checkbox
+                            checked={share.allowPublicGameSponsoring ?? false}
+                            onChange={(e) =>
+                              updateSponsoring.mutate({
+                                shareId: share.id!,
+                                allow: e.currentTarget.checked,
+                                institutionId,
+                              })
+                            }
+                            disabled={updateSponsoring.isPending}
+                            size="sm"
+                          />
                         ) : (
-                          <Badge color="green" variant="light" size="sm">
-                            {t("labels.no")}
+                          <Badge
+                            color={share.allowPublicGameSponsoring ? "red" : "gray"}
+                            variant="light"
+                            size="sm"
+                          >
+                            {share.allowPublicGameSponsoring ? t("labels.yes") : t("labels.no")}
                           </Badge>
                         )}
                       </Table.Td>
