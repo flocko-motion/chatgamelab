@@ -4749,6 +4749,10 @@ const docTemplate = `{
                 },
                 "workshopId": {
                     "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
+                    "type": "string"
                 }
             }
         },
@@ -5117,6 +5121,10 @@ const docTemplate = `{
                 },
                 "workshopId": {
                     "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
+                    "type": "string"
                 }
             }
         },
@@ -5399,10 +5407,18 @@ const docTemplate = `{
         "obj.TokenUsage": {
             "type": "object",
             "properties": {
+                "cachedTokens": {
+                    "description": "Subset of input tokens served from cache",
+                    "type": "integer"
+                },
                 "inputTokens": {
                     "type": "integer"
                 },
                 "outputTokens": {
+                    "type": "integer"
+                },
+                "reasoningTokens": {
+                    "description": "Subset of output tokens used for reasoning",
                     "type": "integer"
                 },
                 "totalTokens": {
@@ -5841,6 +5857,10 @@ const docTemplate = `{
                 },
                 "workshopId": {
                     "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
+                    "type": "string"
                 }
             }
         },
@@ -6236,6 +6256,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }

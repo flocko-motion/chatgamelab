@@ -315,18 +315,23 @@ func Authenticate(next http.Handler) http.Handler {
 			token := tokenObj.(*validator.ValidatedClaims)
 			auth0ID := token.RegisteredClaims.Subject
 			if auth0ID == "" {
+				log.Warn("auth0 token has empty subject claim")
 				next.ServeHTTP(w, r)
 				return
 			}
+
+			log.Debug("auth0 token validated", "auth0_id", auth0ID, "auth0_id_length", len(auth0ID))
 
 			// Load user by Auth0 ID - do NOT auto-create
 			user, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
 			if err != nil {
 				// User not registered - frontend will get email/name from Auth0 directly
-				log.Debug("auth0 user not registered", "auth0_id", auth0ID)
+				log.Debug("auth0 user not registered", "auth0_id", auth0ID, "error", err)
 				WriteUserNotRegistered(w, auth0ID)
 				return
 			}
+
+			log.Debug("auth0 user found", "auth0_id", auth0ID, "user_id", user.ID, "user_name", user.Name)
 
 			user = db.CheckAndPromoteAdmin(r.Context(), user)
 			next.ServeHTTP(w, WithUser(r, user))
