@@ -107,11 +107,9 @@ func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSe
 		}
 		apiResponse, usage, err = callConversationsAPI(ctx, session.ApiKey.Key, req)
 	} else if modelSession.ConversationID != "" {
-		// Continuation: append to existing conversation with developer reminder
-		// Mistral append only accepts "user" or "assistant" roles (not "system")
+		// Continuation: append to existing conversation
 		req := ConversationsAppendRequest{
 			Inputs: []InputMessage{
-				{Role: "user", Content: templates.ReminderExecuteAction},
 				{Role: "user", Content: actionInput},
 			},
 			Store:          true,
@@ -119,8 +117,7 @@ func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSe
 		}
 		apiResponse, usage, err = callConversationsAppendAPI(ctx, session.ApiKey.Key, modelSession.ConversationID, req)
 		// Set debug prompt showing full input sent to the AI
-		response.PromptStatusUpdate = functional.Ptr(
-			"[system] " + templates.ReminderExecuteAction + "\n\n[user] " + actionInput)
+		response.PromptStatusUpdate = functional.Ptr("[user] " + actionInput)
 	} else {
 		return obj.TokenUsage{}, obj.ErrAiError("no conversation ID and not a system message")
 	}
@@ -178,7 +175,7 @@ func (p *MistralPlatform) ExpandStory(ctx context.Context, session *obj.GameSess
 	// Must explicitly set response_format to text to override the inherited json_schema from ExecuteAction
 	req := ConversationsAppendRequest{
 		Inputs: []InputMessage{
-			{Role: "user", Content: templates.PromptNarratePlotOutline(session.Language)},
+			{Role: "user", Content: templates.PromptNarratePlotOutline(session.Language, session.WorkshopPromptConstraints)},
 		},
 		Store:  true,
 		Stream: true,

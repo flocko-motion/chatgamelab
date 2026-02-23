@@ -276,6 +276,8 @@ type GameSession struct {
 	ImageStyle string `json:"imageStyle"`
 	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
 	Language string `json:"language"`
+	// Workshop prompt constraints (if user is in a workshop), re-injected with every AI call
+	WorkshopPromptConstraints *string `json:"workshopPromptConstraints,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)

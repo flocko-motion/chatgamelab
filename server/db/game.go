@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -603,12 +604,13 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // The function loads game details and constructs the session object internally.
 // Parameters:
 // - userID: the user creating the session
-// - game: the game to play (possibly translated)
-// - apiKeyID: the API key to use (defines platform)
+// - game: the game being played
+// - apiKeyID: the API key to use for AI calls
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string) (*obj.GameSession, error) {
+// - imageStyle: optional adapted image style (if empty, uses game.ImageStyle)
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string, imageStyle string) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
 	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
@@ -630,6 +632,11 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
 	}
 
+	// Use provided imageStyle if set, otherwise fall back to game.ImageStyle
+	if imageStyle == "" {
+		imageStyle = game.ImageStyle
+	}
+
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
@@ -643,7 +650,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		AiPlatform:   apiKey.Platform,
 		AiModel:      aiModel,
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
-		ImageStyle:   game.ImageStyle,
+		ImageStyle:   imageStyle,
 		Language:     language,
 		StatusFields: game.StatusFields,
 		Theme:        themeJSON,
@@ -1063,6 +1070,15 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 			}
 		}
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
+	}
+
+	// Load workshop prompt constraints from user's role (if in a workshop)
+	user, err := GetUserByID(ctx, s.UserID)
+	if err == nil && user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+		if constraints != "" {
+			session.WorkshopPromptConstraints = &constraints
+		}
 	}
 
 	return session, nil

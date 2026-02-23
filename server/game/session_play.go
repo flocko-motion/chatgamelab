@@ -249,7 +249,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language))
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language, session.WorkshopPromptConstraints))
 	if response.ImagePrompt != nil {
 		scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
 		plotOutline := ""
