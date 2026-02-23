@@ -207,10 +207,13 @@ func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, er
 
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
+	log.Debug("getting user details by id", "user_id", id)
 	res, err := queries().GetUserDetailsByID(ctx, id)
 	if err != nil {
+		log.Error("failed to get user details by id", "user_id", id, "error", err)
 		return nil, err
 	}
+	log.Debug("got user details", "user_id", id, "name", res.Name, "email", res.Email.String)
 	user := obj.User{
 		ID: res.ID,
 		Meta: obj.Meta{
@@ -288,10 +291,13 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			}
 		}
 	}
+	log.Debug("fetching api key shares for user", "user_id", id)
 	user.ApiKeys, err = GetApiKeySharesByUser(ctx, id)
 	if err != nil {
+		log.Error("failed to get api key shares for user", "user_id", id, "error", err)
 		return nil, err
 	}
+	log.Debug("successfully loaded user", "user_id", id, "name", user.Name, "api_keys_count", len(user.ApiKeys))
 
 	return &user, nil
 }
