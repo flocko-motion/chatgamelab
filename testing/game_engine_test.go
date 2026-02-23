@@ -183,6 +183,11 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	game := Must(s.clientAlice.UploadGame("stone-collector"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
+	// Set quality tier to "max" (= high text model + audio)
+	err = s.clientAlice.SetUserAiQualityTier(obj.AiModelEconomy)
+	s.Require().NoError(err, "Failed to set AI quality tier to max")
+	s.T().Logf("Set AI quality tier to max")
+
 	// Create game session - game should be auto-translated to French
 	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String()))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
@@ -190,12 +195,12 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	// TWO-PHASE INITIALIZATION: Session is created but has no messages yet
 	// Send init action to trigger opening scene generation
 	s.Require().Empty(sessionResponse.Messages, "Session should have no messages yet (two-phase init)")
-	initialMsg, err := s.clientAlice.SendGameMessage(sessionResponse.ID.String(), "init")
+	initialMsg, _, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), "init")
 	s.Require().NoError(err, "Failed to trigger opening scene")
 
 	// Determine expected capabilities from the platform
-	expectImage := apiKeyShare.ApiKey.Platform == "openai" // OpenAI supports images, Mistral does not
-	expectAudio := false                                   // standard tiers never have audio
+	expectImage := true
+	expectAudio := false // standard tiers never have audio
 
 	log.Printf("\n=================================================================================================\n")
 	log.Printf("Initial Message (should be in FRENCH):")
@@ -221,7 +226,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	}
 	messageLens := []int{}
 	for i, playerAction := range playerActions {
-		msg1, err := s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction)
+		msg1, _, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), playerAction)
 		s.Require().NoError(err, "SendGameMessage failed for action #%d: %s", i, playerAction)
 		log.Printf("\n=================================================================================================\n")
 		log.Printf("Turn #%d - Player: %s", i, playerAction)
@@ -231,7 +236,8 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 		log.Printf("PromptImageGeneration: %s", functional.MaybeToString(msg1.PromptImageGeneration, "nil"))
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
-		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
+		s.Greater(len(msg1.Message), 0, "AI response story is empty")
+		s.Greater(len(msg1.Message), 10, "AI response story should be substantial")
 		s.Equal(expectImage, msg1.HasImage, "Turn #%d: HasImage should be %v for platform %s", i, expectImage, apiKeyShare.ApiKey.Platform)
 		s.Equal(expectAudio, msg1.HasAudioOut, "Turn #%d: HasAudioOut should be %v", i, expectAudio)
 		messageLens = append(messageLens, len(msg1.Message))
@@ -253,15 +259,16 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	s.Equal(sessionResponse.ID, resumed.ID, "Session ID should match")
 
 	// Expect: 1 initial game message + (N player actions * 2: player + game response)
-	expectedMessageCount := 2 + len(playerActions)*2
+	expectedMessageCount := 3 + len(playerActions)*2
 	s.Require().Len(resumed.Messages, expectedMessageCount,
-		"Should have %d messages: 1 initial + %d player actions + %d AI responses",
+		"Should have %d messages: 1 system + 1 init + %d player actions + %d AI responses",
 		expectedMessageCount, len(playerActions), len(playerActions))
 
 	// Message[0] should be the initial game response (system message triggers this)
 	s.Equal("system", resumed.Messages[0].Type, "First message should be a game response (from system prompt)")
-	s.Equal("game", resumed.Messages[1].Type, "Second message should be a game start scenario")
-	s.Equal("player", resumed.Messages[2].Type, "Second message should be a player input")
+	s.Equal("player", resumed.Messages[1].Type, "Second message should be init message (automatically from player)")
+	s.Equal("game", resumed.Messages[2].Type, "Third message should be a game start scenario")
+	s.Equal("player", resumed.Messages[3].Type, "Fourth message should be a player input")
 
 	// Log all messages and verify prompt fields on game-type messages
 	for i, msg := range resumed.Messages {

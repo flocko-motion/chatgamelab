@@ -131,7 +131,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to count session messages")
 	}
 
-	isOpeningScene := messageCount == 1 && action.Type == obj.GameSessionMessageTypeSystem && strings.TrimSpace(action.Message) == "init"
+	isOpeningScene := messageCount == 1 && strings.TrimSpace(action.Message) == "init"
 	var actionMessageID *uuid.UUID
 
 	if isOpeningScene {

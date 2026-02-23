@@ -62,8 +62,7 @@ func (c *Client) GetJson(ctx context.Context, path string, response interface{})
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("API request failed with status %d: %s", resp.StatusCode, string(body))
+		return fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
 
 	return json.NewDecoder(resp.Body).Decode(response)

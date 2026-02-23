@@ -9,18 +9,46 @@ import (
 
 // TokenUsage tracks token consumption from an API call
 type TokenUsage struct {
-	InputTokens  int `json:"inputTokens"`
-	OutputTokens int `json:"outputTokens"`
-	TotalTokens  int `json:"totalTokens"`
+	InputTokens     int  `json:"inputTokens"`
+	CachedTokens    *int `json:"cachedTokens,omitempty"` // Subset of input tokens served from cache
+	OutputTokens    int  `json:"outputTokens"`
+	ReasoningTokens *int `json:"reasoningTokens,omitempty"` // Subset of output tokens used for reasoning
+	TotalTokens     int  `json:"totalTokens"`
 }
 
 // Add returns a new TokenUsage with the sum of both usages
 func (u TokenUsage) Add(other TokenUsage) TokenUsage {
-	return TokenUsage{
+	result := TokenUsage{
 		InputTokens:  u.InputTokens + other.InputTokens,
 		OutputTokens: u.OutputTokens + other.OutputTokens,
 		TotalTokens:  u.TotalTokens + other.TotalTokens,
 	}
+
+	// Sum cached tokens if either has them
+	if u.CachedTokens != nil || other.CachedTokens != nil {
+		cached := 0
+		if u.CachedTokens != nil {
+			cached += *u.CachedTokens
+		}
+		if other.CachedTokens != nil {
+			cached += *other.CachedTokens
+		}
+		result.CachedTokens = &cached
+	}
+
+	// Sum reasoning tokens if either has them
+	if u.ReasoningTokens != nil || other.ReasoningTokens != nil {
+		reasoning := 0
+		if u.ReasoningTokens != nil {
+			reasoning += *u.ReasoningTokens
+		}
+		if other.ReasoningTokens != nil {
+			reasoning += *other.ReasoningTokens
+		}
+		result.ReasoningTokens = &reasoning
+	}
+
+	return result
 }
 
 type Meta struct {
