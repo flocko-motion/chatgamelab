@@ -76,10 +76,26 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if user already exists with this Auth0 ID
-	existingUser, _ := db.GetUserByAuth0ID(r.Context(), auth0ID)
+	log.Debug("checking if user exists by auth0_id", "auth0_id", auth0ID, "email", email, "name", name)
+	existingUser, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
 	if existingUser != nil {
+		log.Warn("user already registered with this auth0_id", "auth0_id", auth0ID, "user_id", existingUser.ID, "existing_email", existingUser.Email)
 		httpx.WriteError(w, http.StatusBadRequest, "User already registered")
 		return
+	}
+	if err != nil {
+		log.Debug("no user found by auth0_id (expected for new registration)", "auth0_id", auth0ID, "error", err)
+	}
+
+	// Also check if a user exists with this email (might be a duplicate or auth0_id mismatch)
+	existingByEmail, emailErr := db.GetUserByEmail(r.Context(), email)
+	if emailErr == nil && existingByEmail != nil {
+		log.Error("user with this email already exists",
+			"email", email,
+			"existing_user_id", existingByEmail.ID,
+			"existing_auth0_id", existingByEmail.Auth0Id,
+			"new_auth0_id", auth0ID,
+			"auth0_ids_match", existingByEmail.Auth0Id != nil && *existingByEmail.Auth0Id == auth0ID)
 	}
 
 	// Check if name is already taken
@@ -95,9 +111,10 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the user
+	log.Info("attempting to create user", "name", name, "email", email, "auth0_id", auth0ID)
 	user, err := db.CreateUser(r.Context(), name, &email, auth0ID)
 	if err != nil {
-		log.Error("failed to create user", "error", err)
+		log.Error("failed to create user", "name", name, "email", email, "auth0_id", auth0ID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user")
 		return
 	}
