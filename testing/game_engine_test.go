@@ -102,10 +102,15 @@ func (s *GameEngineTestSuite) validateAudioStream(result *testutil.StreamResult,
 	s.T().Helper()
 	s.Greater(len(result.AudioData), 0, "%s: audio data should be received via SSE stream", label)
 	log.Printf("%s: audio data received: %d bytes", label, len(result.AudioData))
+	s.validateMP3Header(result.AudioData, label)
+}
 
-	s.Require().GreaterOrEqual(len(result.AudioData), 2, "%s: audio data should be at least 2 bytes", label)
-	s.Equal(byte(0xFF), result.AudioData[0], "%s: audio should start with MP3 sync byte 0xFF", label)
-	s.Equal(byte(0xFB), result.AudioData[1]&0xFB, "%s: audio should have MP3 frame header", label)
+// validateMP3Header checks for valid MP3 frame sync (0xFF followed by 0xE0-0xFF)
+func (s *GameEngineTestSuite) validateMP3Header(data []byte, label string) {
+	s.T().Helper()
+	s.Require().GreaterOrEqual(len(data), 2, "%s: audio data should be at least 2 bytes", label)
+	s.Equal(byte(0xFF), data[0], "%s: audio should start with MP3 sync byte 0xFF", label)
+	s.True((data[1]&0xE0) == 0xE0, "%s: audio should have MP3 frame header, got 0x%02X", label, data[1])
 }
 
 // validateAudioFromDB checks that audio is persisted and accessible via the replay endpoint
@@ -182,9 +187,11 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String()))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
-	// Log initial message
-	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
-	initialMsg := sessionResponse.Messages[0]
+	// TWO-PHASE INITIALIZATION: Session is created but has no messages yet
+	// Send init action to trigger opening scene generation
+	s.Require().Empty(sessionResponse.Messages, "Session should have no messages yet (two-phase init)")
+	initialMsg, err := s.clientAlice.SendGameMessage(sessionResponse.ID.String(), "init")
+	s.Require().NoError(err, "Failed to trigger opening scene")
 
 	// Determine expected capabilities from the platform
 	expectImage := apiKeyShare.ApiKey.Platform == "openai" // OpenAI supports images, Mistral does not
@@ -199,7 +206,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
 	log.Printf("  AI: %s", initialMsg.Message)
 
-	// Verify token usage from session creation (includes theme + translation + initial action)
+	// Verify token usage from opening scene (includes theme + translation + initial action)
 	s.Require().NotNil(initialMsg.TokenUsage, "Initial message should have token usage")
 	s.Greater(initialMsg.TokenUsage.InputTokens, 0, "Initial message should have input tokens > 0")
 	s.Greater(initialMsg.TokenUsage.OutputTokens, 0, "Initial message should have output tokens > 0")
