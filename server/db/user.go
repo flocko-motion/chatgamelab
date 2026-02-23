@@ -298,11 +298,23 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 
 // GetUserByAuth0ID gets a user by Auth0 ID
 func GetUserByAuth0ID(ctx context.Context, auth0ID string) (*obj.User, error) {
+	log.Debug("searching for user by auth0_id", "auth0_id", auth0ID, "auth0_id_length", len(auth0ID))
 	id, err := queries().GetUserIDByAuth0ID(ctx, sql.NullString{String: auth0ID, Valid: true})
+	if err != nil {
+		log.Debug("user not found by auth0_id", "auth0_id", auth0ID, "error", err)
+		return nil, err
+	}
+	log.Debug("found user by auth0_id", "auth0_id", auth0ID, "user_id", id)
+	return GetUserByID(ctx, id)
+}
+
+// GetUserByEmail gets a user by email address
+func GetUserByEmail(ctx context.Context, email string) (*obj.User, error) {
+	raw, err := queries().GetUserByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err != nil {
 		return nil, err
 	}
-	return GetUserByID(ctx, id)
+	return GetUserByID(ctx, raw.ID)
 }
 
 // IsNameTaken checks if a username is already taken
