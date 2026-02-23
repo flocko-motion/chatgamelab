@@ -213,6 +213,11 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		aiQualityTier = &result.AiQualityTier.String
 	}
 
+	var promptConstraints *string
+	if result.PromptConstraints.Valid {
+		promptConstraints = &result.PromptConstraints.String
+	}
+
 	return &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
@@ -223,6 +228,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		Participants:               participants,
 		Invites:                    invites,
 		AiQualityTier:              aiQualityTier,
+		PromptConstraints:          promptConstraints,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
@@ -442,6 +448,11 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				aiQualityTier = &r.AiQualityTier.String
 			}
 
+			var promptConstraints *string
+			if r.PromptConstraints.Valid {
+				promptConstraints = &r.PromptConstraints.String
+			}
+
 			workshop := obj.Workshop{
 				ID:                         r.ID,
 				Name:                       r.Name,
@@ -450,6 +461,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				Public:                     r.Public,
 				DefaultApiKeyShareID:       defaultApiKeyShareID,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
@@ -496,6 +508,11 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				aiQualityTier = &r.AiQualityTier.String
 			}
 
+			var promptConstraints *string
+			if r.PromptConstraints.Valid {
+				promptConstraints = &r.PromptConstraints.String
+			}
+
 			workshop := obj.Workshop{
 				ID:                         r.ID,
 				Name:                       r.Name,
@@ -504,6 +521,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				Public:                     r.Public,
 				DefaultApiKeyShareID:       defaultApiKeyShareID,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 				ShowPublicGames:            r.ShowPublicGames,
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
@@ -536,6 +554,7 @@ type UpdateWorkshopParams struct {
 	Active                     bool
 	Public                     bool
 	AiQualityTier              *string
+	PromptConstraints          *string
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
@@ -584,6 +603,9 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 	if params.AiQualityTier != nil {
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
 	}
+	if params.PromptConstraints != nil {
+		arg.PromptConstraints = sql.NullString{String: *params.PromptConstraints, Valid: true}
+	}
 
 	result, err := queries().UpdateWorkshop(ctx, arg)
 	if err != nil {
@@ -600,6 +622,11 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		aiQualityTier = &result.AiQualityTier.String
 	}
 
+	var promptConstraints *string
+	if result.PromptConstraints.Valid {
+		promptConstraints = &result.PromptConstraints.String
+	}
+
 	return &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
@@ -608,6 +635,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		Public:                     result.Public,
 		DefaultApiKeyShareID:       updateDefaultApiKeyShareID,
 		AiQualityTier:              aiQualityTier,
+		PromptConstraints:          promptConstraints,
 		ShowPublicGames:            result.ShowPublicGames,
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
@@ -660,13 +688,29 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		setDefaultApiKeyShareID = &result.DefaultApiKeyShareID.UUID
 	}
 
+	var aiQualityTier *string
+	if result.AiQualityTier.Valid {
+		aiQualityTier = &result.AiQualityTier.String
+	}
+
+	var promptConstraints *string
+	if result.PromptConstraints.Valid {
+		promptConstraints = &result.PromptConstraints.String
+	}
+
 	return &obj.Workshop{
-		ID:                   result.ID,
-		Name:                 result.Name,
-		Institution:          &obj.Institution{ID: result.InstitutionID},
-		Active:               result.Active,
-		Public:               result.Public,
-		DefaultApiKeyShareID: setDefaultApiKeyShareID,
+		ID:                         result.ID,
+		Name:                       result.Name,
+		Institution:                &obj.Institution{ID: result.InstitutionID},
+		Active:                     result.Active,
+		Public:                     result.Public,
+		DefaultApiKeyShareID:       setDefaultApiKeyShareID,
+		AiQualityTier:              aiQualityTier,
+		PromptConstraints:          promptConstraints,
+		ShowPublicGames:            result.ShowPublicGames,
+		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
+		DesignEditingEnabled:       result.DesignEditingEnabled,
+		IsPaused:                   result.IsPaused,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

@@ -75,6 +75,7 @@ type sessionSetupResult struct {
 	translatedGame      *obj.Game         // translated game (nil if not needed or failed)
 	fieldNameMap        map[string]string // original→translated field name mapping
 	scenarioImagePrompt string            // condensed scenario for image generation
+	adaptedImageStyle   string            // translated and workshop-adapted image style
 	usage               obj.TokenUsage    // accumulated token usage for theme+translation
 }
 
@@ -99,6 +100,30 @@ func buildScenarioImagePrompt(ctx context.Context, session *obj.GameSession, pla
 	}
 
 	return strings.TrimSpace(condensed)
+}
+
+// translateAndAdaptImageStyle translates the image style to English and adapts it based on workshop constraints.
+// Returns the adapted style, or the original if translation fails (non-fatal).
+func translateAndAdaptImageStyle(ctx context.Context, session *obj.GameSession, platform ai.AiPlatform, workshopConstraints *string) string {
+	rawStyle := strings.TrimSpace(session.ImageStyle)
+	if rawStyle == "" || rawStyle == templates.ImageStyleNoImage || session.ApiKey == nil {
+		return rawStyle
+	}
+
+	var prompt string
+	if workshopConstraints != nil && *workshopConstraints != "" {
+		prompt = fmt.Sprintf(templates.PromptAdaptImageStyle, rawStyle, *workshopConstraints)
+	} else {
+		prompt = fmt.Sprintf(templates.PromptTranslateImageStyle, rawStyle)
+	}
+
+	adapted, err := platform.ToolQuery(ctx, session.ApiKey.Key, prompt)
+	if err != nil {
+		log.Warn("ToolQuery image style adaptation failed, using original", "session_id", session.ID, "error", err)
+		return rawStyle
+	}
+
+	return strings.TrimSpace(adapted)
 }
 
 // makeTempSession creates a temporary session object for theme/translation AI calls.
@@ -151,13 +176,27 @@ func generateSessionSetup(
 	result := &sessionSetupResult{}
 	needsTranslation := user.Language != "" && user.Language != "en"
 
+	// Extract workshop constraints early for parallel tasks
+	var workshopConstraints *string
+	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+		if constraints != "" {
+			workshopConstraints = &constraints
+		}
+	}
+
 	// If game already has a theme, skip AI generation entirely
 	if game.Theme != nil {
 		log.Debug("using game-level theme override", "game_id", game.ID, "preset", game.Theme.Preset)
 		result.theme = game.Theme
 		result.candidateIndex = 0
-		// Still run translation (no key validation via theme, but best-effort)
+		// Still run translation and image style adaptation (no key validation via theme, but best-effort)
 		result.translatedGame, result.fieldNameMap, result.usage = translateIfNeeded(ctx, candidates[0], game, user)
+		// Adapt image style if needed
+		if platform, err := ai.GetAiPlatform(candidates[0].Share.ApiKey.Platform); err == nil {
+			tempSession := makeTempSession(candidates[0], game, user.ID)
+			result.adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, workshopConstraints)
+		}
 		return result, nil
 	}
 
@@ -173,7 +212,16 @@ func generateSessionSetup(
 		tempSession := makeTempSession(candidate, game, user.ID)
 		start := time.Now()
 
-		// Run theme generation, translation, and scenario image prompt in parallel
+		// Extract workshop constraints early for parallel tasks
+		var workshopConstraints *string
+		if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+			constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+			if constraints != "" {
+				workshopConstraints = &constraints
+			}
+		}
+
+		// Run theme generation, translation, scenario image prompt, and image style adaptation in parallel
 		var wg sync.WaitGroup
 		var theme *obj.GameTheme
 		var themeUsage obj.TokenUsage
@@ -182,6 +230,7 @@ func generateSessionSetup(
 		var fieldNameMap map[string]string
 		var translateUsage obj.TokenUsage
 		var scenarioPrompt string
+		var adaptedImageStyle string
 
 		wg.Add(1)
 		go func() {
@@ -198,7 +247,7 @@ func generateSessionSetup(
 			}()
 		}
 
-		// Prepare scenario image prompt in parallel (doesn't need translation)
+		// Prepare scenario image prompt in parallel
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -213,6 +262,18 @@ func generateSessionSetup(
 			}
 		}()
 
+		// Translate and adapt image style based on workshop constraints in parallel
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			platform, platformErr := ai.GetAiPlatform(tempSession.AiPlatform)
+			if platformErr != nil {
+				log.Warn("failed to get AI platform for image style adaptation", "game_id", game.ID, "error", platformErr)
+				return
+			}
+			adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, workshopConstraints)
+		}()
+
 		wg.Wait()
 		result.usage = result.usage.Add(themeUsage).Add(translateUsage)
 
@@ -223,6 +284,7 @@ func generateSessionSetup(
 			result.translatedGame = translatedGame
 			result.fieldNameMap = fieldNameMap
 			result.scenarioImagePrompt = scenarioPrompt
+			result.adaptedImageStyle = adaptedImageStyle
 			return result, nil
 		}
 
@@ -233,11 +295,12 @@ func generateSessionSetup(
 		log.Warn("theme generation failed", "candidate_index", i, "key_name", candidate.Share.ApiKey.Name, "error", themeErr, "error_code", errCode, "seconds", time.Since(start).Seconds())
 
 		if !isKeyRelatedError(errCode) {
-			// Non-key error (e.g. parse failure, timeout) — use default theme, keep translation
+			// Non-key error (e.g. parse failure, timeout) — use default theme, keep translation and adapted style
 			log.Debug("non-key error during theme generation, using default theme")
 			result.candidateIndex = i
 			result.translatedGame = translatedGame
 			result.fieldNameMap = fieldNameMap
+			result.adaptedImageStyle = adaptedImageStyle
 			return result, nil
 		}
 
@@ -307,19 +370,38 @@ func createSessionInternal(
 		}
 	}
 
-	// Persist to database with theme
-	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
+	// Apply adapted image style if available
+	imageStyle := templates.ImageStyleOrDefault(game.ImageStyle)
+	if setup.adaptedImageStyle != "" {
+		imageStyle = setup.adaptedImageStyle
+		log.Debug("using workshop-adapted image style", "original", game.ImageStyle, "adapted", imageStyle)
+	}
+
+	// Extract workshop constraints if user is in a workshop
+	var workshopConstraints *string
+	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+		if constraints != "" {
+			workshopConstraints = &constraints
+		}
+	}
+
+	// Persist to database with theme and adapted image style
+	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, imageStyle)
 	if err != nil {
 		log.Debug("failed to create session in DB", "error", err)
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
 	}
 	log.Debug("session created", "session_id", session.ID)
 
+	// Store workshop constraints in session for re-injection during prose generation
+	session.WorkshopPromptConstraints = workshopConstraints
+
 	// Attach API key and key type for response
 	session.ApiKey = share.ApiKey
 	session.ApiKeyType = candidates[setup.candidateIndex].KeyType
 
-	// Apply scenario image prompt from parallel setup (already calculated)
+	// Apply scenario image prompt from parallel setup
 	session.GameScenarioImagePrompt = setup.scenarioImagePrompt
 
 	// TWO-PHASE INITIALIZATION: Create system message to persist translated scenario
@@ -327,6 +409,9 @@ func createSessionInternal(
 	systemMessage, tmplErr := templates.GetTemplate(game, user.Language)
 	if tmplErr != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to generate system message")
+	}
+	if workshopConstraints != nil {
+		systemMessage += "\n\n---\n⚠️ MANDATORY WORKSHOP RULES (set by your teacher/facilitator) ⚠️\nYou MUST follow these rules in EVERY response throughout the entire game:\n" + *workshopConstraints + "\n---"
 	}
 
 	systemMsg := obj.GameSessionMessage{

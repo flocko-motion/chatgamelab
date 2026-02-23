@@ -68,6 +68,7 @@ CREATE TABLE workshop (
     default_api_key_share_id uuid NULL,
     -- Workshop settings (configured by staff/heads)
     ai_quality_tier text NULL,  -- AI quality tier for workshop key (high/medium/low, NULL = server default)
+    prompt_constraints text NULL,  -- Additional prompt constraints configured by workshop staff/heads
     show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
     design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no

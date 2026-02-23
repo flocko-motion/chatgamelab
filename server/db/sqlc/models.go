@@ -227,6 +227,7 @@ type Workshop struct {
 	DeletedAt                  sql.NullTime
 	DefaultApiKeyShareID       uuid.NullUUID
 	AiQualityTier              sql.NullString
+	PromptConstraints          sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool

@@ -9,18 +9,46 @@ import (
 
 // TokenUsage tracks token consumption from an API call
 type TokenUsage struct {
-	InputTokens  int `json:"inputTokens"`
-	OutputTokens int `json:"outputTokens"`
-	TotalTokens  int `json:"totalTokens"`
+	InputTokens     int  `json:"inputTokens"`
+	CachedTokens    *int `json:"cachedTokens,omitempty"` // Subset of input tokens served from cache
+	OutputTokens    int  `json:"outputTokens"`
+	ReasoningTokens *int `json:"reasoningTokens,omitempty"` // Subset of output tokens used for reasoning
+	TotalTokens     int  `json:"totalTokens"`
 }
 
 // Add returns a new TokenUsage with the sum of both usages
 func (u TokenUsage) Add(other TokenUsage) TokenUsage {
-	return TokenUsage{
+	result := TokenUsage{
 		InputTokens:  u.InputTokens + other.InputTokens,
 		OutputTokens: u.OutputTokens + other.OutputTokens,
 		TotalTokens:  u.TotalTokens + other.TotalTokens,
 	}
+
+	// Sum cached tokens if either has them
+	if u.CachedTokens != nil || other.CachedTokens != nil {
+		cached := 0
+		if u.CachedTokens != nil {
+			cached += *u.CachedTokens
+		}
+		if other.CachedTokens != nil {
+			cached += *other.CachedTokens
+		}
+		result.CachedTokens = &cached
+	}
+
+	// Sum reasoning tokens if either has them
+	if u.ReasoningTokens != nil || other.ReasoningTokens != nil {
+		reasoning := 0
+		if u.ReasoningTokens != nil {
+			reasoning += *u.ReasoningTokens
+		}
+		if other.ReasoningTokens != nil {
+			reasoning += *other.ReasoningTokens
+		}
+		result.ReasoningTokens = &reasoning
+	}
+
+	return result
 }
 
 type Meta struct {
@@ -120,6 +148,7 @@ type Workshop struct {
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 	// Workshop settings (configured by staff/heads)
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
+	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
@@ -275,6 +304,8 @@ type GameSession struct {
 	ImageStyle string `json:"imageStyle"`
 	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
 	Language string `json:"language"`
+	// Workshop prompt constraints (if user is in a workshop), re-injected with every AI call
+	WorkshopPromptConstraints *string `json:"workshopPromptConstraints,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)

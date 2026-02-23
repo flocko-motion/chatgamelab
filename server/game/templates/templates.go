@@ -23,14 +23,22 @@ const (
 	// Used via ToolQuery with a fast model. The %s placeholder is the raw player input.
 	PromptObjectivizePlayerInput = "Rephrase the player's input in third person, making the outcome uncertain. Return ONLY the rephrased text, nothing else.\nExample: 'I attack the wolf and wrestle him to the ground' → 'The player attacks the wolf, hoping to wrestle him to the ground.'\nKeep the the response in %s.\n\nPlayer Input: %s"
 
-	// ReminderExecuteAction is injected as a developer message with every player action
+	// reminderExecuteActionTemplate is injected as a developer message with every player action
 	// to reinforce brevity constraints that the model tends to forget over long conversations.
-	ReminderExecuteAction = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
+	reminderExecuteActionTemplate = "Plot out, how the game world should respond to the player's action. Prioritize game mechanics over player's goal! Use telegraph-style. (subject-verb-object, no adjectives, only 2 sentences). status=short labels (1-3 words each, e.g. 'Low', 'Newcomer'). imagePrompt=max 6 words, visual only."
 
 	// PromptCondenseScenarioForImage is used with ToolQuery to compress long game
 	// scenarios into a short, stable setting context for image generation prompts.
 	// The %s placeholder is replaced with the full game scenario.
 	PromptCondenseScenarioForImage = "Summarize this game scenario into one short scene-guidance line for image generation.\nRules:\n- Max 20 words\n- Focus on stable setting/theme (era, location, atmosphere)\n- No specific actions or plot events\n- Return ONLY the summary line\n\nScenario:\n%s"
+
+	// PromptAdaptImageStyle translates image style to English and adapts it based on workshop constraints.
+	// First %s is the image style, second %s is the workshop constraints.
+	PromptAdaptImageStyle = "Translate this image style description to English and adapt it based on the workshop constraints.\nConsider how the constraints should affect the visual style (e.g., age-appropriate style, restricting violent content).\nReturn ONLY the adapted image style description (max 50 words).\n\nImage Style: %s\n\nWorkshop Constraints:\n%s"
+
+	// PromptTranslateImageStyle translates image style to English without constraints.
+	// The %s placeholder is the image style.
+	PromptTranslateImageStyle = "Translate this image style description to English. Return ONLY the translated description (max 50 words).\n\nImage Style: %s"
 
 	// promptNarratePlotOutlineTemplate is the template for the narration prompt.
 	// The %s placeholder is replaced with the target language name.
@@ -45,10 +53,19 @@ const (
 	SchemaImagePromptDescription = "Vivid description of the scene for image generation"
 )
 
+// appendWorkshopConstraints appends workshop constraints to a prompt if present.
+func appendWorkshopConstraints(prompt string, workshopConstraints *string) string {
+	if workshopConstraints != nil && *workshopConstraints != "" {
+		return prompt + "\n\n⚠️ MANDATORY RULES ⚠️\nYou MUST respect these constraints:\n" + *workshopConstraints
+	}
+	return prompt
+}
+
 // PromptNarratePlotOutline returns the narration prompt with the target language injected.
 // languageCode is an ISO 639-1 code (e.g. "en", "de").
-func PromptNarratePlotOutline(languageCode string) string {
-	return fmt.Sprintf(promptNarratePlotOutlineTemplate, lang.GetLanguageName(languageCode))
+func PromptNarratePlotOutline(languageCode string, workshopConstraints *string) string {
+	prompt := fmt.Sprintf(promptNarratePlotOutlineTemplate, lang.GetLanguageName(languageCode))
+	return appendWorkshopConstraints(prompt, workshopConstraints)
 }
 
 func ImageStyleOrDefault(style string) string {
@@ -166,7 +183,7 @@ func GetTemplate(game *obj.Game, languageCode string) (string, error) {
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_PLAYER}}", obj.GameSessionMessageTypePlayer)
 	instructions = strings.ReplaceAll(instructions, "{{TYPE_SYSTEM}}", obj.GameSessionMessageTypeSystem)
 	instructions = strings.ReplaceAll(instructions, "{{SCENARIO}}", game.SystemMessageScenario)
-	instructions = strings.ReplaceAll(instructions, "{{NARRATE_PROMPT}}", PromptNarratePlotOutline(languageCode))
+	instructions = strings.ReplaceAll(instructions, "{{NARRATE_PROMPT}}", PromptNarratePlotOutline(languageCode, nil))
 
 	// Append game start instructions if provided by the game creator
 	if game.SystemMessageGameStart != "" {
