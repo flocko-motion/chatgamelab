@@ -66,6 +66,7 @@ func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSessi
 }
 
 // ExpandStory simulates streaming text expansion with mock lorem ipsum
+// Note: Mock platform ignores workshop constraints
 func (p *MockPlatform) ExpandStory(ctx context.Context, session *obj.GameSession, response *obj.GameSessionMessage, responseStream *stream.Stream) (obj.TokenUsage, error) {
 	// Generate lorem ipsum text and stream it word by word
 	fullText := lorem.Paragraph(5, 8)

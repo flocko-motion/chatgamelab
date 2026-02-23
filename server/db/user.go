@@ -252,6 +252,10 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			if res.WorkshopAiQualityTier.Valid {
 				aiQualityTier = &res.WorkshopAiQualityTier.String
 			}
+			var promptConstraints *string
+			if res.WorkshopPromptConstraints.Valid {
+				promptConstraints = &res.WorkshopPromptConstraints.String
+			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.WorkshopID.UUID,
 				Name:                       res.WorkshopName.String,
@@ -260,12 +264,17 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.WorkshopIsPaused.Bool,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 			}
 		} else if res.ActiveWorkshopID.Valid {
 			// Head/staff/individual in workshop mode - use active workshop
 			var aiQualityTier *string
 			if res.ActiveWorkshopAiQualityTier.Valid {
 				aiQualityTier = &res.ActiveWorkshopAiQualityTier.String
+			}
+			var promptConstraints *string
+			if res.ActiveWorkshopPromptConstraints.Valid {
+				promptConstraints = &res.ActiveWorkshopPromptConstraints.String
 			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.ActiveWorkshopID.UUID,
@@ -275,6 +284,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.ActiveWorkshopIsPaused.Bool,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 			}
 		}
 	}

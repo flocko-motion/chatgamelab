@@ -32,7 +32,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Name:             "GPT-5.2 + Audio",
 				Model:            "gpt-5.2",
 				ImageModel:       "gpt-image-1.5",
-				ImageQuality:     "medium",
+				ImageQuality:     "low",
 				Description:      "Highest + Audio",
 				SupportsImage:    true,
 				SupportsAudioIn:  true,
@@ -42,7 +42,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Name:            "GPT-5.2",
 				Model:           "gpt-5.2",
 				ImageModel:      "gpt-image-1.5",
-				ImageQuality:    "medium",
+				ImageQuality:    "low",
 				Description:     "Premium",
 				SupportsImage:   true,
 				SupportsAudioIn: true,
@@ -119,14 +119,11 @@ func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSes
 		req.Input = []InputMessage{{Role: "developer", Content: templates.PromptMessageStart}}
 	} else if modelSession.ResponseID != "" {
 		req.PreviousResponseID = modelSession.ResponseID
-		// Inject developer reminder with every player action to reinforce brevity
 		req.Input = []InputMessage{
-			{Role: "developer", Content: templates.ReminderExecuteAction},
 			{Role: "user", Content: actionInput},
 		}
 		// Set debug prompt showing full input sent to the AI
-		response.PromptStatusUpdate = functional.Ptr(
-			"[developer] " + templates.ReminderExecuteAction + "\n\n[user] " + actionInput)
+		response.PromptStatusUpdate = functional.Ptr("[user] " + actionInput)
 	}
 
 	responseStream := stream.Get().Lookup(response.ID)
@@ -225,7 +222,7 @@ func (p *OpenAiPlatform) ExpandStory(ctx context.Context, session *obj.GameSessi
 	req := ResponsesAPIRequest{
 		Model: model,
 		Input: []InputMessage{
-			{Role: "developer", Content: templates.PromptNarratePlotOutline(session.Language)},
+			{Role: "developer", Content: templates.PromptNarratePlotOutline(session.Language, session.WorkshopPromptConstraints)},
 		},
 		Store:              true,
 		Stream:             true,

@@ -400,6 +400,7 @@ export interface ObjWorkshop {
   meta?: ObjMeta;
   name?: string;
   participants?: ObjWorkshopParticipant[];
+  promptConstraints?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
@@ -744,6 +745,7 @@ export interface RoutesUpdateWorkshopRequest {
   designEditingEnabled?: boolean;
   isPaused?: boolean;
   name?: string;
+  promptConstraints?: string;
   public?: boolean;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;

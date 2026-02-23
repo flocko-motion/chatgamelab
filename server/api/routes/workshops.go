@@ -24,6 +24,7 @@ type UpdateWorkshopRequest struct {
 	Active                     bool    `json:"active"`
 	Public                     bool    `json:"public"`
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"`
+	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
@@ -213,6 +214,7 @@ func UpdateWorkshop(w http.ResponseWriter, r *http.Request) {
 		Active:                     req.Active,
 		Public:                     req.Public,
 		AiQualityTier:              req.AiQualityTier,
+		PromptConstraints:          req.PromptConstraints,
 		ShowPublicGames:            req.ShowPublicGames,
 		ShowOtherParticipantsGames: req.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       req.DesignEditingEnabled,
