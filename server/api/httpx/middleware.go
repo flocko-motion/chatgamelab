@@ -63,13 +63,13 @@ func Logging(next http.Handler) http.Handler {
 
 		next.ServeHTTP(wrapped, r)
 
+		// Skip logging CORS preflight requests
+		if r.Method == http.MethodOptions {
+			return
+		}
+
 		duration := time.Since(start)
-		log.Info("http request",
-			"method", r.Method,
-			"path", r.URL.Path,
-			"status", wrapped.status,
-			"duration", duration,
-		)
+		log.Info(fmt.Sprintf("%s %s → %d (%s)", r.Method, r.URL.Path, wrapped.status, formatDuration(duration)))
 
 		// Report error responses (4xx/5xx) to Sentry
 		if wrapped.status >= 400 {
@@ -163,6 +163,18 @@ func truncateBody(b []byte) string {
 		return string(b[:maxBodyCapture]) + "\n... [truncated]"
 	}
 	return string(b)
+}
+
+// formatDuration formats a duration in a compact human-readable form.
+func formatDuration(d time.Duration) string {
+	switch {
+	case d < time.Millisecond:
+		return fmt.Sprintf("%dµs", d.Microseconds())
+	case d < time.Second:
+		return fmt.Sprintf("%dms", d.Milliseconds())
+	default:
+		return fmt.Sprintf("%.2fs", d.Seconds())
+	}
 }
 
 // flattenHeaders converts http.Header to a simple map for Sentry extras.

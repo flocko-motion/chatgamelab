@@ -88,6 +88,13 @@ func (r *Registry) Remove(messageID uuid.UUID) {
 	}
 }
 
+// IsClosed returns whether the stream has been closed
+func (s *Stream) IsClosed() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.closed
+}
+
 // Send sends a chunk to the stream (non-blocking, drops if buffer full or closed)
 func (s *Stream) Send(chunk obj.GameSessionMessageChunk) {
 	s.mu.Lock()

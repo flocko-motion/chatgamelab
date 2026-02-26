@@ -62,8 +62,6 @@ func getAuth0Validator() *validator.Validator {
 		log.Error("failed to set up auth0 validator", "error", err)
 		return nil
 	}
-	log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
-
 	return auth0Validator
 }
 
@@ -200,8 +198,6 @@ func Authenticate(next http.Handler) http.Handler {
 			log.Error("failed to set up auth0 validator", "error", err)
 			return nil
 		}
-		log.Debug("auth0 validator initialized", "issuer", issuerURL.String())
-
 		auth0Middleware = jwtmiddleware.New(
 			jwtValidator.ValidateToken,
 			jwtmiddleware.WithErrorHandler(func(w http.ResponseWriter, r *http.Request, err error) {
@@ -266,7 +262,6 @@ func Authenticate(next http.Handler) http.Handler {
 				return
 			}
 
-			log.Debug("participant token authenticated", "user_id", user.ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
@@ -289,7 +284,6 @@ func Authenticate(next http.Handler) http.Handler {
 			}
 
 			user = db.CheckAndPromoteAdmin(r.Context(), user)
-			log.Debug("CGL JWT authenticated", "user_id", userId, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 			return
 		}
@@ -321,21 +315,25 @@ func Authenticate(next http.Handler) http.Handler {
 			token := tokenObj.(*validator.ValidatedClaims)
 			auth0ID := token.RegisteredClaims.Subject
 			if auth0ID == "" {
+				log.Warn("auth0 token has empty subject claim")
 				next.ServeHTTP(w, r)
 				return
 			}
+
+			log.Debug("auth0 token validated", "auth0_id", auth0ID, "auth0_id_length", len(auth0ID))
 
 			// Load user by Auth0 ID - do NOT auto-create
 			user, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
 			if err != nil {
 				// User not registered - frontend will get email/name from Auth0 directly
-				log.Debug("auth0 user not registered", "auth0_id", auth0ID)
+				log.Debug("auth0 user not registered", "auth0_id", auth0ID, "error", err)
 				WriteUserNotRegistered(w, auth0ID)
 				return
 			}
 
+			log.Debug("auth0 user found", "auth0_id", auth0ID, "user_id", user.ID, "user_name", user.Name)
+
 			user = db.CheckAndPromoteAdmin(r.Context(), user)
-			log.Debug("auth0 authenticated", "auth0_id", auth0ID, "user_name", user.Name)
 			next.ServeHTTP(w, WithUser(r, user))
 		})).ServeHTTP(w, r)
 	})
@@ -398,8 +396,6 @@ func RequireAuth0Token(h http.HandlerFunc) http.Handler {
 			WriteError(w, http.StatusUnauthorized, "Invalid token: missing subject")
 			return
 		}
-
-		log.Debug("auth0 token validated for registration", "auth0_id", auth0ID)
 
 		// Store Auth0 ID in context for the handler to use
 		ctx := context.WithValue(r.Context(), auth0IDContextKey, auth0ID)

@@ -13,6 +13,8 @@ const (
 	conversationsEndpoint = "/conversations"
 	mistralModelsEndpoint = "/models"
 	filesEndpoint         = "/files"
+	transcriptionEndpoint = "/audio/transcriptions"
+	transcriptionModel    = "voxtral-mini-latest"
 	translateModel        = "mistral-small-latest"
 	toolQueryModel        = "mistral-small-latest"
 )

@@ -1,10 +1,11 @@
 import { Alert } from "@mantine/core";
 import { IconKeyOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import type { SceneMessage } from "../types";
+import type { SceneMessage, PlayerActionInput } from "../types";
 import { SceneCard } from "./SceneCard";
 import { PlayerAction } from "./PlayerAction";
 import { SceneDivider } from "./SceneDivider";
+import { ApiKeyChangeIndicator } from "./ApiKeyChangeIndicator";
 import { TypingIndicator } from "./TypingIndicator";
 import { PlayerInput } from "./PlayerInput";
 import classes from "./GamePlayer.module.css";
@@ -13,8 +14,11 @@ interface MessageListProps {
   messages: SceneMessage[];
   isWaitingForResponse: boolean;
   isImageGenerationDisabled: boolean;
+  isAudioMuted: boolean;
   apiKeyUnavailable?: boolean;
-  onSendAction: (message: string) => Promise<void>;
+  apiKeyPlatform?: string | null;
+  audioEnabled?: boolean;
+  onSendAction: (input: PlayerActionInput) => Promise<void>;
   onRetryLastAction: () => void;
 }
 
@@ -22,7 +26,10 @@ export function MessageList({
   messages,
   isWaitingForResponse,
   isImageGenerationDisabled,
+  isAudioMuted,
   apiKeyUnavailable,
+  apiKeyPlatform,
+  audioEnabled,
   onSendAction,
   onRetryLastAction,
 }: MessageListProps) {
@@ -30,14 +37,19 @@ export function MessageList({
   const showImages = !isImageGenerationDisabled;
   const elements: React.ReactNode[] = [];
 
+  // Filter out internal messages (like "init" action)
+  const visibleMessages = messages.filter(msg => !msg.isInternal);
+
   // Track previous game message's status fields for showing changes
   let previousGameStatusFields: SceneMessage["statusFields"] = undefined;
+  // Track previous game message's API key type for showing key changes
+  let previousGameApiKeyType: string | undefined = undefined;
 
   // Collect system prompt text from system messages for the first game message
   let systemPromptText = "";
   let isFirstGameMessage = true;
 
-  messages.forEach((message, index) => {
+  visibleMessages.forEach((message, index) => {
     if (message.type === "player") {
       elements.push(
         <PlayerAction
@@ -51,36 +63,52 @@ export function MessageList({
     } else if (message.type === "system") {
       systemPromptText += (systemPromptText ? "\n\n" : "") + message.text;
     } else {
-      if (index > 0 && messages[index - 1]?.type !== "system") {
+      if (index > 0 && visibleMessages[index - 1]?.type !== "system") {
         elements.push(<SceneDivider key={`divider-${message.id}`} />);
+      }
+      // Show key change hint when API key type changes between game messages
+      if (
+        !isFirstGameMessage &&
+        message.apiKeyType &&
+        previousGameApiKeyType &&
+        message.apiKeyType !== previousGameApiKeyType
+      ) {
+        elements.push(
+          <ApiKeyChangeIndicator key={`key-change-${message.id}`} />,
+        );
       }
       elements.push(
         <SceneCard
           key={message.id}
           message={message}
           showImages={showImages}
+          isAudioMuted={isAudioMuted}
           previousStatusFields={previousGameStatusFields}
           systemPrompt={isFirstGameMessage ? systemPromptText : undefined}
           isFirstGameMessage={isFirstGameMessage}
         />,
       );
       isFirstGameMessage = false;
-      // Update previous status fields for next game message
+      // Update previous status fields and key type for next game message
       if (message.statusFields?.length) {
         previousGameStatusFields = message.statusFields;
+      }
+      if (message.apiKeyType) {
+        previousGameApiKeyType = message.apiKeyType;
       }
     }
   });
 
-  if (isWaitingForResponse && messages.length > 0) {
-    const lastMessage = messages[messages.length - 1];
+  if (isWaitingForResponse && visibleMessages.length > 0) {
+    const lastMessage = visibleMessages[visibleMessages.length - 1];
     if (lastMessage.type === "player" || !lastMessage.isStreaming) {
       elements.push(<TypingIndicator key="typing" />);
     }
   }
 
   // Show input inline when user can type, or a banner if API key is unavailable
-  if (!isWaitingForResponse && messages.length > 0) {
+  // Only show input after the first real (non-internal) message has arrived
+  if (!isWaitingForResponse && visibleMessages.length > 0) {
     if (apiKeyUnavailable) {
       elements.push(
         <div key="api-key-banner" className={classes.inlineInput}>
@@ -90,7 +118,7 @@ export function MessageList({
             icon={<IconKeyOff size={18} />}
             radius="md"
           >
-            {t("gamePlayer.error.noApiKey.banner")}
+            {t("gamePlayer.error.noApiKey.banner", { platform: apiKeyPlatform ?? "" })}
           </Alert>
         </div>,
       );
@@ -101,6 +129,7 @@ export function MessageList({
             onSend={onSendAction}
             disabled={isWaitingForResponse}
             placeholder={t("gamePlayer.input.placeholder")}
+            audioEnabled={audioEnabled}
           />
         </div>,
       );

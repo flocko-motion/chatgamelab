@@ -5,89 +5,90 @@
       "auth0Button": "Mit Auth0 einloggn",
       "devMode": "Entwicklungsmodus",
       "devModeAlert": {
-        "message": "Des is de Entwickler-Login-Seite. In Produktion wirst du glei direkt zu Auth0 weitergleitet.",
+        "message": "Des is d'Entwickler-Login-Seitn. Im Produktivbetrieb werdst glei direkt auf Auth0 umleitet.",
         "title": "Entwicklungsmodus"
       },
-      "devModeDescription": "Schneller Login fia Entwicklung und Tests",
+      "devModeDescription": "Schnella Login fia Entwicklung und Tests",
       "redirecting": {
-        "message": "Bitte warte kurz, mia leitn di zur Login-Seite weiter.",
-        "title": "Weiterleitung zu Auth0..."
+        "message": "Bitte wart a kloans Augnblick, während ma di auf d'Login-Seitn umleiten.",
+        "title": "Umleitung zu Auth0..."
       },
       "role": {
         "admin": "Als Admin einloggn",
         "guest": "Als Gast einloggn",
-        "student": "Als Schüla einloggn",
-        "teacher": "Als Lehra einloggn"
+        "student": "Als Schülerin/Schüler einloggn",
+        "teacher": "Als Lehrer/in einloggn"
       }
     },
     "participant": {
       "leaveConfirm": {
-        "confirm": "Workshop verlassen",
-        "message": "Bist du da si­cher, dassd den Workshop verlassen willst? Zum wiedabeitretn brauchst a neie Einladungslink.",
-        "title": "Workshop verlassen?"
+        "confirm": "Workshop verlaffa",
+        "message": "Bist da sicha, dassd diesen Workshop verlaffa mogst? Zum Wiedaeinsteign brauchst a neie Einladungslink.",
+        "title": "Workshop verlaffa?"
       },
-      "leaveWorkshop": "Workshop verlassen",
+      "leaveWorkshop": "Workshop verlaffa",
       "organization": "Organisation",
-      "role": "Workshop-Teilnehmer",
+      "role": "Workshop-Teilnehmer/in",
       "workshop": "Workshop"
     },
     "profile": {
-      "gamesCreated": "Erstellte Spiele",
-      "gamesPlayed": "Gespielte Spiele",
-      "memberSince": "Angmeldt seit",
-      "messagesSent": "Gschickte Nachrichten",
-      "noOrganization": "Koa Organisation",
-      "noRole": "Koa Rolle zugewiesen",
+      "gamesCreated": "Spui erstellt",
+      "gamesPlayed": "Spui gspuit",
+      "memberSince": "Registriert seit",
+      "messagesSent": "Nachrichtn gschickt",
+      "noOrganization": "Koane Organisation",
+      "noRole": "Koane Roll zuaweist",
       "organization": "Organisation",
-      "organizationSection": "Organisation \u00026 Rolle",
-      "role": "Rolle",
+      "organizationSection": "Organisation \nmp; Roll",
+      "role": "Roll",
       "roles": {
-        "admin": "Administrator",
-        "head": "Leitunga",
-        "participant": "Teilnehmer",
-        "staff": "Mitarbeiter"
+        "admin": "Administrator/in",
+        "head": "Leitung vo da Organisation",
+        "individual": "Privatperson",
+        "participant": "Teilnehmer/in",
+        "staff": "Workshop-Leitung"
       },
       "statisticsSection": "Statistiken",
       "title": "Profil",
-      "totalPlaysOnGames": "Insgesamt gspui­te Runden meiner Spiele"
+      "totalPlaysOnGames": "Gsamte Spuidurchgänge auf meine Spiele"
     },
     "register": {
-      "cancelButton": "Abbrechm",
-      "emailDescription": "Dazu verwenden mia zum Beispiel für wichtige Benachrichtigungen.",
-      "emailLabel": "E-Mail-Adresse",
+      "cancelButton": "Abbrecha",
+      "emailDescription": "D'Adress nutzn ma fia wichtige Benachrichtigungen.",
+      "emailLabel": "E-Mail-Adress",
       "emailPlaceholder": "Gib dei E-Mail ei",
       "errors": {
-        "emailInvalid": "Bitte gib a gültige E-Mail-Adressn ei",
-        "emailRequired": "E-Mail is erforderlich",
-        "nameRequired": "Name is erforderlich",
-        "nameTaken": "Der Name is scho weggeben",
-        "nameTooLong": "Name darf höchstens 24 Zeichen hom",
-        "registrationFailed": "Registrierung is fehlganga. Probier's bitte nomoi."
+        "emailInvalid": "Bitte gib a gültige E-Mail-Adress ei",
+        "emailRequired": "E-Mail is Pflicht",
+        "nameRequired": "Nam is Pflicht",
+        "nameTaken": "Diesen Nam gibt's scho",
+        "nameTooLong": "Nam derf höchstens 24 Zeichn ham",
+        "registrationFailed": "Registrierung is scheitert. Probier's no amoi."
       },
-      "nameDescription": "So sehen di die andern Nutzer. Maximal 24 Zeichen.",
-      "nameLabel": "Anzeigename",
-      "namePlaceholder": "Gib dei Anzeigenamen ei",
+      "nameDescription": "So seng di de andern Nutzer/innen. Maximal 24 Zeichn.",
+      "nameLabel": "Anzeigenam",
+      "namePlaceholder": "Gib dei Anzeigenam ei",
       "submitButton": "Konto erstellen",
       "submitting": "Konto werd erstellt...",
-      "subtitle": "No a paar Details, dann kanns losgeh",
-      "title": "Profil vervollständigen"
+      "subtitle": "Nur no a paar Details, dann geht's los",
+      "title": "Vervollständig dei Profil"
     },
     "settings": {
       "accountSection": "Konto",
-      "emailChangeNote": "Um de E-Mail-Adressn z'ändern, wend di bitte an'n Administrator.",
+      "emailChangeNote": "Wennst dei E-Mail ändern wui, meld di bitte beim Seiten-Admin.",
       "errors": {
-        "nameRequired": "Name is erforderlich",
-        "nameTaken": "Der Name is scho weggeben",
-        "nameTooLong": "Name darf höchstens 24 Zeichen hom",
-        "saveFailed": "Speichern hat ned geklappt. Probier's bitte nomoi."
+        "nameRequired": "Nam is Pflicht",
+        "nameTaken": "Diesen Nam gibt's scho",
+        "nameTooLong": "Nam derf höchstens 24 Zeichn ham",
+        "saveFailed": "Änderungen ham si ned speichan lassn. Probier's bittschee no amoi."
       },
-      "nameDescription": "So sehen di die andern Nutzer. Maximal 24 Zeichen.",
-      "nameLabel": "Anzeigename",
-      "namePlaceholder": "Gib dei Anzeigenamen ei",
-      "saveButton": "Änderungen speichern",
-      "saved": "Änderungen erfolgreich g'speichert",
-      "saving": "Wird g'speichert...",
-      "subtitle": "Verwalt dei Konto-Einstellungen",
+      "nameDescription": "So seng di de andern Nutzer/innen. Maximal 24 Zeichn.",
+      "nameLabel": "Anzeigenam",
+      "namePlaceholder": "Gib dei Anzeigenam ei",
+      "saveButton": "Änderungen speichan",
+      "saved": "Änderungen erfolgreich gspeichat",
+      "saving": "Am Speichan...",
+      "subtitle": "Verwalt deine Kontoeinstellungen",
       "title": "Einstellungen"
     }
   },
@@ -96,246 +97,331 @@
     "admin": {
       "invites": {
         "actions": "Aktionen",
-        "empty": "Koa ausstehende Einladungen.",
-        "invitedEmail": "Einglade E-Mail",
-        "modifiedAt": "Geändert",
-        "noResults": "Koa Einladungen treffen auf dei Suach zu.",
+        "empty": "Koane offenen Einladungen.",
+        "invitedEmail": "Eingeladene E-Mail",
+        "modifiedAt": "Bearbeitet",
+        "noResults": "Koane Einladungen passn zu deiner Suach.",
         "organization": "Organisation",
         "revokeConfirm": {
           "confirm": "Löschn",
-          "message": "Bist du si­cher, dassd de Einladung löschst? Des geht ned rückgängig.",
-          "title": "Einladung löschen"
+          "message": "Bist da sicha, dassd diese Einladung löschn mogst? Des laßt si nimma rückgängig macha.",
+          "title": "Einladung löschn"
         },
-        "role": "Rolle",
-        "searchPlaceholder": "Suach nach E-Mail, Rolle, Status oder Organisation...",
+        "role": "Roll",
+        "searchPlaceholder": "Suach nach E-Mail, Roll, Status oder Organisation...",
         "sort": {
-          "label": "Sortieren nach",
-          "modifiedAt-asc": "Geändert (Älteste)",
-          "modifiedAt-desc": "Geändert (Neueste)",
+          "label": "Sortiern noch",
+          "modifiedAt-asc": "Bearbeitet (oideste)",
+          "modifiedAt-desc": "Bearbeitet (neiste)",
           "organization-asc": "Organisation (A-Z)",
           "organization-desc": "Organisation (Z-A)",
-          "role-asc": "Rolle (A-Z)",
-          "role-desc": "Rolle (Z-A)",
+          "role-asc": "Roll (A-Z)",
+          "role-desc": "Roll (Z-A)",
           "status-asc": "Status (A-Z)",
           "status-desc": "Status (Z-A)"
         },
         "status": "Status",
         "statuses": {
-          "accepted": "Akzeptiert",
+          "accepted": "Angnomma",
           "declined": "Abg'lehnt",
-          "expired": "Abg'laufn",
-          "pending": "Ausstehend",
-          "revoked": "Widerrufen"
+          "expired": "Abg'laffa",
+          "pending": "Offen",
+          "revoked": "Zurückzogn"
         },
-        "title": "Ausstehende Einladungen"
+        "title": "Offene Einladungen"
       },
       "organizations": {
         "actions": "Aktionen",
         "create": "Organisation erstellen",
         "createTitle": "Neie Organisation erstellen",
-        "deleteConfirm": "Bist du si­cher, dassd \"{{name}}\" löschen willst? Des geht ned rückgängig.",
-        "deleteTitle": "Organisation löschen",
-        "editTitle": "Organisation bearbeiten",
-        "email": "E-Mail-Adresse",
-        "emailPlaceholder": "E-Mail-Adresse ei geben",
-        "empty": "No kane Organisationen. Erstell oane zum Loslegn.",
-        "inviteDescription": "Schick a Einladung, damit jemand z'{{name}} als Leitunga wird.",
-        "inviteTitle": "Zur Organisation einladen",
+        "deleteConfirm": "Bist da sicha, dassd \"{{name}}\" löschn mogst? Des laßt si nimma rückgängig macha.",
+        "deleteTitle": "Organisation löschn",
+        "editTitle": "Organisation bearbeitn",
+        "email": "E-Mail-Adress",
+        "emailPlaceholder": "E-Mail-Adress eigebn",
+        "empty": "No koane Organisationen. Leg glei oane o, damits losgeh kann.",
+        "inviteDescription": "Schick a Einladung, damit {{name}} as Organisationshaupt werd.",
+        "inviteTitle": "In Organisation einladen",
         "memberEmail": "E-Mail",
-        "memberName": "Name",
-        "memberRole": "Rolle",
-        "members": "Mitglieda",
-        "membersCount": "Mitglieda",
-        "membersList": "Mitglieda",
-        "name": "Name",
-        "namePlaceholder": "Organisations-Name ei gebn",
-        "noMembers": "Koa Mitglieder in dera Organisation.",
+        "memberName": "Nam",
+        "memberRole": "Roll",
+        "members": "Mitglida",
+        "membersCount": "Mitglida",
+        "membersList": "Mitglida",
+        "name": "Nam",
+        "namePlaceholder": "Organisationsnam eigebn",
+        "noMembers": "In dera Organisation gibt's no koane Mitglida.",
         "removeMember": "Mitglied entfern",
-        "removeMemberConfirm": "Bist du si­cher, dassd {{name}} aus dera Organisation entfern willst?",
-        "searchPlaceholder": "Organisationen durchsuchen...",
-        "sendInvite": "Einladung senden",
+        "removeMemberConfirm": "Bist da sicha, dassd {{name}} aus dera Organisation entfernen mogst?",
+        "searchPlaceholder": "Organisationen durchsua...",
+        "sendInvite": "Einladung schicka",
         "title": "Organisationen verwalten"
       },
       "users": {
         "actions": "Aktionen",
-        "deleteConfirm": "Bist du si­cher, dassd \"{{name}}\" löschen willst? Des geht ned rückgängig.",
-        "deleteTitle": "Benutzer löschen",
-        "editEmail": "E-Mail bearbeiten",
-        "editTitle": "Benutzer bearbeiten",
-        "editingUser": "Benutzer bearbeiten: {{name}}",
+        "deleteConfirm": "Bist da sicha, dassd \"{{name}}\" löschn mogst? Des laßt si nimma rückgängig macha.",
+        "deleteTitle": "Nutzer/in löschn",
+        "editEmail": "E-Mail bearbeitn",
+        "editTitle": "Nutzer/in bearbeitn",
+        "editingUser": "Bearbeite Nutzer/in: {{name}}",
         "email": "E-Mail",
-        "emailPlaceholder": "E-Mail-Adresse ei gebn",
-        "empty": "Koa Benutzer gfundn.",
+        "emailPlaceholder": "E-Mail-Adress eigebn",
+        "empty": "Koane Nutzer/innen gfundn.",
         "hideGuests": "Gäste ausblenden ({{count}})",
-        "joined": "Beigetreten",
-        "loadError": "Benutzer kinna ned g'ladn werdn",
-        "makeAdmin": "Zum Admin machn",
+        "hideGuestsShort": "Gäste ({{count}})",
+        "joined": "Beitretn",
+        "loadError": "Nutzer/innen ham si ned laden lassn",
+        "makeAdmin": "Zu Admin machn",
         "me": "I",
-        "name": "Name",
-        "noEmail": "Koa E-Mail",
-        "noResults": "Koa Benutzer treffn auf dei Suach zu.",
-        "noRole": "Koa Rolle",
+        "name": "Nam",
+        "noEmail": "Koane E-Mail",
+        "noResults": "Koane Nutzer/innen entsprechen da Suach.",
+        "noRole": "Koane Roll",
         "organization": "Organisation",
-        "promoteConfirm": "Bist du si­cher, dassd \"{{name}}\" ({{email}}) zum Admin machn willst?",
+        "promoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zum Admin machst?",
         "promoteTitle": "Zum Admin befördern",
-        "promoteWarning": "Der Benutzer kriagt volle Admin-Rechte im System.",
-        "removeAdmin": "Admin entfernen",
-        "removeAdminConfirm": "Bist du si­cher, dassd die Admin-Rolle von \"{{name}}\" ({{email}}) entfernen willst?",
-        "removeAdminTitle": "Admin-Rolle entfernen",
-        "removeAdminWarning": "Der Benutzer verliert alle administrativen Rechte.",
-        "role": "Rolle",
-        "searchPlaceholder": "Suach nach Name, E-Mail, Rolle oder Organisation...",
-        "showing": "Zeigt {{count}} vo {{total}} Benutzern",
+        "promoteWarning": "Der/die Nutzer/in kriagt vollen Admin-Zugriff aufs System.",
+        "removeAdmin": "Admin entferna",
+        "removeAdminConfirm": "Bist da sicha, dassd bei \"{{name}}\" ({{email}}) d'Admin-Roll wegnimmst?",
+        "removeAdminTitle": "Admin-Roll entferna",
+        "removeAdminWarning": "Der/die Nutzer/in verliert damit alle Admin-Rechte.",
+        "role": "Roll",
+        "searchPlaceholder": "Suach nach Nam, E-Mail, Roll oder Organisation...",
+        "showing": "{{count}} von {{total}} Nutzer/innen",
         "sort": {
           "email-asc": "E-Mail (A-Z)",
           "email-desc": "E-Mail (Z-A)",
-          "joined-asc": "Beigetreten (Älteste)",
-          "joined-desc": "Beigetreten (Neueste)",
-          "label": "Sortieren nach",
-          "name-asc": "Name (A-Z)",
-          "name-desc": "Name (Z-A)",
+          "joined-asc": "Beitretn (oideste)",
+          "joined-desc": "Beitretn (neiste)",
+          "label": "Sortiern noch",
+          "name-asc": "Nam (A-Z)",
+          "name-desc": "Nam (Z-A)",
           "organization-asc": "Organisation (A-Z)",
           "organization-desc": "Organisation (Z-A)",
-          "role-asc": "Rolle (A-Z)",
-          "role-desc": "Rolle (Z-A)"
+          "role-asc": "Roll (A-Z)",
+          "role-desc": "Roll (Z-A)"
         },
-        "title": "Benutzer verwalten"
+        "title": "Nutzer/innen verwalten"
       }
     },
+    "aiQualityTier": {
+      "high": "Hoch (Premium)",
+      "label": "KI-Qualitätsstufn",
+      "low": "Niedrig (Sparmodus)",
+      "max": "Max (Premium + Audio)",
+      "medium": "Mittel (Ausgwogn)",
+      "serverDefault": "Server-Standard"
+    },
     "allGames": {
-      "continue": "Weiterspui'n",
+      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
-        "message": "Des erstellt a Kopie vo \"{{name}}\" in dei Spiele.",
+        "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
         "title": "Spui kopiern"
       },
       "copyGame": "Spui kopiern",
       "empty": {
-        "description": "Probier dei Filter z'ändan oder schau später wieda noh nei Spielen.",
-        "title": "Koa Spiele gfundn"
+        "description": "Probier dei Filter anzupassn oder schau späder no amoi vorbei.",
+        "title": "Koane Spiele gfundn"
       },
-      "favorite": "Zu Favoriten dazua fangn",
+      "favorite": "Zu Favoriten dazuah",
       "filters": {
-        "all": "Olle Spiele",
+        "all": "Alle Spiele",
         "favorites": "Favoriten",
         "own": "Meine Spiele",
-        "public": "Öffentlich"
+        "public": "Öffentlich",
+        "sponsored": "G'sponsert"
       },
-      "play": "Spui'n",
-      "restart": "Neu startn",
+      "play": "Spuin",
+      "restart": "Neistart",
       "restartConfirm": {
-        "confirm": "Neu startn",
-        "message": "Mechts du wirklich \"{{game}}\" neu startn? Dei aktueller Fortschritt geht verlorn.",
+        "confirm": "Neistart",
+        "message": "Bist da sicha, dassd \"{{game}}\" neu startn mogst? Dei aktueller Fortschritt geht valorn.",
         "title": "Spui neu startn"
       },
       "title": "Alle Spiele",
-      "unfavorite": "Aus Favoriten entfern"
+      "unfavorite": "Aus Favoriten entferna"
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "API-Schlüssal werdn gebraucht, damit ma si mit KI-Plattformen verbindet zum Generiern vo Spielinhalten.",
-        "title": "Zu API-Schlüssal"
+        "description": "API-Schlüssel verbindn di Plattform mit KI-Diensten, damit Spui-Inhalt erzeugt werd. Da ausgewählte Schlüssl (mit Hakerl) werd standardmäßig b'm Erstellen vo neien Spui-Sessions nutzt.",
+        "title": "Über API-Schlüssel"
       },
-      "addKey": "Schlüssal hinzufügn",
+      "addKey": "Schlüssl hinzufügen",
       "addedOn": "Hinzugefügt",
+      "aiQualityTier": {
+        "description": "Wähle d'KI-Qualitätsstufn fia dei Spiele, wennst an eigenen API-Schlüssl nutzt. Höhere Stufn kostn mehr, san aber oft besser. Lass leer, wenn da Server-Standard ziagn soi."
+      },
       "createModal": {
-        "keyDescription": "Dein Schlüssal wird verschlüsselt und sicher gspeichert.",
-        "keyLabel": "API-Schlüssal",
-        "keyPlaceholder": "Gib dei API-Schlüssal ei",
-        "nameLabel": "Schlüssalname",
-        "namePlaceholder": "z.B. Mei OpenAI-Schlüssal",
+        "keyDescription": "Dei Schlüssl werd verschlüsselt und sicha gspeichat.",
+        "keyLabel": "API-Schlüssl",
+        "keyPlaceholder": "API-Schlüssl eigebn",
+        "nameLabel": "Schlüsslnam",
+        "namePlaceholder": "z. B. Mei OpenAI-Schlüssl",
         "platformLabel": "Plattform",
         "platformPlaceholder": "Plattform auswähln",
-        "submit": "Schlüssal hinzufügn",
-        "title": "Neien API-Schlüssal hinzufügn"
+        "submit": "Schlüssl hinzufügen",
+        "title": "Neien API-Schlüssl hinzufügen"
       },
+      "currentDefault": {
+        "label": "Aktiva API-Schlüssl",
+        "none": "Koan Standardschlüssl konfiguriert. Füg an Schlüssl hinzu, damit's losgeh kann."
+      },
+      "default": "Standard",
       "deleteModal": {
-        "message": "Mechts du \"{{name}}\" wirklich löschen?",
-        "title": "API-Schlüssal löschen",
-        "warning": "Des geht ned rückgängig. Der Schlüssal wird endgültig gelöscht."
+        "message": "Bist da sicha, dassd \"{{name}}\" löschn mogst?",
+        "title": "API-Schlüssel löschn",
+        "warning": "Des laßt si nimma rückgängig macha. Da Schlüssl werd endgültig entfernt."
       },
       "errors": {
-        "invalidPlatform": "Ungültige Plattform auswählt. Bitte a gültige KI-Plattform nehma.",
-        "keyRequired": "API-Schlüssal is erforderlich",
-        "loadFailed": "API-Schlüssal kinna ned g'ladn werdn. Probier's bitte nomoi.",
-        "nameRequired": "Name is erforderlich",
-        "platformRequired": "Plattform is erforderlich"
+        "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte such da a gültige KI-Plattform aus.",
+        "keyRequired": "API-Schlüssl is Pflicht",
+        "loadFailed": "API-Schlüssel ham si ned laden lassn. Probier's no amoi.",
+        "nameRequired": "Nam is Pflicht",
+        "platformRequired": "Plattform is Pflicht"
       },
-      "key": "Schlüssal",
-      "keys": "Schlüssal",
-      "subtitle": "Verwalt dei API-Schlüssal fia KI-Plattformen.",
-      "title": "API-Schlüssal verwalten",
-      "unnamed": "Unbenannter Schlüssal",
+      "key": "Schlüssl",
+      "keys": "Schlüssel",
+      "platform": "Plattform",
+      "setDefault": "Als Standard setzn",
+      "shares": {
+        "goToOrg": "Verwalten",
+        "noOrgShares": "Mit koana Organisation gteilt",
+        "noSponsorships": "Koane Spui-Sponsoringe",
+        "orgShares": "Organisations-Teilungen",
+        "privateShares": "Private Teil-Links",
+        "remaining": "{{count}} übrig",
+        "removeSponsor": "Sponsoring entferna",
+        "revokePrivateShare": "Teil-Link zurückzieh",
+        "sponsorships": "Spui-Sponsoringe",
+        "toggle": "Teilungen \u00026 Sponsoring",
+        "unknownGame": "Unbekannts Spui",
+        "unknownOrg": "Unbekannte Organisation",
+        "unknownUser": "Unbekannte Person",
+        "unknownWorkshop": "Unbekannter Workshop"
+      },
+      "status": {
+        "failed": "Schlüssl funktioniert ned",
+        "unknown": "Schlüssl no ned verwendet",
+        "working": "Schlüssl funktioniert"
+      },
+      "subtitle": "Verwalt deine API-Schlüssel fia KI-Plattformen.",
+      "title": "API-Schlüssel-Verwaltung",
+      "unnamed": "Namenloser Schlüssl",
       "unsupportedPlatform": {
-        "badge": "nid unterstützt",
-        "hint": "Diese Plattform werd zurzeit ned unterstützt. Du kannst nur vorhandene Schlüssal entfern."
+        "badge": "ned unterstützt",
+        "hint": "Diese Plattform wird aktuell ned unterstützt. Du kannst nua bestehende Schlüssel entfernen."
       }
     },
-    "back": "Zurück",
-    "cancel": "Abbrechm",
-    "close": "Zua",
+    "back": "Zruck",
+    "cancel": "Abbrecha",
+    "close": "Zumachen",
     "copyGame": "Spui kopiern",
     "create": "Erstelln",
     "delete": "Löschn",
-    "deleteGame": "Spui lösch'n",
+    "deleteGame": "Spui löschn",
+    "demoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zum Lehrer/zur Lehrerin zurückstufst?",
+    "demoteTitle": "Zum Lehrer/zur Lehrerin zurückstufn",
+    "demoteToStaff": "Zum Lehrer/zur Lehrerin zurückstufn",
     "edit": "Bearbeitn",
     "editGame": "Spui bearbeitn",
+    "email": "E-Mail",
+    "emailPlaceholder": "E-Mail-Adress eigebn",
+    "empty": "Koane Mitglida in dera Organisation.",
     "error": "Fehler",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Institut für Medienpädagogik",
-      "programmedBy": "Programmiert vo"
+      "jffTitle": "JFF - Institut fia Bildungsforschung und Innovation",
+      "programmedBy": "Programmiert von"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "sections": {
+          "expandStory": "Anweisungen an d'KI, wia d'Gschicht ausformuliert werd",
+          "imageGeneration": "Anweisungen vo da KI fia d'Bilderstellung",
+          "rawResponse": "Unbearbeitete KI-Antwort",
+          "responseSchema": "Vorgschriebene Struktur fia d'KI-Antwort",
+          "statusUpdate": "Prompt, wos an d'KI gschickt wurd",
+          "systemPrompt": "Spui-Anweisungen fia d'KI"
+        },
+        "title": "KI-Anfrogn / Antwortn",
+        "toggle": "KI-Einblick",
+        "tokens": {
+          "received": "Tokens empfangen",
+          "sent": "Tokens gschickt"
+        }
+      },
       "debug": {
         "fields": {
           "id": "Nachrichten-ID",
           "imagePrompt": "Bild-Prompt",
           "isStreaming": "Streaming",
-          "seq": "Sequenz",
+          "seq": "Reihnfolgn",
           "statusFields": "Status-Felder",
           "timestamp": "Zeitstempel",
           "type": "Typ"
         },
         "hints": {
-          "id": "Eindeutige Kennung vo dera Nachricht",
-          "imagePrompt": "Prompt fia d' Bildgenerierungs-KI",
-          "isStreaming": "Ob no Inhalt empfangen wird",
-          "seq": "Reihenfolg im G'spräch",
-          "statusFields": "Spielzustands-Variablen, de vo da KI verfolgt werdn",
-          "timestamp": "Wann d' Nachricht erstellt worn is",
-          "type": "player = Spielereingabe, game = KI-Antwort, system = Kontext"
+          "id": "Eindeutige Kennung fia diese Nachricht",
+          "imagePrompt": "Prompt, der an d'Bild-KI gschickt wurd",
+          "isStreaming": "Ob grad no Inhalt eintrudelt",
+          "seq": "Reihnfolgn im Gspräch",
+          "statusFields": "Spui-Variablen, de d'KI nachhält",
+          "timestamp": "Wann de Nachricht entstandn is",
+          "type": "player = Nutzereingabe, game = KI-Antwort, system = Kontext"
         },
-        "title": "Debug-Info"
+        "title": "Debug-Infos"
       },
       "error": {
-        "backToGames": "Zurück zu de Spiele",
+        "backToGames": "Zruck zu de Spiele",
         "gameNotFound": "Spui ned gfundn",
-        "missingFields": "Dem Spui fehl'n erforderliche Felder:",
-        "sessionFailed": "Spielsitzung konnt ned gstartet werdn"
+        "missingFields": "Beim Spui fehlen Pflichtfelder:",
+        "noApiKey": {
+          "banner": "Da API-Schlüssl, der vorher fia dieses Spui nutzt wor, is nimma verfiegbar. Damitst weidaspui kannst, leg an eigenen API-Schlüssl in dine Kontoeinstellungen an.",
+          "goToSettings": "API-Schlüssel-Einstellungen",
+          "personal": "Du brauchst an API-Schlüssl, bevorst spuin kannst. Füg in deine API-Schlüssel-Einstellungen oana dazu.",
+          "title": "Koan API-Schlüssl verfiegbar",
+          "workshop": "Fia diesen Workshop is koa API-Schlüssl konfiguriert. Bitte setz di mit da Workshop-Leitung in Verbindung."
+        },
+        "retry": "No amoi probiern",
+        "sendFailed": "Nachricht hod si ned schicka lassn. Probier's no amoi.",
+        "sessionFailed": "Spui-Session konnt ned gstartet werdn"
       },
       "header": {
-        "back": "Zurück zu deinen anderen laufenden Spielen",
+        "back": "Zruck zu de Spiele",
         "debug": "Debug",
-        "decreaseFont": "Schrift verkleina",
-        "disableAnimations": "Animationen aus",
-        "increaseFont": "Schrift vergrößern",
+        "decreaseFont": "Kleiner",
+        "disableAnimations": "Animationen deaktiviern",
+        "disableTextEffects": "Texteffekte ausschaltn",
+        "fontSize": "Schriftgröß",
+        "increaseFont": "Größer",
+        "muteAudio": "Erzählstimm stumm",
+        "resetFont": "Zurücksetzn",
         "settings": "Einstellungen",
-        "useNeutralTheme": "Neutrales Design verwenden"
+        "unmuteAudio": "Erzählstimm einschaltn",
+        "useNeutralTheme": "Neutrales Design nutzn"
       },
       "input": {
-        "placeholder": "Was machst du?",
-        "send": "Aktion senden"
+        "audioCancel": "Aufnahme abbrecha",
+        "audioProcessing": "Wird verrechnet…",
+        "audioRecording": "Nimmt auf…",
+        "audioStart": "Sprachaufnahme startn",
+        "audioStop": "Aufnahme schicka",
+        "audioUnavailableMessage": "Sprach-Eingabe is mit de aktuelle API-Schlüssel-Einstellungen ned verfiegbar. Wechsel auf a höhere Qualitätsstufn (Premium oder Max), damits geht.",
+        "audioUnavailableTitle": "Sprach-Eingabe ned verfiegbar",
+        "placeholder": "Was mochst du?",
+        "send": "Aktion schicka"
       },
       "loading": {
-        "game": "Spui werd g'ladn...",
-        "starting": "Spielsitzung wird gstartet...",
+        "game": "Spui wird glada...",
+        "resolvingKey": "API-Schlüssl wird bestimmt...",
+        "starting": "Spui-Session startet...",
         "startingHint": "D'KI bereitet dei Abenteuer vor"
       },
       "needsApiKey": {
-        "description": "Der API-Schlüssal fia de Sitzung is ned mehr verfügbar. Bitte wähl an neien, damit's weitergoint.",
+        "description": "Da API-Schlüssl, der fia diese Session nutzt wor, is nimma verfiegbar.",
         "reason": "Dein vorheriger API-Schlüssal is ned mehr verfügbar. Um wida z'spui'n, wähl bitt an neien.",
-        "title": "API-Schlüssal nötig"
+        "title": "API-Schlüssl nötig"
       },
       "selectApiKey": {
         "keyDescription": "Wähl den API-Schlüssal fia de Spielsitzung",
@@ -357,6 +443,13 @@
       "unnamed": "Unbenannt"
     },
     "games": {
+      "actions": {
+        "delete": "Löschn",
+        "edit": "Bearbeitn",
+        "export": "Exportiern",
+        "play": "Spuin",
+        "view": "Achaugn"
+      },
       "badges": {
         "myGame": "Mei Spui",
         "public": "Öffentlich",
@@ -364,114 +457,270 @@
       },
       "createButton": "Spui erstellen",
       "createModal": {
-        "descriptionPlaceholder": "Worum geht's in deinem Spui?",
-        "namePlaceholder": "z.B. Weltraumabenteuer",
-        "publicDescription": "Öffentliche Spiele kenn jeda findn.",
-        "publicLabel": "Des Spui öffentlich macha",
+        "descriptionPlaceholder": "Um was geht's in deinem Spui?",
+        "namePlaceholder": "z. B. Weltraum-Abentea",
+        "publicDescription": "Öffentliche Spiele kennan ois findn.",
+        "publicLabel": "Spui öffentlich macha",
         "submit": "Spui erstellen",
         "title": "Neies Spui erstellen"
       },
       "deleteModal": {
-        "message": "Mechts du \"{{name}}\" wirklich lösch'n?",
-        "title": "Spui lösch'n",
-        "warning": "Des geht ned rückgängig. Ois Spieldaten werdn endgültig gelöscht."
+        "message": "Bist da sicha, dassd \"{{name}}\" löschn mogst?",
+        "title": "Spui löschn",
+        "warning": "Des laßt si nimma rückgängig macha. Ois Spui-Daten werdn endgültig entfernt."
       },
       "editFields": {
-        "description": "Gib dem Spui a koane Beschreibung. Des is nur fia di und hod koa Einfluss aufs Spui.",
-        "gameStart": "Wie fangt's Spui o?",
-        "gameStartHint": "Wie soll's o'ganga? Was is d' erste Szene? Wie werd d' Spielfigur begrüßt?",
-        "gameStartPlaceholder": "De Spielfigur wacht am Rand vo am dunkln Wald auf. A enger Pfad führt tiefer nei in de Bäum...",
-        "imageStyle": "Welchen Stil soin d' Bilder ham?",
-        "imageStyleHint": "Z.B.: Comic, realistisch, Pixel-Art, Aquarell...",
-        "name": "Spuiname",
-        "scenario": "Worum geht's im Spui",
-        "scenarioHint": "Beschreib kurz: Wie funktioniert's Spui? Wie schaut d' Welt aus? Sprache \u00026 Ton (z.B. Spanisch fia Sechsklässla)?\nWelche Rolle hot d' Spielfigur? Schreib \"Die Spielfigur ...\".\nWenn d' KI a bestimmte Person spielen soll, schreib \"Du bist ...\".",
-        "scenarioPlaceholder": "Die Spielfigur is a Entdecker in am geheimnisvollen Wald. S' Ziel is, den versteckten Schatz z'findn...",
-        "statusFields": "Spielwerte",
-        "statusFieldsHint": "Welche Werte soll des Spui nachhalten? Z.B. Leben, Punkte oder Munition. Des Spui merkt si de Werte und ändert's beim Spielen."
+        "description": "Gib am Spui a kurze Beschreibung. Des is nua fia di und beeinflusst's Spui ned.",
+        "gameStart": "Wia fangt des Spui o?",
+        "gameStartHint": "Was passiert am Anfang? Beschreib die erschte Szene, de Spieler/innen seng. Wia werd da Spieler begrüßt?",
+        "gameStartPlaceholder": "Du wachst am Rand vo am finstarn Woid auf. A schmoier Steig führt tiefer in de Bäum...",
+        "imageStyle": "In welchem Stoi sölln d'Bilder sei?",
+        "imageStyleHint": "Zum Beispui: Cartoon, realistisch, Pixel-Art, Aquarell...",
+        "name": "Spuinam",
+        "scenario": "Um was geht's im Spui?",
+        "scenarioHint": "Beschreib kurz: Wia funktioniert des Spui? Wia schaut d'Welt aus? Sprach \u00026 Ton (z. B. Spanisch fia Sechsklassler)?\nWelche Roll hod da Spieler? Schreib \"Da Spieler ...\".\nWenn d'KI a bestimmte Person spuin soi, schreib \"Du bist ...\".",
+        "scenarioPlaceholder": "Du bist a Entdecker in am geheimnisvollen Woid. Dei Ziel is, den versteckten Schatz zu findn...",
+        "statusFields": "Spui-Werte",
+        "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin."
       },
       "editModal": {
-        "title": "Spui bearbeiten",
+        "title": "Spui bearbeitn",
         "unsavedChanges": {
           "discard": "Änderungen verwerfn",
           "keepEditing": "Weiter bearbeiten",
-          "message": "Du host ungespeicherte Änderungen. Mechts du wirklich verwerfn?",
-          "title": "Ungespeicherte Änderungen"
+          "message": "Du host no ned gspeichat. Bist da sicha, dassd ois verwerfn mogst?",
+          "title": "Ungspeicherte Änderungen"
         }
       },
       "empty": {
-        "description": "Erstell dei erschts Spui und leg los mit interaktiven, KI-gestützten Abenteuer.",
-        "title": "No kane Spiele"
+        "description": "Erstell dei erstes Spui und leg mit interaktiven KI-Abenteuern los.",
+        "title": "Noch koane Spiele"
       },
       "errors": {
-        "loadFailed": "Spiele kinna ned g'ladn werdn. Probier's bitte nomoi.",
-        "nameRequired": "Spuiname is erforderlich"
+        "loadFailed": "Spiele ham si ned laden lassn. Probier's no amoi.",
+        "nameRequired": "Spuinam is Pflicht",
+        "nameTooLong": "Spuinam derf höchstens 70 Zeichn ham"
       },
       "fields": {
         "created": "Erstellt",
-        "creator": "Ersteller",
+        "creator": "Ersteller/in",
         "me": "I",
-        "modified": "Geändert",
-        "name": "Name",
-        "playCount": "Gspui't",
+        "modified": "Bearbeitet",
+        "name": "Nam",
+        "playCount": "Spuidurchgänge",
         "visibility": "Sichtbarkeit"
       },
       "importExport": {
         "exportButton": "Spui exportiern",
         "importButton": "Spui importiern"
       },
-      "playNow": "Glei spui'n",
+      "playNow": "Glei spuin",
+      "privateShare": {
+        "active": "Privates Teilen is aktiv. Wer den Link hod, ko des Spui anonym spuin.",
+        "copyLink": "Link kopiern",
+        "description": "Erstell a privaten Link, damit ois, de'n ham, des Spui anonym spuin kennan. Du bestimmst, welcher API-Schlüssl zahlt.",
+        "edit": "Einstellungen bearbeiten",
+        "editSettings": "Teil-Einstellungen bearbeiten",
+        "enable": "Teil-Link erstellen",
+        "loading": "Teil-Status wird glada...",
+        "loadingKeys": "API-Schlüssel werdn glada...",
+        "maxSessions": "Max. Sessions",
+        "maxSessionsDescription": "Leer lassn fia unbegrenzt.",
+        "noEligibleKeys": "Koan funktioniern API-Schlüssl verfiegbar. Leg zuerst oana in de API-Schlüssel-Einstellungen an.",
+        "remainingSessions": "{{count}} Session(s) übrig",
+        "revoke": "Link deaktiviern",
+        "selectKey": "API-Schlüssl auswähln",
+        "selectKeyPlaceholder": "Wähl an Schlüssl, der die Gästesessions zahlt...",
+        "shareLink": "Teil-Link",
+        "title": "Privater Teil-Link",
+        "unlimited": "Unbegrenzt",
+        "update": "Teil-Link aktualisieren"
+      },
+      "sharing": {
+        "active": "Aktiv",
+        "sectionTitle": "Teilen \u00026 Sponsorn"
+      },
       "sort": {
-        "createdAt-asc": "Erstellt (Älteste)",
-        "createdAt-desc": "Erstellt (Neueste)",
-        "creator-asc": "Ersteller (A-Z)",
-        "creator-desc": "Ersteller (Z-A)",
-        "label": "Sortieren nach",
-        "modifiedAt-asc": "Geändert (Älteste)",
-        "modifiedAt-desc": "Geändert (Neueste)",
-        "name-asc": "Name (A-Z)",
-        "name-desc": "Name (Z-A)",
-        "playCount-asc": "Wenigst gspui't",
-        "playCount-desc": "Meist gspui't",
-        "visibility-asc": "Private zuerst",
-        "visibility-desc": "Öffentliche zuerst"
+        "createdAt-asc": "Erstellt (oideste)",
+        "createdAt-desc": "Erstellt (neiste)",
+        "creator-asc": "Ersteller/in (A-Z)",
+        "creator-desc": "Ersteller/in (Z-A)",
+        "label": "Sortiern noch",
+        "modifiedAt-asc": "Bearbeitet (oideste)",
+        "modifiedAt-desc": "Bearbeitet (neiste)",
+        "name-asc": "Nam (A-Z)",
+        "name-desc": "Nam (Z-A)",
+        "playCount-asc": "Wenigst gspuit",
+        "playCount-desc": "Meist gspuit",
+        "visibility-asc": "Zuerst privat",
+        "visibility-desc": "Zuerst öffentlich"
+      },
+      "sponsor": {
+        "apiKey": "API-Schlüssl:",
+        "back": "Zruck",
+        "confirm": "Sponsoring bestätign",
+        "confirmExplanation": "Wennst des Spui sponsorst, nutzt jede Session dei API-Schlüssl. Jede Person, de spuit, verursacht so Kosten auf dei Konto.",
+        "confirmNote": "Des Sponsoring kannst jederzeit in de Spui- oder API-Schlüssel-Einstellungen wieder entfernen.",
+        "currentlySponsored": "Des Spui is grad g'sponsert. Da Sponsoring-Schlüssl zahlt jede Session.",
+        "description": "Sponsor des Spui, damit ois kostenlos spuin kennan. Dei API-Schlüssl übernimt de KI-Kosten.",
+        "gameName": "Spui:",
+        "gameStartMessage": "Des Spui is g'sponsert – jemand zahlt de KI-Kosten fia di. Vui Spaß!",
+        "gameStartOk": "Auf geht's!",
+        "gameStartTitle": "Gratis zum Spuin!",
+        "loadingKeys": "API-Schlüssel werdn glada...",
+        "manageSponsor": "Sponsoring verwalten",
+        "next": "Weiter",
+        "noEligibleKeys": "Du host koane API-Schlüssel, bei denen öffentliches Sponsoring erlaubt is. Geh in d'API-Schlüssel-Einstellungen und aktiviere \"Öffentliches Sponsoring erlauben\".",
+        "privateWarning": "Wennst des Spui privat machst, werd des öffentliche Sponsoring entfernt.",
+        "removeSponsor": "Sponsoring entferna",
+        "selectKey": "API-Schlüssl auswähln",
+        "selectKeyPlaceholder": "Wähl an Schlüssl zum Sponsorn...",
+        "sponsorGame": "Spui sponsor'n",
+        "sponsored": "G'sponsert",
+        "sponsoredTooltip": "Des Spui is g'sponsert – du kannst gratis spuin! Da/die Ersteller/in oder a Unterstützer zahlt d'KI-Kosten.",
+        "title": "Spui sponsor'n"
       },
       "statusFieldsEditor": {
-        "addField": "Neuen Wert hinzufügn",
-        "namePlaceholder": "Name (z.B. Leben)",
-        "noFields": "No kane Werte. Klick auf +, um an neuen Wert z'fügn.",
-        "valuePlaceholder": "Startwert (z.B. 100)"
+        "addField": "Neien Wert hinzufügen",
+        "namePlaceholder": "Nam (z. B. Gsundheit)",
+        "noFields": "Noch koane Werte. Klick auf + fia a neien Wert.",
+        "valuePlaceholder": "Startwert (z. B. 100)"
       },
       "tabs": {
         "basic": "Grundlagen",
-        "basicInfo": "Allgemeine Infos zum Spui. Des is nur fia di und hot koa Einfluss auf's Spui.",
+        "basicInfo": "Allgemeine Infos zum Spui. Nua fia di, beeinflusst ned's Gameplay.",
         "importExport": "Import/Export",
         "quickStart": "Schnellstart",
         "story": "Gschicht \u00026 KI",
-        "storyInfo": "Ois do werd an d' KI gschickt, damit de Spielwelt und Gschicht entsteht.",
+        "storyInfo": "Ois da drin geht an d'KI und formt dei Spuiwelt.",
         "style": "Design",
-        "styleInfo": "Optionale Einstellungen fürs Aussehn vom Spui beim Spielen."
+        "styleInfo": "Optionale Einstellungen fia's Aussehn währendm Spuin."
       },
-      "title": "Meine erstellten Spiele",
+      "theme": {
+        "animation": "Hintergrund-Animation",
+        "animationDefault": "Voreinstellung",
+        "animationDescription": "Überschreib d'Animation vo da Vorlage",
+        "animations": {
+          "bits": "1-0-Bits",
+          "bubbles": "Blasn",
+          "circuits": "Schaltkreise",
+          "confetti": "Konfetti",
+          "confettiExplosion": "Konfetti-Explosion",
+          "embers": "Glutfunken",
+          "fireflies": "Glühwürmchen",
+          "geometric": "Geometrisch",
+          "glitch": "Glitch",
+          "glowworm": "Irrlichter",
+          "hearts": "Herzerl",
+          "hyperspace": "Hyperspace",
+          "leaves": "Blätter",
+          "matrixRain": "Matrix-Regen",
+          "none": "Koane",
+          "snow": "Schnee",
+          "sparkles": "Glitzer",
+          "stars": "Sterne",
+          "sun": "Sunn",
+          "tumbleweed": "Steppenläufer",
+          "waves": "Wön"
+        },
+        "apply": "Design übernehma",
+        "button": "Design",
+        "changeDesign": "Design wechsln",
+        "currentTheme": "Design: {{preset}}",
+        "modalTitle": "Spui-Design",
+        "noTheme": "Koan Design ausgewählt. D'KI generiert pro Session oans.",
+        "preset": "Vorlage",
+        "presetDescription": "Wähl a visuellen Stoi fia dei Spui",
+        "presets": {
+          "abstract": "Abstrakt",
+          "adventure": "Abenteuer",
+          "barbie": "Barbie",
+          "candy": "Zuckerl",
+          "circus": "Zirkus",
+          "cyberpunk": "Cyberpunk",
+          "default": "Standard",
+          "desert": "Wüstn",
+          "detective": "Detektiv",
+          "educational": "Bildung",
+          "fairy": "Feenhaft",
+          "fire": "Feia",
+          "garden": "Garten",
+          "glitch": "Glitch",
+          "greenFantasy": "Grüne Fantasy",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Dschungel",
+          "matrix": "Matrix",
+          "medieval": "Mittelalter",
+          "minimal": "Minimalistisch",
+          "mystery": "Mystery",
+          "mystic": "Mystisch",
+          "nature": "Natur",
+          "nautical": "Nautisch",
+          "noir": "Noir",
+          "ocean": "Ozean",
+          "pirate": "Piraten",
+          "playful": "Verspuit",
+          "retro": "Retro",
+          "romance": "Romantik",
+          "school": "Schui",
+          "scifi": "Sci-Fi",
+          "snowy": "Schneereich",
+          "space": "Weltall",
+          "steampunk": "Steampunk",
+          "storybook": "Bilderbuch",
+          "sunshine": "Sonnenschein",
+          "superhero": "Superheld",
+          "tech": "Tech",
+          "terminal": "Terminal",
+          "underwater": "Unterwasser",
+          "western": "Western",
+          "zombie": "Zombie"
+        },
+        "preview": "Vorschau",
+        "remove": "Design entfernen",
+        "removeConfirm": "Eigenes Design entfernen? Dann macht d'KI pro Session oans.",
+        "sampleGame": "D'Tia gehn quietschend auf und gebn a dämmrigs Zimmer frei. Uralte Runen glimm'n an da Mauer. In da Mittn steht a geheimnisvolle Kistn.",
+        "sampleGame2": "Du schleicht di zur Kistn. Sobald dei Finger den kaltn Metallriegel berührn, fanga d'Runen stärker z'leuchtn o. A tiefer Summton füllt de Kammer.",
+        "samplePlayer": "I mach d'oi Holzdirn auf...",
+        "sampleStatus": "Gsundheit",
+        "thinkingText": "Denk-Text",
+        "thinkingTextDescription": "Text, der zeigt, dass d'KI grad überlegt",
+        "thinkingTextPlaceholder": "z. B. D'Gschicht nimmt Fahrt auf..."
+      },
+      "title": "Mei erstellte Spiele",
       "viewModal": {
-        "readOnlyNotice": "Des Spui is von am andern Nutzer erstellt worn. Du kannst's anschaun, oba ned bearbeiten. Verwende \"Kopiern\", um a eigene, bearbeitbare Version z'macha.",
-        "title": "Spuidetails"
+        "readOnlyNotice": "Des Spui stammt von wem andern. Du kannst's anschaun, aber ned bearbeitn. Nutz „Kopiern“, wennst a eigene Version brauchst.",
+        "title": "Spui-Details"
       },
       "visibility": {
         "private": "Privat",
         "public": "Öffentlich"
       }
     },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Zur ChatGameLab-Startseitn",
+        "continueGame": "Spui fortsetzn",
+        "expired": "Diesen Teil-Link hod sei Limit erreicht. Koane Sessions mehr verfiegbar.",
+        "headline": "Du bist eigladen, a gratis KI-Textabentea z'spuin!",
+        "invalidLink": "Diesen Teil-Link is ungültig oder gibt's nimma.",
+        "loadError": "Spui-Infos ham si ned laden lassn. Probier's no amoi.",
+        "restartGame": "No amoi von vorn",
+        "sessionExists": "Du host scho a Spui am Laufen. Du kannst weiter spuin oder neu startn.",
+        "startPlaying": "Spui starten"
+      }
+    },
     "header": {
-      "apiKeys": "API-Schlüssal",
-      "closeNavigation": "Navigationsmenü zua",
+      "apiKeys": "API-Schlüssel",
+      "closeNavigation": "Navigationsmenü zuamacha",
       "contact": "Kontakt",
       "goToDashboard": "Zum Dashboard",
-      "leaveWorkshopMode": "Workshop-Modus verlassn",
-      "leaveWorkshopModeTooltip": "Workshop-Modus beenden und zur normalen Ansicht zruckkehra",
+      "leaveWorkshopMode": "Workshop-Modus verlaffa",
+      "leaveWorkshopModeTooltip": "Workshop-Modus verlaffa und zur Normalansicht zruck",
       "logout": "Ausloggn",
-      "openNavigation": "Navigationsmenü auf",
-      "openUserMenu": "Benutzermenü auf",
+      "openNavigation": "Navigationsmenü aufmacha",
+      "openUserMenu": "Nutzer-Menü aufmacha",
       "organization": "Organisation",
       "profile": "Profil",
       "workshop": "Workshop"
@@ -479,433 +728,543 @@
     "home": {
       "features": {
         "create": {
-          "description": "Entwerf interaktive Text-Adventures mit KI",
-          "title": "Abenteuer erstelln"
+          "description": "Gestalt interaktive Textabenteuer mit KI-Unterstützung",
+          "title": "Abenteuer erstellen"
         },
         "learn": {
-          "description": "Perfekt fia Bildungs-Workshops und Unterrichts-Aktivitäten",
-          "title": "Lern \u00026 Lehrn"
+          "description": "Perfekt fia Workshops und Unterricht",
+          "title": "Lerna \u00026 Lehrn"
         },
         "play": {
-          "description": "Mach mit Freind bei gemeinschaftlichen Gschichtensitzungen",
-          "title": "Zsam spela"
+          "description": "Erlebs gemeinsame Gschichtn mit Freind",
+          "title": "Zamm spuin"
         },
         "title": "Warum ChatGameLab?",
         "understand": {
-          "description": "Schau, wie KI-Modelle Gschichten erzeugn und lern, wie's funktioniert",
-          "title": "KI versteh'n"
+          "description": "Schau da o, wia KI Gschichtn baut, und lern, wia's funktioniert",
+          "title": "KI versteh"
         }
       },
-      "loginCta": "Einloggn und auskundschafdn",
-      "splashDescription": "A Lernplattform zum Erstelln und Spui'n vo KI-gestützten Text-Adventures. Perfekt fia Lehra, Schüla und kreative Gschichtenerzähler."
+      "loginCta": "Einloggn und entdecken",
+      "splashDescription": "A Bildungsplattform zum Erstellen und Spuin vo KI-basiernden Textabenteuern. Perfekt fia Lehrer/innen, Schüler/innen und kreative Gschichtenschreiber/innen."
     },
+    "inviteAlreadyExists": "Fia diese E-Mail gibt's scho a offene Einladung.",
+    "inviteError": "Einladung konnt ned gschickt werdn. Probier's no amoi.",
+    "inviteTeacher": "Lehrer/in einladen",
+    "inviteTeacherDescription": "Schick a Einladung, damit a Lehrer/in deiner Organisation beitritt.",
+    "inviteTeacherTitle": "Lehrer/in einladen",
+    "inviteUser": "Nutzer/in einladen",
+    "inviteUserDescription": "Schick a Einladung ohne spezielle Roll, damit jemand deiner Organisation beitritt.",
+    "inviteUserTitle": "Nutzer/in einladen",
     "invites": {
       "accept": {
-        "inviteMessage": "Du wurdst eingeladen, am Workshop vo da Organisation \"{{organization}}\" teilzuhn.",
-        "inviteMessageSimple": "Du wurdst eingeladen, diesem Workshop beizutretn.",
+        "inviteMessage": "Du bist eigladen, am Workshop vo da Organisation \"{{organization}}\" beizutretn.",
+        "inviteMessageSimple": "Du bist eigladen, bei diesem Workshop mitzumacha.",
         "joinButton": "Workshop beitretn",
         "title": "Workshop beitretn",
         "titleWithWorkshop": "Workshop \"{{workshop}}\" beitretn"
       },
+      "alreadyMember": {
+        "enterButton": "Workshop betretn",
+        "message": "Magst dem Workshop \"{{workshop}}\" beitretn? Du steigst dann in den Workshop-Modus und erstellst Spiele in dem Kontext.",
+        "title": "Workshop beitretn"
+      },
       "errors": {
-        "acceptFailed": "Einladung konnt ned akzeptiert werdn. Probier's bitte nomoi.",
-        "expired": "Der Einladungslink is abg'laufn.",
-        "loadFailed": "Einladungsdetails konntn ned g'ladn werdn. Probier's bitte nomoi.",
-        "notFound": "Der Einladungslink is ungültig oder widerrufen."
+        "acceptFailed": "Einladung konnt ned angenommen werdn. Probier's no amoi.",
+        "expired": "Diesen Einladungslink is abglaufn.",
+        "loadFailed": "Einladungsdetails ham si ned laden lassn. Probier's no amoi.",
+        "notFound": "Dieser Link is ungültig oder widerrufen."
       },
       "goHome": "Zur Startseitn",
       "participant": {
-        "loggingIn": "I werdd eich einloggn..."
+        "loggingIn": "Du wirst eingloggt..."
       },
       "success": {
-        "message": "Du bist dem Workshop erfolgri­ch beigetreten. Weiterleitung...",
-        "title": "Servus!"
+        "message": "Du bist jetz Teil vom Workshop. Es geht glei weiter...",
+        "title": "Servus und herzlich willkommen!"
       },
       "switchWorkshop": {
-        "message": "Deine Spiele und Fortschritt im aktuellen Workshop bleibn, oba du kannst ned drauf zugreifn, bisd wieder beitrittst.",
+        "message": "Deine Spiele und Fortschritte im aktuellen Workshop bleibn erhalten, aba du kannst ned drauf zugreifen, bevorst wieda beitrittst.",
         "stayButton": "Im aktuellen Workshop bleibn",
-        "switchButton": "Workshop wechsel'n",
-        "title": "Workshop wechsel'n?",
-        "warning": "Du bist grad im Workshop \"{{currentWorkshop}}\". Wennd \"{{newWorkshop}}\" beitrittst, verlässtd du dein aktuellen Workshop."
+        "switchButton": "Workshop wechseln",
+        "title": "Workshop wechseln?",
+        "warning": "Du bist grad im Workshop \"{{currentWorkshop}}\". Wennst \"{{newWorkshop}}\" beitrittst, verlässt da den aktuellen Workshop."
       }
     },
     "labels": {
-      "no": "Nein",
-      "yes": "Jo"
+      "no": "Na",
+      "yes": "Ja"
     },
     "languageSwitcher": {
-      "wipHint": "Mehr Sprach'n san no in Arbeit. Aktuell gibts nur Englisch und Deutsch.",
+      "wipHint": "Weitere Sprachen san in Arbeit. Momentan gibt's nua Englisch und Deutsch.",
       "wipLabel": "WIP"
     },
+    "leaveConfirm": "Bist da sicha, dassd \"{{name}}\" verlaffa mogst?",
+    "leaveOrganization": "Organisation verlaffa",
+    "leaveTitle": "Organisation verlaffa",
+    "leaveWarning": "Du verlierst den Zugriff auf oise Ressourcen und Mitglida.",
     "loading": "Lädt...",
     "logout": "Ausloggn",
+    "me": "I",
     "myGames": {
-      "continue": "Weiterspui'n",
+      "continue": "Spuin",
       "copyConfirm": {
         "confirm": "Spui kopiern",
-        "message": "Des erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
+        "message": "Dad erstellt a Kopie vo \"{{name}}\" in deine Spiele.",
         "title": "Spui kopiern"
       },
       "copyGame": "Spui kopiern",
       "empty": {
-        "description": "Erstell dei erschts Spui, damitd mit interaktiven KI-Abenteuern loslegst.",
-        "title": "No kane Spiele"
+        "description": "Erstell dei erstes Spui und leg mit interaktiven KI-Abenteuern los.",
+        "title": "Noch koane Spiele"
       },
-      "favorite": "Zu Favoriten dazua legn",
+      "favorite": "Zu Favoriten dazuah",
       "filters": {
-        "all": "Olle",
+        "all": "Alle",
         "favorites": "Favoriten"
       },
-      "play": "Spui'n",
-      "restart": "Neu startn",
+      "play": "Spuin",
+      "restart": "Neistart",
       "restartConfirm": {
-        "confirm": "Neu startn",
-        "message": "Mechts du wirklich \"{{game}}\" neu startn? Dei Fortschritt geht verlorn.",
+        "confirm": "Neistart",
+        "message": "Bist da sicha, dassd \"{{game}}\" neu startst? Dei Fortschritt geht valorn.",
         "title": "Spui neu startn"
       },
       "title": "Meine Spiele",
-      "unfavorite": "Aus Favoriten entfern"
+      "unfavorite": "Aus Favoriten entferna"
     },
     "myOrganization": {
       "actions": "Aktionen",
       "apiKeys": {
-        "aboutDescription": "API-Schlüssal, de do g'shared sand, san für olle Mitglieder vo deiner Organisation zum Spui'n verfügbar. Nur Leitunga und Lehra kinnan de Schlüssal verwalten.",
-        "aboutTitle": "Organisations-API-Schlüssal",
-        "allowPublicSponsoring": "Öffentlichs Sponsoring erlaubn",
-        "allowPublicSponsoringDesc": "Der Schlüssal konn zum Sponsor'n vo Spielen fia olle Benutzar g'braucht werdn.",
-        "filterByPlatform": "Nach Plattform filter'n",
-        "keyName": "Schlüssalname",
-        "loadError": "Organisations-API-Schlüssal kinna ned g'ladn werdn.",
-        "noKeys": "No kane API-Schlüssal mit dera Organisation geteilt.",
-        "noResults": "Koa API-Schlüssal treffn auf dei Suach zu.",
-        "notAuthorized": "Du host koa Berechtigung, Organisations-API-Schlüssal z'verwalt'n. Nur Leitunga und Lehra kennan drauf zugreifn.",
-        "owner": "Besitzer",
+        "aboutDescription": "Geteilte API-Schlüssel können ois Mitglida deiner Organisation zum Spuin nutzn. Nua Leitungen und Lehrer/innen derfn des verwalten.",
+        "aboutTitle": "Organisations-API-Schlüssel",
+        "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
+        "allowPublicSponsoringDesc": "Dieser Schlüssl derf Spiele fia alle Nutzer/innen sponsor'n.",
+        "filterByPlatform": "Nach Plattform filter",
+        "freeUseKey": {
+          "description": "Leg an Gratis-Schlüssl fest, damit ois Organisations-Mitglida ohne eigenen API-Schlüssl spuin kennan. Nua bereits geteilte Schlüssel san auswählbar.",
+          "remove": "Entferna",
+          "selectPlaceholder": "Geteilten Schlüssl auswähln...",
+          "title": "Gratis-Schlüssl",
+          "unknownKey": "Unbekannter Schlüssl"
+        },
+        "keyName": "Schlüsslnam",
+        "loadError": "Organisations-API-Schlüssel ham si ned laden lassn.",
+        "noKeys": "No koane API-Schlüssel mit da Organisation gteilt.",
+        "noResults": "Koane API-Schlüssel passn zur Suach.",
+        "notAuthorized": "Du derfst Organisations-API-Schlüssel ned verwalten. Nua Leitungen und Lehrer/innen derfn auf die Seitn.",
+        "owner": "Besitzer/in",
         "platform": "Plattform",
-        "publicSponsoring": "Öffentlichs Sponsoring",
-        "searchPlaceholder": "Nach Name oda Besitzer suachn...",
-        "selectKey": "API-Schlüssal auswähln",
-        "selectKeyPlaceholder": "Wähl an Schlüssal zum Teilen...",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "searchPlaceholder": "Nach Nam oder Besitzer/in suacha...",
+        "selectKey": "API-Schlüssl auswähln",
+        "selectKeyPlaceholder": "Schlüssl zum Teilen auswähln...",
         "share": "Teilen",
-        "shareKey": "Schlüssal teilen",
-        "shareKeyTitle": "API-Schlüssal mit Organisation teilen",
-        "title": "Organisations-API-Schlüssal"
+        "shareKey": "Schlüssl teilen",
+        "shareKeyTitle": "API-Schlüssl mit Organisation teilen",
+        "title": "Organisations-API-Schlüssel"
       },
-      "demoteConfirm": "Bist du si­cher, dassd \"{{name}}\" ({{email}}) zum Lehra herabstufn willst?",
-      "demoteTitle": "Zum Lehra herabstufn",
-      "demoteToStaff": "Zum Lehra herabstufn",
+      "demoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zum Lehrer/zur Lehrerin zurückstufst?",
+      "demoteTitle": "Zum Lehrer/zur Lehrerin zurückstufn",
+      "demoteToStaff": "Zum Lehrer/zur Lehrerin zurückstufn",
       "email": "E-Mail",
-      "emailPlaceholder": "E-Mail-Adresse ei gebn",
-      "empty": "Koa Mitglieder in dera Organisation.",
-      "inviteAlreadyExists": "Für die E-Mail-Adresse gibt's scho a ausstehende Einladung.",
-      "inviteError": "Einladung konnt ned gschickt werdn. Probier's bitte nomoi.",
-      "inviteTeacher": "Lehra einladn",
-      "inviteTeacherDescription": "Schick a Einladung an an Lehra, damit er deiner Organisation beitritt.",
-      "inviteTeacherTitle": "Lehra einladn",
-      "inviteUser": "Benutzer einladn",
-      "inviteUserDescription": "Schick a Einladung an an Benutzer, damit er deiner Organisation ohne spezielle Rolle beitritt.",
-      "inviteUserTitle": "Benutzer einladn",
-      "leaveConfirm": "Bist du si­cher, dassd \"{{name}}\" verlassen willst?",
-      "leaveOrganization": "Organisation verlassen",
-      "leaveTitle": "Organisation verlassen",
-      "leaveWarning": "Du verlierst den Zugriff auf olle Organisationsressourcen und Mitglieder.",
+      "emailPlaceholder": "E-Mail-Adress eigebn",
+      "empty": "Koane Mitglida in dera Organisation.",
+      "inviteAlreadyExists": "Fia diese E-Mail gibt's scho a offene Einladung.",
+      "inviteError": "Einladung konnt ned gschickt werdn. Probier's no amoi.",
+      "inviteTeacher": "Lehrer/in einladen",
+      "inviteTeacherDescription": "Schick a Einladung an a Lehrkraft, damit's deiner Organisation beitritt.",
+      "inviteTeacherTitle": "Lehrer/in einladen",
+      "inviteUser": "Nutzer/in einladen",
+      "inviteUserDescription": "Schick a Einladung oane spezielle Roll, damit jemand deiner Organisation beitritt.",
+      "inviteUserTitle": "Nutzer/in einladen",
+      "lastHeadError": "Du bist da/die letzte Leitn von dera Organisation. Wende di bitte an d'Admins, wennst trotzdem geh woißt.",
+      "leaveConfirm": "Bist da sicha, dassd \"{{name}}\" verlaffa mogst?",
+      "leaveError": "Organisation konnt ned verlaffa werdn. Probier's no amoi.",
+      "leaveOrganization": "Organisation verlaffa",
+      "leaveTitle": "Organisation verlaffa",
+      "leaveWarning": "Du verlierst den Zugriff auf ois Ressourcen und Mitglida.",
       "me": "I",
-      "name": "Name",
-      "noEmail": "Koa E-Mail",
-      "noOrganization": "Koa Organisation",
-      "noOrganizationDescription": "Du bist mit koa Organisation verbunden.",
-      "noResults": "Koa Mitglieder treffn auf dei Suach zu.",
-      "noRole": "Koa Rolle",
-      "promoteConfirm": "Bist du si­cher, dassd \"{{name}}\" ({{email}}) zur Leitunga befördern willst?",
-      "promoteTitle": "Zur Leitunga befördern",
-      "promoteToHead": "Zur Leitunga befördern",
-      "promoteWarning": "Der Benutzer kriagt d' Möglichkeit, Organisations-Mitglieda zu verwalt'n und Lehra einzuladn.",
-      "removeConfirm": "Bist du si­cher, dassd \"{{name}}\" aus der Organisation entfernen willst?",
-      "removeMember": "Mitglied entfernen",
-      "removeTitle": "Mitglied entfernen",
-      "removeWarning": "Der Benutzer verliert den Zugriff auf d' Organisation.",
-      "role": "Rolle",
-      "searchPlaceholder": "Mitglieda suachn...",
-      "showing": "Zeigt {{count}} Mitglieda",
+      "name": "Nam",
+      "noEmail": "Koane E-Mail",
+      "noOrganization": "Koane Organisation",
+      "noOrganizationDescription": "Du bist in koana Organisation.",
+      "noResults": "Koane Mitglida passn zu da Suach.",
+      "noRole": "Koane Roll",
+      "promoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zur Leitn machst?",
+      "promoteTitle": "Zur Leitn befördern",
+      "promoteToHead": "Zur Leitn machn",
+      "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
+      "removeConfirm": "Bist da sicha, dassd \"{{name}}\" aus da Organisation entfernst?",
+      "removeMember": "Mitglied entfern",
+      "removeTitle": "Mitglied entfern",
+      "removeWarning": "Der/die Nutzer/in verliert den Zugriff auf d'Organisation.",
+      "role": "Roll",
+      "searchPlaceholder": "Mitglida durchsua...",
+      "showing": "{{count}} Mitglida",
       "sort": {
-        "label": "Sortieren nach",
-        "name-asc": "Name (A-Z)",
-        "name-desc": "Name (Z-A)",
-        "role-asc": "Rolle (A-Z)",
-        "role-desc": "Rolle (Z-A)"
+        "label": "Sortiern noch",
+        "name-asc": "Nam (A-Z)",
+        "name-desc": "Nam (Z-A)",
+        "role-asc": "Roll (A-Z)",
+        "role-desc": "Roll (Z-A)"
       },
       "title": "Meine Organisation",
       "workshops": {
-        "activate": "Aktivier'n",
+        "activate": "Aktiviern",
         "active": "Aktiv",
-        "activeDescription": "Aktive Workshops erlauba Teilnehmern beizutretn und Spiele z'erstelln.",
+        "activeDescription": "Aktive Workshops lassn Teilnehmer/innen beitretn und Spiele erstellen.",
         "activeLabel": "Aktiv",
-        "anonymousParticipant": "Anonymer Teilnehmer",
-        "create": "Workshop erstellen",
-        "createFirst": "Erstn Workshop erstellen",
-        "createInviteLink": "Einladungslink erstellen",
-        "createTitle": "Workshop erstellen",
-        "deactivate": "Deaktiviern",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
-        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
-        "defaultApiKey": "Standard-API-Schlüssal",
-        "defaultApiKeyHint": "Teilnehmer verwenden den Schlüssal beim Spui'n.",
-        "deleteConfirm": "Bist du si­cher, dassd \"{{name}}\" löschen willst?",
-        "deleteTitle": "Workshop löschen",
-        "deleteWarning": "Olle Spiele und Sitzungen in dem Workshop werdn gelöscht. Des geht ned rückgängig.",
-        "editParticipant": "Name bearbeitn",
-        "empty": "No kane Workshops.",
-        "enterWorkshop": "Workshop-Modus ein",
-        "games": "Spiele",
-        "hideInactive": "Inaktive ausblenden",
+        "aiQualityTierHint": "Qualitätsstufn fia KI-Antwortn. Höhere Stufn kostn mehr, san aber evtl. besser. Leer = Server-Standard.",
+        "anonymousParticipant": "Anonyma Teilnehmer/in",
+        "create": "Workshop erstellen",
+        "createFirst": "Erstell deinen erschten Workshop",
+        "createInviteLink": "Einladungslink erstellen",
+        "createTitle": "Workshop erstellen",
+        "deactivate": "Deaktiviern",
+        "defaultApiKey": "Standard-API-Schlüssl",
+        "defaultApiKeyHint": "Teilnehmer/innen nutzn den Schlüssl beim Spuin.",
+        "deleteConfirm": "Bist da sicha, dassd \"{{name}}\" löschn mogst?",
+        "deleteTitle": "Workshop löschn",
+        "deleteWarning": "Ois Spiele und Sessions in dem Workshop werdn gelöscht. Des lasst si ned rückgängig macha.",
+        "designEditingEnabled": "Teilnehmer/innen dörfn s'Design bearbeiten",
+        "editParticipant": "Nam bearbeitn",
+        "empty": "No koane Workshops.",
+        "enterWorkshop": "Workshop-Modus betretn",
+        "games": "Spui",
+        "hideInactive": "Inaktive versteckn",
         "inactive": "Inaktiv",
         "inviteCreatedAt": "Erstellt",
-        "inviteDescription": "Generier an Einladungslink, den Teilnehmer nutzen kenna, um dem Workshop beizutretn.",
-        "inviteExpiresAt": "Läuft ab",
+        "inviteDescription": "Generier an Einladungslink, damit Teilnehmer/innen da Workshop beitretn kennan.",
+        "inviteExpiresAt": "Lauft ab",
         "inviteLink": "Einladungslink",
-        "inviteLinkDescription": "Teile den Link mit Teilnehmern, damit's dem Workshop beitret'n.",
-        "inviteLinkTitle": "Einladungslink für {{name}}",
+        "inviteLinkDescription": "Teil den Link, damit Teilnehmer/innen beitretn kennan.",
+        "inviteLinkTitle": "Einladungslink fia {{name}}",
         "inviteUsage": "Nutzung",
-        "joined": "Beigetreten",
+        "isPaused": "Workshop pausiern",
+        "isPausedHint": "Wenn pausiert, seng Teilnehmer/innen a Sperroverlay und kennan nix macha",
+        "joined": "Beitretn",
         "linkCopied": "Link kopiert",
-        "linkCopiedMessage": "Der Einladungslink is in die Zwischenablage kopiert worn.",
-        "loadError": "Workshops kinna ned g'ladn werdn.",
-        "nameLabel": "Workshop-Name",
-        "namePlaceholder": "z.B. Sommercamp 2024",
-        "noActiveInvite": "Koa aktiver Einladungslink verfügbar.",
-        "noDefaultApiKey": "Koa Standard-Schlüssal",
-        "noDefaultModel": "Plattform-Standard verwenden",
-        "noParticipantToken": "Der Teilnehmer hot koana Einladungslink. Nur anonyme Teilnehmer (Gäste) ham wiederverwendbare Einladungslinks.",
-        "noParticipants": "No kane Teilnehmer",
-        "notAuthorized": "Du host koa Berechtigung, Workshops z'verwalt'n. Nur Leitunga und Lehra kennan drauf zugreifn.",
-        "participantGames": "{{count}} Spiele",
-        "participantJoined": "Beigetreten am {{date}}",
-        "participantName": "Teilnehmername",
-        "participants": "Teilnehmer",
-        "removeParticipant": "Teilnehmer entfernen",
-        "removeParticipantConfirm": "Bist du si­cher, dassd \"{{name}}\" aus dem Workshop entfern willst?",
-        "removeParticipantMessage": "Bist du si­cher, dassd \"{{name}}\" aus dem Workshop entfern willst? Des geht ned rückgängig.",
-        "removeParticipantTitle": "Teilnehmer entfernen",
-        "revokeInvite": "Einladungslink widerrufen",
-        "selectApiKey": "API-Schlüssal auswähln",
-        "settings": "Einstellungen",
-        "shareParticipantLink": "Individuellen Einladungslink für den Teilnehmer kopiern",
+        "linkCopiedMessage": "Da Einladungslink is in dei Zwischenablage.",
+        "loadError": "Workshops ham si ned laden lassn.",
+        "nameLabel": "Workshop-Nam",
+        "namePlaceholder": "z. B. Sommercamp 2024",
+        "noActiveInvite": "Koan aktiven Einladungslink.",
+        "noDefaultApiKey": "Koan Standard-API-Schlüssl",
+        "noDefaultModel": "Plattform-Standard nutzn",
+        "noParticipantToken": "Diese Teilnehmer/in hod koan Einladungslink. Nua anonyme Teilnehmer/innen (Gäste) ham wiederverwendbare Links.",
+        "noParticipants": "Noch koane Teilnehmer/innen",
+        "notAuthorized": "Du derfst Workshops ned verwalten. Nua Leitungen und Lehrer/innen habn Zugriff.",
+        "participantGames": "{{count}} Spui",
+        "participantJoined": "Dabei seit {{date}}",
+        "participantName": "Teilnehmer-Nam",
+        "participants": "Teilnehmer/innen",
+        "promptConstraintsHint": "Zuafoige Anweisungen, de beim AI-System-Prompt fia alle Sitzungen in dem Workshop mitdranhängt werdn.",
+        "promptConstraintsLabel": "Prompt-Einschränkungen",
+        "promptConstraintsPlaceholder": "z. B. Schaug, dass d'Gschicht altersgerecht bleibt und vermeid g'waltige Inhalte.",
+        "removeParticipant": "Teilnehmer/in entfern",
+        "removeParticipantConfirm": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst?",
+        "removeParticipantMessage": "Bist da sicha, dassd \"{{name}}\" aus dem Workshop entfernst? Des laßt si ned rückgängig macha.",
+        "removeParticipantTitle": "Teilnehmer/in entferna",
+        "revokeInvite": "Einladungslink sperrn",
+        "selectApiKey": "API-Schlüssl auswähln",
         "serverDefault": "Server Default",
-        "showOtherParticipantsGames": "Spiele vo andern Teilnehmern anzeigen",
-        "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
+        "settings": "Einstellungen",
+        "shareParticipantLink": "Individuellen Einladungslink kopiern",
+        "showOtherParticipantsGames": "Spui vo andern Teilnehmer/innen anzeigen",
+        "showPublicGames": "Öffentliche Spiele anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
           "createdAtDesc": "Neueste zuerst",
-          "label": "Sortieren nach",
-          "nameAsc": "Name (A-Z)",
-          "nameDesc": "Name (Z-A)",
-          "participantsAsc": "Wenigst Teilnehmer",
-          "participantsDesc": "Meist Teilnehmer"
+          "label": "Sortiern noch",
+          "nameAsc": "Nam (A-Z)",
+          "nameDesc": "Nam (Z-A)",
+          "participantsAsc": "Wenig Teilnehmer/innen",
+          "participantsDesc": "Viele Teilnehmer/innen"
         },
-        "subtitle": "Verwalt Workshops und lad Teilnehmer ei, z'sammen an Spielen z'arbeitn.",
+        "subtitle": "Verwalt Workshops und lad Teilnehmer/innen zum Mitmachn ei.",
         "title": "Workshops",
+        "unpause": "Workshop fortsetzn",
         "usedCount": "{{count}} Nutzungen",
-        "viewInviteLink": "Einladungslink anschauen"
+        "viewInviteLink": "Einladungslink anzeigen"
       }
     },
+    "name": "Nam",
+    "noEmail": "Koane E-Mail",
+    "noOrganization": "Koane Organisation",
+    "noOrganizationDescription": "Du bist in koana Organisation.",
+    "noResults": "Koane Mitglida passn zu deiner Suach.",
+    "noRole": "Koane Roll",
     "notifications": {
       "accept": "Annehmen",
       "decline": "Ablehnen",
-      "declineConfirm": "Bist du si­cher, dassd die Einladung ablehnst?",
+      "declineConfirm": "Bist da sicha, dassd diese Einladung ablehnst?",
       "declineTitle": "Einladung ablehnen",
-      "empty": "Koa neie Benachrichtigungen.",
-      "inviteDescription": "Du wurdst eingeladen, als {{role}} beizutretn.",
+      "empty": "Koane neuen Benachrichtigungen.",
+      "inviteDescription": "Du bist eigladen, als {{role}} mitzumacha.",
       "inviteToJoin": "Organisations-Einladung",
       "title": "Benachrichtigungen"
     },
     "play": {
-      "cloneGame": "In mei Spiele kopiern",
+      "cloneGame": "Zu meine Spiele kopiern",
       "empty": {
-        "description": "Probier dei Filter z'ändan oder schau später wieda noh nei Spielen.",
-        "title": "Koa Spiele gfundn"
+        "description": "Stell d'Filter ei oder schau späder wieda vorbei.",
+        "title": "Koane Spiele gfundn"
       },
-      "favorite": "Zu Favoriten dazua legn",
+      "favorite": "Zu Favoriten dazuah",
       "filters": {
-        "all": "Olle Spiele",
+        "all": "Alle Spiele",
         "favorites": "Favoriten",
         "organization": "Organisation",
         "own": "Meine Spiele",
         "public": "Öffentlich"
       },
       "owner": "Mei",
-      "playGame": "Des Spui spui'n",
-      "playNow": "Glei spui'n",
+      "playGame": "Des Spui spuin",
+      "playNow": "Glei spuin",
       "selectGameTitle": "Spui auswähln",
       "title": "Spui auswähln",
-      "unfavorite": "Aus Favoriten entfern"
+      "unfavorite": "Aus Favoriten entferna"
     },
     "profile": "Profil",
+    "promoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zur Leitn machst?",
+    "promoteTitle": "Zur Leitn befördern",
+    "promoteToHead": "Zur Leitn machn",
+    "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
+    "removeConfirm": "Bist da sicha, dassd \"{{name}}\" aus da Organisation entfernst?",
+    "removeMember": "Mitglied entfern",
+    "removeTitle": "Mitglied entfern",
+    "removeWarning": "Der/die Nutzer/in verliert den Zugriff auf d'Organisation.",
+    "role": "Roll",
     "save": "Speichan",
-    "search": "Suach",
+    "search": "Suacha",
+    "searchPlaceholder": "Mitglida durchsua...",
+    "serverSettings": {
+      "defaultTier": {
+        "description": "Serverweite Ersatzstufn, wenn weder Workshop, Organisation noch Nutzer/in a eigene Stufn ham. Höhere Stufn kostn mehr, san aber evtl. besser.",
+        "title": "Standard-KI-Qualitätsstufn"
+      },
+      "freeUseKey": {
+        "description": "Setz an globalen Gratis-API-Schlüssl, damit ois Nutzer/innen auf dem Server spuin kennan, ohne eigenen Schlüssl. Wird genutzt, wenn koa Workshop- oder Organisations-Schlüssl da is.",
+        "noKeys": "Du host koane API-Schlüssel. Leg zuerst oans in deine API-Schlüssel-Einstellungen o.",
+        "notWorking": "Funktioniert ned",
+        "remove": "Entferna",
+        "replacePlaceholder": "Durch oan vo deine API-Schlüssel ersetz...",
+        "selectPlaceholder": "Wähl oan vo deine API-Schlüssel...",
+        "title": "Gratis-API-Schlüssl",
+        "unknownKey": "Unbekannter Schlüssl (vielleicht gelöscht)",
+        "untested": "No ned test",
+        "working": "Funktioniert"
+      },
+      "freeUseTier": {
+        "description": "Qualitätsstufn, wenn da Gratis-API-Schlüssl aktiv is. Höhere Stufn kostn mehr. Leer = Standardstufn.",
+        "title": "Gratis-KI-Qualitätsstufn"
+      },
+      "notAuthorized": "Du host koa Berechtigung fia Server-Einstellungen. Admin-Zugriff nötig.",
+      "title": "Server-Einstellungen"
+    },
     "sessions": {
-      "continueGame": "Weiterspui'n",
+      "continueGame": "Spui fortsetzn",
       "deleteConfirm": {
-        "message": "Mechts du wirklich de Sitzung für \"{{game}}\" lösch'n? Des geht ned rückgängig.",
-        "title": "Sitzung lösch'n"
+        "message": "Bist da sicha, dassd diese Session von \"{{game}}\" löschn mogst? Des laßt si nimma rückgängig macha.",
+        "title": "Session löschn"
       },
       "empty": {
-        "description": "Start a neies Spui, damit dei Abenteuer losgeh!",
-        "noResults": "Koa passende Spiele gfundn",
-        "title": "No spiele gspuit"
+        "description": "Start a neies Spui und leg los!",
+        "noResults": "Koane passenden Spiele gfundn",
+        "title": "Noch koane Spiele gspuit"
       },
       "errors": {
-        "loadFailed": "Deine Spiele kinna ned g'ladn werdn. Probier's bitte nomoi."
+        "loadFailed": "Deine Spiele ham si ned laden lassn. Probier's no amoi."
       },
       "fields": {
         "game": "Spui",
         "lastPlayed": "Zuletzt gspuit",
         "model": "Modell"
       },
-      "noDescription": "Koa Beschreibung",
+      "freeUseKey": {
+        "description": "Leg an Gratis-Schlüssl fest, damit ois Organisations-Mitglida ohne eigenen API-Schlüssl spuin kennan. Nua bereits geteilte Schlüssel san auswählbar.",
+        "remove": "Entferna",
+        "selectPlaceholder": "Geteilten Schlüssl auswähln...",
+        "title": "Gratis-Schlüssl",
+        "unknownKey": "Unbekannter Schlüssl"
+      },
+      "noDescription": "Koane Beschreibung",
       "sort": {
         "game": "Spui",
-        "label": "Sortieren nach",
+        "label": "Sortiern nach",
         "lastPlayed": "Zuletzt gspuit",
         "model": "Modell"
       },
-      "startNewGame": "Neies Spui startn",
-      "title": "Weiterspieln",
-      "untitledGame": "Unbenannts Spui"
+      "startNewGame": "Neies Spui starten",
+      "title": "Weiter spuin",
+      "untitledGame": "Spui ohne Nam"
     },
     "settings": "Einstellungen",
+    "showing": "{{count}} Mitglida",
+    "sort": {
+      "label": "Sortiern noch",
+      "name-asc": "Nam (A-Z)",
+      "name-desc": "Nam (Z-A)",
+      "role-asc": "Roll (A-Z)",
+      "role-desc": "Roll (Z-A)"
+    },
     "unnamed": "Unbenannt",
-    "viewGame": "Spui anschaun"
+    "viewGame": "Spui anschaugn"
   },
   "dashboard": {
     "cards": {
       "externalLinks": {
         "jff": {
-          "description": "Projektkoordinator und führende Organisation.",
+          "description": "Projektkoordination und leitende Organisation.",
           "title": "JFF – Institut für Medienpädagogik"
         },
         "mainSite": {
-          "description": "Erfahra mehr über s' Bildungsprojekt hinter dera Plattform.",
-          "title": "ChatGameLab Projekt"
+          "description": "Erfah mehr über des Bildungsprojekt hinter der Plattform.",
+          "title": "ChatGameLab-Projekt"
         },
         "title": "Über ChatGameLab"
       },
       "lastPlayed": {
-        "empty": "No koa Spiel gspuit. Fang a zum Spui'n!",
+        "empty": "No koa Spui gspuit. Fang gleich o!",
         "title": "Zuletzt gspuit",
         "viewAll": "Alle Spiele"
       },
       "myGames": {
-        "empty": "No kane Spiele. Erstell dei erschts Spui!",
+        "empty": "No koane Spiele. Erstell dei erstes!",
         "title": "Meine Spiele",
-        "viewAll": "Meine Spiele"
+        "viewAll": "Alle Werke"
       },
       "myWorkshops": {
-        "empty": "Koa aktive Workshops. Erstell a Workshop in deiner Organisation!",
+        "empty": "Koane aktiven Workshops. Erstell oan in deiner Organisation!",
         "title": "Meine Workshops",
         "viewAll": "Alle Workshops"
       },
       "newGames": {
-        "empty": "No kane Spiele verfügbar.",
-        "title": "Neue Spiele",
+        "empty": "No koane Spiele verfiegbar.",
+        "title": "Neie Spiele",
         "viewAll": "Alle Spiele"
       },
       "popularGames": {
-        "empty": "No kane Spiele verfügbar.",
-        "plays": "{{count}} Mal gspuit",
+        "empty": "No koane Spiele verfiegbar.",
+        "plays": "{{count}} Durchgänge",
         "title": "Beliebte Spiele",
         "viewAll": "Alle Spiele"
       }
     },
     "quickActions": {
-      "createNewGame": "A neies Spui erstellen",
+      "createNewGame": "Neies Spui erstellen",
       "createRoom": "A Raum erstellen",
-      "inviteMembers": "Mitglieda in Raum einladn",
-      "startNewGame": "A neies Spui startn",
+      "createWorkshop": "Workshop erstellen",
+      "importGame": "Spui importiern",
+      "inviteMembers": "Mitglida einladen",
+      "startNewGame": "Neies Spui startn",
       "title": "Schnellaktionen"
     },
-    "untitled": "Unbenannt",
-    "untitledGame": "Unbenannts Spui",
+    "untitled": "Ohne Titel",
+    "untitledGame": "Spui ohne Titel",
     "version": {
       "mismatch": {
-        "message": "Frontend-Version {{frontendVersion}} stimmt ned mit Backend-Version {{backendVersion}} überein. Des ko z'unerwartetem Verhalten führn. Kontaktier'n Support, wenn's Probleme weiterbestehn.",
-        "title": "Versionenkonflikt erkannt"
+        "message": "Frontend-Version \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e passt ned zur Backend-Version \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Des kann z'komischen Effekten führn. Meld di beim Support, wenn's ned weggeht.",
+        "title": "Versionskonflikt entdeckt"
       }
     }
   },
   "errors": {
-    "aiError": "Der KI-Dienst hod an Fehler g'macht. Probier's bitte nomoi.",
-    "backendUserFetch": "Benutzerdaten kinna ned vom Server g'ladn werdn. Probier's bitte nomoi.",
-    "billingNotActive": "Dein OpenAI-Konto is ned aktiv. Prüaf dei Billing-Daten auf https://platform.openai.com/settings/organization/billing.",
-    "conflict": "Des widerspricht bestehenden Daten. Probier's bitte nomoi.",
-    "contentFiltered": "Dei Anfrage is von da KI-Inhaltsrichtlin g'filtert worn. Versuch's anders z'formuliern.",
-    "forbidden": "Du host koa Berechtigung dazu.",
-    "generic": "Etwas is schief ganga. Probier's bitte nomoi.",
-    "insufficientQuota": "Dein API-Schlüssal hot koa Guthaben mehr. Lad Guthaben auf oder verwänd an anderen API-Schlüssal.",
-    "invalidApiKey": "Dein API-Schlüssal is ungültig oder abg'laufn. Prüaf dea in de Einstellungen.",
-    "invalidPlatform": "Ungültige Plattform auswählt. Wähl bitte a gültige Option.",
-    "invalidToken": "Dei Sitzung is abg'laufn oder ungültig. Verwänd bitte den Einladungslink nomoi.",
-    "network": "Netzwerkfehler. Prüaf dei Verbindung.",
-    "notFound": "D' angeforderte Ressource is ned gfundn worn.",
-    "orgVerificationRequired": "Dei OpenAI-Organisation muaß verifiziert werdn, damit Bildgenerierung funktioniert. Verifizier di auf https://platform.openai.com/settings/organization/general.",
-    "rateLimitExceeded": "Zuvui Anfragen. Wart a Moment und probier's nomoi.",
-    "server": "Serverfehler. Probier's später nomoi.",
+    "aiError": "Da KI-Dienst hod a Fehler ghabt. Probier's no amoi.",
+    "backendUserFetch": "Nutzerdaten ham si ned vom Server laden lassn. Probier's no amoi.",
+    "billingNotActive": "Dei OpenAI-Konto is ned aktiv. Schau dei Rechnungsinfos auf https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Die Aktion beißt si mit bestehende Daten. Probier's no amoi.",
+    "contentFiltered": "Dei Anfrage is von da KI-Inhaltsrichtlinie blockiert wor'n. Formulier's anders.",
+    "duplicateName": "Diesen Spuinam is scho vergeban. Bitte andern auswählen.",
+    "forbidden": "Du host koa Berechtigung fia de Aktion.",
+    "generic": "Da is wos schief ganga. Probier's no amoi.",
+    "insufficientQuota": "Dei API-Schlüssl hod koane Guthaben mehr. Lad was nach oder nutz an andern.",
+    "invalidApiKey": "Dei API-Schlüssl is ungültig oder abglaufn. Schau in den Einstellungen noch.",
+    "invalidJsonSchema": "D'Spui-Konfiguration hod a ungültigs Schema fia d'KI erzeugt. Des liegt am Spui-Aufbau, ned am API-Schlüssl. Überprüf d'Status-Felder und probier's no amoi.",
+    "invalidPlatform": "Ungültige Plattform ausgewählt. Bitte a gültige Option nehmen.",
+    "invalidToken": "Dei Session is abglaufn oder ungültig. Nutz dei Einladungslink no amoi.",
+    "nameProfane": "Diesen Nam is ned erlaubt. Bitte an andern wähln.",
+    "nameTooLong": "Da Nam is z'lång. Bitte kürzer.",
+    "network": "Netzwerkfehler. Schau dei Verbindung o.",
+    "noApiKey": "Fia dieses Spui is koan API-Schlüssl verfiegbar. Entweda hod da Sponsor sei Schlüssl entfernt oder du brauchst an eigenen.",
+    "notFound": "Des gwünschte Objekt hod si ned findn lassn.",
+    "orgVerificationRequired": "Dei OpenAI-Organisation braucht a Verifizierung fia d'Bildfunktion. Mach des auf https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "D'KI hod den Gesprächsverlauf valorn. Passiert bei längerer Pause. Fang a neie Session o.",
+    "rateLimitExceeded": "Z'vü Anfrogn. Wart a bissl und versuch's wieda.",
+    "server": "Serverfehler. Probier's späder no amoi.",
     "titles": {
       "aiError": "KI-Fehler",
       "authentication": "Authentifizierungsfehler",
-      "billing": "Zahlungsfehler",
+      "billing": "Abrechnungsfehler",
       "error": "Fehler",
+      "gameConfig": "Spui-Konfigurationsfehler",
       "network": "Netzwerkfehler",
+      "noApiKey": "Koan API-Schlüssl",
       "notFound": "Ned gfundn",
       "permission": "Zugriff verweigert",
       "server": "Serverfehler",
       "validation": "Validierungsfehler",
       "workshopInactive": "Workshop inaktiv"
     },
-    "unauthorized": "Bitte logg di ei, um weiterzumacha.",
-    "unexpected": "A unerwarteter Fehler is aufgtretn.",
-    "userNotRegistered": "Du muaßt die Registrierung abschließ'n, bevord weitermachst.",
-    "validation": "Prüaf dei Eingabe und probier's bitte nomoi.",
-    "workshopInactive": "Dieser Workshop is deaktiviert. Wend di bitte an'n Lehra oder Organisator."
+    "unauthorized": "Bitte log di ei, damitst weidermacha kannst.",
+    "unexpected": "A unerwarteter Fehler is passiert.",
+    "userNotRegistered": "Vervollständig zuerst dei Registrierung.",
+    "validation": "Überprüf dei Eingaben und probier's no amoi.",
+    "workshopInactive": "Dieser Workshop is deaktiviert. Bitte meld di bei da Lehrkraft oder Organisation."
   },
   "myWorkshop": {
     "empty": {
-      "description": "Fang an Spiele z'spui'n, dann siehst's sie do, oder erstell dei eigenes!",
-      "title": "No kane Spiele"
+      "description": "Spui a paar Runden oder erstell dei eigenes Spui!",
+      "title": "Noch koane Spiele"
     },
     "filters": {
-      "all": "Olle Spiele",
+      "all": "Alle Spiele",
       "mine": "Meine Spiele",
       "public": "Öffentliche Spiele",
       "workshop": "Workshop-Spiele"
     },
     "gameType": "Spui",
-    "organizator": "Organisator: {{name}}",
+    "members": {
+      "empty": "Noch koane Mitglida",
+      "title": "Workshop-Mitglida"
+    },
+    "organizator": "Organisator/in: {{name}}",
+    "paused": {
+      "description": "Da Workshop is grad pausiert. Wart auf Anweisungen von da Workshop-Leitung.",
+      "title": "Workshop pausiert"
+    },
     "settings": {
       "currentWorkshop": "Aktueller Workshop",
-      "notInWorkshopMode": "Du bist ned im Workshop-Modus. Geh erst in a Workshop.",
+      "notInWorkshopMode": "Du bist ned im Workshop-Modus. Bitte tritt zerscht a Workshop bei.",
       "title": "Workshop-Einstellungen"
     },
     "title": "Mein Workshop",
     "you": "Du"
   },
   "navigation": {
-    "allGames": "Olle Spiele",
-    "create": "Eigene Spiele erstellen",
+    "adminPanel": "Admin-Bereich",
+    "allGames": "Alle Spiele",
+    "create": "Dei eigenes Spui erstellen",
+    "createGame": "Spui erstellen",
     "dashboard": "Dashboard",
     "games": "Spiele",
-    "groups": "Gruppen",
+    "groups": "Gruppn",
     "manageOrganizations": "Organisationen verwalten",
-    "manageUsers": "Benutzer verwalten",
+    "manageUsers": "Nutzer/innen verwalten",
     "myGames": "Meine Spiele",
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
-    "orgApiKeys": "API-Schlüssal",
-    "orgMembers": "Mitglieda",
+    "orgApiKeys": "API-Schlüssel",
+    "orgMembers": "Mitglida",
     "orgWorkshops": "Workshops",
-    "play": "Spui spielen",
-    "rooms": "Räum",
+    "play": "A Spui spuin",
+    "rooms": "Räume",
+    "serverSettings": "Server-Einstellungen",
     "workshopSettings": "Workshop-Einstellungen"
   }
 }

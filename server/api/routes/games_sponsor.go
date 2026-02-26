@@ -6,7 +6,6 @@ import (
 	"cgl/api/httpx"
 	"cgl/db"
 	"cgl/game"
-	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -53,8 +52,6 @@ func SetGameSponsor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug("setting game sponsor", "game_id", gameID, "user_id", user.ID, "share_id", req.ShareID)
-
 	if err := db.SetGamePublicSponsorship(r.Context(), user.ID, gameID, req.ShareID); err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
 			httpx.WriteAppError(w, appErr)
@@ -94,8 +91,6 @@ func RemoveGameSponsor(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
-
-	log.Debug("removing game sponsor", "game_id", gameID, "user_id", user.ID)
 
 	if err := db.ClearGamePublicSponsorship(r.Context(), user.ID, gameID); err != nil {
 		if appErr, ok := err.(*obj.AppError); ok {
@@ -137,8 +132,6 @@ func GetAvailableKeys(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
-
-	log.Debug("getting available keys for game", "game_id", gameID, "user_id", user.ID)
 
 	keys, err := db.GetAvailableKeysForGame(r.Context(), user.ID, gameID)
 	if err != nil {

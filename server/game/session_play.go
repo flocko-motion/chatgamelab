@@ -2,11 +2,10 @@ package game
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync"
-	"time"
 
 	"cgl/db"
 	"cgl/functional"
@@ -65,326 +64,6 @@ func isKeyRelatedError(errorCode string) bool {
 	}
 }
 
-// sessionSetupResult holds the output of generateSessionSetup.
-type sessionSetupResult struct {
-	candidateIndex int               // index of the candidate that succeeded
-	theme          *obj.GameTheme    // generated or game-level theme (may be nil → default)
-	translatedGame *obj.Game         // translated game (nil if not needed or failed)
-	fieldNameMap   map[string]string // original→translated field name mapping
-	usage          obj.TokenUsage    // accumulated token usage for theme+translation
-}
-
-// generateSessionSetup runs theme generation and game translation in parallel using
-// the given API key candidates. If theme generation fails with a key-related error,
-// the next candidate is tried (translation results from the failed key are discarded).
-//
-// Returns an error only when ALL candidates fail with key-related errors during
-// theme generation — this means every key is broken and there's no point continuing.
-// Non-key errors (e.g. parse failures) are treated as non-fatal (default theme used).
-func generateSessionSetup(
-	ctx context.Context,
-	candidates []resolvedKey,
-	game *obj.Game,
-	user *obj.User,
-) (*sessionSetupResult, *obj.HTTPError) {
-	result := &sessionSetupResult{}
-	needsTranslation := user.Language != "" && user.Language != "en"
-
-	// If game already has a theme, skip AI generation entirely
-	if game.Theme != nil {
-		log.Debug("using game-level theme override", "game_id", game.ID, "preset", game.Theme.Preset)
-		result.theme = game.Theme
-		result.candidateIndex = 0
-		// Still run translation (no key validation via theme, but best-effort)
-		result.translatedGame, result.fieldNameMap, result.usage = translateIfNeeded(ctx, candidates[0], game, user)
-		return result, nil
-	}
-
-	// Try each candidate: run theme + translation in parallel, check for key errors after both finish
-	var lastErr error
-	var lastErrCode string
-	for i, candidate := range candidates {
-		if _, platformErr := ai.GetAiPlatform(candidate.Share.ApiKey.Platform); platformErr != nil {
-			log.Debug("candidate has invalid platform, skipping", "index", i, "platform", candidate.Share.ApiKey.Platform)
-			continue
-		}
-
-		tempSession := makeTempSession(candidate, game, user.ID)
-		start := time.Now()
-
-		// Run theme generation and translation in parallel
-		var wg sync.WaitGroup
-		var theme *obj.GameTheme
-		var themeUsage obj.TokenUsage
-		var themeErr error
-		var translatedGame *obj.Game
-		var fieldNameMap map[string]string
-		var translateUsage obj.TokenUsage
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			log.Debug("generating visual theme", "game_id", game.ID, "candidate_index", i, "key_name", candidate.Share.ApiKey.Name)
-			theme, themeUsage, themeErr = GenerateTheme(ctx, tempSession, game, user.Language)
-		}()
-
-		if needsTranslation {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				translatedGame, fieldNameMap, translateUsage = translateIfNeeded(ctx, candidate, game, user)
-			}()
-		}
-
-		wg.Wait()
-		result.usage = result.usage.Add(themeUsage).Add(translateUsage)
-
-		if themeErr == nil {
-			log.Debug("theme generated successfully", "preset", theme.Preset, "seconds", time.Since(start).Seconds())
-			result.theme = theme
-			result.candidateIndex = i
-			result.translatedGame = translatedGame
-			result.fieldNameMap = fieldNameMap
-			return result, nil
-		}
-
-		// Theme generation failed — check if it's a key error
-		errCode := extractAIErrorCode(themeErr)
-		lastErr = themeErr
-		lastErrCode = errCode
-		log.Warn("theme generation failed", "candidate_index", i, "key_name", candidate.Share.ApiKey.Name, "error", themeErr, "error_code", errCode, "seconds", time.Since(start).Seconds())
-
-		if !isKeyRelatedError(errCode) {
-			// Non-key error (e.g. parse failure, timeout) — use default theme, keep translation
-			log.Debug("non-key error during theme generation, using default theme")
-			result.candidateIndex = i
-			result.translatedGame = translatedGame
-			result.fieldNameMap = fieldNameMap
-			return result, nil
-		}
-
-		// Key-related error — mark key as failed and discard translation (same broken key), try next candidate
-		db.UpdateApiKeyLastUsageSuccess(ctx, candidate.Share.ApiKey.ID, false, errCode)
-		log.Info("API key failed during theme generation, trying next candidate", "candidate_index", i, "error_code", errCode)
-	}
-
-	// All candidates exhausted with key-related errors
-	log.Warn("all API key candidates failed during theme generation", "last_error", lastErr)
-	return nil, obj.NewHTTPErrorWithCode(500, lastErrCode, fmt.Sprintf("All API keys failed: %v", lastErr))
-}
-
-// makeTempSession creates a temporary session object for theme/translation AI calls.
-func makeTempSession(candidate resolvedKey, game *obj.Game, userID uuid.UUID) *obj.GameSession {
-	return &obj.GameSession{
-		GameID:       game.ID,
-		GameName:     game.Name,
-		UserID:       userID,
-		ApiKeyID:     &candidate.Share.ApiKey.ID,
-		ApiKey:       candidate.Share.ApiKey,
-		AiPlatform:   candidate.Share.ApiKey.Platform,
-		AiModel:      candidate.AiQualityTier,
-		ImageStyle:   templates.ImageStyleOrDefault(game.ImageStyle),
-		StatusFields: game.StatusFields,
-	}
-}
-
-// translateIfNeeded runs game translation if the user's language is not English.
-// Returns nil translatedGame if translation is not needed or fails (non-fatal).
-func translateIfNeeded(ctx context.Context, candidate resolvedKey, game *obj.Game, user *obj.User) (*obj.Game, map[string]string, obj.TokenUsage) {
-	if user.Language == "" || user.Language == "en" {
-		return nil, nil, obj.TokenUsage{}
-	}
-
-	tempSession := makeTempSession(candidate, game, user.ID)
-	start := time.Now()
-	log.Debug("translating game to user language", "game_id", game.ID, "target_lang", user.Language)
-	translated, fieldNameMap, usage, err := TranslateGame(ctx, tempSession, game, user.Language)
-	if err != nil {
-		log.Warn("failed to translate game, using original", "target_lang", user.Language, "error", err, "seconds", time.Since(start).Seconds())
-		return nil, nil, usage
-	}
-	log.Debug("game translated successfully", "target_lang", user.Language, "seconds", time.Since(start).Seconds())
-	return translated, fieldNameMap, usage
-}
-
-// CreateSession creates a new game session for a user.
-// The API key and AI quality tier are resolved server-side using the following priority:
-//  1. Workshop key + workshop.aiQualityTier
-//  2. Sponsored game key (public sponsor on the game)
-//  3. Institution free-use key + institution.freeUseAiQualityTier
-//  4. User's default API key + user.aiQualityTier
-//  5. System free-use key + system_settings.freeUseAiQualityTier
-//
-// If no key can be resolved, returns ErrCodeNoApiKey.
-// If the source's tier is empty, falls back to system_settings.defaultAiQualityTier.
-// Returns *obj.HTTPError (which implements the standard error interface) for client-facing errors with appropriate status codes.
-func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	log.Debug("creating session", "user_id", userID, "game_id", gameID)
-
-	// Resolve all API key candidates using priority chain (up to 3, deduplicated)
-	candidates, httpErr := resolveApiKeyCandidates(ctx, userID, gameID)
-	if httpErr != nil {
-		return nil, nil, httpErr
-	}
-
-	log.Info("resolved API key candidates", "count", len(candidates), "primary_key", candidates[0].Share.ApiKey.Name, "primary_platform", candidates[0].Share.ApiKey.Platform)
-
-	// Get the game
-	log.Debug("loading game", "game_id", gameID)
-	game, err := db.GetGameByID(ctx, &userID, gameID)
-	if err != nil {
-		log.Debug("game not found", "game_id", gameID, "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Game not found")
-	}
-
-	// Delete any existing sessions for this user+game (restart scenario)
-	log.Debug("deleting existing sessions", "user_id", userID, "game_id", gameID)
-	if err := db.DeleteUserGameSessions(ctx, userID, gameID); err != nil {
-		log.Debug("failed to delete existing sessions", "error", err)
-		// Non-fatal - continue with session creation
-	}
-
-	// Get user to check language preference
-	user, err := db.GetUserByID(ctx, userID)
-	if err != nil {
-		log.Debug("failed to get user for language preference", "user_id", userID, "error", err)
-		return nil, nil, &obj.HTTPError{StatusCode: 500, Message: "Failed to get user: " + err.Error()}
-	}
-
-	// Run theme generation + translation with fallback across candidates.
-	// If all keys fail with key-related errors, we fail early here.
-	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
-	if httpErr != nil {
-		return nil, nil, httpErr
-	}
-
-	// Use the candidate that succeeded for theme generation
-	share := candidates[setup.candidateIndex].Share
-	aiModel := candidates[setup.candidateIndex].AiQualityTier
-	theme := setup.theme
-	sessionUsage := setup.usage
-
-	// Apply translation if available
-	if setup.translatedGame != nil {
-		game = setup.translatedGame
-
-		// Rewrite theme statusEmojis keys from original to translated field names
-		if theme != nil && len(theme.StatusEmojis) > 0 && len(setup.fieldNameMap) > 0 {
-			translatedEmojis := make(map[string]string, len(theme.StatusEmojis))
-			for originalName, emoji := range theme.StatusEmojis {
-				if translatedName, ok := setup.fieldNameMap[originalName]; ok {
-					translatedEmojis[translatedName] = emoji
-				} else {
-					translatedEmojis[originalName] = emoji
-				}
-			}
-			theme.StatusEmojis = translatedEmojis
-			log.Debug("rewrote theme statusEmojis for translated field names", "mapping", setup.fieldNameMap)
-		}
-	}
-
-	// Generate system message from (possibly translated) game
-	log.Debug("generating system message", "game_id", gameID, "game_name", game.Name)
-	systemMessage, err := templates.GetTemplate(game)
-	if err != nil {
-		log.Debug("failed to get game template", "game_id", gameID, "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-	}
-
-	// Persist to database with theme
-	log.Debug("persisting session to database")
-	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
-	if err != nil {
-		log.Debug("failed to create session in DB", "error", err)
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
-	}
-	log.Debug("session created", "session_id", session.ID)
-
-	// Attach API key for response
-	session.ApiKey = share.ApiKey
-
-	// First action: system message containing the game instructions.
-	// Start with the candidate that worked for theme generation; retry with remaining fallbacks on key errors.
-	log.Debug("executing initial system action", "session_id", session.ID)
-	startAction := obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypeSystem,
-		Message:       systemMessage,
-	}
-	response, httpErr := DoSessionAction(ctx, session, startAction)
-
-	// Retry with remaining fallback candidates on key-related errors
-	remainingCandidates := candidates[setup.candidateIndex+1:]
-	if httpErr != nil && len(remainingCandidates) > 0 {
-		errorCode := httpErr.Code
-		if isKeyRelatedError(errorCode) {
-			log.Debug("initial action failed with key error, trying fallback", "session_id", session.ID, "error_code", errorCode)
-			if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-				log.Warn("failed to delete empty session before fallback", "session_id", session.ID, "error", delErr)
-			}
-
-			for _, fallback := range remainingCandidates {
-				log.Info("retrying with fallback API key", "key_name", fallback.Share.ApiKey.Name, "key_platform", fallback.Share.ApiKey.Platform)
-
-				if _, platformErr := ai.GetAiPlatform(fallback.Share.ApiKey.Platform); platformErr != nil {
-					log.Debug("fallback key has invalid platform, skipping", "platform", fallback.Share.ApiKey.Platform)
-					continue
-				}
-
-				session, err = db.CreateGameSession(ctx, userID, game, fallback.Share.ApiKey.ID, fallback.AiQualityTier, nil, theme, user.Language)
-				if err != nil {
-					log.Debug("failed to create fallback session", "error", err)
-					continue
-				}
-				session.ApiKey = fallback.Share.ApiKey
-
-				startAction.GameSessionID = session.ID
-				response, httpErr = DoSessionAction(ctx, session, startAction)
-				if httpErr == nil {
-					share = fallback.Share
-					aiModel = fallback.AiQualityTier
-					log.Info("fallback API key succeeded", "key_name", share.ApiKey.Name, "key_platform", share.ApiKey.Platform)
-					break
-				}
-
-				log.Debug("fallback key also failed", "error", httpErr.Message)
-				if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-					log.Warn("failed to delete fallback session", "session_id", session.ID, "error", delErr)
-				}
-
-				if !isKeyRelatedError(httpErr.Code) {
-					break
-				}
-			}
-		}
-	}
-
-	if httpErr != nil {
-		log.Debug("initial action failed, deleting empty session", "session_id", session.ID, "error", httpErr.Message)
-		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-			log.Warn("failed to delete empty session after error", "session_id", session.ID, "error", delErr)
-		}
-		return nil, nil, httpErr
-	}
-	response.PromptStatusUpdate = functional.Ptr(systemMessage)
-
-	// Increment play count only for non-creator plays
-	if !game.Meta.CreatedBy.Valid || game.Meta.CreatedBy.UUID != userID {
-		if err := db.IncrementGamePlayCount(ctx, gameID); err != nil {
-			log.Warn("failed to increment play count", "game_id", gameID, "error", err)
-		}
-	}
-
-	// Accumulate setup usage (theme + translation) with action usage
-	if response.TokenUsage != nil {
-		totalUsage := sessionUsage.Add(*response.TokenUsage)
-		response.TokenUsage = &totalUsage
-	} else {
-		response.TokenUsage = &sessionUsage
-	}
-	return session, response, nil
-}
-
 // DoSessionAction orchestrates the AI response generation:
 // 1. ExecuteAction (blocking) - gets structured JSON with plotOutline, statusFields, imagePrompt
 // 2. ExpandStory (async/streaming) - expands plotOutline to full narrative, streams to client
@@ -425,25 +104,72 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeInvalidPlatform, fmt.Sprintf("AI platform error: %v", err))
 	}
 
-	// Store the action message (player or system) so it appears in session history.
-	// Track the message ID so we can delete it if the AI action fails.
-	var actionMessageID *uuid.UUID
-	log.Debug("storing action message", "session_id", session.ID, "type", action.Type)
-	actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
-	if err != nil {
-		log.Debug("failed to store action message", "session_id", session.ID, "error", err)
-		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
+	// Phase 0a: Transcribe audio input to text (if player sent voice instead of text)
+	// Done before storing the action message so the DB record already has the transcribed text.
+	var transcription string // populated if audio was transcribed, returned to client
+	if action.Type == obj.GameSessionMessageTypePlayer && action.AudioBase64 != "" && action.AudioMimeType != "" {
+		audioData, decErr := base64.StdEncoding.DecodeString(action.AudioBase64)
+		if decErr != nil {
+			log.Warn("failed to decode audio base64", "session_id", session.ID, "error", decErr)
+		} else {
+			log.Debug("transcribing player audio input", "session_id", session.ID, "audio_bytes", len(audioData), "mime_type", action.AudioMimeType)
+			transcribed, transcribeErr := platform.TranscribeAudio(ctx, session.ApiKey.Key, audioData, action.AudioMimeType)
+			if transcribeErr != nil {
+				log.Warn("audio transcription failed, falling back to empty message", "session_id", session.ID, "error", transcribeErr)
+			} else {
+				log.Debug("audio transcribed", "session_id", session.ID, "text", transcribed)
+				action.Message = transcribed
+				transcription = transcribed
+			}
+		}
 	}
-	actionMessageID = &actionMsg.ID
+
+	// TWO-PHASE INITIALIZATION: Detect opening scene generation
+	// Frontend sends system action with "init" message to trigger opening scene
+	messageCount, countErr := db.CountGameSessionMessages(ctx, session.ID)
+	if countErr != nil {
+		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to count session messages")
+	}
+
+	isOpeningScene := messageCount == 1 && strings.TrimSpace(action.Message) == "init"
+	var actionMessageID *uuid.UUID
+
+	if isOpeningScene {
+		log.Debug("detected opening scene generation (system action 'init')", "session_id", session.ID)
+		// Load the system message that was created during session creation
+		// It contains the translated scenario and game instructions
+		systemMsg, loadErr := db.GetLatestGameSessionMessage(ctx, session.UserID, session.ID)
+		if loadErr != nil || systemMsg == nil || systemMsg.Type != obj.GameSessionMessageTypeSystem {
+			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to load system message for opening scene")
+		}
+		// Use the existing system message (with full content) instead of the init trigger
+		// Don't store the init trigger - the system message already exists
+		action = *systemMsg
+		actionMessageID = &systemMsg.ID
+		log.Debug("opening scene: using existing system message", "session_id", session.ID, "message_length", len(action.Message))
+	} else {
+		// Store the action message (player or system) so it appears in session history.
+		// Track the message ID so we can delete it if the AI action fails.
+		actionMsg, err := db.CreateGameSessionMessage(ctx, session.UserID, action)
+		if err != nil {
+			return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to store action message")
+		}
+		actionMessageID = &actionMsg.ID
+	}
 
 	// Create placeholder message with Stream=true (client will connect to SSE)
-	log.Debug("creating streaming message", "session_id", session.ID)
 	response, err = db.CreateStreamingMessage(ctx, session.UserID, session.ID, obj.GameSessionMessageTypeGame)
 	if err != nil {
-		log.Debug("failed to create streaming message", "session_id", session.ID, "error", err)
 		return nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create streaming message")
 	}
-	log.Debug("streaming message created", "message_id", response.ID)
+
+	// Tag the AI response with the API key source type (shown in AI Insight panel)
+	response.ApiKeyType = session.ApiKeyType
+
+	// Attach transcription to the response so the client can display what was recognized
+	if transcription != "" {
+		response.Transcription = transcription
+	}
 
 	// Create stream for SSE with ImageSaver and AudioSaver to persist before signaling done
 	responseStream := stream.Get().Create(ctx, response,
@@ -459,7 +185,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	gameSchema := templates.BuildResponseSchema(session.StatusFields)
 	gameSchemaJSON, _ := json.Marshal(gameSchema)
 
-	// Phase 0: Rephrase player input in third person with uncertain outcome (best-effort)
+	// Phase 0b: Rephrase player input in third person with uncertain outcome (best-effort)
 	// Skip if the key's last usage failed — avoids wasting a round-trip on a known-broken key
 	keyUsable := session.ApiKey != nil && (session.ApiKey.LastUsageSuccess == nil || *session.ApiKey.LastUsageSuccess)
 	if action.Type == obj.GameSessionMessageTypePlayer && keyUsable {
@@ -477,8 +203,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	}
 
 	// Phase 1: ExecuteAction (blocking) - get structured JSON with plotOutline, statusFields, imagePrompt
-	log.Debug(fmt.Sprintf("executing AI action, session_id=%s, message_id=%s, schema=%s",
-		session.ID, response.ID, string(gameSchemaJSON)))
+	log.Debug("executing AI action", "session_id", session.ID, "message_id", response.ID)
 	usage, err := platform.ExecuteAction(ctx, session, action, response, gameSchema)
 	if err != nil {
 		log.Debug("ExecuteAction failed", "session_id", session.ID, "error", err)
@@ -513,7 +238,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 		return nil, obj.NewHTTPErrorWithCode(500, errorCode, fmt.Sprintf("%s: ExecuteAction failed: %v", failedAction, err))
 	}
-	log.Debug("ExecuteAction completed", "session_id", session.ID, "has_image_prompt", response.ImagePrompt != nil)
 	// Track API key usage success
 	if session.ApiKey != nil {
 		db.UpdateApiKeyLastUsageSuccess(ctx, session.ApiKey.ID, true)
@@ -525,13 +249,21 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline)
-	response.PromptImageGeneration = response.ImagePrompt
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language, session.WorkshopPromptConstraints))
+	if response.ImagePrompt != nil {
+		scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
+		plotOutline := ""
+		if response.Plot != nil {
+			plotOutline = functional.Deref(response.Plot, "")
+		}
+		response.PromptImageGeneration = functional.Ptr(templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle))
+	}
 
 	// Set capability flags based on platform tier
 	if model := platform.ResolveModelInfo(session.AiModel); model != nil {
-		response.HasImage = model.SupportsImage && response.ImagePrompt != nil && *response.ImagePrompt != "" && session.ImageStyle != templates.ImageStyleNoImage
-		response.HasAudio = model.SupportsAudio
+		response.HasImage = model.SupportsImage && functional.Deref(response.ImagePrompt, "") != "" && session.ImageStyle != templates.ImageStyleNoImage
+		response.HasAudioIn = model.SupportsAudioIn
+		response.HasAudioOut = model.SupportsAudioOut
 	}
 
 	// Persist AI session state immediately so the next action can find the conversation/response ID.
@@ -540,8 +272,9 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		log.Warn("failed to persist AI session state after ExecuteAction", "session_id", session.ID, "error", err)
 	}
 
-	// Save the structured response (plotOutline in Message, statusFields, imagePrompt)
-	// This is returned to client immediately
+	// Save the structured response (statusFields, plot, imagePrompt, prompts) to DB.
+	// Plot holds the plot outline; Message stays empty until ExpandStory writes the prose.
+	log.Info("[AI] plotOutline (initial)", "session_id", session.ID, "text", functional.Deref(response.Plot, ""))
 	_ = db.UpdateGameSessionMessage(ctx, session.UserID, *response)
 
 	// Capture values before goroutines to avoid race conditions
@@ -555,13 +288,12 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		defer unlock()
 		log.Debug("starting ExpandStory", "session_id", session.ID, "message_id", messageID)
 		// ExpandStory streams text and updates response.Message with full narrative
-		expandUsage, err := platform.ExpandStory(context.Background(), session, response, responseStream)
+		_, err := platform.ExpandStory(context.Background(), session, response, responseStream)
 		if err != nil {
 			log.Warn("ExpandStory failed", "session_id", session.ID, "error", err)
 		} else {
-			log.Debug("ExpandStory completed", "session_id", session.ID, "message_length", len(response.Message))
+			log.Info("[AI] prose (final)", "session_id", session.ID, "text", response.Message)
 		}
-		log.Debug("ExpandStory token usage", "session_id", session.ID, "input_tokens", expandUsage.InputTokens, "output_tokens", expandUsage.OutputTokens, "total_tokens", expandUsage.TotalTokens)
 
 		// Update DB with full text (replaces plotOutline)
 		response.Stream = false
@@ -570,31 +302,26 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		}
 
 		// Update session with new AI state (response IDs for conversation continuity)
-		log.Debug("[TRACE] persisting AiSession to DB", "session_id", session.ID, "ai_session", session.AiSession)
 		if err := db.UpdateGameSessionAiSession(context.Background(), session.UserID, session.ID, session.AiSession); err != nil {
 			log.Warn("failed to update session AI state", "session_id", session.ID, "error", err)
 		}
 
 		// Phase 4: Generate audio narration (after text is finalized)
-		if !response.HasAudio || len(response.Message) == 0 {
-			log.Debug("audio generation not active for this message, signaling audioDone")
+		if !response.HasAudioOut || len(response.Message) == 0 {
 			responseStream.Send(obj.GameSessionMessageChunk{AudioDone: true})
 		} else {
-			log.Debug("starting GenerateAudio", "session_id", session.ID, "message_id", messageID, "text_length", len(response.Message))
 			audioData, err := platform.GenerateAudio(context.Background(), session, response.Message, responseStream)
 			if err != nil {
 				log.Warn("GenerateAudio failed", "session_id", session.ID, "error", err)
 			} else {
 				response.Audio = audioData
-				log.Debug("GenerateAudio completed", "session_id", session.ID, "audio_bytes", len(audioData))
+				log.Debug("audio generated", "session_id", session.ID, "audio_bytes", len(audioData))
 			}
 		}
 	}()
 
 	go func() {
-		log.Debug("starting GenerateImage", "session_id", session.ID, "message_id", messageID, "hasImage", response.HasImage)
 		if !response.HasImage {
-			log.Debug("image generation not active for this message, signaling imageDone")
 			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true})
 			return
 		}
@@ -616,8 +343,6 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 					log.Warn("failed to clear session API key", "error", dbErr)
 				}
 			}
-		} else {
-			log.Debug("GenerateImage completed", "session_id", session.ID, "image_size", len(response.Image))
 		}
 	}()
 

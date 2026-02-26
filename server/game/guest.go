@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"cgl/db"
-	"cgl/functional"
-	"cgl/game/templates"
 	"cgl/log"
 	"cgl/obj"
 
@@ -138,64 +136,12 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 
 	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
 
-	// Build a single-element candidate list for generateSessionSetup
-	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel}}
+	// Build a single-element candidate list for createSessionInternal
+	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel, KeyType: obj.ApiKeyTypePrivateShare}}
 
-	// Run theme generation + translation; fails early on key-related errors
-	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
-	if httpErr != nil {
-		return nil, nil, httpErr
-	}
-
-	theme := setup.theme
-	sessionUsage := setup.usage
-
-	if setup.translatedGame != nil {
-		game = setup.translatedGame
-	}
-
-	// Generate system message from (possibly translated) game
-	systemMessage, err := templates.GetTemplate(game)
-	if err != nil {
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to get game template")
-	}
-
-	// Persist session
-	session, err := db.CreateGameSession(ctx, user.ID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language)
-	if err != nil {
-		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to create session")
-	}
-	session.ApiKey = share.ApiKey
-
-	// Run first AI action
-	startAction := obj.GameSessionMessage{
-		GameSessionID: session.ID,
-		Type:          obj.GameSessionMessageTypeSystem,
-		Message:       systemMessage,
-	}
-	response, httpErr := DoSessionAction(ctx, session, startAction)
-	if httpErr != nil {
-		if delErr := db.DeleteEmptyGameSession(ctx, session.ID); delErr != nil {
-			log.Warn("guest session: failed to delete empty session after error", "session_id", session.ID, "error", delErr)
-		}
-		return nil, nil, httpErr
-	}
-	response.PromptStatusUpdate = functional.Ptr(systemMessage)
-
-	// Increment play count
-	if err := db.IncrementGamePlayCount(ctx, game.ID); err != nil {
-		log.Warn("guest session: failed to increment play count", "game_id", game.ID, "error", err)
-	}
-
-	// Accumulate token usage
-	if response.TokenUsage != nil {
-		totalUsage := sessionUsage.Add(*response.TokenUsage)
-		response.TokenUsage = &totalUsage
-	} else {
-		response.TokenUsage = &sessionUsage
-	}
-
-	return session, response, nil
+	// Use shared internal implementation
+	// Guest users: no retries (nil), don't delete existing sessions (false)
+	return createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
 }
 
 // ResolveGuestSessionApiKey re-resolves the API key for a guest session from the game's private share.
@@ -208,5 +154,6 @@ func ResolveGuestSessionApiKey(ctx context.Context, session *obj.GameSession, ga
 	session.ApiKey = share.ApiKey
 	session.ApiKeyID = &share.ApiKey.ID
 	session.AiPlatform = share.ApiKey.Platform
+	session.ApiKeyType = obj.ApiKeyTypePrivateShare
 	return nil
 }

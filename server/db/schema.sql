@@ -68,6 +68,7 @@ CREATE TABLE workshop (
     default_api_key_share_id uuid NULL,
     -- Workshop settings (configured by staff/heads)
     ai_quality_tier text NULL,  -- AI quality tier for workshop key (high/medium/low, NULL = server default)
+    prompt_constraints text NULL,  -- Additional prompt constraints configured by workshop staff/heads
     show_public_games boolean NOT NULL DEFAULT false,  -- If true, participants can see public games
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
     design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no
@@ -348,6 +349,7 @@ CREATE TABLE game_session_message (
     message             text NOT NULL,
     -- JSON encoded status fields.
     status              text NULL,
+    plot                text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
     audio               bytea NULL,
@@ -361,10 +363,13 @@ CREATE TABLE game_session_message (
     response_raw            text NULL,
     token_usage             jsonb NULL,
     url_analytics           text NULL,
+    -- Type of API key used to generate this message (shown in AI Insight panel)
+    api_key_type            text NULL,
 
     deleted_at          timestamptz NULL,
 
-    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system'))
+    CONSTRAINT game_session_message_type_chk CHECK (type IN ('player', 'game', 'system')),
+    CONSTRAINT game_session_message_api_key_type_chk CHECK (api_key_type IS NULL OR api_key_type IN ('workshop', 'sponsor', 'institution_free_use', 'personal', 'system_free_use', 'private_share'))
 );
 -- SystemSettings
 -- Global system settings (single row table)

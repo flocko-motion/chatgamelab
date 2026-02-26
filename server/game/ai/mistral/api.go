@@ -9,8 +9,8 @@ import (
 	"cgl/obj"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 )
@@ -85,7 +85,6 @@ func callConversationsAPI(ctx context.Context, apiKey string, req ConversationsA
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
-	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	return &apiResp, usage, nil
 }
 
@@ -101,7 +100,6 @@ func callConversationsAppendAPI(ctx context.Context, apiKey string, conversation
 	}
 
 	usage := apiResp.Usage.toTokenUsage()
-	log.Debug("API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	return &apiResp, usage, nil
 }
 
@@ -110,13 +108,13 @@ func callConversationsAppendAPI(ctx context.Context, apiKey string, conversation
 func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversationID string, req ConversationsAppendRequest, responseStream *stream.Stream) (fullText string, newConversationID string, usage obj.TokenUsage, err error) {
 	reqBody, err := json.Marshal(req)
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to marshal request: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to marshal request", err)
 	}
 
 	endpoint := mistralBaseURL + conversationsEndpoint + "/" + conversationID
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", endpoint, bytes.NewReader(reqBody))
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("failed to create request: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
@@ -124,13 +122,13 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return "", "", obj.TokenUsage{}, fmt.Errorf("request failed: %w", err)
+		return "", "", obj.TokenUsage{}, obj.WrapError(obj.ErrCodeAiError, "request failed", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return "", "", obj.TokenUsage{}, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+		return "", "", obj.TokenUsage{}, obj.ErrAiErrorf("API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	// Parse SSE stream
@@ -149,7 +147,6 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 		}
 		data := strings.TrimPrefix(line, "data: ")
 		if data == "[DONE]" {
-			log.Debug("[STREAM] received [DONE]", "total_lines", lineCount)
 			break
 		}
 
@@ -158,39 +155,29 @@ func callStreamingConversationsAPI(ctx context.Context, apiKey string, conversat
 			Type string `json:"type"`
 		}
 		if err := json.Unmarshal([]byte(data), &event); err != nil {
-			log.Debug("[STREAM] unparseable SSE event", "data", data[:min(len(data), 300)])
 			continue
 		}
 
 		switch event.Type {
 		case "message.output.delta":
-			log.Debug("[STREAM] raw delta event", "data", data[:min(len(data), 500)])
 			var delta sseOutputDelta
-			if err := json.Unmarshal([]byte(data), &delta); err != nil {
-				log.Debug("[STREAM] delta unmarshal error", "error", err)
-			} else {
-				log.Debug("[STREAM] delta parsed", "content_len", len(delta.Content), "content_preview", delta.Content[:min(len(delta.Content), 100)])
-				if delta.Content != "" {
-					textBuilder.WriteString(delta.Content)
-					responseStream.SendText(delta.Content, false)
-				}
+			if err := json.Unmarshal([]byte(data), &delta); err == nil && delta.Content != "" {
+				textBuilder.WriteString(delta.Content)
+				responseStream.SendText(delta.Content, false)
 			}
 		case "conversation.response.done":
-			log.Debug("[STREAM] raw done event", "data", data[:min(len(data), 500)])
 			var done sseResponseDone
 			if err := json.Unmarshal([]byte(data), &done); err == nil {
 				usage = done.Usage.toTokenUsage()
 				if done.ConversationID != "" {
 					newConversationID = done.ConversationID
 				}
-				log.Debug("[STREAM] response done", "usage", usage, "conversation_id", done.ConversationID)
 			}
 		default:
-			log.Debug("[STREAM] unhandled event type", "type", event.Type, "data_len", len(data))
+			// Ignore other event types (e.g. conversation.response.started)
 		}
 	}
 
-	log.Debug("streaming API token usage", "input_tokens", usage.InputTokens, "output_tokens", usage.OutputTokens, "total_tokens", usage.TotalTokens)
 	// Signal text streaming complete
 	responseStream.SendText("", true)
 	return textBuilder.String(), newConversationID, usage, nil
@@ -204,11 +191,72 @@ func callImageConversationAPI(ctx context.Context, apiKey string, req ImageConve
 
 	var apiResp ConversationsAPIResponse
 	if err := client.PostJson(ctx, conversationsEndpoint, req, &apiResp); err != nil {
-		return nil, fmt.Errorf("image conversation API failed: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "image conversation API failed", err)
 	}
 
 	log.Debug("image conversation API completed", "conversation_id", apiResp.ConversationID)
 	return &apiResp, nil
+}
+
+// callTranscriptionAPI sends audio data to Mistral's /audio/transcriptions endpoint.
+// Uses multipart form upload with model and file fields, returns the transcribed text.
+func callTranscriptionAPI(ctx context.Context, apiKey string, audioData []byte, mimeType string) (string, error) {
+	// Determine file extension from MIME type
+	ext := ".webm"
+	switch {
+	case strings.Contains(mimeType, "ogg"):
+		ext = ".ogg"
+	case strings.Contains(mimeType, "mp3") || strings.Contains(mimeType, "mpeg"):
+		ext = ".mp3"
+	case strings.Contains(mimeType, "mp4"):
+		ext = ".mp4"
+	case strings.Contains(mimeType, "wav"):
+		ext = ".wav"
+	}
+
+	// Build multipart form
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	_ = writer.WriteField("model", transcriptionModel)
+	part, err := writer.CreateFormFile("file", "audio"+ext)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create form file", err)
+	}
+	if _, err := part.Write(audioData); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to write audio data", err)
+	}
+	writer.Close()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", mistralBaseURL+transcriptionEndpoint, &buf)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to create request", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "transcription request failed", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to read transcription response", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", obj.ErrAiErrorf("transcription API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var result struct {
+		Text string `json:"text"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", obj.WrapError(obj.ErrCodeAiError, "failed to parse transcription response", err)
+	}
+
+	return strings.TrimSpace(result.Text), nil
 }
 
 // downloadFile downloads file content from the Mistral Files API.
@@ -218,24 +266,24 @@ func downloadFile(ctx context.Context, apiKey string, fileID string) ([]byte, er
 
 	httpReq, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create download request: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to create download request", err)
 	}
 	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("file download request failed: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "file download request failed", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("file download returned status %d: %s", resp.StatusCode, string(body))
+		return nil, obj.ErrAiErrorf("file download returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file content: %w", err)
+		return nil, obj.WrapError(obj.ErrCodeAiError, "failed to read file content", err)
 	}
 
 	log.Debug("file downloaded", "file_id", fileID, "size_bytes", len(data))

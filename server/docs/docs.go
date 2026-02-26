@@ -4705,6 +4705,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -4741,6 +4748,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -4789,8 +4800,12 @@ const docTemplate = `{
                     "description": "display name e.g. \"GPT-5.2\"",
                     "type": "string"
                 },
-                "supportsAudio": {
-                    "description": "whether this tier generates audio (TTS)",
+                "supportsAudioIn": {
+                    "description": "whether this tier supports voice input (STT transcription)",
+                    "type": "boolean"
+                },
+                "supportsAudioOut": {
+                    "description": "whether this tier generates audio narration (TTS)",
                     "type": "boolean"
                 },
                 "supportsImage": {
@@ -5062,6 +5077,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5099,12 +5121,20 @@ const docTemplate = `{
                 },
                 "workshopId": {
                     "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
+                    "type": "string"
                 }
             }
         },
         "obj.GameSessionMessage": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "source of API key used (workshop, sponsor, personal, etc.)",
+                    "type": "string"
+                },
                 "audio": {
                     "type": "array",
                     "items": {
@@ -5114,8 +5144,12 @@ const docTemplate = `{
                 "gameSessionId": {
                     "type": "string"
                 },
-                "hasAudio": {
-                    "description": "true when audio narration is active for this message",
+                "hasAudioIn": {
+                    "description": "true when voice input (STT) is available for this session tier",
+                    "type": "boolean"
+                },
+                "hasAudioOut": {
+                    "description": "true when audio narration (TTS) is active for this message",
                     "type": "boolean"
                 },
                 "hasImage": {
@@ -5140,6 +5174,9 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
+                },
+                "plot": {
+                    "type": "string"
                 },
                 "requestExpandStory": {
                     "type": "string"
@@ -5172,6 +5209,10 @@ const docTemplate = `{
                 },
                 "tokenUsage": {
                     "$ref": "#/definitions/obj.TokenUsage"
+                },
+                "transcription": {
+                    "description": "Transcription holds the text result of audio-to-text conversion (transient, not persisted).\nReturned in the action response so the client can display what was recognized.",
+                    "type": "string"
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
@@ -5366,10 +5407,18 @@ const docTemplate = `{
         "obj.TokenUsage": {
             "type": "object",
             "properties": {
+                "cachedTokens": {
+                    "description": "Subset of input tokens served from cache",
+                    "type": "integer"
+                },
                 "inputTokens": {
                     "type": "integer"
                 },
                 "outputTokens": {
+                    "type": "integer"
+                },
+                "reasoningTokens": {
+                    "description": "Subset of output tokens used for reasoning",
                     "type": "integer"
                 },
                 "totalTokens": {
@@ -5540,6 +5589,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/obj.WorkshopParticipant"
                     }
+                },
+                "promptConstraints": {
+                    "type": "string"
                 },
                 "public": {
                     "type": "boolean"
@@ -5755,6 +5807,13 @@ const docTemplate = `{
                 "gameName": {
                     "type": "string"
                 },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -5797,6 +5856,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -5995,6 +6058,14 @@ const docTemplate = `{
         "routes.SessionActionRequest": {
             "type": "object",
             "properties": {
+                "audioBase64": {
+                    "description": "Base64-encoded audio from voice input",
+                    "type": "string"
+                },
+                "audioMimeType": {
+                    "description": "MIME type of the audio (e.g. \"audio/webm;codecs=opus\")",
+                    "type": "string"
+                },
                 "message": {
                     "type": "string"
                 },
@@ -6004,12 +6075,20 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/obj.StatusField"
                     }
+                },
+                "type": {
+                    "description": "Message type: \"player\" or \"system\" (defaults to \"player\")",
+                    "type": "string"
                 }
             }
         },
         "routes.SessionMessageResponse": {
             "type": "object",
             "properties": {
+                "apiKeyType": {
+                    "description": "source of API key used (workshop, sponsor, personal, etc.)",
+                    "type": "string"
+                },
                 "audio": {
                     "type": "array",
                     "items": {
@@ -6019,8 +6098,12 @@ const docTemplate = `{
                 "gameSessionId": {
                     "type": "string"
                 },
-                "hasAudio": {
-                    "description": "true when audio narration is active for this message",
+                "hasAudioIn": {
+                    "description": "true when voice input (STT) is available for this session tier",
+                    "type": "boolean"
+                },
+                "hasAudioOut": {
+                    "description": "true when audio narration (TTS) is active for this message",
                     "type": "boolean"
                 },
                 "hasImage": {
@@ -6045,6 +6128,9 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
+                },
+                "plot": {
+                    "type": "string"
                 },
                 "requestExpandStory": {
                     "type": "string"
@@ -6077,6 +6163,10 @@ const docTemplate = `{
                 },
                 "tokenUsage": {
                     "$ref": "#/definitions/obj.TokenUsage"
+                },
+                "transcription": {
+                    "description": "Transcription holds the text result of audio-to-text conversion (transient, not persisted).\nReturned in the action response so the client can display what was recognized.",
+                    "type": "string"
                 },
                 "type": {
                     "description": "player: user message; game: LLM/game response; system: initial system/context messages.",
@@ -6115,6 +6205,13 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "gameName": {
+                    "type": "string"
+                },
+                "gameScenario": {
+                    "type": "string"
+                },
+                "gameScenarioImagePrompt": {
+                    "description": "Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.\nPersisted indirectly via AiSession cache, not as its own DB column.",
                     "type": "string"
                 },
                 "id": {
@@ -6159,6 +6256,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
+                    "type": "string"
+                },
+                "workshopPromptConstraints": {
+                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -6296,6 +6397,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "promptConstraints": {
                     "type": "string"
                 },
                 "public": {

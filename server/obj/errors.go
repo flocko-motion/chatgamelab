@@ -127,6 +127,34 @@ func ErrProfaneName(message string) *AppError {
 	return NewAppError(ErrCodeProfaneName, message)
 }
 
+func ErrNoApiKey(message string) *AppError {
+	return NewAppError(ErrCodeNoApiKey, message)
+}
+
+func ErrAiError(message string) *AppError {
+	return NewAppError(ErrCodeAiError, message)
+}
+
+func ErrAiErrorf(format string, args ...any) *AppError {
+	return NewAppError(ErrCodeAiError, fmt.Sprintf(format, args...))
+}
+
+func ErrInvalidApiKey(message string) *AppError {
+	return NewAppError(ErrCodeInvalidApiKey, message)
+}
+
+func ErrInvalidApiKeyf(format string, args ...any) *AppError {
+	return NewAppError(ErrCodeInvalidApiKey, fmt.Sprintf(format, args...))
+}
+
+func ErrContentFiltered(message string) *AppError {
+	return NewAppError(ErrCodeContentFiltered, message)
+}
+
+func ErrRateLimitExceeded(message string) *AppError {
+	return NewAppError(ErrCodeRateLimitExceeded, message)
+}
+
 // AppError is a custom error type that carries an HTTP error code.
 // It implements the standard error interface while providing additional context.
 type AppError struct {

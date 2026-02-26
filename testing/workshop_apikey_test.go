@@ -261,6 +261,95 @@ func (s *WorkshopApiKeyTestSuite) TestColleagueCanRemoveOrgShare() {
 	s.T().Logf("Staff still has the underlying API key")
 }
 
+// TestWorkshopKeySessionCreationAllRoles verifies that all roles that should have
+// access to a workshop key can actually create game sessions (not just check availability):
+//   - head (in workshop mode)
+//   - staff (in workshop mode)
+//   - individual (in workshop mode)
+//   - participant (always in workshop context, no mode switch needed)
+func (s *WorkshopApiKeyTestSuite) TestWorkshopKeySessionCreationAllRoles() {
+	admin := s.DevUser()
+
+	// Setup: institution with head and staff
+	inst := Must(admin.CreateInstitution("Session Creation Org"))
+	head := s.CreateUser("ws-session-head")
+	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.ID.String()))
+	s.Equal("head", head.GetRole())
+
+	staff := s.CreateUser("ws-session-staff")
+	staffInvite := Must(head.InviteToInstitution(inst.ID.String(), "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	s.Equal("staff", staff.GetRole())
+
+	// Individual: not in the institution, joins workshop via invite
+	individual := s.CreateUser("ws-session-individual")
+	s.Equal("individual", individual.GetRole())
+
+	// Head adds a working mock key and shares with org
+	mockKey := Must(head.AddApiKey("mock-session-ws-key", "Workshop Session Key", "mock"))
+	orgShare := Must(head.ShareApiKeyWithInstitution(mockKey.ID.String(), inst.ID.String()))
+	s.T().Logf("Head shared key with org: orgShareID=%s", orgShare.ID)
+
+	// Head creates workshop and sets the org share as workshop key
+	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Session Test Workshop"))
+	wsIDStr := workshop.ID.String()
+	orgShareIDStr := orgShare.ID.String()
+	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
+	s.T().Logf("Workshop key set")
+
+	// Upload a game and make it public so all roles can access it for session creation
+	game := Must(head.UploadGame("alien-first-contact"))
+	Must(head.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	}))
+	s.T().Logf("Head uploaded game (public): %s (ID: %s)", game.Name, game.ID)
+
+	// Head enters workshop mode
+	Must(head.SetActiveWorkshop(&wsIDStr))
+	s.T().Logf("Head entered workshop mode")
+
+	// Staff enters workshop mode
+	Must(staff.SetActiveWorkshop(&wsIDStr))
+	s.T().Logf("Staff entered workshop mode")
+
+	// Individual joins workshop via invite (enters workshop mode)
+	individualInvite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleIndividual)))
+	MustSucceed(individual.AcceptWorkshopInviteByToken(*individualInvite.InviteToken))
+	s.T().Logf("Individual joined workshop via invite")
+
+	// Participant joins workshop anonymously (always in workshop context)
+	participantInvite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	participantResp, err := s.AcceptWorkshopInviteAnonymously(*participantInvite.InviteToken)
+	s.NoError(err)
+	participant := s.CreateUserWithToken(*participantResp.AuthToken)
+	s.T().Logf("Participant joined workshop: %s", participant.Name)
+
+	// All four roles must be able to create a game session via the workshop key
+	type roleCase struct {
+		user *testutil.UserClient
+		role string
+	}
+	cases := []roleCase{
+		{head, "head"},
+		{staff, "staff"},
+		{individual, "individual"},
+		{participant, "participant"},
+	}
+
+	for _, tc := range cases {
+		available := Must(tc.user.GetApiKeyStatus(game.ID.String()))
+		s.True(available, "%s should have API key available via workshop key", tc.role)
+		s.T().Logf("%s: API key available = %v", tc.role, available)
+
+		session, err := tc.user.CreateGameSession(game.ID.String())
+		s.NoError(err, "%s should be able to create a game session via workshop key", tc.role)
+		s.NotEmpty(session.ID, "%s: session should have an ID", tc.role)
+		s.T().Logf("%s: session created = %s", tc.role, session.ID)
+	}
+}
+
 // TestDeleteWorkshopCleansUpParticipants tests that deleting a workshop also
 // deletes the anonymous participant accounts that were created for it.
 func (s *WorkshopApiKeyTestSuite) TestDeleteWorkshopCleansUpParticipants() {

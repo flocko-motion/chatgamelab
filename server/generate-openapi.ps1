@@ -27,3 +27,12 @@ go run github.com/swaggo/swag/cmd/swag@v1.16.3 init `
   --parseInternal
 
 Write-Host 'OpenAPI generated in ./docs'
+
+# Copy swagger.json to web directory for frontend API generation
+$webDir = Join-Path (Split-Path -Parent $root) 'web'
+if (Test-Path $webDir) {
+  $swaggerJson = Join-Path $docsDir 'swagger.json'
+  $webSwaggerJson = Join-Path $webDir 'swagger.json'
+  Copy-Item $swaggerJson $webSwaggerJson -Force
+  Write-Host "Copied swagger.json to $webDir"
+}

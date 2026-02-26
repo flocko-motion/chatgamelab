@@ -999,6 +999,31 @@
 }
 
 /* ============================================================================
+   Audio Recording
+   ============================================================================ */
+
+.recordingDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mantine-color-red-6);
+  animation: recordingPulse 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes recordingPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+/* ============================================================================
    System Message
    ============================================================================ */
 

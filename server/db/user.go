@@ -207,10 +207,13 @@ func GetUserByParticipantToken(ctx context.Context, token string) (*obj.User, er
 
 // GetUserByID gets a user by ID
 func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
+	log.Debug("getting user details by id", "user_id", id)
 	res, err := queries().GetUserDetailsByID(ctx, id)
 	if err != nil {
+		log.Error("failed to get user details by id", "user_id", id, "error", err)
 		return nil, err
 	}
+	log.Debug("got user details", "user_id", id, "name", res.Name, "email", res.Email.String)
 	user := obj.User{
 		ID: res.ID,
 		Meta: obj.Meta{
@@ -252,6 +255,10 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			if res.WorkshopAiQualityTier.Valid {
 				aiQualityTier = &res.WorkshopAiQualityTier.String
 			}
+			var promptConstraints *string
+			if res.WorkshopPromptConstraints.Valid {
+				promptConstraints = &res.WorkshopPromptConstraints.String
+			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.WorkshopID.UUID,
 				Name:                       res.WorkshopName.String,
@@ -260,12 +267,17 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.WorkshopIsPaused.Bool,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 			}
 		} else if res.ActiveWorkshopID.Valid {
 			// Head/staff/individual in workshop mode - use active workshop
 			var aiQualityTier *string
 			if res.ActiveWorkshopAiQualityTier.Valid {
 				aiQualityTier = &res.ActiveWorkshopAiQualityTier.String
+			}
+			var promptConstraints *string
+			if res.ActiveWorkshopPromptConstraints.Valid {
+				promptConstraints = &res.ActiveWorkshopPromptConstraints.String
 			}
 			user.Role.Workshop = &obj.Workshop{
 				ID:                         res.ActiveWorkshopID.UUID,
@@ -275,24 +287,40 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.ActiveWorkshopIsPaused.Bool,
 				AiQualityTier:              aiQualityTier,
+				PromptConstraints:          promptConstraints,
 			}
 		}
 	}
+	log.Debug("fetching api key shares for user", "user_id", id)
 	user.ApiKeys, err = GetApiKeySharesByUser(ctx, id)
 	if err != nil {
+		log.Error("failed to get api key shares for user", "user_id", id, "error", err)
 		return nil, err
 	}
+	log.Debug("successfully loaded user", "user_id", id, "name", user.Name, "api_keys_count", len(user.ApiKeys))
 
 	return &user, nil
 }
 
 // GetUserByAuth0ID gets a user by Auth0 ID
 func GetUserByAuth0ID(ctx context.Context, auth0ID string) (*obj.User, error) {
+	log.Debug("searching for user by auth0_id", "auth0_id", auth0ID, "auth0_id_length", len(auth0ID))
 	id, err := queries().GetUserIDByAuth0ID(ctx, sql.NullString{String: auth0ID, Valid: true})
+	if err != nil {
+		log.Debug("user not found by auth0_id", "auth0_id", auth0ID, "error", err)
+		return nil, err
+	}
+	log.Debug("found user by auth0_id", "auth0_id", auth0ID, "user_id", id)
+	return GetUserByID(ctx, id)
+}
+
+// GetUserByEmail gets a user by email address
+func GetUserByEmail(ctx context.Context, email string) (*obj.User, error) {
+	raw, err := queries().GetUserByEmail(ctx, sql.NullString{String: email, Valid: true})
 	if err != nil {
 		return nil, err
 	}
-	return GetUserByID(ctx, id)
+	return GetUserByID(ctx, raw.ID)
 }
 
 // IsNameTaken checks if a username is already taken
@@ -493,7 +521,6 @@ func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
 
 	// Already admin?
 	if user.Role != nil && user.Role.Role == obj.RoleAdmin {
-		log.Debug("user already has admin role", "user_id", user.ID, "email", *user.Email)
 		return user
 	}
 

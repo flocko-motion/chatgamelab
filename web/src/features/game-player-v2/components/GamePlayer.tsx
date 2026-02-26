@@ -85,6 +85,8 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
 
   if (stateScreen) return stateScreen;
 
+  const hasAudioOut = lifecycle.state.messages.some((m) => !!m.hasAudioOut);
+
   // ── Context value ──────────────────────────────────────────────────────
   const contextValue: GamePlayerContextValue = {
     state: lifecycle.state,
@@ -122,6 +124,12 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}
+            sessionLanguage={lifecycle.state.sessionLanguage}
+            aiModel={lifecycle.state.aiModel}
+            aiPlatform={lifecycle.state.aiPlatform}
+            hasAudioOut={hasAudioOut}
+            isAudioMuted={settings.isAudioMuted}
+            onToggleAudioMuted={settings.toggleAudioMuted}
             fontSize={settings.fontSize}
             increaseFontSize={settings.increaseFontSize}
             decreaseFontSize={settings.decreaseFontSize}
@@ -151,7 +159,10 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
               messages={lifecycle.state.messages}
               isWaitingForResponse={lifecycle.state.isWaitingForResponse}
               isImageGenerationDisabled={settings.isImageGenerationDisabled}
+              isAudioMuted={settings.isAudioMuted}
               apiKeyUnavailable={!lifecycle.apiKeyAvailable}
+              apiKeyPlatform={lifecycle.state.aiPlatform}
+              audioEnabled={lifecycle.state.messages.some((m) => m.hasAudioIn)}
               onSendAction={lifecycle.handleSendAction}
               onRetryLastAction={lifecycle.retryLastAction}
             />

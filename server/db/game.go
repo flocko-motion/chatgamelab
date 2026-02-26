@@ -10,6 +10,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -603,12 +604,13 @@ func UpdateGameYaml(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, yam
 // The function loads game details and constructs the session object internally.
 // Parameters:
 // - userID: the user creating the session
-// - game: the game to play (possibly translated)
-// - apiKeyID: the API key to use (defines platform)
+// - game: the game being played
+// - apiKeyID: the API key to use for AI calls
 // - aiModel: the AI model to use
 // - workshopID: optional workshop context
 // - theme: optional visual theme for the game player UI
-func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string) (*obj.GameSession, error) {
+// - imageStyle: optional adapted image style (if empty, uses game.ImageStyle)
+func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, apiKeyID uuid.UUID, aiModel string, workshopID *uuid.UUID, theme *obj.GameTheme, language string, imageStyle string) (*obj.GameSession, error) {
 	// Validate workshop access and game permissions
 	if err := canAccessGameSession(ctx, userID, OpCreate, nil, game.ID, workshopID); err != nil {
 		return nil, err
@@ -630,6 +632,11 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
 	}
 
+	// Use provided imageStyle if set, otherwise fall back to game.ImageStyle
+	if imageStyle == "" {
+		imageStyle = game.ImageStyle
+	}
+
 	now := time.Now()
 	arg := db.CreateGameSessionParams{
 		CreatedBy:    uuid.NullUUID{UUID: userID, Valid: true},
@@ -643,7 +650,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		AiPlatform:   apiKey.Platform,
 		AiModel:      aiModel,
 		AiSession:    []byte("{}"), // Empty JSON object as initial state
-		ImageStyle:   game.ImageStyle,
+		ImageStyle:   imageStyle,
 		Language:     language,
 		StatusFields: game.StatusFields,
 		Theme:        themeJSON,
@@ -666,6 +673,7 @@ func CreateGameSession(ctx context.Context, userID uuid.UUID, game *obj.Game, ap
 		GameID:          result.GameID,
 		GameName:        game.Name,
 		GameDescription: game.Description,
+		GameScenario:    game.SystemMessageScenario,
 		UserID:          result.UserID,
 		WorkshopID:      nullUUIDToPtr(result.WorkshopID),
 		ApiKeyID:        nullUUIDToPtr(result.ApiKeyID),
@@ -707,10 +715,12 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Type:          msg.Type,
 		Message:       msg.Message,
 		Status:        statusJSON,
+		Plot:          sql.NullString{String: functional.Deref(msg.Plot, ""), Valid: msg.Plot != nil},
 		ImagePrompt:   sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
-		HasAudio:      msg.HasAudio,
+		HasAudio:      msg.HasAudioOut,
+		ApiKeyType:    sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -771,10 +781,11 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Type:                  msg.Type,
 		Message:               msg.Message,
 		Status:                statusJSON,
+		Plot:                  sql.NullString{String: functional.Deref(msg.Plot, ""), Valid: msg.Plot != nil},
 		ImagePrompt:           sql.NullString{String: functional.Deref(msg.ImagePrompt, ""), Valid: msg.ImagePrompt != nil},
 		Image:                 msg.Image,
 		HasImage:              msg.HasImage,
-		HasAudio:              msg.HasAudio,
+		HasAudio:              msg.HasAudioOut,
 		PromptStatusUpdate:    sql.NullString{String: functional.Deref(msg.PromptStatusUpdate, ""), Valid: msg.PromptStatusUpdate != nil},
 		PromptResponseSchema:  sql.NullString{String: functional.Deref(msg.PromptResponseSchema, ""), Valid: msg.PromptResponseSchema != nil},
 		PromptImageGeneration: sql.NullString{String: functional.Deref(msg.PromptImageGeneration, ""), Valid: msg.PromptImageGeneration != nil},
@@ -782,6 +793,7 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
+		ApiKeyType:            sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -959,6 +971,7 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 	if err == nil {
 		session.GameName = game.Name
 		session.GameDescription = game.Description
+		session.GameScenario = game.SystemMessageScenario
 	}
 
 	if s.ApiKeyID.Valid {
@@ -1038,6 +1051,7 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 	if err == nil {
 		session.GameName = game.Name
 		session.GameDescription = game.Description
+		session.GameScenario = game.SystemMessageScenario
 	}
 
 	// Load API key (if present - may be null if the key was deleted)
@@ -1058,12 +1072,22 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
 	}
 
+	// Load workshop prompt constraints from user's role (if in a workshop)
+	user, err := GetUserByID(ctx, s.UserID)
+	if err == nil && user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
+		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
+		if constraints != "" {
+			session.WorkshopPromptConstraints = &constraints
+		}
+	}
+
 	return session, nil
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
 // priority chain (workshop → sponsored game → institution free-use → user default → system free-use) and updates the session.
 // Used when resuming a session whose API key was deleted.
+// Only accepts keys from the same AI platform as the session to prevent mid-session platform switches.
 func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSession, error) {
 	// Load and verify session ownership
 	session, err := loadSessionByID(ctx, sessionID)
@@ -1072,6 +1096,15 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	}
 	if session.UserID != userID {
 		return nil, obj.ErrForbidden("not the owner of this session")
+	}
+
+	// Only accept keys from the same platform as the session.
+	// Switching platforms mid-session would break AiSession state (platform-specific conversation IDs).
+	requiredPlatform := session.AiPlatform
+
+	// matchesPlatform returns false if the share's platform doesn't match the session's locked platform.
+	matchesPlatform := func(s *obj.ApiKeyShare) bool {
+		return s != nil && s.ApiKey != nil && (requiredPlatform == "" || s.ApiKey.Platform == requiredPlatform)
 	}
 
 	// Resolve the API key and AI quality tier using the same priority chain as session creation:
@@ -1092,8 +1125,9 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if userErr == nil && user.Role != nil && user.Role.Workshop != nil {
 		workshop, wsErr := GetWorkshopByID(ctx, userID, user.Role.Workshop.ID)
 		if wsErr == nil && workshop.DefaultApiKeyShareID != nil {
-			share, _ = GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
-			if share != nil {
+			candidate, _ := GetApiKeyShareByID(ctx, userID, *workshop.DefaultApiKeyShareID)
+			if matchesPlatform(candidate) {
+				share = candidate
 				sourceTier = workshop.AiQualityTier
 			}
 		}
@@ -1103,17 +1137,18 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil {
 		game, gameErr := loadGameByID(ctx, session.GameID)
 		if gameErr == nil && game.PublicSponsoredApiKeyShareID != nil {
-			sponsorShare, shareErr := GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
-			if shareErr == nil {
-				share = sponsorShare
+			candidate, shareErr := GetApiKeyShareByID(ctx, userID, *game.PublicSponsoredApiKeyShareID)
+			if shareErr == nil && matchesPlatform(candidate) {
+				share = candidate
 			}
 		}
 	}
 
 	// 3. Check institution free-use key
 	if share == nil && userErr == nil && user.Role != nil && user.Role.Institution != nil && user.Role.Institution.FreeUseApiKeyShareID != nil {
-		share, _ = GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
-		if share != nil {
+		candidate, _ := GetApiKeyShareByID(ctx, userID, *user.Role.Institution.FreeUseApiKeyShareID)
+		if matchesPlatform(candidate) {
+			share = candidate
 			institution, instErr := GetInstitutionByID(ctx, userID, user.Role.Institution.ID)
 			if instErr == nil {
 				sourceTier = institution.FreeUseAiQualityTier
@@ -1125,8 +1160,9 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil && userErr == nil {
 		defaultKey, _ := GetDefaultApiKeyForUser(ctx, userID)
 		if defaultKey != nil {
-			share, _ = GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
-			if share != nil {
+			candidate, _ := GetSelfShareForApiKey(ctx, userID, defaultKey.ID)
+			if matchesPlatform(candidate) {
+				share = candidate
 				sourceTier = user.AiQualityTier
 			}
 		}
@@ -1136,15 +1172,21 @@ func ResolveAndUpdateGameSessionApiKey(ctx context.Context, userID uuid.UUID, se
 	if share == nil && settings != nil && settings.FreeUseApiKeyID != nil {
 		apiKey, keyErr := GetApiKeyByID(ctx, *settings.FreeUseApiKeyID)
 		if keyErr == nil {
-			share = &obj.ApiKeyShare{
+			candidate := &obj.ApiKeyShare{
 				ApiKeyID: apiKey.ID,
 				ApiKey:   apiKey,
 			}
-			sourceTier = settings.FreeUseAiQualityTier
+			if matchesPlatform(candidate) {
+				share = candidate
+				sourceTier = settings.FreeUseAiQualityTier
+			}
 		}
 	}
 
 	if share == nil || share.ApiKey == nil {
+		if requiredPlatform != "" {
+			return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available for platform " + requiredPlatform + ". All available keys use a different AI platform."}
+		}
 		return nil, &obj.HTTPError{StatusCode: 400, Code: obj.ErrCodeNoApiKey, Message: "No API key available. Please configure an API key in your settings."}
 	}
 
@@ -1193,8 +1235,8 @@ func inferCapabilityFlags(msg *obj.GameSessionMessage) {
 	if !msg.HasImage && len(msg.Image) > 0 {
 		msg.HasImage = true
 	}
-	if !msg.HasAudio && len(msg.Audio) > 0 {
-		msg.HasAudio = true
+	if !msg.HasAudioOut && len(msg.Audio) > 0 {
+		msg.HasAudioOut = true
 	}
 }
 
@@ -1224,6 +1266,9 @@ func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 			msg.TokenUsage = &tu
 		}
 	}
+	if m.ApiKeyType.Valid {
+		msg.ApiKeyType = m.ApiKeyType.String
+	}
 }
 
 // GetGameSessionMessageImageByID returns just the image for a message (no auth required)
@@ -1250,13 +1295,13 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	msg := &obj.GameSessionMessage{
-		ID:       m.ID,
-		Type:     m.Type,
-		Message:  m.Message,
-		Image:    m.Image,
-		Audio:    m.Audio,
-		HasImage: m.HasImage,
-		HasAudio: m.HasAudio,
+		ID:          m.ID,
+		Type:        m.Type,
+		Message:     m.Message,
+		Image:       m.Image,
+		Audio:       m.Audio,
+		HasImage:    m.HasImage,
+		HasAudioOut: m.HasAudio,
 	}
 
 	// Parse status fields from JSON
@@ -1264,7 +1309,10 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1300,7 +1348,7 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		Image:         m.Image,
 		Audio:         m.Audio,
 		HasImage:      m.HasImage,
-		HasAudio:      m.HasAudio,
+		HasAudioOut:   m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1314,7 +1362,10 @@ func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID 
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1348,7 +1399,7 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		Type:          m.Type,
 		Message:       m.Message,
 		HasImage:      m.HasImage,
-		HasAudio:      m.HasAudio,
+		HasAudioOut:   m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1362,7 +1413,10 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 	}
 
-	// Set image prompt
+	// Set plot and image prompt
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
+	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
 	}
@@ -1400,7 +1454,7 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			Image:         m.Image,
 			Audio:         m.Audio,
 			HasImage:      m.HasImage,
-			HasAudio:      m.HasAudio,
+			HasAudioOut:   m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1414,7 +1468,10 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
 		}
 
-		// Set image prompt
+		// Set plot and image prompt
+		if m.Plot.Valid {
+			msg.Plot = &m.Plot.String
+		}
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String
 		}
@@ -1443,7 +1500,7 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 		Type:          m.Type,
 		Message:       m.Message,
 		HasImage:      m.HasImage,
-		HasAudio:      m.HasAudio,
+		HasAudioOut:   m.HasAudio,
 		Meta: obj.Meta{
 			CreatedBy:  m.CreatedBy,
 			CreatedAt:  &m.CreatedAt,
@@ -1453,6 +1510,9 @@ func GetLatestGuestSessionMessage(ctx context.Context, sessionID uuid.UUID) (*ob
 	}
 	if m.Status.Valid && m.Status.String != "" {
 		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+	}
+	if m.Plot.Valid {
+		msg.Plot = &m.Plot.String
 	}
 	if m.ImagePrompt.Valid {
 		msg.ImagePrompt = &m.ImagePrompt.String
@@ -1481,7 +1541,7 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 			Image:         m.Image,
 			Audio:         m.Audio,
 			HasImage:      m.HasImage,
-			HasAudio:      m.HasAudio,
+			HasAudioOut:   m.HasAudio,
 			Meta: obj.Meta{
 				CreatedBy:  m.CreatedBy,
 				CreatedAt:  &m.CreatedAt,
@@ -1491,6 +1551,9 @@ func GetAllGuestSessionMessages(ctx context.Context, sessionID uuid.UUID) ([]obj
 		}
 		if m.Status.Valid && m.Status.String != "" {
 			_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
+		}
+		if m.Plot.Valid {
+			msg.Plot = &m.Plot.String
 		}
 		if m.ImagePrompt.Valid {
 			msg.ImagePrompt = &m.ImagePrompt.String
@@ -1728,13 +1791,13 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 		return err
 	}
 
-	// Verify the share exists and the user owns the underlying key
+	// Verify the share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, apiKeyShareID)
 	if err != nil {
 		return obj.ErrNotFound("api key share not found")
 	}
-	if share.KeyOwnerID != userID {
-		return obj.ErrForbidden("only the key owner can sponsor a game")
+	if err := canUseShareForSponsoring(ctx, userID, share); err != nil {
+		return err
 	}
 
 	// Verify the key has been proven to work (last_usage_success must be true)
@@ -2005,13 +2068,13 @@ func CreatePrivateShareSponsorship(ctx context.Context, userID uuid.UUID, gameID
 		return nil, err
 	}
 
-	// Verify the share exists and the user owns the underlying key
+	// Verify the share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
 	if err != nil {
 		return nil, obj.ErrNotFound("api key share not found")
 	}
-	if share.KeyOwnerID != userID {
-		return nil, obj.ErrForbidden("only the key owner can sponsor a game")
+	if err := canUseShareForSponsoring(ctx, userID, share); err != nil {
+		return nil, err
 	}
 
 	// Verify the key hasn't been proven to NOT work
@@ -2078,6 +2141,15 @@ func DeleteGuestDataByGameID(ctx context.Context, gameID uuid.UUID) error {
 // CountGuestUsersByGameID returns the number of guest users created via a game's share link.
 func CountGuestUsersByGameID(ctx context.Context, gameID uuid.UUID) (int, error) {
 	count, err := queries().CountGuestUsersByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+	if err != nil {
+		return 0, err
+	}
+	return int(count), nil
+}
+
+// CountGameSessionMessages returns the number of messages in a game session.
+func CountGameSessionMessages(ctx context.Context, sessionID uuid.UUID) (int, error) {
+	count, err := queries().CountGameSessionMessages(ctx, sessionID)
 	if err != nil {
 		return 0, err
 	}

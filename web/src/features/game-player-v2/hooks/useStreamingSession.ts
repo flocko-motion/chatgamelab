@@ -7,6 +7,7 @@ import type {
   StreamChunk,
   MessageStatus,
   GamePlayerState,
+  PlayerActionInput,
 } from "../types";
 import { mapApiMessageToScene } from "../types";
 
@@ -15,6 +16,7 @@ import { mapApiMessageToScene } from "../types";
 export const INITIAL_STATE: GamePlayerState = {
   phase: "idle",
   sessionId: null,
+  sessionLanguage: null,
   gameInfo: null,
   messages: [],
   statusFields: [],
@@ -23,6 +25,8 @@ export const INITIAL_STATE: GamePlayerState = {
   errorObject: null,
   streamError: null,
   theme: null,
+  aiModel: null,
+  aiPlatform: null,
 };
 
 const POLL_INTERVAL = 3000;
@@ -53,6 +57,8 @@ export interface SessionAdapter {
     sessionId: string,
     message: string,
     statusFields: SceneMessage["statusFields"],
+    audio?: { base64: string; mimeType: string },
+    type?: string, // Message type: "player" or "system" (defaults to "player")
   ) => Promise<GameMessageResult>;
 
   /** Load an existing session by ID. Return the raw session response. */
@@ -67,8 +73,11 @@ export interface SessionCreateResult {
   gameId?: string;
   gameName?: string;
   gameDescription?: string;
+  language?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
+  aiModel?: string;
+  aiPlatform?: string;
 }
 
 export interface SessionLoadResult {
@@ -76,9 +85,12 @@ export interface SessionLoadResult {
   gameId?: string;
   gameName?: string;
   gameDescription?: string;
+  language?: string;
   apiKeyId?: string;
   messages?: RawMessage[];
   theme?: GamePlayerState["theme"];
+  aiModel?: string;
+  aiPlatform?: string;
 }
 
 export interface GameMessageResult {
@@ -86,8 +98,10 @@ export interface GameMessageResult {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
+  transcription?: string;
 }
 
 /** Raw message shape from the API (before mapping to SceneMessage). */
@@ -96,7 +110,8 @@ export interface RawMessage {
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
-  hasAudio?: boolean;
+  hasAudioIn?: boolean;
+  hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
 }
 
@@ -111,7 +126,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const activePollingIdRef = useRef<string | null>(null);
   const sseActiveRef = useRef(false);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const startPollingRef = useRef<(messageId: string) => void>(() => {});
+  const startPollingRef = useRef<(messageId: string) => void>(() => { });
   const lastImageUpdateRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
@@ -225,7 +240,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           if (
             status.statusFields?.length &&
             JSON.stringify(status.statusFields) !==
-              JSON.stringify(msg.statusFields)
+            JSON.stringify(msg.statusFields)
           ) {
             updates.statusFields = status.statusFields;
             stateUpdates.statusFields = status.statusFields;
@@ -315,7 +330,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
   const connectToStream = useCallback(
     async (messageId: string, playerMessageId?: string) => {
+      // console.log('[SSE-DEBUG] connectToStream called', { messageId, playerMessageId, hasExistingController: !!abortControllerRef.current });
       if (abortControllerRef.current) {
+        // console.log('[SSE-DEBUG] aborting previous controller');
         abortControllerRef.current.abort();
       }
 
@@ -384,10 +401,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                       .map((msg) =>
                         msg.id === playerMessageId
                           ? {
-                              ...msg,
-                              error: chunk.error,
-                              errorCode: chunk.errorCode,
-                            }
+                            ...msg,
+                            error: chunk.error,
+                            errorCode: chunk.errorCode,
+                          }
                           : msg,
                       ),
                     isWaitingForResponse: false,
@@ -484,11 +501,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
         sseActiveRef.current = false;
         clearSilenceTimer();
         if ((error as Error).name !== "AbortError") {
+          // console.log('[SSE-DEBUG] SSE connection lost (non-abort)', { error, messageId });
           apiLogger.error("SSE connection lost, activating polling", {
             error,
             messageId,
           });
           startPolling(messageId);
+        } else {
+          // console.log('[SSE-DEBUG] SSE aborted (AbortError)', { messageId });
         }
       }
     },
@@ -508,51 +528,24 @@ export function useStreamingSession(adapter: SessionAdapter) {
     setState((prev) => ({ ...prev, phase: "starting", error: null }));
 
     try {
+      // Step 1: Create session
       const sessionResponse = await adapterRef.current.createSession();
-      const firstMessage = sessionResponse.messages?.[0];
 
-      if (!firstMessage) {
-        throw new Error("No message returned from session creation");
+      if (!sessionResponse.id) {
+        throw new Error("No session ID returned from session creation");
       }
 
-      const sceneMessage = mapApiMessageToScene(firstMessage);
-
+      // Step 2: Just store the sessionId and trigger navigation
+      // We'll load the full session data via GET after navigation (treat as continuation)
       setState((prev) => ({
         ...prev,
-        phase: "playing",
         sessionId: sessionResponse.id || null,
-        gameInfo: {
-          id: sessionResponse.gameId,
-          name: sessionResponse.gameName,
-          description: sessionResponse.gameDescription,
-        },
-        messages: [
-          {
-            ...sceneMessage,
-            text: "",
-            isStreaming: true,
-            isImageLoading: !!firstMessage.hasImage,
-            audioStatus: firstMessage.hasAudio ? "loading" : undefined,
-          },
-        ],
-        statusFields: firstMessage.statusFields || [],
-        isWaitingForResponse: true,
-        theme: sessionResponse.theme || null,
       }));
 
-      if (sessionResponse.id) {
-        adapterRef.current.onSessionCreated?.(sessionResponse.id);
-      }
+      // Notify about session creation (for cache invalidation)
+      adapterRef.current.onSessionCreated?.(sessionResponse.id);
 
-      if (firstMessage.id && firstMessage.stream) {
-        connectToStream(firstMessage.id);
-      } else {
-        setState((prev) => ({
-          ...prev,
-          messages: [sceneMessage],
-          isWaitingForResponse: false,
-        }));
-      }
+      // Navigation will happen, then loadExistingSession will load the data
     } catch (error) {
       // Extract message from Error instances or { error: { message } } API shapes
       let message = "Failed to start session";
@@ -578,14 +571,18 @@ export function useStreamingSession(adapter: SessionAdapter) {
   }, [connectToStream]);
 
   const sendAction = useCallback(
-    async (message: string) => {
+    async (input: PlayerActionInput) => {
       if (!state.sessionId || state.isWaitingForResponse) return;
+
+      const displayText =
+        input.message || (input.audioBase64 ? "\uD83C\uDFA4" : "");
 
       const playerMessage: SceneMessage = {
         id: crypto.randomUUID(),
         type: "player",
-        text: message,
+        text: displayText,
         timestamp: new Date(),
+        isInternal: input.isInternal, // Mark as internal if specified (e.g., "init" action)
       };
 
       setState((prev) => ({
@@ -602,10 +599,18 @@ export function useStreamingSession(adapter: SessionAdapter) {
       }));
 
       try {
+        const audio =
+          input.audioBase64 && input.audioMimeType
+            ? { base64: input.audioBase64, mimeType: input.audioMimeType }
+            : undefined;
+        // Determine message type - system for init action, otherwise player (default)
+        const messageType = input.message === "init" && input.isInternal ? "system" : undefined;
         const gameResponse = await adapterRef.current.sendAction(
           state.sessionId,
-          message,
+          input.message || "",
           state.statusFields,
+          audio,
+          messageType,
         );
 
         const sceneMessage = mapApiMessageToScene(gameResponse);
@@ -613,13 +618,18 @@ export function useStreamingSession(adapter: SessionAdapter) {
         setState((prev) => ({
           ...prev,
           messages: [
-            ...prev.messages,
+            // If the backend returned a transcription, update the player message text
+            ...prev.messages.map((msg) =>
+              msg.id === playerMessage.id && gameResponse.transcription
+                ? { ...msg, text: gameResponse.transcription }
+                : msg,
+            ),
             {
               ...sceneMessage,
               text: "",
               isStreaming: true,
               isImageLoading: !!gameResponse.hasImage,
-              audioStatus: gameResponse.hasAudio ? "loading" : undefined,
+              audioStatus: gameResponse.hasAudioOut ? "loading" : undefined,
             },
           ],
           statusFields: gameResponse.statusFields?.length
@@ -658,19 +668,32 @@ export function useStreamingSession(adapter: SessionAdapter) {
           const nested = (error as { error: { message?: string } }).error;
           if (nested.message) errorMessage = nested.message;
         }
-        setState((prev) => ({
-          ...prev,
-          isWaitingForResponse: false,
-          messages: prev.messages.map((msg) =>
-            msg.id === playerMessage.id
-              ? {
+
+        if (input.isInternal) {
+          // Internal actions (e.g. "init" opening scene) are hidden from the UI.
+          // Attaching the error to the hidden message would silently swallow it,
+          // so escalate to streamError so the error modal is shown.
+          setState((prev) => ({
+            ...prev,
+            isWaitingForResponse: false,
+            messages: prev.messages.filter((msg) => msg.id !== playerMessage.id),
+            streamError: { code: errorCode ?? null, message: errorMessage, isInitFailure: true },
+          }));
+        } else {
+          setState((prev) => ({
+            ...prev,
+            isWaitingForResponse: false,
+            messages: prev.messages.map((msg) =>
+              msg.id === playerMessage.id
+                ? {
                   ...msg,
                   error: errorMessage,
                   errorCode,
                 }
-              : msg,
-          ),
-        }));
+                : msg,
+            ),
+          }));
+        }
       }
     },
     [
@@ -693,7 +716,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     }));
 
     setTimeout(() => {
-      sendAction(failedMessage.text);
+      sendAction({ message: failedMessage.text });
     }, 0);
   }, [state.messages, sendAction]);
 
@@ -722,75 +745,35 @@ export function useStreamingSession(adapter: SessionAdapter) {
           },
           messages: isInProgress
             ? messages.map((msg, i) =>
-                i === messages.length - 1
-                  ? {
-                      ...msg,
-                      isImageLoading: !!msg.hasImage,
-                      audioStatus: msg.hasAudio ? "loading" : undefined,
-                    }
-                  : msg,
-              )
+              i === messages.length - 1
+                ? {
+                  ...msg,
+                  text: "",
+                  isStreaming: true,
+                  isImageLoading: !!msg.hasImage,
+                  audioStatus: msg.hasAudioOut ? "loading" : undefined,
+                }
+                : msg,
+            )
             : messages,
           statusFields:
             messages.length > 0
               ? messages[messages.length - 1].statusFields || []
               : [],
           isWaitingForResponse: isInProgress,
+          sessionLanguage: session.language || null,
           theme: session.theme || null,
+          aiModel: session.aiModel || null,
+          aiPlatform: session.aiPlatform || null,
         }));
 
-        if (isInProgress && lastMessage?.id) {
-          apiLogger.debug(
-            "Session has in-progress message, connecting to stream",
-            { messageId: lastMessage.id },
-          );
-          updateMessage(lastMessage.id, { text: "" });
-          connectToStream(lastMessage.id);
-        } else if (!isInProgress && lastMessage?.id && lastMessage.hasImage) {
-          try {
-            const statusResp = await fetch(
-              `${config.API_BASE_URL}/messages/${lastMessage.id}/status`,
-            );
-            if (statusResp.ok) {
-              const status: MessageStatus = await statusResp.json();
-              if (status.imageStatus === "generating") {
-                apiLogger.debug(
-                  "Session has in-progress image, starting poll",
-                  { messageId: lastMessage.id },
-                );
-                updateMessage(lastMessage.id, {
-                  imageStatus: "generating",
-                  imageHash: status.imageHash || undefined,
-                  isImageLoading: true,
-                });
-                startPolling(lastMessage.id);
-              } else if (
-                status.imageStatus === "complete" &&
-                status.imageHash
-              ) {
-                updateMessage(lastMessage.id, {
-                  imageStatus: "complete",
-                  imageHash: status.imageHash,
-                });
-              } else if (status.imageStatus === "error") {
-                updateMessage(lastMessage.id, {
-                  imageStatus: "error",
-                  imageErrorCode: status.imageError,
-                  isImageLoading: false,
-                });
-              } else if (status.imageStatus === "none") {
-                updateMessage(lastMessage.id, {
-                  imageStatus: "none",
-                  isImageLoading: false,
-                });
-              }
-            }
-          } catch {
-            apiLogger.debug("Failed to check image status on rejoin", {
-              messageId: lastMessage.id,
-            });
-          }
-        }
+        // TODO: Re-enable SSE reconnection after basic flow is stable
+        // if (isInProgress && lastMessage?.id) {
+        //   console.log('[SSE-DEBUG] loadExistingSession: reconnecting to stream', { messageId: lastMessage.id });
+        //   connectToStream(lastMessage.id);
+        // } else if (!isInProgress && lastMessage?.id && lastMessage.hasImage) {
+        //   // Check image status and start polling if needed
+        // }
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Failed to load session";
@@ -818,6 +801,24 @@ export function useStreamingSession(adapter: SessionAdapter) {
     clearSilenceTimer();
     setState(INITIAL_STATE);
   }, [stopPolling, clearSilenceTimer]);
+
+  // Detect when session is ready and trigger opening scene generation
+  const openingSceneInitiatedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      state.phase === "playing" &&
+      state.sessionId &&
+      state.messages.length === 1 && // Session has 1 message (the system message created during session creation, but not yet processed by AI)
+      openingSceneInitiatedRef.current !== state.sessionId
+    ) {
+      openingSceneInitiatedRef.current = state.sessionId;
+
+      // Trigger opening scene generation via system action "init"
+      // Backend loads the existing system message and sends it to AI
+      // Mark as internal so it's hidden from UI
+      sendAction({ message: "init", isInternal: true });
+    }
+  }, [state.phase, state.sessionId, state.messages.length, state.theme, sendAction]);
 
   // Cleanup on unmount
   useEffect(() => {

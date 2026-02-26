@@ -34,10 +34,14 @@ export interface SceneMessage {
   error?: string;
   /** Machine-readable error code for i18n */
   errorCode?: string;
+  /** Mark internal/system messages (like "init") that should be hidden from UI */
+  isInternal?: boolean;
   /** Whether this message has image generation (set by backend based on platform capabilities) */
   hasImage?: boolean;
-  /** Whether this message has audio narration (set by backend based on platform capabilities) */
-  hasAudio?: boolean;
+  /** Whether voice input (STT) is available for this session tier (runtime capability, not persisted) */
+  hasAudioIn?: boolean;
+  /** Whether this message has audio narration (TTS, set by backend based on platform capabilities) */
+  hasAudioOut?: boolean;
   /** Audio narration status: 'loading' while TTS is generating, 'ready' when available */
   audioStatus?: 'loading' | 'ready';
   /** Blob URL for streamed audio data (available when audioStatus='ready') */
@@ -58,6 +62,8 @@ export interface SceneMessage {
     outputTokens?: number;
     totalTokens?: number;
   };
+  /** Source type of API key used to generate this message (shown in AI Insight) */
+  apiKeyType?: string;
 }
 
 export interface StreamChunk {
@@ -87,6 +93,18 @@ export interface GameSessionConfig {
   model?: string;
 }
 
+/** Input from the player — either typed text or recorded audio. */
+export interface PlayerActionInput {
+  /** Text message (for typed input) */
+  message?: string;
+  /** Base64-encoded audio data (for voice input) */
+  audioBase64?: string;
+  /** MIME type of the audio (e.g. "audio/webm;codecs=opus") */
+  audioMimeType?: string;
+  /** Mark as internal/system message (like "init") that should be hidden from UI */
+  isInternal?: boolean;
+}
+
 export interface GameInfo {
   id?: string;
   name?: string;
@@ -107,11 +125,15 @@ export type GamePhase =
 export interface StreamError {
   code: string | null;
   message: string;
+  /** True when the error came from the 'init' opening scene action on a fresh session */
+  isInitFailure?: boolean;
 }
 
 export interface GamePlayerState {
   phase: GamePhase;
   sessionId: string | null;
+  /** Fixed language of this game session (e.g. "en", "de") */
+  sessionLanguage: string | null;
   gameInfo: GameInfo | null;
   messages: SceneMessage[];
   statusFields: ObjStatusField[];
@@ -123,6 +145,10 @@ export interface GamePlayerState {
   streamError: StreamError | null;
   /** AI-generated visual theme from the session */
   theme: ObjGameTheme | null;
+  /** Quality tier used for this session (e.g. "low", "medium", "high") */
+  aiModel: string | null;
+  /** AI platform used for this session (e.g. "openai", "mistral") */
+  aiPlatform: string | null;
 }
 
 // ============================================================================
@@ -153,8 +179,9 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     isStreaming: msg.stream,
     isImageLoading: msg.stream && !!msg.hasImage,
     hasImage: msg.hasImage,
-    hasAudio: msg.hasAudio,
-    audioStatus: msg.hasAudio && !msg.stream ? 'ready' : undefined,
+    hasAudioIn: msg.hasAudioIn,
+    hasAudioOut: msg.hasAudioOut,
+    audioStatus: msg.hasAudioOut && !msg.stream ? 'ready' : undefined,
     imageStatus,
     imageHash,
     timestamp: msg.meta?.createdAt ? new Date(msg.meta.createdAt) : new Date(),
@@ -165,6 +192,7 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     requestExpandStory: msg.requestExpandStory ?? undefined,
     responseRaw: msg.responseRaw ?? undefined,
     tokenUsage: msg.tokenUsage ?? undefined,
+    apiKeyType: msg.apiKeyType ?? undefined,
   };
 }
 

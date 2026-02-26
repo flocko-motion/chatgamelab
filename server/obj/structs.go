@@ -9,18 +9,46 @@ import (
 
 // TokenUsage tracks token consumption from an API call
 type TokenUsage struct {
-	InputTokens  int `json:"inputTokens"`
-	OutputTokens int `json:"outputTokens"`
-	TotalTokens  int `json:"totalTokens"`
+	InputTokens     int  `json:"inputTokens"`
+	CachedTokens    *int `json:"cachedTokens,omitempty"` // Subset of input tokens served from cache
+	OutputTokens    int  `json:"outputTokens"`
+	ReasoningTokens *int `json:"reasoningTokens,omitempty"` // Subset of output tokens used for reasoning
+	TotalTokens     int  `json:"totalTokens"`
 }
 
 // Add returns a new TokenUsage with the sum of both usages
 func (u TokenUsage) Add(other TokenUsage) TokenUsage {
-	return TokenUsage{
+	result := TokenUsage{
 		InputTokens:  u.InputTokens + other.InputTokens,
 		OutputTokens: u.OutputTokens + other.OutputTokens,
 		TotalTokens:  u.TotalTokens + other.TotalTokens,
 	}
+
+	// Sum cached tokens if either has them
+	if u.CachedTokens != nil || other.CachedTokens != nil {
+		cached := 0
+		if u.CachedTokens != nil {
+			cached += *u.CachedTokens
+		}
+		if other.CachedTokens != nil {
+			cached += *other.CachedTokens
+		}
+		result.CachedTokens = &cached
+	}
+
+	// Sum reasoning tokens if either has them
+	if u.ReasoningTokens != nil || other.ReasoningTokens != nil {
+		reasoning := 0
+		if u.ReasoningTokens != nil {
+			reasoning += *u.ReasoningTokens
+		}
+		if other.ReasoningTokens != nil {
+			reasoning += *other.ReasoningTokens
+		}
+		result.ReasoningTokens = &reasoning
+	}
+
+	return result
 }
 
 type Meta struct {
@@ -120,6 +148,7 @@ type Workshop struct {
 	Invites              []UserRoleInvite      `json:"invites,omitempty"`
 	// Workshop settings (configured by staff/heads)
 	AiQualityTier              *string `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
+	PromptConstraints          *string `json:"promptConstraints,omitempty"`
 	ShowPublicGames            bool    `json:"showPublicGames"`
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
@@ -252,12 +281,16 @@ type GameSession struct {
 	ID   uuid.UUID `json:"id"`
 	Meta Meta      `json:"meta"`
 
-	GameID          uuid.UUID  `json:"gameId"`
-	GameName        string     `json:"gameName"`
-	GameDescription string     `json:"gameDescription"`
-	UserID          uuid.UUID  `json:"userId"`
-	WorkshopID      *uuid.UUID `json:"workshopId,omitempty"`
-	UserName        string     `json:"userName"`
+	GameID          uuid.UUID `json:"gameId"`
+	GameName        string    `json:"gameName"`
+	GameDescription string    `json:"gameDescription"`
+	GameScenario    string    `json:"gameScenario"`
+	// Condensed, image-focused scenario guidance derived from GameScenario via ToolQuery.
+	// Persisted indirectly via AiSession cache, not as its own DB column.
+	GameScenarioImagePrompt string     `json:"gameScenarioImagePrompt,omitempty"`
+	UserID                  uuid.UUID  `json:"userId"`
+	WorkshopID              *uuid.UUID `json:"workshopId,omitempty"`
+	UserName                string     `json:"userName"`
 	// API key used to pay for this session (sponsored or user-owned), implicitly defines platform.
 	// Nullable: key may be deleted, session can continue with a new key.
 	ApiKeyID *uuid.UUID `json:"apiKeyId,omitempty"`
@@ -271,12 +304,17 @@ type GameSession struct {
 	ImageStyle string `json:"imageStyle"`
 	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
 	Language string `json:"language"`
+	// Workshop prompt constraints (if user is in a workshop), re-injected with every AI call
+	WorkshopPromptConstraints *string `json:"workshopPromptConstraints,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
 	Theme *GameTheme `json:"theme,omitempty"`
 	// Set to true when image generation fails due to organization verification required
 	IsOrganisationUnverified bool `json:"isOrganisationUnverified,omitempty"`
+	// Transient: source type of the current API key (not persisted in session table, carried in-memory).
+	// Set during key resolution and used to tag game messages with the key source.
+	ApiKeyType string `json:"-"`
 }
 
 // GameTheme defines the visual theme for the game player UI.
@@ -298,14 +336,15 @@ type AiPlatform struct {
 }
 
 type AiModel struct {
-	ID            string `json:"id"`                      // generic tier: "high", "medium", "low", "max"
-	Name          string `json:"name"`                    // display name e.g. "GPT-5.2"
-	Model         string `json:"model"`                   // concrete model ID e.g. "gpt-5.2"
-	ImageModel    string `json:"imageModel,omitempty"`    // model used for image generation (if different from Model)
-	ImageQuality  string `json:"imageQuality,omitempty"`  // image quality: "high", "medium", "low" (default: "low")
-	Description   string `json:"description"`             // tier label e.g. "Premium"
-	SupportsImage bool   `json:"supportsImage,omitempty"` // whether this tier generates images
-	SupportsAudio bool   `json:"supportsAudio,omitempty"` // whether this tier generates audio (TTS)
+	ID               string `json:"id"`                         // generic tier: "high", "medium", "low", "max"
+	Name             string `json:"name"`                       // display name e.g. "GPT-5.2"
+	Model            string `json:"model"`                      // concrete model ID e.g. "gpt-5.2"
+	ImageModel       string `json:"imageModel,omitempty"`       // model used for image generation (if different from Model)
+	ImageQuality     string `json:"imageQuality,omitempty"`     // image quality: "high", "medium", "low" (default: "low")
+	Description      string `json:"description"`                // tier label e.g. "Premium"
+	SupportsImage    bool   `json:"supportsImage,omitempty"`    // whether this tier generates images
+	SupportsAudioIn  bool   `json:"supportsAudioIn,omitempty"`  // whether this tier supports voice input (STT transcription)
+	SupportsAudioOut bool   `json:"supportsAudioOut,omitempty"` // whether this tier generates audio narration (TTS)
 }
 
 const (
@@ -313,6 +352,17 @@ const (
 	AiModelPremium  = "high"
 	AiModelBalanced = "medium"
 	AiModelEconomy  = "low"
+)
+
+// ApiKeyType identifies the source/type of API key used for a game session message.
+// Stored in game_session_message.api_key_type and shown in the AI Insight panel.
+const (
+	ApiKeyTypeWorkshop           = "workshop"
+	ApiKeyTypeSponsor            = "sponsor"
+	ApiKeyTypeInstitutionFreeUse = "institution_free_use"
+	ApiKeyTypePersonal           = "personal"
+	ApiKeyTypeSystemFreeUse      = "system_free_use"
+	ApiKeyTypePrivateShare       = "private_share"
 )
 
 // aiModelPriority defines the tier ordering from highest to lowest.
@@ -409,6 +459,14 @@ type GameSessionMessage struct {
 	// Plain text of the scene (system message, player action, or game response).
 	Message string `json:"message"`
 
+	// Voice input: base64-encoded audio from the player (not persisted, used for transcription)
+	AudioBase64   string `json:"-"`
+	AudioMimeType string `json:"-"`
+
+	// Transcription holds the text result of audio-to-text conversion (transient, not persisted).
+	// Returned in the action response so the client can display what was recognized.
+	Transcription string `json:"transcription,omitempty"`
+
 	PromptStatusUpdate    *string `json:"requestStatusUpdate,omitempty"`
 	PromptResponseSchema  *string `json:"requestResponseSchema,omitempty"`
 	PromptImageGeneration *string `json:"requestImageGeneration,omitempty"`
@@ -418,12 +476,15 @@ type GameSessionMessage struct {
 
 	// JSON encoded status fields.
 	StatusFields []StatusField `json:"statusFields"`
+	Plot         *string       `json:"plot,omitempty"`
 	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
 	Image        []byte        `json:"image,omitempty"`
 	Audio        []byte        `json:"audio,omitempty"`
-	HasImage     bool          `json:"hasImage"` // true when image generation is active for this message
-	HasAudio     bool          `json:"hasAudio"` // true when audio narration is active for this message
+	HasImage     bool          `json:"hasImage"`    // true when image generation is active for this message
+	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
+	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
+	ApiKeyType   string        `json:"apiKeyType,omitempty"` // source of API key used (workshop, sponsor, personal, etc.)
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)

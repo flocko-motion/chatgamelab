@@ -100,14 +100,14 @@ INSERT INTO workshop (
   id, created_by,
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
-  ai_quality_tier, show_public_games, show_other_participants_games,
-  design_editing_enabled, is_paused
+  ai_quality_tier, prompt_constraints, show_public_games,
+  show_other_participants_games, design_editing_enabled, is_paused
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
   $11, $12, $13,
-  $14, $15
+  $14, $15, $16
 )
 RETURNING *;
 
@@ -132,10 +132,11 @@ UPDATE workshop SET
   public = $9,
   default_api_key_share_id = $10,
   ai_quality_tier = $11,
-  show_public_games = $12,
-  show_other_participants_games = $13,
-  design_editing_enabled = $14,
-  is_paused = $15
+  prompt_constraints = $12,
+  show_public_games = $13,
+  show_other_participants_games = $14,
+  design_editing_enabled = $15,
+  is_paused = $16
 WHERE id = $1
 RETURNING *;
 

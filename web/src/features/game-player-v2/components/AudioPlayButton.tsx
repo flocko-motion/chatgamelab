@@ -3,6 +3,7 @@ import { ActionIcon, Tooltip, Loader } from "@mantine/core";
 import { IconVolume, IconPlayerStop } from "@tabler/icons-react";
 import { config } from "@/config/env";
 import { apiLogger } from "@/config/logger";
+import { stopAllAudio, registerAudioSource } from "../lib/audioManager";
 
 type AudioState = "idle" | "loading" | "playing";
 
@@ -12,6 +13,8 @@ interface AudioPlayButtonProps {
   audioStatus?: "loading" | "ready";
   /** Blob URL from streamed audio data (set by SSE consumer) */
   audioBlobUrl?: string;
+  /** Global narration mute state from player settings */
+  isAudioMuted: boolean;
 }
 
 /**
@@ -24,16 +27,20 @@ export function AudioPlayButton({
   messageId,
   audioStatus,
   audioBlobUrl,
+  isAudioMuted,
 }: AudioPlayButtonProps) {
   const [state, setState] = useState<AudioState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fetchedUrlRef = useRef<string | null>(null);
+  const unregisterRef = useRef<(() => void) | null>(null);
 
   const stop = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
     }
+    unregisterRef.current?.();
+    unregisterRef.current = null;
     setState("idle");
   }, []);
 
@@ -43,8 +50,10 @@ export function AudioPlayButton({
       return;
     }
 
-    if (audioStatus === "loading") return;
+    if (audioStatus === "loading" || isAudioMuted) return;
 
+    // Stop any other audio (playback or recording) before we start
+    stopAllAudio();
     setState("loading");
 
     try {
@@ -64,30 +73,60 @@ export function AudioPlayButton({
 
       if (!audioRef.current) {
         audioRef.current = new Audio();
-        audioRef.current.addEventListener("ended", () => setState("idle"));
+        audioRef.current.addEventListener("ended", () => {
+          unregisterRef.current?.();
+          unregisterRef.current = null;
+          setState("idle");
+        });
         audioRef.current.addEventListener("error", () => {
           apiLogger.error("Audio playback error", { messageId });
+          unregisterRef.current?.();
+          unregisterRef.current = null;
           setState("idle");
         });
       }
 
       audioRef.current.src = url;
       await audioRef.current.play();
+      // Register so other audio sources can stop us
+      unregisterRef.current = registerAudioSource(stop);
       setState("playing");
     } catch (error) {
       apiLogger.error("Failed to play audio", { messageId, error });
       setState("idle");
     }
-  }, [messageId, state, audioStatus, audioBlobUrl, stop]);
+  }, [messageId, state, audioStatus, audioBlobUrl, isAudioMuted, stop]);
+
+  useEffect(() => {
+    if (isAudioMuted) {
+      stop();
+    }
+  }, [isAudioMuted, stop]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      unregisterRef.current?.();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   // Auto-play when streamed audio becomes available
   const prevBlobUrlRef = useRef<string | undefined>(undefined);
   useEffect(() => {
-    if (audioBlobUrl && !prevBlobUrlRef.current && state === "idle") {
+    if (
+      !isAudioMuted &&
+      audioBlobUrl &&
+      !prevBlobUrlRef.current &&
+      state === "idle"
+    ) {
       play();
     }
     prevBlobUrlRef.current = audioBlobUrl;
-  }, [audioBlobUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [audioBlobUrl, isAudioMuted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Still generating - show spinner
   if (audioStatus === "loading") {

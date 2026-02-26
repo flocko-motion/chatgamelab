@@ -6,9 +6,11 @@ import (
 	"cgl/game/ai"
 	langutil "cgl/lang"
 	"cgl/obj"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/spf13/cobra"
@@ -165,9 +167,13 @@ Supported platforms:
 			fmt.Println("✓ No TODO placeholders found")
 		}
 
-		// Compute source hash from en+de contents
-		sourceHash := functional.ComputeHash(inputContents...)
-		fmt.Printf("Source hash: %s\n", sourceHash)
+		// Compute per-field hashes from en+de contents
+		sourceHashes, err := ComputeFieldHashes(inputContents...)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error computing field hashes: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Computed hashes for %d fields\n", len(sourceHashes))
 
 		// Translate all target languages in parallel
 		if threads > 0 {
@@ -186,18 +192,70 @@ Supported platforms:
 			semaphore = make(chan struct{}, threads)
 		}
 
-		// Pre-check which languages need translating
-		var langsToTranslate []string
+		// Pre-check which languages need translating and compute what changed
+		type langInfo struct {
+			lang         string
+			outputFile   string
+			existingJSON string
+			oldHashes    map[string]string
+			changedJSON  string
+			changedCount int
+		}
+		var langsToTranslate []langInfo
+
 		for _, lang := range targetLangs {
 			outputFile := filepath.Join(outputPath, lang+".json")
-			if existingContent, err := os.ReadFile(outputFile); err == nil {
-				if existingHash, err := functional.ReadJsonField(string(existingContent), "_sourceHash"); err == nil && existingHash == sourceHash {
-					successCount++
-					fmt.Printf("⏭ %s (%s): up-to-date, skipping\n", langutil.GetLanguageName(lang), lang)
-					continue
+			hashFile := filepath.Join(outputPath, lang+".hash.json")
+			langName := langutil.GetLanguageName(lang)
+
+			// Read existing translation if it exists
+			var existingJSON string
+			if content, err := os.ReadFile(outputFile); err == nil {
+				existingJSON = string(content)
+			}
+
+			// Read existing hash file if it exists
+			var oldHashes map[string]string
+			if content, err := os.ReadFile(hashFile); err == nil {
+				if err := json.Unmarshal(content, &oldHashes); err != nil {
+					fmt.Fprintf(os.Stderr, "⚠ %s (%s): Failed to parse hash file, will re-translate all fields\n", langName, lang)
+					oldHashes = make(map[string]string)
+				}
+			} else {
+				oldHashes = make(map[string]string)
+			}
+
+			// Extract only changed fields from source (en+de)
+			changedJSON, err := ExtractChangedFields(inputContents[0], oldHashes, sourceHashes)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to extract changed fields: %v\n", langName, lang, err)
+				continue
+			}
+
+			// Count changed fields
+			changedCount := 0
+			for path, newHash := range sourceHashes {
+				oldHash, exists := oldHashes[path]
+				if !exists || oldHash != newHash {
+					changedCount++
 				}
 			}
-			langsToTranslate = append(langsToTranslate, lang)
+
+			if changedCount == 0 {
+				successCount++
+				fmt.Printf("⏭ %s (%s): up-to-date, skipping\n", langName, lang)
+				continue
+			}
+
+			fmt.Printf("📝 %s (%s): %d/%d fields changed\n", langName, lang, changedCount, len(sourceHashes))
+			langsToTranslate = append(langsToTranslate, langInfo{
+				lang:         lang,
+				outputFile:   outputFile,
+				existingJSON: existingJSON,
+				oldHashes:    oldHashes,
+				changedJSON:  changedJSON,
+				changedCount: changedCount,
+			})
 		}
 
 		if len(langsToTranslate) == 0 {
@@ -208,11 +266,11 @@ Supported platforms:
 
 		var totalUsage obj.TokenUsage
 
-		for _, currentLang := range langsToTranslate {
+		for _, info := range langsToTranslate {
 			wg.Add(1)
 
 			// Launch goroutine for each translation
-			go func(lang string) {
+			go func(info langInfo) {
 				defer wg.Done()
 
 				// Acquire semaphore slot if throttling is enabled
@@ -221,18 +279,20 @@ Supported platforms:
 					defer func() { <-semaphore }()
 				}
 
+				lang := info.lang
 				langName := langutil.GetLanguageName(lang)
-				outputFile := filepath.Join(outputPath, lang+".json")
+				outputFile := info.outputFile
+				hashFile := filepath.Join(filepath.Dir(outputFile), lang+".hash.json")
 
 				// Retry logic: up to 3 attempts
-				var translatedJSON string
+				var partialTranslation string
 				var err error
 				maxRetries := 3
 
 				for attempt := 1; attempt <= maxRetries; attempt++ {
-					// Call the AI platform's Translate method
+					// Translate only the changed fields
 					var usage obj.TokenUsage
-					translatedJSON, usage, err = aiPlatform.Translate(cmd.Context(), apiKey, inputContents, lang)
+					partialTranslation, usage, err = aiPlatform.Translate(cmd.Context(), apiKey, []string{info.changedJSON}, lang)
 					if err == nil {
 						mu.Lock()
 						totalUsage = totalUsage.Add(usage)
@@ -255,26 +315,52 @@ Supported platforms:
 					return
 				}
 
-				// Validate that translation has the same structure as original
-				if err := functional.IsSameJsonStructure(inputContents[0], translatedJSON); err != nil {
-					mu.Lock()
-					fmt.Fprintf(os.Stderr, "⚠ %s (%s): Translation has different structure than original: %v\n", langName, lang, err)
-					mu.Unlock()
+				// Validate that partial translation doesn't have unexpected extra fields
+				// Note: It's OK if the AI returned fewer fields than requested - merge will handle it
+				// We only warn if the AI added fields we didn't ask for
+				if err := functional.IsSameJsonStructure(partialTranslation, info.changedJSON); err != nil {
+					// Only warn if there are extra fields in translation (not missing fields)
+					if !strings.Contains(err.Error(), "missing fields in first JSON") {
+						mu.Lock()
+						fmt.Fprintf(os.Stderr, "⚠ %s (%s): Partial translation has unexpected fields: %v\n", langName, lang, err)
+						mu.Unlock()
+					}
 				}
 
-				// Inject source hash into translated JSON
-				translatedJSON, err = functional.InjectJsonField(translatedJSON, "_sourceHash", sourceHash)
-				if err != nil {
+				// Merge partial translation into existing full translation
+				var finalJSON string
+				if info.existingJSON != "" {
+					finalJSON, err = MergeTranslations(info.existingJSON, partialTranslation)
+					if err != nil {
+						mu.Lock()
+						fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to merge translations: %v\n", langName, lang, err)
+						mu.Unlock()
+						return
+					}
+				} else {
+					// No existing translation, use the partial as-is (should be complete for new languages)
+					finalJSON = partialTranslation
+				}
+
+				// Write translation file
+				if err := os.WriteFile(outputFile, []byte(finalJSON), 0644); err != nil {
 					mu.Lock()
-					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to inject source hash: %v\n", langName, lang, err)
+					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to write output file: %v\n", langName, lang, err)
 					mu.Unlock()
 					return
 				}
 
-				// Write to file
-				if err := os.WriteFile(outputFile, []byte(translatedJSON), 0644); err != nil {
+				// Write hash file
+				hashJSON, err := SaveHashFile(sourceHashes)
+				if err != nil {
 					mu.Lock()
-					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to write output file: %v\n", langName, lang, err)
+					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to marshal hash file: %v\n", langName, lang, err)
+					mu.Unlock()
+					return
+				}
+				if err := os.WriteFile(hashFile, hashJSON, 0644); err != nil {
+					mu.Lock()
+					fmt.Fprintf(os.Stderr, "✗ %s (%s): Failed to write hash file: %v\n", langName, lang, err)
 					mu.Unlock()
 					return
 				}
@@ -282,9 +368,9 @@ Supported platforms:
 				// Success - print with lock
 				mu.Lock()
 				successCount++
-				fmt.Printf("✓ %s (%s) → %s\n", langName, lang, outputFile)
+				fmt.Printf("✓ %s (%s): translated %d fields → %s\n", langName, lang, info.changedCount, outputFile)
 				mu.Unlock()
-			}(currentLang)
+			}(info)
 		}
 
 		// Wait for all translations to complete

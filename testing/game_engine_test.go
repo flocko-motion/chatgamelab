@@ -69,7 +69,7 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	s.Require().NotNil(initialMsg, "Should have a game-type initial message")
 	s.Greater(len(initialMsg.Message), 10, "Initial message should have substantial text")
 	s.True(initialMsg.HasImage, "Initial message should have HasImage=true (max tier on OpenAI)")
-	s.True(initialMsg.HasAudio, "Initial message should have HasAudio=true (max tier on OpenAI)")
+	s.True(initialMsg.HasAudioOut, "Initial message should have HasAudioOut=true (max tier on OpenAI)")
 	log.Printf("Initial message (len=%d): %s", len(initialMsg.Message), initialMsg.Message)
 
 	// Validate audio on initial message
@@ -86,7 +86,7 @@ func (s *GameEngineTestSuite) TestAudioPlaythroughOpenai() {
 	// Validate text and capability flags
 	s.Greater(len(msg.Message), 10, "AI response text should be substantial")
 	s.True(msg.HasImage, "Action response should have HasImage=true (max tier on OpenAI)")
-	s.True(msg.HasAudio, "Action response should have HasAudio=true (max tier on OpenAI)")
+	s.True(msg.HasAudioOut, "Action response should have HasAudioOut=true (max tier on OpenAI)")
 	log.Printf("AI response (len=%d): %s", len(msg.Message), msg.Message)
 
 	// Validate audio on player action response
@@ -102,10 +102,15 @@ func (s *GameEngineTestSuite) validateAudioStream(result *testutil.StreamResult,
 	s.T().Helper()
 	s.Greater(len(result.AudioData), 0, "%s: audio data should be received via SSE stream", label)
 	log.Printf("%s: audio data received: %d bytes", label, len(result.AudioData))
+	s.validateMP3Header(result.AudioData, label)
+}
 
-	s.Require().GreaterOrEqual(len(result.AudioData), 2, "%s: audio data should be at least 2 bytes", label)
-	s.Equal(byte(0xFF), result.AudioData[0], "%s: audio should start with MP3 sync byte 0xFF", label)
-	s.Equal(byte(0xFB), result.AudioData[1]&0xFB, "%s: audio should have MP3 frame header", label)
+// validateMP3Header checks for valid MP3 frame sync (0xFF followed by 0xE0-0xFF)
+func (s *GameEngineTestSuite) validateMP3Header(data []byte, label string) {
+	s.T().Helper()
+	s.Require().GreaterOrEqual(len(data), 2, "%s: audio data should be at least 2 bytes", label)
+	s.Equal(byte(0xFF), data[0], "%s: audio should start with MP3 sync byte 0xFF", label)
+	s.True((data[1]&0xE0) == 0xE0, "%s: audio should have MP3 frame header, got 0x%02X", label, data[1])
 }
 
 // validateAudioFromDB checks that audio is persisted and accessible via the replay endpoint
@@ -178,17 +183,24 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	game := Must(s.clientAlice.UploadGame("stone-collector"))
 	s.T().Logf("Created and uploaded game: %s (ID: %s)", game.Name, game.ID)
 
+	// Set quality tier to "max" (= high text model + audio)
+	err = s.clientAlice.SetUserAiQualityTier(obj.AiModelEconomy)
+	s.Require().NoError(err, "Failed to set AI quality tier to max")
+	s.T().Logf("Set AI quality tier to max")
+
 	// Create game session - game should be auto-translated to French
 	sessionResponse := Must(s.clientAlice.CreateGameSession(game.ID.String()))
 	s.T().Logf("Created game session: %s", sessionResponse.ID)
 
-	// Log initial message
-	s.Require().NotEmpty(sessionResponse.Messages, "Session should have initial message")
-	initialMsg := sessionResponse.Messages[0]
+	// TWO-PHASE INITIALIZATION: Session is created but has no messages yet
+	// Send init action to trigger opening scene generation
+	s.Require().Empty(sessionResponse.Messages, "Session should have no messages yet (two-phase init)")
+	initialMsg, _, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), "init")
+	s.Require().NoError(err, "Failed to trigger opening scene")
 
 	// Determine expected capabilities from the platform
-	expectImage := apiKeyShare.ApiKey.Platform == "openai" // OpenAI supports images, Mistral does not
-	expectAudio := false                                   // standard tiers never have audio
+	expectImage := true
+	expectAudio := false // standard tiers never have audio
 
 	log.Printf("\n=================================================================================================\n")
 	log.Printf("Initial Message (should be in FRENCH):")
@@ -199,7 +211,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	log.Printf("  ResponseRaw: %s", functional.MaybeToString(initialMsg.ResponseRaw, "nil"))
 	log.Printf("  AI: %s", initialMsg.Message)
 
-	// Verify token usage from session creation (includes theme + translation + initial action)
+	// Verify token usage from opening scene (includes theme + translation + initial action)
 	s.Require().NotNil(initialMsg.TokenUsage, "Initial message should have token usage")
 	s.Greater(initialMsg.TokenUsage.InputTokens, 0, "Initial message should have input tokens > 0")
 	s.Greater(initialMsg.TokenUsage.OutputTokens, 0, "Initial message should have output tokens > 0")
@@ -214,7 +226,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	}
 	messageLens := []int{}
 	for i, playerAction := range playerActions {
-		msg1, err := s.clientAlice.SendGameMessage(sessionResponse.ID.String(), playerAction)
+		msg1, _, err := s.clientAlice.SendGameMessageWithStream(sessionResponse.ID.String(), playerAction)
 		s.Require().NoError(err, "SendGameMessage failed for action #%d: %s", i, playerAction)
 		log.Printf("\n=================================================================================================\n")
 		log.Printf("Turn #%d - Player: %s", i, playerAction)
@@ -224,9 +236,10 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 		log.Printf("PromptImageGeneration: %s", functional.MaybeToString(msg1.PromptImageGeneration, "nil"))
 		log.Printf("ResponseRaw: %s", functional.MaybeToString(msg1.ResponseRaw, "nil"))
 		log.Printf("AI Story Len=%d (should be in FRENCH): %s", len(msg1.Message), functional.MaybeToString(msg1.Message, "nil"))
-		s.Greater(len(msg1.Message), 10, "AI response should be substantial")
+		s.Greater(len(msg1.Message), 0, "AI response story is empty")
+		s.Greater(len(msg1.Message), 10, "AI response story should be substantial")
 		s.Equal(expectImage, msg1.HasImage, "Turn #%d: HasImage should be %v for platform %s", i, expectImage, apiKeyShare.ApiKey.Platform)
-		s.Equal(expectAudio, msg1.HasAudio, "Turn #%d: HasAudio should be %v", i, expectAudio)
+		s.Equal(expectAudio, msg1.HasAudioOut, "Turn #%d: HasAudioOut should be %v", i, expectAudio)
 		messageLens = append(messageLens, len(msg1.Message))
 
 		// Verify token usage for each action
@@ -246,15 +259,16 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 	s.Equal(sessionResponse.ID, resumed.ID, "Session ID should match")
 
 	// Expect: 1 initial game message + (N player actions * 2: player + game response)
-	expectedMessageCount := 2 + len(playerActions)*2
+	expectedMessageCount := 3 + len(playerActions)*2
 	s.Require().Len(resumed.Messages, expectedMessageCount,
-		"Should have %d messages: 1 initial + %d player actions + %d AI responses",
+		"Should have %d messages: 1 system + 1 init + %d player actions + %d AI responses",
 		expectedMessageCount, len(playerActions), len(playerActions))
 
 	// Message[0] should be the initial game response (system message triggers this)
 	s.Equal("system", resumed.Messages[0].Type, "First message should be a game response (from system prompt)")
-	s.Equal("game", resumed.Messages[1].Type, "Second message should be a game start scenario")
-	s.Equal("player", resumed.Messages[2].Type, "Second message should be a player input")
+	s.Equal("player", resumed.Messages[1].Type, "Second message should be init message (automatically from player)")
+	s.Equal("game", resumed.Messages[2].Type, "Third message should be a game start scenario")
+	s.Equal("player", resumed.Messages[3].Type, "Fourth message should be a player input")
 
 	// Log all messages and verify prompt fields on game-type messages
 	for i, msg := range resumed.Messages {
@@ -275,7 +289,7 @@ func (s *GameEngineTestSuite) GamePlaythrough(apiKeyShare obj.ApiKeyShare) {
 
 			// Verify capability flags are persisted and loaded correctly
 			s.Equal(expectImage, msg.HasImage, "Message[%d] HasImage should be %v (persisted)", i, expectImage)
-			s.Equal(expectAudio, msg.HasAudio, "Message[%d] HasAudio should be %v (persisted)", i, expectAudio)
+			s.Equal(expectAudio, msg.HasAudioOut, "Message[%d] HasAudioOut should be %v (persisted)", i, expectAudio)
 		}
 	}
 

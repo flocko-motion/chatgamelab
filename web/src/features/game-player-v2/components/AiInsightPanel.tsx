@@ -6,6 +6,7 @@ import {
   IconChevronDown,
   IconChevronRight,
   IconBrain,
+  IconKey,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { SceneMessage } from "../types";
@@ -61,6 +62,7 @@ export function AiInsightPanel({
   const [opened, setOpened] = useState(false);
 
   const hasAnyData =
+    message.apiKeyType ||
     message.requestExpandStory ||
     message.requestResponseSchema ||
     message.requestStatusUpdate ||
@@ -89,6 +91,17 @@ export function AiInsightPanel({
             {t("gamePlayer.aiInsight.title")}
           </div>
           <div className={classes.sections}>
+            {message.apiKeyType && (
+              <div className={classes.usedKeySection}>
+                <IconKey size={13} className={classes.usedKeyIcon} />
+                <span className={classes.usedKeyLabel}>
+                  {t("gamePlayer.aiInsight.usedApiKey.label")}:
+                </span>
+                <span className={classes.usedKeyValue}>
+                  {t(`gamePlayer.aiInsight.usedApiKey.${message.apiKeyType}`, message.apiKeyType)}
+                </span>
+              </div>
+            )}
             {isFirstGameMessage && systemPrompt && (
               <CollapsibleSection
                 label={t("gamePlayer.aiInsight.sections.systemPrompt")}

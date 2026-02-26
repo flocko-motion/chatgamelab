@@ -76,11 +76,17 @@ export function useGuestGameSession(token: string) {
         sessionId: string,
         message: string,
         statusFields,
+        audio,
       ): Promise<GameMessageResult> => {
+        const body: Record<string, unknown> = { message, statusFields };
+        if (audio) {
+          body.audioBase64 = audio.base64;
+          body.audioMimeType = audio.mimeType;
+        }
         const response = await fetch(`${baseUrl}/sessions/${sessionId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message, statusFields }),
+          body: JSON.stringify(body),
         });
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));

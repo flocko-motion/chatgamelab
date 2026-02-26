@@ -472,15 +472,17 @@ INSERT INTO game_session_message (
   created_at, modified_by, modified_at,
   game_session_id, seq,
   type, message,
-  status, image_prompt, image,
-  has_image, has_audio
+  status, plot, image_prompt, image,
+  has_image, has_audio,
+  api_key_type
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
   $5, (SELECT COALESCE(MAX(seq), 0) + 1 FROM game_session_message WHERE game_session_id = $5),
   $6, $7,
-  $8, $9, $10,
-  $11, $12
+  $8, $9, $10, $11,
+  $12, $13,
+  $14
 )
 RETURNING *;
 
@@ -489,6 +491,9 @@ SELECT * FROM game_session_message WHERE id = $1;
 
 -- name: GetLatestGameSessionMessage :one
 SELECT * FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1;
+
+-- name: CountGameSessionMessages :one
+SELECT COUNT(*)::int AS count FROM game_session_message WHERE game_session_id = $1;
 
 -- name: GetAllGameSessionMessages :many
 SELECT * FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC;
@@ -503,17 +508,19 @@ UPDATE game_session_message SET
   type = $7,
   message = $8,
   status = $9,
-  image_prompt = $10,
-  image = $11,
-  has_image = $12,
-  has_audio = $13,
-  prompt_status_update = $14,
-  prompt_response_schema = $15,
-  prompt_image_generation = $16,
-  prompt_expand_story = $17,
-  response_raw = $18,
-  token_usage = $19,
-  url_analytics = $20
+  plot = $10,
+  image_prompt = $11,
+  image = $12,
+  has_image = $13,
+  has_audio = $14,
+  prompt_status_update = $15,
+  prompt_response_schema = $16,
+  prompt_image_generation = $17,
+  prompt_expand_story = $18,
+  response_raw = $19,
+  token_usage = $20,
+  url_analytics = $21,
+  api_key_type = $22
 WHERE id = $1
 RETURNING *;
 

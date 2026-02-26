@@ -8,16 +8,18 @@ import (
 )
 
 const (
-	openaiBaseURL     = "https://api.openai.com/v1"
-	responsesEndpoint = "/responses"
-	modelsEndpoint    = "/models"
-	imageGenEndpoint  = "/images/generations"
-	speechEndpoint    = "/audio/speech"
-	translateModel    = "gpt-5.1-codex"
-	toolQueryModel    = "gpt-5.1-codex"
-	ttsModel          = "gpt-4o-mini-tts"
-	ttsVoice          = "cedar" // openai recommends marin or cedar
-	ttsFormat         = "mp3"
+	openaiBaseURL         = "https://api.openai.com/v1"
+	responsesEndpoint     = "/responses"
+	modelsEndpoint        = "/models"
+	imageGenEndpoint      = "/images/generations"
+	speechEndpoint        = "/audio/speech"
+	transcriptionEndpoint = "/audio/transcriptions"
+	transcriptionModel    = "gpt-4o-mini-transcribe"
+	translateModel        = "gpt-5.1-codex"
+	toolQueryModel        = "gpt-5.1-codex"
+	ttsModel              = "gpt-4o-mini-tts"
+	ttsVoice              = "cedar" // openai recommends marin or cedar
+	ttsFormat             = "mp3"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity
@@ -57,17 +59,39 @@ type FormatConfig struct {
 
 // apiTokenUsage matches OpenAI's snake_case JSON format
 type apiTokenUsage struct {
-	InputTokens  int `json:"input_tokens"`
-	OutputTokens int `json:"output_tokens"`
-	TotalTokens  int `json:"total_tokens"`
+	InputTokens         int                     `json:"input_tokens"`
+	InputTokensDetails  *apiInputTokensDetails  `json:"input_tokens_details,omitempty"`
+	OutputTokens        int                     `json:"output_tokens"`
+	OutputTokensDetails *apiOutputTokensDetails `json:"output_tokens_details,omitempty"`
+	TotalTokens         int                     `json:"total_tokens"`
+}
+
+type apiInputTokensDetails struct {
+	CachedTokens int `json:"cached_tokens"`
+}
+
+type apiOutputTokensDetails struct {
+	ReasoningTokens int `json:"reasoning_tokens"`
 }
 
 func (u apiTokenUsage) toTokenUsage() obj.TokenUsage {
-	return obj.TokenUsage{
+	result := obj.TokenUsage{
 		InputTokens:  u.InputTokens,
 		OutputTokens: u.OutputTokens,
 		TotalTokens:  u.TotalTokens,
 	}
+
+	// Preserve cached tokens if present
+	if u.InputTokensDetails != nil && u.InputTokensDetails.CachedTokens > 0 {
+		result.CachedTokens = &u.InputTokensDetails.CachedTokens
+	}
+
+	// Preserve reasoning tokens if present
+	if u.OutputTokensDetails != nil && u.OutputTokensDetails.ReasoningTokens > 0 {
+		result.ReasoningTokens = &u.OutputTokensDetails.ReasoningTokens
+	}
+
+	return result
 }
 
 // SSE event types for streaming responses

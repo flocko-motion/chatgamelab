@@ -121,6 +121,7 @@ type GameSessionMessage struct {
 	Type                  string
 	Message               string
 	Status                sql.NullString
+	Plot                  sql.NullString
 	ImagePrompt           sql.NullString
 	Image                 []byte
 	Audio                 []byte
@@ -133,6 +134,7 @@ type GameSessionMessage struct {
 	ResponseRaw           sql.NullString
 	TokenUsage            pqtype.NullRawMessage
 	UrlAnalytics          sql.NullString
+	ApiKeyType            sql.NullString
 	DeletedAt             sql.NullTime
 }
 
@@ -225,6 +227,7 @@ type Workshop struct {
 	DeletedAt                  sql.NullTime
 	DefaultApiKeyShareID       uuid.NullUUID
 	AiQualityTier              sql.NullString
+	PromptConstraints          sql.NullString
 	ShowPublicGames            bool
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool

@@ -1,92 +1,93 @@
 {
-  "_sourceHash": "98425c3aa434b7f9",
+  "_sourceHash": "511c1a97217e633a",
   "auth": {
     "login": {
       "auth0Button": "Bejelentkezés Auth0-val",
       "devMode": "Fejlesztői mód",
       "devModeAlert": {
-        "message": "Ez a fejlesztői bejelentkezési oldal. Éles környezetben közvetlenül az Auth0-hoz leszel átirányítva.",
+        "message": "Ez a fejlesztői bejelentkezési oldal. Éles rendszerben közvetlenül átirányítunk az Auth0-ra.",
         "title": "Fejlesztői mód"
       },
       "devModeDescription": "Gyors bejelentkezés fejlesztéshez és teszteléshez",
       "redirecting": {
-        "message": "Kérlek várj, amíg átirányítunk a bejelentkezési oldalra.",
-        "title": "Átirányítás az Auth0-ra..."
+        "message": "Kérjük, várj, amíg átirányítunk a bejelentkezési oldalra.",
+        "title": "Átirányítás Auth0-ra..."
       },
       "role": {
         "admin": "Bejelentkezés adminisztrátorként",
         "guest": "Bejelentkezés vendégként",
-        "student": "Bejelentkezés diáként",
+        "student": "Bejelentkezés diákként",
         "teacher": "Bejelentkezés tanárként"
       }
     },
     "participant": {
       "leaveConfirm": {
-        "confirm": "Workshop elhagyása",
-        "message": "Biztosan el akarod hagyni ezt a workshopot? Új meghívólinkre lesz szükséged a visszatéréshez.",
-        "title": "Workshop elhagyása?"
+        "confirm": "Műhely elhagyása",
+        "message": "Biztosan el akarod hagyni ezt a műhelyt? Új meghívó linkre lesz szükséged a visszacsatlakozáshoz.",
+        "title": "Elhagyod a műhelyt?"
       },
-      "leaveWorkshop": "Workshop elhagyása",
+      "leaveWorkshop": "Műhely elhagyása",
       "organization": "Szervezet",
-      "role": "Workshop résztvevő",
-      "workshop": "Workshop"
+      "role": "Műhelyrésztvevő",
+      "workshop": "Műhely"
     },
     "profile": {
       "gamesCreated": "Létrehozott játékok",
       "gamesPlayed": "Lejátszott játékok",
-      "memberSince": "Regisztrálva:",
+      "memberSince": "Regisztrált ekkor",
       "messagesSent": "Elküldött üzenetek",
       "noOrganization": "Nincs szervezet",
-      "noRole": "Nincs hozzárendelt szerep",
+      "noRole": "Nincs szerepkör megadva",
       "organization": "Szervezet",
-      "organizationSection": "Szervezet \\u0026 Szerep",
-      "role": "Szerep",
+      "organizationSection": "Szervezet és szerepkör",
+      "role": "Szerepkör",
       "roles": {
         "admin": "Adminisztrátor",
-        "head": "Vezetőtanár",
-        "participant": "Vendég",
-        "staff": "Munkatárs"
+        "head": "Szervezetvezető",
+        "individual": "Egyéni",
+        "participant": "Résztvevő",
+        "staff": "Műhelyvezető"
       },
       "statisticsSection": "Statisztikák",
       "title": "Profil",
-      "totalPlaysOnGames": "A játékaim összes lejátszása"
+      "totalPlaysOnGames": "Játékaim összes lejátszása"
     },
     "register": {
       "cancelButton": "Mégse",
-      "emailDescription": "Ezt fontos értesítésekhez fogjuk használni.",
-      "emailLabel": "E-mail cím",
-      "emailPlaceholder": "Add meg az e-mail címed",
+      "emailDescription": "Fontos értesítésekhez fogjuk használni.",
+      "emailLabel": "E-mail-cím",
+      "emailPlaceholder": "Add meg az e-mail-címed",
       "errors": {
-        "emailInvalid": "Kérjük, adj meg egy érvényes e-mail címet",
-        "emailRequired": "E-mail kötelező",
-        "nameRequired": "Név kötelező",
-        "nameTaken": "Ez a név már foglalt",
+        "emailInvalid": "Adj meg érvényes e-mail-címet",
+        "emailRequired": "E-mail megadása kötelező",
+        "nameRequired": "Név megadása kötelező",
+        "nameTaken": "Ezt a nevet már használják",
         "nameTooLong": "A név legfeljebb 24 karakter lehet",
-        "registrationFailed": "Regisztráció sikertelen. Kérlek próbáld újra."
+        "registrationFailed": "A regisztráció sikertelen. Próbáld újra."
       },
-      "nameDescription": "Így fognak más felhasználók látni. Maximum 24 karakter.",
+      "nameDescription": "Így fognak látni a többi felhasználó. Max. 24 karakter.",
       "nameLabel": "Megjelenített név",
       "namePlaceholder": "Add meg a megjelenített neved",
       "submitButton": "Fiók létrehozása",
-      "submitting": "Fiók létrehozása…",
-      "subtitle": "Csak még néhány adat a kezdéshez",
-      "title": "Profil kiegészítése"
+      "submitting": "Fiók létrehozása...",
+      "subtitle": "Már csak néhány adat, és kezdhetjük",
+      "title": "Profilod befejezése"
     },
     "settings": {
       "accountSection": "Fiók",
-      "emailChangeNote": "E-mail címed megváltoztatásához kérjük, fordulj az oldal rendszergazdájához.",
+      "emailChangeNote": "Az e-mail-cím módosításához vedd fel a kapcsolatot az oldal adminisztrátorával.",
       "errors": {
-        "nameRequired": "Név kötelező",
-        "nameTaken": "Ez a név már foglalt",
+        "nameRequired": "Név megadása kötelező",
+        "nameTaken": "Ezt a nevet már használják",
         "nameTooLong": "A név legfeljebb 24 karakter lehet",
-        "saveFailed": "A módosítások mentése sikertelen. Kérjük, próbáld újra."
+        "saveFailed": "A módosítások mentése sikertelen. Próbáld újra."
       },
-      "nameDescription": "Így fognak más felhasználók látni. Maximum 24 karakter.",
+      "nameDescription": "Így fognak látni a többi felhasználó. Max. 24 karakter.",
       "nameLabel": "Megjelenített név",
       "namePlaceholder": "Add meg a megjelenített neved",
       "saveButton": "Változtatások mentése",
-      "saved": "A módosítások sikeresen elmentve",
-      "saving": "Mentés…",
+      "saved": "A módosítások mentése sikeres",
+      "saving": "Mentés...",
       "subtitle": "Fiókbeállítások kezelése",
       "title": "Beállítások"
     }
@@ -103,23 +104,23 @@
         "organization": "Szervezet",
         "revokeConfirm": {
           "confirm": "Törlés",
-          "message": "Biztosan törölni szeretnéd ezt a meghívót? Ezt a műveletet nem lehet visszavonni.",
+          "message": "Biztosan törölni szeretnéd ezt a meghívót? Ez a művelet nem vonható vissza.",
           "title": "Meghívó törlése"
         },
-        "role": "Szerep",
-        "searchPlaceholder": "Keresés e-mail, szerep, állapot vagy szervezet szerint...",
+        "role": "Szerepkör",
+        "searchPlaceholder": "Keresés e-mail, szerepkör, státusz vagy szervezet szerint...",
         "sort": {
           "label": "Rendezés",
           "modifiedAt-asc": "Módosítva (legrégebbi)",
           "modifiedAt-desc": "Módosítva (legújabb)",
-          "organization-asc": "Szervezet (A-Z)",
-          "organization-desc": "Szervezet (Z-A)",
-          "role-asc": "Szerep (A-Z)",
-          "role-desc": "Szerep (Z-A)",
-          "status-asc": "Állapot (A-Z)",
-          "status-desc": "Állapot (Z-A)"
+          "organization-asc": "Szervezet (A–Z)",
+          "organization-desc": "Szervezet (Z–A)",
+          "role-asc": "Szerepkör (A–Z)",
+          "role-desc": "Szerepkör (Z–A)",
+          "status-asc": "Státusz (A–Z)",
+          "status-desc": "Státusz (Z–A)"
         },
-        "status": "Állapot",
+        "status": "Státusz",
         "statuses": {
           "accepted": "Elfogadva",
           "declined": "Elutasítva",
@@ -133,142 +134,183 @@
         "actions": "Műveletek",
         "create": "Szervezet létrehozása",
         "createTitle": "Új szervezet létrehozása",
-        "deleteConfirm": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t? Ezt a műveletet nem lehet visszavonni.",
+        "deleteConfirm": "Biztosan törölni szeretnéd a(z) „{{name}}” szervezetet? Ez a művelet nem vonható vissza.",
         "deleteTitle": "Szervezet törlése",
         "editTitle": "Szervezet szerkesztése",
-        "email": "E-mail cím",
-        "emailPlaceholder": "E-mail címet adj meg",
+        "email": "E-mail-cím",
+        "emailPlaceholder": "Add meg az e-mail-címet",
         "empty": "Még nincs szervezet. Hozz létre egyet a kezdéshez.",
-        "inviteDescription": "Küldj meghívót, hogy valaki a(z) {{name}} szervezet vezetője legyen.",
-        "inviteTitle": "Meghívás szervezetbe",
+        "inviteDescription": "Küldj meghívót, hogy valaki csatlakozzon a(z) {{name}} szervezethez szervezetvezetőként.",
+        "inviteTitle": "Meghívás a szervezetbe",
         "memberEmail": "E-mail",
         "memberName": "Név",
-        "memberRole": "Szerep",
+        "memberRole": "Szerepkör",
         "members": "Tagok",
-        "membersCount": "tagok",
+        "membersCount": "tag",
         "membersList": "Tagok",
         "name": "Név",
         "namePlaceholder": "Add meg a szervezet nevét",
-        "noMembers": "Nincs tag ebben a szervezetben.",
+        "noMembers": "Ebben a szervezetben nincsenek tagok.",
         "removeMember": "Tag eltávolítása",
         "removeMemberConfirm": "Biztosan eltávolítod {{name}}-t ebből a szervezetből?",
-        "searchPlaceholder": "Szervezetek keresése...",
+        "searchPlaceholder": "Keresés a szervezetek között...",
         "sendInvite": "Meghívó küldése",
         "title": "Szervezetek kezelése"
       },
       "users": {
         "actions": "Műveletek",
-        "deleteConfirm": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t? Ezt a műveletet nem lehet visszavonni.",
+        "deleteConfirm": "Biztosan törlöd „{{name}}” felhasználót? Ez a művelet nem vonható vissza.",
         "deleteTitle": "Felhasználó törlése",
         "editEmail": "E-mail szerkesztése",
         "editTitle": "Felhasználó szerkesztése",
         "editingUser": "Felhasználó szerkesztése: {{name}}",
         "email": "E-mail",
-        "emailPlaceholder": "E-mail címet adj meg",
-        "empty": "Nincs felhasználó.",
+        "emailPlaceholder": "Add meg az e-mail-címet",
+        "empty": "Nem találhatók felhasználók.",
         "hideGuests": "Vendégek elrejtése ({{count}})",
+        "hideGuestsShort": "Vendégek ({{count}})",
         "joined": "Csatlakozott",
-        "loadError": "Felhasználók betöltése sikertelen",
-        "makeAdmin": "Adminisztrátorrá tesz",
+        "loadError": "Nem sikerült betölteni a felhasználókat",
+        "makeAdmin": "Adminná tesz",
         "me": "Én",
         "name": "Név",
         "noEmail": "Nincs e-mail",
         "noResults": "Nincs a keresésnek megfelelő felhasználó.",
-        "noRole": "Nincs szerep",
+        "noRole": "Nincs szerepkör",
         "organization": "Szervezet",
-        "promoteConfirm": "Biztosan adminisztrátorrá szeretnéd előléptetni a(z) \"{{name}}\" ({{email}})?",
-        "promoteTitle": "Előléptetés adminisztrátornak",
-        "promoteWarning": "Ez a felhasználó teljes adminisztratív hozzáférést kap a rendszerhez.",
-        "removeAdmin": "Admin eltávolítása",
-        "removeAdminConfirm": "Biztosan el akarod távolítani az admin szerepet a(z) \"{{name}}\" ({{email}}) felhasználótól?",
-        "removeAdminTitle": "Admin szerep eltávolítása",
-        "removeAdminWarning": "Ez a felhasználó elveszti az összes adminisztratív jogosultságát.",
-        "role": "Szerep",
-        "searchPlaceholder": "Keresés név, e-mail, szerep vagy szervezet szerint...",
-        "showing": "Megjelenítve {{count}} a {{total}} felhasználóból",
+        "promoteConfirm": "Biztosan adminná lépteted „{{name}}” ({{email}}) felhasználót?",
+        "promoteTitle": "Előléptetés adminná",
+        "promoteWarning": "A felhasználó teljes körű adminisztrátori hozzáférést kap a rendszerhez.",
+        "removeAdmin": "Admin jog elvétele",
+        "removeAdminConfirm": "Biztosan elveszed az admin szerepkört „{{name}}” ({{email}}) felhasználótól?",
+        "removeAdminTitle": "Admin szerepkör eltávolítása",
+        "removeAdminWarning": "A felhasználó elveszíti minden adminisztrátori jogosultságát.",
+        "role": "Szerepkör",
+        "searchPlaceholder": "Keresés név, e-mail, szerepkör vagy szervezet alapján...",
+        "showing": "{{count}} / {{total}} felhasználó megjelenítve",
         "sort": {
-          "email-asc": "E-mail (A-Z)",
-          "email-desc": "E-mail (Z-A)",
-          "joined-asc": "Csatlakozott (legrégebbi)",
-          "joined-desc": "Csatlakozott (legújabb)",
+          "email-asc": "E-mail (A–Z)",
+          "email-desc": "E-mail (Z–A)",
+          "joined-asc": "Csatlakozás (legrégebbi)",
+          "joined-desc": "Csatlakozás (legújabb)",
           "label": "Rendezés",
-          "name-asc": "Név (A-Z)",
-          "name-desc": "Név (Z-A)",
-          "organization-asc": "Szervezet (A-Z)",
-          "organization-desc": "Szervezet (Z-A)",
-          "role-asc": "Szerep (A-Z)",
-          "role-desc": "Szerep (Z-A)"
+          "name-asc": "Név (A–Z)",
+          "name-desc": "Név (Z–A)",
+          "organization-asc": "Szervezet (A–Z)",
+          "organization-desc": "Szervezet (Z–A)",
+          "role-asc": "Szerepkör (A–Z)",
+          "role-desc": "Szerepkör (Z–A)"
         },
         "title": "Felhasználók kezelése"
       }
     },
+    "aiQualityTier": {
+      "high": "Magas (Prémium)",
+      "label": "MI minőségi szint",
+      "low": "Alacsony (Gazdaságos)",
+      "max": "Max (Prémium + Hang)",
+      "medium": "Közepes (Kiegyensúlyozott)",
+      "serverDefault": "Szerver alapértelmezett"
+    },
     "allGames": {
-      "continue": "Folytatás",
+      "continue": "Játék",
       "copyConfirm": {
         "confirm": "Játék másolása",
-        "message": "Ez létrehoz egy másolatot a(z) \"{{name}}\" játékból a játékaid között.",
+        "message": "Ez létrehozza a(z) „{{name}}” játék másolatát a játékaid között.",
         "title": "Játék másolása"
       },
       "copyGame": "Játék másolása",
       "empty": {
-        "description": "Próbáld meg módosítani a szűrőidet, vagy nézz vissza később új játékokért.",
-        "title": "Nincs játék"
+        "description": "Próbáld módosítani a szűrőket, vagy nézz vissza később új játékokért.",
+        "title": "Nem található játék"
       },
       "favorite": "Hozzáadás a kedvencekhez",
       "filters": {
-        "all": "Minden játék",
+        "all": "Összes játék",
         "favorites": "Kedvencek",
-        "own": "Saját játékok",
-        "public": "Nyilvános"
+        "own": "Saját játékaim",
+        "public": "Nyilvános",
+        "sponsored": "Szponzorált"
       },
-      "play": "Játssz",
+      "play": "Játék",
       "restart": "Újrakezdés",
       "restartConfirm": {
         "confirm": "Újrakezdés",
-        "message": "Biztosan újrakezded a(z) \"{{game}}\" játékot? A jelenlegi előrehaladásod elveszik.",
-        "title": "Játék újrakezdése"
+        "message": "Biztosan újra akarod kezdeni a(z) „{{game}}” játékot? A jelenlegi előrehaladásod elvész.",
+        "title": "Játék újraindítása"
       },
-      "title": "Minden játék",
-      "unfavorite": "Eltávolítás a kedvencek közül"
+      "title": "Összes játék",
+      "unfavorite": "Eltávolítás a kedvencekből"
     },
     "apiKeys": {
       "aboutSection": {
-        "description": "Az API-kulcsok az AI-platformokhoz való csatlakozáshoz használatosak a játéktartalom generálásához.",
+        "description": "Az API-kulcsokkal AI platformokhoz kapcsolódhatsz a játéktartalom generálásához. A kiválasztott kulcs (pipa jelzi) lesz az alapértelmezett új játékmenetek létrehozásakor.",
         "title": "Az API-kulcsokról"
       },
       "addKey": "Kulcs hozzáadása",
       "addedOn": "Hozzáadva",
+      "aiQualityTier": {
+        "description": "Válaszd ki az MI minőségi szintjét, amikor a saját API-kulcsod használod. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen a szerver alapértelmezett használatához."
+      },
       "createModal": {
-        "keyDescription": "A kulcs titkosítva és biztonságosan lesz tárolva.",
+        "keyDescription": "A kulcsod titkosítva, biztonságosan kerül tárolásra.",
         "keyLabel": "API-kulcs",
         "keyPlaceholder": "Add meg az API-kulcsodat",
         "nameLabel": "Kulcs neve",
-        "namePlaceholder": "pl. Saját OpenAI-kulcsom",
+        "namePlaceholder": "pl. Saját OpenAI kulcs",
         "platformLabel": "Platform",
         "platformPlaceholder": "Válassz platformot",
         "submit": "Kulcs hozzáadása",
         "title": "Új API-kulcs hozzáadása"
       },
+      "currentDefault": {
+        "label": "Aktív API-kulcs",
+        "none": "Nincs beállított alapértelmezett kulcs. Adj hozzá egy kulcsot a kezdéshez."
+      },
+      "default": "Alapértelmezett",
       "deleteModal": {
-        "message": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t?",
+        "message": "Biztosan törlöd a(z) „{{name}}” kulcsot?",
         "title": "API-kulcs törlése",
-        "warning": "Ezt a műveletet nem lehet visszavonni. A kulcs véglegesen törlődik."
+        "warning": "Ez a művelet nem vonható vissza. A kulcs véglegesen törlődik."
       },
       "errors": {
-        "invalidPlatform": "Érvénytelen platform lett kiválasztva. Kérjük, válassz egy érvényes MI-platformot.",
+        "invalidPlatform": "Érvénytelen platform lett kiválasztva. Válassz egy érvényes MI platformot.",
         "keyRequired": "API-kulcs megadása kötelező",
-        "loadFailed": "Az API-kulcsok betöltése sikertelen. Kérjük, próbáld újra.",
-        "nameRequired": "Név kötelező",
+        "loadFailed": "Nem sikerült betölteni az API-kulcsokat. Próbáld újra.",
+        "nameRequired": "Név megadása kötelező",
         "platformRequired": "Platform megadása kötelező"
       },
       "key": "kulcs",
-      "keys": "kulcsok",
-      "subtitle": "Kezeld az AI-platformokhoz tartozó API-kulcsaidat.",
-      "title": "API-kulcsok kezelése",
+      "keys": "kulcs",
+      "platform": "Platform",
+      "setDefault": "Beállítás alapértelmezettként",
+      "shares": {
+        "goToOrg": "Kezelés",
+        "noOrgShares": "Nincs megosztva szervezettel",
+        "noSponsorships": "Nincs játék-szponzoráció",
+        "orgShares": "Szervezeti megosztások",
+        "privateShares": "Privát megosztási linkek",
+        "remaining": "{{count}} maradt",
+        "removeSponsor": "Szponzoráció eltávolítása",
+        "revokePrivateShare": "Megosztási link visszavonása",
+        "sponsorships": "Játék-szponzorációk",
+        "toggle": "Megosztások és szponzorációk",
+        "unknownGame": "Ismeretlen játék",
+        "unknownOrg": "Ismeretlen szervezet",
+        "unknownUser": "Ismeretlen felhasználó",
+        "unknownWorkshop": "Ismeretlen műhely"
+      },
+      "status": {
+        "failed": "A kulcs nem működik",
+        "unknown": "A kulcsot még nem használták",
+        "working": "A kulcs működik"
+      },
+      "subtitle": "Kezeld az AI platformokhoz tartozó API-kulcsaidat.",
+      "title": "API-kulcs kezelés",
       "unnamed": "Névtelen kulcs",
       "unsupportedPlatform": {
         "badge": "nem támogatott",
-        "hint": "Ez a platform jelenleg nem támogatott. Csak meglévő kulcsokat törölhetsz."
+        "hint": "Ez a platform jelenleg nem támogatott. Csak meglévő kulcsokat távolíthatsz el."
       }
     },
     "back": "Vissza",
@@ -278,78 +320,107 @@
     "create": "Létrehozás",
     "delete": "Törlés",
     "deleteGame": "Játék törlése",
+    "demoteConfirm": "Biztosan lefokozod „{{name}}” ({{email}}) felhasználót tanárrá?",
+    "demoteTitle": "Lefokozás tanárrá",
+    "demoteToStaff": "Lefokozás tanárrá",
     "edit": "Szerkesztés",
     "editGame": "Játék szerkesztése",
+    "email": "E-mail",
+    "emailPlaceholder": "Add meg az e-mail-címet",
+    "empty": "Nincsenek tagok ebben a szervezetben.",
     "error": "Hiba",
     "footer": {
       "copyright": "JFF - Institut für Medienpädagogik",
-      "jffTitle": "JFF - Oktatáskutatási és Innovációs Intézet",
+      "jffTitle": "JFF - Institut für Medienpädagogik",
       "programmedBy": "Programozta"
     },
     "gamePlayer": {
+      "aiInsight": {
+        "sections": {
+          "expandStory": "Az MI-nek adott utasítások a történet kidolgozásához",
+          "imageGeneration": "Az MI utasításai a képgeneráláshoz",
+          "rawResponse": "Feldolgozatlan MI válasz",
+          "responseSchema": "Az MI válaszának elvárt szerkezete",
+          "statusUpdate": "Az MI-nek küldött prompt",
+          "systemPrompt": "Játékutasítások az MI számára"
+        },
+        "title": "MI kérés / válasz",
+        "toggle": "MI betekintés",
+        "tokens": {
+          "received": "fogadott token",
+          "sent": "elküldött token"
+        }
+      },
       "debug": {
         "fields": {
-          "id": "Üzenet azonosító",
-          "imagePrompt": "Kép-prompt",
-          "isStreaming": "Streaming",
+          "id": "Üzenetazonosító",
+          "imagePrompt": "Képprompt",
+          "isStreaming": "Folyamatban",
           "seq": "Sorrend",
           "statusFields": "Állapotmezők",
           "timestamp": "Időbélyeg",
           "type": "Típus"
         },
         "hints": {
-          "id": "Ennek az üzenetnek az egyedi azonosítója",
-          "imagePrompt": "A kép-generáló MI-nek küldött prompt",
-          "isStreaming": "Megmutatja, hogy még érkeznek-e tartalmak",
-          "seq": "Sorrend a beszélgetésben",
-          "statusFields": "Az AI által követett játékállapot-változók",
-          "timestamp": "Amikor ez az üzenet létrejött",
-          "type": "player = játékos bemenet, game = MI válasz, system = kontextus"
+          "id": "Az üzenet egyedi azonosítója",
+          "imagePrompt": "A képgeneráló MI-nek küldött prompt",
+          "isStreaming": "Még érkezik-e tartalom",
+          "seq": "A beszélgetés sorrendje",
+          "statusFields": "Az MI által követett játékállapot-változók",
+          "timestamp": "Mikor jött létre ez az üzenet",
+          "type": "player = felhasználói bevitel, game = MI válasz, system = kontextus"
         },
-        "title": "Debug információk"
+        "title": "Hibakeresési információ"
       },
       "error": {
         "backToGames": "Vissza a játékokhoz",
         "gameNotFound": "A játék nem található",
-        "missingFields": "A játéknak hiányoznak a kötelező mezői:",
-        "sessionFailed": "A játékszakasz indítása sikertelen"
+        "missingFields": "A játékból hiányoznak kötelező mezők:",
+        "noApiKey": {
+          "banner": "A játékhoz korábban használt API-kulcs már nem elérhető. A folytatáshoz adj hozzá saját API-kulcsot a fiókbeállításaidban.",
+          "goToSettings": "API-kulcs beállítások",
+          "personal": "API-kulcsot kell beállítanod, mielőtt játszanál. Látogass el az API-kulcs beállításaidhoz, és adj hozzá egyet.",
+          "title": "Nem áll rendelkezésre API-kulcs",
+          "workshop": "Ehhez a műhelyhez nincs API-kulcs beállítva. Vedd fel a kapcsolatot a műhely adminisztrátorával."
+        },
+        "retry": "Újra",
+        "sendFailed": "Nem sikerült elküldeni az üzenetet. Próbáld újra.",
+        "sessionFailed": "Nem sikerült elindítani a játékmenetet"
       },
       "header": {
         "back": "Vissza a játékokhoz",
-        "debug": "Debug",
-        "decreaseFont": "Betűméret csökkentése",
+        "debug": "Hibakeresés",
+        "decreaseFont": "Kisebb",
         "disableAnimations": "Animációk kikapcsolása",
-        "increaseFont": "Betűméret növelése",
+        "disableTextEffects": "Szöveghatások kikapcsolása",
+        "fontSize": "Betűméret",
+        "increaseFont": "Nagyobb",
+        "muteAudio": "Narráció némítása",
+        "resetFont": "Visszaállítás",
         "settings": "Beállítások",
+        "unmuteAudio": "Narráció visszakapcsolása",
         "useNeutralTheme": "Semleges téma használata"
       },
       "input": {
+        "audioCancel": "Felvétel megszakítása",
+        "audioProcessing": "Feldolgozás…",
+        "audioRecording": "Felvétel…",
+        "audioStart": "Hangüzenet rögzítése",
+        "audioStop": "Felvétel elküldése",
+        "audioUnavailableMessage": "A hangbevitel nem érhető el a jelenlegi API-kulcs beállításokkal. A használathoz válts magasabb minőségi szintre (Prémium vagy Max).",
+        "audioUnavailableTitle": "Hangbevitel nem érhető el",
         "placeholder": "Mit teszel?",
-        "send": "Akció küldése"
+        "send": "Akció elküldése"
       },
       "loading": {
         "game": "Játék betöltése...",
+        "resolvingKey": "API-kulcs ellenőrzése...",
         "starting": "Játékmenet indítása...",
-        "startingHint": "Az MI készíti elő a kalandodat"
+        "startingHint": "Az MI előkészíti a kalandodat"
       },
       "needsApiKey": {
-        "description": "A munkamenethez használt API-kulcs már nem elérhető. Kérlek válassz újat a játék folytatásához.",
-        "reason": "Az előző API-kulcsod már nem elérhető. A játék folytatásához kérlek válassz újat.",
+        "description": "Az ehhez a munkamenethez használt API-kulcs már nem elérhető.",
         "title": "API-kulcs szükséges"
-      },
-      "selectApiKey": {
-        "keyDescription": "Válaszd ki az API-kulcsot ehhez a játékmunkamenethez",
-        "keyLabel": "API-kulcs",
-        "keyPlaceholder": "Válassz API-kulcsot",
-        "loadError": "Nem sikerült betölteni az API-kulcsokat",
-        "mine": "Saját",
-        "modelDescription": "Opcionálisan válassz egy konkrét MI-modellt",
-        "modelLabel": "MI-modell",
-        "modelPlaceholder": "Alapértelmezett modell",
-        "noKeys": "A játékhoz legalább egy API-kulcs szükséges. Adj hozzá egyet a Beállítások → API-kulcsok menüben.",
-        "playing": "Játékban",
-        "startGame": "Játék indítása",
-        "title": "API-kulcs kiválasztása"
       },
       "statusChange": {
         "effect": "Hatás:"
@@ -357,55 +428,63 @@
       "unnamed": "Névtelen"
     },
     "games": {
+      "actions": {
+        "delete": "Törlés",
+        "edit": "Szerkesztés",
+        "export": "Exportálás",
+        "play": "Játék",
+        "view": "Megtekintés"
+      },
       "badges": {
         "myGame": "Saját játék",
         "public": "Nyilvános",
-        "workshop": "Workshop"
+        "workshop": "Műhely"
       },
       "createButton": "Játék létrehozása",
       "createModal": {
         "descriptionPlaceholder": "Miről szól a játékod?",
         "namePlaceholder": "pl. Űrkaland",
-        "publicDescription": "A nyilvános játékok mindenki számára felfedezhetők.",
-        "publicLabel": "Tedd nyilvánossá ezt a játékot",
+        "publicDescription": "A nyilvános játékokat bárki megtalálhatja.",
+        "publicLabel": "Játék nyilvánossá tétele",
         "submit": "Játék létrehozása",
         "title": "Új játék létrehozása"
       },
       "deleteModal": {
-        "message": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t?",
+        "message": "Biztosan törlöd a(z) „{{name}}” játékot?",
         "title": "Játék törlése",
-        "warning": "Ezt a műveletet nem lehet visszavonni. Minden játékadat véglegesen törlődik."
+        "warning": "Ez a művelet nem vonható vissza. A játék összes adata véglegesen törlődik."
       },
       "editFields": {
-        "description": "Adj rövid leírást a játéknak. Ez csak neked szól, és nem befolyásolja a játékmenetet.",
+        "description": "Adj rövid leírást a játékról. Csak neked szól, nem befolyásolja a játékmenetet.",
         "gameStart": "Hogyan kezdődik a játék?",
-        "gameStartHint": "Mi történik a kezdetben? Írd le az első jelenetet, amit a játékos lát. Hogyan üdvözlöd a játékost?",
-        "gameStartPlaceholder": "Felébredsz egy sötét erdő szélén. Egy keskeny ösvény vezet mélyebbre a fák közé...",
+        "gameStartHint": "Mi történik a kezdéskor? Írd le az első jelenetet, amit a játékos lát. Hogyan üdvözlöd a játékost?",
+        "gameStartPlaceholder": "Egy sötét erdő szélén ébredsz. Egy keskeny ösvény vezet a fák mélyére...",
         "imageStyle": "Milyen stílusúak legyenek a játék képei?",
         "imageStyleHint": "Például: rajzfilm, realisztikus, pixel art, akvarell...",
         "name": "Játék neve",
         "scenario": "Miről szól a játék?",
-        "scenarioHint": "Írj röviden: Hogyan működik a játék? Milyen a világ? Nyelv \\u0026 hangnem (pl. spanyol hetedikeseknek)?\nMilyen szerepe van a játékosnak? Írd: \"A játékos ...\".\nHa azt akarod, hogy az MI egy konkrét személy szerepét vegye át, írd: \"Te vagy ...\".",
-        "scenarioPlaceholder": "Te egy felfedező vagy egy titokzatos erdőben. A cél a rejtett kincs megtalálása...",
+        "scenarioHint": "Röviden írd le: hogyan működik a játék? Milyen a világ? Nyelv és hangnem (pl. spanyol hatodikosoknak)?\nMi a játékos szerepe? Írd: „A játékos ...”.\nHa szeretnéd, hogy az MI egy konkrét személy szerepét vegye fel, írd: „Te ... vagy.”",
+        "scenarioPlaceholder": "Egy titokzatos erdő felfedezője vagy. A célod, hogy megtaláld a rejtett kincset...",
         "statusFields": "Játékértékek",
-        "statusFieldsHint": "Mit mérjen a játék? Például élet, pontok vagy lőszer. A játék ezekre az értékekre emlékszik és játék közben frissíti őket."
+        "statusFieldsHint": "Mit kövessen a játék? Például élet, pontok vagy lőszer. A játék megjegyzi és frissíti ezeket az értékeket játék közben."
       },
       "editModal": {
         "title": "Játék szerkesztése",
         "unsavedChanges": {
-          "discard": "Változtatások elvetése",
+          "discard": "Változtatások eldobása",
           "keepEditing": "Szerkesztés folytatása",
-          "message": "Vannak nem mentett módosításaid. Biztosan el szeretnéd vetni őket?",
+          "message": "Vannak nem mentett változtatásaid. Biztosan el akarod dobni őket?",
           "title": "Nem mentett módosítások"
         }
       },
       "empty": {
-        "description": "Hozd létre első játékodat, hogy interaktív, MI által vezérelt kalandokba kezdj.",
+        "description": "Hozd létre az első játékodat, és induljon az interaktív MI-kaland!",
         "title": "Még nincs játék"
       },
       "errors": {
-        "loadFailed": "A játékok betöltése sikertelen. Kérjük próbáld újra.",
-        "nameRequired": "A játék neve kötelező"
+        "loadFailed": "Nem sikerült betölteni a játékokat. Próbáld újra.",
+        "nameRequired": "A játék neve kötelező",
+        "nameTooLong": "A játék neve legfeljebb 70 karakter lehet"
       },
       "fields": {
         "created": "Létrehozva",
@@ -420,41 +499,183 @@
         "exportButton": "Játék exportálása",
         "importButton": "Játék importálása"
       },
-      "playNow": "Most játszani",
+      "playNow": "Játssz most",
+      "privateShare": {
+        "active": "A privát megosztás aktív. A lenti link birtokában bárki anonim módon játszhatja a játékot.",
+        "copyLink": "Link másolása",
+        "description": "Hozz létre privát megosztási linket, hogy bárki anonim módon játszhassa a játékot. Te választod ki, melyik API-kulcs fizeti a munkameneteket.",
+        "edit": "Beállítások szerkesztése",
+        "editSettings": "Megosztási beállítások szerkesztése",
+        "enable": "Megosztási link létrehozása",
+        "loading": "Megosztási állapot betöltése...",
+        "loadingKeys": "API-kulcsok betöltése...",
+        "maxSessions": "Maximális munkamenet",
+        "maxSessionsDescription": "Hagyd üresen korlátlan munkamenethez.",
+        "noEligibleKeys": "Nincs működő API-kulcs. Először adj hozzá API-kulcsot az API-kulcs beállításoknál.",
+        "remainingSessions": "{{count}} munkamenet maradt",
+        "revoke": "Link visszavonása",
+        "selectKey": "Válassz API-kulcsot",
+        "selectKeyPlaceholder": "Válassz kulcsot a vendégmunkamenetek finanszírozásához...",
+        "shareLink": "Megosztási link",
+        "title": "Privát megosztási link",
+        "unlimited": "Korlátlan",
+        "update": "Megosztási link frissítése"
+      },
+      "sharing": {
+        "active": "Aktív",
+        "sectionTitle": "Megosztás és szponzoráció"
+      },
       "sort": {
         "createdAt-asc": "Létrehozva (legrégebbi)",
         "createdAt-desc": "Létrehozva (legújabb)",
-        "creator-asc": "Készítő (A-Z)",
-        "creator-desc": "Készítő (Z-A)",
+        "creator-asc": "Készítő (A–Z)",
+        "creator-desc": "Készítő (Z–A)",
         "label": "Rendezés",
         "modifiedAt-asc": "Módosítva (legrégebbi)",
         "modifiedAt-desc": "Módosítva (legújabb)",
-        "name-asc": "Név (A-Z)",
-        "name-desc": "Név (Z-A)",
-        "playCount-asc": "Legkevésbé játszott",
+        "name-asc": "Név (A–Z)",
+        "name-desc": "Név (Z–A)",
+        "playCount-asc": "Legkevesebbet játszott",
         "playCount-desc": "Legtöbbet játszott",
-        "visibility-asc": "Privátok előre",
-        "visibility-desc": "Nyilvánosak előre"
+        "visibility-asc": "Privát játékok előre",
+        "visibility-desc": "Nyilvános játékok előre"
+      },
+      "sponsor": {
+        "apiKey": "API-kulcs:",
+        "back": "Vissza",
+        "confirm": "Szponzoráció megerősítése",
+        "confirmExplanation": "Ha ezt a játékot szponzorálod, a te API-kulcsodat használjuk minden munkamenethez. Bárki játszik vele, a te kulcsodról kerül levonásra a költség.",
+        "confirmNote": "A szponzorációt bármikor eltávolíthatod a játék beállításaiban vagy az API-kulcs kezelésnél.",
+        "currentlySponsored": "Ez a játék jelenleg szponzorált. A szponzor API-kulcsa fizeti minden munkamenet költségét.",
+        "description": "Szponzoráld a játékot, hogy bárki ingyen játszhassa. Az API-kulcsod fedezi az MI költségeit minden munkamenetnél.",
+        "gameName": "Játék:",
+        "gameStartMessage": "Ez a játék szponzorált – valaki nagylelkűen állja az MI költségeket, hogy ingyen játszhass. Jó szórakozást!",
+        "gameStartOk": "Mehet!",
+        "gameStartTitle": "Ingyenes játék!",
+        "loadingKeys": "API-kulcsok betöltése...",
+        "manageSponsor": "Szponzor kezelése",
+        "next": "Tovább",
+        "noEligibleKeys": "Nincs olyan API-kulcsod, amin engedélyezve van a nyilvános szponzorálás. Nyisd meg az API-kulcs beállításokat, és kapcsold be az „Nyilvános szponzorálás engedélyezése” opciót egy kulcson.",
+        "privateWarning": "Ha priváttá teszed ezt a játékot, a nyilvános szponzoráció megszűnik.",
+        "removeSponsor": "Szponzoráció eltávolítása",
+        "selectKey": "Válassz API-kulcsot",
+        "selectKeyPlaceholder": "Válassz kulcsot a szponzoráláshoz...",
+        "sponsorGame": "Játék szponzorálása",
+        "sponsored": "Szponzorált",
+        "sponsoredTooltip": "Ez a játék szponzorált – ingyen játszhatod! A készítő vagy egy támogató fizeti az MI költségeket.",
+        "title": "Játék szponzorálása"
       },
       "statusFieldsEditor": {
         "addField": "Új érték hozzáadása",
         "namePlaceholder": "Név (pl. Életerő)",
-        "noFields": "Még nincs érték. Kattints a + gombra egy új érték hozzáadásához.",
-        "valuePlaceholder": "Kezdőérték (pl. 100)"
+        "noFields": "Még nincs érték. Kattints a + jelre új érték felvételéhez.",
+        "valuePlaceholder": "Kezdő érték (pl. 100)"
       },
       "tabs": {
         "basic": "Alapok",
-        "basicInfo": "Általános információk a játékról. Ez csak neked szól és nem befolyásolja a játékmenetet.",
+        "basicInfo": "Általános információk a játékról. Csak neked szólnak, nem befolyásolják a játékmenetet.",
         "importExport": "Import/Export",
         "quickStart": "Gyors kezdés",
-        "story": "Történet \\u0026 MI",
-        "storyInfo": "Minden itt található információ az MI-nek kerül elküldésre, hogy formálja a játékvilágot és a történetet.",
+        "story": "Történet és MI",
+        "storyInfo": "Minden itt megadott információ az MI-hez kerül, hogy formálja a világot és a történetet.",
         "style": "Dizájn",
-        "styleInfo": "Opcionális beállítások a játék megjelenéséhez játék közben."
+        "styleInfo": "Opcionális beállítások a játék kinézetéhez játék közben."
+      },
+      "theme": {
+        "animation": "Háttéranimáció",
+        "animationDefault": "Előbeállítás alapértéke",
+        "animationDescription": "Felülírja az előbeállítás alapértelmezett animációját",
+        "animations": {
+          "bits": "1-0-Bits",
+          "bubbles": "Buborékok",
+          "circuits": "Áramkörök",
+          "confetti": "Konfetti",
+          "confettiExplosion": "Konfettirobbanás",
+          "embers": "Parázs",
+          "fireflies": "Szentjánosbogarak",
+          "geometric": "Geometrikus",
+          "glitch": "Glitch",
+          "glowworm": "Lidércfények",
+          "hearts": "Szívek",
+          "hyperspace": "Hipertér",
+          "leaves": "Levelek",
+          "matrixRain": "Mátrix eső",
+          "none": "Nincs",
+          "snow": "Hó",
+          "sparkles": "Csillogás",
+          "stars": "Csillagok",
+          "sun": "Nap",
+          "tumbleweed": "Gördülő bogáncs",
+          "waves": "Hullámok"
+        },
+        "apply": "Téma alkalmazása",
+        "button": "Téma",
+        "changeDesign": "Dizájn módosítása",
+        "currentTheme": "Téma: {{preset}}",
+        "modalTitle": "Játék témája",
+        "noTheme": "Nincs téma kiválasztva. Az MI minden munkamenethez külön témát generál.",
+        "preset": "Előbeállítás",
+        "presetDescription": "Válassz vizuális stílust a játékhoz",
+        "presets": {
+          "abstract": "Absztrakt",
+          "adventure": "Kaland",
+          "barbie": "Barbie",
+          "candy": "Cukorka",
+          "circus": "Cirkusz",
+          "cyberpunk": "Cyberpunk",
+          "default": "Alapértelmezett",
+          "desert": "Sivatag",
+          "detective": "Detektív",
+          "educational": "Oktatási",
+          "fairy": "Tündér",
+          "fire": "Tűz",
+          "garden": "Kert",
+          "glitch": "Glitch",
+          "greenFantasy": "Zöld fantázia",
+          "hacker": "Hacker",
+          "horror": "Horror",
+          "jungle": "Dzsungel",
+          "matrix": "Mátrix",
+          "medieval": "Középkori",
+          "minimal": "Minimál",
+          "mystery": "Rejtély",
+          "mystic": "Misztikus",
+          "nature": "Természet",
+          "nautical": "Tengeri",
+          "noir": "Noir",
+          "ocean": "Óceán",
+          "pirate": "Kalóz",
+          "playful": "Játékos",
+          "retro": "Retro",
+          "romance": "Romantikus",
+          "school": "Iskola",
+          "scifi": "Sci-fi",
+          "snowy": "Havas",
+          "space": "Űr",
+          "steampunk": "Steampunk",
+          "storybook": "Mesekönyv",
+          "sunshine": "Napsütés",
+          "superhero": "Szuperhős",
+          "tech": "Tech",
+          "terminal": "Terminál",
+          "underwater": "Víz alatti",
+          "western": "Western",
+          "zombie": "Zombi"
+        },
+        "preview": "Előnézet",
+        "remove": "Téma eltávolítása",
+        "removeConfirm": "Eltávolítod az egyedi témát? Helyette az MI fog minden munkamenethez újat generálni.",
+        "sampleGame": "Az ajtó nyikordulva kinyílik, és egy félhomályos kamrát tár fel. Ősi rúnák parázslanak a kőfalakon. A szoba közepén egy titokzatos láda áll.",
+        "sampleGame2": "Óvatosan megközelíted a ládát. Ahogy ujjaid a hideg fémreteszhez érnek, a falakon lévő rúnák fényesebben pulzálni kezdenek. Mély zümmögés tölti be a kamrát.",
+        "samplePlayer": "Kinyitom a régi faajtót...",
+        "sampleStatus": "Életerő",
+        "thinkingText": "Gondolkodó szöveg",
+        "thinkingTextDescription": "A szöveg, ami az MI gondolkodása közben látható",
+        "thinkingTextPlaceholder": "pl. A történet kibontakozik..."
       },
       "title": "Általam létrehozott játékok",
       "viewModal": {
-        "readOnlyNotice": "Ezt a játékot egy másik felhasználó hozta létre. Megtekintheted a részleteket, de nem szerkesztheted. Használd a \"Másolás\"-t, hogy létrehozd a saját szerkeszthető verziódat.",
+        "readOnlyNotice": "Ezt a játékot más felhasználó hozta létre. A részleteket megtekintheted, de nem szerkesztheted. A „Másolás” gombbal készíthetsz saját szerkeszthető verziót.",
         "title": "Játék részletei"
       },
       "visibility": {
@@ -462,71 +683,97 @@
         "public": "Nyilvános"
       }
     },
+    "guestPlay": {
+      "welcome": {
+        "backToHome": "Ugrás a ChatGameLab oldalára",
+        "continueGame": "Játék folytatása",
+        "expired": "Ennek a megosztási linknek lejárt a játékkorlátja. Nincs több elérhető munkamenet.",
+        "headline": "Meghívást kaptál egy ingyenes, MI-alapú szöveges kalandra!",
+        "invalidLink": "Ez a megosztási link érvénytelen vagy már nem létezik.",
+        "loadError": "Nem sikerült betölteni a játék adatait. Próbáld újra.",
+        "restartGame": "Újrakezdés",
+        "sessionExists": "Már folyamatban van egy játékod. Folytathatod, ahol abbahagytad, vagy új játékot indíthatsz.",
+        "startPlaying": "Játék indítása"
+      }
+    },
     "header": {
       "apiKeys": "API-kulcsok",
       "closeNavigation": "Navigációs menü bezárása",
       "contact": "Kapcsolat",
-      "goToDashboard": "Ugrás a vezérlőpultra",
-      "leaveWorkshopMode": "Workshop-mód elhagyása",
-      "leaveWorkshopModeTooltip": "Lépj ki a workshop-módból és térj vissza a normál nézethez",
+      "goToDashboard": "Ugrás az irányítópultra",
+      "leaveWorkshopMode": "Műhely mód elhagyása",
+      "leaveWorkshopModeTooltip": "Lépj ki a műhely módból és térj vissza a normál nézetbe",
       "logout": "Kijelentkezés",
       "openNavigation": "Navigációs menü megnyitása",
       "openUserMenu": "Felhasználói menü megnyitása",
       "organization": "Szervezet",
       "profile": "Profil",
-      "workshop": "Workshop"
+      "workshop": "Műhely"
     },
     "home": {
       "features": {
         "create": {
-          "description": "Tervezz interaktív, MI által vezérelt szöveges kalandokat",
+          "description": "Készíts interaktív, MI által vezérelt szöveges kalandokat",
           "title": "Kalandok létrehozása"
         },
         "learn": {
-          "description": "Tökéletes oktatási workshopokhoz és osztálytermi tevékenységekhez",
-          "title": "Tanulás \\u0026 Tanítás"
+          "description": "Tökéletes oktatási műhelyekhez és tanórai foglalkozásokhoz",
+          "title": "Tanulás és tanítás"
         },
         "play": {
-          "description": "Csatlakozz barátokhoz kollaboratív történetmesélő üléseken",
-          "title": "Közös játék"
+          "description": "Csatlakozz barátaidhoz közös történetmesélő kalandokban",
+          "title": "Játsszatok együtt"
         },
         "title": "Miért a ChatGameLab?",
         "understand": {
-          "description": "Fedezd fel, hogyan hoznak létre történeteket az MI-modellek, és tanuld meg, hogyan működnek",
-          "title": "MI megértése"
+          "description": "Fedezd fel, hogyan hoznak létre történeteket az MI modellek, és tanuld meg a működésüket",
+          "title": "Értsd meg az MI-t"
         }
       },
       "loginCta": "Jelentkezz be és fedezd fel",
-      "splashDescription": "Egy oktatási platform AI-vezérelt szöveges kalandjátékok készítéséhez és játékához. Tökéletes tanároknak, diákoknak és kreatív történetmesélőknek."
+      "splashDescription": "Oktatási platform MI által vezérelt szöveges kalandjátékok készítéséhez és lejátszásához. Tökéletes tanároknak, diákoknak és kreatív történetmesélőknek."
     },
+    "inviteAlreadyExists": "Ehhez az e-mail-címhez már van függő meghívó.",
+    "inviteError": "Nem sikerült elküldeni a meghívót. Próbáld újra.",
+    "inviteTeacher": "Tanár meghívása",
+    "inviteTeacherDescription": "Küldj meghívót, hogy egy tanár csatlakozhasson a szervezetedhez.",
+    "inviteTeacherTitle": "Tanár meghívása",
+    "inviteUser": "Felhasználó meghívása",
+    "inviteUserDescription": "Küldj meghívót egy felhasználónak, hogy szerepkör nélkül csatlakozzon a szervezetedhez.",
+    "inviteUserTitle": "Felhasználó meghívása",
     "invites": {
       "accept": {
-        "inviteMessage": "Meghívást kaptál, hogy csatlakozz a(z) \"{{organization}}\" szervezet workshopjához.",
-        "inviteMessageSimple": "Meghívtak, hogy csatlakozz ehhez a workshophoz.",
-        "joinButton": "Workshophoz csatlakozás",
-        "title": "Workshop csatlakozás",
-        "titleWithWorkshop": "Csatlakozás a \"{{workshop}}\" workshophoz"
+        "inviteMessage": "Meghívást kaptál, hogy csatlakozz a(z) „{{organization}}” szervezet műhelyéhez.",
+        "inviteMessageSimple": "Meghívtak, hogy csatlakozz ehhez a műhelyhez.",
+        "joinButton": "Csatlakozás a műhelyhez",
+        "title": "Csatlakozás a műhelyhez",
+        "titleWithWorkshop": "Csatlakozás a(z) „{{workshop}}” műhelyhez"
+      },
+      "alreadyMember": {
+        "enterButton": "Belépés a műhelybe",
+        "message": "Szeretnél csatlakozni a(z) „{{workshop}}” műhelyhez? Műhely módba lépsz, és ebben a kontextusban hozol létre játékokat.",
+        "title": "Csatlakozás a műhelyhez"
       },
       "errors": {
-        "acceptFailed": "Nem sikerült elfogadni a meghívót. Kérjük próbáld újra.",
-        "expired": "Ez a meghívólink lejárt.",
-        "loadFailed": "Meghívó részleteinek betöltése sikertelen. Kérjük, próbáld újra.",
-        "notFound": "Ez a meghívólink érvénytelen vagy visszavonták."
+        "acceptFailed": "Nem sikerült elfogadni a meghívót. Próbáld újra.",
+        "expired": "Ez a meghívó link lejárt.",
+        "loadFailed": "Nem sikerült betölteni a meghívó adatait. Próbáld újra.",
+        "notFound": "Ez a meghívó link érvénytelen vagy visszavonták."
       },
       "goHome": "Vissza a kezdőlapra",
       "participant": {
-        "loggingIn": "Bejelentkezés folyamatban..."
+        "loggingIn": "Bejelentkeztetés..."
       },
       "success": {
-        "message": "Sikeresen csatlakoztál a workshophoz. Átirányítás...",
+        "message": "Sikeresen csatlakoztál a műhelyhez. Átirányítás...",
         "title": "Üdvözlünk!"
       },
       "switchWorkshop": {
-        "message": "A jelenlegi workshopbeli játékaid és előrehaladásod megmarad, de nem férsz hozzájuk, amíg újra nem csatlakozol.",
-        "stayButton": "Maradok a jelenlegi workshopban",
-        "switchButton": "Workshop váltása",
-        "title": "Workshop váltása?",
-        "warning": "Jelenleg a(z) \"{{currentWorkshop}}\" workshopban vagy. A(z) \"{{newWorkshop}}\"-hoz való csatlakozás eltávolít a jelenlegi workshopból."
+        "message": "A jelenlegi műhelyben lévő játékaid és előrehaladásod megmarad, de nem férsz hozzá, amíg nem csatlakozol újra.",
+        "stayButton": "Maradás a jelenlegi műhelyben",
+        "switchButton": "Műhely váltása",
+        "title": "Műhelyt váltasz?",
+        "warning": "Jelenleg a(z) „{{currentWorkshop}}” műhelyben vagy. A(z) „{{newWorkshop}}” műhelyhez csatlakozva kilépsz a mostaniból."
       }
     },
     "labels": {
@@ -534,21 +781,26 @@
       "yes": "Igen"
     },
     "languageSwitcher": {
-      "wipHint": "További nyelvek fejlesztés alatt állnak. Jelenleg csak angol és német érhető el.",
-      "wipLabel": "WIP"
+      "wipHint": "További nyelvek fejlesztés alatt. Jelenleg csak angol és német elérhető.",
+      "wipLabel": "Folyamatban"
     },
+    "leaveConfirm": "Biztosan elhagyod a(z) „{{name}}” szervezetet?",
+    "leaveOrganization": "Szervezet elhagyása",
+    "leaveTitle": "Szervezet elhagyása",
+    "leaveWarning": "Elveszíted a szervezet erőforrásaihoz és tagjaihoz való hozzáférést.",
     "loading": "Betöltés...",
     "logout": "Kijelentkezés",
+    "me": "Én",
     "myGames": {
-      "continue": "Folytatás",
+      "continue": "Játék",
       "copyConfirm": {
         "confirm": "Játék másolása",
-        "message": "Ez létrehoz egy másolatot a(z) \"{{name}}\" játékból a játékaid között.",
+        "message": "Ez létrehozza a(z) „{{name}}” játék másolatát a játékaid között.",
         "title": "Játék másolása"
       },
       "copyGame": "Játék másolása",
       "empty": {
-        "description": "Hozd létre első játékodat, hogy interaktív, MI által vezérelt kalandokba kezdj.",
+        "description": "Hozd létre az első játékod, és induljon az interaktív MI-kaland!",
         "title": "Még nincs játék"
       },
       "favorite": "Hozzáadás a kedvencekhez",
@@ -556,212 +808,270 @@
         "all": "Összes",
         "favorites": "Kedvencek"
       },
-      "play": "Játssz",
+      "play": "Játék",
       "restart": "Újrakezdés",
       "restartConfirm": {
         "confirm": "Újrakezdés",
-        "message": "Biztosan újrakezded a(z) \"{{game}}\" játékot? A jelenlegi előrehaladásod elveszik.",
-        "title": "Játék újrakezdése"
+        "message": "Biztosan újra akarod kezdeni a(z) „{{game}}” játékot? A jelenlegi előrehaladásod elvész.",
+        "title": "Játék újraindítása"
       },
       "title": "Saját játékaim",
-      "unfavorite": "Eltávolítás a kedvencek közül"
+      "unfavorite": "Eltávolítás a kedvencekből"
     },
     "myOrganization": {
       "actions": "Műveletek",
       "apiKeys": {
-        "aboutDescription": "Itt megosztott API-kulcsok az egész szervezet tagjai számára elérhetők a játékhoz. Csak a vezetők és a tanárok kezelhetik ezeket a kulcsokat.",
+        "aboutDescription": "Az itt megosztott API-kulcsok a szervezeted minden tagja számára elérhetők lesznek játék közben. Csak a vezetők és tanárok kezelhetik ezeket.",
         "aboutTitle": "Szervezeti API-kulcsok",
-        "allowPublicSponsoring": "Nyilvános támogatás engedélyezése",
-        "allowPublicSponsoringDesc": "Ezt a kulcsot minden felhasználó játékainak támogatására lehet használni.",
+        "allowPublicSponsoring": "Nyilvános szponzoráció engedélyezése",
+        "allowPublicSponsoringDesc": "Ez a kulcs használható játékok nyilvános szponzorálására.",
         "filterByPlatform": "Szűrés platform szerint",
+        "freeUseKey": {
+          "description": "Állíts be egy szabadon használható kulcsot, hogy minden szervezeti tag saját API-kulcs nélkül játszhasson. Csak a szervezettel már megosztott kulcsok választhatók.",
+          "remove": "Eltávolítás",
+          "selectPlaceholder": "Válassz egy megosztott kulcsot...",
+          "title": "Szabadon használható kulcs",
+          "unknownKey": "Ismeretlen kulcs"
+        },
         "keyName": "Kulcs neve",
-        "loadError": "A szervezeti API-kulcsok betöltése sikertelen.",
-        "noKeys": "Még nincsenek megosztott API-kulcsok ebben a szervezetben.",
+        "loadError": "Nem sikerült betölteni a szervezeti API-kulcsokat.",
+        "noKeys": "Még nincs megosztott API-kulcs ebben a szervezetben.",
         "noResults": "Nincs a keresésnek megfelelő API-kulcs.",
-        "notAuthorized": "Nincs jogosultságod a szervezeti API-kulcsok kezeléséhez. Csak vezetők és tanárok férhetnek hozzá ehhez az oldalhoz.",
+        "notAuthorized": "Nincs jogosultságod a szervezeti API-kulcsok kezeléséhez. Csak vezetők és tanárok érhetik el ezt az oldalt.",
         "owner": "Tulajdonos",
         "platform": "Platform",
-        "publicSponsoring": "Nyilvános támogatás",
-        "searchPlaceholder": "Keresés név vagy tulajdonos szerint...",
+        "publicSponsoring": "Nyilvános szponzoráció",
+        "searchPlaceholder": "Keresés név vagy tulajdonos alapján...",
         "selectKey": "API-kulcs kiválasztása",
-        "selectKeyPlaceholder": "Válassz kulcsot megosztáshoz...",
+        "selectKeyPlaceholder": "Válassz megosztandó kulcsot...",
         "share": "Megosztás",
         "shareKey": "Kulcs megosztása",
         "shareKeyTitle": "API-kulcs megosztása a szervezettel",
         "title": "Szervezeti API-kulcsok"
       },
-      "demoteConfirm": "Biztosan vissza szeretnéd sorolni a(z) \"{{name}}\" ({{email}}) felhasználót tanárrá?",
-      "demoteTitle": "Leküldés tanárrá",
-      "demoteToStaff": "Leküldés tanárrá",
+      "demoteConfirm": "Biztosan lefokozod „{{name}}” ({{email}}) felhasználót tanárrá?",
+      "demoteTitle": "Lefokozás tanárrá",
+      "demoteToStaff": "Lefokozás tanárrá",
       "email": "E-mail",
-      "emailPlaceholder": "E-mail címet adj meg",
-      "empty": "Nincs tag ebben a szervezetben.",
-      "inviteAlreadyExists": "Ehhez az e-mail címhez már létezik egy függő meghívó.",
-      "inviteError": "A meghívó küldése sikertelen. Kérjük próbáld újra.",
+      "emailPlaceholder": "Add meg az e-mail-címet",
+      "empty": "Nincsenek tagok ebben a szervezetben.",
+      "inviteAlreadyExists": "Ehhez az e-mail-címhez már van függő meghívó.",
+      "inviteError": "Nem sikerült elküldeni a meghívót. Próbáld újra.",
       "inviteTeacher": "Tanár meghívása",
-      "inviteTeacherDescription": "Küldj meghívót egy tanárnak, hogy csatlakozzon a szervezetedhez.",
+      "inviteTeacherDescription": "Küldj meghívót, hogy egy tanár csatlakozhasson a szervezethez.",
       "inviteTeacherTitle": "Tanár meghívása",
       "inviteUser": "Felhasználó meghívása",
-      "inviteUserDescription": "Küldj meghívót egy felhasználónak, hogy csatlakozzon a szervezethez szerep nélkül.",
+      "inviteUserDescription": "Küldj meghívót egy felhasználónak szerepkör nélküli csatlakozáshoz.",
       "inviteUserTitle": "Felhasználó meghívása",
-      "leaveConfirm": "Biztosan el szeretnéd hagyni a(z) \"{{name}}\"-t?",
+      "lastHeadError": "Te vagy az utolsó vezető ebben a szervezetben. Ha távozni szeretnél, fordulj az oldal adminisztrátoraihoz.",
+      "leaveConfirm": "Biztosan elhagyod a(z) „{{name}}” szervezetet?",
+      "leaveError": "Nem sikerült elhagyni a szervezetet. Próbáld újra.",
       "leaveOrganization": "Szervezet elhagyása",
       "leaveTitle": "Szervezet elhagyása",
-      "leaveWarning": "Elveszíted a hozzáférést az összes szervezeti erőforráshoz és taghoz.",
+      "leaveWarning": "Elveszíted a szervezet erőforrásaihoz és tagjaihoz való hozzáférést.",
       "me": "Én",
       "name": "Név",
       "noEmail": "Nincs e-mail",
       "noOrganization": "Nincs szervezet",
-      "noOrganizationDescription": "Nem vagy egyetlen szervezet tagja sem.",
+      "noOrganizationDescription": "Nem vagy tagja egyetlen szervezetnek sem.",
       "noResults": "Nincs a keresésnek megfelelő tag.",
-      "noRole": "Nincs szerep",
-      "promoteConfirm": "Biztosan szeretnéd előléptetni a(z) \"{{name}}\" ({{email}})-t vezetővé?",
+      "noRole": "Nincs szerepkör",
+      "promoteConfirm": "Biztosan előlépteted „{{name}}” ({{email}}) felhasználót vezetővé?",
       "promoteTitle": "Előléptetés vezetővé",
       "promoteToHead": "Előléptetés vezetővé",
-      "promoteWarning": "Ez a felhasználó képes lesz a szervezet tagjainak kezelésére és tanárok meghívására.",
-      "removeConfirm": "Biztosan eltávolítod a(z) \"{{name}}\"-t a szervezetből?",
+      "promoteWarning": "A felhasználó jogosultságot kap a szervezeti tagok kezelésére és tanárok meghívására.",
+      "removeConfirm": "Biztosan eltávolítod „{{name}}” felhasználót a szervezetből?",
       "removeMember": "Tag eltávolítása",
       "removeTitle": "Tag eltávolítása",
-      "removeWarning": "Ez a felhasználó elveszíti a hozzáférést a szervezethez.",
-      "role": "Szerep",
-      "searchPlaceholder": "Tagok keresése...",
+      "removeWarning": "A felhasználó elveszíti a szervezethez való hozzáférést.",
+      "role": "Szerepkör",
+      "searchPlaceholder": "Keresés a tagok között...",
       "showing": "{{count}} tag",
       "sort": {
         "label": "Rendezés",
-        "name-asc": "Név (A-Z)",
-        "name-desc": "Név (Z-A)",
-        "role-asc": "Szerep (A-Z)",
-        "role-desc": "Szerep (Z-A)"
+        "name-asc": "Név (A–Z)",
+        "name-desc": "Név (Z–A)",
+        "role-asc": "Szerepkör (A–Z)",
+        "role-desc": "Szerepkör (Z–A)"
       },
       "title": "Szervezetem",
       "workshops": {
         "activate": "Aktiválás",
         "active": "Aktív",
-        "activeDescription": "Az aktív workshopok lehetővé teszik a résztvevők számára a csatlakozást és játékok létrehozását.",
+        "activeDescription": "Az aktív műhelyhez a résztvevők csatlakozhatnak és játékokat hozhatnak létre.",
         "activeLabel": "Aktív",
-        "anonymousParticipant": "Anonim résztvevő",
-        "create": "Workshop létrehozása",
-        "createFirst": "Hozd létre az első workshopodat",
-        "createInviteLink": "Meghívólink létrehozása",
-        "createTitle": "Workshop létrehozása",
+        "aiQualityTierHint": "MI válaszok minőségi szintje. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Üresen hagyva a szerver alapértelmezést használja.",
+        "anonymousParticipant": "Névtelen résztvevő",
+        "create": "Műhely létrehozása",
+        "createFirst": "Hozd létre az első műhelyed",
+        "createInviteLink": "Meghívó link létrehozása",
+        "createTitle": "Műhely létrehozása",
         "deactivate": "Deaktiválás",
-        "aiQualityHigh": "High (Premium)",
-        "aiQualityLow": "Low (Economy)",
-        "aiQualityMedium": "Medium (Balanced)",
-        "aiQualityTier": "AI Quality Tier",
-        "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
         "defaultApiKey": "Alapértelmezett API-kulcs",
-        "defaultApiKeyHint": "A résztvevők ezt az API-kulcsot fogják használni játék közben.",
-        "deleteConfirm": "Biztosan törölni szeretnéd a(z) \"{{name}}\"-t?",
-        "deleteTitle": "Workshop törlése",
-        "deleteWarning": "A workshop összes játéka és munkamenete törlődni fog. Ez nem vonható vissza.",
+        "defaultApiKeyHint": "A résztvevők ezt az API-kulcsot használják játék közben.",
+        "deleteConfirm": "Biztosan törlöd a(z) „{{name}}” műhelyt?",
+        "deleteTitle": "Műhely törlése",
+        "deleteWarning": "A műhely összes játéka és munkamenete törlődik. Ez nem vonható vissza.",
+        "designEditingEnabled": "Résztvevők módosíthatják a játék dizájnját (témát)",
         "editParticipant": "Név szerkesztése",
-        "empty": "Még nincs workshop.",
-        "enterWorkshop": "Workshop mód indítása",
+        "empty": "Még nincs műhely.",
+        "enterWorkshop": "Belépés műhely módba",
         "games": "Játékok",
         "hideInactive": "Inaktívak elrejtése",
         "inactive": "Inaktív",
         "inviteCreatedAt": "Létrehozva",
-        "inviteDescription": "Generálj egy meghívólinket, amelyet a résztvevők használhatnak a workshophoz való csatlakozáshoz.",
+        "inviteDescription": "Generálj meghívó linket, amellyel a résztvevők csatlakozhatnak a műhelyhez.",
         "inviteExpiresAt": "Lejár",
-        "inviteLink": "Meghívólink",
-        "inviteLinkDescription": "Oszd meg ezt a linket a résztvevőkkel, hogy csatlakozhassanak a workshophoz.",
-        "inviteLinkTitle": "Meghívólink: {{name}}",
-        "inviteUsage": "Használat",
+        "inviteLink": "Meghívó link",
+        "inviteLinkDescription": "Oszd meg ezt a linket a résztvevőkkel, hogy csatlakozhassanak a műhelyhez.",
+        "inviteLinkTitle": "{{name}} meghívó linkje",
+        "inviteUsage": "Felhasználás",
+        "isPaused": "Műhely szüneteltetése",
+        "isPausedHint": "Szüneteltetéskor a résztvevők zárolt felületet látnak, és nem léphetnek interakcióba a játékokkal",
         "joined": "Csatlakozott",
         "linkCopied": "Link másolva",
-        "linkCopiedMessage": "A meghívólink vágólapra másolva.",
-        "loadError": "A workshopok betöltése sikertelen.",
-        "nameLabel": "Workshop neve",
+        "linkCopiedMessage": "A meghívó link a vágólapra került.",
+        "loadError": "Nem sikerült betölteni a műhelyeket.",
+        "nameLabel": "Műhely neve",
         "namePlaceholder": "pl. Nyári tábor 2024",
-        "noActiveInvite": "Nincs aktív meghívólink.",
+        "noActiveInvite": "Nincs aktív meghívó link.",
         "noDefaultApiKey": "Nincs alapértelmezett API-kulcs",
-        "noDefaultModel": "Platform alapértelmezett használata",
-        "noParticipantToken": "Ennek a résztvevőnek nincs meghívólinkje. Csak az anonim résztvevők (vendégek) rendelkeznek újrahasználható meghívólinkkel.",
+        "noDefaultModel": "Platform alapértelmezés használata",
+        "noParticipantToken": "Ennek a résztvevőnek nincs meghívó linkje. Csak a névtelen résztvevők (vendégek) rendelkeznek újrafelhasználható meghívó linkkel.",
         "noParticipants": "Még nincs résztvevő",
-        "notAuthorized": "Nincs jogosultságod workshopok kezeléséhez. Csak vezetők és tanárok láthatják ezt az oldalt.",
+        "notAuthorized": "Nincs jogosultságod a műhelyek kezeléséhez. Csak vezetők és tanárok érhetik el ezt az oldalt.",
         "participantGames": "{{count}} játék",
-        "participantJoined": "Csatlakozott: {{date}}",
+        "participantJoined": "Csatlakozott ekkor: {{date}}",
         "participantName": "Résztvevő neve",
         "participants": "Résztvevők",
+        "promptConstraintsHint": "Kiegészítő utasítások, amelyek az AI rendszerutasításához adódnak hozzá a workshop összes munkamenetében.",
+        "promptConstraintsLabel": "Promptkorlátozások",
+        "promptConstraintsPlaceholder": "pl. Tartsd a történetet korosztálynak megfelelően, és kerüld az erőszakos tartalmat.",
         "removeParticipant": "Résztvevő eltávolítása",
-        "removeParticipantConfirm": "Biztosan eltávolítod a(z) \"{{name}}\"-t ebből a workshopból?",
-        "removeParticipantMessage": "Biztosan eltávolítod a(z) \"{{name}}\"-t ebből a workshopból? Ezt a műveletet nem lehet visszavonni.",
+        "removeParticipantConfirm": "Biztosan eltávolítod „{{name}}” résztvevőt ebből a műhelyből?",
+        "removeParticipantMessage": "Biztosan eltávolítod „{{name}}” résztvevőt ebből a műhelyből? Ez a művelet nem vonható vissza.",
         "removeParticipantTitle": "Résztvevő eltávolítása",
-        "revokeInvite": "Meghívólink visszavonása",
-        "selectApiKey": "API-kulcs kiválasztása",
+        "revokeInvite": "Meghívó link visszavonása",
+        "selectApiKey": "Válassz API-kulcsot",
         "settings": "Beállítások",
-        "shareParticipantLink": "Egyedi meghívólink másolása ennek a résztvevőnek",
-        "serverDefault": "Server Default",
-        "showOtherParticipantsGames": "Más résztvevők játékainak megjelenítése",
-        "showPublicGames": "Nyilvános játékok megjelenítése a résztvevőknek",
+        "shareParticipantLink": "Résztvevő egyéni meghívó linkjének másolása",
+        "showOtherParticipantsGames": "Mutassa más résztvevők játékait",
+        "showPublicGames": "Nyilvános játékok mutatása a résztvevőknek",
         "sort": {
-          "createdAtAsc": "Legrégebbitől",
-          "createdAtDesc": "Legújabbtól",
+          "createdAtAsc": "Legrégebbi elöl",
+          "createdAtDesc": "Legújabb elöl",
           "label": "Rendezés",
-          "nameAsc": "Név (A-Z)",
-          "nameDesc": "Név (Z-A)",
+          "nameAsc": "Név (A–Z)",
+          "nameDesc": "Név (Z–A)",
           "participantsAsc": "Legkevesebb résztvevő",
           "participantsDesc": "Legtöbb résztvevő"
         },
-        "subtitle": "Workshopok kezelése és résztvevők meghívása a játékok közös szerkesztésére.",
-        "title": "Workshopok",
-        "usedCount": "{{count}} használat",
-        "viewInviteLink": "Meghívólink megtekintése"
+        "subtitle": "Műhelyek kezelése és résztvevők meghívása közös játékfejlesztésre.",
+        "title": "Műhelyek",
+        "unpause": "Műhely folytatása",
+        "usedCount": "{{count}} felhasználás",
+        "viewInviteLink": "Meghívó link megtekintése"
       }
     },
+    "name": "Név",
+    "noEmail": "Nincs e-mail",
+    "noOrganization": "Nincs szervezet",
+    "noOrganizationDescription": "Nem vagy tagja egyetlen szervezetnek sem.",
+    "noResults": "Nincs a keresésnek megfelelő tag.",
+    "noRole": "Nincs szerepkör",
     "notifications": {
       "accept": "Elfogadás",
       "decline": "Elutasítás",
-      "declineConfirm": "Biztosan el akarod utasítani ezt a meghívást?",
-      "declineTitle": "Meghívás elutasítása",
-      "empty": "Nincs új értesítés.",
-      "inviteDescription": "Meghívtak, hogy {{role}}-ként csatlakozz.",
-      "inviteToJoin": "Szervezeti meghívás",
+      "declineConfirm": "Biztosan elutasítod ezt a meghívót?",
+      "declineTitle": "Meghívó elutasítása",
+      "empty": "Nincsenek új értesítések.",
+      "inviteDescription": "{{role}} szerepkörrel hívtak meg.",
+      "inviteToJoin": "Szervezeti meghívó",
       "title": "Értesítések"
     },
     "play": {
-      "cloneGame": "Másolás a játékaim közé",
+      "cloneGame": "Másolás a saját játékaimba",
       "empty": {
-        "description": "Próbáld meg módosítani a szűrőidet, vagy nézz vissza később új játékokért.",
-        "title": "Nincs játék"
+        "description": "Próbáld módosítani a szűrőket, vagy nézz vissza később új játékokért.",
+        "title": "Nem található játék"
       },
       "favorite": "Hozzáadás a kedvencekhez",
       "filters": {
-        "all": "Minden játék",
+        "all": "Összes játék",
         "favorites": "Kedvencek",
         "organization": "Szervezet",
-        "own": "Saját játékok",
+        "own": "Saját játékaim",
         "public": "Nyilvános"
       },
       "owner": "Saját",
-      "playGame": "Játssz ezzel a játékkal",
-      "playNow": "Most játszani",
-      "selectGameTitle": "Játék kiválasztása",
-      "title": "Játék kiválasztása",
-      "unfavorite": "Eltávolítás a kedvencek közül"
+      "playGame": "Játék indítása",
+      "playNow": "Játssz most",
+      "selectGameTitle": "Válassz játékot",
+      "title": "Válassz játékot",
+      "unfavorite": "Eltávolítás a kedvencekből"
     },
     "profile": "Profil",
+    "promoteConfirm": "Biztosan előlépteted „{{name}}” ({{email}}) felhasználót vezetővé?",
+    "promoteTitle": "Előléptetés vezetővé",
+    "promoteToHead": "Előléptetés vezetővé",
+    "promoteWarning": "A felhasználó jogosultságot kap a szervezeti tagok kezelésére és tanárok meghívására.",
+    "removeConfirm": "Biztosan eltávolítod „{{name}}” felhasználót a szervezetből?",
+    "removeMember": "Tag eltávolítása",
+    "removeTitle": "Tag eltávolítása",
+    "removeWarning": "A felhasználó elveszíti a szervezethez való hozzáférést.",
+    "role": "Szerepkör",
     "save": "Mentés",
     "search": "Keresés",
+    "searchPlaceholder": "Keresés a tagok között...",
+    "serverSettings": {
+      "defaultTier": {
+        "description": "A szerver szintű tartalék minőségi szint, amely akkor használatos, ha nincs konkrét szint beállítva a műhely, intézmény vagy felhasználó szintjén. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak.",
+        "title": "Alapértelmezett MI minőségi szint"
+      },
+      "freeUseKey": {
+        "description": "Állíts be globális szabadon használható API-kulcsot, hogy a szerver összes felhasználója játszhasson saját kulcs nélkül. Ezt a kulcsot használjuk tartalékként, ha nincs műhely- vagy szervezeti kulcs.",
+        "noKeys": "Nincsenek API-kulcsaid. Először adj hozzá egyet az API-kulcs beállításaidban.",
+        "notWorking": "Nem működik",
+        "remove": "Eltávolítás",
+        "replacePlaceholder": "Cseréld le egy API-kulcsodra...",
+        "selectPlaceholder": "Válassz egy API-kulcsot...",
+        "title": "Szabadon használható API-kulcs",
+        "unknownKey": "Ismeretlen kulcs (lehet, hogy törölték)",
+        "untested": "Nem tesztelt",
+        "working": "Működik"
+      },
+      "freeUseTier": {
+        "description": "Az a minőségi szint, amely a szabadon használható API-kulcsnál érvényes. A magasabb szintek többe kerülnek, de jobb minőséget adhatnak. Hagyd üresen az alapértelmezett szint használatához.",
+        "title": "Szabadon használható MI minőségi szint"
+      },
+      "notAuthorized": "Nincs jogosultságod a szerverbeállításokhoz. Admin jogosultság szükséges.",
+      "title": "Szerver beállítások"
+    },
     "sessions": {
       "continueGame": "Játék folytatása",
       "deleteConfirm": {
-        "message": "Biztosan törlöd ezt a munkamenetet a(z) \"{{game}}\" játékhoz? Ezt a műveletet nem lehet visszavonni.",
+        "message": "Biztosan törlöd ezt a munkamenetet a(z) „{{game}}” játékhoz? Ez a művelet nem vonható vissza.",
         "title": "Munkamenet törlése"
       },
       "empty": {
-        "description": "Indíts egy új játékot, hogy elkezdődjön a kalandod!",
-        "noResults": "Nincs találat a játékok között",
-        "title": "Még nem játszottál játékot"
+        "description": "Indíts új játékot, hogy megkezdhesd a kalandot!",
+        "noResults": "Nincs megfelelő játék",
+        "title": "Még nem játszottál"
       },
       "errors": {
-        "loadFailed": "Nem sikerült betölteni a játékaidat. Kérjük próbáld újra."
+        "loadFailed": "Nem sikerült betölteni a játékaidat. Próbáld újra."
       },
       "fields": {
         "game": "Játék",
         "lastPlayed": "Utoljára játszva",
         "model": "Modell"
+      },
+      "freeUseKey": {
+        "description": "Állíts be egy szabadon használható kulcsot, hogy minden szervezeti tag saját API-kulcs nélkül játszhasson. Csak a szervezettel már megosztott kulcsok választhatók.",
+        "remove": "Eltávolítás",
+        "selectPlaceholder": "Válassz egy megosztott kulcsot...",
+        "title": "Szabadon használható kulcs",
+        "unknownKey": "Ismeretlen kulcs"
       },
       "noDescription": "Nincs leírás",
       "sort": {
@@ -772,9 +1082,17 @@
       },
       "startNewGame": "Új játék indítása",
       "title": "Játék folytatása",
-      "untitledGame": "Cím nélküli játék"
+      "untitledGame": "Névtelen játék"
     },
     "settings": "Beállítások",
+    "showing": "{{count}} tag",
+    "sort": {
+      "label": "Rendezés",
+      "name-asc": "Név (A–Z)",
+      "name-desc": "Név (Z–A)",
+      "role-asc": "Szerepkör (A–Z)",
+      "role-desc": "Szerepkör (Z–A)"
+    },
     "unnamed": "Névtelen",
     "viewGame": "Játék megtekintése"
   },
@@ -782,130 +1100,150 @@
     "cards": {
       "externalLinks": {
         "jff": {
-          "description": "A projekt koordinátora és vezető szervezete.",
+          "description": "Projektkoordinátor és vezető szervezet.",
           "title": "JFF – Institut für Medienpädagogik"
         },
         "mainSite": {
-          "description": "Tudj meg többet az oktatási projektről, amelyik a platform mögött áll.",
+          "description": "Tudj meg többet a platform mögötti oktatási projektről.",
           "title": "ChatGameLab projekt"
         },
         "title": "A ChatGameLab-ról"
       },
       "lastPlayed": {
-        "empty": "Még nincs lejátszási előzmény. Kezdj el játszani!",
-        "title": "Utoljára játszott",
-        "viewAll": "Minden játék"
+        "empty": "Még nincs játék előzmény. Kezdj el játszani!",
+        "title": "Legutóbb játszva",
+        "viewAll": "Összes játék"
       },
       "myGames": {
-        "empty": "Még nincs játék. Hozd létre az elsőt!",
-        "title": "Saját játékok",
+        "empty": "Még nincs játékod. Hozd létre az elsőt!",
+        "title": "Saját játékaim",
         "viewAll": "Összes alkotás"
       },
       "myWorkshops": {
-        "empty": "Nincs aktív workshop. Hozz létre egy workshopot a szervezetben!",
-        "title": "Saját workshopok",
-        "viewAll": "Összes workshop"
+        "empty": "Nincsenek aktív műhelyek. Hozz létre egyet a szervezetedben!",
+        "title": "Műhelyeim",
+        "viewAll": "Összes műhely"
       },
       "newGames": {
-        "empty": "Még nincs elérhető játék.",
+        "empty": "Még nincsenek elérhető játékok.",
         "title": "Új játékok",
-        "viewAll": "Minden játék"
+        "viewAll": "Összes játék"
       },
       "popularGames": {
-        "empty": "Még nincs elérhető játék.",
+        "empty": "Még nincsenek elérhető játékok.",
         "plays": "{{count}} lejátszás",
         "title": "Népszerű játékok",
-        "viewAll": "Minden játék"
+        "viewAll": "Összes játék"
       }
     },
     "quickActions": {
       "createNewGame": "Új játék létrehozása",
-      "createRoom": "Szoba létrehozása",
+      "createWorkshop": "Műhely létrehozása",
+      "importGame": "Játék importálása",
       "inviteMembers": "Tagok meghívása",
       "startNewGame": "Új játék indítása",
       "title": "Gyors műveletek"
     },
-    "untitled": "Cím nélküli",
-    "untitledGame": "Cím nélküli játék",
+    "untitled": "Névtelen",
+    "untitledGame": "Névtelen játék",
     "version": {
       "mismatch": {
-        "message": "A frontend verzió \u003cfrontendVersion\u003e{{frontendVersion}}\u003c/frontendVersion\u003e nem egyezik a backend verzióval \u003cbackendVersion\u003e{{backendVersion}}\u003c/backendVersion\u003e. Ez váratlan viselkedést okozhat. Ha a problémák fennállnak, vedd fel a kapcsolatot a támogatással.",
-        "title": "Verzióütközés észlelve"
+        "message": "A kliens verziója \u0003cfrontendVersion\u0003e{{frontendVersion}}\u0003c/frontendVersion\u0003e nem egyezik a szerver verziójával \u0003cbackendVersion\u0003e{{backendVersion}}\u0003c/backendVersion\u0003e. Ez váratlan működést okozhat. Ha a probléma fennáll, fordulj a támogatáshoz.",
+        "title": "Verzióeltérés észlelve"
       }
     }
   },
   "errors": {
-    "aiError": "Az MI szolgáltatás hibát észlelt. Kérjük próbáld újra.",
-    "backendUserFetch": "A felhasználói adatok betöltése a szerverről sikertelen. Kérjük próbáld újra.",
-    "billingNotActive": "Az OpenAI-fiókod nincs aktív állapotban. Kérjük ellenőrizd a számlázási adataidat: https://platform.openai.com/settings/organization/billing.",
-    "conflict": "Ez a művelet ütközik a meglévő adatokkal. Kérjük próbáld újra.",
-    "contentFiltered": "A kérést az MI tartalmi szabályzata kiszűrte. Kérjük fogalmazd át.",
+    "aiError": "Az MI szolgáltatás hibát észlelt. Próbáld újra.",
+    "backendUserFetch": "Nem sikerült betölteni a felhasználói adatokat a szerverről. Próbáld újra.",
+    "billingNotActive": "Az OpenAI-fiókod nem aktív. Ellenőrizd a számlázási adataidat: https://platform.openai.com/settings/organization/billing.",
+    "conflict": "Ez a művelet ütközik a meglévő adatokkal. Próbáld újra.",
+    "contentFiltered": "A kérésedet az MI tartalomszűrője blokkolta. Próbáld másként megfogalmazni.",
+    "duplicateName": "Ezt a játéknevet már használják. Válassz másikat.",
     "forbidden": "Nincs jogosultságod a művelet végrehajtásához.",
-    "generic": "Valami hiba történt. Kérjük próbáld újra.",
-    "insufficientQuota": "Az API-kulcsod kifogyott a kreditekből. Kérlek tölts fel kreditet vagy használj másik API-kulcsot.",
-    "invalidApiKey": "Az API-kulcsod érvénytelen vagy lejárt. Ellenőrizd az API-kulcsot a beállításokban.",
-    "invalidPlatform": "Érvénytelen platform lett kiválasztva. Válassz egy érvényes opciót.",
-    "invalidToken": "A munkameneted lejárt vagy érvénytelen. Kérjük használd újra a meghívólinket.",
-    "network": "Hálózati hiba. Ellenőrizd a kapcsolatot.",
+    "generic": "Valami hiba történt. Próbáld újra.",
+    "insufficientQuota": "Az API-kulcsod kerete elfogyott. Töltsd fel vagy használj másik kulcsot.",
+    "invalidApiKey": "Az API-kulcsod érvénytelen vagy lejárt. Ellenőrizd a Beállításokban.",
+    "invalidJsonSchema": "A játékbeállítás érvénytelen sémát hozott létre az MI számára. Ez játékbeállítási probléma, nem API-kulcs hiba. Ellenőrizd a játék állapotmezőit, majd próbáld újra.",
+    "invalidPlatform": "Érvénytelen platform lett kiválasztva. Válassz érvényes opciót.",
+    "invalidToken": "A munkameneted lejárt vagy érvénytelen. Használd újra a meghívó linkedet.",
+    "nameProfane": "Ez a név nem engedélyezett. Válassz másikat.",
+    "nameTooLong": "A név túl hosszú. Válassz rövidebbet.",
+    "network": "Hálózati hiba. Ellenőrizd a kapcsolatodat.",
+    "noApiKey": "Ehhez a játékhoz nem áll rendelkezésre API-kulcs. A szponzor eltávolíthatta a kulcsát, vagy saját API-kulcsot kell beállítanod.",
     "notFound": "A kért erőforrás nem található.",
-    "orgVerificationRequired": "Az OpenAI szervezetednek igazolnia kell magát a képgenerálás használatához. Kérjük igazold a következő címen: https://platform.openai.com/settings/organization/general.",
-    "rateLimitExceeded": "Túl sok kérés érkezett. Kérjük várj egy pillanatot, majd próbáld újra.",
-    "server": "Szerverhiba. Kérjük próbáld újra később.",
+    "orgVerificationRequired": "Az OpenAI szervezetednek hitelesítésre van szüksége a képgeneráló funkció használatához. Hitelesíts itt: https://platform.openai.com/settings/organization/general.",
+    "previousResponseNotFound": "Az MI elvesztette a beszélgetés fonalát. Ez előfordulhat, ha a munkamenet hosszabb ideje inaktív. Kezdj új munkamenetet a folytatáshoz.",
+    "rateLimitExceeded": "Túl sok kérés. Várj egy kicsit, majd próbáld újra.",
+    "server": "Szerverhiba. Próbáld később.",
     "titles": {
       "aiError": "MI hiba",
       "authentication": "Hitelesítési hiba",
       "billing": "Számlázási hiba",
       "error": "Hiba",
+      "gameConfig": "Játékbeállítási hiba",
       "network": "Hálózati hiba",
+      "noApiKey": "Nincs API-kulcs",
       "notFound": "Nem található",
       "permission": "Hozzáférés megtagadva",
       "server": "Szerverhiba",
       "validation": "Érvényesítési hiba",
-      "workshopInactive": "Workshop inaktív"
+      "workshopInactive": "Inaktív műhely"
     },
-    "unauthorized": "Kérjük jelentkezz be a folytatáshoz.",
+    "unauthorized": "Folytatáshoz jelentkezz be.",
     "unexpected": "Váratlan hiba történt.",
-    "userNotRegistered": "A folytatáshoz előbb be kell fejezned a regisztrációt.",
-    "validation": "Ellenőrizd a bevitelt és próbáld újra.",
-    "workshopInactive": "Ezt a workshopot deaktiválták. Kérjük vedd fel a kapcsolatot a tanároddal vagy a workshop szervezőjével."
+    "userNotRegistered": "A folytatás előtt be kell fejezned a regisztrációt.",
+    "validation": "Ellenőrizd a bevitt adatokat, majd próbáld újra.",
+    "workshopInactive": "Ez a műhely deaktiválva lett. Vedd fel a kapcsolatot a tanároddal vagy szerveződdel."
   },
   "myWorkshop": {
     "empty": {
-      "description": "Kezdj el játszani, hogy itt megjelenjenek, vagy hozz létre sajátot!",
+      "description": "Kezdj el játékokat játszani, hogy itt megjelenjenek, vagy készíts sajátot!",
       "title": "Még nincs játék"
     },
     "filters": {
-      "all": "Minden játék",
-      "mine": "Saját játékok",
+      "all": "Összes játék",
+      "mine": "Saját játékaim",
       "public": "Nyilvános játékok",
-      "workshop": "Workshop-játékok"
+      "workshop": "Műhelyjátékok"
     },
     "gameType": "Játék",
-    "organizator": "Szervező: {{name}}",
-    "settings": {
-      "currentWorkshop": "Aktuális workshop",
-      "notInWorkshopMode": "Nem vagy workshop módban. Előbb lépj be egy workshopba.",
-      "title": "Workshop beállítások"
+    "members": {
+      "empty": "Még nincsenek tagok",
+      "title": "Műhely tagjai"
     },
-    "title": "Saját workshop",
+    "organizator": "Szervező: {{name}}",
+    "paused": {
+      "description": "A műhely jelenleg szünetel. Kérjük, várd meg a szervezők útmutatását.",
+      "title": "Műhely szüneteltetve"
+    },
+    "settings": {
+      "currentWorkshop": "Aktuális műhely",
+      "notInWorkshopMode": "Nem vagy műhely módban. Előbb lépj be egy műhelybe.",
+      "title": "Műhely beállítások"
+    },
+    "title": "Saját műhelyem",
     "you": "Te"
   },
   "navigation": {
-    "allGames": "Minden játék",
-    "create": "Hozz létre saját játékot",
-    "dashboard": "Vezérlőpult",
+    "adminPanel": "Admin felület",
+    "allGames": "Összes játék",
+    "create": "Készíts saját játékot",
+    "createGame": "Játék létrehozása",
+    "dashboard": "Irányítópult",
     "games": "Játékok",
     "groups": "Csoportok",
     "manageOrganizations": "Szervezetek kezelése",
     "manageUsers": "Felhasználók kezelése",
-    "myGames": "Saját játékok",
-    "myOrganization": "Saját szervezet",
-    "myWorkshop": "Saját workshop",
+    "myGames": "Saját játékaim",
+    "myOrganization": "Szervezetem",
+    "myWorkshop": "Saját műhelyem",
     "orgApiKeys": "API-kulcsok",
     "orgMembers": "Tagok",
-    "orgWorkshops": "Workshopok",
+    "orgWorkshops": "Műhelyek",
     "play": "Játssz egy játékot",
     "rooms": "Szobák",
-    "workshopSettings": "Workshop beállítások"
+    "serverSettings": "Szerver beállítások",
+    "workshopSettings": "Műhely beállítások"
   }
 }
