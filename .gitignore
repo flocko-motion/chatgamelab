@@ -4,3 +4,11 @@ server/__debug_bin*
 .env
 bin
 */__debug_bin*
+.todos/
+.sidecar/
+.sidecar-agent
+.sidecar-task
+.sidecar-pr
+.sidecar-start.sh
+.sidecar-base
+.td-root
