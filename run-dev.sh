@@ -107,6 +107,13 @@ if [ -z "$MODE" ]; then
     MODE="all_services"
 fi
 
+# Install npm dependencies if needed
+if [ ! -d "web/node_modules" ]; then
+    echo "📦 Installing frontend dependencies..."
+    (cd web && npm install)
+    echo ""
+fi
+
 # Reset database if requested
 if [ "$RESET_DB" = true ]; then
     reset_database
