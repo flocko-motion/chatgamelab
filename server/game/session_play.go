@@ -116,6 +116,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 			transcribed, transcribeErr := platform.TranscribeAudio(ctx, session.ApiKey.Key, audioData, action.AudioMimeType)
 			if transcribeErr != nil {
 				log.Warn("audio transcription failed, falling back to empty message", "session_id", session.ID, "error", transcribeErr)
+				action.Message = `"..."`
 			} else {
 				log.Debug("audio transcribed", "session_id", session.ID, "text", transcribed)
 				action.Message = transcribed
@@ -467,4 +468,20 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 		// Clean up the stream (no SSE consumer will drain it)
 		stream.Get().Remove(message.ID)
 	}()
+}
+
+// ApplySessionCapabilities stamps HasAudioIn onto messages loaded from the DB (where it is not
+// persisted). Call this after loading historical messages so the frontend can enable voice input.
+func ApplySessionCapabilities(session *obj.GameSession, msgs []obj.GameSessionMessage) {
+	platform, err := ai.GetAiPlatform(session.AiPlatform)
+	if err != nil {
+		return
+	}
+	model := platform.ResolveModelInfo(session.AiModel)
+	if model == nil {
+		return
+	}
+	for i := range msgs {
+		msgs[i].HasAudioIn = model.SupportsAudioIn
+	}
 }

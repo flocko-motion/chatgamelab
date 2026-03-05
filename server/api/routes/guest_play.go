@@ -219,6 +219,7 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 	case "all":
 		if msgs, err := db.GetAllGuestSessionMessages(r.Context(), sessionID); err == nil {
 			resp.Messages = msgs
+			game.ApplySessionCapabilities(session, resp.Messages)
 		}
 	}
 

@@ -98,12 +98,14 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 	case "latest":
 		if msg, err := db.GetLatestGameSessionMessage(r.Context(), user.ID, sessionID); err == nil {
 			resp.Messages = []obj.GameSessionMessage{*msg}
+			game.ApplySessionCapabilities(session, resp.Messages)
 		} else {
 			log.Debug("failed to get latest message", "session_id", sessionID, "error", err)
 		}
 	case "all":
 		if msgs, err := db.GetAllGameSessionMessages(r.Context(), user.ID, sessionID); err == nil {
 			resp.Messages = msgs
+			game.ApplySessionCapabilities(session, resp.Messages)
 		} else {
 			log.Debug("failed to get all messages", "session_id", sessionID, "error", err)
 		}
