@@ -33,6 +33,19 @@ export function useGuestSessionLifecycle(
     getSavedSessionId,
   } = useGuestGameSession(token);
 
+  // After startSession() creates a session, load it (guests have no URL navigation to trigger this)
+  const loadAttemptedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      state.phase === "starting" &&
+      state.sessionId &&
+      loadAttemptedRef.current !== state.sessionId
+    ) {
+      loadAttemptedRef.current = state.sessionId;
+      loadExistingSession(state.sessionId);
+    }
+  }, [state.phase, state.sessionId, loadExistingSession]);
+
   // Start or continue based on mode from welcome screen
   const initAttemptedRef = useRef(false);
   useEffect(() => {
