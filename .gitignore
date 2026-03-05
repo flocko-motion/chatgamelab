@@ -1,5 +1,7 @@
 server/__debug_bin*
 
+.grepai
+
 # Environment files (use .env.example as template)
 .env
 bin
