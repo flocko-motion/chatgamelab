@@ -460,6 +460,8 @@
         "title": "Create New Game"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin action",
+        "adminActionWarning": "You are about to delete a game you do not own. This is an administrative action and should only be used for moderation purposes.",
         "message": "Are you sure you want to delete \"{{name}}\"?",
         "title": "Delete Game",
         "warning": "This action cannot be undone. All game data will be permanently deleted."
@@ -479,6 +481,8 @@
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
       },
       "editModal": {
+        "adminActionTitle": "Admin action",
+        "adminActionWarning": "You are editing a game you do not own. This is an administrative action and should only be used for moderation purposes.",
         "title": "Edit Game",
         "unsavedChanges": {
           "discard": "Discard Changes",
