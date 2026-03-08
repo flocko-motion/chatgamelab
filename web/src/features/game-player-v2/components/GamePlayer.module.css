@@ -16,6 +16,7 @@
   max-height: 100%;
   overflow: hidden;
   background: var(--game-bg-dim);
+  touch-action: manipulation;
 }
 
 /* ============================================================================
@@ -229,8 +230,11 @@
   position: absolute;
   inset: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   scroll-behavior: smooth;
   z-index: 1;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 
   /* Themed scrollbar - Firefox */
   scrollbar-width: thin;
@@ -447,6 +451,30 @@
 @media (max-width: 48em) {
   .gameScene {
     flex-direction: column;
+  }
+}
+
+/* Landscape on mobile: maximize scroll area */
+@media (max-height: 500px) and (orientation: landscape) {
+  .scenesContainer {
+    max-width: 100%;
+    padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+    gap: var(--mantine-spacing-md);
+  }
+
+  .gameScene {
+    padding: var(--mantine-spacing-sm);
+    gap: var(--mantine-spacing-sm);
+    flex-direction: row;
+  }
+
+  .sceneImageWrapper {
+    width: 160px;
+    height: 160px;
+  }
+
+  .inlineInput {
+    padding: var(--mantine-spacing-sm);
   }
 }
 
