@@ -459,8 +459,8 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 		if game.WorkshopID != nil {
 			user, err := GetUserByID(ctx, userID)
 			if err == nil && user.Role != nil {
-				// Participant with role for this specific workshop can read
-				if user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
+				// Participant or individual with role for this specific workshop can read
+				if (user.Role.Role == obj.RoleParticipant || user.Role.Role == obj.RoleIndividual) && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
 					return nil
 				}
 				// Head/staff of the workshop's institution can read
