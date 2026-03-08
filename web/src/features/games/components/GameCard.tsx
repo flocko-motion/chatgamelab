@@ -195,17 +195,7 @@ export function GameCard({
 
   const renderBadges = () => {
     const badges = getBadges();
-    if (badges.length === 0) {
-      // Show creator name if not owner and showCreator is enabled
-      if (showCreator && game.creatorName) {
-        return (
-          <Text size="xs" c="gray.5">
-            {"by "}{game.creatorName}
-          </Text>
-        );
-      }
-      return null;
-    }
+    if (badges.length === 0) return null;
     return (
       <Group gap={4} wrap="wrap">
         {badges.map(renderBadge)}
@@ -279,8 +269,13 @@ export function GameCard({
         </Group>
 
         {/* Badges row: Owner, Workshop, Public badges */}
-        {(showCreator || isWorkshopGame || game.public || isOwner) && (
+        {(isWorkshopGame || game.public || isOwner) && (
           <Box>{renderBadges()}</Box>
+        )}
+
+        {/* Creator name — always shown when showCreator and not the owner */}
+        {showCreator && !isOwner && game.creatorName && (
+          <Text size="xs" c="gray.5">{"by "}{game.creatorName}</Text>
         )}
 
         {/* Extra content (e.g. admin workshop/org info) */}

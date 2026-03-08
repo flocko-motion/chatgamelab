@@ -460,11 +460,7 @@ export function AllGames() {
             render: (game: ObjGame) =>
               game.workshopId ? (
                 <WorkshopBadges workshopId={game.workshopId} />
-              ) : (
-                <Text size="sm" c="gray.4">
-                  —
-                </Text>
-              ),
+              ) : null,
           } as DataTableColumn<ObjGame>,
         ]
       : []),
