@@ -22,6 +22,7 @@ import {
   IconAlertCircle,
   IconMoodEmpty,
   IconCopy,
+  IconDownload,
   IconStar,
   IconStarFilled,
   IconEye,
@@ -47,7 +48,12 @@ import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { GamePlayButtons } from "./GamePlayButtons";
-import { useGames, useCreateGame, useUpdateGame } from "@/api/hooks";
+import {
+  useGames,
+  useCreateGame,
+  useUpdateGame,
+  useExportGameYaml,
+} from "@/api/hooks";
 import {
   useFavoriteState,
   useGameNavigation,
@@ -62,6 +68,7 @@ import {
   gameToFormData,
   getGameDateLabel,
   createGameWithExtraFields,
+  downloadYamlFile,
 } from "../lib";
 
 export function AllGames() {
@@ -103,6 +110,7 @@ export function AllGames() {
     useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
+  const exportGameYaml = useExportGameYaml();
 
   const [
     createModalOpened,
@@ -180,6 +188,16 @@ export function AllGames() {
     openCreateModal();
   };
 
+  const handleExport = async (game: ObjGame) => {
+    if (!game.id) return;
+    try {
+      const yaml = await exportGameYaml.mutateAsync(game.id);
+      downloadYamlFile(yaml, game.name);
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
   const handleCloseCreateModal = () => {
     closeCreateModal();
     setCreateInitialData(null);
@@ -225,6 +243,12 @@ export function AllGames() {
       icon: <IconCopy size={16} />,
       label: t("allGames.copyGame"),
       onClick: () => handleCopyGame(game),
+    });
+    actions.push({
+      key: "export",
+      icon: <IconDownload size={16} />,
+      label: t("games.importExport.exportButton"),
+      onClick: () => handleExport(game),
     });
     return actions;
   };
@@ -418,6 +442,13 @@ export function AllGames() {
                 icon={<IconCopy size={16} />}
                 onClick={() => handleCopyGame(game)}
                 aria-label={t("allGames.copyGame")}
+              />
+            </Tooltip>
+            <Tooltip label={t("games.importExport.exportButton")} withArrow>
+              <GenericIconButton
+                icon={<IconDownload size={16} />}
+                onClick={() => handleExport(game)}
+                aria-label={t("games.importExport.exportButton")}
               />
             </Tooltip>
           </Group>
