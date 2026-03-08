@@ -62,6 +62,9 @@ export interface GameCardProps {
 
   // Workshop indicator (for workshop mode)
   isWorkshopGame?: boolean;
+
+  // Extra content rendered below badges (e.g. admin workshop/org info)
+  extra?: ReactNode;
 }
 
 /** Badge type for rendering multiple badges */
@@ -88,6 +91,7 @@ export function GameCard({
   actions = [],
   dateLabel,
   isWorkshopGame = false,
+  extra,
 }: GameCardProps) {
   const { t } = useTranslation("common");
 
@@ -196,7 +200,7 @@ export function GameCard({
       if (showCreator && game.creatorName) {
         return (
           <Text size="xs" c="gray.5">
-            {game.creatorName}
+            {"by "}{game.creatorName}
           </Text>
         );
       }
@@ -278,6 +282,9 @@ export function GameCard({
         {(showCreator || isWorkshopGame || game.public || isOwner) && (
           <Box>{renderBadges()}</Box>
         )}
+
+        {/* Extra content (e.g. admin workshop/org info) */}
+        {extra && <Box>{extra}</Box>}
 
         {/* Description */}
         {game.description && (

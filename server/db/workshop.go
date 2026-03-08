@@ -218,10 +218,15 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		promptConstraints = &result.PromptConstraints.String
 	}
 
+	institution := &obj.Institution{ID: result.InstitutionID}
+	if instName, err := GetInstitutionName(ctx, result.InstitutionID); err == nil {
+		institution.Name = instName
+	}
+
 	return &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
-		Institution:                &obj.Institution{ID: result.InstitutionID},
+		Institution:                institution,
 		Active:                     result.Active,
 		Public:                     result.Public,
 		DefaultApiKeyShareID:       defaultApiKeyShareID,

@@ -304,7 +304,7 @@ export function GameEditModal({
           {/* Admin action warning */}
           {isAdminAction && (
             <Alert
-              color="orange"
+              color="red"
               icon={<IconAlertTriangle size={16} />}
               title={t("games.editModal.adminActionTitle")}
             >
@@ -484,7 +484,10 @@ export function GameEditModal({
         fullScreen={isMobile}
         centered={!isMobile}
         styles={{
-          content: { maxHeight: isMobile ? undefined : "85vh" },
+          content: {
+            maxHeight: isMobile ? undefined : "85vh",
+            ...(isAdminAction ? { boxShadow: "inset 0 0 0 3px var(--mantine-color-red-6)" } : {}),
+          },
           body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
         }}
       >

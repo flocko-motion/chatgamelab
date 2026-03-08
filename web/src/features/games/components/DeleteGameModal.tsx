@@ -24,11 +24,12 @@ export function DeleteGameModal({ opened, onClose, onConfirm, gameName, loading,
       onClose={onClose}
       title={t('games.deleteModal.title')}
       size="sm"
+      styles={isAdminAction ? { content: { outline: '3px solid var(--mantine-color-red-6)' } } : undefined}
     >
       <Stack gap="md">
         {isAdminAction && (
           <Alert
-            color="orange"
+            color="red"
             icon={<IconAlertTriangle size={16} />}
             title={t('games.deleteModal.adminActionTitle')}
           >
