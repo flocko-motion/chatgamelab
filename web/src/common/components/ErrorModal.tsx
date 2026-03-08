@@ -1,5 +1,6 @@
 import { Modal, Stack, Text, Button, Group, ThemeIcon } from '@mantine/core';
 import { IconAlertTriangle, IconX } from '@tabler/icons-react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { translateError, translateErrorCode } from '../lib/errorHelpers';
 import { TextWithLinks } from './TextWithLinks';
@@ -45,6 +46,11 @@ export function ErrorModal({
 }: ErrorModalProps) {
   const { t } = useTranslation();
 
+  const [timestamp, setTimestamp] = useState<string | null>(null);
+  useEffect(() => {
+    if (opened) setTimestamp(new Date().toLocaleString());
+  }, [opened]);
+
   // Resolve error to translated text
   const translated = error 
     ? translateError(error) 
@@ -83,6 +89,14 @@ export function ErrorModal({
             ERROR_CODE: {translated.code}
           </Text>
         )}
+
+        <Group justify="space-between" align="flex-end">
+          {timestamp && (
+            <Text size="xs" c="dimmed" ff="monospace">
+              {timestamp}
+            </Text>
+          )}
+        </Group>
 
         <Group justify="flex-end" gap="sm">
           {onRetry && (
