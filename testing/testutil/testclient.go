@@ -229,7 +229,7 @@ func (u *UserClient) makeRequest(method, endpoint string, payload interface{}, o
 		return fmt.Errorf("failed to read response: %w", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -643,7 +643,7 @@ func (u *UserClient) consumeMessageStream(messageID string) (*StreamResult, erro
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
@@ -885,7 +885,7 @@ func (u *UserClient) GetMessageAudio(messageID string) ([]byte, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1195,7 +1195,7 @@ func (u *UserClient) GetGameYAML(gameID string) (string, error) {
 		return "", err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return "", fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1392,7 +1392,7 @@ func consumeMessageStreamNoAuth(t *testing.T, messageID string) (*StreamResult, 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
