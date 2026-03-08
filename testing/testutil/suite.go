@@ -38,13 +38,14 @@ func findAvailablePort() (int, error) {
 // Embed this in your specific test suites to get automatic setup/teardown
 type BaseSuite struct {
 	suite.Suite
-	SuiteName     string
-	backendCancel context.CancelFunc
-	postgresPort  int
-	backendPort   int
-	containerName string
-	devUser       *UserClient // Default dev admin user for role assignments
-	userRegistry  map[string]*UserClient
+	SuiteName      string
+	backendCancel  context.CancelFunc
+	postgresPort   int
+	backendPort    int
+	containerName  string
+	devUser        *UserClient // Default dev admin user for role assignments
+	userRegistry   map[string]*UserClient
+	tearDownCalled bool // guard against double TearDownSuite calls
 }
 
 // SetupSuite runs once before all tests in the suite
@@ -101,20 +102,22 @@ func (s *BaseSuite) SetupSuite() {
 
 	// Wait for Postgres to be ready by pinging it
 	fmt.Printf("⏳ [%s] Waiting for Postgres to be ready...\n", s.SuiteName)
-	maxRetries := 30
+	maxRetries := 60
+	postgresReady := false
 	for i := 0; i < maxRetries; i++ {
 		pingCmd := exec.Command("docker", "exec", s.containerName, "pg_isready", "-U", "chatgamelab")
-		if err := pingCmd.Run(); err == nil {
+		if pingCmd.Run() == nil {
+			postgresReady = true
 			fmt.Printf("✅ [%s] Postgres is ready!\n", s.SuiteName)
 			// Give it a moment to fully stabilize and accept connections
 			time.Sleep(3 * time.Second)
 			break
 		}
-		if i == maxRetries-1 {
-			s.TearDownSuite()
-			s.T().Fatalf("Postgres did not become ready after %d attempts", maxRetries)
-		}
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
+	}
+	if !postgresReady {
+		s.TearDownSuite()
+		s.T().Fatalf("Postgres did not become ready after %d attempts", maxRetries)
 	}
 
 	// Start backend in-process AFTER database is cleaned
@@ -200,6 +203,10 @@ func (s *BaseSuite) SetupSuite() {
 
 // TearDownSuite runs once after all tests in the suite
 func (s *BaseSuite) TearDownSuite() {
+	if s.tearDownCalled {
+		return
+	}
+	s.tearDownCalled = true
 	defer testLock.Unlock()
 
 	fmt.Printf("\n🧹 [%s] Cleaning up test environment...\n", s.SuiteName)
