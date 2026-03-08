@@ -10,3 +10,4 @@ bin
 server/cgl
 server/cgl
 .planning/
+.grepai/
