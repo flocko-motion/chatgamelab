@@ -279,3 +279,54 @@ export function useRemoveParticipant() {
     },
   });
 }
+
+/**
+ * Hook to invite a registered user to a workshop by email
+ */
+export function useCreateWorkshopEmailInvite() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { workshopId: string; email: string }) => {
+      const response = await api.invites.workshopEmailCreate({
+        workshopId: data.workshopId,
+        email: data.email,
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workshop(variables.workshopId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+    },
+  });
+}
+
+/**
+ * Hook to directly add an org individual to a workshop
+ */
+export function useAddMemberToWorkshop() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { workshopId: string; userId: string }) => {
+      const response = await api.workshops.membersCreate(data.workshopId, {
+        userId: data.userId,
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workshop(variables.workshopId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-members"],
+      });
+    },
+  });
+}
