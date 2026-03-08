@@ -98,6 +98,8 @@ export {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useCreateWorkshopEmailInvite,
+  useAddMemberToWorkshop,
 } from "./useWorkshops";
 
 // Workshop Events (SSE)

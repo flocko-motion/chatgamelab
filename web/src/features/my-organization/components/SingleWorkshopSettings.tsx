@@ -33,6 +33,8 @@ import {
   IconClock,
   IconPlayerPlay,
   IconPencil,
+  IconMail,
+  IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
@@ -46,12 +48,16 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useCreateWorkshopEmailInvite,
+  useAddMemberToWorkshop,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { InviteModal } from "./InviteModal";
+import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
@@ -76,6 +82,16 @@ export function SingleWorkshopSettings({
     inviteLinkModalOpened,
     { open: openInviteLinkModal, close: closeInviteLinkModal },
   ] = useDisclosure(false);
+
+  const [
+    emailInviteModalOpened,
+    { open: openEmailInviteModal, close: closeEmailInviteModal },
+  ] = useDisclosure(false);
+  const [
+    addIndividualModalOpened,
+    { open: openAddIndividualModal, close: closeAddIndividualModal },
+  ] = useDisclosure(false);
+  const [emailInviteError, setEmailInviteError] = useState<string | null>(null);
 
   const [newlyCreatedInvite, setNewlyCreatedInvite] = useState<{
     id?: string;
@@ -112,6 +128,8 @@ export function SingleWorkshopSettings({
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
+  const createEmailInvite = useCreateWorkshopEmailInvite();
+  const addMember = useAddMemberToWorkshop();
 
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
@@ -126,6 +144,23 @@ export function SingleWorkshopSettings({
     const invite = await createInvite.mutateAsync({ workshopId });
     setNewlyCreatedInvite(invite);
     openInviteLinkModal();
+  };
+
+  const handleEmailInvite = async (email: string) => {
+    try {
+      await createEmailInvite.mutateAsync({ workshopId, email });
+      setEmailInviteError(null);
+      closeEmailInviteModal();
+      notifications.show({
+        title: t("myOrganization.workshops.inviteByEmailSuccess"),
+        message: t("myOrganization.workshops.inviteByEmailSuccessMessage", {
+          email,
+        }),
+        color: "green",
+      });
+    } catch {
+      setEmailInviteError(t("myOrganization.workshops.addIndividualError"));
+    }
   };
 
   const handleViewInviteLink = () => {
@@ -337,6 +372,24 @@ export function SingleWorkshopSettings({
                 loading={createInvite.isPending}
               >
                 <IconLink size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t("myOrganization.workshops.inviteByEmail")}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={openEmailInviteModal}
+              >
+                <IconMail size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t("myOrganization.workshops.addIndividual")}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={openAddIndividualModal}
+              >
+                <IconUserPlus size={18} />
               </ActionIcon>
             </Tooltip>
           </Group>
@@ -900,6 +953,28 @@ export function SingleWorkshopSettings({
         confirmIcon={< IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}
+      />
+
+      {/* Email Invite Modal */}
+      <InviteModal
+        opened={emailInviteModalOpened}
+        onClose={() => {
+          closeEmailInviteModal();
+          setEmailInviteError(null);
+        }}
+        title={t("myOrganization.workshops.inviteByEmailTitle")}
+        description={t("myOrganization.workshops.inviteByEmailDescription")}
+        onSubmit={handleEmailInvite}
+        isLoading={createEmailInvite.isPending}
+        error={emailInviteError}
+      />
+
+      {/* Add Individual Modal */}
+      <AddIndividualModal
+        opened={addIndividualModalOpened}
+        onClose={closeAddIndividualModal}
+        workshopId={workshopId}
+        institutionId={institutionId}
       />
 
       {/* Auto-share personal key confirmation */}
