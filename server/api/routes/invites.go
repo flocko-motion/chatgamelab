@@ -559,7 +559,28 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Targeted invite (institution) - accept by ID
+		// Targeted invite - check if it's a workshop-scoped invite for an existing head/staff/individual
+		if invite.WorkshopID != nil && user.Role != nil &&
+			(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff || user.Role.Role == obj.RoleIndividual) {
+			// Enter workshop mode instead of changing roles
+			setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID)
+			if setErr != nil {
+				if appErr, ok := setErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+				return
+			}
+			// Mark invite as accepted
+			_ = db.UpdateInviteStatus(r.Context(), user.ID, inviteID, obj.InviteStatusAccepted)
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Workshop entered",
+			})
+			return
+		}
+
+		// Standard targeted invite (institution) - accept by ID
 		_, acceptErr := db.AcceptTargetedInvite(r.Context(), inviteID, "", user.ID)
 		if acceptErr != nil {
 			if appErr, ok := acceptErr.(*obj.AppError); ok {
@@ -671,4 +692,119 @@ type AcceptInviteResponse struct {
 	User      *obj.User `json:"user,omitempty"`
 	AuthToken *string   `json:"authToken,omitempty"`
 	Message   string    `json:"message"`
+}
+
+// CreateWorkshopEmailInviteRequest represents the request to invite a user to a workshop by email
+type CreateWorkshopEmailInviteRequest struct {
+	WorkshopID string `json:"workshopId"`
+	Email      string `json:"email"`
+}
+
+// CreateWorkshopEmailInvite godoc
+//
+//	@Summary		Create workshop email invite
+//	@Description	Creates a targeted invite for a registered user (by email) to join a workshop
+//	@Tags			invites
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		CreateWorkshopEmailInviteRequest	true	"Workshop ID and email"
+//	@Success		201		{object}	InviteResponse
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Failure		409		{object}	httpx.ErrorResponse	"Duplicate invite"
+//	@Security		BearerAuth
+//	@Router			/invites/workshop/email [post]
+func CreateWorkshopEmailInvite(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	var req CreateWorkshopEmailInviteRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.WorkshopID == "" || req.Email == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("workshopId and email are required"))
+		return
+	}
+
+	workshopID, err := uuid.Parse(req.WorkshopID)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	invite, err := db.CreateWorkshopEmailInvite(r.Context(), user.ID, workshopID, req.Email)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusCreated, toInviteResponseWithContext(r.Context(), invite))
+}
+
+// AddMemberToWorkshopRequest represents the request to add an org member to a workshop
+type AddMemberToWorkshopRequest struct {
+	UserID string `json:"userId"`
+}
+
+// AddMemberToWorkshop godoc
+//
+//	@Summary		Add org member to workshop
+//	@Description	Directly adds an organization individual to a workshop by setting their active workshop
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string							true	"Workshop ID"
+//	@Param			body	body		AddMemberToWorkshopRequest		true	"User ID"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/{id}/members [post]
+func AddMemberToWorkshop(w http.ResponseWriter, r *http.Request) {
+	caller := httpx.UserFromRequest(r)
+
+	workshopIDStr := httpx.PathParam(r, "id")
+	workshopID, err := uuid.Parse(workshopIDStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	var req AddMemberToWorkshopRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.UserID == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("userId is required"))
+		return
+	}
+
+	targetUserID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid user ID"))
+		return
+	}
+
+	if err := db.AddMemberToWorkshop(r.Context(), caller.ID, workshopID, targetUserID); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Member added to workshop",
+	})
 }

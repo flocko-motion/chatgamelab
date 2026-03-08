@@ -333,6 +333,107 @@ func CreateWorkshopInvite(
 	return dbInviteToObj(result), nil
 }
 
+// CreateWorkshopEmailInvite creates a targeted invite for a specific user (by email) to join a workshop.
+// When accepted, head/staff/individual users enter workshop mode (SetActiveWorkshop);
+// users without a role become participants.
+func CreateWorkshopEmailInvite(
+	ctx context.Context,
+	createdBy uuid.UUID,
+	workshopID uuid.UUID,
+	invitedEmail string,
+) (obj.UserRoleInvite, error) {
+	if invitedEmail == "" {
+		return obj.UserRoleInvite{}, obj.ErrValidation("email is required")
+	}
+
+	// Get workshop to look up institution_id
+	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrNotFound("workshop not found")
+	}
+
+	// Check permission: only head or staff of the institution can create workshop invites
+	if err := canAccessWorkshop(ctx, createdBy, OpCreate, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+
+	// Resolve email to user — user must exist
+	user, err := queries().GetUserByEmail(ctx, sql.NullString{String: invitedEmail, Valid: true})
+	if err != nil {
+		return obj.UserRoleInvite{}, obj.ErrNotFound("no user found with email: " + invitedEmail)
+	}
+
+	// Check for existing pending invite for same user + institution
+	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
+		InstitutionID: workshop.InstitutionID,
+		InvitedUserID: uuid.NullUUID{UUID: user.ID, Valid: true},
+		InvitedEmail:  sql.NullString{String: invitedEmail, Valid: true},
+	})
+	if err == nil && existingInvite.ID != uuid.Nil {
+		// Check if the existing invite is for the same workshop
+		if existingInvite.WorkshopID.Valid && existingInvite.WorkshopID.UUID == workshopID {
+			return obj.UserRoleInvite{}, obj.ErrConflict("A pending invite already exists for this user and workshop")
+		}
+	}
+
+	// Create targeted invite with workshop scope
+	arg := db.CreateTargetedInviteParams{
+		CreatedBy:     uuid.NullUUID{UUID: createdBy, Valid: true},
+		InstitutionID: workshop.InstitutionID,
+		Role:          string(obj.RoleParticipant),
+		WorkshopID:    uuid.NullUUID{UUID: workshopID, Valid: true},
+		InvitedUserID: uuid.NullUUID{UUID: user.ID, Valid: true},
+		InvitedEmail:  sql.NullString{String: invitedEmail, Valid: true},
+		InviteToken:   sql.NullString{}, // NULL for targeted invites
+	}
+
+	result, err := queries().CreateTargetedInvite(ctx, arg)
+	if err != nil {
+		return obj.UserRoleInvite{}, err
+	}
+
+	return dbInviteToObj(result), nil
+}
+
+// AddMemberToWorkshop directly adds an org individual to a workshop by setting their active_workshop_id.
+// The caller must be a head or staff of the workshop's institution.
+// The target user must be an individual in the same institution.
+func AddMemberToWorkshop(
+	ctx context.Context,
+	callerID uuid.UUID,
+	workshopID uuid.UUID,
+	targetUserID uuid.UUID,
+) error {
+	// Get workshop to check institution
+	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return obj.ErrNotFound("workshop not found")
+	}
+
+	// Check permission: only head or staff of the institution can add members
+	if err := canAccessWorkshop(ctx, callerID, OpCreate, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
+		return err
+	}
+
+	// Validate target user is an individual in the same institution
+	targetUser, err := GetUserByID(ctx, targetUserID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+	if targetUser.Role == nil {
+		return obj.ErrValidation("user has no role")
+	}
+	if targetUser.Role.Role != obj.RoleIndividual {
+		return obj.ErrValidation("only individual users can be added to workshops this way")
+	}
+	if targetUser.Role.Institution == nil || targetUser.Role.Institution.ID != workshop.InstitutionID {
+		return obj.ErrForbidden("user does not belong to the same institution")
+	}
+
+	// Set active workshop for the target user
+	return SetActiveWorkshop(ctx, targetUserID, workshopID)
+}
+
 // updateInviteStatusUnchecked updates the status of an invite without permission checks.
 // This is an internal function used by RevokeInvite and ReactivateInvite after they've done their own permission checks.
 func updateInviteStatusUnchecked(ctx context.Context, inviteID uuid.UUID, status obj.InviteStatus) error {
