@@ -177,6 +177,43 @@ SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_coun
 -- name: GetPublicGamesSortedByPlayCountAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count ASC;
 
+-- All games queries (admin only)
+-- name: GetAllGames :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY created_at DESC;
+
+-- name: GetAllGamesSortedByName :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) ASC;
+
+-- name: GetAllGamesSortedByNameDesc :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) DESC;
+
+-- name: GetAllGamesSortedByCreatedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY created_at ASC;
+
+-- name: GetAllGamesSortedByModifiedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY modified_at DESC;
+
+-- name: GetAllGamesSortedByModifiedAtAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY modified_at ASC;
+
+-- name: SearchAllGames :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC;
+
+-- name: SearchAllGamesSortedByName :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC;
+
+-- name: SearchAllGamesSortedByNameDesc :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC;
+
+-- name: SearchAllGamesSortedByCreatedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC;
+
+-- name: SearchAllGamesSortedByModifiedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC;
+
+-- name: SearchAllGamesSortedByModifiedAtAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
+
 -- name: SearchPublicGamesSortedByPlayCount :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
 

@@ -430,6 +430,14 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 // - game: the game object (nil for create/list operations)
 // - shareToken: optional share token provided by user (for private share links)
 func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperation, game *obj.Game, shareToken *string) error {
+	// Admin can perform any operation on any game
+	if operation != OpCreate {
+		adminUser, _ := GetUserByID(ctx, userID)
+		if adminUser != nil && adminUser.Role != nil && adminUser.Role.Role == obj.RoleAdmin {
+			return nil
+		}
+	}
+
 	switch operation {
 	case OpCreate:
 		// Any authenticated user can create games

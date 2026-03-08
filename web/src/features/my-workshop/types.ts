@@ -23,10 +23,11 @@ export function getGamePermissions(
   game: ObjGame,
   currentUserId: string | undefined,
   canEditAllWorkshopGames: boolean,
+  isAdmin: boolean = false,
 ): GamePermissions {
   const isOwner = game.creatorId === currentUserId;
-  const canEdit = isOwner || (canEditAllWorkshopGames && !!game.workshopId);
-  const canDelete = isOwner;
+  const canEdit = isOwner || (canEditAllWorkshopGames && !!game.workshopId) || isAdmin;
+  const canDelete = isOwner || isAdmin;
 
   return { canEdit, canDelete, isOwner };
 }
