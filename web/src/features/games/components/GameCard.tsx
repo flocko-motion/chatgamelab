@@ -124,7 +124,7 @@ export function GameCard({
     if (isOwner) badges.push("owner");
     if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
     if (isWorkshopGame) badges.push("workshop");
-    if (game.public && !showVisibility) badges.push("public");
+    // public badge is rendered in the top-right row instead
     return badges;
   };
 
@@ -259,27 +259,30 @@ export function GameCard({
             wrap="nowrap"
             style={{ flexShrink: 0, alignSelf: "flex-start" }}
           >
+            {!showVisibility && game.public && renderBadge("public")}
+            {renderVisibilityBadge()}
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
                 {dateLabel}
               </Text>
             )}
-            {renderVisibilityBadge()}
           </Group>
         </Group>
 
-        {/* Badges row: Owner, Workshop, Public badges */}
-        {(isWorkshopGame || game.public || isOwner) && (
+        {/* Badges row: Owner, Workshop, Sponsored badges */}
+        {(isWorkshopGame || isOwner || game.publicSponsoredApiKeyShareId) && (
           <Box>{renderBadges()}</Box>
         )}
 
-        {/* Creator name — always shown when showCreator and not the owner */}
-        {showCreator && !isOwner && game.creatorName && (
-          <Text size="xs" c="gray.5">{"by "}{game.creatorName}</Text>
+        {/* Creator name + extra content (e.g. workshop/org) on same line when space allows */}
+        {(showCreator && !isOwner && game.creatorName || extra) && (
+          <Group gap="xs" wrap="wrap" align="center">
+            {showCreator && !isOwner && game.creatorName && (
+              <Text size="xs" c="gray.5">{"by "}{game.creatorName}</Text>
+            )}
+            {extra}
+          </Group>
         )}
-
-        {/* Extra content (e.g. admin workshop/org info) */}
-        {extra && <Box>{extra}</Box>}
 
         {/* Description */}
         {game.description && (
