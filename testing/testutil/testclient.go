@@ -1249,6 +1249,25 @@ func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatu
 	return result, err
 }
 
+// InviteToWorkshopByEmail creates a targeted workshop invite by email
+func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	err := u.Post("invites/workshop/email", routes.CreateWorkshopEmailInviteRequest{
+		WorkshopID: workshopID,
+		Email:      email,
+	}, &result)
+	return result, err
+}
+
+// AddMemberToWorkshop directly adds an org individual to a workshop
+func (u *UserClient) AddMemberToWorkshop(workshopID, userID string) error {
+	u.t.Helper()
+	return u.Post("workshops/"+workshopID+"/members", routes.AddMemberToWorkshopRequest{
+		UserID: userID,
+	}, nil)
+}
+
 // GuestGetGameInfo returns game info via a share token (composable high-level API)
 func (p *PublicClient) GuestGetGameInfo(token string) (routes.GuestGameInfo, error) {
 	p.t.Helper()
