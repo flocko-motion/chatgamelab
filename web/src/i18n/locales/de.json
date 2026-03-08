@@ -240,7 +240,8 @@
         "title": "Spiel neu starten"
       },
       "title": "Alle Spiele",
-      "unfavorite": "Aus Favoriten entfernen"
+      "unfavorite": "Aus Favoriten entfernen",
+      "workshop": "Workshop / Org"
     },
     "apiKeys": {
       "aboutSection": {
