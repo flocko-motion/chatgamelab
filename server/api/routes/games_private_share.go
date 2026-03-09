@@ -306,7 +306,20 @@ func GetPrivateShareStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shares, _ := db.GetGameSharesByGameID(r.Context(), gameID)
+	// Filter shares by context: workshop shares or personal shares only
+	var shares []obj.GameShare
+	workshopIDStr := r.URL.Query().Get("workshopId")
+	if workshopIDStr != "" {
+		wid, err := uuid.Parse(workshopIDStr)
+		if err != nil {
+			httpx.WriteError(w, http.StatusBadRequest, "Invalid workshopId")
+			return
+		}
+		shares, _ = db.GetGameSharesByGameIDAndWorkshop(r.Context(), gameID, wid)
+	} else {
+		// Personal context: only return shares created by this user
+		shares, _ = db.GetGameSharesByGameIDAndCreator(r.Context(), gameID, user.ID)
+	}
 	enabled := len(shares) > 0
 
 	status := PrivateShareStatus{

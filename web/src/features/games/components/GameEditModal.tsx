@@ -550,6 +550,7 @@ function SharingSection({
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
+    workshopId?: string;
   } | null;
   gameId: string;
   onSponsor?: () => void;
@@ -560,6 +561,14 @@ function SharingSection({
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
 
+  // In workshop mode, only show share section if the game belongs to this workshop.
+  // For public games visible in a workshop but not owned by it, sharing is not available
+  // (the backend enforces this too, but we hide the UI to avoid confusion).
+  // Head/staff who want to share public games can do so from outside the workshop context.
+  const canShowShareInContext =
+    showShareSection &&
+    (!workshopId || game?.workshopId === workshopId);
+
   return (
     <>
       <Divider />
@@ -567,7 +576,7 @@ function SharingSection({
         {t("games.sharing.sectionTitle")}
       </Text>
       <Stack gap="md">
-        {showShareSection && (
+        {canShowShareInContext && (
           <Stack gap="xs">
             <Text size="xs" fw={600}>
               {t("games.sharing.privateShareLink")}

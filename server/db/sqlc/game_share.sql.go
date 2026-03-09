@@ -292,6 +292,90 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 	return items, nil
 }
 
+const getGameSharesByGameIDAndCreator = `-- name: GetGameSharesByGameIDAndCreator :many
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 ORDER BY created_at
+`
+
+type GetGameSharesByGameIDAndCreatorParams struct {
+	GameID    uuid.UUID
+	CreatedBy uuid.NullUUID
+}
+
+func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGameSharesByGameIDAndCreatorParams) ([]GameShare, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSharesByGameIDAndCreator, arg.GameID, arg.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameShare
+	for rows.Next() {
+		var i GameShare
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSharesByGameIDAndWorkshop = `-- name: GetGameSharesByGameIDAndWorkshop :many
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at
+`
+
+type GetGameSharesByGameIDAndWorkshopParams struct {
+	GameID     uuid.UUID
+	WorkshopID uuid.NullUUID
+}
+
+func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetGameSharesByGameIDAndWorkshopParams) ([]GameShare, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSharesByGameIDAndWorkshop, arg.GameID, arg.WorkshopID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameShare
+	for rows.Next() {
+		var i GameShare
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getWorkshopGameShare = `-- name: GetWorkshopGameShare :one
 SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2
 `

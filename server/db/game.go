@@ -1001,8 +1001,9 @@ func GetGameSessionByIDForGuest(ctx context.Context, sessionID uuid.UUID, expect
 		AiPlatform: s.AiPlatform,
 		AiModel:    s.AiModel,
 		AiSession:  string(s.AiSession),
-		ImageStyle: s.ImageStyle,
-		Language:   s.Language,
+		ImageStyle:   s.ImageStyle,
+		Language:     s.Language,
+		StatusFields: s.StatusFields,
 		Meta: obj.Meta{
 			CreatedBy:  s.CreatedBy,
 			CreatedAt:  &s.CreatedAt,
@@ -2171,6 +2172,38 @@ func GetGameShareByID(ctx context.Context, shareID uuid.UUID) (*obj.GameShare, e
 // GetGameSharesByGameID returns all shares for a game.
 func GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameShare, error) {
 	rows, err := queries().GetGameSharesByGameID(ctx, gameID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]obj.GameShare, len(rows))
+	for i, r := range rows {
+		result[i] = *dbGameShareToObj(r)
+	}
+	return result, nil
+}
+
+// GetGameSharesByGameIDAndCreator returns shares for a game created by a specific user.
+func GetGameSharesByGameIDAndCreator(ctx context.Context, gameID uuid.UUID, userID uuid.UUID) ([]obj.GameShare, error) {
+	rows, err := queries().GetGameSharesByGameIDAndCreator(ctx, db.GetGameSharesByGameIDAndCreatorParams{
+		GameID:    gameID,
+		CreatedBy: uuid.NullUUID{UUID: userID, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	result := make([]obj.GameShare, len(rows))
+	for i, r := range rows {
+		result[i] = *dbGameShareToObj(r)
+	}
+	return result, nil
+}
+
+// GetGameSharesByGameIDAndWorkshop returns shares for a game in a specific workshop.
+func GetGameSharesByGameIDAndWorkshop(ctx context.Context, gameID uuid.UUID, workshopID uuid.UUID) ([]obj.GameShare, error) {
+	rows, err := queries().GetGameSharesByGameIDAndWorkshop(ctx, db.GetGameSharesByGameIDAndWorkshopParams{
+		GameID:     gameID,
+		WorkshopID: uuid.NullUUID{UUID: workshopID, Valid: true},
+	})
 	if err != nil {
 		return nil, err
 	}

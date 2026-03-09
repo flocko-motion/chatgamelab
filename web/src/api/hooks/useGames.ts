@@ -285,15 +285,19 @@ export interface PrivateShareStatus {
   shares?: ObjGameShare[];
 }
 
-export function usePrivateShareStatus(gameId: string | undefined) {
+export function usePrivateShareStatus(
+  gameId: string | undefined,
+  workshopId?: string,
+) {
   const { getAccessToken } = useAuth();
 
   return useQuery<PrivateShareStatus>({
-    queryKey: [...queryKeys.games, gameId, "private-share"],
+    queryKey: [...queryKeys.games, gameId, "private-share", workshopId ?? null],
     queryFn: async () => {
       const token = await getAccessToken();
+      const params = workshopId ? `?workshopId=${workshopId}` : "";
       const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        `${config.API_BASE_URL}/games/${gameId}/private-share${params}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           credentials: "include",

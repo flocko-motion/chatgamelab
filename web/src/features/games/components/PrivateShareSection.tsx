@@ -51,7 +51,7 @@ export function PrivateShareSection({
     useInstitutionApiKeys(institutionId ?? "");
   const keysLoading = personalKeysLoading || instKeysLoading;
   const { data: shareStatus, isLoading: statusLoading } =
-    usePrivateShareStatus(gameId);
+    usePrivateShareStatus(gameId, workshopId);
   const enableShare = useEnablePrivateShare();
   const createGameShare = useCreateGameShare();
   const revokeShare = useRevokePrivateShare();

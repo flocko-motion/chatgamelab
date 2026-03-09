@@ -13,6 +13,12 @@ SELECT * FROM game_share WHERE id = $1;
 -- name: GetGameSharesByGameID :many
 SELECT * FROM game_share WHERE game_id = $1 ORDER BY created_at;
 
+-- name: GetGameSharesByGameIDAndWorkshop :many
+SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at;
+
+-- name: GetGameSharesByGameIDAndCreator :many
+SELECT * FROM game_share WHERE game_id = $1 AND created_by = $2 ORDER BY created_at;
+
 -- name: GetWorkshopGameShare :one
 -- Find existing workshop share for a game (reuse instead of creating duplicates)
 SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2;
