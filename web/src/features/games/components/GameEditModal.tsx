@@ -63,6 +63,8 @@ interface GameEditModalProps {
   showShareSection?: boolean;
   /** Workshop ID for workshop share mode (auto-uses workshop key) */
   workshopId?: string;
+  /** Workshop name for share source description */
+  workshopName?: string;
   /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
   hideDesign?: boolean;
   /** Whether the current user owns this game (used to show admin action warning) */
@@ -82,6 +84,7 @@ export function GameEditModal({
   onSponsor,
   showShareSection = false,
   workshopId,
+  workshopName,
   hideDesign = false,
   isOwner = true,
 }: GameEditModalProps) {
@@ -452,6 +455,7 @@ export function GameEditModal({
               onSponsor={onSponsor}
               showShareSection={showShareSection}
               workshopId={workshopId}
+              workshopName={workshopName}
             />
           )}
         </Stack>
@@ -547,6 +551,7 @@ function SharingSection({
   onSponsor,
   showShareSection,
   workshopId,
+  workshopName,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
@@ -556,6 +561,7 @@ function SharingSection({
   onSponsor?: () => void;
   showShareSection?: boolean;
   workshopId?: string;
+  workshopName?: string;
 }) {
   const { t } = useTranslation("common");
 
@@ -581,7 +587,7 @@ function SharingSection({
             <Text size="xs" fw={600}>
               {t("games.sharing.privateShareLink")}
             </Text>
-            <PrivateShareSection gameId={gameId} workshopId={workshopId} />
+            <PrivateShareSection gameId={gameId} workshopId={workshopId} workshopName={workshopName} />
           </Stack>
         )}
         {onSponsor && (

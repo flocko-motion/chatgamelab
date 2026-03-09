@@ -538,7 +538,10 @@
         "update": "Update Share Link",
         "workshopDescription": "Create a share link for this game. The workshop's API key will be used for guest sessions.",
         "workshopShare": "Workshop share",
+        "workshopShareDescription": "This share link was created as part of the workshop \"{{name}}\".",
         "personalShare": "Your private share link",
+        "personalShareDescription": "You created this share link personally.",
+        "orgShareDescription": "This share link belongs to your organization.",
         "createModalTitle": "Create Private Share Link",
         "editModalTitle": "Edit Private Share Link",
         "orgKey": "Organization"

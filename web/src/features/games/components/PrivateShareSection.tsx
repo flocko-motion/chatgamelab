@@ -34,11 +34,13 @@ import { useAuth } from "@/providers/AuthProvider";
 interface PrivateShareSectionProps {
   gameId: string;
   workshopId?: string;
+  workshopName?: string;
 }
 
 export function PrivateShareSection({
   gameId,
   workshopId,
+  workshopName,
 }: PrivateShareSectionProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -154,9 +156,12 @@ export function PrivateShareSection({
   const isSubmitting = enableShare.isPending || createGameShare.isPending;
   const canSubmit = isWorkshopMode || !!selectedShareId;
 
-  const sourceLabel = isWorkshopShare
-    ? t("games.privateShare.workshopShare")
-    : t("games.privateShare.personalShare");
+  const isOrgShare = !isWorkshopShare && !!activeShare?.institutionId;
+  const sourceDescription = isWorkshopShare
+    ? t("games.privateShare.workshopShareDescription", { name: workshopName ?? "" })
+    : isOrgShare
+      ? t("games.privateShare.orgShareDescription")
+      : t("games.privateShare.personalShareDescription");
 
   const remainingLabel =
     shareStatus?.remaining != null
@@ -179,14 +184,12 @@ export function PrivateShareSection({
     return (
       <>
         <Stack gap="xs">
-          <Group gap="xs">
-            <Text size="xs" c="green" fw={500}>
-              {sourceLabel}
-            </Text>
-            <Text size="xs" c="dimmed">
-              — {remainingLabel}
-            </Text>
-          </Group>
+          <Text size="xs" c="dimmed">
+            {sourceDescription}
+          </Text>
+          <Text size="xs" c="green" fw={500}>
+            {remainingLabel}
+          </Text>
 
           {shareUrl && (
             <Group gap="xs" wrap="nowrap">

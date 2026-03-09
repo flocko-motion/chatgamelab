@@ -538,7 +538,10 @@
         "update": "Freigabelink aktualisieren",
         "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird für Gastsitzungen verwendet.",
         "workshopShare": "Workshop-Freigabe",
+        "workshopShareDescription": "Dieser Freigabelink wurde im Rahmen des Workshops \"{{name}}\" angelegt.",
         "personalShare": "Dein privater Freigabelink",
+        "personalShareDescription": "Diesen Freigabelink hast du persönlich angelegt.",
+        "orgShareDescription": "Dieser Freigabelink gehört deiner Organisation.",
         "createModalTitle": "Privaten Freigabelink erstellen",
         "editModalTitle": "Privaten Freigabelink bearbeiten",
         "orgKey": "Organisation"
