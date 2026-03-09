@@ -405,6 +405,19 @@ func GetGameByID(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) (*obj
 	return game, nil
 }
 
+// GetGameByIDWithShareToken loads a game by ID, granting read access via a share token.
+// Used by guest play endpoints where the share token proves access to non-public games.
+func GetGameByIDWithShareToken(ctx context.Context, gameID uuid.UUID, shareToken string) (*obj.Game, error) {
+	game, err := loadGameByID(ctx, gameID)
+	if err != nil {
+		return nil, err
+	}
+	if err := canAccessGame(ctx, uuid.Nil, OpRead, game, &shareToken); err != nil {
+		return nil, err
+	}
+	return game, nil
+}
+
 // DeleteGame soft-deletes a game (sets deleted_at). userID must be the owner.
 // Sessions referencing this game are preserved; they just won't show the game in listings.
 func DeleteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) error {

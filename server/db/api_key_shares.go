@@ -147,6 +147,14 @@ func DeleteApiKey(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) erro
 
 	wasDefault := key.IsDefault
 
+	// Clean up game_shares (and their guest data) before deleting api_key_shares,
+	// because game_share.api_key_share_id has a FK constraint.
+	gameShareIDs, _ := queries().GetGameShareIDsByApiKeyID(ctx, key.ID)
+	for _, gsID := range gameShareIDs {
+		_ = DeleteGuestDataByShareID(ctx, gsID)
+		_ = queries().DeleteGameShare(ctx, gsID)
+	}
+
 	// Delete all shares
 	if err := queries().DeleteApiKeySharesByApiKeyID(ctx, key.ID); err != nil {
 		return obj.ErrServerError("failed to delete shares")
@@ -361,6 +369,10 @@ func DeleteApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID)
 	_ = queries().ClearGameSponsoredApiKeyByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
 
 	// Clean up game_shares that reference this api_key_share (delete guest data first)
+	gsIDs, _ := queries().GetGameShareIDsByApiKeyShareID(ctx, shareID)
+	for _, gsID := range gsIDs {
+		_ = DeleteGuestDataByShareID(ctx, gsID)
+	}
 	_ = queries().DeleteGameSharesByApiKeyShareID(ctx, shareID)
 
 	return queries().DeleteApiKeyShare(ctx, shareID)

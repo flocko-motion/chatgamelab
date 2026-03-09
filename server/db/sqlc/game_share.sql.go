@@ -197,6 +197,64 @@ func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameSh
 	return i, err
 }
 
+const getGameShareIDsByApiKeyID = `-- name: GetGameShareIDsByApiKeyID :many
+SELECT gs.id FROM game_share gs
+JOIN api_key_share aks ON aks.id = gs.api_key_share_id
+WHERE aks.api_key_id = $1
+`
+
+// Find all game_share IDs that reference any api_key_share belonging to a given api_key
+func (q *Queries) GetGameShareIDsByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGameShareIDsByApiKeyID, apiKeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameShareIDsByApiKeyShareID = `-- name: GetGameShareIDsByApiKeyShareID :many
+SELECT id FROM game_share WHERE api_key_share_id = $1
+`
+
+// Find game_share IDs that reference a specific api_key_share (for guest cleanup before deletion)
+func (q *Queries) GetGameShareIDsByApiKeyShareID(ctx context.Context, apiKeyShareID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.QueryContext(ctx, getGameShareIDsByApiKeyShareID, apiKeyShareID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGameSharesByGameID = `-- name: GetGameSharesByGameID :many
 SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 ORDER BY created_at
 `

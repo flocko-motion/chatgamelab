@@ -62,7 +62,7 @@ func ValidatePrivateShareToken(ctx context.Context, token string) (*obj.GameShar
 		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Invalid or expired share link")
 	}
 
-	game, err := db.GetGameByID(ctx, nil, gameShare.GameID)
+	game, err := db.GetGameByIDWithShareToken(ctx, gameShare.GameID, token)
 	if err != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(404, obj.ErrCodeNotFound, "Game not found")
 	}
