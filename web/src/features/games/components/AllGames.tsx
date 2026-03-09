@@ -785,7 +785,7 @@ export function AllGames() {
         readOnly={!gameToViewIsOwner && !isAdminUser}
         isOwner={gameToViewIsOwner}
         onSponsor={gameToViewIsOwner ? handleSponsorGame : undefined}
-        showShareSection={gameToViewIsOwner}
+        showShareSection
         onCopy={
           !gameToViewIsOwner && !isAdminUser
             ? () => {
