@@ -401,76 +401,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/apikeys/{id}/sponsoring": {
-            "patch": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "apikeys"
-                ],
-                "summary": "Update API key share",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Share ID (UUID)",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.UpdateApiKeyShareRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/obj.ApiKeyShare"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httpx.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/auth/check-name": {
             "get": {
                 "description": "Checks if a username is available for registration",
@@ -5005,9 +4935,6 @@ const docTemplate = `{
         "obj.ApiKeyShare": {
             "type": "object",
             "properties": {
-                "allowPublicGameSponsoring": {
-                    "type": "boolean"
-                },
                 "apiKey": {
                     "$ref": "#/definitions/obj.ApiKey"
                 },
@@ -6462,9 +6389,6 @@ const docTemplate = `{
         "routes.ShareRequest": {
             "type": "object",
             "properties": {
-                "allowPublicGameSponsoring": {
-                    "type": "boolean"
-                },
                 "institutionId": {
                     "type": "string"
                 },
@@ -6500,14 +6424,6 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
-                }
-            }
-        },
-        "routes.UpdateApiKeyShareRequest": {
-            "type": "object",
-            "properties": {
-                "allowPublicGameSponsoring": {
-                    "type": "boolean"
                 }
             }
         },

@@ -1126,17 +1126,6 @@ func PrintJSON(t *testing.T, label string, v interface{}) {
 	t.Logf("%s: %s", label, string(data))
 }
 
-// EnableShareSponsoring enables AllowPublicGameSponsoring on an API key share (composable high-level API)
-func (u *UserClient) EnableShareSponsoring(shareID string) (obj.ApiKeyShare, error) {
-	u.t.Helper()
-	allowPublic := true
-	var result obj.ApiKeyShare
-	err := u.Patch("apikeys/"+shareID+"/sponsoring", routes.UpdateApiKeyShareRequest{
-		AllowPublicGameSponsoring: &allowPublic,
-	}, &result)
-	return result, err
-}
-
 // SetGameSponsor sets a public sponsorship on a game using an API key share (composable high-level API)
 // Returns the updated game with the sponsor share ID set.
 func (u *UserClient) SetGameSponsor(gameID string, shareID string) (obj.Game, error) {

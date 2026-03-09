@@ -195,7 +195,6 @@ type ApiKeyShare struct {
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
 	Game                      *Game        `json:"game,omitempty"`
-	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 	IsPrivateShare            bool         `json:"isPrivateShare,omitempty"`
 }

@@ -570,7 +570,7 @@
         "loadingKeys": "Loading API keys...",
         "manageSponsor": "Manage Sponsor",
         "next": "Next",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "noEligibleKeys": "You don't have any API keys available for sponsoring. Add an API key in your settings first.",
         "privateWarning": "Making this game private will remove the public sponsorship.",
         "removeSponsor": "Remove Sponsoring",
         "selectKey": "Select an API Key",

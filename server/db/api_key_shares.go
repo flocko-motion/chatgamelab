@@ -59,7 +59,7 @@ func createApiKeyAndSelfShare(ctx context.Context, userID uuid.UUID, name, platf
 	}
 
 	// Create a self-share so the user can access their own key via the shares API
-	selfShareID, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, nil, true)
+	selfShareID, err := createApiKeyShareInternal(ctx, userID, result.ID, &userID, nil, nil, nil)
 	if err != nil {
 		return uuid.Nil, uuid.Nil, obj.ErrServerError("failed to create self-share")
 	}
@@ -292,7 +292,7 @@ func UpdateApiKeyName(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, 
 }
 
 // CreateApiKeyShare creates a new share for an API key via an existing share. Verifies ownership first.
-func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, targetUserID, workshopID, institutionID *uuid.UUID, allowPublic bool) (*uuid.UUID, error) {
+func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, targetUserID, workshopID, institutionID *uuid.UUID) (*uuid.UUID, error) {
 	share, err := queries().GetApiKeyShareByID(ctx, shareID)
 	if err != nil {
 		return nil, obj.ErrNotFound("share not found")
@@ -307,23 +307,22 @@ func CreateApiKeyShare(ctx context.Context, userID uuid.UUID, shareID uuid.UUID,
 		return nil, obj.ErrForbidden("only the owner can share this key")
 	}
 
-	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, nil, allowPublic)
+	return createApiKeyShareInternal(ctx, userID, key.ID, targetUserID, workshopID, institutionID, nil)
 }
 
 // createApiKeyShareInternal creates a share without ownership verification (for internal use)
-func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID, gameID *uuid.UUID, allowPublic bool) (*uuid.UUID, error) {
+func createApiKeyShareInternal(ctx context.Context, userID uuid.UUID, apiKeyID uuid.UUID, targetUserID, workshopID, institutionID, gameID *uuid.UUID) (*uuid.UUID, error) {
 	now := time.Now()
 	arg := db.CreateApiKeyShareParams{
-		CreatedBy:                 uuid.NullUUID{UUID: userID, Valid: true},
-		CreatedAt:                 now,
-		ModifiedBy:                uuid.NullUUID{UUID: userID, Valid: true},
-		ModifiedAt:                now,
-		ApiKeyID:                  apiKeyID,
-		UserID:                    uuidPtrToNullUUID(targetUserID),
-		WorkshopID:                uuidPtrToNullUUID(workshopID),
-		InstitutionID:             uuidPtrToNullUUID(institutionID),
-		GameID:                    uuidPtrToNullUUID(gameID),
-		AllowPublicGameSponsoring: allowPublic,
+		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
+		CreatedAt:     now,
+		ModifiedBy:    uuid.NullUUID{UUID: userID, Valid: true},
+		ModifiedAt:    now,
+		ApiKeyID:      apiKeyID,
+		UserID:        uuidPtrToNullUUID(targetUserID),
+		WorkshopID:    uuidPtrToNullUUID(workshopID),
+		InstitutionID: uuidPtrToNullUUID(institutionID),
+		GameID:        uuidPtrToNullUUID(gameID),
 	}
 
 	result, err := queries().CreateApiKeyShare(ctx, arg)
@@ -408,7 +407,6 @@ func GetApiKeyShareByID(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			ModifiedAt: &s.ModifiedAt,
 		},
 		ApiKeyID:                  s.ApiKeyID,
-		AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
 		ApiKey: &obj.ApiKey{
 			ID:               s.KeyID,
 			UserID:           s.KeyOwnerID,
@@ -476,7 +474,6 @@ func GetApiKeySharesByUser(ctx context.Context, userID uuid.UUID) ([]obj.ApiKeyS
 				LastUsageSuccess: sqlNullBoolToMaybeBool(s.ApiKeyLastUsageSuccess),
 				LastErrorCode:    sqlNullStringToMaybeString(s.ApiKeyLastErrorCode),
 			},
-			AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
 		}
 		result = append(result, share)
 	}
@@ -545,7 +542,7 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 					ModifiedBy: s.ModifiedBy,
 					ModifiedAt: &s.ModifiedAt,
 				},
-				AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
+	
 			}
 			if s.UserID.Valid {
 				ls.User = &obj.User{ID: s.UserID.UUID, Name: s.UserName.String}
@@ -622,7 +619,7 @@ func GetApiKeySharesByInstitution(ctx context.Context, userID uuid.UUID, institu
 				Platform: s.ApiKeyPlatform,
 				// Key is never exposed
 			},
-			AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
+
 			Institution:               &obj.Institution{ID: institutionID},
 		}
 		result = append(result, share)
@@ -761,29 +758,6 @@ func GetAvailableKeysForGame(ctx context.Context, userID uuid.UUID, gameID uuid.
 	return result, nil
 }
 
-// UpdateApiKeyShareAllowPublicGameSponsoring updates the allow_public_game_sponsoring flag on a share.
-// Only the key owner can update this.
-func UpdateApiKeyShareAllowPublicGameSponsoring(ctx context.Context, userID uuid.UUID, shareID uuid.UUID, allow bool) error {
-	share, err := queries().GetApiKeyShareByID(ctx, shareID)
-	if err != nil {
-		return obj.ErrNotFound("share not found")
-	}
-
-	key, err := queries().GetApiKeyByID(ctx, share.ApiKeyID)
-	if err != nil {
-		return obj.ErrNotFound("api key not found")
-	}
-
-	if key.UserID != userID {
-		return obj.ErrForbidden("only the owner can update this share")
-	}
-
-	return queries().UpdateApiKeyShareAllowPublicGameSponsoring(ctx, db.UpdateApiKeyShareAllowPublicGameSponsoringParams{
-		ID:                        shareID,
-		AllowPublicGameSponsoring: allow,
-	})
-}
-
 // GetApiKeyShareInfo returns a share and its linked shares (if the user is the owner)
 func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID) (*obj.ApiKeyShare, []obj.ApiKeyShare, error) {
 	share, err := queries().GetApiKeyShareByID(ctx, shareID)
@@ -821,7 +795,6 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 			LastUsageSuccess: sqlNullBoolToMaybeBool(key.LastUsageSuccess),
 			LastErrorCode:    sqlNullStringToMaybeString(key.LastErrorCode),
 		},
-		AllowPublicGameSponsoring: share.AllowPublicGameSponsoring,
 	}
 
 	if share.UserID.Valid {
@@ -855,7 +828,7 @@ func GetApiKeyShareInfo(ctx context.Context, userID uuid.UUID, shareID uuid.UUID
 					ModifiedAt: &s.ModifiedAt,
 				},
 				ApiKeyID:                  s.ApiKeyID,
-				AllowPublicGameSponsoring: s.AllowPublicGameSponsoring,
+	
 			}
 			if s.UserID.Valid {
 				ls.User = &obj.User{ID: s.UserID.UUID, Name: s.UserName.String}

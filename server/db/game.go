@@ -1874,11 +1874,6 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 		return obj.ErrValidation("api key must be proven to work before sponsoring")
 	}
 
-	// Verify the share allows public game sponsoring
-	if !share.AllowPublicGameSponsoring {
-		return obj.ErrValidation("api key share must allow public game sponsoring")
-	}
-
 	// Remove any existing sponsorship and its game-scoped shares first
 	if game.PublicSponsoredApiKeyShareID != nil {
 		if err := queries().ClearGamePublicSponsor(ctx, gameID); err != nil {
@@ -1890,7 +1885,7 @@ func SetGamePublicSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid
 	}
 
 	// Create a game-scoped share for this sponsorship
-	sponsorShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID, true)
+	sponsorShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
 	if err != nil {
 		return obj.ErrServerError("failed to create sponsorship share")
 	}
@@ -2124,7 +2119,6 @@ func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
 }
 
 // CreatePrivateShareSponsorship creates a game-scoped API key share for private sharing.
-// Unlike public sponsoring, this does NOT require allowPublicGameSponsoring on the source share.
 // The user must own the API key behind the share and have update permission on the game.
 // If a previous private share sponsorship exists, it is cleaned up first.
 func CreatePrivateShareSponsorship(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID) (*uuid.UUID, error) {
@@ -2157,7 +2151,7 @@ func CreatePrivateShareSponsorship(ctx context.Context, userID uuid.UUID, gameID
 	}
 
 	// Create a game-scoped share (accessible by uuid.Nil in guest play flow)
-	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID, false)
+	gameScopedShareID, err := createApiKeyShareInternal(ctx, userID, share.ApiKeyID, &userID, nil, nil, &gameID)
 	if err != nil {
 		return nil, obj.ErrServerError("failed to create private share sponsorship")
 	}

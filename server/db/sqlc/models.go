@@ -29,17 +29,16 @@ type ApiKey struct {
 }
 
 type ApiKeyShare struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
+	ID            uuid.UUID
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	ModifiedBy    uuid.NullUUID
+	ModifiedAt    time.Time
+	ApiKeyID      uuid.UUID
+	UserID        uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	GameID        uuid.NullUUID
 }
 
 type AppUser struct {

@@ -20,7 +20,6 @@ export {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
-  useUpdateApiKeyShareSponsoring,
   useAvailableKeysForGame,
 } from "./useApiKeys";
 

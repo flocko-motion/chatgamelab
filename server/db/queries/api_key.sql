@@ -4,10 +4,10 @@
 -- name: CreateApiKeyShare :one
 INSERT INTO api_key_share (
   id, created_by, created_at, modified_by, modified_at,
-  api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
+  api_key_id, user_id, workshop_id, institution_id, game_id
 ) VALUES (
   gen_random_uuid(), $1, $2, $3, $4,
-  $5, $6, $7, $8, $9, $10
+  $5, $6, $7, $8, $9
 )
 RETURNING *;
 
@@ -23,7 +23,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.id AS key_id,
   k.user_id AS key_owner_id,
   k.name AS key_name,
@@ -50,7 +50,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   u.name AS user_name,
   w.name AS workshop_name,
   i.name AS institution_name,
@@ -74,7 +74,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.name AS api_key_name,
   k.platform AS api_key_platform,
   k.key AS api_key_key,
@@ -106,7 +106,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.name AS api_key_name,
   k.platform AS api_key_platform,
   k.user_id AS owner_id,
@@ -201,11 +201,6 @@ WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
 DELETE FROM api_key_share s
 WHERE s.api_key_id IN (SELECT k.id FROM api_key k WHERE k.user_id = $1)
   AND s.workshop_id IN (SELECT w.id FROM workshop w WHERE w.institution_id = $2);
-
--- name: UpdateApiKeyShareAllowPublicGameSponsoring :exec
-UPDATE api_key_share
-SET allow_public_game_sponsoring = $2, modified_at = now()
-WHERE id = $1;
 
 -- name: GetWorkshopIDsByInstitution :many
 SELECT id FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL;

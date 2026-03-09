@@ -119,7 +119,6 @@ export interface ObjApiKey {
 }
 
 export interface ObjApiKeyShare {
-  allowPublicGameSponsoring?: boolean;
   apiKey?: ObjApiKey;
   apiKeyId?: string;
   game?: ObjGame;
@@ -728,7 +727,6 @@ export interface RoutesSetWorkshopApiKeyRequest {
 }
 
 export interface RoutesShareRequest {
-  allowPublicGameSponsoring?: boolean;
   institutionId?: string;
   userId?: string;
   workshopId?: string;
@@ -745,10 +743,6 @@ export interface RoutesStatusResponse {
 
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
-}
-
-export interface RoutesUpdateApiKeyShareRequest {
-  allowPublicGameSponsoring?: boolean;
 }
 
 export interface RoutesUpdateInstitutionRequest {
@@ -1215,30 +1209,6 @@ export class Api<
       this.request<ObjApiKeyShare, HttpxErrorResponse>({
         path: `/apikeys/${id}/shares`,
         method: "POST",
-        body: request,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
-     *
-     * @tags apikeys
-     * @name SponsoringPartialUpdate
-     * @summary Update API key share
-     * @request PATCH:/apikeys/{id}/sponsoring
-     * @secure
-     */
-    sponsoringPartialUpdate: (
-      id: string,
-      request: RoutesUpdateApiKeyShareRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ObjApiKeyShare, HttpxErrorResponse>({
-        path: `/apikeys/${id}/sponsoring`,
-        method: "PATCH",
         body: request,
         secure: true,
         type: ContentType.Json,
