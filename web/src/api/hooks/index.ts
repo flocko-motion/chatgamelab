@@ -41,6 +41,7 @@ export {
   useApiKeyStatus,
   usePrivateShareStatus,
   useEnablePrivateShare,
+  useCreateGameShare,
   useRevokePrivateShare,
   type PrivateShareStatus,
   type UseGamesParams,

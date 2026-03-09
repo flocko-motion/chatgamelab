@@ -534,7 +534,8 @@
         "shareLink": "Freigabelink",
         "title": "Privater Freigabelink",
         "unlimited": "Unbegrenzt",
-        "update": "Freigabelink aktualisieren"
+        "update": "Freigabelink aktualisieren",
+        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird für Gastsitzungen verwendet."
       },
       "sharing": {
         "active": "Aktiv",

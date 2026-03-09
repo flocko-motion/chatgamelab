@@ -14,6 +14,7 @@ import type {
   ObjGameShare,
   HttpxErrorResponse,
   RoutesCreateGameRequest,
+  RoutesGameShareResponse,
 } from "../generated";
 
 // Games hooks
@@ -334,6 +335,50 @@ export function useEnablePrivateShare() {
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         throw new Error(err.message || "Failed to enable private share");
+      }
+      return response.json();
+    },
+    onSuccess: (_, { gameId }) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId, "private-share"],
+      });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+    },
+    onError: handleApiError,
+  });
+}
+
+export function useCreateGameShare() {
+  const queryClient = useQueryClient();
+  const { getAccessToken } = useAuth();
+
+  return useMutation<
+    RoutesGameShareResponse,
+    Error,
+    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null }
+  >({
+    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions }) => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/shares`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            workshopId: workshopId ?? null,
+            sponsorKeyShareId: sponsorKeyShareId ?? null,
+            maxSessions: maxSessions ?? null,
+          }),
+        },
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to create share link");
       }
       return response.json();
     },

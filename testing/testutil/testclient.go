@@ -1238,6 +1238,29 @@ func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatu
 	return result, err
 }
 
+// CreateWorkshopGameShare creates a workshop share for a game (composable high-level API)
+func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (routes.GameShareResponse, error) {
+	u.t.Helper()
+	wsUUID, err := uuid.Parse(workshopID)
+	if err != nil {
+		return routes.GameShareResponse{}, fmt.Errorf("invalid workshopID: %w", err)
+	}
+	var result routes.GameShareResponse
+	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+		WorkshopID:  &wsUUID,
+		MaxSessions: maxSessions,
+	}, &result)
+	return result, err
+}
+
+// ListGameShares lists all shares for a game (composable high-level API)
+func (u *UserClient) ListGameShares(gameID string) ([]routes.GameShareResponse, error) {
+	u.t.Helper()
+	var result []routes.GameShareResponse
+	err := u.Get("games/"+gameID+"/shares", &result)
+	return result, err
+}
+
 // InviteToWorkshopByEmail creates a targeted workshop invite by email
 func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.UserRoleInvite, error) {
 	u.t.Helper()

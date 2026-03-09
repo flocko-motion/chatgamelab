@@ -536,15 +536,26 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 			return nil
 		}
 
-		// If game belongs to a workshop, user must have read access to that workshop
+		// If game belongs to a workshop, user must have read access to that workshop.
+		// Guest users (created via share tokens) are pre-authorized, so skip this check.
 		if game.WorkshopID.Valid {
-			// Get the workshop to find its institution ID
-			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
-			if err != nil {
-				return obj.ErrNotFound("workshop not found")
+			isGuest := false
+			if userID != uuid.Nil {
+				appUser, err := queries().GetUserByID(ctx, userID)
+				if err == nil && appUser.PrivateShareID.Valid {
+					isGuest = true
+				}
+			} else {
+				isGuest = true
 			}
-			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
-				return obj.ErrForbidden("not authorized to play games in this workshop")
+			if !isGuest {
+				workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
+				if err != nil {
+					return obj.ErrNotFound("workshop not found")
+				}
+				if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
+					return obj.ErrForbidden("not authorized to play games in this workshop")
+				}
 			}
 		}
 

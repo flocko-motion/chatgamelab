@@ -2108,8 +2108,12 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 	if err != nil {
 		return nil, obj.ErrNotFound("api key share not found")
 	}
-	if err := canUseShareForSponsoring(ctx, userID, share); err != nil {
-		return nil, err
+	// For workshop shares, the route handler already verified workshop access and sharing permissions.
+	// Only check personal sponsoring permissions for non-workshop shares.
+	if workshopID == nil {
+		if err := canUseShareForSponsoring(ctx, userID, share); err != nil {
+			return nil, err
+		}
 	}
 
 	// Verify the key hasn't been proven to NOT work

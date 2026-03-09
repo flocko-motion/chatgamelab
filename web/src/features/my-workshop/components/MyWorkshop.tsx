@@ -674,6 +674,7 @@ export function MyWorkshop() {
           closePrivateShareModal();
           setGameToShare(null);
         }}
+        workshopId={workshop?.id}
       />
       <SponsorGameModal
         game={gameToSponsor}

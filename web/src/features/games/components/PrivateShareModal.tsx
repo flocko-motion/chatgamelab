@@ -27,6 +27,7 @@ import {
   useApiKeys,
   usePrivateShareStatus,
   useEnablePrivateShare,
+  useCreateGameShare,
   useRevokePrivateShare,
 } from "@/api/hooks";
 import type { ObjGame } from "@/api/generated";
@@ -35,20 +36,26 @@ interface PrivateShareModalProps {
   game: ObjGame | null;
   opened: boolean;
   onClose: () => void;
+  workshopId?: string;
 }
 
 export function PrivateShareModal({
   game,
   opened,
   onClose,
+  workshopId,
 }: PrivateShareModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
+  const isWorkshopMode = !!workshopId;
+
+  // Only fetch personal keys in non-workshop mode
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
   const { data: shareStatus, isLoading: statusLoading } = usePrivateShareStatus(
     game?.id,
   );
   const enableShare = useEnablePrivateShare();
+  const createGameShare = useCreateGameShare();
   const revokeShare = useRevokePrivateShare();
 
   const [selectedShareId, setSelectedShareId] = useState<string | null>(null);
@@ -64,33 +71,47 @@ export function PrivateShareModal({
     onClose();
   };
 
-  // Eligible keys: any key the user owns that hasn't been proven broken
+  // Eligible keys: any key the user owns that hasn't been proven broken (personal mode only)
   const keys = apiKeys?.apiKeys ?? [];
   const shares = apiKeys?.shares ?? [];
   const selectData: { value: string; label: string }[] = [];
-  const seenKeyIds = new Set<string>();
-  for (const share of shares) {
-    if (!share.apiKeyId || seenKeyIds.has(share.apiKeyId)) continue;
-    const apiKey = keys.find((k) => k.id === share.apiKeyId);
-    if (apiKey?.lastUsageSuccess === false) continue;
-    seenKeyIds.add(share.apiKeyId);
-    selectData.push({
-      value: share.id!,
-      label: `${apiKey?.name ?? "Unknown"} (${apiKey?.platform ?? "?"})`,
-    });
+  if (!isWorkshopMode) {
+    const seenKeyIds = new Set<string>();
+    for (const share of shares) {
+      if (!share.apiKeyId || seenKeyIds.has(share.apiKeyId)) continue;
+      const apiKey = keys.find((k) => k.id === share.apiKeyId);
+      if (apiKey?.lastUsageSuccess === false) continue;
+      seenKeyIds.add(share.apiKeyId);
+      selectData.push({
+        value: share.id!,
+        label: `${apiKey?.name ?? "Unknown"} (${apiKey?.platform ?? "?"})`,
+      });
+    }
   }
 
   const handleEnable = async () => {
-    if (!game?.id || !selectedShareId) return;
+    if (!game?.id) return;
     try {
-      await enableShare.mutateAsync({
-        gameId: game.id,
-        sponsorKeyShareId: selectedShareId,
-        maxSessions:
-          typeof maxSessions === "number" && maxSessions > 0
-            ? maxSessions
-            : null,
-      });
+      if (isWorkshopMode) {
+        await createGameShare.mutateAsync({
+          gameId: game.id,
+          workshopId,
+          maxSessions:
+            typeof maxSessions === "number" && maxSessions > 0
+              ? maxSessions
+              : null,
+        });
+      } else {
+        if (!selectedShareId) return;
+        await enableShare.mutateAsync({
+          gameId: game.id,
+          sponsorKeyShareId: selectedShareId,
+          maxSessions:
+            typeof maxSessions === "number" && maxSessions > 0
+              ? maxSessions
+              : null,
+        });
+      }
       setIsEditing(false);
     } catch {
       // Error handled by mutation
@@ -117,8 +138,11 @@ export function PrivateShareModal({
       ? `${window.location.origin}/play/${shareStatus.token}`
       : "";
 
-  // Shared form fields used in both setup and edit
-  const formFields = (
+  const isEnabling = enableShare.isPending || createGameShare.isPending;
+  const canEnable = isWorkshopMode || !!selectedShareId;
+
+  // Key selector form fields (personal mode only)
+  const keySelector = isWorkshopMode ? null : (
     <>
       {keysLoading ? (
         <Text size="sm" c="dimmed">
@@ -133,27 +157,37 @@ export function PrivateShareModal({
           {t("games.privateShare.noEligibleKeys")}
         </Alert>
       ) : (
-        <>
-          <Select
-            label={t("games.privateShare.selectKey")}
-            placeholder={t("games.privateShare.selectKeyPlaceholder")}
-            data={selectData}
-            value={selectedShareId}
-            onChange={setSelectedShareId}
-            searchable={selectData.length > 5}
-          />
-          <NumberInput
-            label={t("games.privateShare.maxSessions")}
-            description={t("games.privateShare.maxSessionsDescription")}
-            placeholder={t("games.privateShare.unlimited")}
-            value={maxSessions}
-            onChange={(v) => setMaxSessions(v === "" ? "" : v)}
-            min={1}
-            allowNegative={false}
-            allowDecimal={false}
-          />
-        </>
+        <Select
+          label={t("games.privateShare.selectKey")}
+          placeholder={t("games.privateShare.selectKeyPlaceholder")}
+          data={selectData}
+          value={selectedShareId}
+          onChange={setSelectedShareId}
+          searchable={selectData.length > 5}
+        />
       )}
+    </>
+  );
+
+  // Session limit field (both modes)
+  const sessionLimitField = (
+    <NumberInput
+      label={t("games.privateShare.maxSessions")}
+      description={t("games.privateShare.maxSessionsDescription")}
+      placeholder={t("games.privateShare.unlimited")}
+      value={maxSessions}
+      onChange={(v) => setMaxSessions(v === "" ? "" : v)}
+      min={1}
+      allowNegative={false}
+      allowDecimal={false}
+    />
+  );
+
+  // Shared form fields used in both setup and edit
+  const formFields = (
+    <>
+      {keySelector}
+      {(isWorkshopMode || selectData.length > 0) && sessionLimitField}
     </>
   );
 
@@ -252,8 +286,8 @@ export function PrivateShareModal({
               </CancelButton>
               <ActionButton
                 onClick={handleEnable}
-                disabled={!selectedShareId}
-                loading={enableShare.isPending}
+                disabled={!canEnable}
+                loading={isEnabling}
                 size="sm"
                 leftSection={<IconLink size={16} />}
               >
@@ -270,15 +304,17 @@ export function PrivateShareModal({
         ) : (
           <>
             <Text size="sm" c="dimmed">
-              {t("games.privateShare.description")}
+              {isWorkshopMode
+                ? t("games.privateShare.workshopDescription")
+                : t("games.privateShare.description")}
             </Text>
             {formFields}
             <Group justify="flex-end" mt="md" gap="sm">
               <CancelButton onClick={handleClose}>{t("cancel")}</CancelButton>
               <ActionButton
                 onClick={handleEnable}
-                disabled={!selectedShareId}
-                loading={enableShare.isPending}
+                disabled={!canEnable}
+                loading={isEnabling}
                 size="sm"
                 leftSection={<IconLink size={16} />}
               >
