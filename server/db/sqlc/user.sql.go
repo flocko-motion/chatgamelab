@@ -1322,6 +1322,7 @@ SELECT
   w.prompt_constraints AS workshop_prompt_constraints,
   w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
+  w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
@@ -1329,7 +1330,8 @@ SELECT
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
   aw.design_editing_enabled AS active_workshop_design_editing_enabled,
-  aw.is_paused AS active_workshop_is_paused
+  aw.is_paused AS active_workshop_is_paused,
+  aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
@@ -1373,6 +1375,7 @@ type GetUserDetailsByIDRow struct {
 	WorkshopPromptConstraints                sql.NullString
 	WorkshopDesignEditingEnabled             sql.NullBool
 	WorkshopIsPaused                         sql.NullBool
+	WorkshopAllowGameSharing                 sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
 	ActiveWorkshopName                       sql.NullString
 	ActiveWorkshopShowPublicGames            sql.NullBool
@@ -1381,6 +1384,7 @@ type GetUserDetailsByIDRow struct {
 	ActiveWorkshopPromptConstraints          sql.NullString
 	ActiveWorkshopDesignEditingEnabled       sql.NullBool
 	ActiveWorkshopIsPaused                   sql.NullBool
+	ActiveWorkshopAllowGameSharing           sql.NullBool
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1412,6 +1416,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopPromptConstraints,
 		&i.WorkshopDesignEditingEnabled,
 		&i.WorkshopIsPaused,
+		&i.WorkshopAllowGameSharing,
 		&i.ActiveWorkshopID,
 		&i.ActiveWorkshopName,
 		&i.ActiveWorkshopShowPublicGames,
@@ -1420,6 +1425,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.ActiveWorkshopPromptConstraints,
 		&i.ActiveWorkshopDesignEditingEnabled,
 		&i.ActiveWorkshopIsPaused,
+		&i.ActiveWorkshopAllowGameSharing,
 	)
 	return i, err
 }

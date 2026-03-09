@@ -266,6 +266,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				ShowOtherParticipantsGames: res.WorkshopShowOtherParticipantsGames.Bool,
 				DesignEditingEnabled:       res.WorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.WorkshopIsPaused.Bool,
+				AllowGameSharing:           res.WorkshopAllowGameSharing.Bool,
 				AiQualityTier:              aiQualityTier,
 				PromptConstraints:          promptConstraints,
 			}
@@ -286,6 +287,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 				ShowOtherParticipantsGames: res.ActiveWorkshopShowOtherParticipantsGames.Bool,
 				DesignEditingEnabled:       res.ActiveWorkshopDesignEditingEnabled.Bool,
 				IsPaused:                   res.ActiveWorkshopIsPaused.Bool,
+				AllowGameSharing:           res.ActiveWorkshopAllowGameSharing.Bool,
 				AiQualityTier:              aiQualityTier,
 				PromptConstraints:          promptConstraints,
 			}

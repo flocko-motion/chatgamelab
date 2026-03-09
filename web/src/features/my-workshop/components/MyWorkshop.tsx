@@ -640,17 +640,7 @@ export function MyWorkshop() {
           setGameToView(null);
         }}
         readOnly={gameToViewReadOnly}
-        onSponsor={
-          gameToViewIsOwner
-            ? () => {
-                const game = games?.find((g) => g.id === gameToView);
-                if (game) {
-                  setGameToSponsor(game);
-                  openSponsorModal();
-                }
-              }
-            : undefined
-        }
+        onSponsor={undefined}
         onPrivateShare={
           (() => {
             const canShare = canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false);
