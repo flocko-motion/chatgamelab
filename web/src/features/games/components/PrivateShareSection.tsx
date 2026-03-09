@@ -23,11 +23,13 @@ import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import {
   useApiKeys,
+  useInstitutionApiKeys,
   usePrivateShareStatus,
   useEnablePrivateShare,
   useCreateGameShare,
   useRevokePrivateShare,
 } from "@/api/hooks";
+import { useAuth } from "@/providers/AuthProvider";
 
 interface PrivateShareSectionProps {
   gameId: string;
@@ -40,9 +42,14 @@ export function PrivateShareSection({
 }: PrivateShareSectionProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
+  const { backendUser } = useAuth();
   const isWorkshopMode = !!workshopId;
 
-  const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
+  const institutionId = backendUser?.role?.institution?.id;
+  const { data: apiKeys, isLoading: personalKeysLoading } = useApiKeys();
+  const { data: institutionKeys, isLoading: instKeysLoading } =
+    useInstitutionApiKeys(institutionId ?? "");
+  const keysLoading = personalKeysLoading || instKeysLoading;
   const { data: shareStatus, isLoading: statusLoading } =
     usePrivateShareStatus(gameId);
   const enableShare = useEnablePrivateShare();
@@ -57,20 +64,33 @@ export function PrivateShareSection({
 
   const isEnabled = shareStatus?.enabled ?? false;
 
-  // Eligible keys (personal mode only)
+  // Determine source from actual share data (not just UI context)
+  const activeShare = shareStatus?.shares?.[0];
+  const isWorkshopShare = !!activeShare?.workshopId;
+
+  // Eligible keys: personal + institution (for head/staff)
   const keys = apiKeys?.apiKeys ?? [];
-  const shares = apiKeys?.shares ?? [];
+  const personalShares = apiKeys?.shares ?? [];
   const selectData: { value: string; label: string }[] = [];
   if (!isWorkshopMode) {
-    const seenKeyIds = new Set<string>();
-    for (const share of shares) {
-      if (!share.apiKeyId || seenKeyIds.has(share.apiKeyId)) continue;
+    const seenShareIds = new Set<string>();
+    for (const share of personalShares) {
+      if (!share.id || seenShareIds.has(share.id)) continue;
       const apiKey = keys.find((k) => k.id === share.apiKeyId);
       if (apiKey?.lastUsageSuccess === false) continue;
-      seenKeyIds.add(share.apiKeyId);
+      seenShareIds.add(share.id);
       selectData.push({
-        value: share.id!,
+        value: share.id,
         label: `${apiKey?.name ?? "Unknown"} (${apiKey?.platform ?? "?"})`,
+      });
+    }
+    for (const share of institutionKeys ?? []) {
+      if (!share.id || seenShareIds.has(share.id)) continue;
+      if (share.apiKey?.lastUsageSuccess === false) continue;
+      seenShareIds.add(share.id);
+      selectData.push({
+        value: share.id,
+        label: `${share.apiKey?.name ?? "Unknown"} (${share.apiKey?.platform ?? "?"}) — ${t("games.privateShare.orgKey")}`,
       });
     }
   }
@@ -134,7 +154,7 @@ export function PrivateShareSection({
   const isSubmitting = enableShare.isPending || createGameShare.isPending;
   const canSubmit = isWorkshopMode || !!selectedShareId;
 
-  const sourceLabel = isWorkshopMode
+  const sourceLabel = isWorkshopShare
     ? t("games.privateShare.workshopShare")
     : t("games.privateShare.personalShare");
 

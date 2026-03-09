@@ -540,7 +540,8 @@
         "workshopShare": "Workshop-Freigabe",
         "personalShare": "Dein privater Freigabelink",
         "createModalTitle": "Privaten Freigabelink erstellen",
-        "editModalTitle": "Privaten Freigabelink bearbeiten"
+        "editModalTitle": "Privaten Freigabelink bearbeiten",
+        "orgKey": "Organisation"
       },
       "sharing": {
         "active": "Aktiv",

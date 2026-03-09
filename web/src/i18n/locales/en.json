@@ -540,7 +540,8 @@
         "workshopShare": "Workshop share",
         "personalShare": "Your private share link",
         "createModalTitle": "Create Private Share Link",
-        "editModalTitle": "Edit Private Share Link"
+        "editModalTitle": "Edit Private Share Link",
+        "orgKey": "Organization"
       },
       "sharing": {
         "active": "Active",
