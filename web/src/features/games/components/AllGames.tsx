@@ -47,7 +47,6 @@ import { GenericIconButton } from "@components/buttons";
 import { GameEditModal } from "./GameEditModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { SponsorGameModal } from "./SponsorGameModal";
-import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { GamePlayButtons } from "./GamePlayButtons";
 import {
@@ -172,13 +171,6 @@ export function AllGames() {
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
-  const [
-    privateShareModalOpened,
-    { open: openPrivateShareModal, close: closePrivateShareModal },
-  ] = useDisclosure(false);
-  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
-    null,
-  );
   const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
     useDisclosure(false);
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
@@ -221,14 +213,6 @@ export function AllGames() {
     if (game) {
       setGameToSponsor(game);
       openSponsorModal();
-    }
-  };
-
-  const handlePrivateShare = () => {
-    const game = games?.find((g) => g.id === gameToView);
-    if (game) {
-      setGameToPrivateShare(game);
-      openPrivateShareModal();
     }
   };
 
@@ -801,7 +785,7 @@ export function AllGames() {
         readOnly={!gameToViewIsOwner && !isAdminUser}
         isOwner={gameToViewIsOwner}
         onSponsor={gameToViewIsOwner ? handleSponsorGame : undefined}
-        onPrivateShare={gameToViewIsOwner ? handlePrivateShare : undefined}
+        showShareSection={gameToViewIsOwner}
         onCopy={
           !gameToViewIsOwner && !isAdminUser
             ? () => {
@@ -837,14 +821,6 @@ export function AllGames() {
         }}
       />
 
-      <PrivateShareModal
-        game={gameToPrivateShare}
-        opened={privateShareModalOpened}
-        onClose={() => {
-          closePrivateShareModal();
-          setGameToPrivateShare(null);
-        }}
-      />
     </>
   );
 }

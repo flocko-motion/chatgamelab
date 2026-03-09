@@ -17,7 +17,6 @@ import {
   IconAlertTriangle,
   IconCopy,
   IconHeartFilled,
-  IconLink,
   IconPalette,
 } from "@tabler/icons-react";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
@@ -31,6 +30,7 @@ import { useGame, useUpdateGame } from "@/api/hooks";
 import type { ObjGameTheme } from "@/api/generated";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { ThemePickerModal } from "./ThemePickerModal";
+import { PrivateShareSection } from "./PrivateShareSection";
 import type { CreateGameFormData } from "../types";
 
 interface FormValues {
@@ -59,8 +59,10 @@ interface GameEditModalProps {
   initialData?: Partial<CreateGameFormData> | null;
   /** Callback when user clicks Sponsor button */
   onSponsor?: () => void;
-  /** Callback when user clicks Private Share button */
-  onPrivateShare?: () => void;
+  /** Whether to show the inline private share section */
+  showShareSection?: boolean;
+  /** Workshop ID for workshop share mode (auto-uses workshop key) */
+  workshopId?: string;
   /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
   hideDesign?: boolean;
   /** Whether the current user owns this game (used to show admin action warning) */
@@ -78,7 +80,8 @@ export function GameEditModal({
   copyLoading = false,
   initialData,
   onSponsor,
-  onPrivateShare,
+  showShareSection = false,
+  workshopId,
   hideDesign = false,
   isOwner = true,
 }: GameEditModalProps) {
@@ -441,12 +444,14 @@ export function GameEditModal({
             </Text>
           )}
 
-          {/* Sharing & Sponsoring — collapsible section (edit/view mode only) */}
-          {!isCreateMode && (onSponsor || onPrivateShare) && (
+          {/* Sharing & Sponsoring — inline section (edit/view mode only) */}
+          {!isCreateMode && (onSponsor || showShareSection) && (
             <SharingSection
               game={game}
+              gameId={gameId!}
               onSponsor={onSponsor}
-              onPrivateShare={onPrivateShare}
+              showShareSection={showShareSection}
+              workshopId={workshopId}
             />
           )}
         </Stack>
@@ -538,24 +543,31 @@ export function GameEditModal({
 
 function SharingSection({
   game,
+  gameId,
   onSponsor,
-  onPrivateShare,
+  showShareSection,
+  workshopId,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
   } | null;
+  gameId: string;
   onSponsor?: () => void;
-  onPrivateShare?: () => void;
+  showShareSection?: boolean;
+  workshopId?: string;
 }) {
   const { t } = useTranslation("common");
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
+  const sectionTitle = onSponsor
+    ? t("games.sharing.sectionTitle")
+    : t("games.sharing.sectionTitleShareOnly");
 
   return (
     <>
       <Divider />
       <Text size="sm" fw={500} c="dimmed">
-        {t("games.sharing.sectionTitle")}
+        {sectionTitle}
       </Text>
       <Stack gap="sm">
         {onSponsor && (
@@ -581,16 +593,8 @@ function SharingSection({
             )}
           </Group>
         )}
-        {onPrivateShare && (
-          <Group gap="sm" align="center">
-            <ActionButton
-              onClick={onPrivateShare}
-              size="sm"
-              leftSection={<IconLink size={16} />}
-            >
-              {t("games.privateShare.shareLink")}
-            </ActionButton>
-          </Group>
+        {showShareSection && (
+          <PrivateShareSection gameId={gameId} workshopId={workshopId} />
         )}
       </Stack>
     </>

@@ -539,7 +539,8 @@
       },
       "sharing": {
         "active": "Active",
-        "sectionTitle": "Sharing \u0026 Sponsoring"
+        "sectionTitle": "Sharing \u0026 Sponsoring",
+        "sectionTitleShareOnly": "Sharing"
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
