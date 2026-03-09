@@ -109,10 +109,10 @@ export function MyWorkshop() {
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewReadOnly, setGameToViewReadOnly] = useState(false);
-  const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
+  const [, setGameToViewIsOwner] = useState(false);
   const [
     sponsorModalOpened,
-    { open: openSponsorModal, close: closeSponsorModal },
+    { close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
   const [sortValue, setSortValue] = useState("modifiedAt-desc");

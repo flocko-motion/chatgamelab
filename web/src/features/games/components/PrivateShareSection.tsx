@@ -418,14 +418,15 @@ function ShareFormModal({
 
         <Group justify="flex-end" gap="sm">
           {!isCreate && (
-            <DangerButton
-              onClick={onRevoke}
-              loading={isRevoking}
-              size="xs"
-              style={{ marginRight: "auto" }}
-            >
-              {t("games.privateShare.revoke")}
-            </DangerButton>
+            <div style={{ marginRight: "auto" }}>
+              <DangerButton
+                onClick={onRevoke}
+                loading={isRevoking}
+                size="xs"
+              >
+                {t("games.privateShare.revoke")}
+              </DangerButton>
+            </div>
           )}
           <CancelButton onClick={onClose}>{t("cancel")}</CancelButton>
           <ActionButton
