@@ -10,7 +10,6 @@ import {
   Center,
 } from "@mantine/core";
 import {
-  IconAlertCircle,
   IconUserPlus,
   IconUser,
   IconInfoCircle,

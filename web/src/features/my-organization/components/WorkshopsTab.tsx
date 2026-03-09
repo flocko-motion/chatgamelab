@@ -63,7 +63,6 @@ import {
   useRemoveParticipant,
   useGetParticipantToken,
   useCreateWorkshopEmailInvite,
-  useAddMemberToWorkshop,
 } from "@/api/hooks";
 import {
   ExpandableSearch,
@@ -201,8 +200,6 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
   const createEmailInvite = useCreateWorkshopEmailInvite();
-  const addMember = useAddMemberToWorkshop();
-
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<{
     workshopId: string;

@@ -49,7 +49,6 @@ import {
   useRemoveParticipant,
   useGetParticipantToken,
   useCreateWorkshopEmailInvite,
-  useAddMemberToWorkshop,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
@@ -129,8 +128,6 @@ export function SingleWorkshopSettings({
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
   const createEmailInvite = useCreateWorkshopEmailInvite();
-  const addMember = useAddMemberToWorkshop();
-
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
   const [autoShareError, setAutoShareError] = useState<string | null>(null);
