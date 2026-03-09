@@ -7,7 +7,6 @@ import {
   UnstyledButton,
   Badge,
 } from "@mantine/core";
-import { HelperText } from "@components/typography";
 import {
   IconChevronDown,
   IconChevronRight,

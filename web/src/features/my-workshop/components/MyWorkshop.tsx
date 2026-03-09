@@ -302,7 +302,7 @@ export function MyWorkshop() {
     });
     // Share button: head/staff can always share; participants can when allowGameSharing is enabled
     const canShare = canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false);
-    if (canShare && isWorkshopGame(game)) {
+    if (canShare && isWorkshopGame(game, workshop?.id)) {
       actions.push({
         key: "share",
         icon: <IconLink size={16} />,
