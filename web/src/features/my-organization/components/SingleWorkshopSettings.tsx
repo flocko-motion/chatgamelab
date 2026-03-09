@@ -263,6 +263,7 @@ export function SingleWorkshopSettings({
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
+      allowGameSharing: boolean;
     }>,
   ) => {
     if (!workshop?.id) return;
@@ -284,6 +285,8 @@ export function SingleWorkshopSettings({
       promptConstraints:
         settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
+      allowGameSharing:
+        settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -509,6 +512,17 @@ export function SingleWorkshopSettings({
                 })
               }
               color="orange"
+            />
+            <Switch
+              size="sm"
+              label={t("myOrganization.workshops.allowGameSharing")}
+              description={t("myOrganization.workshops.allowGameSharingHint")}
+              checked={workshop.allowGameSharing || false}
+              onChange={(e) =>
+                handleUpdateWorkshopSettings({
+                  allowGameSharing: e.currentTarget.checked,
+                })
+              }
             />
           </Stack >
 

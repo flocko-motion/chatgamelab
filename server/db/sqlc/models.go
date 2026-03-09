@@ -55,37 +55,34 @@ type AppUser struct {
 	DefaultApiKeyShareID uuid.NullUUID
 	AiQualityTier        sql.NullString
 	Language             string
-	PrivateShareGameID   uuid.NullUUID
+	PrivateShareID       uuid.NullUUID
 }
 
 type Game struct {
-	ID                            uuid.UUID
-	CreatedBy                     uuid.NullUUID
-	CreatedAt                     time.Time
-	ModifiedBy                    uuid.NullUUID
-	ModifiedAt                    time.Time
-	Name                          string
-	Description                   string
-	Icon                          []byte
-	WorkshopID                    uuid.NullUUID
-	Public                        bool
-	PublicSponsoredApiKeyShareID  uuid.NullUUID
-	PrivateShareHash              sql.NullString
-	PrivateSponsoredApiKeyShareID uuid.NullUUID
-	PrivateShareRemaining         sql.NullInt32
-	SystemMessageScenario         string
-	SystemMessageGameStart        string
-	ImageStyle                    string
-	Css                           string
-	StatusFields                  string
-	Theme                         pqtype.NullRawMessage
-	FirstMessage                  sql.NullString
-	FirstStatus                   sql.NullString
-	FirstImage                    []byte
-	OriginallyCreatedBy           uuid.NullUUID
-	PlayCount                     int32
-	CloneCount                    int32
-	DeletedAt                     sql.NullTime
+	ID                           uuid.UUID
+	CreatedBy                    uuid.NullUUID
+	CreatedAt                    time.Time
+	ModifiedBy                   uuid.NullUUID
+	ModifiedAt                   time.Time
+	Name                         string
+	Description                  string
+	Icon                         []byte
+	WorkshopID                   uuid.NullUUID
+	Public                       bool
+	PublicSponsoredApiKeyShareID uuid.NullUUID
+	SystemMessageScenario        string
+	SystemMessageGameStart       string
+	ImageStyle                   string
+	Css                          string
+	StatusFields                 string
+	Theme                        pqtype.NullRawMessage
+	FirstMessage                 sql.NullString
+	FirstStatus                  sql.NullString
+	FirstImage                   []byte
+	OriginallyCreatedBy          uuid.NullUUID
+	PlayCount                    int32
+	CloneCount                   int32
+	DeletedAt                    sql.NullTime
 }
 
 type GameSession struct {
@@ -135,6 +132,18 @@ type GameSessionMessage struct {
 	UrlAnalytics          sql.NullString
 	ApiKeyType            sql.NullString
 	DeletedAt             sql.NullTime
+}
+
+type GameShare struct {
+	ID            uuid.UUID
+	GameID        uuid.UUID
+	Token         string
+	ApiKeyShareID uuid.UUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	Remaining     sql.NullInt32
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
 }
 
 type GameTag struct {
@@ -231,6 +240,7 @@ type Workshop struct {
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
 	IsPaused                   bool
+	AllowGameSharing           bool
 }
 
 type WorkshopParticipant struct {

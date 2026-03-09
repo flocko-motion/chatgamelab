@@ -951,6 +951,8 @@
         "inviteUsage": "Usage",
         "isPaused": "Pause workshop",
         "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
+        "allowGameSharing": "Allow game sharing",
+        "allowGameSharingHint": "When enabled, participants can create share links for their games using the workshop's API key",
         "joined": "Joined",
         "linkCopied": "Link Copied",
         "linkCopiedMessage": "The invite link has been copied to your clipboard.",

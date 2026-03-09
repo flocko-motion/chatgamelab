@@ -175,15 +175,6 @@ function PrivateSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
               <Text size="sm">
                 {share.game?.name || t("apiKeys.shares.unknownGame")}
               </Text>
-              {share.game?.privateShareRemaining != null && (
-                <HelperText>
-                  (
-                  {t("apiKeys.shares.remaining", {
-                    count: share.game.privateShareRemaining,
-                  })}
-                  )
-                </HelperText>
-              )}
             </Group>
             <DeleteIconButton
               size="sm"

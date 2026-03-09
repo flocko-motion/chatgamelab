@@ -11,6 +11,7 @@ import { config } from "@/config/env";
 import { useAuth } from "@/providers/AuthProvider";
 import type {
   ObjGame,
+  ObjGameShare,
   HttpxErrorResponse,
   RoutesCreateGameRequest,
 } from "../generated";
@@ -279,7 +280,8 @@ export interface PrivateShareStatus {
   shareUrl?: string;
   token?: string;
   remaining: number | null;
-  privateSponsoredApiKeyShareId?: string;
+  shareId?: string;
+  shares?: ObjGameShare[];
 }
 
 export function usePrivateShareStatus(gameId: string | undefined) {

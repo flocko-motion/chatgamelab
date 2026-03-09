@@ -543,7 +543,6 @@ function SharingSection({
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
-    privateShareHash?: string;
   } | null;
   onSponsor?: () => void;
   onPrivateShare?: () => void;
@@ -551,7 +550,6 @@ function SharingSection({
   const { t } = useTranslation("common");
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
-  const hasPrivateShare = !!game?.privateShareHash;
 
   return (
     <>
@@ -592,16 +590,6 @@ function SharingSection({
             >
               {t("games.privateShare.shareLink")}
             </ActionButton>
-            {hasPrivateShare && (
-              <Badge
-                size="xs"
-                color="accent"
-                variant="light"
-                leftSection={<IconLink size={10} />}
-              >
-                {t("games.sharing.active")}
-              </Badge>
-            )}
           </Group>
         )}
       </Stack>

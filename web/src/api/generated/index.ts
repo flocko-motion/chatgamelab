@@ -171,13 +171,6 @@ export interface ObjGame {
   /** Tracking: original creator (for cloned games) and usage statistics */
   originallyCreatedBy?: string;
   playCount?: number;
-  /**
-   * Private share links contain secret random tokens to limit access to the game.
-   * They are sponsored, so invited players don't require their own API key.
-   */
-  privateShareHash?: string;
-  privateShareRemaining?: number;
-  privateSponsoredApiKeyShareId?: string;
   /** Access rights and payments. public = true: discoverable on the website and playable by anyone. */
   public?: boolean;
   /** If public, a sponsored API key share can be provided to pay for any public plays. */
@@ -274,6 +267,18 @@ export interface ObjGameSessionMessage {
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
   urlAnalytics?: string;
+}
+
+export interface ObjGameShare {
+  apiKeyShareId?: string;
+  createdAt?: string;
+  createdBy?: string;
+  gameId?: string;
+  id?: string;
+  institutionId?: string;
+  remaining?: number;
+  token?: string;
+  workshopId?: string;
 }
 
 export interface ObjGameTag {
@@ -398,6 +403,7 @@ export interface ObjWorkshop {
   active?: boolean;
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
+  allowGameSharing?: boolean;
   defaultApiKeyShareId?: string;
   designEditingEnabled?: boolean;
   id?: string;
@@ -456,6 +462,15 @@ export interface RoutesCreateGameRequest {
   public?: boolean;
 }
 
+export interface RoutesCreateGameShareRequest {
+  /** null = unlimited */
+  maxSessions?: number;
+  /** required for personal shares; ignored for workshop shares */
+  sponsorKeyShareId?: string;
+  /** set to create a workshop share (uses workshop default key) */
+  workshopId?: string;
+}
+
 export interface RoutesCreateInstitutionInviteRequest {
   institutionId?: string;
   invitedEmail?: string;
@@ -483,6 +498,19 @@ export interface RoutesCreateWorkshopRequest {
   institutionId?: string;
   name?: string;
   public?: boolean;
+}
+
+export interface RoutesGameShareResponse {
+  apiKeyShareId?: string;
+  createdAt?: string;
+  createdBy?: string;
+  gameId?: string;
+  id?: string;
+  institutionId?: string;
+  remaining?: number;
+  shareUrl?: string;
+  token?: string;
+  workshopId?: string;
 }
 
 export interface RoutesGuestGameInfo {
@@ -588,19 +616,13 @@ export interface RoutesParticipantLoginRequest {
   token?: string;
 }
 
-export interface RoutesPrivateShareRequest {
-  /** null = unlimited */
-  maxSessions?: number;
-  /** required to enable */
-  sponsorKeyShareId?: string;
-}
-
 export interface RoutesPrivateShareStatus {
   enabled?: boolean;
-  privateSponsoredApiKeyShareId?: string;
   /** null = unlimited */
   remaining?: number;
+  shareId?: string;
   shareUrl?: string;
+  shares?: ObjGameShare[];
   token?: string;
 }
 
@@ -757,6 +779,7 @@ export interface RoutesUpdateSystemSettingsRequest {
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
+  allowGameSharing?: boolean;
   designEditingEnabled?: boolean;
   isPaused?: boolean;
   name?: string;
@@ -1517,7 +1540,7 @@ export class Api<
      *
      * @tags games
      * @name PrivateShareList
-     * @summary Get private share status
+     * @summary Get private share status (legacy)
      * @request GET:/games/{id}/private-share
      * @secure
      */
@@ -1531,23 +1554,18 @@ export class Api<
       }),
 
     /**
-     * @description Enables private sharing for a game with a sponsored API key and optional session limit.
+     * @description Creates a share link. Delegates to CreateGameShare internally.
      *
      * @tags games
      * @name PrivateShareCreate
-     * @summary Enable or configure private share
+     * @summary Enable private share (legacy)
      * @request POST:/games/{id}/private-share
      * @secure
      */
-    privateShareCreate: (
-      id: string,
-      request: RoutesPrivateShareRequest,
-      params: RequestParams = {},
-    ) =>
+    privateShareCreate: (id: string, params: RequestParams = {}) =>
       this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
         path: `/games/${id}/private-share`,
         method: "POST",
-        body: request,
         secure: true,
         type: ContentType.Json,
         format: "json",
@@ -1555,11 +1573,11 @@ export class Api<
       }),
 
     /**
-     * @description Disables private sharing by clearing the share token and sponsor key.
+     * @description Deletes all game shares for the game.
      *
      * @tags games
      * @name PrivateShareDelete
-     * @summary Revoke private share
+     * @summary Revoke private share (legacy)
      * @request DELETE:/games/{id}/private-share
      * @secure
      */
@@ -1606,6 +1624,65 @@ export class Api<
         secure: true,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Returns all share links for a game.
+     *
+     * @tags games
+     * @name SharesList
+     * @summary List game shares
+     * @request GET:/games/{id}/shares
+     * @secure
+     */
+    sharesList: (id: string, params: RequestParams = {}) =>
+      this.request<RoutesGameShareResponse[], HttpxErrorResponse>({
+        path: `/games/${id}/shares`,
+        method: "GET",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
+     *
+     * @tags games
+     * @name SharesCreate
+     * @summary Create a game share link
+     * @request POST:/games/{id}/shares
+     * @secure
+     */
+    sharesCreate: (
+      id: string,
+      request: RoutesCreateGameShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesGameShareResponse, HttpxErrorResponse>({
+        path: `/games/${id}/shares`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Revokes a specific share link and cleans up guest data.
+     *
+     * @tags games
+     * @name SharesDelete
+     * @summary Delete a specific game share
+     * @request DELETE:/games/{id}/shares/{shareId}
+     * @secure
+     */
+    sharesDelete: (id: string, shareId: string, params: RequestParams = {}) =>
+      this.request<void, HttpxErrorResponse>({
+        path: `/games/${id}/shares/${shareId}`,
+        method: "DELETE",
+        secure: true,
         ...params,
       }),
 
