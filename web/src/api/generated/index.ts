@@ -61,6 +61,8 @@ export interface DbUserSessionWithGame {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface HttpxErrorResponse {
@@ -232,6 +234,8 @@ export interface ObjGameSession {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface ObjGameSessionMessage {
@@ -335,8 +339,12 @@ export interface ObjSystemSettings {
 }
 
 export interface ObjTokenUsage {
+  /** Subset of input tokens served from cache */
+  cachedTokens?: number;
   inputTokens?: number;
   outputTokens?: number;
+  /** Subset of output tokens used for reasoning */
+  reasoningTokens?: number;
   totalTokens?: number;
 }
 
@@ -423,6 +431,10 @@ export interface RoutesAcceptInviteResponse {
   user?: ObjUser;
 }
 
+export interface RoutesAddMemberToWorkshopRequest {
+  userId?: string;
+}
+
 export interface RoutesApiKeyInfoResponse {
   linkedShares?: ObjApiKeyShare[];
   share?: ObjApiKeyShare;
@@ -454,6 +466,11 @@ export interface RoutesCreateInstitutionInviteRequest {
 
 export interface RoutesCreateInstitutionRequest {
   name?: string;
+}
+
+export interface RoutesCreateWorkshopEmailInviteRequest {
+  email?: string;
+  workshopId?: string;
 }
 
 export interface RoutesCreateWorkshopInviteRequest {
@@ -512,6 +529,8 @@ export interface RoutesGuestSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface RoutesImageStatusResponse {
@@ -682,6 +701,8 @@ export interface RoutesSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface RoutesSetActiveWorkshopRequest {
@@ -1978,6 +1999,29 @@ export class Api<
       }),
 
     /**
+     * @description Creates a targeted invite for a registered user (by email) to join a workshop
+     *
+     * @tags invites
+     * @name WorkshopEmailCreate
+     * @summary Create workshop email invite
+     * @request POST:/invites/workshop/email
+     * @secure
+     */
+    workshopEmailCreate: (
+      body: RoutesCreateWorkshopEmailInviteRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInviteResponse, HttpxErrorResponse>({
+        path: `/invites/workshop/email`,
+        method: "POST",
+        body: body,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Retrieves a specific invite. Auto-detects whether parameter is a UUID (ID) or string (token). Admins can see any invite, regular users can only see invites targeted to them or created by them.
      *
      * @tags invites
@@ -2926,6 +2970,30 @@ export class Api<
         method: "GET",
         query: query,
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Directly adds an organization individual to a workshop by setting their active workshop
+     *
+     * @tags workshops
+     * @name MembersCreate
+     * @summary Add org member to workshop
+     * @request POST:/workshops/{id}/members
+     * @secure
+     */
+    membersCreate: (
+      id: string,
+      body: RoutesAddMemberToWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/${id}/members`,
+        method: "POST",
+        body: body,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };

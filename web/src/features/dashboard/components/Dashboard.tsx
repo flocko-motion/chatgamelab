@@ -26,6 +26,7 @@ import {
   IconDownload,
 } from "@tabler/icons-react";
 import { hasRole, Role } from "@/common/lib/roles";
+import { useAdmin } from "@/common/hooks/useAdmin";
 import { InformationalCard, type ListItem } from "./InformationalCard";
 import { QuickActionCard } from "./QuickActionCard";
 import { LinksCard, type LinkItem } from "./LinkCard";
@@ -343,10 +344,11 @@ function QuickActionsCard() {
  * Dashboard content component - can be used standalone or within AppLayout
  */
 export function DashboardContent() {
+  const { isAdmin: isAdminUser } = useAdmin();
   return (
     <Stack gap="xl">
       <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
-        <MyGamesCard />
+        {!isAdminUser && <MyGamesCard />}
         <MyWorkshopsCard />
         <LastPlayedCard />
       </SimpleGrid>

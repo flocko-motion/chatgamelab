@@ -229,7 +229,7 @@ func (u *UserClient) makeRequest(method, endpoint string, payload interface{}, o
 		return fmt.Errorf("failed to read response: %w", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -643,7 +643,7 @@ func (u *UserClient) consumeMessageStream(messageID string) (*StreamResult, erro
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
@@ -885,7 +885,7 @@ func (u *UserClient) GetMessageAudio(messageID string) ([]byte, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1195,7 +1195,7 @@ func (u *UserClient) GetGameYAML(gameID string) (string, error) {
 		return "", err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return "", fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1247,6 +1247,25 @@ func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatu
 	var result routes.PrivateShareStatus
 	err := u.makeRequest("DELETE", "games/"+gameID+"/private-share", nil, &result)
 	return result, err
+}
+
+// InviteToWorkshopByEmail creates a targeted workshop invite by email
+func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	err := u.Post("invites/workshop/email", routes.CreateWorkshopEmailInviteRequest{
+		WorkshopID: workshopID,
+		Email:      email,
+	}, &result)
+	return result, err
+}
+
+// AddMemberToWorkshop directly adds an org individual to a workshop
+func (u *UserClient) AddMemberToWorkshop(workshopID, userID string) error {
+	u.t.Helper()
+	return u.Post("workshops/"+workshopID+"/members", routes.AddMemberToWorkshopRequest{
+		UserID: userID,
+	}, nil)
 }
 
 // GuestGetGameInfo returns game info via a share token (composable high-level API)
@@ -1373,7 +1392,7 @@ func consumeMessageStreamNoAuth(t *testing.T, messageID string) (*StreamResult, 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 

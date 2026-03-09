@@ -14,6 +14,7 @@ import {
   Badge,
 } from "@mantine/core";
 import {
+  IconAlertTriangle,
   IconCopy,
   IconHeartFilled,
   IconLink,
@@ -23,6 +24,7 @@ import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { useAdmin } from "@/common/hooks/useAdmin";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { useGame, useUpdateGame } from "@/api/hooks";
@@ -61,6 +63,8 @@ interface GameEditModalProps {
   onPrivateShare?: () => void;
   /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
   hideDesign?: boolean;
+  /** Whether the current user owns this game (used to show admin action warning) */
+  isOwner?: boolean;
 }
 
 export function GameEditModal({
@@ -76,10 +80,13 @@ export function GameEditModal({
   onSponsor,
   onPrivateShare,
   hideDesign = false,
+  isOwner = true,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
   const modals = useModals();
+  const { isAdmin } = useAdmin();
+  const isAdminAction = isAdmin && !isOwner;
 
   const isCreateMode = !gameId;
   const { data: game, isLoading, error } = useGame(gameId ?? "");
@@ -294,6 +301,17 @@ export function GameEditModal({
     return (
       <ScrollArea h={isMobile ? "calc(100vh - 180px)" : "calc(85vh - 140px)"}>
         <Stack gap="lg" pr="md">
+          {/* Admin action warning */}
+          {isAdminAction && (
+            <Alert
+              color="red"
+              icon={<IconAlertTriangle size={16} />}
+              title={t("games.editModal.adminActionTitle")}
+            >
+              {t("games.editModal.adminActionWarning")}
+            </Alert>
+          )}
+
           {/* Read-only notice */}
           {readOnly && (
             <Alert
@@ -466,7 +484,10 @@ export function GameEditModal({
         fullScreen={isMobile}
         centered={!isMobile}
         styles={{
-          content: { maxHeight: isMobile ? undefined : "85vh" },
+          content: {
+            maxHeight: isMobile ? undefined : "85vh",
+            ...(isAdminAction ? { outline: "3px solid var(--mantine-color-red-6)" } : {}),
+          },
           body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
         }}
       >

@@ -62,6 +62,9 @@ export interface GameCardProps {
 
   // Workshop indicator (for workshop mode)
   isWorkshopGame?: boolean;
+
+  // Extra content rendered below badges (e.g. admin workshop/org info)
+  extra?: ReactNode;
 }
 
 /** Badge type for rendering multiple badges */
@@ -88,6 +91,7 @@ export function GameCard({
   actions = [],
   dateLabel,
   isWorkshopGame = false,
+  extra,
 }: GameCardProps) {
   const { t } = useTranslation("common");
 
@@ -120,7 +124,7 @@ export function GameCard({
     if (isOwner) badges.push("owner");
     if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
     if (isWorkshopGame) badges.push("workshop");
-    if (game.public && !showVisibility) badges.push("public");
+    // public badge is rendered in the top-right row instead
     return badges;
   };
 
@@ -191,17 +195,7 @@ export function GameCard({
 
   const renderBadges = () => {
     const badges = getBadges();
-    if (badges.length === 0) {
-      // Show creator name if not owner and showCreator is enabled
-      if (showCreator && game.creatorName) {
-        return (
-          <Text size="xs" c="gray.5">
-            {game.creatorName}
-          </Text>
-        );
-      }
-      return null;
-    }
+    if (badges.length === 0) return null;
     return (
       <Group gap={4} wrap="wrap">
         {badges.map(renderBadge)}
@@ -265,18 +259,29 @@ export function GameCard({
             wrap="nowrap"
             style={{ flexShrink: 0, alignSelf: "flex-start" }}
           >
+            {!showVisibility && game.public && renderBadge("public")}
+            {renderVisibilityBadge()}
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
                 {dateLabel}
               </Text>
             )}
-            {renderVisibilityBadge()}
           </Group>
         </Group>
 
-        {/* Badges row: Owner, Workshop, Public badges */}
-        {(showCreator || isWorkshopGame || game.public || isOwner) && (
+        {/* Badges row: Owner, Workshop, Sponsored badges */}
+        {(isWorkshopGame || isOwner || game.publicSponsoredApiKeyShareId) && (
           <Box>{renderBadges()}</Box>
+        )}
+
+        {/* Creator name + extra content (e.g. workshop/org) on same line when space allows */}
+        {(showCreator && !isOwner && game.creatorName || extra) && (
+          <Group gap="xs" wrap="wrap" align="center">
+            {showCreator && !isOwner && game.creatorName && (
+              <Text size="xs" c="gray.5">{"by "}{game.creatorName}</Text>
+            )}
+            {extra}
+          </Group>
         )}
 
         {/* Description */}

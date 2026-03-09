@@ -136,6 +136,88 @@ func (s *GamePermissionsTestSuite) TestParticipantCannotDeleteOtherParticipantGa
 	s.True(found, "game should still exist after failed deletion")
 }
 
+// TestAdminCanDeleteAnyGame tests that an admin can delete any user's game,
+// including games outside any workshop context.
+func (s *GamePermissionsTestSuite) TestAdminCanDeleteAnyGame() {
+	admin := s.DevUser()
+
+	// Regular user creates a private game (no workshop)
+	user := s.CreateUser("admin-del-target")
+	game := Must(user.UploadGame("alien-first-contact"))
+	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.ID)
+
+	// Admin deletes the user's game — should succeed
+	MustSucceed(admin.DeleteGame(game.ID.String()))
+	s.T().Logf("Admin deleted another user's game successfully")
+
+	// Game should be gone
+	games := Must(user.ListGames())
+	for _, g := range games {
+		s.NotEqual(game.ID, g.ID, "game should be deleted by admin")
+	}
+	s.T().Logf("Game correctly deleted by admin")
+}
+
+// TestAdminCanUpdateAnyGame tests that an admin can update any user's game.
+func (s *GamePermissionsTestSuite) TestAdminCanUpdateAnyGame() {
+	admin := s.DevUser()
+
+	// Regular user creates a game
+	user := s.CreateUser("admin-upd-target")
+	game := Must(user.UploadGame("alien-first-contact"))
+	s.T().Logf("User created game: %s (ID: %s)", game.Name, game.ID)
+
+	// Admin updates the game's name — should succeed
+	updatedName := game.Name + " (admin-edited)"
+	updated, err := admin.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name": updatedName,
+	})
+	s.NoError(err, "admin should be able to update any game")
+	s.Equal(updatedName, updated.Name, "game name should be updated")
+	s.T().Logf("Admin updated game name to: %s", updated.Name)
+}
+
+// TestAdminCanReadAnyPrivateGame tests that an admin can fetch any private game by ID.
+func (s *GamePermissionsTestSuite) TestAdminCanReadAnyPrivateGame() {
+	admin := s.DevUser()
+
+	// Regular user creates a private game
+	user := s.CreateUser("admin-read-target")
+	game := Must(user.UploadGame("alien-first-contact"))
+	s.T().Logf("User created private game: %s (ID: %s)", game.Name, game.ID)
+
+	// Admin reads the game by ID — should succeed
+	fetched, err := admin.GetGameByID(game.ID.String())
+	s.NoError(err, "admin should be able to read any private game")
+	s.Equal(game.ID, fetched.ID, "fetched game ID should match")
+	s.T().Logf("Admin read private game: %s", fetched.Name)
+}
+
+// TestAdminSeesAllGamesInList tests that an admin sees all platform games
+// (not just their own) when listing games with the default filter.
+func (s *GamePermissionsTestSuite) TestAdminSeesAllGamesInList() {
+	admin := s.DevUser()
+
+	// Create two unrelated users each with a private game
+	user1 := s.CreateUser("admin-list-u1")
+	user2 := s.CreateUser("admin-list-u2")
+
+	game1 := Must(user1.UploadGame("alien-first-contact"))
+	game2 := Must(user2.UploadGame("alien-first-contact"))
+	s.T().Logf("User1 game: %s, User2 game: %s", game1.ID, game2.ID)
+
+	// Admin lists all games — should see both
+	adminGames := Must(admin.ListGames())
+	s.True(containsGame(adminGames, game1.ID), "admin should see user1's private game in list")
+	s.True(containsGame(adminGames, game2.ID), "admin should see user2's private game in list")
+	s.T().Logf("Admin sees %d games — includes other users' private games", len(adminGames))
+
+	// Non-admin user cannot see each other's private games
+	u1Games := Must(user1.ListGames())
+	s.False(containsGame(u1Games, game2.ID), "regular user should not see another user's private game")
+	s.T().Logf("User1 sees %d games — correctly cannot see user2's game", len(u1Games))
+}
+
 // TestStaffCannotDeleteNonWorkshopGame tests that a staff member cannot delete
 // a game that doesn't belong to their org's workshop (e.g. an individual's personal game).
 func (s *GamePermissionsTestSuite) TestStaffCannotDeleteNonWorkshopGame() {

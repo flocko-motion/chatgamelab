@@ -108,7 +108,11 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
+	mux.Handle("POST /api/invites/workshop/email", httpx.RequireAuth(CreateWorkshopEmailInvite))
 	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
+
+	// Workshop members
+	mux.Handle("POST /api/workshops/{id}/members", httpx.RequireAuth(AddMemberToWorkshop))
 
 	// Private Share Management (authenticated — game owner only)
 	mux.Handle("GET /api/games/{id}/private-share", httpx.RequireAuth(GetPrivateShareStatus))

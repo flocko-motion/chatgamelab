@@ -78,6 +78,26 @@ func GetGames(ctx context.Context, userID *uuid.UUID, filters *GetGamesFilters) 
 		filterType = "public"
 	}
 
+	// Admins see all games platform-wide for the "all" filter
+	if userID != nil && filterType != "own" && filterType != "public" {
+		adminUser, _ := GetUserByID(ctx, *userID)
+		if adminUser != nil && adminUser.Role != nil && adminUser.Role.Role == obj.RoleAdmin {
+			dbGames, err = getAllGames(ctx, searchQuery, sortField, sortDir)
+			if err != nil {
+				return nil, obj.ErrServerError("failed to get games")
+			}
+			result := make([]obj.Game, 0, len(dbGames))
+			for _, g := range dbGames {
+				game, err := dbGameToObj(ctx, g)
+				if err != nil {
+					return nil, err
+				}
+				result = append(result, *game)
+			}
+			return result, nil
+		}
+	}
+
 	switch filterType {
 	case "public":
 		dbGames, err = getPublicGames(ctx, searchQuery, sortField, sortDir)
@@ -212,6 +232,53 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 	}
 }
 
+// getAllGames fetches all games platform-wide (for admin use) with optional search and sorting
+func getAllGames(ctx context.Context, search, sortField, sortDir string) ([]db.Game, error) {
+	searchStr := sql.NullString{String: search, Valid: search != ""}
+
+	if search != "" {
+		switch sortField {
+		case "name":
+			if sortDir == "asc" {
+				return queries().SearchAllGamesSortedByName(ctx, searchStr)
+			}
+			return queries().SearchAllGamesSortedByNameDesc(ctx, searchStr)
+		case "createdAt":
+			if sortDir == "asc" {
+				return queries().SearchAllGamesSortedByCreatedAt(ctx, searchStr)
+			}
+			return queries().SearchAllGames(ctx, searchStr)
+		case "modifiedAt":
+			if sortDir == "asc" {
+				return queries().SearchAllGamesSortedByModifiedAtAsc(ctx, searchStr)
+			}
+			return queries().SearchAllGamesSortedByModifiedAt(ctx, searchStr)
+		default:
+			return queries().SearchAllGames(ctx, searchStr)
+		}
+	}
+
+	switch sortField {
+	case "name":
+		if sortDir == "asc" {
+			return queries().GetAllGamesSortedByName(ctx)
+		}
+		return queries().GetAllGamesSortedByNameDesc(ctx)
+	case "createdAt":
+		if sortDir == "asc" {
+			return queries().GetAllGamesSortedByCreatedAt(ctx)
+		}
+		return queries().GetAllGames(ctx)
+	case "modifiedAt":
+		if sortDir == "asc" {
+			return queries().GetAllGamesSortedByModifiedAtAsc(ctx)
+		}
+		return queries().GetAllGamesSortedByModifiedAt(ctx)
+	default:
+		return queries().GetAllGames(ctx)
+	}
+}
+
 // getGamesVisibleToUser fetches games visible to user with optional search and sorting
 // Also includes games from the user's workshop (if they belong to one)
 func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortField, sortDir string) ([]db.Game, error) {
@@ -279,9 +346,11 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 		return nil, err
 	}
 
-	// Apply workshop visibility settings for all users in a workshop.
-	// Workshop settings control what games are visible; head/staff can still edit/delete but see the same list.
-	if user != nil && user.Role != nil && user.Role.Workshop != nil {
+	// Apply workshop visibility settings for participants/individuals only.
+	// Head/staff always see all workshop games regardless of these settings.
+	isHeadOrStaff := user != nil && user.Role != nil &&
+		(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff)
+	if user != nil && user.Role != nil && user.Role.Workshop != nil && !isHeadOrStaff {
 		ws := user.Role.Workshop
 		filtered := make([]db.Game, 0, len(games))
 		for _, g := range games {

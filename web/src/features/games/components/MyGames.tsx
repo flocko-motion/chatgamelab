@@ -71,6 +71,8 @@ import {
   downloadYamlFile,
   createGameWithExtraFields,
 } from "../lib";
+import { useAdmin } from "@/common/hooks/useAdmin";
+import { useAuth } from "@/providers/AuthProvider";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
 import { PrivateShareModal } from "./PrivateShareModal";
@@ -94,6 +96,8 @@ export function MyGames({
 }: MyGamesProps = {}) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
+  const { isAdmin: isAdminUser } = useAdmin();
+  const { backendUser } = useAuth();
 
   const [
     createModalOpened,
@@ -144,7 +148,7 @@ export function MyGames({
       | "visibility"
       | "creator",
     sortDir,
-    filter: "own",
+    filter: isAdminUser ? "all" : "own",
     search: debouncedSearch || undefined,
   });
   const { sessionsLoading, getSessionState: getGameSessionState } =
@@ -796,6 +800,11 @@ export function MyGames({
       <GameEditModal
         gameId={gameToView}
         opened={viewModalOpened}
+        isOwner={
+          !gameToView ||
+          rawGames?.find((g) => g.id === gameToView)?.creatorId ===
+            backendUser?.id
+        }
         onClose={() => {
           closeViewModal();
           setGameToView(null);
@@ -844,6 +853,7 @@ export function MyGames({
         onConfirm={handleConfirmDelete}
         gameName={gameToDelete?.name ?? ""}
         loading={deleteGame.isPending}
+        isOwner={!gameToDelete || gameToDelete.creatorId === backendUser?.id}
       />
     </>
   );

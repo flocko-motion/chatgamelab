@@ -81,11 +81,15 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
   // Apply filters
   const games = useMemo(() => {
     if (!rawGames) return [];
+    // Head/staff always see all workshop games regardless of workshop settings
+    const effectiveSettings: WorkshopSettings = canEditAllWorkshopGames
+      ? { showPublicGames: true, showOtherParticipantsGames: true }
+      : workshopSettings;
     const settingsFiltered = filterGamesByWorkshopSettings(
       rawGames,
       currentUserId,
       currentWorkshopId,
-      workshopSettings,
+      effectiveSettings,
     );
     return filterGamesByUserFilter(
       settingsFiltered,
@@ -99,6 +103,7 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
     currentUserId,
     currentWorkshopId,
     workshopSettings,
+    canEditAllWorkshopGames,
   ]);
 
   // Permission helpers

@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect, type ReactNode } from "react";
 import { ActionButton } from "@/common/components/buttons/ActionButton";
 import { TextButton } from "@/common/components/buttons/TextButton";
+import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { config } from "@/config/env";
 import { useAuth, storeParticipantToken } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
@@ -33,14 +34,21 @@ export const Route = createFileRoute("/invites/$token/accept")({
 function InvitePageLayout({
   children,
   showBranding = true,
+  showLanguageSwitcher = true,
 }: {
   children: ReactNode;
   showBranding?: boolean;
+  showLanguageSwitcher?: boolean;
 }) {
   const { t } = useTranslation("common");
   return (
     <Container size="sm" py="xl">
       <Stack gap="xl" align="center">
+        {showLanguageSwitcher && (
+          <Group justify="flex-end" w="100%">
+            <LanguageSwitcher size="sm" variant="subtle" />
+          </Group>
+        )}
         {children}
         {showBranding && (
           <Stack gap="sm" align="center" ta="center" mt="md">
@@ -319,7 +327,7 @@ function AcceptInvitePage() {
     };
 
     return (
-      <InvitePageLayout showBranding={false}>
+      <InvitePageLayout showBranding={false} showLanguageSwitcher={false}>
         <Card shadow="sm" padding="xl" radius="md" withBorder w="100%">
           <Stack gap="lg">
             <Title order={2} ta="center">

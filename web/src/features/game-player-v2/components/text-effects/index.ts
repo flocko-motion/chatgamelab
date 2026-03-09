@@ -1,7 +1,6 @@
 export { DecryptedText } from "./DecryptedText";
 export { GlitchText } from "./GlitchText";
 export { RetroText } from "./RetroText";
-export { HandwrittenText } from "./HandwrittenText";
 export { InkBleedText } from "./InkBleedText";
 export { FadeInText } from "./FadeInText";
 export { ParchmentBurnText } from "./ParchmentBurnText";
