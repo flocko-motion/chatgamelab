@@ -461,6 +461,8 @@
         "title": "Neues Spiel erstellen"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bist dabei, ein Spiel zu löschen, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
         "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "title": "Spiel löschen",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
@@ -480,6 +482,8 @@
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
       },
       "editModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bearbeitest ein Spiel, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
         "title": "Spiel bearbeiten",
         "unsavedChanges": {
           "discard": "Änderungen verwerfen",
@@ -989,7 +993,21 @@
         "title": "Workshops",
         "unpause": "Workshop fortsetzen",
         "usedCount": "{{count}} Nutzungen",
-        "viewInviteLink": "Einladungslink anzeigen"
+        "viewInviteLink": "Einladungslink anzeigen",
+        "inviteByEmail": "Per E-Mail einladen",
+        "inviteByEmailTitle": "Benutzer zum Workshop einladen",
+        "inviteByEmailDescription": "Gib die E-Mail-Adresse eines registrierten Benutzers ein, um ihn zu diesem Workshop einzuladen. Die Einladung erscheint in seinem Dashboard.",
+        "inviteByEmailSuccess": "Einladung gesendet",
+        "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
+        "addIndividual": "Organisationsmitglied hinzufügen",
+        "addIndividualTitle": "Person zum Workshop hinzufügen",
+        "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
+        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten — sie werden hier nicht aufgeführt.",
+        "addIndividualSuccess": "Mitglied hinzugefügt",
+        "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
+        "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
+        "addToWorkshop": "Zum Workshop hinzufügen",
+        "noIndividuals": "Keine einzelnen Benutzer in dieser Organisation."
       }
     },
     "name": "Name",

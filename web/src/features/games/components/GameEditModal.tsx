@@ -486,7 +486,7 @@ export function GameEditModal({
         styles={{
           content: {
             maxHeight: isMobile ? undefined : "85vh",
-            ...(isAdminAction ? { boxShadow: "inset 0 0 0 3px var(--mantine-color-red-6)" } : {}),
+            ...(isAdminAction ? { outline: "3px solid var(--mantine-color-red-6)" } : {}),
           },
           body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
         }}
