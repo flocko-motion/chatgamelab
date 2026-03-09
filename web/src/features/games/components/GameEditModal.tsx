@@ -559,42 +559,49 @@ function SharingSection({
   const { t } = useTranslation("common");
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
-  const sectionTitle = onSponsor
-    ? t("games.sharing.sectionTitle")
-    : t("games.sharing.sectionTitleShareOnly");
 
   return (
     <>
       <Divider />
       <Text size="sm" fw={500} c="dimmed">
-        {sectionTitle}
+        {t("games.sharing.sectionTitle")}
       </Text>
-      <Stack gap="sm">
-        {onSponsor && (
-          <Group gap="sm" align="center">
-            <ActionButton
-              onClick={onSponsor}
-              size="sm"
-              leftSection={<IconHeartFilled size={16} />}
-            >
-              {hasSponsoring
-                ? t("games.sponsor.manageSponsor")
-                : t("games.sponsor.sponsorGame")}
-            </ActionButton>
-            {hasSponsoring && (
-              <Badge
-                size="xs"
-                color="pink"
-                variant="light"
-                leftSection={<IconHeartFilled size={10} />}
-              >
-                {t("games.sponsor.sponsored")}
-              </Badge>
-            )}
-          </Group>
-        )}
+      <Stack gap="md">
         {showShareSection && (
-          <PrivateShareSection gameId={gameId} workshopId={workshopId} />
+          <Stack gap="xs">
+            <Text size="xs" fw={600}>
+              {t("games.sharing.privateShareLink")}
+            </Text>
+            <PrivateShareSection gameId={gameId} workshopId={workshopId} />
+          </Stack>
+        )}
+        {onSponsor && (
+          <Stack gap="xs">
+            <Text size="xs" fw={600}>
+              {t("games.sharing.publicSponsoring")}
+            </Text>
+            <Group gap="sm" align="center">
+              <ActionButton
+                onClick={onSponsor}
+                size="xs"
+                leftSection={<IconHeartFilled size={16} />}
+              >
+                {hasSponsoring
+                  ? t("games.sponsor.manageSponsor")
+                  : t("games.sponsor.sponsorGame")}
+              </ActionButton>
+              {hasSponsoring && (
+                <Badge
+                  size="xs"
+                  color="pink"
+                  variant="light"
+                  leftSection={<IconHeartFilled size={10} />}
+                >
+                  {t("games.sponsor.sponsored")}
+                </Badge>
+              )}
+            </Group>
+          </Stack>
         )}
       </Stack>
     </>

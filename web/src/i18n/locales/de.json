@@ -534,13 +534,20 @@
         "shareLink": "Freigabelink",
         "title": "Privater Freigabelink",
         "unlimited": "Unbegrenzt",
+        "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
-        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird für Gastsitzungen verwendet."
+        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird für Gastsitzungen verwendet.",
+        "workshopShare": "Workshop-Freigabe",
+        "personalShare": "Dein privater Freigabelink",
+        "createModalTitle": "Privaten Freigabelink erstellen",
+        "editModalTitle": "Privaten Freigabelink bearbeiten"
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Teilen \u0026 Sponsoring",
-        "sectionTitleShareOnly": "Freigabe"
+        "sectionTitle": "Freigabe",
+        "sectionTitleShareOnly": "Freigabe",
+        "privateShareLink": "Privater Freigabelink",
+        "publicSponsoring": "Öffentliches Sponsoring"
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",

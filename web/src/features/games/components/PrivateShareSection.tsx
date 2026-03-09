@@ -2,6 +2,7 @@ import {
   Stack,
   Group,
   Text,
+  Modal,
   Select,
   Alert,
   NumberInput,
@@ -14,11 +15,12 @@ import {
   IconLink,
   IconCheck,
   IconCopy,
+  IconEdit,
 } from "@tabler/icons-react";
+import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
-import { HelperText } from "@components/typography";
 import {
   useApiKeys,
   usePrivateShareStatus,
@@ -37,6 +39,7 @@ export function PrivateShareSection({
   workshopId,
 }: PrivateShareSectionProps) {
   const { t } = useTranslation("common");
+  const isMobile = useMediaQuery("(max-width: 48em)");
   const isWorkshopMode = !!workshopId;
 
   const { data: apiKeys, isLoading: keysLoading } = useApiKeys();
@@ -46,10 +49,11 @@ export function PrivateShareSection({
   const createGameShare = useCreateGameShare();
   const revokeShare = useRevokePrivateShare();
 
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedShareId, setSelectedShareId] = useState<string | null>(null);
   const [maxSessions, setMaxSessions] = useState<number | string>("");
-  const [isCreating, setIsCreating] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   const isEnabled = shareStatus?.enabled ?? false;
 
@@ -71,7 +75,21 @@ export function PrivateShareSection({
     }
   }
 
-  const handleEnable = async () => {
+  const handleOpenCreate = () => {
+    setModalMode("create");
+    setSelectedShareId(null);
+    setMaxSessions("");
+    openModal();
+  };
+
+  const handleOpenEdit = () => {
+    setModalMode("edit");
+    setSelectedShareId(null);
+    setMaxSessions(shareStatus?.remaining ?? "");
+    openModal();
+  };
+
+  const handleSubmit = async () => {
     try {
       if (isWorkshopMode) {
         await createGameShare.mutateAsync({
@@ -93,8 +111,7 @@ export function PrivateShareSection({
               : null,
         });
       }
-      setIsCreating(false);
-      setIsEditing(false);
+      closeModal();
     } catch {
       // Error handled by mutation
     }
@@ -103,22 +120,10 @@ export function PrivateShareSection({
   const handleRevoke = async () => {
     try {
       await revokeShare.mutateAsync(gameId);
-      setIsEditing(false);
+      closeModal();
     } catch {
       // Error handled by mutation
     }
-  };
-
-  const handleStartEdit = () => {
-    setSelectedShareId(null);
-    setMaxSessions(shareStatus?.remaining ?? "");
-    setIsEditing(true);
-  };
-
-  const handleStartCreate = () => {
-    setSelectedShareId(null);
-    setMaxSessions("");
-    setIsCreating(true);
   };
 
   const shareUrl =
@@ -126,56 +131,19 @@ export function PrivateShareSection({
       ? `${window.location.origin}/play/${shareStatus.token}`
       : "";
 
-  const isEnabling = enableShare.isPending || createGameShare.isPending;
-  const canEnable = isWorkshopMode || !!selectedShareId;
+  const isSubmitting = enableShare.isPending || createGameShare.isPending;
+  const canSubmit = isWorkshopMode || !!selectedShareId;
 
-  // Key selector (personal mode only)
-  const keySelector = isWorkshopMode ? null : (
-    <>
-      {keysLoading ? (
-        <Text size="sm" c="dimmed">
-          {t("games.privateShare.loadingKeys")}
-        </Text>
-      ) : selectData.length === 0 ? (
-        <Alert
-          icon={<IconAlertCircle size={16} />}
-          color="yellow"
-          variant="light"
-        >
-          {t("games.privateShare.noEligibleKeys")}
-        </Alert>
-      ) : (
-        <Select
-          label={t("games.privateShare.selectKey")}
-          placeholder={t("games.privateShare.selectKeyPlaceholder")}
-          data={selectData}
-          value={selectedShareId}
-          onChange={setSelectedShareId}
-          searchable={selectData.length > 5}
-        />
-      )}
-    </>
-  );
+  const sourceLabel = isWorkshopMode
+    ? t("games.privateShare.workshopShare")
+    : t("games.privateShare.personalShare");
 
-  const sessionLimitField = (
-    <NumberInput
-      label={t("games.privateShare.maxSessions")}
-      description={t("games.privateShare.maxSessionsDescription")}
-      placeholder={t("games.privateShare.unlimited")}
-      value={maxSessions}
-      onChange={(v) => setMaxSessions(v === "" ? "" : v)}
-      min={1}
-      allowNegative={false}
-      allowDecimal={false}
-    />
-  );
-
-  const formFields = (
-    <>
-      {keySelector}
-      {(isWorkshopMode || selectData.length > 0) && sessionLimitField}
-    </>
-  );
+  const remainingLabel =
+    shareStatus?.remaining != null
+      ? t("games.privateShare.remainingSessions", {
+          count: shareStatus.remaining,
+        })
+      : t("games.privateShare.unlimitedSessions");
 
   // Loading
   if (statusLoading) {
@@ -186,161 +154,273 @@ export function PrivateShareSection({
     );
   }
 
-  // Active share — display mode
-  if (isEnabled && !isEditing) {
+  // Active share — inline display
+  if (isEnabled) {
     return (
-      <Stack gap="sm">
-        <Alert icon={<IconCheck size={16} />} color="green" variant="light">
-          <Stack gap="xs">
-            <Text size="sm">{t("games.privateShare.active")}</Text>
-            {shareStatus?.remaining != null && (
-              <HelperText>
-                {t("games.privateShare.remainingSessions", {
-                  count: shareStatus.remaining,
-                })}
-              </HelperText>
-            )}
-          </Stack>
-        </Alert>
-
-        {shareUrl && (
-          <Group gap="xs" wrap="nowrap">
-            <Text
-              size="sm"
-              style={{
-                wordBreak: "break-all",
-                flex: 1,
-                fontFamily: "monospace",
-              }}
-            >
-              {shareUrl}
+      <>
+        <Stack gap="xs">
+          <Group gap="xs">
+            <Text size="xs" c="green" fw={500}>
+              {sourceLabel}
             </Text>
+            <Text size="xs" c="dimmed">
+              — {remainingLabel}
+            </Text>
+          </Group>
+
+          {shareUrl && (
+            <Group gap="xs" wrap="nowrap">
+              <Text
+                size="xs"
+                style={{
+                  wordBreak: "break-all",
+                  flex: 1,
+                  fontFamily: "monospace",
+                }}
+              >
+                {shareUrl}
+              </Text>
+              <CopyButton value={shareUrl}>
+                {({ copied, copy }) => (
+                  <Tooltip
+                    label={
+                      copied ? t("copied") : t("games.privateShare.copyLink")
+                    }
+                  >
+                    <ActionIcon
+                      color={copied ? "teal" : "gray"}
+                      onClick={copy}
+                      variant="subtle"
+                      size="sm"
+                    >
+                      {copied ? (
+                        <IconCheck size={14} />
+                      ) : (
+                        <IconCopy size={14} />
+                      )}
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </CopyButton>
+            </Group>
+          )}
+
+          <Group gap="sm" wrap="wrap">
             <CopyButton value={shareUrl}>
               {({ copied, copy }) => (
-                <Tooltip
-                  label={
-                    copied ? t("copied") : t("games.privateShare.copyLink")
+                <ActionButton
+                  onClick={copy}
+                  size="xs"
+                  leftSection={
+                    copied ? <IconCheck size={14} /> : <IconCopy size={14} />
                   }
                 >
-                  <ActionIcon
-                    color={copied ? "teal" : "gray"}
-                    onClick={copy}
-                    variant="subtle"
-                  >
-                    {copied ? (
-                      <IconCheck size={16} />
-                    ) : (
-                      <IconCopy size={16} />
-                    )}
-                  </ActionIcon>
-                </Tooltip>
+                  {copied
+                    ? t("copied")
+                    : t("games.privateShare.copyLink")}
+                </ActionButton>
               )}
             </CopyButton>
+            <ActionButton
+              onClick={handleOpenEdit}
+              size="xs"
+              leftSection={<IconEdit size={14} />}
+            >
+              {t("games.privateShare.edit")}
+            </ActionButton>
+            <DangerButton
+              onClick={handleRevoke}
+              loading={revokeShare.isPending}
+              size="xs"
+            >
+              {t("games.privateShare.revoke")}
+            </DangerButton>
           </Group>
-        )}
+        </Stack>
 
-        <Group gap="sm" wrap="wrap">
-          <CopyButton value={shareUrl}>
-            {({ copied, copy }) => (
-              <ActionButton
-                onClick={copy}
-                size="sm"
-                leftSection={
-                  copied ? <IconCheck size={16} /> : <IconCopy size={16} />
-                }
-              >
-                {copied
-                  ? t("copied")
-                  : t("games.privateShare.copyLink")}
-              </ActionButton>
-            )}
-          </CopyButton>
-          <ActionButton
-            onClick={handleStartEdit}
-            size="sm"
-            leftSection={<IconLink size={16} />}
-          >
-            {t("games.privateShare.edit")}
-          </ActionButton>
-          <DangerButton
-            onClick={handleRevoke}
-            loading={revokeShare.isPending}
-          >
-            {t("games.privateShare.revoke")}
-          </DangerButton>
-        </Group>
-      </Stack>
+        <ShareFormModal
+          opened={modalOpened}
+          onClose={closeModal}
+          mode={modalMode}
+          isMobile={isMobile}
+          isWorkshopMode={isWorkshopMode}
+          keysLoading={keysLoading}
+          selectData={selectData}
+          selectedShareId={selectedShareId}
+          onSelectShareId={setSelectedShareId}
+          maxSessions={maxSessions}
+          onMaxSessionsChange={setMaxSessions}
+          canSubmit={canSubmit}
+          isSubmitting={isSubmitting}
+          onSubmit={handleSubmit}
+          onRevoke={handleRevoke}
+          isRevoking={revokeShare.isPending}
+          t={t}
+        />
+      </>
     );
   }
 
-  // Editing existing share
-  if (isEditing) {
-    return (
-      <Stack gap="sm">
-        <Text size="sm" fw={500} c="dimmed">
-          {t("games.privateShare.editSettings")}
-        </Text>
-        {formFields}
-        <Group gap="sm" wrap="wrap">
-          <CancelButton onClick={() => setIsEditing(false)}>
-            {t("cancel")}
-          </CancelButton>
-          <ActionButton
-            onClick={handleEnable}
-            disabled={!canEnable}
-            loading={isEnabling}
-            size="sm"
-            leftSection={<IconLink size={16} />}
-          >
-            {t("games.privateShare.update")}
-          </ActionButton>
-          <DangerButton
-            onClick={handleRevoke}
-            loading={revokeShare.isPending}
-          >
-            {t("games.privateShare.revoke")}
-          </DangerButton>
-        </Group>
-      </Stack>
-    );
-  }
+  // No share — compact create button
+  return (
+    <>
+      <div>
+        <ActionButton
+          onClick={handleOpenCreate}
+          size="xs"
+          leftSection={<IconLink size={14} />}
+        >
+          {t("games.privateShare.enable")}
+        </ActionButton>
+      </div>
 
-  // Creating new share (expanded form)
-  if (isCreating) {
-    return (
-      <Stack gap="sm">
+      <ShareFormModal
+        opened={modalOpened}
+        onClose={closeModal}
+        mode={modalMode}
+        isMobile={isMobile}
+        isWorkshopMode={isWorkshopMode}
+        keysLoading={keysLoading}
+        selectData={selectData}
+        selectedShareId={selectedShareId}
+        onSelectShareId={setSelectedShareId}
+        maxSessions={maxSessions}
+        onMaxSessionsChange={(v) => setMaxSessions(v)}
+        canSubmit={canSubmit}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+        onRevoke={handleRevoke}
+        isRevoking={revokeShare.isPending}
+        t={t}
+      />
+    </>
+  );
+}
+
+function ShareFormModal({
+  opened,
+  onClose,
+  mode,
+  isMobile,
+  isWorkshopMode,
+  keysLoading,
+  selectData,
+  selectedShareId,
+  onSelectShareId,
+  maxSessions,
+  onMaxSessionsChange,
+  canSubmit,
+  isSubmitting,
+  onSubmit,
+  onRevoke,
+  isRevoking,
+  t,
+}: {
+  opened: boolean;
+  onClose: () => void;
+  mode: "create" | "edit";
+  isMobile?: boolean;
+  isWorkshopMode: boolean;
+  keysLoading: boolean;
+  selectData: { value: string; label: string }[];
+  selectedShareId: string | null;
+  onSelectShareId: (v: string | null) => void;
+  maxSessions: number | string;
+  onMaxSessionsChange: (v: number | string) => void;
+  canSubmit: boolean;
+  isSubmitting: boolean;
+  onSubmit: () => void;
+  onRevoke: () => void;
+  isRevoking: boolean;
+  t: (key: string, options?: Record<string, unknown>) => string;
+}) {
+  const isCreate = mode === "create";
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={
+        isCreate
+          ? t("games.privateShare.createModalTitle")
+          : t("games.privateShare.editModalTitle")
+      }
+      size="sm"
+      fullScreen={isMobile}
+      centered={!isMobile}
+    >
+      <Stack gap="md">
         <Text size="sm" c="dimmed">
           {isWorkshopMode
             ? t("games.privateShare.workshopDescription")
             : t("games.privateShare.description")}
         </Text>
-        {formFields}
-        <Group gap="sm" wrap="wrap">
-          <CancelButton onClick={() => setIsCreating(false)}>
-            {t("cancel")}
-          </CancelButton>
+
+        {!isWorkshopMode && (
+          <>
+            {keysLoading ? (
+              <Text size="sm" c="dimmed">
+                {t("games.privateShare.loadingKeys")}
+              </Text>
+            ) : selectData.length === 0 ? (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                color="yellow"
+                variant="light"
+              >
+                {t("games.privateShare.noEligibleKeys")}
+              </Alert>
+            ) : (
+              <Select
+                label={t("games.privateShare.selectKey")}
+                placeholder={t("games.privateShare.selectKeyPlaceholder")}
+                data={selectData}
+                value={selectedShareId}
+                onChange={onSelectShareId}
+                searchable={selectData.length > 5}
+              />
+            )}
+          </>
+        )}
+
+        {(isWorkshopMode || selectData.length > 0) && (
+          <NumberInput
+            label={t("games.privateShare.maxSessions")}
+            description={t("games.privateShare.maxSessionsDescription")}
+            placeholder={t("games.privateShare.unlimited")}
+            value={maxSessions}
+            onChange={(v) => onMaxSessionsChange(v === "" ? "" : v)}
+            min={1}
+            allowNegative={false}
+            allowDecimal={false}
+          />
+        )}
+
+        <Group justify="flex-end" gap="sm">
+          {!isCreate && (
+            <DangerButton
+              onClick={onRevoke}
+              loading={isRevoking}
+              size="xs"
+              style={{ marginRight: "auto" }}
+            >
+              {t("games.privateShare.revoke")}
+            </DangerButton>
+          )}
+          <CancelButton onClick={onClose}>{t("cancel")}</CancelButton>
           <ActionButton
-            onClick={handleEnable}
-            disabled={!canEnable}
-            loading={isEnabling}
+            onClick={onSubmit}
+            disabled={!canSubmit}
+            loading={isSubmitting}
             size="sm"
             leftSection={<IconLink size={16} />}
           >
-            {t("games.privateShare.enable")}
+            {isCreate
+              ? t("games.privateShare.enable")
+              : t("games.privateShare.update")}
           </ActionButton>
         </Group>
       </Stack>
-    );
-  }
-
-  // Default: no share — show create button
-  return (
-    <ActionButton
-      onClick={handleStartCreate}
-      size="sm"
-      leftSection={<IconLink size={16} />}
-    >
-      {t("games.privateShare.enable")}
-    </ActionButton>
+    </Modal>
   );
 }

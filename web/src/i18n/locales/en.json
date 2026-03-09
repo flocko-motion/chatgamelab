@@ -534,13 +534,20 @@
         "shareLink": "Share Link",
         "title": "Private Share Link",
         "unlimited": "Unlimited",
+        "unlimitedSessions": "Unlimited sessions",
         "update": "Update Share Link",
-        "workshopDescription": "Create a share link for this game. The workshop's API key will be used for guest sessions."
+        "workshopDescription": "Create a share link for this game. The workshop's API key will be used for guest sessions.",
+        "workshopShare": "Workshop share",
+        "personalShare": "Your private share link",
+        "createModalTitle": "Create Private Share Link",
+        "editModalTitle": "Edit Private Share Link"
       },
       "sharing": {
         "active": "Active",
-        "sectionTitle": "Sharing \u0026 Sponsoring",
-        "sectionTitleShareOnly": "Sharing"
+        "sectionTitle": "Sharing",
+        "sectionTitleShareOnly": "Sharing",
+        "privateShareLink": "Private Share Link",
+        "publicSponsoring": "Public Sponsoring"
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
