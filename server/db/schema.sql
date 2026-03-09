@@ -215,7 +215,6 @@ CREATE TABLE api_key_share (
     workshop_id                     uuid NULL REFERENCES workshop(id),
     institution_id                  uuid NULL REFERENCES institution(id),
     game_id                         uuid NULL,
-    allow_public_game_sponsoring     boolean NOT NULL DEFAULT false,
 
     CONSTRAINT api_key_share_target_chk CHECK (
         user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL OR game_id IS NOT NULL

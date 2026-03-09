@@ -27,9 +27,6 @@ func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
 	shareID := keyShare.ID.String()
 
-	// Enable sponsoring on the key
-	Must(user.EnableShareSponsoring(shareID))
-
 	// Upload game and make it public
 	game := Must(user.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
@@ -126,8 +123,6 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPr
 	user := s.CreateUser("cascade-noaff")
 	keyShare := Must(user.AddApiKey("mock-cascade-noaff", "Key", "mock"))
 	shareID := keyShare.ID.String()
-
-	Must(user.EnableShareSponsoring(shareID))
 
 	game := Must(user.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()

@@ -53,7 +53,6 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/apikeys/{id}", httpx.RequireAuth(ShareApiKey))
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
 	mux.Handle("PUT /api/apikeys/{id}/default", httpx.RequireAuth(SetDefaultApiKey))
-	mux.Handle("PATCH /api/apikeys/{id}/sponsoring", httpx.RequireAuth(UpdateApiKeyShare))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
 	// Auth

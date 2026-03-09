@@ -122,25 +122,24 @@ const createApiKeyShare = `-- name: CreateApiKeyShare :one
 
 INSERT INTO api_key_share (
   id, created_by, created_at, modified_by, modified_at,
-  api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
+  api_key_id, user_id, workshop_id, institution_id, game_id
 ) VALUES (
   gen_random_uuid(), $1, $2, $3, $4,
-  $5, $6, $7, $8, $9, $10
+  $5, $6, $7, $8, $9
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, game_id, allow_public_game_sponsoring
+RETURNING id, created_by, created_at, modified_by, modified_at, api_key_id, user_id, workshop_id, institution_id, game_id
 `
 
 type CreateApiKeyShareParams struct {
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	ModifiedBy    uuid.NullUUID
+	ModifiedAt    time.Time
+	ApiKeyID      uuid.UUID
+	UserID        uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	InstitutionID uuid.NullUUID
+	GameID        uuid.NullUUID
 }
 
 // api_key_share -------------------------------------------------------
@@ -155,7 +154,6 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 		arg.WorkshopID,
 		arg.InstitutionID,
 		arg.GameID,
-		arg.AllowPublicGameSponsoring,
 	)
 	var i ApiKeyShare
 	err := row.Scan(
@@ -169,7 +167,6 @@ func (q *Queries) CreateApiKeyShare(ctx context.Context, arg CreateApiKeySharePa
 		&i.WorkshopID,
 		&i.InstitutionID,
 		&i.GameID,
-		&i.AllowPublicGameSponsoring,
 	)
 	return i, err
 }
@@ -247,7 +244,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.id AS key_id,
   k.user_id AS key_owner_id,
   k.name AS key_name,
@@ -264,26 +261,25 @@ WHERE s.id = $1
 `
 
 type GetApiKeyShareByIDRow struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
-	KeyID                     uuid.UUID
-	KeyOwnerID                uuid.UUID
-	KeyName                   string
-	KeyPlatform               string
-	KeyKey                    string
-	KeyIsDefault              bool
-	KeyLastUsageSuccess       sql.NullBool
-	KeyLastErrorCode          sql.NullString
-	KeyOwnerName              string
+	ID                  uuid.UUID
+	CreatedBy           uuid.NullUUID
+	CreatedAt           time.Time
+	ModifiedBy          uuid.NullUUID
+	ModifiedAt          time.Time
+	ApiKeyID            uuid.UUID
+	UserID              uuid.NullUUID
+	WorkshopID          uuid.NullUUID
+	InstitutionID       uuid.NullUUID
+	GameID              uuid.NullUUID
+	KeyID               uuid.UUID
+	KeyOwnerID          uuid.UUID
+	KeyName             string
+	KeyPlatform         string
+	KeyKey              string
+	KeyIsDefault        bool
+	KeyLastUsageSuccess sql.NullBool
+	KeyLastErrorCode    sql.NullString
+	KeyOwnerName        string
 }
 
 func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiKeyShareByIDRow, error) {
@@ -300,7 +296,6 @@ func (q *Queries) GetApiKeyShareByID(ctx context.Context, id uuid.UUID) (GetApiK
 		&i.WorkshopID,
 		&i.InstitutionID,
 		&i.GameID,
-		&i.AllowPublicGameSponsoring,
 		&i.KeyID,
 		&i.KeyOwnerID,
 		&i.KeyName,
@@ -326,7 +321,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   u.name AS user_name,
   w.name AS workshop_name,
   i.name AS institution_name,
@@ -340,21 +335,20 @@ WHERE s.api_key_id = $1
 `
 
 type GetApiKeySharesByApiKeyIDRow struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
-	UserName                  sql.NullString
-	WorkshopName              sql.NullString
-	InstitutionName           sql.NullString
-	GameName                  sql.NullString
+	ID              uuid.UUID
+	CreatedBy       uuid.NullUUID
+	CreatedAt       time.Time
+	ModifiedBy      uuid.NullUUID
+	ModifiedAt      time.Time
+	ApiKeyID        uuid.UUID
+	UserID          uuid.NullUUID
+	WorkshopID      uuid.NullUUID
+	InstitutionID   uuid.NullUUID
+	GameID          uuid.NullUUID
+	UserName        sql.NullString
+	WorkshopName    sql.NullString
+	InstitutionName sql.NullString
+	GameName        sql.NullString
 }
 
 func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GetApiKeySharesByApiKeyIDRow, error) {
@@ -377,7 +371,6 @@ func (q *Queries) GetApiKeySharesByApiKeyID(ctx context.Context, apiKeyID uuid.U
 			&i.WorkshopID,
 			&i.InstitutionID,
 			&i.GameID,
-			&i.AllowPublicGameSponsoring,
 			&i.UserName,
 			&i.WorkshopName,
 			&i.InstitutionName,
@@ -408,7 +401,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.name AS api_key_name,
   k.platform AS api_key_platform,
   k.user_id AS owner_id,
@@ -420,21 +413,20 @@ WHERE s.institution_id = $1
 `
 
 type GetApiKeySharesByInstitutionIDRow struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
-	ApiKeyName                string
-	ApiKeyPlatform            string
-	OwnerID                   uuid.UUID
-	OwnerName                 string
+	ID             uuid.UUID
+	CreatedBy      uuid.NullUUID
+	CreatedAt      time.Time
+	ModifiedBy     uuid.NullUUID
+	ModifiedAt     time.Time
+	ApiKeyID       uuid.UUID
+	UserID         uuid.NullUUID
+	WorkshopID     uuid.NullUUID
+	InstitutionID  uuid.NullUUID
+	GameID         uuid.NullUUID
+	ApiKeyName     string
+	ApiKeyPlatform string
+	OwnerID        uuid.UUID
+	OwnerName      string
 }
 
 func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutionID uuid.NullUUID) ([]GetApiKeySharesByInstitutionIDRow, error) {
@@ -457,7 +449,6 @@ func (q *Queries) GetApiKeySharesByInstitutionID(ctx context.Context, institutio
 			&i.WorkshopID,
 			&i.InstitutionID,
 			&i.GameID,
-			&i.AllowPublicGameSponsoring,
 			&i.ApiKeyName,
 			&i.ApiKeyPlatform,
 			&i.OwnerID,
@@ -488,7 +479,7 @@ SELECT
   s.workshop_id,
   s.institution_id,
   s.game_id,
-  s.allow_public_game_sponsoring,
+
   k.name AS api_key_name,
   k.platform AS api_key_platform,
   k.key AS api_key_key,
@@ -504,25 +495,24 @@ WHERE s.user_id = $1
 `
 
 type GetApiKeySharesByUserIDRow struct {
-	ID                        uuid.UUID
-	CreatedBy                 uuid.NullUUID
-	CreatedAt                 time.Time
-	ModifiedBy                uuid.NullUUID
-	ModifiedAt                time.Time
-	ApiKeyID                  uuid.UUID
-	UserID                    uuid.NullUUID
-	WorkshopID                uuid.NullUUID
-	InstitutionID             uuid.NullUUID
-	GameID                    uuid.NullUUID
-	AllowPublicGameSponsoring bool
-	ApiKeyName                string
-	ApiKeyPlatform            string
-	ApiKeyKey                 string
-	ApiKeyIsDefault           bool
-	ApiKeyLastUsageSuccess    sql.NullBool
-	ApiKeyLastErrorCode       sql.NullString
-	OwnerID                   uuid.UUID
-	OwnerName                 string
+	ID                     uuid.UUID
+	CreatedBy              uuid.NullUUID
+	CreatedAt              time.Time
+	ModifiedBy             uuid.NullUUID
+	ModifiedAt             time.Time
+	ApiKeyID               uuid.UUID
+	UserID                 uuid.NullUUID
+	WorkshopID             uuid.NullUUID
+	InstitutionID          uuid.NullUUID
+	GameID                 uuid.NullUUID
+	ApiKeyName             string
+	ApiKeyPlatform         string
+	ApiKeyKey              string
+	ApiKeyIsDefault        bool
+	ApiKeyLastUsageSuccess sql.NullBool
+	ApiKeyLastErrorCode    sql.NullString
+	OwnerID                uuid.UUID
+	OwnerName              string
 }
 
 func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullUUID) ([]GetApiKeySharesByUserIDRow, error) {
@@ -545,7 +535,6 @@ func (q *Queries) GetApiKeySharesByUserID(ctx context.Context, userID uuid.NullU
 			&i.WorkshopID,
 			&i.InstitutionID,
 			&i.GameID,
-			&i.AllowPublicGameSponsoring,
 			&i.ApiKeyName,
 			&i.ApiKeyPlatform,
 			&i.ApiKeyKey,
@@ -653,21 +642,5 @@ type SetGamePublicSponsorParams struct {
 
 func (q *Queries) SetGamePublicSponsor(ctx context.Context, arg SetGamePublicSponsorParams) error {
 	_, err := q.db.ExecContext(ctx, setGamePublicSponsor, arg.ID, arg.PublicSponsoredApiKeyShareID)
-	return err
-}
-
-const updateApiKeyShareAllowPublicGameSponsoring = `-- name: UpdateApiKeyShareAllowPublicGameSponsoring :exec
-UPDATE api_key_share
-SET allow_public_game_sponsoring = $2, modified_at = now()
-WHERE id = $1
-`
-
-type UpdateApiKeyShareAllowPublicGameSponsoringParams struct {
-	ID                        uuid.UUID
-	AllowPublicGameSponsoring bool
-}
-
-func (q *Queries) UpdateApiKeyShareAllowPublicGameSponsoring(ctx context.Context, arg UpdateApiKeyShareAllowPublicGameSponsoringParams) error {
-	_, err := q.db.ExecContext(ctx, updateApiKeyShareAllowPublicGameSponsoring, arg.ID, arg.AllowPublicGameSponsoring)
 	return err
 }

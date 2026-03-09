@@ -12,7 +12,6 @@ import {
   Center,
   Modal,
   Select,
-  Checkbox,
   TextInput,
   Button,
   Tooltip,
@@ -39,7 +38,6 @@ import {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
-  useUpdateApiKeyShareSponsoring,
 } from "@/api/hooks";
 import type { ObjApiKeyShare } from "@/api/generated";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
@@ -62,7 +60,6 @@ export function ApiKeysTab({
   const [shareModalOpened, { open: openShareModal, close: closeShareModal }] =
     useDisclosure(false);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
-  const [allowPublicSponsored, setAllowPublicSponsored] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
 
@@ -80,8 +77,6 @@ export function ApiKeysTab({
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
   const setFreeUseKey = useSetInstitutionFreeUseKey();
-  const updateSponsoring = useUpdateApiKeyShareSponsoring();
-
   // Combined org + personal key options for free-use key selector
   const {
     options: freeUseKeyOptions,
@@ -149,12 +144,10 @@ export function ApiKeysTab({
     await shareApiKey.mutateAsync({
       shareId: selfShare.id,
       institutionId,
-      allowPublicGameSponsoring: allowPublicSponsored,
     });
 
     closeShareModal();
     setSelectedKeyId(null);
-    setAllowPublicSponsored(false);
   };
 
   const handleRemoveShare = async (share: ObjApiKeyShare) => {
@@ -175,7 +168,6 @@ export function ApiKeysTab({
       const newShare = await shareApiKey.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       // Step 2: Set the new institution share as the free-use key
       if (newShare?.id) {
@@ -299,11 +291,6 @@ export function ApiKeysTab({
                   <Table.Th>{t("myOrganization.apiKeys.keyName")}</Table.Th>
                   <Table.Th>{t("myOrganization.apiKeys.owner")}</Table.Th>
                   <Table.Th>{t("myOrganization.apiKeys.platform")}</Table.Th>
-                  {!isMobile && (
-                    <Table.Th>
-                      {t("myOrganization.apiKeys.publicSponsoring")}
-                    </Table.Th>
-                  )}
                   <Table.Th>{t("myOrganization.actions")}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -324,32 +311,6 @@ export function ApiKeysTab({
                     <Table.Td>
                       <Text size="sm">{share.apiKey?.platform}</Text>
                     </Table.Td>
-                    {!isMobile && (
-                      <Table.Td>
-                        {share.apiKey?.userId === backendUser?.id ? (
-                          <Checkbox
-                            checked={share.allowPublicGameSponsoring ?? false}
-                            onChange={(e) =>
-                              updateSponsoring.mutate({
-                                shareId: share.id!,
-                                allow: e.currentTarget.checked,
-                                institutionId,
-                              })
-                            }
-                            disabled={updateSponsoring.isPending}
-                            size="sm"
-                          />
-                        ) : (
-                          <Badge
-                            color={share.allowPublicGameSponsoring ? "red" : "gray"}
-                            variant="light"
-                            size="sm"
-                          >
-                            {share.allowPublicGameSponsoring ? t("labels.yes") : t("labels.no")}
-                          </Badge>
-                        )}
-                      </Table.Td>
-                    )}
                     <Table.Td>
                       <ActionIcon
                         color="red"
@@ -479,13 +440,6 @@ export function ApiKeysTab({
             }))}
             value={selectedKeyId}
             onChange={setSelectedKeyId}
-          />
-
-          <Checkbox
-            label={t("myOrganization.apiKeys.allowPublicSponsoring")}
-            description={t("myOrganization.apiKeys.allowPublicSponsoringDesc")}
-            checked={allowPublicSponsored}
-            onChange={(e) => setAllowPublicSponsored(e.currentTarget.checked)}
           />
 
           <Group justify="flex-end" mt="md">

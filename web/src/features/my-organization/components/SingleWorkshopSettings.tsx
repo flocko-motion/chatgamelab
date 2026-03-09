@@ -193,7 +193,6 @@ export function SingleWorkshopSettings({
       const newShare = await shareApiKeyWithInstitution.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       if (newShare?.id) {
         await setWorkshopApiKey.mutateAsync({

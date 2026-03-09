@@ -310,7 +310,6 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       const newShare = await shareApiKeyWithInstitution.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       // Step 2: Set the new institution share as the workshop's default key
       if (newShare?.id) {
