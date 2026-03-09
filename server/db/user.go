@@ -364,7 +364,7 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 		_ = queries().DeleteGameSessionsByGameID(ctx, gameID)
 		_ = queries().DeleteFavouritesByGameID(ctx, gameID)
 		_ = queries().DeleteApiKeySharesByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
-		_ = queries().ClearPrivateShareGameIDByGameID(ctx, uuid.NullUUID{UUID: gameID, Valid: true})
+		_ = queries().DeleteGameSharesByGameID(ctx, gameID) // clean up game shares
 		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, gameID) // clear sponsored refs
 		_ = queries().HardDeleteGame(ctx, gameID)
 	}
@@ -378,12 +378,6 @@ func DeleteUser(ctx context.Context, id uuid.UUID) error {
 		_ = queries().ClearUserDefaultApiKeyShareByApiKeyID(ctx, keyID)
 		// Clear workshop default_api_key_share_id references
 		_ = queries().ClearWorkshopDefaultApiKeyShareByApiKeyID(ctx, keyID)
-		// Clean up private share guest data
-		privateGames, _ := queries().GetGamesWithPrivateShareByApiKeyID(ctx, keyID)
-		for _, g := range privateGames {
-			_ = DeleteGuestDataByGameID(ctx, g.ID)
-			_ = queries().ClearGamePrivateShare(ctx, g.ID)
-		}
 		// Clear game sponsored API key references
 		_ = queries().ClearGameSponsoredApiKeyByApiKeyID(ctx, keyID)
 		// Clear system free-use key reference

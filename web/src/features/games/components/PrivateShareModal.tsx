@@ -107,9 +107,7 @@ export function PrivateShareModal({
   };
 
   const handleStartEdit = () => {
-    setSelectedShareId(
-      shareStatus?.privateSponsoredApiKeyShareId?.toString() ?? null,
-    );
+    setSelectedShareId(null);
     setMaxSessions(shareStatus?.remaining ?? "");
     setIsEditing(true);
   };

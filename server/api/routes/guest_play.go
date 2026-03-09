@@ -38,7 +38,7 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -47,7 +47,7 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, GuestGameInfo{
 		Name:        gameObj.Name,
 		Description: gameObj.Description,
-		Remaining:   gameObj.PrivateShareRemaining,
+		Remaining:   gameShare.Remaining,
 	})
 }
 
@@ -122,7 +122,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate token → game, then verify session belongs to that game
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -157,7 +157,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Re-resolve API key from the private share
-	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameObj); httpErr != nil {
+	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameShare); httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
@@ -196,7 +196,7 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate token → game
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	_, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return

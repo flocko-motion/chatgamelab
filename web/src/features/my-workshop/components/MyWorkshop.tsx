@@ -20,6 +20,7 @@ import {
   IconWorld,
   IconUser,
   IconEye,
+  IconLink,
 } from "@tabler/icons-react";
 import {
   EditIconButton,
@@ -42,6 +43,7 @@ import {
   GameCard,
   type GameCardAction,
 } from "@/features/games";
+import { PrivateShareModal } from "@/features/games/components/PrivateShareModal";
 import { useAuth } from "@/providers/AuthProvider";
 import { useGameNavigation } from "@/features/games/hooks";
 import { GamePlayButtons } from "@/features/games/components/GamePlayButtons";
@@ -115,6 +117,11 @@ export function MyWorkshop() {
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
+  const [
+    privateShareModalOpened,
+    { open: openPrivateShareModal, close: closePrivateShareModal },
+  ] = useDisclosure(false);
+  const [gameToShare, setGameToShare] = useState<ObjGame | null>(null);
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [gameFilter, setGameFilter] = useState<GameFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -293,6 +300,19 @@ export function MyWorkshop() {
       label: t("games.importExport.exportButton"),
       onClick: () => handleExportGame(game),
     });
+    // Share button: head/staff can always share; participants can when allowGameSharing is enabled
+    const canShare = canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false);
+    if (canShare && isWorkshopGame(game)) {
+      actions.push({
+        key: "share",
+        icon: <IconLink size={16} />,
+        label: t("games.privateShare.shareLink"),
+        onClick: () => {
+          setGameToShare(game);
+          openPrivateShareModal();
+        },
+      });
+    }
     if (canDelete) {
       actions.push({
         key: "delete",
@@ -631,8 +651,29 @@ export function MyWorkshop() {
               }
             : undefined
         }
+        onPrivateShare={
+          (() => {
+            const canShare = canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false);
+            if (!canShare) return undefined;
+            return () => {
+              const game = games?.find((g) => g.id === gameToView);
+              if (game) {
+                setGameToShare(game);
+                openPrivateShareModal();
+              }
+            };
+          })()
+        }
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
         hideDesign={hideDesign}
+      />
+      <PrivateShareModal
+        game={gameToShare}
+        opened={privateShareModalOpened}
+        onClose={() => {
+          closePrivateShareModal();
+          setGameToShare(null);
+        }}
       />
       <SponsorGameModal
         game={gameToSponsor}

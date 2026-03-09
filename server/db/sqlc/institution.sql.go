@@ -91,15 +91,17 @@ INSERT INTO workshop (
   created_at, modified_by, modified_at,
   name, institution_id, active, public, default_api_key_share_id,
   ai_quality_tier, prompt_constraints, show_public_games,
-  show_other_participants_games, design_editing_enabled, is_paused
+  show_other_participants_games, design_editing_enabled, is_paused,
+  allow_game_sharing
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
   $11, $12, $13,
-  $14, $15, $16
+  $14, $15, $16,
+  $17
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing
 `
 
 type CreateWorkshopParams struct {
@@ -119,6 +121,7 @@ type CreateWorkshopParams struct {
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
 	IsPaused                   bool
+	AllowGameSharing           bool
 }
 
 // workshop -------------------------------------------------------------
@@ -140,6 +143,7 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		arg.ShowOtherParticipantsGames,
 		arg.DesignEditingEnabled,
 		arg.IsPaused,
+		arg.AllowGameSharing,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -160,6 +164,7 @@ func (q *Queries) CreateWorkshop(ctx context.Context, arg CreateWorkshopParams) 
 		&i.ShowOtherParticipantsGames,
 		&i.DesignEditingEnabled,
 		&i.IsPaused,
+		&i.AllowGameSharing,
 	)
 	return i, err
 }
@@ -403,7 +408,7 @@ func (q *Queries) GetParticipantUserIDsByInstitution(ctx context.Context, instit
 }
 
 const getWorkshopByID = `-- name: GetWorkshopByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing FROM workshop WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, error) {
@@ -427,6 +432,7 @@ func (q *Queries) GetWorkshopByID(ctx context.Context, id uuid.UUID) (Workshop, 
 		&i.ShowOtherParticipantsGames,
 		&i.DesignEditingEnabled,
 		&i.IsPaused,
+		&i.AllowGameSharing,
 	)
 	return i, err
 }
@@ -508,7 +514,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 }
 
 const listWorkshops = `-- name: ListWorkshops :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing FROM workshop WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
@@ -538,6 +544,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 			&i.ShowOtherParticipantsGames,
 			&i.DesignEditingEnabled,
 			&i.IsPaused,
+			&i.AllowGameSharing,
 		); err != nil {
 			return nil, err
 		}
@@ -553,7 +560,7 @@ func (q *Queries) ListWorkshops(ctx context.Context) ([]Workshop, error) {
 }
 
 const listWorkshopsByInstitution = `-- name: ListWorkshopsByInstitution :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing FROM workshop WHERE institution_id = $1 AND deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID uuid.UUID) ([]Workshop, error) {
@@ -583,6 +590,7 @@ func (q *Queries) ListWorkshopsByInstitution(ctx context.Context, institutionID 
 			&i.ShowOtherParticipantsGames,
 			&i.DesignEditingEnabled,
 			&i.IsPaused,
+			&i.AllowGameSharing,
 		); err != nil {
 			return nil, err
 		}
@@ -619,7 +627,7 @@ UPDATE workshop SET
   modified_at = now(),
   default_api_key_share_id = $3
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing
 `
 
 type SetWorkshopDefaultApiKeyParams struct {
@@ -649,6 +657,7 @@ func (q *Queries) SetWorkshopDefaultApiKey(ctx context.Context, arg SetWorkshopD
 		&i.ShowOtherParticipantsGames,
 		&i.DesignEditingEnabled,
 		&i.IsPaused,
+		&i.AllowGameSharing,
 	)
 	return i, err
 }
@@ -738,9 +747,10 @@ UPDATE workshop SET
   show_public_games = $13,
   show_other_participants_games = $14,
   design_editing_enabled = $15,
-  is_paused = $16
+  is_paused = $16,
+  allow_game_sharing = $17
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused
+RETURNING id, created_by, created_at, modified_by, modified_at, name, institution_id, active, public, deleted_at, default_api_key_share_id, ai_quality_tier, prompt_constraints, show_public_games, show_other_participants_games, design_editing_enabled, is_paused, allow_game_sharing
 `
 
 type UpdateWorkshopParams struct {
@@ -760,6 +770,7 @@ type UpdateWorkshopParams struct {
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
 	IsPaused                   bool
+	AllowGameSharing           bool
 }
 
 func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) (Workshop, error) {
@@ -780,6 +791,7 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		arg.ShowOtherParticipantsGames,
 		arg.DesignEditingEnabled,
 		arg.IsPaused,
+		arg.AllowGameSharing,
 	)
 	var i Workshop
 	err := row.Scan(
@@ -800,6 +812,7 @@ func (q *Queries) UpdateWorkshop(ctx context.Context, arg UpdateWorkshopParams) 
 		&i.ShowOtherParticipantsGames,
 		&i.DesignEditingEnabled,
 		&i.IsPaused,
+		&i.AllowGameSharing,
 	)
 	return i, err
 }

@@ -947,6 +947,8 @@
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausieren",
         "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
+        "allowGameSharing": "Spielfreigabe erlauben",
+        "allowGameSharingHint": "Wenn aktiviert, können Teilnehmer Freigabelinks für ihre Spiele mit dem API-Schlüssel des Workshops erstellen",
         "joined": "Beigetreten",
         "linkCopied": "Link kopiert",
         "linkCopiedMessage": "Der Einladungslink wurde in die Zwischenablage kopiert.",

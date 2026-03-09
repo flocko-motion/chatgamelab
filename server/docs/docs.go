@@ -1164,7 +1164,7 @@ const docTemplate = `{
                 "tags": [
                     "games"
                 ],
-                "summary": "Get private share status",
+                "summary": "Get private share status (legacy)",
                 "parameters": [
                     {
                         "type": "string",
@@ -1207,7 +1207,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Enables private sharing for a game with a sponsored API key and optional session limit.",
+                "description": "Creates a share link. Delegates to CreateGameShare internally.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1217,7 +1217,7 @@ const docTemplate = `{
                 "tags": [
                     "games"
                 ],
-                "summary": "Enable or configure private share",
+                "summary": "Enable private share (legacy)",
                 "parameters": [
                     {
                         "type": "string",
@@ -1225,15 +1225,6 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "Share configuration",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/routes.PrivateShareRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1269,14 +1260,14 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Disables private sharing by clearing the share token and sponsor key.",
+                "description": "Deletes all game shares for the game.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "games"
                 ],
-                "summary": "Revoke private share",
+                "summary": "Revoke private share (legacy)",
                 "parameters": [
                     {
                         "type": "string",
@@ -1409,6 +1400,185 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/shares": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns all share links for a game.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "List game shares",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/routes.GameShareResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a share link for a game. For workshop shares, the workshop default key is used automatically.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Create a game share link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Share configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.CreateGameShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.GameShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/games/{id}/shares/{shareId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Revokes a specific share link and cleans up guest data.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "games"
+                ],
+                "summary": "Delete a specific game share",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID (UUID)",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Share ID (UUID)",
+                        "name": "shareId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/httpx.ErrorResponse"
                         }
@@ -5054,16 +5224,6 @@ const docTemplate = `{
                 "playCount": {
                     "type": "integer"
                 },
-                "privateShareHash": {
-                    "description": "Private share links contain secret random tokens to limit access to the game.\nThey are sponsored, so invited players don't require their own API key.",
-                    "type": "string"
-                },
-                "privateShareRemaining": {
-                    "type": "integer"
-                },
-                "privateSponsoredApiKeyShareId": {
-                    "type": "string"
-                },
                 "public": {
                     "description": "Access rights and payments. public = true: discoverable on the website and playable by anyone.",
                     "type": "boolean"
@@ -5276,6 +5436,38 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "urlAnalytics": {
+                    "type": "string"
+                }
+            }
+        },
+        "obj.GameShare": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "remaining": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "workshopId": {
                     "type": "string"
                 }
             }
@@ -5614,6 +5806,9 @@ const docTemplate = `{
                     "description": "Workshop settings (configured by staff/heads)",
                     "type": "string"
                 },
+                "allowGameSharing": {
+                    "type": "boolean"
+                },
                 "defaultApiKeyShareId": {
                     "type": "string"
                 },
@@ -5771,6 +5966,23 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.CreateGameShareRequest": {
+            "type": "object",
+            "properties": {
+                "maxSessions": {
+                    "description": "null = unlimited",
+                    "type": "integer"
+                },
+                "sponsorKeyShareId": {
+                    "description": "required for personal shares; ignored for workshop shares",
+                    "type": "string"
+                },
+                "workshopId": {
+                    "description": "set to create a workshop share (uses workshop default key)",
+                    "type": "string"
+                }
+            }
+        },
         "routes.CreateInstitutionInviteRequest": {
             "type": "object",
             "properties": {
@@ -5835,6 +6047,41 @@ const docTemplate = `{
                 },
                 "public": {
                     "type": "boolean"
+                }
+            }
+        },
+        "routes.GameShareResponse": {
+            "type": "object",
+            "properties": {
+                "apiKeyShareId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "createdBy": {
+                    "type": "string"
+                },
+                "gameId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutionId": {
+                    "type": "string"
+                },
+                "remaining": {
+                    "type": "integer"
+                },
+                "shareUrl": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "workshopId": {
+                    "type": "string"
                 }
             }
         },
@@ -6075,34 +6322,27 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.PrivateShareRequest": {
-            "type": "object",
-            "properties": {
-                "maxSessions": {
-                    "description": "null = unlimited",
-                    "type": "integer"
-                },
-                "sponsorKeyShareId": {
-                    "description": "required to enable",
-                    "type": "string"
-                }
-            }
-        },
         "routes.PrivateShareStatus": {
             "type": "object",
             "properties": {
                 "enabled": {
                     "type": "boolean"
                 },
-                "privateSponsoredApiKeyShareId": {
-                    "type": "string"
-                },
                 "remaining": {
                     "description": "null = unlimited",
                     "type": "integer"
                 },
+                "shareId": {
+                    "type": "string"
+                },
                 "shareUrl": {
                     "type": "string"
+                },
+                "shares": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/obj.GameShare"
+                    }
                 },
                 "token": {
                     "type": "string"
@@ -6454,6 +6694,9 @@ const docTemplate = `{
                 },
                 "aiQualityTier": {
                     "type": "string"
+                },
+                "allowGameSharing": {
+                    "type": "boolean"
                 },
                 "designEditingEnabled": {
                     "type": "boolean"
