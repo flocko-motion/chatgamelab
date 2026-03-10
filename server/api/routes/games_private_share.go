@@ -205,18 +205,25 @@ func DeleteGameShareByID(w http.ResponseWriter, r *http.Request) {
 	// Permission check: who can revoke?
 	// - Share creator
 	// - Game owner
+	// - Workshop members with sharing permission (for workshop shares)
 	// - Head/staff of workshop's institution (for workshop shares)
 	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == user.ID
 	isCreator := share.CreatedBy != nil && *share.CreatedBy == user.ID
 	allowed := isOwner || isCreator
 
 	if !allowed && share.WorkshopID != nil {
-		// Check if user is head/staff of the workshop's institution
 		userObj, err := db.GetUserByID(r.Context(), user.ID)
-		if err == nil && userObj.Role != nil && userObj.Role.Institution != nil &&
-			share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
-			(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
-			allowed = true
+		if err == nil && userObj.Role != nil {
+			// Head/staff of the workshop's institution
+			if userObj.Role.Institution != nil &&
+				share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
+				(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+				allowed = true
+			}
+			// Workshop member (participant in the same workshop)
+			if !allowed && userObj.Role.Workshop != nil && *share.WorkshopID == userObj.Role.Workshop.ID {
+				allowed = true
+			}
 		}
 	}
 
@@ -296,10 +303,15 @@ func UpdateGameShare(w http.ResponseWriter, r *http.Request) {
 
 	if !allowed && share.WorkshopID != nil {
 		userObj, err := db.GetUserByID(r.Context(), user.ID)
-		if err == nil && userObj.Role != nil && userObj.Role.Institution != nil &&
-			share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
-			(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
-			allowed = true
+		if err == nil && userObj.Role != nil {
+			if userObj.Role.Institution != nil &&
+				share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
+				(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+				allowed = true
+			}
+			if !allowed && userObj.Role.Workshop != nil && *share.WorkshopID == userObj.Role.Workshop.ID {
+				allowed = true
+			}
 		}
 	}
 

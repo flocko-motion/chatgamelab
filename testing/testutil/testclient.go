@@ -1207,15 +1207,15 @@ func (u *UserClient) ListGamesWithSearch(search string) ([]obj.Game, error) {
 	return result, err
 }
 
-// EnablePrivateShare enables private sharing for a game (composable high-level API)
-func (u *UserClient) EnablePrivateShare(gameID string, sponsorShareID string, maxSessions *int) (routes.PrivateShareStatus, error) {
+// CreateGameShare creates a personal/org share for a game (composable high-level API)
+func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (routes.GameShareResponse, error) {
 	u.t.Helper()
 	shareUUID, err := uuid.Parse(sponsorShareID)
 	if err != nil {
-		return routes.PrivateShareStatus{}, fmt.Errorf("invalid sponsorShareID: %w", err)
+		return routes.GameShareResponse{}, fmt.Errorf("invalid sponsorShareID: %w", err)
 	}
-	var result routes.PrivateShareStatus
-	err = u.Post("games/"+gameID+"/private-share", routes.PrivateShareRequest{
+	var result routes.GameShareResponse
+	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
 		SponsorKeyShareID: &shareUUID,
 		MaxSessions:       maxSessions,
 	}, &result)
@@ -1230,12 +1230,10 @@ func (u *UserClient) GetPrivateShareStatus(gameID string) (routes.PrivateShareSt
 	return result, err
 }
 
-// RevokePrivateShare revokes private sharing for a game (composable high-level API)
-func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatus, error) {
+// DeleteGameShare deletes a specific game share by ID (composable high-level API)
+func (u *UserClient) DeleteGameShare(gameID string, shareID string) error {
 	u.t.Helper()
-	var result routes.PrivateShareStatus
-	err := u.makeRequest("DELETE", "games/"+gameID+"/private-share", nil, &result)
-	return result, err
+	return u.makeRequest("DELETE", "games/"+gameID+"/shares/"+shareID, nil, nil)
 }
 
 // CreateWorkshopGameShare creates a workshop share for a game (composable high-level API)
@@ -1250,14 +1248,6 @@ func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, m
 		WorkshopID:  &wsUUID,
 		MaxSessions: maxSessions,
 	}, &result)
-	return result, err
-}
-
-// ListGameShares lists all shares for a game (composable high-level API)
-func (u *UserClient) ListGameShares(gameID string) ([]routes.GameShareResponse, error) {
-	u.t.Helper()
-	var result []routes.GameShareResponse
-	err := u.Get("games/"+gameID+"/shares", &result)
 	return result, err
 }
 
