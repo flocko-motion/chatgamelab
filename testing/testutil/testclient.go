@@ -1410,6 +1410,19 @@ func AssertEqual(t *testing.T, expected, actual interface{}, msg string) {
 	}
 }
 
+// GetApiKeyGameShares returns game shares for a specific API key share.
+// context: "personal" (all, owner only), "organization" (org/workshop only), or "" (no filter).
+func (u *UserClient) GetApiKeyGameShares(shareID string, context string) ([]routes.EnrichedGameShare, error) {
+	u.t.Helper()
+	var result []routes.EnrichedGameShare
+	path := "apikeys/" + shareID + "/game-shares"
+	if context != "" {
+		path += "?context=" + context
+	}
+	err := u.Get(path, &result)
+	return result, err
+}
+
 // AssertNotEmpty checks if a value is not empty
 func AssertNotEmpty(t *testing.T, value interface{}, msg string) {
 	t.Helper()

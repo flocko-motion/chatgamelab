@@ -37,6 +37,19 @@ DELETE FROM game_share WHERE id = $1;
 -- name: DeleteGameSharesByGameID :exec
 DELETE FROM game_share WHERE game_id = $1;
 
+-- name: GetGameSharesWithGameByApiKeyShareID :many
+-- Get game shares with game name for a specific api_key_share (for display in API key management)
+SELECT gs.*, g.name as game_name FROM game_share gs
+JOIN game g ON g.id = gs.game_id
+WHERE gs.api_key_share_id = $1 ORDER BY gs.created_at;
+
+-- name: GetGameSharesWithGameByApiKeyID :many
+-- Get all game shares with game name for any api_key_share belonging to a given api_key
+SELECT gs.*, g.name as game_name FROM game_share gs
+JOIN game g ON g.id = gs.game_id
+JOIN api_key_share aks ON aks.id = gs.api_key_share_id
+WHERE aks.api_key_id = $1 ORDER BY gs.created_at;
+
 -- name: GetGameShareIDsByApiKeyShareID :many
 -- Find game_share IDs that reference a specific api_key_share (for guest cleanup before deletion)
 SELECT id FROM game_share WHERE api_key_share_id = $1;

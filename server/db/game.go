@@ -2242,6 +2242,69 @@ func GetWorkshopGameShare(ctx context.Context, gameID uuid.UUID, workshopID uuid
 	return dbGameShareToObj(gs), nil
 }
 
+// GameShareWithGame represents a game share enriched with game name.
+type GameShareWithGame struct {
+	obj.GameShare
+	GameName string
+}
+
+// GetGameSharesWithGameByApiKeyShareID returns game shares (with game name) for a specific api_key_share.
+func GetGameSharesWithGameByApiKeyShareID(ctx context.Context, shareID uuid.UUID) ([]GameShareWithGame, error) {
+	rows, err := queries().GetGameSharesWithGameByApiKeyShareID(ctx, shareID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]GameShareWithGame, len(rows))
+	for i, r := range rows {
+		result[i] = GameShareWithGame{
+			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.CreatedBy, r.CreatedAt),
+			GameName:  r.GameName,
+		}
+	}
+	return result, nil
+}
+
+// GetGameSharesWithGameByApiKeyID returns game shares (with game name) for all shares of an API key.
+func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GameShareWithGame, error) {
+	rows, err := queries().GetGameSharesWithGameByApiKeyID(ctx, apiKeyID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]GameShareWithGame, len(rows))
+	for i, r := range rows {
+		result[i] = GameShareWithGame{
+			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.CreatedBy, r.CreatedAt),
+			GameName:  r.GameName,
+		}
+	}
+	return result, nil
+}
+
+// dbGameShareToObjFromJoin converts individual fields (from JOIN query results) to obj.GameShare.
+func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
+	gs := &obj.GameShare{
+		ID:            id,
+		GameID:        gameID,
+		Token:         token,
+		ApiKeyShareID: apiKeyShareID,
+		CreatedAt:     createdAt,
+	}
+	if institutionID.Valid {
+		gs.InstitutionID = &institutionID.UUID
+	}
+	if workshopID.Valid {
+		gs.WorkshopID = &workshopID.UUID
+	}
+	if remaining.Valid {
+		r := int(remaining.Int32)
+		gs.Remaining = &r
+	}
+	if createdBy.Valid {
+		gs.CreatedBy = &createdBy.UUID
+	}
+	return gs
+}
+
 // DeleteGameShare deletes a game share and cleans up associated guest data and the game-scoped API key share.
 func DeleteGameShare(ctx context.Context, shareID uuid.UUID) error {
 	gs, err := queries().GetGameShareByID(ctx, shareID)

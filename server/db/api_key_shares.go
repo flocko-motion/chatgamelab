@@ -531,14 +531,47 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 		}
 	}
 
-	// For each owned key, get all shares (self-shares, org shares, sponsorships, etc.)
+	// Collect game_share entries (private share links) first to know which
+	// api_key_share IDs are internal game-scoped shares (not user-facing).
 	var allShares []obj.ApiKeyShare
+	gameShareApiKeyShareIDs := make(map[uuid.UUID]bool)
+	for _, keyID := range ownedKeyIDs {
+		gameShares, err := GetGameSharesWithGameByApiKeyID(ctx, keyID)
+		if err != nil {
+			continue
+		}
+		for _, gs := range gameShares {
+			gameShareApiKeyShareIDs[gs.ApiKeyShareID] = true
+			ls := obj.ApiKeyShare{
+				ID:             gs.ApiKeyShareID,
+				ApiKeyID:       keyID,
+				IsPrivateShare: true,
+				Game:           &obj.Game{ID: gs.GameID, Name: gs.GameName},
+				Remaining:      gs.Remaining,
+				GameShareID:    &gs.ID,
+			}
+			if gs.InstitutionID != nil {
+				ls.Institution = &obj.Institution{ID: *gs.InstitutionID}
+			}
+			if gs.WorkshopID != nil {
+				ls.Workshop = &obj.Workshop{ID: *gs.WorkshopID}
+			}
+			allShares = append(allShares, ls)
+		}
+	}
+
+	// For each owned key, get all shares (self-shares, org shares, sponsorships, etc.)
+	// Skip game-scoped internal shares that back private share links.
 	for _, keyID := range ownedKeyIDs {
 		shares, err := queries().GetApiKeySharesByApiKeyID(ctx, keyID)
 		if err != nil {
 			continue
 		}
 		for _, s := range shares {
+			// Skip game-scoped shares that are backing a game_share entry
+			if s.GameID.Valid && gameShareApiKeyShareIDs[s.ID] {
+				continue
+			}
 			ls := obj.ApiKeyShare{
 				ID:       s.ID,
 				ApiKeyID: s.ApiKeyID,
@@ -548,7 +581,6 @@ func GetApiKeysWithShares(ctx context.Context, userID uuid.UUID) ([]obj.ApiKey, 
 					ModifiedBy: s.ModifiedBy,
 					ModifiedAt: &s.ModifiedAt,
 				},
-	
 			}
 			if s.UserID.Valid {
 				ls.User = &obj.User{ID: s.UserID.UUID, Name: s.UserName.String}

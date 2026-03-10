@@ -17,6 +17,7 @@ export {
   useDeleteApiKey,
   useSetDefaultApiKey,
   useInstitutionApiKeys,
+  useApiKeyGameShares,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,

@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -406,6 +407,115 @@ func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetG
 			&i.Remaining,
 			&i.CreatedBy,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSharesWithGameByApiKeyID = `-- name: GetGameSharesWithGameByApiKeyID :many
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+JOIN game g ON g.id = gs.game_id
+JOIN api_key_share aks ON aks.id = gs.api_key_share_id
+WHERE aks.api_key_id = $1 ORDER BY gs.created_at
+`
+
+type GetGameSharesWithGameByApiKeyIDRow struct {
+	ID            uuid.UUID
+	GameID        uuid.UUID
+	Token         string
+	ApiKeyShareID uuid.UUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	Remaining     sql.NullInt32
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	GameName      string
+}
+
+// Get all game shares with game name for any api_key_share belonging to a given api_key
+func (q *Queries) GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GetGameSharesWithGameByApiKeyIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSharesWithGameByApiKeyID, apiKeyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameSharesWithGameByApiKeyIDRow
+	for rows.Next() {
+		var i GetGameSharesWithGameByApiKeyIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.GameName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSharesWithGameByApiKeyShareID = `-- name: GetGameSharesWithGameByApiKeyShareID :many
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+JOIN game g ON g.id = gs.game_id
+WHERE gs.api_key_share_id = $1 ORDER BY gs.created_at
+`
+
+type GetGameSharesWithGameByApiKeyShareIDRow struct {
+	ID            uuid.UUID
+	GameID        uuid.UUID
+	Token         string
+	ApiKeyShareID uuid.UUID
+	InstitutionID uuid.NullUUID
+	WorkshopID    uuid.NullUUID
+	Remaining     sql.NullInt32
+	CreatedBy     uuid.NullUUID
+	CreatedAt     time.Time
+	GameName      string
+}
+
+// Get game shares with game name for a specific api_key_share (for display in API key management)
+func (q *Queries) GetGameSharesWithGameByApiKeyShareID(ctx context.Context, apiKeyShareID uuid.UUID) ([]GetGameSharesWithGameByApiKeyShareIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSharesWithGameByApiKeyShareID, apiKeyShareID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGameSharesWithGameByApiKeyShareIDRow
+	for rows.Next() {
+		var i GetGameSharesWithGameByApiKeyShareIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.GameName,
 		); err != nil {
 			return nil, err
 		}

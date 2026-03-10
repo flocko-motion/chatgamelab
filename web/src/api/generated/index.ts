@@ -122,11 +122,13 @@ export interface ObjApiKeyShare {
   apiKey?: ObjApiKey;
   apiKeyId?: string;
   game?: ObjGame;
+  gameShareId?: string;
   id?: string;
   institution?: ObjInstitution;
   isPrivateShare?: boolean;
   isUserDefault?: boolean;
   meta?: ObjMeta;
+  remaining?: number;
   user?: ObjUser;
   workshop?: ObjWorkshop;
 }
@@ -267,18 +269,6 @@ export interface ObjGameSessionMessage {
   /** player: user message; game: LLM/game response; system: initial system/context messages. */
   type?: string;
   urlAnalytics?: string;
-}
-
-export interface ObjGameShare {
-  apiKeyShareId?: string;
-  createdAt?: string;
-  createdBy?: string;
-  gameId?: string;
-  id?: string;
-  institutionId?: string;
-  remaining?: number;
-  token?: string;
-  workshopId?: string;
 }
 
 export interface ObjGameTag {
@@ -500,6 +490,25 @@ export interface RoutesCreateWorkshopRequest {
   public?: boolean;
 }
 
+export interface RoutesEnrichedGameShare {
+  apiKeyShareId?: string;
+  createdAt?: string;
+  createdBy?: string;
+  gameId?: string;
+  /** set when returned from game-shares endpoint */
+  gameName?: string;
+  id?: string;
+  institutionId?: string;
+  remaining?: number;
+  shareUrl?: string;
+  /** "workshop", "organization", "personal" */
+  source?: string;
+  token?: string;
+  workshopId?: string;
+  /** set for workshop shares */
+  workshopName?: string;
+}
+
 export interface RoutesGameShareResponse {
   apiKeyShareId?: string;
   createdAt?: string;
@@ -617,13 +626,7 @@ export interface RoutesParticipantLoginRequest {
 }
 
 export interface RoutesPrivateShareStatus {
-  enabled?: boolean;
-  /** null = unlimited */
-  remaining?: number;
-  shareId?: string;
-  shareUrl?: string;
-  shares?: ObjGameShare[];
-  token?: string;
+  shares?: RoutesEnrichedGameShare[];
 }
 
 export interface RoutesRegisterRequest {
@@ -765,6 +768,11 @@ export interface RoutesStatusResponse {
 
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
+}
+
+export interface RoutesUpdateGameShareRequest {
+  /** null = unlimited */
+  maxSessions?: number;
 }
 
 export interface RoutesUpdateInstitutionRequest {
@@ -1216,6 +1224,32 @@ export class Api<
       }),
 
     /**
+     * @description Returns game share links that use this API key share, enriched with game name and context. Use ?context=personal to see all shares (requires key ownership). Use ?context=organization to see only org/workshop shares.
+     *
+     * @tags apikeys
+     * @name GameSharesList
+     * @summary Get game shares for API key share
+     * @request GET:/apikeys/{id}/game-shares
+     * @secure
+     */
+    gameSharesList: (
+      id: string,
+      query?: {
+        /** Filter context: 'personal' (all, owner only) or 'organization' (org/workshop only) */
+        context?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesEnrichedGameShare[], HttpxErrorResponse>({
+        path: `/apikeys/${id}/game-shares`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Shares an API key with a user, workshop, or institution
      *
      * @tags apikeys
@@ -1536,11 +1570,11 @@ export class Api<
       }),
 
     /**
-     * @description Returns the current private share configuration for a game.
+     * @description Returns all share links for a game that the requesting user has access to.
      *
      * @tags games
      * @name PrivateShareList
-     * @summary Get private share status (legacy)
+     * @summary Get private share status
      * @request GET:/games/{id}/private-share
      * @secure
      */
@@ -1548,43 +1582,6 @@ export class Api<
       this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
         path: `/games/${id}/private-share`,
         method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Creates a share link. Delegates to CreateGameShare internally.
-     *
-     * @tags games
-     * @name PrivateShareCreate
-     * @summary Enable private share (legacy)
-     * @request POST:/games/{id}/private-share
-     * @secure
-     */
-    privateShareCreate: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
-        path: `/games/${id}/private-share`,
-        method: "POST",
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Deletes all game shares for the game.
-     *
-     * @tags games
-     * @name PrivateShareDelete
-     * @summary Revoke private share (legacy)
-     * @request DELETE:/games/{id}/private-share
-     * @secure
-     */
-    privateShareDelete: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
-        path: `/games/${id}/private-share`,
-        method: "DELETE",
         secure: true,
         format: "json",
         ...params,
@@ -1628,24 +1625,6 @@ export class Api<
       }),
 
     /**
-     * @description Returns all share links for a game.
-     *
-     * @tags games
-     * @name SharesList
-     * @summary List game shares
-     * @request GET:/games/{id}/shares
-     * @secure
-     */
-    sharesList: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesGameShareResponse[], HttpxErrorResponse>({
-        path: `/games/${id}/shares`,
-        method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
      * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
      *
      * @tags games
@@ -1683,6 +1662,31 @@ export class Api<
         path: `/games/${id}/shares/${shareId}`,
         method: "DELETE",
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Updates settings (max sessions) on an existing share link.
+     *
+     * @tags games
+     * @name SharesPartialUpdate
+     * @summary Update a game share
+     * @request PATCH:/games/{id}/shares/{shareId}
+     * @secure
+     */
+    sharesPartialUpdate: (
+      id: string,
+      shareId: string,
+      request: RoutesUpdateGameShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesGameShareResponse, HttpxErrorResponse>({
+        path: `/games/${id}/shares/${shareId}`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 

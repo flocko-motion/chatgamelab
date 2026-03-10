@@ -286,16 +286,24 @@
       "platform": "Plattform",
       "setDefault": "Als Standard festlegen",
       "shares": {
+        "context": {
+          "organization": "Organisation",
+          "personal": "Persönlich",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Spiel-Freigabelinks",
         "goToOrg": "Verwalten",
         "noOrgShares": "Nicht mit einer Organisation geteilt",
         "noSponsorships": "Keine Spiel-Sponsorings",
         "orgShares": "Organisations-Freigaben",
         "privateShares": "Private Einladungslinks",
-        "remaining": "{{count}} verbleibend",
+        "remaining": "{{count}} Nutzungen verbleibend",
         "removeSponsor": "Sponsoring entfernen",
+        "revokeGameShare": "Freigabelink widerrufen",
         "revokePrivateShare": "Einladungslink widerrufen",
         "sponsorships": "Spiel-Sponsorings",
         "toggle": "Freigaben \u0026 Sponsorings",
+        "unlimited": "Unbegrenzte Nutzungen",
         "unknownGame": "Unbekanntes Spiel",
         "unknownOrg": "Unbekannte Organisation",
         "unknownUser": "Unbekannter Benutzer",
@@ -887,6 +895,7 @@
         "share": "Teilen",
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "showDetails": "Details anzeigen",
         "title": "Organisations-API-Schlüssel"
       },
       "autoShare": {

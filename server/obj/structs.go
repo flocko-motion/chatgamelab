@@ -198,6 +198,8 @@ type ApiKeyShare struct {
 	Game                      *Game        `json:"game,omitempty"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 	IsPrivateShare            bool         `json:"isPrivateShare,omitempty"`
+	Remaining                 *int         `json:"remaining,omitempty"`
+	GameShareID               *uuid.UUID   `json:"gameShareId,omitempty"`
 }
 
 // AvailableKey represents an API key available to a user for playing a specific game

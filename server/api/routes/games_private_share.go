@@ -338,6 +338,7 @@ type EnrichedGameShare struct {
 	ShareURL     string `json:"shareUrl"`
 	Source       string `json:"source"`                 // "workshop", "organization", "personal"
 	WorkshopName string `json:"workshopName,omitempty"` // set for workshop shares
+	GameName     string `json:"gameName,omitempty"`     // set when returned from game-shares endpoint
 }
 
 // PrivateShareStatus returns all shares the requesting user has access to.

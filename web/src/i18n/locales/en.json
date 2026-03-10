@@ -286,16 +286,24 @@
       "platform": "Platform",
       "setDefault": "Set as default",
       "shares": {
+        "context": {
+          "organization": "Organization",
+          "personal": "Personal",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Game Share Links",
         "goToOrg": "Manage",
         "noOrgShares": "Not shared with any organization",
         "noSponsorships": "No game sponsorships",
         "orgShares": "Organization Shares",
         "privateShares": "Private Share Links",
-        "remaining": "{{count}} remaining",
+        "remaining": "{{count}} usages remaining",
         "removeSponsor": "Remove sponsorship",
+        "revokeGameShare": "Revoke share link",
         "revokePrivateShare": "Revoke share link",
         "sponsorships": "Game Sponsorships",
         "toggle": "Shares \u0026 Sponsorships",
+        "unlimited": "Unlimited usages",
         "unknownGame": "Unknown game",
         "unknownOrg": "Unknown organization",
         "unknownUser": "Unknown user",
@@ -887,6 +895,7 @@
         "share": "Share",
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
+        "showDetails": "Show details",
         "title": "Organization API Keys"
       },
       "autoShare": {

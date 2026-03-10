@@ -385,6 +385,7 @@ export function useRevokePrivateShare() {
       });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({ queryKey: ["apiKeyGameShares"] });
     },
     onError: handleApiError,
   });
@@ -424,6 +425,7 @@ export function useUpdateGameShare() {
         queryKey: [...queryKeys.games, gameId, "private-share"],
       });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: ["apiKeyGameShares"] });
     },
     onError: handleApiError,
   });

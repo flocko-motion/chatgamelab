@@ -8,6 +8,7 @@ import type {
   HttpxErrorResponse,
   RoutesApiKeysResponse,
   RoutesCreateApiKeyRequest,
+  RoutesEnrichedGameShare,
   RoutesShareRequest,
 } from "../generated";
 
@@ -129,6 +130,24 @@ export function useInstitutionApiKeys(institutionId: string) {
         .apikeysList(institutionId)
         .then((response) => response.data),
     enabled: !!institutionId,
+  });
+}
+
+// Game shares for a specific API key share
+// context: "personal" = all shares (owner only), "organization" = org/workshop only
+export function useApiKeyGameShares(
+  shareId: string | null,
+  context?: "personal" | "organization",
+) {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<RoutesEnrichedGameShare[], HttpxErrorResponse>({
+    queryKey: [...queryKeys.apiKeyGameShares(shareId ?? ""), context ?? "all"],
+    queryFn: () =>
+      api.apikeys
+        .gameSharesList(shareId!, context ? { context } : undefined)
+        .then((response) => response.data),
+    enabled: !!shareId,
   });
 }
 

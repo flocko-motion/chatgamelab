@@ -47,6 +47,7 @@ func NewMux() *http.ServeMux {
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
 	mux.Handle("GET /api/apikeys/{id}", httpx.RequireAuth(GetApiKeyByID))
+	mux.Handle("GET /api/apikeys/{id}/game-shares", httpx.RequireAuth(GetApiKeyGameShares))
 	mux.Handle("POST /api/apikeys/new", httpx.RequireAuth(CreateApiKey))
 	mux.Handle("POST /api/apikeys/{id}/shares", httpx.RequireAuth(ShareApiKey))
 	// Backward compatibility: previously used POST /api/apikeys/{id} for sharing
