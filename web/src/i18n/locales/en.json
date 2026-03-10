@@ -568,6 +568,7 @@
         "sectionTitleShareOnly": "Sharing",
         "privateShareLink": "Private Share Link",
         "privateShareLinkDescription": "Anyone with a private link can play this game anonymously.",
+        "publicGameWorkshopHint": "This is a public game and not part of your workshop. Sharing options are not available for public games in workshop mode.",
         "publicSponsoring": "Public Sponsoring",
         "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost."
       },

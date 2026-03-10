@@ -568,6 +568,7 @@
         "sectionTitleShareOnly": "Freigabe",
         "privateShareLink": "Privater Freigabelink",
         "privateShareLinkDescription": "Jeder mit einem privaten Link kann dieses Spiel anonym spielen.",
+        "publicGameWorkshopHint": "Dies ist ein öffentliches Spiel und nicht Teil Ihres Workshops. Freigabeoptionen sind für öffentliche Spiele im Workshop-Modus nicht verfügbar.",
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten."
       },

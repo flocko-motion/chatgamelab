@@ -580,6 +580,12 @@ function SharingSection({
       </Text>
 
       <Stack gap="lg">
+        {workshopId && !canShowShareInContext && (
+          <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
+            {t("games.sharing.publicGameWorkshopHint")}
+          </Alert>
+        )}
+
         {canShowShareInContext && (
           <Stack gap="xs">
             <Text size="sm" fw={600}>
