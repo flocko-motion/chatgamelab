@@ -11,7 +11,6 @@ import { config } from "@/config/env";
 import { useAuth } from "@/providers/AuthProvider";
 import type {
   ObjGame,
-  ObjGameShare,
   HttpxErrorResponse,
   RoutesCreateGameRequest,
   RoutesGameShareResponse,

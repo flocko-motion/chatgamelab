@@ -382,17 +382,21 @@ func GetPrivateShareStatus(w http.ResponseWriter, r *http.Request) {
 	seen := map[uuid.UUID]bool{}
 	var result []EnrichedGameShare
 
-	// 1. Personal shares (created by this user, not in a workshop)
+	// 1. Personal/org shares (created by this user, not in a workshop)
 	personalShares, _ := db.GetGameSharesByGameIDAndCreator(r.Context(), gameID, user.ID)
 	for _, s := range personalShares {
 		if seen[s.ID] {
 			continue
 		}
 		seen[s.ID] = true
+		source := "personal"
+		if s.InstitutionID != nil {
+			source = "organization"
+		}
 		result = append(result, EnrichedGameShare{
 			GameShare: s,
 			ShareURL:  "/play/" + s.Token,
-			Source:    "personal",
+			Source:    source,
 		})
 	}
 
@@ -413,21 +417,41 @@ func GetPrivateShareStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// 3. Workshop shares (from workshops the user belongs to)
+	// 3. Workshop shares
 	if userObj.Role != nil && userObj.Role.Workshop != nil {
+		// User is currently in a workshop (participant or head/staff in workshop mode)
 		wsShares, _ := db.GetGameSharesByGameIDAndWorkshop(r.Context(), gameID, userObj.Role.Workshop.ID)
 		for _, s := range wsShares {
 			if seen[s.ID] {
 				continue
 			}
 			seen[s.ID] = true
-			enriched := EnrichedGameShare{
+			result = append(result, EnrichedGameShare{
 				GameShare:    s,
 				ShareURL:     "/play/" + s.Token,
 				Source:       "workshop",
 				WorkshopName: userObj.Role.Workshop.Name,
+			})
+		}
+	}
+	// Head/staff outside workshop mode: show workshop shares from all workshops in their institution
+	if userObj.Role != nil && userObj.Role.Workshop == nil && userObj.Role.Institution != nil &&
+		(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+		workshops, _ := db.ListWorkshopsForInstitution(r.Context(), userObj.Role.Institution.ID)
+		for _, ws := range workshops {
+			wsShares, _ := db.GetGameSharesByGameIDAndWorkshop(r.Context(), gameID, ws.ID)
+			for _, s := range wsShares {
+				if seen[s.ID] {
+					continue
+				}
+				seen[s.ID] = true
+				result = append(result, EnrichedGameShare{
+					GameShare:    s,
+					ShareURL:     "/play/" + s.Token,
+					Source:       "workshop",
+					WorkshopName: ws.Name,
+				})
 			}
-			result = append(result, enriched)
 		}
 	}
 

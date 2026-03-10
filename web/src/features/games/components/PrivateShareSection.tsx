@@ -9,7 +9,6 @@ import {
   CopyButton,
   ActionIcon,
   Tooltip,
-  Divider,
   Badge,
 } from "@mantine/core";
 import {
@@ -70,17 +69,6 @@ export function PrivateShareSection({
 
   const shares = shareStatus?.shares ?? [];
 
-  // Determine if a personal/org share already exists (to control create button visibility)
-  const hasPersonalOrOrgShare = shares.some(
-    (s) => s.source === "personal" || s.source === "organization",
-  );
-  const hasWorkshopShare = shares.some((s) => s.source === "workshop");
-
-  // Show create button?
-  // - Workshop mode: only if no workshop share exists
-  // - Outside workshop: only if no personal/org share exists
-  const canCreate = isWorkshopMode ? !hasWorkshopShare : !hasPersonalOrOrgShare;
-
   // Eligible keys for personal/org share creation — grouped like SponsorGameModal
   const keys = apiKeys?.apiKeys ?? [];
   const allShares = apiKeys?.shares ?? [];
@@ -91,8 +79,8 @@ export function PrivateShareSection({
       if (!share.id || seenShareIds.has(share.id)) continue;
       const apiKey = keys.find((k) => k.id === share.apiKeyId);
       if (apiKey?.lastUsageSuccess === false) continue;
-      // Skip shares that belong to an institution — they'll come from institutionKeys
-      if (share.institution) continue;
+      // Only include pure self-shares (no institution, workshop, or game context)
+      if (share.institution || share.workshop || share.game) continue;
       seenShareIds.add(share.id);
       eligibleKeys.push({
         id: share.id,
@@ -496,7 +484,6 @@ function ShareCard({
         <ActionButton
           onClick={onEdit}
           size="xs"
-          variant="light"
           leftSection={<IconSettings size={14} />}
         >
           {t("games.privateShare.editSettings")}

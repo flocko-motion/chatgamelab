@@ -87,6 +87,25 @@ func GetWorkshopName(ctx context.Context, id uuid.UUID) (string, error) {
 	return result.Name, nil
 }
 
+// WorkshopSummary is a lightweight struct with just ID and Name.
+type WorkshopSummary struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// ListWorkshopsForInstitution returns a lightweight list of workshops for an institution (no permission checks).
+func ListWorkshopsForInstitution(ctx context.Context, institutionID uuid.UUID) ([]WorkshopSummary, error) {
+	rows, err := queries().ListWorkshopsByInstitution(ctx, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]WorkshopSummary, len(rows))
+	for i, r := range rows {
+		result[i] = WorkshopSummary{ID: r.ID, Name: r.Name}
+	}
+	return result, nil
+}
+
 // GetWorkshopByID retrieves a workshop by ID (admin or any member of institution)
 func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.Workshop, error) {
 	result, err := queries().GetWorkshopByID(ctx, id)
