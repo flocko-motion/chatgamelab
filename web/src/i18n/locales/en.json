@@ -536,22 +536,32 @@
         "unlimited": "Unlimited",
         "unlimitedSessions": "Unlimited sessions",
         "update": "Update Share Link",
-        "workshopDescription": "Create a share link for this game. The workshop's API key will be used for guest sessions.",
+        "workshopDescription": "Create a share link for this game. The workshop's default API key will be used automatically for guest sessions.",
         "workshopShare": "Workshop share",
-        "workshopShareDescription": "This share link was created as part of the workshop \"{{name}}\".",
+        "workshopShareDescription": "This link was created in workshop \"{{name}}\" - guests play using the workshop's API key.",
         "personalShare": "Your private share link",
-        "personalShareDescription": "You created this share link personally.",
-        "orgShareDescription": "This share link belongs to your organization.",
+        "personalShareDescription": "Your personal share link - guests play using your selected API key.",
+        "orgShareDescription": "Organization share link - guests play using the organization's API key.",
         "createModalTitle": "Create Private Share Link",
         "editModalTitle": "Edit Private Share Link",
-        "orgKey": "Organization"
+        "orgKey": "Organization",
+        "sourceWorkshop": "Workshop",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
+        "workshopSubsection": "Workshop Share Link",
+        "personalOrgSubsection": "Personal / Organization Share Link",
+        "workshopCreateHint": "Create a share link for this game. The workshop's API key will be used automatically for guest sessions.",
+        "personalCreateHint": "Create a private link so anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
+        "noPersonalShare": "No personal or organization share link exists. You can create one from outside the workshop."
       },
       "sharing": {
         "active": "Active",
         "sectionTitle": "Sharing",
         "sectionTitleShareOnly": "Sharing",
         "privateShareLink": "Private Share Link",
-        "publicSponsoring": "Public Sponsoring"
+        "privateShareLinkDescription": "Anyone with a private link can play this game anonymously.",
+        "publicSponsoring": "Public Sponsoring",
+        "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost."
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",

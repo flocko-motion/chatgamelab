@@ -17,11 +17,19 @@ SELECT * FROM game_share WHERE game_id = $1 ORDER BY created_at;
 SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at;
 
 -- name: GetGameSharesByGameIDAndCreator :many
-SELECT * FROM game_share WHERE game_id = $1 AND created_by = $2 ORDER BY created_at;
+-- Personal context: only non-workshop shares (workshop shares belong to their workshop context)
+SELECT * FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at;
+
+-- name: GetGameSharesByGameIDAndInstitution :many
+-- Org shares: shares belonging to an institution (excludes workshop shares which have their own context)
+SELECT * FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at;
 
 -- name: GetWorkshopGameShare :one
 -- Find existing workshop share for a game (reuse instead of creating duplicates)
 SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2;
+
+-- name: UpdateGameShareRemaining :one
+UPDATE game_share SET remaining = $2 WHERE id = $1 RETURNING *;
 
 -- name: DeleteGameShare :exec
 DELETE FROM game_share WHERE id = $1;

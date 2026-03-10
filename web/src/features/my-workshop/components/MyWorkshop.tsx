@@ -623,7 +623,6 @@ export function MyWorkshop() {
         onSponsor={undefined}
         showShareSection={canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false)}
         workshopId={workshop?.id}
-        workshopName={workshop?.name}
         onCopy={gameToViewReadOnly ? handleCopyFromModal : undefined}
         hideDesign={hideDesign}
       />

@@ -261,10 +261,10 @@ type GameShare struct {
 	GameID        uuid.UUID  `json:"gameId"`
 	Token         string     `json:"token"`
 	ApiKeyShareID uuid.UUID  `json:"apiKeyShareId"`
-	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
-	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
+	InstitutionID *uuid.UUID `json:"institutionId"`
+	WorkshopID    *uuid.UUID `json:"workshopId"`
 	Remaining     *int       `json:"remaining"`
-	CreatedBy     *uuid.UUID `json:"createdBy,omitempty"`
+	CreatedBy     *uuid.UUID `json:"createdBy"`
 	CreatedAt     time.Time  `json:"createdAt"`
 }
 

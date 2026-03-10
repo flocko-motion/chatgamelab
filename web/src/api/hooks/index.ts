@@ -40,10 +40,11 @@ export {
   useRemoveFavorite,
   useApiKeyStatus,
   usePrivateShareStatus,
-  useEnablePrivateShare,
   useCreateGameShare,
   useRevokePrivateShare,
+  useUpdateGameShare,
   type PrivateShareStatus,
+  type EnrichedGameShare,
   type UseGamesParams,
 } from "./useGames";
 

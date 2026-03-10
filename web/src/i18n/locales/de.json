@@ -536,22 +536,32 @@
         "unlimited": "Unbegrenzt",
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
-        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird für Gastsitzungen verwendet.",
+        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der Standard-API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
         "workshopShare": "Workshop-Freigabe",
-        "workshopShareDescription": "Dieser Freigabelink wurde im Rahmen des Workshops \"{{name}}\" angelegt.",
+        "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "personalShare": "Dein privater Freigabelink",
-        "personalShareDescription": "Diesen Freigabelink hast du persönlich angelegt.",
-        "orgShareDescription": "Dieser Freigabelink gehört deiner Organisation.",
+        "personalShareDescription": "Dein persönlicher Freigabelink - Gäste spielen mit deinem gewählten API-Schlüssel.",
+        "orgShareDescription": "Organisations-Freigabelink - Gäste spielen mit dem API-Schlüssel der Organisation.",
         "createModalTitle": "Privaten Freigabelink erstellen",
         "editModalTitle": "Privaten Freigabelink bearbeiten",
-        "orgKey": "Organisation"
+        "orgKey": "Organisation",
+        "sourceWorkshop": "Workshop",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
+        "workshopSubsection": "Workshop-Freigabelink",
+        "personalOrgSubsection": "Persönlicher / Organisations-Freigabelink",
+        "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "personalCreateHint": "Erstelle einen privaten Link, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
+        "noPersonalShare": "Es gibt keinen persönlichen oder Organisations-Freigabelink. Du kannst einen außerhalb des Workshops erstellen."
       },
       "sharing": {
         "active": "Aktiv",
         "sectionTitle": "Freigabe",
         "sectionTitleShareOnly": "Freigabe",
         "privateShareLink": "Privater Freigabelink",
-        "publicSponsoring": "Öffentliches Sponsoring"
+        "privateShareLinkDescription": "Jeder mit einem privaten Link kann dieses Spiel anonym spielen.",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten."
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",

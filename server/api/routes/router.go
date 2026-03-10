@@ -113,15 +113,11 @@ func NewMux() *http.ServeMux {
 	// Workshop members
 	mux.Handle("POST /api/workshops/{id}/members", httpx.RequireAuth(AddMemberToWorkshop))
 
-	// Game Share Management (new multi-share API)
-	mux.Handle("GET /api/games/{id}/shares", httpx.RequireAuth(ListGameShares))
-	mux.Handle("POST /api/games/{id}/shares", httpx.RequireAuth(CreateGameShare))
-	mux.Handle("DELETE /api/games/{id}/shares/{shareId}", httpx.RequireAuth(DeleteGameShareByID))
-
-	// Legacy Private Share endpoints (backwards compatibility)
+	// Game Share Management
 	mux.Handle("GET /api/games/{id}/private-share", httpx.RequireAuth(GetPrivateShareStatus))
-	mux.Handle("POST /api/games/{id}/private-share", httpx.RequireAuth(EnablePrivateShare))
-	mux.Handle("DELETE /api/games/{id}/private-share", httpx.RequireAuth(RevokePrivateShare))
+	mux.Handle("POST /api/games/{id}/shares", httpx.RequireAuth(CreateGameShare))
+	mux.Handle("PATCH /api/games/{id}/shares/{shareId}", httpx.RequireAuth(UpdateGameShare))
+	mux.Handle("DELETE /api/games/{id}/shares/{shareId}", httpx.RequireAuth(DeleteGameShareByID))
 
 	// Guest Play (public — share token is the capability)
 	mux.HandleFunc("GET /api/play/{token}/info", PlayGuestGetGameInfo)

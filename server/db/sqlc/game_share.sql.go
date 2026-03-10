@@ -293,7 +293,7 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 }
 
 const getGameSharesByGameIDAndCreator = `-- name: GetGameSharesByGameIDAndCreator :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndCreatorParams struct {
@@ -301,8 +301,52 @@ type GetGameSharesByGameIDAndCreatorParams struct {
 	CreatedBy uuid.NullUUID
 }
 
+// Personal context: only non-workshop shares (workshop shares belong to their workshop context)
 func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGameSharesByGameIDAndCreatorParams) ([]GameShare, error) {
 	rows, err := q.db.QueryContext(ctx, getGameSharesByGameIDAndCreator, arg.GameID, arg.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GameShare
+	for rows.Next() {
+		var i GameShare
+		if err := rows.Scan(
+			&i.ID,
+			&i.GameID,
+			&i.Token,
+			&i.ApiKeyShareID,
+			&i.InstitutionID,
+			&i.WorkshopID,
+			&i.Remaining,
+			&i.CreatedBy,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGameSharesByGameIDAndInstitution = `-- name: GetGameSharesByGameIDAndInstitution :many
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at
+`
+
+type GetGameSharesByGameIDAndInstitutionParams struct {
+	GameID        uuid.UUID
+	InstitutionID uuid.NullUUID
+}
+
+// Org shares: shares belonging to an institution (excludes workshop shares which have their own context)
+func (q *Queries) GetGameSharesByGameIDAndInstitution(ctx context.Context, arg GetGameSharesByGameIDAndInstitutionParams) ([]GameShare, error) {
+	rows, err := q.db.QueryContext(ctx, getGameSharesByGameIDAndInstitution, arg.GameID, arg.InstitutionID)
 	if err != nil {
 		return nil, err
 	}
@@ -388,6 +432,32 @@ type GetWorkshopGameShareParams struct {
 // Find existing workshop share for a game (reuse instead of creating duplicates)
 func (q *Queries) GetWorkshopGameShare(ctx context.Context, arg GetWorkshopGameShareParams) (GameShare, error) {
 	row := q.db.QueryRowContext(ctx, getWorkshopGameShare, arg.GameID, arg.WorkshopID)
+	var i GameShare
+	err := row.Scan(
+		&i.ID,
+		&i.GameID,
+		&i.Token,
+		&i.ApiKeyShareID,
+		&i.InstitutionID,
+		&i.WorkshopID,
+		&i.Remaining,
+		&i.CreatedBy,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const updateGameShareRemaining = `-- name: UpdateGameShareRemaining :one
+UPDATE game_share SET remaining = $2 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at
+`
+
+type UpdateGameShareRemainingParams struct {
+	ID        uuid.UUID
+	Remaining sql.NullInt32
+}
+
+func (q *Queries) UpdateGameShareRemaining(ctx context.Context, arg UpdateGameShareRemainingParams) (GameShare, error) {
+	row := q.db.QueryRowContext(ctx, updateGameShareRemaining, arg.ID, arg.Remaining)
 	var i GameShare
 	err := row.Scan(
 		&i.ID,

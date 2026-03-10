@@ -2214,6 +2214,22 @@ func GetGameSharesByGameIDAndWorkshop(ctx context.Context, gameID uuid.UUID, wor
 	return result, nil
 }
 
+// GetGameSharesByGameIDAndInstitution returns org-level shares (non-workshop) for a game.
+func GetGameSharesByGameIDAndInstitution(ctx context.Context, gameID uuid.UUID, institutionID uuid.UUID) ([]obj.GameShare, error) {
+	rows, err := queries().GetGameSharesByGameIDAndInstitution(ctx, db.GetGameSharesByGameIDAndInstitutionParams{
+		GameID:        gameID,
+		InstitutionID: uuid.NullUUID{UUID: institutionID, Valid: true},
+	})
+	if err != nil {
+		return nil, err
+	}
+	result := make([]obj.GameShare, len(rows))
+	for i, r := range rows {
+		result[i] = *dbGameShareToObj(r)
+	}
+	return result, nil
+}
+
 // GetWorkshopGameShare finds an existing workshop share for a game (for reuse).
 func GetWorkshopGameShare(ctx context.Context, gameID uuid.UUID, workshopID uuid.UUID) (*obj.GameShare, error) {
 	gs, err := queries().GetWorkshopGameShare(ctx, db.GetWorkshopGameShareParams{
@@ -2245,6 +2261,22 @@ func DeleteGameShare(ctx context.Context, shareID uuid.UUID) error {
 	_ = queries().DeleteApiKeyShare(ctx, gs.ApiKeyShareID)
 
 	return nil
+}
+
+// UpdateGameShareRemaining updates the remaining sessions on a game share. Pass nil for unlimited.
+func UpdateGameShareRemaining(ctx context.Context, shareID uuid.UUID, remaining *int) (*obj.GameShare, error) {
+	var nullRemaining sql.NullInt32
+	if remaining != nil {
+		nullRemaining = sql.NullInt32{Int32: int32(*remaining), Valid: true}
+	}
+	gs, err := queries().UpdateGameShareRemaining(ctx, db.UpdateGameShareRemainingParams{
+		ID:        shareID,
+		Remaining: nullRemaining,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return dbGameShareToObj(gs), nil
 }
 
 // DecrementGameShareRemaining atomically decrements the remaining counter on a game share.
