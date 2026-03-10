@@ -115,6 +115,7 @@ export function useUpdateWorkshop() {
       aiQualityTier?: string;
       promptConstraints?: string;
       isPaused?: boolean;
+      allowGameSharing?: boolean;
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
         name: data.name,
@@ -126,6 +127,7 @@ export function useUpdateWorkshop() {
         aiQualityTier: data.aiQualityTier,
         promptConstraints: data.promptConstraints,
         isPaused: data.isPaused ?? false,
+        allowGameSharing: data.allowGameSharing ?? false,
       });
       return response.data;
     },

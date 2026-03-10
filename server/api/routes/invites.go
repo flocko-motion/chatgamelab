@@ -125,10 +125,10 @@ func ListInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert to response format
+	// Convert to response format (use request context so workshop/institution names are included)
 	responses := make([]InviteResponse, len(invites))
 	for i, inv := range invites {
-		responses[i] = toInviteResponse(inv)
+		responses[i] = toInviteResponseWithContext(r.Context(), inv)
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, responses)

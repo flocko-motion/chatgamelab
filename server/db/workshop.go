@@ -53,8 +53,9 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		ModifiedAt:    now,
 		Name:          name,
 		InstitutionID: finalInstitutionID,
-		Active:        active,
-		Public:        public,
+		Active:          active,
+		Public:          public,
+		AllowGameSharing: false,
 	}
 
 	result, err := queries().CreateWorkshop(ctx, arg)
@@ -84,6 +85,25 @@ func GetWorkshopName(ctx context.Context, id uuid.UUID) (string, error) {
 		return "", obj.ErrNotFound("workshop not found")
 	}
 	return result.Name, nil
+}
+
+// WorkshopSummary is a lightweight struct with just ID and Name.
+type WorkshopSummary struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// ListWorkshopsForInstitution returns a lightweight list of workshops for an institution (no permission checks).
+func ListWorkshopsForInstitution(ctx context.Context, institutionID uuid.UUID) ([]WorkshopSummary, error) {
+	rows, err := queries().ListWorkshopsByInstitution(ctx, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]WorkshopSummary, len(rows))
+	for i, r := range rows {
+		result[i] = WorkshopSummary{ID: r.ID, Name: r.Name}
+	}
+	return result, nil
 }
 
 // GetWorkshopByID retrieves a workshop by ID (admin or any member of institution)
@@ -238,6 +258,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -471,6 +492,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
 				IsPaused:                   r.IsPaused,
+				AllowGameSharing:           r.AllowGameSharing,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -531,6 +553,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
 				IsPaused:                   r.IsPaused,
+				AllowGameSharing:           r.AllowGameSharing,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -564,6 +587,7 @@ type UpdateWorkshopParams struct {
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
 	IsPaused                   bool
+	AllowGameSharing           bool
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -604,6 +628,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       params.DesignEditingEnabled,
 		IsPaused:                   params.IsPaused,
+		AllowGameSharing:           params.AllowGameSharing,
 	}
 	if params.AiQualityTier != nil {
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
@@ -645,6 +670,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -716,6 +742,7 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

@@ -458,9 +458,12 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 			return nil
 		}
 
-		// 3. Valid share token grants access
-		if shareToken != nil && game.PrivateShareHash != nil && *shareToken == *game.PrivateShareHash {
-			return nil
+		// 3. Valid share token grants access (checked against game_share table)
+		if shareToken != nil {
+			gs, err := queries().GetGameShareByToken(ctx, *shareToken)
+			if err == nil && gs.GameID == game.ID {
+				return nil
+			}
 		}
 
 		// 4. Workshop members can access workshop games
@@ -533,15 +536,26 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 			return nil
 		}
 
-		// If game belongs to a workshop, user must have read access to that workshop
+		// If game belongs to a workshop, user must have read access to that workshop.
+		// Guest users (created via share tokens) are pre-authorized, so skip this check.
 		if game.WorkshopID.Valid {
-			// Get the workshop to find its institution ID
-			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
-			if err != nil {
-				return obj.ErrNotFound("workshop not found")
+			isGuest := false
+			if userID != uuid.Nil {
+				appUser, err := queries().GetUserByID(ctx, userID)
+				if err == nil && appUser.PrivateShareID.Valid {
+					isGuest = true
+				}
+			} else {
+				isGuest = true
 			}
-			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
-				return obj.ErrForbidden("not authorized to play games in this workshop")
+			if !isGuest {
+				workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
+				if err != nil {
+					return obj.ErrNotFound("workshop not found")
+				}
+				if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
+					return obj.ErrForbidden("not authorized to play games in this workshop")
+				}
 			}
 		}
 
@@ -711,11 +725,14 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 						return nil
 					}
 				}
-				// Private game with sponsored key share
-				if game.PrivateSponsoredApiKeyShareID.Valid {
-					share, err := queries().GetApiKeyShareByID(ctx, game.PrivateSponsoredApiKeyShareID.UUID)
-					if err == nil && share.ApiKeyID == apiKeyID {
-						return nil
+				// Game share sponsored key (from game_share table)
+				gameShares, gsErr := queries().GetGameSharesByGameID(ctx, *gameID)
+				if gsErr == nil {
+					for _, gs := range gameShares {
+						gsShare, gsShareErr := queries().GetApiKeyShareByID(ctx, gs.ApiKeyShareID)
+						if gsShareErr == nil && gsShare.ApiKeyID == apiKeyID {
+							return nil
+						}
 					}
 				}
 			}
@@ -727,7 +744,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
 				for _, share := range shares {
-					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicGameSponsoring {
+					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID {
 						return nil
 					}
 				}

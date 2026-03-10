@@ -7,7 +7,6 @@ import {
   UnstyledButton,
   Badge,
 } from "@mantine/core";
-import { HelperText } from "@components/typography";
 import {
   IconChevronDown,
   IconChevronRight,
@@ -31,12 +30,14 @@ export function ApiKeyShares({ shares }: ApiKeySharesProps) {
   const [opened, setOpened] = useState(false);
 
   // Show institution/workshop shares (self-shares with only user set are excluded)
-  const orgShares = shares.filter((s) => s.institution || s.workshop);
+  const orgShares = shares.filter(
+    (s) => (s.institution || s.workshop) && !s.isPrivateShare,
+  );
   const publicSponsorships = shares.filter((s) => s.game && !s.isPrivateShare);
-  const privateShares = shares.filter((s) => s.game && s.isPrivateShare);
+  const gameShares = shares.filter((s) => s.isPrivateShare);
 
   const totalShares =
-    orgShares.length + publicSponsorships.length + privateShares.length;
+    orgShares.length + publicSponsorships.length + gameShares.length;
 
   if (totalShares === 0) return null;
 
@@ -66,8 +67,8 @@ export function ApiKeyShares({ shares }: ApiKeySharesProps) {
           {publicSponsorships.length > 0 && (
             <SponsorshipsSection shares={publicSponsorships} />
           )}
-          {privateShares.length > 0 && (
-            <PrivateSharesSection shares={privateShares} />
+          {gameShares.length > 0 && (
+            <GameSharesSection shares={gameShares} />
           )}
         </Stack>
       </Collapse>
@@ -156,43 +157,65 @@ function SponsorshipsSection({ shares }: { shares: ObjApiKeyShare[] }) {
   );
 }
 
-function PrivateSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
+function GameSharesSection({ shares }: { shares: ObjApiKeyShare[] }) {
   const { t } = useTranslation("common");
-  const revokePrivateShare = useRevokePrivateShare();
+  const revokeShare = useRevokePrivateShare();
+
+  const getContextLabel = (share: ObjApiKeyShare): string => {
+    if (share.workshop) {
+      return share.workshop.name
+        ? `${t("apiKeys.shares.context.workshop")}: ${share.workshop.name}`
+        : t("apiKeys.shares.context.workshop");
+    }
+    if (share.institution) {
+      return t("apiKeys.shares.context.organization");
+    }
+    return t("apiKeys.shares.context.personal");
+  };
+
+  const getRemainingLabel = (share: ObjApiKeyShare): string => {
+    if (share.remaining == null) return t("apiKeys.shares.unlimited");
+    return t("apiKeys.shares.remaining", { count: share.remaining });
+  };
 
   return (
     <Stack gap={4}>
       <Group gap={8} align="center">
         <IconLink size={18} color="var(--mantine-color-accent-5)" />
         <Text size="sm" fw={600} c="dimmed" tt="uppercase">
-          {t("apiKeys.shares.privateShares")} ({shares.length})
+          {t("apiKeys.shares.gameShares")} ({shares.length})
         </Text>
       </Group>
       <Stack gap={6} pl="md">
         {shares.map((share) => (
-          <Group key={share.id} gap="sm" align="center" justify="space-between">
-            <Group gap="xs" align="center">
-              <Text size="sm">
+          <Group
+            key={share.gameShareId || share.id}
+            gap="sm"
+            align="center"
+            justify="space-between"
+          >
+            <Group gap="xs">
+              <Text size="sm" fw={500}>
                 {share.game?.name || t("apiKeys.shares.unknownGame")}
               </Text>
-              {share.game?.privateShareRemaining != null && (
-                <HelperText>
-                  (
-                  {t("apiKeys.shares.remaining", {
-                    count: share.game.privateShareRemaining,
-                  })}
-                  )
-                </HelperText>
-              )}
+              <Badge size="xs" variant="light" color="gray">
+                {getContextLabel(share)}
+              </Badge>
+              <Text size="xs" c="dimmed">
+                {getRemainingLabel(share)}
+              </Text>
             </Group>
             <DeleteIconButton
               size="sm"
               onClick={() => {
-                if (share.game?.id) {
-                  revokePrivateShare.mutate(share.game.id);
+                if (share.game?.id && share.gameShareId) {
+                  revokeShare.mutate({
+                    gameId: share.game.id,
+                    shareId: share.gameShareId,
+                  });
                 }
               }}
-              aria-label={t("apiKeys.shares.revokePrivateShare")}
+              aria-label={t("apiKeys.shares.revokeGameShare")}
             />
           </Group>
         ))}

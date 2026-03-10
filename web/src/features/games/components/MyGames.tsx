@@ -75,7 +75,6 @@ import { useAdmin } from "@/common/hooks/useAdmin";
 import { useAuth } from "@/providers/AuthProvider";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
-import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { GamePlayButtons } from "./GamePlayButtons";
@@ -118,13 +117,6 @@ export function MyGames({
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
-  const [
-    privateShareModalOpened,
-    { open: openPrivateShareModal, close: closePrivateShareModal },
-  ] = useDisclosure(false);
-  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
-    null,
-  );
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [showFavorites, setShowFavorites] = useState<"all" | "favorites">(
     "all",
@@ -817,13 +809,7 @@ export function MyGames({
             openSponsorModal();
           }
         }}
-        onPrivateShare={() => {
-          const game = rawGames?.find((g) => g.id === gameToView);
-          if (game) {
-            setGameToPrivateShare(game);
-            openPrivateShareModal();
-          }
-        }}
+        showShareSection
       />
 
       <SponsorGameModal
@@ -832,15 +818,6 @@ export function MyGames({
         onClose={() => {
           closeSponsorModal();
           setGameToSponsor(null);
-        }}
-      />
-
-      <PrivateShareModal
-        game={gameToPrivateShare}
-        opened={privateShareModalOpened}
-        onClose={() => {
-          closePrivateShareModal();
-          setGameToPrivateShare(null);
         }}
       />
 

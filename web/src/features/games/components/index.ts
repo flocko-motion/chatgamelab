@@ -7,6 +7,6 @@ export { GameEditModal } from "./GameEditModal";
 export { ThemePickerModal } from "./ThemePickerModal";
 export { ThemePreview } from "./ThemePreview";
 export { SponsorGameModal } from "./SponsorGameModal";
-export { PrivateShareModal } from "./PrivateShareModal";
+export { PrivateShareSection } from "./PrivateShareSection";
 export { DeleteGameModal } from "./DeleteGameModal";
 export { GamePlayButtons } from "./GamePlayButtons";

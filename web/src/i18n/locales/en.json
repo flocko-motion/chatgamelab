@@ -286,16 +286,24 @@
       "platform": "Platform",
       "setDefault": "Set as default",
       "shares": {
+        "context": {
+          "organization": "Organization",
+          "personal": "Personal",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Game Share Links",
         "goToOrg": "Manage",
         "noOrgShares": "Not shared with any organization",
         "noSponsorships": "No game sponsorships",
         "orgShares": "Organization Shares",
         "privateShares": "Private Share Links",
-        "remaining": "{{count}} remaining",
+        "remaining": "{{count}} usages remaining",
         "removeSponsor": "Remove sponsorship",
+        "revokeGameShare": "Revoke share link",
         "revokePrivateShare": "Revoke share link",
         "sponsorships": "Game Sponsorships",
         "toggle": "Shares \u0026 Sponsorships",
+        "unlimited": "Unlimited usages",
         "unknownGame": "Unknown game",
         "unknownOrg": "Unknown organization",
         "unknownUser": "Unknown user",
@@ -534,11 +542,34 @@
         "shareLink": "Share Link",
         "title": "Private Share Link",
         "unlimited": "Unlimited",
-        "update": "Update Share Link"
+        "unlimitedSessions": "Unlimited sessions",
+        "update": "Update Share Link",
+        "workshopDescription": "Create a share link for this game. The workshop's default API key will be used automatically for guest sessions.",
+        "workshopShare": "Workshop share",
+        "workshopShareDescription": "This link was created in workshop \"{{name}}\" - guests play using the workshop's API key.",
+        "personalShare": "Your private share link",
+        "personalShareDescription": "Your personal share link - guests play using your selected API key.",
+        "orgShareDescription": "Organization share link - guests play using the organization's API key.",
+        "createModalTitle": "Create Private Share Link",
+        "editModalTitle": "Edit Private Share Link",
+        "orgKey": "Organization",
+        "sourceWorkshop": "Workshop",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
+        "workshopSubsection": "Workshop Share Link",
+        "personalOrgSubsection": "Personal / Organization Share Link",
+        "workshopCreateHint": "Create a share link for this game. The workshop's API key will be used automatically for guest sessions.",
+        "personalCreateHint": "Create a private link so anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
+        "noPersonalShare": "No personal or organization share link exists. You can create one from outside the workshop."
       },
       "sharing": {
         "active": "Active",
-        "sectionTitle": "Sharing \u0026 Sponsoring"
+        "sectionTitle": "Sharing",
+        "sectionTitleShareOnly": "Sharing",
+        "privateShareLink": "Private Share Link",
+        "privateShareLinkDescription": "Anyone with a private link can play this game anonymously.",
+        "publicSponsoring": "Public Sponsoring",
+        "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost."
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
@@ -570,7 +601,7 @@
         "loadingKeys": "Loading API keys...",
         "manageSponsor": "Manage Sponsor",
         "next": "Next",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "noEligibleKeys": "You don't have any API keys available for sponsoring. Add an API key in your settings first.",
         "privateWarning": "Making this game private will remove the public sponsorship.",
         "removeSponsor": "Remove Sponsoring",
         "selectKey": "Select an API Key",
@@ -864,6 +895,7 @@
         "share": "Share",
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
+        "showDetails": "Show details",
         "title": "Organization API Keys"
       },
       "autoShare": {
@@ -951,6 +983,8 @@
         "inviteUsage": "Usage",
         "isPaused": "Pause workshop",
         "isPausedHint": "When paused, participants see a locked overlay and cannot interact with games",
+        "allowGameSharing": "Allow game sharing",
+        "allowGameSharingHint": "When enabled, participants can create share links for their games using the workshop's API key",
         "joined": "Joined",
         "linkCopied": "Link Copied",
         "linkCopiedMessage": "The invite link has been copied to your clipboard.",
@@ -1024,7 +1058,9 @@
       "empty": "No new notifications.",
       "inviteDescription": "You have been invited to join as {{role}}.",
       "inviteToJoin": "Organization Invitation",
-      "title": "Notifications"
+      "title": "Notifications",
+      "workshopInvite": "Workshop Invitation",
+      "workshopInviteDescription": "You have been invited to join this workshop."
     },
     "play": {
       "cloneGame": "Clone to my games",

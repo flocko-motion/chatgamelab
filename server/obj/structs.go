@@ -153,6 +153,7 @@ type Workshop struct {
 	ShowOtherParticipantsGames bool    `json:"showOtherParticipantsGames"`
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
+	AllowGameSharing           bool    `json:"allowGameSharing"`
 }
 
 type WorkshopParticipant struct {
@@ -195,9 +196,10 @@ type ApiKeyShare struct {
 	Workshop                  *Workshop    `json:"workshop,omitempty"`
 	Institution               *Institution `json:"institution,omitempty"`
 	Game                      *Game        `json:"game,omitempty"`
-	AllowPublicGameSponsoring bool         `json:"allowPublicGameSponsoring"`
 	IsUserDefault             bool         `json:"isUserDefault"`
 	IsPrivateShare            bool         `json:"isPrivateShare,omitempty"`
+	Remaining                 *int         `json:"remaining,omitempty"`
+	GameShareID               *uuid.UUID   `json:"gameShareId,omitempty"`
 }
 
 // AvailableKey represents an API key available to a user for playing a specific game
@@ -221,11 +223,6 @@ type Game struct {
 	Public bool `json:"public" yaml:"-"`
 	// If public, a sponsored API key share can be provided to pay for any public plays.
 	PublicSponsoredApiKeyShareID *uuid.UUID `json:"publicSponsoredApiKeyShareId" yaml:"-"`
-	// Private share links contain secret random tokens to limit access to the game.
-	// They are sponsored, so invited players don't require their own API key.
-	PrivateShareHash              *string    `json:"privateShareHash" yaml:"-"`
-	PrivateSponsoredApiKeyShareID *uuid.UUID `json:"privateSponsoredApiKeyShareId" yaml:"-"`
-	PrivateShareRemaining         *int       `json:"privateShareRemaining" yaml:"-"`
 	// Game details and system messages for the LLM.
 	// What is the game about? How does it work? Player role? World description?
 	SystemMessageScenario string `json:"systemMessageScenario" yaml:"system_message_scenario"`
@@ -257,6 +254,20 @@ type Game struct {
 	// Original creator info (populated when fetching games, if originally cloned)
 	OriginalCreatorID   *uuid.UUID `json:"originalCreatorId,omitempty" yaml:"-"`
 	OriginalCreatorName *string    `json:"originalCreatorName,omitempty" yaml:"-"`
+}
+
+// GameShare represents a share link for a game.
+// Multiple shares per game are supported (e.g. personal + workshop).
+type GameShare struct {
+	ID            uuid.UUID  `json:"id"`
+	GameID        uuid.UUID  `json:"gameId"`
+	Token         string     `json:"token"`
+	ApiKeyShareID uuid.UUID  `json:"apiKeyShareId"`
+	InstitutionID *uuid.UUID `json:"institutionId"`
+	WorkshopID    *uuid.UUID `json:"workshopId"`
+	Remaining     *int       `json:"remaining"`
+	CreatedBy     *uuid.UUID `json:"createdBy"`
+	CreatedAt     time.Time  `json:"createdAt"`
 }
 
 // this is just a dummy example for a CSS struct that can be used to have validateable CSS definitions

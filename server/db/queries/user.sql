@@ -100,6 +100,7 @@ SELECT
   w.prompt_constraints AS workshop_prompt_constraints,
   w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
+  w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
@@ -107,7 +108,8 @@ SELECT
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
   aw.design_editing_enabled AS active_workshop_design_editing_enabled,
-  aw.is_paused AS active_workshop_is_paused
+  aw.is_paused AS active_workshop_is_paused,
+  aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
@@ -452,31 +454,10 @@ LIMIT 1;
 -- Guest User queries
 
 -- name: CreateGuestUser :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_game_id)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_id)
 VALUES ($1, $2, NULL, NULL, NULL, $3)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
-
--- name: DeleteGuestSessionMessagesByGameID :exec
--- Delete all messages belonging to sessions of guest users created via a game's share link
-DELETE FROM game_session_message WHERE game_session_id IN (
-  SELECT gs.id FROM game_session gs
-  JOIN app_user u ON u.id = gs.user_id
-  WHERE u.private_share_game_id = $1
-);
-
--- name: DeleteGuestSessionsByGameID :exec
--- Delete all sessions of guest users created via a game's share link
-DELETE FROM game_session WHERE user_id IN (
-  SELECT id FROM app_user WHERE private_share_game_id = $1
-);
-
--- name: DeleteGuestUsersByGameID :exec
--- Delete all guest users created via a game's share link
-DELETE FROM app_user WHERE private_share_game_id = $1;
-
--- name: CountGuestUsersByGameID :one
-SELECT COUNT(*)::int AS count FROM app_user WHERE private_share_game_id = $1;
 
 -- User Statistics queries
 

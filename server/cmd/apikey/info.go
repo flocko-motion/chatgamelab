@@ -45,7 +45,7 @@ func runInfo(cmd *cobra.Command, args []string) {
 	if len(resp.LinkedShares) > 0 {
 		fmt.Printf("\nLinked Shares:\n")
 		table := tablewriter.NewWriter(os.Stdout)
-		table.Header([]string{"Share ID", "Type", "Target", "Public Plays"})
+		table.Header([]string{"Share ID", "Type", "Target"})
 
 		for _, s := range resp.LinkedShares {
 			shareType := ""
@@ -65,16 +65,10 @@ func runInfo(cmd *cobra.Command, args []string) {
 				target = s.Institution.Name
 			}
 
-			allowPublic := "no"
-			if s.AllowPublicGameSponsoring {
-				allowPublic = "yes"
-			}
-
 			table.Append([]string{
 				s.ID.String(),
 				shareType,
 				target,
-				allowPublic,
 			})
 		}
 		table.Render()
