@@ -363,6 +363,14 @@ func CreateWorkshopEmailInvite(
 		return obj.UserRoleInvite{}, obj.ErrNotFound("no user found with email: " + invitedEmail)
 	}
 
+	// Head/staff of the same org cannot be invited — they already have access to all workshops
+	fullUser, err := GetUserByID(ctx, user.ID)
+	if err == nil && fullUser != nil && fullUser.Role != nil &&
+		(fullUser.Role.Role == obj.RoleHead || fullUser.Role.Role == obj.RoleStaff) &&
+		fullUser.Role.Institution != nil && fullUser.Role.Institution.ID == workshop.InstitutionID {
+		return obj.UserRoleInvite{}, obj.ErrValidation("This user is already head or staff of the organization and can access all workshops")
+	}
+
 	// Check for existing pending invite for same user + institution
 	existingInvite, err := queries().GetPendingInviteByTarget(ctx, db.GetPendingInviteByTargetParams{
 		InstitutionID: workshop.InstitutionID,

@@ -22,6 +22,7 @@ import { useAuth } from "@/providers/AuthProvider";
 import { queryKeys } from "@/api/hooks";
 import type { RoutesInviteResponse } from "@/api/generated";
 import { useTranslateRole } from "@/common/lib/roles";
+import { ROUTES } from "@/common/routes/routes";
 
 const SEEN_INVITES_KEY = "cgl_seen_invites";
 
@@ -73,6 +74,9 @@ export function NotificationBell() {
 
   const navigate = useNavigate();
 
+  const [acceptingInvite, setAcceptingInvite] =
+    useState<RoutesInviteResponse | null>(null);
+
   const acceptMutation = useMutation({
     mutationFn: async (inviteId: string) => {
       const response = await api.invites.acceptCreate(inviteId);
@@ -91,9 +95,17 @@ export function NotificationBell() {
       queryClient.refetchQueries({ queryKey: queryKeys.currentUser });
       retryBackendFetch(); // Refresh user's organization data
       close(); // Close the notifications modal
-      // Delay navigation slightly to ensure modal closes
+
+      const isWorkshopInvite = !!acceptingInvite?.workshopId;
+      setAcceptingInvite(null);
+
+      // Navigate to the appropriate page
       setTimeout(() => {
-        navigate({ to: "/my-organization" });
+        if (isWorkshopInvite) {
+          navigate({ to: ROUTES.MY_WORKSHOP as "/" });
+        } else {
+          navigate({ to: "/my-organization" });
+        }
       }, 100);
     },
   });
@@ -121,66 +133,6 @@ export function NotificationBell() {
   );
   /* eslint-enable react-hooks/preserve-manual-memoization */
   const pendingCount = pendingInvites.length;
-
-  // Fetch organization and workshop names for invites
-  const [orgNames, setOrgNames] = useState<Record<string, string>>({});
-  const [workshopNames, setWorkshopNames] = useState<Record<string, string>>(
-    {},
-  );
-  // Track IDs we've already fetched to avoid re-fetching (and infinite loops)
-  const fetchedOrgIdsRef = useRef<Set<string>>(new Set());
-  const fetchedWorkshopIdsRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    const fetchNames = async () => {
-      const newOrgNames: Record<string, string> = {};
-      const newWorkshopNames: Record<string, string> = {};
-
-      for (const invite of pendingInvites) {
-        if (
-          invite.institutionId &&
-          !fetchedOrgIdsRef.current.has(invite.institutionId)
-        ) {
-          fetchedOrgIdsRef.current.add(invite.institutionId);
-          try {
-            const response = await api.institutions.institutionsDetail(
-              invite.institutionId,
-            );
-            newOrgNames[invite.institutionId] =
-              response.data.name || invite.institutionId;
-          } catch {
-            newOrgNames[invite.institutionId] = invite.institutionId;
-          }
-        }
-        if (
-          invite.workshopId &&
-          !fetchedWorkshopIdsRef.current.has(invite.workshopId)
-        ) {
-          fetchedWorkshopIdsRef.current.add(invite.workshopId);
-          try {
-            const response = await api.workshops.workshopsDetail(
-              invite.workshopId,
-            );
-            newWorkshopNames[invite.workshopId] =
-              response.data.name || invite.workshopId;
-          } catch {
-            newWorkshopNames[invite.workshopId] = invite.workshopId;
-          }
-        }
-      }
-
-      if (Object.keys(newOrgNames).length > 0) {
-        setOrgNames((prev) => ({ ...prev, ...newOrgNames }));
-      }
-      if (Object.keys(newWorkshopNames).length > 0) {
-        setWorkshopNames((prev) => ({ ...prev, ...newWorkshopNames }));
-      }
-    };
-
-    if (pendingInvites.length > 0) {
-      fetchNames();
-    }
-  }, [pendingInvites, api]);
 
   // Check for unseen invites
   const seenIds = getSeenInviteIds();
@@ -212,18 +164,28 @@ export function NotificationBell() {
 
   const translateRole = useTranslateRole();
 
-  const getInviteTarget = (invite: RoutesInviteResponse) => {
-    if (invite.workshopId) {
-      return workshopNames[invite.workshopId] || invite.workshopId;
+  const isWorkshopInvite = (invite: RoutesInviteResponse) =>
+    !!invite.workshopId;
+
+  const getInviteTitle = (invite: RoutesInviteResponse) => {
+    if (isWorkshopInvite(invite)) {
+      return t("notifications.workshopInvite");
     }
-    if (invite.institutionId) {
-      return orgNames[invite.institutionId] || invite.institutionId;
-    }
-    return "-";
+    return t("notifications.inviteToJoin");
   };
 
-  const handleAccept = (inviteId: string) => {
-    acceptMutation.mutate(inviteId);
+  const getInviteTarget = (invite: RoutesInviteResponse) => {
+    if (isWorkshopInvite(invite)) {
+      const wsName = invite.workshopName || invite.workshopId;
+      const orgName = invite.institutionName;
+      return orgName ? `${wsName} (${orgName})` : wsName;
+    }
+    return invite.institutionName || invite.institutionId || "-";
+  };
+
+  const handleAccept = (invite: RoutesInviteResponse) => {
+    setAcceptingInvite(invite);
+    acceptMutation.mutate(invite.id!);
   };
 
   const handleDecline = (invite: RoutesInviteResponse) => {
@@ -291,17 +253,23 @@ export function NotificationBell() {
                 <Stack gap="sm">
                   <Group justify="space-between" align="flex-start">
                     <Stack gap={4}>
-                      <Text fw={500}>{t("notifications.inviteToJoin")}</Text>
+                      <Text fw={500}>{getInviteTitle(invite)}</Text>
                       <Text size="sm" fw={600}>
                         {getInviteTarget(invite)}
                       </Text>
                     </Stack>
-                    <Badge variant="light">{translateRole(invite.role)}</Badge>
+                    {!isWorkshopInvite(invite) && (
+                      <Badge variant="light">
+                        {translateRole(invite.role)}
+                      </Badge>
+                    )}
                   </Group>
                   <Text size="sm" c="dimmed">
-                    {t("notifications.inviteDescription", {
-                      role: translateRole(invite.role),
-                    })}
+                    {isWorkshopInvite(invite)
+                      ? t("notifications.workshopInviteDescription")
+                      : t("notifications.inviteDescription", {
+                          role: translateRole(invite.role),
+                        })}
                   </Text>
                   <Group justify="flex-end" gap="xs">
                     <Button
@@ -314,7 +282,7 @@ export function NotificationBell() {
                     </Button>
                     <Button
                       size="xs"
-                      onClick={() => handleAccept(invite.id!)}
+                      onClick={() => handleAccept(invite)}
                       loading={acceptMutation.isPending}
                     >
                       {t("notifications.accept")}

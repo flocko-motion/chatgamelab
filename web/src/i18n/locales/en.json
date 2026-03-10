@@ -1058,7 +1058,9 @@
       "empty": "No new notifications.",
       "inviteDescription": "You have been invited to join as {{role}}.",
       "inviteToJoin": "Organization Invitation",
-      "title": "Notifications"
+      "title": "Notifications",
+      "workshopInvite": "Workshop Invitation",
+      "workshopInviteDescription": "You have been invited to join this workshop."
     },
     "play": {
       "cloneGame": "Clone to my games",

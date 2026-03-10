@@ -134,8 +134,40 @@ function AcceptInvitePage() {
         const data = await response.json();
         setInvite(data);
 
-        // Check if user is logged in with a non-participant account
-        // All authenticated users (head, staff, individual) can enter a workshop via invite link
+        // Head/staff clicking a workshop invite link → auto-enter the workshop
+        const userRole = backendUser?.role?.role;
+        if (
+          isLoggedInNonParticipant &&
+          data.workshopId &&
+          (userRole === "head" || userRole === "staff")
+        ) {
+          // Auto-accept to enter workshop mode, then redirect
+          try {
+            const accessToken = await getAccessToken();
+            const headers: Record<string, string> = {
+              "Content-Type": "application/json",
+            };
+            if (accessToken) {
+              headers["Authorization"] = `Bearer ${accessToken}`;
+            }
+            await fetch(
+              `${config.API_BASE_URL}/invites/${token}/accept`,
+              {
+                method: "POST",
+                credentials: "include",
+                headers,
+                body: JSON.stringify({}),
+              },
+            );
+            window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
+          } catch {
+            // Fallback to showing the enter button
+            setState("already-member");
+          }
+          return;
+        }
+
+        // Other non-participant users (individual, etc.) → show enter workshop button
         if (isLoggedInNonParticipant) {
           setState("already-member");
           return;

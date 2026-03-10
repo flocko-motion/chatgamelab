@@ -280,6 +280,14 @@ func (u *UserClient) GetInvitesIncoming() ([]obj.UserRoleInvite, error) {
 	return invites, err
 }
 
+// GetInvitesIncomingDetailed returns the user's incoming invites with full details (workshop/institution names)
+func (u *UserClient) GetInvitesIncomingDetailed() ([]routes.InviteResponse, error) {
+	u.t.Helper()
+	var invites []routes.InviteResponse
+	err := u.Get("invites", &invites)
+	return invites, err
+}
+
 // GetInvitesOutgoing returns all invites for a specific institution (composable high-level API)
 func (u *UserClient) GetInvitesOutgoing(institutionID string) ([]obj.UserRoleInvite, error) {
 	u.t.Helper()

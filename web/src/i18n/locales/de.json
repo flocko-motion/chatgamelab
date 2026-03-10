@@ -1058,7 +1058,9 @@
       "empty": "Keine neuen Benachrichtigungen.",
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "inviteToJoin": "Organisations-Einladung",
-      "title": "Benachrichtigungen"
+      "title": "Benachrichtigungen",
+      "workshopInvite": "Workshop-Einladung",
+      "workshopInviteDescription": "Sie wurden eingeladen, diesem Workshop beizutreten."
     },
     "play": {
       "cloneGame": "In meine Spiele kopieren",
