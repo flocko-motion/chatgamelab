@@ -463,7 +463,7 @@
       "createModal": {
         "descriptionPlaceholder": "Worum geht es in deinem Spiel?",
         "namePlaceholder": "z.B. Weltraumabenteuer",
-        "publicDescription": "Öffentliche Spiele sind für alle sichtbar.",
+        "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
         "title": "Neues Spiel erstellen"
@@ -492,6 +492,7 @@
       "editModal": {
         "adminActionTitle": "Admin-Aktion",
         "adminActionWarning": "Du bearbeitest ein Spiel, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "gameDesignSection": "Spieldesign",
         "title": "Spiel bearbeiten",
         "unsavedChanges": {
           "discard": "Änderungen verwerfen",
@@ -558,16 +559,16 @@
         "sourcePersonal": "Persönlich",
         "workshopSubsection": "Workshop-Freigabelink",
         "personalOrgSubsection": "Persönlicher / Organisations-Freigabelink",
-        "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
         "personalCreateHint": "Erstelle einen privaten Link, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
         "noPersonalShare": "Es gibt keinen persönlichen oder Organisations-Freigabelink. Du kannst einen außerhalb des Workshops erstellen."
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Freigabe",
-        "sectionTitleShareOnly": "Freigabe",
+        "sectionTitle": "Freigabeoptionen",
+        "sectionTitleShareOnly": "Freigabeoptionen",
         "privateShareLink": "Privater Freigabelink",
-        "privateShareLinkDescription": "Jeder mit einem privaten Link kann dieses Spiel anonym spielen.",
+        "privateShareLinkDescription": "Private Freigabelinks können mit anderen geteilt werden. Damit kann jeder das Spiel anonym ohne eigenes Nutzerkonto spielen. Es muss ein API-Schlüssel ausgewählt werden, der für die Kosten aufkommt.",
         "publicGameWorkshopHint": "Dies ist ein öffentliches Spiel und nicht Teil Ihres Workshops. Freigabeoptionen sind für öffentliche Spiele im Workshop-Modus nicht verfügbar.",
         "publicSponsoring": "Öffentliches Sponsoring",
         "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten."

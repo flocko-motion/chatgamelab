@@ -463,7 +463,7 @@
       "createModal": {
         "descriptionPlaceholder": "What is your game about?",
         "namePlaceholder": "e.g., Space Adventure",
-        "publicDescription": "Public games are discoverable by everyone.",
+        "publicDescription": "Public games are visible and playable by all users on this platform.",
         "publicLabel": "Make this game public",
         "submit": "Create Game",
         "title": "Create New Game"
@@ -492,6 +492,7 @@
       "editModal": {
         "adminActionTitle": "Admin action",
         "adminActionWarning": "You are editing a game you do not own. This is an administrative action and should only be used for moderation purposes.",
+        "gameDesignSection": "Game Design",
         "title": "Edit Game",
         "unsavedChanges": {
           "discard": "Discard Changes",
@@ -558,16 +559,16 @@
         "sourcePersonal": "Personal",
         "workshopSubsection": "Workshop Share Link",
         "personalOrgSubsection": "Personal / Organization Share Link",
-        "workshopCreateHint": "Create a share link for this game. The workshop's API key will be used automatically for guest sessions.",
+        "workshopCreateHint": "Create a share link for this game. The workshop's API key is automatically selected and covers the costs.",
         "personalCreateHint": "Create a private link so anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
         "noPersonalShare": "No personal or organization share link exists. You can create one from outside the workshop."
       },
       "sharing": {
         "active": "Active",
-        "sectionTitle": "Sharing",
-        "sectionTitleShareOnly": "Sharing",
+        "sectionTitle": "Sharing Options",
+        "sectionTitleShareOnly": "Sharing Options",
         "privateShareLink": "Private Share Link",
-        "privateShareLinkDescription": "Anyone with a private link can play this game anonymously.",
+        "privateShareLinkDescription": "Private share links can be shared with others. Anyone with the link can play the game anonymously without an account. An API key must be selected to cover the costs.",
         "publicGameWorkshopHint": "This is a public game and not part of your workshop. Sharing options are not available for public games in workshop mode.",
         "publicSponsoring": "Public Sponsoring",
         "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost."

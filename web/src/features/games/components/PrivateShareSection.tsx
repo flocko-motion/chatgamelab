@@ -192,7 +192,7 @@ export function PrivateShareSection({
         {/* Workshop share subsection */}
         {(isWorkshopMode || workshopShares.length > 0) && (
           <Stack gap="xs">
-            <Text size="xs" fw={600}>
+            <Text size="sm" fw={600}>
               {t("games.privateShare.workshopSubsection")}
             </Text>
             {workshopShares.length > 0 ? (
@@ -208,14 +208,14 @@ export function PrivateShareSection({
               ))
             ) : isWorkshopMode ? (
               <>
-                <Text size="xs" c="dimmed">
+                <Text size="sm" c="dimmed">
                   {t("games.privateShare.workshopCreateHint")}
                 </Text>
                 <div>
                   <ActionButton
                     onClick={handleOpenCreate}
-                    size="xs"
-                    leftSection={<IconLink size={14} />}
+                    size="sm"
+                    leftSection={<IconLink size={16} />}
                   >
                     {t("games.privateShare.enable")}
                   </ActionButton>
@@ -228,7 +228,7 @@ export function PrivateShareSection({
         {/* Personal / org share subsection */}
         {(personalOrgShares.length > 0 || !isWorkshopMode) && (
           <Stack gap="xs">
-            <Text size="xs" fw={600}>
+            <Text size="sm" fw={600}>
               {t("games.privateShare.personalOrgSubsection")}
             </Text>
             {personalOrgShares.length > 0 ? (
@@ -244,14 +244,14 @@ export function PrivateShareSection({
               ))
             ) : !isWorkshopMode ? (
               <>
-                <Text size="xs" c="dimmed">
+                <Text size="sm" c="dimmed">
                   {t("games.privateShare.personalCreateHint")}
                 </Text>
                 <div>
                   <ActionButton
                     onClick={handleOpenCreate}
-                    size="xs"
-                    leftSection={<IconLink size={14} />}
+                    size="sm"
+                    leftSection={<IconLink size={16} />}
                   >
                     {t("games.privateShare.enable")}
                   </ActionButton>
@@ -259,7 +259,7 @@ export function PrivateShareSection({
               </>
             ) : null}
             {isWorkshopMode && personalOrgShares.length === 0 && (
-              <Text size="xs" c="dimmed">
+              <Text size="sm" c="dimmed">
                 {t("games.privateShare.noPersonalShare")}
               </Text>
             )}
@@ -426,7 +426,7 @@ function ShareCard({
         </Text>
       </Group>
 
-      <Text size="xs" c="dimmed">
+      <Text size="sm" c="dimmed">
         {sourceLabel}
       </Text>
 
