@@ -20,6 +20,8 @@ const (
 	GameUpdated EventType = "game_updated"
 	// GameDeleted is emitted when a game in a workshop is deleted
 	GameDeleted EventType = "game_deleted"
+	// MembersUpdated is emitted when a member joins or leaves a workshop
+	MembersUpdated EventType = "members_updated"
 )
 
 // Event represents an SSE event to be sent to clients
@@ -124,4 +126,9 @@ func (b *Broker) PublishGameUpdated(workshopID uuid.UUID, gameID uuid.UUID, trig
 func (b *Broker) PublishGameDeleted(workshopID uuid.UUID, gameID uuid.UUID, triggeredBy uuid.UUID) {
 	data := fmt.Sprintf(`{"gameId":"%s","triggeredBy":"%s"}`, gameID, triggeredBy)
 	b.Publish(workshopID, Event{Type: GameDeleted, Data: data})
+}
+
+// PublishMembersUpdated is a convenience method to publish a members_updated event
+func (b *Broker) PublishMembersUpdated(workshopID uuid.UUID) {
+	b.Publish(workshopID, Event{Type: MembersUpdated})
 }

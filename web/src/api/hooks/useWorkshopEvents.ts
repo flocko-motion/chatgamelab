@@ -21,6 +21,8 @@ interface UseWorkshopEventsOptions {
   onGameUpdated?: (gameId: string) => void;
   /** Called when a game is deleted by another user in the workshop */
   onGameDeleted?: (gameId: string) => void;
+  /** Called when workshop members change (join/leave) */
+  onMembersUpdate?: () => void;
 }
 
 /**
@@ -37,6 +39,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     onGameCreated,
     onGameUpdated,
     onGameDeleted,
+    onMembersUpdate,
   } = options;
   const { backendUser, retryBackendFetch } = useAuth();
   const queryClient = useQueryClient();
@@ -50,6 +53,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     onGameCreated,
     onGameUpdated,
     onGameDeleted,
+    onMembersUpdate,
   });
   // Update refs on each render
   callbacksRef.current = {
@@ -57,6 +61,7 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
     onGameCreated,
     onGameUpdated,
     onGameDeleted,
+    onMembersUpdate,
   };
   const retryBackendFetchRef = useRef(retryBackendFetch);
   retryBackendFetchRef.current = retryBackendFetch;
@@ -140,8 +145,10 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
           // Invalidate all queries affected by workshop settings changes:
           // - games: visibility settings (showPublicGames, showOtherParticipantsGames)
           // - currentUser: workshop settings like aiQualityTier are in user.role.workshop
+          // - workshop: allowGameSharing, isPaused, etc. used by useWorkshop() consumers
           queryClient.invalidateQueries({ queryKey: queryKeys.games });
           queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
+          queryClient.invalidateQueries({ queryKey: ["workshop"] });
         });
 
         // Helper to parse game event data and check if we triggered it
@@ -178,6 +185,13 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
         eventSource.addEventListener("game_deleted", (event: MessageEvent) => {
           uiLogger.info("Game deleted in workshop", { workshopId });
           handleGameEvent(event, callbacksRef.current.onGameDeleted);
+        });
+
+        eventSource.addEventListener("members_updated", () => {
+          uiLogger.info("Workshop members updated", { workshopId });
+          // Refetch workshop data (includes participant list)
+          queryClient.invalidateQueries({ queryKey: ["workshop"] });
+          callbacksRef.current.onMembersUpdate?.();
         });
 
         eventSource.onerror = () => {
