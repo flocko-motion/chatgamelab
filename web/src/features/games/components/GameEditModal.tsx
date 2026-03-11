@@ -564,10 +564,13 @@ function SharingSection({
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
 
-  // In workshop mode, only show share section if the game belongs to this workshop.
+  // Check if game belongs to the current workshop context
+  const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
+
+  // In workshop mode, only show share section if the game belongs to this workshop
+  // AND sharing is enabled (via showShareSection prop).
   const canShowShareInContext =
-    showShareSection &&
-    (!workshopId || game?.workshopId === workshopId);
+    showShareSection && gameBelongsToWorkshop;
 
   // Only show public sponsoring when game is public
   const canShowSponsoring = onSponsor && isPublic;
@@ -601,7 +604,7 @@ function SharingSection({
           </Text>
         )}
 
-        {workshopId && !canShowShareInContext && (
+        {workshopId && !gameBelongsToWorkshop && (
           <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
             {t("games.sharing.publicGameWorkshopHint")}
           </Alert>
