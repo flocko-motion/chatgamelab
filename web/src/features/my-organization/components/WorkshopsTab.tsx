@@ -397,6 +397,7 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
+      allowGameSharing: boolean;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -418,6 +419,8 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       promptConstraints:
         settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
+      allowGameSharing:
+        settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -958,6 +961,9 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                           label={t(
                             "myOrganization.workshops.showOtherParticipantsGames",
                           )}
+                          description={t(
+                            "myOrganization.workshops.showOtherParticipantsGamesHint",
+                          )}
                           checked={
                             workshop.showOtherParticipantsGames !== false
                           }
@@ -993,6 +999,21 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                             })
                           }
                           color="orange"
+                        />
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.allowGameSharing",
+                          )}
+                          description={t(
+                            "myOrganization.workshops.allowGameSharingHint",
+                          )}
+                          checked={workshop.allowGameSharing || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              allowGameSharing: e.currentTarget.checked,
+                            })
+                          }
                         />
                       </Stack >
 

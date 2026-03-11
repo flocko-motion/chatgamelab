@@ -471,6 +471,8 @@
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
         "adminActionWarning": "Du bist dabei, ein Spiel zu löschen, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "moderatorActionTitle": "Spiel eines Teilnehmers löschen",
+        "moderatorActionWarning": "Dieses Spiel gehört einem Teilnehmer in deinem Workshop. Das Löschen entfernt es dauerhaft für diese Person. Dies kann nicht rückgängig gemacht werden.",
         "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "title": "Spiel löschen",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
@@ -1017,6 +1019,7 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
+        "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",

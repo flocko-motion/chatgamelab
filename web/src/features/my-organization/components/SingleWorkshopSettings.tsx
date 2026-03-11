@@ -488,6 +488,7 @@ export function SingleWorkshopSettings({
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showOtherParticipantsGames")}
+              description={t("myOrganization.workshops.showOtherParticipantsGamesHint")}
               checked={workshop.showOtherParticipantsGames !== false}
               onChange={(e) =>
                 handleUpdateWorkshopSettings({
