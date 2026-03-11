@@ -838,11 +838,19 @@ func SetActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID uuid.UU
 	return nil
 }
 
-// ClearActiveWorkshop clears the active workshop for a user (leave workshop mode)
-func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
+// ClearActiveWorkshop clears the active workshop for a user (leave workshop mode).
+// Also cleans up any orphaned participant role for the given workshop.
+func ClearActiveWorkshop(ctx context.Context, userID uuid.UUID, workshopID ...uuid.UUID) error {
 	err := queries().ClearUserActiveWorkshop(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("failed to clear active workshop: %w", err)
+	}
+	// Clean up orphaned participant role if workshop ID is provided
+	if len(workshopID) > 0 {
+		_ = queries().DeleteUserParticipantRole(ctx, db.DeleteUserParticipantRoleParams{
+			UserID:     userID,
+			WorkshopID: uuid.NullUUID{UUID: workshopID[0], Valid: true},
+		})
 	}
 	return nil
 }

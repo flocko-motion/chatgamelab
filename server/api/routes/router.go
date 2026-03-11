@@ -113,6 +113,7 @@ func NewMux() *http.ServeMux {
 
 	// Workshop members
 	mux.Handle("POST /api/workshops/{id}/members", httpx.RequireAuth(AddMemberToWorkshop))
+	mux.Handle("DELETE /api/workshops/{id}/members/{userId}", httpx.RequireAuth(RemoveMemberFromWorkshop))
 
 	// Game Share Management
 	mux.Handle("GET /api/games/{id}/private-share", httpx.RequireAuth(GetPrivateShareStatus))

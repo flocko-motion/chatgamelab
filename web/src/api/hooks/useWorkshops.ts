@@ -262,21 +262,32 @@ export function useGetParticipantToken() {
 }
 
 /**
- * Hook to remove a participant from a workshop (soft-delete)
+ * Hook to remove a member from a workshop.
+ * Permanent members (participants) are soft-deleted.
+ * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */
 export function useRemoveParticipant() {
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (participantId: string) => {
-      await api.users.usersDelete(participantId);
+    mutationFn: async ({
+      participantId,
+      workshopId,
+      permanent,
+    }: {
+      participantId: string;
+      workshopId: string;
+      permanent: boolean;
+    }) => {
+      if (permanent) {
+        await api.users.usersDelete(participantId);
+      } else {
+        await api.workshops.membersDelete(workshopId, participantId);
+      }
     },
     onSuccess: () => {
-      // Invalidate workshop queries to refresh participant list
-      // This covers workshopsByInstitution queries (Orga -> Workshops view)
       queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
-      // This covers single workshop queries (Workshop Settings in workshop mode)
       queryClient.invalidateQueries({ queryKey: ["workshop"] });
     },
   });

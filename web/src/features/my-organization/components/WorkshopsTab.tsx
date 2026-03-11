@@ -378,8 +378,12 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
   };
 
   const handleConfirmRemoveParticipant = async () => {
-    if (!participantToRemove?.id) return;
-    await removeParticipant.mutateAsync(participantToRemove.id);
+    if (!participantToRemove?.id || !participantToRemove?.workshopId) return;
+    await removeParticipant.mutateAsync({
+      participantId: participantToRemove.id,
+      workshopId: participantToRemove.workshopId,
+      permanent: participantToRemove.permanent !== false,
+    });
     setParticipantToRemove(null);
   };
 
