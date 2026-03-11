@@ -457,7 +457,7 @@
       "badges": {
         "myGame": "Mein Spiel",
         "public": "Öffentlich",
-        "workshop": "Workshop"
+        "workshop": "Workshop-Spiel"
       },
       "createButton": "Spiel erstellen",
       "createModal": {
@@ -471,6 +471,8 @@
       "deleteModal": {
         "adminActionTitle": "Admin-Aktion",
         "adminActionWarning": "Du bist dabei, ein Spiel zu löschen, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "moderatorActionTitle": "Spiel eines Teilnehmers löschen",
+        "moderatorActionWarning": "Dieses Spiel gehört einem Teilnehmer in deinem Workshop. Das Löschen entfernt es dauerhaft für diese Person. Dies kann nicht rückgängig gemacht werden.",
         "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "title": "Spiel löschen",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
@@ -533,6 +535,8 @@
         "enable": "Freigabelink erstellen",
         "loading": "Lade Freigabestatus...",
         "loadingKeys": "Lade API-Schlüssel...",
+        "aiQualityTier": "KI-Qualität",
+        "aiQualityTierDescription": "Wähle die KI-Modellqualität für Gäste, die diesen Freigabelink nutzen.",
         "maxSessions": "Max. Sitzungen",
         "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
         "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",
@@ -1015,6 +1019,7 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
+        "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -1038,7 +1043,7 @@
         "addIndividual": "Organisationsmitglied hinzufügen",
         "addIndividualTitle": "Person zum Workshop hinzufügen",
         "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
-        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten — sie werden hier nicht aufgeführt.",
+        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten - sie werden hier nicht aufgeführt.",
         "addIndividualSuccess": "Mitglied hinzugefügt",
         "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
         "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
@@ -1296,6 +1301,14 @@
       "currentWorkshop": "Aktueller Workshop",
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
+    },
+    "infoModal": {
+      "body": "Du hast den Workshop-Modus betreten. In diesem Modus ist alles, was du tust, mit diesem Workshop verknüpft - erstellte Spiele, Spielsitzungen und geteilte Links.\n\nDu kannst den Modus jederzeit verlassen. Das Verlassen beendet den Workshop nicht und entfernt nichts, was du erstellt hast.",
+      "dontShowAgain": "Nicht mehr anzeigen",
+      "gotIt": "Verstanden",
+      "headStaffNote": "Du kannst diesem Workshop jederzeit über die Workshop-Liste deiner Organisation erneut beitreten.",
+      "individualNote": "Um nach dem Verlassen erneut beizutreten, benötigst du eine neue Einladung von den Workshop-Organisatoren.",
+      "title": "Willkommen bei {{name}}"
     },
     "title": "Mein Workshop",
     "you": "Du"

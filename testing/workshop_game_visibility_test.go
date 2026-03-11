@@ -213,10 +213,11 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesAllParticipantGamesR
 	s.T().Logf("Head sees %d games — both visible despite showOtherParticipantsGames=false", len(headGames))
 }
 
-// TestHeadAlwaysSeesPublicGamesRegardlessOfSettings verifies that a head
-// in workshop mode sees public games from outside even when showPublicGames=false.
-func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesPublicGamesRegardlessOfSettings() {
-	head, _, _, wsIDStr := s.setupWorkshop("head-pub-bypass")
+// TestHeadRespectsShowPublicGamesSetting verifies that a head
+// in workshop mode does NOT see public games from outside when showPublicGames=false,
+// but DOES see them when showPublicGames=true. The setting applies to all roles.
+func (s *WorkshopGameVisibilityTestSuite) TestHeadRespectsShowPublicGamesSetting() {
+	head, _, _, wsIDStr := s.setupWorkshop("head-pub-setting")
 
 	// Head enters workshop mode (showPublicGames stays false by default)
 	Must(head.SetActiveWorkshop(&wsIDStr))
@@ -231,10 +232,21 @@ func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesPublicGamesRegardles
 	}))
 	s.T().Logf("Outsider public game: %s", game.ID)
 
-	// Head should see the public game even though showPublicGames=false
+	// Head should NOT see the public game when showPublicGames=false
 	headGames := Must(head.ListGames())
-	s.True(containsGame(headGames, game.ID), "head should see public games regardless of showPublicGames")
-	s.T().Logf("Head sees %d games — public game visible despite showPublicGames=false", len(headGames))
+	s.False(containsGame(headGames, game.ID), "head should not see public games when showPublicGames=false")
+	s.T().Logf("Head sees %d games — public game hidden with showPublicGames=false", len(headGames))
+
+	// Enable showPublicGames and verify head now sees the public game
+	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
+		"name":                       "head-pub-setting Workshop",
+		"active":                     true,
+		"showPublicGames":            true,
+		"showOtherParticipantsGames": true,
+	}))
+	headGames = Must(head.ListGames())
+	s.True(containsGame(headGames, game.ID), "head should see public games when showPublicGames=true")
+	s.T().Logf("Head sees %d games — public game visible with showPublicGames=true", len(headGames))
 }
 
 // TestStaffAlwaysSeesAllParticipantGamesRegardlessOfSettings verifies that staff

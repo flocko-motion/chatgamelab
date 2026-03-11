@@ -37,12 +37,6 @@ func LoadJwt() string {
 	return jwt
 }
 
-// GetJwtPath returns a description of where JWT is stored (for display purposes)
-func GetJwtPath() string {
-	configPath, _ := config.GetConfigPath()
-	return configPath + " (server.jwt)"
-}
-
 func ApiGet(endpoint string, out any) error {
 	return apiRequest("GET", endpoint, nil, out)
 }

@@ -442,6 +442,35 @@ func AddMemberToWorkshop(
 	return SetActiveWorkshop(ctx, targetUserID, workshopID)
 }
 
+// RemoveMemberFromWorkshop clears the active workshop for a non-permanent member (individual/head/staff visiting).
+// Only head or staff of the institution that owns the workshop can perform this action.
+func RemoveMemberFromWorkshop(
+	ctx context.Context,
+	callerID uuid.UUID,
+	workshopID uuid.UUID,
+	targetUserID uuid.UUID,
+) error {
+	workshop, err := queries().GetWorkshopByID(ctx, workshopID)
+	if err != nil {
+		return obj.ErrNotFound("workshop not found")
+	}
+
+	if err := canAccessWorkshop(ctx, callerID, OpCreate, workshop.InstitutionID, &workshopID, uuid.Nil); err != nil {
+		return err
+	}
+
+	// Verify the target user actually has this workshop as their active workshop
+	targetUser, err := GetUserByID(ctx, targetUserID)
+	if err != nil {
+		return obj.ErrNotFound("user not found")
+	}
+	if targetUser.Role == nil || targetUser.Role.Workshop == nil || targetUser.Role.Workshop.ID != workshopID {
+		return obj.ErrValidation("user is not an active member of this workshop")
+	}
+
+	return ClearActiveWorkshop(ctx, targetUserID, workshopID)
+}
+
 // updateInviteStatusUnchecked updates the status of an invite without permission checks.
 // This is an internal function used by RevokeInvite and ReactivateInvite after they've done their own permission checks.
 func updateInviteStatusUnchecked(ctx context.Context, inviteID uuid.UUID, status obj.InviteStatus) error {

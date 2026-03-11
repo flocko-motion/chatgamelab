@@ -282,7 +282,10 @@ function RootComponent() {
           onExitWorkshopMode: isInWorkshopMode
             ? async () => {
                 await exitWorkshopMode();
-                navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/" });
+                const destination = hasRole(backendUser, Role.Individual)
+                  ? ROUTES.DASHBOARD
+                  : ROUTES.MY_ORGANIZATION_WORKSHOPS;
+                navigate({ to: destination as "/" });
               }
             : undefined,
           // Staff/head/individual in workshop mode keep access to profile/settings/api-keys

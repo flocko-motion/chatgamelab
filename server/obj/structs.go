@@ -165,6 +165,7 @@ type WorkshopParticipant struct {
 	AccessToken string    `json:"accessToken"`
 	Active      bool      `json:"active"`
 	GamesCount  int       `json:"gamesCount"`
+	Permanent   bool      `json:"permanent"`
 }
 
 type ApiKey struct {
@@ -266,6 +267,7 @@ type GameShare struct {
 	InstitutionID *uuid.UUID `json:"institutionId"`
 	WorkshopID    *uuid.UUID `json:"workshopId"`
 	Remaining     *int       `json:"remaining"`
+	AiQualityTier *string    `json:"aiQualityTier,omitempty"`
 	CreatedBy     *uuid.UUID `json:"createdBy"`
 	CreatedAt     time.Time  `json:"createdAt"`
 }

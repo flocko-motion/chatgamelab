@@ -32,6 +32,7 @@ import {
   type EnrichedGameShare,
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
+import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
 
 interface PrivateShareSectionProps {
   gameId: string;
@@ -64,8 +65,10 @@ export function PrivateShareSection({
     useDisclosure(false);
   const [selectedShareId, setSelectedShareId] = useState<string | null>(null);
   const [maxSessions, setMaxSessions] = useState<number | string>("");
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [editingShare, setEditingShare] = useState<EnrichedGameShare | null>(null);
   const [editMaxSessions, setEditMaxSessions] = useState<number | string>("");
+  const [editTier, setEditTier] = useState<string | null>(null);
 
   const shares = shareStatus?.shares ?? [];
 
@@ -120,6 +123,7 @@ export function PrivateShareSection({
   const handleOpenCreate = () => {
     setSelectedShareId(null);
     setMaxSessions("");
+    setSelectedTier(null);
     openModal();
   };
 
@@ -134,6 +138,7 @@ export function PrivateShareSection({
           typeof maxSessions === "number" && maxSessions > 0
             ? maxSessions
             : null,
+        aiQualityTier: !isWorkshopMode && selectedTier ? selectedTier : null,
       });
       closeModal();
     } catch {
@@ -152,6 +157,7 @@ export function PrivateShareSection({
   const handleOpenEdit = (share: EnrichedGameShare) => {
     setEditingShare(share);
     setEditMaxSessions(share.remaining ?? "");
+    setEditTier(share.aiQualityTier ?? null);
     openEditModal();
   };
 
@@ -165,6 +171,7 @@ export function PrivateShareSection({
           typeof editMaxSessions === "number" && editMaxSessions > 0
             ? editMaxSessions
             : null,
+        aiQualityTier: editingShare.source !== "workshop" && editTier ? editTier : null,
       });
       closeEditModal();
     } catch {
@@ -309,6 +316,17 @@ export function PrivateShareSection({
             </>
           )}
 
+          {!isWorkshopMode && selectData.length > 0 && (
+            <Select
+              label={t("games.privateShare.aiQualityTier")}
+              description={t("games.privateShare.aiQualityTierDescription")}
+              data={getAiQualityTierOptions(t, { includeEmpty: true })}
+              value={selectedTier ?? ""}
+              onChange={(v) => setSelectedTier(v || null)}
+              allowDeselect={false}
+            />
+          )}
+
           {(isWorkshopMode || selectData.length > 0) && (
             <NumberInput
               label={t("games.privateShare.maxSessions")}
@@ -346,6 +364,17 @@ export function PrivateShareSection({
         centered={!isMobile}
       >
         <Stack gap="md">
+          {editingShare && editingShare.source !== "workshop" && (
+            <Select
+              label={t("games.privateShare.aiQualityTier")}
+              description={t("games.privateShare.aiQualityTierDescription")}
+              data={getAiQualityTierOptions(t, { includeEmpty: true })}
+              value={editTier ?? ""}
+              onChange={(v) => setEditTier(v || null)}
+              allowDeselect={false}
+            />
+          )}
+
           <NumberInput
             label={t("games.privateShare.maxSessions")}
             description={t("games.privateShare.maxSessionsDescription")}
@@ -421,6 +450,11 @@ function ShareCard({
         }>
           {sourceBadge}
         </Badge>
+        {share.aiQualityTier && (
+          <Badge size="xs" variant="light" color="violet">
+            {t(`aiQualityTier.${share.aiQualityTier}`)}
+          </Badge>
+        )}
         <Text size="xs" c="green" fw={500}>
           {remainingLabel}
         </Text>

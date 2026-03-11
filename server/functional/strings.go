@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"time"
-
-	"gopkg.in/yaml.v3"
 )
 
 func Shorten(s string, max int) string {
@@ -25,13 +23,6 @@ func ShortenLeft(s string, max int) string {
 	return ".." + s[len(s)-max+2:]
 }
 
-func MaybeFieldToString(m map[string]any, key, ifNotExisting, ifNil string) string {
-	if val, exists := m[key]; exists {
-		return MaybeToString(val, ifNil)
-	}
-	return ifNotExisting
-}
-
 func MaybeToString(v any, ifNil string) string {
 	if v == nil {
 		return ifNil
@@ -47,13 +38,6 @@ func MaybeToString(v any, ifNil string) string {
 	}
 
 	return fmt.Sprintf("%v", v)
-}
-
-func BoolToString(b bool, ifTrue, ifFalse string) string {
-	if b {
-		return ifTrue
-	}
-	return ifFalse
 }
 
 func RequireEnv(name string) string {
@@ -174,11 +158,3 @@ func splitBy(s string, sep byte) []string {
 	return parts
 }
 
-// NormalizeYaml unmarshals YAML into the given struct type and re-marshals it to normalize the format.
-// If o is not a pointer, a pointer to a new instance of its type is created automatically.
-func NormalizeYaml(in string, o any) string {
-	target := EnsurePointer(o)
-	_ = yaml.Unmarshal([]byte(in), target)
-	normalized, _ := yaml.Marshal(target)
-	return string(normalized)
-}

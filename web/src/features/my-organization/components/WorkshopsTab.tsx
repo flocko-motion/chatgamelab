@@ -41,6 +41,7 @@ import {
   IconClock,
   IconLogin,
   IconPencil,
+  IconX,
   IconMail,
   IconUserPlus,
 } from "@tabler/icons-react";
@@ -378,8 +379,12 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
   };
 
   const handleConfirmRemoveParticipant = async () => {
-    if (!participantToRemove?.id) return;
-    await removeParticipant.mutateAsync(participantToRemove.id);
+    if (!participantToRemove?.id || !participantToRemove?.workshopId) return;
+    await removeParticipant.mutateAsync({
+      participantId: participantToRemove.id,
+      workshopId: participantToRemove.workshopId,
+      permanent: participantToRemove.permanent !== false,
+    });
     setParticipantToRemove(null);
   };
 
@@ -393,6 +398,7 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
+      allowGameSharing: boolean;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -414,6 +420,8 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       promptConstraints:
         settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
+      allowGameSharing:
+        settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -954,6 +962,9 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                           label={t(
                             "myOrganization.workshops.showOtherParticipantsGames",
                           )}
+                          description={t(
+                            "myOrganization.workshops.showOtherParticipantsGamesHint",
+                          )}
                           checked={
                             workshop.showOtherParticipantsGames !== false
                           }
@@ -989,6 +1000,21 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                             })
                           }
                           color="orange"
+                        />
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.allowGameSharing",
+                          )}
+                          description={t(
+                            "myOrganization.workshops.allowGameSharingHint",
+                          )}
+                          checked={workshop.allowGameSharing || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              allowGameSharing: e.currentTarget.checked,
+                            })
+                          }
                         />
                       </Stack >
 
@@ -1116,13 +1142,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                               <Tooltip label={t("cancel")}>
                                                 <ActionIcon
                                                   variant="subtle"
-                                                  color="gray"
+                                                  color="red"
                                                   size="sm"
                                                   onClick={
                                                     handleCancelEditParticipant
                                                   }
                                                 >
-                                                  <IconAlertCircle size={14} />
+                                                  <IconX size={14} />
                                                 </ActionIcon>
                                               </Tooltip>
                                             </>
@@ -1294,13 +1320,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                                 <Tooltip label={t("cancel")}>
                                                   <ActionIcon
                                                     variant="subtle"
-                                                    color="gray"
+                                                    color="red"
                                                     size="sm"
                                                     onClick={
                                                       handleCancelEditParticipant
                                                     }
                                                   >
-                                                    <IconAlertCircle size={16} />
+                                                    <IconX size={16} />
                                                   </ActionIcon>
                                                 </Tooltip>
                                               </>

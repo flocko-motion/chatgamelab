@@ -33,6 +33,7 @@ import {
   IconClock,
   IconPlayerPlay,
   IconPencil,
+  IconX,
   IconMail,
   IconUserPlus,
 } from "@tabler/icons-react";
@@ -226,8 +227,12 @@ export function SingleWorkshopSettings({
   };
 
   const handleConfirmRemoveParticipant = async () => {
-    if (!participantToRemove?.id) return;
-    await removeParticipant.mutateAsync(participantToRemove.id);
+    if (!participantToRemove?.id || !workshopId) return;
+    await removeParticipant.mutateAsync({
+      participantId: participantToRemove.id,
+      workshopId,
+      permanent: participantToRemove.permanent !== false,
+    });
     setParticipantToRemove(null);
   };
 
@@ -484,6 +489,7 @@ export function SingleWorkshopSettings({
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showOtherParticipantsGames")}
+              description={t("myOrganization.workshops.showOtherParticipantsGamesHint")}
               checked={workshop.showOtherParticipantsGames !== false}
               onChange={(e) =>
                 handleUpdateWorkshopSettings({
@@ -627,11 +633,11 @@ export function SingleWorkshopSettings({
                                   <Tooltip label={t("cancel")}>
                                     <ActionIcon
                                       variant="subtle"
-                                      color="gray"
+                                      color="red"
                                       size="sm"
                                       onClick={handleCancelEditParticipant}
                                     >
-                                      <IconAlertCircle size={14} />
+                                      <IconX size={14} />
                                     </ActionIcon>
                                   </Tooltip>
                                 </>
@@ -679,22 +685,25 @@ export function SingleWorkshopSettings({
                                       <IconPencil size={14} />
                                     </ActionIcon>
                                   </Tooltip>
-                                  <Tooltip
-                                    label={t(
-                                      "myOrganization.workshops.removeParticipant",
-                                    )}
-                                  >
-                                    <ActionIcon
-                                      variant="subtle"
-                                      color="red"
-                                      size="sm"
-                                      onClick={() =>
-                                        setParticipantToRemove(participant)
-                                      }
+                                  {participant.role !== ObjRole.RoleHead &&
+                                    participant.role !== ObjRole.RoleStaff && (
+                                    <Tooltip
+                                      label={t(
+                                        "myOrganization.workshops.removeParticipant",
+                                      )}
                                     >
-                                      <IconTrash size={14} />
-                                    </ActionIcon>
-                                  </Tooltip>
+                                      <ActionIcon
+                                        variant="subtle"
+                                        color="red"
+                                        size="sm"
+                                        onClick={() =>
+                                          setParticipantToRemove(participant)
+                                        }
+                                      >
+                                        <IconTrash size={14} />
+                                      </ActionIcon>
+                                    </Tooltip>
+                                  )}
                                 </>
                               )}
                             </Group>
@@ -786,11 +795,11 @@ export function SingleWorkshopSettings({
                                     <Tooltip label={t("cancel")}>
                                       <ActionIcon
                                         variant="subtle"
-                                        color="gray"
+                                        color="red"
                                         size="sm"
                                         onClick={handleCancelEditParticipant}
                                       >
-                                        <IconAlertCircle size={14} />
+                                        <IconX size={14} />
                                       </ActionIcon>
                                     </Tooltip>
                                   </>
@@ -838,22 +847,25 @@ export function SingleWorkshopSettings({
                                         <IconPencil size={14} />
                                       </ActionIcon>
                                     </Tooltip>
-                                    <Tooltip
-                                      label={t(
-                                        "myOrganization.workshops.removeParticipant",
-                                      )}
-                                    >
-                                      <ActionIcon
-                                        variant="subtle"
-                                        color="red"
-                                        size="sm"
-                                        onClick={() =>
-                                          setParticipantToRemove(participant)
-                                        }
+                                    {participant.role !== ObjRole.RoleHead &&
+                                      participant.role !== ObjRole.RoleStaff && (
+                                      <Tooltip
+                                        label={t(
+                                          "myOrganization.workshops.removeParticipant",
+                                        )}
                                       >
-                                        <IconTrash size={14} />
-                                      </ActionIcon>
-                                    </Tooltip>
+                                        <ActionIcon
+                                          variant="subtle"
+                                          color="red"
+                                          size="sm"
+                                          onClick={() =>
+                                            setParticipantToRemove(participant)
+                                          }
+                                        >
+                                          <IconTrash size={14} />
+                                        </ActionIcon>
+                                      </Tooltip>
+                                    )}
                                   </>
                                 )}
                               </Group>

@@ -187,7 +187,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}
 
 	if err := canAccessWorkshopParticipants(ctx, userID, id, createdBy, result.InstitutionID); err == nil {
-		participantRows, err := queries().GetWorkshopParticipants(ctx, id)
+		participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: id, Valid: true})
 		if err != nil {
 			// Don't fail if we can't get participants, just return empty list
 			log.Warn("failed to get workshop participants", "workshop_id", id, "error", err)
@@ -278,7 +278,7 @@ type ListWorkshopsOptions struct {
 
 // fetchWorkshopParticipants retrieves participants for a workshop (helper for list operations)
 func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.WorkshopParticipant {
-	participantRows, err := queries().GetWorkshopParticipants(ctx, workshopID)
+	participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
 	if err != nil {
 		return []obj.WorkshopParticipant{}
 	}
@@ -300,6 +300,7 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 			Active:      true,
 			Role:        role,
 			GamesCount:  int(p.GamesCount),
+			Permanent:   p.Permanent,
 			Meta: obj.Meta{
 				CreatedAt: &p.JoinedAt,
 			},

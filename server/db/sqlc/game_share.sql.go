@@ -26,8 +26,8 @@ func (q *Queries) CountGuestUsersByShareID(ctx context.Context, privateShareID u
 
 const createGameShare = `-- name: CreateGameShare :one
 
-INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
 `
 
 type CreateGameShareParams struct {
@@ -37,6 +37,7 @@ type CreateGameShareParams struct {
 	InstitutionID uuid.NullUUID
 	WorkshopID    uuid.NullUUID
 	Remaining     sql.NullInt32
+	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 }
 
@@ -49,6 +50,7 @@ func (q *Queries) CreateGameShare(ctx context.Context, arg CreateGameShareParams
 		arg.InstitutionID,
 		arg.WorkshopID,
 		arg.Remaining,
+		arg.AiQualityTier,
 		arg.CreatedBy,
 	)
 	var i GameShare
@@ -60,6 +62,7 @@ func (q *Queries) CreateGameShare(ctx context.Context, arg CreateGameShareParams
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -71,7 +74,7 @@ UPDATE game_share SET remaining = CASE
   WHEN remaining IS NULL THEN NULL
   ELSE remaining - 1
 END
-WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at
+WHERE id = $1 AND (remaining IS NULL OR remaining > 0) RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
 `
 
 // Atomically decrements the remaining counter. Returns the share if successful.
@@ -87,6 +90,7 @@ func (q *Queries) DecrementGameShareRemaining(ctx context.Context, id uuid.UUID)
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -157,7 +161,7 @@ func (q *Queries) DeleteGuestUsersByShareID(ctx context.Context, privateShareID 
 }
 
 const getGameShareByID = `-- name: GetGameShareByID :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE id = $1
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE id = $1
 `
 
 func (q *Queries) GetGameShareByID(ctx context.Context, id uuid.UUID) (GameShare, error) {
@@ -171,6 +175,7 @@ func (q *Queries) GetGameShareByID(ctx context.Context, id uuid.UUID) (GameShare
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -178,7 +183,7 @@ func (q *Queries) GetGameShareByID(ctx context.Context, id uuid.UUID) (GameShare
 }
 
 const getGameShareByToken = `-- name: GetGameShareByToken :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE token = $1
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE token = $1
 `
 
 func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameShare, error) {
@@ -192,6 +197,7 @@ func (q *Queries) GetGameShareByToken(ctx context.Context, token string) (GameSh
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
@@ -257,7 +263,7 @@ func (q *Queries) GetGameShareIDsByApiKeyShareID(ctx context.Context, apiKeyShar
 }
 
 const getGameSharesByGameID = `-- name: GetGameSharesByGameID :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 ORDER BY created_at
 `
 
 func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) ([]GameShare, error) {
@@ -277,6 +283,7 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -294,7 +301,7 @@ func (q *Queries) GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) (
 }
 
 const getGameSharesByGameIDAndCreator = `-- name: GetGameSharesByGameIDAndCreator :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND created_by = $2 AND workshop_id IS NULL ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndCreatorParams struct {
@@ -320,6 +327,7 @@ func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGa
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -337,7 +345,7 @@ func (q *Queries) GetGameSharesByGameIDAndCreator(ctx context.Context, arg GetGa
 }
 
 const getGameSharesByGameIDAndInstitution = `-- name: GetGameSharesByGameIDAndInstitution :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop_id IS NULL ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndInstitutionParams struct {
@@ -363,6 +371,7 @@ func (q *Queries) GetGameSharesByGameIDAndInstitution(ctx context.Context, arg G
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -380,7 +389,7 @@ func (q *Queries) GetGameSharesByGameIDAndInstitution(ctx context.Context, arg G
 }
 
 const getGameSharesByGameIDAndWorkshop = `-- name: GetGameSharesByGameIDAndWorkshop :many
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2 ORDER BY created_at
 `
 
 type GetGameSharesByGameIDAndWorkshopParams struct {
@@ -405,6 +414,7 @@ func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetG
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 		); err != nil {
@@ -422,7 +432,7 @@ func (q *Queries) GetGameSharesByGameIDAndWorkshop(ctx context.Context, arg GetG
 }
 
 const getGameSharesWithGameByApiKeyID = `-- name: GetGameSharesWithGameByApiKeyID :many
-SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
 JOIN game g ON g.id = gs.game_id
 JOIN api_key_share aks ON aks.id = gs.api_key_share_id
 WHERE aks.api_key_id = $1 ORDER BY gs.created_at
@@ -436,6 +446,7 @@ type GetGameSharesWithGameByApiKeyIDRow struct {
 	InstitutionID uuid.NullUUID
 	WorkshopID    uuid.NullUUID
 	Remaining     sql.NullInt32
+	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
 	GameName      string
@@ -459,6 +470,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID 
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.GameName,
@@ -477,7 +489,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID 
 }
 
 const getGameSharesWithGameByApiKeyShareID = `-- name: GetGameSharesWithGameByApiKeyShareID :many
-SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
+SELECT gs.id, gs.game_id, gs.token, gs.api_key_share_id, gs.institution_id, gs.workshop_id, gs.remaining, gs.ai_quality_tier, gs.created_by, gs.created_at, g.name as game_name FROM game_share gs
 JOIN game g ON g.id = gs.game_id
 WHERE gs.api_key_share_id = $1 ORDER BY gs.created_at
 `
@@ -490,6 +502,7 @@ type GetGameSharesWithGameByApiKeyShareIDRow struct {
 	InstitutionID uuid.NullUUID
 	WorkshopID    uuid.NullUUID
 	Remaining     sql.NullInt32
+	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
 	GameName      string
@@ -513,6 +526,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyShareID(ctx context.Context, apiK
 			&i.InstitutionID,
 			&i.WorkshopID,
 			&i.Remaining,
+			&i.AiQualityTier,
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.GameName,
@@ -531,7 +545,7 @@ func (q *Queries) GetGameSharesWithGameByApiKeyShareID(ctx context.Context, apiK
 }
 
 const getWorkshopGameShare = `-- name: GetWorkshopGameShare :one
-SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2
+SELECT id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at FROM game_share WHERE game_id = $1 AND workshop_id = $2
 `
 
 type GetWorkshopGameShareParams struct {
@@ -551,23 +565,25 @@ func (q *Queries) GetWorkshopGameShare(ctx context.Context, arg GetWorkshopGameS
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const updateGameShareRemaining = `-- name: UpdateGameShareRemaining :one
-UPDATE game_share SET remaining = $2 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by, created_at
+const updateGameShare = `-- name: UpdateGameShare :one
+UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING id, game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by, created_at
 `
 
-type UpdateGameShareRemainingParams struct {
-	ID        uuid.UUID
-	Remaining sql.NullInt32
+type UpdateGameShareParams struct {
+	ID            uuid.UUID
+	Remaining     sql.NullInt32
+	AiQualityTier sql.NullString
 }
 
-func (q *Queries) UpdateGameShareRemaining(ctx context.Context, arg UpdateGameShareRemainingParams) (GameShare, error) {
-	row := q.db.QueryRowContext(ctx, updateGameShareRemaining, arg.ID, arg.Remaining)
+func (q *Queries) UpdateGameShare(ctx context.Context, arg UpdateGameShareParams) (GameShare, error) {
+	row := q.db.QueryRowContext(ctx, updateGameShare, arg.ID, arg.Remaining, arg.AiQualityTier)
 	var i GameShare
 	err := row.Scan(
 		&i.ID,
@@ -577,6 +593,7 @@ func (q *Queries) UpdateGameShareRemaining(ctx context.Context, arg UpdateGameSh
 		&i.InstitutionID,
 		&i.WorkshopID,
 		&i.Remaining,
+		&i.AiQualityTier,
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)

@@ -48,7 +48,7 @@ func CreateGuestSession(ctx context.Context, token string, language string) (*ob
 	log.Debug("guest session: language for session", "language", guestUser.Language, "requested_language", language)
 
 	// 6. Run the full session creation flow (reuses existing logic)
-	return createSessionForGuest(ctx, guestUser, game, share)
+	return createSessionForGuest(ctx, guestUser, game, share, gameShare)
 }
 
 // ValidatePrivateShareToken checks if the token maps to a valid, playable game.
@@ -124,14 +124,28 @@ func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HT
 // createSessionForGuest runs the full session creation flow for a guest.
 // This is very similar to CreateSession but uses a pre-resolved API key share
 // and doesn't need user-level key resolution.
-func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, share *obj.ApiKeyShare) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
-	// Load system settings for the default tier fallback
+func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, share *obj.ApiKeyShare, gameShare *obj.GameShare) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
+	// Resolve AI quality tier with priority:
+	// 1. Workshop tier (if this is a workshop share)
+	// 2. Per-share tier (if set on the game share)
+	// 3. System default tier
 	settings, _ := db.GetSystemSettings(ctx)
 	defaultTier := obj.AiModelBalanced
 	if settings != nil && settings.DefaultAiQualityTier != "" {
 		defaultTier = settings.DefaultAiQualityTier
 	}
+
 	aiModel := defaultTier
+	if gameShare.WorkshopID != nil {
+		// Workshop share: use the workshop's AI quality tier
+		workshop, err := db.GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
+		if err == nil && workshop.AiQualityTier != nil && *workshop.AiQualityTier != "" {
+			aiModel = *workshop.AiQualityTier
+		}
+	} else if gameShare.AiQualityTier != nil && *gameShare.AiQualityTier != "" {
+		// Non-workshop share: use the per-share tier
+		aiModel = *gameShare.AiQualityTier
+	}
 
 	log.Info("guest session: using API key", "key_name", share.ApiKey.Name, "platform", share.ApiKey.Platform, "ai_model", aiModel)
 

@@ -31,6 +31,7 @@ type CreateGameShareRequest struct {
 	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId"` // required for personal shares; ignored for workshop shares
 	MaxSessions       *int       `json:"maxSessions"`       // null = unlimited
 	WorkshopID        *uuid.UUID `json:"workshopId"`        // set to create a workshop share (uses workshop default key)
+	AiQualityTier     *string    `json:"aiQualityTier"`     // null = use source default (workshop tier or system default)
 }
 
 // CreateGameShare godoc
@@ -146,7 +147,7 @@ func CreateGameShare(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the game share
-	gameShare, err := db.CreateGameShare(r.Context(), user.ID, gameID, sponsorShareID, institutionID, workshopID, req.MaxSessions)
+	gameShare, err := db.CreateGameShare(r.Context(), user.ID, gameID, sponsorShareID, institutionID, workshopID, req.MaxSessions, req.AiQualityTier)
 	if err != nil {
 		log.Warn("failed to create game share", "game_id", gameID, "error", err)
 		if appErr, ok := err.(*obj.AppError); ok {
@@ -243,7 +244,8 @@ func DeleteGameShareByID(w http.ResponseWriter, r *http.Request) {
 
 // UpdateGameShareRequest is the request body for updating a share.
 type UpdateGameShareRequest struct {
-	MaxSessions *int `json:"maxSessions"` // null = unlimited
+	MaxSessions   *int    `json:"maxSessions"`   // null = unlimited
+	AiQualityTier *string `json:"aiQualityTier"` // null = use source default
 }
 
 // UpdateGameShare godoc
@@ -320,7 +322,7 @@ func UpdateGameShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updated, err := db.UpdateGameShareRemaining(r.Context(), shareID, req.MaxSessions)
+	updated, err := db.UpdateGameShare(r.Context(), shareID, req.MaxSessions, req.AiQualityTier)
 	if err != nil {
 		log.Warn("failed to update game share", "share_id", shareID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update share")

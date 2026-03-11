@@ -81,9 +81,10 @@ export function useWorkshopGames(options: UseWorkshopGamesOptions) {
   // Apply filters
   const games = useMemo(() => {
     if (!rawGames) return [];
-    // Head/staff always see all workshop games regardless of workshop settings
+    // Head/staff always see all workshop games (override showOtherParticipantsGames)
+    // but showPublicGames applies to everyone (controls non-workshop public games)
     const effectiveSettings: WorkshopSettings = canEditAllWorkshopGames
-      ? { showPublicGames: true, showOtherParticipantsGames: true }
+      ? { ...workshopSettings, showOtherParticipantsGames: true }
       : workshopSettings;
     const settingsFiltered = filterGamesByWorkshopSettings(
       rawGames,

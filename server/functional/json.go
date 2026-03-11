@@ -18,38 +18,6 @@ func ComputeHash(parts ...string) string {
 	return hex.EncodeToString(h.Sum(nil))[:16]
 }
 
-// InjectJsonField injects a top-level field into a JSON string and returns the updated JSON.
-func InjectJsonField(jsonStr, key, value string) (string, error) {
-	var obj map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
-		return "", fmt.Errorf("failed to parse JSON: %w", err)
-	}
-	obj[key] = value
-	out, err := json.MarshalIndent(obj, "", "  ")
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal JSON: %w", err)
-	}
-	return string(out) + "\n", nil
-}
-
-// ReadJsonField reads a top-level string field from a JSON string.
-// Returns empty string and no error if the field doesn't exist.
-func ReadJsonField(jsonStr, key string) (string, error) {
-	var obj map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonStr), &obj); err != nil {
-		return "", fmt.Errorf("failed to parse JSON: %w", err)
-	}
-	val, ok := obj[key]
-	if !ok {
-		return "", nil
-	}
-	str, ok := val.(string)
-	if !ok {
-		return "", nil
-	}
-	return str, nil
-}
-
 // IsSameJsonStructure compares two JSON strings and returns an error if they have different structures.
 // It checks that both JSONs have the exact same fields (keys) at all nesting levels.
 // Values are ignored - only the structure (field names and types) is compared.

@@ -140,13 +140,17 @@ export function WorkshopHeader({
                       <Text
                         size="sm"
                         lineClamp={1}
-                        style={{ flex: 1, minWidth: 0 }}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          fontStyle: p.permanent === false ? "italic" : undefined,
+                        }}
                       >
                         {p.name}
                       </Text>
                       <Badge
                         size="xs"
-                        variant="light"
+                        variant={p.permanent === false ? "outline" : "light"}
                         color={getRoleBadgeColor(p.role)}
                       >
                         {p.role}
@@ -174,6 +178,8 @@ function getRoleBadgeColor(role?: string): string {
       return "violet";
     case "staff":
       return "blue";
+    case "individual":
+      return "teal";
     case "participant":
       return "gray";
     default:

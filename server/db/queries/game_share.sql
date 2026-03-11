@@ -1,8 +1,8 @@
 -- game_share queries
 
 -- name: CreateGameShare :one
-INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, created_by)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+INSERT INTO game_share (game_id, token, api_key_share_id, institution_id, workshop_id, remaining, ai_quality_tier, created_by)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
 
 -- name: GetGameShareByToken :one
 SELECT * FROM game_share WHERE token = $1;
@@ -28,8 +28,8 @@ SELECT * FROM game_share WHERE game_id = $1 AND institution_id = $2 AND workshop
 -- Find existing workshop share for a game (reuse instead of creating duplicates)
 SELECT * FROM game_share WHERE game_id = $1 AND workshop_id = $2;
 
--- name: UpdateGameShareRemaining :one
-UPDATE game_share SET remaining = $2 WHERE id = $1 RETURNING *;
+-- name: UpdateGameShare :one
+UPDATE game_share SET remaining = $2, ai_quality_tier = $3 WHERE id = $1 RETURNING *;
 
 -- name: DeleteGameShare :exec
 DELETE FROM game_share WHERE id = $1;

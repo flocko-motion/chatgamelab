@@ -109,20 +109,6 @@ func IsApiKeyAvailable(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) 
 	return resolved != nil
 }
 
-// ResolveSessionApiKey re-resolves the API key for an existing session using the standard priority chain.
-// It updates session.ApiKey, session.AiPlatform, and session.AiModel in-place.
-// This must be called before every DoSessionAction to ensure the key is still valid
-// (e.g. sponsorship may have been removed since the session was created).
-// Filters by session.AiPlatform to prevent switching platforms mid-session.
-func ResolveSessionApiKey(ctx context.Context, session *obj.GameSession) *obj.HTTPError {
-	candidates, httpErr := resolveApiKeyCandidates(ctx, session.UserID, session.GameID, session.AiPlatform)
-	if httpErr != nil {
-		return httpErr
-	}
-	applyResolvedKey(session, &candidates[0])
-	return nil
-}
-
 // ResolveSessionApiKeyCandidates re-resolves all API key candidates for an existing session.
 // Returns the ordered list of candidates for retry logic.
 // Filters by session.AiPlatform to prevent switching platforms mid-session.

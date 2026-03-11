@@ -27,28 +27,6 @@ type GetGamesFilters struct {
 	Filter     string // all, own, public
 }
 
-func userIsAllowedToPlayGame(ctx context.Context, userID *uuid.UUID, gameID uuid.UUID) error {
-	g, err := queries().GetGameByID(ctx, gameID)
-	if err != nil {
-		return obj.ErrNotFound("game not found")
-	}
-
-	// Public games are accessible to everyone
-	if g.Public {
-		return nil
-	}
-
-	// Non-public games require ownership
-	if userID == nil {
-		return obj.ErrUnauthorized("access denied: authentication required")
-	}
-	if !g.CreatedBy.Valid || g.CreatedBy.UUID != *userID {
-		return obj.ErrForbidden("access denied: not the owner of this game")
-	}
-
-	return nil
-}
-
 // GetGames returns games based on filters. If userID is provided, returns user's games.
 // If PublicOnly filter is set, returns only public games.
 // If Search is provided, filters games by name (case-insensitive).
@@ -346,37 +324,34 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 		return nil, err
 	}
 
-	// Apply workshop visibility settings for participants/individuals only.
-	// Head/staff always see all workshop games regardless of these settings.
+	// Apply workshop visibility settings.
+	// showPublicGames: applies to ALL roles (controls non-workshop public games)
+	// showOtherParticipantsGames: applies to participants/individuals only (head/staff always see all workshop games)
 	isHeadOrStaff := user != nil && user.Role != nil &&
 		(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff)
-	if user != nil && user.Role != nil && user.Role.Workshop != nil && !isHeadOrStaff {
+	if user != nil && user.Role != nil && user.Role.Workshop != nil {
 		ws := user.Role.Workshop
 		filtered := make([]db.Game, 0, len(games))
 		for _, g := range games {
-			isWorkshopGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
+			isWsGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
 
-			// Public games (from anywhere): controlled by showPublicGames
-			if g.Public {
-				if ws.ShowPublicGames {
+			if isWsGame {
+				// Head/staff see all workshop games
+				if isHeadOrStaff {
+					filtered = append(filtered, g)
+					continue
+				}
+				// Others: own games always visible, rest controlled by setting
+				if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
+					filtered = append(filtered, g)
+				} else if ws.ShowOtherParticipantsGames {
 					filtered = append(filtered, g)
 				}
 				continue
 			}
 
-			// Non-public games must belong to this workshop
-			if !isWorkshopGame {
-				continue
-			}
-
-			// Own workshop games always visible
-			if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
-				filtered = append(filtered, g)
-				continue
-			}
-
-			// Other people's workshop games: controlled by showOtherParticipantsGames
-			if ws.ShowOtherParticipantsGames {
+			// Non-workshop public games: controlled by showPublicGames (all roles)
+			if g.Public && ws.ShowPublicGames {
 				filtered = append(filtered, g)
 			}
 		}
@@ -879,36 +854,6 @@ func UpdateGameSessionAiSession(ctx context.Context, userID uuid.UUID, sessionID
 	return nil
 }
 
-// UpdateGameSessionTheme updates the visual theme for a game session
-func UpdateGameSessionTheme(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID, theme *obj.GameTheme) error {
-	// Verify session ownership
-	sessionObj, err := loadSessionByID(ctx, sessionID)
-	if err != nil {
-		return err
-	}
-	if err := canAccessGameSession(ctx, userID, OpUpdate, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
-		return err
-	}
-
-	var themeJSON pqtype.NullRawMessage
-	if theme != nil {
-		themeBytes, err := json.Marshal(theme)
-		if err != nil {
-			return obj.ErrServerError("failed to marshal theme")
-		}
-		themeJSON = pqtype.NullRawMessage{RawMessage: themeBytes, Valid: true}
-	}
-
-	err = queries().UpdateGameSessionTheme(ctx, db.UpdateGameSessionThemeParams{
-		ID:    sessionID,
-		Theme: themeJSON,
-	})
-	if err != nil {
-		return obj.ErrServerError("failed to update session theme")
-	}
-	return nil
-}
-
 // UpdateGameSessionMessageImage updates only the image field of a message
 func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messageID uuid.UUID, image []byte) error {
 	// Get message to find session
@@ -1378,59 +1323,6 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	return msg, nil
 }
 
-// GetGameSessionMessageByID returns a message by its ID (requires read access to session)
-func GetGameSessionMessageByID(ctx context.Context, userID uuid.UUID, messageID uuid.UUID) (*obj.GameSessionMessage, error) {
-	m, err := queries().GetGameSessionMessageByID(ctx, messageID)
-	if err != nil {
-		return nil, obj.ErrNotFound("message not found")
-	}
-
-	// Check if user has read access to the session
-	sessionObj, err := loadSessionByID(ctx, m.GameSessionID)
-	if err != nil {
-		return nil, err
-	}
-	if err := canAccessGameSession(ctx, userID, OpRead, sessionObj, sessionObj.GameID, sessionObj.WorkshopID); err != nil {
-		return nil, err
-	}
-
-	msg := &obj.GameSessionMessage{
-		ID:            m.ID,
-		GameSessionID: m.GameSessionID,
-		Seq:           int(m.Seq),
-		Type:          m.Type,
-		Message:       m.Message,
-		Image:         m.Image,
-		Audio:         m.Audio,
-		HasImage:      m.HasImage,
-		HasAudioOut:   m.HasAudio,
-		Meta: obj.Meta{
-			CreatedBy:  m.CreatedBy,
-			CreatedAt:  &m.CreatedAt,
-			ModifiedBy: m.ModifiedBy,
-			ModifiedAt: &m.ModifiedAt,
-		},
-	}
-
-	// Parse status fields from JSON
-	if m.Status.Valid && m.Status.String != "" {
-		_ = json.Unmarshal([]byte(m.Status.String), &msg.StatusFields)
-	}
-
-	// Set plot and image prompt
-	if m.Plot.Valid {
-		msg.Plot = &m.Plot.String
-	}
-	if m.ImagePrompt.Valid {
-		msg.ImagePrompt = &m.ImagePrompt.String
-	}
-
-	mapAiInsightFields(msg, m)
-	inferCapabilityFlags(msg)
-
-	return msg, nil
-}
-
 // GetLatestGameSessionMessage returns the most recent message for a session (requires read access to session)
 func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) (*obj.GameSessionMessage, error) {
 	// Check if user has read access to the session
@@ -1732,18 +1624,6 @@ func GetGameSessionsByUserID(ctx context.Context, userID uuid.UUID, filters *Get
 	}
 
 	return sessions, nil
-}
-
-// DeleteEmptyGameSession deletes a newly created session and its messages.
-// Used to clean up sessions that failed during initial action (has streaming placeholder but no real content).
-// No permission check - called internally after creation failure.
-func DeleteEmptyGameSession(ctx context.Context, sessionID uuid.UUID) error {
-	// Delete messages first (the streaming placeholder)
-	if err := queries().DeleteNewlyCreatedGameSession(ctx, sessionID); err != nil {
-		return fmt.Errorf("failed to delete session messages: %w", err)
-	}
-	// Then delete the session
-	return queries().DeleteEmptyGameSession(ctx, sessionID)
 }
 
 // DeleteGameSession deletes a game session and all its messages. userID must be the owner.
@@ -2103,7 +1983,7 @@ func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
 
 // CreateGameShare creates a game share link with a game-scoped API key share.
 // The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
-func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int) (*obj.GameShare, error) {
+func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
 	// Verify the source share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
 	if err != nil {
@@ -2142,6 +2022,7 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		InstitutionID: uuidPtrToNullUUID(institutionID),
 		WorkshopID:    uuidPtrToNullUUID(workshopID),
 		Remaining:     intPtrToNullInt32(maxSessions),
+		AiQualityTier: stringPtrToNullString(aiQualityTier),
 		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
 	})
 	if err != nil {
@@ -2167,19 +2048,6 @@ func GetGameShareByID(ctx context.Context, shareID uuid.UUID) (*obj.GameShare, e
 		return nil, obj.ErrNotFound("share not found")
 	}
 	return dbGameShareToObj(gs), nil
-}
-
-// GetGameSharesByGameID returns all shares for a game.
-func GetGameSharesByGameID(ctx context.Context, gameID uuid.UUID) ([]obj.GameShare, error) {
-	rows, err := queries().GetGameSharesByGameID(ctx, gameID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]obj.GameShare, len(rows))
-	for i, r := range rows {
-		result[i] = *dbGameShareToObj(r)
-	}
-	return result, nil
 }
 
 // GetGameSharesByGameIDAndCreator returns shares for a game created by a specific user.
@@ -2248,22 +2116,6 @@ type GameShareWithGame struct {
 	GameName string
 }
 
-// GetGameSharesWithGameByApiKeyShareID returns game shares (with game name) for a specific api_key_share.
-func GetGameSharesWithGameByApiKeyShareID(ctx context.Context, shareID uuid.UUID) ([]GameShareWithGame, error) {
-	rows, err := queries().GetGameSharesWithGameByApiKeyShareID(ctx, shareID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]GameShareWithGame, len(rows))
-	for i, r := range rows {
-		result[i] = GameShareWithGame{
-			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.CreatedBy, r.CreatedAt),
-			GameName:  r.GameName,
-		}
-	}
-	return result, nil
-}
-
 // GetGameSharesWithGameByApiKeyID returns game shares (with game name) for all shares of an API key.
 func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([]GameShareWithGame, error) {
 	rows, err := queries().GetGameSharesWithGameByApiKeyID(ctx, apiKeyID)
@@ -2273,7 +2125,7 @@ func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([
 	result := make([]GameShareWithGame, len(rows))
 	for i, r := range rows {
 		result[i] = GameShareWithGame{
-			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.CreatedBy, r.CreatedAt),
+			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.AiQualityTier, r.CreatedBy, r.CreatedAt),
 			GameName:  r.GameName,
 		}
 	}
@@ -2281,7 +2133,7 @@ func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([
 }
 
 // dbGameShareToObjFromJoin converts individual fields (from JOIN query results) to obj.GameShare.
-func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
+func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, aiQualityTier sql.NullString, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
 	gs := &obj.GameShare{
 		ID:            id,
 		GameID:        gameID,
@@ -2298,6 +2150,9 @@ func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID 
 	if remaining.Valid {
 		r := int(remaining.Int32)
 		gs.Remaining = &r
+	}
+	if aiQualityTier.Valid {
+		gs.AiQualityTier = &aiQualityTier.String
 	}
 	if createdBy.Valid {
 		gs.CreatedBy = &createdBy.UUID
@@ -2326,15 +2181,16 @@ func DeleteGameShare(ctx context.Context, shareID uuid.UUID) error {
 	return nil
 }
 
-// UpdateGameShareRemaining updates the remaining sessions on a game share. Pass nil for unlimited.
-func UpdateGameShareRemaining(ctx context.Context, shareID uuid.UUID, remaining *int) (*obj.GameShare, error) {
+// UpdateGameShare updates the remaining sessions and AI quality tier on a game share.
+func UpdateGameShare(ctx context.Context, shareID uuid.UUID, remaining *int, aiQualityTier *string) (*obj.GameShare, error) {
 	var nullRemaining sql.NullInt32
 	if remaining != nil {
 		nullRemaining = sql.NullInt32{Int32: int32(*remaining), Valid: true}
 	}
-	gs, err := queries().UpdateGameShareRemaining(ctx, db.UpdateGameShareRemainingParams{
-		ID:        shareID,
-		Remaining: nullRemaining,
+	gs, err := queries().UpdateGameShare(ctx, db.UpdateGameShareParams{
+		ID:            shareID,
+		Remaining:     nullRemaining,
+		AiQualityTier: stringPtrToNullString(aiQualityTier),
 	})
 	if err != nil {
 		return nil, err
@@ -2387,15 +2243,6 @@ func DeleteGuestDataByGameID(ctx context.Context, gameID uuid.UUID) error {
 	return nil
 }
 
-// CountGuestUsersByShareID returns the number of guest users created via a game share link.
-func CountGuestUsersByShareID(ctx context.Context, shareID uuid.UUID) (int, error) {
-	count, err := queries().CountGuestUsersByShareID(ctx, uuid.NullUUID{UUID: shareID, Valid: true})
-	if err != nil {
-		return 0, err
-	}
-	return int(count), nil
-}
-
 // dbGameShareToObj converts a DB game_share row to an obj.GameShare.
 func dbGameShareToObj(gs db.GameShare) *obj.GameShare {
 	result := &obj.GameShare{
@@ -2411,6 +2258,9 @@ func dbGameShareToObj(gs db.GameShare) *obj.GameShare {
 	}
 	if gs.WorkshopID.Valid {
 		result.WorkshopID = &gs.WorkshopID.UUID
+	}
+	if gs.AiQualityTier.Valid {
+		result.AiQualityTier = &gs.AiQualityTier.String
 	}
 	if gs.CreatedBy.Valid {
 		result.CreatedBy = &gs.CreatedBy.UUID

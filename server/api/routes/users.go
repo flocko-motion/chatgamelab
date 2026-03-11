@@ -8,6 +8,7 @@ import (
 	"cgl/api/httpx"
 	"cgl/constants"
 	"cgl/db"
+	"cgl/events"
 	"cgl/lang"
 	"cgl/log"
 	"cgl/obj"
@@ -502,11 +503,25 @@ func SetActiveWorkshop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Capture old workshop ID before changing (for SSE notification on leave)
+	var oldWorkshopID *uuid.UUID
+	if currentUser.Role != nil && currentUser.Role.Workshop != nil {
+		oldWorkshopID = &currentUser.Role.Workshop.ID
+	}
+
 	if req.WorkshopID == nil {
 		// Leave workshop mode
-		if err := db.ClearActiveWorkshop(r.Context(), currentUser.ID); err != nil {
-			httpx.WriteError(w, http.StatusInternalServerError, err.Error())
-			return
+		if oldWorkshopID != nil {
+			if err := db.ClearActiveWorkshop(r.Context(), currentUser.ID, *oldWorkshopID); err != nil {
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			events.GetBroker().PublishMembersUpdated(*oldWorkshopID)
+		} else {
+			if err := db.ClearActiveWorkshop(r.Context(), currentUser.ID); err != nil {
+				httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
 		}
 	} else {
 		// Enter workshop mode
@@ -525,6 +540,7 @@ func SetActiveWorkshop(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
+		events.GetBroker().PublishMembersUpdated(*req.WorkshopID)
 	}
 
 	// Return updated user

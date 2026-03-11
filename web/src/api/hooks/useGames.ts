@@ -116,20 +116,6 @@ export function useDeleteGame() {
   });
 }
 
-export function useCloneGame() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<ObjGame, HttpxErrorResponse, string>({
-    mutationFn: (id) =>
-      api.games.cloneCreate(id).then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.games });
-    },
-    onError: handleApiError,
-  });
-}
-
 export function useExportGameYaml() {
   const { getAccessToken } = useAuth();
 
@@ -153,48 +139,6 @@ export function useExportGameYaml() {
   });
 }
 
-export function useImportGameYaml() {
-  const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
-
-  return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>(
-    {
-      mutationFn: async ({ id, yaml }) => {
-        const token = await getAccessToken();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/x-yaml",
-        };
-        // Only add Authorization header if we have a token (participants use cookies)
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const response = await fetch(
-          `${config.API_BASE_URL}/games/${id}/yaml`,
-          {
-            method: "PUT",
-            headers,
-            credentials: "include", // Include cookies for participant auth
-            body: yaml,
-          },
-        );
-
-        if (!response.ok) {
-          const error = await response
-            .json()
-            .catch(() => ({ message: "Import failed" }));
-          throw { ...error, status: response.status };
-        }
-
-        return response.json();
-      },
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.games });
-        queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
-      },
-      onError: handleApiError,
-    },
-  );
-}
 
 // Game Sponsoring hooks
 export function useSponsorGame() {
@@ -283,6 +227,7 @@ export interface EnrichedGameShare {
   institutionId: string | null;
   workshopId: string | null;
   remaining: number | null;
+  aiQualityTier?: string | null;
   createdBy: string | null;
   createdAt: string;
   shareUrl: string;
@@ -322,9 +267,9 @@ export function useCreateGameShare() {
   return useMutation<
     RoutesGameShareResponse,
     Error,
-    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null }
+    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions }) => {
+    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions, aiQualityTier }) => {
       const token = await getAccessToken();
       const response = await fetch(
         `${config.API_BASE_URL}/games/${gameId}/shares`,
@@ -339,6 +284,7 @@ export function useCreateGameShare() {
             workshopId: workshopId ?? null,
             sponsorKeyShareId: sponsorKeyShareId ?? null,
             maxSessions: maxSessions ?? null,
+            aiQualityTier: aiQualityTier ?? null,
           }),
         },
       );
@@ -399,9 +345,9 @@ export function useUpdateGameShare() {
   return useMutation<
     void,
     Error,
-    { gameId: string; shareId: string; maxSessions: number | null }
+    { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, shareId, maxSessions }) => {
+    mutationFn: async ({ gameId, shareId, maxSessions, aiQualityTier }) => {
       const token = await getAccessToken();
       const response = await fetch(
         `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
@@ -412,7 +358,7 @@ export function useUpdateGameShare() {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ maxSessions }),
+          body: JSON.stringify({ maxSessions, aiQualityTier: aiQualityTier ?? null }),
         },
       );
       if (!response.ok) {

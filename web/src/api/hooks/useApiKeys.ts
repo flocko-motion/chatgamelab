@@ -9,7 +9,6 @@ import type {
   RoutesApiKeysResponse,
   RoutesCreateApiKeyRequest,
   RoutesEnrichedGameShare,
-  RoutesShareRequest,
 } from "../generated";
 
 // API Keys hooks
@@ -40,43 +39,6 @@ export function useCreateApiKey() {
   });
 }
 
-export function useShareApiKey() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    { id: string; request: RoutesShareRequest }
-  >({
-    mutationFn: ({ id, request }) =>
-      api.apikeys.sharesCreate(id, request).then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-    },
-    onError: handleApiError,
-  });
-}
-
-export function useUpdateApiKeyName() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    { id: string; name: string }
-  >({
-    mutationFn: ({ id, name }) =>
-      api.apikeys
-        .apikeysPartialUpdate(id, { name })
-        .then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-    },
-    onError: handleApiError,
-  });
-}
 
 export function useDeleteApiKey() {
   const queryClient = useQueryClient();
@@ -235,14 +197,3 @@ export function useSetInstitutionFreeUseKey() {
 }
 
 
-// Available Keys for Game hook
-export function useAvailableKeysForGame(gameId: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
-
-  return useQuery({
-    queryKey: queryKeys.availableKeys(gameId!),
-    queryFn: () =>
-      api.games.availableKeysList(gameId!).then((response) => response.data),
-    enabled: !!gameId,
-  });
-}

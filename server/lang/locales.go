@@ -48,21 +48,3 @@ func GetLocaleContent(langCode string) (map[string]interface{}, error) {
 	return content, nil
 }
 
-// GetAllLocales returns all embedded locale files as a map[langCode]content
-func GetAllLocales() (map[string]map[string]interface{}, error) {
-	locales := make(map[string]map[string]interface{})
-
-	// Get all languages
-	languages := GetAllLanguages()
-
-	for _, lang := range languages {
-		content, err := GetLocaleContent(lang.Code)
-		if err != nil {
-			// Skip languages without locale files (en, de are in web frontend)
-			continue
-		}
-		locales[lang.Code] = content
-	}
-
-	return locales, nil
-}
