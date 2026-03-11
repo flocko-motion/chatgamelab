@@ -41,6 +41,7 @@ import {
   IconClock,
   IconLogin,
   IconPencil,
+  IconX,
   IconMail,
   IconUserPlus,
 } from "@tabler/icons-react";
@@ -1141,13 +1142,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                               <Tooltip label={t("cancel")}>
                                                 <ActionIcon
                                                   variant="subtle"
-                                                  color="gray"
+                                                  color="red"
                                                   size="sm"
                                                   onClick={
                                                     handleCancelEditParticipant
                                                   }
                                                 >
-                                                  <IconAlertCircle size={14} />
+                                                  <IconX size={14} />
                                                 </ActionIcon>
                                               </Tooltip>
                                             </>
@@ -1319,13 +1320,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                                 <Tooltip label={t("cancel")}>
                                                   <ActionIcon
                                                     variant="subtle"
-                                                    color="gray"
+                                                    color="red"
                                                     size="sm"
                                                     onClick={
                                                       handleCancelEditParticipant
                                                     }
                                                   >
-                                                    <IconAlertCircle size={16} />
+                                                    <IconX size={16} />
                                                   </ActionIcon>
                                                 </Tooltip>
                                               </>
