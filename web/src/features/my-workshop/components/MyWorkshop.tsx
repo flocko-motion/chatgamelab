@@ -306,21 +306,37 @@ export function MyWorkshop() {
 
   const getGameBadge = (game: ObjGame) => {
     const { isOwner } = getPermissions(game);
+    const badges: React.ReactNode[] = [];
     if (isOwner) {
-      return (
+      badges.push(
         <Badge
+          key="owner"
           size="xs"
           color="violet"
           variant="light"
           leftSection={<IconUser size={10} />}
         >
-          {tWorkshop("filters.mine")}
+          {t("games.badges.myGame")}
+        </Badge>
+      );
+    }
+    if (game.workshopId) {
+      badges.push(
+        <Badge
+          key="workshop"
+          size="xs"
+          color="accent"
+          variant="light"
+          leftSection={<IconSchool size={10} />}
+        >
+          {t("games.badges.workshop")}
         </Badge>
       );
     }
     if (game.public) {
-      return (
+      badges.push(
         <Badge
+          key="public"
           size="xs"
           color="green"
           variant="light"
@@ -330,19 +346,8 @@ export function MyWorkshop() {
         </Badge>
       );
     }
-    if (game.workshopId) {
-      return (
-        <Badge
-          size="xs"
-          color="accent"
-          variant="light"
-          leftSection={<IconSchool size={10} />}
-        >
-          {tWorkshop("filters.workshop")}
-        </Badge>
-      );
-    }
-    return null;
+    if (badges.length === 0) return null;
+    return <Stack gap={4} align="flex-start">{badges}</Stack>;
   };
 
   // Table columns
@@ -351,24 +356,15 @@ export function MyWorkshop() {
       key: "name",
       header: t("games.fields.name"),
       render: (game) => (
-        <Stack gap={2}>
-          <Group gap="xs" wrap="nowrap">
-            <Text fw={600} size="sm" c="gray.8">
-              {game.name}
-            </Text>
-          </Group>
-          {game.description && (
-            <Text size="xs" c="gray.5" lineClamp={1}>
-              {game.description}
-            </Text>
-          )}
-        </Stack>
+        <Text fw={600} size="sm" c="gray.8">
+          {game.name}
+        </Text>
       ),
     },
     {
       key: "creator",
       header: t("games.fields.creator"),
-      width: 150,
+      width: 180,
       render: (game) => {
         const { isOwner } = getPermissions(game);
         return (
@@ -381,7 +377,7 @@ export function MyWorkshop() {
     {
       key: "type",
       header: tWorkshop("gameType"),
-      width: 130,
+      width: 160,
       render: (game) => getGameBadge(game),
     },
     {

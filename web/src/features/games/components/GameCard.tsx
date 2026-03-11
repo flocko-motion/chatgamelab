@@ -124,7 +124,7 @@ export function GameCard({
     if (isOwner) badges.push("owner");
     if (game.publicSponsoredApiKeyShareId) badges.push("sponsored");
     if (isWorkshopGame) badges.push("workshop");
-    // public badge is rendered in the top-right row instead
+    if (game.public) badges.push("public");
     return badges;
   };
 
@@ -196,6 +196,14 @@ export function GameCard({
   const renderBadges = () => {
     const badges = getBadges();
     if (badges.length === 0) return null;
+    // In workshop context, stack badges vertically (workshop + public on separate rows)
+    if (isWorkshopGame) {
+      return (
+        <Stack gap={4} align="flex-start">
+          {badges.map(renderBadge)}
+        </Stack>
+      );
+    }
     return (
       <Group gap={4} wrap="wrap">
         {badges.map(renderBadge)}
@@ -259,7 +267,7 @@ export function GameCard({
             wrap="nowrap"
             style={{ flexShrink: 0, alignSelf: "flex-start" }}
           >
-            {!showVisibility && game.public && renderBadge("public")}
+            {/* public badge is rendered in the badges row below */}
             {renderVisibilityBadge()}
             {dateLabel && (
               <Text size="xs" c="gray.5" style={{ whiteSpace: "nowrap" }}>
@@ -269,8 +277,8 @@ export function GameCard({
           </Group>
         </Group>
 
-        {/* Badges row: Owner, Workshop, Sponsored badges */}
-        {(isWorkshopGame || isOwner || game.publicSponsoredApiKeyShareId) && (
+        {/* Badges row: Owner, Workshop, Public, Sponsored */}
+        {(isWorkshopGame || isOwner || game.public || game.publicSponsoredApiKeyShareId) && (
           <Box>{renderBadges()}</Box>
         )}
 
