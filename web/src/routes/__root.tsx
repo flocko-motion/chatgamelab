@@ -283,7 +283,7 @@ function RootComponent() {
             ? async () => {
                 await exitWorkshopMode();
                 const destination = hasRole(backendUser, Role.Individual)
-                  ? ROUTES.MY_GAMES
+                  ? ROUTES.DASHBOARD
                   : ROUTES.MY_ORGANIZATION_WORKSHOPS;
                 navigate({ to: destination as "/" });
               }
