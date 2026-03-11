@@ -454,6 +454,8 @@ export interface RoutesCreateGameRequest {
 }
 
 export interface RoutesCreateGameShareRequest {
+  /** null = use source default (workshop tier or system default) */
+  aiQualityTier?: string;
   /** null = unlimited */
   maxSessions?: number;
   /** required for personal shares; ignored for workshop shares */
@@ -492,6 +494,7 @@ export interface RoutesCreateWorkshopRequest {
 }
 
 export interface RoutesEnrichedGameShare {
+  aiQualityTier?: string;
   apiKeyShareId?: string;
   createdAt?: string;
   createdBy?: string;
@@ -511,6 +514,7 @@ export interface RoutesEnrichedGameShare {
 }
 
 export interface RoutesGameShareResponse {
+  aiQualityTier?: string;
   apiKeyShareId?: string;
   createdAt?: string;
   createdBy?: string;
@@ -772,6 +776,8 @@ export interface RoutesUpdateApiKeyRequest {
 }
 
 export interface RoutesUpdateGameShareRequest {
+  /** null = use source default */
+  aiQualityTier?: string;
   /** null = unlimited */
   maxSessions?: number;
 }
@@ -3058,11 +3064,7 @@ export class Api<
      * @request DELETE:/workshops/{id}/members/{userId}
      * @secure
      */
-    membersDelete: (
-      id: string,
-      userId: string,
-      params: RequestParams = {},
-    ) =>
+    membersDelete: (id: string, userId: string, params: RequestParams = {}) =>
       this.request<Record<string, string>, HttpxErrorResponse>({
         path: `/workshops/${id}/members/${userId}`,
         method: "DELETE",
