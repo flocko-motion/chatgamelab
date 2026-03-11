@@ -12,8 +12,6 @@ export { queryKeys } from "../queryKeys";
 export {
   useApiKeys,
   useCreateApiKey,
-  useShareApiKey,
-  useUpdateApiKeyName,
   useDeleteApiKey,
   useSetDefaultApiKey,
   useInstitutionApiKeys,
@@ -30,9 +28,7 @@ export {
   useCreateGame,
   useUpdateGame,
   useDeleteGame,
-  useCloneGame,
   useExportGameYaml,
-  useImportGameYaml,
   useSponsorGame,
   useRemoveGameSponsor,
   useFavoriteGames,
@@ -50,29 +46,22 @@ export {
 
 // Sessions
 export {
-  useGameSessions,
   useUserSessions,
   useGameSessionMap,
-  useCreateGameSession,
   useDeleteSession,
   type UseUserSessionsParams,
 } from "./useSessions";
 
 // Users
 export {
-  useUsers,
   useCurrentUser,
   useUserStats,
-  useUser,
   useUpdateUser,
-  useUpdateUserLanguage,
-  useCreateUser,
 } from "./useUsers";
 
-// System (platforms, roles, settings, version)
+// System (platforms, settings, version)
 export {
   usePlatforms,
-  useRoles,
   useSystemSettings,
   useUpdateSystemSettings,
   useSetSystemFreeUseKey,
@@ -81,7 +70,6 @@ export {
 
 // Invites
 export {
-  useInvites,
   useInstitutionInvites,
   useAllInvites,
   useRevokeInvite,

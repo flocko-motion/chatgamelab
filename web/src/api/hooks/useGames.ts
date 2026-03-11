@@ -116,20 +116,6 @@ export function useDeleteGame() {
   });
 }
 
-export function useCloneGame() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<ObjGame, HttpxErrorResponse, string>({
-    mutationFn: (id) =>
-      api.games.cloneCreate(id).then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.games });
-    },
-    onError: handleApiError,
-  });
-}
-
 export function useExportGameYaml() {
   const { getAccessToken } = useAuth();
 
@@ -153,48 +139,6 @@ export function useExportGameYaml() {
   });
 }
 
-export function useImportGameYaml() {
-  const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
-
-  return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>(
-    {
-      mutationFn: async ({ id, yaml }) => {
-        const token = await getAccessToken();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/x-yaml",
-        };
-        // Only add Authorization header if we have a token (participants use cookies)
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const response = await fetch(
-          `${config.API_BASE_URL}/games/${id}/yaml`,
-          {
-            method: "PUT",
-            headers,
-            credentials: "include", // Include cookies for participant auth
-            body: yaml,
-          },
-        );
-
-        if (!response.ok) {
-          const error = await response
-            .json()
-            .catch(() => ({ message: "Import failed" }));
-          throw { ...error, status: response.status };
-        }
-
-        return response.json();
-      },
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.games });
-        queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
-      },
-      onError: handleApiError,
-    },
-  );
-}
 
 // Game Sponsoring hooks
 export function useSponsorGame() {

@@ -7,7 +7,6 @@ import type {
   ObjAiPlatform,
   ObjSystemSettings,
   HttpxErrorResponse,
-  RoutesRolesResponse,
   RoutesVersionResponse,
   RoutesUpdateSystemSettingsRequest,
 } from "../generated";
@@ -23,15 +22,7 @@ export function usePlatforms() {
   });
 }
 
-// Roles hook (requires authentication)
-export function useRoles() {
-  const api = useRequiredAuthenticatedApi();
 
-  return useQuery<RoutesRolesResponse, HttpxErrorResponse>({
-    queryKey: queryKeys.roles,
-    queryFn: () => api.roles.rolesList().then((response) => response.data),
-  });
-}
 
 // System Settings hook (requires authentication)
 export function useSystemSettings() {
