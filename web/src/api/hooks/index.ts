@@ -21,7 +21,6 @@ export {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
-  useAvailableKeysForGame,
 } from "./useApiKeys";
 
 // Games

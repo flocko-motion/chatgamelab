@@ -140,10 +140,8 @@ export function useWorkshopEvents(options: UseWorkshopEventsOptions) {
           // Invalidate all queries affected by workshop settings changes:
           // - games: visibility settings (showPublicGames, showOtherParticipantsGames)
           // - currentUser: workshop settings like aiQualityTier are in user.role.workshop
-          // - availableKeys: workshop API key changes affect available keys for games
           queryClient.invalidateQueries({ queryKey: queryKeys.games });
           queryClient.invalidateQueries({ queryKey: queryKeys.currentUser });
-          queryClient.invalidateQueries({ queryKey: ["availableKeys"] });
         });
 
         // Helper to parse game event data and check if we triggered it

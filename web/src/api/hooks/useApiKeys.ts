@@ -235,14 +235,3 @@ export function useSetInstitutionFreeUseKey() {
 }
 
 
-// Available Keys for Game hook
-export function useAvailableKeysForGame(gameId: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
-
-  return useQuery({
-    queryKey: queryKeys.availableKeys(gameId!),
-    queryFn: () =>
-      api.games.availableKeysList(gameId!).then((response) => response.data),
-    enabled: !!gameId,
-  });
-}
