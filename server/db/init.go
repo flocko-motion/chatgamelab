@@ -63,6 +63,13 @@ func Init() {
 	log.Info("database connection initialized")
 }
 
+// Reset clears the database singleton so the next call to queries() re-initializes.
+// Used in integration tests to reset state between test runs.
+func Reset() {
+	sqlDb = nil
+	queriesSingleton = nil
+}
+
 // queries returns the sqlc Queries singleton, initializing if needed.
 func queries() *sqlc.Queries {
 	if queriesSingleton != nil {
