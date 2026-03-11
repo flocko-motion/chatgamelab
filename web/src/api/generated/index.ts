@@ -416,6 +416,7 @@ export interface ObjWorkshopParticipant {
   id?: string;
   meta?: ObjMeta;
   name?: string;
+  permanent?: boolean;
   role?: ObjRole;
   workshopId?: string;
 }
@@ -3044,6 +3045,28 @@ export class Api<
         body: body,
         secure: true,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes a non-permanent member from a workshop by clearing their active workshop
+     *
+     * @tags workshops
+     * @name MembersDelete
+     * @summary Remove member from workshop
+     * @request DELETE:/workshops/{id}/members/{userId}
+     * @secure
+     */
+    membersDelete: (
+      id: string,
+      userId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/${id}/members/${userId}`,
+        method: "DELETE",
+        secure: true,
         format: "json",
         ...params,
       }),

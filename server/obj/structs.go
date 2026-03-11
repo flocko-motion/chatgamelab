@@ -165,6 +165,7 @@ type WorkshopParticipant struct {
 	AccessToken string    `json:"accessToken"`
 	Active      bool      `json:"active"`
 	GamesCount  int       `json:"gamesCount"`
+	Permanent   bool      `json:"permanent"`
 }
 
 type ApiKey struct {
