@@ -1986,7 +1986,7 @@ func IncrementGamePlayCount(ctx context.Context, gameID uuid.UUID) error {
 
 // CreateGameShare creates a game share link with a game-scoped API key share.
 // The sourceShareID is the user's personal/workshop share that will be cloned into a game-scoped share.
-func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int) (*obj.GameShare, error) {
+func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, sourceShareID uuid.UUID, institutionID, workshopID *uuid.UUID, maxSessions *int, aiQualityTier *string) (*obj.GameShare, error) {
 	// Verify the source share exists and the user is authorized to use it
 	share, err := queries().GetApiKeyShareByID(ctx, sourceShareID)
 	if err != nil {
@@ -2025,6 +2025,7 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 		InstitutionID: uuidPtrToNullUUID(institutionID),
 		WorkshopID:    uuidPtrToNullUUID(workshopID),
 		Remaining:     intPtrToNullInt32(maxSessions),
+		AiQualityTier: stringPtrToNullString(aiQualityTier),
 		CreatedBy:     uuid.NullUUID{UUID: userID, Valid: true},
 	})
 	if err != nil {
@@ -2127,7 +2128,7 @@ func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([
 	result := make([]GameShareWithGame, len(rows))
 	for i, r := range rows {
 		result[i] = GameShareWithGame{
-			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.CreatedBy, r.CreatedAt),
+			GameShare: *dbGameShareToObjFromJoin(r.ID, r.GameID, r.Token, r.ApiKeyShareID, r.InstitutionID, r.WorkshopID, r.Remaining, r.AiQualityTier, r.CreatedBy, r.CreatedAt),
 			GameName:  r.GameName,
 		}
 	}
@@ -2135,7 +2136,7 @@ func GetGameSharesWithGameByApiKeyID(ctx context.Context, apiKeyID uuid.UUID) ([
 }
 
 // dbGameShareToObjFromJoin converts individual fields (from JOIN query results) to obj.GameShare.
-func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
+func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID uuid.UUID, institutionID, workshopID uuid.NullUUID, remaining sql.NullInt32, aiQualityTier sql.NullString, createdBy uuid.NullUUID, createdAt time.Time) *obj.GameShare {
 	gs := &obj.GameShare{
 		ID:            id,
 		GameID:        gameID,
@@ -2152,6 +2153,9 @@ func dbGameShareToObjFromJoin(id, gameID uuid.UUID, token string, apiKeyShareID 
 	if remaining.Valid {
 		r := int(remaining.Int32)
 		gs.Remaining = &r
+	}
+	if aiQualityTier.Valid {
+		gs.AiQualityTier = &aiQualityTier.String
 	}
 	if createdBy.Valid {
 		gs.CreatedBy = &createdBy.UUID
@@ -2180,15 +2184,16 @@ func DeleteGameShare(ctx context.Context, shareID uuid.UUID) error {
 	return nil
 }
 
-// UpdateGameShareRemaining updates the remaining sessions on a game share. Pass nil for unlimited.
-func UpdateGameShareRemaining(ctx context.Context, shareID uuid.UUID, remaining *int) (*obj.GameShare, error) {
+// UpdateGameShare updates the remaining sessions and AI quality tier on a game share.
+func UpdateGameShare(ctx context.Context, shareID uuid.UUID, remaining *int, aiQualityTier *string) (*obj.GameShare, error) {
 	var nullRemaining sql.NullInt32
 	if remaining != nil {
 		nullRemaining = sql.NullInt32{Int32: int32(*remaining), Valid: true}
 	}
-	gs, err := queries().UpdateGameShareRemaining(ctx, db.UpdateGameShareRemainingParams{
-		ID:        shareID,
-		Remaining: nullRemaining,
+	gs, err := queries().UpdateGameShare(ctx, db.UpdateGameShareParams{
+		ID:            shareID,
+		Remaining:     nullRemaining,
+		AiQualityTier: stringPtrToNullString(aiQualityTier),
 	})
 	if err != nil {
 		return nil, err
@@ -2256,6 +2261,9 @@ func dbGameShareToObj(gs db.GameShare) *obj.GameShare {
 	}
 	if gs.WorkshopID.Valid {
 		result.WorkshopID = &gs.WorkshopID.UUID
+	}
+	if gs.AiQualityTier.Valid {
+		result.AiQualityTier = &gs.AiQualityTier.String
 	}
 	if gs.CreatedBy.Valid {
 		result.CreatedBy = &gs.CreatedBy.UUID

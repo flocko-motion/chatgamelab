@@ -533,6 +533,8 @@
         "enable": "Freigabelink erstellen",
         "loading": "Lade Freigabestatus...",
         "loadingKeys": "Lade API-Schlüssel...",
+        "aiQualityTier": "KI-Qualität",
+        "aiQualityTierDescription": "Wähle die KI-Modellqualität für Gäste, die diesen Freigabelink nutzen.",
         "maxSessions": "Max. Sitzungen",
         "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
         "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",

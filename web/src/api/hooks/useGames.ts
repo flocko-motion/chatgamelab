@@ -227,6 +227,7 @@ export interface EnrichedGameShare {
   institutionId: string | null;
   workshopId: string | null;
   remaining: number | null;
+  aiQualityTier?: string | null;
   createdBy: string | null;
   createdAt: string;
   shareUrl: string;
@@ -266,9 +267,9 @@ export function useCreateGameShare() {
   return useMutation<
     RoutesGameShareResponse,
     Error,
-    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null }
+    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions }) => {
+    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions, aiQualityTier }) => {
       const token = await getAccessToken();
       const response = await fetch(
         `${config.API_BASE_URL}/games/${gameId}/shares`,
@@ -283,6 +284,7 @@ export function useCreateGameShare() {
             workshopId: workshopId ?? null,
             sponsorKeyShareId: sponsorKeyShareId ?? null,
             maxSessions: maxSessions ?? null,
+            aiQualityTier: aiQualityTier ?? null,
           }),
         },
       );
@@ -343,9 +345,9 @@ export function useUpdateGameShare() {
   return useMutation<
     void,
     Error,
-    { gameId: string; shareId: string; maxSessions: number | null }
+    { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, shareId, maxSessions }) => {
+    mutationFn: async ({ gameId, shareId, maxSessions, aiQualityTier }) => {
       const token = await getAccessToken();
       const response = await fetch(
         `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
@@ -356,7 +358,7 @@ export function useUpdateGameShare() {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ maxSessions }),
+          body: JSON.stringify({ maxSessions, aiQualityTier: aiQualityTier ?? null }),
         },
       );
       if (!response.ok) {

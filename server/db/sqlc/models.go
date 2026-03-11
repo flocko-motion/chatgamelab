@@ -142,6 +142,7 @@ type GameShare struct {
 	InstitutionID uuid.NullUUID
 	WorkshopID    uuid.NullUUID
 	Remaining     sql.NullInt32
+	AiQualityTier sql.NullString
 	CreatedBy     uuid.NullUUID
 	CreatedAt     time.Time
 }

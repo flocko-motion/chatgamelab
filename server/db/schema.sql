@@ -413,6 +413,7 @@ CREATE TABLE game_share (
     institution_id      uuid NULL REFERENCES institution(id),
     workshop_id         uuid NULL REFERENCES workshop(id),
     remaining           integer NULL,  -- NULL = unlimited, 0 = exhausted
+    ai_quality_tier     text NULL,    -- NULL = use source default (workshop tier or system default)
     created_by          uuid NULL REFERENCES app_user(id),
     created_at          timestamptz NOT NULL DEFAULT now()
 );

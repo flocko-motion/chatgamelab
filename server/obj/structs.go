@@ -266,6 +266,7 @@ type GameShare struct {
 	InstitutionID *uuid.UUID `json:"institutionId"`
 	WorkshopID    *uuid.UUID `json:"workshopId"`
 	Remaining     *int       `json:"remaining"`
+	AiQualityTier *string    `json:"aiQualityTier,omitempty"`
 	CreatedBy     *uuid.UUID `json:"createdBy"`
 	CreatedAt     time.Time  `json:"createdAt"`
 }

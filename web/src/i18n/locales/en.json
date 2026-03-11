@@ -533,6 +533,8 @@
         "enable": "Create Share Link",
         "loading": "Loading share status...",
         "loadingKeys": "Loading API keys...",
+        "aiQualityTier": "AI Quality",
+        "aiQualityTierDescription": "Select the AI model quality for guests using this share link.",
         "maxSessions": "Max Sessions",
         "maxSessionsDescription": "Leave empty for unlimited sessions.",
         "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
