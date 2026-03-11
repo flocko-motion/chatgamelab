@@ -324,37 +324,34 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 		return nil, err
 	}
 
-	// Apply workshop visibility settings for participants/individuals only.
-	// Head/staff always see all workshop games regardless of these settings.
+	// Apply workshop visibility settings.
+	// showPublicGames: applies to ALL roles (controls non-workshop public games)
+	// showOtherParticipantsGames: applies to participants/individuals only (head/staff always see all workshop games)
 	isHeadOrStaff := user != nil && user.Role != nil &&
 		(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff)
-	if user != nil && user.Role != nil && user.Role.Workshop != nil && !isHeadOrStaff {
+	if user != nil && user.Role != nil && user.Role.Workshop != nil {
 		ws := user.Role.Workshop
 		filtered := make([]db.Game, 0, len(games))
 		for _, g := range games {
-			isWorkshopGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
+			isWsGame := g.WorkshopID.Valid && g.WorkshopID.UUID == ws.ID
 
-			// Public games (from anywhere): controlled by showPublicGames
-			if g.Public {
-				if ws.ShowPublicGames {
+			if isWsGame {
+				// Head/staff see all workshop games
+				if isHeadOrStaff {
+					filtered = append(filtered, g)
+					continue
+				}
+				// Others: own games always visible, rest controlled by setting
+				if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
+					filtered = append(filtered, g)
+				} else if ws.ShowOtherParticipantsGames {
 					filtered = append(filtered, g)
 				}
 				continue
 			}
 
-			// Non-public games must belong to this workshop
-			if !isWorkshopGame {
-				continue
-			}
-
-			// Own workshop games always visible
-			if g.CreatedBy.Valid && g.CreatedBy.UUID == userID {
-				filtered = append(filtered, g)
-				continue
-			}
-
-			// Other people's workshop games: controlled by showOtherParticipantsGames
-			if ws.ShowOtherParticipantsGames {
+			// Non-workshop public games: controlled by showPublicGames (all roles)
+			if g.Public && ws.ShowPublicGames {
 				filtered = append(filtered, g)
 			}
 		}
