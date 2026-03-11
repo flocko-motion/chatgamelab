@@ -4888,6 +4888,68 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/workshops/{id}/members/{userId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a non-permanent member from a workshop by clearing their active workshop",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workshops"
+                ],
+                "summary": "Remove member from workshop",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workshop ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID to remove",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -5837,6 +5899,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "permanent": {
+                    "type": "boolean"
+                },
                 "role": {
                     "$ref": "#/definitions/obj.Role"
                 },
@@ -5929,6 +5994,10 @@ const docTemplate = `{
         "routes.CreateGameShareRequest": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "description": "null = use source default (workshop tier or system default)",
+                    "type": "string"
+                },
                 "maxSessions": {
                     "description": "null = unlimited",
                     "type": "integer"
@@ -6013,6 +6082,9 @@ const docTemplate = `{
         "routes.EnrichedGameShare": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "type": "string"
+                },
                 "apiKeyShareId": {
                     "type": "string"
                 },
@@ -6060,6 +6132,9 @@ const docTemplate = `{
         "routes.GameShareResponse": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "type": "string"
+                },
                 "apiKeyShareId": {
                     "type": "string"
                 },
@@ -6661,6 +6736,10 @@ const docTemplate = `{
         "routes.UpdateGameShareRequest": {
             "type": "object",
             "properties": {
+                "aiQualityTier": {
+                    "description": "null = use source default",
+                    "type": "string"
+                },
                 "maxSessions": {
                     "description": "null = unlimited",
                     "type": "integer"
