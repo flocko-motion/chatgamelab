@@ -1040,7 +1040,7 @@
         "addIndividual": "Organisationsmitglied hinzufügen",
         "addIndividualTitle": "Person zum Workshop hinzufügen",
         "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
-        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten — sie werden hier nicht aufgeführt.",
+        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten - sie werden hier nicht aufgeführt.",
         "addIndividualSuccess": "Mitglied hinzugefügt",
         "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
         "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
@@ -1298,6 +1298,14 @@
       "currentWorkshop": "Aktueller Workshop",
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
+    },
+    "infoModal": {
+      "body": "Du hast den Workshop-Modus betreten. In diesem Modus ist alles, was du tust, mit diesem Workshop verknüpft - erstellte Spiele, Spielsitzungen und geteilte Links.\n\nDu kannst den Modus jederzeit verlassen. Das Verlassen beendet den Workshop nicht und entfernt nichts, was du erstellt hast.",
+      "dontShowAgain": "Nicht mehr anzeigen",
+      "gotIt": "Verstanden",
+      "headStaffNote": "Du kannst diesem Workshop jederzeit über die Workshop-Liste deiner Organisation erneut beitreten.",
+      "individualNote": "Um nach dem Verlassen erneut beizutreten, benötigst du eine neue Einladung von den Workshop-Organisatoren.",
+      "title": "Willkommen bei {{name}}"
     },
     "title": "Mein Workshop",
     "you": "Du"

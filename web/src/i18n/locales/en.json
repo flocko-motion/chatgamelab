@@ -1040,7 +1040,7 @@
         "addIndividual": "Add Organization Member",
         "addIndividualTitle": "Add Individual to Workshop",
         "addIndividualHint": "Adding a user will put them into workshop mode automatically. They will see the workshop view instead of their regular dashboard. Only do this if intended.",
-        "addIndividualStaffNote": "Heads and teachers should join workshops via the workshop list on their own — they are not listed here.",
+        "addIndividualStaffNote": "Heads and teachers should join workshops via the workshop list on their own - they are not listed here.",
         "addIndividualSuccess": "Member Added",
         "addIndividualSuccessMessage": "{{name}} has been added to the workshop.",
         "addIndividualError": "Failed to add member to workshop.",
@@ -1300,7 +1300,15 @@
       "title": "Workshop Settings"
     },
     "title": "My Workshop",
-    "you": "You"
+    "you": "You",
+    "infoModal": {
+      "title": "Welcome to {{name}}",
+      "body": "You've entered workshop mode. While in this mode, everything you do is linked to this workshop - games you create, play sessions, and share links.\n\nYou can leave anytime. Leaving won't end the workshop or remove anything you've created.",
+      "headStaffNote": "You can rejoin this workshop anytime from your organization's workshop list.",
+      "individualNote": "To rejoin after leaving, you'll need a new invitation from the workshop organizers.",
+      "dontShowAgain": "Don't show this again",
+      "gotIt": "Got it"
+    }
   },
   "navigation": {
     "adminPanel": "Admin Panel",

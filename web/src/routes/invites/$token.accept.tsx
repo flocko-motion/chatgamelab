@@ -159,6 +159,7 @@ function AcceptInvitePage() {
                 body: JSON.stringify({}),
               },
             );
+            try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {}
             window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
           } catch {
             // Fallback to showing the enter button
@@ -351,6 +352,7 @@ function AcceptInvitePage() {
         }
 
         // Force page reload to refresh auth state and workshop context
+        try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {}
         window.location.href = buildShareUrl(ROUTES.MY_WORKSHOP);
       } catch {
         setError(t("invites.errors.acceptFailed"));
