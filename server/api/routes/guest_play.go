@@ -233,12 +233,6 @@ type SessionMessageResponse struct {
 	obj.GameSessionMessage
 }
 
-func toSessionMessageResponse(msg obj.GameSessionMessage) SessionMessageResponse {
-	msg.Image = nil
-	msg.Audio = nil
-	return SessionMessageResponse{msg}
-}
-
 // GuestSessionResponse is the response for guest session creation.
 type GuestSessionResponse struct {
 	*obj.GameSession

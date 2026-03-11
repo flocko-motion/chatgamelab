@@ -166,14 +166,6 @@ func ReadJSONOrYAML(r *http.Request, v any) error {
 	return yaml.Unmarshal(body, v)
 }
 
-// SetCORSHeaders sets CORS headers for cross-origin requests
-// Deprecated: Use SetCORSHeadersWithOrigin for credential support
-func SetCORSHeaders(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-}
-
 // SetCORSHeadersWithOrigin sets CORS headers with credential support
 // When credentials are used, Access-Control-Allow-Origin cannot be "*"
 func SetCORSHeadersWithOrigin(w http.ResponseWriter, origin string) {

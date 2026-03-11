@@ -842,21 +842,6 @@ func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID u
 	return canAccessUser(ctx, requestingUserID, OpRead, targetUserID)
 }
 
-// canManageUserRole checks if user can manage (set/remove) roles
-// Currently only admins can manage roles
-func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.ErrNotFound("user not found")
-	}
-	// Only admin can manage roles
-	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
-		return obj.ErrForbidden("only admins can manage user roles")
-	}
-
-	return nil
-}
-
 // canAccessInvite checks if user can perform a CRUD operation on invites
 // - operation: the type of CRUD operation
 // - inviteID: pointer to the invite (nil for list operations)
