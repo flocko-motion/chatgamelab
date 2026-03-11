@@ -639,6 +639,12 @@ export function MyWorkshop() {
         onConfirm={handleConfirmDelete}
         gameName={gameToDelete?.name ?? ""}
         loading={isDeleting}
+        isOwner={gameToDelete?.creatorId === currentUserId}
+        isModeratorAction={
+          canEditAllWorkshopGames &&
+          !!gameToDelete?.workshopId &&
+          gameToDelete?.creatorId !== currentUserId
+        }
       />
     </>
   );
