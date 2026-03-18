@@ -54,11 +54,3 @@ func GetFavouriteGames(ctx context.Context, userID uuid.UUID) ([]obj.Game, error
 	return result, nil
 }
 
-// IsFavouriteGame checks if a game is in a user's favourites.
-func IsFavouriteGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error) {
-	arg := db.IsFavouriteGameParams{
-		UserID: userID,
-		GameID: gameID,
-	}
-	return queries().IsFavouriteGame(ctx, arg)
-}

@@ -11,7 +11,6 @@ INSERT INTO game (
   name, description, icon,
   workshop_id,
   public, public_sponsored_api_key_share_id,
-  private_share_hash, private_sponsored_api_key_share_id, private_share_remaining,
   system_message_scenario, system_message_game_start,
   image_style, css, status_fields,
   theme,
@@ -23,12 +22,11 @@ INSERT INTO game (
   $6, $7, $8,
   $9,
   $10, $11,
-  $12, $13, $14,
-  $15, $16,
-  $17, $18, $19,
-  $20,
-  $21, $22, $23,
-  $24, $25, $26
+  $12, $13,
+  $14, $15, $16,
+  $17,
+  $18, $19, $20,
+  $21, $22, $23
 )
 RETURNING *;
 
@@ -177,6 +175,43 @@ SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_coun
 -- name: GetPublicGamesSortedByPlayCountAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true ORDER BY play_count ASC;
 
+-- All games queries (admin only)
+-- name: GetAllGames :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY created_at DESC;
+
+-- name: GetAllGamesSortedByName :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) ASC;
+
+-- name: GetAllGamesSortedByNameDesc :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY LOWER(name) DESC;
+
+-- name: GetAllGamesSortedByCreatedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY created_at ASC;
+
+-- name: GetAllGamesSortedByModifiedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY modified_at DESC;
+
+-- name: GetAllGamesSortedByModifiedAtAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY modified_at ASC;
+
+-- name: SearchAllGames :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at DESC;
+
+-- name: SearchAllGamesSortedByName :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) ASC;
+
+-- name: SearchAllGamesSortedByNameDesc :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY LOWER(name) DESC;
+
+-- name: SearchAllGamesSortedByCreatedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY created_at ASC;
+
+-- name: SearchAllGamesSortedByModifiedAt :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at DESC;
+
+-- name: SearchAllGamesSortedByModifiedAtAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
+
 -- name: SearchPublicGamesSortedByPlayCount :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
 
@@ -209,9 +244,6 @@ SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.delet
 -- name: SearchGamesVisibleToUserSortedByCreatorDesc :many
 SELECT g.* FROM game g LEFT JOIN app_user u ON g.created_by = u.id WHERE g.deleted_at IS NULL AND (g.created_by = $1 OR g.public = true) AND LOWER(g.name) LIKE LOWER('%' || $2 || '%') ORDER BY LOWER(COALESCE(u.name, '')) DESC;
 
--- name: GetGameByPrivateShareHash :one
-SELECT * FROM game WHERE deleted_at IS NULL AND private_share_hash = $1;
-
 -- name: GetGameTagsByGameID :many
 SELECT * FROM game_tag WHERE game_id = $1;
 
@@ -226,30 +258,17 @@ UPDATE game SET
   icon = $8,
   public = $9,
   public_sponsored_api_key_share_id = $10,
-  private_share_hash = $11,
-  private_sponsored_api_key_share_id = $12,
-  private_share_remaining = $13,
-  system_message_scenario = $14,
-  system_message_game_start = $15,
-  image_style = $16,
-  css = $17,
-  status_fields = $18,
-  theme = $19,
-  first_message = $20,
-  first_status = $21,
-  first_image = $22,
-  originally_created_by = $23
+  system_message_scenario = $11,
+  system_message_game_start = $12,
+  image_style = $13,
+  css = $14,
+  status_fields = $15,
+  theme = $16,
+  first_message = $17,
+  first_status = $18,
+  first_image = $19,
+  originally_created_by = $20
 WHERE id = $1
-RETURNING *;
-
--- name: DecrementPrivateShareRemaining :one
--- Atomically decrements the remaining counter. Returns the game if successful.
--- Succeeds when: remaining is NULL (unlimited) or remaining > 0.
-UPDATE game SET private_share_remaining = CASE
-  WHEN private_share_remaining IS NULL THEN NULL
-  ELSE private_share_remaining - 1
-END, modified_at = now()
-WHERE id = $1 AND (private_share_remaining IS NULL OR private_share_remaining > 0)
 RETURNING *;
 
 -- name: IncrementGamePlayCount :exec
@@ -282,9 +301,6 @@ DELETE FROM game_session WHERE game_id = $1;
 
 -- name: DeleteFavouritesByGameID :exec
 DELETE FROM user_favourite_game WHERE game_id = $1;
-
--- name: ClearPrivateShareGameIDByGameID :exec
-UPDATE app_user SET private_share_game_id = NULL WHERE private_share_game_id = $1;
 
 -- name: HardDeleteGamesByCreator :exec
 DELETE FROM game WHERE created_by = $1;

@@ -33,6 +33,9 @@ import {
   IconClock,
   IconPlayerPlay,
   IconPencil,
+  IconX,
+  IconMail,
+  IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
@@ -46,12 +49,15 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useCreateWorkshopEmailInvite,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { InviteModal } from "./InviteModal";
+import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import { ObjRole, type ObjWorkshopParticipant } from "@/api/generated";
 import { getAiQualityTierOptions } from "@/common/lib/aiQualityTier";
@@ -76,6 +82,16 @@ export function SingleWorkshopSettings({
     inviteLinkModalOpened,
     { open: openInviteLinkModal, close: closeInviteLinkModal },
   ] = useDisclosure(false);
+
+  const [
+    emailInviteModalOpened,
+    { open: openEmailInviteModal, close: closeEmailInviteModal },
+  ] = useDisclosure(false);
+  const [
+    addIndividualModalOpened,
+    { open: openAddIndividualModal, close: closeAddIndividualModal },
+  ] = useDisclosure(false);
+  const [emailInviteError, setEmailInviteError] = useState<string | null>(null);
 
   const [newlyCreatedInvite, setNewlyCreatedInvite] = useState<{
     id?: string;
@@ -112,7 +128,7 @@ export function SingleWorkshopSettings({
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
-
+  const createEmailInvite = useCreateWorkshopEmailInvite();
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
   const [autoShareError, setAutoShareError] = useState<string | null>(null);
@@ -126,6 +142,23 @@ export function SingleWorkshopSettings({
     const invite = await createInvite.mutateAsync({ workshopId });
     setNewlyCreatedInvite(invite);
     openInviteLinkModal();
+  };
+
+  const handleEmailInvite = async (email: string) => {
+    try {
+      await createEmailInvite.mutateAsync({ workshopId, email });
+      setEmailInviteError(null);
+      closeEmailInviteModal();
+      notifications.show({
+        title: t("myOrganization.workshops.inviteByEmailSuccess"),
+        message: t("myOrganization.workshops.inviteByEmailSuccessMessage", {
+          email,
+        }),
+        color: "green",
+      });
+    } catch {
+      setEmailInviteError(t("myOrganization.workshops.addIndividualError"));
+    }
   };
 
   const handleViewInviteLink = () => {
@@ -158,7 +191,6 @@ export function SingleWorkshopSettings({
       const newShare = await shareApiKeyWithInstitution.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       if (newShare?.id) {
         await setWorkshopApiKey.mutateAsync({
@@ -195,8 +227,12 @@ export function SingleWorkshopSettings({
   };
 
   const handleConfirmRemoveParticipant = async () => {
-    if (!participantToRemove?.id) return;
-    await removeParticipant.mutateAsync(participantToRemove.id);
+    if (!participantToRemove?.id || !workshopId) return;
+    await removeParticipant.mutateAsync({
+      participantId: participantToRemove.id,
+      workshopId,
+      permanent: participantToRemove.permanent !== false,
+    });
     setParticipantToRemove(null);
   };
 
@@ -232,6 +268,7 @@ export function SingleWorkshopSettings({
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
+      allowGameSharing: boolean;
     }>,
   ) => {
     if (!workshop?.id) return;
@@ -253,6 +290,8 @@ export function SingleWorkshopSettings({
       promptConstraints:
         settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
+      allowGameSharing:
+        settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -337,6 +376,24 @@ export function SingleWorkshopSettings({
                 loading={createInvite.isPending}
               >
                 <IconLink size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t("myOrganization.workshops.inviteByEmail")}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={openEmailInviteModal}
+              >
+                <IconMail size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t("myOrganization.workshops.addIndividual")}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                onClick={openAddIndividualModal}
+              >
+                <IconUserPlus size={18} />
               </ActionIcon>
             </Tooltip>
           </Group>
@@ -432,6 +489,7 @@ export function SingleWorkshopSettings({
             <Switch
               size="sm"
               label={t("myOrganization.workshops.showOtherParticipantsGames")}
+              description={t("myOrganization.workshops.showOtherParticipantsGamesHint")}
               checked={workshop.showOtherParticipantsGames !== false}
               onChange={(e) =>
                 handleUpdateWorkshopSettings({
@@ -460,6 +518,17 @@ export function SingleWorkshopSettings({
                 })
               }
               color="orange"
+            />
+            <Switch
+              size="sm"
+              label={t("myOrganization.workshops.allowGameSharing")}
+              description={t("myOrganization.workshops.allowGameSharingHint")}
+              checked={workshop.allowGameSharing || false}
+              onChange={(e) =>
+                handleUpdateWorkshopSettings({
+                  allowGameSharing: e.currentTarget.checked,
+                })
+              }
             />
           </Stack >
 
@@ -564,11 +633,11 @@ export function SingleWorkshopSettings({
                                   <Tooltip label={t("cancel")}>
                                     <ActionIcon
                                       variant="subtle"
-                                      color="gray"
+                                      color="red"
                                       size="sm"
                                       onClick={handleCancelEditParticipant}
                                     >
-                                      <IconAlertCircle size={14} />
+                                      <IconX size={14} />
                                     </ActionIcon>
                                   </Tooltip>
                                 </>
@@ -616,22 +685,25 @@ export function SingleWorkshopSettings({
                                       <IconPencil size={14} />
                                     </ActionIcon>
                                   </Tooltip>
-                                  <Tooltip
-                                    label={t(
-                                      "myOrganization.workshops.removeParticipant",
-                                    )}
-                                  >
-                                    <ActionIcon
-                                      variant="subtle"
-                                      color="red"
-                                      size="sm"
-                                      onClick={() =>
-                                        setParticipantToRemove(participant)
-                                      }
+                                  {participant.role !== ObjRole.RoleHead &&
+                                    participant.role !== ObjRole.RoleStaff && (
+                                    <Tooltip
+                                      label={t(
+                                        "myOrganization.workshops.removeParticipant",
+                                      )}
                                     >
-                                      <IconTrash size={14} />
-                                    </ActionIcon>
-                                  </Tooltip>
+                                      <ActionIcon
+                                        variant="subtle"
+                                        color="red"
+                                        size="sm"
+                                        onClick={() =>
+                                          setParticipantToRemove(participant)
+                                        }
+                                      >
+                                        <IconTrash size={14} />
+                                      </ActionIcon>
+                                    </Tooltip>
+                                  )}
                                 </>
                               )}
                             </Group>
@@ -723,11 +795,11 @@ export function SingleWorkshopSettings({
                                     <Tooltip label={t("cancel")}>
                                       <ActionIcon
                                         variant="subtle"
-                                        color="gray"
+                                        color="red"
                                         size="sm"
                                         onClick={handleCancelEditParticipant}
                                       >
-                                        <IconAlertCircle size={14} />
+                                        <IconX size={14} />
                                       </ActionIcon>
                                     </Tooltip>
                                   </>
@@ -775,22 +847,25 @@ export function SingleWorkshopSettings({
                                         <IconPencil size={14} />
                                       </ActionIcon>
                                     </Tooltip>
-                                    <Tooltip
-                                      label={t(
-                                        "myOrganization.workshops.removeParticipant",
-                                      )}
-                                    >
-                                      <ActionIcon
-                                        variant="subtle"
-                                        color="red"
-                                        size="sm"
-                                        onClick={() =>
-                                          setParticipantToRemove(participant)
-                                        }
+                                    {participant.role !== ObjRole.RoleHead &&
+                                      participant.role !== ObjRole.RoleStaff && (
+                                      <Tooltip
+                                        label={t(
+                                          "myOrganization.workshops.removeParticipant",
+                                        )}
                                       >
-                                        <IconTrash size={14} />
-                                      </ActionIcon>
-                                    </Tooltip>
+                                        <ActionIcon
+                                          variant="subtle"
+                                          color="red"
+                                          size="sm"
+                                          onClick={() =>
+                                            setParticipantToRemove(participant)
+                                          }
+                                        >
+                                          <IconTrash size={14} />
+                                        </ActionIcon>
+                                      </Tooltip>
+                                    )}
                                   </>
                                 )}
                               </Group>
@@ -900,6 +975,28 @@ export function SingleWorkshopSettings({
         confirmIcon={< IconTrash size={16} />}
         confirmColor="red"
         isLoading={removeParticipant.isPending}
+      />
+
+      {/* Email Invite Modal */}
+      <InviteModal
+        opened={emailInviteModalOpened}
+        onClose={() => {
+          closeEmailInviteModal();
+          setEmailInviteError(null);
+        }}
+        title={t("myOrganization.workshops.inviteByEmailTitle")}
+        description={t("myOrganization.workshops.inviteByEmailDescription")}
+        onSubmit={handleEmailInvite}
+        isLoading={createEmailInvite.isPending}
+        error={emailInviteError}
+      />
+
+      {/* Add Individual Modal */}
+      <AddIndividualModal
+        opened={addIndividualModalOpened}
+        onClose={closeAddIndividualModal}
+        workshopId={workshopId}
+        institutionId={institutionId}
       />
 
       {/* Auto-share personal key confirmation */}

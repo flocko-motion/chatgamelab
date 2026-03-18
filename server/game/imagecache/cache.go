@@ -204,11 +204,6 @@ func (c *Cache) cleanup() {
 	}
 }
 
-// Stop shuts down the cleanup loop
-func (c *Cache) Stop() {
-	close(c.done)
-}
-
 func computeHash(data []byte) string {
 	if len(data) == 0 {
 		return ""

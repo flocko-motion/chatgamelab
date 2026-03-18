@@ -27,8 +27,8 @@ CREATE TABLE app_user (
     ai_quality_tier text NULL,
     -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
     language text NOT NULL DEFAULT 'en',
-    -- Links guest users to the game whose private share link created them (NULL for non-guests)
-    private_share_game_id uuid NULL
+    -- Links guest users to the game_share that created them (NULL for non-guests)
+    private_share_id uuid NULL
 );
 
 -- Institution
@@ -73,6 +73,7 @@ CREATE TABLE workshop (
     show_other_participants_games boolean NOT NULL DEFAULT true,  -- If true, participants can see other participants' games
     design_editing_enabled boolean NOT NULL DEFAULT false,  -- If true, workshop members can edit game design (theme); default: no
     is_paused boolean NOT NULL DEFAULT false,  -- If true, participants/individuals see a paused overlay and cannot interact
+    allow_game_sharing boolean NOT NULL DEFAULT false,  -- If true, participants can create share links for workshop games
 
     CONSTRAINT workshop_name_institution_uniq UNIQUE (name, institution_id)
 );
@@ -215,7 +216,6 @@ CREATE TABLE api_key_share (
     workshop_id                     uuid NULL REFERENCES workshop(id),
     institution_id                  uuid NULL REFERENCES institution(id),
     game_id                         uuid NULL,
-    allow_public_game_sponsoring     boolean NOT NULL DEFAULT false,
 
     CONSTRAINT api_key_share_target_chk CHECK (
         user_id IS NOT NULL OR workshop_id IS NOT NULL OR institution_id IS NOT NULL OR game_id IS NOT NULL
@@ -242,13 +242,6 @@ CREATE TABLE game (
     public                          boolean NOT NULL DEFAULT false,
     -- If public, a sponsored API key share can be provided to pay for any public plays.
     public_sponsored_api_key_share_id  uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
-    -- Private share links contain secret random tokens to limit access to the game.
-    -- They are sponsored, so invited players don't require their own API key.
-    private_share_hash                 text NULL,
-    private_sponsored_api_key_share_id uuid NULL REFERENCES api_key_share(id) ON DELETE SET NULL,
-    -- Remaining plays for private share links. NULL = unlimited, >0 = can play, 0 = exhausted.
-    private_share_remaining            integer NULL,
-
     -- Game details and system messages for the LLM.
     -- What is the game about? How does it work? Player role? World description?
     system_message_scenario         text NOT NULL,
@@ -409,10 +402,26 @@ CREATE TABLE user_favourite_game (
     CONSTRAINT user_favourite_game_user_game_uniq UNIQUE (user_id, game_id)
 );
 
+-- Game Share
+-- Each row represents a share link for a game. Multiple shares per game are supported
+-- (e.g. personal + workshop). Replaces the old game.private_share_* columns.
+CREATE TABLE game_share (
+    id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    game_id             uuid NOT NULL REFERENCES game(id),
+    token               text NOT NULL UNIQUE,
+    api_key_share_id    uuid NOT NULL REFERENCES api_key_share(id),
+    institution_id      uuid NULL REFERENCES institution(id),
+    workshop_id         uuid NULL REFERENCES workshop(id),
+    remaining           integer NULL,  -- NULL = unlimited, 0 = exhausted
+    ai_quality_tier     text NULL,    -- NULL = use source default (workshop tier or system default)
+    created_by          uuid NULL REFERENCES app_user(id),
+    created_at          timestamptz NOT NULL DEFAULT now()
+);
+
 -- Deferred foreign keys (tables referenced before they are created)
 ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk
     FOREIGN KEY (free_use_api_key_share_id) REFERENCES api_key_share(id);
 ALTER TABLE api_key_share ADD CONSTRAINT api_key_share_game_fk
     FOREIGN KEY (game_id) REFERENCES game(id);
-ALTER TABLE app_user ADD CONSTRAINT app_user_private_share_game_fk
-    FOREIGN KEY (private_share_game_id) REFERENCES game(id);
+ALTER TABLE app_user ADD CONSTRAINT app_user_private_share_fk
+    FOREIGN KEY (private_share_id) REFERENCES game_share(id);

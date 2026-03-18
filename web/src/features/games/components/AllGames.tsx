@@ -22,11 +22,13 @@ import {
   IconAlertCircle,
   IconMoodEmpty,
   IconCopy,
+  IconDownload,
   IconStar,
   IconStarFilled,
   IconEye,
   IconEdit,
   IconHeartFilled,
+  IconTrash,
 } from "@tabler/icons-react";
 import { PageTitle } from "@components/typography";
 import {
@@ -43,11 +45,19 @@ import {
 import { DimmedLoader } from "@components/LoadingAnimation";
 import { GenericIconButton } from "@components/buttons";
 import { GameEditModal } from "./GameEditModal";
+import { DeleteGameModal } from "./DeleteGameModal";
 import { SponsorGameModal } from "./SponsorGameModal";
-import { PrivateShareModal } from "./PrivateShareModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { GamePlayButtons } from "./GamePlayButtons";
-import { useGames, useCreateGame, useUpdateGame } from "@/api/hooks";
+import {
+  useGames,
+  useCreateGame,
+  useUpdateGame,
+  useDeleteGame,
+  useExportGameYaml,
+  useWorkshop,
+} from "@/api/hooks";
+import { useAdmin } from "@/common/hooks/useAdmin";
 import {
   useFavoriteState,
   useGameNavigation,
@@ -62,13 +72,55 @@ import {
   gameToFormData,
   getGameDateLabel,
   createGameWithExtraFields,
+  downloadYamlFile,
 } from "../lib";
+
+function WorkshopBadges({ workshopId, mobile = false }: { workshopId: string; mobile?: boolean }) {
+  const { data: workshop, isLoading } = useWorkshop(workshopId);
+  if (isLoading) return <Skeleton height={14} width={120} radius="xl" />;
+  if (!workshop) return null;
+
+  if (mobile) {
+    return (
+      <Group gap={6} wrap="wrap">
+        <Group gap={4} wrap="nowrap">
+          <Text size="xs" c="gray.5">Workshop:</Text>
+          <Badge size="xs" color="violet" variant="light">
+            {workshop.name}
+          </Badge>
+        </Group>
+        {workshop.institution?.name && (
+          <Group gap={4} wrap="nowrap">
+            <Text size="xs" c="gray.5">Orga:</Text>
+            <Badge size="xs" color="gray" variant="light">
+              {workshop.institution.name}
+            </Badge>
+          </Group>
+        )}
+      </Group>
+    );
+  }
+
+  return (
+    <Stack gap={2}>
+      <Badge size="xs" color="violet" variant="light" style={{ maxWidth: 160 }}>
+        {workshop.name}
+      </Badge>
+      {workshop.institution?.name && (
+        <Badge size="xs" color="gray" variant="light" style={{ maxWidth: 160 }}>
+          {workshop.institution.name}
+        </Badge>
+      )}
+    </Stack>
+  );
+}
 
 export function AllGames() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width: 48em)");
   const { backendUser } = useAuth();
+  const { isAdmin: isAdminUser } = useAdmin();
 
   const [filter, setFilter] = useState<GameFilter>("all");
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
@@ -103,6 +155,8 @@ export function AllGames() {
     useGameSessionState();
   const createGame = useCreateGame();
   const updateGame = useUpdateGame();
+  const deleteGame = useDeleteGame();
+  const exportGameYaml = useExportGameYaml();
 
   const [
     createModalOpened,
@@ -117,13 +171,9 @@ export function AllGames() {
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
-  const [
-    privateShareModalOpened,
-    { open: openPrivateShareModal, close: closePrivateShareModal },
-  ] = useDisclosure(false);
-  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
-    null,
-  );
+  const [deleteModalOpened, { open: openDeleteModal, close: closeDeleteModal }] =
+    useDisclosure(false);
+  const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [createInitialData, setCreateInitialData] =
     useState<Partial<CreateGameFormData> | null>(null);
   const {
@@ -166,18 +216,36 @@ export function AllGames() {
     }
   };
 
-  const handlePrivateShare = () => {
-    const game = games?.find((g) => g.id === gameToView);
-    if (game) {
-      setGameToPrivateShare(game);
-      openPrivateShareModal();
-    }
-  };
-
   const handleCopyGame = (game: ObjGame) => {
     if (!game.id) return;
     setCreateInitialData(gameToFormData(game));
     openCreateModal();
+  };
+
+  const handleDeleteGame = (game: ObjGame) => {
+    setGameToDelete(game);
+    openDeleteModal();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!gameToDelete?.id) return;
+    try {
+      await deleteGame.mutateAsync(gameToDelete.id);
+      closeDeleteModal();
+      setGameToDelete(null);
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
+  const handleExport = async (game: ObjGame) => {
+    if (!game.id) return;
+    try {
+      const yaml = await exportGameYaml.mutateAsync(game.id);
+      downloadYamlFile(yaml, game.name);
+    } catch {
+      // Error handled by mutation
+    }
   };
 
   const handleCloseCreateModal = () => {
@@ -205,11 +273,12 @@ export function AllGames() {
   const getDateLabel = (game: ObjGame) => getGameDateLabel(game, sortField);
 
   const getCardActions = (game: ObjGame): GameCardAction[] => {
+    const canEdit = isOwner(game) || isAdminUser;
     const actions: GameCardAction[] = [
-      isOwner(game)
+      canEdit
         ? {
             key: "edit",
-            icon: <IconEdit size={16} />,
+            icon: <IconEdit size={16} color="var(--mantine-color-blue-6)" />,
             label: t("games.actions.edit"),
             onClick: () => handleViewGame(game),
           }
@@ -220,12 +289,28 @@ export function AllGames() {
             onClick: () => handleViewGame(game),
           },
     ];
+    if (!isAdminUser) {
+      actions.push({
+        key: "copy",
+        icon: <IconCopy size={16} />,
+        label: t("allGames.copyGame"),
+        onClick: () => handleCopyGame(game),
+      });
+    }
     actions.push({
-      key: "copy",
-      icon: <IconCopy size={16} />,
-      label: t("allGames.copyGame"),
-      onClick: () => handleCopyGame(game),
+      key: "export",
+      icon: <IconDownload size={16} />,
+      label: t("games.importExport.exportButton"),
+      onClick: () => handleExport(game),
     });
+    if (isAdminUser) {
+      actions.push({
+        key: "delete",
+        icon: <IconTrash size={16} color="var(--mantine-color-red-6)" />,
+        label: t("delete"),
+        onClick: () => handleDeleteGame(game),
+      });
+    }
     return actions;
   };
 
@@ -350,6 +435,19 @@ export function AllGames() {
           </Tooltip>
         ),
     },
+    ...(isAdminUser
+      ? [
+          {
+            key: "workshop",
+            header: t("allGames.workshop"),
+            width: 170,
+            render: (game: ObjGame) =>
+              game.workshopId ? (
+                <WorkshopBadges workshopId={game.workshopId} />
+              ) : null,
+          } as DataTableColumn<ObjGame>,
+        ]
+      : []),
     {
       key: "playCount",
       header: t("games.fields.playCount"),
@@ -396,10 +494,10 @@ export function AllGames() {
             {renderPlayButton(game)}
           </Box>
           <Group gap={4} wrap="nowrap">
-            {isOwner(game) ? (
+            {isOwner(game) || isAdminUser ? (
               <Tooltip label={t("games.actions.edit")} withArrow>
                 <GenericIconButton
-                  icon={<IconEdit size={16} />}
+                  icon={<IconEdit size={16} color="var(--mantine-color-blue-6)" />}
                   onClick={() => handleViewGame(game)}
                   aria-label={t("games.actions.edit")}
                 />
@@ -413,13 +511,31 @@ export function AllGames() {
                 />
               </Tooltip>
             )}
-            <Tooltip label={t("allGames.copyGame")} withArrow>
+            {!isAdminUser && (
+              <Tooltip label={t("allGames.copyGame")} withArrow>
+                <GenericIconButton
+                  icon={<IconCopy size={16} />}
+                  onClick={() => handleCopyGame(game)}
+                  aria-label={t("allGames.copyGame")}
+                />
+              </Tooltip>
+            )}
+            <Tooltip label={t("games.importExport.exportButton")} withArrow>
               <GenericIconButton
-                icon={<IconCopy size={16} />}
-                onClick={() => handleCopyGame(game)}
-                aria-label={t("allGames.copyGame")}
+                icon={<IconDownload size={16} />}
+                onClick={() => handleExport(game)}
+                aria-label={t("games.importExport.exportButton")}
               />
             </Tooltip>
+            {isAdminUser && (
+              <Tooltip label={t("delete")} withArrow>
+                <GenericIconButton
+                  icon={<IconTrash size={16} color="var(--mantine-color-red-6)" />}
+                  onClick={() => handleDeleteGame(game)}
+                  aria-label={t("delete")}
+                />
+              </Tooltip>
+            )}
           </Group>
         </Group>
       ),
@@ -578,6 +694,11 @@ export function AllGames() {
                         unfavoriteLabel={t("allGames.unfavorite")}
                         actions={getCardActions(game)}
                         dateLabel={getDateLabel(game)}
+                        extra={
+                          isAdminUser && game.workshopId ? (
+                            <WorkshopBadges workshopId={game.workshopId} mobile />
+                          ) : undefined
+                        }
                       />
                     );
                   })}
@@ -661,11 +782,12 @@ export function AllGames() {
           closeViewModal();
           setGameToView(null);
         }}
-        readOnly={!gameToViewIsOwner}
+        readOnly={!gameToViewIsOwner && !isAdminUser}
+        isOwner={gameToViewIsOwner}
         onSponsor={gameToViewIsOwner ? handleSponsorGame : undefined}
-        onPrivateShare={gameToViewIsOwner ? handlePrivateShare : undefined}
+        showShareSection
         onCopy={
-          !gameToViewIsOwner
+          !gameToViewIsOwner && !isAdminUser
             ? () => {
                 const game = games?.find((g) => g.id === gameToView);
                 if (game) {
@@ -678,6 +800,18 @@ export function AllGames() {
         }
       />
 
+      <DeleteGameModal
+        opened={deleteModalOpened}
+        onClose={() => {
+          closeDeleteModal();
+          setGameToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        gameName={gameToDelete?.name ?? ""}
+        loading={deleteGame.isPending}
+        isOwner={gameToDelete ? isOwner(gameToDelete) : false}
+      />
+
       <SponsorGameModal
         game={gameToSponsor}
         opened={sponsorModalOpened}
@@ -687,14 +821,6 @@ export function AllGames() {
         }}
       />
 
-      <PrivateShareModal
-        game={gameToPrivateShare}
-        opened={privateShareModalOpened}
-        onClose={() => {
-          closePrivateShareModal();
-          setGameToPrivateShare(null);
-        }}
-      />
     </>
   );
 }

@@ -47,13 +47,13 @@ func NewMux() *http.ServeMux {
 	// API Keys
 	mux.Handle("GET /api/apikeys", httpx.RequireAuth(GetApiKeys))
 	mux.Handle("GET /api/apikeys/{id}", httpx.RequireAuth(GetApiKeyByID))
+	mux.Handle("GET /api/apikeys/{id}/game-shares", httpx.RequireAuth(GetApiKeyGameShares))
 	mux.Handle("POST /api/apikeys/new", httpx.RequireAuth(CreateApiKey))
 	mux.Handle("POST /api/apikeys/{id}/shares", httpx.RequireAuth(ShareApiKey))
 	// Backward compatibility: previously used POST /api/apikeys/{id} for sharing
 	mux.Handle("POST /api/apikeys/{id}", httpx.RequireAuth(ShareApiKey))
 	mux.Handle("PATCH /api/apikeys/{id}", httpx.RequireAuth(UpdateApiKey))
 	mux.Handle("PUT /api/apikeys/{id}/default", httpx.RequireAuth(SetDefaultApiKey))
-	mux.Handle("PATCH /api/apikeys/{id}/sponsoring", httpx.RequireAuth(UpdateApiKeyShare))
 	mux.Handle("DELETE /api/apikeys/{id}", httpx.RequireAuth(DeleteApiKey))
 
 	// Auth
@@ -108,12 +108,18 @@ func NewMux() *http.ServeMux {
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
+	mux.Handle("POST /api/invites/workshop/email", httpx.RequireAuth(CreateWorkshopEmailInvite))
 	mux.Handle("DELETE /api/invites/{id}", httpx.RequireAuth(RevokeInvite))
 
-	// Private Share Management (authenticated — game owner only)
+	// Workshop members
+	mux.Handle("POST /api/workshops/{id}/members", httpx.RequireAuth(AddMemberToWorkshop))
+	mux.Handle("DELETE /api/workshops/{id}/members/{userId}", httpx.RequireAuth(RemoveMemberFromWorkshop))
+
+	// Game Share Management
 	mux.Handle("GET /api/games/{id}/private-share", httpx.RequireAuth(GetPrivateShareStatus))
-	mux.Handle("POST /api/games/{id}/private-share", httpx.RequireAuth(EnablePrivateShare))
-	mux.Handle("DELETE /api/games/{id}/private-share", httpx.RequireAuth(RevokePrivateShare))
+	mux.Handle("POST /api/games/{id}/shares", httpx.RequireAuth(CreateGameShare))
+	mux.Handle("PATCH /api/games/{id}/shares/{shareId}", httpx.RequireAuth(UpdateGameShare))
+	mux.Handle("DELETE /api/games/{id}/shares/{shareId}", httpx.RequireAuth(DeleteGameShareByID))
 
 	// Guest Play (public — share token is the capability)
 	mux.HandleFunc("GET /api/play/{token}/info", PlayGuestGetGameInfo)

@@ -23,14 +23,12 @@ var (
 	shareUserID        string
 	shareWorkshopID    string
 	shareInstitutionID string
-	shareAllowPublic   bool
 )
 
 func init() {
 	shareAddCmd.Flags().StringVar(&shareUserID, "user-id", "", "User ID to share with")
 	shareAddCmd.Flags().StringVar(&shareWorkshopID, "workshop-id", "", "Workshop ID to share with")
 	shareAddCmd.Flags().StringVar(&shareInstitutionID, "institution-id", "", "Institution ID to share with")
-	shareAddCmd.Flags().BoolVar(&shareAllowPublic, "allow-public", false, "Allow public sponsored plays")
 	shareCmd.AddCommand(shareAddCmd)
 }
 
@@ -41,9 +39,7 @@ func runShareAdd(cmd *cobra.Command, args []string) {
 		log.Fatalf("At least one of --user-id, --workshop-id, or --institution-id is required")
 	}
 
-	req := routes.ShareRequest{
-		AllowPublic: shareAllowPublic,
-	}
+	req := routes.ShareRequest{}
 
 	if shareUserID != "" {
 		id, err := uuid.Parse(shareUserID)

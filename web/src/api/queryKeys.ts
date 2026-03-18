@@ -17,7 +17,8 @@ export const queryKeys = {
   apiKeyShares: ["apiKeyShares"] as const,
   institutionApiKeys: (institutionId: string) =>
     ["institutionApiKeys", institutionId] as const,
-  availableKeys: (gameId: string) => ["availableKeys", gameId] as const,
+  apiKeyGameShares: (shareId: string) =>
+    ["apiKeyGameShares", shareId] as const,
   apiKeyStatus: (gameId: string) => ["apiKeyStatus", gameId] as const,
 
   // Platforms

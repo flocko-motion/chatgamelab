@@ -157,6 +157,8 @@ function RootComponent() {
     });
   }
 
+  const isAdminUser = isAdmin(backendUser);
+
   const navItems: NavItem[] = isInWorkshopUI
     ? workshopNavItems
     : [
@@ -172,21 +174,26 @@ function RootComponent() {
           onClick: () => navigate({ to: ROUTES.MY_GAME_CREATE as "/" }),
           active: false,
         },
-        {
-          label: t("myGames"),
-          icon: <IconPlayerPlay size={18} />,
-          onClick: () => navigate({ to: ROUTES.MY_GAMES as "/" }),
-          active:
-            pathname.startsWith(ROUTES.MY_GAMES) &&
-            pathname !== ROUTES.MY_GAME_CREATE,
-        },
+        ...(!isAdminUser
+          ? [
+              {
+                label: t("myGames"),
+                icon: <IconPlayerPlay size={18} />,
+                onClick: () => navigate({ to: ROUTES.MY_GAMES as "/" }),
+                active:
+                  pathname.startsWith(ROUTES.MY_GAMES) &&
+                  pathname !== ROUTES.MY_GAME_CREATE,
+              } as NavItem,
+            ]
+          : []),
         {
           label: t("allGames"),
           icon: <IconWorld size={18} />,
           onClick: () => navigate({ to: ROUTES.ALL_GAMES as "/" }),
           active:
             pathname.startsWith(ROUTES.ALL_GAMES) ||
-            pathname.startsWith(ROUTES.SESSIONS),
+            pathname.startsWith(ROUTES.SESSIONS) ||
+            (isAdminUser && pathname.startsWith(ROUTES.MY_GAMES)),
         },
       ];
 
@@ -275,7 +282,10 @@ function RootComponent() {
           onExitWorkshopMode: isInWorkshopMode
             ? async () => {
                 await exitWorkshopMode();
-                navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/" });
+                const destination = hasRole(backendUser, Role.Individual)
+                  ? ROUTES.DASHBOARD
+                  : ROUTES.MY_ORGANIZATION_WORKSHOPS;
+                navigate({ to: destination as "/" });
               }
             : undefined,
           // Staff/head/individual in workshop mode keep access to profile/settings/api-keys

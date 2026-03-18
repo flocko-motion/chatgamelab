@@ -12,10 +12,10 @@ import {
   Center,
   Modal,
   Select,
-  Checkbox,
   TextInput,
   Button,
   Tooltip,
+  NumberInput,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -24,11 +24,15 @@ import {
   IconTrash,
   IconPlus,
   IconSearch,
+  IconChevronDown,
+  IconChevronRight,
+  IconLink,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 import { useAuth } from "@/providers/AuthProvider";
-import { ActionButton, PlusIconButton } from "@/common/components/buttons";
+import { ActionButton, PlusIconButton, DeleteIconButton, EditIconButton } from "@/common/components/buttons";
+import { CancelButton } from "@/common/components/buttons";
 import {
   ExpandableSearch,
   FilterSegmentedControl,
@@ -39,9 +43,11 @@ import {
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
-  useUpdateApiKeyShareSponsoring,
+  useApiKeyGameShares,
+  useRevokePrivateShare,
+  useUpdateGameShare,
 } from "@/api/hooks";
-import type { ObjApiKeyShare } from "@/api/generated";
+import type { ObjApiKeyShare, RoutesEnrichedGameShare } from "@/api/generated";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 
@@ -62,7 +68,6 @@ export function ApiKeysTab({
   const [shareModalOpened, { open: openShareModal, close: closeShareModal }] =
     useDisclosure(false);
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
-  const [allowPublicSponsored, setAllowPublicSponsored] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
 
@@ -80,8 +85,6 @@ export function ApiKeysTab({
   const shareApiKey = useShareApiKeyWithInstitution();
   const removeShare = useRemoveInstitutionApiKeyShare();
   const setFreeUseKey = useSetInstitutionFreeUseKey();
-  const updateSponsoring = useUpdateApiKeyShareSponsoring();
-
   // Combined org + personal key options for free-use key selector
   const {
     options: freeUseKeyOptions,
@@ -149,13 +152,13 @@ export function ApiKeysTab({
     await shareApiKey.mutateAsync({
       shareId: selfShare.id,
       institutionId,
-      allowPublicGameSponsoring: allowPublicSponsored,
     });
 
     closeShareModal();
     setSelectedKeyId(null);
-    setAllowPublicSponsored(false);
   };
+
+  const [expandedShareId, setExpandedShareId] = useState<string | null>(null);
 
   const handleRemoveShare = async (share: ObjApiKeyShare) => {
     if (!share.id) return;
@@ -175,7 +178,6 @@ export function ApiKeysTab({
       const newShare = await shareApiKey.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       // Step 2: Set the new institution share as the free-use key
       if (newShare?.id) {
@@ -288,82 +290,56 @@ export function ApiKeysTab({
       {hasKeys ? (
         <Card
           shadow="sm"
-          padding={isMobile ? "md" : "lg"}
+          padding={isMobile ? "xs" : "lg"}
           radius="md"
           withBorder
         >
           {filteredKeys.length > 0 ? (
-            <Table striped={!isMobile} highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>{t("myOrganization.apiKeys.keyName")}</Table.Th>
-                  <Table.Th>{t("myOrganization.apiKeys.owner")}</Table.Th>
-                  <Table.Th>{t("myOrganization.apiKeys.platform")}</Table.Th>
-                  {!isMobile && (
-                    <Table.Th>
-                      {t("myOrganization.apiKeys.publicSponsoring")}
-                    </Table.Th>
-                  )}
-                  <Table.Th>{t("myOrganization.actions")}</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
+            isMobile ? (
+              <Stack gap="xs">
                 {filteredKeys.map((share) => (
-                  <Table.Tr key={share.id}>
-                    <Table.Td>
-                      <Group gap="xs">
-                        <IconKey size={16} />
-                        <Text size="sm">
-                          {share.apiKey?.name || t("unnamed")}
-                        </Text>
-                      </Group>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{share.apiKey?.userName}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{share.apiKey?.platform}</Text>
-                    </Table.Td>
-                    {!isMobile && (
-                      <Table.Td>
-                        {share.apiKey?.userId === backendUser?.id ? (
-                          <Checkbox
-                            checked={share.allowPublicGameSponsoring ?? false}
-                            onChange={(e) =>
-                              updateSponsoring.mutate({
-                                shareId: share.id!,
-                                allow: e.currentTarget.checked,
-                                institutionId,
-                              })
-                            }
-                            disabled={updateSponsoring.isPending}
-                            size="sm"
-                          />
-                        ) : (
-                          <Badge
-                            color={share.allowPublicGameSponsoring ? "red" : "gray"}
-                            variant="light"
-                            size="sm"
-                          >
-                            {share.allowPublicGameSponsoring ? t("labels.yes") : t("labels.no")}
-                          </Badge>
-                        )}
-                      </Table.Td>
-                    )}
-                    <Table.Td>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
-                        onClick={() => handleRemoveShare(share)}
-                        loading={removeShare.isPending}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
+                  <OrgKeyCardMobile
+                    key={share.id}
+                    share={share}
+                    expanded={expandedShareId === share.id}
+                    onToggle={() =>
+                      setExpandedShareId((prev) =>
+                        prev === share.id ? null : (share.id ?? null),
+                      )
+                    }
+                    onRemove={() => handleRemoveShare(share)}
+                    isRemoving={removeShare.isPending}
+                  />
                 ))}
-              </Table.Tbody>
-            </Table>
+              </Stack>
+            ) : (
+              <Table striped highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>{t("myOrganization.apiKeys.keyName")}</Table.Th>
+                    <Table.Th>{t("myOrganization.apiKeys.owner")}</Table.Th>
+                    <Table.Th>{t("myOrganization.apiKeys.platform")}</Table.Th>
+                    <Table.Th>{t("myOrganization.actions")}</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {filteredKeys.map((share) => (
+                    <OrgKeyRow
+                      key={share.id}
+                      share={share}
+                      expanded={expandedShareId === share.id}
+                      onToggle={() =>
+                        setExpandedShareId((prev) =>
+                          prev === share.id ? null : (share.id ?? null),
+                        )
+                      }
+                      onRemove={() => handleRemoveShare(share)}
+                      isRemoving={removeShare.isPending}
+                    />
+                  ))}
+                </Table.Tbody>
+              </Table>
+            )
           ) : (
             <Stack gap="md" align="center" py="xl">
               <IconSearch size={48} color="var(--mantine-color-dimmed)" />
@@ -481,13 +457,6 @@ export function ApiKeysTab({
             onChange={setSelectedKeyId}
           />
 
-          <Checkbox
-            label={t("myOrganization.apiKeys.allowPublicSponsoring")}
-            description={t("myOrganization.apiKeys.allowPublicSponsoringDesc")}
-            checked={allowPublicSponsored}
-            onChange={(e) => setAllowPublicSponsored(e.currentTarget.checked)}
-          />
-
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={closeShareModal}>
               {t("cancel")}
@@ -521,5 +490,301 @@ export function ApiKeysTab({
         error={freeUseAutoShareError}
       />
     </Stack>
+  );
+}
+
+// --- Mobile card for org API key ---
+
+interface OrgKeyRowProps {
+  share: ObjApiKeyShare;
+  expanded: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+  isRemoving: boolean;
+}
+
+function OrgKeyCardMobile({
+  share,
+  expanded,
+  onToggle,
+  onRemove,
+  isRemoving,
+}: OrgKeyRowProps) {
+  const { t } = useTranslation("common");
+
+  return (
+    <Card withBorder radius="sm" padding="sm">
+      <Group
+        gap="xs"
+        justify="space-between"
+        wrap="nowrap"
+        onClick={onToggle}
+        style={{ cursor: "pointer" }}
+      >
+        <Group gap="xs" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
+          {expanded ? (
+            <IconChevronDown size={14} color="var(--mantine-color-dimmed)" style={{ flexShrink: 0 }} />
+          ) : (
+            <IconChevronRight size={14} color="var(--mantine-color-dimmed)" style={{ flexShrink: 0 }} />
+          )}
+          <IconKey size={16} style={{ flexShrink: 0 }} />
+          <Stack gap={0} style={{ minWidth: 0 }}>
+            <Text size="sm" fw={500} truncate>
+              {share.apiKey?.name || t("unnamed")}
+            </Text>
+            <Group gap={4}>
+              <Text size="xs" c="dimmed" truncate>
+                {share.apiKey?.userName}
+              </Text>
+              {share.apiKey?.platform && (
+                <Badge size="xs" variant="light" color="gray">
+                  {share.apiKey.platform}
+                </Badge>
+              )}
+            </Group>
+          </Stack>
+        </Group>
+        <ActionIcon
+          color="red"
+          variant="subtle"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          loading={isRemoving}
+        >
+          <IconTrash size={14} />
+        </ActionIcon>
+      </Group>
+      {expanded && <OrgKeyDetails shareId={share.id ?? ""} />}
+    </Card>
+  );
+}
+
+// --- Expandable row for org API key table (desktop) ---
+
+function OrgKeyRow({
+  share,
+  expanded,
+  onToggle,
+  onRemove,
+  isRemoving,
+}: OrgKeyRowProps) {
+  const { t } = useTranslation("common");
+
+  return (
+    <>
+      <Table.Tr
+        style={{ cursor: "pointer" }}
+        onClick={onToggle}
+      >
+        <Table.Td>
+          <Group gap="xs">
+            {expanded ? (
+              <IconChevronDown size={14} color="var(--mantine-color-dimmed)" />
+            ) : (
+              <IconChevronRight size={14} color="var(--mantine-color-dimmed)" />
+            )}
+            <IconKey size={16} />
+            <Text size="sm">{share.apiKey?.name || t("unnamed")}</Text>
+          </Group>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{share.apiKey?.userName}</Text>
+        </Table.Td>
+        <Table.Td>
+          <Text size="sm">{share.apiKey?.platform}</Text>
+        </Table.Td>
+        <Table.Td>
+          <ActionIcon
+            color="red"
+            variant="subtle"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove();
+            }}
+            loading={isRemoving}
+          >
+            <IconTrash size={16} />
+          </ActionIcon>
+        </Table.Td>
+      </Table.Tr>
+      {expanded && (
+        <Table.Tr>
+          <Table.Td colSpan={4} style={{ padding: 0 }}>
+            <OrgKeyDetails shareId={share.id ?? ""} />
+          </Table.Td>
+        </Table.Tr>
+      )}
+    </>
+  );
+}
+
+function OrgKeyDetails({ shareId }: { shareId: string }) {
+  const { t } = useTranslation("common");
+  const { data: gameShares, isLoading } = useApiKeyGameShares(
+    shareId,
+    "organization",
+  );
+
+  if (isLoading) {
+    return (
+      <Center py="sm">
+        <Loader size="sm" />
+      </Center>
+    );
+  }
+
+  if (!gameShares || gameShares.length === 0) {
+    return (
+      <Text size="sm" c="dimmed" px="md" py="sm">
+        {t("apiKeys.shares.noSponsorships")}
+      </Text>
+    );
+  }
+
+  return (
+    <Stack gap="sm" px="md" py="sm">
+      {gameShares.length > 0 && (
+        <Stack gap={4}>
+          <Group gap={8} align="center">
+            <IconLink size={18} color="var(--mantine-color-accent-5)" />
+            <Text size="sm" fw={600} c="dimmed" tt="uppercase">
+              {t("apiKeys.shares.gameShares")} ({gameShares.length})
+            </Text>
+          </Group>
+          <Stack gap={6} pl="md">
+            {gameShares.map((gs) => (
+              <OrgGameShareRow key={gs.id} gameShare={gs} />
+            ))}
+          </Stack>
+        </Stack>
+      )}
+    </Stack>
+  );
+}
+
+function OrgGameShareRow({ gameShare }: { gameShare: RoutesEnrichedGameShare }) {
+  const { t } = useTranslation("common");
+  const { isMobile } = useResponsiveDesign();
+  const revokeShare = useRevokePrivateShare();
+  const updateShare = useUpdateGameShare();
+  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
+    useDisclosure(false);
+  const [editMaxSessions, setEditMaxSessions] = useState<number | string>(
+    gameShare.remaining ?? "",
+  );
+
+  const getContextLabel = (): string => {
+    if (gameShare.source === "workshop") {
+      return gameShare.workshopName
+        ? `${t("apiKeys.shares.context.workshop")}: ${gameShare.workshopName}`
+        : t("apiKeys.shares.context.workshop");
+    }
+    if (gameShare.source === "organization") {
+      return t("apiKeys.shares.context.organization");
+    }
+    return t("apiKeys.shares.context.personal");
+  };
+
+  const getRemainingLabel = (): string => {
+    if (gameShare.remaining == null) return t("apiKeys.shares.unlimited");
+    return t("apiKeys.shares.remaining", { count: gameShare.remaining });
+  };
+
+  const handleEditSubmit = async () => {
+    if (!gameShare.gameId || !gameShare.id) return;
+    try {
+      await updateShare.mutateAsync({
+        gameId: gameShare.gameId,
+        shareId: gameShare.id,
+        maxSessions:
+          typeof editMaxSessions === "number" && editMaxSessions > 0
+            ? editMaxSessions
+            : null,
+      });
+      closeEditModal();
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
+  const handleOpenEdit = () => {
+    setEditMaxSessions(gameShare.remaining ?? "");
+    openEditModal();
+  };
+
+  return (
+    <>
+      <Group gap="sm" align="center" justify="space-between" wrap="nowrap">
+        <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
+          <Group gap="xs" wrap="wrap">
+            <Text size="sm" fw={500} truncate>
+              {gameShare.gameName || t("apiKeys.shares.unknownGame")}
+            </Text>
+            <Badge size="xs" variant="light" color="gray">
+              {getContextLabel()}
+            </Badge>
+          </Group>
+          <Text size="xs" c="dimmed">
+            {getRemainingLabel()}
+          </Text>
+        </Stack>
+        <Group gap={4} wrap="nowrap" style={{ flexShrink: 0 }}>
+          <EditIconButton
+            size="sm"
+            onClick={handleOpenEdit}
+            aria-label={t("apiKeys.shares.editRemaining")}
+          />
+          <DeleteIconButton
+            size="sm"
+            onClick={() => {
+              if (gameShare.gameId && gameShare.id) {
+                revokeShare.mutate({
+                  gameId: gameShare.gameId,
+                  shareId: gameShare.id,
+                });
+              }
+            }}
+            aria-label={t("apiKeys.shares.revokeGameShare")}
+          />
+        </Group>
+      </Group>
+
+      <Modal
+        opened={editModalOpened}
+        onClose={closeEditModal}
+        title={t("apiKeys.shares.editRemaining")}
+        size="sm"
+        fullScreen={isMobile}
+        centered={!isMobile}
+      >
+        <Stack gap="md">
+          <NumberInput
+            label={t("games.privateShare.maxSessions")}
+            description={t("games.privateShare.maxSessionsDescription")}
+            placeholder={t("apiKeys.shares.unlimited")}
+            value={editMaxSessions}
+            onChange={(v) => setEditMaxSessions(v === "" ? "" : v)}
+            min={1}
+            allowNegative={false}
+            allowDecimal={false}
+          />
+          <Group justify="flex-end" gap="sm">
+            <CancelButton onClick={closeEditModal}>
+              {t("cancel")}
+            </CancelButton>
+            <ActionButton
+              onClick={handleEditSubmit}
+              loading={updateShare.isPending}
+              size="sm"
+            >
+              {t("save")}
+            </ActionButton>
+          </Group>
+        </Stack>
+      </Modal>
+    </>
   );
 }

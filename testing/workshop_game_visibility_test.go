@@ -192,6 +192,95 @@ func (s *WorkshopGameVisibilityTestSuite) TestToggleVisibilityOnAndOff() {
 	s.T().Logf("Toggle on/off works correctly")
 }
 
+// TestHeadAlwaysSeesAllParticipantGamesRegardlessOfSettings verifies that a head
+// in workshop mode sees all participants' games even when showOtherParticipantsGames=false.
+func (s *WorkshopGameVisibilityTestSuite) TestHeadAlwaysSeesAllParticipantGamesRegardlessOfSettings() {
+	head, p1, p2, wsIDStr := s.setupWorkshop("head-bypass")
+
+	// Head enters workshop mode (required to see workshop games in game list)
+	Must(head.SetActiveWorkshop(&wsIDStr))
+	s.T().Logf("Head entered workshop mode (showOtherParticipantsGames=false by default)")
+
+	// Both participants create a game
+	game1 := Must(p1.UploadGame("alien-first-contact"))
+	game2 := Must(p2.UploadGame("alien-first-contact"))
+	s.T().Logf("P1 game: %s, P2 game: %s", game1.ID, game2.ID)
+
+	// Head should see BOTH games even though showOtherParticipantsGames=false
+	headGames := Must(head.ListGames())
+	s.True(containsGame(headGames, game1.ID), "head should see p1's game regardless of showOtherParticipantsGames")
+	s.True(containsGame(headGames, game2.ID), "head should see p2's game regardless of showOtherParticipantsGames")
+	s.T().Logf("Head sees %d games — both visible despite showOtherParticipantsGames=false", len(headGames))
+}
+
+// TestHeadRespectsShowPublicGamesSetting verifies that a head
+// in workshop mode does NOT see public games from outside when showPublicGames=false,
+// but DOES see them when showPublicGames=true. The setting applies to all roles.
+func (s *WorkshopGameVisibilityTestSuite) TestHeadRespectsShowPublicGamesSetting() {
+	head, _, _, wsIDStr := s.setupWorkshop("head-pub-setting")
+
+	// Head enters workshop mode (showPublicGames stays false by default)
+	Must(head.SetActiveWorkshop(&wsIDStr))
+	s.T().Logf("Head entered workshop mode (showPublicGames=false by default)")
+
+	// Create a public game from an outside user
+	outsider := s.CreateUser("head-pub-outsider")
+	game := Must(outsider.UploadGame("alien-first-contact"))
+	Must(outsider.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	}))
+	s.T().Logf("Outsider public game: %s", game.ID)
+
+	// Head should NOT see the public game when showPublicGames=false
+	headGames := Must(head.ListGames())
+	s.False(containsGame(headGames, game.ID), "head should not see public games when showPublicGames=false")
+	s.T().Logf("Head sees %d games — public game hidden with showPublicGames=false", len(headGames))
+
+	// Enable showPublicGames and verify head now sees the public game
+	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
+		"name":                       "head-pub-setting Workshop",
+		"active":                     true,
+		"showPublicGames":            true,
+		"showOtherParticipantsGames": true,
+	}))
+	headGames = Must(head.ListGames())
+	s.True(containsGame(headGames, game.ID), "head should see public games when showPublicGames=true")
+	s.T().Logf("Head sees %d games — public game visible with showPublicGames=true", len(headGames))
+}
+
+// TestStaffAlwaysSeesAllParticipantGamesRegardlessOfSettings verifies that staff
+// in workshop mode see all participants' games even when showOtherParticipantsGames=false.
+func (s *WorkshopGameVisibilityTestSuite) TestStaffAlwaysSeesAllParticipantGamesRegardlessOfSettings() {
+	head, p1, _, wsIDStr := s.setupWorkshop("staff-bypass")
+
+	// Create a staff member and add them to the same institution
+	headUser := Must(head.GetMe())
+	instID := ""
+	if headUser.Role != nil && headUser.Role.Institution != nil {
+		instID = headUser.Role.Institution.ID.String()
+	}
+	s.Require().NotEmpty(instID, "head should have an institution")
+
+	staff := s.CreateUser("staff-bypass-member")
+	staffInvite := Must(head.InviteToInstitution(instID, "staff", staff.ID))
+	Must(staff.AcceptInvite(staffInvite.ID.String()))
+	s.T().Logf("Staff member joined institution")
+
+	// Staff enters workshop mode
+	Must(staff.SetActiveWorkshop(&wsIDStr))
+	s.T().Logf("Staff entered workshop mode (showOtherParticipantsGames=false by default)")
+
+	// P1 creates a game
+	game1 := Must(p1.UploadGame("alien-first-contact"))
+	s.T().Logf("P1 game: %s", game1.ID)
+
+	// Staff should see p1's game even though showOtherParticipantsGames=false
+	staffGames := Must(staff.ListGames())
+	s.True(containsGame(staffGames, game1.ID), "staff should see participant's game regardless of showOtherParticipantsGames")
+	s.T().Logf("Staff sees %d games — visible despite showOtherParticipantsGames=false", len(staffGames))
+}
+
 // containsGame checks if a game list contains a game with the given ID.
 func containsGame(games []obj.Game, id uuid.UUID) bool {
 	for _, g := range games {

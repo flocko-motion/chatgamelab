@@ -35,32 +35,6 @@ func SetDebug(enabled bool) {
 	}
 }
 
-// SetLevel sets the log level from a string (debug, info, warn, error)
-func SetLevel(levelStr string) {
-	switch levelStr {
-	case "debug":
-		level.Set(slog.LevelDebug)
-	case "info":
-		level.Set(slog.LevelInfo)
-	case "warn":
-		level.Set(slog.LevelWarn)
-	case "error":
-		level.Set(slog.LevelError)
-	default:
-		level.Set(slog.LevelInfo)
-	}
-}
-
-// Logger returns the configured slog logger
-func Logger() *slog.Logger {
-	return logger
-}
-
-// With returns a logger with additional attributes
-func With(args ...any) *slog.Logger {
-	return logger.With(args...)
-}
-
 // Debug logs at debug level
 func Debug(msg string, args ...any) {
 	logger.Debug(msg, args...)

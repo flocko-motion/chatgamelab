@@ -47,36 +47,16 @@ func ErrUnauthorized(message string) *AppError {
 	return NewAppError(ErrCodeUnauthorized, message)
 }
 
-func ErrUnauthorizedf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeUnauthorized, fmt.Sprintf(format, args...))
-}
-
 func ErrForbidden(message string) *AppError {
 	return NewAppError(ErrCodeForbidden, message)
-}
-
-func ErrForbiddenf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeForbidden, fmt.Sprintf(format, args...))
 }
 
 func ErrNotFound(message string) *AppError {
 	return NewAppError(ErrCodeNotFound, message)
 }
 
-func ErrNotFoundf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeNotFound, fmt.Sprintf(format, args...))
-}
-
 func ErrConflict(message string) *AppError {
 	return NewAppError(ErrCodeConflict, message)
-}
-
-func ErrConflictf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeConflict, fmt.Sprintf(format, args...))
-}
-
-func ErrInvalidPlatform(message string) *AppError {
-	return NewAppError(ErrCodeInvalidPlatform, message)
 }
 
 func ErrInvalidPlatformf(format string, args ...any) *AppError {
@@ -87,28 +67,12 @@ func ErrInvalidInput(message string) *AppError {
 	return NewAppError(ErrCodeInvalidInput, message)
 }
 
-func ErrInvalidInputf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeInvalidInput, fmt.Sprintf(format, args...))
-}
-
 func ErrServerError(message string) *AppError {
 	return NewAppError(ErrCodeServerError, message)
 }
 
 func ErrServerErrorf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeServerError, fmt.Sprintf(format, args...))
-}
-
-func ErrUserNotRegistered(message string) *AppError {
-	return NewAppError(ErrCodeUserNotRegistered, message)
-}
-
-func ErrUserNotRegisteredf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeUserNotRegistered, fmt.Sprintf(format, args...))
-}
-
-func ErrDuplicateName(message string) *AppError {
-	return NewAppError(ErrCodeDuplicateName, message)
 }
 
 func ErrDuplicateNamef(format string, args ...any) *AppError {
@@ -119,16 +83,8 @@ func ErrNameTooLong(message string) *AppError {
 	return NewAppError(ErrCodeNameTooLong, message)
 }
 
-func ErrNameTooLongf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeNameTooLong, fmt.Sprintf(format, args...))
-}
-
 func ErrProfaneName(message string) *AppError {
 	return NewAppError(ErrCodeProfaneName, message)
-}
-
-func ErrNoApiKey(message string) *AppError {
-	return NewAppError(ErrCodeNoApiKey, message)
 }
 
 func ErrAiError(message string) *AppError {
@@ -141,18 +97,6 @@ func ErrAiErrorf(format string, args ...any) *AppError {
 
 func ErrInvalidApiKey(message string) *AppError {
 	return NewAppError(ErrCodeInvalidApiKey, message)
-}
-
-func ErrInvalidApiKeyf(format string, args ...any) *AppError {
-	return NewAppError(ErrCodeInvalidApiKey, fmt.Sprintf(format, args...))
-}
-
-func ErrContentFiltered(message string) *AppError {
-	return NewAppError(ErrCodeContentFiltered, message)
-}
-
-func ErrRateLimitExceeded(message string) *AppError {
-	return NewAppError(ErrCodeRateLimitExceeded, message)
 }
 
 // AppError is a custom error type that carries an HTTP error code.

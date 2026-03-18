@@ -126,7 +126,7 @@ func (q *Queries) ClearInviteAcceptedByUser(ctx context.Context, acceptedBy uuid
 
 const clearUserActiveWorkshop = `-- name: ClearUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
-WHERE user_id = $1
+WHERE user_id = $1 AND role != 'participant'
 `
 
 func (q *Queries) ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID) error {
@@ -141,17 +141,6 @@ SELECT COUNT(*) FROM api_key WHERE user_id = $1
 func (q *Queries) CountApiKeysByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
 	row := q.db.QueryRowContext(ctx, countApiKeysByUser, userID)
 	var count int64
-	err := row.Scan(&count)
-	return count, err
-}
-
-const countGuestUsersByGameID = `-- name: CountGuestUsersByGameID :one
-SELECT COUNT(*)::int AS count FROM app_user WHERE private_share_game_id = $1
-`
-
-func (q *Queries) CountGuestUsersByGameID(ctx context.Context, privateShareGameID uuid.NullUUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, countGuestUsersByGameID, privateShareGameID)
-	var count int32
 	err := row.Scan(&count)
 	return count, err
 }
@@ -267,21 +256,21 @@ func (q *Queries) CreateApiKey(ctx context.Context, arg CreateApiKeyParams) (Api
 
 const createGuestUser = `-- name: CreateGuestUser :one
 
-INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_game_id)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_id)
 VALUES ($1, $2, NULL, NULL, NULL, $3)
 ON CONFLICT (id) DO NOTHING
 RETURNING id
 `
 
 type CreateGuestUserParams struct {
-	ID                 uuid.UUID
-	Name               string
-	PrivateShareGameID uuid.NullUUID
+	ID             uuid.UUID
+	Name           string
+	PrivateShareID uuid.NullUUID
 }
 
 // Guest User queries
 func (q *Queries) CreateGuestUser(ctx context.Context, arg CreateGuestUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createGuestUser, arg.ID, arg.Name, arg.PrivateShareGameID)
+	row := q.db.QueryRowContext(ctx, createGuestUser, arg.ID, arg.Name, arg.PrivateShareID)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
@@ -532,42 +521,6 @@ func (q *Queries) DeleteApiKey(ctx context.Context, arg DeleteApiKeyParams) erro
 	return err
 }
 
-const deleteGuestSessionMessagesByGameID = `-- name: DeleteGuestSessionMessagesByGameID :exec
-DELETE FROM game_session_message WHERE game_session_id IN (
-  SELECT gs.id FROM game_session gs
-  JOIN app_user u ON u.id = gs.user_id
-  WHERE u.private_share_game_id = $1
-)
-`
-
-// Delete all messages belonging to sessions of guest users created via a game's share link
-func (q *Queries) DeleteGuestSessionMessagesByGameID(ctx context.Context, privateShareGameID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGuestSessionMessagesByGameID, privateShareGameID)
-	return err
-}
-
-const deleteGuestSessionsByGameID = `-- name: DeleteGuestSessionsByGameID :exec
-DELETE FROM game_session WHERE user_id IN (
-  SELECT id FROM app_user WHERE private_share_game_id = $1
-)
-`
-
-// Delete all sessions of guest users created via a game's share link
-func (q *Queries) DeleteGuestSessionsByGameID(ctx context.Context, privateShareGameID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGuestSessionsByGameID, privateShareGameID)
-	return err
-}
-
-const deleteGuestUsersByGameID = `-- name: DeleteGuestUsersByGameID :exec
-DELETE FROM app_user WHERE private_share_game_id = $1
-`
-
-// Delete all guest users created via a game's share link
-func (q *Queries) DeleteGuestUsersByGameID(ctx context.Context, privateShareGameID uuid.NullUUID) error {
-	_, err := q.db.ExecContext(ctx, deleteGuestUsersByGameID, privateShareGameID)
-	return err
-}
-
 const deleteInvite = `-- name: DeleteInvite :exec
 DELETE FROM user_role_invite WHERE id = $1
 `
@@ -604,6 +557,21 @@ DELETE FROM user_favourite_game WHERE user_id = $1
 // User deletion cleanup queries
 func (q *Queries) DeleteUserFavourites(ctx context.Context, userID uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, deleteUserFavourites, userID)
+	return err
+}
+
+const deleteUserParticipantRole = `-- name: DeleteUserParticipantRole :exec
+DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'participant'
+`
+
+type DeleteUserParticipantRoleParams struct {
+	UserID     uuid.UUID
+	WorkshopID uuid.NullUUID
+}
+
+// Delete a specific user's participant role for a workshop
+func (q *Queries) DeleteUserParticipantRole(ctx context.Context, arg DeleteUserParticipantRoleParams) error {
+	_, err := q.db.ExecContext(ctx, deleteUserParticipantRole, arg.UserID, arg.WorkshopID)
 	return err
 }
 
@@ -670,7 +638,7 @@ LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 ) r ON TRUE
 LEFT JOIN institution i
@@ -1219,7 +1187,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_game_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -1239,13 +1207,13 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.DefaultApiKeyShareID,
 		&i.AiQualityTier,
 		&i.Language,
-		&i.PrivateShareGameID,
+		&i.PrivateShareID,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_game_id FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -1265,13 +1233,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (App
 		&i.DefaultApiKeyShareID,
 		&i.AiQualityTier,
 		&i.Language,
-		&i.PrivateShareGameID,
+		&i.PrivateShareID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_game_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -1291,13 +1259,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.DefaultApiKeyShareID,
 		&i.AiQualityTier,
 		&i.Language,
-		&i.PrivateShareGameID,
+		&i.PrivateShareID,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.ai_quality_tier, u.language, u.private_share_game_id
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.ai_quality_tier, u.language, u.private_share_id
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -1326,7 +1294,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.DefaultApiKeyShareID,
 		&i.AiQualityTier,
 		&i.Language,
-		&i.PrivateShareGameID,
+		&i.PrivateShareID,
 	)
 	return i, err
 }
@@ -1369,6 +1337,7 @@ SELECT
   w.prompt_constraints AS workshop_prompt_constraints,
   w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
+  w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
@@ -1376,13 +1345,14 @@ SELECT
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
   aw.design_editing_enabled AS active_workshop_design_editing_enabled,
-  aw.is_paused AS active_workshop_is_paused
+  aw.is_paused AS active_workshop_is_paused,
+  aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.id, ur.created_by, ur.created_at, ur.modified_by, ur.modified_at, ur.user_id, ur.role, ur.institution_id, ur.workshop_id, ur.active_workshop_id
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 ) r ON TRUE
 LEFT JOIN institution i
@@ -1420,6 +1390,7 @@ type GetUserDetailsByIDRow struct {
 	WorkshopPromptConstraints                sql.NullString
 	WorkshopDesignEditingEnabled             sql.NullBool
 	WorkshopIsPaused                         sql.NullBool
+	WorkshopAllowGameSharing                 sql.NullBool
 	ActiveWorkshopID                         uuid.NullUUID
 	ActiveWorkshopName                       sql.NullString
 	ActiveWorkshopShowPublicGames            sql.NullBool
@@ -1428,6 +1399,7 @@ type GetUserDetailsByIDRow struct {
 	ActiveWorkshopPromptConstraints          sql.NullString
 	ActiveWorkshopDesignEditingEnabled       sql.NullBool
 	ActiveWorkshopIsPaused                   sql.NullBool
+	ActiveWorkshopAllowGameSharing           sql.NullBool
 }
 
 func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUserDetailsByIDRow, error) {
@@ -1459,6 +1431,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.WorkshopPromptConstraints,
 		&i.WorkshopDesignEditingEnabled,
 		&i.WorkshopIsPaused,
+		&i.WorkshopAllowGameSharing,
 		&i.ActiveWorkshopID,
 		&i.ActiveWorkshopName,
 		&i.ActiveWorkshopShowPublicGames,
@@ -1467,6 +1440,7 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.ActiveWorkshopPromptConstraints,
 		&i.ActiveWorkshopDesignEditingEnabled,
 		&i.ActiveWorkshopIsPaused,
+		&i.ActiveWorkshopAllowGameSharing,
 	)
 	return i, err
 }
@@ -1605,17 +1579,30 @@ func (q *Queries) GetUsersByWorkshop(ctx context.Context, workshopID uuid.NullUU
 }
 
 const getWorkshopParticipants = `-- name: GetWorkshopParticipants :many
-SELECT
-  u.id, u.name, u.auth0_id,
-  COALESCE(ur.created_at, w.created_at) as joined_at,
-  COALESCE(ur.role, ur_inst.role) as role,
-  (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count
-FROM app_user u
-INNER JOIN workshop w ON w.id = $1
-LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
-LEFT JOIN user_role ur_inst ON u.id = ur_inst.user_id AND ur_inst.workshop_id IS NULL AND u.id = w.created_by
-WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
-  AND u.deleted_at IS NULL
+SELECT id, name, auth0_id, joined_at, role, games_count, permanent FROM (
+  SELECT DISTINCT ON (u.id)
+    u.id, u.name, u.auth0_id,
+    COALESCE(ur.created_at, w.created_at) as joined_at,
+    ur.role,
+    (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count,
+    CASE
+      WHEN u.id = w.created_by THEN true
+      WHEN ur.workshop_id = $1 AND ur.role = 'participant' THEN true
+      ELSE false
+    END as permanent
+  FROM app_user u
+  INNER JOIN workshop w ON w.id = $1
+  INNER JOIN user_role ur ON u.id = ur.user_id
+  WHERE u.deleted_at IS NULL
+    AND (
+      (ur.workshop_id = $1)
+      OR (ur.active_workshop_id = $1 AND ur.role != 'participant')
+      OR (u.id = w.created_by AND ur.role != 'participant')
+    )
+  ORDER BY u.id,
+    CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END,
+    ur.created_at ASC
+) members
 ORDER BY joined_at ASC
 `
 
@@ -1626,13 +1613,17 @@ type GetWorkshopParticipantsRow struct {
 	JoinedAt   time.Time
 	Role       sql.NullString
 	GamesCount int32
+	Permanent  bool
 }
 
-// Get all participants for a workshop, including:
-// 1. Users with RoleParticipant (anonymous participants)
-// 2. Workshop owner/creator (staff/head who created it)
-func (q *Queries) GetWorkshopParticipants(ctx context.Context, id uuid.UUID) ([]GetWorkshopParticipantsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getWorkshopParticipants, id)
+// Get all members currently associated with a workshop:
+// 1. Participants (permanent members with workshop_id)
+// 2. Workshop creator (always shown)
+// 3. Visitors with active_workshop_id set (individuals, head, staff)
+// Uses DISTINCT ON to deduplicate users who match multiple conditions,
+// preferring their non-participant role (individual/head/staff) over participant.
+func (q *Queries) GetWorkshopParticipants(ctx context.Context, workshopID uuid.NullUUID) ([]GetWorkshopParticipantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkshopParticipants, workshopID)
 	if err != nil {
 		return nil, err
 	}
@@ -1647,6 +1638,7 @@ func (q *Queries) GetWorkshopParticipants(ctx context.Context, id uuid.UUID) ([]
 			&i.JoinedAt,
 			&i.Role,
 			&i.GamesCount,
+			&i.Permanent,
 		); err != nil {
 			return nil, err
 		}
@@ -1777,7 +1769,7 @@ func (q *Queries) SetDefaultApiKey(ctx context.Context, arg SetDefaultApiKeyPara
 const setUserActiveWorkshop = `-- name: SetUserActiveWorkshop :exec
 
 UPDATE user_role SET active_workshop_id = $2, modified_at = now()
-WHERE user_id = $1
+WHERE user_id = $1 AND role != 'participant'
 `
 
 type SetUserActiveWorkshopParams struct {

@@ -43,7 +43,6 @@ import { GamesTable } from "./GamesTable";
 import { GameCard } from "./GameCard";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
-import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 
 interface GamesManagementProps {
@@ -80,13 +79,6 @@ export function GamesManagement({
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
-  const [
-    privateShareModalOpened,
-    { open: openPrivateShareModal, close: closePrivateShareModal },
-  ] = useDisclosure(false);
-  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
-    null,
-  );
   const [sortField, setSortField] = useState<SortField>("modifiedAt");
 
   const {
@@ -389,13 +381,7 @@ export function GamesManagement({
             openSponsorModal();
           }
         }}
-        onPrivateShare={() => {
-          const game = games?.find((g) => g.id === gameToView);
-          if (game) {
-            setGameToPrivateShare(game);
-            openPrivateShareModal();
-          }
-        }}
+        showShareSection
       />
 
       <SponsorGameModal
@@ -404,15 +390,6 @@ export function GamesManagement({
         onClose={() => {
           closeSponsorModal();
           setGameToSponsor(null);
-        }}
-      />
-
-      <PrivateShareModal
-        game={gameToPrivateShare}
-        opened={privateShareModalOpened}
-        onClose={() => {
-          closePrivateShareModal();
-          setGameToPrivateShare(null);
         }}
       />
 

@@ -61,6 +61,8 @@ export interface DbUserSessionWithGame {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface HttpxErrorResponse {
@@ -117,15 +119,16 @@ export interface ObjApiKey {
 }
 
 export interface ObjApiKeyShare {
-  allowPublicGameSponsoring?: boolean;
   apiKey?: ObjApiKey;
   apiKeyId?: string;
   game?: ObjGame;
+  gameShareId?: string;
   id?: string;
   institution?: ObjInstitution;
   isPrivateShare?: boolean;
   isUserDefault?: boolean;
   meta?: ObjMeta;
+  remaining?: number;
   user?: ObjUser;
   workshop?: ObjWorkshop;
 }
@@ -170,13 +173,6 @@ export interface ObjGame {
   /** Tracking: original creator (for cloned games) and usage statistics */
   originallyCreatedBy?: string;
   playCount?: number;
-  /**
-   * Private share links contain secret random tokens to limit access to the game.
-   * They are sponsored, so invited players don't require their own API key.
-   */
-  privateShareHash?: string;
-  privateShareRemaining?: number;
-  privateSponsoredApiKeyShareId?: string;
   /** Access rights and payments. public = true: discoverable on the website and playable by anyone. */
   public?: boolean;
   /** If public, a sponsored API key share can be provided to pay for any public plays. */
@@ -232,6 +228,8 @@ export interface ObjGameSession {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface ObjGameSessionMessage {
@@ -335,8 +333,12 @@ export interface ObjSystemSettings {
 }
 
 export interface ObjTokenUsage {
+  /** Subset of input tokens served from cache */
+  cachedTokens?: number;
   inputTokens?: number;
   outputTokens?: number;
+  /** Subset of output tokens used for reasoning */
+  reasoningTokens?: number;
   totalTokens?: number;
 }
 
@@ -391,6 +393,7 @@ export interface ObjWorkshop {
   active?: boolean;
   /** Workshop settings (configured by staff/heads) */
   aiQualityTier?: string;
+  allowGameSharing?: boolean;
   defaultApiKeyShareId?: string;
   designEditingEnabled?: boolean;
   id?: string;
@@ -413,6 +416,7 @@ export interface ObjWorkshopParticipant {
   id?: string;
   meta?: ObjMeta;
   name?: string;
+  permanent?: boolean;
   role?: ObjRole;
   workshopId?: string;
 }
@@ -421,6 +425,10 @@ export interface RoutesAcceptInviteResponse {
   authToken?: string;
   message?: string;
   user?: ObjUser;
+}
+
+export interface RoutesAddMemberToWorkshopRequest {
+  userId?: string;
 }
 
 export interface RoutesApiKeyInfoResponse {
@@ -445,6 +453,17 @@ export interface RoutesCreateGameRequest {
   public?: boolean;
 }
 
+export interface RoutesCreateGameShareRequest {
+  /** null = use source default (workshop tier or system default) */
+  aiQualityTier?: string;
+  /** null = unlimited */
+  maxSessions?: number;
+  /** required for personal shares; ignored for workshop shares */
+  sponsorKeyShareId?: string;
+  /** set to create a workshop share (uses workshop default key) */
+  workshopId?: string;
+}
+
 export interface RoutesCreateInstitutionInviteRequest {
   institutionId?: string;
   invitedEmail?: string;
@@ -454,6 +473,11 @@ export interface RoutesCreateInstitutionInviteRequest {
 
 export interface RoutesCreateInstitutionRequest {
   name?: string;
+}
+
+export interface RoutesCreateWorkshopEmailInviteRequest {
+  email?: string;
+  workshopId?: string;
 }
 
 export interface RoutesCreateWorkshopInviteRequest {
@@ -467,6 +491,40 @@ export interface RoutesCreateWorkshopRequest {
   institutionId?: string;
   name?: string;
   public?: boolean;
+}
+
+export interface RoutesEnrichedGameShare {
+  aiQualityTier?: string;
+  apiKeyShareId?: string;
+  createdAt?: string;
+  createdBy?: string;
+  gameId?: string;
+  /** set when returned from game-shares endpoint */
+  gameName?: string;
+  id?: string;
+  institutionId?: string;
+  remaining?: number;
+  shareUrl?: string;
+  /** "workshop", "organization", "personal" */
+  source?: string;
+  token?: string;
+  workshopId?: string;
+  /** set for workshop shares */
+  workshopName?: string;
+}
+
+export interface RoutesGameShareResponse {
+  aiQualityTier?: string;
+  apiKeyShareId?: string;
+  createdAt?: string;
+  createdBy?: string;
+  gameId?: string;
+  id?: string;
+  institutionId?: string;
+  remaining?: number;
+  shareUrl?: string;
+  token?: string;
+  workshopId?: string;
 }
 
 export interface RoutesGuestGameInfo {
@@ -512,6 +570,8 @@ export interface RoutesGuestSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface RoutesImageStatusResponse {
@@ -570,20 +630,8 @@ export interface RoutesParticipantLoginRequest {
   token?: string;
 }
 
-export interface RoutesPrivateShareRequest {
-  /** null = unlimited */
-  maxSessions?: number;
-  /** required to enable */
-  sponsorKeyShareId?: string;
-}
-
 export interface RoutesPrivateShareStatus {
-  enabled?: boolean;
-  privateSponsoredApiKeyShareId?: string;
-  /** null = unlimited */
-  remaining?: number;
-  shareUrl?: string;
-  token?: string;
+  shares?: RoutesEnrichedGameShare[];
 }
 
 export interface RoutesRegisterRequest {
@@ -682,6 +730,8 @@ export interface RoutesSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
+  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
+  workshopPromptConstraints?: string;
 }
 
 export interface RoutesSetActiveWorkshopRequest {
@@ -707,7 +757,6 @@ export interface RoutesSetWorkshopApiKeyRequest {
 }
 
 export interface RoutesShareRequest {
-  allowPublicGameSponsoring?: boolean;
   institutionId?: string;
   userId?: string;
   workshopId?: string;
@@ -726,8 +775,11 @@ export interface RoutesUpdateApiKeyRequest {
   name?: string;
 }
 
-export interface RoutesUpdateApiKeyShareRequest {
-  allowPublicGameSponsoring?: boolean;
+export interface RoutesUpdateGameShareRequest {
+  /** null = use source default */
+  aiQualityTier?: string;
+  /** null = unlimited */
+  maxSessions?: number;
 }
 
 export interface RoutesUpdateInstitutionRequest {
@@ -742,6 +794,7 @@ export interface RoutesUpdateSystemSettingsRequest {
 export interface RoutesUpdateWorkshopRequest {
   active?: boolean;
   aiQualityTier?: string;
+  allowGameSharing?: boolean;
   designEditingEnabled?: boolean;
   isPaused?: boolean;
   name?: string;
@@ -1178,6 +1231,32 @@ export class Api<
       }),
 
     /**
+     * @description Returns game share links that use this API key share, enriched with game name and context. Use ?context=personal to see all shares (requires key ownership). Use ?context=organization to see only org/workshop shares.
+     *
+     * @tags apikeys
+     * @name GameSharesList
+     * @summary Get game shares for API key share
+     * @request GET:/apikeys/{id}/game-shares
+     * @secure
+     */
+    gameSharesList: (
+      id: string,
+      query?: {
+        /** Filter context: 'personal' (all, owner only) or 'organization' (org/workshop only) */
+        context?: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesEnrichedGameShare[], HttpxErrorResponse>({
+        path: `/apikeys/${id}/game-shares`,
+        method: "GET",
+        query: query,
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Shares an API key with a user, workshop, or institution
      *
      * @tags apikeys
@@ -1194,30 +1273,6 @@ export class Api<
       this.request<ObjApiKeyShare, HttpxErrorResponse>({
         path: `/apikeys/${id}/shares`,
         method: "POST",
-        body: request,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
-     *
-     * @tags apikeys
-     * @name SponsoringPartialUpdate
-     * @summary Update API key share
-     * @request PATCH:/apikeys/{id}/sponsoring
-     * @secure
-     */
-    sponsoringPartialUpdate: (
-      id: string,
-      request: RoutesUpdateApiKeyShareRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<ObjApiKeyShare, HttpxErrorResponse>({
-        path: `/apikeys/${id}/sponsoring`,
-        method: "PATCH",
         body: request,
         secure: true,
         type: ContentType.Json,
@@ -1522,7 +1577,7 @@ export class Api<
       }),
 
     /**
-     * @description Returns the current private share configuration for a game.
+     * @description Returns all share links for a game that the requesting user has access to.
      *
      * @tags games
      * @name PrivateShareList
@@ -1534,48 +1589,6 @@ export class Api<
       this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
         path: `/games/${id}/private-share`,
         method: "GET",
-        secure: true,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Enables private sharing for a game with a sponsored API key and optional session limit.
-     *
-     * @tags games
-     * @name PrivateShareCreate
-     * @summary Enable or configure private share
-     * @request POST:/games/{id}/private-share
-     * @secure
-     */
-    privateShareCreate: (
-      id: string,
-      request: RoutesPrivateShareRequest,
-      params: RequestParams = {},
-    ) =>
-      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
-        path: `/games/${id}/private-share`,
-        method: "POST",
-        body: request,
-        secure: true,
-        type: ContentType.Json,
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * @description Disables private sharing by clearing the share token and sponsor key.
-     *
-     * @tags games
-     * @name PrivateShareDelete
-     * @summary Revoke private share
-     * @request DELETE:/games/{id}/private-share
-     * @secure
-     */
-    privateShareDelete: (id: string, params: RequestParams = {}) =>
-      this.request<RoutesPrivateShareStatus, HttpxErrorResponse>({
-        path: `/games/${id}/private-share`,
-        method: "DELETE",
         secure: true,
         format: "json",
         ...params,
@@ -1612,6 +1625,72 @@ export class Api<
       this.request<RoutesSessionResponse, HttpxErrorResponse>({
         path: `/games/${id}/sessions`,
         method: "POST",
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
+     *
+     * @tags games
+     * @name SharesCreate
+     * @summary Create a game share link
+     * @request POST:/games/{id}/shares
+     * @secure
+     */
+    sharesCreate: (
+      id: string,
+      request: RoutesCreateGameShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesGameShareResponse, HttpxErrorResponse>({
+        path: `/games/${id}/shares`,
+        method: "POST",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Revokes a specific share link and cleans up guest data.
+     *
+     * @tags games
+     * @name SharesDelete
+     * @summary Delete a specific game share
+     * @request DELETE:/games/{id}/shares/{shareId}
+     * @secure
+     */
+    sharesDelete: (id: string, shareId: string, params: RequestParams = {}) =>
+      this.request<void, HttpxErrorResponse>({
+        path: `/games/${id}/shares/${shareId}`,
+        method: "DELETE",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Updates settings (max sessions) on an existing share link.
+     *
+     * @tags games
+     * @name SharesPartialUpdate
+     * @summary Update a game share
+     * @request PATCH:/games/{id}/shares/{shareId}
+     * @secure
+     */
+    sharesPartialUpdate: (
+      id: string,
+      shareId: string,
+      request: RoutesUpdateGameShareRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesGameShareResponse, HttpxErrorResponse>({
+        path: `/games/${id}/shares/${shareId}`,
+        method: "PATCH",
+        body: request,
         secure: true,
         type: ContentType.Json,
         format: "json",
@@ -1971,6 +2050,29 @@ export class Api<
         path: `/invites/workshop`,
         method: "POST",
         body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Creates a targeted invite for a registered user (by email) to join a workshop
+     *
+     * @tags invites
+     * @name WorkshopEmailCreate
+     * @summary Create workshop email invite
+     * @request POST:/invites/workshop/email
+     * @secure
+     */
+    workshopEmailCreate: (
+      body: RoutesCreateWorkshopEmailInviteRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<RoutesInviteResponse, HttpxErrorResponse>({
+        path: `/invites/workshop/email`,
+        method: "POST",
+        body: body,
         secure: true,
         type: ContentType.Json,
         format: "json",
@@ -2926,6 +3028,48 @@ export class Api<
         method: "GET",
         query: query,
         secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Directly adds an organization individual to a workshop by setting their active workshop
+     *
+     * @tags workshops
+     * @name MembersCreate
+     * @summary Add org member to workshop
+     * @request POST:/workshops/{id}/members
+     * @secure
+     */
+    membersCreate: (
+      id: string,
+      body: RoutesAddMemberToWorkshopRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/${id}/members`,
+        method: "POST",
+        body: body,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Removes a non-permanent member from a workshop by clearing their active workshop
+     *
+     * @tags workshops
+     * @name MembersDelete
+     * @summary Remove member from workshop
+     * @request DELETE:/workshops/{id}/members/{userId}
+     * @secure
+     */
+    membersDelete: (id: string, userId: string, params: RequestParams = {}) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/${id}/members/${userId}`,
+        method: "DELETE",
+        secure: true,
+        format: "json",
         ...params,
       }),
   };

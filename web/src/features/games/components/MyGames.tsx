@@ -71,9 +71,10 @@ import {
   downloadYamlFile,
   createGameWithExtraFields,
 } from "../lib";
+import { useAdmin } from "@/common/hooks/useAdmin";
+import { useAuth } from "@/providers/AuthProvider";
 import { GameEditModal } from "./GameEditModal";
 import { SponsorGameModal } from "./SponsorGameModal";
-import { PrivateShareModal } from "./PrivateShareModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { GameCard, type GameCardAction } from "./GameCard";
 import { GamePlayButtons } from "./GamePlayButtons";
@@ -94,6 +95,8 @@ export function MyGames({
 }: MyGamesProps = {}) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
+  const { isAdmin: isAdminUser } = useAdmin();
+  const { backendUser } = useAuth();
 
   const [
     createModalOpened,
@@ -114,13 +117,6 @@ export function MyGames({
     { open: openSponsorModal, close: closeSponsorModal },
   ] = useDisclosure(false);
   const [gameToSponsor, setGameToSponsor] = useState<ObjGame | null>(null);
-  const [
-    privateShareModalOpened,
-    { open: openPrivateShareModal, close: closePrivateShareModal },
-  ] = useDisclosure(false);
-  const [gameToPrivateShare, setGameToPrivateShare] = useState<ObjGame | null>(
-    null,
-  );
   const [sortValue, setSortValue] = useState("modifiedAt-desc");
   const [showFavorites, setShowFavorites] = useState<"all" | "favorites">(
     "all",
@@ -144,7 +140,7 @@ export function MyGames({
       | "visibility"
       | "creator",
     sortDir,
-    filter: "own",
+    filter: isAdminUser ? "all" : "own",
     search: debouncedSearch || undefined,
   });
   const { sessionsLoading, getSessionState: getGameSessionState } =
@@ -796,6 +792,11 @@ export function MyGames({
       <GameEditModal
         gameId={gameToView}
         opened={viewModalOpened}
+        isOwner={
+          !gameToView ||
+          rawGames?.find((g) => g.id === gameToView)?.creatorId ===
+            backendUser?.id
+        }
         onClose={() => {
           closeViewModal();
           setGameToView(null);
@@ -808,13 +809,7 @@ export function MyGames({
             openSponsorModal();
           }
         }}
-        onPrivateShare={() => {
-          const game = rawGames?.find((g) => g.id === gameToView);
-          if (game) {
-            setGameToPrivateShare(game);
-            openPrivateShareModal();
-          }
-        }}
+        showShareSection
       />
 
       <SponsorGameModal
@@ -823,15 +818,6 @@ export function MyGames({
         onClose={() => {
           closeSponsorModal();
           setGameToSponsor(null);
-        }}
-      />
-
-      <PrivateShareModal
-        game={gameToPrivateShare}
-        opened={privateShareModalOpened}
-        onClose={() => {
-          closePrivateShareModal();
-          setGameToPrivateShare(null);
         }}
       />
 
@@ -844,6 +830,7 @@ export function MyGames({
         onConfirm={handleConfirmDelete}
         gameName={gameToDelete?.name ?? ""}
         loading={deleteGame.isPending}
+        isOwner={!gameToDelete || gameToDelete.creatorId === backendUser?.id}
       />
     </>
   );

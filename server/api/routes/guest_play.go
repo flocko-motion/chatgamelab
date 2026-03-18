@@ -38,7 +38,7 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -47,7 +47,7 @@ func PlayGuestGetGameInfo(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, GuestGameInfo{
 		Name:        gameObj.Name,
 		Description: gameObj.Description,
-		Remaining:   gameObj.PrivateShareRemaining,
+		Remaining:   gameShare.Remaining,
 	})
 }
 
@@ -122,7 +122,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate token → game, then verify session belongs to that game
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	gameShare, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -157,7 +157,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Re-resolve API key from the private share
-	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameObj); httpErr != nil {
+	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameShare); httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
@@ -196,7 +196,7 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate token → game
-	gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
+	_, gameObj, httpErr := game.ValidatePrivateShareToken(r.Context(), token)
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -219,6 +219,7 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 	case "all":
 		if msgs, err := db.GetAllGuestSessionMessages(r.Context(), sessionID); err == nil {
 			resp.Messages = msgs
+			game.ApplySessionCapabilities(session, resp.Messages)
 		}
 	}
 
@@ -230,12 +231,6 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 // SessionMessageResponse is a message without the image bytes (sent as URL).
 type SessionMessageResponse struct {
 	obj.GameSessionMessage
-}
-
-func toSessionMessageResponse(msg obj.GameSessionMessage) SessionMessageResponse {
-	msg.Image = nil
-	msg.Audio = nil
-	return SessionMessageResponse{msg}
 }
 
 // GuestSessionResponse is the response for guest session creation.

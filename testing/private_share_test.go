@@ -20,7 +20,6 @@ func TestPrivateShareSuite(t *testing.T) {
 
 // setupGameWithKey creates a user with a mock API key and an uploaded game.
 // Returns (user, gameID, personalShareID).
-// EnablePrivateShare will internally create a game-scoped share for guest play.
 func (s *PrivateShareTestSuite) setupGameWithKey(prefix string) (*testutil.UserClient, string, string) {
 	user := s.CreateUser(prefix)
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
@@ -30,94 +29,85 @@ func (s *PrivateShareTestSuite) setupGameWithKey(prefix string) (*testutil.UserC
 
 // --- Lifecycle ---
 
-// TestEnablePrivateShare verifies enabling private sharing returns a valid token and URL.
-func (s *PrivateShareTestSuite) TestEnablePrivateShare() {
+// TestCreateGameShare verifies creating a share returns a valid token and URL.
+func (s *PrivateShareTestSuite) TestCreateGameShare() {
 	user, gameID, shareID := s.setupGameWithKey("ps-enable")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	s.True(status.Enabled, "share should be enabled")
-	s.NotEmpty(status.Token, "share token should not be empty")
-	s.Contains(status.ShareURL, "/play/", "share URL should contain /play/")
-	s.Nil(status.Remaining, "remaining should be nil for unlimited")
-	s.T().Logf("Enabled share: token=%s, url=%s", status.Token, status.ShareURL)
+	resp := Must(user.CreateGameShare(gameID, shareID, nil))
+	s.NotEmpty(resp.Token, "share token should not be empty")
+	s.Contains(resp.ShareURL, "/play/", "share URL should contain /play/")
+	s.T().Logf("Created share: token=%s, url=%s", resp.Token, resp.ShareURL)
 }
 
 // TestGetPrivateShareStatus verifies reading back the share status matches what was set.
 func (s *PrivateShareTestSuite) TestGetPrivateShareStatus() {
 	user, gameID, shareID := s.setupGameWithKey("ps-status")
 
-	enabled := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	s.True(enabled.Enabled)
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
 	status := Must(user.GetPrivateShareStatus(gameID))
-	s.True(status.Enabled)
-	s.Equal(enabled.Token, status.Token, "token should match")
-	s.T().Logf("Status matches: token=%s", status.Token)
+	s.Len(status.Shares, 1, "should have 1 share")
+	s.Equal(created.Token, status.Shares[0].Token, "token should match")
+	s.T().Logf("Status matches: token=%s", status.Shares[0].Token)
 }
 
-// TestEnableWithMaxSessions verifies enabling with a session limit.
-func (s *PrivateShareTestSuite) TestEnableWithMaxSessions() {
+// TestCreateWithMaxSessions verifies creating with a session limit.
+func (s *PrivateShareTestSuite) TestCreateWithMaxSessions() {
 	user, gameID, shareID := s.setupGameWithKey("ps-max")
 
 	maxSessions := 5
-	status := Must(user.EnablePrivateShare(gameID, shareID, &maxSessions))
-	s.True(status.Enabled)
-	s.NotNil(status.Remaining, "remaining should not be nil")
-	s.Equal(5, *status.Remaining, "remaining should be 5")
-	s.T().Logf("Enabled with max sessions: remaining=%d", *status.Remaining)
+	resp := Must(user.CreateGameShare(gameID, shareID, &maxSessions))
+	s.NotNil(resp.Remaining, "remaining should not be nil")
+	s.Equal(5, *resp.Remaining, "remaining should be 5")
+	s.T().Logf("Created with max sessions: remaining=%d", *resp.Remaining)
 }
 
-// TestRevokePrivateShare verifies revoking clears the share.
-func (s *PrivateShareTestSuite) TestRevokePrivateShare() {
+// TestDeleteGameShare verifies deleting a share.
+func (s *PrivateShareTestSuite) TestDeleteGameShare() {
 	user, gameID, shareID := s.setupGameWithKey("ps-revoke")
 
-	Must(user.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
-	revoked := Must(user.RevokePrivateShare(gameID))
-	s.False(revoked.Enabled, "share should be disabled after revoke")
-	s.T().Logf("Revoked share")
+	MustSucceed(user.DeleteGameShare(gameID, created.ID.String()))
+	s.T().Logf("Deleted share")
 
 	// Verify status
 	status := Must(user.GetPrivateShareStatus(gameID))
-	s.False(status.Enabled, "status should show disabled")
-	s.Empty(status.Token, "token should be empty after revoke")
+	s.Len(status.Shares, 0, "should have no shares after delete")
 }
 
 // --- Permissions ---
 
-// TestOnlyOwnerCanEnableShare verifies that a non-owner cannot enable private sharing.
-func (s *PrivateShareTestSuite) TestOnlyOwnerCanEnableShare() {
+// TestOnlyOwnerCanCreateShare verifies that a non-owner cannot create a share on a private game.
+func (s *PrivateShareTestSuite) TestOnlyOwnerCanCreateShare() {
 	_, gameID, _ := s.setupGameWithKey("ps-perm-a")
 	bob := s.CreateUser("ps-perm-b")
 	bobKey := Must(bob.AddApiKey("mock-ps-perm-b", "Bob Key", "mock"))
 
-	// Bob tries to enable on alice's game → should fail
-	_, err := bob.EnablePrivateShare(gameID, bobKey.ID.String(), nil)
-	s.Error(err, "non-owner should not be able to enable private share")
-	s.T().Logf("Correctly denied bob enabling share: %v", err)
+	// Bob tries to create share on alice's game -> should fail
+	_, err := bob.CreateGameShare(gameID, bobKey.ID.String(), nil)
+	s.Error(err, "non-owner should not be able to create share on private game")
+	s.T().Logf("Correctly denied bob creating share: %v", err)
 }
 
-// TestOnlyOwnerCanRevokeShare verifies that a non-owner cannot revoke private sharing.
-func (s *PrivateShareTestSuite) TestOnlyOwnerCanRevokeShare() {
+// TestOnlyOwnerCanDeleteShare verifies that a non-owner cannot delete a share.
+func (s *PrivateShareTestSuite) TestOnlyOwnerCanDeleteShare() {
 	alice, gameID, shareID := s.setupGameWithKey("ps-revperm-a")
 	bob := s.CreateUser("ps-revperm-b")
 
-	Must(alice.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(alice.CreateGameShare(gameID, shareID, nil))
 
-	_, err := bob.RevokePrivateShare(gameID)
-	s.Error(err, "non-owner should not be able to revoke private share")
-	s.T().Logf("Correctly denied bob revoking share: %v", err)
+	err := bob.DeleteGameShare(gameID, created.ID.String())
+	s.Error(err, "non-owner should not be able to delete share")
+	s.T().Logf("Correctly denied bob deleting share: %v", err)
 }
 
 // TestNonOwnerCannotReadShareStatusOfPrivateGame verifies that a non-owner cannot
 // read share status of a game they cannot see.
-// Note: GetPrivateShareStatus uses GetGameByID which allows access to public games,
-// so this test uses a private game that bob cannot see.
 func (s *PrivateShareTestSuite) TestNonOwnerCannotReadShareStatusOfPrivateGame() {
 	alice := s.CreateUser("ps-readperm-a")
 	bob := s.CreateUser("ps-readperm-b")
 
-	// Create a private game (no public sponsor setup needed — just test visibility)
 	game := Must(alice.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
 
@@ -132,11 +122,11 @@ func (s *PrivateShareTestSuite) TestNonOwnerCannotReadShareStatusOfPrivateGame()
 func (s *PrivateShareTestSuite) TestGuestCanGetGameInfo() {
 	user, gameID, shareID := s.setupGameWithKey("ps-info")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	s.NotEmpty(status.Token)
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
+	s.NotEmpty(created.Token)
 
 	pub := s.Public()
-	info := Must(pub.GuestGetGameInfo(status.Token))
+	info := Must(pub.GuestGetGameInfo(created.Token))
 	s.NotEmpty(info.Name, "game name should not be empty")
 	s.T().Logf("Guest got game info: name=%s", info.Name)
 }
@@ -153,11 +143,11 @@ func (s *PrivateShareTestSuite) TestInvalidTokenReturnsError() {
 func (s *PrivateShareTestSuite) TestRevokedTokenReturnsError() {
 	user, gameID, shareID := s.setupGameWithKey("ps-revtoken")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	token := status.Token
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
+	token := created.Token
 
-	// Revoke
-	Must(user.RevokePrivateShare(gameID))
+	// Delete the share
+	MustSucceed(user.DeleteGameShare(gameID, created.ID.String()))
 
 	// Token should no longer work
 	pub := s.Public()
@@ -170,10 +160,10 @@ func (s *PrivateShareTestSuite) TestRevokedTokenReturnsError() {
 func (s *PrivateShareTestSuite) TestGuestCanCreateSession() {
 	user, gameID, shareID := s.setupGameWithKey("ps-session")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
 	pub := s.Public()
-	resp, streamResult, err := pub.GuestCreateSessionWithStream(status.Token)
+	resp, streamResult, err := pub.GuestCreateSessionWithStream(created.Token)
 	s.NoError(err, "guest should be able to create session")
 	s.NotNil(resp.GameSession, "session should not be nil")
 	s.NotEmpty(resp.GameSession.ID, "session ID should not be empty")
@@ -187,14 +177,14 @@ func (s *PrivateShareTestSuite) TestGuestCanCreateSession() {
 func (s *PrivateShareTestSuite) TestGuestCanReloadSession() {
 	user, gameID, shareID := s.setupGameWithKey("ps-reload")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
 	pub := s.Public()
-	createResp := Must(pub.GuestCreateSession(status.Token))
+	createResp := Must(pub.GuestCreateSession(created.Token))
 	sessionID := createResp.GameSession.ID.String()
 
 	// Reload session
-	reloaded := Must(pub.GuestGetSession(status.Token, sessionID))
+	reloaded := Must(pub.GuestGetSession(created.Token, sessionID))
 	s.NotNil(reloaded.GameSession)
 	s.Equal(createResp.GameSession.ID, reloaded.GameSession.ID)
 	s.GreaterOrEqual(len(reloaded.Messages), 1, "reloaded session should have messages")
@@ -208,20 +198,20 @@ func (s *PrivateShareTestSuite) TestMaxSessionsEnforcement() {
 	user, gameID, shareID := s.setupGameWithKey("ps-limit")
 
 	maxSessions := 2
-	status := Must(user.EnablePrivateShare(gameID, shareID, &maxSessions))
+	created := Must(user.CreateGameShare(gameID, shareID, &maxSessions))
 
 	pub := s.Public()
 
 	// First session — should succeed
-	_, err := pub.GuestCreateSession(status.Token)
+	_, err := pub.GuestCreateSession(created.Token)
 	s.NoError(err, "first session should succeed")
 
 	// Second session — should succeed
-	_, err = pub.GuestCreateSession(status.Token)
+	_, err = pub.GuestCreateSession(created.Token)
 	s.NoError(err, "second session should succeed")
 
 	// Third session — should fail (limit reached)
-	_, err = pub.GuestCreateSession(status.Token)
+	_, err = pub.GuestCreateSession(created.Token)
 	s.Error(err, "third session should fail — limit reached")
 	s.T().Logf("Correctly rejected 3rd session: %v", err)
 }
@@ -230,13 +220,13 @@ func (s *PrivateShareTestSuite) TestMaxSessionsEnforcement() {
 func (s *PrivateShareTestSuite) TestUnlimitedSessions() {
 	user, gameID, shareID := s.setupGameWithKey("ps-unlimited")
 
-	Must(user.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
 	pub := s.Public()
 
 	// Create 3 sessions — all should succeed
 	for i := 0; i < 3; i++ {
-		_, err := pub.GuestCreateSession(Must(user.GetPrivateShareStatus(gameID)).Token)
+		_, err := pub.GuestCreateSession(created.Token)
 		s.NoError(err, "unlimited session %d should succeed", i+1)
 	}
 	s.T().Logf("Created 3 unlimited sessions successfully")
@@ -248,41 +238,41 @@ func (s *PrivateShareTestSuite) TestUnlimitedSessions() {
 func (s *PrivateShareTestSuite) TestDeleteSponsorKeyClearsShare() {
 	user, gameID, shareID := s.setupGameWithKey("ps-cascade")
 
-	Must(user.EnablePrivateShare(gameID, shareID, nil))
+	Must(user.CreateGameShare(gameID, shareID, nil))
 
-	// Verify share is enabled
+	// Verify share exists
 	status := Must(user.GetPrivateShareStatus(gameID))
-	s.True(status.Enabled)
+	s.Len(status.Shares, 1)
 
 	// Delete the API key (cascade) — this should clean up all shares including game-scoped
 	MustSucceed(user.DeleteApiKey(shareID, true))
 	s.T().Logf("Deleted sponsor API key")
 
-	// Share should now be disabled (sponsor key gone)
+	// Share should now be gone (sponsor key gone)
 	status = Must(user.GetPrivateShareStatus(gameID))
-	s.False(status.Enabled, "share should be disabled after sponsor key deletion")
-	s.T().Logf("Share correctly disabled after key deletion")
+	s.Len(status.Shares, 0, "shares should be empty after sponsor key deletion")
+	s.T().Logf("Share correctly removed after key deletion")
 }
 
-// TestRevokeCleanupGuestData verifies that revoking a share cleans up guest users/sessions.
+// TestRevokeCleanupGuestData verifies that deleting a share cleans up guest users/sessions.
 func (s *PrivateShareTestSuite) TestRevokeCleanupGuestData() {
 	admin := s.DevUser()
 	user, gameID, shareID := s.setupGameWithKey("ps-cleanup")
 
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
 
 	// Create a guest session
 	pub := s.Public()
-	_, err := pub.GuestCreateSession(status.Token)
+	_, err := pub.GuestCreateSession(created.Token)
 	s.NoError(err)
 	s.T().Logf("Guest session created")
 
-	// Count users before revoke
+	// Count users before delete
 	usersBefore := Must(admin.GetUsers())
 
-	// Revoke the share — should clean up guest data
-	Must(user.RevokePrivateShare(gameID))
-	s.T().Logf("Revoked share")
+	// Delete the share — should clean up guest data
+	MustSucceed(user.DeleteGameShare(gameID, created.ID.String()))
+	s.T().Logf("Deleted share")
 
 	// Guest user should be cleaned up (fewer users)
 	usersAfter := Must(admin.GetUsers())
@@ -297,20 +287,20 @@ func (s *PrivateShareTestSuite) TestRevokeCleanupGuestData() {
 func (s *PrivateShareTestSuite) TestTokenCannotAccessOtherGameSession() {
 	// Setup game A
 	userA, gameAID, shareAID := s.setupGameWithKey("ps-iso-a")
-	statusA := Must(userA.EnablePrivateShare(gameAID, shareAID, nil))
+	createdA := Must(userA.CreateGameShare(gameAID, shareAID, nil))
 
 	// Setup game B (separate owner)
 	userB, gameBID, shareBID := s.setupGameWithKey("ps-iso-b")
-	statusB := Must(userB.EnablePrivateShare(gameBID, shareBID, nil))
+	createdB := Must(userB.CreateGameShare(gameBID, shareBID, nil))
 
 	pub := s.Public()
 
 	// Create session on game B
-	respB := Must(pub.GuestCreateSession(statusB.Token))
+	respB := Must(pub.GuestCreateSession(createdB.Token))
 	sessionBID := respB.GameSession.ID.String()
 
 	// Try to access game B's session using game A's token — should fail
-	_, err := pub.GuestGetSession(statusA.Token, sessionBID)
+	_, err := pub.GuestGetSession(createdA.Token, sessionBID)
 	s.Error(err, "token for game A should not access game B's session")
 	s.T().Logf("Correctly denied cross-game access: %v", err)
 }

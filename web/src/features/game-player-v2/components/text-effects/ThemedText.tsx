@@ -15,7 +15,6 @@ import { useGameTheme } from "../../theme";
 import { DecryptedText } from "./DecryptedText";
 import { GlitchText } from "./GlitchText";
 import { RetroText } from "./RetroText";
-import { HandwrittenText } from "./HandwrittenText";
 import { InkBleedText } from "./InkBleedText";
 import { FadeInText } from "./FadeInText";
 import { ParchmentBurnText } from "./ParchmentBurnText";
@@ -57,8 +56,6 @@ export function ThemedText({ text, scope = "gameMessages" }: ThemedTextProps) {
       return <GlitchText text={text} />;
     case "retro":
       return <RetroText text={text} />;
-    case "handwritten":
-      return <HandwrittenText text={text} />;
     case "inkBleed":
       return <InkBleedText text={text} />;
     case "fadeIn":

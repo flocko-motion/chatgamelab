@@ -23,10 +23,11 @@ export function getGamePermissions(
   game: ObjGame,
   currentUserId: string | undefined,
   canEditAllWorkshopGames: boolean,
+  isAdmin: boolean = false,
 ): GamePermissions {
   const isOwner = game.creatorId === currentUserId;
-  const canEdit = isOwner || (canEditAllWorkshopGames && !!game.workshopId);
-  const canDelete = isOwner;
+  const canEdit = isOwner || (canEditAllWorkshopGames && !!game.workshopId) || isAdmin;
+  const canDelete = isOwner || (canEditAllWorkshopGames && !!game.workshopId) || isAdmin;
 
   return { canEdit, canDelete, isOwner };
 }
@@ -38,14 +39,18 @@ export function filterGamesByWorkshopSettings(
   settings: WorkshopSettings,
 ): ObjGame[] {
   return games.filter((game) => {
-    // Public games: controlled solely by showPublicGames
+    const isWsGame = !!game.workshopId && game.workshopId === currentWorkshopId;
+
+    if (isWsGame) {
+      // Workshop games: own always visible, others controlled by setting
+      if (game.creatorId === currentUserId) return true;
+      return settings.showOtherParticipantsGames;
+    }
+
+    // Non-workshop public games: controlled by showPublicGames
     if (game.public) return settings.showPublicGames;
-    // Non-public games must belong to this workshop
-    if (!game.workshopId || game.workshopId !== currentWorkshopId) return false;
-    // Own workshop games always visible
-    if (game.creatorId === currentUserId) return true;
-    // Other people's workshop games: controlled by showOtherParticipantsGames
-    return settings.showOtherParticipantsGames;
+
+    return false;
   });
 }
 

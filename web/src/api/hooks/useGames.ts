@@ -13,6 +13,7 @@ import type {
   ObjGame,
   HttpxErrorResponse,
   RoutesCreateGameRequest,
+  RoutesGameShareResponse,
 } from "../generated";
 
 // Games hooks
@@ -115,20 +116,6 @@ export function useDeleteGame() {
   });
 }
 
-export function useCloneGame() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<ObjGame, HttpxErrorResponse, string>({
-    mutationFn: (id) =>
-      api.games.cloneCreate(id).then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.games });
-    },
-    onError: handleApiError,
-  });
-}
-
 export function useExportGameYaml() {
   const { getAccessToken } = useAuth();
 
@@ -152,48 +139,6 @@ export function useExportGameYaml() {
   });
 }
 
-export function useImportGameYaml() {
-  const queryClient = useQueryClient();
-  const { getAccessToken } = useAuth();
-
-  return useMutation<ObjGame, HttpxErrorResponse, { id: string; yaml: string }>(
-    {
-      mutationFn: async ({ id, yaml }) => {
-        const token = await getAccessToken();
-        const headers: Record<string, string> = {
-          "Content-Type": "application/x-yaml",
-        };
-        // Only add Authorization header if we have a token (participants use cookies)
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-        const response = await fetch(
-          `${config.API_BASE_URL}/games/${id}/yaml`,
-          {
-            method: "PUT",
-            headers,
-            credentials: "include", // Include cookies for participant auth
-            body: yaml,
-          },
-        );
-
-        if (!response.ok) {
-          const error = await response
-            .json()
-            .catch(() => ({ message: "Import failed" }));
-          throw { ...error, status: response.status };
-        }
-
-        return response.json();
-      },
-      onSuccess: (_, { id }) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.games });
-        queryClient.invalidateQueries({ queryKey: [...queryKeys.games, id] });
-      },
-      onError: handleApiError,
-    },
-  );
-}
 
 // Game Sponsoring hooks
 export function useSponsorGame() {
@@ -274,12 +219,24 @@ export function useRemoveFavorite() {
 
 // ── Private Share Management hooks ──────────────────────────────────────────
 
-export interface PrivateShareStatus {
-  enabled: boolean;
-  shareUrl?: string;
-  token?: string;
+export interface EnrichedGameShare {
+  id: string;
+  gameId: string;
+  token: string;
+  apiKeyShareId: string;
+  institutionId: string | null;
+  workshopId: string | null;
   remaining: number | null;
-  privateSponsoredApiKeyShareId?: string;
+  aiQualityTier?: string | null;
+  createdBy: string | null;
+  createdAt: string;
+  shareUrl: string;
+  source: "workshop" | "organization" | "personal";
+  workshopName?: string;
+}
+
+export interface PrivateShareStatus {
+  shares: EnrichedGameShare[];
 }
 
 export function usePrivateShareStatus(gameId: string | undefined) {
@@ -303,19 +260,19 @@ export function usePrivateShareStatus(gameId: string | undefined) {
   });
 }
 
-export function useEnablePrivateShare() {
+export function useCreateGameShare() {
   const queryClient = useQueryClient();
   const { getAccessToken } = useAuth();
 
   return useMutation<
-    PrivateShareStatus,
+    RoutesGameShareResponse,
     Error,
-    { gameId: string; sponsorKeyShareId: string; maxSessions?: number | null }
+    { gameId: string; workshopId?: string; sponsorKeyShareId?: string; maxSessions?: number | null; aiQualityTier?: string | null }
   >({
-    mutationFn: async ({ gameId, sponsorKeyShareId, maxSessions }) => {
+    mutationFn: async ({ gameId, workshopId, sponsorKeyShareId, maxSessions, aiQualityTier }) => {
       const token = await getAccessToken();
       const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        `${config.API_BASE_URL}/games/${gameId}/shares`,
         {
           method: "POST",
           headers: {
@@ -324,14 +281,16 @@ export function useEnablePrivateShare() {
           },
           credentials: "include",
           body: JSON.stringify({
-            sponsorKeyShareId,
+            workshopId: workshopId ?? null,
+            sponsorKeyShareId: sponsorKeyShareId ?? null,
             maxSessions: maxSessions ?? null,
+            aiQualityTier: aiQualityTier ?? null,
           }),
         },
       );
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Failed to enable private share");
+        throw new Error(err.message || "Failed to create share link");
       }
       return response.json();
     },
@@ -350,11 +309,11 @@ export function useRevokePrivateShare() {
   const queryClient = useQueryClient();
   const { getAccessToken } = useAuth();
 
-  return useMutation<PrivateShareStatus, Error, string>({
-    mutationFn: async (gameId) => {
+  return useMutation<void, Error, { gameId: string; shareId: string }>({
+    mutationFn: async ({ gameId, shareId }) => {
       const token = await getAccessToken();
       const response = await fetch(
-        `${config.API_BASE_URL}/games/${gameId}/private-share`,
+        `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -365,14 +324,54 @@ export function useRevokePrivateShare() {
         const err = await response.json().catch(() => ({}));
         throw new Error(err.message || "Failed to revoke private share");
       }
-      return response.json();
     },
-    onSuccess: (_, gameId) => {
+    onSuccess: (_, { gameId }) => {
       queryClient.invalidateQueries({
         queryKey: [...queryKeys.games, gameId, "private-share"],
       });
       queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
       queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
+      queryClient.invalidateQueries({ queryKey: ["apiKeyGameShares"] });
+    },
+    onError: handleApiError,
+  });
+}
+
+
+export function useUpdateGameShare() {
+  const queryClient = useQueryClient();
+  const { getAccessToken } = useAuth();
+
+  return useMutation<
+    void,
+    Error,
+    { gameId: string; shareId: string; maxSessions: number | null; aiQualityTier?: string | null }
+  >({
+    mutationFn: async ({ gameId, shareId, maxSessions, aiQualityTier }) => {
+      const token = await getAccessToken();
+      const response = await fetch(
+        `${config.API_BASE_URL}/games/${gameId}/shares/${shareId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ maxSessions, aiQualityTier: aiQualityTier ?? null }),
+        },
+      );
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to update share");
+      }
+    },
+    onSuccess: (_, { gameId }) => {
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.games, gameId, "private-share"],
+      });
+      queryClient.invalidateQueries({ queryKey: [...queryKeys.games, gameId] });
+      queryClient.invalidateQueries({ queryKey: ["apiKeyGameShares"] });
     },
     onError: handleApiError,
   });

@@ -3,6 +3,7 @@ package routes
 import (
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/events"
 	"cgl/log"
 	"cgl/obj"
 	"context"
@@ -125,10 +126,10 @@ func ListInvites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Convert to response format
+	// Convert to response format (use request context so workshop/institution names are included)
 	responses := make([]InviteResponse, len(invites))
 	for i, inv := range invites {
-		responses[i] = toInviteResponse(inv)
+		responses[i] = toInviteResponseWithContext(r.Context(), inv)
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, responses)
@@ -438,6 +439,11 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 			// The authToken is the participant token (starts with "participant-")
 			httpx.SetSessionCookie(w, r, authToken)
 
+			// Notify workshop members about the new participant
+			if createdUser.Role != nil && createdUser.Role.Workshop != nil {
+				events.GetBroker().PublishMembersUpdated(createdUser.Role.Workshop.ID)
+			}
+
 			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 				User:      createdUser,
 				AuthToken: &authToken,
@@ -449,6 +455,9 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		// Authenticated user accepting open invite by token
 		// Participants switch workshops (new role assignment)
 		if user.Role != nil && user.Role.Role == obj.RoleParticipant {
+			// Look up invite to get workshop ID for SSE notification
+			inviteForSSE, _ := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
+
 			_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
 			if acceptErr != nil {
 				if appErr, ok := acceptErr.(*obj.AppError); ok {
@@ -458,6 +467,15 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 				httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
 				return
 			}
+
+			// Notify old and new workshop about member change
+			if user.Role.Workshop != nil {
+				events.GetBroker().PublishMembersUpdated(user.Role.Workshop.ID)
+			}
+			if inviteForSSE.WorkshopID != nil {
+				events.GetBroker().PublishMembersUpdated(*inviteForSSE.WorkshopID)
+			}
+
 			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 				Message: "Invite accepted",
 			})
@@ -488,6 +506,7 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
 				return
 			}
+			events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
 			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 				Message: "Workshop entered",
 			})
@@ -495,6 +514,8 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Users without a recognized role (e.g., no role at all) join as participant
+		inviteForJoin, _ := db.GetInviteByToken(r.Context(), uuid.Nil, idOrToken)
+
 		_, acceptErr := db.AcceptOpenInvite(r.Context(), idOrToken, user.ID)
 		if acceptErr != nil {
 			if appErr, ok := acceptErr.(*obj.AppError); ok {
@@ -504,6 +525,11 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
 			return
 		}
+
+		if inviteForJoin.WorkshopID != nil {
+			events.GetBroker().PublishMembersUpdated(*inviteForJoin.WorkshopID)
+		}
+
 		httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 			Message: "Invite accepted",
 		})
@@ -544,6 +570,7 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
 				return
 			}
+			events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
 			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
 				Message: "Workshop entered",
 			})
@@ -558,8 +585,33 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, http.StatusInternalServerError, acceptErr.Error())
 			return
 		}
+		if invite.WorkshopID != nil {
+			events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
+		}
 	} else {
-		// Targeted invite (institution) - accept by ID
+		// Targeted invite - check if it's a workshop-scoped invite for an existing head/staff/individual
+		if invite.WorkshopID != nil && user.Role != nil &&
+			(user.Role.Role == obj.RoleHead || user.Role.Role == obj.RoleStaff || user.Role.Role == obj.RoleIndividual) {
+			// Enter workshop mode instead of changing roles
+			setErr := db.SetActiveWorkshop(r.Context(), user.ID, *invite.WorkshopID)
+			if setErr != nil {
+				if appErr, ok := setErr.(*obj.AppError); ok {
+					httpx.WriteAppError(w, appErr)
+					return
+				}
+				httpx.WriteError(w, http.StatusInternalServerError, setErr.Error())
+				return
+			}
+			// Mark invite as accepted
+			_ = db.UpdateInviteStatus(r.Context(), user.ID, inviteID, obj.InviteStatusAccepted)
+			events.GetBroker().PublishMembersUpdated(*invite.WorkshopID)
+			httpx.WriteJSON(w, http.StatusOK, AcceptInviteResponse{
+				Message: "Workshop entered",
+			})
+			return
+		}
+
+		// Standard targeted invite (institution) - accept by ID
 		_, acceptErr := db.AcceptTargetedInvite(r.Context(), inviteID, "", user.ID)
 		if acceptErr != nil {
 			if appErr, ok := acceptErr.(*obj.AppError); ok {
@@ -671,4 +723,168 @@ type AcceptInviteResponse struct {
 	User      *obj.User `json:"user,omitempty"`
 	AuthToken *string   `json:"authToken,omitempty"`
 	Message   string    `json:"message"`
+}
+
+// CreateWorkshopEmailInviteRequest represents the request to invite a user to a workshop by email
+type CreateWorkshopEmailInviteRequest struct {
+	WorkshopID string `json:"workshopId"`
+	Email      string `json:"email"`
+}
+
+// CreateWorkshopEmailInvite godoc
+//
+//	@Summary		Create workshop email invite
+//	@Description	Creates a targeted invite for a registered user (by email) to join a workshop
+//	@Tags			invites
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		CreateWorkshopEmailInviteRequest	true	"Workshop ID and email"
+//	@Success		201		{object}	InviteResponse
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Failure		409		{object}	httpx.ErrorResponse	"Duplicate invite"
+//	@Security		BearerAuth
+//	@Router			/invites/workshop/email [post]
+func CreateWorkshopEmailInvite(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	var req CreateWorkshopEmailInviteRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.WorkshopID == "" || req.Email == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("workshopId and email are required"))
+		return
+	}
+
+	workshopID, err := uuid.Parse(req.WorkshopID)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	invite, err := db.CreateWorkshopEmailInvite(r.Context(), user.ID, workshopID, req.Email)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusCreated, toInviteResponseWithContext(r.Context(), invite))
+}
+
+// AddMemberToWorkshopRequest represents the request to add an org member to a workshop
+type AddMemberToWorkshopRequest struct {
+	UserID string `json:"userId"`
+}
+
+// AddMemberToWorkshop godoc
+//
+//	@Summary		Add org member to workshop
+//	@Description	Directly adds an organization individual to a workshop by setting their active workshop
+//	@Tags			workshops
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string							true	"Workshop ID"
+//	@Param			body	body		AddMemberToWorkshopRequest		true	"User ID"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/{id}/members [post]
+func AddMemberToWorkshop(w http.ResponseWriter, r *http.Request) {
+	caller := httpx.UserFromRequest(r)
+
+	workshopIDStr := httpx.PathParam(r, "id")
+	workshopID, err := uuid.Parse(workshopIDStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	var req AddMemberToWorkshopRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid request body")
+		return
+	}
+
+	if req.UserID == "" {
+		httpx.WriteAppError(w, obj.ErrValidation("userId is required"))
+		return
+	}
+
+	targetUserID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid user ID"))
+		return
+	}
+
+	if err := db.AddMemberToWorkshop(r.Context(), caller.ID, workshopID, targetUserID); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	events.GetBroker().PublishMembersUpdated(workshopID)
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Member added to workshop",
+	})
+}
+
+// RemoveMemberFromWorkshop godoc
+//
+//	@Summary		Remove member from workshop
+//	@Description	Removes a non-permanent member from a workshop by clearing their active workshop
+//	@Tags			workshops
+//	@Produce		json
+//	@Param			id		path		string	true	"Workshop ID"
+//	@Param			userId	path		string	true	"User ID to remove"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/{id}/members/{userId} [delete]
+func RemoveMemberFromWorkshop(w http.ResponseWriter, r *http.Request) {
+	caller := httpx.UserFromRequest(r)
+
+	workshopIDStr := httpx.PathParam(r, "id")
+	workshopID, err := uuid.Parse(workshopIDStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid workshop ID"))
+		return
+	}
+
+	userIDStr := httpx.PathParam(r, "userId")
+	targetUserID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid user ID"))
+		return
+	}
+
+	if err := db.RemoveMemberFromWorkshop(r.Context(), caller.ID, workshopID, targetUserID); err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	events.GetBroker().PublishMembersUpdated(workshopID)
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": "Member removed from workshop",
+	})
 }

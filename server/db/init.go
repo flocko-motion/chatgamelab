@@ -30,15 +30,6 @@ var (
 	queriesSingleton *sqlc.Queries // sqlc-generated Queries (see db/sqlc/db.go)
 )
 
-// Reset clears the database singleton (for testing only)
-func Reset() {
-	if sqlDb != nil {
-		sqlDb.Close()
-		sqlDb = nil
-	}
-	queriesSingleton = nil
-}
-
 // Init initializes the database connection. Call this at startup.
 // If the database is empty (no tables), it will automatically initialize the schema.
 // After initialization, it runs any pending migrations.
@@ -70,6 +61,13 @@ func Init() {
 	}
 
 	log.Info("database connection initialized")
+}
+
+// Reset clears the database singleton so the next call to queries() re-initializes.
+// Used in integration tests to reset state between test runs.
+func Reset() {
+	sqlDb = nil
+	queriesSingleton = nil
 }
 
 // queries returns the sqlc Queries singleton, initializing if needed.

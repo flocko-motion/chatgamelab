@@ -100,6 +100,7 @@ SELECT
   w.prompt_constraints AS workshop_prompt_constraints,
   w.design_editing_enabled AS workshop_design_editing_enabled,
   w.is_paused AS workshop_is_paused,
+  w.allow_game_sharing AS workshop_allow_game_sharing,
   r.active_workshop_id,
   aw.name        AS active_workshop_name,
   aw.show_public_games AS active_workshop_show_public_games,
@@ -107,13 +108,14 @@ SELECT
   aw.ai_quality_tier AS active_workshop_ai_quality_tier,
   aw.prompt_constraints AS active_workshop_prompt_constraints,
   aw.design_editing_enabled AS active_workshop_design_editing_enabled,
-  aw.is_paused AS active_workshop_is_paused
+  aw.is_paused AS active_workshop_is_paused,
+  aw.allow_game_sharing AS active_workshop_allow_game_sharing
 FROM app_user u
 LEFT JOIN LATERAL (
   SELECT ur.*
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 ) r ON TRUE
 LEFT JOIN institution i
@@ -146,7 +148,7 @@ LEFT JOIN LATERAL (
   SELECT ur.*
   FROM user_role ur
   WHERE ur.user_id = u.id
-  ORDER BY ur.created_at DESC
+  ORDER BY CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END, ur.created_at DESC
   LIMIT 1
 ) r ON TRUE
 LEFT JOIN institution i
@@ -245,11 +247,11 @@ SELECT EXISTS(
 
 -- name: SetUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = $2, modified_at = now()
-WHERE user_id = $1;
+WHERE user_id = $1 AND role != 'participant';
 
 -- name: ClearUserActiveWorkshop :exec
 UPDATE user_role SET active_workshop_id = NULL, modified_at = now()
-WHERE user_id = $1;
+WHERE user_id = $1 AND role != 'participant';
 
 -- name: GetUserActiveWorkshopID :one
 -- Get the active workshop ID for a user (for game creation context)
@@ -392,20 +394,36 @@ WHERE ur.workshop_id = $1
   AND u.deleted_at IS NULL;
 
 -- name: GetWorkshopParticipants :many
--- Get all participants for a workshop, including:
--- 1. Users with RoleParticipant (anonymous participants)
--- 2. Workshop owner/creator (staff/head who created it)
-SELECT
-  u.id, u.name, u.auth0_id,
-  COALESCE(ur.created_at, w.created_at) as joined_at,
-  COALESCE(ur.role, ur_inst.role) as role,
-  (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count
-FROM app_user u
-INNER JOIN workshop w ON w.id = $1
-LEFT JOIN user_role ur ON u.id = ur.user_id AND ur.workshop_id = $1 AND ur.role = 'participant'
-LEFT JOIN user_role ur_inst ON u.id = ur_inst.user_id AND ur_inst.workshop_id IS NULL AND u.id = w.created_by
-WHERE (ur.user_id IS NOT NULL OR u.id = w.created_by)
-  AND u.deleted_at IS NULL
+-- Get all members currently associated with a workshop:
+-- 1. Participants (permanent members with workshop_id)
+-- 2. Workshop creator (always shown)
+-- 3. Visitors with active_workshop_id set (individuals, head, staff)
+-- Uses DISTINCT ON to deduplicate users who match multiple conditions,
+-- preferring their non-participant role (individual/head/staff) over participant.
+SELECT * FROM (
+  SELECT DISTINCT ON (u.id)
+    u.id, u.name, u.auth0_id,
+    COALESCE(ur.created_at, w.created_at) as joined_at,
+    ur.role,
+    (SELECT COUNT(*) FROM game g WHERE g.created_by = u.id AND g.deleted_at IS NULL)::int as games_count,
+    CASE
+      WHEN u.id = w.created_by THEN true
+      WHEN ur.workshop_id = $1 AND ur.role = 'participant' THEN true
+      ELSE false
+    END as permanent
+  FROM app_user u
+  INNER JOIN workshop w ON w.id = $1
+  INNER JOIN user_role ur ON u.id = ur.user_id
+  WHERE u.deleted_at IS NULL
+    AND (
+      (ur.workshop_id = $1)
+      OR (ur.active_workshop_id = $1 AND ur.role != 'participant')
+      OR (u.id = w.created_by AND ur.role != 'participant')
+    )
+  ORDER BY u.id,
+    CASE WHEN ur.role = 'participant' THEN 1 ELSE 0 END,
+    ur.created_at ASC
+) members
 ORDER BY joined_at ASC;
 
 -- name: GetInviteByID :one
@@ -452,31 +470,10 @@ LIMIT 1;
 -- Guest User queries
 
 -- name: CreateGuestUser :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_game_id)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, private_share_id)
 VALUES ($1, $2, NULL, NULL, NULL, $3)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
-
--- name: DeleteGuestSessionMessagesByGameID :exec
--- Delete all messages belonging to sessions of guest users created via a game's share link
-DELETE FROM game_session_message WHERE game_session_id IN (
-  SELECT gs.id FROM game_session gs
-  JOIN app_user u ON u.id = gs.user_id
-  WHERE u.private_share_game_id = $1
-);
-
--- name: DeleteGuestSessionsByGameID :exec
--- Delete all sessions of guest users created via a game's share link
-DELETE FROM game_session WHERE user_id IN (
-  SELECT id FROM app_user WHERE private_share_game_id = $1
-);
-
--- name: DeleteGuestUsersByGameID :exec
--- Delete all guest users created via a game's share link
-DELETE FROM app_user WHERE private_share_game_id = $1;
-
--- name: CountGuestUsersByGameID :one
-SELECT COUNT(*)::int AS count FROM app_user WHERE private_share_game_id = $1;
 
 -- User Statistics queries
 
@@ -518,6 +515,10 @@ SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant';
 -- name: DeleteUserRolesByWorkshopID :exec
 -- Delete all participant roles scoped to a workshop
 DELETE FROM user_role WHERE workshop_id = $1 AND role = 'participant';
+
+-- name: DeleteUserParticipantRole :exec
+-- Delete a specific user's participant role for a workshop
+DELETE FROM user_role WHERE user_id = $1 AND workshop_id = $2 AND role = 'participant';
 
 -- name: DeleteInvitesForUser :exec
 -- Delete invites targeting this user (can't just null invited_user_id due to type check constraint)

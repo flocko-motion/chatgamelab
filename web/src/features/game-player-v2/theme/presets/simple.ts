@@ -582,7 +582,7 @@ const storybookPreset: PresetDefinition = {
       bgColor: "creme",
       fontColor: "dark",
       borderColor: "teal",
-      textEffect: "handwritten",
+      textEffect: "none",
       textEffectScope: {
         gameMessages: true,
         playerMessages: true,

@@ -41,6 +41,9 @@ import {
   IconClock,
   IconLogin,
   IconPencil,
+  IconX,
+  IconMail,
+  IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
@@ -60,6 +63,7 @@ import {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useCreateWorkshopEmailInvite,
 } from "@/api/hooks";
 import {
   ExpandableSearch,
@@ -72,6 +76,8 @@ import { TextButton } from "@/common/components/buttons/TextButton";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
+import { InviteModal } from "./InviteModal";
+import { AddIndividualModal } from "./AddIndividualModal";
 import { useOrgKeyOptions } from "../hooks/useOrgKeyOptions";
 import {
   ObjRole,
@@ -120,6 +126,15 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
     inviteLinkModalOpened,
     { open: openInviteLinkModal, close: closeInviteLinkModal },
   ] = useDisclosure(false);
+  const [
+    emailInviteModalOpened,
+    { open: openEmailInviteModal, close: closeEmailInviteModal },
+  ] = useDisclosure(false);
+  const [
+    addIndividualModalOpened,
+    { open: openAddIndividualModal, close: closeAddIndividualModal },
+  ] = useDisclosure(false);
+  const [emailInviteError, setEmailInviteError] = useState<string | null>(null);
 
   const [newWorkshopName, setNewWorkshopName] = useState("");
   const [newWorkshopActive, setNewWorkshopActive] = useState(true);
@@ -185,7 +200,7 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
   const getParticipantToken = useGetParticipantToken();
-
+  const createEmailInvite = useCreateWorkshopEmailInvite();
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<{
     workshopId: string;
@@ -238,6 +253,38 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
     closeInviteLinkModal();
   };
 
+  const handleOpenEmailInviteModal = (workshop: ObjWorkshop) => {
+    setSelectedWorkshop(workshop);
+    setEmailInviteError(null);
+    openEmailInviteModal();
+  };
+
+  const handleEmailInvite = async (email: string) => {
+    if (!selectedWorkshop?.id) return;
+    try {
+      await createEmailInvite.mutateAsync({
+        workshopId: selectedWorkshop.id,
+        email,
+      });
+      setEmailInviteError(null);
+      closeEmailInviteModal();
+      notifications.show({
+        title: t("myOrganization.workshops.inviteByEmailSuccess"),
+        message: t("myOrganization.workshops.inviteByEmailSuccessMessage", {
+          email,
+        }),
+        color: "green",
+      });
+    } catch {
+      setEmailInviteError(t("myOrganization.workshops.addIndividualError"));
+    }
+  };
+
+  const handleOpenAddIndividualModal = (workshop: ObjWorkshop) => {
+    setSelectedWorkshop(workshop);
+    openAddIndividualModal();
+  };
+
   const handleSetApiKey = async (
     workshopId: string,
     apiKeyShareId: string | null,
@@ -261,7 +308,6 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       const newShare = await shareApiKeyWithInstitution.mutateAsync({
         shareId: selfShareId,
         institutionId,
-        allowPublicGameSponsoring: false,
       });
       // Step 2: Set the new institution share as the workshop's default key
       if (newShare?.id) {
@@ -333,8 +379,12 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
   };
 
   const handleConfirmRemoveParticipant = async () => {
-    if (!participantToRemove?.id) return;
-    await removeParticipant.mutateAsync(participantToRemove.id);
+    if (!participantToRemove?.id || !participantToRemove?.workshopId) return;
+    await removeParticipant.mutateAsync({
+      participantId: participantToRemove.id,
+      workshopId: participantToRemove.workshopId,
+      permanent: participantToRemove.permanent !== false,
+    });
     setParticipantToRemove(null);
   };
 
@@ -348,6 +398,7 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       aiQualityTier: string;
       promptConstraints: string;
       isPaused: boolean;
+      allowGameSharing: boolean;
     }>,
   ) => {
     if (!workshop.id) return;
@@ -369,6 +420,8 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
       promptConstraints:
         settings.promptConstraints ?? workshop.promptConstraints ?? undefined,
       isPaused: settings.isPaused ?? workshop.isPaused ?? false,
+      allowGameSharing:
+        settings.allowGameSharing ?? workshop.allowGameSharing ?? false,
     });
     // Refresh backendUser so workshop settings (embedded in role.workshop) are up to date
     retryBackendFetch();
@@ -605,6 +658,32 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                             );
                           })()}
                           <Tooltip
+                            label={t("myOrganization.workshops.inviteByEmail")}
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              onClick={() =>
+                                handleOpenEmailInviteModal(workshop)
+                              }
+                            >
+                              <IconMail size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip
+                            label={t("myOrganization.workshops.addIndividual")}
+                          >
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              onClick={() =>
+                                handleOpenAddIndividualModal(workshop)
+                              }
+                            >
+                              <IconUserPlus size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                          <Tooltip
                             label={
                               workshop.active
                                 ? t("myOrganization.workshops.deactivate")
@@ -722,6 +801,30 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                             </Tooltip>
                           );
                         })()}
+                        <Tooltip
+                          label={t("myOrganization.workshops.inviteByEmail")}
+                        >
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            onClick={() => handleOpenEmailInviteModal(workshop)}
+                          >
+                            <IconMail size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip
+                          label={t("myOrganization.workshops.addIndividual")}
+                        >
+                          <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            onClick={() =>
+                              handleOpenAddIndividualModal(workshop)
+                            }
+                          >
+                            <IconUserPlus size={16} />
+                          </ActionIcon>
+                        </Tooltip>
                         <Tooltip
                           label={
                             workshop.active
@@ -859,6 +962,9 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                           label={t(
                             "myOrganization.workshops.showOtherParticipantsGames",
                           )}
+                          description={t(
+                            "myOrganization.workshops.showOtherParticipantsGamesHint",
+                          )}
                           checked={
                             workshop.showOtherParticipantsGames !== false
                           }
@@ -894,6 +1000,21 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                             })
                           }
                           color="orange"
+                        />
+                        <Switch
+                          size="xs"
+                          label={t(
+                            "myOrganization.workshops.allowGameSharing",
+                          )}
+                          description={t(
+                            "myOrganization.workshops.allowGameSharingHint",
+                          )}
+                          checked={workshop.allowGameSharing || false}
+                          onChange={(e) =>
+                            handleUpdateWorkshopSettings(workshop, {
+                              allowGameSharing: e.currentTarget.checked,
+                            })
+                          }
                         />
                       </Stack >
 
@@ -1021,13 +1142,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                               <Tooltip label={t("cancel")}>
                                                 <ActionIcon
                                                   variant="subtle"
-                                                  color="gray"
+                                                  color="red"
                                                   size="sm"
                                                   onClick={
                                                     handleCancelEditParticipant
                                                   }
                                                 >
-                                                  <IconAlertCircle size={14} />
+                                                  <IconX size={14} />
                                                 </ActionIcon>
                                               </Tooltip>
                                             </>
@@ -1199,13 +1320,13 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                                                 <Tooltip label={t("cancel")}>
                                                   <ActionIcon
                                                     variant="subtle"
-                                                    color="gray"
+                                                    color="red"
                                                     size="sm"
                                                     onClick={
                                                       handleCancelEditParticipant
                                                     }
                                                   >
-                                                    <IconAlertCircle size={16} />
+                                                    <IconX size={16} />
                                                   </ActionIcon>
                                                 </Tooltip>
                                               </>
@@ -1519,6 +1640,30 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
         confirmColor="red"
         isLoading={removeParticipant.isPending}
       />
+
+      {/* Email Invite Modal */}
+      <InviteModal
+        opened={emailInviteModalOpened}
+        onClose={() => {
+          closeEmailInviteModal();
+          setEmailInviteError(null);
+        }}
+        title={t("myOrganization.workshops.inviteByEmailTitle")}
+        description={t("myOrganization.workshops.inviteByEmailDescription")}
+        onSubmit={handleEmailInvite}
+        isLoading={createEmailInvite.isPending}
+        error={emailInviteError}
+      />
+
+      {/* Add Individual Modal */}
+      {selectedWorkshop?.id && (
+        <AddIndividualModal
+          opened={addIndividualModalOpened}
+          onClose={closeAddIndividualModal}
+          workshopId={selectedWorkshop.id}
+          institutionId={institutionId}
+        />
+      )}
 
       {/* Auto-share personal key confirmation */}
       <AutoShareConfirmModal

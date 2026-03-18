@@ -61,10 +61,18 @@ export function PlayerAction({
           <span className={indicatorClasses}>{indicatorChar}</span>
         )}
         <span className={classes.playerActionText}>
-          {PlayerMessageWrapper ? (
-            <PlayerMessageWrapper text={text}>{text}</PlayerMessageWrapper>
+          {text ? (
+            PlayerMessageWrapper ? (
+              <PlayerMessageWrapper text={text}>{text}</PlayerMessageWrapper>
+            ) : (
+              <ThemedText text={text} scope="playerMessages" />
+            )
           ) : (
-            <ThemedText text={text} scope="playerMessages" />
+            <span className={classes.typingDots}>
+              <span className={classes.typingDot} />
+              <span className={classes.typingDot} />
+              <span className={classes.typingDot} />
+            </span>
           )}
         </span>
       </div>

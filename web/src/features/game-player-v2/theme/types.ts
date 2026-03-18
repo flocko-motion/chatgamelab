@@ -191,7 +191,6 @@ export type TextEffect =
   | "decrypted"
   | "glitch"
   | "retro"
-  | "handwritten"
   | "inkBleed"
   | "fadeIn"
   | "parchmentBurn"

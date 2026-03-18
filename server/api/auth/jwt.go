@@ -3,8 +3,6 @@ package auth
 import (
 	"cgl/functional"
 	"fmt"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -42,17 +40,6 @@ func GenerateToken(userId string) (string, int64, error) {
 	}
 
 	return tokenString, expireAt.Unix(), nil
-}
-
-// ValidateToken checks if the request has a valid CGL JWT token
-// Returns the userId from the token if valid, empty string otherwise
-func ValidateToken(r *http.Request) (userId string, valid bool) {
-	authHeader := r.Header.Get("Authorization")
-	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", false
-	}
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-	return ValidateTokenString(tokenString)
 }
 
 // ValidateTokenString checks if the given token string is a valid CGL JWT token

@@ -38,27 +38,6 @@ func Flush(timeout time.Duration) {
 	sentry.Flush(timeout)
 }
 
-// CaptureError sends an error event to Sentry with optional extra context.
-func CaptureError(err error, tags map[string]string, extras map[string]interface{}) {
-	sentry.WithScope(func(scope *sentry.Scope) {
-		for k, v := range tags {
-			scope.SetTag(k, v)
-		}
-		for k, v := range extras {
-			scope.SetExtra(k, v)
-		}
-		sentry.CaptureException(err)
-	})
-}
-
-// CaptureMessage sends a message event to Sentry.
-func CaptureMessage(msg string, level sentry.Level) {
-	sentry.WithScope(func(scope *sentry.Scope) {
-		scope.SetLevel(level)
-		sentry.CaptureMessage(msg)
-	})
-}
-
 func getEnvironment() string {
 	env := os.Getenv("ENVIRONMENT")
 	if env != "" {

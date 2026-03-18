@@ -121,6 +121,22 @@ func (s *WorkshopIndividualTestSuite) TestIndividualCanPlayGameWithWorkshopKey()
 	s.T().Logf("Individual: API key available = %v", available)
 }
 
+// TestIndividualCanCreateGameSession verifies that an individual in workshop mode
+// can actually create a game session (play a game), not just see it in the list.
+func (s *WorkshopIndividualTestSuite) TestIndividualCanCreateGameSession() {
+	_, _, gameIDStr, inviteToken := s.workshopWithKey("ind-session")
+
+	// Individual joins workshop
+	individual := s.CreateUser("ind-session-player")
+	MustSucceed(individual.AcceptWorkshopInviteByToken(inviteToken))
+
+	// Individual should be able to create a game session (play the game)
+	session, err := individual.CreateGameSession(gameIDStr)
+	s.NoError(err, "individual in workshop should be able to create a game session")
+	s.NotEmpty(session.ID, "session should have an ID")
+	s.T().Logf("Individual created game session: %s", session.ID)
+}
+
 // TestIndividualCannotUpdateWorkshopSettings verifies that an individual in workshop mode
 // cannot update workshop settings (only head/staff can).
 func (s *WorkshopIndividualTestSuite) TestIndividualCannotUpdateWorkshopSettings() {

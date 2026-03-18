@@ -53,8 +53,9 @@ func CreateWorkshop(ctx context.Context, createdBy uuid.UUID, institutionID *uui
 		ModifiedAt:    now,
 		Name:          name,
 		InstitutionID: finalInstitutionID,
-		Active:        active,
-		Public:        public,
+		Active:          active,
+		Public:          public,
+		AllowGameSharing: false,
 	}
 
 	result, err := queries().CreateWorkshop(ctx, arg)
@@ -84,6 +85,25 @@ func GetWorkshopName(ctx context.Context, id uuid.UUID) (string, error) {
 		return "", obj.ErrNotFound("workshop not found")
 	}
 	return result.Name, nil
+}
+
+// WorkshopSummary is a lightweight struct with just ID and Name.
+type WorkshopSummary struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// ListWorkshopsForInstitution returns a lightweight list of workshops for an institution (no permission checks).
+func ListWorkshopsForInstitution(ctx context.Context, institutionID uuid.UUID) ([]WorkshopSummary, error) {
+	rows, err := queries().ListWorkshopsByInstitution(ctx, institutionID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]WorkshopSummary, len(rows))
+	for i, r := range rows {
+		result[i] = WorkshopSummary{ID: r.ID, Name: r.Name}
+	}
+	return result, nil
 }
 
 // GetWorkshopByID retrieves a workshop by ID (admin or any member of institution)
@@ -167,7 +187,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 	}
 
 	if err := canAccessWorkshopParticipants(ctx, userID, id, createdBy, result.InstitutionID); err == nil {
-		participantRows, err := queries().GetWorkshopParticipants(ctx, id)
+		participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: id, Valid: true})
 		if err != nil {
 			// Don't fail if we can't get participants, just return empty list
 			log.Warn("failed to get workshop participants", "workshop_id", id, "error", err)
@@ -218,10 +238,15 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		promptConstraints = &result.PromptConstraints.String
 	}
 
+	institution := &obj.Institution{ID: result.InstitutionID}
+	if instName, err := GetInstitutionName(ctx, result.InstitutionID); err == nil {
+		institution.Name = instName
+	}
+
 	return &obj.Workshop{
 		ID:                         result.ID,
 		Name:                       result.Name,
-		Institution:                &obj.Institution{ID: result.InstitutionID},
+		Institution:                institution,
 		Active:                     result.Active,
 		Public:                     result.Public,
 		DefaultApiKeyShareID:       defaultApiKeyShareID,
@@ -233,6 +258,7 @@ func GetWorkshopByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*obj.
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -252,7 +278,7 @@ type ListWorkshopsOptions struct {
 
 // fetchWorkshopParticipants retrieves participants for a workshop (helper for list operations)
 func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.WorkshopParticipant {
-	participantRows, err := queries().GetWorkshopParticipants(ctx, workshopID)
+	participantRows, err := queries().GetWorkshopParticipants(ctx, uuid.NullUUID{UUID: workshopID, Valid: true})
 	if err != nil {
 		return []obj.WorkshopParticipant{}
 	}
@@ -274,6 +300,7 @@ func fetchWorkshopParticipants(ctx context.Context, workshopID uuid.UUID) []obj.
 			Active:      true,
 			Role:        role,
 			GamesCount:  int(p.GamesCount),
+			Permanent:   p.Permanent,
 			Meta: obj.Meta{
 				CreatedAt: &p.JoinedAt,
 			},
@@ -466,6 +493,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
 				IsPaused:                   r.IsPaused,
+				AllowGameSharing:           r.AllowGameSharing,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -526,6 +554,7 @@ func ListWorkshops(ctx context.Context, userID uuid.UUID, institutionID *uuid.UU
 				ShowOtherParticipantsGames: r.ShowOtherParticipantsGames,
 				DesignEditingEnabled:       r.DesignEditingEnabled,
 				IsPaused:                   r.IsPaused,
+				AllowGameSharing:           r.AllowGameSharing,
 				Meta: obj.Meta{
 					CreatedBy:  r.CreatedBy,
 					CreatedAt:  &r.CreatedAt,
@@ -559,6 +588,7 @@ type UpdateWorkshopParams struct {
 	ShowOtherParticipantsGames bool
 	DesignEditingEnabled       bool
 	IsPaused                   bool
+	AllowGameSharing           bool
 }
 
 // UpdateWorkshop updates a workshop (admin, head of institution, or staff who created it)
@@ -599,6 +629,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		ShowOtherParticipantsGames: params.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       params.DesignEditingEnabled,
 		IsPaused:                   params.IsPaused,
+		AllowGameSharing:           params.AllowGameSharing,
 	}
 	if params.AiQualityTier != nil {
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
@@ -640,6 +671,7 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,
@@ -711,6 +743,7 @@ func SetWorkshopDefaultApiKey(ctx context.Context, workshopID uuid.UUID, modifie
 		ShowOtherParticipantsGames: result.ShowOtherParticipantsGames,
 		DesignEditingEnabled:       result.DesignEditingEnabled,
 		IsPaused:                   result.IsPaused,
+		AllowGameSharing:           result.AllowGameSharing,
 		Meta: obj.Meta{
 			CreatedBy:  result.CreatedBy,
 			CreatedAt:  &result.CreatedAt,

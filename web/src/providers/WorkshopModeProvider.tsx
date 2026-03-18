@@ -1,6 +1,11 @@
-import React, { createContext, useCallback, useContext } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
 import { useAuth } from "./AuthProvider";
 import { useSetActiveWorkshop } from "@/api/hooks";
+import {
+  WorkshopModeInfoModal,
+  shouldShowInfoModal,
+} from "@/features/my-workshop/components/WorkshopModeInfoModal";
 
 interface WorkshopModeContextType {
   /** True if staff/head/individual has entered workshop mode */
@@ -39,6 +44,10 @@ interface WorkshopModeProviderProps {
 export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
   const { backendUser, isParticipant, retryBackendFetch } = useAuth();
   const setActiveWorkshop = useSetActiveWorkshop();
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  // Track which workshop ID we already showed (or skipped) the modal for,
+  // so we don't re-show on every render but DO show when switching workshops.
+  const shownForWorkshopRef = useRef<string | null>(null);
 
   // Workshop mode is derived from backend user data
   // For head/staff/individual: backendUser.role.workshop is set when in workshop mode (can leave)
@@ -51,6 +60,26 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
   const activeWorkshopId = workshop?.id ?? null;
   const activeWorkshopName = workshop?.name ?? null;
 
+  // Show info modal when entering workshop mode.
+  // Uses a sessionStorage flag so it works across page reloads (e.g. invite accept flow)
+  // but doesn't re-trigger on every app visit while already in workshop mode.
+  useEffect(() => {
+    if (!isInWorkshopMode || !activeWorkshopId) {
+      shownForWorkshopRef.current = null;
+      return;
+    }
+    // Already handled this workshop in this render cycle
+    if (shownForWorkshopRef.current === activeWorkshopId) return;
+    shownForWorkshopRef.current = activeWorkshopId;
+
+    // Check if we have a pending "just entered" flag (set by enterWorkshopMode or invite flow)
+    const pending = sessionStorage.getItem("cgl_workshop_mode_pending");
+    if (pending && shouldShowInfoModal()) {
+      sessionStorage.removeItem("cgl_workshop_mode_pending");
+      setShowInfoModal(true);
+    }
+  }, [isInWorkshopMode, activeWorkshopId]);
+
   const enterWorkshopMode = useCallback(
     async (workshopId: string, _workshopName: string) => {
       // Skip if already in this workshop or mutation is pending
@@ -61,6 +90,8 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
       await setActiveWorkshop.mutateAsync(workshopId);
       // Refetch backend user to get updated workshop context
       retryBackendFetch();
+      // Flag for info modal (picked up by useEffect after backendUser updates)
+      try { sessionStorage.setItem("cgl_workshop_mode_pending", "true"); } catch {};
     },
     [activeWorkshopId, setActiveWorkshop, retryBackendFetch],
   );
@@ -88,6 +119,12 @@ export function WorkshopModeProvider({ children }: WorkshopModeProviderProps) {
   return (
     <WorkshopModeContext.Provider value={value}>
       {children}
+      <WorkshopModeInfoModal
+        opened={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        workshopName={activeWorkshopName ?? ""}
+        role={backendUser?.role?.role}
+      />
     </WorkshopModeContext.Provider>
   );
 }

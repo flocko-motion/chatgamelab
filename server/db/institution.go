@@ -241,17 +241,6 @@ func SetInstitutionFreeUseApiKeyShare(ctx context.Context, userID uuid.UUID, ins
 	})
 }
 
-// UpdateInstitutionFreeUseAiQualityTier sets or clears the AI quality tier for the institution free-use key.
-func UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, tier *string) error {
-	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
-		return err
-	}
-	return queries().UpdateInstitutionFreeUseAiQualityTier(ctx, db.UpdateInstitutionFreeUseAiQualityTierParams{
-		ID:                   institutionID,
-		FreeUseAiQualityTier: stringPtrToNullString(tier),
-	})
-}
-
 // DeleteInstitution deletes an institution and all its data (admin only).
 // Cascade: workshops (with participants/games), member users (with their data),
 // invites, API key shares, free-use key ref.

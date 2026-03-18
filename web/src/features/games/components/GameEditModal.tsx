@@ -14,21 +14,25 @@ import {
   Badge,
 } from "@mantine/core";
 import {
+  IconAlertTriangle,
   IconCopy,
+  IconDeviceGamepad2,
   IconHeartFilled,
-  IconLink,
   IconPalette,
+  IconShare,
 } from "@tabler/icons-react";
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { useAdmin } from "@/common/hooks/useAdmin";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
 import { useGame, useUpdateGame } from "@/api/hooks";
 import type { ObjGameTheme } from "@/api/generated";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
 import { ThemePickerModal } from "./ThemePickerModal";
+import { PrivateShareSection } from "./PrivateShareSection";
 import type { CreateGameFormData } from "../types";
 
 interface FormValues {
@@ -57,10 +61,14 @@ interface GameEditModalProps {
   initialData?: Partial<CreateGameFormData> | null;
   /** Callback when user clicks Sponsor button */
   onSponsor?: () => void;
-  /** Callback when user clicks Private Share button */
-  onPrivateShare?: () => void;
+  /** Whether to show the inline private share section */
+  showShareSection?: boolean;
+  /** Workshop ID for workshop share mode (auto-uses workshop key) */
+  workshopId?: string;
   /** If true, the Design (theme) section is hidden (e.g. workshop setting) */
   hideDesign?: boolean;
+  /** Whether the current user owns this game (used to show admin action warning) */
+  isOwner?: boolean;
 }
 
 export function GameEditModal({
@@ -74,12 +82,16 @@ export function GameEditModal({
   copyLoading = false,
   initialData,
   onSponsor,
-  onPrivateShare,
+  showShareSection = false,
+  workshopId,
   hideDesign = false,
+  isOwner = true,
 }: GameEditModalProps) {
   const { t } = useTranslation("common");
   const isMobile = useMediaQuery("(max-width: 48em)");
   const modals = useModals();
+  const { isAdmin } = useAdmin();
+  const isAdminAction = isAdmin && !isOwner;
 
   const isCreateMode = !gameId;
   const { data: game, isLoading, error } = useGame(gameId ?? "");
@@ -294,6 +306,17 @@ export function GameEditModal({
     return (
       <ScrollArea h={isMobile ? "calc(100vh - 180px)" : "calc(85vh - 140px)"}>
         <Stack gap="lg" pr="md">
+          {/* Admin action warning */}
+          {isAdminAction && (
+            <Alert
+              color="red"
+              icon={<IconAlertTriangle size={16} />}
+              title={t("games.editModal.adminActionTitle")}
+            >
+              {t("games.editModal.adminActionWarning")}
+            </Alert>
+          )}
+
           {/* Read-only notice */}
           {readOnly && (
             <Alert
@@ -304,6 +327,14 @@ export function GameEditModal({
               {t("games.viewModal.readOnlyNotice")}
             </Alert>
           )}
+
+          {/* Game Design section */}
+          <Group gap="xs" align="center">
+            <IconDeviceGamepad2 size={22} />
+            <Text size="lg" fw={700}>
+              {t("games.editModal.gameDesignSection")}
+            </Text>
+          </Group>
 
           {/* Name */}
           <TextInput
@@ -409,28 +440,17 @@ export function GameEditModal({
             readOnly={readOnly}
           />
 
-          {/* Visibility - last */}
-          <Switch
-            label={t("games.createModal.publicLabel")}
-            description={t("games.createModal.publicDescription")}
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.currentTarget.checked)}
-            disabled={readOnly}
+          {/* Sharing & Visibility section */}
+          <SharingSection
+            game={game}
+            gameId={isCreateMode ? undefined : gameId!}
+            isPublic={isPublic}
+            setIsPublic={setIsPublic}
+            readOnly={readOnly}
+            onSponsor={!isCreateMode ? onSponsor : undefined}
+            showShareSection={!isCreateMode && showShareSection}
+            workshopId={workshopId}
           />
-          {!isPublic && game?.publicSponsoredApiKeyShareId && (
-            <Text size="xs" c="orange" fw={500}>
-              {t("games.sponsor.privateWarning")}
-            </Text>
-          )}
-
-          {/* Sharing & Sponsoring — collapsible section (edit/view mode only) */}
-          {!isCreateMode && (onSponsor || onPrivateShare) && (
-            <SharingSection
-              game={game}
-              onSponsor={onSponsor}
-              onPrivateShare={onPrivateShare}
-            />
-          )}
         </Stack>
       </ScrollArea>
     );
@@ -466,7 +486,10 @@ export function GameEditModal({
         fullScreen={isMobile}
         centered={!isMobile}
         styles={{
-          content: { maxHeight: isMobile ? undefined : "85vh" },
+          content: {
+            maxHeight: isMobile ? undefined : "85vh",
+            ...(isAdminAction ? { outline: "3px solid var(--mantine-color-red-6)" } : {}),
+          },
           body: { maxHeight: isMobile ? undefined : "calc(85vh - 60px)" },
         }}
       >
@@ -517,71 +540,120 @@ export function GameEditModal({
 
 function SharingSection({
   game,
+  gameId,
+  isPublic,
+  setIsPublic,
+  readOnly,
   onSponsor,
-  onPrivateShare,
+  showShareSection,
+  workshopId,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
-    privateShareHash?: string;
+    workshopId?: string;
   } | null;
+  gameId?: string;
+  isPublic: boolean;
+  setIsPublic: (v: boolean) => void;
+  readOnly: boolean;
   onSponsor?: () => void;
-  onPrivateShare?: () => void;
+  showShareSection?: boolean;
+  workshopId?: string;
 }) {
   const { t } = useTranslation("common");
 
   const hasSponsoring = !!game?.publicSponsoredApiKeyShareId;
-  const hasPrivateShare = !!game?.privateShareHash;
+
+  // Check if game belongs to the current workshop context
+  const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
+
+  // In workshop mode, only show share section if the game belongs to this workshop
+  // AND sharing is enabled (via showShareSection prop).
+  const canShowShareInContext =
+    showShareSection && gameBelongsToWorkshop;
+
+  // Only show public sponsoring when game is public
+  const canShowSponsoring = onSponsor && isPublic;
 
   return (
     <>
-      <Divider />
-      <Text size="sm" fw={500} c="dimmed">
-        {t("games.sharing.sectionTitle")}
-      </Text>
-      <Stack gap="sm">
-        {onSponsor && (
-          <Group gap="sm" align="center">
-            <ActionButton
-              onClick={onSponsor}
-              size="sm"
-              leftSection={<IconHeartFilled size={16} />}
-            >
-              {hasSponsoring
-                ? t("games.sponsor.manageSponsor")
-                : t("games.sponsor.sponsorGame")}
-            </ActionButton>
-            {hasSponsoring && (
-              <Badge
-                size="xs"
-                color="pink"
-                variant="light"
-                leftSection={<IconHeartFilled size={10} />}
-              >
-                {t("games.sponsor.sponsored")}
-              </Badge>
-            )}
-          </Group>
+      <Divider my="xs" />
+      <Group gap="xs" align="center">
+        <IconShare size={22} />
+        <Text size="lg" fw={700}>
+          {t("games.sharing.sectionTitle")}
+        </Text>
+      </Group>
+
+      <Stack gap="lg">
+        {/* Visibility toggle */}
+        <Stack gap={4}>
+          <Switch
+            label={t("games.createModal.publicLabel")}
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.currentTarget.checked)}
+            disabled={readOnly}
+          />
+          <Text size="sm" c="dimmed">
+            {t("games.createModal.publicDescription")}
+          </Text>
+        </Stack>
+        {!isPublic && game?.publicSponsoredApiKeyShareId && (
+          <Text size="xs" c="orange" fw={500}>
+            {t("games.sponsor.privateWarning")}
+          </Text>
         )}
-        {onPrivateShare && (
-          <Group gap="sm" align="center">
-            <ActionButton
-              onClick={onPrivateShare}
-              size="sm"
-              leftSection={<IconLink size={16} />}
-            >
-              {t("games.privateShare.shareLink")}
-            </ActionButton>
-            {hasPrivateShare && (
-              <Badge
+
+        {workshopId && !gameBelongsToWorkshop && (
+          <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
+            {t("games.sharing.publicGameWorkshopHint")}
+          </Alert>
+        )}
+
+        {canShowShareInContext && (
+          <Stack gap="xs">
+            <Divider />
+            <Text size="md" fw={600}>
+              {t("games.sharing.privateShareLink")}
+            </Text>
+            <Text size="sm" c="dimmed">
+              {t("games.sharing.privateShareLinkDescription")}
+            </Text>
+            <PrivateShareSection gameId={gameId!} workshopId={workshopId} />
+          </Stack>
+        )}
+
+        {canShowSponsoring && (
+          <Stack gap="xs">
+            <Divider />
+            <Text size="md" fw={600}>
+              {t("games.sharing.publicSponsoring")}
+            </Text>
+            <Text size="sm" c="dimmed">
+              {t("games.sharing.publicSponsoringDescription")}
+            </Text>
+            <Group gap="sm" align="center">
+              <ActionButton
+                onClick={onSponsor}
                 size="xs"
-                color="accent"
-                variant="light"
-                leftSection={<IconLink size={10} />}
+                leftSection={<IconHeartFilled size={16} />}
               >
-                {t("games.sharing.active")}
-              </Badge>
-            )}
-          </Group>
+                {hasSponsoring
+                  ? t("games.sponsor.manageSponsor")
+                  : t("games.sponsor.sponsorGame")}
+              </ActionButton>
+              {hasSponsoring && (
+                <Badge
+                  size="xs"
+                  color="pink"
+                  variant="light"
+                  leftSection={<IconHeartFilled size={10} />}
+                >
+                  {t("games.sponsor.sponsored")}
+                </Badge>
+              )}
+            </Group>
+          </Stack>
         )}
       </Stack>
     </>

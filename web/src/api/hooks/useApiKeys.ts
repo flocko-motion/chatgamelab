@@ -8,7 +8,7 @@ import type {
   HttpxErrorResponse,
   RoutesApiKeysResponse,
   RoutesCreateApiKeyRequest,
-  RoutesShareRequest,
+  RoutesEnrichedGameShare,
 } from "../generated";
 
 // API Keys hooks
@@ -39,43 +39,6 @@ export function useCreateApiKey() {
   });
 }
 
-export function useShareApiKey() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    { id: string; request: RoutesShareRequest }
-  >({
-    mutationFn: ({ id, request }) =>
-      api.apikeys.sharesCreate(id, request).then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-    },
-    onError: handleApiError,
-  });
-}
-
-export function useUpdateApiKeyName() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
-
-  return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    { id: string; name: string }
-  >({
-    mutationFn: ({ id, name }) =>
-      api.apikeys
-        .apikeysPartialUpdate(id, { name })
-        .then((response) => response.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-    },
-    onError: handleApiError,
-  });
-}
 
 export function useDeleteApiKey() {
   const queryClient = useQueryClient();
@@ -132,6 +95,24 @@ export function useInstitutionApiKeys(institutionId: string) {
   });
 }
 
+// Game shares for a specific API key share
+// context: "personal" = all shares (owner only), "organization" = org/workshop only
+export function useApiKeyGameShares(
+  shareId: string | null,
+  context?: "personal" | "organization",
+) {
+  const api = useRequiredAuthenticatedApi();
+
+  return useQuery<RoutesEnrichedGameShare[], HttpxErrorResponse>({
+    queryKey: [...queryKeys.apiKeyGameShares(shareId ?? ""), context ?? "all"],
+    queryFn: () =>
+      api.apikeys
+        .gameSharesList(shareId!, context ? { context } : undefined)
+        .then((response) => response.data),
+    enabled: !!shareId,
+  });
+}
+
 export function useShareApiKeyWithInstitution() {
   const queryClient = useQueryClient();
   const api = useRequiredAuthenticatedApi();
@@ -142,14 +123,12 @@ export function useShareApiKeyWithInstitution() {
     {
       shareId: string;
       institutionId: string;
-      allowPublicGameSponsoring?: boolean;
     }
   >({
-    mutationFn: ({ shareId, institutionId, allowPublicGameSponsoring }) =>
+    mutationFn: ({ shareId, institutionId }) =>
       api.apikeys
         .sharesCreate(shareId, {
           institutionId,
-          allowPublicGameSponsoring: allowPublicGameSponsoring ?? false,
         })
         .then((response) => response.data),
     onSuccess: (_data, variables) => {
@@ -217,40 +196,4 @@ export function useSetInstitutionFreeUseKey() {
   });
 }
 
-// Update allowPublicGameSponsoring on an existing share (owner only)
-export function useUpdateApiKeyShareSponsoring() {
-  const queryClient = useQueryClient();
-  const api = useRequiredAuthenticatedApi();
 
-  return useMutation<
-    ObjApiKeyShare,
-    HttpxErrorResponse,
-    { shareId: string; allow: boolean; institutionId?: string }
-  >({
-    mutationFn: ({ shareId, allow }) =>
-      api.apikeys
-        .sponsoringPartialUpdate(shareId, { allowPublicGameSponsoring: allow })
-        .then((response) => response.data),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.apiKeys });
-      if (variables.institutionId) {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.institutionApiKeys(variables.institutionId),
-        });
-      }
-    },
-    onError: handleApiError,
-  });
-}
-
-// Available Keys for Game hook
-export function useAvailableKeysForGame(gameId: string | undefined) {
-  const api = useRequiredAuthenticatedApi();
-
-  return useQuery({
-    queryKey: queryKeys.availableKeys(gameId!),
-    queryFn: () =>
-      api.games.availableKeysList(gameId!).then((response) => response.data),
-    enabled: !!gameId,
-  });
-}

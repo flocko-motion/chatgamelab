@@ -11,27 +11,347 @@ import (
 	"github.com/google/uuid"
 )
 
-// ── Private Share Management ────────────────────────────────────────────────
+// ── Game Share Management ─────────────────────────────────────────────────
 
-// PrivateShareStatus is the response for the private share status endpoint.
-type PrivateShareStatus struct {
-	Enabled                       bool       `json:"enabled"`
-	ShareURL                      string     `json:"shareUrl,omitempty"`
-	Token                         string     `json:"token,omitempty"`
-	Remaining                     *int       `json:"remaining"` // null = unlimited
-	PrivateSponsoredApiKeyShareID *uuid.UUID `json:"privateSponsoredApiKeyShareId,omitempty"`
+// GameShareResponse wraps a single game share with its share URL.
+type GameShareResponse struct {
+	obj.GameShare
+	ShareURL string `json:"shareUrl"`
 }
 
-// PrivateShareRequest is the request body for enabling/configuring a private share.
-type PrivateShareRequest struct {
-	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId"` // required to enable
+func toGameShareResponse(gs obj.GameShare) GameShareResponse {
+	return GameShareResponse{
+		GameShare: gs,
+		ShareURL:  "/play/" + gs.Token,
+	}
+}
+
+// CreateGameShareRequest is the request body for creating a share.
+type CreateGameShareRequest struct {
+	SponsorKeyShareID *uuid.UUID `json:"sponsorKeyShareId"` // required for personal shares; ignored for workshop shares
 	MaxSessions       *int       `json:"maxSessions"`       // null = unlimited
+	WorkshopID        *uuid.UUID `json:"workshopId"`        // set to create a workshop share (uses workshop default key)
+	AiQualityTier     *string    `json:"aiQualityTier"`     // null = use source default (workshop tier or system default)
+}
+
+// CreateGameShare godoc
+//
+//	@Summary		Create a game share link
+//	@Description	Creates a share link for a game. For workshop shares, the workshop default key is used automatically.
+//	@Tags			games
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"Game ID (UUID)"
+//	@Param			request	body		CreateGameShareRequest	true	"Share configuration"
+//	@Success		200		{object}	GameShareResponse
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		401		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/shares [post]
+func CreateGameShare(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	var req CreateGameShareRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	var sponsorShareID uuid.UUID
+	var institutionID, workshopID *uuid.UUID
+
+	if req.WorkshopID != nil {
+		// ── Workshop share ──────────────────────────────────────────────
+		// Validate workshop access and get workshop default key
+		workshop, err := db.GetWorkshopByID(r.Context(), user.ID, *req.WorkshopID)
+		if err != nil {
+			httpx.WriteError(w, http.StatusNotFound, "Workshop not found")
+			return
+		}
+
+		// Permission: head/staff can always share; participants need AllowGameSharing
+		userObj, err := db.GetUserByID(r.Context(), user.ID)
+		if err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to load user")
+			return
+		}
+		canEditAll := userObj.Role != nil && (userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff || userObj.Role.Role == obj.RoleAdmin)
+		if !canEditAll {
+			if !workshop.AllowGameSharing {
+				httpx.WriteError(w, http.StatusForbidden, "Game sharing is not enabled for this workshop")
+				return
+			}
+		}
+
+		// Game must belong to this workshop
+		if game.WorkshopID == nil || *game.WorkshopID != *req.WorkshopID {
+			httpx.WriteError(w, http.StatusBadRequest, "Game does not belong to this workshop")
+			return
+		}
+
+		// Reuse existing workshop share if one exists
+		existing, err := db.GetWorkshopGameShare(r.Context(), gameID, *req.WorkshopID)
+		if err == nil {
+			httpx.WriteJSON(w, http.StatusOK, toGameShareResponse(*existing))
+			return
+		}
+
+		// Workshop must have a default API key
+		if workshop.DefaultApiKeyShareID == nil {
+			httpx.WriteError(w, http.StatusBadRequest, "Workshop has no default API key configured")
+			return
+		}
+
+		sponsorShareID = *workshop.DefaultApiKeyShareID
+		workshopID = req.WorkshopID
+		if workshop.Institution != nil {
+			institutionID = &workshop.Institution.ID
+		}
+	} else {
+		// ── Personal / org share ────────────────────────────────────────
+		if req.SponsorKeyShareID == nil {
+			httpx.WriteError(w, http.StatusBadRequest, "sponsorKeyShareId is required")
+			return
+		}
+		sponsorShareID = *req.SponsorKeyShareID
+
+		// Permission: owner can share own game; anyone can share a public game
+		isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == user.ID
+		if !isOwner && !game.Public {
+			httpx.WriteError(w, http.StatusForbidden, "Only the owner can share a non-public game")
+			return
+		}
+
+		// If the selected API key share belongs to an institution, mark this as an org share
+		apiKeyShare, err := db.GetApiKeyShareByID(r.Context(), user.ID, sponsorShareID)
+		if err != nil {
+			httpx.WriteError(w, http.StatusBadRequest, "Invalid API key share")
+			return
+		}
+		if apiKeyShare.Institution != nil {
+			institutionID = &apiKeyShare.Institution.ID
+		}
+	}
+
+	// Create the game share
+	gameShare, err := db.CreateGameShare(r.Context(), user.ID, gameID, sponsorShareID, institutionID, workshopID, req.MaxSessions, req.AiQualityTier)
+	if err != nil {
+		log.Warn("failed to create game share", "game_id", gameID, "error", err)
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create share link: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, toGameShareResponse(*gameShare))
+}
+
+// DeleteGameShareByID godoc
+//
+//	@Summary		Delete a specific game share
+//	@Description	Revokes a specific share link and cleans up guest data.
+//	@Tags			games
+//	@Produce		json
+//	@Param			id			path	string	true	"Game ID (UUID)"
+//	@Param			shareId		path	string	true	"Share ID (UUID)"
+//	@Success		204
+//	@Failure		400	{object}	httpx.ErrorResponse
+//	@Failure		401	{object}	httpx.ErrorResponse
+//	@Failure		403	{object}	httpx.ErrorResponse
+//	@Failure		404	{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/shares/{shareId} [delete]
+func DeleteGameShareByID(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	shareID, err := httpx.PathParamUUID(r, "shareId")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	share, err := db.GetGameShareByID(r.Context(), shareID)
+	if err != nil || share.GameID != gameID {
+		httpx.WriteError(w, http.StatusNotFound, "Share not found")
+		return
+	}
+
+	// Permission check: who can revoke?
+	// - Share creator
+	// - Game owner
+	// - Workshop members with sharing permission (for workshop shares)
+	// - Head/staff of workshop's institution (for workshop shares)
+	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == user.ID
+	isCreator := share.CreatedBy != nil && *share.CreatedBy == user.ID
+	allowed := isOwner || isCreator
+
+	if !allowed && share.WorkshopID != nil {
+		userObj, err := db.GetUserByID(r.Context(), user.ID)
+		if err == nil && userObj.Role != nil {
+			// Head/staff of the workshop's institution
+			if userObj.Role.Institution != nil &&
+				share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
+				(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+				allowed = true
+			}
+			// Workshop member (participant in the same workshop)
+			if !allowed && userObj.Role.Workshop != nil && *share.WorkshopID == userObj.Role.Workshop.ID {
+				allowed = true
+			}
+		}
+	}
+
+	if !allowed {
+		httpx.WriteError(w, http.StatusForbidden, "Not authorized to revoke this share")
+		return
+	}
+
+	if err := db.DeleteGameShare(r.Context(), shareID); err != nil {
+		log.Warn("failed to delete game share", "game_id", gameID, "share_id", shareID, "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to delete share")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// UpdateGameShareRequest is the request body for updating a share.
+type UpdateGameShareRequest struct {
+	MaxSessions   *int    `json:"maxSessions"`   // null = unlimited
+	AiQualityTier *string `json:"aiQualityTier"` // null = use source default
+}
+
+// UpdateGameShare godoc
+//
+//	@Summary		Update a game share
+//	@Description	Updates settings (max sessions) on an existing share link.
+//	@Tags			games
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"Game ID (UUID)"
+//	@Param			shareId	path		string					true	"Share ID (UUID)"
+//	@Param			request	body		UpdateGameShareRequest	true	"Updated settings"
+//	@Success		200		{object}	GameShareResponse
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		401		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		404		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/games/{id}/shares/{shareId} [patch]
+func UpdateGameShare(w http.ResponseWriter, r *http.Request) {
+	gameID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		return
+	}
+
+	shareID, err := httpx.PathParamUUID(r, "shareId")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
+		return
+	}
+
+	user := httpx.UserFromRequest(r)
+
+	var req UpdateGameShareRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	game, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusNotFound, "Game not found")
+		return
+	}
+
+	share, err := db.GetGameShareByID(r.Context(), shareID)
+	if err != nil || share.GameID != gameID {
+		httpx.WriteError(w, http.StatusNotFound, "Share not found")
+		return
+	}
+
+	// Same permission check as delete
+	isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == user.ID
+	isCreator := share.CreatedBy != nil && *share.CreatedBy == user.ID
+	allowed := isOwner || isCreator
+
+	if !allowed && share.WorkshopID != nil {
+		userObj, err := db.GetUserByID(r.Context(), user.ID)
+		if err == nil && userObj.Role != nil {
+			if userObj.Role.Institution != nil &&
+				share.InstitutionID != nil && *share.InstitutionID == userObj.Role.Institution.ID &&
+				(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+				allowed = true
+			}
+			if !allowed && userObj.Role.Workshop != nil && *share.WorkshopID == userObj.Role.Workshop.ID {
+				allowed = true
+			}
+		}
+	}
+
+	if !allowed {
+		httpx.WriteError(w, http.StatusForbidden, "Not authorized to update this share")
+		return
+	}
+
+	updated, err := db.UpdateGameShare(r.Context(), shareID, req.MaxSessions, req.AiQualityTier)
+	if err != nil {
+		log.Warn("failed to update game share", "share_id", shareID, "error", err)
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update share")
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, toGameShareResponse(*updated))
+}
+
+// ── Private Share Status ─────────────────────────────────────────────────
+
+// EnrichedGameShare extends a game share with resolved names and a source label.
+type EnrichedGameShare struct {
+	obj.GameShare
+	ShareURL     string `json:"shareUrl"`
+	Source       string `json:"source"`                 // "workshop", "organization", "personal"
+	WorkshopName string `json:"workshopName,omitempty"` // set for workshop shares
+	GameName     string `json:"gameName,omitempty"`     // set when returned from game-shares endpoint
+}
+
+// PrivateShareStatus returns all shares the requesting user has access to.
+type PrivateShareStatus struct {
+	Shares []EnrichedGameShare `json:"shares"`
 }
 
 // GetPrivateShareStatus godoc
 //
 //	@Summary		Get private share status
-//	@Description	Returns the current private share configuration for a game.
+//	@Description	Returns all share links for a game that the requesting user has access to.
 //	@Tags			games
 //	@Produce		json
 //	@Param			id	path		string	true	"Game ID (UUID)"
@@ -49,176 +369,98 @@ func GetPrivateShareStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := httpx.UserFromRequest(r)
-	g, err := db.GetGameByID(r.Context(), &user.ID, gameID)
+	_, err = db.GetGameByID(r.Context(), &user.ID, gameID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Game not found")
 		return
 	}
 
-	enabled := g.PrivateShareHash != nil && g.PrivateSponsoredApiKeyShareID != nil
-	status := PrivateShareStatus{
-		Enabled:                       enabled,
-		Token:                         stringDeref(g.PrivateShareHash),
-		Remaining:                     g.PrivateShareRemaining,
-		PrivateSponsoredApiKeyShareID: g.PrivateSponsoredApiKeyShareID,
-	}
-	if enabled {
-		status.ShareURL = "/play/" + *g.PrivateShareHash
-	}
-
-	httpx.WriteJSON(w, http.StatusOK, status)
-}
-
-// EnablePrivateShare godoc
-//
-//	@Summary		Enable or configure private share
-//	@Description	Enables private sharing for a game with a sponsored API key and optional session limit.
-//	@Tags			games
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string				true	"Game ID (UUID)"
-//	@Param			request	body		PrivateShareRequest	true	"Share configuration"
-//	@Success		200		{object}	PrivateShareStatus
-//	@Failure		400		{object}	httpx.ErrorResponse
-//	@Failure		401		{object}	httpx.ErrorResponse
-//	@Failure		403		{object}	httpx.ErrorResponse
-//	@Security		BearerAuth
-//	@Router			/games/{id}/private-share [post]
-func EnablePrivateShare(w http.ResponseWriter, r *http.Request) {
-	gameID, err := httpx.PathParamUUID(r, "id")
+	// Load user for role/institution/workshop info
+	userObj, err := db.GetUserByID(r.Context(), user.ID)
 	if err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load user")
 		return
 	}
 
-	user := httpx.UserFromRequest(r)
+	seen := map[uuid.UUID]bool{}
+	var result []EnrichedGameShare
 
-	var req PrivateShareRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
-
-	if req.SponsorKeyShareID == nil {
-		httpx.WriteError(w, http.StatusBadRequest, "sponsorKeyShareId is required")
-		return
-	}
-
-	g, err := db.GetGameByID(r.Context(), &user.ID, gameID)
-	if err != nil {
-		httpx.WriteError(w, http.StatusNotFound, "Game not found")
-		return
-	}
-
-	// Create a game-scoped share from the user's personal share.
-	// This is needed so the guest play flow can resolve the API key with uuid.Nil.
-	gameScopedShareID, err := db.CreatePrivateShareSponsorship(r.Context(), user.ID, gameID, *req.SponsorKeyShareID)
-	if err != nil {
-		log.Warn("failed to create private share sponsorship", "game_id", gameID, "error", err)
-		if appErr, ok := err.(*obj.AppError); ok {
-			httpx.WriteAppError(w, appErr)
-			return
+	// 1. Personal/org shares (created by this user, not in a workshop)
+	personalShares, _ := db.GetGameSharesByGameIDAndCreator(r.Context(), gameID, user.ID)
+	for _, s := range personalShares {
+		if seen[s.ID] {
+			continue
 		}
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to set up private share: "+err.Error())
-		return
-	}
-
-	// Update the game with the game-scoped share ID and session limit
-	g.PrivateSponsoredApiKeyShareID = gameScopedShareID
-	g.PrivateShareRemaining = req.MaxSessions
-
-	if err := db.UpdateGame(r.Context(), user.ID, g); err != nil {
-		if appErr, ok := err.(*obj.AppError); ok {
-			httpx.WriteAppError(w, appErr)
-			return
+		seen[s.ID] = true
+		source := "personal"
+		if s.InstitutionID != nil {
+			source = "organization"
 		}
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update game: "+err.Error())
-		return
+		result = append(result, EnrichedGameShare{
+			GameShare: s,
+			ShareURL:  "/play/" + s.Token,
+			Source:    source,
+		})
 	}
 
-	// Reload to get the generated hash
-	g, _ = db.GetGameByID(r.Context(), &user.ID, gameID)
-
-	enabled := g.PrivateShareHash != nil && g.PrivateSponsoredApiKeyShareID != nil
-	status := PrivateShareStatus{
-		Enabled:                       enabled,
-		Token:                         stringDeref(g.PrivateShareHash),
-		Remaining:                     g.PrivateShareRemaining,
-		PrivateSponsoredApiKeyShareID: g.PrivateSponsoredApiKeyShareID,
-	}
-	if enabled {
-		status.ShareURL = "/play/" + *g.PrivateShareHash
-	}
-
-	httpx.WriteJSON(w, http.StatusOK, status)
-}
-
-// RevokePrivateShare godoc
-//
-//	@Summary		Revoke private share
-//	@Description	Disables private sharing by clearing the share token and sponsor key.
-//	@Tags			games
-//	@Produce		json
-//	@Param			id	path		string	true	"Game ID (UUID)"
-//	@Success		200	{object}	PrivateShareStatus
-//	@Failure		400	{object}	httpx.ErrorResponse
-//	@Failure		401	{object}	httpx.ErrorResponse
-//	@Security		BearerAuth
-//	@Router			/games/{id}/private-share [delete]
-func RevokePrivateShare(w http.ResponseWriter, r *http.Request) {
-	gameID, err := httpx.PathParamUUID(r, "id")
-	if err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid game ID")
-		return
-	}
-
-	user := httpx.UserFromRequest(r)
-
-	g, err := db.GetGameByID(r.Context(), &user.ID, gameID)
-	if err != nil {
-		httpx.WriteError(w, http.StatusNotFound, "Game not found")
-		return
-	}
-
-	// Clean up guest users, sessions, and messages created via this share link
-	guestCount, _ := db.CountGuestUsersByGameID(r.Context(), gameID)
-	if guestCount > 0 {
-		log.Info("revoking private share: cleaning up guest data", "game_id", gameID, "guest_users", guestCount)
-		if err := db.DeleteGuestDataByGameID(r.Context(), gameID); err != nil {
-			log.Warn("failed to clean up guest data on share revoke", "game_id", gameID, "error", err)
-			// Non-fatal — continue with revoke even if cleanup fails
-		} else {
-			log.Info("revoking private share: removed guest data", "game_id", gameID, "guest_users_removed", guestCount)
+	// 2. Org shares (if user is head/staff with an institution)
+	if userObj.Role != nil && userObj.Role.Institution != nil &&
+		(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff || userObj.Role.Role == obj.RoleAdmin) {
+		orgShares, _ := db.GetGameSharesByGameIDAndInstitution(r.Context(), gameID, userObj.Role.Institution.ID)
+		for _, s := range orgShares {
+			if seen[s.ID] {
+				continue
+			}
+			seen[s.ID] = true
+			result = append(result, EnrichedGameShare{
+				GameShare: s,
+				ShareURL:  "/play/" + s.Token,
+				Source:    "organization",
+			})
 		}
 	}
 
-	// Delete the game-scoped share created by EnablePrivateShare
-	if g.PrivateSponsoredApiKeyShareID != nil {
-		if err := db.DeletePrivateShareSponsorship(r.Context(), *g.PrivateSponsoredApiKeyShareID); err != nil {
-			log.Warn("failed to delete private share sponsorship", "game_id", gameID, "share_id", *g.PrivateSponsoredApiKeyShareID, "error", err)
+	// 3. Workshop shares
+	if userObj.Role != nil && userObj.Role.Workshop != nil {
+		// User is currently in a workshop (participant or head/staff in workshop mode)
+		wsShares, _ := db.GetGameSharesByGameIDAndWorkshop(r.Context(), gameID, userObj.Role.Workshop.ID)
+		for _, s := range wsShares {
+			if seen[s.ID] {
+				continue
+			}
+			seen[s.ID] = true
+			result = append(result, EnrichedGameShare{
+				GameShare:    s,
+				ShareURL:     "/play/" + s.Token,
+				Source:       "workshop",
+				WorkshopName: userObj.Role.Workshop.Name,
+			})
+		}
+	}
+	// Head/staff outside workshop mode: show workshop shares from all workshops in their institution
+	if userObj.Role != nil && userObj.Role.Workshop == nil && userObj.Role.Institution != nil &&
+		(userObj.Role.Role == obj.RoleHead || userObj.Role.Role == obj.RoleStaff) {
+		workshops, _ := db.ListWorkshopsForInstitution(r.Context(), userObj.Role.Institution.ID)
+		for _, ws := range workshops {
+			wsShares, _ := db.GetGameSharesByGameIDAndWorkshop(r.Context(), gameID, ws.ID)
+			for _, s := range wsShares {
+				if seen[s.ID] {
+					continue
+				}
+				seen[s.ID] = true
+				result = append(result, EnrichedGameShare{
+					GameShare:    s,
+					ShareURL:     "/play/" + s.Token,
+					Source:       "workshop",
+					WorkshopName: ws.Name,
+				})
+			}
 		}
 	}
 
-	// Clear all private share fields — hash is removed, a new one will be generated on next enable
-	g.PrivateShareHash = nil
-	g.PrivateSponsoredApiKeyShareID = nil
-	g.PrivateShareRemaining = nil
-
-	if err := db.UpdateGame(r.Context(), user.ID, g); err != nil {
-		if appErr, ok := err.(*obj.AppError); ok {
-			httpx.WriteAppError(w, appErr)
-			return
-		}
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to revoke share: "+err.Error())
-		return
+	if result == nil {
+		result = []EnrichedGameShare{}
 	}
 
-	httpx.WriteJSON(w, http.StatusOK, PrivateShareStatus{Enabled: false})
-}
-
-func stringDeref(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
+	httpx.WriteJSON(w, http.StatusOK, PrivateShareStatus{Shares: result})
 }

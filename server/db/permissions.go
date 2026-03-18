@@ -430,6 +430,14 @@ func canAccessWorkshop(ctx context.Context, userID uuid.UUID, operation CRUDOper
 // - game: the game object (nil for create/list operations)
 // - shareToken: optional share token provided by user (for private share links)
 func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperation, game *obj.Game, shareToken *string) error {
+	// Admin can perform any operation on any game
+	if operation != OpCreate {
+		adminUser, _ := GetUserByID(ctx, userID)
+		if adminUser != nil && adminUser.Role != nil && adminUser.Role.Role == obj.RoleAdmin {
+			return nil
+		}
+	}
+
 	switch operation {
 	case OpCreate:
 		// Any authenticated user can create games
@@ -450,17 +458,20 @@ func canAccessGame(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 			return nil
 		}
 
-		// 3. Valid share token grants access
-		if shareToken != nil && game.PrivateShareHash != nil && *shareToken == *game.PrivateShareHash {
-			return nil
+		// 3. Valid share token grants access (checked against game_share table)
+		if shareToken != nil {
+			gs, err := queries().GetGameShareByToken(ctx, *shareToken)
+			if err == nil && gs.GameID == game.ID {
+				return nil
+			}
 		}
 
 		// 4. Workshop members can access workshop games
 		if game.WorkshopID != nil {
 			user, err := GetUserByID(ctx, userID)
 			if err == nil && user.Role != nil {
-				// Participant with role for this specific workshop can read
-				if user.Role.Role == obj.RoleParticipant && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
+				// Participant or individual with role for this specific workshop can read
+				if (user.Role.Role == obj.RoleParticipant || user.Role.Role == obj.RoleIndividual) && user.Role.Workshop != nil && user.Role.Workshop.ID == *game.WorkshopID {
 					return nil
 				}
 				// Head/staff of the workshop's institution can read
@@ -525,15 +536,26 @@ func canAccessGameSession(ctx context.Context, userID uuid.UUID, operation CRUDO
 			return nil
 		}
 
-		// If game belongs to a workshop, user must have read access to that workshop
+		// If game belongs to a workshop, user must have read access to that workshop.
+		// Guest users (created via share tokens) are pre-authorized, so skip this check.
 		if game.WorkshopID.Valid {
-			// Get the workshop to find its institution ID
-			workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
-			if err != nil {
-				return obj.ErrNotFound("workshop not found")
+			isGuest := false
+			if userID != uuid.Nil {
+				appUser, err := queries().GetUserByID(ctx, userID)
+				if err == nil && appUser.PrivateShareID.Valid {
+					isGuest = true
+				}
+			} else {
+				isGuest = true
 			}
-			if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
-				return obj.ErrForbidden("not authorized to play games in this workshop")
+			if !isGuest {
+				workshop, err := queries().GetWorkshopByID(ctx, game.WorkshopID.UUID)
+				if err != nil {
+					return obj.ErrNotFound("workshop not found")
+				}
+				if err := canAccessWorkshop(ctx, userID, OpRead, workshop.InstitutionID, &game.WorkshopID.UUID, uuid.Nil); err != nil {
+					return obj.ErrForbidden("not authorized to play games in this workshop")
+				}
 			}
 		}
 
@@ -703,11 +725,14 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 						return nil
 					}
 				}
-				// Private game with sponsored key share
-				if game.PrivateSponsoredApiKeyShareID.Valid {
-					share, err := queries().GetApiKeyShareByID(ctx, game.PrivateSponsoredApiKeyShareID.UUID)
-					if err == nil && share.ApiKeyID == apiKeyID {
-						return nil
+				// Game share sponsored key (from game_share table)
+				gameShares, gsErr := queries().GetGameSharesByGameID(ctx, *gameID)
+				if gsErr == nil {
+					for _, gs := range gameShares {
+						gsShare, gsShareErr := queries().GetApiKeyShareByID(ctx, gs.ApiKeyShareID)
+						if gsShareErr == nil && gsShare.ApiKeyID == apiKeyID {
+							return nil
+						}
 					}
 				}
 			}
@@ -719,7 +744,7 @@ func canAccessApiKey(ctx context.Context, userID uuid.UUID, operation CRUDOperat
 			shares, err := queries().GetApiKeySharesByApiKeyID(ctx, apiKeyID)
 			if err == nil {
 				for _, share := range shares {
-					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID && share.AllowPublicGameSponsoring {
+					if share.WorkshopID.Valid && share.WorkshopID.UUID == *workshopID {
 						return nil
 					}
 				}
@@ -815,21 +840,6 @@ func canAccessUser(ctx context.Context, userID uuid.UUID, operation CRUDOperatio
 // Exported wrapper around canAccessUser with OpRead.
 func CanReadUser(ctx context.Context, requestingUserID uuid.UUID, targetUserID uuid.UUID) error {
 	return canAccessUser(ctx, requestingUserID, OpRead, targetUserID)
-}
-
-// canManageUserRole checks if user can manage (set/remove) roles
-// Currently only admins can manage roles
-func canManageUserRole(ctx context.Context, userID uuid.UUID) error {
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		return obj.ErrNotFound("user not found")
-	}
-	// Only admin can manage roles
-	if user.Role == nil || user.Role.Role != obj.RoleAdmin {
-		return obj.ErrForbidden("only admins can manage user roles")
-	}
-
-	return nil
 }
 
 // canAccessInvite checks if user can perform a CRUD operation on invites

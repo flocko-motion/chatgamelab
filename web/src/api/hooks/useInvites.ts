@@ -4,16 +4,6 @@ import { useRequiredAuthenticatedApi } from "../useAuthenticatedApi";
 import { queryKeys } from "../queryKeys";
 import type { RoutesInviteResponse, HttpxErrorResponse } from "../generated";
 
-// Invites hooks
-export function useInvites() {
-  const api = useRequiredAuthenticatedApi();
-
-  return useQuery<RoutesInviteResponse[], HttpxErrorResponse>({
-    queryKey: queryKeys.invites,
-    queryFn: () => api.invites.invitesList().then((response) => response.data),
-  });
-}
-
 export function useInstitutionInvites(institutionId: string | undefined) {
   const api = useRequiredAuthenticatedApi();
 

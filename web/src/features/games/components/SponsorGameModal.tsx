@@ -47,7 +47,6 @@ export function SponsorGameModal({
 
   const isSponsored = !!game?.publicSponsoredApiKeyShareId;
 
-  // Filter to only show shares with public sponsoring enabled.
   // Include both personal shares and institution-shared keys (for head/staff).
   // Deduplicate by share ID.
   const keys = apiKeys?.apiKeys ?? [];
@@ -56,7 +55,7 @@ export function SponsorGameModal({
   const seenShareIds = new Set<string>();
 
   for (const share of personalShares) {
-    if (!share.allowPublicGameSponsoring || !share.id) continue;
+    if (!share.id) continue;
     if (seenShareIds.has(share.id)) continue;
     const apiKey = keys.find((k) => k.id === share.apiKeyId);
     if (apiKey?.lastUsageSuccess === false) continue;
@@ -65,7 +64,7 @@ export function SponsorGameModal({
   }
 
   for (const share of (institutionKeys ?? [])) {
-    if (!share.allowPublicGameSponsoring || !share.id) continue;
+    if (!share.id) continue;
     if (seenShareIds.has(share.id)) continue;
     if (share.apiKey?.lastUsageSuccess === false) continue;
     seenShareIds.add(share.id);

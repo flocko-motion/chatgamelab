@@ -7,6 +7,7 @@ import (
 
 	"cgl/api/httpx"
 	"cgl/db"
+	"cgl/log"
 	"cgl/obj"
 
 	"github.com/google/uuid"
@@ -23,15 +24,10 @@ type ShareRequest struct {
 	UserID        *uuid.UUID `json:"userId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
-	AllowPublic   bool       `json:"allowPublicGameSponsoring"`
 }
 
 type UpdateApiKeyRequest struct {
 	Name *string `json:"name,omitempty"`
-}
-
-type UpdateApiKeyShareRequest struct {
-	AllowPublicGameSponsoring *bool `json:"allowPublicGameSponsoring"`
 }
 
 type ApiKeyInfoResponse struct {
@@ -168,6 +164,83 @@ func GetApiKeyByID(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// GetApiKeyGameShares godoc
+//
+//	@Summary		Get game shares for API key share
+//	@Description	Returns game share links that use this API key share, enriched with game name and context.
+//	@Description	Use ?context=personal to see all shares (requires key ownership).
+//	@Description	Use ?context=organization to see only org/workshop shares.
+//	@Tags			apikeys
+//	@Produce		json
+//	@Param			id		path		string	true	"API Key Share ID (UUID)"
+//	@Param			context	query		string	false	"Filter context: 'personal' (all, owner only) or 'organization' (org/workshop only)"
+//	@Success		200		{array}		EnrichedGameShare
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		401		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/apikeys/{id}/game-shares [get]
+func GetApiKeyGameShares(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+	shareID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
+		return
+	}
+
+	queryContext := r.URL.Query().Get("context") // "personal" or "organization"
+
+	// Verify access to this share
+	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusForbidden, "Not authorized to view this share")
+		return
+	}
+
+	// Personal context requires key ownership
+	if queryContext == "personal" && share.ApiKey.UserID != user.ID {
+		httpx.WriteError(w, http.StatusForbidden, "Only the key owner can view personal shares")
+		return
+	}
+
+	// Get game shares for all shares of this API key
+	gameShares, err := db.GetGameSharesWithGameByApiKeyID(r.Context(), share.ApiKeyID)
+	if err != nil {
+		log.Warn("failed to get game shares for api key", "api_key_id", share.ApiKeyID, "error", err)
+		httpx.WriteJSON(w, http.StatusOK, []EnrichedGameShare{})
+		return
+	}
+
+	result := make([]EnrichedGameShare, 0, len(gameShares))
+	for _, gs := range gameShares {
+		source := "personal"
+		workshopName := ""
+		if gs.WorkshopID != nil {
+			source = "workshop"
+			if name, err := db.GetWorkshopName(r.Context(), *gs.WorkshopID); err == nil {
+				workshopName = name
+			}
+		} else if gs.InstitutionID != nil {
+			source = "organization"
+		}
+
+		// In organization context, skip personal shares
+		if queryContext == "organization" && source == "personal" {
+			continue
+		}
+
+		result = append(result, EnrichedGameShare{
+			GameShare:    gs.GameShare,
+			ShareURL:     "/play/" + gs.Token,
+			Source:       source,
+			WorkshopName: workshopName,
+			GameName:     gs.GameName,
+		})
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, result)
+}
+
 // ShareApiKey godoc
 //
 //	@Summary		Share API key
@@ -203,7 +276,7 @@ func ShareApiKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newShareID, err := db.CreateApiKeyShare(r.Context(), user.ID, shareID, req.UserID, req.WorkshopID, req.InstitutionID, req.AllowPublic)
+	newShareID, err := db.CreateApiKeyShare(r.Context(), user.ID, shareID, req.UserID, req.WorkshopID, req.InstitutionID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to share: "+err.Error())
 		return
@@ -251,57 +324,6 @@ func UpdateApiKey(w http.ResponseWriter, r *http.Request) {
 	if req.Name != nil {
 		if err := db.UpdateApiKeyName(r.Context(), user.ID, shareID, *req.Name); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update: "+err.Error())
-			return
-		}
-	}
-
-	share, err := db.GetApiKeyShareByID(r.Context(), user.ID, shareID)
-	if err != nil {
-		httpx.WriteError(w, http.StatusInternalServerError, "Failed to load updated share: "+err.Error())
-		return
-	}
-
-	httpx.WriteJSON(w, http.StatusOK, share)
-}
-
-// UpdateApiKeyShare godoc
-//
-//	@Summary		Update API key share
-//	@Description	Updates properties of an API key share (e.g. allowPublicGameSponsoring). Owner only.
-//	@Tags			apikeys
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		string					true	"Share ID (UUID)"
-//	@Param			request	body		UpdateApiKeyShareRequest	true	"Update request"
-//	@Success		200		{object}	obj.ApiKeyShare
-//	@Failure		400		{object}	httpx.ErrorResponse	"Invalid request"
-//	@Failure		401		{object}	httpx.ErrorResponse	"Unauthorized"
-//	@Failure		403		{object}	httpx.ErrorResponse	"Forbidden"
-//	@Failure		500		{object}	httpx.ErrorResponse
-//	@Security		BearerAuth
-//	@Router			/apikeys/{id}/sponsoring [patch]
-func UpdateApiKeyShare(w http.ResponseWriter, r *http.Request) {
-	user := httpx.UserFromRequest(r)
-
-	shareID, err := httpx.PathParamUUID(r, "id")
-	if err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid share ID")
-		return
-	}
-
-	var req UpdateApiKeyShareRequest
-	if err := httpx.ReadJSON(r, &req); err != nil {
-		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
-		return
-	}
-
-	if req.AllowPublicGameSponsoring != nil {
-		if err := db.UpdateApiKeyShareAllowPublicGameSponsoring(r.Context(), user.ID, shareID, *req.AllowPublicGameSponsoring); err != nil {
-			if httpErr, ok := err.(*obj.HTTPError); ok {
-				httpx.WriteHTTPError(w, httpErr)
-				return
-			}
-			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update share: "+err.Error())
 			return
 		}
 	}

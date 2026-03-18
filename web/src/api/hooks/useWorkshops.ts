@@ -115,6 +115,7 @@ export function useUpdateWorkshop() {
       aiQualityTier?: string;
       promptConstraints?: string;
       isPaused?: boolean;
+      allowGameSharing?: boolean;
     }) => {
       const response = await api.workshops.workshopsPartialUpdate(id, {
         name: data.name,
@@ -126,6 +127,7 @@ export function useUpdateWorkshop() {
         aiQualityTier: data.aiQualityTier,
         promptConstraints: data.promptConstraints,
         isPaused: data.isPaused ?? false,
+        allowGameSharing: data.allowGameSharing ?? false,
       });
       return response.data;
     },
@@ -260,22 +262,84 @@ export function useGetParticipantToken() {
 }
 
 /**
- * Hook to remove a participant from a workshop (soft-delete)
+ * Hook to remove a member from a workshop.
+ * Permanent members (participants) are soft-deleted.
+ * Non-permanent members (individuals/visiting head/staff) have their active workshop cleared.
  */
 export function useRemoveParticipant() {
   const api = useRequiredAuthenticatedApi();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (participantId: string) => {
-      await api.users.usersDelete(participantId);
+    mutationFn: async ({
+      participantId,
+      workshopId,
+      permanent,
+    }: {
+      participantId: string;
+      workshopId: string;
+      permanent: boolean;
+    }) => {
+      if (permanent) {
+        await api.users.usersDelete(participantId);
+      } else {
+        await api.workshops.membersDelete(workshopId, participantId);
+      }
     },
     onSuccess: () => {
-      // Invalidate workshop queries to refresh participant list
-      // This covers workshopsByInstitution queries (Orga -> Workshops view)
       queryClient.invalidateQueries({ queryKey: queryKeys.workshops });
-      // This covers single workshop queries (Workshop Settings in workshop mode)
       queryClient.invalidateQueries({ queryKey: ["workshop"] });
+    },
+  });
+}
+
+/**
+ * Hook to invite a registered user to a workshop by email
+ */
+export function useCreateWorkshopEmailInvite() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { workshopId: string; email: string }) => {
+      const response = await api.invites.workshopEmailCreate({
+        workshopId: data.workshopId,
+        email: data.email,
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workshop(variables.workshopId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.invites });
+    },
+  });
+}
+
+/**
+ * Hook to directly add an org individual to a workshop
+ */
+export function useAddMemberToWorkshop() {
+  const api = useRequiredAuthenticatedApi();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { workshopId: string; userId: string }) => {
+      const response = await api.workshops.membersCreate(data.workshopId, {
+        userId: data.userId,
+      });
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["workshops"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.workshop(variables.workshopId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["institution-members"],
+      });
     },
   });
 }

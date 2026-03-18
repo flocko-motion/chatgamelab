@@ -229,7 +229,7 @@ func (u *UserClient) makeRequest(method, endpoint string, payload interface{}, o
 		return fmt.Errorf("failed to read response: %w", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -276,6 +276,14 @@ func (u *UserClient) Delete(endpoint string) error {
 func (u *UserClient) GetInvitesIncoming() ([]obj.UserRoleInvite, error) {
 	u.t.Helper()
 	var invites []obj.UserRoleInvite
+	err := u.Get("invites", &invites)
+	return invites, err
+}
+
+// GetInvitesIncomingDetailed returns the user's incoming invites with full details (workshop/institution names)
+func (u *UserClient) GetInvitesIncomingDetailed() ([]routes.InviteResponse, error) {
+	u.t.Helper()
+	var invites []routes.InviteResponse
 	err := u.Get("invites", &invites)
 	return invites, err
 }
@@ -643,7 +651,7 @@ func (u *UserClient) consumeMessageStream(messageID string) (*StreamResult, erro
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
@@ -885,7 +893,7 @@ func (u *UserClient) GetMessageAudio(messageID string) ([]byte, error) {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1126,17 +1134,6 @@ func PrintJSON(t *testing.T, label string, v interface{}) {
 	t.Logf("%s: %s", label, string(data))
 }
 
-// EnableShareSponsoring enables AllowPublicGameSponsoring on an API key share (composable high-level API)
-func (u *UserClient) EnableShareSponsoring(shareID string) (obj.ApiKeyShare, error) {
-	u.t.Helper()
-	allowPublic := true
-	var result obj.ApiKeyShare
-	err := u.Patch("apikeys/"+shareID+"/sponsoring", routes.UpdateApiKeyShareRequest{
-		AllowPublicGameSponsoring: &allowPublic,
-	}, &result)
-	return result, err
-}
-
 // SetGameSponsor sets a public sponsorship on a game using an API key share (composable high-level API)
 // Returns the updated game with the sponsor share ID set.
 func (u *UserClient) SetGameSponsor(gameID string, shareID string) (obj.Game, error) {
@@ -1195,7 +1192,7 @@ func (u *UserClient) GetGameYAML(gameID string) (string, error) {
 		return "", err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return "", fmt.Errorf("api error (%d): %s", resp.StatusCode, string(body))
 	}
 
@@ -1218,15 +1215,15 @@ func (u *UserClient) ListGamesWithSearch(search string) ([]obj.Game, error) {
 	return result, err
 }
 
-// EnablePrivateShare enables private sharing for a game (composable high-level API)
-func (u *UserClient) EnablePrivateShare(gameID string, sponsorShareID string, maxSessions *int) (routes.PrivateShareStatus, error) {
+// CreateGameShare creates a personal/org share for a game (composable high-level API)
+func (u *UserClient) CreateGameShare(gameID string, sponsorShareID string, maxSessions *int) (routes.GameShareResponse, error) {
 	u.t.Helper()
 	shareUUID, err := uuid.Parse(sponsorShareID)
 	if err != nil {
-		return routes.PrivateShareStatus{}, fmt.Errorf("invalid sponsorShareID: %w", err)
+		return routes.GameShareResponse{}, fmt.Errorf("invalid sponsorShareID: %w", err)
 	}
-	var result routes.PrivateShareStatus
-	err = u.Post("games/"+gameID+"/private-share", routes.PrivateShareRequest{
+	var result routes.GameShareResponse
+	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
 		SponsorKeyShareID: &shareUUID,
 		MaxSessions:       maxSessions,
 	}, &result)
@@ -1241,12 +1238,44 @@ func (u *UserClient) GetPrivateShareStatus(gameID string) (routes.PrivateShareSt
 	return result, err
 }
 
-// RevokePrivateShare revokes private sharing for a game (composable high-level API)
-func (u *UserClient) RevokePrivateShare(gameID string) (routes.PrivateShareStatus, error) {
+// DeleteGameShare deletes a specific game share by ID (composable high-level API)
+func (u *UserClient) DeleteGameShare(gameID string, shareID string) error {
 	u.t.Helper()
-	var result routes.PrivateShareStatus
-	err := u.makeRequest("DELETE", "games/"+gameID+"/private-share", nil, &result)
+	return u.makeRequest("DELETE", "games/"+gameID+"/shares/"+shareID, nil, nil)
+}
+
+// CreateWorkshopGameShare creates a workshop share for a game (composable high-level API)
+func (u *UserClient) CreateWorkshopGameShare(gameID string, workshopID string, maxSessions *int) (routes.GameShareResponse, error) {
+	u.t.Helper()
+	wsUUID, err := uuid.Parse(workshopID)
+	if err != nil {
+		return routes.GameShareResponse{}, fmt.Errorf("invalid workshopID: %w", err)
+	}
+	var result routes.GameShareResponse
+	err = u.Post("games/"+gameID+"/shares", routes.CreateGameShareRequest{
+		WorkshopID:  &wsUUID,
+		MaxSessions: maxSessions,
+	}, &result)
 	return result, err
+}
+
+// InviteToWorkshopByEmail creates a targeted workshop invite by email
+func (u *UserClient) InviteToWorkshopByEmail(workshopID, email string) (obj.UserRoleInvite, error) {
+	u.t.Helper()
+	var result obj.UserRoleInvite
+	err := u.Post("invites/workshop/email", routes.CreateWorkshopEmailInviteRequest{
+		WorkshopID: workshopID,
+		Email:      email,
+	}, &result)
+	return result, err
+}
+
+// AddMemberToWorkshop directly adds an org individual to a workshop
+func (u *UserClient) AddMemberToWorkshop(workshopID, userID string) error {
+	u.t.Helper()
+	return u.Post("workshops/"+workshopID+"/members", routes.AddMemberToWorkshopRequest{
+		UserID: userID,
+	}, nil)
 }
 
 // GuestGetGameInfo returns game info via a share token (composable high-level API)
@@ -1373,7 +1402,7 @@ func consumeMessageStreamNoAuth(t *testing.T, messageID string) (*StreamResult, 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("stream request failed with status %d", resp.StatusCode)
 	}
 
@@ -1387,6 +1416,19 @@ func AssertEqual(t *testing.T, expected, actual interface{}, msg string) {
 	if fmt.Sprintf("%v", expected) != fmt.Sprintf("%v", actual) {
 		t.Errorf("%s: expected %v, got %v", msg, expected, actual)
 	}
+}
+
+// GetApiKeyGameShares returns game shares for a specific API key share.
+// context: "personal" (all, owner only), "organization" (org/workshop only), or "" (no filter).
+func (u *UserClient) GetApiKeyGameShares(shareID string, context string) ([]routes.EnrichedGameShare, error) {
+	u.t.Helper()
+	var result []routes.EnrichedGameShare
+	path := "apikeys/" + shareID + "/game-shares"
+	if context != "" {
+		path += "?context=" + context
+	}
+	err := u.Get(path, &result)
+	return result, err
 }
 
 // AssertNotEmpty checks if a value is not empty

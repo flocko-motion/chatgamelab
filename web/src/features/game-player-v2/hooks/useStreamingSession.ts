@@ -575,7 +575,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
       if (!state.sessionId || state.isWaitingForResponse) return;
 
       const displayText =
-        input.message || (input.audioBase64 ? "\uD83C\uDFA4" : "");
+        input.message || "";
 
       const playerMessage: SceneMessage = {
         id: crypto.randomUUID(),

@@ -12,16 +12,13 @@ export { queryKeys } from "../queryKeys";
 export {
   useApiKeys,
   useCreateApiKey,
-  useShareApiKey,
-  useUpdateApiKeyName,
   useDeleteApiKey,
   useSetDefaultApiKey,
   useInstitutionApiKeys,
+  useApiKeyGameShares,
   useShareApiKeyWithInstitution,
   useRemoveInstitutionApiKeyShare,
   useSetInstitutionFreeUseKey,
-  useUpdateApiKeyShareSponsoring,
-  useAvailableKeysForGame,
 } from "./useApiKeys";
 
 // Games
@@ -31,9 +28,7 @@ export {
   useCreateGame,
   useUpdateGame,
   useDeleteGame,
-  useCloneGame,
   useExportGameYaml,
-  useImportGameYaml,
   useSponsorGame,
   useRemoveGameSponsor,
   useFavoriteGames,
@@ -41,37 +36,32 @@ export {
   useRemoveFavorite,
   useApiKeyStatus,
   usePrivateShareStatus,
-  useEnablePrivateShare,
+  useCreateGameShare,
   useRevokePrivateShare,
+  useUpdateGameShare,
   type PrivateShareStatus,
+  type EnrichedGameShare,
   type UseGamesParams,
 } from "./useGames";
 
 // Sessions
 export {
-  useGameSessions,
   useUserSessions,
   useGameSessionMap,
-  useCreateGameSession,
   useDeleteSession,
   type UseUserSessionsParams,
 } from "./useSessions";
 
 // Users
 export {
-  useUsers,
   useCurrentUser,
   useUserStats,
-  useUser,
   useUpdateUser,
-  useUpdateUserLanguage,
-  useCreateUser,
 } from "./useUsers";
 
-// System (platforms, roles, settings, version)
+// System (platforms, settings, version)
 export {
   usePlatforms,
-  useRoles,
   useSystemSettings,
   useUpdateSystemSettings,
   useSetSystemFreeUseKey,
@@ -80,7 +70,6 @@ export {
 
 // Invites
 export {
-  useInvites,
   useInstitutionInvites,
   useAllInvites,
   useRevokeInvite,
@@ -98,6 +87,8 @@ export {
   useUpdateParticipant,
   useRemoveParticipant,
   useGetParticipantToken,
+  useCreateWorkshopEmailInvite,
+  useAddMemberToWorkshop,
 } from "./useWorkshops";
 
 // Workshop Events (SSE)

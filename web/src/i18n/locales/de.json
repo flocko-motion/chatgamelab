@@ -240,7 +240,8 @@
         "title": "Spiel neu starten"
       },
       "title": "Alle Spiele",
-      "unfavorite": "Aus Favoriten entfernen"
+      "unfavorite": "Aus Favoriten entfernen",
+      "workshop": "Workshop / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,16 +286,24 @@
       "platform": "Plattform",
       "setDefault": "Als Standard festlegen",
       "shares": {
+        "context": {
+          "organization": "Organisation",
+          "personal": "Persönlich",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Spiel-Freigabelinks",
         "goToOrg": "Verwalten",
         "noOrgShares": "Nicht mit einer Organisation geteilt",
         "noSponsorships": "Keine Spiel-Sponsorings",
         "orgShares": "Organisations-Freigaben",
         "privateShares": "Private Einladungslinks",
-        "remaining": "{{count}} verbleibend",
+        "remaining": "{{count}} Nutzungen verbleibend",
         "removeSponsor": "Sponsoring entfernen",
+        "revokeGameShare": "Freigabelink widerrufen",
         "revokePrivateShare": "Einladungslink widerrufen",
         "sponsorships": "Spiel-Sponsorings",
         "toggle": "Freigaben \u0026 Sponsorings",
+        "unlimited": "Unbegrenzte Nutzungen",
         "unknownGame": "Unbekanntes Spiel",
         "unknownOrg": "Unbekannte Organisation",
         "unknownUser": "Unbekannter Benutzer",
@@ -448,18 +457,22 @@
       "badges": {
         "myGame": "Mein Spiel",
         "public": "Öffentlich",
-        "workshop": "Workshop"
+        "workshop": "Workshop-Spiel"
       },
       "createButton": "Spiel erstellen",
       "createModal": {
         "descriptionPlaceholder": "Worum geht es in deinem Spiel?",
         "namePlaceholder": "z.B. Weltraumabenteuer",
-        "publicDescription": "Öffentliche Spiele sind für alle sichtbar.",
+        "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
         "title": "Neues Spiel erstellen"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bist dabei, ein Spiel zu löschen, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "moderatorActionTitle": "Spiel eines Teilnehmers löschen",
+        "moderatorActionWarning": "Dieses Spiel gehört einem Teilnehmer in deinem Workshop. Das Löschen entfernt es dauerhaft für diese Person. Dies kann nicht rückgängig gemacht werden.",
         "message": "Möchtest du \"{{name}}\" wirklich löschen?",
         "title": "Spiel löschen",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
@@ -479,6 +492,9 @@
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
       },
       "editModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bearbeitest ein Spiel, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "gameDesignSection": "Spieldesign",
         "title": "Spiel bearbeiten",
         "unsavedChanges": {
           "discard": "Änderungen verwerfen",
@@ -519,6 +535,8 @@
         "enable": "Freigabelink erstellen",
         "loading": "Lade Freigabestatus...",
         "loadingKeys": "Lade API-Schlüssel...",
+        "aiQualityTier": "KI-Qualität",
+        "aiQualityTierDescription": "Wähle die KI-Modellqualität für Gäste, die diesen Freigabelink nutzen.",
         "maxSessions": "Max. Sitzungen",
         "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
         "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",
@@ -529,11 +547,35 @@
         "shareLink": "Freigabelink",
         "title": "Privater Freigabelink",
         "unlimited": "Unbegrenzt",
-        "update": "Freigabelink aktualisieren"
+        "unlimitedSessions": "Unbegrenzte Sitzungen",
+        "update": "Freigabelink aktualisieren",
+        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der Standard-API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "workshopShare": "Workshop-Freigabe",
+        "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
+        "personalShare": "Dein privater Freigabelink",
+        "personalShareDescription": "Dein persönlicher Freigabelink - Gäste spielen mit deinem gewählten API-Schlüssel.",
+        "orgShareDescription": "Organisations-Freigabelink - Gäste spielen mit dem API-Schlüssel der Organisation.",
+        "createModalTitle": "Privaten Freigabelink erstellen",
+        "editModalTitle": "Privaten Freigabelink bearbeiten",
+        "orgKey": "Organisation",
+        "sourceWorkshop": "Workshop",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
+        "workshopSubsection": "Workshop-Freigabelink",
+        "personalOrgSubsection": "Persönlicher / Organisations-Freigabelink",
+        "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
+        "personalCreateHint": "Erstelle einen privaten Link, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
+        "noPersonalShare": "Es gibt keinen persönlichen oder Organisations-Freigabelink. Du kannst einen außerhalb des Workshops erstellen."
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Teilen \u0026 Sponsoring"
+        "sectionTitle": "Freigabeoptionen",
+        "sectionTitleShareOnly": "Freigabeoptionen",
+        "privateShareLink": "Privater Freigabelink",
+        "privateShareLinkDescription": "Private Freigabelinks können mit anderen geteilt werden. Damit kann jeder das Spiel anonym ohne eigenes Nutzerkonto spielen. Es muss ein API-Schlüssel ausgewählt werden, der für die Kosten aufkommt.",
+        "publicGameWorkshopHint": "Dies ist ein öffentliches Spiel und nicht Teil Ihres Workshops. Freigabeoptionen sind für öffentliche Spiele im Workshop-Modus nicht verfügbar.",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten."
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -859,6 +901,7 @@
         "share": "Teilen",
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "showDetails": "Details anzeigen",
         "title": "Organisations-API-Schlüssel"
       },
       "autoShare": {
@@ -946,6 +989,8 @@
         "inviteUsage": "Nutzung",
         "isPaused": "Workshop pausieren",
         "isPausedHint": "Wenn pausiert, sehen Teilnehmer eine gesperrte Ansicht und können nicht mit Spielen interagieren",
+        "allowGameSharing": "Spielfreigabe erlauben",
+        "allowGameSharingHint": "Wenn aktiviert, können Teilnehmer Freigabelinks für ihre Spiele mit dem API-Schlüssel des Workshops erstellen",
         "joined": "Beigetreten",
         "linkCopied": "Link kopiert",
         "linkCopiedMessage": "Der Einladungslink wurde in die Zwischenablage kopiert.",
@@ -974,6 +1019,7 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
+        "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -988,7 +1034,21 @@
         "title": "Workshops",
         "unpause": "Workshop fortsetzen",
         "usedCount": "{{count}} Nutzungen",
-        "viewInviteLink": "Einladungslink anzeigen"
+        "viewInviteLink": "Einladungslink anzeigen",
+        "inviteByEmail": "Per E-Mail einladen",
+        "inviteByEmailTitle": "Benutzer zum Workshop einladen",
+        "inviteByEmailDescription": "Gib die E-Mail-Adresse eines registrierten Benutzers ein, um ihn zu diesem Workshop einzuladen. Die Einladung erscheint in seinem Dashboard.",
+        "inviteByEmailSuccess": "Einladung gesendet",
+        "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
+        "addIndividual": "Organisationsmitglied hinzufügen",
+        "addIndividualTitle": "Person zum Workshop hinzufügen",
+        "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
+        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten - sie werden hier nicht aufgeführt.",
+        "addIndividualSuccess": "Mitglied hinzugefügt",
+        "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
+        "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
+        "addToWorkshop": "Zum Workshop hinzufügen",
+        "noIndividuals": "Keine einzelnen Benutzer in dieser Organisation."
       }
     },
     "name": "Name",
@@ -1005,7 +1065,9 @@
       "empty": "Keine neuen Benachrichtigungen.",
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "inviteToJoin": "Organisations-Einladung",
-      "title": "Benachrichtigungen"
+      "title": "Benachrichtigungen",
+      "workshopInvite": "Workshop-Einladung",
+      "workshopInviteDescription": "Sie wurden eingeladen, diesem Workshop beizutreten."
     },
     "play": {
       "cloneGame": "In meine Spiele kopieren",
@@ -1239,6 +1301,14 @@
       "currentWorkshop": "Aktueller Workshop",
       "notInWorkshopMode": "Du bist nicht im Workshop-Modus. Bitte betrete zuerst einen Workshop.",
       "title": "Workshop-Einstellungen"
+    },
+    "infoModal": {
+      "body": "Du hast den Workshop-Modus betreten. In diesem Modus ist alles, was du tust, mit diesem Workshop verknüpft - erstellte Spiele, Spielsitzungen und geteilte Links.\n\nDu kannst den Modus jederzeit verlassen. Das Verlassen beendet den Workshop nicht und entfernt nichts, was du erstellt hast.",
+      "dontShowAgain": "Nicht mehr anzeigen",
+      "gotIt": "Verstanden",
+      "headStaffNote": "Du kannst diesem Workshop jederzeit über die Workshop-Liste deiner Organisation erneut beitreten.",
+      "individualNote": "Um nach dem Verlassen erneut beizutreten, benötigst du eine neue Einladung von den Workshop-Organisatoren.",
+      "title": "Willkommen bei {{name}}"
     },
     "title": "Mein Workshop",
     "you": "Du"

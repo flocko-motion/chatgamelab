@@ -20,15 +20,12 @@ func TestApiKeyCascadePrivateShareSuite(t *testing.T) {
 }
 
 // setupSponsoredGameWithPrivateShare creates a user, API key, game, enables sponsoring,
-// sets the game as public with a sponsor, and enables a private share link.
+// sets the game as public with a sponsor, and creates a private share link.
 // Returns (user, gameID, shareID, privateShareToken).
 func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(prefix string) (*testutil.UserClient, string, string, string) {
 	user := s.CreateUser(prefix)
 	keyShare := Must(user.AddApiKey("mock-"+prefix, prefix+" Key", "mock"))
 	shareID := keyShare.ID.String()
-
-	// Enable sponsoring on the key
-	Must(user.EnableShareSponsoring(shareID))
 
 	// Upload game and make it public
 	game := Must(user.UploadGame("alien-first-contact"))
@@ -39,12 +36,11 @@ func (s *ApiKeyCascadePrivateShareTestSuite) setupSponsoredGameWithPrivateShare(
 	// Set the key as sponsor for the game
 	Must(user.SetGameSponsor(gameID, shareID))
 
-	// Enable private share link using the same key
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	s.True(status.Enabled, "private share should be enabled")
-	s.NotEmpty(status.Token, "share token should not be empty")
+	// Create private share link using the same key
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
+	s.NotEmpty(created.Token, "share token should not be empty")
 
-	return user, gameID, shareID, status.Token
+	return user, gameID, shareID, created.Token
 }
 
 // TestDeleteSponsorKeyDisablesPrivateShare verifies that deleting the API key
@@ -62,10 +58,10 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyDisablesPrivate
 	MustSucceed(user.DeleteApiKey(shareID, true))
 	s.T().Logf("Deleted sponsor API key")
 
-	// Private share should now be disabled
+	// Private share should now be gone
 	status := Must(user.GetPrivateShareStatus(gameID))
-	s.False(status.Enabled, "private share should be disabled after sponsor key deletion")
-	s.T().Logf("Private share correctly disabled")
+	s.Len(status.Shares, 0, "shares should be empty after sponsor key deletion")
+	s.T().Logf("Private share correctly removed")
 
 	// Guest should no longer be able to access the game via token
 	_, err := pub.GuestGetGameInfo(token)
@@ -92,10 +88,10 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestDeleteSponsorKeyAlsoRemovesPubl
 	s.Nil(game.PublicSponsoredApiKeyShareID, "game should not have sponsor after key deletion")
 	s.T().Logf("Public sponsorship correctly removed")
 
-	// Private share should also be disabled
+	// Private share should also be gone
 	status := Must(user.GetPrivateShareStatus(gameID))
-	s.False(status.Enabled, "private share should be disabled")
-	s.T().Logf("Private share correctly disabled")
+	s.Len(status.Shares, 0, "shares should be empty after sponsor key deletion")
+	s.T().Logf("Private share correctly removed")
 }
 
 // TestGuestSessionFailsAfterSponsorKeyDeletion verifies that a guest cannot
@@ -127,15 +123,13 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPr
 	keyShare := Must(user.AddApiKey("mock-cascade-noaff", "Key", "mock"))
 	shareID := keyShare.ID.String()
 
-	Must(user.EnableShareSponsoring(shareID))
-
 	game := Must(user.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
 	game.Public = true
 	Must(user.UpdateGame(gameID, game))
 	Must(user.SetGameSponsor(gameID, shareID))
-	status := Must(user.EnablePrivateShare(gameID, shareID, nil))
-	s.True(status.Enabled)
+	created := Must(user.CreateGameShare(gameID, shareID, nil))
+	s.NotEmpty(created.Token)
 
 	// Non-cascade delete of the share — the underlying API key may still exist
 	// but the share used for sponsoring is removed
@@ -146,5 +140,5 @@ func (s *ApiKeyCascadePrivateShareTestSuite) TestNonCascadeDeleteDoesNotAffectPr
 
 	// Check private share status
 	psStatus := Must(user.GetPrivateShareStatus(gameID))
-	s.T().Logf("Private share enabled after non-cascade delete: %v", psStatus.Enabled)
+	s.T().Logf("Shares after non-cascade delete: %d", len(psStatus.Shares))
 }
