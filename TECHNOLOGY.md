@@ -1,4 +1,4 @@
-# ChatGameLab — Understanding the Technology behind
+# ChatGameLab — How the AI Game Engine Works
 
 This document describes how the AI game engine works — from session creation to the per-action game loop.
 
@@ -6,7 +6,7 @@ Before diving into the details of how Chat Game Lab works internally, we need to
 
 **LLM**
 
-A LLM - or *large language Model* - is the technology behind popular products like *ChatGPT*. Some people call it *AI* - how well that term fits is a matter of which [definition](https://en.wikipedia.org/wiki/Intelligence) of *intelligence* is considered. The basic usage is very simple:
+An LLM - or *large language Model* - is the technology behind popular products like *ChatGPT*. Some people call it *AI* - how well that term fits is a matter of which [definition](https://en.wikipedia.org/wiki/Intelligence) of *intelligence* is considered. The basic usage is very simple:
 
 ```mermaid
 graph LR
@@ -38,7 +38,7 @@ LLMs can take *a lot* of text input, the latest models as of March 2026 are able
 
 **Chat**
 
-So in typical scenarios like ChatGPT or Chat Game Lab, the LLM get's a lot more than just a single prompt.. With every call it's fed:
+So in typical scenarios like ChatGPT or Chat Game Lab, the LLM gets a lot more than just a single prompt.. With every call it's fed:
 - A *System Message*, which is a text with general instructions, typically not visible to the user
 - The full chat history of the current session (that can be many thousand words)
 - The latest input of the user
@@ -91,7 +91,7 @@ The last term we need to define is *template*. A *template* is also just a piece
 Example: Template for recipe prompts:
 
 ```
-Give me a tasty recipe for <X>. List all the ingredients and adjust the recipe for 2 people. Avoid recipies with nuts, as I have an allergy.
+Give me a tasty recipe for <X>. List all the ingredients and adjust the recipe for 2 people. Avoid recipes with nuts, as I have an allergy.
 ```
 
 This template can then be used by *injecting* a value for the placeholder:
@@ -138,12 +138,26 @@ Here's a full list - and remember: each is just a piece of text.
 **Detected automatically:**
 - Player Language Preference — the language the player's browser is set to
 
-**Part of the Chat Game Lab game engine:**
+**Part of the Chat Game Lab game engine (templates with placeholders):**
 - Game Engine Prompt — the template that defines how the AI behaves as a game master
 - Template Image Prompt — the template for generating scene images
 - Rephrase Prompt — rewrites player input to third person with uncertain outcome
 - Expand Prompt — turns a plot outline into narrative prose
-- Full Chat History — the accumulated conversation between player and AI
+
+**Accumulated during gameplay:**
+- Full Chat History — the growing conversation between player and AI, e.g.:
+  ```
+  System: "You are a game master for ..."
+  Assistant: "You wake up in a dark forest ..."
+  User: "I look around"
+  Assistant: "Tall trees surround you ..."
+  User: "I pick up the sword"
+  Assistant: "You grab the rusty blade ..."
+  ...
+  ... (gets longer with every turn)
+  ...
+  User: "I enter the castle"
+  ```
 
 **Produced during session preparation:**
 - System Message — the fused and translated game engine prompt (sent to the AI with every call)
@@ -159,15 +173,15 @@ When a player starts a game, there's a preparation phase before any gameplay beg
 - The current language preference of the player who launches the game
 - Rules set up by the organization or workshop (the "constraints")
 - Templates and prompts that are part of the game engine of Chat Game Lab
-Each of those inputs is simply plain text - all human readable. 
+Each of those inputs is simply plain text - all human readable.
 
-When a new game playing session is started by a player, three preperational process run in paralell - which is much faster than doing one after the other: 
+When a new game playing session is started by a player, three preparational processes run in parallel - which is much faster than doing one after the other: 
 
 **Generate Theme** — The AI reads the game scenario, the status fields, and the player's language preference to produce a visual theme. This includes a layout preset (e.g. "medieval", "cyberpunk", "pirate"), emoji icons for each status field (e.g. ❤️ for Health, 🪙 for Gold), and a thematic animation. The theme shapes how the game looks but has no effect on the story.
 
 **Fuse and Translate to English (Image Style Prompt)** — The game's image style (which the creator may have written in any language), the game scenario, the image prompt template, and any workshop constraints are combined and translated into English. The result is a stable prompt that guides image generation throughout the game. English is used because image generation models work best in English.
 
-**Fuse and Translate to Player's Language (System Message)** — The game scenario, status field names, workshop constraints, and the system message template are combined and translated into the player's language. The result is the **System Message** — a comprehensive instruction set that tells the AI how to run this particular game. It contains the scenario, the game rules, the status field definitions, and any workshop rules set by the teacher.
+**Fuse System Message** — The game scenario, status field names, workshop constraints, and the game engine prompt are combined and translated into English. The result is the **System Message** — a comprehensive instruction set that tells the AI how to run this particular game. It contains the scenario, the game rules, the status field definitions, and any workshop rules set by the teacher. English is used because LLMs follow instructions more reliably in English.
 
 ```mermaid
 graph TB
@@ -188,10 +202,10 @@ graph TB
     THEME(["Generate
     Theme"])
 
-    TRANSLATE(["Fuse and Translate
-    to English"])
-    IMGSTYLE(["Fuse and Translate
-    to English"])
+    TRANSLATE(["Fuse System
+    Message"])
+    IMGSTYLE(["Fuse Image
+    Style Prompt"])
 
     GIMGSTYLE --> IMGSTYLE
     CONSTRAINTS --> IMGSTYLE
@@ -213,6 +227,8 @@ graph TB
     TRANSLATE --> SYSMSG["System Message"]
 
 ```
+
+As you can see, all three steps produce English output. A game designer might write their scenario in Turkish, and a player might play in Japanese — but internally, Chat Game Lab translates everything to English. LLMs follow instructions more reliably in English, and image generation models work best with English prompts. Only the final output — the story prose that the player reads — is generated in the player's language.
 
 ## Game Loop
 
@@ -372,7 +388,7 @@ Injected with every player action to reinforce brevity (the AI tends to get verb
 
 Turns the plot outline into narrative prose:
 
-> NARRATE the summary into prose in the player's language (*(language name)*). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. End on an open note. Be brief and atmospheric. End on an open note, asking the player what they want to do next.
+> NARRATE the summary into prose in the player's language (*(language name)*). STRICT RULES: 3-6 sentences. No headers, no markdown, no lists. Do NOT repeat status fields. Be brief and atmospheric. End on an open note, asking the player what they want to do next.
 
 If workshop constraints exist, they are appended:
 
@@ -458,7 +474,7 @@ Here's a list of which models are configured for OpenAI and Mistral as of March 
 | **Transcribe Audio** | gpt-4o-mini-transcribe | voxtral-mini-latest | No (fixed) |
 | **Generate Speech** | gpt-4o-mini-tts | — (not supported) | No (fixed, max/premium only) |
 
-You can read about each of these models on the webistes of their providers.
+You can read about each of these models on the websites of their providers.
 
 Mistral: https://docs.mistral.ai/getting-started/models
 
