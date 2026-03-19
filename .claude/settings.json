@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:docs.mistral.ai)",
+      "WebFetch(domain:openai.com)",
+      "WebSearch"
+    ]
+  }
+}
