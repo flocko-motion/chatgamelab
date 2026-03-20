@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import {
   Group,
   Text,
@@ -7,6 +8,11 @@ import {
   Menu,
   Checkbox,
   Badge,
+  Modal,
+  Stack,
+  Code,
+  CopyButton,
+  Button,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,9 +24,12 @@ import {
   IconTypography,
   IconSettings,
   IconRestore,
+  IconCopy,
+  IconCheck,
 } from "@tabler/icons-react";
-import env from "@/config/env";
+import env, { config } from "@/config/env";
 import { getNativeLanguageName } from "@/i18n/languages";
+import { useAuth } from "@/providers/AuthProvider";
 import type { FontSize } from "../context";
 import type { PartialGameTheme } from "../theme/types";
 import { useGameTheme } from "../theme";
@@ -31,6 +40,11 @@ interface GamePlayerHeaderProps {
   gameName?: string;
   gameDescription?: string;
   sessionLanguage?: string | null;
+
+  // IDs for debug modal
+  sessionId?: string | null;
+  gameId?: string | null;
+  messageCount?: number;
 
   // AI info
   aiModel?: string | null;
@@ -76,6 +90,9 @@ export function GamePlayerHeader({
   gameName,
   gameDescription,
   sessionLanguage,
+  sessionId,
+  gameId,
+  messageCount,
   aiModel,
   aiPlatform,
   hasAudioOut,
@@ -96,10 +113,28 @@ export function GamePlayerHeader({
   onThemeChange,
 }: GamePlayerHeaderProps) {
   const { t } = useTranslation("common");
+  const { backendUser } = useAuth();
   const sessionLanguageLabel = getNativeLanguageName(sessionLanguage);
+  const [debugModalOpen, setDebugModalOpen] = useState(false);
+
+  const debugInfo = buildDebugInfo({
+    userId: backendUser?.id,
+    userEmail: backendUser?.email,
+    gameId: gameId ?? undefined,
+    sessionId: sessionId ?? undefined,
+    messageCount,
+    aiModel: aiModel ?? undefined,
+    aiPlatform: aiPlatform ?? undefined,
+    sessionLanguage: sessionLanguage ?? undefined,
+  });
 
   return (
     <HeaderWithTheme>
+      <SessionDebugModal
+        opened={debugModalOpen}
+        onClose={() => setDebugModalOpen(false)}
+        info={debugInfo}
+      />
       <Group justify="space-between" wrap="nowrap">
         <Group gap="sm" wrap="nowrap" style={{ minWidth: 0, flex: 1 }}>
           <Tooltip label={t("gamePlayer.header.back")} position="bottom">
@@ -140,7 +175,8 @@ export function GamePlayerHeader({
               variant="light"
               color="gray"
               size="sm"
-              style={{ flexShrink: 0 }}
+              style={{ flexShrink: 0, cursor: "pointer" }}
+              onClick={() => setDebugModalOpen(true)}
             >
               {[aiPlatform, aiModel].filter(Boolean).join(" / ")}
             </Badge>
@@ -288,5 +324,99 @@ export function GamePlayerHeader({
         </Group>
       </Group>
     </HeaderWithTheme>
+  );
+}
+
+// ── Session Debug Modal ─────────────────────────────────────────────────
+
+interface DebugInfo {
+  lines: { label: string; value: string }[];
+  clipboardText: string;
+}
+
+function buildDebugInfo(data: {
+  userId?: string;
+  userEmail?: string;
+  gameId?: string;
+  sessionId?: string;
+  messageCount?: number;
+  aiModel?: string;
+  aiPlatform?: string;
+  sessionLanguage?: string;
+}): DebugInfo {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const datetime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  // Extract hostname from API base URL (e.g. "localhost:7001" or "prod.example.com")
+  const server = (() => {
+    try { return new URL(config.API_BASE_URL).host; } catch { return config.API_BASE_URL; }
+  })();
+
+  const lines: { label: string; value: string }[] = [
+    { label: "Server", value: server },
+    { label: "Date/Time", value: datetime },
+    { label: "Session ID", value: data.sessionId || "—" },
+    { label: "Game ID", value: data.gameId || "—" },
+    { label: "User ID", value: data.userId || "—" },
+    { label: "User Email", value: data.userEmail || "—" },
+    { label: "AI Platform", value: data.aiPlatform || "—" },
+    { label: "AI Model", value: data.aiModel || "—" },
+    { label: "Language", value: data.sessionLanguage || "—" },
+    { label: "Messages", value: data.messageCount != null ? String(data.messageCount) : "—" },
+  ];
+
+  const clipboardText = lines
+    .filter(l => l.value !== "—")
+    .map(l => `${l.label}: ${l.value}`)
+    .join('\n');
+
+  return { lines, clipboardText };
+}
+
+function SessionDebugModal({
+  opened,
+  onClose,
+  info,
+}: {
+  opened: boolean;
+  onClose: () => void;
+  info: DebugInfo;
+}) {
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title="Session Details"
+      size="md"
+      centered
+    >
+      <Stack gap="xs">
+        {info.lines.map((line) => (
+          <Group key={line.label} justify="space-between" wrap="nowrap">
+            <Text size="sm" c="dimmed" style={{ flexShrink: 0 }}>
+              {line.label}
+            </Text>
+            <Code style={{ fontSize: 'var(--mantine-font-size-xs)' }}>
+              {line.value}
+            </Code>
+          </Group>
+        ))}
+        <CopyButton value={info.clipboardText}>
+          {({ copied, copy }) => (
+            <Button
+              variant="light"
+              color={copied ? "teal" : "gray"}
+              leftSection={copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+              onClick={copy}
+              fullWidth
+              mt="sm"
+            >
+              {copied ? "Copied!" : "Copy for bug report"}
+            </Button>
+          )}
+        </CopyButton>
+      </Stack>
+    </Modal>
   );
 }
