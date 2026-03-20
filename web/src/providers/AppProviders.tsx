@@ -27,6 +27,7 @@ export function AppProviders() {
         authorizationParams={{
           audience: auth0Config.audience,
           redirect_uri: auth0Config.redirectUri,
+          scope: 'openid profile email offline_access',
         }}
         cacheLocation="localstorage"
         useRefreshTokens={true}
