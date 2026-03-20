@@ -259,19 +259,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     } else {
-      authLogger.debug("No token auth, trying cookie-based participant auth");
+      // Guest play routes (/play/*) are fully anonymous — no Auth0, no participant
+      // cookie, no stored token. Calling GET /users/me would always 401, so skip it.
+      const isGuestPlayRoute = window.location.pathname.startsWith("/play/");
 
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
-        tryParticipantAuth().then((authenticated) => {
-          if (!authenticated) {
-            setUser(null);
-            setBackendUser(null);
-            setIsAuthenticated(false);
-            setIsParticipant(false);
-          }
+
+        if (isGuestPlayRoute) {
+          authLogger.debug("Guest play route — skipping participant auth check");
+          setUser(null);
+          setBackendUser(null);
+          setIsAuthenticated(false);
+          setIsParticipant(false);
           setIsLoading(false);
-        });
+        } else {
+          authLogger.debug("No token auth, trying cookie-based participant auth");
+          tryParticipantAuth().then((authenticated) => {
+            if (!authenticated) {
+              setUser(null);
+              setBackendUser(null);
+              setIsAuthenticated(false);
+              setIsParticipant(false);
+            }
+            setIsLoading(false);
+          });
+        }
       } else {
         setIsLoading(false);
       }
