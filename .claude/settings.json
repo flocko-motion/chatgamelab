@@ -16,7 +16,8 @@
       "Bash(td show:*)",
       "Bash(td handoff:*)",
       "Bash(td review:*)",
-      "Bash(td next:*)"
+      "Bash(td next:*)",
+      "Bash(td start:*)"
     ],
     "additionalDirectories": [
       "/home/flo/.claude/projects/-r-priv-chatgamelab/memory"
