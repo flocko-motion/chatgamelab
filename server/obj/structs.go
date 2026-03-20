@@ -504,8 +504,9 @@ type GameSessionMessage struct {
 type GameSessionMessageChunk struct {
 	Text      string `json:"text,omitempty"`      // Partial text content
 	TextDone  bool   `json:"textDone,omitempty"`  // True when text streaming is complete
-	ImageData []byte `json:"imageData,omitempty"` // Partial/final image data
-	ImageDone bool   `json:"imageDone,omitempty"` // True when image streaming is complete
+	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
+	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
+	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
 	AudioData []byte `json:"audioData,omitempty"` // Partial/final audio data (opus)
 	AudioDone bool   `json:"audioDone,omitempty"` // True when audio streaming is complete
 	Error     string `json:"error,omitempty"`     // Error message if failed

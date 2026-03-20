@@ -329,8 +329,14 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		if err := platform.GenerateImage(context.Background(), session, response, responseStream); err != nil {
 			log.Warn("GenerateImage failed", "session_id", session.ID, "error", err)
 
-			// Check for errors that require action
+			// Signal the error to frontend via both cache (for polling) and stream (for SSE).
+			// Some platforms (OpenAI) already call cache.SetError internally; calling it
+			// again here is a no-op but ensures all platforms are covered.
 			errorCode := extractAIErrorCode(err)
+			imagecache.Get().SetError(response.ID, errorCode, err.Error())
+			responseStream.Send(obj.GameSessionMessageChunk{ImageDone: true, ImageError: err.Error()})
+
+			// Check for errors that require action
 			switch errorCode {
 			case obj.ErrCodeOrgVerificationRequired:
 				// Mark session as having unverified organization (user needs to verify with OpenAI)
