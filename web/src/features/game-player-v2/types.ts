@@ -71,6 +71,7 @@ export interface StreamChunk {
   textDone?: boolean;
   imageData?: string; // Base64-encoded partial/WIP image data
   imageDone?: boolean;
+  imageError?: string; // Image generation error reason (e.g. "rate limit reached")
   audioData?: string; // Base64-encoded audio chunk
   audioDone?: boolean;
   error?: string; // Error message from the backend

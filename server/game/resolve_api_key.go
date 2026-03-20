@@ -2,11 +2,14 @@ package game
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"cgl/db"
 	"cgl/log"
 	"cgl/obj"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/google/uuid"
 )
 
@@ -18,6 +21,16 @@ type resolvedKey struct {
 }
 
 const maxCandidates = 3
+
+// keyTraceStep records the outcome of one source in the priority chain.
+type keyTraceStep struct {
+	Source   string // e.g. "workshop", "sponsor", ...
+	Result   string // "selected", "skipped", "filtered", "error"
+	Detail   string // human-readable reason
+	KeyName  string // API key name (if resolved)
+	Platform string // API key platform (if resolved)
+	Tier     string // resolved quality tier (if selected)
+}
 
 // resolveApiKeyCandidates collects all matching API keys from the priority chain,
 // deduplicated by API key ID, up to maxCandidates. The first candidate is the
@@ -48,36 +61,67 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 
 	var candidates []resolvedKey
 	seen := make(map[uuid.UUID]bool) // deduplicate by API key ID
+	var trace []keyTraceStep
 
 	add := func(share *obj.ApiKeyShare, tier string, keyType string) {
-		if share == nil || share.ApiKey == nil || seen[share.ApiKey.ID] || len(candidates) >= maxCandidates {
+		if share == nil || share.ApiKey == nil {
+			return
+		}
+		if seen[share.ApiKey.ID] {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "duplicate key", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
+			return
+		}
+		if len(candidates) >= maxCandidates {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "skipped", Detail: "max candidates reached", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}
 		// For existing sessions: only accept keys from the same AI platform.
-		// This prevents switching platforms mid-session (e.g. OpenAI→Mistral),
-		// which would break AiSession state (platform-specific conversation IDs).
 		if platformFilter != "" && share.ApiKey.Platform != platformFilter {
+			trace = append(trace, keyTraceStep{Source: keyType, Result: "filtered", Detail: fmt.Sprintf("platform %s != %s", share.ApiKey.Platform, platformFilter), KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform})
 			return
 		}
 		seen[share.ApiKey.ID] = true
 		candidates = append(candidates, resolvedKey{Share: share, AiQualityTier: tier, KeyType: keyType})
+		trace = append(trace, keyTraceStep{Source: keyType, Result: "selected", KeyName: share.ApiKey.Name, Platform: share.ApiKey.Platform, Tier: tier})
 	}
 
+	// 1. Workshop key
 	if share, tier := resolveWorkshopKey(ctx, user); share != nil {
 		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeWorkshop)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeWorkshop, Result: "skipped", Detail: describeWorkshopSkip(user)})
 	}
+
+	// 2. Sponsored game key
 	if share := resolveSponsoredGameKey(ctx, userID, gameID); share != nil {
 		add(share, defaultTier, obj.ApiKeyTypeSponsor)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSponsor, Result: "skipped", Detail: "no sponsorship configured"})
 	}
+
+	// 3. Institution free-use key
 	if share, tier := resolveInstitutionFreeUseKey(ctx, user); share != nil {
 		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeInstitutionFreeUse)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeInstitutionFreeUse, Result: "skipped", Detail: describeInstitutionSkip(user)})
 	}
+
+	// 4. User's default API key
 	if share, tier := resolveUserDefaultKey(ctx, user); share != nil {
 		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypePersonal)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypePersonal, Result: "skipped", Detail: "no default key configured"})
 	}
+
+	// 5. System free-use key
 	if share, tier := resolveSystemFreeUseKey(ctx, settings); share != nil {
 		add(share, tierOrDefault(tier, defaultTier), obj.ApiKeyTypeSystemFreeUse)
+	} else {
+		trace = append(trace, keyTraceStep{Source: obj.ApiKeyTypeSystemFreeUse, Result: "skipped", Detail: "no system free-use key configured"})
 	}
+
+	// Always send trace to Sentry for debugging
+	sendKeyResolutionTrace(userID, gameID, platformFilter, candidates, trace)
 
 	if len(candidates) == 0 {
 		if platformFilter != "" {
@@ -89,6 +133,85 @@ func resolveApiKeyCandidates(ctx context.Context, userID uuid.UUID, gameID uuid.
 	}
 
 	return candidates, nil
+}
+
+// sendKeyResolutionTrace sends a Sentry info event with the full decision trail.
+func sendKeyResolutionTrace(userID uuid.UUID, gameID uuid.UUID, platformFilter string, candidates []resolvedKey, trace []keyTraceStep) {
+	// Build a human-readable summary
+	var lines []string
+	for i, step := range trace {
+		line := fmt.Sprintf("%d. [%s] %s", i+1, step.Source, step.Result)
+		if step.KeyName != "" {
+			line += fmt.Sprintf(" key=%q platform=%s", step.KeyName, step.Platform)
+		}
+		if step.Tier != "" {
+			line += fmt.Sprintf(" tier=%s", step.Tier)
+		}
+		if step.Detail != "" {
+			line += fmt.Sprintf(" (%s)", step.Detail)
+		}
+		lines = append(lines, line)
+	}
+	summary := strings.Join(lines, "\n")
+
+	// Build structured extras
+	extras := map[string]any{
+		"user_id":         userID.String(),
+		"game_id":         gameID.String(),
+		"platform_filter": platformFilter,
+		"candidates":      len(candidates),
+		"trace":           summary,
+	}
+	for i, c := range candidates {
+		extras[fmt.Sprintf("candidate_%d_type", i)] = c.KeyType
+		extras[fmt.Sprintf("candidate_%d_key", i)] = c.Share.ApiKey.Name
+		extras[fmt.Sprintf("candidate_%d_platform", i)] = c.Share.ApiKey.Platform
+		extras[fmt.Sprintf("candidate_%d_tier", i)] = c.AiQualityTier
+	}
+
+	event := sentry.NewEvent()
+	event.Level = sentry.LevelInfo
+	event.Message = fmt.Sprintf("API key resolution: %d candidates", len(candidates))
+	event.Tags = map[string]string{
+		"user_id":    userID.String(),
+		"game_id":    gameID.String(),
+		"candidates": fmt.Sprintf("%d", len(candidates)),
+	}
+	if len(candidates) > 0 {
+		event.Tags["primary_key_type"] = candidates[0].KeyType
+		event.Tags["primary_platform"] = candidates[0].Share.ApiKey.Platform
+	}
+	if platformFilter != "" {
+		event.Tags["platform_filter"] = platformFilter
+	}
+	event.Extra = extras
+
+	sentry.CaptureEvent(event)
+}
+
+// describeWorkshopSkip returns a human-readable reason why the workshop key was skipped.
+func describeWorkshopSkip(user *obj.User) string {
+	if user.Role == nil {
+		return "no role"
+	}
+	if user.Role.Workshop == nil {
+		return "not in workshop"
+	}
+	return "no default key configured or not accessible"
+}
+
+// describeInstitutionSkip returns a human-readable reason why the institution key was skipped.
+func describeInstitutionSkip(user *obj.User) string {
+	if user.Role == nil || user.Role.Institution == nil {
+		return "no institution"
+	}
+	if user.Role.Role == obj.RoleParticipant {
+		return "participant role excluded"
+	}
+	if user.Role.Institution.FreeUseApiKeyShareID == nil {
+		return "no free-use key configured"
+	}
+	return "key not accessible"
 }
 
 // resolveApiKeyForSession resolves the highest-priority API key for a session.

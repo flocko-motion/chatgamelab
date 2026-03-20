@@ -434,8 +434,7 @@
       "loading": {
         "game": "Loading game...",
         "resolvingKey": "Resolving API key...",
-        "starting": "Starting game session...",
-        "startingHint": "The AI is preparing your adventure"
+        "starting": "Starting game session..."
       },
       "needsApiKey": {
         "description": "The API key used for this session is no longer available.",

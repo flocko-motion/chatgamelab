@@ -9,6 +9,8 @@ Create your own text adventure games and play them with your friends.
 - Learn, how GPT can be used to create interactive stories.
 - Use debug-mode to see the raw requests and responses of the GPT model
 
+For a detailed explanation of how the AI game engine works, see [TECHNOLOGY.md](TECHNOLOGY.md).
+
 ## Rules for working on this project
 
 If you're working on ChatGameLab (including web designers), you **must learn Git basics first**. There are user-friendly Git clients for Mac like [GitHub Desktop](https://desktop.github.com/) or [Sourcetree](https://www.sourcetreeapp.com/) that make this easier.

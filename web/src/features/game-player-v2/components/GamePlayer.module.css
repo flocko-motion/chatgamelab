@@ -1026,6 +1026,39 @@
   text-align: center;
 }
 
+/* ── Starting Progress Dots ─────────────────────────────────────────── */
+
+.progressDots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.progressDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--mantine-color-gray-4);
+  background: transparent;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.progressDotFilled {
+  background: var(--mantine-color-accent-6, var(--mantine-color-violet-6));
+  border-color: var(--mantine-color-accent-6, var(--mantine-color-violet-6));
+  transform: scale(1.15);
+}
+
+/* ── Trace ID ───────────────────────────────────────────────────────── */
+
+.traceId {
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-gray-5);
+  letter-spacing: 0.5px;
+  user-select: all;
+}
+
 /* ============================================================================
    Audio Recording
    ============================================================================ */

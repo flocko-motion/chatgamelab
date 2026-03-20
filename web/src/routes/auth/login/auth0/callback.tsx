@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { Center, Loader, Text } from '@mantine/core';
+import { Center, Loader, Text, Button, Stack } from '@mantine/core';
 import { ROUTES } from '@/common/routes/routes';
 import { authLogger } from '@/config/logger';
 
@@ -10,52 +10,33 @@ export const Route = createFileRoute('/auth/login/auth0/callback')({
 });
 
 function Auth0Callback() {
-  const { handleRedirectCallback, isLoading, error, isAuthenticated } = useAuth0();
+  const { isLoading, error, isAuthenticated } = useAuth0();
   const navigate = useNavigate();
+  const hasNavigated = useRef(false);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      try {
-        // Check if there are any URL parameters that indicate this is a callback
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasCode = urlParams.has('code');
-        const hasState = urlParams.has('state');
-        const hasError = urlParams.has('error');
-        
-        authLogger.debug('Auth0 callback params', { hasCode, hasState, hasError, isAuthenticated });
-        
-        if (hasError) {
-          const errorMessage = urlParams.get('error_description') || 'Authentication failed';
-          throw new Error(errorMessage);
-        }
-        
-        // If we have auth parameters, handle the callback
-        if (hasCode || hasState) {
-          await handleRedirectCallback();
-          // Successfully authenticated, redirect to dashboard
-          navigate({ to: ROUTES.DASHBOARD });
-          return;
-        }
-        
-        // If already authenticated or no auth params needed, redirect to dashboard
-        if (isAuthenticated || (!hasCode && !hasState && !hasError)) {
-          navigate({ to: ROUTES.DASHBOARD });
-          return;
-        }
-        
-        // If we got here without being authenticated, redirect to login
-        navigate({ to: ROUTES.AUTH_LOGIN });
-      } catch (err) {
-        authLogger.error('Auth0 callback error', { error: err });
-        // If there's an error, redirect to login page
-        navigate({ to: ROUTES.AUTH_LOGIN });
-      }
-    };
+    if (isLoading || hasNavigated.current) return;
 
-    if (!isLoading) {
-      handleCallback();
+    // Check for error params in URL (Auth0 may redirect back with error)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlError = urlParams.get('error');
+    const urlErrorDesc = urlParams.get('error_description');
+
+    if (urlError) {
+      authLogger.error('Auth0 callback URL error', { error: urlError, description: urlErrorDesc });
+      // Don't redirect to login — that causes an infinite loop in production.
+      // The error UI below will render instead.
+      return;
     }
-  }, [handleRedirectCallback, isLoading, isAuthenticated, navigate]);
+
+    if (isAuthenticated) {
+      hasNavigated.current = true;
+      authLogger.debug('Auth0 callback: authenticated, redirecting to dashboard');
+      navigate({ to: ROUTES.DASHBOARD });
+    }
+    // If not authenticated and not loading, Auth0Provider is still processing
+    // the callback (exchanging code for tokens). Wait for the next render.
+  }, [isLoading, isAuthenticated, navigate]);
 
   if (isLoading) {
     return (
@@ -68,17 +49,28 @@ function Auth0Callback() {
     );
   }
 
-  if (error) {
+  // Show error from Auth0 SDK or from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlError = urlParams.get('error_description') || urlParams.get('error');
+  const displayError = error?.message || urlError;
+
+  if (displayError) {
     return (
       <Center h="100vh">
-        <div style={{ textAlign: 'center' }}>
-          <Text size="lg" c="red" mb="md">
+        <Stack align="center" gap="md">
+          <Text size="lg" c="red">
             Authentication failed
           </Text>
-          <Text size="sm" c="dimmed">
-            {error.message}
+          <Text size="sm" c="dimmed" maw={400} ta="center">
+            {displayError}
           </Text>
-        </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate({ to: ROUTES.AUTH_LOGIN })}
+          >
+            Try again
+          </Button>
+        </Stack>
       </Center>
     );
   }

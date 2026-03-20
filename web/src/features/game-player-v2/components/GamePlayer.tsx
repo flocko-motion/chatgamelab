@@ -81,6 +81,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
     error: lifecycle.state.error,
     errorObject: lifecycle.state.errorObject,
     onBack: lifecycle.handleBack,
+    startingProgress: lifecycle.startingProgress,
   });
 
   if (stateScreen) return stateScreen;
@@ -125,6 +126,9 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}
             sessionLanguage={lifecycle.state.sessionLanguage}
+            sessionId={lifecycle.state.sessionId}
+            gameId={lifecycle.displayGame?.id}
+            messageCount={lifecycle.state.messages.length}
             aiModel={lifecycle.state.aiModel}
             aiPlatform={lifecycle.state.aiPlatform}
             hasAudioOut={hasAudioOut}

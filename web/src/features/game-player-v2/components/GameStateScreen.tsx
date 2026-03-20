@@ -1,10 +1,12 @@
-import { Group, Text, Loader, Box, Stack } from "@mantine/core";
+import { useState, useCallback } from "react";
+import { Group, Text, Loader, Box, Stack, Tooltip, ActionIcon } from "@mantine/core";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { IconAlertCircle, IconArrowLeft, IconKey } from "@tabler/icons-react";
+import { IconAlertCircle, IconArrowLeft, IconKey, IconCopy, IconCheck } from "@tabler/icons-react";
 import { ActionButton, TextButton } from "@components/buttons";
 import { ErrorModal } from "@/common/components/ErrorModal";
 import type { GamePhase } from "../types";
+import type { StartingProgress } from "../hooks/useSessionLifecycle";
 import classes from "./GamePlayer.module.css";
 
 interface GameStateScreenProps {
@@ -19,6 +21,27 @@ interface GameStateScreenProps {
   error: string | null;
   errorObject: unknown;
   onBack: () => void;
+  startingProgress: StartingProgress;
+}
+
+/** Build the trace ID string: YYMMDDHHMMSS-<sessionIdPrefix> */
+function formatTraceId(timestamp: string, sessionId: string | null): string {
+  if (sessionId) {
+    return `${timestamp}-${sessionId.substring(0, 8)}`;
+  }
+  return timestamp;
+}
+
+/** Build a short situation report for clipboard */
+function buildSituationReport(progress: StartingProgress): string {
+  const traceId = formatTraceId(progress.traceTimestamp, progress.sessionId);
+  const stepsCompleted = progress.completedSteps.filter(Boolean).length;
+  const total = progress.completedSteps.length;
+  const lines = [`Trace: ${traceId}`];
+  if (progress.sessionId) lines.push(`Session: ${progress.sessionId}`);
+  if (progress.gameId) lines.push(`Game: ${progress.gameId}`);
+  lines.push(`Progress: ${stepsCompleted}/${total}`);
+  return lines.join('\n');
 }
 
 export function GameStateScreen({
@@ -33,6 +56,7 @@ export function GameStateScreen({
   error,
   errorObject,
   onBack,
+  startingProgress,
 }: GameStateScreenProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
@@ -200,7 +224,7 @@ export function GameStateScreen({
     );
   }
 
-  // Idle or starting
+  // Idle or starting — show progress dots + trace ID
   if (phase === "idle" || phase === "starting") {
     return (
       <Box className={classes.container}>
@@ -212,9 +236,8 @@ export function GameStateScreen({
         >
           <Loader size="lg" color="accent" />
           <Text fw={600}>{t("gamePlayer.loading.starting")}</Text>
-          <Text c="dimmed" size="sm">
-            {t("gamePlayer.loading.startingHint")}
-          </Text>
+          <ProgressDots steps={startingProgress.completedSteps} />
+          <TraceIdDisplay progress={startingProgress} />
         </Stack>
       </Box>
     );
@@ -222,4 +245,52 @@ export function GameStateScreen({
 
   // No state screen needed - return null so the caller renders the game
   return null;
+}
+
+// ── Progress Dots ─────────────────────────────────────────────────────
+
+function ProgressDots({ steps }: { steps: boolean[] }) {
+  return (
+    <div className={classes.progressDots}>
+      {steps.map((filled, i) => (
+        <div
+          key={i}
+          className={`${classes.progressDot} ${filled ? classes.progressDotFilled : ''}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Trace ID with copy button ─────────────────────────────────────────
+
+function TraceIdDisplay({ progress }: { progress: StartingProgress }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(() => {
+    const report = buildSituationReport(progress);
+    navigator.clipboard.writeText(report).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [progress]);
+
+  const traceId = formatTraceId(progress.traceTimestamp, progress.sessionId);
+
+  return (
+    <Group gap={4} align="center">
+      <Text className={classes.traceId}>{traceId}</Text>
+      <Tooltip label={copied ? "Copied!" : "Copy debug info"} withArrow>
+        <ActionIcon
+          variant="subtle"
+          size="xs"
+          color="gray"
+          onClick={handleCopy}
+          aria-label="Copy trace info"
+        >
+          {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+        </ActionIcon>
+      </Tooltip>
+    </Group>
+  );
 }

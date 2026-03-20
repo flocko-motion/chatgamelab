@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:docs.mistral.ai)",
+      "WebFetch(domain:openai.com)",
+      "WebSearch",
+      "Bash(docker compose:*)",
+      "Bash(docker port:*)",
+      "Read(//r/priv/chatgamelab/web/src/routes/sessions/**)",
+      "Bash(grep -n \"CreateGameSession\\\\|CreateGameSessionMessage\" /r/priv/chatgamelab/server/db/sqlc/*.go)",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(go build:*)",
+      "Bash(td :*)",
+      "Bash(td show:*)",
+      "Bash(td handoff:*)",
+      "Bash(td review:*)",
+      "Bash(td next:*)",
+      "Bash(td start:*)"
+    ],
+    "additionalDirectories": [
+      "/home/flo/.claude/projects/-r-priv-chatgamelab/memory"
+    ]
+  }
+}
