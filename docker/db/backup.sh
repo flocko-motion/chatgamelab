@@ -37,12 +37,14 @@ fi
 # Create compressed backup to temp file
 pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$TEMP_FILE"
 
-# Upload via scp (works with SFTP-only servers like Hetzner Storage Box)
-scp -o StrictHostKeyChecking=no \
+# Upload via SFTP (works with SFTP-only servers like Hetzner Storage Box)
+sftp -o StrictHostKeyChecking=no \
   -i "$BACKUP_SSH_KEY" \
   -P "$BACKUP_SSH_PORT" \
-  "$TEMP_FILE" \
-  "$BACKUP_SSH_USER@$BACKUP_SSH_HOST:$BACKUP_PATH/$FILENAME"
+  "$BACKUP_SSH_USER@$BACKUP_SSH_HOST" <<UPLOAD
+put "$TEMP_FILE" "$BACKUP_PATH/$FILENAME"
+quit
+UPLOAD
 
 # Cleanup
 rm -f "$TEMP_FILE"
