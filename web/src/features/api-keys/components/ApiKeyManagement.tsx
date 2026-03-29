@@ -183,7 +183,7 @@ export function ApiKeyManagement() {
     return (
       <Alert
         icon={<IconAlertCircle size={16} />}
-        title={t("errors.titles.error")}
+        title={t("errors:titles.error")}
         color="red"
       >
         {t("apiKeys.errors.loadFailed")}
