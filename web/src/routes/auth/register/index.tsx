@@ -29,6 +29,7 @@ import {
 } from "@tabler/icons-react";
 import { ROUTES } from "@/common/routes/routes";
 import { HELP_LINKS, getHelpUrl, CONTACT_EMAILS } from "@/config/helpLinks";
+import { LanguageSwitcher } from "@components/LanguageSwitcher";
 
 export const Route = createFileRoute("/auth/register/")({
   component: RegisterComponent,
@@ -71,6 +72,10 @@ function RegisterComponent() {
 
   return (
     <Container size="xs" py="xl" maw={480}>
+      <Group justify="flex-end" mb="md">
+        <LanguageSwitcher size="sm" variant="subtle" />
+      </Group>
+
       {/* Step 1: Choose registration type */}
       {step === "choose-type" && (
         <Paper shadow="md" p="xl" withBorder>
