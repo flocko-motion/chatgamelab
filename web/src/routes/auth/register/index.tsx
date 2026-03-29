@@ -294,19 +294,8 @@ function RegisterComponent() {
               <BodyText size="sm" c="dimmed">
                 {t(
                   "registerPage.educatorModal.step2Description",
-                  "Write an email to the address below with:",
-                )}
-              </BodyText>
-              <Stack gap={4} pl="sm">
-                <BodyText size="sm" c="dimmed">
-                  • {t("registerPage.educatorModal.step2Item1", "Your registered email address")}
-                </BodyText>
-                <BodyText size="sm" c="dimmed">
-                  • {t("registerPage.educatorModal.step2Item2", "The name of your organization (school, institution, etc.)")}
-                </BodyText>
-              </Stack>
-
-              <Group gap="xs" align="center" mt={4}>
+                  "Write an email to",
+                )}{" "}
                 <Anchor
                   href={`mailto:${CONTACT_EMAILS.ORGANIZATION_REQUEST}`}
                   size="sm"
@@ -331,7 +320,16 @@ function RegisterComponent() {
                     </Tooltip>
                   )}
                 </CopyButton>
-              </Group>
+                {" "}{t("registerPage.educatorModal.step2WithInfo", "with:")}
+              </BodyText>
+              <Stack gap={4} pl="sm">
+                <BodyText size="sm" c="dimmed">
+                  • {t("registerPage.educatorModal.step2Item1", "Your registered email address")}
+                </BodyText>
+                <BodyText size="sm" c="dimmed">
+                  • {t("registerPage.educatorModal.step2Item2", "The name of your organization (school, institution, etc.)")}
+                </BodyText>
+              </Stack>
             </Stack>
           </Group>
 
