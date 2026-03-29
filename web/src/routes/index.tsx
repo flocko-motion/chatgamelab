@@ -9,14 +9,12 @@ import {
   Group,
   ThemeIcon,
   Box,
-  Button as MantineButton,
-  Divider,
   useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { ActionButton } from "@components/buttons";
-import { SectionTitle, CardTitle, BodyText, HelperText } from "@components/typography";
+import { SectionTitle, CardTitle, BodyText } from "@components/typography";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 import {
   IconBook,
@@ -37,10 +35,9 @@ export const Route = createFileRoute(ROUTES.HOME)({
 
 function HomePage() {
   const { t } = useTranslation("common");
-  const { t: tAuth } = useTranslation("auth");
   const router = useRouter();
   const theme = useMantineTheme();
-  const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
+  const { user } = useAuth();
 
   // If an external homepage is configured, redirect there immediately
   useEffect(() => {
@@ -89,19 +86,6 @@ function HomePage() {
         "Join friends in collaborative storytelling sessions",
       ),
     },
-  ];
-
-  // Dev roles matching backend preseed users
-  const devRoles = [
-    { key: "admin-1", label: "Admin 1", color: "red" },
-    { key: "admin-2", label: "Admin 2", color: "red" },
-    { key: "head-1", label: "Head 1 (Orga)", color: "violet" },
-    { key: "head-2", label: "Head 2 (Orga)", color: "violet" },
-    { key: "staff-1", label: "Staff 1 (Orga)", color: "blue" },
-    { key: "staff-2", label: "Staff 2 (Orga)", color: "blue" },
-    { key: "individual-1", label: "Individual 1", color: "gray" },
-    { key: "individual-2", label: "Individual 2", color: "gray" },
-    { key: "participant", label: "Participant (Workshop)", color: "teal" },
   ];
 
   return (
@@ -205,51 +189,6 @@ function HomePage() {
             </SimpleGrid>
           </Stack>
 
-          {/* Dev Mode Quick Login */}
-          {isDevMode && (
-            <Container size="sm">
-              <Card
-                shadow="md"
-                p="xl"
-                radius="md"
-                withBorder
-                bg={theme.other.colors.bgCard}
-                style={{
-                  border: `1px solid ${theme.other.colors.bgCardBorder}`,
-                }}
-              >
-                <Stack gap="md">
-                  <Stack gap="xs" align="center">
-                    <SectionTitle>{tAuth("login.devModeAlert.title")}</SectionTitle>
-                    <HelperText>{tAuth("login.devModeDescription")}</HelperText>
-                  </Stack>
-
-                  <ActionButton onClick={loginWithAuth0} fullWidth>
-                    {tAuth("login.auth0Button")}
-                  </ActionButton>
-
-                  <Divider label={tAuth("login.devMode")} labelPosition="center" />
-
-                  <Stack gap="sm">
-                    {devRoles.map((role) => (
-                      <MantineButton
-                        key={role.key}
-                        variant={role.key === "admin-1" ? "filled" : "outline"}
-                        color={role.color}
-                        onClick={async () => {
-                          await loginWithRole(role.key);
-                          router.navigate({ to: ROUTES.DASHBOARD });
-                        }}
-                        fullWidth
-                      >
-                        {role.label}
-                      </MantineButton>
-                    ))}
-                  </Stack>
-                </Stack>
-              </Card>
-            </Container>
-          )}
         </Stack>
       </Container>
     </Box>
