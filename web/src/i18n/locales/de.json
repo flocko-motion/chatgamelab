@@ -54,8 +54,8 @@
     "registerPage": {
       "title": "Konto erstellen",
       "chooseType": "Wie möchtest du ChatGameLab nutzen?",
-      "individualTitle": "Einzelnutzer",
-      "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer alleine",
+      "individualTitle": "Persönliches Konto",
+      "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer",
       "educatorTitle": "Fachkraft / Lehrkraft",
       "educatorDescription": "Nutze ChatGameLab in Workshops, im Unterricht oder in deiner Organisation",
       "description": "Wir nutzen Auth0 als Authentifizierungsanbieter zur Verwaltung der Benutzerkonten. Du wirst zu Auth0 weitergeleitet, um dein Konto zu erstellen, und dann hierher zurückgeführt, um dein Profil zu vervollständigen.",
@@ -69,8 +69,8 @@
         "title": "Zugang für Fachkräfte & Lehrkräfte",
         "eduInfo": "Erfahre mehr über die Nutzung von ChatGameLab für Bildungszwecke:",
         "intro": "Um ChatGameLab mit deiner Organisation (Schule, Universität, Einrichtung) zu nutzen, folge bitte diesen Schritten:",
-        "step1": "Als Einzelnutzer registrieren",
-        "step1Description": "Erstelle zuerst dein persönliches Konto über die Einzelregistrierung. Damit meldest du dich auf der Plattform an.",
+        "step1": "Persönliches Konto erstellen",
+        "step1Description": "Erstelle zuerst dein persönliches Konto. Damit meldest du dich auf der Plattform an.",
         "step2": "Schreibe uns eine E-Mail",
         "step2Description": "Sende eine E-Mail an die folgende Adresse mit:",
         "step2Item1": "Deiner registrierten E-Mail-Adresse",
@@ -80,7 +80,7 @@
         "copied": "Kopiert!",
         "copyEmail": "E-Mail kopieren",
         "closeButton": "Schließen",
-        "registerButton": "Als Einzelnutzer registrieren"
+        "registerButton": "Persönliches Konto erstellen"
       }
     },
     "register": {
