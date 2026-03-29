@@ -12,6 +12,7 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle, CardTitle, BodyText } from "@components/typography";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
@@ -21,9 +22,12 @@ import {
   IconSchool,
   IconSparkles,
   IconRocket,
+  IconLogin,
 } from "@tabler/icons-react";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 import { ROUTES } from "@/common/routes/routes";
+import { hasExternalHomepage, getHomepageUrl } from "@/common/lib/url";
+import { useAuth } from "@/providers/AuthProvider";
 
 export const Route = createFileRoute(ROUTES.HOME)({
   component: HomePage,
@@ -33,6 +37,21 @@ function HomePage() {
   const { t } = useTranslation("common");
   const router = useRouter();
   const theme = useMantineTheme();
+  const { user } = useAuth();
+
+  // If an external homepage is configured, redirect there immediately
+  useEffect(() => {
+    if (hasExternalHomepage()) {
+      window.location.href = getHomepageUrl();
+    }
+  }, []);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (user) {
+      router.navigate({ to: ROUTES.DASHBOARD });
+    }
+  }, [user, router]);
 
   const features = [
     {
@@ -96,15 +115,27 @@ function HomePage() {
                 )}
               </BodyText>
 
-              <ActionButton
-                onClick={() => {
-                  router.navigate({ to: ROUTES.AUTH_LOGIN });
-                }}
-                leftSection={<IconRocket size={20} />}
-                size="md"
-              >
-                {t("home.loginCta", "Get Started")}
-              </ActionButton>
+              <Group gap="md" justify="center">
+                <ActionButton
+                  onClick={() => {
+                    router.navigate({ to: ROUTES.AUTH_REGISTER });
+                  }}
+                  leftSection={<IconRocket size={20} />}
+                  size="md"
+                >
+                  {t("home.registerCta", "Register")}
+                </ActionButton>
+                <ActionButton
+                  onClick={() => {
+                    router.navigate({ to: ROUTES.AUTH_LOGIN });
+                  }}
+                  leftSection={<IconLogin size={20} />}
+                  size="md"
+                  color="gray"
+                >
+                  {t("home.loginCta", "Log in")}
+                </ActionButton>
+              </Group>
             </Stack>
           </Center>
 
@@ -157,6 +188,7 @@ function HomePage() {
               ))}
             </SimpleGrid>
           </Stack>
+
         </Stack>
       </Container>
     </Box>

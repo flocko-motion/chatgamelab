@@ -60,9 +60,12 @@ func (s *WorkshopGameSharingTestSuite) setupWorkshopWithSharing(prefix string, a
 	s.Require().NoError(individual.AcceptWorkshopInviteByToken(*invite.InviteToken))
 	s.T().Logf("Individual joined workshop: %s", individual.Name)
 
-	// Individual uploads a game in the workshop
+	// Individual uploads a game in the workshop and makes it public (required for sharing)
 	game := Must(individual.UploadGame("alien-first-contact"))
 	gameIDStr := game.ID.String()
+	// Use full game object to preserve YAML-uploaded fields (system messages etc.)
+	game.Public = true
+	Must(individual.UpdateGame(gameIDStr, game))
 
 	s.T().Logf("Setup: head=%s, individual=%s, ws=%s, game=%s", head.Name, individual.Name, wsIDStr, gameIDStr)
 	return head, individual, wsIDStr, gameIDStr

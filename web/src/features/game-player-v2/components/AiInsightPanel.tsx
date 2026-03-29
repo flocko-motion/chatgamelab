@@ -7,8 +7,10 @@ import {
   IconChevronRight,
   IconBrain,
   IconKey,
+  IconHelp,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { HELP_LINKS } from "@/config/helpLinks";
 import type { SceneMessage } from "../types";
 import classes from "./AiInsightPanel.module.css";
 
@@ -89,6 +91,16 @@ export function AiInsightPanel({
           <div className={classes.panelHeader}>
             <IconBrain size={14} className={classes.panelHeaderIcon} />
             {t("gamePlayer.aiInsight.title")}
+            <a
+              href={HELP_LINKS.AI_INSIGHTS}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={classes.helpLink}
+              title={t("help", "Help")}
+            >
+              <IconHelp size={14} />
+              {t("help", "Help")}
+            </a>
           </div>
           <div className={classes.sections}>
             {message.apiKeyType && (

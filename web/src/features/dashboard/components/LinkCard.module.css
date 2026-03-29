@@ -14,10 +14,12 @@
   padding: var(--mantine-spacing-sm);
   border-radius: var(--mantine-radius-sm);
   background: var(--mantine-color-gray-0);
+  border: 1px solid var(--mantine-color-gray-3);
   text-decoration: none;
-  transition: background-color 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease;
 }
 
 .linkItem:hover {
   background-color: var(--mantine-color-gray-1);
+  border-color: var(--mantine-color-gray-4);
 }

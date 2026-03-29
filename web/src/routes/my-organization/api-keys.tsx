@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Container, Title, Text, Stack, Alert } from "@mantine/core";
+import { Container, Title, Text, Stack, Alert, Group } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { getUserInstitutionId, Role, hasRole } from "@/common/lib/roles";
 import { ApiKeysTab } from "@/features/my-organization/components/ApiKeysTab";
+import { HelpLink } from "@components/HelpLink";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/api/queryKeys";
 import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
@@ -69,7 +71,10 @@ function OrganizationApiKeysPage() {
       <Stack gap="lg">
         {/* Header */}
         <Stack gap={0}>
-          <Title order={2}>{t("myOrganization.apiKeys.title")}</Title>
+          <Group gap="sm" align="center">
+            <Title order={2}>{t("myOrganization.apiKeys.title")}</Title>
+            <HelpLink href={HELP_LINKS.API_KEY_FAQ} />
+          </Group>
           {institution?.name && (
             <Text c="dimmed" size="sm">
               {institution.name}

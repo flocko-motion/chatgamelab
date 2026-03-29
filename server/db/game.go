@@ -531,6 +531,13 @@ func UpdateGame(ctx context.Context, userID uuid.UUID, game *obj.Game) error {
 
 	now := time.Now()
 
+	// Only the game creator can set Public to true.
+	// Head/staff may unset it (set to false) but never enable it on another user's game.
+	isOwner := existingGame.Meta.CreatedBy.Valid && existingGame.Meta.CreatedBy.UUID == userID
+	if game.Public && !existingGame.Public && !isOwner {
+		return obj.ErrForbidden("only the game creator can make a game public")
+	}
+
 	// If game is being set to private, clear public sponsorship
 	if !game.Public {
 		game.PublicSponsoredApiKeyShareID = nil

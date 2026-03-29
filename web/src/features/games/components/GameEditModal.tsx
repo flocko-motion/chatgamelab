@@ -28,6 +28,8 @@ import { useTranslation } from "react-i18next";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
+import { HelpLink } from "@components/HelpLink";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { useGame, useUpdateGame } from "@/api/hooks";
 import type { ObjGameTheme } from "@/api/generated";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
@@ -450,6 +452,7 @@ export function GameEditModal({
             onSponsor={!isCreateMode ? onSponsor : undefined}
             showShareSection={!isCreateMode && showShareSection}
             workshopId={workshopId}
+            isOwner={isOwner}
           />
         </Stack>
       </ScrollArea>
@@ -470,6 +473,7 @@ export function GameEditModal({
                   ? t("games.viewModal.title")
                   : t("games.editModal.title")}
             </Text>
+            <HelpLink href={HELP_LINKS.GAME_TIPS} />
             {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
               <Badge
                 size="sm"
@@ -547,6 +551,7 @@ function SharingSection({
   onSponsor,
   showShareSection,
   workshopId,
+  isOwner = true,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
@@ -559,6 +564,7 @@ function SharingSection({
   onSponsor?: () => void;
   showShareSection?: boolean;
   workshopId?: string;
+  isOwner?: boolean;
 }) {
   const { t } = useTranslation("common");
 
@@ -568,9 +574,9 @@ function SharingSection({
   const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
 
   // In workshop mode, only show share section if the game belongs to this workshop
-  // AND sharing is enabled (via showShareSection prop).
+  // and sharing is enabled. Non-owners can only share public games.
   const canShowShareInContext =
-    showShareSection && gameBelongsToWorkshop;
+    showShareSection && gameBelongsToWorkshop && (!workshopId || isOwner || isPublic);
 
   // Only show public sponsoring when game is public
   const canShowSponsoring = onSponsor && isPublic;
@@ -586,16 +592,18 @@ function SharingSection({
       </Group>
 
       <Stack gap="lg">
-        {/* Visibility toggle */}
+        {/* Visibility toggle — only the creator can make a game public */}
         <Stack gap={4}>
           <Switch
             label={t("games.createModal.publicLabel")}
             checked={isPublic}
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
-            disabled={readOnly}
+            disabled={readOnly || (!isOwner && !isPublic)}
           />
           <Text size="sm" c="dimmed">
-            {t("games.createModal.publicDescription")}
+            {!isOwner && !isPublic
+              ? t("games.createModal.publicOwnerOnly", "Only the game creator can make a game public")
+              : t("games.createModal.publicDescription")}
           </Text>
         </Stack>
         {!isPublic && game?.publicSponsoredApiKeyShareId && (
@@ -607,6 +615,12 @@ function SharingSection({
         {workshopId && !gameBelongsToWorkshop && (
           <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
             {t("games.sharing.publicGameWorkshopHint")}
+          </Alert>
+        )}
+
+        {workshopId && gameBelongsToWorkshop && showShareSection && !isOwner && !isPublic && (
+          <Alert icon={<IconAlertCircle size={16} />} color="yellow" variant="light">
+            {t("games.sharing.workshopShareRequiresPublic", "This game must be set to public by its creator before it can be shared in the workshop.")}
           </Alert>
         )}
 

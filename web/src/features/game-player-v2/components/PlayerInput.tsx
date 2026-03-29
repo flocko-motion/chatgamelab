@@ -3,6 +3,8 @@ import { Group, TextInput, ActionIcon, Text, Progress } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { IconPlayerPlay, IconMicrophone } from '@tabler/icons-react';
 import { useGameTheme, THEME_COLORS, CARD_BG_COLORS, FONT_COLORS } from '../theme';
+import { useGamePlayerContext } from '../context';
+import { FONT_SIZE_MAP } from './SceneCard';
 import { useAudioRecorder } from '../hooks/useAudioRecorder';
 import { showErrorModal } from '@/common/lib/globalErrorModal';
 import type { PlayerActionInput } from '../types';
@@ -17,6 +19,7 @@ interface PlayerInputProps {
 export function PlayerInput({ onSend, disabled = false, placeholder, audioEnabled = false }: PlayerInputProps) {
   const { t } = useTranslation('common');
   const { theme } = useGameTheme();
+  const { fontSize } = useGamePlayerContext();
   const [value, setValue] = useState('');
 
   const accentColor = THEME_COLORS[theme.corners.color] || THEME_COLORS.amber;
@@ -132,6 +135,7 @@ export function PlayerInput({ onSend, disabled = false, placeholder, audioEnable
             root: { flex: 1 },
             input: {
               '--input-bd-focus': accentColor.primary,
+              fontSize: FONT_SIZE_MAP[fontSize],
             },
           }}
           rightSection={

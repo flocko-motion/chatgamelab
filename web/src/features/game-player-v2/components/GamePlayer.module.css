@@ -104,7 +104,7 @@
   background: var(--game-status-bg, rgba(255,255,255,0.7));
   border: 1px solid var(--game-status-border, rgba(0, 0, 0, 0.1));
   border-radius: var(--mantine-radius-md);
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--game-font-size, var(--mantine-font-size-sm));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -125,7 +125,7 @@
   color: var(--game-status-font, var(--mantine-color-gray-6));
   font-weight: 600;
   text-transform: uppercase;
-  font-size: var(--mantine-font-size-xs);
+  font-size: calc(var(--game-font-size, var(--mantine-font-size-sm)) * 0.85);
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
@@ -133,7 +133,7 @@
 }
 
 .statusFieldEmoji {
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--game-font-size, var(--mantine-font-size-sm));
   text-transform: none;
 }
 

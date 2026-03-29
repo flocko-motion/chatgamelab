@@ -31,6 +31,7 @@ import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
 import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
 import { Route as CreationsGameIdRouteImport } from './routes/creations/$gameId'
+import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AdminUsersIndexRouteImport } from './routes/admin/users/index'
 import { Route as AdminServerSettingsIndexRouteImport } from './routes/admin/server-settings/index'
@@ -151,6 +152,11 @@ const CreationsGameIdRoute = CreationsGameIdRouteImport.update({
   path: '/creations/$gameId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRegisterIndexRoute = AuthRegisterIndexRouteImport.update({
+  id: '/auth/register/',
+  path: '/auth/register/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
   id: '/auth/login/',
   path: '/auth/login/',
@@ -228,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
+  '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/admin/server-settings': typeof AdminServerSettingsIndexRoute
   '/admin/users': typeof AdminUsersIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
+  '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/admin/server-settings/': typeof AdminServerSettingsIndexRoute
   '/admin/users/': typeof AdminUsersIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
+  '/auth/register/': typeof AuthRegisterIndexRoute
   '/auth/login/auth0/callback': typeof AuthLoginAuth0CallbackRoute
   '/auth/logout/auth0/callback': typeof AuthLogoutAuth0CallbackRoute
 }
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
+    | '/auth/register'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   fileRoutesByTo: FileRoutesByTo
@@ -363,6 +373,7 @@ export interface FileRouteTypes {
     | '/admin/server-settings'
     | '/admin/users'
     | '/auth/login'
+    | '/auth/register'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   id:
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/admin/server-settings/'
     | '/admin/users/'
     | '/auth/login/'
+    | '/auth/register/'
     | '/auth/login/auth0/callback'
     | '/auth/logout/auth0/callback'
   fileRoutesById: FileRoutesById
@@ -430,6 +442,7 @@ export interface RootRouteChildren {
   AdminServerSettingsIndexRoute: typeof AdminServerSettingsIndexRoute
   AdminUsersIndexRoute: typeof AdminUsersIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
+  AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
   AuthLoginAuth0CallbackRoute: typeof AuthLoginAuth0CallbackRoute
   AuthLogoutAuth0CallbackRoute: typeof AuthLogoutAuth0CallbackRoute
 }
@@ -590,6 +603,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreationsGameIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/register/': {
+      id: '/auth/register/'
+      path: '/auth/register'
+      fullPath: '/auth/register'
+      preLoaderRoute: typeof AuthRegisterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/login/': {
       id: '/auth/login/'
       path: '/auth/login'
@@ -686,6 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminServerSettingsIndexRoute: AdminServerSettingsIndexRoute,
   AdminUsersIndexRoute: AdminUsersIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
+  AuthRegisterIndexRoute: AuthRegisterIndexRoute,
   AuthLoginAuth0CallbackRoute: AuthLoginAuth0CallbackRoute,
   AuthLogoutAuth0CallbackRoute: AuthLogoutAuth0CallbackRoute,
 }

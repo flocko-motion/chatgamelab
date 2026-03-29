@@ -315,3 +315,116 @@ func (s *GamePermissionsTestSuite) TestGameDeletionCleansUpSessions() {
 	s.Error(err, "session should be deleted along with game")
 	s.T().Logf("Session correctly cleaned up")
 }
+
+// TestOnlyCreatorCanSetGamePublic tests that only the game creator can set
+// a game's public flag to true. Head/staff can unset it but never set it.
+func (s *GamePermissionsTestSuite) TestOnlyCreatorCanSetGamePublic() {
+	admin := s.DevUser()
+
+	// Setup: institution + head + workshop + participant
+	inst := Must(admin.CreateInstitution("Public Flag Org"))
+	head := s.CreateUser("pub-head")
+	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.ID.String()))
+
+	workshop := Must(head.CreateWorkshop(inst.ID.String(), "Public Flag Workshop"))
+	wsIDStr := workshop.ID.String()
+
+	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
+	s.NoError(err)
+	participant := s.CreateUserWithToken(*resp.AuthToken)
+
+	// Participant creates a game (private by default)
+	game := Must(participant.UploadGame("alien-first-contact"))
+	s.False(game.Public, "game should be private by default")
+	s.T().Logf("Participant created game: %s (public=%v)", game.ID, game.Public)
+
+	// Head tries to set public=true — should FAIL
+	_, err = head.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	})
+	s.Error(err, "head should NOT be able to set another user's game to public")
+	s.Contains(err.Error(), "403", "should be a 403 forbidden error")
+	s.T().Logf("Head correctly rejected from setting public: %v", err)
+
+	// Participant (creator) sets public=true — should SUCCEED
+	updated, err := participant.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	})
+	s.NoError(err, "creator should be able to set their own game to public")
+	s.True(updated.Public, "game should now be public")
+	s.T().Logf("Creator set game to public: %v", updated.Public)
+
+	// Head unsets public=false — should SUCCEED
+	updated, err = head.UpdateGame(game.ID.String(), map[string]interface{}{
+		"name":   game.Name,
+		"public": false,
+	})
+	s.NoError(err, "head should be able to unset public on a workshop game")
+	s.False(updated.Public, "game should now be private again")
+	s.T().Logf("Head unset public: %v", updated.Public)
+}
+
+// TestWorkshopShareRequiresPublicGame tests that workshop shares can only
+// be created for public games, even by head/staff.
+func (s *GamePermissionsTestSuite) TestWorkshopShareRequiresPublicGame() {
+	admin := s.DevUser()
+
+	// Setup: institution + head + workshop + participant + API key
+	inst := Must(admin.CreateInstitution("WS Share Public Org"))
+	head := s.CreateUser("wspub-head")
+	headInvite := Must(admin.InviteToInstitution(inst.ID.String(), "head", head.ID))
+	Must(head.AcceptInvite(headInvite.ID.String()))
+
+	keyShare := Must(head.AddApiKey("mock-wspub", "WS Pub Key", "mock"))
+	orgShare := Must(head.ShareApiKeyWithInstitution(keyShare.ID.String(), inst.ID.String()))
+
+	workshop := Must(head.CreateWorkshop(inst.ID.String(), "WS Share Public Workshop"))
+	wsIDStr := workshop.ID.String()
+	orgShareIDStr := orgShare.ID.String()
+	Must(head.SetWorkshopApiKey(wsIDStr, &orgShareIDStr))
+	Must(head.UpdateWorkshop(wsIDStr, map[string]interface{}{
+		"name":             "WS Share Public Workshop",
+		"active":           true,
+		"public":           false,
+		"allowGameSharing": true,
+		"isPaused":         false,
+	}))
+
+	invite := Must(head.CreateWorkshopInvite(wsIDStr, string(obj.RoleParticipant)))
+	resp, err := s.AcceptWorkshopInviteAnonymously(*invite.InviteToken)
+	s.NoError(err)
+	participant := s.CreateUserWithToken(*resp.AuthToken)
+
+	// Participant creates a private game
+	game := Must(participant.UploadGame("alien-first-contact"))
+	gameID := game.ID.String()
+	s.T().Logf("Game created (public=%v): %s", game.Public, gameID)
+
+	// Head tries to share the private game — should FAIL (non-owner, game not public)
+	_, err = head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.Error(err, "head should not be able to share a private game they don't own")
+	s.Contains(err.Error(), "403", "should be a 403 forbidden error")
+	s.T().Logf("Head correctly rejected from sharing private game: %v", err)
+
+	// Participant (owner) can share their own private game — should SUCCEED
+	share, err := participant.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.NoError(err, "owner should be able to share their own private game")
+	s.NotEmpty(share.Token)
+	s.T().Logf("Owner shared own private game: token=%s", share.Token)
+
+	// Participant makes game public, now head can share too
+	Must(participant.UpdateGame(gameID, map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	}))
+
+	// Head shares the now-public game — should SUCCEED
+	headShare, err := head.CreateWorkshopGameShare(gameID, wsIDStr, nil)
+	s.NoError(err, "head should be able to share a public game")
+	s.NotEmpty(headShare.Token)
+	s.T().Logf("Head shared public game: token=%s", headShare.Token)
+}

@@ -12,6 +12,7 @@ import { StatusBar } from "./StatusBar";
 import { ImageLightbox } from "./ImageLightbox";
 import { BackgroundAnimation } from "./BackgroundAnimation";
 import { WorkshopPausedOverlay } from "@/features/my-workshop/components/WorkshopPausedOverlay";
+import { FONT_SIZE_MAP } from "./SceneCard";
 import classes from "./GamePlayer.module.css";
 
 /** Scene area with theme-aware background animation */
@@ -120,7 +121,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
       StreamingMessageWrapper={themeResolution.StreamingMessageWrapper}
     >
       <GamePlayerProvider value={contextValue}>
-        <Box className={classes.container} style={{ position: "relative" }}>
+        <Box className={classes.container} style={{ position: "relative", '--game-font-size': FONT_SIZE_MAP[settings.fontSize] } as React.CSSProperties}>
           {lifecycle.isPausedForUser && <WorkshopPausedOverlay />}
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}

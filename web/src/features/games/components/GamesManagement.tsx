@@ -217,7 +217,7 @@ export function GamesManagement({
       <Container size="lg" py="xl">
         <Alert
           icon={<IconAlertCircle size={16} />}
-          title={t("errors.titles.error")}
+          title={t("errors:titles.error")}
           color="red"
         >
           {t("games.errors.loadFailed")}
