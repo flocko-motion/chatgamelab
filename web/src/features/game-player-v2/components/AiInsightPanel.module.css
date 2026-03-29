@@ -78,6 +78,27 @@
   opacity: 0.7;
 }
 
+.helpLink {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--mantine-radius-sm);
+  background: color-mix(in srgb, var(--game-ai-bg, #ffffff) 70%, black 30%);
+  color: var(--game-ai-font-color, var(--mantine-color-gray-6));
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.helpLink:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
 .tokenBadge {
   margin-left: auto;
   display: inline-flex;

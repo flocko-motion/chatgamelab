@@ -65,12 +65,9 @@ export function LinksCard({ title, links, highlighted = false }: LinksCardProps)
   return (
     <Card 
       p="lg" 
-      withBorder={!highlighted}
-      shadow="sm" 
+      withBorder
+      shadow="sm"
       h="100%"
-      style={highlighted ? {
-        background: 'var(--mantine-color-accent-1)',
-      } : undefined}
     >
       <CardTitle>{title}</CardTitle>
       <Stack gap="xs" mt="md">
@@ -83,7 +80,6 @@ export function LinksCard({ title, links, highlighted = false }: LinksCardProps)
             rel="noopener noreferrer"
             className={classes.linkItem}
             style={highlighted ? {
-              backgroundColor: '#ffffff',
               borderRadius: 'var(--mantine-radius-sm)',
               padding: '8px',
             } : undefined}
@@ -96,7 +92,7 @@ export function LinksCard({ title, links, highlighted = false }: LinksCardProps)
                   </ThemeIcon>
                 )}
                 <div style={{ minWidth: 0 }}>
-                  <Text size="sm" fw={500}>
+                  <Text size="sm" fw={700}>
                     {link.title}
                   </Text>
                   {link.description && (

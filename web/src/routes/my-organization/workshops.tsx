@@ -1,5 +1,5 @@
 import { createFileRoute, useSearch } from '@tanstack/react-router';
-import { Container, Title, Text, Stack, Alert } from '@mantine/core';
+import { Container, Title, Text, Stack, Alert, Group } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/providers/AuthProvider';
@@ -8,6 +8,8 @@ import { WorkshopsTab } from '@/features/my-organization/components/WorkshopsTab
 import { useQuery } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
+import { HelpLink } from '@components/HelpLink';
+import { HELP_LINKS } from '@/config/helpLinks';
 
 type WorkshopsSearch = {
   action?: 'create';
@@ -69,7 +71,10 @@ function OrganizationWorkshopsPage() {
       <Stack gap="lg">
         {/* Header */}
         <Stack gap={0}>
-          <Title order={2}>{t('myOrganization.workshops.title')}</Title>
+          <Group gap="sm" align="center">
+            <Title order={2}>{t('myOrganization.workshops.title')}</Title>
+            <HelpLink href={HELP_LINKS.EDUCATOR_INFO} />
+          </Group>
           {institution?.name && (
             <Text c="dimmed" size="sm">{institution.name}</Text>
           )}

@@ -28,6 +28,8 @@ import { useTranslation } from "react-i18next";
 import { useAdmin } from "@/common/hooks/useAdmin";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { ActionButton, CancelButton, DangerButton } from "@components/buttons";
+import { HelpLink } from "@components/HelpLink";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { useGame, useUpdateGame } from "@/api/hooks";
 import type { ObjGameTheme } from "@/api/generated";
 import { StatusFieldsEditor } from "./StatusFieldsEditor";
@@ -471,6 +473,7 @@ export function GameEditModal({
                   ? t("games.viewModal.title")
                   : t("games.editModal.title")}
             </Text>
+            <HelpLink href={HELP_LINKS.GAME_TIPS} />
             {!isCreateMode && game?.publicSponsoredApiKeyShareId && (
               <Badge
                 size="sm"

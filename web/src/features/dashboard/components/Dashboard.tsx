@@ -6,6 +6,7 @@ import { ROUTES } from "@/common/routes/routes";
 import { AppLayout, type NavItem } from "@/common/components/Layout";
 import { navigationLogger } from "@/config/logger";
 import { EXTERNAL_LINKS } from "@/config/externalLinks";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { formatRelativeTime } from "@/common/lib/formatters";
 import {
   useGames,
@@ -260,6 +261,13 @@ function ExternalLinksCard() {
   const { t } = useTranslation("dashboard");
 
   const links: LinkItem[] = [
+    {
+      id: "edu-info",
+      title: t("cards.externalLinks.edu.title"),
+      description: t("cards.externalLinks.edu.description"),
+      href: HELP_LINKS.EDUCATOR_INFO,
+      icon: <IconSchool size={16} />,
+    },
     {
       id: EXTERNAL_LINKS.CHATGAMELAB.id,
       title: t("cards.externalLinks.mainSite.title"),
