@@ -275,6 +275,7 @@
         "title": "Restart Game"
       },
       "title": "All Games",
+      "reportGame": "Report game",
       "unfavorite": "Remove from favorites",
       "workshop": "Workshop / Org"
     },

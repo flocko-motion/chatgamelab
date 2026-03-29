@@ -288,7 +288,6 @@ function ExternalLinksCard() {
     <LinksCard
       title={t("cards.externalLinks.title")}
       links={links}
-      highlighted
     />
   );
 }

@@ -31,9 +31,11 @@ export const HELP_LINKS = {
   /** General help / documentation page */
   HELP_PAGE: "https://chatgamelab.eu/hilfe/",
   /** Tips for creating games */
-  GAME_TIPS: "https://chatgamelab.eu/tipps/",
+  GAME_TIPS: "https://chatgamelab.eu/hilfe/",
   /** API key FAQ */
   API_KEY_FAQ: "https://chatgamelab.eu/faq#api",
   /** AI insights explanation */
   AI_INSIGHTS: "https://chatgamelab.eu/ai-insights",
+  /** Report a game / data protection */
+  REPORT_GAME: "https://chatgamelab.eu/datenschutz/",
 } as const;

@@ -41,7 +41,7 @@ export function AppLayout({
   return (
     <AppShell
       header={isAuthenticated ? { height: HEADER_HEIGHT } : undefined}
-      footer={darkMode ? undefined : { height: FOOTER_HEIGHT }}
+      footer={darkMode ? undefined : { height: { base: 0, sm: FOOTER_HEIGHT.sm } }}
       padding={darkMode ? 0 : { base: "sm", sm: "md" }}
       style={{
         background,

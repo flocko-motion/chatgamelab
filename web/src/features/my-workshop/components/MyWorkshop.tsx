@@ -520,7 +520,7 @@ export function MyWorkshop() {
     <>
       <Stack
         gap="lg"
-        h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }}
+        h={{ base: "calc(100vh - 130px)", sm: "calc(100vh - 280px)" }}
         style={{ overflow: "hidden", position: "relative" }}
       >
         {isPausedForUser && <WorkshopPausedOverlay />}
