@@ -14,9 +14,9 @@
  */
 export const CONTACT_EMAILS = {
   /** General support / contact email */
-  SUPPORT: "support@chatgamelab.eu",
+  SUPPORT: "chatgamelab@jff.de",
   /** Email for organization registration requests (educators / professionals) */
-  ORGANIZATION_REQUEST: "organizations@chatgamelab.eu",
+  ORGANIZATION_REQUEST: "chatgamelab@jff.de",
 } as const;
 
 /**
@@ -28,4 +28,12 @@ export const HELP_LINKS = {
   TERMS_OF_SERVICE: "https://chatgamelab.eu/nutzungsbedingungen/",
   /** Information about using ChatGameLab for educational purposes */
   EDUCATOR_INFO: "https://chatgamelab.eu/edu/",
+  /** General help / documentation page */
+  HELP_PAGE: "https://chatgamelab.eu/hilfe/",
+  /** Tips for creating games */
+  GAME_TIPS: "https://chatgamelab.eu/tipps/",
+  /** API key FAQ */
+  API_KEY_FAQ: "https://chatgamelab.eu/faq#api",
+  /** AI insights explanation */
+  AI_INSIGHTS: "https://chatgamelab.eu/ai-insights",
 } as const;

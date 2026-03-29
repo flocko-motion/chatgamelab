@@ -127,6 +127,7 @@
   },
   "common": {
     "actions": "Actions",
+    "help": "Help",
     "admin": {
       "invites": {
         "actions": "Actions",
@@ -1212,6 +1213,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Media pedagogy work with ChatGameLab",
+          "title": "About ChatGameLab"
+        },
         "jff": {
           "description": "Project coordinator and lead organization.",
           "title": "JFF – Institut für Medienpädagogik"

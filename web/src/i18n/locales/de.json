@@ -125,6 +125,7 @@
   },
   "common": {
     "actions": "Aktionen",
+    "help": "Hilfe",
     "admin": {
       "invites": {
         "actions": "Aktionen",
@@ -1211,6 +1212,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Medienpädagogisches Arbeiten mit dem ChatGameLab",
+          "title": "Über ChatGameLab"
+        },
         "jff": {
           "description": "Projektkoordinator und federführende Organisation.",
           "title": "JFF – Institut für Medienpädagogik"
