@@ -12,6 +12,7 @@ import { MessageList } from "./MessageList";
 import { StatusBar } from "./StatusBar";
 import { ImageLightbox } from "./ImageLightbox";
 import { BackgroundAnimation } from "./BackgroundAnimation";
+import { FONT_SIZE_MAP } from "./SceneCard";
 import classes from "./GamePlayer.module.css";
 
 /** Scene area with theme-aware background animation (shared with GamePlayer) */
@@ -127,7 +128,7 @@ export function GuestGamePlayer({
       StreamingMessageWrapper={themeResolution.StreamingMessageWrapper}
     >
       <GamePlayerProvider value={contextValue}>
-        <Box className={classes.container}>
+        <Box className={classes.container} style={{ '--game-font-size': FONT_SIZE_MAP[settings.fontSize] } as React.CSSProperties}>
           <GamePlayerHeader
             gameName={lifecycle.displayGame?.name}
             gameDescription={lifecycle.displayGame?.description}

@@ -22,7 +22,7 @@ interface SceneCardProps {
   isFirstGameMessage?: boolean;
 }
 
-const FONT_SIZE_MAP = {
+export const FONT_SIZE_MAP = {
   xs: "var(--mantine-font-size-xs)",
   sm: "var(--mantine-font-size-sm)",
   md: "var(--mantine-font-size-md)",
