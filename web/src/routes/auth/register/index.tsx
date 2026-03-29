@@ -49,10 +49,10 @@ function RegisterComponent() {
   const [educatorModalOpened, { open: openEducatorModal, close: closeEducatorModal }] =
     useDisclosure(false);
 
-  // Redirect to dashboard if already authenticated
+  // Redirect authenticated users — routing hub decides where to go
   useEffect(() => {
     if (user) {
-      router.navigate({ to: ROUTES.DASHBOARD });
+      router.navigate({ to: ROUTES.HOME });
     }
   }, [user, router]);
 

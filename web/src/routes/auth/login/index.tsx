@@ -22,10 +22,10 @@ function LoginComponent() {
   const { loginWithAuth0, loginWithRole, isDevMode, user } = useAuth();
   const router = useRouter();
 
-  // Redirect to dashboard if already authenticated
+  // Redirect authenticated users — routing hub decides where to go
   useEffect(() => {
     if (user) {
-      router.navigate({ to: ROUTES.DASHBOARD });
+      router.navigate({ to: ROUTES.HOME });
     }
   }, [user, router]);
 
