@@ -35,8 +35,8 @@ export const HELP_LINKS = {
   // ── Legal ──────────────────────────────────────────────────────────
   /** Privacy policy page */
   PRIVACY_POLICY: "/legal/privacy-policy",
-  /** Terms of service / usage agreement */
-  TERMS_OF_SERVICE: "/legal/terms-of-service",
+  /** Terms of service / usage agreement (external, not on docs site) */
+  TERMS_OF_SERVICE: "https://chatgamelab.eu/nutzungsbedingungen/",
   /** Imprint / legal notice */
   IMPRINT: "/legal/imprint",
 
@@ -102,6 +102,10 @@ export type HelpLinkPath = (typeof HELP_LINKS)[keyof typeof HELP_LINKS];
  *   <a href={getHelpUrl(HELP_LINKS.PRIVACY_POLICY)}>Privacy Policy</a>
  */
 export function getHelpUrl(path: HelpLinkPath): string {
+  // If path is already an absolute URL, return it directly
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
   // Strip trailing slash from base and leading slash from path to avoid doubles
   const base = HELP_BASE_URL.replace(/\/$/, "");
   const cleanPath = path.startsWith("/") ? path : `/${path}`;

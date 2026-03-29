@@ -147,15 +147,6 @@ function RegisterComponent() {
                 <BodyText size="sm" component="span">
                   {t("registerPage.agreePrefix", "I agree to the")}{" "}
                   <Anchor
-                    href={getHelpUrl(HELP_LINKS.PRIVACY_POLICY)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    size="sm"
-                  >
-                    {t("registerPage.privacyPolicy", "Privacy Policy")}
-                  </Anchor>{" "}
-                  {t("registerPage.agreeSuffix", "and")}{" "}
-                  <Anchor
                     href={getHelpUrl(HELP_LINKS.TERMS_OF_SERVICE)}
                     target="_blank"
                     rel="noopener noreferrer"
