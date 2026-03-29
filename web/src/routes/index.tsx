@@ -11,9 +11,9 @@ export const Route = createFileRoute(ROUTES.HOME)({
 
 /**
  * Pure routing hub — decides where the user should go:
- * - External homepage configured → redirect there
  * - Authenticated → dashboard
- * - Not authenticated → /landing (built-in landing page)
+ * - Not authenticated + external homepage → redirect there
+ * - Not authenticated + no external homepage → /landing
  */
 function HomeRouter() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,11 +22,10 @@ function HomeRouter() {
   useEffect(() => {
     if (isLoading) return;
 
-    if (hasExternalHomepage()) {
-      // External homepage: always redirect there (logged-in users go to dashboard via the external site)
-      window.location.href = getHomepageUrl();
-    } else if (isAuthenticated) {
+    if (isAuthenticated) {
       navigate({ to: ROUTES.DASHBOARD });
+    } else if (hasExternalHomepage()) {
+      window.location.href = getHomepageUrl();
     } else {
       navigate({ to: ROUTES.LANDING as "/" });
     }
