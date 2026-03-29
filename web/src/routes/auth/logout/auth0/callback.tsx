@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { Center, Loader, Text } from '@mantine/core';
 import { ROUTES } from '@/common/routes/routes';
 import { authLogger } from '@/config/logger';
-import { hasExternalHomepage, getHomepageUrl } from '@/common/lib/url';
 
 export const Route = createFileRoute('/auth/logout/auth0/callback')({
   component: Auth0LogoutCallback,
@@ -16,20 +15,11 @@ function Auth0LogoutCallback() {
     const handleLogoutCallback = () => {
       try {
         authLogger.debug('Processing logout callback completion');
-
-        // Redirect to external homepage if configured, otherwise built-in home
-        if (hasExternalHomepage()) {
-          window.location.href = getHomepageUrl();
-        } else {
-          navigate({ to: ROUTES.HOME });
-        }
+        // Navigate to routing hub — it decides where the user should go
+        navigate({ to: ROUTES.HOME });
       } catch (err) {
         authLogger.error('Auth0 logout callback error', { error: err });
-        if (hasExternalHomepage()) {
-          window.location.href = getHomepageUrl();
-        } else {
-          navigate({ to: ROUTES.HOME });
-        }
+        navigate({ to: ROUTES.HOME });
       }
     };
 

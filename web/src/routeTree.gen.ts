@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LandingRouteImport } from './routes/landing'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as IndexRouteImport } from './routes/index'
@@ -50,6 +51,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandingRoute = LandingRouteImport.update({
+  id: '/landing',
+  path: '/landing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/api-keys': typeof ApiKeysRoute
   '/dashboard': typeof DashboardRoute
+  '/landing': typeof LandingRoute
   '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/creations/$gameId': typeof CreationsGameIdRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/landing'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/landing'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/'
     | '/api-keys'
     | '/dashboard'
+    | '/landing'
     | '/profile'
     | '/settings'
     | '/creations/$gameId'
@@ -416,6 +428,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiKeysRoute: typeof ApiKeysRoute
   DashboardRoute: typeof DashboardRoute
+  LandingRoute: typeof LandingRoute
   ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   CreationsGameIdRoute: typeof CreationsGameIdRoute
@@ -461,6 +474,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landing': {
+      id: '/landing'
+      path: '/landing'
+      fullPath: '/landing'
+      preLoaderRoute: typeof LandingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -680,6 +700,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiKeysRoute: ApiKeysRoute,
   DashboardRoute: DashboardRoute,
+  LandingRoute: LandingRoute,
   ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   CreationsGameIdRoute: CreationsGameIdRoute,

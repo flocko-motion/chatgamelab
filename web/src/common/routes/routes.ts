@@ -12,6 +12,7 @@
 export const ROUTES = {
   // Core pages
   HOME: "/",
+  LANDING: "/landing",
   DASHBOARD: "/dashboard",
   PROFILE: "/profile",
   SETTINGS: "/settings",
@@ -74,7 +75,7 @@ export const ROUTES = {
 
 // Route groups for navigation menus
 export const NAVIGATION_GROUPS = {
-  MAIN: [ROUTES.HOME, ROUTES.DASHBOARD],
+  MAIN: [ROUTES.HOME, ROUTES.LANDING, ROUTES.DASHBOARD],
   AUTH: [ROUTES.AUTH_LOGIN, ROUTES.AUTH_REGISTER],
   USER: [ROUTES.PROFILE, ROUTES.SETTINGS, ROUTES.API_KEYS],
   MY_GAMES: [ROUTES.MY_GAMES],
