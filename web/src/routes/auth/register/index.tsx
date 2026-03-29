@@ -11,6 +11,8 @@ import {
   ActionIcon,
   Tooltip,
   Group,
+  Alert,
+  ThemeIcon,
   Button as MantineButton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
@@ -26,6 +28,7 @@ import {
   IconArrowLeft,
   IconCheck,
   IconCopy,
+  IconExternalLink,
 } from "@tabler/icons-react";
 import { ROUTES } from "@/common/routes/routes";
 import { HELP_LINKS, getHelpUrl, CONTACT_EMAILS } from "@/config/helpLinks";
@@ -231,24 +234,28 @@ function RegisterComponent() {
             )}
           </SectionTitle>
         }
-        size="md"
+        size="lg"
         centered
       >
-        <Stack gap="md">
-          <BodyText size="sm">
-            {t(
-              "registerPage.educatorModal.eduInfo",
-              "Learn more about using ChatGameLab for educational purposes:",
-            )}{" "}
-            <Anchor
-              href={getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
-              target="_blank"
-              rel="noopener noreferrer"
-              size="sm"
-            >
-              {getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
-            </Anchor>
-          </BodyText>
+        <Stack gap="lg">
+          {/* Edu info callout */}
+          <Alert variant="light" color="blue" icon={<IconExternalLink size={18} />}>
+            <BodyText size="sm">
+              {t(
+                "registerPage.educatorModal.eduInfo",
+                "Learn more about using ChatGameLab for educational purposes:",
+              )}{" "}
+              <Anchor
+                href={getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="sm"
+                fw={600}
+              >
+                chatgamelab.eu/edu
+              </Anchor>
+            </BodyText>
+          </Alert>
 
           <BodyText size="sm">
             {t(
@@ -257,81 +264,94 @@ function RegisterComponent() {
             )}
           </BodyText>
 
-          <Stack gap="sm">
-            <BodyText size="sm" fw={600}>
-              {t("registerPage.educatorModal.step1", "1. Register as an individual user first")}
-            </BodyText>
-            <BodyText size="sm">
-              {t(
-                "registerPage.educatorModal.step1Description",
-                "Create your personal account using the individual registration. This will be your login for the platform.",
-              )}
-            </BodyText>
-
-            <BodyText size="sm" fw={600}>
-              {t("registerPage.educatorModal.step2", "2. Send us an email")}
-            </BodyText>
-            <BodyText size="sm">
-              {t(
-                "registerPage.educatorModal.step2Description",
-                "Write an email to the address below with:",
-              )}
-            </BodyText>
-            <Stack gap={4} pl="md">
-              <BodyText size="sm">
-                {t(
-                  "registerPage.educatorModal.step2Item1",
-                  "Your registered email address",
-                )}
+          {/* Step 1 */}
+          <Group gap="sm" align="flex-start" wrap="nowrap">
+            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
+              <BodyText size="sm" fw={700}>1</BodyText>
+            </ThemeIcon>
+            <Stack gap={4}>
+              <BodyText size="sm" fw={600}>
+                {t("registerPage.educatorModal.step1", "Register as an individual user first")}
               </BodyText>
-              <BodyText size="sm">
+              <BodyText size="sm" c="dimmed">
                 {t(
-                  "registerPage.educatorModal.step2Item2",
-                  "The name of your organization (school, institution, etc.)",
+                  "registerPage.educatorModal.step1Description",
+                  "Create your personal account using the individual registration. This will be your login for the platform.",
                 )}
               </BodyText>
             </Stack>
+          </Group>
 
-            <Group gap="xs" align="center">
-              <Anchor
-                href={`mailto:${CONTACT_EMAILS.ORGANIZATION_REQUEST}`}
-                size="sm"
-                fw={600}
-              >
-                {CONTACT_EMAILS.ORGANIZATION_REQUEST}
-              </Anchor>
-              <CopyButton value={CONTACT_EMAILS.ORGANIZATION_REQUEST}>
-                {({ copied, copy }) => (
-                  <Tooltip
-                    label={copied ? t("registerPage.educatorModal.copied", "Copied!") : t("registerPage.educatorModal.copyEmail", "Copy email")}
-                    withArrow
-                  >
-                    <ActionIcon
-                      variant="subtle"
-                      color={copied ? "teal" : "gray"}
-                      onClick={copy}
-                      size="sm"
-                    >
-                      {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
-                    </ActionIcon>
-                  </Tooltip>
+          {/* Step 2 */}
+          <Group gap="sm" align="flex-start" wrap="nowrap">
+            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
+              <BodyText size="sm" fw={700}>2</BodyText>
+            </ThemeIcon>
+            <Stack gap="xs">
+              <BodyText size="sm" fw={600}>
+                {t("registerPage.educatorModal.step2", "Send us an email")}
+              </BodyText>
+              <BodyText size="sm" c="dimmed">
+                {t(
+                  "registerPage.educatorModal.step2Description",
+                  "Write an email to the address below with:",
                 )}
-              </CopyButton>
-            </Group>
+              </BodyText>
+              <Stack gap={4} pl="sm">
+                <BodyText size="sm" c="dimmed">
+                  • {t("registerPage.educatorModal.step2Item1", "Your registered email address")}
+                </BodyText>
+                <BodyText size="sm" c="dimmed">
+                  • {t("registerPage.educatorModal.step2Item2", "The name of your organization (school, institution, etc.)")}
+                </BodyText>
+              </Stack>
 
-            <BodyText size="sm" fw={600}>
-              {t(
-                "registerPage.educatorModal.step3",
-                "3. We'll set up your organization",
-              )}
-            </BodyText>
-            <BodyText size="sm">
-              {t(
-                "registerPage.educatorModal.step3Description",
-                "We will create your organization and assign you as the head. You can then invite colleagues and set up workshops.",
-              )}
-            </BodyText>
-          </Stack>
+              <Group gap="xs" align="center" mt={4}>
+                <Anchor
+                  href={`mailto:${CONTACT_EMAILS.ORGANIZATION_REQUEST}`}
+                  size="sm"
+                  fw={600}
+                >
+                  {CONTACT_EMAILS.ORGANIZATION_REQUEST}
+                </Anchor>
+                <CopyButton value={CONTACT_EMAILS.ORGANIZATION_REQUEST}>
+                  {({ copied, copy }) => (
+                    <Tooltip
+                      label={copied ? t("registerPage.educatorModal.copied", "Copied!") : t("registerPage.educatorModal.copyEmail", "Copy email")}
+                      withArrow
+                    >
+                      <ActionIcon
+                        variant="subtle"
+                        color={copied ? "teal" : "gray"}
+                        onClick={copy}
+                        size="sm"
+                      >
+                        {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
+                </CopyButton>
+              </Group>
+            </Stack>
+          </Group>
+
+          {/* Step 3 */}
+          <Group gap="sm" align="flex-start" wrap="nowrap">
+            <ThemeIcon size="lg" radius="xl" variant="light" color="blue" mt={2}>
+              <BodyText size="sm" fw={700}>3</BodyText>
+            </ThemeIcon>
+            <Stack gap={4}>
+              <BodyText size="sm" fw={600}>
+                {t("registerPage.educatorModal.step3", "We'll set up your organization")}
+              </BodyText>
+              <BodyText size="sm" c="dimmed">
+                {t(
+                  "registerPage.educatorModal.step3Description",
+                  "We will create your organization and assign you as the head. You can then invite colleagues and set up workshops.",
+                )}
+              </BodyText>
+            </Stack>
+          </Group>
 
           <Divider />
 
