@@ -69,6 +69,7 @@
       "loginLink": "Log in",
       "educatorModal": {
         "title": "Educator & Professional Access",
+        "eduInfo": "Learn more about using ChatGameLab for educational purposes:",
         "intro": "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
         "step1": "1. Register as an individual user first",
         "step1Description": "Create your personal account using the individual registration. This will be your login for the platform.",
