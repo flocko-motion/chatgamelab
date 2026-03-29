@@ -21,11 +21,12 @@ import type { ReactNode } from 'react';
 export interface HelperTextProps {
   children: ReactNode;
   c?: string;
+  ta?: 'left' | 'center' | 'right';
 }
 
-export function HelperText({ children, c }: HelperTextProps) {
+export function HelperText({ children, c, ta }: HelperTextProps) {
   return (
-    <Text size="sm" c={c || "gray.5"}>
+    <Text size="sm" c={c || "gray.5"} ta={ta}>
       {children}
     </Text>
   );
