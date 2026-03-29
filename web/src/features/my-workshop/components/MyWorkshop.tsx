@@ -109,7 +109,7 @@ export function MyWorkshop() {
   const [gameToDelete, setGameToDelete] = useState<ObjGame | null>(null);
   const [gameToView, setGameToView] = useState<string | null>(null);
   const [gameToViewReadOnly, setGameToViewReadOnly] = useState(false);
-  const [, setGameToViewIsOwner] = useState(false);
+  const [gameToViewIsOwner, setGameToViewIsOwner] = useState(false);
   const [
     sponsorModalOpened,
     { close: closeSponsorModal },
@@ -616,6 +616,7 @@ export function MyWorkshop() {
           setGameToView(null);
         }}
         readOnly={gameToViewReadOnly}
+        isOwner={gameToViewIsOwner}
         onSponsor={undefined}
         showShareSection={canEditAllWorkshopGames || (workshop?.allowGameSharing ?? false)}
         workshopId={workshop?.id}
