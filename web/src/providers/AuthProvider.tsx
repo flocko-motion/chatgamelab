@@ -405,11 +405,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
     } else if (isParticipant) {
       authLogger.debug("Logging out participant (clearing session and token)");
+      // Keep isLoading true to prevent __root.tsx shouldRedirect from firing
+      // before window.location.href takes effect
+      setIsLoading(true);
       setUser(null);
       setBackendUser(null);
       setIsAuthenticated(false);
       setIsParticipant(false);
-      setIsLoading(false);
       backendFetchAttempted.current = false;
       clearParticipantToken();
       try {
@@ -430,12 +432,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       window.location.href = homepageUrl;
     } else {
       authLogger.debug("Logging out from dev mode");
+      // Keep isLoading true to prevent __root.tsx shouldRedirect from firing
+      // before window.location.href takes effect
+      setIsLoading(true);
       devTokenCache.current = null;
       clearStoredDevToken();
       setUser(null);
       setIsAuthenticated(false);
       setIsParticipant(false);
-      setIsLoading(false);
       const homepageUrl = getHomepageUrl();
       authLogger.debug("Redirecting to homepage after logout", {
         url: homepageUrl,

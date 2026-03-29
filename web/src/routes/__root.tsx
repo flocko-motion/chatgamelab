@@ -22,7 +22,6 @@ import { useWorkshopMode } from "../providers/WorkshopModeProvider";
 import { RegistrationForm } from "../features/auth";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
-import { hasExternalHomepage, getHomepageUrl } from "../common/lib/url";
 import {
   isAdmin,
   getUserInstitutionId,
@@ -67,10 +66,13 @@ function RootComponent() {
     isGuestPlayRoute;
 
   // Public routes that don't require authentication
+  const isLandingPage = pathname === ROUTES.LANDING;
   const isPublicRoute =
     isHomePage ||
+    isLandingPage ||
     pathname.startsWith(ROUTES.AUTH_LOGIN) ||
     pathname.startsWith(ROUTES.AUTH_REGISTER) ||
+    pathname.startsWith(ROUTES.AUTH_LOGOUT) ||
     pathname.startsWith(ROUTES.INVITES) ||
     isGuestPlayRoute;
 
@@ -83,7 +85,7 @@ function RootComponent() {
   // Determine layout variant based on auth state
   const isFullyAuthenticated =
     isAuthenticated && backendUser && !needsRegistration;
-  const useAuthenticatedLayout = isFullyAuthenticated && !isHomePage;
+  const useAuthenticatedLayout = isFullyAuthenticated && !isHomePage && !isLandingPage;
 
   // Redirect to homepage only if NOT authenticated (not just waiting for backend user)
   // If authenticated but backendUser is still loading, keep showing loader instead of redirecting
@@ -106,11 +108,8 @@ function RootComponent() {
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
-      if (hasExternalHomepage()) {
-        window.location.href = getHomepageUrl();
-      } else {
-        navigate({ to: ROUTES.HOME });
-      }
+      // Always go to / — the routing hub decides where to send the user
+      navigate({ to: ROUTES.HOME });
     }
   }, [shouldRedirect, navigate]);
 
@@ -131,11 +130,7 @@ function RootComponent() {
   // Redirect to homepage when authenticated but backend user unavailable
   useEffect(() => {
     if (shouldRedirectNoBackendUser) {
-      if (hasExternalHomepage()) {
-        window.location.href = getHomepageUrl();
-      } else {
-        navigate({ to: ROUTES.HOME });
-      }
+      navigate({ to: ROUTES.HOME });
     }
   }, [shouldRedirectNoBackendUser, navigate]);
 
@@ -411,7 +406,7 @@ function RootComponent() {
         variant={useAuthenticatedLayout ? "authenticated" : "public"}
         navItems={useAuthenticatedLayout ? navItems : undefined}
         background={layoutBackground}
-        transparentFooter={isHomePage}
+        transparentFooter={isHomePage || isLandingPage}
         headerProps={headerProps}
         darkMode={isGamePlayerRoute}
         withContainer={!isGamePlayerRoute}
