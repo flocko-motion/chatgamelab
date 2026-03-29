@@ -570,11 +570,10 @@ function SharingSection({
   // Check if game belongs to the current workshop context
   const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
 
-  // In workshop mode, only show share section if the game belongs to this workshop,
-  // sharing is enabled (via showShareSection prop), and the game is public.
-  // Only public games can be shared in a workshop.
+  // In workshop mode, only show share section if the game belongs to this workshop
+  // and sharing is enabled. Non-owners can only share public games.
   const canShowShareInContext =
-    showShareSection && gameBelongsToWorkshop && (!workshopId || isPublic);
+    showShareSection && gameBelongsToWorkshop && (!workshopId || isOwner || isPublic);
 
   // Only show public sponsoring when game is public
   const canShowSponsoring = onSponsor && isPublic;
@@ -616,7 +615,7 @@ function SharingSection({
           </Alert>
         )}
 
-        {workshopId && gameBelongsToWorkshop && showShareSection && !isPublic && (
+        {workshopId && gameBelongsToWorkshop && showShareSection && !isOwner && !isPublic && (
           <Alert icon={<IconAlertCircle size={16} />} color="yellow" variant="light">
             {t("games.sharing.workshopShareRequiresPublic", "This game must be set to public by its creator before it can be shared in the workshop.")}
           </Alert>
