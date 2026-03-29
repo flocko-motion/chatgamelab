@@ -54,8 +54,8 @@
     "registerPage": {
       "title": "Create Your Account",
       "chooseType": "How would you like to use ChatGameLab?",
-      "individualTitle": "Individual User",
-      "individualDescription": "Create and play AI-powered text adventures on your own",
+      "individualTitle": "Personal Account",
+      "individualDescription": "Create and play AI-powered text adventures",
       "educatorTitle": "Educator / Professional",
       "educatorDescription": "Use ChatGameLab in workshops, classrooms, or your organization",
       "description": "We use Auth0 as our authentication provider to manage user accounts. You will be redirected to Auth0 to create your account, then returned here to complete your profile.",
@@ -71,8 +71,8 @@
         "title": "Educator & Professional Access",
         "eduInfo": "Learn more about using ChatGameLab for educational purposes:",
         "intro": "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
-        "step1": "1. Register as an individual user first",
-        "step1Description": "Create your personal account using the individual registration. This will be your login for the platform.",
+        "step1": "Create a personal account",
+        "step1Description": "Create your personal account first. This will be your login for the platform.",
         "step2": "2. Send us an email",
         "step2Description": "Write an email to the address below with:",
         "step2Item1": "Your registered email address",
@@ -82,7 +82,7 @@
         "copied": "Copied!",
         "copyEmail": "Copy email",
         "closeButton": "Close",
-        "registerButton": "Register as Individual"
+        "registerButton": "Create Personal Account"
       }
     },
     "register": {
