@@ -13,8 +13,7 @@ import { config } from "../config/env";
 import { Api } from "../api/generated";
 import { getApiConfig } from "../api/client/http";
 import { authLogger } from "../config/logger";
-import { ROUTES } from "../common/routes/routes";
-import { buildShareUrl } from "../common/lib/url";
+import { getHomepageUrl } from "../common/lib/url";
 import { extractRawErrorCode } from "../common/types/errorCodes";
 import type { AuthUser, AuthContextType } from "./auth/types";
 import { useTokenManager } from "./auth/useTokenManager";
@@ -259,19 +258,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }
     } else {
-      authLogger.debug("No token auth, trying cookie-based participant auth");
+      // Guest play routes (/play/*) are fully anonymous — no Auth0, no participant
+      // cookie, no stored token. Calling GET /users/me would always 401, so skip it.
+      const isGuestPlayRoute = window.location.pathname.startsWith("/play/");
 
       if (!backendFetchAttempted.current) {
         backendFetchAttempted.current = true;
-        tryParticipantAuth().then((authenticated) => {
-          if (!authenticated) {
-            setUser(null);
-            setBackendUser(null);
-            setIsAuthenticated(false);
-            setIsParticipant(false);
-          }
+
+        if (isGuestPlayRoute) {
+          authLogger.debug("Guest play route — skipping participant auth check");
+          setUser(null);
+          setBackendUser(null);
+          setIsAuthenticated(false);
+          setIsParticipant(false);
           setIsLoading(false);
-        });
+        } else {
+          authLogger.debug("No token auth, trying cookie-based participant auth");
+          tryParticipantAuth().then((authenticated) => {
+            if (!authenticated) {
+              setUser(null);
+              setBackendUser(null);
+              setIsAuthenticated(false);
+              setIsParticipant(false);
+            }
+            setIsLoading(false);
+          });
+        }
       } else {
         setIsLoading(false);
       }
@@ -411,10 +423,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           "Failed to clear session cookie (may already be cleared)",
         );
       }
+      const homepageUrl = getHomepageUrl();
       authLogger.debug("Redirecting to homepage after participant logout", {
-        path: ROUTES.HOME,
+        url: homepageUrl,
       });
-      window.location.href = buildShareUrl(ROUTES.HOME);
+      window.location.href = homepageUrl;
     } else {
       authLogger.debug("Logging out from dev mode");
       devTokenCache.current = null;
@@ -423,10 +436,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       setIsParticipant(false);
       setIsLoading(false);
+      const homepageUrl = getHomepageUrl();
       authLogger.debug("Redirecting to homepage after logout", {
-        path: ROUTES.HOME,
+        url: homepageUrl,
       });
-      window.location.href = buildShareUrl(ROUTES.HOME);
+      window.location.href = homepageUrl;
     }
   };
 

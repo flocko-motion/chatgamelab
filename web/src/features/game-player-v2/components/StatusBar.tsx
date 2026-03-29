@@ -64,7 +64,7 @@ export function StatusBar({ statusFields }: StatusBarProps) {
         py="xs"
         style={{ ...cssVars, overflow: "hidden" }}
       >
-        <Group gap="sm" wrap="nowrap" px="md">
+        <Group gap="sm" wrap="nowrap" px="md" justify="center">
           {/* Chip showing total field count — tap to expand */}
           <Popover
             opened={popoverOpened}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -14,6 +14,30 @@ import { extractRawErrorCode } from "@/common/types/errorCodes";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { useGameSession } from "./useGameSession";
 import type { GameInfo, PlayerActionInput } from "../types";
+
+// ── Starting progress tracking ──────────────────────────────────────────
+// Persists across route-change re-mounts (games/{id}/play → sessions/{id})
+
+const TOTAL_STARTING_STEPS = 6;
+
+interface CachedProgress {
+  steps: boolean[];
+  timestamp: string;
+}
+const progressCache = new Map<string, CachedProgress>();
+
+function makeTraceTimestamp(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(now.getFullYear() % 100)}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+}
+
+export interface StartingProgress {
+  completedSteps: boolean[];
+  sessionId: string | null;
+  gameId: string | null;
+  traceTimestamp: string;
+}
 
 interface UseSessionLifecycleOptions {
   gameId?: string;
@@ -53,6 +77,9 @@ export interface SessionLifecycle {
 
   // Workshop pause state (true when non-staff user and workshop is paused)
   isPausedForUser: boolean;
+
+  // Starting progress (dots + trace ID)
+  startingProgress: StartingProgress;
 }
 
 export function useSessionLifecycle({
@@ -242,7 +269,7 @@ export function useSessionLifecycle({
 
   // Upfront API key availability check
   const effectiveGameId = gameId || state.gameInfo?.id;
-  const { data: apiKeyAvailable = true } = useApiKeyStatus(effectiveGameId);
+  const { data: apiKeyAvailable = true, isLoading: apiKeyLoading } = useApiKeyStatus(effectiveGameId);
 
   const displayGame = (isContinuation ? state.gameInfo : game) as
     | GameInfo
@@ -257,6 +284,87 @@ export function useSessionLifecycle({
     if (!game.imageStyle?.trim()) missing.push("Image Style");
     return missing;
   }, [game, isContinuation]);
+
+  // ── Starting progress (6-dot indicator) ─────────────────────────────
+  // Persists across the route-change re-mount via module-level cache.
+
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
+    if (sessionId) {
+      const cached = progressCache.get(sessionId);
+      if (cached) return cached.steps;
+    }
+    return Array(TOTAL_STARTING_STEPS).fill(false);
+  });
+
+  const [traceTimestamp] = useState<string>(() => {
+    if (sessionId) {
+      const cached = progressCache.get(sessionId);
+      if (cached) return cached.timestamp;
+    }
+    return makeTraceTimestamp();
+  });
+
+  const markStep = useCallback((index: number) => {
+    setCompletedSteps(prev => {
+      if (prev[index]) return prev;
+      const next = [...prev];
+      next[index] = true;
+      return next;
+    });
+  }, []);
+
+  // Dot 0: API key status checked
+  useEffect(() => {
+    if (!isContinuation && !apiKeyLoading) markStep(0);
+  }, [isContinuation, apiKeyLoading, markStep]);
+
+  // Dot 1: Game data loaded
+  useEffect(() => {
+    if (!isContinuation && !gameLoading && game) markStep(1);
+  }, [isContinuation, gameLoading, game, markStep]);
+
+  // Dot 2: Session created (session ID available)
+  useEffect(() => {
+    if (state.sessionId) markStep(2);
+  }, [state.sessionId, markStep]);
+
+  // Dot 3: Navigated to session route
+  useEffect(() => {
+    if (state.sessionId && isOnSessionRoute) markStep(3);
+  }, [state.sessionId, isOnSessionRoute, markStep]);
+
+  // Dot 4: Session load in progress (phase left idle on session route)
+  useEffect(() => {
+    if (isOnSessionRoute && state.phase !== 'idle') markStep(4);
+  }, [isOnSessionRoute, state.phase, markStep]);
+
+  // Dot 5: Session fully loaded
+  useEffect(() => {
+    if (state.phase === 'playing') markStep(5);
+  }, [state.phase, markStep]);
+
+  // Persist progress for cross-remount survival
+  useEffect(() => {
+    const sid = state.sessionId || sessionId;
+    if (sid) {
+      progressCache.set(sid, { steps: completedSteps, timestamp: traceTimestamp });
+    }
+  }, [state.sessionId, sessionId, completedSteps, traceTimestamp]);
+
+  // Clean up cache once game is playing
+  useEffect(() => {
+    if (state.phase === 'playing') {
+      const sid = state.sessionId || sessionId;
+      if (sid) setTimeout(() => progressCache.delete(sid), 2000);
+    }
+  }, [state.phase, state.sessionId, sessionId]);
+
+  const startingProgress = useMemo((): StartingProgress => ({
+    completedSteps,
+    sessionId: state.sessionId,
+    gameId: gameId || null,
+    traceTimestamp,
+  }), [completedSteps, state.sessionId, gameId, traceTimestamp]);
 
   return {
     state,
@@ -278,5 +386,6 @@ export function useSessionLifecycle({
     isNoApiKeyError,
     apiKeyAvailable,
     isPausedForUser,
+    startingProgress,
   };
 }

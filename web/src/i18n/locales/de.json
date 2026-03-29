@@ -51,6 +51,39 @@
       "title": "Profil",
       "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
     },
+    "registerPage": {
+      "title": "Konto erstellen",
+      "chooseType": "Wie möchtest du ChatGameLab nutzen?",
+      "individualTitle": "Persönliches Konto",
+      "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer",
+      "educatorTitle": "Fachkraft / Lehrkraft",
+      "educatorDescription": "Nutze ChatGameLab in Workshops, im Unterricht oder in deiner Organisation",
+      "description": "Wir nutzen Auth0 als Authentifizierungsanbieter zur Verwaltung der Benutzerkonten. Du wirst zu Auth0 weitergeleitet, um dein Konto zu erstellen, und dann hierher zurückgeführt, um dein Profil zu vervollständigen.",
+      "agreePrefix": "Ich stimme den",
+      "termsOfService": "Nutzungsbedingungen",
+      "continueButton": "Weiter zur Registrierung",
+      "backButton": "Zurück",
+      "alreadyHaveAccount": "Bereits ein Konto?",
+      "loginLink": "Anmelden",
+      "educatorModal": {
+        "title": "Zugang für Fachkräfte & Lehrkräfte",
+        "eduInfo": "Erfahre mehr über die Nutzung von ChatGameLab für Bildungszwecke:",
+        "intro": "Um ChatGameLab mit deiner Organisation (Schule, Universität, Einrichtung) zu nutzen, folge bitte diesen Schritten:",
+        "step1": "Persönliches Konto erstellen",
+        "step1Description": "Erstelle zuerst dein persönliches Konto. Damit meldest du dich auf der Plattform an.",
+        "step2": "Schreibe uns eine E-Mail",
+        "step2Description": "Sende eine E-Mail an",
+        "step2WithInfo": "mit:",
+        "step2Item1": "Deiner registrierten E-Mail-Adresse",
+        "step2Item2": "Dem Namen deiner Organisation (Schule, Einrichtung etc.)",
+        "step3": "Wir richten deine Organisation ein",
+        "step3Description": "Wir erstellen deine Organisation und weisen dich als Leitung zu. Danach kannst du Kolleg:innen einladen und Workshops einrichten.",
+        "copied": "Kopiert!",
+        "copyEmail": "E-Mail kopieren",
+        "closeButton": "Schließen",
+        "registerButton": "Persönliches Konto erstellen"
+      }
+    },
     "register": {
       "cancelButton": "Abbrechen",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
@@ -93,6 +126,7 @@
   },
   "common": {
     "actions": "Aktionen",
+    "help": "Hilfe",
     "admin": {
       "invites": {
         "actions": "Aktionen",
@@ -240,6 +274,7 @@
         "title": "Spiel neu starten"
       },
       "title": "Alle Spiele",
+      "reportGame": "Spiel melden",
       "unfavorite": "Aus Favoriten entfernen",
       "workshop": "Workshop / Org"
     },
@@ -1179,6 +1214,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Medienpädagogisches Arbeiten mit dem ChatGameLab",
+          "title": "Über ChatGameLab"
+        },
         "jff": {
           "description": "Projektkoordinator und federführende Organisation.",
           "title": "JFF – Institut für Medienpädagogik"

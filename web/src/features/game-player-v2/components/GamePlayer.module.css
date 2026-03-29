@@ -104,7 +104,7 @@
   background: var(--game-status-bg, rgba(255,255,255,0.7));
   border: 1px solid var(--game-status-border, rgba(0, 0, 0, 0.1));
   border-radius: var(--mantine-radius-md);
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--game-font-size, var(--mantine-font-size-sm));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -125,7 +125,7 @@
   color: var(--game-status-font, var(--mantine-color-gray-6));
   font-weight: 600;
   text-transform: uppercase;
-  font-size: var(--mantine-font-size-xs);
+  font-size: calc(var(--game-font-size, var(--mantine-font-size-sm)) * 0.85);
   letter-spacing: 0.5px;
   display: inline-flex;
   align-items: center;
@@ -133,7 +133,7 @@
 }
 
 .statusFieldEmoji {
-  font-size: var(--mantine-font-size-sm);
+  font-size: var(--game-font-size, var(--mantine-font-size-sm));
   text-transform: none;
 }
 
@@ -1024,6 +1024,39 @@
   height: 100%;
   padding: var(--mantine-spacing-xl);
   text-align: center;
+}
+
+/* ── Starting Progress Dots ─────────────────────────────────────────── */
+
+.progressDots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.progressDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--mantine-color-gray-4);
+  background: transparent;
+  transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.progressDotFilled {
+  background: var(--mantine-color-accent-6, var(--mantine-color-violet-6));
+  border-color: var(--mantine-color-accent-6, var(--mantine-color-violet-6));
+  transform: scale(1.15);
+}
+
+/* ── Trace ID ───────────────────────────────────────────────────────── */
+
+.traceId {
+  font-family: 'Courier New', Consolas, monospace;
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-gray-5);
+  letter-spacing: 0.5px;
+  user-select: all;
 }
 
 /* ============================================================================

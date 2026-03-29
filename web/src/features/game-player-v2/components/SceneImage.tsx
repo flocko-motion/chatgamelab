@@ -28,6 +28,7 @@ export function SceneImage({
 }: SceneImageProps) {
   const { openLightbox, disableImageGeneration } = useGamePlayerContext();
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   // Build image URL:
   // - During generation: stable URL (no hash) so the <img> element stays mounted
@@ -47,6 +48,9 @@ export function SceneImage({
     }
   }, [imageStatus, imageErrorCode, disableImageGeneration]);
 
+  // Image 404'd (e.g. generation failed but hasImage is still true in DB) — hide entirely
+  if (loadFailed) return null;
+
   const showPlaceholder = imageStatus !== "error" && (!imageUrl || !hasLoaded);
   const isPartialImage = imageStatus === "generating" && !!imageUrl;
 
@@ -54,6 +58,9 @@ export function SceneImage({
     imageStatus === "error" && imageErrorCode
       ? translateErrorCode(imageErrorCode)
       : null;
+  // imageErrorCode may be a raw error message from SSE (not a known i18n code).
+  // Fall back to showing it directly if translateErrorCode didn't produce a result.
+  const errorMessage = errorInfo?.message || imageErrorCode || "Image generation failed";
 
   const handleImageLoad = () => {
     setHasLoaded(true);
@@ -71,7 +78,7 @@ export function SceneImage({
         <div className={classes.imageError}>
           <span className={classes.imageErrorIcon}>⚠️</span>
           <span className={classes.imageErrorText}>
-            {errorInfo?.message || "Image generation failed"}
+            {errorMessage}
           </span>
         </div>
       </div>
@@ -101,6 +108,7 @@ export function SceneImage({
           }
           className={`${classes.sceneImage} ${isPartialImage ? classes.partialImage : ""}`}
           onLoad={handleImageLoad}
+          onError={() => setLoadFailed(true)}
         />
       )}
     </div>

@@ -120,6 +120,10 @@ func (s *ApiKeyGameSharesSuite) TestWorkshopGameShareVisibleInApiKeys() {
 	s.Require().NoError(participant.AcceptWorkshopInviteByToken(*invite.InviteToken))
 	game := Must(participant.UploadGame("alien-first-contact"))
 	gameID := game.ID.String()
+	Must(participant.UpdateGame(gameID, map[string]interface{}{
+		"name":   game.Name,
+		"public": true,
+	}))
 	Must(participant.CreateWorkshopGameShare(gameID, wsIDStr, nil))
 
 	// Head should see the workshop game share in API keys response

@@ -102,6 +102,14 @@ func CreateGameShare(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Non-owners (head/staff) can only share public games.
+		// The game creator can always share their own game.
+		isOwner := game.Meta.CreatedBy.Valid && game.Meta.CreatedBy.UUID == user.ID
+		if !isOwner && !game.Public {
+			httpx.WriteError(w, http.StatusForbidden, "Only public games can be shared. The game creator must set it to public first.")
+			return
+		}
+
 		// Reuse existing workshop share if one exists
 		existing, err := db.GetWorkshopGameShare(r.Context(), gameID, *req.WorkshopID)
 		if err == nil {

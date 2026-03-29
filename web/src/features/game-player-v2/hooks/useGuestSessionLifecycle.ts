@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { showErrorModal } from "@/common/lib/globalErrorModal";
 import { useGuestGameSession } from "./useGuestGameSession";
 import type { GameInfo, PlayerActionInput } from "../types";
-import type { SessionLifecycle } from "./useSessionLifecycle";
+import type { SessionLifecycle, StartingProgress } from "./useSessionLifecycle";
 import type { GuestStartMode } from "../components/GuestWelcome";
 
 /**
@@ -121,6 +121,14 @@ export function useGuestSessionLifecycle(
 
   const displayGame = state.gameInfo as GameInfo | undefined;
 
+  // Simple starting progress for guest sessions (no per-step tracking)
+  const [startingProgress] = useState<StartingProgress>(() => ({
+    completedSteps: Array(6).fill(false),
+    sessionId: null,
+    gameId: null,
+    traceTimestamp: '',
+  }));
+
   return {
     state,
     startSession,
@@ -141,5 +149,6 @@ export function useGuestSessionLifecycle(
     isNoApiKeyError: false,
     apiKeyAvailable: true,
     isPausedForUser: false,
+    startingProgress,
   };
 }

@@ -22,6 +22,7 @@ import { useWorkshopMode } from "../providers/WorkshopModeProvider";
 import { RegistrationForm } from "../features/auth";
 import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
+import { hasExternalHomepage, getHomepageUrl } from "../common/lib/url";
 import {
   isAdmin,
   getUserInstitutionId,
@@ -69,6 +70,7 @@ function RootComponent() {
   const isPublicRoute =
     isHomePage ||
     pathname.startsWith(ROUTES.AUTH_LOGIN) ||
+    pathname.startsWith(ROUTES.AUTH_REGISTER) ||
     pathname.startsWith(ROUTES.INVITES) ||
     isGuestPlayRoute;
 
@@ -99,7 +101,11 @@ function RootComponent() {
   // All hooks must be called before any early returns
   useEffect(() => {
     if (shouldRedirect) {
-      navigate({ to: ROUTES.HOME });
+      if (hasExternalHomepage()) {
+        window.location.href = getHomepageUrl();
+      } else {
+        navigate({ to: ROUTES.HOME });
+      }
     }
   }, [shouldRedirect, navigate]);
 

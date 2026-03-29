@@ -543,7 +543,7 @@ export function MyGames({
     return (
       <Alert
         icon={<IconAlertCircle size={16} />}
-        title={t("errors.titles.error")}
+        title={t("errors:titles.error")}
         color="red"
       >
         {t("games.errors.loadFailed")}
@@ -555,7 +555,7 @@ export function MyGames({
     <>
       <Stack
         gap="lg"
-        h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }}
+        h={{ base: "calc(100vh - 130px)", sm: "calc(100vh - 280px)" }}
         style={{ overflow: "hidden" }}
       >
         {/* Sticky header section */}

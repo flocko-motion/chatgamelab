@@ -472,10 +472,14 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
                 if (chunk.imageDone) {
                   imageDone = true;
+                  // Explicit error from backend, or imageDone without any prior
+                  // imageData means the generation failed server-side.
+                  const isFailed = !!chunk.imageError || lastImageUpdateRef.current === 0;
                   updateMessage(messageId, {
                     isImageLoading: false,
-                    imageStatus: "complete",
-                    imageHash: `sse-${Date.now()}`,
+                    imageStatus: isFailed ? "error" : "complete",
+                    imageHash: isFailed ? undefined : `sse-${Date.now()}`,
+                    imageErrorCode: chunk.imageError,
                   });
                 }
 

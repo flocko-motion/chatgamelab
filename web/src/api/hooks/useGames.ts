@@ -38,6 +38,7 @@ export interface UseGamesParams {
 
 export function useGames(params?: UseGamesParams) {
   const api = useRequiredAuthenticatedApi();
+  const { isAuthenticated } = useAuth();
   const { search, sortBy, sortDir, filter } = params || {};
 
   return useQuery<ObjGame[], HttpxErrorResponse>({
@@ -52,6 +53,7 @@ export function useGames(params?: UseGamesParams) {
         })
         .then((response) => response.data),
     placeholderData: keepPreviousData,
+    enabled: isAuthenticated,
   });
 }
 

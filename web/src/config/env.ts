@@ -15,6 +15,12 @@ type AppConfig = {
   AUTH0_REDIRECT_URI?: string;
   PUBLIC_URL?: string;
   SENTRY_DSN_FRONTEND?: string;
+  /**
+   * External homepage URL for deployments with a separate landing page.
+   * When set, the root route (/) redirects here, and logout flows use this URL.
+   * When not set, the built-in landing page is shown at /.
+   */
+  HOMEPAGE_URL?: string;
 };
 
 declare global {
@@ -40,6 +46,7 @@ export const config: AppConfig = {
   AUTH0_REDIRECT_URI: runtime.AUTH0_REDIRECT_URI ?? import.meta.env.VITE_AUTH0_REDIRECT_URI,
   PUBLIC_URL: runtime.PUBLIC_URL || import.meta.env.PUBLIC_URL || '/',
   SENTRY_DSN_FRONTEND: runtime.SENTRY_DSN_FRONTEND ?? import.meta.env.VITE_SENTRY_DSN_FRONTEND,
+  HOMEPAGE_URL: runtime.HOMEPAGE_URL ?? import.meta.env.VITE_HOMEPAGE_URL,
 };
 
 const env = {

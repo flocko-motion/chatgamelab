@@ -10,6 +10,7 @@ import {
   Badge,
   Tooltip,
   Box,
+  Button,
 } from "@mantine/core";
 import {
   useMediaQuery,
@@ -29,6 +30,7 @@ import {
   IconEdit,
   IconHeartFilled,
   IconTrash,
+  IconFlag,
 } from "@tabler/icons-react";
 import { PageTitle } from "@components/typography";
 import {
@@ -44,6 +46,7 @@ import {
 } from "@components/DataTable";
 import { DimmedLoader } from "@components/LoadingAnimation";
 import { GenericIconButton } from "@components/buttons";
+import { HELP_LINKS } from "@/config/helpLinks";
 import { GameEditModal } from "./GameEditModal";
 import { DeleteGameModal } from "./DeleteGameModal";
 import { SponsorGameModal } from "./SponsorGameModal";
@@ -579,7 +582,7 @@ export function AllGames() {
     return (
       <Alert
         icon={<IconAlertCircle size={16} />}
-        title={t("errors.titles.error")}
+        title={t("errors:titles.error")}
         color="red"
       >
         {t("games.errors.loadFailed")}
@@ -591,12 +594,26 @@ export function AllGames() {
     <>
       <Stack
         gap="lg"
-        h={{ base: "calc(100vh - 180px)", sm: "calc(100vh - 280px)" }}
+        h={{ base: "calc(100vh - 130px)", sm: "calc(100vh - 280px)" }}
         style={{ overflow: "hidden" }}
       >
         {/* Sticky header section */}
         <Stack gap="lg" style={{ flexShrink: 0 }}>
-          <PageTitle>{t("allGames.title")}</PageTitle>
+          <Group justify="space-between" align="center">
+            <PageTitle>{t("allGames.title")}</PageTitle>
+            <Button
+              component="a"
+              href={HELP_LINKS.REPORT_GAME}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="light"
+              color="gray"
+              size="xs"
+              leftSection={<IconFlag size={14} color="var(--mantine-color-red-6)" />}
+            >
+              {t("allGames.reportGame")}
+            </Button>
+          </Group>
 
           {isMobile ? (
             <Group gap="sm" wrap="nowrap">

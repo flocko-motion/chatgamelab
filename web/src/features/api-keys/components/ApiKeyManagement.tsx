@@ -35,6 +35,8 @@ import {
 } from "@components/buttons";
 import { InfoCard } from "@components/cards";
 import { PageTitle } from "@components/typography";
+import { HelpLink } from "@components/HelpLink";
+import { HELP_LINKS } from "@/config/helpLinks";
 import {
   useApiKeys,
   useCreateApiKey,
@@ -181,7 +183,7 @@ export function ApiKeyManagement() {
     return (
       <Alert
         icon={<IconAlertCircle size={16} />}
-        title={t("errors.titles.error")}
+        title={t("errors:titles.error")}
         color="red"
       >
         {t("apiKeys.errors.loadFailed")}
@@ -192,7 +194,10 @@ export function ApiKeyManagement() {
   return (
     <Stack gap="xl">
       <Box>
-        <PageTitle>{t("apiKeys.title")}</PageTitle>
+        <Group gap="sm" align="center">
+          <PageTitle>{t("apiKeys.title")}</PageTitle>
+          <HelpLink href={HELP_LINKS.API_KEY_FAQ} />
+        </Group>
         <Text c="dimmed" mt="xs">
           {t("apiKeys.subtitle")}
         </Text>
