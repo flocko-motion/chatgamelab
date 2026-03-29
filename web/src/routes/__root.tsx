@@ -90,6 +90,11 @@ function RootComponent() {
   const shouldRedirect =
     !isLoading && !isAuthenticated && !isPublicRoute && !needsRegistration;
 
+  // Authenticated (e.g. Auth0 session) but backend user not available —
+  // redirect to homepage instead of rendering pages without a header
+  const shouldRedirectNoBackendUser =
+    !isLoading && isAuthenticated && !backendUser && !needsRegistration && !isPublicRoute;
+
   // Redirect participants to my-workshop if they try to access other routes
   const shouldRedirectParticipant =
     !isLoading && isParticipant && !isPublicRoute && !isParticipantAllowedRoute;
@@ -122,6 +127,17 @@ function RootComponent() {
       navigate({ to: ROUTES.MY_WORKSHOP as "/" });
     }
   }, [shouldRedirectWorkshopMode, navigate]);
+
+  // Redirect to homepage when authenticated but backend user unavailable
+  useEffect(() => {
+    if (shouldRedirectNoBackendUser) {
+      if (hasExternalHomepage()) {
+        window.location.href = getHomepageUrl();
+      } else {
+        navigate({ to: ROUTES.HOME });
+      }
+    }
+  }, [shouldRedirectNoBackendUser, navigate]);
 
   // Organization/Workshop permissions - needed early for nav items
   const userInstitutionId = getUserInstitutionId(backendUser);
@@ -364,6 +380,17 @@ function RootComponent() {
 
   // Show loading while redirecting
   if (shouldRedirect) {
+    return (
+      <AppLayout variant="public">
+        <Center h="50vh">
+          <Loader size="lg" />
+        </Center>
+      </AppLayout>
+    );
+  }
+
+  // Authenticated but no backend user — show loader while redirecting to homepage
+  if (shouldRedirectNoBackendUser) {
     return (
       <AppLayout variant="public">
         <Center h="50vh">
