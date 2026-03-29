@@ -66,7 +66,12 @@ export function getCookiePath(): string {
  */
 export function getHomepageUrl(): string {
   if (config.HOMEPAGE_URL) {
-    return config.HOMEPAGE_URL;
+    const url = config.HOMEPAGE_URL;
+    // Ensure the URL has a protocol so it's treated as absolute, not relative
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return `https://${url}`;
+    }
+    return url;
   }
   return buildShareUrl(ROUTES.HOME);
 }
