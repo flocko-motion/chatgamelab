@@ -237,6 +237,21 @@ function RegisterComponent() {
         <Stack gap="md">
           <BodyText size="sm">
             {t(
+              "registerPage.educatorModal.eduInfo",
+              "Learn more about using ChatGameLab for educational purposes:",
+            )}{" "}
+            <Anchor
+              href={getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="sm"
+            >
+              {getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
+            </Anchor>
+          </BodyText>
+
+          <BodyText size="sm">
+            {t(
               "registerPage.educatorModal.intro",
               "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
             )}

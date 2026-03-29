@@ -33,6 +33,8 @@ export const CONTACT_EMAILS = {
 export const HELP_LINKS = {
   /** Terms of service / usage agreement */
   TERMS_OF_SERVICE: "https://chatgamelab.eu/nutzungsbedingungen/",
+  /** Information about using ChatGameLab for educational purposes */
+  EDUCATOR_INFO: "https://chatgamelab.eu/edu/",
 } as const;
 
 /** Type for any help link path */
