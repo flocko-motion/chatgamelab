@@ -1,4 +1,5 @@
 import { config } from '@/config/env';
+import { ROUTES } from '@/common/routes/routes';
 
 /**
  * Get the base URL for the application.
@@ -55,4 +56,25 @@ export function getCookiePath(): string {
   }
 
   return '/api';
+}
+
+/**
+ * Get the homepage URL for redirects (logout, unauthenticated users, etc.).
+ *
+ * If HOMEPAGE_URL is configured, returns that external URL.
+ * Otherwise returns the built-in home route as a full URL.
+ */
+export function getHomepageUrl(): string {
+  if (config.HOMEPAGE_URL) {
+    return config.HOMEPAGE_URL;
+  }
+  return buildShareUrl(ROUTES.HOME);
+}
+
+/**
+ * Whether an external homepage is configured.
+ * When true, the built-in landing page should redirect to it.
+ */
+export function hasExternalHomepage(): boolean {
+  return !!config.HOMEPAGE_URL;
 }
