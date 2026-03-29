@@ -102,6 +102,12 @@ func CreateGameShare(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Only public games can be shared in a workshop
+		if !game.Public {
+			httpx.WriteError(w, http.StatusForbidden, "Only public games can be shared. The game creator must set it to public first.")
+			return
+		}
+
 		// Reuse existing workshop share if one exists
 		existing, err := db.GetWorkshopGameShare(r.Context(), gameID, *req.WorkshopID)
 		if err == nil {

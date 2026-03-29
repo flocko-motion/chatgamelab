@@ -450,6 +450,7 @@ export function GameEditModal({
             onSponsor={!isCreateMode ? onSponsor : undefined}
             showShareSection={!isCreateMode && showShareSection}
             workshopId={workshopId}
+            isOwner={isOwner}
           />
         </Stack>
       </ScrollArea>
@@ -547,6 +548,7 @@ function SharingSection({
   onSponsor,
   showShareSection,
   workshopId,
+  isOwner = true,
 }: {
   game?: {
     publicSponsoredApiKeyShareId?: string;
@@ -559,6 +561,7 @@ function SharingSection({
   onSponsor?: () => void;
   showShareSection?: boolean;
   workshopId?: string;
+  isOwner?: boolean;
 }) {
   const { t } = useTranslation("common");
 
@@ -567,10 +570,11 @@ function SharingSection({
   // Check if game belongs to the current workshop context
   const gameBelongsToWorkshop = !workshopId || game?.workshopId === workshopId;
 
-  // In workshop mode, only show share section if the game belongs to this workshop
-  // AND sharing is enabled (via showShareSection prop).
+  // In workshop mode, only show share section if the game belongs to this workshop,
+  // sharing is enabled (via showShareSection prop), and the game is public.
+  // Only public games can be shared in a workshop.
   const canShowShareInContext =
-    showShareSection && gameBelongsToWorkshop;
+    showShareSection && gameBelongsToWorkshop && (!workshopId || isPublic);
 
   // Only show public sponsoring when game is public
   const canShowSponsoring = onSponsor && isPublic;
@@ -586,16 +590,18 @@ function SharingSection({
       </Group>
 
       <Stack gap="lg">
-        {/* Visibility toggle */}
+        {/* Visibility toggle — only the creator can make a game public */}
         <Stack gap={4}>
           <Switch
             label={t("games.createModal.publicLabel")}
             checked={isPublic}
             onChange={(e) => setIsPublic(e.currentTarget.checked)}
-            disabled={readOnly}
+            disabled={readOnly || (!isOwner && !isPublic)}
           />
           <Text size="sm" c="dimmed">
-            {t("games.createModal.publicDescription")}
+            {!isOwner && !isPublic
+              ? t("games.createModal.publicOwnerOnly", "Only the game creator can make a game public")
+              : t("games.createModal.publicDescription")}
           </Text>
         </Stack>
         {!isPublic && game?.publicSponsoredApiKeyShareId && (
@@ -607,6 +613,12 @@ function SharingSection({
         {workshopId && !gameBelongsToWorkshop && (
           <Alert icon={<IconAlertCircle size={16} />} color="blue" variant="light">
             {t("games.sharing.publicGameWorkshopHint")}
+          </Alert>
+        )}
+
+        {workshopId && gameBelongsToWorkshop && showShareSection && !isPublic && (
+          <Alert icon={<IconAlertCircle size={16} />} color="yellow" variant="light">
+            {t("games.sharing.workshopShareRequiresPublic", "This game must be set to public by its creator before it can be shared in the workshop.")}
           </Alert>
         )}
 
