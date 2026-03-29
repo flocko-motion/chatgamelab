@@ -31,7 +31,7 @@ import {
   IconExternalLink,
 } from "@tabler/icons-react";
 import { ROUTES } from "@/common/routes/routes";
-import { HELP_LINKS, getHelpUrl, CONTACT_EMAILS } from "@/config/helpLinks";
+import { HELP_LINKS, CONTACT_EMAILS } from "@/config/helpLinks";
 import { LanguageSwitcher } from "@components/LanguageSwitcher";
 
 export const Route = createFileRoute("/auth/register/")({
@@ -155,7 +155,7 @@ function RegisterComponent() {
                 <BodyText size="sm" component="span">
                   {t("registerPage.agreePrefix", "I agree to the")}{" "}
                   <Anchor
-                    href={getHelpUrl(HELP_LINKS.TERMS_OF_SERVICE)}
+                    href={HELP_LINKS.TERMS_OF_SERVICE}
                     target="_blank"
                     rel="noopener noreferrer"
                     size="sm"
@@ -246,7 +246,7 @@ function RegisterComponent() {
                 "Learn more about using ChatGameLab for educational purposes:",
               )}{" "}
               <Anchor
-                href={getHelpUrl(HELP_LINKS.EDUCATOR_INFO)}
+                href={HELP_LINKS.EDUCATOR_INFO}
                 target="_blank"
                 rel="noopener noreferrer"
                 size="sm"
