@@ -76,7 +76,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     user: auth0User,
     isAuthenticated: auth0IsAuthenticated,
@@ -302,10 +302,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // ── Login / Logout ──────────────────────────────────────────────────
 
+  const AUTH0_LOCALE_MAP: Record<string, string> = { de: "de", en: "en", fr: "fr-FR", es: "es", it: "it" };
+
   const loginWithAuth0 = (options?: { screenHint?: string }) => {
-    authLogger.debug("Initiating Auth0 login", { screenHint: options?.screenHint });
+    const lang = i18n.language?.split("-")[0];
+    const auth0Locale = AUTH0_LOCALE_MAP[lang];
+    const uiLocales = auth0Locale ? `${auth0Locale} en` : "en";
+    authLogger.debug("Initiating Auth0 login", { screenHint: options?.screenHint, uiLocales });
     auth0LoginWithRedirect({
       authorizationParams: {
+        ui_locales: uiLocales,
         ...(options?.screenHint && { screen_hint: options.screenHint }),
       },
     });
