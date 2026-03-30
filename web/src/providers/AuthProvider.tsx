@@ -49,7 +49,7 @@ const defaultAuthContext: AuthContextType = {
   registrationData: null,
   backendError: null,
   isWorkshopInactive: false,
-  loginWithAuth0: () => {},
+  loginWithAuth0: () => { },
   loginWithRole: () => {},
   logout: () => {},
   isDevMode: false,
@@ -302,9 +302,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // ── Login / Logout ──────────────────────────────────────────────────
 
-  const loginWithAuth0 = () => {
-    authLogger.debug("Initiating Auth0 login");
-    auth0LoginWithRedirect();
+  const loginWithAuth0 = (options?: { screenHint?: string }) => {
+    authLogger.debug("Initiating Auth0 login", { screenHint: options?.screenHint });
+    auth0LoginWithRedirect({
+      authorizationParams: {
+        ...(options?.screenHint && { screen_hint: options.screenHint }),
+      },
+    });
   };
 
   const loginWithRole = async (role: string) => {
