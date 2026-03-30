@@ -10,23 +10,12 @@ const KEYFRAMES = `
 @keyframes frostBreathe {
   0%, 100% {
     filter: blur(0);
-    letter-spacing: 0;
     text-shadow:
       0 0 3px rgba(147, 197, 253, 0.3),
       0 0 1px rgba(255, 255, 255, 0.3);
   }
-  40% {
+  40%, 60% {
     filter: blur(0.5px);
-    letter-spacing: 0.1px;
-    text-shadow:
-      0 0 12px rgba(96, 165, 250, 0.8),
-      0 0 24px rgba(147, 197, 253, 0.5),
-      0 0 40px rgba(186, 230, 253, 0.3),
-      0 0 4px rgba(255, 255, 255, 0.7);
-  }
-  60% {
-    filter: blur(0.5px);
-    letter-spacing: 0.1px;
     text-shadow:
       0 0 12px rgba(96, 165, 250, 0.8),
       0 0 24px rgba(147, 197, 253, 0.5),
