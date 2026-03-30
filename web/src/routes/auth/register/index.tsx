@@ -57,7 +57,7 @@ function RegisterComponent() {
   }, [user, router]);
 
   const handleRegister = () => {
-    loginWithAuth0();
+    loginWithAuth0({ screenHint: 'signup' });
   };
 
   // Dev roles matching backend preseed users
@@ -161,7 +161,17 @@ function RegisterComponent() {
                     size="sm"
                   >
                     {t("registerPage.termsOfService", "Terms of Service")}
+                  </Anchor>{" "}
+                  {t("registerPage.agreeSuffix", "and")}{" "}
+                  <Anchor
+                    href={HELP_LINKS.PRIVACY_POLICY}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="sm"
+                  >
+                    {t("registerPage.privacyPolicy", "Privacy Policy")}
                   </Anchor>
+                  {t("registerPage.agreeSuffix2") && ` ${t("registerPage.agreeSuffix2")}`}
                 </BodyText>
               }
               checked={agreedToTerms}

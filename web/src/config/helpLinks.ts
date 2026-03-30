@@ -24,6 +24,10 @@ export const CONTACT_EMAILS = {
  * Use descriptive const names so it's clear what each link points to.
  */
 export const HELP_LINKS = {
+  /** Contact page */
+  CONTACT: "https://chatgamelab.eu/kontakt/",
+  /** Privacy policy / data protection */
+  PRIVACY_POLICY: "https://chatgamelab.eu/datenschutz/",
   /** Terms of service / usage agreement */
   TERMS_OF_SERVICE: "https://chatgamelab.eu/nutzungsbedingungen/",
   /** Information about using ChatGameLab for educational purposes */

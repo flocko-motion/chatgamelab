@@ -23,7 +23,7 @@ export const EXTERNAL_LINKS: Record<string, ExternalLink> = {
     id: 'contact',
     title: 'Contact',
     description: 'Get in touch with the ChatGameLab team',
-    href: 'https://chatgamelab.eu/?page_id=3',
+    href: 'https://chatgamelab.eu/kontakt/',
   },
   JFF: {
     id: 'jff',

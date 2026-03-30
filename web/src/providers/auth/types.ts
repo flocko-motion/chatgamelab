@@ -35,7 +35,7 @@ export interface AuthContextType {
   backendError: string | null;
   /** True if participant's workshop is inactive */
   isWorkshopInactive: boolean;
-  loginWithAuth0: () => void;
+  loginWithAuth0: (options?: { screenHint?: string }) => void;
   loginWithRole: (role: string) => void;
   logout: () => Promise<void> | void;
   isDevMode: boolean;
