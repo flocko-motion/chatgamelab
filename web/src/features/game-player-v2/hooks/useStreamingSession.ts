@@ -128,6 +128,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startPollingRef = useRef<(messageId: string) => void>(() => { });
   const lastImageUpdateRef = useRef(0);
+  const lastImageThrottleRef = useRef(0);
 
   // Keep adapter in a ref so callbacks don't depend on it
   const adapterRef = useRef(adapter);
@@ -339,6 +340,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
       const controller = new AbortController();
       abortControllerRef.current = controller;
       lastImageUpdateRef.current = 0;
+      lastImageThrottleRef.current = 0;
       const audioChunks: string[] = [];
 
       try {
@@ -419,11 +421,12 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
                 if (chunk.imageData) {
                   const now = Date.now();
+                  lastImageUpdateRef.current = now;
                   if (
-                    now - lastImageUpdateRef.current >=
+                    now - lastImageThrottleRef.current >=
                     PARTIAL_IMAGE_THROTTLE
                   ) {
-                    lastImageUpdateRef.current = now;
+                    lastImageThrottleRef.current = now;
                     updateMessage(messageId, {
                       imageStatus: "generating",
                       imageHash: `partial-${now}`,
