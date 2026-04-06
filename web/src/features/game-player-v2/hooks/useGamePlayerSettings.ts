@@ -54,7 +54,7 @@ export function useGamePlayerSettings(): GamePlayerSettings {
   const [useNeutralTheme, setUseNeutralTheme] = useState(false);
   const [isImageGenerationDisabled, setIsImageGenerationDisabled] =
     useState(false);
-  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(true);
 
   const openLightbox = useCallback((url: string, alt?: string) => {
     setLightboxImage({ url, alt });
