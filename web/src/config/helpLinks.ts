@@ -41,5 +41,5 @@ export const HELP_LINKS = {
   /** AI insights explanation */
   AI_INSIGHTS: "https://chatgamelab.eu/ai-insights",
   /** Report a game / data protection */
-  REPORT_GAME: "https://chatgamelab.eu/datenschutz/",
+  REPORT_GAME: "https://chatgamelab.eu/melden",
 } as const;
