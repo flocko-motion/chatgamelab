@@ -475,9 +475,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
 
                 if (chunk.imageDone) {
                   imageDone = true;
-                  // Explicit error from backend, or imageDone without any prior
-                  // imageData means the generation failed server-side.
-                  const isFailed = !!chunk.imageError || lastImageUpdateRef.current === 0;
+                  // Only treat as failed when the backend sends an explicit error.
+                  // Some platforms (e.g. Mistral) never stream imageData chunks —
+                  // they store the image server-side and just signal imageDone.
+                  const isFailed = !!chunk.imageError;
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: isFailed ? "error" : "complete",
