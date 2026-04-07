@@ -31,6 +31,9 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Altersgruppe",
+      "ageGroupU13": "13-17 Jahre",
+      "ageGroupU18": "18+",
       "gamesCreated": "Erstellte Spiele",
       "gamesPlayed": "Gespielte Spiele",
       "memberSince": "Angemeldet seit",
@@ -92,6 +95,12 @@
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adresse",
       "emailPlaceholder": "Gib deine E-Mail ein",
+      "ageGroupLabel": "Altersgruppe",
+      "ageGroupRequired": "Bitte wähle deine Altersgruppe",
+      "ageGroupU13": "13-17 Jahre alt",
+      "ageGroupU18": "18 oder älter",
+      "ageGroupUnder13": "Unter 13",
+      "ageGroupUnder13Error": "Du musst mindestens 13 Jahre alt sein, um ChatGameLab zu nutzen.",
       "errors": {
         "emailInvalid": "Bitte gib eine gültige E-Mail-Adresse ein",
         "emailRequired": "E-Mail ist erforderlich",
@@ -120,6 +129,10 @@
       "nameDescription": "So werden andere Benutzer dich sehen. Maximal 24 Zeichen.",
       "nameLabel": "Anzeigename",
       "namePlaceholder": "Gib deinen Anzeigenamen ein",
+      "ageGroupLabel": "Altersgruppe",
+      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten.",
+      "ageGroupU13": "13-17 Jahre",
+      "ageGroupU18": "18 oder älter",
       "saveButton": "Änderungen speichern",
       "saved": "Änderungen erfolgreich gespeichert",
       "saving": "Wird gespeichert...",
@@ -912,8 +925,11 @@
     },
     "myOrganization": {
       "actions": "Aktionen",
+      "promptConstraintsLabel": "Organisations-Einschränkungen",
+      "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
+      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn keine Workshop-Einschränkung gesetzt ist, und für per Link geteilte Spiele.",
       "apiKeys": {
-        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung. Nur Leiter und Lehrer können diese Schlüssel verwalten.",
+        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung.",
         "aboutTitle": "Organisations-API-Schlüssel",
         "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
         "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
@@ -1162,6 +1178,16 @@
         "description": "Qualitätsstufe bei Verwendung des freien API-Schlüssels. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer lassen für die Standardstufe.",
         "title": "Freie KI-Qualitätsstufe"
       },
+      "constraints": {
+        "title": "Altersbasierte Einschränkungen",
+        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Einschränkungen werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
+        "u13Label": "Einschränkung für Nutzer von 13-17 Jahren (U13)",
+        "u13Placeholder": "z.B. Halte alle Inhalte strikt altersgerecht für Jugendliche. Keine Gewalt, keine romantischen Inhalte, keine Horrorthemen.",
+        "u13Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren eingefügt.",
+        "u18Label": "Einschränkung für Nutzer ab 18 Jahren (U18)",
+        "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte.",
+        "u18Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer ab 18 Jahren eingefügt."
+      },
       "notAuthorized": "Sie haben keine Berechtigung, auf die Servereinstellungen zuzugreifen. Administratorzugang erforderlich.",
       "title": "Servereinstellungen"
     },
@@ -1370,6 +1396,7 @@
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
     "orgMembers": "Mitglieder",
+    "orgConstraints": "Einschränkungen",
     "orgWorkshops": "Workshops",
     "play": "Spiele spielen",
     "rooms": "Räume",

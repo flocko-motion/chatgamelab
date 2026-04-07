@@ -1,25 +1,38 @@
 import {
+  Card,
   Container,
   Title,
   Text,
+  Textarea,
   Stack,
+  Tabs,
   Alert,
 } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/api/queryKeys';
 import { useRequiredAuthenticatedApi } from '@/api/useAuthenticatedApi';
 import { useAuth } from '@/providers/AuthProvider';
-import { getUserInstitutionId } from '@/common/lib/roles';
+import { getUserInstitutionId, isAtLeastHead, isAtLeastStaff } from '@/common/lib/roles';
 import { MembersTab } from './MembersTab';
+import { WorkshopsTab } from './WorkshopsTab';
+import { ApiKeysTab } from './ApiKeysTab';
 
-export function MyOrganization() {
+interface MyOrganizationProps {
+  /** Auto-open the create workshop modal on mount */
+  autoCreateWorkshop?: boolean;
+}
+
+export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
   const { t } = useTranslation('common');
   const api = useRequiredAuthenticatedApi();
   const { backendUser } = useAuth();
+  const queryClient = useQueryClient();
 
   const institutionId = getUserInstitutionId(backendUser);
+  const canManage = isAtLeastStaff(backendUser);
+  const canEditSettings = isAtLeastHead(backendUser);
 
   // Fetch institution members
   const { data: members = [], isLoading, error } = useQuery({
@@ -41,6 +54,18 @@ export function MyOrganization() {
       return response.data;
     },
     enabled: !!institutionId,
+  });
+
+  const updatePromptConstraints = useMutation({
+    mutationFn: async (promptConstraints: string) => {
+      if (!institutionId) return;
+      await api.institutions.promptConstraintsPartialUpdate(institutionId, {
+        promptConstraints: promptConstraints || undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.institution(institutionId!) });
+    },
   });
 
   // Early returns for error states
@@ -75,12 +100,81 @@ export function MyOrganization() {
           )}
         </Stack>
 
-        {/* Members content */}
-        <MembersTab
-          members={members}
-          isLoading={isLoading}
-          institution={institution}
-        />
+        <Tabs defaultValue="members">
+          <Tabs.List>
+            <Tabs.Tab value="members" leftSection={<IconUsers size={16} />}>
+              {t('navigation:orgMembers')}
+            </Tabs.Tab>
+            {canManage && (
+              <Tabs.Tab value="workshops" leftSection={<IconSchool size={16} />}>
+                {t('navigation:orgWorkshops')}
+              </Tabs.Tab>
+            )}
+            {canManage && (
+              <Tabs.Tab value="apikeys" leftSection={<IconKey size={16} />}>
+                {t('navigation:orgApiKeys')}
+              </Tabs.Tab>
+            )}
+            {canEditSettings && (
+              <Tabs.Tab value="constraints" leftSection={<IconShieldLock size={16} />}>
+                {t('navigation:orgConstraints')}
+              </Tabs.Tab>
+            )}
+          </Tabs.List>
+
+          <Tabs.Panel value="members" pt="md">
+            <MembersTab
+              members={members}
+              isLoading={isLoading}
+              institution={institution}
+            />
+          </Tabs.Panel>
+
+          {canManage && (
+            <Tabs.Panel value="workshops" pt="md">
+              <WorkshopsTab
+                institutionId={institutionId}
+                institutionName={institution?.name}
+                autoCreate={autoCreateWorkshop}
+              />
+            </Tabs.Panel>
+          )}
+
+          {canManage && (
+            <Tabs.Panel value="apikeys" pt="md">
+              <ApiKeysTab
+                institutionId={institutionId}
+                institutionName={institution?.name}
+                freeUseApiKeyShareId={institution?.freeUseApiKeyShareId}
+              />
+            </Tabs.Panel>
+          )}
+
+          {canEditSettings && (
+            <Tabs.Panel value="constraints" pt="md">
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Textarea
+                  label={t('myOrganization.promptConstraintsLabel')}
+                  placeholder={t('myOrganization.promptConstraintsPlaceholder')}
+                  description={t('myOrganization.promptConstraintsHint')}
+                  size="sm"
+                  minRows={3}
+                  maxRows={4}
+                  autosize
+                  maxLength={200}
+                  defaultValue={institution?.promptConstraints || ''}
+                  key={`prompt-constraints-${institutionId}-${institution?.promptConstraints || ''}`}
+                  disabled={updatePromptConstraints.isPending}
+                  onBlur={(event) => {
+                    const nextValue = event.currentTarget.value;
+                    if ((institution?.promptConstraints || '') === nextValue) return;
+                    updatePromptConstraints.mutate(nextValue);
+                  }}
+                />
+              </Card>
+            </Tabs.Panel>
+          )}
+        </Tabs>
       </Stack>
     </Container>
   );

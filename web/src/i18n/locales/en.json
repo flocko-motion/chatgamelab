@@ -31,6 +31,9 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Age Group",
+      "ageGroupU13": "13-17 years",
+      "ageGroupU18": "18+",
       "gamesCreated": "Games Created",
       "gamesPlayed": "Games Played",
       "memberSince": "Registered since",
@@ -92,6 +95,12 @@
       "emailDescription": "We'll use this for important notifications.",
       "emailLabel": "Email Address",
       "emailPlaceholder": "Enter your email",
+      "ageGroupLabel": "Age Group",
+      "ageGroupRequired": "Please select your age group",
+      "ageGroupU13": "13-17 years old",
+      "ageGroupU18": "18 or older",
+      "ageGroupUnder13": "Under 13",
+      "ageGroupUnder13Error": "You must be at least 13 years old to use ChatGameLab.",
       "errors": {
         "emailInvalid": "Please enter a valid email address",
         "emailRequired": "Email is required",
@@ -120,6 +129,10 @@
       "nameDescription": "This is how other users will see you. Max 24 characters.",
       "nameLabel": "Display Name",
       "namePlaceholder": "Enter your display name",
+      "ageGroupLabel": "Age Group",
+      "ageGroupDescription": "Determines which content guidelines apply to your games.",
+      "ageGroupU13": "13-17 years",
+      "ageGroupU18": "18 or older",
       "saveButton": "Save Changes",
       "saved": "Changes saved successfully",
       "saving": "Saving...",
@@ -911,8 +924,11 @@
     },
     "myOrganization": {
       "actions": "Actions",
+      "promptConstraintsLabel": "Organization prompt constraints",
+      "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
+      "promptConstraintsHint": "Additional AI instructions for all sessions in this organization. Applies when no workshop-level constraint is set, and to games shared via link.",
       "apiKeys": {
-        "aboutDescription": "API keys shared here are available to all members of your organization for playing games. Only heads and teachers can manage these keys.",
+        "aboutDescription": "API keys shared here are available to all members of your organization for playing games.",
         "aboutTitle": "Organization API Keys",
         "allowPublicSponsoring": "Allow public sponsoring",
         "allowPublicSponsoringDesc": "This key can be used to sponsor games for all users.",
@@ -1161,6 +1177,16 @@
         "description": "Quality tier used when the free-use API key is active. Higher tiers cost more but may have higher quality. Leave empty to use the default tier.",
         "title": "Free-Use AI Quality Tier"
       },
+      "constraints": {
+        "title": "Age-Based Constraint Prompts",
+        "description": "Define mandatory AI rules based on the player's age group. These constraints are injected into every AI response. They apply to all logged-in users outside of workshop mode.",
+        "u13Label": "Constraint for users aged 13-17 (U13)",
+        "u13Placeholder": "e.g. Keep all content strictly age-appropriate for teenagers. No violence, no romantic content, no horror themes.",
+        "u13Hint": "Injected into every AI prompt for logged-in users aged 13-17.",
+        "u18Label": "Constraint for users aged 18+ (U18)",
+        "u18Placeholder": "e.g. Keep content appropriate. Avoid explicit violence or sexual content.",
+        "u18Hint": "Injected into every AI prompt for logged-in users aged 18 and above."
+      },
       "notAuthorized": "You don't have permission to access server settings. Admin access required.",
       "title": "Server Settings"
     },
@@ -1369,6 +1395,7 @@
     "myWorkshop": "My Workshop",
     "orgApiKeys": "API Keys",
     "orgMembers": "Members",
+    "orgConstraints": "Constraints",
     "orgWorkshops": "Workshops",
     "play": "Play a Game",
     "rooms": "Rooms",
