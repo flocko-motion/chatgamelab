@@ -2244,6 +2244,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/prompt-constraints": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets or clears prompt constraints for an institution (head or admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Update institution prompt constraints",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Prompt constraints",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateInstitutionPromptConstraintsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invites": {
             "get": {
                 "security": [
@@ -5007,6 +5071,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -5026,10 +5098,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -5372,6 +5440,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -5391,10 +5467,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -5447,6 +5519,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "plot": {
+                    "type": "string"
+                },
+                "promptConstraintSource": {
+                    "description": "source of active constraint (workshop, organisation, site13, site18)",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -5558,6 +5634,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "promptConstraints": {
                     "type": "string"
                 }
             }
@@ -5672,6 +5751,14 @@ const docTemplate = `{
                 },
                 "modifiedAt": {
                     "type": "string"
+                },
+                "promptConstraintU13": {
+                    "description": "constraint for users aged 13-17",
+                    "type": "string"
+                },
+                "promptConstraintU18": {
+                    "description": "constraint for users aged 18+",
+                    "type": "string"
                 }
             }
         },
@@ -5700,6 +5787,10 @@ const docTemplate = `{
         "obj.User": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "\"u13\" (13-17) or \"u18\" (18+), nil for guests",
+                    "type": "string"
+                },
                 "aiQualityTier": {
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
@@ -6242,6 +6333,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -6261,10 +6360,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -6418,6 +6513,10 @@ const docTemplate = `{
         "routes.RegisterRequest": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "\"u13\" (13-17) or \"u18\" (18+)",
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -6512,6 +6611,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "plot": {
+                    "type": "string"
+                },
+                "promptConstraintSource": {
+                    "description": "source of active constraint (workshop, organisation, site13, site18)",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -6619,6 +6722,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -6638,10 +6749,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -6746,6 +6853,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.UpdateInstitutionPromptConstraintsRequest": {
+            "type": "object",
+            "properties": {
+                "promptConstraints": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.UpdateInstitutionRequest": {
             "type": "object",
             "properties": {
@@ -6761,6 +6876,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "freeUseAiQualityTier": {
+                    "type": "string"
+                },
+                "promptConstraintU13": {
+                    "type": "string"
+                },
+                "promptConstraintU18": {
                     "type": "string"
                 }
             }
@@ -6803,6 +6924,10 @@ const docTemplate = `{
         "routes.UserUpdateRequest": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "\"u13\" or \"u18\"",
+                    "type": "string"
+                },
                 "aiQualityTier": {
                     "type": "string"
                 },

@@ -47,7 +47,7 @@ INSERT INTO institution (
   $3, $4, $5,
   $6
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
 `
 
 type CreateInstitutionParams struct {
@@ -80,6 +80,7 @@ func (q *Queries) CreateInstitution(ctx context.Context, arg CreateInstitutionPa
 		&i.DeletedAt,
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
 	)
 	return i, err
 }
@@ -278,7 +279,7 @@ func (q *Queries) DeleteWorkshopParticipantsByWorkshopID(ctx context.Context, wo
 }
 
 const getInstitutionByID = `-- name: GetInstitutionByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier FROM institution WHERE id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institution, error) {
@@ -294,6 +295,7 @@ func (q *Queries) GetInstitutionByID(ctx context.Context, id uuid.UUID) (Institu
 		&i.DeletedAt,
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
 	)
 	return i, err
 }
@@ -477,7 +479,7 @@ func (q *Queries) HardDeleteWorkshopsByInstitution(ctx context.Context, institut
 }
 
 const listInstitutions = `-- name: ListInstitutions :many
-SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier FROM institution WHERE deleted_at IS NULL ORDER BY name
+SELECT id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints FROM institution WHERE deleted_at IS NULL ORDER BY name
 `
 
 func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
@@ -499,6 +501,7 @@ func (q *Queries) ListInstitutions(ctx context.Context) ([]Institution, error) {
 			&i.DeletedAt,
 			&i.FreeUseApiKeyShareID,
 			&i.FreeUseAiQualityTier,
+			&i.PromptConstraints,
 		); err != nil {
 			return nil, err
 		}
@@ -679,7 +682,7 @@ UPDATE institution SET
   modified_at = $5,
   name = $6
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier
+RETURNING id, created_by, created_at, modified_by, modified_at, name, deleted_at, free_use_api_key_share_id, free_use_ai_quality_tier, prompt_constraints
 `
 
 type UpdateInstitutionParams struct {
@@ -711,6 +714,7 @@ func (q *Queries) UpdateInstitution(ctx context.Context, arg UpdateInstitutionPa
 		&i.DeletedAt,
 		&i.FreeUseApiKeyShareID,
 		&i.FreeUseAiQualityTier,
+		&i.PromptConstraints,
 	)
 	return i, err
 }
@@ -728,6 +732,22 @@ type UpdateInstitutionFreeUseAiQualityTierParams struct {
 
 func (q *Queries) UpdateInstitutionFreeUseAiQualityTier(ctx context.Context, arg UpdateInstitutionFreeUseAiQualityTierParams) error {
 	_, err := q.db.ExecContext(ctx, updateInstitutionFreeUseAiQualityTier, arg.ID, arg.FreeUseAiQualityTier)
+	return err
+}
+
+const updateInstitutionPromptConstraints = `-- name: UpdateInstitutionPromptConstraints :exec
+UPDATE institution
+SET prompt_constraints = $2, modified_at = now()
+WHERE id = $1
+`
+
+type UpdateInstitutionPromptConstraintsParams struct {
+	ID                uuid.UUID
+	PromptConstraints sql.NullString
+}
+
+func (q *Queries) UpdateInstitutionPromptConstraints(ctx context.Context, arg UpdateInstitutionPromptConstraintsParams) error {
+	_, err := q.db.ExecContext(ctx, updateInstitutionPromptConstraints, arg.ID, arg.PromptConstraints)
 	return err
 }
 

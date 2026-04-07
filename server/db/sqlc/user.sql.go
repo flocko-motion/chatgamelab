@@ -400,20 +400,26 @@ func (q *Queries) CreateTargetedInvite(ctx context.Context, arg CreateTargetedIn
 
 const createUser = `-- name: CreateUser :one
 
-INSERT INTO app_user (id, name, email, auth0_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
+INSERT INTO app_user (id, name, email, auth0_id, age_group)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id
 `
 
 type CreateUserParams struct {
-	Name    string
-	Email   sql.NullString
-	Auth0ID sql.NullString
+	Name     string
+	Email    sql.NullString
+	Auth0ID  sql.NullString
+	AgeGroup sql.NullString
 }
 
 // app_user -------------------------------------------------------------
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email, arg.Auth0ID)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.Name,
+		arg.Email,
+		arg.Auth0ID,
+		arg.AgeGroup,
+	)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
@@ -1187,7 +1193,7 @@ func (q *Queries) GetUserApiKeys(ctx context.Context, userID uuid.UUID) ([]GetUs
 }
 
 const getUserByAuth0ID = `-- name: GetUserByAuth0ID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE auth0_id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) (AppUser, error) {
@@ -1208,12 +1214,13 @@ func (q *Queries) GetUserByAuth0ID(ctx context.Context, auth0ID sql.NullString) 
 		&i.AiQualityTier,
 		&i.Language,
 		&i.PrivateShareID,
+		&i.AgeGroup,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE email = $1 AND deleted_at IS NULL
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE email = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (AppUser, error) {
@@ -1234,12 +1241,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email sql.NullString) (App
 		&i.AiQualityTier,
 		&i.Language,
 		&i.PrivateShareID,
+		&i.AgeGroup,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id FROM app_user WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, name, email, deleted_at, auth0_id, participant_token, default_api_key_share_id, ai_quality_tier, language, private_share_id, age_group FROM app_user WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error) {
@@ -1260,12 +1268,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (AppUser, error
 		&i.AiQualityTier,
 		&i.Language,
 		&i.PrivateShareID,
+		&i.AgeGroup,
 	)
 	return i, err
 }
 
 const getUserByParticipantToken = `-- name: GetUserByParticipantToken :one
-SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.ai_quality_tier, u.language, u.private_share_id
+SELECT u.id, u.created_by, u.created_at, u.modified_by, u.modified_at, u.name, u.email, u.deleted_at, u.auth0_id, u.participant_token, u.default_api_key_share_id, u.ai_quality_tier, u.language, u.private_share_id, u.age_group
 FROM app_user u
 INNER JOIN user_role ur ON u.id = ur.user_id
 INNER JOIN workshop w ON ur.workshop_id = w.id
@@ -1295,6 +1304,7 @@ func (q *Queries) GetUserByParticipantToken(ctx context.Context, participantToke
 		&i.AiQualityTier,
 		&i.Language,
 		&i.PrivateShareID,
+		&i.AgeGroup,
 	)
 	return i, err
 }
@@ -1324,11 +1334,13 @@ SELECT
   u.default_api_key_share_id,
   u.ai_quality_tier,
   u.language,
+  u.age_group,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
   i.name         AS institution_name,
   i.free_use_api_key_share_id AS institution_free_use_api_key_share_id,
+  i.prompt_constraints AS institution_prompt_constraints,
   r.workshop_id,
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
@@ -1377,11 +1389,13 @@ type GetUserDetailsByIDRow struct {
 	DefaultApiKeyShareID                     uuid.NullUUID
 	AiQualityTier                            sql.NullString
 	Language                                 string
+	AgeGroup                                 sql.NullString
 	RoleID                                   uuid.NullUUID
 	Role                                     sql.NullString
 	InstitutionID                            uuid.NullUUID
 	InstitutionName                          sql.NullString
 	InstitutionFreeUseApiKeyShareID          uuid.NullUUID
+	InstitutionPromptConstraints             sql.NullString
 	WorkshopID                               uuid.NullUUID
 	WorkshopName                             sql.NullString
 	WorkshopShowPublicGames                  sql.NullBool
@@ -1418,11 +1432,13 @@ func (q *Queries) GetUserDetailsByID(ctx context.Context, id uuid.UUID) (GetUser
 		&i.DefaultApiKeyShareID,
 		&i.AiQualityTier,
 		&i.Language,
+		&i.AgeGroup,
 		&i.RoleID,
 		&i.Role,
 		&i.InstitutionID,
 		&i.InstitutionName,
 		&i.InstitutionFreeUseApiKeyShareID,
+		&i.InstitutionPromptConstraints,
 		&i.WorkshopID,
 		&i.WorkshopName,
 		&i.WorkshopShowPublicGames,
@@ -1903,6 +1919,23 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.ExecContext(ctx, updateUser, arg.ID, arg.Name, arg.Email)
+	return err
+}
+
+const updateUserAgeGroup = `-- name: UpdateUserAgeGroup :exec
+UPDATE app_user SET
+  age_group = $2,
+  modified_at = now()
+WHERE id = $1
+`
+
+type UpdateUserAgeGroupParams struct {
+	ID       uuid.UUID
+	AgeGroup sql.NullString
+}
+
+func (q *Queries) UpdateUserAgeGroup(ctx context.Context, arg UpdateUserAgeGroupParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserAgeGroup, arg.ID, arg.AgeGroup)
 	return err
 }
 

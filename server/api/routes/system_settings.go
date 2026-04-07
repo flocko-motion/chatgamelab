@@ -42,6 +42,8 @@ func GetSystemSettings(w http.ResponseWriter, r *http.Request) {
 type UpdateSystemSettingsRequest struct {
 	DefaultAiQualityTier *string `json:"defaultAiQualityTier"`
 	FreeUseAiQualityTier *string `json:"freeUseAiQualityTier"`
+	PromptConstraintU13  *string `json:"promptConstraintU13"`
+	PromptConstraintU18  *string `json:"promptConstraintU18"`
 }
 
 // UpdateSystemSettings godoc
@@ -90,6 +92,28 @@ func UpdateSystemSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := db.UpdateFreeUseAiQualityTier(r.Context(), tier); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update free-use AI quality tier: "+err.Error())
+			return
+		}
+	}
+
+	if req.PromptConstraintU13 != nil {
+		constraint := req.PromptConstraintU13
+		if *constraint == "" {
+			constraint = nil
+		}
+		if err := db.UpdatePromptConstraintU13(r.Context(), constraint); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update U13 constraint: "+err.Error())
+			return
+		}
+	}
+
+	if req.PromptConstraintU18 != nil {
+		constraint := req.PromptConstraintU18
+		if *constraint == "" {
+			constraint = nil
+		}
+		if err := db.UpdatePromptConstraintU18(r.Context(), constraint); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update U18 constraint: "+err.Error())
 			return
 		}
 	}

@@ -370,3 +370,65 @@ func SetInstitutionFreeUseApiKeyShare(w http.ResponseWriter, r *http.Request) {
 
 	httpx.WriteJSON(w, http.StatusOK, institution)
 }
+
+// UpdateInstitutionPromptConstraintsRequest is the request body for updating institution prompt constraints
+type UpdateInstitutionPromptConstraintsRequest struct {
+	PromptConstraints *string `json:"promptConstraints"`
+}
+
+// UpdateInstitutionPromptConstraints godoc
+//
+//	@Summary		Update institution prompt constraints
+//	@Description	Sets or clears prompt constraints for an institution (head or admin only)
+//	@Tags			institutions
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string											true	"Institution ID"
+//	@Param			request	body		UpdateInstitutionPromptConstraintsRequest		true	"Prompt constraints"
+//	@Success		200		{object}	obj.Institution
+//	@Failure		400		{object}	httpx.ErrorResponse
+//	@Failure		403		{object}	httpx.ErrorResponse
+//	@Failure		500		{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/institutions/{id}/prompt-constraints [patch]
+func UpdateInstitutionPromptConstraints(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	institutionID, err := httpx.PathParamUUID(r, "id")
+	if err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid institution ID")
+		return
+	}
+
+	var req UpdateInstitutionPromptConstraintsRequest
+	if err := httpx.ReadJSON(r, &req); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+		return
+	}
+
+	constraint := req.PromptConstraints
+	if constraint != nil && *constraint == "" {
+		constraint = nil
+	}
+
+	if err := db.UpdateInstitutionPromptConstraints(r.Context(), user.ID, institutionID, constraint); err != nil {
+		if httpErr, ok := err.(*obj.HTTPError); ok {
+			httpx.WriteHTTPError(w, httpErr)
+			return
+		}
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to update prompt constraints: "+err.Error())
+		return
+	}
+
+	updatedInstitution, err := db.GetInstitutionByID(r.Context(), user.ID, institutionID)
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get updated institution: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, updatedInstitution)
+}

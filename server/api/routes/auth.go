@@ -15,8 +15,9 @@ import (
 
 // RegisterRequest is the request body for user registration
 type RegisterRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	AgeGroup string `json:"ageGroup"` // "u13" (13-17) or "u18" (18+)
 }
 
 // RegisterUser godoc
@@ -75,6 +76,17 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate age group
+	ageGroup := strings.TrimSpace(req.AgeGroup)
+	if ageGroup == "" {
+		httpx.WriteError(w, http.StatusBadRequest, "Age group is required")
+		return
+	}
+	if ageGroup != "u13" && ageGroup != "u18" {
+		httpx.WriteError(w, http.StatusBadRequest, "Age group must be 'u13' or 'u18'")
+		return
+	}
+
 	// Check if user already exists with this Auth0 ID
 	log.Debug("checking if user exists by auth0_id", "auth0_id", auth0ID, "email", email, "name", name)
 	existingUser, err := db.GetUserByAuth0ID(r.Context(), auth0ID)
@@ -112,7 +124,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Create the user
 	log.Info("attempting to create user", "name", name, "email", email, "auth0_id", auth0ID)
-	user, err := db.CreateUser(r.Context(), name, &email, auth0ID)
+	user, err := db.CreateUser(r.Context(), name, &email, auth0ID, &ageGroup)
 	if err != nil {
 		log.Error("failed to create user", "name", name, "email", email, "auth0_id", auth0ID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user")

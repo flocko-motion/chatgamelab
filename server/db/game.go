@@ -756,7 +756,8 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
 		HasAudio:      msg.HasAudioOut,
-		ApiKeyType:    sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -829,7 +830,8 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
-		ApiKeyType:            sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1079,16 +1081,98 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
 	}
 
-	// Load workshop prompt constraints from user's role (if in a workshop)
+	// Resolve prompt constraints using priority chain:
+	// Workshop mode: workshop > org > age-based
+	// No workshop: age-based (U13/U18)
+	// Guest: constraints resolved separately via game share (not here)
 	user, err := GetUserByID(ctx, s.UserID)
-	if err == nil && user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
-		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
-		if constraints != "" {
-			session.WorkshopPromptConstraints = &constraints
-		}
+	if err == nil {
+		session.PromptConstraints, session.PromptConstraintSource = ResolveUserConstraint(ctx, user)
 	}
 
 	return session, nil
+}
+
+// ResolveUserConstraint determines the active prompt constraint for a logged-in user.
+// Priority: workshop constraint > org constraint > age-based site constraint.
+// Returns the constraint text and a short source label (e.g. "workshop", "organisation", "site13", "site18").
+// The source label always reflects which rule matched, even if no constraint text is configured.
+func ResolveUserConstraint(ctx context.Context, user *obj.User) (*string, string) {
+	// Workshop mode: first non-empty constraint wins, but source reflects the matching rule
+	if user.Role != nil && user.Role.Workshop != nil {
+		if c := trimConstraint(user.Role.Workshop.PromptConstraints); c != nil {
+			return c, "workshop"
+		}
+		if user.Role.Institution != nil {
+			if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
+				return c, "organisation"
+			}
+		}
+		// No constraint text configured at workshop or org level — report which level matched
+		// (workshop takes precedence as the active context)
+		return nil, "workshop"
+	}
+	// Age-based fallback from system settings
+	return resolveAgeConstraint(ctx, user.AgeGroup)
+}
+
+// resolveAgeConstraint returns the site-level constraint for the user's age group.
+// If age group is unknown (nil), defaults to u13 (strictest assumption).
+// Always returns the source label, even when no constraint text is configured.
+func resolveAgeConstraint(ctx context.Context, ageGroup *string) (*string, string) {
+	effectiveGroup := "u13" // default: assume youngest allowed age for safety
+	if ageGroup != nil {
+		effectiveGroup = *ageGroup
+	}
+	settings, err := GetSystemSettings(ctx)
+	switch effectiveGroup {
+	case "u13":
+		if err == nil && settings != nil {
+			return trimConstraint(settings.PromptConstraintU13), "site13"
+		}
+		return nil, "site13"
+	case "u18":
+		if err == nil && settings != nil {
+			return trimConstraint(settings.PromptConstraintU18), "site18"
+		}
+		return nil, "site18"
+	}
+	return nil, "site13"
+}
+
+// trimConstraint returns the trimmed constraint string, or nil if empty.
+func trimConstraint(s *string) *string {
+	if s == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*s)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
+}
+
+// ResolveShareConstraint determines the active prompt constraint for a guest playing via shared link.
+// Priority: workshop constraint > org constraint.
+// Returns the constraint text and a short source label.
+func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*string, string) {
+	if gameShare.WorkshopID != nil {
+		workshop, err := GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
+		if err == nil {
+			if c := trimConstraint(workshop.PromptConstraints); c != nil {
+				return c, "workshop"
+			}
+		}
+	}
+	if gameShare.InstitutionID != nil {
+		inst, err := queries().GetInstitutionByID(ctx, *gameShare.InstitutionID)
+		if err == nil && inst.PromptConstraints.Valid {
+			if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
+				return c, "organisation"
+			}
+		}
+	}
+	return nil, ""
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
@@ -1275,6 +1359,9 @@ func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 	}
 	if m.ApiKeyType.Valid {
 		msg.ApiKeyType = m.ApiKeyType.String
+	}
+	if m.PromptConstraintSource.Valid {
+		msg.PromptConstraintSource = m.PromptConstraintSource.String
 	}
 }
 

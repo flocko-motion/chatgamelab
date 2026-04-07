@@ -46,6 +46,9 @@ func CreateInstitution(ctx context.Context, createdBy uuid.UUID, name string) (*
 	if result.FreeUseApiKeyShareID.Valid {
 		inst.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
 	}
+	if result.PromptConstraints.Valid {
+		inst.PromptConstraints = &result.PromptConstraints.String
+	}
 	return inst, nil
 }
 
@@ -85,6 +88,9 @@ func GetInstitutionByID(ctx context.Context, userID uuid.UUID, id uuid.UUID) (*o
 	}
 	if result.FreeUseAiQualityTier.Valid {
 		institution.FreeUseAiQualityTier = &result.FreeUseAiQualityTier.String
+	}
+	if result.PromptConstraints.Valid {
+		institution.PromptConstraints = &result.PromptConstraints.String
 	}
 
 	// Load members if user has permission (admin, head, or staff of this institution)
@@ -173,6 +179,9 @@ func ListInstitutions(ctx context.Context, userID uuid.UUID) ([]obj.Institution,
 		if r.FreeUseApiKeyShareID.Valid {
 			inst.FreeUseApiKeyShareID = &r.FreeUseApiKeyShareID.UUID
 		}
+		if r.PromptConstraints.Valid {
+			inst.PromptConstraints = &r.PromptConstraints.String
+		}
 		members, err := loadInstitutionMembers(ctx, r.ID)
 		if err == nil {
 			inst.Members = members
@@ -224,7 +233,23 @@ func UpdateInstitution(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, 
 	if result.FreeUseApiKeyShareID.Valid {
 		inst2.FreeUseApiKeyShareID = &result.FreeUseApiKeyShareID.UUID
 	}
+	if result.PromptConstraints.Valid {
+		inst2.PromptConstraints = &result.PromptConstraints.String
+	}
 	return inst2, nil
+}
+
+// UpdateInstitutionPromptConstraints sets or clears the prompt constraints for an institution.
+// Permission check: head of the institution or admin.
+func UpdateInstitutionPromptConstraints(ctx context.Context, userID uuid.UUID, institutionID uuid.UUID, constraints *string) error {
+	if err := canAccessInstitution(ctx, userID, OpUpdate, &institutionID); err != nil {
+		return err
+	}
+
+	return queries().UpdateInstitutionPromptConstraints(ctx, db.UpdateInstitutionPromptConstraintsParams{
+		ID:                institutionID,
+		PromptConstraints: stringPtrToNullString(constraints),
+	})
 }
 
 // SetInstitutionFreeUseApiKeyShare sets or clears the free-use API key share for an institution.

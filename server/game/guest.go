@@ -154,7 +154,15 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 
 	// Use shared internal implementation
 	// Guest users: no retries (nil), don't delete existing sessions (false)
-	return createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
+	session, msg, httpErr := createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
+	if httpErr != nil {
+		return nil, nil, httpErr
+	}
+
+	// Resolve constraints from the share's originating workshop/org
+	session.PromptConstraints, session.PromptConstraintSource = db.ResolveShareConstraint(ctx, gameShare)
+
+	return session, msg, nil
 }
 
 // ResolveGuestSessionApiKey re-resolves the API key for a guest session from the game share.

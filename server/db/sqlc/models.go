@@ -56,6 +56,7 @@ type AppUser struct {
 	AiQualityTier        sql.NullString
 	Language             string
 	PrivateShareID       uuid.NullUUID
+	AgeGroup             sql.NullString
 }
 
 type Game struct {
@@ -107,31 +108,32 @@ type GameSession struct {
 }
 
 type GameSessionMessage struct {
-	ID                    uuid.UUID
-	CreatedBy             uuid.NullUUID
-	CreatedAt             time.Time
-	ModifiedBy            uuid.NullUUID
-	ModifiedAt            time.Time
-	GameSessionID         uuid.UUID
-	Seq                   int32
-	Type                  string
-	Message               string
-	Status                sql.NullString
-	Plot                  sql.NullString
-	ImagePrompt           sql.NullString
-	Image                 []byte
-	Audio                 []byte
-	HasImage              bool
-	HasAudio              bool
-	PromptStatusUpdate    sql.NullString
-	PromptResponseSchema  sql.NullString
-	PromptImageGeneration sql.NullString
-	PromptExpandStory     sql.NullString
-	ResponseRaw           sql.NullString
-	TokenUsage            pqtype.NullRawMessage
-	UrlAnalytics          sql.NullString
-	ApiKeyType            sql.NullString
-	DeletedAt             sql.NullTime
+	ID                     uuid.UUID
+	CreatedBy              uuid.NullUUID
+	CreatedAt              time.Time
+	ModifiedBy             uuid.NullUUID
+	ModifiedAt             time.Time
+	GameSessionID          uuid.UUID
+	Seq                    int32
+	Type                   string
+	Message                string
+	Status                 sql.NullString
+	Plot                   sql.NullString
+	ImagePrompt            sql.NullString
+	Image                  []byte
+	Audio                  []byte
+	HasImage               bool
+	HasAudio               bool
+	PromptStatusUpdate     sql.NullString
+	PromptResponseSchema   sql.NullString
+	PromptImageGeneration  sql.NullString
+	PromptExpandStory      sql.NullString
+	ResponseRaw            sql.NullString
+	TokenUsage             pqtype.NullRawMessage
+	UrlAnalytics           sql.NullString
+	ApiKeyType             sql.NullString
+	PromptConstraintSource sql.NullString
+	DeletedAt              sql.NullTime
 }
 
 type GameShare struct {
@@ -167,6 +169,7 @@ type Institution struct {
 	DeletedAt            sql.NullTime
 	FreeUseApiKeyShareID uuid.NullUUID
 	FreeUseAiQualityTier sql.NullString
+	PromptConstraints    sql.NullString
 }
 
 type SystemSetting struct {
@@ -175,6 +178,8 @@ type SystemSetting struct {
 	ModifiedAt           time.Time
 	DefaultAiQualityTier string
 	FreeUseAiQualityTier sql.NullString
+	PromptConstraintU13  sql.NullString
+	PromptConstraintU18  sql.NullString
 	SchemaVersion        int32
 	FreeUseApiKeyID      uuid.NullUUID
 }

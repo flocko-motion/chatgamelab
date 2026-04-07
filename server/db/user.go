@@ -14,15 +14,16 @@ import (
 )
 
 // CreateUser creates a new user in the database
-func CreateUser(ctx context.Context, name string, email *string, auth0ID string) (*obj.User, error) {
+func CreateUser(ctx context.Context, name string, email *string, auth0ID string, ageGroup *string) (*obj.User, error) {
 	emailStr := ""
 	if email != nil {
 		emailStr = *email
 	}
 	arg := db.CreateUserParams{
-		Name:    name,
-		Email:   sql.NullString{String: emailStr, Valid: email != nil},
-		Auth0ID: sql.NullString{String: auth0ID, Valid: auth0ID != ""},
+		Name:     name,
+		Email:    sql.NullString{String: emailStr, Valid: email != nil},
+		Auth0ID:  sql.NullString{String: auth0ID, Valid: auth0ID != ""},
+		AgeGroup: stringPtrToNullString(ageGroup),
 	}
 
 	id, err := queries().CreateUser(ctx, arg)
@@ -115,6 +116,14 @@ func UpdateUserDetails(ctx context.Context, id uuid.UUID, name string, email *st
 		Email: sql.NullString{String: emailStr, Valid: email != nil},
 	}
 	return queries().UpdateUser(ctx, arg)
+}
+
+func UpdateUserAgeGroup(ctx context.Context, id uuid.UUID, ageGroup *string) error {
+	arg := db.UpdateUserAgeGroupParams{
+		ID:       id,
+		AgeGroup: stringPtrToNullString(ageGroup),
+	}
+	return queries().UpdateUserAgeGroup(ctx, arg)
 }
 
 func UpdateUserAiQualityTier(ctx context.Context, id uuid.UUID, tier *string) error {
@@ -228,6 +237,7 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 		Auth0Id:       sqlNullStringToMaybeString(res.Auth0ID),
 		AiQualityTier: sqlNullStringToMaybeString(res.AiQualityTier),
 		Language:      res.Language,
+		AgeGroup:      sqlNullStringToMaybeString(res.AgeGroup),
 	}
 	if res.RoleID.Valid {
 		role, err := stringToRole(res.Role.String)
@@ -245,6 +255,9 @@ func GetUserByID(ctx context.Context, id uuid.UUID) (*obj.User, error) {
 			}
 			if res.InstitutionFreeUseApiKeyShareID.Valid {
 				inst.FreeUseApiKeyShareID = &res.InstitutionFreeUseApiKeyShareID.UUID
+			}
+			if res.InstitutionPromptConstraints.Valid {
+				inst.PromptConstraints = &res.InstitutionPromptConstraints.String
 			}
 			user.Role.Institution = inst
 		}

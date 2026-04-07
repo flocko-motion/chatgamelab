@@ -490,7 +490,7 @@ INSERT INTO game_session_message (
   type, message,
   status, plot, image_prompt, image,
   has_image, has_audio,
-  api_key_type
+  api_key_type, prompt_constraint_source
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
@@ -498,7 +498,7 @@ INSERT INTO game_session_message (
   $6, $7,
   $8, $9, $10, $11,
   $12, $13,
-  $14
+  $14, $15
 )
 RETURNING *;
 
@@ -536,7 +536,8 @@ UPDATE game_session_message SET
   response_raw = $19,
   token_usage = $20,
   url_analytics = $21,
-  api_key_type = $22
+  api_key_type = $22,
+  prompt_constraint_source = $23
 WHERE id = $1
 RETURNING *;
 
