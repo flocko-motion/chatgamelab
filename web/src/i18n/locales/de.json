@@ -32,6 +32,8 @@
     },
     "profile": {
       "ageGroup": "Altersgruppe",
+      "ageGroupSection": "Altersgruppe",
+      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten. Du kannst dies jederzeit ändern.",
       "ageGroupU13": "13-17 Jahre",
       "ageGroupU18": "18+",
       "gamesCreated": "Erstellte Spiele",
