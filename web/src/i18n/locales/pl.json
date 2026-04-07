@@ -32,6 +32,11 @@
       "workshop": "Warsztat"
     },
     "profile": {
+      "ageGroup": "Grupa wiekowa",
+      "ageGroupDescription": "Określa, które wytyczne dotyczące treści mają zastosowanie do Twoich gier. Możesz to zmienić w dowolnym momencie.",
+      "ageGroupSection": "Grupa wiekowa",
+      "ageGroupU13": "13–17 lat",
+      "ageGroupU18": "18+",
       "gamesCreated": "Utworzone gry",
       "gamesPlayed": "Rozegrane gry",
       "memberSince": "Zarejestrowany od",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Łączna liczba rozgrywek w moich grach"
     },
     "register": {
+      "ageGroupLabel": "Grupa wiekowa",
+      "ageGroupRequired": "Wybierz swoją grupę wiekową",
+      "ageGroupU13": "13–17 lat",
+      "ageGroupU18": "18 lat lub więcej",
+      "ageGroupUnder13": "Mniej niż 13 lat",
+      "ageGroupUnder13Error": "Musisz mieć co najmniej 13 lat, aby korzystać z ChatGameLab.",
       "cancelButton": "Anuluj",
       "emailDescription": "Będziemy go używać do ważnych powiadomień.",
       "emailLabel": "Adres e-mail",
@@ -73,8 +84,48 @@
       "subtitle": "Jeszcze tylko kilka szczegółów, aby zacząć",
       "title": "Uzupełnij swój profil"
     },
+    "registerPage": {
+      "agreePrefix": "Zgadzam się na",
+      "agreeSuffix": "oraz",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Masz już konto?",
+      "backButton": "Wstecz",
+      "chooseType": "Jak chcesz korzystać z ChatGameLab?",
+      "continueButton": "Przejdź do rejestracji",
+      "description": "Używamy Auth0 jako dostawcy uwierzytelniania do zarządzania kontami użytkowników. Zostaniesz przekierowany do Auth0, aby utworzyć konto, a następnie wrócisz tutaj, by dokończyć profil.",
+      "educatorDescription": "Korzystaj z ChatGameLab podczas warsztatów, w klasie lub w swojej organizacji",
+      "educatorModal": {
+        "closeButton": "Zamknij",
+        "copied": "Skopiowano!",
+        "copyEmail": "Kopiuj e-mail",
+        "eduInfo": "Dowiedz się więcej o korzystaniu z ChatGameLab do celów edukacyjnych:",
+        "intro": "Aby używać ChatGameLab w swojej organizacji (szkole, uczelni, instytucji), wykonaj następujące kroki:",
+        "registerButton": "Utwórz konto osobiste",
+        "step1": "Utwórz konto osobiste",
+        "step1Description": "Najpierw utwórz konto osobiste. Będzie ono służyć do logowania na platformę.",
+        "step2": "2. Wyślij nam e-mail",
+        "step2Description": "Napisz wiadomość na adres",
+        "step2Item1": "Adres e-mail użyty przy rejestracji",
+        "step2Item2": "Nazwa Twojej organizacji (szkoły, instytucji itp.)",
+        "step2WithInfo": "z następującymi informacjami:",
+        "step3": "3. Skonfigurujemy Twoją organizację",
+        "step3Description": "Utworzymy Twoją organizację i przypiszemy Cię jako osobę zarządzającą. Następnie możesz zapraszać współpracowników i organizować warsztaty.",
+        "title": "Dostęp dla edukatorów i profesjonalistów"
+      },
+      "educatorTitle": "Edukator / Profesjonalista",
+      "individualDescription": "Twórz i graj w tekstowe przygody napędzane AI",
+      "individualTitle": "Konto osobiste",
+      "loginLink": "Zaloguj się",
+      "privacyPolicy": "Polityka prywatności",
+      "termsOfService": "Regulamin",
+      "title": "Utwórz konto"
+    },
     "settings": {
       "accountSection": "Konto",
+      "ageGroupDescription": "Określa, które wytyczne dotyczące treści mają zastosowanie do Twoich gier.",
+      "ageGroupLabel": "Grupa wiekowa",
+      "ageGroupU13": "13–17 lat",
+      "ageGroupU18": "18 lat lub więcej",
       "emailChangeNote": "Aby zmienić adres e-mail, skontaktuj się z administratorem strony.",
       "errors": {
         "nameRequired": "Nazwa jest wymagana",
@@ -210,6 +261,7 @@
       "low": "Niska (Economy)",
       "max": "Maks. (Premium + audio)",
       "medium": "Średnia (zrównoważona)",
+      "newSessionsOnly": "Ten poziom dotyczy tylko nowych sesji. Istniejące sesje zachowują poziom, z którym zostały rozpoczęte.",
       "serverDefault": "Domyślne serwera"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Sponsorowane"
       },
       "play": "Graj",
+      "reportGame": "Zgłoś grę",
       "restart": "Uruchom ponownie",
       "restartConfirm": {
         "confirm": "Uruchom ponownie",
@@ -240,7 +293,8 @@
         "title": "Uruchomić grę ponownie?"
       },
       "title": "Wszystkie gry",
-      "unfavorite": "Usuń z ulubionych"
+      "unfavorite": "Usuń z ulubionych",
+      "workshop": "Warsztat / Organizacja"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platforma",
       "setDefault": "Ustaw jako domyślny",
       "shares": {
+        "context": {
+          "organization": "Organizacja",
+          "personal": "Osobiste",
+          "workshop": "Warsztat"
+        },
+        "gameShares": "Linki udostępniania gry",
         "goToOrg": "Zarządzaj",
         "noOrgShares": "Nie udostępniono żadnej organizacji",
         "noSponsorships": "Brak sponsorowania gier",
         "orgShares": "Udostępnienia organizacji",
         "privateShares": "Prywatne linki udostępniania",
-        "remaining": "Pozostało {{count}}",
+        "remaining": "Pozostało użyć: {{count}}",
         "removeSponsor": "Usuń sponsorowanie",
+        "revokeGameShare": "Odwołaj link udostępniania",
         "revokePrivateShare": "Cofnij link udostępniania",
         "sponsorships": "Sponsorowania gier",
         "toggle": "Udostępnienia \u00026 sponsorowania",
         "unknownGame": "Nieznana gra",
         "unknownOrg": "Nieznana organizacja",
         "unknownUser": "Nieznany użytkownik",
-        "unknownWorkshop": "Nieznany warsztat"
+        "unknownWorkshop": "Nieznany warsztat",
+        "unlimited": "Nielimitowana liczba użyć"
       },
       "status": {
         "failed": "Klucz nie działa",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Używany klucz API został zmieniony",
         "sections": {
           "expandStory": "Instrukcje dla AI dotyczące rozwijania historii",
           "imageGeneration": "Instrukcje od AI do generowania obrazów",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "otrzymane tokeny",
           "sent": "wysłane tokeny"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Użyto klucza darmowego Twojej organizacji",
+          "label": "Użyty klucz API",
+          "personal": "Użyto Twojego osobistego klucza",
+          "private_share": "Użyto klucza z linku udostępnienia",
+          "sponsor": "Użyto klucza sponsorskiego",
+          "system_free_use": "Użyto globalnego klucza darmowego",
+          "workshop": "Użyto klucza Twojego warsztatu"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Nie znaleziono gry",
         "missingFields": "W grze brakuje wymaganych pól:",
         "noApiKey": {
-          "banner": "Klucz API używany wcześniej w tej grze nie jest już dostępny. Aby kontynuować rozgrywkę, dodaj własny klucz API w ustawieniach konta.",
+          "banner": "Nie znaleziono użytecznego klucza API dla platformy {{platform}}. Aby kontynuować grę, dodaj własny klucz API w ustawieniach konta.",
           "goToSettings": "Ustawienia klucza API",
           "personal": "Przed rozpoczęciem gry musisz skonfigurować klucz API. Przejdź do ustawień kluczy API, aby go dodać.",
           "title": "Brak dostępnego klucza API",
@@ -453,19 +525,23 @@
       "badges": {
         "myGame": "Moja gra",
         "public": "Publiczna",
-        "workshop": "Warsztat"
+        "workshop": "Gra warsztatowa"
       },
       "createButton": "Utwórz grę",
       "createModal": {
         "descriptionPlaceholder": "O czym jest Twoja gra?",
         "namePlaceholder": "np. Kosmiczna przygoda",
-        "publicDescription": "Gry publiczne są widoczne dla wszystkich.",
+        "publicDescription": "Gry publiczne są widoczne i dostępne dla wszystkich użytkowników na tej platformie.",
         "publicLabel": "Uczyń tę grę publiczną",
         "submit": "Utwórz grę",
         "title": "Utwórz nową grę"
       },
       "deleteModal": {
+        "adminActionTitle": "Działanie administratora",
+        "adminActionWarning": "Zamierzasz usunąć grę, której nie jesteś właścicielem. Jest to działanie administracyjne i powinno być używane wyłącznie w celach moderacyjnych.",
         "message": "Czy na pewno chcesz usunąć \"{{name}}\"?",
+        "moderatorActionTitle": "Usuwanie gry uczestnika",
+        "moderatorActionWarning": "Ta gra należy do uczestnika Twojego warsztatu. Usunięcie jej spowoduje trwałe usunięcie gry dla tego użytkownika. Tej operacji nie można cofnąć.",
         "title": "Usuń grę",
         "warning": "Tej operacji nie można cofnąć. Wszystkie dane gry zostaną trwale usunięte."
       },
@@ -484,6 +560,9 @@
         "statusFieldsHint": "Co gra ma śledzić? Na przykład zdrowie, punkty lub amunicję. Gra zapamięta te wartości i będzie je aktualizować podczas rozgrywki."
       },
       "editModal": {
+        "adminActionTitle": "Działanie administratora",
+        "adminActionWarning": "Edytujesz grę, której nie jesteś właścicielem. Jest to działanie administracyjne i powinno być używane wyłącznie w celach moderacyjnych.",
+        "gameDesignSection": "Projekt gry",
         "title": "Edytuj grę",
         "unsavedChanges": {
           "discard": "Odrzuć zmiany",
@@ -517,9 +596,13 @@
       "playNow": "Graj teraz",
       "privateShare": {
         "active": "Udostępnianie prywatne jest aktywne. Każdy z poniższym linkiem może anonimowo zagrać w tę grę.",
+        "aiQualityTier": "Jakość AI",
+        "aiQualityTierDescription": "Wybierz jakość modelu AI dla gości korzystających z tego linku udostępnienia.",
         "copyLink": "Skopiuj link",
+        "createModalTitle": "Utwórz prywatny link udostępniania",
         "description": "Utwórz prywatny link do udostępniania, aby każdy posiadacz linku mógł anonimowo zagrać w tę grę. Ty wybierasz, który klucz API opłaca sesje.",
         "edit": "Edytuj ustawienia",
+        "editModalTitle": "Edytuj prywatny link udostępniania",
         "editSettings": "Edytuj ustawienia udostępniania",
         "enable": "Utwórz link udostępniania",
         "loading": "Wczytywanie statusu udostępniania...",
@@ -527,18 +610,40 @@
         "maxSessions": "Maks. liczba sesji",
         "maxSessionsDescription": "Pozostaw puste dla nielimitowanych sesji.",
         "noEligibleKeys": "Brak działającego klucza API. Najpierw dodaj klucz w ustawieniach kluczy API.",
+        "noPersonalShare": "Nie istnieje żaden link udostępniania osobistego ani organizacyjnego. Możesz go utworzyć poza warsztatem.",
+        "orgKey": "Organizacja",
+        "orgShareDescription": "Link organizacyjny – goście grają, używając klucza API organizacji.",
+        "personalCreateHint": "Utwórz prywatny link, aby każdy posiadający go mógł anonimowo zagrać w tę grę. Ty wybierasz, który klucz API pokrywa koszt sesji.",
+        "personalOrgSubsection": "Link udostępniania osobistego / organizacyjnego",
+        "personalShare": "Twój prywatny link udostępniania",
+        "personalShareDescription": "Twój prywatny link – goście grają z użyciem wybranego przez Ciebie klucza API.",
         "remainingSessions": "Pozostało {{count}} sesji",
         "revoke": "Odwołaj link",
         "selectKey": "Wybierz klucz API",
         "selectKeyPlaceholder": "Wybierz klucz, który opłaci sesje gości...",
         "shareLink": "Link udostępniania",
+        "sourceOrg": "Organizacja",
+        "sourcePersonal": "Osobiste",
+        "sourceWorkshop": "Warsztat",
         "title": "Prywatny link udostępniania",
         "unlimited": "Bez limitu",
-        "update": "Zaktualizuj link udostępniania"
+        "unlimitedSessions": "Nielimitowane sesje",
+        "update": "Zaktualizuj link udostępniania",
+        "workshopCreateHint": "Utwórz link udostępniania dla tej gry. Klucz API warsztatu zostanie automatycznie wybrany i pokryje koszty.",
+        "workshopDescription": "Utwórz link udostępniania dla tej gry. Domyślny klucz API warsztatu będzie automatycznie używany dla sesji gości.",
+        "workshopShare": "Udostępnienie warsztatowe",
+        "workshopShareDescription": "Ten link został utworzony w warsztacie „{{name}}” – goście grają, używając klucza API warsztatu.",
+        "workshopSubsection": "Link udostępniania warsztatowego"
       },
       "sharing": {
         "active": "Aktywne",
-        "sectionTitle": "Udostępnianie \u00026 sponsorowanie"
+        "privateShareLink": "Prywatny link udostępniania",
+        "privateShareLinkDescription": "Prywatne linki udostępniania możesz przekazywać innym. Każdy, kto posiada link, może anonimowo zagrać w grę bez konta. Aby pokryć koszty, należy wybrać klucz API.",
+        "publicGameWorkshopHint": "To gra publiczna i nie jest częścią Twojego warsztatu. Opcje udostępniania nie są dostępne dla gier publicznych w trybie warsztatowym.",
+        "publicSponsoring": "Publiczne sponsorowanie",
+        "publicSponsoringDescription": "Wszyscy użytkownicy platformy mogą grać w tę grę za darmo – przypisany klucz API pokrywa koszt.",
+        "sectionTitle": "Opcje udostępniania",
+        "sectionTitleShareOnly": "Opcje udostępniania"
       },
       "sort": {
         "createdAt-asc": "Utworzono (najstarsze)",
@@ -570,11 +675,13 @@
         "loadingKeys": "Wczytywanie kluczy API...",
         "manageSponsor": "Zarządzaj sponsorowaniem",
         "next": "Dalej",
-        "noEligibleKeys": "Nie masz kluczy API z włączonym publicznym sponsorowaniem. Przejdź do ustawień kluczy API i włącz „Zezwól na publiczne sponsorowanie” dla klucza.",
+        "noEligibleKeys": "Nie masz żadnych kluczy API dostępnych do sponsorowania. Najpierw dodaj klucz API w ustawieniach.",
         "privateWarning": "Ustawienie gry jako prywatnej usunie publiczne sponsorowanie.",
         "removeSponsor": "Usuń sponsorowanie",
         "selectKey": "Wybierz klucz API",
         "selectKeyPlaceholder": "Wybierz klucz do sponsorowania...",
+        "sourceOrg": "Organizacja",
+        "sourcePersonal": "Osobiste",
         "sponsorGame": "Sponsoruj grę",
         "sponsored": "Sponsorowana",
         "sponsoredTooltip": "Ta gra jest sponsorowana – grasz za darmo! Twórca gry lub sponsor pokrywa koszty AI.",
@@ -725,6 +832,7 @@
       "profile": "Profil",
       "workshop": "Warsztat"
     },
+    "help": "Pomoc",
     "home": {
       "features": {
         "create": {
@@ -836,15 +944,15 @@
     "myOrganization": {
       "actions": "Działania",
       "apiKeys": {
-        "aboutDescription": "Klucze API udostępniane tutaj są dostępne dla wszystkich członków organizacji do grania w gry. Tylko kierownicy i nauczyciele mogą zarządzać tymi kluczami.",
+        "aboutDescription": "Klucze API udostępnione tutaj są dostępne dla wszystkich członków Twojej organizacji do grania w gry.",
         "aboutTitle": "Organizacyjne klucze API",
         "allowPublicSponsoring": "Zezwól na publiczne sponsorowanie",
         "allowPublicSponsoringDesc": "Ten klucz może być używany do sponsorowania gier dla wszystkich użytkowników.",
         "filterByPlatform": "Filtruj według platformy",
         "freeUseKey": {
-          "description": "Ustaw klucz do darmowego użycia, aby wszyscy członkowie organizacji mogli grać bez własnego klucza API. Można wybrać tylko klucze już udostępnione tej organizacji.",
+          "description": "Ustaw klucz darmowy, aby wszyscy członkowie organizacji mogli grać bez potrzeby posiadania własnego klucza API.",
           "remove": "Usuń",
-          "selectPlaceholder": "Wybierz udostępniony klucz...",
+          "selectPlaceholder": "Wybierz klucz...",
           "title": "Klucz do darmowego użycia",
           "unknownKey": "Nieznany klucz"
         },
@@ -862,7 +970,14 @@
         "share": "Udostępnij",
         "shareKey": "Udostępnij klucz",
         "shareKeyTitle": "Udostępnij klucz API organizacji",
+        "showDetails": "Pokaż szczegóły",
         "title": "Organizacyjne klucze API"
+      },
+      "autoShare": {
+        "confirmMessage": "Ten klucz zostanie udostępniony organizacji {{orgName}} i będzie mógł być używany przez innych kierowników oraz personel podczas warsztatów. Możesz usunąć to udostępnienie później w zarządzaniu osobistymi kluczami API lub kluczami organizacji.",
+        "confirmTitle": "Udostępnij klucz organizacji",
+        "orgKeyGroup": "Klucze organizacji",
+        "personalKeyGroup": "Klucze osobiste"
       },
       "demoteConfirm": "Czy na pewno chcesz zdegradować \"{{name}}\" ({{email}}) do roli nauczyciela?",
       "demoteTitle": "Degradacja do nauczyciela",
@@ -895,6 +1010,9 @@
       "promoteTitle": "Awansuj na kierownika",
       "promoteToHead": "Awansuj na kierownika",
       "promoteWarning": "Ten użytkownik zyska możliwość zarządzania członkami organizacji i zapraszania nauczycieli.",
+      "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tej organizacji. Stosowane, gdy nie ustawiono ograniczenia na poziomie warsztatu oraz w grach udostępnianych poprzez link.",
+      "promptConstraintsLabel": "Organizacyjne ograniczenia promptów",
+      "promptConstraintsPlaceholder": "np. Utrzymuj historię odpowiednią dla wieku i unikaj przemocy.",
       "removeConfirm": "Czy na pewno chcesz usunąć \"{{name}}\" z organizacji?",
       "removeMember": "Usuń członka",
       "removeTitle": "Usuń członka",
@@ -915,11 +1033,21 @@
         "active": "Aktywny",
         "activeDescription": "Aktywne warsztaty pozwalają uczestnikom dołączać i tworzyć gry.",
         "activeLabel": "Aktywny",
+        "addIndividual": "Dodaj członka organizacji",
+        "addIndividualError": "Nie udało się dodać członka do warsztatu.",
+        "addIndividualHint": "Dodanie użytkownika automatycznie przełączy go w tryb warsztatowy. Zobaczy widok warsztatu zamiast swojego zwykłego pulpitu. Rób to tylko, jeśli jest to zamierzone.",
+        "addIndividualStaffNote": "Kierownicy i nauczyciele powinni dołączać do warsztatów samodzielnie poprzez listę warsztatów – nie są tutaj wyświetlani.",
+        "addIndividualSuccess": "Dodano członka",
+        "addIndividualSuccessMessage": "{{name}} został dodany do warsztatu.",
+        "addIndividualTitle": "Dodaj osobę do warsztatu",
+        "addToWorkshop": "Dodaj do warsztatu",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "Poziom jakości odpowiedzi AI. Wyższe poziomy kosztują więcej, ale mogą dawać lepszy efekt. Puste oznacza użycie domyślnego ustawienia serwera.",
+        "allowGameSharing": "Zezwól na udostępnianie gier",
+        "allowGameSharingHint": "Po włączeniu uczestnicy mogą tworzyć linki udostępniania do swoich gier, używając klucza API warsztatu",
         "anonymousParticipant": "Anonimowy uczestnik",
         "create": "Utwórz warsztat",
         "createFirst": "Utwórz swój pierwszy warsztat",
@@ -938,6 +1066,11 @@
         "games": "Gry",
         "hideInactive": "Ukryj nieaktywne",
         "inactive": "Nieaktywny",
+        "inviteByEmail": "Zaproś przez e-mail",
+        "inviteByEmailDescription": "Wpisz adres e-mail zarejestrowanego użytkownika, aby zaprosić go do tego warsztatu. Zobaczy zaproszenie na swoim pulpicie.",
+        "inviteByEmailSuccess": "Zaproszenie wysłane",
+        "inviteByEmailSuccessMessage": "Utworzono zaproszenie. Użytkownik zobaczy je w oczekujących zaproszeniach.",
+        "inviteByEmailTitle": "Zaproś użytkownika do warsztatu",
         "inviteCreatedAt": "Utworzono",
         "inviteDescription": "Generuj link zaproszeniowy, którego uczestnicy użyją, aby dołączyć do tego warsztatu.",
         "inviteExpiresAt": "Wygasa",
@@ -956,6 +1089,7 @@
         "noActiveInvite": "Brak aktywnego linku zaproszeniowego.",
         "noDefaultApiKey": "Brak domyślnego klucza API",
         "noDefaultModel": "Użyj domyślnej platformy",
+        "noIndividuals": "Brak indywidualnych użytkowników w tej organizacji.",
         "noParticipantToken": "Ten uczestnik nie ma linku zaproszeniowego. Tylko anonimowi uczestnicy (goście) mają wielokrotne linki.",
         "noParticipants": "Brak uczestników",
         "notAuthorized": "Nie masz uprawnień do zarządzania warsztatami. Dostęp mają jedynie kierownicy i nauczyciele.",
@@ -963,7 +1097,9 @@
         "participantJoined": "Dołączył {{date}}",
         "participantName": "Nazwa uczestnika",
         "participants": "Uczestnicy",
-        "promptConstraintsHint": "Dodatkowe instrukcje dołączone do systemowego polecenia AI dla wszystkich sesji w tym warsztacie.",
+        "promptConstraintsFallbackOrg": "Domyślne użycie ograniczenia organizacji: {{constraint}}",
+        "promptConstraintsFallbackSite": "Domyślne użycie ograniczenia serwisu",
+        "promptConstraintsHint": "Dodatkowe instrukcje AI dla wszystkich sesji w tym warsztacie.",
         "promptConstraintsLabel": "Ograniczenia polecenia",
         "promptConstraintsPlaceholder": "np. Utrzymuj historię odpowiednią dla wieku i unikaj treści brutalnych.",
         "removeParticipant": "Usuń uczestnika",
@@ -976,6 +1112,7 @@
         "settings": "Ustawienia",
         "shareParticipantLink": "Skopiuj indywidualny link zaproszeniowy tego uczestnika",
         "showOtherParticipantsGames": "Pokazuj gry innych uczestników",
+        "showOtherParticipantsGamesHint": "Kierownicy i personel zawsze mogą widzieć wszystkie gry uczestników do celów moderacji",
         "showPublicGames": "Pokazuj uczestnikom gry publiczne",
         "sort": {
           "createdAtAsc": "Najstarsze",
@@ -1007,7 +1144,9 @@
       "empty": "Brak nowych powiadomień.",
       "inviteDescription": "Zostałeś zaproszony do dołączenia jako {{role}}.",
       "inviteToJoin": "Zaproszenie do organizacji",
-      "title": "Powiadomienia"
+      "title": "Powiadomienia",
+      "workshopInvite": "Zaproszenie do warsztatu",
+      "workshopInviteDescription": "Zostałeś zaproszony do udziału w tym warsztacie."
     },
     "play": {
       "cloneGame": "Sklonuj do moich gier",
@@ -1044,6 +1183,16 @@
     "search": "Szukaj",
     "searchPlaceholder": "Szukaj członków...",
     "serverSettings": {
+      "constraints": {
+        "description": "Zdefiniuj obowiązkowe zasady AI w oparciu o grupę wiekową gracza. Ograniczenia te są wstrzykiwane do każdej odpowiedzi AI. Dotyczą wszystkich zalogowanych użytkowników poza trybem warsztatowym.",
+        "title": "Prompty ograniczeń według wieku",
+        "u13Hint": "Wstrzykiwane do każdego promptu AI dla zalogowanych użytkowników w wieku 13–17 lat.",
+        "u13Label": "Ograniczenie dla użytkowników w wieku 13–17 lat (U13)",
+        "u13Placeholder": "np. Utrzymuj treści ściśle odpowiednie dla nastolatków. Bez przemocy, treści romantycznych czy horroru.",
+        "u18Hint": "Wstrzykiwane do każdego promptu AI dla zalogowanych użytkowników w wieku 18 lat i więcej.",
+        "u18Label": "Ograniczenie dla użytkowników 18+ (U18)",
+        "u18Placeholder": "np. Dbaj o odpowiednią treść. Unikaj drastycznej przemocy i treści seksualnych."
+      },
       "defaultTier": {
         "description": "Serwerowy poziom zapasowy używany, gdy nie skonfigurowano konkretnego poziomu na warsztacie, w instytucji ani u użytkownika. Wyższe poziomy kosztują więcej, ale mogą dawać lepszą jakość.",
         "title": "Domyślny poziom jakości AI"
@@ -1119,6 +1268,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Praca z ChatGameLab w pedagogice medialnej",
+          "title": "O ChatGameLab"
+        },
         "jff": {
           "description": "Koordynator projektu i organizacja wiodąca.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1229,6 +1382,14 @@
       "workshop": "Gry warsztatowe"
     },
     "gameType": "Gra",
+    "infoModal": {
+      "body": "Wszedłeś w tryb warsztatowy. W tym trybie wszystko, co robisz, jest powiązane z tym warsztatem – tworzone gry, sesje gry i linki udostępniania.\n\nMożesz wyjść w dowolnym momencie. Wyjście nie zakończy warsztatu ani nie usunie niczego, co stworzyłeś.",
+      "dontShowAgain": "Nie pokazuj ponownie",
+      "gotIt": "Rozumiem",
+      "headStaffNote": "Możesz ponownie dołączyć do tego warsztatu w każdej chwili z listy warsztatów Twojej organizacji.",
+      "individualNote": "Aby dołączyć ponownie po wyjściu, potrzebujesz nowego zaproszenia od organizatorów warsztatu.",
+      "title": "Witamy w {{name}}"
+    },
     "members": {
       "empty": "Brak członków",
       "title": "Członkowie warsztatu"
@@ -1260,6 +1421,7 @@
     "myOrganization": "Moja organizacja",
     "myWorkshop": "Mój warsztat",
     "orgApiKeys": "Klucze API",
+    "orgConstraints": "Ograniczenia",
     "orgMembers": "Członkowie",
     "orgWorkshops": "Warsztaty",
     "play": "Zagraj w grę",

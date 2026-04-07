@@ -32,6 +32,11 @@
       "workshop": "ورکشاپ"
     },
     "profile": {
+      "ageGroup": "د عمر ډله",
+      "ageGroupDescription": "دا ټاکي چې کوم د منځپانګې لارښودونه ستاسو لوبو ته پلي کېږي. تاسو هر وخت دا بدلولای شئ.",
+      "ageGroupSection": "د عمر ډله",
+      "ageGroupU13": "۱۳-۱۷ کاله",
+      "ageGroupU18": "۱۸+",
       "gamesCreated": "جوړ شوي لوبې",
       "gamesPlayed": "لوبېدلې لوبې",
       "memberSince": "راړول شوی له",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "پر زما لوبو ټولې پلی شوې نوبتونه"
     },
     "register": {
+      "ageGroupLabel": "د عمر ډله",
+      "ageGroupRequired": "مهرباني وکړئ خپله د عمر ډله وټاکئ",
+      "ageGroupU13": "۱۳-۱۷ کلن",
+      "ageGroupU18": "۱۸ یا زیات",
+      "ageGroupUnder13": "له ۱۳ څخه کم",
+      "ageGroupUnder13Error": "د ChatGameLab د کارولو لپاره باید لږ تر لږه ۱۳ کلن یاست.",
       "cancelButton": "لغوه",
       "emailDescription": "دا به د مهمو خبرتیاوو لپاره وکاروو.",
       "emailLabel": "د برېښنالیک پته",
@@ -73,8 +84,48 @@
       "subtitle": "یوازې څو نور معلومات پاتې دي",
       "title": "خپل پروفایل بشپړ کړئ"
     },
+    "registerPage": {
+      "agreePrefix": "زه موافق یم له",
+      "agreeSuffix": "او",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "له مخکې حساب لرئ؟",
+      "backButton": "شاته",
+      "chooseType": "تاسو ChatGameLab څنګه کارول غواړئ؟",
+      "continueButton": "ثبت ته دوام ورکړئ",
+      "description": "موږ Auth0 د تصدیق چمتو کوونکي په توګه کاروو ترڅو د کاروونکو حسابونه اداره کړو. تاسو به حساب جوړولو لپاره Auth0 ته واړول شئ، بيا به دلته راوګرځول شئ څو خپل پروفایل بشپړ کړئ.",
+      "educatorDescription": "ChatGameLab د کارګاهونو، ټولګیو، یا خپل سازمان کې وکاروئ",
+      "educatorModal": {
+        "closeButton": "بندول",
+        "copied": "کاپي شو!",
+        "copyEmail": "برېښنالیک کاپي کړئ",
+        "eduInfo": "د ChatGameLab د تعلیمي کارونې په اړه نور معلومات ترلاسه کړئ:",
+        "intro": "د خپلې مؤسسې (ښوونځي، پوهنتون، بنسټ) سره د ChatGameLab د کارولو لپاره، لاندې ګامونه تعقیب کړئ:",
+        "registerButton": "شخصي حساب جوړ کړئ",
+        "step1": "شخصي حساب جوړ کړئ",
+        "step1Description": "لومړی خپل شخصي حساب جوړ کړئ. دا به ستاسو د پلاتفورم ننوت وي.",
+        "step2": "۲. موږ ته برېښنالیک راولېږئ",
+        "step2Description": "برېښنالیک ولیکئ",
+        "step2Item1": "ستاسو ثبت شوې برېښنالیک پته",
+        "step2Item2": "ستاسو د سازمان نوم (ښوونځی، اداره، او نور)",
+        "step2WithInfo": "سره:",
+        "step3": "۳. موږ به ستاسو سازمان جوړ کړو",
+        "step3Description": "موږ به ستاسو سازمان جوړ کړو او تاسو به مشري ته وټاکو. بيا کولای شئ همکاران راوبلئ او کارګاهونه تنظیم کړئ.",
+        "title": "د ښوونکي او مسلکي لاسرسی"
+      },
+      "educatorTitle": "ښوونکی / مسلکي",
+      "individualDescription": "د AI پر مټ متني مزلونه جوړ او ولوبوئ",
+      "individualTitle": "شخصي حساب",
+      "loginLink": "ننوځئ",
+      "privacyPolicy": "د محرمیت تګلاره",
+      "termsOfService": "د خدمت شرایط",
+      "title": "خپل حساب جوړ کړئ"
+    },
     "settings": {
       "accountSection": "حساب",
+      "ageGroupDescription": "دا ټاکي چې کوم د منځپانګې لارښودونه ستاسو لوبو ته پلي کېږي.",
+      "ageGroupLabel": "د عمر ډله",
+      "ageGroupU13": "۱۳-۱۷ کاله",
+      "ageGroupU18": "۱۸ یا زیات",
       "emailChangeNote": "د برېښنالیک د بدلون لپاره مهرباني وکړئ د سایټ له مدیر سره اړیکه ونیسئ.",
       "errors": {
         "nameRequired": "نوم اړین دی",
@@ -210,6 +261,7 @@
       "low": "ټیټ (اقتصادي)",
       "max": "اعظمي (پریمیوم + غږ)",
       "medium": "منځنی (متوازن)",
+      "newSessionsOnly": "دا کچه یوازې پر نوو ناستو پلي کېږي. شته ناستې هغه کچه ساتي چې پکې یې پیل کړی و.",
       "serverDefault": "د سرور اصلي"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "سپانسر شوې"
       },
       "play": "ولوبئ",
+      "reportGame": "لوبه راپور کړئ",
       "restart": "بیا پیل",
       "restartConfirm": {
         "confirm": "بیا پیل",
@@ -240,7 +293,8 @@
         "title": "لوبه بیا پیل کړئ"
       },
       "title": "ټولې لوبې",
-      "unfavorite": "له مینه والو لرې کړئ"
+      "unfavorite": "له مینه والو لرې کړئ",
+      "workshop": "کارګاه / سازمان"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "پلاتفورم",
       "setDefault": "تلواله وټاکئ",
       "shares": {
+        "context": {
+          "organization": "سازمان",
+          "personal": "شخصي",
+          "workshop": "کارګاه"
+        },
+        "gameShares": "د لوبې شریکولو لینکونه",
         "goToOrg": "اداره",
         "noOrgShares": "له هیڅ سازمان سره نه ده شریکه",
         "noSponsorships": "هیڅ لوبه سپانسر شوې نه ده",
         "orgShares": "د سازمان شریکونې",
         "privateShares": "د شخصي شریکولو لینکونه",
-        "remaining": "{{count}} پاتې",
+        "remaining": "{{count}} ځله پاتې دي",
         "removeSponsor": "سپانسر لرې کړئ",
+        "revokeGameShare": "د شریکولو لینک لغوه کړئ",
         "revokePrivateShare": "د شریکولو لینک لغوه کړئ",
         "sponsorships": "د لوبې سپانسرۍ",
         "toggle": "شریکونې \u0006 سپانسرۍ",
         "unknownGame": "نامعلومه لوبه",
         "unknownOrg": "نامعلوم سازمان",
         "unknownUser": "نامعلوم کارن",
-        "unknownWorkshop": "نامعلوم ورکشاپ"
+        "unknownWorkshop": "نامعلوم ورکشاپ",
+        "unlimited": "لامحدود کارونې"
       },
       "status": {
         "failed": "کیلي کار نه کوي",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "کارول شوی API کیلي بدل شو",
         "sections": {
           "expandStory": "AI ته د کیسې د پراخولو لارښوونې",
           "imageGeneration": "AI ته د انځور جوړولو لارښوونې",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "ترلاسه شوي ټوکنونه",
           "sent": "لېږل شوي ټوکنونه"
+        },
+        "usedApiKey": {
+          "institution_free_use": "د ستاسو سازمان د وړیا کارولو کیلي وکارول شوه",
+          "label": "کارول شوی API کیلي",
+          "personal": "ستاسو شخصي کیلي وکارول شوه",
+          "private_share": "د شریکولو لینک کیلي وکارول شوه",
+          "sponsor": "د سپانسر کیلي وکارول شوه",
+          "system_free_use": "یوه نړيواله وړیا کارولو کیلي وکارول شوه",
+          "workshop": "د ستاسو کارګاه کیلي وکارول شوه"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "لوبه ونه موندل شوه",
         "missingFields": "لوبه اړینې ساحې نه لري:",
         "noApiKey": {
-          "banner": "هغه API کیلي چې پخوا د دې لوبې لپاره کارېده نور شتون نه لري. د دوام لپاره په خپل حساب ترتیباتو کې خپله کیلي اضافه کړئ.",
+          "banner": "د {{platform}} لپاره هېڅ د کار وړ API کیلي ونه موندل شوه. د لوبې دوام لپاره، په خپل حساب ترتیب کې خپله API کیلي اضافه کړئ.",
           "goToSettings": "د API کیلي ترتیبات",
           "personal": "تر څو ولوبېږي، باید خپله API کیلي تنظیم کړئ. د API کیلي ترتیباتو ته لاړ شئ.",
           "title": "هیڅ API کیلي شتون نه لري",
@@ -453,19 +525,23 @@
       "badges": {
         "myGame": "زما لوبه",
         "public": "عامه",
-        "workshop": "ورکشاپ"
+        "workshop": "د کارګاه لوبه"
       },
       "createButton": "لوبه جوړه کړئ",
       "createModal": {
         "descriptionPlaceholder": "ستاسو لوبه د څه په اړه ده؟",
         "namePlaceholder": "لکه: د فضا سیر",
-        "publicDescription": "عامه لوبې د هر چا له خوا موندل کېږي.",
+        "publicDescription": "عامې لوبې ټول کاروونکي په دې پلاتفورم کې لیدلای او لوبولای شي.",
         "publicLabel": "دا لوبه عامه کړئ",
         "submit": "لوبه جوړه کړئ",
         "title": "نوې لوبه جوړه کړئ"
       },
       "deleteModal": {
+        "adminActionTitle": "د اډمین کړنه",
+        "adminActionWarning": "تاسو د داسې لوبې د ړنګولو په درشل کې یاست چې ستاسو نه ده. دا یو اداري ګام دی او باید یوازې د منځګړتوب لپاره وکارول شي.",
         "message": "ډاډه یاست چې \"{{name}}\" ړنګوئ؟",
+        "moderatorActionTitle": "د ګډونوال لوبه ړنګول",
+        "moderatorActionWarning": "دا لوبه ستاسو د کارګاه د یوه ګډونوال ده. که یې ړنګ کړئ، د هغوی لپاره به تل پاتې لرې شي. دا بېرته نه راګرځي.",
         "title": "لوبه ړنګول",
         "warning": "دا کړنه نه شي بېرته راتلای. د لوبې ټول معلومات به تلپاتې لېرې شي."
       },
@@ -484,6 +560,9 @@
         "statusFieldsHint": "لوبه څه باید وساتي؟ لکه روغتیا، نمرې یا مهمات. لوبه دا ارزښتونه یاد ساتي او د لوبې پر مهال یې نوي کوي."
       },
       "editModal": {
+        "adminActionTitle": "د اډمین کړنه",
+        "adminActionWarning": "تاسو داسې لوبه سموي چې ستاسو نه ده. دا یو اداري ګام دی او باید یوازې د منځګړتوب لپاره وکارول شي.",
+        "gameDesignSection": "د لوبې ډيزاین",
         "title": "لوبه سمول",
         "unsavedChanges": {
           "discard": "بدلونونه پرېږدئ",
@@ -517,9 +596,13 @@
       "playNow": "همدا اوس ولوبئ",
       "privateShare": {
         "active": "شخصي شریکول فعال دي. هر څوک چې لاندې لینک ولري، لوبه بې نومه لوبولی شي.",
+        "aiQualityTier": "د AI کیفیت",
+        "aiQualityTierDescription": "د دې شریکولو لینک کاروونکو لپاره د AI ماډل کیفیت وټاکئ.",
         "copyLink": "لینک کاپي کړئ",
+        "createModalTitle": "د شخصي شریکولو لینک جوړ کړئ",
         "description": "د شخصي شریکولو لینک جوړ کړئ چې هر څوک یې له لارې لوبه بې نومه ولوبوي. تاسو ټاکئ کوم API کیلي لګښت ورکوي.",
         "edit": "ترتیبات سمول",
+        "editModalTitle": "د شخصي شریکولو لینک سم کړئ",
         "editSettings": "د شریکولو ترتیبات سم کړئ",
         "enable": "د شریکولو لینک جوړ کړئ",
         "loading": "د شریکولو حالت پورته کېږي...",
@@ -527,18 +610,40 @@
         "maxSessions": "اعظمي ناستې",
         "maxSessionsDescription": "د نامحدودو ناستو لپاره تش پرېږدئ.",
         "noEligibleKeys": "هیڅ فعاله API کیلي نشته. لومړی د API کیلي په ترتیباتو کې کیلي اضافه کړئ.",
+        "noPersonalShare": "هیڅ شخصي یا سازماني شریکولو لینک نشته. تاسو یې له کارګاه څخه بهر جوړولای شئ.",
+        "orgKey": "سازمان",
+        "orgShareDescription": "د سازمان شریکولو لینک - مېلمانه د سازمان د API کیلي په کارولو لوبه کوي.",
+        "personalCreateHint": "یو شخصي لینک جوړ کړئ څو هر څوک یې په لرلو سره دا لوبه په نوم پټه ولوبولی شي. تاسو ټاکئ چې کوم API کیلي د ناستو لګښت ورکوي.",
+        "personalOrgSubsection": "شخصي / سازماني شریکولو لینک",
+        "personalShare": "ستاسو شخصي شریکولو لینک",
+        "personalShareDescription": "ستاسو شخصي شریکولو لینک - مېلمانه ستاسو د ټاکل شوې API کیلي په کارولو لوبه کوي.",
         "remainingSessions": "{{count}} ناسته/ناستې پاتې",
         "revoke": "لینک لغوه کړئ",
         "selectKey": "API کیلي وټاکئ",
         "selectKeyPlaceholder": "هغه کیلي وټاکئ چې د مېلمنو ناستې پرې تادیه شي...",
         "shareLink": "د شریکولو لینک",
+        "sourceOrg": "سازمان",
+        "sourcePersonal": "شخصي",
+        "sourceWorkshop": "کارګاه",
         "title": "شخصي شریکولو لینک",
         "unlimited": "نامحدود",
-        "update": "شریکولو لینک تازه کړئ"
+        "unlimitedSessions": "لامحدود ناستې",
+        "update": "شریکولو لینک تازه کړئ",
+        "workshopCreateHint": "د دې لوبې لپاره شریکولو لینک جوړ کړئ. د کارګاه API کیلي به په اوتومات ډول وټاکل شي او لګښتونه به پوريړي.",
+        "workshopDescription": "د دې لوبې لپاره شریکولو لینک جوړ کړئ. د کارګاه اصلي API کیلي به د مېلمنو ناستو لپاره په اوتومات ډول وکارول شي.",
+        "workshopShare": "د کارګاه شریکول",
+        "workshopShareDescription": "دا لینک د \"{{name}}\" کارګاه کې جوړ شوی - مېلمانه د کارګاه د API کیلي کاروي.",
+        "workshopSubsection": "د کارګاه شریکولو لینک"
       },
       "sharing": {
         "active": "فعال",
-        "sectionTitle": "شریکول \u0006 سپانسرۍ"
+        "privateShareLink": "شخصي شریکولو لینک",
+        "privateShareLinkDescription": "شخصي شریکولو لینکونه له نورو سره شریکېدلی شي. هر څوک چې لینک ولري، لوبه بې حسابه په پټه لوبولای شي. د لګښت پوښلو لپاره باید API کیلي وټاکل شي.",
+        "publicGameWorkshopHint": "دا یوه عامه لوبه ده او ستاسو د کارګاه برخه نه ده. د کارګاه حالت کې د عامو لوبو لپاره د شریکولو اختیارونه شتون نه لري.",
+        "publicSponsoring": "عام سپانسرۍ",
+        "publicSponsoringDescription": "د پلاتفورم ټول کاروونکي دا لوبه وړیا لوبولای شي - ستاسو ټاکل شوې API کیلي لګښت ورکوي.",
+        "sectionTitle": "د شریکولو اختیارونه",
+        "sectionTitleShareOnly": "د شریکولو اختیارونه"
       },
       "sort": {
         "createdAt-asc": "جوړه شوې (تر ټولو زاړه)",
@@ -570,11 +675,13 @@
         "loadingKeys": "API کیلي پورته کېږي...",
         "manageSponsor": "سپانسر اداره کړئ",
         "next": "راتلونکی",
-        "noEligibleKeys": "تاسو داسې API کیلي نه لرئ چې عامه سپانسرۍ فعاله کړي. لومړی د API کیلي ترتیباتو کې \"Allow public sponsoring\" فعال کړئ.",
+        "noEligibleKeys": "د سپانسرۍ لپاره کوم مناسب API کیلي نه لرئ. لومړی په خپلو ترتیبونو کې API کیلي اضافه کړئ.",
         "privateWarning": "لوبه خصوصي کول به عامه سپانسرۍ لرې کړي.",
         "removeSponsor": "سپانسرۍ لرې کړئ",
         "selectKey": "API کیلي وټاکئ",
         "selectKeyPlaceholder": "هغه کیلي وټاکئ چې پرې سپانسر کوئ...",
+        "sourceOrg": "سازمان",
+        "sourcePersonal": "شخصي",
         "sponsorGame": "لوبه سپانسر کړئ",
         "sponsored": "سپانسر شوې",
         "sponsoredTooltip": "دا لوبه سپانسر شوې - تاسې یې وړیا لوبولی شئ! د لوبې جوړوونکی یا ملاتړی AI لګښتونه ورکوي.",
@@ -725,6 +832,7 @@
       "profile": "پروفایل",
       "workshop": "ورکشاپ"
     },
+    "help": "مرسته",
     "home": {
       "features": {
         "create": {
@@ -836,15 +944,15 @@
     "myOrganization": {
       "actions": "عملونه",
       "apiKeys": {
-        "aboutDescription": "خپرېدلې API کیلي ټول غړي کارولی شي. یوازې مشران او ښوونکي دا کیلي اداره کولای شي.",
+        "aboutDescription": "دلته شریک شوي API کیلي د سازمان ټولو غړو ته د لوبو لپاره د کارولو وړ دي.",
         "aboutTitle": "د سازمان API کیلي",
         "allowPublicSponsoring": "عامه سپانسرۍ ته اجازه",
         "allowPublicSponsoringDesc": "دا کیلي کولای شي د ټولو کارنان لپاره لوبې سپانسر کړي.",
         "filterByPlatform": "د پلاتفورم له مخې فلټر",
         "freeUseKey": {
-          "description": "د ازاد کارونې کیلي وټاکئ تر څو غړي بې له خپلې کیلي لوبې وکړي. یوازې هغه کیلي ټاکلی شئ چې له سازمان سره شریکه شوې.",
+          "description": "د وړیا کارولو کیلي وټاکئ څو د سازمان ټول غړي پرته له خپلې API کیلي لوبې وکولی شي.",
           "remove": "لرې کول",
-          "selectPlaceholder": "یوه شریکه کیلي وټاکئ...",
+          "selectPlaceholder": "کیلي وټاکئ...",
           "title": "ازاده کارونې کیلي",
           "unknownKey": "نامعلومه کیلي"
         },
@@ -862,7 +970,14 @@
         "share": "شریکول",
         "shareKey": "کیلي شریکه کړئ",
         "shareKeyTitle": "سره د سازمان API کیلي شریکه کړئ",
+        "showDetails": "جزیات ښکاره کړئ",
         "title": "زما سازمان API کیلي"
+      },
+      "autoShare": {
+        "confirmMessage": "دا کیلي به له {{orgName}} سره شریکه شي او بیا نور مشران او کارکوونکي یې د کارګاهونو لپاره کارولای شي. تاسو وروسته له خپلې شخصي یا سازماني API کیلي مدیریت څخه دا شراکت لرې کولای شئ.",
+        "confirmTitle": "کیلي له سازمان سره شریکه کړئ",
+        "orgKeyGroup": "سازماني کیلي",
+        "personalKeyGroup": "شخصي کیلي"
       },
       "demoteConfirm": "ډاډه یاست چې \"{{name}}\" ({{email}}) د ښوونکي درجې ته راټیټ کړئ؟",
       "demoteTitle": "ښوونکي ته ټیټول",
@@ -895,6 +1010,9 @@
       "promoteTitle": "مشر ته لوړول",
       "promoteToHead": "مشر ته لوړ کړئ",
       "promoteWarning": "دا کارن به د سازمان غړي مدیریت او ښوونکي بللو واک ولري.",
+      "promptConstraintsHint": "د دې سازمان په ټولو ناستو کې اضافي د AI لارښوونې. هغه وخت پلي کېږي چې د کارګاه کچه محدودیت نه وي ټاکل شوی او پر هغو لوبو هم چې د لینک له لارې شریک شوي.",
+      "promptConstraintsLabel": "د سازمان د امر محدودیتونه",
+      "promptConstraintsPlaceholder": "لکه: کیسه د عمر له مخې مناسبه وساتئ او له تشدد څخه ډډه وکړئ.",
       "removeConfirm": "ډاډه یاست چې \"{{name}}\" له سازمانه لرې کړئ؟",
       "removeMember": "غړی لرې کړئ",
       "removeTitle": "غړی لرې کول",
@@ -915,11 +1033,21 @@
         "active": "فعال",
         "activeDescription": "فعال ورکشاپونه ګډونوالو ته اجازه ورکوي چې لوبې جوړې کړي.",
         "activeLabel": "فعال",
+        "addIndividual": "د سازمان غړی زیات کړئ",
+        "addIndividualError": "کارګاه ته د غړي په زیاتولو کې پاتې راغلو.",
+        "addIndividualHint": "د کاروونکي زیاتول هغه په اوتومات ډول کارګاه حالت ته وړي. هغوی به د خپل عادي ډشبورډ پر ځای د کارګاه لید وګوري. یوازې هغه وخت دا کار وکړئ چې هدف وي.",
+        "addIndividualStaffNote": "مشریان او ښوونکي باید کارګاه ته د خپل کارګاه لست له لارې پخپله ورشي - دلته نه ښکاري.",
+        "addIndividualSuccess": "غړی زیات شو",
+        "addIndividualSuccessMessage": "{{name}} د کارګاه غړی شو.",
+        "addIndividualTitle": "فرد کارګاه ته زیات کړئ",
+        "addToWorkshop": "کارګاه ته زیات کړئ",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "د AI ځواب کیفیت پوړ. لوړې کچې ګرانې دي خو ښایي کیفیت یې ښه وي. تش یې پرېږدئ تر څو د سرور اصلي وکارول شي.",
+        "allowGameSharing": "د لوبې شریکول اجازه کړئ",
+        "allowGameSharingHint": "کله چې فعال وي، ګډونوال کولای شي د خپلو لوبو لپاره د کارګاه د API کیلي په کارولو شریکولو لینکونه جوړ کړي",
         "anonymousParticipant": "بې نومه ګډونوال",
         "create": "ورکشاپ جوړ کړئ",
         "createFirst": "خپل لومړی ورکشاپ جوړ کړئ",
@@ -938,6 +1066,11 @@
         "games": "لوبې",
         "hideInactive": "غیر فعال پټ کړئ",
         "inactive": "غیر فعال",
+        "inviteByEmail": "د برېښنالیک له لارې بلنه",
+        "inviteByEmailDescription": "د ثبت شوي کاروونکي برېښنالیک دننه کړئ څو دې کارګاه ته یې وبولئ. بلنه به یې په ډشبورډ کې ښکاره شي.",
+        "inviteByEmailSuccess": "بلنه ولېږل شوه",
+        "inviteByEmailSuccessMessage": "بلنه جوړه شوه. کاروونکی به یې په خپلو منتظرو بلنو کې وویني.",
+        "inviteByEmailTitle": "کاروونکی کارګاه ته وبولئ",
         "inviteCreatedAt": "جوړ شوی",
         "inviteDescription": "د بلنې لینک تولید کړئ چې ګډونوال پرې ورکشاپ ته داخل شي.",
         "inviteExpiresAt": "پای نیټه",
@@ -956,6 +1089,7 @@
         "noActiveInvite": "هیڅ فعاله د بلنې لینک نشته.",
         "noDefaultApiKey": "تلواله API کیلي نشته",
         "noDefaultModel": "د پلاتفورم تلواله وکاروئ",
+        "noIndividuals": "په دې سازمان کې انفرادي کاروونکي نشته.",
         "noParticipantToken": "دغه ګډونوال د بلنې لینک نه لري. یوازې بې نومه ګډونوال (مېلمانه) د بیا کارونې لینک لري.",
         "noParticipants": "تر اوسه ګډونوال نشته",
         "notAuthorized": "تاسو ورکشاپونه نه شئ اداره کولی. یوازې مشران او ښوونکي اجازه لري.",
@@ -963,7 +1097,9 @@
         "participantJoined": "{{date}} کې ګډ شوی",
         "participantName": "د ګډونوال نوم",
         "participants": "ګډونوال",
-        "promptConstraintsHint": "د دې ورکشاپ د ټولو غونډو لپاره د AI سیسټم پرامپټ ته ورزیاتې شوې اضافي لارښوونې.",
+        "promptConstraintsFallbackOrg": "د سازمان محدودیت د تلوالې په توګه کارېږي: {{constraint}}",
+        "promptConstraintsFallbackSite": "د سایټ محدودیت د تلوالې په توګه کارېږي",
+        "promptConstraintsHint": "د دې کارګاه د ټولو ناستو لپاره اضافي د AI لارښوونې.",
         "promptConstraintsLabel": "د پرامپټ محدودیتونه",
         "promptConstraintsPlaceholder": "لکه: کیسه د عمر له پلوه مناسبه وساتئ او له تاوتریخوالي لرې پاتې شئ.",
         "removeParticipant": "ګډونوال لرې کړئ",
@@ -976,6 +1112,7 @@
         "settings": "ترتیبات",
         "shareParticipantLink": "د همدې ګډونوال شخصي لینک کاپي کړئ",
         "showOtherParticipantsGames": "د نورو ګډونوالو لوبې ښودل",
+        "showOtherParticipantsGamesHint": "مشري او کارکوونکي تل د ټولو ګډونوالو لوبې د منځګړتوب لپاره لیدلی شي",
         "showPublicGames": "ګډونوالو ته عامه لوبې وښایئ",
         "sort": {
           "createdAtAsc": "تر ټولو زاړه",
@@ -1007,7 +1144,9 @@
       "empty": "نوې خبرتیاوې نشته.",
       "inviteDescription": "تاسو ته د {{role}} په توګه د ګډون بلنه درکړل شوې.",
       "inviteToJoin": "د سازمان بلنه",
-      "title": "خبرتیاوې"
+      "title": "خبرتیاوې",
+      "workshopInvite": "د کارګاه بلنه",
+      "workshopInviteDescription": "تاسو دې کارګاه ته د ګډون لپاره بلل شوي یاست."
     },
     "play": {
       "cloneGame": "خپلو لوبو ته کاپي کړئ",
@@ -1044,6 +1183,16 @@
     "search": "پلټل",
     "searchPlaceholder": "غړي وپلټئ...",
     "serverSettings": {
+      "constraints": {
+        "description": "د لوبغاړي د عمر ډلې پر بنسټ اجباري AI مقررات وټاکئ. دا محدودیتونه د هر AI ځواب کې ورګډېږي. دا د کارګاه له حالت څخه بهر پر ټولو ننوتلو کاروونکو پلي کېږي.",
+        "title": "د عمر پر بنسټ د محدودیت امرونه",
+        "u13Hint": "د هغو ننوتلو کاروونکو لپاره په هر AI حکم کې ورګډېږي چې عمر یې ۱۳-۱۷ وي.",
+        "u13Label": "د ۱۳-۱۷ کلنو کاروونکو لپاره محدودیت (U13)",
+        "u13Placeholder": "لکه: ټول منځپانګه د تنکیو ځوانانو لپاره کلکه مناسبه وساتئ. تشدد مه کوئ، رومانتيک منځپانګه مه کوئ، د وېروونکې موضوع نه کاروئ.",
+        "u18Hint": "د هغو ننوتلو کاروونکو لپاره چې عمر یې ۱۸ یا زیات وي، په هر AI حکم کې ورګډېږي.",
+        "u18Label": "د ۱۸+ کاروونکو لپاره محدودیت (U18)",
+        "u18Placeholder": "لکه: منځپانګه مناسبه وساتئ. له څرګند تشدد یا جنسي منځپانګې ډډه وکړئ."
+      },
       "defaultTier": {
         "description": "په سرور کې عمومي تلواله پوړ چې هغه مهال کارېږي کله چې په ورکشاپ، اداره یا کارن کې ځانګړی پوړ نه وي. لوړې کچې زیات لګښت لري خو ښايي کیفیت یې ښه وي.",
         "title": "تلواله د AI کیفیت پوړ"
@@ -1119,6 +1268,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "د ChatGameLab سره د رسنیو روزنیز کار",
+          "title": "د ChatGameLab په اړه"
+        },
         "jff": {
           "description": "د پروژې همغږي کوونکی او مخکښ سازمان.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1229,6 +1382,14 @@
       "workshop": "د ورکشاپ لوبې"
     },
     "gameType": "لوبه",
+    "infoModal": {
+      "body": "تاسو د کارګاه حالت ته ننوتلي یاست. تر هغه چې په دې حالت کې یاست، هر څه چې کوئ له دې کارګاه سره تړلي دي - لوبې چې جوړوئ، د لوبو ناستې، او شریکولو لینکونه.\n\nهر وخت وتلای شئ. وتل نه کارګاه ختموي او نه هغه څه لرې کوي چې تاسې جوړ کړي.",
+      "dontShowAgain": "دا بیا مه ښیه",
+      "gotIt": "سمه ده",
+      "headStaffNote": "تاسو هر وخت د خپلې سازمان د کارګاه لست څخه دې کارګاه ته بېرته ورننوځئ.",
+      "individualNote": "له وتلو وروسته بېرته د ورګډېدو لپاره به باید د کارګاه له تنظیموونکو نوي بلنه ترلاسه کړئ.",
+      "title": "ښه راغلاست {{name}} ته"
+    },
     "members": {
       "empty": "تر اوسه غړي نشته",
       "title": "د ورکشاپ غړي"
@@ -1260,6 +1421,7 @@
     "myOrganization": "زما سازمان",
     "myWorkshop": "زما ورکشاپ",
     "orgApiKeys": "API کیلي",
+    "orgConstraints": "محدودیتونه",
     "orgMembers": "غړي",
     "orgWorkshops": "ورکشاپونه",
     "play": "لوبه وکړئ",

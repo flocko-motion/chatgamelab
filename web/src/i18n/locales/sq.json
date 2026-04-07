@@ -32,6 +32,11 @@
       "workshop": "Punëtori"
     },
     "profile": {
+      "ageGroup": "Grupi i moshës",
+      "ageGroupDescription": "Përcakton cilat udhëzime për përmbajtjen zbatohen për lojërat tuaja. Mund ta ndryshoni këtë në çdo kohë.",
+      "ageGroupSection": "Grupi i moshës",
+      "ageGroupU13": "13-17 vjeç",
+      "ageGroupU18": "18+",
       "gamesCreated": "Lojëra të krijuara",
       "gamesPlayed": "Lojëra të luajtura",
       "memberSince": "I regjistruar që nga",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Totali i lojërave të mia të luajtura"
     },
     "register": {
+      "ageGroupLabel": "Grupi i moshës",
+      "ageGroupRequired": "Ju lutemi zgjidhni grupin tuaj të moshës",
+      "ageGroupU13": "13-17 vjeç",
+      "ageGroupU18": "18 vjeç ose më shumë",
+      "ageGroupUnder13": "Nën 13 vjeç",
+      "ageGroupUnder13Error": "Duhet të jeni të paktën 13 vjeç për të përdorur ChatGameLab.",
       "cancelButton": "Anulo",
       "emailDescription": "Do ta përdorim për njoftime të rëndësishme.",
       "emailLabel": "Adresa e emailit",
@@ -73,8 +84,48 @@
       "subtitle": "Vetëm edhe pak detaje për të filluar",
       "title": "Plotësoni profilin tuaj"
     },
+    "registerPage": {
+      "agreePrefix": "Unë pajtohem me",
+      "agreeSuffix": "dhe",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Keni tashmë një llogari?",
+      "backButton": "Kthehu",
+      "chooseType": "Si dëshironi ta përdorni ChatGameLab?",
+      "continueButton": "Vazhdo te Regjistrimi",
+      "description": "Ne përdorim Auth0 si ofruesin tonë të autentifikimit për të menaxhuar llogaritë e përdoruesve. Do të ridrejtoheni te Auth0 për të krijuar llogarinë tuaj, pastaj do të ktheheni këtu për të përfunduar profilin.",
+      "educatorDescription": "Përdorni ChatGameLab në punëtori, klasa ose organizatën tuaj",
+      "educatorModal": {
+        "closeButton": "Mbyll",
+        "copied": "U kopjua!",
+        "copyEmail": "Kopjo emailin",
+        "eduInfo": "Mësoni më shumë rreth përdorimit të ChatGameLab për qëllime arsimore:",
+        "intro": "Për të përdorur ChatGameLab me organizatën tuaj (shkollë, universitet, institucion), ju lutemi ndiqni këto hapa:",
+        "registerButton": "Krijo Llogari Personale",
+        "step1": "Krijo një llogari personale",
+        "step1Description": "Së pari krijoni llogarinë tuaj personale. Kjo do të jetë hyrja juaj në platformë.",
+        "step2": "2. Na dërgoni një email",
+        "step2Description": "Shkruani një email te",
+        "step2Item1": "Adresën tuaj të emailit të regjistruar",
+        "step2Item2": "Emrin e organizatës suaj (shkollë, institucion, etj.)",
+        "step2WithInfo": "me:",
+        "step3": "3. Ne do ta konfigurojmë organizatën tuaj",
+        "step3Description": "Ne do ta krijojmë organizatën tuaj dhe do t’ju caktojmë si drejtues. Më pas mund të ftoni kolegët dhe të organizoni punëtori.",
+        "title": "Hyrje për Edukatorë \u00026 Profesionistë"
+      },
+      "educatorTitle": "Edukator / Profesionist",
+      "individualDescription": "Krijoni dhe luani aventura tekstuale të fuqizuara nga AI",
+      "individualTitle": "Llogari Personale",
+      "loginLink": "Hyni",
+      "privacyPolicy": "Politika e Privatësisë",
+      "termsOfService": "Kushtet e Shërbimit",
+      "title": "Krijoni Llogarinë Tuaj"
+    },
     "settings": {
       "accountSection": "Llogaria",
+      "ageGroupDescription": "Përcakton cilat udhëzime për përmbajtjen zbatohen për lojërat tuaja.",
+      "ageGroupLabel": "Grupi i moshës",
+      "ageGroupU13": "13-17 vjeç",
+      "ageGroupU18": "18 vjeç ose më shumë",
       "emailChangeNote": "Për të ndryshuar adresën e emailit, ju lutemi kontaktoni administratorin e faqes.",
       "errors": {
         "nameRequired": "Emri është i detyrueshëm",
@@ -210,6 +261,7 @@
       "low": "E ulët (Ekonomi)",
       "max": "Maks (Premium + Audio)",
       "medium": "Mesatare (E balancuar)",
+      "newSessionsOnly": "Ky nivel zbatohet vetëm për sesionet e reja. Sesionet ekzistuese mbajnë nivelin me të cilin kanë startuar.",
       "serverDefault": "Parazgjedhja e serverit"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Të sponsorizuara"
       },
       "play": "Luaj",
+      "reportGame": "Raporto lojën",
       "restart": "Rifillo",
       "restartConfirm": {
         "confirm": "Rifillo",
@@ -240,7 +293,8 @@
         "title": "Rifillo lojën"
       },
       "title": "Të gjitha lojërat",
-      "unfavorite": "Hiq nga të preferuarat"
+      "unfavorite": "Hiq nga të preferuarat",
+      "workshop": "Punëtori / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platforma",
       "setDefault": "Vendos si parazgjedhje",
       "shares": {
+        "context": {
+          "organization": "Organizata",
+          "personal": "Personale",
+          "workshop": "Punëtori"
+        },
+        "gameShares": "Lidhje Shpërndarjeje Lojërash",
         "goToOrg": "Menaxho",
         "noOrgShares": "Nuk është ndarë me asnjë organizatë",
         "noSponsorships": "Nuk ka sponsorizime lojërash",
         "orgShares": "Ndarjet e organizatës",
         "privateShares": "Lidhje private ndarjeje",
-        "remaining": "{{count}} të mbetura",
+        "remaining": "{{count}} përdorime të mbetura",
         "removeSponsor": "Hiq sponsorizimin",
+        "revokeGameShare": "Revoko lidhjen e shpërndarjes",
         "revokePrivateShare": "Revoko lidhjen e ndarjes",
         "sponsorships": "Sponsorizime lojërash",
         "toggle": "Ndarje \u00026 Sponsorizime",
         "unknownGame": "Lojë e panjohur",
         "unknownOrg": "Organizatë e panjohur",
         "unknownUser": "Përdorues i panjohur",
-        "unknownWorkshop": "Punëtori e panjohur"
+        "unknownWorkshop": "Punëtori e panjohur",
+        "unlimited": "Përdorime të pakufizuara"
       },
       "status": {
         "failed": "Çelësi nuk funksionon",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Çelësi API i përdorur u ndryshua",
         "sections": {
           "expandStory": "Udhëzime për AI-në për shkrimin e historisë",
           "imageGeneration": "Udhëzime nga AI për gjenerimin e imazheve",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "token-a të marrë",
           "sent": "token-a të dërguar"
+        },
+        "usedApiKey": {
+          "institution_free_use": "U përdor çelësi i përdorimit falas i organizatës suaj",
+          "label": "Çelësi API i përdorur",
+          "personal": "U përdor çelësi juaj personal",
+          "private_share": "U përdor çelësi i lidhjes së shpërndarjes",
+          "sponsor": "U përdor një çelës sponsori",
+          "system_free_use": "U përdor një çelës global i përdorimit falas",
+          "workshop": "U përdor çelësi i punëtorisë suaj"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Lojë e pagjetur",
         "missingFields": "Lojë mungojnë fusha të nevojshme:",
         "noApiKey": {
-          "banner": "Çelësi API i përdorur më parë për këtë lojë nuk është më i disponueshëm. Për të vazhduar lojën, shtoni çelësin tuaj API në cilësimet e llogarisë.",
+          "banner": "Nuk u gjet asnjë çelës API i përdorshëm për platformën {{platform}}. Për të vazhduar lojën, shtoni çelësin tuaj API në cilësimet e llogarisë.",
           "goToSettings": "Cilësimet e çelësit API",
           "personal": "Duhet të konfiguroni një çelës API përpara se të luani. Shkoni te cilësimet e çelësave API për të shtuar një.",
           "title": "Nuk ka çelës API të disponueshëm",
@@ -453,19 +525,23 @@
       "badges": {
         "myGame": "Lojë e imja",
         "public": "Publike",
-        "workshop": "Punëtori"
+        "workshop": "Lojë Punëtorie"
       },
       "createButton": "Krijo lojë",
       "createModal": {
         "descriptionPlaceholder": "Për çfarë është loja juaj?",
         "namePlaceholder": "p.sh., Aventurë në hapësirë",
-        "publicDescription": "Lojërat publike janë të dukshme për të gjithë.",
+        "publicDescription": "Lojërat publike janë të dukshme dhe të luajtshme nga të gjithë përdoruesit në këtë platformë.",
         "publicLabel": "Bëje këtë lojë publike",
         "submit": "Krijo lojë",
         "title": "Krijo lojë të re"
       },
       "deleteModal": {
+        "adminActionTitle": "Veprim administrativ",
+        "adminActionWarning": "Jeni gati të fshini një lojë që nuk ju përket. Ky është një veprim administrativ dhe duhet përdorur vetëm për qëllime moderimi.",
         "message": "Jeni i sigurt që doni të fshini \"{{name}}\"?",
+        "moderatorActionTitle": "Fshirja e lojës së një pjesëmarrësi",
+        "moderatorActionWarning": "Kjo lojë i përket një pjesëmarrësi në punëtorinë tuaj. Fshirja do ta heqë përgjithmonë për të. Kjo nuk mund të zhbëhet.",
         "title": "Fshi lojën",
         "warning": "Ky veprim nuk mund të zhbëhet. Të dhënat e lojës do të fshihen përgjithmonë."
       },
@@ -484,6 +560,9 @@
         "statusFieldsHint": "Çfarë duhet të mbajë shënim loja? Për shembull shëndeti, pikët ose municioni. Loja i mban mend këto vlera dhe i përditëson gjatë lojës."
       },
       "editModal": {
+        "adminActionTitle": "Veprim administrativ",
+        "adminActionWarning": "Po modifikoni një lojë që nuk ju përket. Ky është një veprim administrativ dhe duhet përdorur vetëm për qëllime moderimi.",
+        "gameDesignSection": "Dizajni i lojës",
         "title": "Përpuno lojën",
         "unsavedChanges": {
           "discard": "Hidh poshtë ndryshimet",
@@ -517,9 +596,13 @@
       "playNow": "Luaj tani",
       "privateShare": {
         "active": "Ndarja private është aktive. Kushdo me lidhjen më poshtë mund ta luajë këtë lojë në mënyrë anonime.",
+        "aiQualityTier": "Cilësia e AI",
+        "aiQualityTierDescription": "Zgjidhni cilësinë e modelit AI për të ftuarit që përdorin këtë lidhje shpërndarjeje.",
         "copyLink": "Kopjo lidhjen",
+        "createModalTitle": "Krijo Lidhje Private të Shpërndarjes",
         "description": "Krijoni një lidhje private ndarjeje që kushdo me të mund ta luajë këtë lojë në mënyrë anonime. Ju zgjidhni cili çelës API paguan për sesionet.",
         "edit": "Përpuno cilësimet",
+        "editModalTitle": "Përditëso Lidhjen Private të Shpërndarjes",
         "editSettings": "Përpuno cilësimet e ndarjes",
         "enable": "Krijo lidhjen e ndarjes",
         "loading": "Duke ngarkuar statusin e ndarjes...",
@@ -527,18 +610,40 @@
         "maxSessions": "Maksimumi i sesioneve",
         "maxSessionsDescription": "Lëreni bosh për sesione të pakufizuara.",
         "noEligibleKeys": "Nuk ka asnjë çelës API funksional të disponueshëm. Shtoni fillimisht një çelës API te cilësimet e çelësave API.",
+        "noPersonalShare": "Nuk ekziston lidhje personale ose organizative e shpërndarjes. Mund ta krijoni një nga jashtë punëtorisë.",
+        "orgKey": "Organizata",
+        "orgShareDescription": "Lidhje shpërndarjeje e organizatës - të ftuarit luajnë duke përdorur çelësin API të organizatës.",
+        "personalCreateHint": "Krijoni një lidhje private që kushdo me të të mund ta luajë këtë lojë në mënyrë anonime. Ju zgjidhni cili çelës API paguan për sesionet.",
+        "personalOrgSubsection": "Lidhje Shpërndarjeje Personale / Organizative",
+        "personalShare": "Lidhja juaj private e shpërndarjes",
+        "personalShareDescription": "Lidhja juaj personale e shpërndarjes - të ftuarit luajnë duke përdorur çelësin API që zgjidhni.",
         "remainingSessions": "{{count}} sesion(e) të mbetura",
         "revoke": "Revoko lidhjen",
         "selectKey": "Zgjidh një çelës API",
         "selectKeyPlaceholder": "Zgjidhni një çelës për të paguar sesionet e vizitorëve...",
         "shareLink": "Lidhja e ndarjes",
+        "sourceOrg": "Organizata",
+        "sourcePersonal": "Personale",
+        "sourceWorkshop": "Punëtori",
         "title": "Lidhje private ndarjeje",
         "unlimited": "E pakufizuar",
-        "update": "Përditëso lidhjen e ndarjes"
+        "unlimitedSessions": "Sesionet e pakufizuara",
+        "update": "Përditëso lidhjen e ndarjes",
+        "workshopCreateHint": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi API i punëtorisë zgjidhet automatikisht dhe mbulon kostot.",
+        "workshopDescription": "Krijoni një lidhje shpërndarjeje për këtë lojë. Çelësi parazgjedhur i punëtorisë do të përdoret automatikisht për sesionet e të ftuarve.",
+        "workshopShare": "Shpërndarje punëtorie",
+        "workshopShareDescription": "Kjo lidhje është krijuar në punëtorinë \"{{name}}\" - të ftuarit luajnë duke përdorur çelësin API të punëtorisë.",
+        "workshopSubsection": "Lidhje Shpërndarjeje e Punëtorisë"
       },
       "sharing": {
         "active": "Aktive",
-        "sectionTitle": "Ndarja \u00026 Sponsorizimi"
+        "privateShareLink": "Lidhje Private e Shpërndarjes",
+        "privateShareLinkDescription": "Lidhjet private të shpërndarjes mund të ndahen me të tjerët. Kushdo që e ka lidhjen mund ta luajë lojën në mënyrë anonime pa llogari. Duhet zgjedhur një çelës API për të mbuluar kostot.",
+        "publicGameWorkshopHint": "Kjo është një lojë publike dhe nuk bën pjesë në punëtorinë tuaj. Opsionet e shpërndarjes nuk janë të disponueshme për lojërat publike në modalitetin e punëtorisë.",
+        "publicSponsoring": "Sponsorizim Publik",
+        "publicSponsoringDescription": "Të gjithë përdoruesit në platformë mund ta luajnë këtë lojë falas - çelësi juaj API i caktuar mbulon koston.",
+        "sectionTitle": "Opsionet e shpërndarjes",
+        "sectionTitleShareOnly": "Opsionet e shpërndarjes"
       },
       "sort": {
         "createdAt-asc": "Krijuar (më e vjetra)",
@@ -570,11 +675,13 @@
         "loadingKeys": "Duke ngarkuar çelësat API...",
         "manageSponsor": "Menaxho sponsorin",
         "next": "Tjetër",
-        "noEligibleKeys": "Nuk keni asnjë çelës API me sponsorizim publik të aktivizuar. Shkoni te cilësimet e çelësave API dhe aktivizoni \"Lejo sponsorizim publik\" në një çelës fillimisht.",
+        "noEligibleKeys": "Nuk keni asnjë çelës API të disponueshëm për sponsorizim. Shtoni më parë një çelës API në cilësimet tuaja.",
         "privateWarning": "Ta bëni këtë lojë private do të heqë sponsorizimin publik.",
         "removeSponsor": "Hiq sponsorizimin",
         "selectKey": "Zgjidh një çelës API",
         "selectKeyPlaceholder": "Zgjidh një çelës për të sponsorizuar...",
+        "sourceOrg": "Organizata",
+        "sourcePersonal": "Personale",
         "sponsorGame": "Sponsorizo lojën",
         "sponsored": "E sponsorizuar",
         "sponsoredTooltip": "Kjo lojë është e sponsorizuar - mund ta luani falas! Krijuesi i lojës ose një mbështetës po mbulon kostot e AI.",
@@ -725,6 +832,7 @@
       "profile": "Profili",
       "workshop": "Punëtori"
     },
+    "help": "Ndihmë",
     "home": {
       "features": {
         "create": {
@@ -836,15 +944,15 @@
     "myOrganization": {
       "actions": "Veprime",
       "apiKeys": {
-        "aboutDescription": "Çelësat API të ndarë këtu janë të disponueshëm për të gjithë anëtarët e organizatës për të luajtur lojëra. Vetëm krerët dhe mësuesit mund t'i menaxhojnë këta çelësa.",
+        "aboutDescription": "Çelësat API të ndarë këtu janë të disponueshëm për të gjithë anëtarët e organizatës suaj për të luajtur lojëra.",
         "aboutTitle": "Çelësat API të organizatës",
         "allowPublicSponsoring": "Lejo sponsorizim publik",
         "allowPublicSponsoringDesc": "Ky çelës mund të përdoret për të sponsorizuar lojëra për të gjithë përdoruesit.",
         "filterByPlatform": "Filtro sipas platformës",
         "freeUseKey": {
-          "description": "Vendosni një çelës përdorimi falas që të gjithë anëtarët e organizatës të luajnë pa pasur nevojë për çelësin e tyre API. Mund të zgjidhen vetëm çelësa që tashmë janë ndarë me këtë organizatë.",
+          "description": "Vendosni një çelës përdorimi falas për t'u lejuar të gjithë anëtarëve të organizatës të luajnë lojëra pa pasur nevojë për çelësin e tyre API.",
           "remove": "Hiq",
-          "selectPlaceholder": "Zgjidh një çelës të ndarë...",
+          "selectPlaceholder": "Zgjidh një çelës...",
           "title": "Çelësi i përdorimit falas",
           "unknownKey": "Çelës i panjohur"
         },
@@ -862,7 +970,14 @@
         "share": "Nda",
         "shareKey": "Nda çelësin",
         "shareKeyTitle": "Ndani çelësin API me organizatën",
+        "showDetails": "Shfaq detajet",
         "title": "Çelësat API të organizatës"
+      },
+      "autoShare": {
+        "confirmMessage": "Ky çelës do të ndahet me {{orgName}} dhe më pas mund të përdoret nga drejtues të tjerë dhe stafi për punëtori. Mund ta hiqni këtë shpërndarje më vonë në menaxhimin tuaj personal të çelësave API ose në menaxhimin e çelësave të organizatës.",
+        "confirmTitle": "Ndaj çelësin me organizatën",
+        "orgKeyGroup": "Çelësat e organizatës",
+        "personalKeyGroup": "Çelësat personalë"
       },
       "demoteConfirm": "A jeni i sigurt që doni ta ulni \"{{name}}\" ({{email}}) në Mësues?",
       "demoteTitle": "Ul në Mësues",
@@ -895,6 +1010,9 @@
       "promoteTitle": "Promovo në Kreu",
       "promoteToHead": "Promovo në Kreu",
       "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
+      "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë organizatë. Zbatohen kur nuk ka vendosur kufizim në nivel punëtorie dhe për lojërat e ndara me lidhje.",
+      "promptConstraintsLabel": "Kufizimet e prompt-it të organizatës",
+      "promptConstraintsPlaceholder": "p.sh. Mbajeni historinë të përshtatshme për moshën dhe shmangni përmbajtjen e dhunshme.",
       "removeConfirm": "A jeni i sigurt që doni ta hiqni \"{{name}}\" nga organizata?",
       "removeMember": "Hiq anëtarin",
       "removeTitle": "Hiq anëtarin",
@@ -915,11 +1033,21 @@
         "active": "Aktive",
         "activeDescription": "Punëtoritë aktive lejojnë pjesëmarrësit të bashkohen dhe të krijojnë lojëra.",
         "activeLabel": "Aktive",
+        "addIndividual": "Shto Anëtar Organizate",
+        "addIndividualError": "Shtimi i anëtarit në punëtori dështoi.",
+        "addIndividualHint": "Shtimi i një përdoruesi do ta kalojë automatikisht në modalitetin punëtori. Ata do të shohin pamjen e punëtorisë në vend të panelit të tyre të zakonshëm. Bëjeni këtë vetëm nëse është e synuar.",
+        "addIndividualStaffNote": "Drejtuesit dhe mësuesit duhet t’i bashkohen punëtorive përmes listës së punëtorive vetë - ata nuk renditen këtu.",
+        "addIndividualSuccess": "Anëtari u shtua",
+        "addIndividualSuccessMessage": "{{name}} është shtuar në punëtori.",
+        "addIndividualTitle": "Shto Individ në Punëtori",
+        "addToWorkshop": "Shto në punëtori",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "Niveli i cilësisë për përgjigjet e AI. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë. Bosh përdor parazgjedhjen e serverit.",
+        "allowGameSharing": "Lejo shpërndarjen e lojës",
+        "allowGameSharingHint": "Kur aktivizohet, pjesëmarrësit mund të krijojnë lidhje shpërndarjeje për lojërat e tyre duke përdorur çelësin API të punëtorisë",
         "anonymousParticipant": "Pjesëmarrës anonim",
         "create": "Krijo punëtori",
         "createFirst": "Krijoni punëtorinë tuaj të parë",
@@ -938,6 +1066,11 @@
         "games": "Lojëra",
         "hideInactive": "Fshih jo-aktive",
         "inactive": "Joaktive",
+        "inviteByEmail": "Fto me Email",
+        "inviteByEmailDescription": "Shkruani emailin e një përdoruesi të regjistruar për ta ftuar në këtë punëtori. Ata do ta shohin ftesën në panelin e tyre.",
+        "inviteByEmailSuccess": "Ftesa u dërgua",
+        "inviteByEmailSuccessMessage": "Është krijuar një ftesë. Përdoruesi do ta shohë atë në ftesat në pritje.",
+        "inviteByEmailTitle": "Fto Përdorues në Punëtori",
         "inviteCreatedAt": "Krijuar",
         "inviteDescription": "Gjeneroni një lidhje ftese që pjesëmarrësit ta përdorin për t'u bashkuar me këtë punëtori.",
         "inviteExpiresAt": "Skadon",
@@ -956,6 +1089,7 @@
         "noActiveInvite": "Nuk ka asnjë lidhje ftese aktive.",
         "noDefaultApiKey": "Pa çelës API parazgjedhje",
         "noDefaultModel": "Përdor parazgjedhjen e platformës",
+        "noIndividuals": "Nuk ka përdorues individualë në këtë organizatë.",
         "noParticipantToken": "Ky pjesëmarrës nuk ka një lidhje ftese. Vetëm pjesëmarrësit anonimë (vizitorë) kanë lidhje të ripërdorshme ftese.",
         "noParticipants": "Ende nuk ka pjesëmarrës",
         "notAuthorized": "Nuk keni leje të menaxhoni punëtoritë. Vetëm krerët dhe mësuesit kanë akses në këtë faqe.",
@@ -963,7 +1097,9 @@
         "participantJoined": "U bashkua më {{date}}",
         "participantName": "Emri i pjesëmarrësit",
         "participants": "Pjesëmarrësit",
-        "promptConstraintsHint": "Udhëzime shtesë të bashkangjitura në promptin e sistemit të AI për të gjitha sesionet në këtë punëtori.",
+        "promptConstraintsFallbackOrg": "Duke përdorur kufizimin e organizatës si parazgjedhje: {{constraint}}",
+        "promptConstraintsFallbackSite": "Duke përdorur kufizimin e faqes si parazgjedhje",
+        "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë punëtori.",
         "promptConstraintsLabel": "Kufizimet e promptit",
         "promptConstraintsPlaceholder": "p.sh. Mbaje historinë të përshtatshme për moshën dhe shmang përmbajtjen e dhunshme.",
         "removeParticipant": "Hiq pjesëmarrësin",
@@ -976,6 +1112,7 @@
         "settings": "Cilësimet",
         "shareParticipantLink": "Kopjo lidhjen individuale të ftesës për këtë pjesëmarrës",
         "showOtherParticipantsGames": "Shfaq lojërat e pjesëmarrësve të tjerë",
+        "showOtherParticipantsGamesHint": "Drejtuesit dhe stafi mund të shohin gjithmonë të gjitha lojërat e pjesëmarrësve për moderim",
         "showPublicGames": "Shfaq lojërat publike për pjesëmarrësit",
         "sort": {
           "createdAtAsc": "Më të vjetrat fillimisht",
@@ -1007,7 +1144,9 @@
       "empty": "Nuk ka njoftime të reja.",
       "inviteDescription": "Jeni ftuar të bashkoheni si {{role}}.",
       "inviteToJoin": "Ftesë organizate",
-      "title": "Njoftimet"
+      "title": "Njoftimet",
+      "workshopInvite": "Ftesë për Punëtori",
+      "workshopInviteDescription": "Jeni ftuar t’i bashkoheni kësaj punëtorie."
     },
     "play": {
       "cloneGame": "Klono te lojërat e mia",
@@ -1044,6 +1183,16 @@
     "search": "Kërko",
     "searchPlaceholder": "Kërko anëtarët...",
     "serverSettings": {
+      "constraints": {
+        "description": "Përcaktoni rregulla të detyrueshme të AI bazuar në grupmoshën e lojtarit. Këto kufizime futen në çdo përgjigje të AI. Ato zbatohen për të gjithë përdoruesit e kyçur jashtë modalitetit të punëtorisë.",
+        "title": "Prompt-e Kufizuese të bazuara në moshë",
+        "u13Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur të moshës 13-17.",
+        "u13Label": "Kufizim për përdoruesit 13-17 vjeç (U13)",
+        "u13Placeholder": "p.sh. Mbajeni gjithë përmbajtjen rreptësisht të përshtatshme për adoleshentët. Pa dhunë, pa përmbajtje romantike, pa tema horror.",
+        "u18Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur 18 vjeç e sipër.",
+        "u18Label": "Kufizim për përdoruesit 18+ (U18)",
+        "u18Placeholder": "p.sh. Mbajeni përmbajtjen të përshtatshme. Shmangni dhunën e qartë ose përmbajtjen seksuale."
+      },
       "defaultTier": {
         "description": "Niveli rezervë në shkallë serveri që përdoret kur nuk është konfiguruar një nivel specifik në punëtori, institucion ose përdorues. Nivelet më të larta kushtojnë më shumë por mund të kenë cilësi më të mirë.",
         "title": "Niveli parazgjedhje i cilësisë së AI"
@@ -1119,6 +1268,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Punë e pedagogjisë mediatike me ChatGameLab",
+          "title": "Rreth ChatGameLab"
+        },
         "jff": {
           "description": "Koordinatori i projektit dhe organizata udhëheqëse.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1229,6 +1382,14 @@
       "workshop": "Lojërat e punëtorisë"
     },
     "gameType": "Lojë",
+    "infoModal": {
+      "body": "Keni hyrë në modalitetin e punëtorisë. Sa kohë që jeni në këtë modalitet, gjithçka që bëni lidhet me këtë punëtori - lojërat që krijoni, sesionet e lojës dhe lidhjet e shpërndarjes.\n\nMund të largoheni kur të doni. Largimi nuk do ta përfundojë punëtorinë dhe as nuk do të heqë asgjë që keni krijuar.",
+      "dontShowAgain": "Mos ma trego më këtë",
+      "gotIt": "E kuptova",
+      "headStaffNote": "Mund t’i bashkoheni sërish kësaj punëtorie në çdo kohë nga lista e punëtorive të organizatës suaj.",
+      "individualNote": "Për t’u ribashkuar pasi të largoheni, do t'ju duhet një ftesë e re nga organizatorët e punëtorisë.",
+      "title": "Mirë se vini në {{name}}"
+    },
     "members": {
       "empty": "Ende nuk ka anëtarë",
       "title": "Anëtarët e punëtorisë"
@@ -1260,6 +1421,7 @@
     "myOrganization": "Organizata ime",
     "myWorkshop": "Punëtoria ime",
     "orgApiKeys": "Çelësat API",
+    "orgConstraints": "Kufizimet",
     "orgMembers": "Anëtarët",
     "orgWorkshops": "Punëtoritë",
     "play": "Luaj një lojë",

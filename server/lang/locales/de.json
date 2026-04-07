@@ -31,6 +31,11 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Altersgruppe",
+      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten. Du kannst dies jederzeit ändern.",
+      "ageGroupSection": "Altersgruppe",
+      "ageGroupU13": "13-17 Jahre",
+      "ageGroupU18": "18+",
       "gamesCreated": "Erstellte Spiele",
       "gamesPlayed": "Gespielte Spiele",
       "memberSince": "Angemeldet seit",
@@ -52,6 +57,12 @@
       "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
     },
     "register": {
+      "ageGroupLabel": "Altersgruppe",
+      "ageGroupRequired": "Bitte wähle deine Altersgruppe",
+      "ageGroupU13": "13-17 Jahre alt",
+      "ageGroupU18": "18 oder älter",
+      "ageGroupUnder13": "Unter 13",
+      "ageGroupUnder13Error": "Du musst mindestens 13 Jahre alt sein, um ChatGameLab zu nutzen.",
       "cancelButton": "Abbrechen",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adresse",
@@ -72,8 +83,48 @@
       "subtitle": "Nur noch ein paar Details, um loszulegen",
       "title": "Profil vervollständigen"
     },
+    "registerPage": {
+      "agreePrefix": "Ich stimme den",
+      "agreeSuffix": "und den",
+      "agreeSuffix2": "zu",
+      "alreadyHaveAccount": "Bereits ein Konto?",
+      "backButton": "Zurück",
+      "chooseType": "Wie möchtest du ChatGameLab nutzen?",
+      "continueButton": "Weiter zur Registrierung",
+      "description": "Wir nutzen Auth0 als Authentifizierungsanbieter zur Verwaltung der Benutzerkonten. Du wirst zu Auth0 weitergeleitet, um dein Konto zu erstellen, und dann hierher zurückgeführt, um dein Profil zu vervollständigen.",
+      "educatorDescription": "Nutze ChatGameLab in Workshops, im Unterricht oder in deiner Organisation",
+      "educatorModal": {
+        "closeButton": "Schließen",
+        "copied": "Kopiert!",
+        "copyEmail": "E-Mail kopieren",
+        "eduInfo": "Erfahre mehr über die Nutzung von ChatGameLab für Bildungszwecke:",
+        "intro": "Um ChatGameLab mit deiner Organisation (Schule, Universität, Einrichtung) zu nutzen, folge bitte diesen Schritten:",
+        "registerButton": "Persönliches Konto erstellen",
+        "step1": "Persönliches Konto erstellen",
+        "step1Description": "Erstelle zuerst dein persönliches Konto. Damit meldest du dich auf der Plattform an.",
+        "step2": "Schreibe uns eine E-Mail",
+        "step2Description": "Sende eine E-Mail an",
+        "step2Item1": "Deiner registrierten E-Mail-Adresse",
+        "step2Item2": "Dem Namen deiner Organisation (Schule, Einrichtung etc.)",
+        "step2WithInfo": "mit:",
+        "step3": "Wir richten deine Organisation ein",
+        "step3Description": "Wir erstellen deine Organisation und weisen dich als Leitung zu. Danach kannst du Kolleg:innen einladen und Workshops einrichten.",
+        "title": "Zugang für Fachkräfte \u0026 Lehrkräfte"
+      },
+      "educatorTitle": "Fachkraft / Lehrkraft",
+      "individualDescription": "Erstelle und spiele KI-gestützte Textabenteuer",
+      "individualTitle": "Persönliches Konto",
+      "loginLink": "Anmelden",
+      "privacyPolicy": "Datenschutzbestimmungen",
+      "termsOfService": "Nutzungsbedingungen",
+      "title": "Konto erstellen"
+    },
     "settings": {
       "accountSection": "Konto",
+      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten.",
+      "ageGroupLabel": "Altersgruppe",
+      "ageGroupU13": "13-17 Jahre",
+      "ageGroupU18": "18 oder älter",
       "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
       "errors": {
         "nameRequired": "Name ist erforderlich",
@@ -209,6 +260,7 @@
       "low": "Niedrig (Sparsam)",
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgewogen)",
+      "newSessionsOnly": "Diese Stufe gilt nur für neue Sitzungen. Bestehende Sitzungen behalten die Stufe, mit der sie gestartet wurden.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -232,6 +284,7 @@
         "sponsored": "Gesponsert"
       },
       "play": "Spielen",
+      "reportGame": "Spiel melden",
       "restart": "Neu starten",
       "restartConfirm": {
         "confirm": "Neu starten",
@@ -239,7 +292,8 @@
         "title": "Spiel neu starten"
       },
       "title": "Alle Spiele",
-      "unfavorite": "Aus Favoriten entfernen"
+      "unfavorite": "Aus Favoriten entfernen",
+      "workshop": "Workshop / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -284,20 +338,28 @@
       "platform": "Plattform",
       "setDefault": "Als Standard festlegen",
       "shares": {
+        "context": {
+          "organization": "Organisation",
+          "personal": "Persönlich",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Spiel-Freigabelinks",
         "goToOrg": "Verwalten",
         "noOrgShares": "Nicht mit einer Organisation geteilt",
         "noSponsorships": "Keine Spiel-Sponsorings",
         "orgShares": "Organisations-Freigaben",
         "privateShares": "Private Einladungslinks",
-        "remaining": "{{count}} verbleibend",
+        "remaining": "{{count}} Nutzungen verbleibend",
         "removeSponsor": "Sponsoring entfernen",
+        "revokeGameShare": "Freigabelink widerrufen",
         "revokePrivateShare": "Einladungslink widerrufen",
         "sponsorships": "Spiel-Sponsorings",
         "toggle": "Freigaben \u0026 Sponsorings",
         "unknownGame": "Unbekanntes Spiel",
         "unknownOrg": "Unbekannte Organisation",
         "unknownUser": "Unbekannter Benutzer",
-        "unknownWorkshop": "Unbekannter Workshop"
+        "unknownWorkshop": "Unbekannter Workshop",
+        "unlimited": "Unbegrenzte Nutzungen"
       },
       "status": {
         "failed": "Schlüssel funktioniert nicht",
@@ -335,6 +397,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Verwendeter API-Schlüssel geändert",
         "sections": {
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung",
@@ -348,6 +411,15 @@
         "tokens": {
           "received": "Tokens empfangen",
           "sent": "Tokens gesendet"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Der Freikontingent-Schlüssel deiner Organisation wurde verwendet",
+          "label": "Verwendeter API-Schlüssel",
+          "personal": "Dein persönlicher Schlüssel wurde verwendet",
+          "private_share": "Der Freigabelink-Schlüssel wurde verwendet",
+          "sponsor": "Ein Sponsor-Schlüssel wurde verwendet",
+          "system_free_use": "Ein globaler Freikontingent-Schlüssel wurde verwendet",
+          "workshop": "Der Schlüssel deines Workshops wurde verwendet"
         }
       },
       "debug": {
@@ -376,7 +448,7 @@
         "gameNotFound": "Spiel nicht gefunden",
         "missingFields": "Dem Spiel fehlen erforderliche Felder:",
         "noApiKey": {
-          "banner": "Der zuvor verwendete API-Schlüssel für dieses Spiel ist nicht mehr verfügbar. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
+          "banner": "Kein verwendbarer API-Schlüssel für Plattform {{platform}} gefunden. Um weiterzuspielen, füge einen eigenen API-Schlüssel in deinen Kontoeinstellungen hinzu.",
           "goToSettings": "API-Schlüssel Einstellungen",
           "personal": "Du musst einen API-Schlüssel konfigurieren, bevor du spielen kannst. Gehe zu deinen API-Schlüssel-Einstellungen, um einen hinzuzufügen.",
           "title": "Kein API-Schlüssel verfügbar",
@@ -437,19 +509,23 @@
       "badges": {
         "myGame": "Mein Spiel",
         "public": "Öffentlich",
-        "workshop": "Workshop"
+        "workshop": "Workshop-Spiel"
       },
       "createButton": "Spiel erstellen",
       "createModal": {
         "descriptionPlaceholder": "Worum geht es in deinem Spiel?",
         "namePlaceholder": "z.B. Weltraumabenteuer",
-        "publicDescription": "Öffentliche Spiele sind für alle sichtbar.",
+        "publicDescription": "Öffentliche Spiele sind für alle Nutzer dieser Plattform sichtbar und spielbar.",
         "publicLabel": "Dieses Spiel öffentlich machen",
         "submit": "Spiel erstellen",
         "title": "Neues Spiel erstellen"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bist dabei, ein Spiel zu löschen, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
         "message": "Möchtest du \"{{name}}\" wirklich löschen?",
+        "moderatorActionTitle": "Spiel eines Teilnehmers löschen",
+        "moderatorActionWarning": "Dieses Spiel gehört einem Teilnehmer in deinem Workshop. Das Löschen entfernt es dauerhaft für diese Person. Dies kann nicht rückgängig gemacht werden.",
         "title": "Spiel löschen",
         "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Spieldaten werden dauerhaft gelöscht."
       },
@@ -468,6 +544,9 @@
         "statusFieldsHint": "Welche Werte soll das Spiel zählen? Zum Beispiel Leben, Punkte oder Munition. Diese Werte merkt sich das Spiel und ändert sie beim Spielen automatisch."
       },
       "editModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bearbeitest ein Spiel, das dir nicht gehört. Dies ist eine administrative Aktion und sollte nur für Moderationszwecke verwendet werden.",
+        "gameDesignSection": "Spieldesign",
         "title": "Spiel bearbeiten",
         "unsavedChanges": {
           "discard": "Änderungen verwerfen",
@@ -501,9 +580,13 @@
       "playNow": "Jetzt spielen",
       "privateShare": {
         "active": "Die private Freigabe ist aktiv. Jeder mit dem untenstehenden Link kann dieses Spiel anonym spielen.",
+        "aiQualityTier": "KI-Qualität",
+        "aiQualityTierDescription": "Wähle die KI-Modellqualität für Gäste, die diesen Freigabelink nutzen.",
         "copyLink": "Link kopieren",
+        "createModalTitle": "Privaten Freigabelink erstellen",
         "description": "Erstelle einen privaten Freigabelink, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
         "edit": "Einstellungen bearbeiten",
+        "editModalTitle": "Privaten Freigabelink bearbeiten",
         "editSettings": "Freigabe-Einstellungen bearbeiten",
         "enable": "Freigabelink erstellen",
         "loading": "Lade Freigabestatus...",
@@ -511,18 +594,40 @@
         "maxSessions": "Max. Sitzungen",
         "maxSessionsDescription": "Leer lassen für unbegrenzte Sitzungen.",
         "noEligibleKeys": "Kein funktionierender API-Schlüssel verfügbar. Füge zuerst einen API-Schlüssel in den API-Schlüssel-Einstellungen hinzu.",
+        "noPersonalShare": "Es gibt keinen persönlichen oder Organisations-Freigabelink. Du kannst einen außerhalb des Workshops erstellen.",
+        "orgKey": "Organisation",
+        "orgShareDescription": "Organisations-Freigabelink - Gäste spielen mit dem API-Schlüssel der Organisation.",
+        "personalCreateHint": "Erstelle einen privaten Link, mit dem jeder dieses Spiel anonym spielen kann. Du wählst, welcher API-Schlüssel die Sitzungen bezahlt.",
+        "personalOrgSubsection": "Persönlicher / Organisations-Freigabelink",
+        "personalShare": "Dein privater Freigabelink",
+        "personalShareDescription": "Dein persönlicher Freigabelink - Gäste spielen mit deinem gewählten API-Schlüssel.",
         "remainingSessions": "{{count}} Sitzung(en) verbleibend",
         "revoke": "Link widerrufen",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Schlüssel für Gastsitzungen wählen...",
         "shareLink": "Freigabelink",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
+        "sourceWorkshop": "Workshop",
         "title": "Privater Freigabelink",
         "unlimited": "Unbegrenzt",
-        "update": "Freigabelink aktualisieren"
+        "unlimitedSessions": "Unbegrenzte Sitzungen",
+        "update": "Freigabelink aktualisieren",
+        "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
+        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der Standard-API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "workshopShare": "Workshop-Freigabe",
+        "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
+        "workshopSubsection": "Workshop-Freigabelink"
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Teilen \u0026 Sponsoring"
+        "privateShareLink": "Privater Freigabelink",
+        "privateShareLinkDescription": "Private Freigabelinks können mit anderen geteilt werden. Damit kann jeder das Spiel anonym ohne eigenes Nutzerkonto spielen. Es muss ein API-Schlüssel ausgewählt werden, der für die Kosten aufkommt.",
+        "publicGameWorkshopHint": "Dies ist ein öffentliches Spiel und nicht Teil Ihres Workshops. Freigabeoptionen sind für öffentliche Spiele im Workshop-Modus nicht verfügbar.",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "publicSponsoringDescription": "Alle Nutzer auf der Plattform können dieses Spiel kostenlos spielen - dein zugewiesener API-Schlüssel übernimmt die Kosten.",
+        "sectionTitle": "Freigabeoptionen",
+        "sectionTitleShareOnly": "Freigabeoptionen"
       },
       "sort": {
         "createdAt-asc": "Erstellt (Älteste)",
@@ -559,6 +664,8 @@
         "removeSponsor": "Sponsoring entfernen",
         "selectKey": "API-Schlüssel auswählen",
         "selectKeyPlaceholder": "Wähle einen Schlüssel zum Sponsern...",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
         "sponsorGame": "Spiel sponsern",
         "sponsored": "Gesponsert",
         "sponsoredTooltip": "Dieses Spiel wird gesponsert - du kannst es kostenlos spielen! Der Ersteller oder ein Unterstützer übernimmt die KI-Kosten.",
@@ -709,6 +816,7 @@
       "profile": "Profil",
       "workshop": "Workshop"
     },
+    "help": "Hilfe",
     "home": {
       "features": {
         "create": {
@@ -820,15 +928,15 @@
     "myOrganization": {
       "actions": "Aktionen",
       "apiKeys": {
-        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung. Nur Leiter und Lehrer können diese Schlüssel verwalten.",
+        "aboutDescription": "Hier freigegebene API-Schlüssel stehen allen Mitgliedern Ihrer Organisation zum Spielen zur Verfügung.",
         "aboutTitle": "Organisations-API-Schlüssel",
         "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
         "allowPublicSponsoringDesc": "Dieser Schlüssel kann zum Sponsern von Spielen für alle Benutzer verwendet werden.",
         "filterByPlatform": "Nach Plattform filtern",
         "freeUseKey": {
-          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen. Nur bereits mit dieser Organisation geteilte Schlüssel können ausgewählt werden.",
+          "description": "Legen Sie einen freien Nutzungsschlüssel fest, damit alle Organisationsmitglieder Spiele spielen können, ohne einen eigenen API-Schlüssel zu benötigen.",
           "remove": "Entfernen",
-          "selectPlaceholder": "Geteilten Schlüssel auswählen...",
+          "selectPlaceholder": "Schlüssel auswählen...",
           "title": "Freier Nutzungsschlüssel",
           "unknownKey": "Unbekannter Schlüssel"
         },
@@ -846,7 +954,14 @@
         "share": "Teilen",
         "shareKey": "Schlüssel teilen",
         "shareKeyTitle": "API-Schlüssel mit Organisation teilen",
+        "showDetails": "Details anzeigen",
         "title": "Organisations-API-Schlüssel"
+      },
+      "autoShare": {
+        "confirmMessage": "Dieser Schlüssel wird mit {{orgName}} geteilt und kann dann von anderen Leitern und Mitarbeitern für Workshops verwendet werden. Sie können diese Freigabe später in Ihrer persönlichen API-Schlüsselverwaltung oder der Organisations-API-Schlüsselverwaltung wieder entfernen.",
+        "confirmTitle": "Schlüssel mit Organisation teilen",
+        "orgKeyGroup": "Organisationsschlüssel",
+        "personalKeyGroup": "Persönliche Schlüssel"
       },
       "demoteConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" ({{email}}) zum Lehrer herabstufen möchten?",
       "demoteTitle": "Zum Lehrer herabstufen",
@@ -879,6 +994,9 @@
       "promoteTitle": "Zum Leiter befördern",
       "promoteToHead": "Zum Leiter befördern",
       "promoteWarning": "Dieser Benutzer erhält die Möglichkeit, Organisationsmitglieder zu verwalten und Lehrer einzuladen.",
+      "promptConstraintsHint": "Zusätzliche KI-Anweisungen für alle Sitzungen in dieser Organisation. Gilt, wenn keine Workshop-Einschränkung gesetzt ist, und für per Link geteilte Spiele.",
+      "promptConstraintsLabel": "Organisations-Einschränkungen",
+      "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
       "removeConfirm": "Sind Sie sicher, dass Sie \"{{name}}\" aus der Organisation entfernen möchten?",
       "removeMember": "Mitglied entfernen",
       "removeTitle": "Mitglied entfernen",
@@ -899,7 +1017,17 @@
         "active": "Aktiv",
         "activeDescription": "Aktive Workshops ermöglichen es Teilnehmern beizutreten und Spiele zu erstellen.",
         "activeLabel": "Aktiv",
+        "addIndividual": "Organisationsmitglied hinzufügen",
+        "addIndividualError": "Mitglied konnte nicht zum Workshop hinzugefügt werden.",
+        "addIndividualHint": "Das Hinzufügen eines Benutzers versetzt ihn automatisch in den Workshop-Modus. Er sieht die Workshop-Ansicht anstelle seines regulären Dashboards. Nur verwenden, wenn beabsichtigt.",
+        "addIndividualStaffNote": "Leiter und Lehrer sollten Workshops selbst über die Workshop-Liste beitreten - sie werden hier nicht aufgeführt.",
+        "addIndividualSuccess": "Mitglied hinzugefügt",
+        "addIndividualSuccessMessage": "{{name}} wurde zum Workshop hinzugefügt.",
+        "addIndividualTitle": "Person zum Workshop hinzufügen",
+        "addToWorkshop": "Zum Workshop hinzufügen",
         "aiQualityTierHint": "Qualitätsstufe für KI-Antworten. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben. Leer verwendet die Servereinstellung.",
+        "allowGameSharing": "Spielfreigabe erlauben",
+        "allowGameSharingHint": "Wenn aktiviert, können Teilnehmer Freigabelinks für ihre Spiele mit dem API-Schlüssel des Workshops erstellen",
         "anonymousParticipant": "Anonymer Teilnehmer",
         "create": "Workshop erstellen",
         "createFirst": "Ersten Workshop erstellen",
@@ -918,6 +1046,11 @@
         "games": "Spiele",
         "hideInactive": "Inaktive ausblenden",
         "inactive": "Inaktiv",
+        "inviteByEmail": "Per E-Mail einladen",
+        "inviteByEmailDescription": "Gib die E-Mail-Adresse eines registrierten Benutzers ein, um ihn zu diesem Workshop einzuladen. Die Einladung erscheint in seinem Dashboard.",
+        "inviteByEmailSuccess": "Einladung gesendet",
+        "inviteByEmailSuccessMessage": "Eine Einladung wurde erstellt. Der Benutzer sieht sie in seinen ausstehenden Einladungen.",
+        "inviteByEmailTitle": "Benutzer zum Workshop einladen",
         "inviteCreatedAt": "Erstellt",
         "inviteDescription": "Generieren Sie einen Einladungslink, den Teilnehmer verwenden können, um diesem Workshop beizutreten.",
         "inviteExpiresAt": "Läuft ab",
@@ -936,6 +1069,7 @@
         "noActiveInvite": "Kein aktiver Einladungslink verfügbar.",
         "noDefaultApiKey": "Kein Standard-Schlüssel",
         "noDefaultModel": "Plattform-Standard verwenden",
+        "noIndividuals": "Keine einzelnen Benutzer in dieser Organisation.",
         "noParticipantToken": "Dieser Teilnehmer hat keinen Einladungslink. Nur anonyme Teilnehmer (Gäste) haben wiederverwendbare Einladungslinks.",
         "noParticipants": "Noch keine Teilnehmer",
         "notAuthorized": "Sie haben keine Berechtigung, Workshops zu verwalten. Nur Leiter und Lehrer können auf diese Seite zugreifen.",
@@ -943,7 +1077,9 @@
         "participantJoined": "Beigetreten am {{date}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
-        "promptConstraintsHint": "Zusätzliche Anweisungen, die für alle Sitzungen in diesem Workshop an den KI-Systemprompt angehängt werden.",
+        "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
+        "promptConstraintsFallbackSite": "Site-Einschränkung wird als Standard verwendet",
+        "promptConstraintsHint": "Zusätzliche KI-Anweisungen, die für alle Sitzungen in diesem Workshop gelten.",
         "promptConstraintsLabel": "Prompt-Einschränkungen",
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",
         "removeParticipant": "Teilnehmer entfernen",
@@ -955,6 +1091,7 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink für diesen Teilnehmer kopieren",
         "showOtherParticipantsGames": "Spiele anderer Teilnehmer anzeigen",
+        "showOtherParticipantsGamesHint": "Leitung und Mitarbeitende können zur Moderation immer alle Spiele der Teilnehmer sehen",
         "showPublicGames": "Öffentliche Spiele für Teilnehmer anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -986,7 +1123,9 @@
       "empty": "Keine neuen Benachrichtigungen.",
       "inviteDescription": "Sie wurden eingeladen, als {{role}} beizutreten.",
       "inviteToJoin": "Organisations-Einladung",
-      "title": "Benachrichtigungen"
+      "title": "Benachrichtigungen",
+      "workshopInvite": "Workshop-Einladung",
+      "workshopInviteDescription": "Sie wurden eingeladen, diesem Workshop beizutreten."
     },
     "play": {
       "cloneGame": "In meine Spiele kopieren",
@@ -1023,6 +1162,16 @@
     "search": "Suchen",
     "searchPlaceholder": "Mitglieder suchen...",
     "serverSettings": {
+      "constraints": {
+        "description": "Definiere verbindliche KI-Regeln basierend auf der Altersgruppe der Spieler. Diese Einschränkungen werden in jede KI-Antwort eingefügt. Sie gelten für alle angemeldeten Benutzer außerhalb des Workshop-Modus.",
+        "title": "Altersbasierte Einschränkungen",
+        "u13Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer im Alter von 13-17 Jahren eingefügt.",
+        "u13Label": "Einschränkung für Nutzer von 13-17 Jahren (U13)",
+        "u13Placeholder": "z.B. Halte alle Inhalte strikt altersgerecht für Jugendliche. Keine Gewalt, keine romantischen Inhalte, keine Horrorthemen.",
+        "u18Hint": "Wird in jeden KI-Prompt für angemeldete Nutzer ab 18 Jahren eingefügt.",
+        "u18Label": "Einschränkung für Nutzer ab 18 Jahren (U18)",
+        "u18Placeholder": "z.B. Halte die Inhalte angemessen. Vermeide explizite Gewalt oder sexuelle Inhalte."
+      },
       "defaultTier": {
         "description": "Die serverweite Standardstufe, die verwendet wird, wenn keine spezifische Stufe auf Workshop-, Institutions- oder Benutzerebene konfiguriert ist. Höhere Stufen kosten mehr, können aber eine höhere Qualität haben.",
         "title": "Standard-KI-Qualitätsstufe"
@@ -1098,6 +1247,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Medienpädagogisches Arbeiten mit dem ChatGameLab",
+          "title": "Über ChatGameLab"
+        },
         "jff": {
           "description": "Projektkoordinator und federführende Organisation.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1207,6 +1360,14 @@
       "workshop": "Workshop-Spiele"
     },
     "gameType": "Spiel",
+    "infoModal": {
+      "body": "Du hast den Workshop-Modus betreten. In diesem Modus ist alles, was du tust, mit diesem Workshop verknüpft - erstellte Spiele, Spielsitzungen und geteilte Links.\n\nDu kannst den Modus jederzeit verlassen. Das Verlassen beendet den Workshop nicht und entfernt nichts, was du erstellt hast.",
+      "dontShowAgain": "Nicht mehr anzeigen",
+      "gotIt": "Verstanden",
+      "headStaffNote": "Du kannst diesem Workshop jederzeit über die Workshop-Liste deiner Organisation erneut beitreten.",
+      "individualNote": "Um nach dem Verlassen erneut beizutreten, benötigst du eine neue Einladung von den Workshop-Organisatoren.",
+      "title": "Willkommen bei {{name}}"
+    },
     "members": {
       "empty": "Noch keine Mitglieder",
       "title": "Workshop-Mitglieder"
@@ -1238,6 +1399,7 @@
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
+    "orgConstraints": "Einschränkungen",
     "orgMembers": "Mitglieder",
     "orgWorkshops": "Workshops",
     "play": "Spiele spielen",
