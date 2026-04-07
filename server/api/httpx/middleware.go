@@ -69,6 +69,11 @@ func Logging(next http.Handler) http.Handler {
 		}
 
 		duration := time.Since(start)
+		// 401 is expected (stale tokens, unauthenticated probes) — log at debug, skip Sentry.
+		if wrapped.status == http.StatusUnauthorized {
+			log.Debug(fmt.Sprintf("%s %s → %d (%s)", r.Method, r.URL.Path, wrapped.status, formatDuration(duration)))
+			return
+		}
 		log.Info(fmt.Sprintf("%s %s → %d (%s)", r.Method, r.URL.Path, wrapped.status, formatDuration(duration)))
 
 		// Report error responses (4xx/5xx) to Sentry
