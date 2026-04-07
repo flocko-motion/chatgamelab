@@ -27,6 +27,7 @@ export const INITIAL_STATE: GamePlayerState = {
   theme: null,
   aiModel: null,
   aiPlatform: null,
+  promptConstraintSource: null,
 };
 
 const POLL_INTERVAL = 3000;
@@ -102,17 +103,20 @@ export interface GameMessageResult {
   hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
   transcription?: string;
+  promptConstraintSource?: string;
 }
 
 /** Raw message shape from the API (before mapping to SceneMessage). */
 export interface RawMessage {
   id?: string;
+  type?: string;
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
   hasAudioIn?: boolean;
   hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
+  promptConstraintSource?: string;
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────
@@ -643,6 +647,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           statusFields: gameResponse.statusFields?.length
             ? gameResponse.statusFields
             : prev.statusFields,
+          promptConstraintSource: gameResponse.promptConstraintSource || prev.promptConstraintSource,
         }));
 
         if (gameResponse.id && gameResponse.stream) {
@@ -735,7 +740,9 @@ export function useStreamingSession(adapter: SessionAdapter) {
       try {
         const session = await adapterRef.current.loadSession(sessionId);
 
-        const messages = (session.messages || []).map(mapApiMessageToScene);
+        const rawMessages = session.messages || [];
+        const messages = rawMessages.map(mapApiMessageToScene);
+        const latestGameMessage = [...rawMessages].reverse().find((m) => m.type === "game");
 
         const needsNewApiKey = "apiKeyId" in session && !session.apiKeyId;
 
@@ -773,6 +780,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
           theme: session.theme || null,
           aiModel: session.aiModel || null,
           aiPlatform: session.aiPlatform || null,
+          promptConstraintSource: latestGameMessage?.promptConstraintSource || null,
         }));
 
         // TODO: Re-enable SSE reconnection after basic flow is stable

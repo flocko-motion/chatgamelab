@@ -329,8 +329,8 @@ function QuickActionsCard() {
             icon: <IconSchool size={16} />,
             onClick: () =>
               navigate({
-                to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/",
-                search: { action: "create" },
+                to: ROUTES.MY_ORGANIZATION as "/",
+                search: { action: "create-workshop" },
               }),
           },
         ]

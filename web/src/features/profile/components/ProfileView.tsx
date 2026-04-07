@@ -1,6 +1,7 @@
 import {
   Card,
   Group,
+  Select,
   SimpleGrid,
   Stack,
   Text,
@@ -15,6 +16,7 @@ import {
   IconDeviceGamepad2,
   IconMessage,
   IconPlayerPlay,
+  IconShieldCheck,
   IconShieldStar,
   IconTrophy,
 } from "@tabler/icons-react";
@@ -22,7 +24,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { UserAvatar } from "@/common/components/UserAvatar";
-import { useUserStats } from "@/api/hooks";
+import { useUserStats, useUpdateUser } from "@/api/hooks";
 import {
   isAdmin,
   getUserRole,
@@ -32,8 +34,9 @@ import {
 
 export function ProfileView() {
   const { t } = useTranslation("auth");
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
   const { data: stats, isLoading: statsLoading } = useUserStats();
+  const updateUser = useUpdateUser();
 
   const translateRole = useTranslateRole(t("profile.noRole"));
 
@@ -146,6 +149,38 @@ export function ProfileView() {
               )}
             </Stack>
           </SimpleGrid>
+        </Stack>
+      </Card>
+
+      {/* Age Group Card */}
+      <Card shadow="sm" padding="xl" radius="md" withBorder>
+        <Stack gap="md">
+          <Group gap="sm">
+            <ThemeIcon variant="light" size="lg" color="accent">
+              <IconShieldCheck size={20} />
+            </ThemeIcon>
+            <Title order={3}>{t("profile.ageGroupSection")}</Title>
+          </Group>
+          <Text size="sm" c="dimmed">
+            {t("profile.ageGroupDescription")}
+          </Text>
+          <Select
+            data={[
+              { value: "u13", label: t("profile.ageGroupU13") },
+              { value: "u18", label: t("profile.ageGroupU18") },
+            ]}
+            value={backendUser.ageGroup || "u13"}
+            onChange={(value) => {
+              if (!value || !backendUser.id) return;
+              updateUser.mutate(
+                { id: backendUser.id, request: { ageGroup: value } },
+                { onSuccess: () => retryBackendFetch() },
+              );
+            }}
+            disabled={updateUser.isPending}
+            allowDeselect={false}
+            style={{ maxWidth: 300 }}
+          />
         </Stack>
       </Card>
 

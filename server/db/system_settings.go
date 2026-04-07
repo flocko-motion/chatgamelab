@@ -24,6 +24,12 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	if row.FreeUseAiQualityTier.Valid {
 		settings.FreeUseAiQualityTier = &row.FreeUseAiQualityTier.String
 	}
+	if row.PromptConstraintU13.Valid {
+		settings.PromptConstraintU13 = &row.PromptConstraintU13.String
+	}
+	if row.PromptConstraintU18.Valid {
+		settings.PromptConstraintU18 = &row.PromptConstraintU18.String
+	}
 	if row.FreeUseApiKeyID.Valid {
 		settings.FreeUseApiKeyID = &row.FreeUseApiKeyID.UUID
 		// Enrich with key details so any admin can see the current key
@@ -45,6 +51,16 @@ func UpdateDefaultAiQualityTier(ctx context.Context, tier string) error {
 // UpdateFreeUseAiQualityTier sets or clears the AI quality tier for the system free-use key
 func UpdateFreeUseAiQualityTier(ctx context.Context, tier *string) error {
 	return queries().UpdateFreeUseAiQualityTier(ctx, stringPtrToNullString(tier))
+}
+
+// UpdatePromptConstraintU13 sets or clears the site-level constraint for users aged 13-17
+func UpdatePromptConstraintU13(ctx context.Context, constraint *string) error {
+	return queries().UpdatePromptConstraintU13(ctx, stringPtrToNullString(constraint))
+}
+
+// UpdatePromptConstraintU18 sets or clears the site-level constraint for users aged 18+
+func UpdatePromptConstraintU18(ctx context.Context, constraint *string) error {
+	return queries().UpdatePromptConstraintU18(ctx, stringPtrToNullString(constraint))
 }
 
 // UpdateSystemSettingsFreeUseApiKey sets or clears the free-use API key (admin only).

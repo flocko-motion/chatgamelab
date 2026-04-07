@@ -26,8 +26,6 @@ import { Route as SessionsNewRouteImport } from './routes/sessions/new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions/$sessionId'
 import { Route as PlayTokenRouteImport } from './routes/play/$token'
 import { Route as MyWorkshopSettingsRouteImport } from './routes/my-workshop/settings'
-import { Route as MyOrganizationWorkshopsRouteImport } from './routes/my-organization/workshops'
-import { Route as MyOrganizationApiKeysRouteImport } from './routes/my-organization/api-keys'
 import { Route as MyGamesCreateRouteImport } from './routes/my-games/create'
 import { Route as MyGamesGameIdRouteImport } from './routes/my-games/$gameId'
 import { Route as CreationsCreateRouteImport } from './routes/creations/create'
@@ -128,16 +126,6 @@ const MyWorkshopSettingsRoute = MyWorkshopSettingsRouteImport.update({
   path: '/my-workshop/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MyOrganizationWorkshopsRoute = MyOrganizationWorkshopsRouteImport.update({
-  id: '/my-organization/workshops',
-  path: '/my-organization/workshops',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyOrganizationApiKeysRoute = MyOrganizationApiKeysRouteImport.update({
-  id: '/my-organization/api-keys',
-  path: '/my-organization/api-keys',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MyGamesCreateRoute = MyGamesCreateRouteImport.update({
   id: '/my-games/create',
   path: '/my-games/create',
@@ -221,8 +209,6 @@ export interface FileRoutesByFullPath {
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
-  '/my-organization/api-keys': typeof MyOrganizationApiKeysRoute
-  '/my-organization/workshops': typeof MyOrganizationWorkshopsRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
@@ -256,8 +242,6 @@ export interface FileRoutesByTo {
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
-  '/my-organization/api-keys': typeof MyOrganizationApiKeysRoute
-  '/my-organization/workshops': typeof MyOrganizationWorkshopsRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
@@ -292,8 +276,6 @@ export interface FileRoutesById {
   '/creations/create': typeof CreationsCreateRoute
   '/my-games/$gameId': typeof MyGamesGameIdRoute
   '/my-games/create': typeof MyGamesCreateRoute
-  '/my-organization/api-keys': typeof MyOrganizationApiKeysRoute
-  '/my-organization/workshops': typeof MyOrganizationWorkshopsRoute
   '/my-workshop/settings': typeof MyWorkshopSettingsRoute
   '/play/$token': typeof PlayTokenRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
@@ -329,8 +311,6 @@ export interface FileRouteTypes {
     | '/creations/create'
     | '/my-games/$gameId'
     | '/my-games/create'
-    | '/my-organization/api-keys'
-    | '/my-organization/workshops'
     | '/my-workshop/settings'
     | '/play/$token'
     | '/sessions/$sessionId'
@@ -364,8 +344,6 @@ export interface FileRouteTypes {
     | '/creations/create'
     | '/my-games/$gameId'
     | '/my-games/create'
-    | '/my-organization/api-keys'
-    | '/my-organization/workshops'
     | '/my-workshop/settings'
     | '/play/$token'
     | '/sessions/$sessionId'
@@ -399,8 +377,6 @@ export interface FileRouteTypes {
     | '/creations/create'
     | '/my-games/$gameId'
     | '/my-games/create'
-    | '/my-organization/api-keys'
-    | '/my-organization/workshops'
     | '/my-workshop/settings'
     | '/play/$token'
     | '/sessions/$sessionId'
@@ -435,8 +411,6 @@ export interface RootRouteChildren {
   CreationsCreateRoute: typeof CreationsCreateRoute
   MyGamesGameIdRoute: typeof MyGamesGameIdRoute
   MyGamesCreateRoute: typeof MyGamesCreateRoute
-  MyOrganizationApiKeysRoute: typeof MyOrganizationApiKeysRoute
-  MyOrganizationWorkshopsRoute: typeof MyOrganizationWorkshopsRoute
   MyWorkshopSettingsRoute: typeof MyWorkshopSettingsRoute
   PlayTokenRoute: typeof PlayTokenRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRoute
@@ -581,20 +555,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyWorkshopSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/my-organization/workshops': {
-      id: '/my-organization/workshops'
-      path: '/my-organization/workshops'
-      fullPath: '/my-organization/workshops'
-      preLoaderRoute: typeof MyOrganizationWorkshopsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-organization/api-keys': {
-      id: '/my-organization/api-keys'
-      path: '/my-organization/api-keys'
-      fullPath: '/my-organization/api-keys'
-      preLoaderRoute: typeof MyOrganizationApiKeysRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/my-games/create': {
       id: '/my-games/create'
       path: '/my-games/create'
@@ -707,8 +667,6 @@ const rootRouteChildren: RootRouteChildren = {
   CreationsCreateRoute: CreationsCreateRoute,
   MyGamesGameIdRoute: MyGamesGameIdRoute,
   MyGamesCreateRoute: MyGamesCreateRoute,
-  MyOrganizationApiKeysRoute: MyOrganizationApiKeysRoute,
-  MyOrganizationWorkshopsRoute: MyOrganizationWorkshopsRoute,
   MyWorkshopSettingsRoute: MyWorkshopSettingsRoute,
   PlayTokenRoute: PlayTokenRoute,
   SessionsSessionIdRoute: SessionsSessionIdRoute,

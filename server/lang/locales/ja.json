@@ -32,6 +32,11 @@
       "workshop": "ワークショップ"
     },
     "profile": {
+      "ageGroup": "年齢層",
+      "ageGroupDescription": "これはゲームに適用されるコンテンツガイドラインを決定します。いつでも変更できます。",
+      "ageGroupSection": "年齢層",
+      "ageGroupU13": "13～17歳",
+      "ageGroupU18": "18歳以上",
       "gamesCreated": "作成したゲーム",
       "gamesPlayed": "プレイしたゲーム",
       "memberSince": "登録日",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "自分のゲームの総プレイ数"
     },
     "register": {
+      "ageGroupLabel": "年齢層",
+      "ageGroupRequired": "年齢層を選択してください",
+      "ageGroupU13": "13～17歳",
+      "ageGroupU18": "18歳以上",
+      "ageGroupUnder13": "13歳未満",
+      "ageGroupUnder13Error": "ChatGameLabを利用するには13歳以上である必要があります。",
       "cancelButton": "キャンセル",
       "emailDescription": "重要なお知らせに使用します。",
       "emailLabel": "メールアドレス",
@@ -73,8 +84,48 @@
       "subtitle": "開始するためにあと少し情報が必要です",
       "title": "プロフィールを完成させましょう"
     },
+    "registerPage": {
+      "agreePrefix": "以下に同意します：",
+      "agreeSuffix": "および",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
+      "backButton": "戻る",
+      "chooseType": "ChatGameLabをどのように利用しますか？",
+      "continueButton": "登録へ進む",
+      "description": "Auth0を認証プロバイダーとして使用し、ユーザーアカウントを管理しています。アカウント作成のためにAuth0へリダイレクトされた後、プロフィールを完了するためにこちらへ戻ってきます。",
+      "educatorDescription": "ワークショップ、教室、または組織でChatGameLabを利用する",
+      "educatorModal": {
+        "closeButton": "閉じる",
+        "copied": "コピーしました！",
+        "copyEmail": "メールアドレスをコピー",
+        "eduInfo": "教育目的でのChatGameLabの利用について詳しく知る：",
+        "intro": "組織（学校、大学、機関）でChatGameLabを利用するには、以下の手順に従ってください。",
+        "registerButton": "個人アカウントを作成",
+        "step1": "1. 個人アカウントを作成",
+        "step1Description": "まず個人アカウントを作成します。これがプラットフォームへのログインになります。",
+        "step2": "2. 私たちにメールを送る",
+        "step2Description": "以下の宛先にメールを送ってください",
+        "step2Item1": "登録済みのメールアドレス",
+        "step2Item2": "組織名（学校、機関など）",
+        "step2WithInfo": "記載内容：",
+        "step3": "3. 私たちがあなたの組織を設定します",
+        "step3Description": "こちらであなたの組織を作成し、責任者として割り当てます。その後、同僚を招待したりワークショップを設定できます。",
+        "title": "教育者・法人向けアクセス"
+      },
+      "educatorTitle": "教育者／プロフェッショナル",
+      "individualDescription": "AI搭載のテキストアドベンチャーを作成してプレイする",
+      "individualTitle": "個人アカウント",
+      "loginLink": "ログイン",
+      "privacyPolicy": "プライバシーポリシー",
+      "termsOfService": "利用規約",
+      "title": "アカウントを作成する"
+    },
     "settings": {
       "accountSection": "アカウント",
+      "ageGroupDescription": "これはゲームに適用されるコンテンツガイドラインを決定します。",
+      "ageGroupLabel": "年齢層",
+      "ageGroupU13": "13～17歳",
+      "ageGroupU18": "18歳以上",
       "emailChangeNote": "メールアドレスを変更する場合は、サイト管理者にお問い合わせください。",
       "errors": {
         "nameRequired": "名前は必須です",
@@ -210,6 +261,7 @@
       "low": "低（エコノミー）",
       "max": "最大（プレミアム＋音声）",
       "medium": "中（バランス）",
+      "newSessionsOnly": "この階層は新しいセッションにのみ適用されます。既存のセッションは開始時の階層が維持されます。",
       "serverDefault": "サーバーデフォルト"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "スポンサー付き"
       },
       "play": "プレイ",
+      "reportGame": "ゲームを報告",
       "restart": "再開",
       "restartConfirm": {
         "confirm": "再開",
@@ -240,7 +293,8 @@
         "title": "ゲームを再開"
       },
       "title": "すべてのゲーム",
-      "unfavorite": "お気に入りから削除"
+      "unfavorite": "お気に入りから削除",
+      "workshop": "ワークショップ／組織"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "プラットフォーム",
       "setDefault": "デフォルトに設定",
       "shares": {
+        "context": {
+          "organization": "組織",
+          "personal": "個人",
+          "workshop": "ワークショップ"
+        },
+        "gameShares": "ゲーム共有リンク",
         "goToOrg": "管理",
         "noOrgShares": "どの組織とも共有されていません",
         "noSponsorships": "ゲームスポンサーなし",
         "orgShares": "組織共有",
         "privateShares": "プライベート共有リンク",
-        "remaining": "残り{{count}}件",
+        "remaining": "残り{{count}}回の利用",
         "removeSponsor": "スポンサーを解除",
+        "revokeGameShare": "共有リンクを無効化",
         "revokePrivateShare": "共有リンクを無効化",
         "sponsorships": "ゲームスポンサー",
         "toggle": "共有とスポンサー",
         "unknownGame": "不明なゲーム",
         "unknownOrg": "不明な組織",
         "unknownUser": "不明なユーザー",
-        "unknownWorkshop": "不明なワークショップ"
+        "unknownWorkshop": "不明なワークショップ",
+        "unlimited": "無制限の利用"
       },
       "status": {
         "failed": "キーが機能していません",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "使用APIキーが変更されました",
         "sections": {
           "expandStory": "物語を展開するためのAIへの指示",
           "imageGeneration": "画像生成用にAIが作成した指示",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "受信トークン",
           "sent": "送信トークン"
+        },
+        "usedApiKey": {
+          "institution_free_use": "組織のフリー利用キーが使用されました",
+          "label": "使用されたAPIキー",
+          "personal": "あなたの個人キーが使用されました",
+          "private_share": "共有リンク用のキーが使用されました",
+          "sponsor": "スポンサーキーが使用されました",
+          "system_free_use": "グローバルフリー利用キーが使用されました",
+          "workshop": "ワークショップのキーが使用されました"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "ゲームが見つかりません",
         "missingFields": "ゲームに必要な項目が不足しています：",
         "noApiKey": {
-          "banner": "以前このゲームで使用していたAPIキーが利用できなくなりました。続けるには、アカウント設定でAPIキーを追加してください。",
+          "banner": "プラットフォーム{{platform}}で利用可能なAPIキーが見つかりません。プレイを続けるには、アカウント設定でご自身のAPIキーを追加してください。",
           "goToSettings": "APIキー設定",
           "personal": "プレイする前にAPIキーを設定する必要があります。APIキー設定で追加してください。",
           "title": "利用可能なAPIキーがありません",
@@ -453,19 +525,23 @@
       "badges": {
         "myGame": "自分のゲーム",
         "public": "公開",
-        "workshop": "ワークショップ"
+        "workshop": "ワークショップゲーム"
       },
       "createButton": "ゲームを作成",
       "createModal": {
         "descriptionPlaceholder": "ゲームの内容は？",
         "namePlaceholder": "例：Space Adventure",
-        "publicDescription": "公開ゲームは誰でも見つけられます。",
+        "publicDescription": "公開ゲームは、このプラットフォーム上のすべてのユーザーが閲覧・プレイできます。",
         "publicLabel": "このゲームを公開する",
         "submit": "ゲームを作成",
         "title": "新しいゲームを作成"
       },
       "deleteModal": {
+        "adminActionTitle": "管理者アクション",
+        "adminActionWarning": "あなたが所有していないゲームを削除しようとしています。これは管理目的でのみ使用するべき操作です。",
         "message": "「{{name}}」を削除してもよろしいですか？",
+        "moderatorActionTitle": "参加者のゲームを削除する",
+        "moderatorActionWarning": "このゲームはワークショップの参加者のものです。削除するとその人から完全に失われ、元に戻せません。",
         "title": "ゲームを削除",
         "warning": "この操作は取り消せません。すべてのゲームデータが完全に削除されます。"
       },
@@ -484,6 +560,9 @@
         "statusFieldsHint": "何を記録しますか？例：体力、ポイント、弾薬など。ゲームはこれらの値を覚えてプレイ中に更新します。"
       },
       "editModal": {
+        "adminActionTitle": "管理者アクション",
+        "adminActionWarning": "あなたが所有していないゲームを編集しています。これは管理目的でのみ使用するべき操作です。",
+        "gameDesignSection": "ゲームデザイン",
         "title": "ゲームを編集",
         "unsavedChanges": {
           "discard": "変更を破棄",
@@ -517,9 +596,13 @@
       "playNow": "今すぐプレイ",
       "privateShare": {
         "active": "プライベート共有が有効です。以下のリンクを持つ人は匿名でこのゲームをプレイできます。",
+        "aiQualityTier": "AI品質",
+        "aiQualityTierDescription": "この共有リンクを利用するゲストのためのAIモデル品質を選択してください。",
         "copyLink": "リンクをコピー",
+        "createModalTitle": "非公開共有リンクを作成",
         "description": "プライベート共有リンクを作成すると、そのリンクを持つ誰もが匿名でこのゲームをプレイできます。どのAPIキーがセッションの費用を負担するかはあなたが選択します。",
         "edit": "設定を編集",
+        "editModalTitle": "非公開共有リンクを編集",
         "editSettings": "共有設定を編集",
         "enable": "共有リンクを作成",
         "loading": "共有状態を読み込み中...",
@@ -527,18 +610,40 @@
         "maxSessions": "最大セッション数",
         "maxSessionsDescription": "無制限にする場合は空欄のままにします。",
         "noEligibleKeys": "動作するAPIキーがありません。まずAPIキー設定でキーを追加してください。",
+        "noPersonalShare": "個人または組織の共有リンクは存在しません。ワークショップ外から作成できます。",
+        "orgKey": "組織",
+        "orgShareDescription": "組織の共有リンク - ゲストは組織のAPIキーを使ってプレイします。",
+        "personalCreateHint": "このゲームを匿名でプレイできるよう、リンクを知っている人向けの非公開リンクを作成しましょう。どのAPIキーでセッション費用を支払うかはあなたが選べます。",
+        "personalOrgSubsection": "個人／組織共有リンク",
+        "personalShare": "あなたの非公開共有リンク",
+        "personalShareDescription": "あなたの非公開共有リンク - ゲストは選択したAPIキーでプレイします。",
         "remainingSessions": "残り{{count}}セッション",
         "revoke": "リンクを無効化",
         "selectKey": "APIキーを選択",
         "selectKeyPlaceholder": "ゲストセッションの支払いに使うキーを選択...",
         "shareLink": "共有リンク",
+        "sourceOrg": "組織",
+        "sourcePersonal": "個人",
+        "sourceWorkshop": "ワークショップ",
         "title": "プライベート共有リンク",
         "unlimited": "無制限",
-        "update": "共有リンクを更新"
+        "unlimitedSessions": "無制限のセッション",
+        "update": "共有リンクを更新",
+        "workshopCreateHint": "このゲームの共有リンクを作成します。ワークショップのAPIキーが自動的に選択され、費用を負担します。",
+        "workshopDescription": "このゲームの共有リンクを作成します。ワークショップのデフォルトAPIキーがゲストのセッションに自動で使用されます。",
+        "workshopShare": "ワークショップ共有",
+        "workshopShareDescription": "このリンクはワークショップ「{{name}}」で作成されました。ゲストはワークショップのAPIキーでプレイします。",
+        "workshopSubsection": "ワークショップ共有リンク"
       },
       "sharing": {
         "active": "有効",
-        "sectionTitle": "共有とスポンサー"
+        "privateShareLink": "非公開共有リンク",
+        "privateShareLinkDescription": "非公開共有リンクは他の人と共有できます。リンクを持つ人なら誰でもアカウントなしで匿名プレイできます。費用を賄うためのAPIキーを選択する必要があります。",
+        "publicGameWorkshopHint": "これは公開ゲームであり、あなたのワークショップの一部ではありません。ワークショップモードでは公開ゲームの共有オプションは利用できません。",
+        "publicSponsoring": "公開スポンサリング",
+        "publicSponsoringDescription": "プラットフォーム上の全ユーザーが無料でこのゲームをプレイできます。割り当てられたAPIキーが費用を負担します。",
+        "sectionTitle": "共有オプション",
+        "sectionTitleShareOnly": "共有オプション"
       },
       "sort": {
         "createdAt-asc": "作成日（古い順）",
@@ -570,11 +675,13 @@
         "loadingKeys": "APIキーを読み込み中...",
         "manageSponsor": "スポンサーを管理",
         "next": "次へ",
-        "noEligibleKeys": "公開スポンサーを許可したAPIキーがありません。まずAPIキー設定で「公開スポンサーを許可」を有効にしてください。",
+        "noEligibleKeys": "スポンサリングに利用できるAPIキーがありません。まず設定でAPIキーを追加してください。",
         "privateWarning": "このゲームを非公開にすると、公開スポンサーが解除されます。",
         "removeSponsor": "スポンサーを解除",
         "selectKey": "APIキーを選択",
         "selectKeyPlaceholder": "スポンサーに使用するキーを選択...",
+        "sourceOrg": "組織",
+        "sourcePersonal": "個人",
         "sponsorGame": "ゲームをスポンサー",
         "sponsored": "スポンサー付き",
         "sponsoredTooltip": "このゲームはスポンサーされています。無料で遊べます！作成者や支援者がAIコストを負担しています。",
@@ -725,6 +832,7 @@
       "profile": "プロフィール",
       "workshop": "ワークショップ"
     },
+    "help": "ヘルプ",
     "home": {
       "features": {
         "create": {
@@ -836,15 +944,15 @@
     "myOrganization": {
       "actions": "操作",
       "apiKeys": {
-        "aboutDescription": "ここで共有されたAPIキーは、組織の全メンバーがゲームをプレイする際に使用できます。管理は代表と教師のみが行えます。",
+        "aboutDescription": "ここで共有されたAPIキーは、組織の全メンバーがゲームをプレイする際に利用できます。",
         "aboutTitle": "組織のAPIキー",
         "allowPublicSponsoring": "公開スポンサーを許可",
         "allowPublicSponsoringDesc": "すべてのユーザーがゲームのスポンサーにこのキーを使用できます。",
         "filterByPlatform": "プラットフォームで絞り込み",
         "freeUseKey": {
-          "description": "フリー利用キーを設定すると、組織メンバー全員が自分のAPIキーなしでゲームをプレイできます。すでにこの組織と共有されているキーのみ選択できます。",
+          "description": "フリー利用キーを設定すると、組織のメンバー全員が自分のAPIキーなしでゲームをプレイできます。",
           "remove": "削除",
-          "selectPlaceholder": "共有済みキーを選択...",
+          "selectPlaceholder": "キーを選択...",
           "title": "フリー利用キー",
           "unknownKey": "不明なキー"
         },
@@ -862,7 +970,14 @@
         "share": "共有",
         "shareKey": "キーを共有",
         "shareKeyTitle": "APIキーを組織と共有",
+        "showDetails": "詳細を表示",
         "title": "組織のAPIキー"
+      },
+      "autoShare": {
+        "confirmMessage": "このキーは{{orgName}}と共有され、他の責任者やスタッフがワークショップで使用できるようになります。この共有は、個人のAPIキー管理または組織のAPIキー管理から後で解除できます。",
+        "confirmTitle": "組織とキーを共有",
+        "orgKeyGroup": "組織キー",
+        "personalKeyGroup": "個人キー"
       },
       "demoteConfirm": "「{{name}}」（{{email}}）を教師に降格してもよろしいですか？",
       "demoteTitle": "教師に降格",
@@ -895,6 +1010,9 @@
       "promoteTitle": "代表に昇格",
       "promoteToHead": "代表に昇格",
       "promoteWarning": "このユーザーは組織メンバーの管理と教師の招待ができるようになります。",
+      "promptConstraintsHint": "この組織内のすべてのセッションに適用される追加のAI指示。ワークショップレベルの制約が設定されていない場合、およびリンク共有されたゲームに適用されます。",
+      "promptConstraintsLabel": "組織プロンプト制約",
+      "promptConstraintsPlaceholder": "例：物語を年齢相応に保ち、暴力的な内容を避けてください。",
       "removeConfirm": "「{{name}}」を組織から削除してもよろしいですか？",
       "removeMember": "メンバーを削除",
       "removeTitle": "メンバーを削除",
@@ -915,11 +1033,21 @@
         "active": "アクティブ",
         "activeDescription": "アクティブなワークショップでは参加者が参加し、ゲームを作成できます。",
         "activeLabel": "アクティブ",
+        "addIndividual": "組織メンバーを追加",
+        "addIndividualError": "ワークショップへのメンバー追加に失敗しました。",
+        "addIndividualHint": "ユーザーを追加すると自動的にワークショップモードになります。通常のダッシュボードではなくワークショップビューが表示されます。意図した場合のみ実行してください。",
+        "addIndividualStaffNote": "責任者と教師は自身でワークショップ一覧から参加する必要があり、ここには表示されません。",
+        "addIndividualSuccess": "メンバーを追加しました",
+        "addIndividualSuccessMessage": "{{name}}がワークショップに追加されました。",
+        "addIndividualTitle": "ワークショップに個人を追加",
+        "addToWorkshop": "ワークショップに追加",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "AIレスポンスの品質レベル。ティアが高いほどコストがかかりますが、品質が上がる場合があります。空欄の場合はサーバーデフォルトを使用します。",
+        "allowGameSharing": "ゲーム共有を許可",
+        "allowGameSharingHint": "有効にすると、参加者はワークショップのAPIキーを使ってゲームの共有リンクを作成できます",
         "anonymousParticipant": "匿名参加者",
         "create": "ワークショップを作成",
         "createFirst": "最初のワークショップを作成",
@@ -938,6 +1066,11 @@
         "games": "ゲーム",
         "hideInactive": "非アクティブを隠す",
         "inactive": "非アクティブ",
+        "inviteByEmail": "メールで招待",
+        "inviteByEmailDescription": "登録済みユーザーのメールアドレスを入力してこのワークショップに招待します。招待はダッシュボードに表示されます。",
+        "inviteByEmailSuccess": "招待を送信しました",
+        "inviteByEmailSuccessMessage": "招待が作成されました。ユーザーは保留中の招待で確認できます。",
+        "inviteByEmailTitle": "ワークショップにユーザーを招待",
         "inviteCreatedAt": "作成日",
         "inviteDescription": "参加者がこのワークショップに参加するための招待リンクを生成します。",
         "inviteExpiresAt": "有効期限",
@@ -956,6 +1089,7 @@
         "noActiveInvite": "有効な招待リンクがありません。",
         "noDefaultApiKey": "デフォルトAPIキーなし",
         "noDefaultModel": "プラットフォームのデフォルトを使用",
+        "noIndividuals": "この組織には個人ユーザーがいません。",
         "noParticipantToken": "この参加者には招待リンクがありません。匿名参加者（ゲスト）のみが再利用可能な招待リンクを持っています。",
         "noParticipants": "参加者がいません",
         "notAuthorized": "ワークショップを管理する権限がありません。代表と教師のみがアクセスできます。",
@@ -963,7 +1097,9 @@
         "participantJoined": "{{date}}に参加",
         "participantName": "参加者名",
         "participants": "参加者",
-        "promptConstraintsHint": "このワークショップのすべてのセッションでAIシステムプロンプトに付加される追加指示です。",
+        "promptConstraintsFallbackOrg": "組織の制約をデフォルトとして使用：{{constraint}}",
+        "promptConstraintsFallbackSite": "サイトの制約をデフォルトとして使用",
+        "promptConstraintsHint": "このワークショップ内のすべてのセッションに対する追加のAI指示。",
         "promptConstraintsLabel": "プロンプト制約",
         "promptConstraintsPlaceholder": "例: 物語を年齢に適した内容にし、暴力的なコンテンツを避けてください。",
         "removeParticipant": "参加者を削除",
@@ -976,6 +1112,7 @@
         "settings": "設定",
         "shareParticipantLink": "この参加者用の個別招待リンクをコピー",
         "showOtherParticipantsGames": "他の参加者のゲームを表示",
+        "showOtherParticipantsGamesHint": "責任者とスタッフは常に全参加者のゲームを閲覧でき、モデレーションに利用できます",
         "showPublicGames": "公開ゲームを参加者に表示",
         "sort": {
           "createdAtAsc": "作成日（古い順）",
@@ -1007,7 +1144,9 @@
       "empty": "新しい通知はありません。",
       "inviteDescription": "{{role}}としての招待があります。",
       "inviteToJoin": "組織からの招待",
-      "title": "通知"
+      "title": "通知",
+      "workshopInvite": "ワークショップ招待",
+      "workshopInviteDescription": "このワークショップへの参加招待が届いています。"
     },
     "play": {
       "cloneGame": "自分のゲームにコピー",
@@ -1044,6 +1183,16 @@
     "search": "検索",
     "searchPlaceholder": "メンバーを検索...",
     "serverSettings": {
+      "constraints": {
+        "description": "プレイヤーの年齢層に基づいた必須AIルールを定義します。これらの制約はすべてのAI応答に挿入され、ワークショップモード外のログインユーザー全員に適用されます。",
+        "title": "年齢別制約プロンプト",
+        "u13Hint": "13～17歳のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
+        "u13Label": "13～17歳（U13）向けの制約",
+        "u13Placeholder": "例：すべてのコンテンツを厳密にティーン向けに保ち、暴力・恋愛・ホラーを含めないでください。",
+        "u18Hint": "18歳以上のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
+        "u18Label": "18歳以上（U18）向けの制約",
+        "u18Placeholder": "例：コンテンツを適切に保ち、露骨な暴力や性的表現は避けてください。"
+      },
       "defaultTier": {
         "description": "ワークショップ・団体・ユーザーで特定のティアが設定されていない場合に使用されるサーバー全体のフォールバックティア。ティアが高いほどコストがかかりますが、品質が向上する場合があります。",
         "title": "デフォルトAI品質ティア"
@@ -1119,6 +1268,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "ChatGameLabによるメディア教育の取り組み",
+          "title": "ChatGameLabについて"
+        },
         "jff": {
           "description": "プロジェクトコーディネーターおよび主導組織。",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1229,6 +1382,14 @@
       "workshop": "ワークショップゲーム"
     },
     "gameType": "ゲーム",
+    "infoModal": {
+      "body": "ワークショップモードに入りました。このモードでは、あなたの行うすべての操作—作成するゲーム、プレイセッション、共有リンク—がこのワークショップに紐づきます。\n\nいつでも退出できます。退出してもワークショップが終了したり、作成したものが削除されたりすることはありません。",
+      "dontShowAgain": "今後表示しない",
+      "gotIt": "了解",
+      "headStaffNote": "組織のワークショップ一覧から、いつでもこのワークショップに再参加できます。",
+      "individualNote": "退出後に再参加するには、ワークショップ主催者から新しい招待が必要です。",
+      "title": "{{name}}へようこそ"
+    },
     "members": {
       "empty": "メンバーはいません",
       "title": "ワークショップメンバー"
@@ -1260,6 +1421,7 @@
     "myOrganization": "私の組織",
     "myWorkshop": "私のワークショップ",
     "orgApiKeys": "APIキー",
+    "orgConstraints": "制約",
     "orgMembers": "メンバー",
     "orgWorkshops": "ワークショップ",
     "play": "ゲームをプレイ",

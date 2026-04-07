@@ -22,6 +22,7 @@ type UserUpdateRequest struct {
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
+	AgeGroup             *string    `json:"ageGroup,omitempty"` // "u13" or "u18"
 }
 
 type UsersNewRequest struct {
@@ -329,6 +330,18 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Handle ageGroup update
+	if req.AgeGroup != nil {
+		if *req.AgeGroup != "u13" && *req.AgeGroup != "u18" {
+			httpx.WriteError(w, http.StatusBadRequest, "Age group must be 'u13' or 'u18'")
+			return
+		}
+		if err := db.UpdateUserAgeGroup(r.Context(), userID, req.AgeGroup); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update age group")
+			return
+		}
+	}
+
 	// Handle aiQualityTier update
 	if req.AiQualityTier != nil {
 		tier := req.AiQualityTier
@@ -376,7 +389,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := db.CreateUser(r.Context(), req.Name, req.Email, "")
+	user, err := db.CreateUser(r.Context(), req.Name, req.Email, "", nil)
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
 		return

@@ -33,6 +33,11 @@
       "workshop": "Atölye"
     },
     "profile": {
+      "ageGroup": "Yaş Grubu",
+      "ageGroupDescription": "Oyunlarınız için hangi içerik kurallarının geçerli olacağını belirler. Bunu istediğiniz zaman değiştirebilirsiniz.",
+      "ageGroupSection": "Yaş Grubu",
+      "ageGroupU13": "13-17 yaş",
+      "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
       "gamesPlayed": "Oynanan Oyunlar",
       "memberSince": "Kayıt tarihi",
@@ -54,6 +59,12 @@
       "totalPlaysOnGames": "Oyunlarımın Toplam Oynanma Sayısı"
     },
     "register": {
+      "ageGroupLabel": "Yaş Grubu",
+      "ageGroupRequired": "Lütfen yaş grubunuzu seçin",
+      "ageGroupU13": "13-17 yaş arası",
+      "ageGroupU18": "18 veya daha büyük",
+      "ageGroupUnder13": "13 yaş altı",
+      "ageGroupUnder13Error": "ChatGameLab'i kullanmak için en az 13 yaşında olmalısınız.",
       "cancelButton": "İptal",
       "emailDescription": "Bunu önemli bildirimler için kullanacağız.",
       "emailLabel": "E-posta Adresi",
@@ -74,8 +85,48 @@
       "subtitle": "Başlamak için birkaç detay daha",
       "title": "Profilini Tamamla"
     },
+    "registerPage": {
+      "agreePrefix": "",
+      "agreeSuffix": "ve",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Zaten hesabınız var mı?",
+      "backButton": "Geri",
+      "chooseType": "ChatGameLab'i nasıl kullanmak istersiniz?",
+      "continueButton": "Kayda Devam Et",
+      "description": "Kullanıcı hesaplarını yönetmek için kimlik doğrulama sağlayıcısı olarak Auth0 kullanıyoruz. Hesabınızı oluşturmak için Auth0'ya yönlendirilecek, ardından profilinizi tamamlamak üzere buraya geri döneceksiniz.",
+      "educatorDescription": "ChatGameLab'i atölyelerde, sınıflarda veya kuruluşunuzda kullanın",
+      "educatorModal": {
+        "closeButton": "Kapat",
+        "copied": "Kopyalandı!",
+        "copyEmail": "E-postayı kopyala",
+        "eduInfo": "ChatGameLab'i eğitim amaçlı kullanma hakkında daha fazla bilgi edinin:",
+        "intro": "ChatGameLab'i kuruluşunuzla (okul, üniversite, kurum) kullanmak için lütfen şu adımları izleyin:",
+        "registerButton": "Kişisel Hesap Oluştur",
+        "step1": "1. Kişisel hesap oluşturun",
+        "step1Description": "Önce kişisel hesabınızı oluşturun. Bu, platforma girişiniz olacak.",
+        "step2": "2. Bize e-posta gönderin",
+        "step2Description": "Şuraya bir e-posta yazın",
+        "step2Item1": "Kayıtlı e-posta adresiniz",
+        "step2Item2": "Kuruluşunuzun adı (okul, kurum vb.)",
+        "step2WithInfo": "şunlarla birlikte:",
+        "step3": "3. Kuruluşunuzu ayarlayacağız",
+        "step3Description": "Kuruluşunuzu oluşturup sizi yönetici olarak atayacağız. Ardından meslektaşlarınızı davet edebilir ve atölyeler ayarlayabilirsiniz.",
+        "title": "Eğitmen \u0026 Profesyonel Erişimi"
+      },
+      "educatorTitle": "Eğitmen / Profesyonel",
+      "individualDescription": "Yapay zekâ destekli metin maceraları oluşturup oynayın",
+      "individualTitle": "Kişisel Hesap",
+      "loginLink": "Giriş yap",
+      "privacyPolicy": "Gizlilik Politikası",
+      "termsOfService": "Hizmet Şartları",
+      "title": "Hesabınızı Oluşturun"
+    },
     "settings": {
       "accountSection": "Hesap",
+      "ageGroupDescription": "Oyunlarınız için hangi içerik kurallarının geçerli olacağını belirler.",
+      "ageGroupLabel": "Yaş Grubu",
+      "ageGroupU13": "13-17 yaş",
+      "ageGroupU18": "18 veya daha büyük",
       "emailChangeNote": "E-posta adresinizi değiştirmek için lütfen site yöneticisiyle iletişime geçin.",
       "errors": {
         "nameRequired": "İsim zorunludur",
@@ -212,6 +263,7 @@
       "low": "Düşük (Ekonomi)",
       "max": "Maks (Premium + Ses)",
       "medium": "Orta (Dengeli)",
+      "newSessionsOnly": "Bu katman yalnızca yeni oturumlar için geçerlidir. Mevcut oturumlar başladıkları katmanı korur.",
       "serverDefault": "Sunucu Varsayılanı"
     },
     "allGames": {
@@ -235,6 +287,7 @@
         "sponsored": "Sponsorlu"
       },
       "play": "Oyna",
+      "reportGame": "Oyunu bildir",
       "restart": "Yeniden başlat",
       "restartConfirm": {
         "confirm": "Yeniden başlat",
@@ -242,7 +295,8 @@
         "title": "Oyunu Yeniden Başlat"
       },
       "title": "Tüm Oyunlar",
-      "unfavorite": "Favorilerden çıkar"
+      "unfavorite": "Favorilerden çıkar",
+      "workshop": "Atölye / Kuruluş"
     },
     "apiKeys": {
       "aboutSection": {
@@ -287,20 +341,28 @@
       "platform": "Platform",
       "setDefault": "Varsayılan yap",
       "shares": {
+        "context": {
+          "organization": "Kuruluş",
+          "personal": "Kişisel",
+          "workshop": "Atölye"
+        },
+        "gameShares": "Oyun Paylaşım Bağlantıları",
         "goToOrg": "Yönet",
         "noOrgShares": "Herhangi bir organizasyonla paylaşılmamış",
         "noSponsorships": "Oyun sponsorluğu yok",
         "orgShares": "Organizasyon Paylaşımları",
         "privateShares": "Özel Paylaşım Bağlantıları",
-        "remaining": "Kalan {{count}}",
+        "remaining": "{{count}} kullanım kaldı",
         "removeSponsor": "Sponsorluğu kaldır",
+        "revokeGameShare": "Paylaşım bağlantısını iptal et",
         "revokePrivateShare": "Paylaşım bağlantısını iptal et",
         "sponsorships": "Oyun Sponsorlukları",
         "toggle": "Paylaşımlar \u0006 Sponsorluklar",
         "unknownGame": "Bilinmeyen oyun",
         "unknownOrg": "Bilinmeyen organizasyon",
         "unknownUser": "Bilinmeyen kullanıcı",
-        "unknownWorkshop": "Bilinmeyen atölye"
+        "unknownWorkshop": "Bilinmeyen atölye",
+        "unlimited": "Sınırsız kullanım"
       },
       "status": {
         "failed": "Anahtar çalışmıyor",
@@ -338,6 +400,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Kullanılan API Anahtarı değişti",
         "sections": {
           "expandStory": "Hikâyeyi yazması için yapay zekâya verilen talimatlar",
           "imageGeneration": "Görsel üretimi için yapay zekâdan gelen talimatlar",
@@ -351,6 +414,15 @@
         "tokens": {
           "received": "alınan token",
           "sent": "gönderilen token"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Kuruluşunuzun ücretsiz kullanım anahtarı kullanıldı",
+          "label": "Kullanılan API Anahtarı",
+          "personal": "Kişisel anahtarınız kullanıldı",
+          "private_share": "Paylaşım bağlantısı anahtarı kullanıldı",
+          "sponsor": "Sponsor anahtarı kullanıldı",
+          "system_free_use": "Küresel ücretsiz kullanım anahtarı kullanıldı",
+          "workshop": "Atölyenizin anahtarı kullanıldı"
         }
       },
       "debug": {
@@ -379,7 +451,7 @@
         "gameNotFound": "Oyun bulunamadı",
         "missingFields": "Oyunda gerekli alanlar eksik:",
         "noApiKey": {
-          "banner": "Bu oyun için daha önce kullanılan API anahtarı artık mevcut değil. Oynamaya devam etmek için hesap ayarlarınızdan kendi API anahtarınızı ekleyin.",
+          "banner": "{{platform}} platformu için kullanılabilir API anahtarı bulunamadı. Oynamaya devam etmek için hesap ayarlarınızdan kendi API anahtarınızı ekleyin.",
           "goToSettings": "API Anahtarı Ayarları",
           "personal": "Oynamadan önce bir API anahtarı ayarlamanız gerekiyor. Bir anahtar eklemek için API Anahtarı ayarlarına gidin.",
           "title": "API Anahtarı Yok",
@@ -440,19 +512,23 @@
       "badges": {
         "myGame": "Oyunum",
         "public": "Herkese Açık",
-        "workshop": "Atölye"
+        "workshop": "Atölye Oyunu"
       },
       "createButton": "Oyun Oluştur",
       "createModal": {
         "descriptionPlaceholder": "Oyunun ne hakkında?",
         "namePlaceholder": "örn. Uzay Macerası",
-        "publicDescription": "Herkese açık oyunlar herkes tarafından keşfedilebilir.",
+        "publicDescription": "Genel oyunlar bu platformdaki tüm kullanıcılar tarafından görülebilir ve oynanabilir.",
         "publicLabel": "Bu oyunu herkese açık yap",
         "submit": "Oyun Oluştur",
         "title": "Yeni Oyun Oluştur"
       },
       "deleteModal": {
+        "adminActionTitle": "Yönetici işlemi",
+        "adminActionWarning": "Sahip olmadığınız bir oyunu silmek üzeresiniz. Bu bir yönetim işlemidir ve yalnızca moderasyon amacıyla kullanılmalıdır.",
         "message": "\"{{name}}\" oyununu silmek istediğinizden emin misiniz?",
+        "moderatorActionTitle": "Bir katılımcının oyununu silme",
+        "moderatorActionWarning": "Bu oyun atölyenizdeki bir katılımcıya ait. Silmek, onun için oyunu kalıcı olarak kaldırır. Bu işlem geri alınamaz.",
         "title": "Oyunu Sil",
         "warning": "Bu işlem geri alınamaz. Tüm oyun verileri kalıcı olarak silinecek."
       },
@@ -471,6 +547,9 @@
         "statusFieldsHint": "Oyun hangi değerleri takip etmeli? Örneğin can, puan veya cephane. Oyun bu değerleri hatırlar ve oynarken günceller."
       },
       "editModal": {
+        "adminActionTitle": "Yönetici işlemi",
+        "adminActionWarning": "Sahip olmadığınız bir oyunu düzenliyorsunuz. Bu bir yönetim işlemidir ve yalnızca moderasyon amacıyla kullanılmalıdır.",
+        "gameDesignSection": "Oyun Tasarımı",
         "title": "Oyunu Düzenle",
         "unsavedChanges": {
           "discard": "Değişiklikleri Sil",
@@ -504,9 +583,13 @@
       "playNow": "Hemen Oyna",
       "privateShare": {
         "active": "Özel paylaşım aktif. Aşağıdaki bağlantıya sahip olan herkes oyunu anonim olarak oynayabilir.",
+        "aiQualityTier": "Yapay Zekâ Kalitesi",
+        "aiQualityTierDescription": "Bu paylaşım bağlantısını kullanan misafirler için yapay zekâ modeli kalitesini seçin.",
         "copyLink": "Bağlantıyı kopyala",
+        "createModalTitle": "Özel Paylaşım Bağlantısı Oluştur",
         "description": "Özel bir paylaşım bağlantısı oluşturun; linke sahip herkes oyunu anonim oynayabilir. Oturumların ücretini hangi API anahtarının ödeyeceğini siz seçin.",
         "edit": "Ayarları Düzenle",
+        "editModalTitle": "Özel Paylaşım Bağlantısını Düzenle",
         "editSettings": "Paylaşım Ayarlarını Düzenle",
         "enable": "Paylaşım Bağlantısı Oluştur",
         "loading": "Paylaşım durumu yükleniyor...",
@@ -514,18 +597,40 @@
         "maxSessions": "Maksimum Oturum",
         "maxSessionsDescription": "Sınırsız oturum için boş bırakın.",
         "noEligibleKeys": "Çalışan API anahtarı yok. Önce API Anahtarları ayarlarından bir anahtar ekleyin.",
+        "noPersonalShare": "Kişisel veya kuruluş paylaşım bağlantısı yok. Atölye dışından bir tane oluşturabilirsiniz.",
+        "orgKey": "Kuruluş",
+        "orgShareDescription": "Kuruluş paylaşım bağlantısı - misafirler kuruluşun API anahtarını kullanarak oynar.",
+        "personalCreateHint": "Elinde bağlantı olan herkesin bu oyunu anonim olarak oynayabilmesi için özel bir bağlantı oluşturun. Oturumların ücretini hangi API anahtarının ödeyeceğini siz seçersiniz.",
+        "personalOrgSubsection": "Kişisel / Kuruluş Paylaşım Bağlantısı",
+        "personalShare": "Özel paylaşım bağlantınız",
+        "personalShareDescription": "Kişisel paylaşım bağlantınız - misafirler seçtiğiniz API anahtarını kullanarak oynar.",
         "remainingSessions": "Kalan {{count}} oturum",
         "revoke": "Bağlantıyı iptal et",
         "selectKey": "API Anahtarı Seç",
         "selectKeyPlaceholder": "Misafir oturumlarının ücretini ödeyecek anahtarı seçin...",
         "shareLink": "Paylaşım Bağlantısı",
+        "sourceOrg": "Kuruluş",
+        "sourcePersonal": "Kişisel",
+        "sourceWorkshop": "Atölye",
         "title": "Özel Paylaşım Bağlantısı",
         "unlimited": "Sınırsız",
-        "update": "Paylaşım Bağlantısını Güncelle"
+        "unlimitedSessions": "Sınırsız oturum",
+        "update": "Paylaşım Bağlantısını Güncelle",
+        "workshopCreateHint": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin API anahtarı otomatik olarak seçilir ve maliyeti karşılar.",
+        "workshopDescription": "Bu oyun için bir paylaşım bağlantısı oluşturun. Atölyenin varsayılan API anahtarı misafir oturumları için otomatik olarak kullanılacak.",
+        "workshopShare": "Atölye paylaşımı",
+        "workshopShareDescription": "Bu bağlantı \"{{name}}\" atölyesinde oluşturuldu - misafirler atölyenin API anahtarını kullanarak oynar.",
+        "workshopSubsection": "Atölye Paylaşım Bağlantısı"
       },
       "sharing": {
         "active": "Aktif",
-        "sectionTitle": "Paylaşım \u0006 Sponsorluk"
+        "privateShareLink": "Özel Paylaşım Bağlantısı",
+        "privateShareLinkDescription": "Özel paylaşım bağlantıları başkalarıyla paylaşılabilir. Bağlantıya sahip herkes hesabı olmadan oyunu anonim olarak oynayabilir. Masrafları karşılamak için bir API anahtarı seçilmelidir.",
+        "publicGameWorkshopHint": "Bu, atölyenizin parçası olmayan genel bir oyun. Atölye modunda genel oyunlar için paylaşım seçenekleri mevcut değildir.",
+        "publicSponsoring": "Genel Sponsorlu",
+        "publicSponsoringDescription": "Platformdaki tüm kullanıcılar bu oyunu ücretsiz oynayabilir - atanan API anahtarınız maliyeti karşılar.",
+        "sectionTitle": "Paylaşım Seçenekleri",
+        "sectionTitleShareOnly": "Paylaşım Seçenekleri"
       },
       "sort": {
         "createdAt-asc": "Oluşturma (En eski)",
@@ -557,11 +662,13 @@
         "loadingKeys": "API anahtarları yükleniyor...",
         "manageSponsor": "Sponsoru Yönet",
         "next": "İleri",
-        "noEligibleKeys": "Herkese açık sponsorluğu etkinleştirmiş API anahtarınız yok. Önce API Anahtarları ayarlarına gidip bir anahtar için \"Herkese açık sponsorluğa izin ver\" seçeneğini etkinleştirin.",
+        "noEligibleKeys": "Sponsor olmak için kullanılabilir API anahtarınız yok. Önce ayarlarınızdan bir API anahtarı ekleyin.",
         "privateWarning": "Bu oyunu özel hale getirmek, herkese açık sponsorluğu kaldırır.",
         "removeSponsor": "Sponsorluğu Kaldır",
         "selectKey": "API Anahtarı Seç",
         "selectKeyPlaceholder": "Sponsor için bir anahtar seçin...",
+        "sourceOrg": "Kuruluş",
+        "sourcePersonal": "Kişisel",
         "sponsorGame": "Oyunu Sponsorla",
         "sponsored": "Sponsorlu",
         "sponsoredTooltip": "Bu oyun sponsorlu - ücretsiz oynayabilirsin! Oyun yapımcısı veya bir destekçi yapay zekâ maliyetlerini karşılıyor.",
@@ -712,6 +819,7 @@
       "profile": "Profil",
       "workshop": "Atölye"
     },
+    "help": "Yardım",
     "home": {
       "features": {
         "create": {
@@ -823,15 +931,15 @@
     "myOrganization": {
       "actions": "Eylemler",
       "apiKeys": {
-        "aboutDescription": "Burada paylaşılan API anahtarları, organizasyonunuzdaki tüm üyelerin oyun oynaması için kullanılabilir. Yalnızca başkanlar ve öğretmenler bu anahtarları yönetebilir.",
+        "aboutDescription": "Burada paylaşılan API anahtarları, kuruluşunuzdaki tüm üyeler tarafından oyun oynamak için kullanılabilir.",
         "aboutTitle": "Organizasyon API Anahtarları",
         "allowPublicSponsoring": "Herkese açık sponsorluğa izin ver",
         "allowPublicSponsoringDesc": "Bu anahtar tüm kullanıcılar için oyun sponsorluğunda kullanılabilir.",
         "filterByPlatform": "Platforma göre filtrele",
         "freeUseKey": {
-          "description": "Tüm organizasyon üyelerinin kendi API anahtarlarına ihtiyaç duymadan oyun oynayabilmesi için ücretsiz kullanım anahtarı belirleyin. Yalnızca bu organizasyonla paylaşılmış anahtarlar seçilebilir.",
+          "description": "Tüm kuruluş üyelerinin kendi API anahtarlarına ihtiyaç duymadan oyun oynamasına izin vermek için ücretsiz kullanım anahtarı ayarlayın.",
           "remove": "Kaldır",
-          "selectPlaceholder": "Paylaşılan bir anahtar seçin...",
+          "selectPlaceholder": "Bir anahtar seçin...",
           "title": "Ücretsiz Kullanım Anahtarı",
           "unknownKey": "Bilinmeyen anahtar"
         },
@@ -849,7 +957,14 @@
         "share": "Paylaş",
         "shareKey": "Anahtarı Paylaş",
         "shareKeyTitle": "API Anahtarını Organizasyonla Paylaş",
+        "showDetails": "Ayrıntıları göster",
         "title": "Organizasyon API Anahtarları"
+      },
+      "autoShare": {
+        "confirmMessage": "Bu anahtar {{orgName}} ile paylaşılacak ve daha sonra diğer yöneticiler ve personel tarafından atölyeler için kullanılabilecek. Bu paylaşımı daha sonra kişisel API anahtarı yönetiminden veya kuruluş API anahtarı yönetiminden kaldırabilirsiniz.",
+        "confirmTitle": "Anahtarı Kuruluşla Paylaş",
+        "orgKeyGroup": "Kuruluş Anahtarları",
+        "personalKeyGroup": "Kişisel Anahtarlar"
       },
       "demoteConfirm": "\"{{name}}\" ({{email}}) kullanıcısını Öğretmen rolüne düşürmek istediğinizden emin misiniz?",
       "demoteTitle": "Öğretmenliğe Düşür",
@@ -882,6 +997,9 @@
       "promoteTitle": "Başkan Yap",
       "promoteToHead": "Başkan Yap",
       "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
+      "promptConstraintsHint": "Bu kuruluşta tüm oturumlar için ek yapay zekâ talimatları. Atölye düzeyinde bir kısıtlama ayarlanmadığında ve bağlantı yoluyla paylaşılan oyunlarda geçerlidir.",
+      "promptConstraintsLabel": "Kuruluş istem kısıtlamaları",
+      "promptConstraintsPlaceholder": "ör. Hikâyeyi yaşa uygun tut ve şiddet içeriğinden kaçın.",
       "removeConfirm": "\"{{name}}\" adlı kişiyi organizasyondan çıkarmak istediğinizden emin misiniz?",
       "removeMember": "Üyeyi kaldır",
       "removeTitle": "Üyeyi Kaldır",
@@ -902,7 +1020,17 @@
         "active": "Aktif",
         "activeDescription": "Aktif atölyeler katılımcıların katılmasına ve oyun oluşturmasına izin verir.",
         "activeLabel": "Aktif",
+        "addIndividual": "Kuruluş Üyesi Ekle",
+        "addIndividualError": "Üye atölyeye eklenemedi.",
+        "addIndividualHint": "Bir kullanıcı eklemek onları otomatik olarak atölye moduna alır. Normal panoları yerine atölye görünümünü görürler. Yalnızca amaçlandıysa yapın.",
+        "addIndividualStaffNote": "Yöneticiler ve öğretmenler atölyelere kendi atölye listelerinden katılmalıdır - burada listelenmezler.",
+        "addIndividualSuccess": "Üye Eklendi",
+        "addIndividualSuccessMessage": "{{name}} atölyeye eklendi.",
+        "addIndividualTitle": "Atölyeye Birey Ekle",
+        "addToWorkshop": "Atölyeye ekle",
         "aiQualityTierHint": "Yapay zekâ yanıtlarının kalite seviyesi. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir. Boş bırakılırsa sunucu varsayılanı kullanılır.",
+        "allowGameSharing": "Oyun paylaşımına izin ver",
+        "allowGameSharingHint": "Etkinleştirildiğinde, katılımcılar atölyenin API anahtarını kullanarak oyunları için paylaşım bağlantıları oluşturabilir",
         "anonymousParticipant": "Anonim katılımcı",
         "create": "Atölye Oluştur",
         "createFirst": "İlk Atölyeni Oluştur",
@@ -921,6 +1049,11 @@
         "games": "Oyunlar",
         "hideInactive": "Pasifleri gizle",
         "inactive": "Pasif",
+        "inviteByEmail": "E-posta ile davet et",
+        "inviteByEmailDescription": "Bu atölyeye davet etmek için kayıtlı bir kullanıcının e-postasını girin. Daveti panolarında görecekler.",
+        "inviteByEmailSuccess": "Davet gönderildi",
+        "inviteByEmailSuccessMessage": "Bir davet oluşturuldu. Kullanıcı bunu bekleyen davetlerinde görecek.",
+        "inviteByEmailTitle": "Kullanıcıyı Atölyeye Davet Et",
         "inviteCreatedAt": "Oluşturuldu",
         "inviteDescription": "Katılımcıların bu atölyeye katılmak için kullanabileceği bir davet bağlantısı oluşturun.",
         "inviteExpiresAt": "Bitiş",
@@ -939,6 +1072,7 @@
         "noActiveInvite": "Aktif bir davet bağlantısı yok.",
         "noDefaultApiKey": "Varsayılan API anahtarı yok",
         "noDefaultModel": "Platform varsayılanını kullan",
+        "noIndividuals": "Bu kuruluşta bireysel kullanıcı yok.",
         "noParticipantToken": "Bu katılımcının davet bağlantısı yok. Yalnızca anonim katılımcıların (misafirlerin) yeniden kullanılabilir davet bağlantıları vardır.",
         "noParticipants": "Henüz katılımcı yok",
         "notAuthorized": "Atölyeleri yönetme izniniz yok. Bu sayfaya yalnızca başkanlar ve öğretmenler erişebilir.",
@@ -946,7 +1080,9 @@
         "participantJoined": "{{date}} tarihinde katıldı",
         "participantName": "Katılımcı adı",
         "participants": "Katılımcılar",
-        "promptConstraintsHint": "Bu çalıştaydaki tüm oturumlara ait yapay zeka sistem yönergesine eklenen ek talimatlar.",
+        "promptConstraintsFallbackOrg": "Varsayılan olarak kuruluş kısıtlaması kullanılıyor: {{constraint}}",
+        "promptConstraintsFallbackSite": "Varsayılan olarak site kısıtlaması kullanılıyor",
+        "promptConstraintsHint": "Bu atölyedeki tüm oturumlar için ek yapay zekâ talimatları.",
         "promptConstraintsLabel": "İstem kısıtlamaları",
         "promptConstraintsPlaceholder": "örn. Hikayeyi yaşa uygun tutun ve şiddet içeriğinden kaçının.",
         "removeParticipant": "Katılımcıyı kaldır",
@@ -958,6 +1094,7 @@
         "settings": "Ayarlar",
         "shareParticipantLink": "Bu katılımcı için bireysel davet bağlantısını kopyala",
         "showOtherParticipantsGames": "Diğer katılımcıların oyunlarını göster",
+        "showOtherParticipantsGamesHint": "Yönetici ve personel moderasyon için her zaman tüm katılımcıların oyunlarını görebilir",
         "showPublicGames": "Katılımcılara herkese açık oyunları göster",
         "sort": {
           "createdAtAsc": "En eskiden",
@@ -989,7 +1126,9 @@
       "empty": "Yeni bildirim yok.",
       "inviteDescription": "{{role}} olarak katılmaya davet edildiniz.",
       "inviteToJoin": "Organizasyon Daveti",
-      "title": "Bildirimler"
+      "title": "Bildirimler",
+      "workshopInvite": "Atölye Daveti",
+      "workshopInviteDescription": "Bu atölyeye katılmanız için davet edildiniz."
     },
     "play": {
       "cloneGame": "Oyunu oyunlarıma kopyala",
@@ -1026,6 +1165,16 @@
     "search": "Ara",
     "searchPlaceholder": "Üyelerde ara...",
     "serverSettings": {
+      "constraints": {
+        "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu kısıtlamalar her yapay zekâ yanıtına eklenir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
+        "title": "Yaşa Göre Kısıtlama İstemleri",
+        "u13Hint": "13-17 yaşındaki giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
+        "u13Label": "13-17 yaş kullanıcılar için kısıtlama (U13)",
+        "u13Placeholder": "ör. Tüm içeriği gençler için kesinlikle yaşa uygun tutun. Şiddet, romantik içerik veya korku teması yok.",
+        "u18Hint": "18 yaş ve üzeri giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
+        "u18Label": "18+ kullanıcılar için kısıtlama (U18)",
+        "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."
+      },
       "defaultTier": {
         "description": "Atölye, kurum veya kullanıcı seviyesinde belirli bir seviye ayarlanmadığında kullanılan sunucu genelindeki yedek seviye. Daha yüksek seviyeler daha pahalıdır ancak kaliteyi artırabilir.",
         "title": "Varsayılan Yapay Zekâ Kalite Seviyesi"
@@ -1101,6 +1250,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "ChatGameLab ile medya pedagojisi çalışması",
+          "title": "ChatGameLab Hakkında"
+        },
         "jff": {
           "description": "Proje koordinatörü ve lider organizasyon.",
           "title": "JFF – Medya Pedagojisi Enstitüsü"
@@ -1210,6 +1363,14 @@
       "workshop": "Atölye Oyunları"
     },
     "gameType": "Oyun",
+    "infoModal": {
+      "body": "Atölye moduna girdiniz. Bu moddayken yaptığınız her şey bu atölyeye bağlıdır - oluşturduğunuz oyunlar, oyun oturumları ve paylaşım bağlantıları.\n\nİstediğiniz zaman ayrılabilirsiniz. Ayrılmak atölyeyi sonlandırmaz veya oluşturduğunuz hiçbir şeyi silmez.",
+      "dontShowAgain": "Bunu tekrar gösterme",
+      "gotIt": "Anladım",
+      "headStaffNote": "Kuruluşunuzun atölye listesi üzerinden bu atölyeye dilediğiniz zaman yeniden katılabilirsiniz.",
+      "individualNote": "Ayrıldıktan sonra yeniden katılmak için atölye organizatörlerinden yeni bir davet almanız gerekir.",
+      "title": "{{name}} hoş geldiniz"
+    },
     "members": {
       "empty": "Henüz üye yok",
       "title": "Atölye Üyeleri"
@@ -1241,6 +1402,7 @@
     "myOrganization": "Organizasyonum",
     "myWorkshop": "Atölyem",
     "orgApiKeys": "API Anahtarları",
+    "orgConstraints": "Kısıtlamalar",
     "orgMembers": "Üyeler",
     "orgWorkshops": "Atölyeler",
     "play": "Oyun Oyna",

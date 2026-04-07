@@ -32,6 +32,11 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Leeftijdsgroep",
+      "ageGroupDescription": "Bepaalt welke inhoudsrichtlijnen op je games van toepassing zijn. Je kunt dit op elk moment wijzigen.",
+      "ageGroupSection": "Leeftijdsgroep",
+      "ageGroupU13": "13-17 jaar",
+      "ageGroupU18": "18+",
       "gamesCreated": "Gemaakte games",
       "gamesPlayed": "Gespeelde games",
       "memberSince": "Geregistreerd sinds",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Totaal aantal spellen gespeeld op mijn games"
     },
     "register": {
+      "ageGroupLabel": "Leeftijdsgroep",
+      "ageGroupRequired": "Selecteer je leeftijdsgroep",
+      "ageGroupU13": "13-17 jaar oud",
+      "ageGroupU18": "18 jaar of ouder",
+      "ageGroupUnder13": "Jonger dan 13",
+      "ageGroupUnder13Error": "Je moet minstens 13 jaar oud zijn om ChatGameLab te gebruiken.",
       "cancelButton": "Annuleren",
       "emailDescription": "We gebruiken dit voor belangrijke meldingen.",
       "emailLabel": "E-mailadres",
@@ -73,8 +84,48 @@
       "subtitle": "Nog een paar details om te beginnen",
       "title": "Maak je profiel compleet"
     },
+    "registerPage": {
+      "agreePrefix": "Ik ga akkoord met de",
+      "agreeSuffix": "en",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Heb je al een account?",
+      "backButton": "Terug",
+      "chooseType": "Hoe wil je ChatGameLab gebruiken?",
+      "continueButton": "Doorgaan naar registratie",
+      "description": "We gebruiken Auth0 als onze authenticatieprovider om gebruikersaccounts te beheren. Je wordt doorgestuurd naar Auth0 om je account aan te maken en vervolgens hierheen teruggestuurd om je profiel te voltooien.",
+      "educatorDescription": "Gebruik ChatGameLab in workshops, klaslokalen of binnen je organisatie",
+      "educatorModal": {
+        "closeButton": "Sluiten",
+        "copied": "Gekopieerd!",
+        "copyEmail": "E-mail kopiëren",
+        "eduInfo": "Lees meer over het gebruik van ChatGameLab voor onderwijsdoeleinden:",
+        "intro": "Om ChatGameLab met je organisatie (school, universiteit, instelling) te gebruiken, volg je deze stappen:",
+        "registerButton": "Persoonlijk account aanmaken",
+        "step1": "1. Maak een persoonlijk account aan",
+        "step1Description": "Maak eerst je persoonlijke account aan. Dit wordt je login voor het platform.",
+        "step2": "2. Stuur ons een e-mail",
+        "step2Description": "Schrijf een e-mail naar",
+        "step2Item1": "Je geregistreerde e-mailadres",
+        "step2Item2": "De naam van je organisatie (school, instelling, enz.)",
+        "step2WithInfo": "met:",
+        "step3": "3. Wij richten je organisatie in",
+        "step3Description": "We maken je organisatie aan en wijzen jou aan als hoofd. Daarna kun je collega’s uitnodigen en workshops opzetten.",
+        "title": "Toegang voor docenten \u0026 professionals"
+      },
+      "educatorTitle": "Docent / Professional",
+      "individualDescription": "Creëer en speel door AI aangestuurde tekstavonturen",
+      "individualTitle": "Persoonlijk account",
+      "loginLink": "Inloggen",
+      "privacyPolicy": "Privacybeleid",
+      "termsOfService": "Gebruiksvoorwaarden",
+      "title": "Maak je account aan"
+    },
     "settings": {
       "accountSection": "Account",
+      "ageGroupDescription": "Bepaalt welke inhoudsrichtlijnen op je games van toepassing zijn.",
+      "ageGroupLabel": "Leeftijdsgroep",
+      "ageGroupU13": "13-17 jaar",
+      "ageGroupU18": "18 jaar of ouder",
       "emailChangeNote": "Neem contact op met de sitebeheerder om je e-mailadres te wijzigen.",
       "errors": {
         "nameRequired": "Naam is verplicht",
@@ -210,6 +261,7 @@
       "low": "Laag (Budget)",
       "max": "Max (Premium + audio)",
       "medium": "Midden (Gebalanceerd)",
+      "newSessionsOnly": "Deze klasse is alleen van toepassing op nieuwe sessies. Bestaande sessies behouden de klasse waarmee ze zijn gestart.",
       "serverDefault": "Serverstandaard"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Gesponsord"
       },
       "play": "Spelen",
+      "reportGame": "Game rapporteren",
       "restart": "Opnieuw starten",
       "restartConfirm": {
         "confirm": "Opnieuw starten",
@@ -240,7 +293,8 @@
         "title": "Game opnieuw starten"
       },
       "title": "Alle games",
-      "unfavorite": "Verwijderen uit favorieten"
+      "unfavorite": "Verwijderen uit favorieten",
+      "workshop": "Workshop / Organisatie"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platform",
       "setDefault": "Als standaard instellen",
       "shares": {
+        "context": {
+          "organization": "Organisatie",
+          "personal": "Persoonlijk",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Links voor het delen van games",
         "goToOrg": "Beheren",
         "noOrgShares": "Niet gedeeld met een organisatie",
         "noSponsorships": "Geen gamesponsoring",
         "orgShares": "Organisatie-shares",
         "privateShares": "Privé-deellinks",
-        "remaining": "{{count}} resterend",
+        "remaining": "{{count}} keer resterend",
         "removeSponsor": "Sponsoring verwijderen",
+        "revokeGameShare": "Deellink intrekken",
         "revokePrivateShare": "Deellink intrekken",
         "sponsorships": "Gamesponsoring",
         "toggle": "Shares \u0026 sponsoring",
         "unknownGame": "Onbekende game",
         "unknownOrg": "Onbekende organisatie",
         "unknownUser": "Onbekende gebruiker",
-        "unknownWorkshop": "Onbekende workshop"
+        "unknownWorkshop": "Onbekende workshop",
+        "unlimited": "Onbeperkt aantal keer"
       },
       "status": {
         "failed": "Sleutel werkt niet",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Gebruikte API-sleutel gewijzigd",
         "sections": {
           "expandStory": "Instructies aan de AI om het verhaal uit te werken",
           "imageGeneration": "Instructies van de AI voor beeldgeneratie",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "tokens ontvangen",
           "sent": "tokens verzonden"
+        },
+        "usedApiKey": {
+          "institution_free_use": "De gratis sleutel van je organisatie is gebruikt",
+          "label": "Gebruikte API-sleutel",
+          "personal": "Je persoonlijke sleutel is gebruikt",
+          "private_share": "De sleutel van de deellink is gebruikt",
+          "sponsor": "Er is een sponsorsleutel gebruikt",
+          "system_free_use": "Er is een globale gratis sleutel gebruikt",
+          "workshop": "De sleutel van je workshop is gebruikt"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Game niet gevonden",
         "missingFields": "Game mist vereiste velden:",
         "noApiKey": {
-          "banner": "De API-sleutel die eerder voor deze game is gebruikt, is niet meer beschikbaar. Voeg je eigen API-sleutel toe in je accountinstellingen om verder te spelen.",
+          "banner": "Geen bruikbare API-sleutel gevonden voor platform {{platform}}. Voeg je eigen API-sleutel toe in je accountinstellingen om verder te spelen.",
           "goToSettings": "API-sleutelinstellingen",
           "personal": "Je moet een API-sleutel configureren voordat je kunt spelen. Ga naar je API-sleutelinstellingen om er een toe te voegen.",
           "title": "Geen API-sleutel beschikbaar",
@@ -438,19 +510,23 @@
       "badges": {
         "myGame": "Mijn game",
         "public": "Openbaar",
-        "workshop": "Workshop"
+        "workshop": "Workshopgame"
       },
       "createButton": "Game aanmaken",
       "createModal": {
         "descriptionPlaceholder": "Waar gaat je game over?",
         "namePlaceholder": "bijv. Ruimteavontuur",
-        "publicDescription": "Openbare games zijn door iedereen te vinden.",
+        "publicDescription": "Openbare games zijn zichtbaar en speelbaar voor alle gebruikers op dit platform.",
         "publicLabel": "Maak deze game openbaar",
         "submit": "Game aanmaken",
         "title": "Nieuwe game maken"
       },
       "deleteModal": {
+        "adminActionTitle": "Beheeractie",
+        "adminActionWarning": "Je staat op het punt een game te verwijderen die niet van jou is. Dit is een beheeractie en mag alleen voor moderatiedoeleinden worden gebruikt.",
         "message": "Weet je zeker dat je \"{{name}}\" wilt verwijderen?",
+        "moderatorActionTitle": "Game van een deelnemer verwijderen",
+        "moderatorActionWarning": "Deze game behoort tot een deelnemer in je workshop. Verwijderen haalt hem permanent voor hen weg. Dit kan niet ongedaan worden gemaakt.",
         "title": "Game verwijderen",
         "warning": "Dit kan niet ongedaan worden gemaakt. Alle gamedata wordt permanent verwijderd."
       },
@@ -469,6 +545,9 @@
         "statusFieldsHint": "Wat moet de game bijhouden? Bijvoorbeeld gezondheid, punten of munitie. De game onthoudt deze waarden en werkt ze bij tijdens het spelen."
       },
       "editModal": {
+        "adminActionTitle": "Beheeractie",
+        "adminActionWarning": "Je bewerkt een game die niet van jou is. Dit is een beheeractie en mag alleen voor moderatiedoeleinden worden gebruikt.",
+        "gameDesignSection": "Gamedesign",
         "title": "Game bewerken",
         "unsavedChanges": {
           "discard": "Wijzigingen verwerpen",
@@ -502,9 +581,13 @@
       "playNow": "Nu spelen",
       "privateShare": {
         "active": "Privédelen is actief. Iedereen met de onderstaande link kan deze game anoniem spelen.",
+        "aiQualityTier": "AI-kwaliteit",
+        "aiQualityTierDescription": "Selecteer de AI-modelkwaliteit voor gasten die deze deellink gebruiken.",
         "copyLink": "Link kopiëren",
+        "createModalTitle": "Privé-deellink aanmaken",
         "description": "Maak een privé-deellink zodat iedereen met de link deze game anoniem kan spelen. Jij kiest welke API-sleutel voor de sessies betaalt.",
         "edit": "Instellingen bewerken",
+        "editModalTitle": "Privé-deellink bewerken",
         "editSettings": "Deelinstellingen bewerken",
         "enable": "Deellink maken",
         "loading": "Deelstatus laden...",
@@ -512,18 +595,40 @@
         "maxSessions": "Max. sessies",
         "maxSessionsDescription": "Laat leeg voor onbeperkte sessies.",
         "noEligibleKeys": "Geen werkende API-sleutel beschikbaar. Voeg eerst een API-sleutel toe in de API-sleutelinstellingen.",
+        "noPersonalShare": "Er bestaat geen persoonlijke of organisatie-deellink. Je kunt er een aanmaken buiten de workshop.",
+        "orgKey": "Organisatie",
+        "orgShareDescription": "Organisatiedeellink - gasten spelen met de API-sleutel van de organisatie.",
+        "personalCreateHint": "Maak een privélink zodat iedereen die hem heeft dit spel anoniem kan spelen. Jij kiest welke API-sleutel voor de sessies betaalt.",
+        "personalOrgSubsection": "Persoonlijke / organisatie-deellink",
+        "personalShare": "Je privé-deellink",
+        "personalShareDescription": "Je persoonlijke deellink - gasten spelen met de door jou gekozen API-sleutel.",
         "remainingSessions": "{{count}} sessie(s) resterend",
         "revoke": "Link intrekken",
         "selectKey": "Selecteer een API-sleutel",
         "selectKeyPlaceholder": "Kies een sleutel om voor gastsessies te betalen...",
         "shareLink": "Deellink",
+        "sourceOrg": "Organisatie",
+        "sourcePersonal": "Persoonlijk",
+        "sourceWorkshop": "Workshop",
         "title": "Privé-deellink",
         "unlimited": "Onbeperkt",
-        "update": "Deellink bijwerken"
+        "unlimitedSessions": "Onbeperkte sessies",
+        "update": "Deellink bijwerken",
+        "workshopCreateHint": "Maak een deellink voor dit spel. De API-sleutel van de workshop wordt automatisch geselecteerd en dekt de kosten.",
+        "workshopDescription": "Maak een deellink voor dit spel. De standaard API-sleutel van de workshop wordt automatisch gebruikt voor sessies van gasten.",
+        "workshopShare": "Workshopdeel",
+        "workshopShareDescription": "Deze link is aangemaakt in workshop \"{{name}}\" - gasten spelen met de API-sleutel van de workshop.",
+        "workshopSubsection": "Workshop-deellink"
       },
       "sharing": {
         "active": "Actief",
-        "sectionTitle": "Delen \u0026 sponsoren"
+        "privateShareLink": "Privé-deellink",
+        "privateShareLinkDescription": "Privé-deellinks kunnen met anderen worden gedeeld. Iedereen met de link kan het spel anoniem spelen zonder account. Er moet een API-sleutel worden geselecteerd om de kosten te dekken.",
+        "publicGameWorkshopHint": "Dit is een openbaar spel en maakt geen deel uit van je workshop. Deelopties zijn niet beschikbaar voor openbare games in workshopmodus.",
+        "publicSponsoring": "Openbare sponsoring",
+        "publicSponsoringDescription": "Alle gebruikers op het platform kunnen dit spel gratis spelen - jouw toegewezen API-sleutel betaalt de kosten.",
+        "sectionTitle": "Deelopties",
+        "sectionTitleShareOnly": "Deelopties"
       },
       "sort": {
         "createdAt-asc": "Aangemaakt (oudste eerst)",
@@ -555,11 +660,13 @@
         "loadingKeys": "API-sleutels laden...",
         "manageSponsor": "Sponsoring beheren",
         "next": "Volgende",
-        "noEligibleKeys": "Je hebt geen API-sleutels met openbare sponsoring ingeschakeld. Ga naar de API-sleutelinstellingen en zet eerst \"Publieke sponsoring toestaan\" aan op een sleutel.",
+        "noEligibleKeys": "Je hebt geen API-sleutels beschikbaar voor sponsoring. Voeg eerst een API-sleutel toe in je instellingen.",
         "privateWarning": "Als je deze game privé maakt, wordt de openbare sponsoring verwijderd.",
         "removeSponsor": "Sponsoring verwijderen",
         "selectKey": "Selecteer een API-sleutel",
         "selectKeyPlaceholder": "Kies een sleutel om mee te sponsoren...",
+        "sourceOrg": "Organisatie",
+        "sourcePersonal": "Persoonlijk",
         "sponsorGame": "Game sponsoren",
         "sponsored": "Gesponsord",
         "sponsoredTooltip": "Deze game is gesponsord - je kunt gratis spelen! De maker of een supporter betaalt de AI-kosten.",
@@ -710,6 +817,7 @@
       "profile": "Profiel",
       "workshop": "Workshop"
     },
+    "help": "Help",
     "home": {
       "features": {
         "create": {
@@ -821,15 +929,15 @@
     "myOrganization": {
       "actions": "Acties",
       "apiKeys": {
-        "aboutDescription": "API-sleutels die hier gedeeld worden, zijn beschikbaar voor alle leden van je organisatie om games te spelen. Alleen hoofden en docenten kunnen deze sleutels beheren.",
+        "aboutDescription": "API-sleutels die hier worden gedeeld, zijn beschikbaar voor alle leden van je organisatie om games te spelen.",
         "aboutTitle": "Organisatie-API-sleutels",
         "allowPublicSponsoring": "Publieke sponsoring toestaan",
         "allowPublicSponsoringDesc": "Deze sleutel kan worden gebruikt om games voor alle gebruikers te sponsoren.",
         "filterByPlatform": "Filter op platform",
         "freeUseKey": {
-          "description": "Stel een gratis sleutel in zodat alle leden games kunnen spelen zonder eigen API-sleutel. Alleen sleutels die al met deze organisatie gedeeld zijn, kunnen worden geselecteerd.",
+          "description": "Stel een free-use sleutel in zodat alle organisatiemedewerkers games kunnen spelen zonder zelf een API-sleutel nodig te hebben.",
           "remove": "Verwijderen",
-          "selectPlaceholder": "Selecteer een gedeelde sleutel...",
+          "selectPlaceholder": "Selecteer een sleutel...",
           "title": "Gratis sleutel",
           "unknownKey": "Onbekende sleutel"
         },
@@ -847,7 +955,14 @@
         "share": "Delen",
         "shareKey": "Sleutel delen",
         "shareKeyTitle": "API-sleutel delen met organisatie",
+        "showDetails": "Details weergeven",
         "title": "Organisatie-API-sleutels"
+      },
+      "autoShare": {
+        "confirmMessage": "Deze sleutel wordt gedeeld met {{orgName}} en kan daarna door andere hoofden en medewerkers worden gebruikt voor workshops. Je kunt dit delen later verwijderen in je persoonlijke API-sleutelbeheer of in het organisatiebeheer van API-sleutels.",
+        "confirmTitle": "Sleutel delen met organisatie",
+        "orgKeyGroup": "Organisatiesleutels",
+        "personalKeyGroup": "Persoonlijke sleutels"
       },
       "demoteConfirm": "Weet je zeker dat je \"{{name}}\" ({{email}}) wilt degraderen tot docent?",
       "demoteTitle": "Degraderen tot docent",
@@ -880,6 +995,9 @@
       "promoteTitle": "Promoveren tot hoofd",
       "promoteToHead": "Promoveren tot hoofd",
       "promoteWarning": "Deze gebruiker kan voortaan organisatieleden beheren en docenten uitnodigen.",
+      "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze organisatie. Van toepassing wanneer er geen workshopniveau-beperking is ingesteld, en op games die via een link worden gedeeld.",
+      "promptConstraintsLabel": "Organisatiepromptbeperkingen",
+      "promptConstraintsPlaceholder": "bijv. Zorg dat het verhaal leeftijdsgebonden blijft en vermijd gewelddadige inhoud.",
       "removeConfirm": "Weet je zeker dat je \"{{name}}\" uit de organisatie wilt verwijderen?",
       "removeMember": "Lid verwijderen",
       "removeTitle": "Lid verwijderen",
@@ -900,7 +1018,17 @@
         "active": "Actief",
         "activeDescription": "Actieve workshops laten deelnemers meedoen en games maken.",
         "activeLabel": "Actief",
+        "addIndividual": "Organisatielid toevoegen",
+        "addIndividualError": "Het toevoegen van het lid aan de workshop is mislukt.",
+        "addIndividualHint": "Een gebruiker toevoegen zet hen automatisch in workshopmodus. Ze zien dan de workshopweergave in plaats van hun normale dashboard. Doe dit alleen als dat de bedoeling is.",
+        "addIndividualStaffNote": "Hoofden en docenten moeten zelf via de workshoplijst workshops joinen - zij worden hier niet vermeld.",
+        "addIndividualSuccess": "Lid toegevoegd",
+        "addIndividualSuccessMessage": "{{name}} is aan de workshop toegevoegd.",
+        "addIndividualTitle": "Individu toevoegen aan workshop",
+        "addToWorkshop": "Aan workshop toevoegen",
         "aiQualityTierHint": "Kwaliteitsniveau voor AI-antwoorden. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben. Leeg gebruikt serverstandaard.",
+        "allowGameSharing": "Delen van games toestaan",
+        "allowGameSharingHint": "Wanneer ingeschakeld, kunnen deelnemers deellinks voor hun games maken met gebruik van de API-sleutel van de workshop",
         "anonymousParticipant": "Anonieme deelnemer",
         "create": "Workshop aanmaken",
         "createFirst": "Maak je eerste workshop",
@@ -919,6 +1047,11 @@
         "games": "Games",
         "hideInactive": "Niet-actieve verbergen",
         "inactive": "Niet actief",
+        "inviteByEmail": "Uitnodigen via e-mail",
+        "inviteByEmailDescription": "Voer het e-mailadres van een geregistreerde gebruiker in om hem of haar voor deze workshop uit te nodigen. Ze zien de uitnodiging in hun dashboard.",
+        "inviteByEmailSuccess": "Uitnodiging verzonden",
+        "inviteByEmailSuccessMessage": "Er is een uitnodiging aangemaakt. De gebruiker ziet deze bij zijn of haar openstaande uitnodigingen.",
+        "inviteByEmailTitle": "Gebruiker uitnodigen voor workshop",
         "inviteCreatedAt": "Aangemaakt",
         "inviteDescription": "Genereer een uitnodigingslink waarmee deelnemers deze workshop kunnen joinen.",
         "inviteExpiresAt": "Verloopt",
@@ -937,6 +1070,7 @@
         "noActiveInvite": "Geen actieve uitnodigingslink beschikbaar.",
         "noDefaultApiKey": "Geen standaard API-sleutel",
         "noDefaultModel": "Platformstandaard gebruiken",
+        "noIndividuals": "Geen individuele gebruikers in deze organisatie.",
         "noParticipantToken": "Deze deelnemer heeft geen uitnodigingslink. Alleen anonieme deelnemers (gasten) hebben herbruikbare uitnodigingslinks.",
         "noParticipants": "Nog geen deelnemers",
         "notAuthorized": "Je hebt geen toestemming om workshops te beheren. Alleen hoofden en docenten hebben toegang.",
@@ -944,7 +1078,9 @@
         "participantJoined": "Toegetreden {{date}}",
         "participantName": "Deelnemersnaam",
         "participants": "Deelnemers",
-        "promptConstraintsHint": "Aanvullende instructies die aan de AI-systeem prompt worden toegevoegd voor alle sessies in deze workshop.",
+        "promptConstraintsFallbackOrg": "Organisatiebeperking wordt standaard gebruikt: {{constraint}}",
+        "promptConstraintsFallbackSite": "Sitebeperking wordt standaard gebruikt",
+        "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze workshop.",
         "promptConstraintsLabel": "Promptbeperkingen",
         "promptConstraintsPlaceholder": "bijv. Houd het verhaal geschikt voor de leeftijd en vermijd gewelddadige inhoud.",
         "removeParticipant": "Deelnemer verwijderen",
@@ -956,6 +1092,7 @@
         "settings": "Instellingen",
         "shareParticipantLink": "Persoonlijke uitnodigingslink voor deze deelnemer kopiëren",
         "showOtherParticipantsGames": "Games van andere deelnemers tonen",
+        "showOtherParticipantsGamesHint": "Hoofd en staf kunnen altijd alle games van deelnemers zien voor moderatie",
         "showPublicGames": "Openbare games tonen aan deelnemers",
         "sort": {
           "createdAtAsc": "Oudste eerst",
@@ -987,7 +1124,9 @@
       "empty": "Geen nieuwe meldingen.",
       "inviteDescription": "Je bent uitgenodigd om mee te doen als {{role}}.",
       "inviteToJoin": "Organisatie-uitnodiging",
-      "title": "Meldingen"
+      "title": "Meldingen",
+      "workshopInvite": "Workshopuitnodiging",
+      "workshopInviteDescription": "Je bent uitgenodigd om deel te nemen aan deze workshop."
     },
     "play": {
       "cloneGame": "Klonen naar mijn games",
@@ -1024,6 +1163,16 @@
     "search": "Zoeken",
     "searchPlaceholder": "Zoek leden...",
     "serverSettings": {
+      "constraints": {
+        "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze beperkingen worden in elke AI-respons geïnjecteerd. Ze gelden voor alle ingelogde gebruikers buiten de workshopmodus.",
+        "title": "Leeftijdsgebonden constraintprompts",
+        "u13Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 13-17 jaar.",
+        "u13Label": "Beperking voor gebruikers van 13-17 jaar (U13)",
+        "u13Placeholder": "bijv. Zorg dat alle inhoud strikt geschikt blijft voor tieners. Geen geweld, geen romantische inhoud, geen horrorthema’s.",
+        "u18Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 18 jaar en ouder.",
+        "u18Label": "Beperking voor gebruikers van 18+ (U18)",
+        "u18Placeholder": "bijv. Houd de inhoud gepast. Vermijd expliciet geweld of seksuele inhoud."
+      },
       "defaultTier": {
         "description": "Serverbrede terugvaloptie wanneer geen specifiek niveau is ingesteld op workshop-, instituut- of gebruikersniveau. Hogere niveaus kosten meer maar kunnen betere kwaliteit hebben.",
         "title": "Standaard AI-kwaliteitsniveau"
@@ -1099,6 +1248,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Mediapedagogisch werk met ChatGameLab",
+          "title": "Over ChatGameLab"
+        },
         "jff": {
           "description": "Projectcoördinator en leidende organisatie.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1361,14 @@
       "workshop": "Workshopgames"
     },
     "gameType": "Game",
+    "infoModal": {
+      "body": "Je bent de workshopmodus binnengegaan. In deze modus is alles wat je doet gekoppeld aan deze workshop - games die je maakt, speelsessies en deellinks.\n\nJe kunt op elk moment vertrekken. Weggaan beëindigt de workshop niet en verwijdert niets wat je hebt gemaakt.",
+      "dontShowAgain": "Niet opnieuw tonen",
+      "gotIt": "Begrepen",
+      "headStaffNote": "Je kunt deze workshop op elk moment opnieuw betreden via de workshoplijst van je organisatie.",
+      "individualNote": "Wil je na vertrek opnieuw deelnemen, dan heb je een nieuwe uitnodiging nodig van de workshoporganisatoren.",
+      "title": "Welkom bij {{name}}"
+    },
     "members": {
       "empty": "Nog geen leden",
       "title": "Workshopleden"
@@ -1239,6 +1400,7 @@
     "myOrganization": "Mijn organisatie",
     "myWorkshop": "Mijn workshop",
     "orgApiKeys": "API-sleutels",
+    "orgConstraints": "Beperkingen",
     "orgMembers": "Leden",
     "orgWorkshops": "Workshops",
     "play": "Een game spelen",

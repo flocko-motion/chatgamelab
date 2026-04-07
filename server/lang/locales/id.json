@@ -32,6 +32,11 @@
       "workshop": "Lokakarya"
     },
     "profile": {
+      "ageGroup": "Kelompok Usia",
+      "ageGroupDescription": "Menentukan pedoman konten mana yang berlaku untuk gim Anda. Anda dapat mengubahnya kapan saja.",
+      "ageGroupSection": "Kelompok Usia",
+      "ageGroupU13": "13-17 tahun",
+      "ageGroupU18": "18+",
       "gamesCreated": "Gim yang Dibuat",
       "gamesPlayed": "Gim yang Dimainkan",
       "memberSince": "Terdaftar sejak",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Total Main pada Gim Saya"
     },
     "register": {
+      "ageGroupLabel": "Kelompok Usia",
+      "ageGroupRequired": "Silakan pilih kelompok usia Anda",
+      "ageGroupU13": "13-17 tahun",
+      "ageGroupU18": "18 tahun ke atas",
+      "ageGroupUnder13": "Di bawah 13",
+      "ageGroupUnder13Error": "Anda harus berusia minimal 13 tahun untuk menggunakan ChatGameLab.",
       "cancelButton": "Batal",
       "emailDescription": "Kami akan menggunakannya untuk pemberitahuan penting.",
       "emailLabel": "Alamat Email",
@@ -73,8 +84,48 @@
       "subtitle": "Tinggal beberapa detail lagi untuk memulai",
       "title": "Lengkapi Profil Anda"
     },
+    "registerPage": {
+      "agreePrefix": "Saya setuju dengan",
+      "agreeSuffix": "dan",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Sudah punya akun?",
+      "backButton": "Kembali",
+      "chooseType": "Bagaimana Anda ingin menggunakan ChatGameLab?",
+      "continueButton": "Lanjutkan ke Pendaftaran",
+      "description": "Kami menggunakan Auth0 sebagai penyedia autentikasi untuk mengelola akun pengguna. Anda akan diarahkan ke Auth0 untuk membuat akun, lalu kembali ke sini untuk melengkapi profil Anda.",
+      "educatorDescription": "Gunakan ChatGameLab dalam lokakarya, ruang kelas, atau organisasi Anda",
+      "educatorModal": {
+        "closeButton": "Tutup",
+        "copied": "Tersalin!",
+        "copyEmail": "Salin email",
+        "eduInfo": "Pelajari lebih lanjut tentang penggunaan ChatGameLab untuk tujuan pendidikan:",
+        "intro": "Untuk menggunakan ChatGameLab bersama organisasi Anda (sekolah, universitas, institusi), ikuti langkah-langkah berikut:",
+        "registerButton": "Buat Akun Pribadi",
+        "step1": "Buat akun pribadi",
+        "step1Description": "Buat akun pribadi Anda terlebih dahulu. Ini akan menjadi login Anda untuk platform.",
+        "step2": "2. Kirimkan email kepada kami",
+        "step2Description": "Tulis email ke",
+        "step2Item1": "Alamat email yang Anda daftarkan",
+        "step2Item2": "Nama organisasi Anda (sekolah, institusi, dll.)",
+        "step2WithInfo": "dengan:",
+        "step3": "3. Kami akan menyiapkan organisasi Anda",
+        "step3Description": "Kami akan membuat organisasi Anda dan menetapkan Anda sebagai kepala. Anda kemudian dapat mengundang rekan dan menyiapkan lokakarya.",
+        "title": "Akses Pendidik \u00026 Profesional"
+      },
+      "educatorTitle": "Pendidik / Profesional",
+      "individualDescription": "Buat dan mainkan petualangan teks bertenaga AI",
+      "individualTitle": "Akun Pribadi",
+      "loginLink": "Masuk",
+      "privacyPolicy": "Kebijakan Privasi",
+      "termsOfService": "Ketentuan Layanan",
+      "title": "Buat Akun Anda"
+    },
     "settings": {
       "accountSection": "Akun",
+      "ageGroupDescription": "Menentukan pedoman konten mana yang berlaku untuk gim Anda.",
+      "ageGroupLabel": "Kelompok Usia",
+      "ageGroupU13": "13-17 tahun",
+      "ageGroupU18": "18 tahun ke atas",
       "emailChangeNote": "Untuk mengubah alamat email Anda, silakan hubungi administrator situs.",
       "errors": {
         "nameRequired": "Nama wajib diisi",
@@ -210,6 +261,7 @@
       "low": "Rendah (Ekonomis)",
       "max": "Maks (Premium + Audio)",
       "medium": "Sedang (Seimbang)",
+      "newSessionsOnly": "Tingkat ini hanya berlaku untuk sesi baru. Sesi yang sudah ada mempertahankan tingkat saat mereka dimulai.",
       "serverDefault": "Bawaan Server"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Disponsori"
       },
       "play": "Mainkan",
+      "reportGame": "Laporkan gim",
       "restart": "Mulai Ulang",
       "restartConfirm": {
         "confirm": "Mulai Ulang",
@@ -240,7 +293,8 @@
         "title": "Mulai Ulang Gim"
       },
       "title": "Semua Gim",
-      "unfavorite": "Hapus dari favorit"
+      "unfavorite": "Hapus dari favorit",
+      "workshop": "Lokakarya / Organisasi"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platform",
       "setDefault": "Tetapkan sebagai default",
       "shares": {
+        "context": {
+          "organization": "Organisasi",
+          "personal": "Pribadi",
+          "workshop": "Lokakarya"
+        },
+        "gameShares": "Tautan Berbagi Gim",
         "goToOrg": "Kelola",
         "noOrgShares": "Tidak dibagikan dengan organisasi mana pun",
         "noSponsorships": "Tidak ada sponsor gim",
         "orgShares": "Berbagi Organisasi",
         "privateShares": "Tautan Berbagi Privat",
-        "remaining": "{{count}} tersisa",
+        "remaining": "{{count}} penggunaan tersisa",
         "removeSponsor": "Hapus sponsor",
+        "revokeGameShare": "Cabut tautan berbagi",
         "revokePrivateShare": "Cabut tautan berbagi",
         "sponsorships": "Sponsor Gim",
         "toggle": "Berbagi \u00026 Sponsor",
         "unknownGame": "Gim tidak dikenal",
         "unknownOrg": "Organisasi tidak dikenal",
         "unknownUser": "Pengguna tidak dikenal",
-        "unknownWorkshop": "Lokakarya tidak dikenal"
+        "unknownWorkshop": "Lokakarya tidak dikenal",
+        "unlimited": "Penggunaan tanpa batas"
       },
       "status": {
         "failed": "Kunci tidak berfungsi",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Kunci API yang digunakan telah berubah",
         "sections": {
           "expandStory": "Instruksi kepada AI untuk menuliskan cerita",
           "imageGeneration": "Instruksi dari AI untuk pembuatan gambar",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "token diterima",
           "sent": "token terkirim"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Kunci penggunaan gratis organisasi Anda digunakan",
+          "label": "Kunci API yang Digunakan",
+          "personal": "Kunci pribadi Anda digunakan",
+          "private_share": "Kunci dari tautan berbagi digunakan",
+          "sponsor": "Kunci sponsor digunakan",
+          "system_free_use": "Kunci penggunaan gratis global digunakan",
+          "workshop": "Kunci lokakarya Anda digunakan"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Gim tidak ditemukan",
         "missingFields": "Gim kekurangan kolom yang diperlukan:",
         "noApiKey": {
-          "banner": "Kunci API yang sebelumnya digunakan untuk gim ini tidak lagi tersedia. Untuk terus bermain, tambahkan kunci API Anda sendiri di pengaturan akun.",
+          "banner": "Tidak ditemukan kunci API yang dapat digunakan untuk platform {{platform}}. Untuk terus bermain, tambahkan kunci API Anda sendiri di pengaturan akun.",
           "goToSettings": "Pengaturan Kunci API",
           "personal": "Anda perlu mengonfigurasi kunci API sebelum dapat bermain. Buka pengaturan Kunci API untuk menambahkannya.",
           "title": "Tidak Ada Kunci API Tersedia",
@@ -438,19 +510,23 @@
       "badges": {
         "myGame": "Gim Saya",
         "public": "Publik",
-        "workshop": "Lokakarya"
+        "workshop": "Gim Lokakarya"
       },
       "createButton": "Buat Gim",
       "createModal": {
         "descriptionPlaceholder": "Tentang apa gim Anda?",
         "namePlaceholder": "mis., Petualangan Luar Angkasa",
-        "publicDescription": "Gim publik dapat ditemukan oleh semua orang.",
+        "publicDescription": "Gim publik dapat terlihat dan dimainkan oleh semua pengguna di platform ini.",
         "publicLabel": "Jadikan gim ini publik",
         "submit": "Buat Gim",
         "title": "Buat Gim Baru"
       },
       "deleteModal": {
+        "adminActionTitle": "Tindakan admin",
+        "adminActionWarning": "Anda akan menghapus gim yang bukan milik Anda. Ini adalah tindakan administratif dan hanya boleh digunakan untuk tujuan moderasi.",
         "message": "Apakah Anda yakin ingin menghapus \"{{name}}\"?",
+        "moderatorActionTitle": "Menghapus gim peserta",
+        "moderatorActionWarning": "Gim ini milik peserta di lokakarya Anda. Menghapusnya akan menghapusnya secara permanen bagi mereka. Tindakan ini tidak dapat dibatalkan.",
         "title": "Hapus Gim",
         "warning": "Tindakan ini tidak dapat dibatalkan. Semua data gim akan dihapus permanen."
       },
@@ -469,6 +545,9 @@
         "statusFieldsHint": "Apa yang harus dilacak gim? Misalnya kesehatan, poin, atau amunisi. Gim mengingat nilai-nilai ini dan memperbaruinya saat bermain."
       },
       "editModal": {
+        "adminActionTitle": "Tindakan admin",
+        "adminActionWarning": "Anda sedang mengedit gim yang bukan milik Anda. Ini adalah tindakan administratif dan hanya boleh digunakan untuk tujuan moderasi.",
+        "gameDesignSection": "Desain Gim",
         "title": "Edit Gim",
         "unsavedChanges": {
           "discard": "Buang Perubahan",
@@ -502,9 +581,13 @@
       "playNow": "Mainkan Sekarang",
       "privateShare": {
         "active": "Berbagi privat aktif. Siapa pun dengan tautan di bawah dapat memainkan gim ini secara anonim.",
+        "aiQualityTier": "Kualitas AI",
+        "aiQualityTierDescription": "Pilih kualitas model AI untuk tamu yang menggunakan tautan berbagi ini.",
         "copyLink": "Salin tautan",
+        "createModalTitle": "Buat Tautan Berbagi Privat",
         "description": "Buat tautan berbagi privat sehingga siapa pun yang memilikinya dapat memainkan gim ini secara anonim. Anda memilih kunci API mana yang membayar sesi tersebut.",
         "edit": "Edit Pengaturan",
+        "editModalTitle": "Edit Tautan Berbagi Privat",
         "editSettings": "Edit Pengaturan Berbagi",
         "enable": "Buat Tautan Berbagi",
         "loading": "Memuat status berbagi...",
@@ -512,18 +595,40 @@
         "maxSessions": "Sesi Maks",
         "maxSessionsDescription": "Biarkan kosong untuk sesi tak terbatas.",
         "noEligibleKeys": "Tidak ada kunci API yang berfungsi. Tambahkan kunci API di pengaturan Kunci API terlebih dahulu.",
+        "noPersonalShare": "Tidak ada tautan berbagi pribadi atau organisasi. Anda dapat membuatnya dari luar lokakarya.",
+        "orgKey": "Organisasi",
+        "orgShareDescription": "Tautan berbagi organisasi - tamu bermain menggunakan kunci API organisasi.",
+        "personalCreateHint": "Buat tautan privat agar siapa pun yang memilikinya dapat memainkan gim ini secara anonim. Anda memilih kunci API mana yang membayar sesi tersebut.",
+        "personalOrgSubsection": "Tautan Berbagi Pribadi / Organisasi",
+        "personalShare": "Tautan berbagi privat Anda",
+        "personalShareDescription": "Tautan berbagi pribadi Anda - tamu bermain menggunakan kunci API pilihan Anda.",
         "remainingSessions": "{{count}} sesi tersisa",
         "revoke": "Cabut Tautan",
         "selectKey": "Pilih Kunci API",
         "selectKeyPlaceholder": "Pilih kunci untuk membayar sesi tamu...",
         "shareLink": "Tautan Berbagi",
+        "sourceOrg": "Organisasi",
+        "sourcePersonal": "Pribadi",
+        "sourceWorkshop": "Lokakarya",
         "title": "Tautan Berbagi Privat",
         "unlimited": "Tak terbatas",
-        "update": "Perbarui Tautan Berbagi"
+        "unlimitedSessions": "Sesi tanpa batas",
+        "update": "Perbarui Tautan Berbagi",
+        "workshopCreateHint": "Buat tautan berbagi untuk gim ini. Kunci API lokakarya akan dipilih secara otomatis dan menanggung biayanya.",
+        "workshopDescription": "Buat tautan berbagi untuk gim ini. Kunci API bawaan lokakarya akan digunakan secara otomatis untuk sesi tamu.",
+        "workshopShare": "Berbagi lokakarya",
+        "workshopShareDescription": "Tautan ini dibuat di lokakarya \"{{name}}\" - para tamu bermain menggunakan kunci API lokakarya.",
+        "workshopSubsection": "Tautan Berbagi Lokakarya"
       },
       "sharing": {
         "active": "Aktif",
-        "sectionTitle": "Berbagi \u00026 Sponsor"
+        "privateShareLink": "Tautan Berbagi Privat",
+        "privateShareLinkDescription": "Tautan berbagi privat dapat dibagikan dengan orang lain. Siapa pun yang memiliki tautan dapat memainkan gim secara anonim tanpa akun. Kunci API harus dipilih untuk menanggung biaya.",
+        "publicGameWorkshopHint": "Ini adalah gim publik dan bukan bagian dari lokakarya Anda. Opsi berbagi tidak tersedia untuk gim publik dalam mode lokakarya.",
+        "publicSponsoring": "Sponsorship Publik",
+        "publicSponsoringDescription": "Semua pengguna di platform ini dapat memainkan gim ini secara gratis - kunci API yang Anda tetapkan menanggung biayanya.",
+        "sectionTitle": "Opsi Berbagi",
+        "sectionTitleShareOnly": "Opsi Berbagi"
       },
       "sort": {
         "createdAt-asc": "Dibuat (Terlama)",
@@ -555,11 +660,13 @@
         "loadingKeys": "Memuat kunci API...",
         "manageSponsor": "Kelola Sponsor",
         "next": "Berikutnya",
-        "noEligibleKeys": "Anda tidak memiliki kunci API dengan sponsor publik yang diaktifkan. Buka pengaturan Kunci API dan aktifkan \"Izinkan sponsor publik\" pada salah satu kunci terlebih dahulu.",
+        "noEligibleKeys": "Anda tidak memiliki kunci API yang tersedia untuk mensponsori. Tambahkan kunci API di pengaturan Anda terlebih dahulu.",
         "privateWarning": "Menjadikan gim ini privat akan menghapus sponsor publik.",
         "removeSponsor": "Hapus Sponsor",
         "selectKey": "Pilih Kunci API",
         "selectKeyPlaceholder": "Pilih kunci untuk mensponsori...",
+        "sourceOrg": "Organisasi",
+        "sourcePersonal": "Pribadi",
         "sponsorGame": "Sponsori Gim",
         "sponsored": "Disponsori",
         "sponsoredTooltip": "Gim ini disponsori - Anda bisa memainkannya gratis! Pembuat gim atau pendukung menanggung biaya AI.",
@@ -710,6 +817,7 @@
       "profile": "Profil",
       "workshop": "Lokakarya"
     },
+    "help": "Bantuan",
     "home": {
       "features": {
         "create": {
@@ -821,15 +929,15 @@
     "myOrganization": {
       "actions": "Tindakan",
       "apiKeys": {
-        "aboutDescription": "Kunci API yang dibagikan di sini tersedia bagi semua anggota organisasi Anda untuk bermain gim. Hanya kepala dan guru yang dapat mengelola kunci ini.",
+        "aboutDescription": "Kunci API yang dibagikan di sini tersedia bagi semua anggota organisasi Anda untuk memainkan gim.",
         "aboutTitle": "Kunci API Organisasi",
         "allowPublicSponsoring": "Izinkan sponsor publik",
         "allowPublicSponsoringDesc": "Kunci ini dapat digunakan untuk mensponsori gim bagi semua pengguna.",
         "filterByPlatform": "Filter berdasarkan platform",
         "freeUseKey": {
-          "description": "Tetapkan kunci penggunaan gratis agar semua anggota organisasi dapat bermain gim tanpa membutuhkan kunci API sendiri. Hanya kunci yang sudah dibagikan dengan organisasi ini yang dapat dipilih.",
+          "description": "Tetapkan kunci penggunaan gratis agar semua anggota organisasi dapat memainkan gim tanpa memerlukan kunci API mereka sendiri.",
           "remove": "Hapus",
-          "selectPlaceholder": "Pilih kunci yang dibagikan...",
+          "selectPlaceholder": "Pilih kunci...",
           "title": "Kunci Penggunaan Gratis",
           "unknownKey": "Kunci tidak dikenal"
         },
@@ -847,7 +955,14 @@
         "share": "Bagikan",
         "shareKey": "Bagikan Kunci",
         "shareKeyTitle": "Bagikan Kunci API dengan Organisasi",
+        "showDetails": "Tampilkan detail",
         "title": "Kunci API Organisasi"
+      },
+      "autoShare": {
+        "confirmMessage": "Kunci ini akan dibagikan dengan {{orgName}} dan kemudian dapat digunakan oleh kepala serta staf lain untuk lokakarya. Anda dapat menghapus pembagian ini nanti di pengelolaan kunci API pribadi atau kunci API organisasi.",
+        "confirmTitle": "Bagikan Kunci dengan Organisasi",
+        "orgKeyGroup": "Grup Kunci Organisasi",
+        "personalKeyGroup": "Grup Kunci Pribadi"
       },
       "demoteConfirm": "Apakah Anda yakin ingin menurunkan \"{{name}}\" ({{email}}) menjadi Guru?",
       "demoteTitle": "Turunkan menjadi Guru",
@@ -880,6 +995,9 @@
       "promoteTitle": "Promosikan menjadi Kepala",
       "promoteToHead": "Promosikan menjadi Kepala",
       "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
+      "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di organisasi ini. Berlaku ketika tidak ada batasan tingkat lokakarya yang ditetapkan, dan untuk gim yang dibagikan melalui tautan.",
+      "promptConstraintsLabel": "Batasan prompt organisasi",
+      "promptConstraintsPlaceholder": "mis. Jaga cerita tetap sesuai usia dan hindari konten kekerasan.",
       "removeConfirm": "Apakah Anda yakin ingin menghapus \"{{name}}\" dari organisasi?",
       "removeMember": "Hapus anggota",
       "removeTitle": "Hapus Anggota",
@@ -900,7 +1018,17 @@
         "active": "Aktif",
         "activeDescription": "Lokakarya aktif memungkinkan peserta bergabung dan membuat gim.",
         "activeLabel": "Aktif",
+        "addIndividual": "Tambahkan Anggota Organisasi",
+        "addIndividualError": "Gagal menambahkan anggota ke lokakarya.",
+        "addIndividualHint": "Menambahkan pengguna akan menempatkan mereka ke mode lokakarya secara otomatis. Mereka akan melihat tampilan lokakarya alih-alih dasbor biasa. Lakukan hanya jika memang dimaksudkan.",
+        "addIndividualStaffNote": "Kepala dan pengajar harus bergabung dengan lokakarya melalui daftar lokakarya mereka sendiri - mereka tidak tercantum di sini.",
+        "addIndividualSuccess": "Anggota Ditambahkan",
+        "addIndividualSuccessMessage": "{{name}} telah ditambahkan ke lokakarya.",
+        "addIndividualTitle": "Tambahkan Individu ke Lokakarya",
+        "addToWorkshop": "Tambahkan ke lokakarya",
         "aiQualityTierHint": "Tingkat kualitas untuk respons AI. Tingkat lebih tinggi biayanya lebih mahal tetapi mungkin berkualitas lebih baik. Kosong berarti menggunakan bawaan server.",
+        "allowGameSharing": "Izinkan berbagi gim",
+        "allowGameSharingHint": "Saat diaktifkan, peserta dapat membuat tautan berbagi untuk gim mereka menggunakan kunci API lokakarya",
         "anonymousParticipant": "Peserta anonim",
         "create": "Buat Lokakarya",
         "createFirst": "Buat Lokakarya Pertama Anda",
@@ -919,6 +1047,11 @@
         "games": "Gim",
         "hideInactive": "Sembunyikan tidak aktif",
         "inactive": "Tidak aktif",
+        "inviteByEmail": "Undang via Email",
+        "inviteByEmailDescription": "Masukkan email pengguna terdaftar untuk mengundang mereka ke lokakarya ini. Mereka akan melihat undangan tersebut di dasbor mereka.",
+        "inviteByEmailSuccess": "Undangan dikirim",
+        "inviteByEmailSuccessMessage": "Sebuah undangan telah dibuat. Pengguna akan melihatnya di undangan tertunda mereka.",
+        "inviteByEmailTitle": "Undang Pengguna ke Lokakarya",
         "inviteCreatedAt": "Dibuat",
         "inviteDescription": "Buat tautan undangan yang dapat digunakan peserta untuk bergabung dengan lokakarya ini.",
         "inviteExpiresAt": "Kedaluwarsa",
@@ -937,6 +1070,7 @@
         "noActiveInvite": "Tidak ada tautan undangan aktif yang tersedia.",
         "noDefaultApiKey": "Tidak ada kunci API default",
         "noDefaultModel": "Gunakan bawaan platform",
+        "noIndividuals": "Tidak ada pengguna individu di organisasi ini.",
         "noParticipantToken": "Peserta ini tidak memiliki tautan undangan. Hanya peserta anonim (tamu) yang memiliki tautan undangan yang dapat digunakan ulang.",
         "noParticipants": "Belum ada peserta",
         "notAuthorized": "Anda tidak memiliki izin untuk mengelola lokakarya. Hanya kepala dan guru yang dapat mengakses halaman ini.",
@@ -944,7 +1078,9 @@
         "participantJoined": "Bergabung {{date}}",
         "participantName": "Nama peserta",
         "participants": "Peserta",
-        "promptConstraintsHint": "Instruksi tambahan yang ditambahkan ke prompt sistem AI untuk semua sesi dalam workshop ini.",
+        "promptConstraintsFallbackOrg": "Menggunakan batasan organisasi sebagai bawaan: {{constraint}}",
+        "promptConstraintsFallbackSite": "Menggunakan batasan situs sebagai bawaan",
+        "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di lokakarya ini.",
         "promptConstraintsLabel": "Keterbatasan prompt",
         "promptConstraintsPlaceholder": "mis. Pastikan cerita sesuai usia dan hindari konten kekerasan.",
         "removeParticipant": "Hapus peserta",
@@ -956,6 +1092,7 @@
         "settings": "Pengaturan",
         "shareParticipantLink": "Salin tautan undangan individual untuk peserta ini",
         "showOtherParticipantsGames": "Tampilkan gim peserta lain",
+        "showOtherParticipantsGamesHint": "Kepala dan staf selalu dapat melihat semua gim peserta untuk keperluan moderasi",
         "showPublicGames": "Tampilkan gim publik kepada peserta",
         "sort": {
           "createdAtAsc": "Terlama lebih dulu",
@@ -987,7 +1124,9 @@
       "empty": "Tidak ada notifikasi baru.",
       "inviteDescription": "Anda diundang untuk bergabung sebagai {{role}}.",
       "inviteToJoin": "Undangan Organisasi",
-      "title": "Notifikasi"
+      "title": "Notifikasi",
+      "workshopInvite": "Undangan Lokakarya",
+      "workshopInviteDescription": "Anda telah diundang untuk bergabung dengan lokakarya ini."
     },
     "play": {
       "cloneGame": "Klon ke gim saya",
@@ -1024,6 +1163,16 @@
     "search": "Cari",
     "searchPlaceholder": "Cari anggota...",
     "serverSettings": {
+      "constraints": {
+        "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Batasan ini disisipkan ke setiap respons AI. Berlaku untuk semua pengguna masuk di luar mode lokakarya.",
+        "title": "Prompt Batasan Berdasarkan Usia",
+        "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13-17 tahun.",
+        "u13Label": "Batasan untuk pengguna berusia 13-17 (U13)",
+        "u13Placeholder": "mis. Pastikan semua konten benar-benar sesuai usia remaja. Tidak ada kekerasan, konten romantis, atau tema horor.",
+        "u18Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 18 tahun ke atas.",
+        "u18Label": "Batasan untuk pengguna berusia 18+ (U18)",
+        "u18Placeholder": "mis. Jaga konten tetap pantas. Hindari kekerasan eksplisit atau konten seksual."
+      },
       "defaultTier": {
         "description": "Tingkat fallback seluruh server yang digunakan ketika tidak ada tingkat khusus yang dikonfigurasi di tingkat lokakarya, institusi, atau pengguna. Tingkat lebih tinggi biayanya lebih mahal tetapi mungkin berkualitas lebih baik.",
         "title": "Tingkat Kualitas AI Default"
@@ -1099,6 +1248,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Pekerjaan pedagogi media dengan ChatGameLab",
+          "title": "Tentang ChatGameLab"
+        },
         "jff": {
           "description": "Koordinator proyek dan organisasi utama.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1361,14 @@
       "workshop": "Gim Lokakarya"
     },
     "gameType": "Gim",
+    "infoModal": {
+      "body": "Anda telah memasuki mode lokakarya. Saat berada dalam mode ini, semua yang Anda lakukan terhubung ke lokakarya ini - gim yang Anda buat, sesi bermain, dan tautan berbagi.\n\nAnda dapat keluar kapan saja. Keluar tidak akan mengakhiri lokakarya atau menghapus apa pun yang telah Anda buat.",
+      "dontShowAgain": "Jangan tampilkan lagi",
+      "gotIt": "Mengerti",
+      "headStaffNote": "Anda dapat bergabung kembali ke lokakarya ini kapan saja dari daftar lokakarya organisasi Anda.",
+      "individualNote": "Untuk bergabung kembali setelah keluar, Anda memerlukan undangan baru dari penyelenggara lokakarya.",
+      "title": "Selamat datang di {{name}}"
+    },
     "members": {
       "empty": "Belum ada anggota",
       "title": "Anggota Lokakarya"
@@ -1239,6 +1400,7 @@
     "myOrganization": "Organisasi Saya",
     "myWorkshop": "Lokakarya Saya",
     "orgApiKeys": "Kunci API",
+    "orgConstraints": "Batasan",
     "orgMembers": "Anggota",
     "orgWorkshops": "Lokakarya",
     "play": "Mainkan Gim",

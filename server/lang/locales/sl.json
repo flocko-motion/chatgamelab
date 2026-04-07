@@ -32,6 +32,11 @@
       "workshop": "Delavnica"
     },
     "profile": {
+      "ageGroup": "Starostna skupina",
+      "ageGroupDescription": "Določa, katera vsebinska pravila veljajo za tvoje igre. To lahko kadar koli spremeniš.",
+      "ageGroupSection": "Starostna skupina",
+      "ageGroupU13": "13–17 let",
+      "ageGroupU18": "18+",
       "gamesCreated": "Ustvarjene igre",
       "gamesPlayed": "Odigrene igre",
       "memberSince": "Registriran od",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Skupno število igranj mojih iger"
     },
     "register": {
+      "ageGroupLabel": "Starostna skupina",
+      "ageGroupRequired": "Izberi svojo starostno skupino",
+      "ageGroupU13": "13–17 let",
+      "ageGroupU18": "18 ali več",
+      "ageGroupUnder13": "Manj kot 13",
+      "ageGroupUnder13Error": "Za uporabo ChatGameLab moraš biti star vsaj 13 let.",
       "cancelButton": "Prekliči",
       "emailDescription": "Uporabili ga bomo za pomembna obvestila.",
       "emailLabel": "E-poštni naslov",
@@ -73,8 +84,48 @@
       "subtitle": "Še nekaj podrobnosti, da začnemo",
       "title": "Dokončajte svoj profil"
     },
+    "registerPage": {
+      "agreePrefix": "Strinjam se z",
+      "agreeSuffix": "in",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Že imaš račun?",
+      "backButton": "Nazaj",
+      "chooseType": "Kako želiš uporabljati ChatGameLab?",
+      "continueButton": "Nadaljuj na registracijo",
+      "description": "Za upravljanje uporabniških računov uporabljamo Auth0. Preusmerjeni boste na Auth0, da ustvarite račun, nato pa se vrnete sem in dokončate profil.",
+      "educatorDescription": "Uporabi ChatGameLab v delavnicah, učilnicah ali svoji organizaciji",
+      "educatorModal": {
+        "closeButton": "Zapri",
+        "copied": "Kopirano!",
+        "copyEmail": "Kopiraj e-pošto",
+        "eduInfo": "Izvedi več o uporabi ChatGameLab v izobraževalne namene:",
+        "intro": "Če želiš ChatGameLab uporabljati s svojo organizacijo (šola, univerza, institucija), sledi tem korakom:",
+        "registerButton": "Ustvari osebni račun",
+        "step1": "Ustvari osebni račun",
+        "step1Description": "Najprej ustvari svoj osebni račun. To bo tvoj prijavni račun za platformo.",
+        "step2": "2. Pošlji nam e-pošto",
+        "step2Description": "Napiši e-pošto na",
+        "step2Item1": "Tvoj registrirani e-poštni naslov",
+        "step2Item2": "Naziv tvoje organizacije (šola, institucija itd.)",
+        "step2WithInfo": "z naslednjimi podatki:",
+        "step3": "3. Uredili bomo tvojo organizacijo",
+        "step3Description": "Ustvarili bomo tvojo organizacijo in te nastavili kot vodjo. Nato lahko povabiš sodelavce in nastaviš delavnice.",
+        "title": "Dostop za izobraževalce in strokovnjake"
+      },
+      "educatorTitle": "Izobraževalec / strokovnjak",
+      "individualDescription": "Ustvarjaj in igraj besedilne avanture, ki jih poganja UI",
+      "individualTitle": "Osebni račun",
+      "loginLink": "Prijava",
+      "privacyPolicy": "Politika zasebnosti",
+      "termsOfService": "Pogoji uporabe",
+      "title": "Ustvari svoj račun"
+    },
     "settings": {
       "accountSection": "Račun",
+      "ageGroupDescription": "Določa, katera vsebinska pravila veljajo za tvoje igre.",
+      "ageGroupLabel": "Starostna skupina",
+      "ageGroupU13": "13–17 let",
+      "ageGroupU18": "18 ali več",
       "emailChangeNote": "Za spremembo e-poštnega naslova kontaktirajte skrbnika strani.",
       "errors": {
         "nameRequired": "Ime je obvezno",
@@ -210,6 +261,7 @@
       "low": "Nizka (Varčna)",
       "max": "Najvišja (Premium + avdio)",
       "medium": "Srednja (Uravnotežena)",
+      "newSessionsOnly": "Ta kakovost velja samo za nove seje. Obstoječe seje ohranijo kakovost, s katero so se začele.",
       "serverDefault": "Privzeto na strežniku"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Sponzorirane"
       },
       "play": "Igraj",
+      "reportGame": "Prijavi igro",
       "restart": "Začni znova",
       "restartConfirm": {
         "confirm": "Ponovni začetek",
@@ -240,7 +293,8 @@
         "title": "Ponovni zagon igre"
       },
       "title": "Vse igre",
-      "unfavorite": "Odstrani iz priljubljenih"
+      "unfavorite": "Odstrani iz priljubljenih",
+      "workshop": "Delavnica / organizacija"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platforma",
       "setDefault": "Nastavi kot privzeto",
       "shares": {
+        "context": {
+          "organization": "Organizacija",
+          "personal": "Osebno",
+          "workshop": "Delavnica"
+        },
+        "gameShares": "Povezave za deljenje igre",
         "goToOrg": "Upravljaj",
         "noOrgShares": "Ni deljeno z nobeno organizacijo",
         "noSponsorships": "Ni sponzorstev iger",
         "orgShares": "Delitve z organizacijami",
         "privateShares": "Zasebne deljene povezave",
-        "remaining": "še {{count}}",
+        "remaining": "Preostalo: {{count}} uporab",
         "removeSponsor": "Odstrani sponzorstvo",
+        "revokeGameShare": "Prekliči povezavo za deljenje",
         "revokePrivateShare": "Prekliči deljeno povezavo",
         "sponsorships": "Sponzorstva iger",
         "toggle": "Delitve in sponzorstva",
         "unknownGame": "Neznana igra",
         "unknownOrg": "Neznana organizacija",
         "unknownUser": "Neznan uporabnik",
-        "unknownWorkshop": "Neznana delavnica"
+        "unknownWorkshop": "Neznana delavnica",
+        "unlimited": "Neomejeno uporab"
       },
       "status": {
         "failed": "Ključ ne deluje",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Uporabljeni API ključ je bil spremenjen",
         "sections": {
           "expandStory": "Navodila za AI za zapis zgodbe",
           "imageGeneration": "Navodila AI za ustvarjanje slike",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "prejeti žetoni",
           "sent": "poslani žetoni"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Uporabljen je bil brezplačen ključ tvoje organizacije",
+          "label": "Uporabljeni API ključ",
+          "personal": "Uporabljen je bil tvoj osebni ključ",
+          "private_share": "Uporabljen je bil ključ povezave za deljenje",
+          "sponsor": "Uporabljen je bil sponzorski ključ",
+          "system_free_use": "Uporabljen je bil globalni brezplačni ključ",
+          "workshop": "Uporabljen je bil ključ tvoje delavnice"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Igra ni najdena",
         "missingFields": "Igra nima zahtevanih polj:",
         "noApiKey": {
-          "banner": "Ključ API, ki je bil prej uporabljen za to igro, ni več na voljo. Za nadaljevanje dodajte svoj ključ API v nastavitvah računa.",
+          "banner": "Za platformo {{platform}} ni bil najden noben uporaben API ključ. Če želiš nadaljevati z igranjem, v nastavitvah računa dodaj svoj API ključ.",
           "goToSettings": "Nastavitve ključev API",
           "personal": "Pred igranjem morate nastaviti ključ API. Pojdite v nastavitve ključev API in dodajte ključ.",
           "title": "Ključ API ni na voljo",
@@ -438,19 +510,23 @@
       "badges": {
         "myGame": "Moja igra",
         "public": "Javna",
-        "workshop": "Delavnica"
+        "workshop": "Delavniška igra"
       },
       "createButton": "Ustvari igro",
       "createModal": {
         "descriptionPlaceholder": "O čem govori vaša igra?",
         "namePlaceholder": "npr. Vesoljska pustolovščina",
-        "publicDescription": "Javne igre lahko najde vsak.",
+        "publicDescription": "Javne igre so vidne in igrljive za vse uporabnike na tej platformi.",
         "publicLabel": "Naredi to igro javno",
         "submit": "Ustvari igro",
         "title": "Ustvari novo igro"
       },
       "deleteModal": {
+        "adminActionTitle": "Skrbniško dejanje",
+        "adminActionWarning": "Izbrisal boš igro, ki ni tvoja. To je administrativno dejanje in naj bo uporabljeno samo za moderiranje.",
         "message": "Ali ste prepričani, da želite izbrisati »{{name}}«?",
+        "moderatorActionTitle": "Brisanje igre udeleženca",
+        "moderatorActionWarning": "Ta igra pripada udeležencu tvoje delavnice. Z izbrisom jo trajno odstraniš. Tega ni mogoče razveljaviti.",
         "title": "Izbriši igro",
         "warning": "Tega dejanja ni mogoče razveljaviti. Vsi podatki igre bodo trajno izbrisani."
       },
@@ -469,6 +545,9 @@
         "statusFieldsHint": "Kaj naj igra spremlja? Na primer zdravje, točke ali strelivo. Igra si te vrednosti zapomni in jih med igranjem posodablja."
       },
       "editModal": {
+        "adminActionTitle": "Skrbniško dejanje",
+        "adminActionWarning": "Urejaš igro, ki ni tvoja. To je administrativno dejanje in naj bo uporabljeno samo za moderiranje.",
+        "gameDesignSection": "Oblikovanje igre",
         "title": "Uredi igro",
         "unsavedChanges": {
           "discard": "Zavrzi spremembe",
@@ -502,9 +581,13 @@
       "playNow": "Igraj zdaj",
       "privateShare": {
         "active": "Zasebno deljenje je aktivno. Kdor ima spodnjo povezavo, lahko anonimno igra to igro.",
+        "aiQualityTier": "Kakovost UI",
+        "aiQualityTierDescription": "Izberi kakovost AI modela za goste, ki uporabljajo to povezavo.",
         "copyLink": "Kopiraj povezavo",
+        "createModalTitle": "Ustvari zasebno povezavo za deljenje",
         "description": "Ustvarite zasebno povezavo za deljenje, da lahko kdor koli z njo anonimno igra to igro. Vi izberete, kateri ključ API plača seje.",
         "edit": "Uredi nastavitve",
+        "editModalTitle": "Uredi zasebno povezavo za deljenje",
         "editSettings": "Uredi nastavitve deljenja",
         "enable": "Ustvari povezavo za deljenje",
         "loading": "Nalaganje statusa deljenja...",
@@ -512,18 +595,40 @@
         "maxSessions": "Največ sej",
         "maxSessionsDescription": "Pustite prazno za neomejene seje.",
         "noEligibleKeys": "Ni razpoložljivega delujočega ključa API. Najprej dodajte ključ v nastavitvah ključev API.",
+        "noPersonalShare": "Osebne ali organizacijske povezave za deljenje ni. Ustvariš jo lahko zunaj delavnice.",
+        "orgKey": "Organizacija",
+        "orgShareDescription": "Organizacijska povezava – gostje igrajo z API ključem organizacije.",
+        "personalCreateHint": "Ustvari zasebno povezavo, da lahko kdorkoli z njo anonimno igra to igro. Ti izbereš, kateri API ključ krije stroške sej.",
+        "personalOrgSubsection": "Osebna / organizacijska povezava za deljenje",
+        "personalShare": "Tvoja zasebna povezava",
+        "personalShareDescription": "Tvoja osebna povezava – gostje igrajo z izbranim API ključem.",
         "remainingSessions": "Preostaja {{count}} sej",
         "revoke": "Prekliči povezavo",
         "selectKey": "Izberite ključ API",
         "selectKeyPlaceholder": "Izberite ključ za plačilo sej gostov...",
         "shareLink": "Povezava za deljenje",
+        "sourceOrg": "Organizacija",
+        "sourcePersonal": "Osebno",
+        "sourceWorkshop": "Delavnica",
         "title": "Zasebna povezava za deljenje",
         "unlimited": "Neomejeno",
-        "update": "Posodobi povezavo za deljenje"
+        "unlimitedSessions": "Neomejeno sej",
+        "update": "Posodobi povezavo za deljenje",
+        "workshopCreateHint": "Ustvari povezavo za deljenje te igre. API ključ delavnice je samodejno izbran in krije stroške.",
+        "workshopDescription": "Ustvari povezavo za deljenje te igre. Privzeti API ključ delavnice bo samodejno uporabljen za gostujoče seje.",
+        "workshopShare": "Delavniško deljenje",
+        "workshopShareDescription": "Ta povezava je bila ustvarjena v delavnici »{{name}}« – gostje igrajo z API ključem delavnice.",
+        "workshopSubsection": "Povezava za deljenje delavnice"
       },
       "sharing": {
         "active": "Aktivno",
-        "sectionTitle": "Deljenje in sponzoriranje"
+        "privateShareLink": "Zasebna povezava",
+        "privateShareLinkDescription": "Zasebne povezave lahko deliš z drugimi. Kdor ima povezavo, lahko igro igra anonimno brez računa. Izbrati je treba API ključ, ki pokrije stroške.",
+        "publicGameWorkshopHint": "To je javna igra in ni del tvoje delavnice. Možnosti deljenja za javne igre v načinu delavnice niso na voljo.",
+        "publicSponsoring": "Javno sponzoriranje",
+        "publicSponsoringDescription": "Vsi uporabniki na platformi lahko igro igrajo brezplačno – stroške krije tvoj dodeljeni API ključ.",
+        "sectionTitle": "Možnosti deljenja",
+        "sectionTitleShareOnly": "Možnosti deljenja"
       },
       "sort": {
         "createdAt-asc": "Ustvarjeno (najstarejše)",
@@ -555,11 +660,13 @@
         "loadingKeys": "Nalaganje ključev API...",
         "manageSponsor": "Upravljaj sponzorstvo",
         "next": "Naprej",
-        "noEligibleKeys": "Nimate ključev API z omogočenim javnim sponzoriranjem. Pojdite v nastavitve ključev API in najprej omogočite »Dovoli javno sponzoriranje« na ključu.",
+        "noEligibleKeys": "Nimaš nobenih API ključev, ki bi jih lahko uporabil za sponzorstvo. Najprej v nastavitvah dodaj API ključ.",
         "privateWarning": "Če igro naredite zasebno, boste odstranili javno sponzorstvo.",
         "removeSponsor": "Odstrani sponzorstvo",
         "selectKey": "Izberite ključ API",
         "selectKeyPlaceholder": "Izberite ključ za sponzoriranje...",
+        "sourceOrg": "Organizacija",
+        "sourcePersonal": "Osebno",
         "sponsorGame": "Sponzoriraj igro",
         "sponsored": "Sponzorirano",
         "sponsoredTooltip": "Ta igra je sponzorirana – lahko jo igrate brezplačno! Ustvarjalec ali podpornik krije stroške AI.",
@@ -710,6 +817,7 @@
       "profile": "Profil",
       "workshop": "Delavnica"
     },
+    "help": "Pomoč",
     "home": {
       "features": {
         "create": {
@@ -821,15 +929,15 @@
     "myOrganization": {
       "actions": "Dejanja",
       "apiKeys": {
-        "aboutDescription": "Tukaj deljeni ključi API so na voljo vsem članom vaše organizacije za igranje iger. Ključe lahko upravljajo samo vodje in učitelji.",
+        "aboutDescription": "API ključi, deljeni tukaj, so na voljo vsem članom tvoje organizacije za igranje iger.",
         "aboutTitle": "Organizacijski ključi API",
         "allowPublicSponsoring": "Dovoli javno sponzoriranje",
         "allowPublicSponsoringDesc": "Ta ključ se lahko uporablja za sponzoriranje iger za vse uporabnike.",
         "filterByPlatform": "Filtriraj po platformi",
         "freeUseKey": {
-          "description": "Nastavite ključ za brezplačno uporabo, da lahko vsi člani organizacije igrajo brez lastnega ključa API. Izberete lahko samo ključe, ki so že deljeni s to organizacijo.",
+          "description": "Nastavi brezplačni ključ, da lahko vsi člani organizacije igrajo igre brez lastnega API ključa.",
           "remove": "Odstrani",
-          "selectPlaceholder": "Izberite deljeni ključ...",
+          "selectPlaceholder": "Izberi ključ...",
           "title": "Ključ za brezplačno uporabo",
           "unknownKey": "Neznan ključ"
         },
@@ -847,7 +955,14 @@
         "share": "Deli",
         "shareKey": "Deli ključ",
         "shareKeyTitle": "Deli ključ API z organizacijo",
+        "showDetails": "Prikaži podrobnosti",
         "title": "Organizacijski ključi API"
+      },
+      "autoShare": {
+        "confirmMessage": "Ta ključ bo deljen z {{orgName}} in ga bodo lahko uporabljali drugi vodje in osebje za delavnice. Deljenje lahko pozneje odstraniš v upravljanju osebnih ali organizacijskih API ključev.",
+        "confirmTitle": "Deli ključ z organizacijo",
+        "orgKeyGroup": "Organizacijski ključi",
+        "personalKeyGroup": "Osebni ključi"
       },
       "demoteConfirm": "Ali ste prepričani, da želite »{{name}}« ({{email}}) degradirati na učitelja?",
       "demoteTitle": "Degradiraj na učitelja",
@@ -880,6 +995,9 @@
       "promoteTitle": "Povišaj v vodjo",
       "promoteToHead": "Povišaj v vodjo",
       "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
+      "promptConstraintsHint": "Dodatna navodila za UI za vse seje v tej organizaciji. Velja, če na ravni delavnice ni določenih omejitev, in za igre, deljene prek povezave.",
+      "promptConstraintsLabel": "Organizacijske omejitve pozivov",
+      "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogiba nasilni vsebini.",
       "removeConfirm": "Ali ste prepričani, da želite odstraniti »{{name}}« iz organizacije?",
       "removeMember": "Odstrani člana",
       "removeTitle": "Odstrani člana",
@@ -900,7 +1018,17 @@
         "active": "Aktivna",
         "activeDescription": "Aktivne delavnice omogočajo udeležencem, da se pridružijo in ustvarjajo igre.",
         "activeLabel": "Aktivna",
+        "addIndividual": "Dodaj člana organizacije",
+        "addIndividualError": "Dodajanje člana v delavnico ni uspelo.",
+        "addIndividualHint": "Ko dodaš uporabnika, bo samodejno prešel v način delavnice. Videli bodo pogled delavnice namesto običajne nadzorne plošče. Uporabi le, če je to namen.",
+        "addIndividualStaffNote": "Vodje in učitelji naj se delavnici pridružijo sami prek seznama delavnic – tukaj niso navedeni.",
+        "addIndividualSuccess": "Član dodan",
+        "addIndividualSuccessMessage": "{{name}} je bil dodan v delavnico.",
+        "addIndividualTitle": "Dodaj posameznika v delavnico",
+        "addToWorkshop": "Dodaj v delavnico",
         "aiQualityTierHint": "Kakovostni nivo odgovorov AI. Višji razredi so dražji, a lahko bolj kakovostni. Prazno uporabi strežniški privzeti razred.",
+        "allowGameSharing": "Dovoli deljenje iger",
+        "allowGameSharingHint": "Ko je omogočeno, lahko udeleženci ustvarjajo povezave za deljenje svojih iger z uporabo API ključa delavnice",
         "anonymousParticipant": "Anonimni udeleženec",
         "create": "Ustvari delavnico",
         "createFirst": "Ustvari svojo prvo delavnico",
@@ -919,6 +1047,11 @@
         "games": "Igre",
         "hideInactive": "Skrij neaktivne",
         "inactive": "Neaktivna",
+        "inviteByEmail": "Povabi po e-pošti",
+        "inviteByEmailDescription": "Vnesi e-poštni naslov registriranega uporabnika, da ga povabiš v to delavnico. Povabilo bo videl na svoji nadzorni plošči.",
+        "inviteByEmailSuccess": "Povabilo poslano",
+        "inviteByEmailSuccessMessage": "Povabilo je ustvarjeno. Uporabnik ga bo videl med čakajočimi povabili.",
+        "inviteByEmailTitle": "Povabi uporabnika v delavnico",
         "inviteCreatedAt": "Ustvarjeno",
         "inviteDescription": "Ustvari povezavo s povabilom, ki jo udeleženci lahko uporabijo za pridružitev tej delavnici.",
         "inviteExpiresAt": "Poteče",
@@ -937,6 +1070,7 @@
         "noActiveInvite": "Ni aktivne povezave s povabilom.",
         "noDefaultApiKey": "Ni privzetega ključa API",
         "noDefaultModel": "Uporabi privzeto platforme",
+        "noIndividuals": "V tej organizaciji ni posameznih uporabnikov.",
         "noParticipantToken": "Ta udeleženec nima povezave s povabilom. Le anonimni udeleženci (gosti) imajo ponovno uporabne povezave.",
         "noParticipants": "Še ni udeležencev",
         "notAuthorized": "Nimate dovoljenja za upravljanje delavnic. Dostop imajo samo vodje in učitelji.",
@@ -944,7 +1078,9 @@
         "participantJoined": "Pridružen {{date}}",
         "participantName": "Ime udeleženca",
         "participants": "Udeleženci",
-        "promptConstraintsHint": "Dodatna navodila, dodana sistemskemu pozivu AI za vse seje v tej delavnici.",
+        "promptConstraintsFallbackOrg": "Uporaba organizacijske omejitve kot privzete: {{constraint}}",
+        "promptConstraintsFallbackSite": "Uporablja se privzeta omejitev strani",
+        "promptConstraintsHint": "Dodatna navodila za UI za vse seje v tej delavnici.",
         "promptConstraintsLabel": "Omejitve poziva",
         "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogibaj nasilni vsebini.",
         "removeParticipant": "Odstrani udeleženca",
@@ -956,6 +1092,7 @@
         "settings": "Nastavitve",
         "shareParticipantLink": "Kopiraj individualno povezavo s povabilom za tega udeleženca",
         "showOtherParticipantsGames": "Prikaži igre drugih udeležencev",
+        "showOtherParticipantsGamesHint": "Vodje in osebje lahko vedno vidijo igre vseh udeležencev zaradi moderiranja",
         "showPublicGames": "Prikaži javne igre udeležencem",
         "sort": {
           "createdAtAsc": "Najstarejše najprej",
@@ -987,7 +1124,9 @@
       "empty": "Ni novih obvestil.",
       "inviteDescription": "Povabljeni ste bili, da se pridružite kot {{role}}.",
       "inviteToJoin": "Povabilo v organizacijo",
-      "title": "Obvestila"
+      "title": "Obvestila",
+      "workshopInvite": "Povabilo v delavnico",
+      "workshopInviteDescription": "Povabljeni ste, da se pridružite tej delavnici."
     },
     "play": {
       "cloneGame": "Kloniraj v moje igre",
@@ -1024,6 +1163,16 @@
     "search": "Išči",
     "searchPlaceholder": "Išči člane...",
     "serverSettings": {
+      "constraints": {
+        "description": "Določi obvezna pravila za UI glede na starostno skupino igralca. Ta pravila se vključijo v vsak AI odziv. Veljajo za vse prijavljene uporabnike zunaj načina delavnice.",
+        "title": "Pozivi z omejitvami glede na starost",
+        "u13Hint": "Vstavljeno v vsak AI poziv za prijavljene uporabnike, stare 13–17 let.",
+        "u13Label": "Omejitev za uporabnike stare 13–17 let (U13)",
+        "u13Placeholder": "npr. Vsebina naj bo strogo primerna za najstnike. Brez nasilja, romantičnih vsebin ali tem grozljivk.",
+        "u18Hint": "Vstavljeno v vsak AI poziv za prijavljene uporabnike, stare 18 let in več.",
+        "u18Label": "Omejitev za uporabnike stare 18+ (U18)",
+        "u18Placeholder": "npr. Vsebina naj bo primerna. Izogibaj se izrecnemu nasilju ali spolni vsebini."
+      },
       "defaultTier": {
         "description": "Strežniški rezervni razred, uporabljen, ko ni določen poseben razred na ravni delavnice, institucije ali uporabnika. Višji razredi so dražji, a lahko bolj kakovostni.",
         "title": "Privzeti kakovostni razred AI"
@@ -1099,6 +1248,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Medijska pedagogika z ChatGameLab",
+          "title": "O ChatGameLab"
+        },
         "jff": {
           "description": "Koordinator projekta in vodilna organizacija.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1361,14 @@
       "workshop": "Igre delavnice"
     },
     "gameType": "Igra",
+    "infoModal": {
+      "body": "Vstopil si v način delavnice. Medtem ko si v tem načinu, je vse, kar počneš – igre, ki jih ustvariš, igralne seje in povezave za deljenje – povezano s to delavnico.\n\nOditi lahko kadarkoli. Če zapustiš, delavnica ne bo končana in ničesar, kar si ustvaril, ne bo izbrisano.",
+      "dontShowAgain": "Tega ne prikaži več",
+      "gotIt": "Razumem",
+      "headStaffNote": "V to delavnico se lahko kadarkoli ponovno pridružiš prek seznama delavnic svoje organizacije.",
+      "individualNote": "Za ponovno pridružitev po odhodu boš potreboval novo povabilo organizatorjev delavnice.",
+      "title": "Dobrodošel v {{name}}"
+    },
     "members": {
       "empty": "Še ni članov",
       "title": "Člani delavnice"
@@ -1239,6 +1400,7 @@
     "myOrganization": "Moja organizacija",
     "myWorkshop": "Moja delavnica",
     "orgApiKeys": "Ključi API",
+    "orgConstraints": "Omejitve",
     "orgMembers": "Člani",
     "orgWorkshops": "Delavnice",
     "play": "Igraj igro",

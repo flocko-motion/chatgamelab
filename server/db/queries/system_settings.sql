@@ -7,6 +7,8 @@ SELECT
   modified_at,
   default_ai_quality_tier,
   free_use_ai_quality_tier,
+  prompt_constraint_u13,
+  prompt_constraint_u18,
   free_use_api_key_id
 FROM system_settings
 LIMIT 1;
@@ -44,6 +46,18 @@ SET
 WHERE free_use_api_key_id IN (
   SELECT id FROM api_key WHERE user_id = $1
 );
+
+-- name: UpdatePromptConstraintU13 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13 = $1,
+  modified_at = now();
+
+-- name: UpdatePromptConstraintU18 :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u18 = $1,
+  modified_at = now();
 
 -- name: InitSystemSettings :exec
 INSERT INTO system_settings (id, default_ai_quality_tier)

@@ -69,8 +69,6 @@ export const ROUTES = {
 
   // Organization routes
   MY_ORGANIZATION: "/my-organization",
-  MY_ORGANIZATION_API_KEYS: "/my-organization/api-keys",
-  MY_ORGANIZATION_WORKSHOPS: "/my-organization/workshops",
 } as const;
 
 // Route groups for navigation menus

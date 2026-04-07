@@ -150,6 +150,8 @@ export interface GamePlayerState {
   aiModel: string | null;
   /** AI platform used for this session (e.g. "openai", "mistral") */
   aiPlatform: string | null;
+  /** Source of the active prompt constraint (e.g. "workshop", "organisation", "site13", "site18") */
+  promptConstraintSource: string | null;
 }
 
 // ============================================================================

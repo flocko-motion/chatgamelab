@@ -49,6 +49,7 @@ interface GamePlayerHeaderProps {
   // AI info
   aiModel?: string | null;
   aiPlatform?: string | null;
+  promptConstraintSource?: string | null;
   hasAudioOut?: boolean;
   isAudioMuted: boolean;
   onToggleAudioMuted: () => void;
@@ -95,6 +96,7 @@ export function GamePlayerHeader({
   messageCount,
   aiModel,
   aiPlatform,
+  promptConstraintSource,
   hasAudioOut,
   isAudioMuted,
   onToggleAudioMuted,
@@ -126,6 +128,7 @@ export function GamePlayerHeader({
     aiModel: aiModel ?? undefined,
     aiPlatform: aiPlatform ?? undefined,
     sessionLanguage: sessionLanguage ?? undefined,
+    promptConstraintSource: promptConstraintSource ?? undefined,
   });
 
   return (
@@ -343,6 +346,7 @@ function buildDebugInfo(data: {
   aiModel?: string;
   aiPlatform?: string;
   sessionLanguage?: string;
+  promptConstraintSource?: string;
 }): DebugInfo {
   const now = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -363,6 +367,7 @@ function buildDebugInfo(data: {
     { label: "AI Platform", value: data.aiPlatform || "—" },
     { label: "AI Model", value: data.aiModel || "—" },
     { label: "Language", value: data.sessionLanguage || "—" },
+    { label: "Constraint", value: data.promptConstraintSource || "n/a" },
     { label: "Messages", value: data.messageCount != null ? String(data.messageCount) : "—" },
   ];
 

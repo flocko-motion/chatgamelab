@@ -32,6 +32,11 @@
       "workshop": "Atelier"
     },
     "profile": {
+      "ageGroup": "Grupă de vârstă",
+      "ageGroupDescription": "Determină ce reguli de conținut se aplică jocurilor tale. Poți schimba asta oricând.",
+      "ageGroupSection": "Grupă de vârstă",
+      "ageGroupU13": "13-17 ani",
+      "ageGroupU18": "18+",
       "gamesCreated": "Jocuri create",
       "gamesPlayed": "Jocuri jucate",
       "memberSince": "Înregistrat din",
@@ -53,6 +58,12 @@
       "totalPlaysOnGames": "Număr total de sesiuni în jocurile mele"
     },
     "register": {
+      "ageGroupLabel": "Grupă de vârstă",
+      "ageGroupRequired": "Te rugăm să îți selectezi grupa de vârstă",
+      "ageGroupU13": "13-17 ani",
+      "ageGroupU18": "18 sau mai mult",
+      "ageGroupUnder13": "Sub 13",
+      "ageGroupUnder13Error": "Trebuie să ai cel puțin 13 ani pentru a utiliza ChatGameLab.",
       "cancelButton": "Anulează",
       "emailDescription": "Îl vom folosi pentru notificări importante.",
       "emailLabel": "Adresă de email",
@@ -73,8 +84,48 @@
       "subtitle": "Doar câteva detalii pentru a începe",
       "title": "Completează-ți profilul"
     },
+    "registerPage": {
+      "agreePrefix": "Sunt de acord cu",
+      "agreeSuffix": "și",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Ai deja un cont?",
+      "backButton": "Înapoi",
+      "chooseType": "Cum vrei să folosești ChatGameLab?",
+      "continueButton": "Continuă la înregistrare",
+      "description": "Folosim Auth0 ca furnizor de autentificare pentru a gestiona conturile utilizatorilor. Vei fi redirecționat către Auth0 pentru a-ți crea contul, apoi vei fi adus înapoi aici pentru a-ți completa profilul.",
+      "educatorDescription": "Folosește ChatGameLab în ateliere, săli de clasă sau organizația ta",
+      "educatorModal": {
+        "closeButton": "Închide",
+        "copied": "Copiat!",
+        "copyEmail": "Copiază e-mailul",
+        "eduInfo": "Află mai multe despre folosirea ChatGameLab în scopuri educaționale:",
+        "intro": "Pentru a folosi ChatGameLab împreună cu organizația ta (școală, universitate, instituție), te rugăm să urmezi acești pași:",
+        "registerButton": "Creează cont personal",
+        "step1": "Creează un cont personal",
+        "step1Description": "Creează mai întâi contul tău personal. Acesta va fi login-ul tău pentru platformă.",
+        "step2": "2. Trimite-ne un e-mail",
+        "step2Description": "Scrie un e-mail la",
+        "step2Item1": "Adresa ta de e-mail înregistrată",
+        "step2Item2": "Numele organizației tale (școală, instituție etc.)",
+        "step2WithInfo": "cu:",
+        "step3": "3. Îți vom configura organizația",
+        "step3Description": "Vom crea organizația și te vom desemna ca responsabil. Vei putea apoi invita colegi și configura ateliere.",
+        "title": "Acces pentru educatori \u0026 profesioniști"
+      },
+      "educatorTitle": "Educator / Profesionist",
+      "individualDescription": "Creează și joacă aventuri text bazate pe AI",
+      "individualTitle": "Cont personal",
+      "loginLink": "Autentifică-te",
+      "privacyPolicy": "Politica de confidențialitate",
+      "termsOfService": "Termeni de utilizare",
+      "title": "Creează-ți contul"
+    },
     "settings": {
       "accountSection": "Cont",
+      "ageGroupDescription": "Determină ce reguli de conținut se aplică jocurilor tale.",
+      "ageGroupLabel": "Grupă de vârstă",
+      "ageGroupU13": "13-17 ani",
+      "ageGroupU18": "18 sau mai mult",
       "emailChangeNote": "Pentru a-ți schimba adresa de email, te rugăm să contactezi administratorul site-ului.",
       "errors": {
         "nameRequired": "Numele este obligatoriu",
@@ -210,6 +261,7 @@
       "low": "Joasă (Economy)",
       "max": "Maximă (Premium + Audio)",
       "medium": "Medie (Echilibrat)",
+      "newSessionsOnly": "Acest nivel se aplică doar sesiunilor noi. Sesiunile existente păstrează nivelul cu care au început.",
       "serverDefault": "Implicit server"
     },
     "allGames": {
@@ -233,6 +285,7 @@
         "sponsored": "Sponsorizate"
       },
       "play": "Joacă",
+      "reportGame": "Raportează jocul",
       "restart": "Reia",
       "restartConfirm": {
         "confirm": "Repornește",
@@ -240,7 +293,8 @@
         "title": "Repornește jocul"
       },
       "title": "Toate jocurile",
-      "unfavorite": "Elimină din favorite"
+      "unfavorite": "Elimină din favorite",
+      "workshop": "Atelier / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +339,28 @@
       "platform": "Platformă",
       "setDefault": "Setează ca implicită",
       "shares": {
+        "context": {
+          "organization": "Organizație",
+          "personal": "Personal",
+          "workshop": "Atelier"
+        },
+        "gameShares": "Linkuri de partajare a jocului",
         "goToOrg": "Gestionează",
         "noOrgShares": "Nu este partajată cu nicio organizație",
         "noSponsorships": "Fără sponsorizări de joc",
         "orgShares": "Partajări cu organizații",
         "privateShares": "Linkuri de partajare privată",
-        "remaining": "{{count}} rămase",
+        "remaining": "{{count}} utilizări rămase",
         "removeSponsor": "Elimină sponsorizarea",
+        "revokeGameShare": "Revocă linkul de partajare",
         "revokePrivateShare": "Revocă linkul de partajare",
         "sponsorships": "Sponsorizări de joc",
         "toggle": "Partajări \u0006 Sponsorizări",
         "unknownGame": "Joc necunoscut",
         "unknownOrg": "Organizație necunoscută",
         "unknownUser": "Utilizator necunoscut",
-        "unknownWorkshop": "Atelier necunoscut"
+        "unknownWorkshop": "Atelier necunoscut",
+        "unlimited": "Utilizări nelimitate"
       },
       "status": {
         "failed": "Cheia nu funcționează",
@@ -336,6 +398,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Cheia API utilizată a fost schimbată",
         "sections": {
           "expandStory": "Instrucțiuni pentru AI pentru a extinde povestea",
           "imageGeneration": "Instrucțiunile AI pentru generarea imaginilor",
@@ -349,6 +412,15 @@
         "tokens": {
           "received": "tokenuri primite",
           "sent": "tokenuri trimise"
+        },
+        "usedApiKey": {
+          "institution_free_use": "A fost folosită cheia de utilizare gratuită a organizației tale",
+          "label": "Cheie API utilizată",
+          "personal": "A fost folosită cheia ta personală",
+          "private_share": "A fost folosită cheia linkului de partajare",
+          "sponsor": "A fost folosită o cheie de sponsor",
+          "system_free_use": "A fost folosită o cheie globală de utilizare gratuită",
+          "workshop": "A fost folosită cheia atelierului tău"
         }
       },
       "debug": {
@@ -377,7 +449,7 @@
         "gameNotFound": "Jocul nu a fost găsit",
         "missingFields": "Jocului îi lipsesc câmpuri obligatorii:",
         "noApiKey": {
-          "banner": "Cheia API folosită anterior pentru acest joc nu mai este disponibilă. Pentru a continua să joci, adaugă propria cheie API în setările contului.",
+          "banner": "Nu a fost găsită nicio cheie API utilizabilă pentru platforma {{platform}}. Pentru a continua să joci, adaugă propria ta cheie API în setările contului.",
           "goToSettings": "Setări cheie API",
           "personal": "Trebuie să configurezi o cheie API înainte de a juca. Mergi la setările cheilor API pentru a adăuga una.",
           "title": "Nu există o cheie API disponibilă",
@@ -438,19 +510,23 @@
       "badges": {
         "myGame": "Jocul meu",
         "public": "Public",
-        "workshop": "Atelier"
+        "workshop": "Joc de atelier"
       },
       "createButton": "Creează joc",
       "createModal": {
         "descriptionPlaceholder": "Despre ce este jocul tău?",
         "namePlaceholder": "ex.: Aventură în spațiu",
-        "publicDescription": "Jocurile publice pot fi descoperite de toată lumea.",
+        "publicDescription": "Jocurile publice sunt vizibile și jucabile de toți utilizatorii de pe această platformă.",
         "publicLabel": "Fă acest joc public",
         "submit": "Creează joc",
         "title": "Creează joc nou"
       },
       "deleteModal": {
+        "adminActionTitle": "Acțiune de administrator",
+        "adminActionWarning": "Ești pe cale să ștergi un joc care nu îți aparține. Aceasta este o acțiune administrativă și ar trebui folosită doar în scopuri de moderare.",
         "message": "Sigur vrei să ștergi „{{name}}”?",
+        "moderatorActionTitle": "Ștergerea jocului unui participant",
+        "moderatorActionWarning": "Acest joc aparține unui participant din atelierul tău. Ștergerea lui îl va elimina definitiv pentru acesta. Acțiunea nu poate fi anulată.",
         "title": "Șterge jocul",
         "warning": "Această acțiune nu poate fi anulată. Toate datele jocului vor fi șterse definitiv."
       },
@@ -469,6 +545,9 @@
         "statusFieldsHint": "Ce ar trebui să urmărească jocul? De exemplu viață, puncte sau muniție. Jocul își amintește aceste valori și le actualizează în timpul jocului."
       },
       "editModal": {
+        "adminActionTitle": "Acțiune de administrator",
+        "adminActionWarning": "Editezi un joc care nu îți aparține. Aceasta este o acțiune administrativă și ar trebui folosită doar în scopuri de moderare.",
+        "gameDesignSection": "Designul jocului",
         "title": "Editează jocul",
         "unsavedChanges": {
           "discard": "Renunță la modificări",
@@ -502,9 +581,13 @@
       "playNow": "Joacă acum",
       "privateShare": {
         "active": "Partajarea privată este activă. Oricine are linkul de mai jos poate juca acest joc anonim.",
+        "aiQualityTier": "Calitate AI",
+        "aiQualityTierDescription": "Selectează calitatea modelului AI pentru invitații care folosesc acest link de partajare.",
         "copyLink": "Copiază linkul",
+        "createModalTitle": "Creează link de partajare privat",
         "description": "Creează un link privat de partajare pentru ca oricine îl deține să poată juca acest joc anonim. Tu alegi ce cheie API plătește sesiunile.",
         "edit": "Editează setările",
+        "editModalTitle": "Editează linkul de partajare privat",
         "editSettings": "Editează setările de partajare",
         "enable": "Creează link de partajare",
         "loading": "Se încarcă statutul partajării...",
@@ -512,18 +595,40 @@
         "maxSessions": "Număr maxim de sesiuni",
         "maxSessionsDescription": "Lasă gol pentru sesiuni nelimitate.",
         "noEligibleKeys": "Nu există nicio cheie API funcțională. Adaugă mai întâi o cheie în setările Chei API.",
+        "noPersonalShare": "Nu există link de partajare personal sau al organizației. Poți crea unul din afara atelierului.",
+        "orgKey": "Organizație",
+        "orgShareDescription": "Link de partajare al organizației - invitații joacă folosind cheia API a organizației.",
+        "personalCreateHint": "Creează un link privat astfel încât oricine îl are să poată juca acest joc anonim. Tu alegi care cheie API plătește sesiunile.",
+        "personalOrgSubsection": "Link de partajare personal / organizație",
+        "personalShare": "Linkul tău privat de partajare",
+        "personalShareDescription": "Linkul tău personal de partajare - invitații joacă folosind cheia API selectată de tine.",
         "remainingSessions": "{{count}} sesiuni rămase",
         "revoke": "Revocă linkul",
         "selectKey": "Selectează o cheie API",
         "selectKeyPlaceholder": "Alege o cheie pentru a plăti sesiunile invitaților...",
         "shareLink": "Link de partajare",
+        "sourceOrg": "Organizație",
+        "sourcePersonal": "Personal",
+        "sourceWorkshop": "Atelier",
         "title": "Link privat de partajare",
         "unlimited": "Nelimitat",
-        "update": "Actualizează linkul de partajare"
+        "unlimitedSessions": "Sesiuni nelimitate",
+        "update": "Actualizează linkul de partajare",
+        "workshopCreateHint": "Creează un link de partajare pentru acest joc. Cheia API a atelierului este selectată automat și acoperă costurile.",
+        "workshopDescription": "Creează un link de partajare pentru acest joc. Cheia API implicită a atelierului va fi folosită automat pentru sesiunile invitaților.",
+        "workshopShare": "Partajare atelier",
+        "workshopShareDescription": "Acest link a fost creat în atelierul „{{name}}” - invitații joacă folosind cheia API a atelierului.",
+        "workshopSubsection": "Link de partajare al atelierului"
       },
       "sharing": {
         "active": "Activă",
-        "sectionTitle": "Partajare \u0006 Sponsorizare"
+        "privateShareLink": "Link privat de partajare",
+        "privateShareLinkDescription": "Linkurile private de partajare pot fi distribuite altora. Oricine are linkul poate juca jocul anonim, fără cont. Trebuie selectată o cheie API pentru a acoperi costurile.",
+        "publicGameWorkshopHint": "Acesta este un joc public și nu face parte din atelierul tău. Opțiunile de partajare nu sunt disponibile pentru jocurile publice în modul atelier.",
+        "publicSponsoring": "Sponsorizare publică",
+        "publicSponsoringDescription": "Toți utilizatorii de pe platformă pot juca acest joc gratuit - cheia API alocată de tine acoperă costul.",
+        "sectionTitle": "Opțiuni de partajare",
+        "sectionTitleShareOnly": "Opțiuni de partajare"
       },
       "sort": {
         "createdAt-asc": "Create (cele mai vechi)",
@@ -555,7 +660,7 @@
         "loadingKeys": "Se încarcă cheile API...",
         "manageSponsor": "Gestionează sponsorul",
         "next": "Înainte",
-        "noEligibleKeys": "Nu ai chei API cu sponsorizare publică activată. Mergi la setările cheilor API și activează „Permite sponsorizarea publică” pe o cheie.",
+        "noEligibleKeys": "Nu ai nicio cheie API disponibilă pentru sponsorizare. Adaugă mai întâi o cheie API în setări.",
         "noEligiblename (truncated)``` This message was truncated due to a limitation in the chat model. The full translated JSON is not shown. To receive the complete translation, you can ask me to continue from where it was cut off. If there were token limits, consider requesting specific sections instead of the entire dataset at once. Use the ": {
           "message": "Te rog să continui traducerea completă de la secțiunea unde s-a întrerupt."
         },
@@ -563,6 +668,8 @@
         "removeSponsor": "Elimină sponsorizarea",
         "selectKey": "Selectează o cheie API",
         "selectKeyPlaceholder": "Alege o cheie pentru sponsorizare...",
+        "sourceOrg": "Organizație",
+        "sourcePersonal": "Personal",
         "sponsorGame": "Sponsorizează jocul",
         "sponsored": "Sponsorizat",
         "sponsoredTooltip": "Acest joc este sponsorizat – îl poți juca gratuit! Creatorul sau un susținător acoperă costurile IA.",
@@ -713,6 +820,7 @@
       "profile": "Profil",
       "workshop": "Atelier"
     },
+    "help": "Ajutor",
     "home": {
       "features": {
         "create": {
@@ -824,15 +932,15 @@
     "myOrganization": {
       "actions": "Acțiuni",
       "apiKeys": {
-        "aboutDescription": "Cheile API partajate aici sunt disponibile tuturor membrilor organizației pentru a juca jocuri. Doar conducătorii și profesorii le pot gestiona.",
+        "aboutDescription": "Cheile API partajate aici sunt disponibile tuturor membrilor organizației pentru a juca jocuri.",
         "aboutTitle": "Cheile API ale organizației",
         "allowPublicSponsoring": "Permite sponsorizarea publică",
         "allowPublicSponsoringDesc": "Această cheie poate fi folosită pentru sponsorizarea jocurilor pentru toți utilizatorii.",
         "filterByPlatform": "Filtrează după platformă",
         "freeUseKey": {
-          "description": "Setează o cheie pentru utilizare gratuită astfel încât toți membrii organizației să poată juca fără o cheie proprie. Pot fi selectate doar cheile deja partajate cu organizația.",
+          "description": "Setează o cheie de utilizare gratuită pentru a permite tuturor membrilor organizației să joace jocuri fără a avea nevoie de propria lor cheie API.",
           "remove": "Elimină",
-          "selectPlaceholder": "Selectează o cheie partajată...",
+          "selectPlaceholder": "Selectează o cheie...",
           "title": "Cheie de utilizare liberă",
           "unknownKey": "Cheie necunoscută"
         },
@@ -850,7 +958,14 @@
         "share": "Partajează",
         "shareKey": "Partajează cheia",
         "shareKeyTitle": "Partajează cheia API cu organizația",
+        "showDetails": "Arată detaliile",
         "title": "Cheile API ale organizației"
+      },
+      "autoShare": {
+        "confirmMessage": "Această cheie va fi partajată cu {{orgName}} și va putea fi apoi folosită de alți responsabili și membri ai personalului pentru ateliere. Poți elimina această partajare ulterior în gestionarea cheilor API personale sau în gestionarea cheilor API ale organizației.",
+        "confirmTitle": "Partajează cheia cu organizația",
+        "orgKeyGroup": "Chei ale organizației",
+        "personalKeyGroup": "Chei personale"
       },
       "demoteConfirm": "Sigur vrei să îl retrogradezi pe „{{name}}” ({{email}}) la profesor?",
       "demoteTitle": "Retrogradează la profesor",
@@ -883,6 +998,9 @@
       "promoteTitle": "Promovează la conducător",
       "promoteToHead": "Promovează la conducător",
       "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
+      "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din această organizație. Se aplică atunci când nu este setată o constrângere la nivel de atelier și pentru jocurile partajate prin link.",
+      "promptConstraintsLabel": "Constrângeri de prompt ale organizației",
+      "promptConstraintsPlaceholder": "ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
       "removeConfirm": "Sigur vrei să îl elimini pe „{{name}}” din organizație?",
       "removeMember": "Elimină membrul",
       "removeTitle": "Elimină membrul",
@@ -903,7 +1021,17 @@
         "active": "Activ",
         "activeDescription": "Atelierele active permit participanților să se alăture și să creeze jocuri.",
         "activeLabel": "Activ",
+        "addIndividual": "Adaugă membru al organizației",
+        "addIndividualError": "Adăugarea membrului în atelier a eșuat.",
+        "addIndividualHint": "Adăugarea unui utilizator îl va trece automat în modul atelier. Va vedea vizualizarea de atelier în locul tabloului de bord obișnuit. Fă acest lucru doar dacă este intenționat.",
+        "addIndividualStaffNote": "Responsabilii și profesorii ar trebui să se alăture atelierelor prin lista de ateliere pe cont propriu - nu sunt listați aici.",
+        "addIndividualSuccess": "Membru adăugat",
+        "addIndividualSuccessMessage": "{{name}} a fost adăugat în atelier.",
+        "addIndividualTitle": "Adaugă persoană în atelier",
+        "addToWorkshop": "Adaugă la atelier",
         "aiQualityTierHint": "Nivelul calității pentru răspunsurile IA. Nivelurile mai mari costă mai mult, dar pot avea calitate mai bună. Gol folosește implicitul serverului.",
+        "allowGameSharing": "Permite partajarea jocurilor",
+        "allowGameSharingHint": "Când este activată, participanții pot crea linkuri de partajare pentru jocurile lor folosind cheia API a atelierului",
         "anonymousParticipant": "Participant anonim",
         "create": "Creează atelier",
         "createFirst": "Creează primul atelier",
@@ -922,6 +1050,11 @@
         "games": "Jocuri",
         "hideInactive": "Ascunde inactivii",
         "inactive": "Inactiv",
+        "inviteByEmail": "Invită prin e-mail",
+        "inviteByEmailDescription": "Introdu e-mailul unui utilizator înregistrat pentru a-l invita în acest atelier. Va vedea invitația în tabloul de bord.",
+        "inviteByEmailSuccess": "Invitație trimisă",
+        "inviteByEmailSuccessMessage": "A fost creată o invitație. Utilizatorul o va vedea în invitațiile în așteptare.",
+        "inviteByEmailTitle": "Invită utilizator la atelier",
         "inviteCreatedAt": "Creat",
         "inviteDescription": "Generează un link de invitație pe care participanții îl pot folosi pentru a se alătura acestui atelier.",
         "inviteExpiresAt": "Expiră",
@@ -940,6 +1073,7 @@
         "noActiveInvite": "Niciun link activ de invitație disponibil.",
         "noDefaultApiKey": "Fără cheie implicită",
         "noDefaultModel": "Folosește implicitul platformei",
+        "noIndividuals": "Nu există utilizatori individuali în această organizație.",
         "noParticipantToken": "Acest participant nu are link de invitație. Doar participanții anonimi (vizitatori) au linkuri reutilizabile.",
         "noParticipants": "Încă nu există participanți",
         "notAuthorized": "Nu ai permisiunea de a gestiona atelierele. Doar conducătorii și profesorii pot accesa această pagină.",
@@ -947,7 +1081,9 @@
         "participantJoined": "S-a alăturat la {{date}}",
         "participantName": "Numele participantului",
         "participants": "Participanți",
-        "promptConstraintsHint": "Instrucțiuni suplimentare adăugate la promptul de sistem al AI pentru toate sesiunile din acest atelier.",
+        "promptConstraintsFallbackOrg": "Se folosește constrângerea organizației ca implicită: {{constraint}}",
+        "promptConstraintsFallbackSite": "Se folosește constrângerea platformei ca implicită",
+        "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din acest atelier.",
         "promptConstraintsLabel": "Constrângeri ale promptului",
         "promptConstraintsPlaceholder": "de ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
         "removeParticipant": "Elimină participantul",
@@ -959,6 +1095,7 @@
         "settings": "Setări",
         "shareParticipantLink": "Copiază linkul individual de invitație pentru acest participant",
         "showOtherParticipantsGames": "Arată jocurile celorlalți participanți",
+        "showOtherParticipantsGamesHint": "Responsabilii și personalul pot vedea oricând toate jocurile participanților pentru moderare",
         "showPublicGames": "Arată jocurile publice participanților",
         "sort": {
           "createdAtAsc": "Cele mai vechi",
@@ -990,7 +1127,9 @@
       "empty": "Nicio notificare nouă.",
       "inviteDescription": "Ai fost invitat să te alături ca {{role}}.",
       "inviteToJoin": "Invitație de organizație",
-      "title": "Notificări"
+      "title": "Notificări",
+      "workshopInvite": "Invitație la atelier",
+      "workshopInviteDescription": "Ai fost invitat să te alături acestui atelier."
     },
     "play": {
       "cloneGame": "Clonează în jocurile mele",
@@ -1027,6 +1166,16 @@
     "search": "Caută",
     "searchPlaceholder": "Caută membri...",
     "serverSettings": {
+      "constraints": {
+        "description": "Definește reguli AI obligatorii în funcție de grupa de vârstă a jucătorului. Aceste constrângeri sunt injectate în fiecare răspuns al AI. Se aplică tuturor utilizatorilor autentificați în afara modului atelier.",
+        "title": "Prompturi de constrângere bazate pe vârstă",
+        "u13Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta 13-17 ani.",
+        "u13Label": "Constrângere pentru utilizatori de 13-17 ani (U13)",
+        "u13Placeholder": "ex. Păstrează tot conținutul strict adecvat adolescenților. Fără violență, fără conținut romantic, fără teme de groază.",
+        "u18Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta de 18 ani și peste.",
+        "u18Label": "Constrângere pentru utilizatori de 18+ (U18)",
+        "u18Placeholder": "ex. Păstrează conținutul adecvat. Evită violența explicită sau conținutul sexual."
+      },
       "defaultTier": {
         "description": "Nivelul implicit la nivel de server folosit când nu este configurat un nivel specific la nivelul atelierului, instituției sau utilizatorului. Nivelurile mai mari costă mai mult, dar pot avea calitate mai bună.",
         "title": "Nivel implicit de calitate IA"
@@ -1102,6 +1251,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Lucru de pedagogie media cu ChatGameLab",
+          "title": "Despre ChatGameLab"
+        },
         "jff": {
           "description": "Coordonatorul proiectului și organizația principală.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1211,6 +1364,14 @@
       "workshop": "Jocurile atelierului"
     },
     "gameType": "Joc",
+    "infoModal": {
+      "body": "Ai intrat în modul atelier. Cât timp ești în acest mod, tot ceea ce faci este legat de acest atelier - jocurile pe care le creezi, sesiunile de joc și linkurile de partajare.\n\nPoți ieși oricând. Plecarea nu va încheia atelierul și nu va elimina nimic din ceea ce ai creat.",
+      "dontShowAgain": "Nu mai arăta asta",
+      "gotIt": "Am înțeles",
+      "headStaffNote": "Poți să te realături acestui atelier oricând din lista de ateliere a organizației tale.",
+      "individualNote": "Pentru a te realătura după ce ai plecat, vei avea nevoie de o nouă invitație din partea organizatorilor atelierului.",
+      "title": "Bun venit la {{name}}"
+    },
     "members": {
       "empty": "Încă nu există membri",
       "title": "Membrii atelierului"
@@ -1242,6 +1403,7 @@
     "myOrganization": "Organizația mea",
     "myWorkshop": "Atelierul meu",
     "orgApiKeys": "Chei API",
+    "orgConstraints": "Constrângeri",
     "orgMembers": "Membri",
     "orgWorkshops": "Ateliere",
     "play": "Joacă un joc",

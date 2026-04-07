@@ -7,7 +7,6 @@ import {
   IconHome,
   IconBuilding,
   IconUsers,
-  IconKey,
   IconSchool,
   IconSettings,
   IconTools,
@@ -217,42 +216,11 @@ function RootComponent() {
   // Organization navigation - visible only if user has an organization and is NOT in workshop mode
   // Workshop mode users should not see organization details
   if (userInstitutionId && !isInWorkshopUI) {
-    // Build organization sub-items
-    const orgChildren: NavItem[] = [
-      {
-        label: t("orgMembers"),
-        icon: <IconUsers size={18} />,
-        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION as "/" }),
-        active: pathname === ROUTES.MY_ORGANIZATION,
-      },
-    ];
-
-    // Add Workshops for heads and staff
-    if (canManageOrgApiKeys) {
-      orgChildren.push({
-        label: t("orgWorkshops"),
-        icon: <IconSchool size={18} />,
-        onClick: () =>
-          navigate({ to: ROUTES.MY_ORGANIZATION_WORKSHOPS as "/" }),
-        active: pathname === ROUTES.MY_ORGANIZATION_WORKSHOPS,
-      });
-    }
-
-    // Add API Keys only for heads and staff
-    if (canManageOrgApiKeys) {
-      orgChildren.push({
-        label: t("orgApiKeys"),
-        icon: <IconKey size={18} />,
-        onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION_API_KEYS as "/" }),
-        active: pathname === ROUTES.MY_ORGANIZATION_API_KEYS,
-      });
-    }
-
     navItems.push({
       label: t("myOrganization"),
       icon: <IconBuilding size={18} />,
+      onClick: () => navigate({ to: ROUTES.MY_ORGANIZATION as "/" }),
       active: pathname.startsWith(ROUTES.MY_ORGANIZATION),
-      children: orgChildren,
     });
   }
 
@@ -301,7 +269,7 @@ function RootComponent() {
                 await exitWorkshopMode();
                 const destination = hasRole(backendUser, Role.Individual)
                   ? ROUTES.DASHBOARD
-                  : ROUTES.MY_ORGANIZATION_WORKSHOPS;
+                  : ROUTES.MY_ORGANIZATION;
                 navigate({ to: destination as "/" });
               }
             : undefined,
