@@ -7,7 +7,6 @@ import {
   IconHome,
   IconBuilding,
   IconUsers,
-  IconKey,
   IconSchool,
   IconSettings,
   IconTools,
@@ -24,7 +23,6 @@ import { useLocation } from "@tanstack/react-router";
 import { ROUTES } from "../common/routes/routes";
 import {
   isAdmin,
-  isAtLeastHead,
   getUserInstitutionId,
   hasRole,
   Role,

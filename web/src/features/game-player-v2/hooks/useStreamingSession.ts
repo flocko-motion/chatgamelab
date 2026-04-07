@@ -103,17 +103,20 @@ export interface GameMessageResult {
   hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
   transcription?: string;
+  promptConstraintSource?: string;
 }
 
 /** Raw message shape from the API (before mapping to SceneMessage). */
 export interface RawMessage {
   id?: string;
+  type?: string;
   stream?: boolean;
   imagePrompt?: string;
   hasImage?: boolean;
   hasAudioIn?: boolean;
   hasAudioOut?: boolean;
   statusFields?: SceneMessage["statusFields"];
+  promptConstraintSource?: string;
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────
