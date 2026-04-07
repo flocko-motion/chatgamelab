@@ -7,6 +7,10 @@ cd "$(dirname "$0")"
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
+echo "Running TypeScript checks..."
+(cd web && npx tsc -b)
+echo "✅ TypeScript checks passed."
+
 echo "Pushing $BRANCH..."
 
 if git push origin "$BRANCH" 2>/dev/null; then
