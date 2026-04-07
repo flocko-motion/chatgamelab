@@ -15,6 +15,3 @@ ALTER TABLE institution ADD COLUMN prompt_constraints text NULL;
 ALTER TABLE app_user ADD COLUMN age_group text NULL;
 ALTER TABLE app_user ADD CONSTRAINT app_user_age_group_chk CHECK (age_group IS NULL OR age_group IN ('u13', 'u18'));
 
--- Track constraint source on each message (e.g. "workshop", "organisation", "site13", "site18")
-ALTER TABLE game_session_message ADD COLUMN prompt_constraint_source text NULL;
-
