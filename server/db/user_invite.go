@@ -3,6 +3,7 @@ package db
 import (
 	db "cgl/db/sqlc"
 	"cgl/functional"
+	"cgl/log"
 	"cgl/obj"
 	"context"
 	"database/sql"
@@ -848,7 +849,9 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*
 		return nil, "", obj.ErrValidation("invite has reached maximum uses")
 	}
 
-	// Generate funny readable name for anonymous participant (e.g., "red-dragon")
+	// Generate funny readable name for anonymous participant (e.g., "red-dragon-a1b2").
+	// Append a short random suffix to guarantee uniqueness — the readable
+	// color+animal pair has limited combinations and can collide under load.
 	nameGenerator := ung.NewUniqueNameGenerator(
 		ung.WithDictionaries(
 			[][]string{
@@ -858,7 +861,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*
 		),
 		ung.WithSeparator("-"),
 	)
-	anonymousName := nameGenerator.Generate()
+	anonymousName := nameGenerator.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 
 	// Generate participant token for this participant (prefixed to distinguish from JWT)
 	participantToken := "participant-" + functional.First(functional.GenerateSecureToken(32))
@@ -885,7 +888,8 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*
 	}
 	_, err = txQueries.CreateUserWithParticipantToken(ctx, userArg)
 	if err != nil {
-		return nil, "", obj.ErrServerError("failed to create user")
+		log.Error("failed to create participant user", "name", anonymousName, "error", err)
+		return nil, "", obj.ErrServerError("failed to create user: " + err.Error())
 	}
 
 	// Create participant role for the workshop

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"cgl/db"
+	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
 
@@ -105,7 +106,9 @@ func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HT
 		}),
 		ung.WithSeparator("-"),
 	)
-	name := "guest-" + nameGenerator.Generate()
+	// Append a short random suffix — the readable color+animal pair has limited
+	// combinations and can collide under load.
+	name := "guest-" + nameGenerator.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 	userID := uuid.New()
 
 	err := db.CreateGuestUser(ctx, userID, name, shareID)
