@@ -117,7 +117,7 @@ export function ProfileView() {
             <Title order={3}>{t("profile.organizationSection")}</Title>
           </Group>
 
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
             <Stack gap="xs">
               <Text size="sm" c="dimmed">
                 {t("profile.organization")}
@@ -144,6 +144,23 @@ export function ProfileView() {
               ) : (
                 <Text fw={500}>{t("profile.noRole")}</Text>
               )}
+            </Stack>
+
+            <Stack gap="xs">
+              <Text size="sm" c="dimmed">
+                {t("profile.ageGroup")}
+              </Text>
+              <Badge
+                variant="light"
+                color={backendUser.ageGroup === "u13" ? "orange" : "blue"}
+                size="lg"
+              >
+                {backendUser.ageGroup === "u13"
+                  ? t("profile.ageGroupU13")
+                  : backendUser.ageGroup === "u18"
+                    ? t("profile.ageGroupU18")
+                    : "-"}
+              </Badge>
             </Stack>
           </SimpleGrid>
         </Stack>

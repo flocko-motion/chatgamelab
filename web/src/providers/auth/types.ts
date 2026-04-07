@@ -44,5 +44,5 @@ export interface AuthContextType {
   /** Retry fetching backend user after an error */
   retryBackendFetch: () => void;
   /** Register the user with the backend */
-  register: (name: string, email: string) => Promise<void>;
+  register: (name: string, email: string, ageGroup: string) => Promise<void>;
 }

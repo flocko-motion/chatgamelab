@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, Stack, TextInput, Alert, Loader } from "@mantine/core";
+import { Card, Stack, TextInput, Select, Alert, Loader } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
@@ -207,6 +207,26 @@ export function SettingsForm() {
               >
                 {t("settings.emailChangeNote")}
               </Alert>
+
+              <Select
+                label={t("settings.ageGroupLabel")}
+                description={t("settings.ageGroupDescription")}
+                data={[
+                  { value: "u13", label: t("settings.ageGroupU13") },
+                  { value: "u18", label: t("settings.ageGroupU18") },
+                ]}
+                value={backendUser.ageGroup || ""}
+                onChange={(value) => {
+                  if (!value || !backendUser.id) return;
+                  updateUser.mutate(
+                    { id: backendUser.id, request: { ageGroup: value } },
+                    { onSuccess: () => retryBackendFetch() },
+                  );
+                }}
+                disabled={isSubmitting}
+                allowDeselect={false}
+                style={{ maxWidth: 300 }}
+              />
 
               {submitError && (
                 <Alert color="red" variant="light">
