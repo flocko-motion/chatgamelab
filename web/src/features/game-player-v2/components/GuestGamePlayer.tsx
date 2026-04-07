@@ -138,6 +138,7 @@ export function GuestGamePlayer({
             messageCount={lifecycle.state.messages.length}
             aiModel={lifecycle.state.aiModel}
             aiPlatform={lifecycle.state.aiPlatform}
+            promptConstraintSource={lifecycle.state.promptConstraintSource}
             hasAudioOut={hasAudioOut}
             isAudioMuted={settings.isAudioMuted}
             onToggleAudioMuted={settings.toggleAudioMuted}
