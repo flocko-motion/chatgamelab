@@ -1063,6 +1063,8 @@
         "participantJoined": "Beigetreten am {{date}}",
         "participantName": "Teilnehmername",
         "participants": "Teilnehmer",
+        "promptConstraintsFallbackOrg": "Organisations-Einschränkung wird als Standard verwendet: {{constraint}}",
+        "promptConstraintsFallbackSite": "Site-Einschränkung wird als Standard verwendet",
         "promptConstraintsHint": "Zusätzliche KI-Anweisungen, die für alle Sitzungen in diesem Workshop gelten.",
         "promptConstraintsLabel": "Prompt-Einschränkungen",
         "promptConstraintsPlaceholder": "z.B. Halte die Geschichte altersgerecht und vermeide gewalttätige Inhalte.",

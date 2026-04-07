@@ -635,7 +635,16 @@ func UpdateWorkshop(ctx context.Context, id uuid.UUID, modifiedBy uuid.UUID, par
 		arg.AiQualityTier = sql.NullString{String: *params.AiQualityTier, Valid: true}
 	}
 	if params.PromptConstraints != nil {
-		arg.PromptConstraints = sql.NullString{String: *params.PromptConstraints, Valid: true}
+		// Empty string from the client means "clear" — store as NULL so the
+		// constraint resolution falls back to the org/site cascade.
+		if *params.PromptConstraints == "" {
+			arg.PromptConstraints = sql.NullString{Valid: false}
+		} else {
+			arg.PromptConstraints = sql.NullString{String: *params.PromptConstraints, Valid: true}
+		}
+	} else {
+		// Field not provided — preserve existing value (don't accidentally clear it).
+		arg.PromptConstraints = existing.PromptConstraints
 	}
 
 	result, err := queries().UpdateWorkshop(ctx, arg)

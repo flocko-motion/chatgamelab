@@ -1062,6 +1062,8 @@
         "participantJoined": "Joined {{date}}",
         "participantName": "Participant name",
         "participants": "Participants",
+        "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
+        "promptConstraintsFallbackSite": "Using site constraint as default",
         "promptConstraintsHint": "Additional AI instructions for all sessions in this workshop.",
         "promptConstraintsLabel": "Prompt constraints",
         "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
