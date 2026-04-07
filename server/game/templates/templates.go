@@ -56,7 +56,7 @@ const (
 // appendConstraints appends prompt constraints to a prompt if present.
 func appendConstraints(prompt string, constraints *string) string {
 	if constraints != nil && *constraints != "" {
-		return prompt + "\n\n⚠️ MANDATORY RULES ⚠️\nYou MUST respect these constraints:\n" + *constraints
+		return prompt + "\n\nNARRATION RULES must be respected: " + *constraints
 	}
 	return prompt
 }

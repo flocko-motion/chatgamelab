@@ -391,7 +391,7 @@ func createSessionInternal(
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to generate system message")
 	}
 	if promptConstraints != nil {
-		systemMessage += "\n\n---\n⚠️ MANDATORY RULES ⚠️\nYou MUST follow these rules in EVERY response throughout the entire game:\n" + *promptConstraints + "\n---"
+		systemMessage += "\n\nNARRATION RULES must be respected: " + *promptConstraints
 	}
 
 	systemMsg := obj.GameSessionMessage{
