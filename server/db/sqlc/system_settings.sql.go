@@ -50,6 +50,7 @@ SELECT
   default_ai_quality_tier,
   free_use_ai_quality_tier,
   prompt_constraint_u13,
+  prompt_constraint_u13p,
   prompt_constraint_u18,
   free_use_api_key_id
 FROM system_settings
@@ -63,6 +64,7 @@ type GetSystemSettingsRow struct {
 	DefaultAiQualityTier string
 	FreeUseAiQualityTier sql.NullString
 	PromptConstraintU13  sql.NullString
+	PromptConstraintU13p sql.NullString
 	PromptConstraintU18  sql.NullString
 	FreeUseApiKeyID      uuid.NullUUID
 }
@@ -78,6 +80,7 @@ func (q *Queries) GetSystemSettings(ctx context.Context) (GetSystemSettingsRow, 
 		&i.DefaultAiQualityTier,
 		&i.FreeUseAiQualityTier,
 		&i.PromptConstraintU13,
+		&i.PromptConstraintU13p,
 		&i.PromptConstraintU18,
 		&i.FreeUseApiKeyID,
 	)
@@ -128,6 +131,18 @@ SET
 
 func (q *Queries) UpdatePromptConstraintU13(ctx context.Context, promptConstraintU13 sql.NullString) error {
 	_, err := q.db.ExecContext(ctx, updatePromptConstraintU13, promptConstraintU13)
+	return err
+}
+
+const updatePromptConstraintU13p = `-- name: UpdatePromptConstraintU13p :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13p = $1,
+  modified_at = now()
+`
+
+func (q *Queries) UpdatePromptConstraintU13p(ctx context.Context, promptConstraintU13p sql.NullString) error {
+	_, err := q.db.ExecContext(ctx, updatePromptConstraintU13p, promptConstraintU13p)
 	return err
 }
 

@@ -224,6 +224,7 @@ export function ServerSettings() {
             <Text size="sm" c="dimmed">
               {t("serverSettings.constraints.description")}
             </Text>
+            {/* u13: 13-17, no parental consent (strictest) */}
             <Textarea
               label={t("serverSettings.constraints.u13Label")}
               placeholder={t("serverSettings.constraints.u13Placeholder")}
@@ -242,6 +243,26 @@ export function ServerSettings() {
                 updateSettings.mutate({ promptConstraintU13: nextValue });
               }}
             />
+            {/* u13p: 13-17, with parental consent */}
+            <Textarea
+              label={t("serverSettings.constraints.u13pLabel")}
+              placeholder={t("serverSettings.constraints.u13pPlaceholder")}
+              description={t("serverSettings.constraints.u13pHint")}
+              size="sm"
+              minRows={3}
+              maxRows={6}
+              autosize
+              maxLength={500}
+              defaultValue={settings?.promptConstraintU13p || ""}
+              key={`constraint-u13p-${settings?.promptConstraintU13p || ""}`}
+              disabled={updateSettings.isPending}
+              onBlur={(event) => {
+                const nextValue = event.currentTarget.value;
+                if ((settings?.promptConstraintU13p || "") === nextValue) return;
+                updateSettings.mutate({ promptConstraintU13p: nextValue });
+              }}
+            />
+            {/* u18: 18+ */}
             <Textarea
               label={t("serverSettings.constraints.u18Label")}
               placeholder={t("serverSettings.constraints.u18Placeholder")}

@@ -69,7 +69,12 @@ type User struct {
 	ApiKeys       []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
 	AiQualityTier *string       `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
 	Language      string        `json:"language"`                // ISO 639-1 language code (e.g., "en", "de", "fr")
-	AgeGroup      *string       `json:"ageGroup,omitempty"`      // "u13" (13-17) or "u18" (18+), nil for guests
+	// AgeGroup cohort:
+	//   "u13"  = 13-17, no parental consent on file (strictest; default when unknown)
+	//   "u13p" = 13-17, with parental consent on file
+	//   "u18"  = 18+
+	//   nil    = guest / unknown
+	AgeGroup *string `json:"ageGroup,omitempty"`
 }
 
 // UserStats contains aggregated statistics for a user
@@ -103,8 +108,9 @@ type SystemSettings struct {
 	ModifiedAt            *time.Time `json:"modifiedAt"`
 	DefaultAiQualityTier  string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
 	FreeUseAiQualityTier  *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
-	PromptConstraintU13   *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17
-	PromptConstraintU18   *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+
+	PromptConstraintU13   *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17 without parental consent (u13)
+	PromptConstraintU13p  *string    `json:"promptConstraintU13p,omitempty"` // constraint for users aged 13-17 with parental consent (u13p)
+	PromptConstraintU18   *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+ (u18)
 	FreeUseApiKeyID       *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
 	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`

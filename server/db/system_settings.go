@@ -27,6 +27,9 @@ func GetSystemSettings(ctx context.Context) (*obj.SystemSettings, error) {
 	if row.PromptConstraintU13.Valid {
 		settings.PromptConstraintU13 = &row.PromptConstraintU13.String
 	}
+	if row.PromptConstraintU13p.Valid {
+		settings.PromptConstraintU13p = &row.PromptConstraintU13p.String
+	}
 	if row.PromptConstraintU18.Valid {
 		settings.PromptConstraintU18 = &row.PromptConstraintU18.String
 	}
@@ -53,12 +56,17 @@ func UpdateFreeUseAiQualityTier(ctx context.Context, tier *string) error {
 	return queries().UpdateFreeUseAiQualityTier(ctx, stringPtrToNullString(tier))
 }
 
-// UpdatePromptConstraintU13 sets or clears the site-level constraint for users aged 13-17
+// UpdatePromptConstraintU13 sets or clears the site-level constraint for users aged 13-17 without parental consent (u13).
 func UpdatePromptConstraintU13(ctx context.Context, constraint *string) error {
 	return queries().UpdatePromptConstraintU13(ctx, stringPtrToNullString(constraint))
 }
 
-// UpdatePromptConstraintU18 sets or clears the site-level constraint for users aged 18+
+// UpdatePromptConstraintU13p sets or clears the site-level constraint for users aged 13-17 with parental consent (u13p).
+func UpdatePromptConstraintU13p(ctx context.Context, constraint *string) error {
+	return queries().UpdatePromptConstraintU13p(ctx, stringPtrToNullString(constraint))
+}
+
+// UpdatePromptConstraintU18 sets or clears the site-level constraint for users aged 18+ (u18).
 func UpdatePromptConstraintU18(ctx context.Context, constraint *string) error {
 	return queries().UpdatePromptConstraintU18(ctx, stringPtrToNullString(constraint))
 }

@@ -42,8 +42,9 @@ func GetSystemSettings(w http.ResponseWriter, r *http.Request) {
 type UpdateSystemSettingsRequest struct {
 	DefaultAiQualityTier *string `json:"defaultAiQualityTier"`
 	FreeUseAiQualityTier *string `json:"freeUseAiQualityTier"`
-	PromptConstraintU13  *string `json:"promptConstraintU13"`
-	PromptConstraintU18  *string `json:"promptConstraintU18"`
+	PromptConstraintU13  *string `json:"promptConstraintU13"`  // 13-17, no parental consent
+	PromptConstraintU13p *string `json:"promptConstraintU13p"` // 13-17, with parental consent
+	PromptConstraintU18  *string `json:"promptConstraintU18"`  // 18+
 }
 
 // UpdateSystemSettings godoc
@@ -103,6 +104,17 @@ func UpdateSystemSettings(w http.ResponseWriter, r *http.Request) {
 		}
 		if err := db.UpdatePromptConstraintU13(r.Context(), constraint); err != nil {
 			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update U13 constraint: "+err.Error())
+			return
+		}
+	}
+
+	if req.PromptConstraintU13p != nil {
+		constraint := req.PromptConstraintU13p
+		if *constraint == "" {
+			constraint = nil
+		}
+		if err := db.UpdatePromptConstraintU13p(r.Context(), constraint); err != nil {
+			httpx.WriteError(w, http.StatusInternalServerError, "Failed to update U13p constraint: "+err.Error())
 			return
 		}
 	}

@@ -1095,49 +1095,56 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 
 // ResolveUserConstraint determines the active prompt constraint for a logged-in user.
 // Priority: workshop constraint > org constraint > age-based site constraint.
-// Returns the constraint text and a short source label (e.g. "workshop", "organisation", "site13", "site18").
+// Returns the constraint text and one of the obj.ConstraintSource* labels.
 // The source label always reflects which rule matched, even if no constraint text is configured.
 func ResolveUserConstraint(ctx context.Context, user *obj.User) (*string, string) {
 	// Workshop mode: first non-empty constraint wins, but source reflects the matching rule
 	if user.Role != nil && user.Role.Workshop != nil {
 		if c := trimConstraint(user.Role.Workshop.PromptConstraints); c != nil {
-			return c, "workshop"
+			return c, obj.ConstraintSourceWorkshop
 		}
 		if user.Role.Institution != nil {
 			if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
-				return c, "organisation"
+				return c, obj.ConstraintSourceOrganisation
 			}
 		}
 		// No constraint text configured at workshop or org level — report which level matched
 		// (workshop takes precedence as the active context)
-		return nil, "workshop"
+		return nil, obj.ConstraintSourceWorkshop
 	}
 	// Age-based fallback from system settings
 	return resolveAgeConstraint(ctx, user.AgeGroup)
 }
 
 // resolveAgeConstraint returns the site-level constraint for the user's age group.
-// If age group is unknown (nil), defaults to u13 (strictest assumption).
+// See obj.AgeGroup* and obj.ConstraintSource* for the value meanings.
 // Always returns the source label, even when no constraint text is configured.
 func resolveAgeConstraint(ctx context.Context, ageGroup *string) (*string, string) {
-	effectiveGroup := "u13" // default: assume youngest allowed age for safety
+	// Default to the strictest cohort when age is unknown.
+	effectiveGroup := obj.AgeGroupU13
 	if ageGroup != nil {
 		effectiveGroup = *ageGroup
 	}
 	settings, err := GetSystemSettings(ctx)
 	switch effectiveGroup {
-	case "u13":
+	case obj.AgeGroupU13:
 		if err == nil && settings != nil {
-			return trimConstraint(settings.PromptConstraintU13), "site13"
+			return trimConstraint(settings.PromptConstraintU13), obj.ConstraintSourceSite13
 		}
-		return nil, "site13"
-	case "u18":
+		return nil, obj.ConstraintSourceSite13
+	case obj.AgeGroupU13p:
 		if err == nil && settings != nil {
-			return trimConstraint(settings.PromptConstraintU18), "site18"
+			return trimConstraint(settings.PromptConstraintU13p), obj.ConstraintSourceSite13p
 		}
-		return nil, "site18"
+		return nil, obj.ConstraintSourceSite13p
+	case obj.AgeGroupU18:
+		if err == nil && settings != nil {
+			return trimConstraint(settings.PromptConstraintU18), obj.ConstraintSourceSite18
+		}
+		return nil, obj.ConstraintSourceSite18
 	}
-	return nil, "site13"
+	// Unknown/invalid value — fall back to strictest bucket.
+	return nil, obj.ConstraintSourceSite13
 }
 
 // trimConstraint returns the trimmed constraint string, or nil if empty.
@@ -1160,7 +1167,7 @@ func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*str
 		workshop, err := GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
 		if err == nil {
 			if c := trimConstraint(workshop.PromptConstraints); c != nil {
-				return c, "workshop"
+				return c, obj.ConstraintSourceWorkshop
 			}
 		}
 	}
@@ -1168,7 +1175,7 @@ func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*str
 		inst, err := queries().GetInstitutionByID(ctx, *gameShare.InstitutionID)
 		if err == nil && inst.PromptConstraints.Valid {
 			if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
-				return c, "organisation"
+				return c, obj.ConstraintSourceOrganisation
 			}
 		}
 	}

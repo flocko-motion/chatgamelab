@@ -29,10 +29,14 @@ CREATE TABLE app_user (
     language text NOT NULL DEFAULT 'en',
     -- Links guest users to the game_share that created them (NULL for non-guests)
     private_share_id uuid NULL,
-    -- User's age group: 'u13' (13-17 years), 'u18' (18+ years), NULL for guests
+    -- User's age group:
+    --   'u13'  = 13-17, no parental consent on file (strictest; default when unknown)
+    --   'u13p' = 13-17, with parental consent on file
+    --   'u18'  = 18+
+    --   NULL   = guest / unknown
     age_group text NULL,
 
-    CONSTRAINT app_user_age_group_chk CHECK (age_group IS NULL OR age_group IN ('u13', 'u18'))
+    CONSTRAINT app_user_age_group_chk CHECK (age_group IS NULL OR age_group IN ('u13', 'u13p', 'u18'))
 );
 
 -- Institution
@@ -382,9 +386,11 @@ CREATE TABLE system_settings (
     default_ai_quality_tier text NOT NULL DEFAULT 'medium',
     -- AI quality tier for the system free-use key (NULL = use default_ai_quality_tier)
     free_use_ai_quality_tier text NULL,
-    -- Site-level constraint prompt for users aged 13-17
+    -- Site-level constraint prompt for users aged 13-17 without parental consent (u13)
     prompt_constraint_u13 text NULL,
-    -- Site-level constraint prompt for users aged 18+
+    -- Site-level constraint prompt for users aged 13-17 with parental consent (u13p)
+    prompt_constraint_u13p text NULL,
+    -- Site-level constraint prompt for users aged 18+ (u18)
     prompt_constraint_u18 text NULL,
     -- Schema version for tracking applied migrations
     schema_version integer NOT NULL DEFAULT 0,
