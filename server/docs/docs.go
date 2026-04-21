@@ -5753,11 +5753,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "promptConstraintU13": {
-                    "description": "constraint for users aged 13-17",
+                    "description": "constraint for users aged 13-17 without parental consent (u13)",
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "description": "constraint for users aged 13-17 with parental consent (u13p)",
                     "type": "string"
                 },
                 "promptConstraintU18": {
-                    "description": "constraint for users aged 18+",
+                    "description": "constraint for users aged 18+ (u18)",
                     "type": "string"
                 }
             }
@@ -5788,7 +5792,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ageGroup": {
-                    "description": "\"u13\" (13-17) or \"u18\" (18+), nil for guests",
+                    "description": "AgeGroup cohort:\n  \"u13\"  = 13-17, no parental consent on file (strictest; default when unknown)\n  \"u13p\" = 13-17, with parental consent on file\n  \"u18\"  = 18+\n  nil    = guest / unknown",
                     "type": "string"
                 },
                 "aiQualityTier": {
@@ -6514,7 +6518,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ageGroup": {
-                    "description": "\"u13\" (13-17) or \"u18\" (18+)",
+                    "description": "AgeGroup: \"u13\" (13-17, no parental consent), \"u13p\" (13-17, with parental consent), or \"u18\" (18+).",
                     "type": "string"
                 },
                 "email": {
@@ -6879,9 +6883,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "promptConstraintU13": {
+                    "description": "13-17, no parental consent",
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "description": "13-17, with parental consent",
                     "type": "string"
                 },
                 "promptConstraintU18": {
+                    "description": "18+",
                     "type": "string"
                 }
             }
@@ -6925,7 +6935,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ageGroup": {
-                    "description": "\"u13\" or \"u18\"",
+                    "description": "AgeGroup: \"u13\" (13-17, no parental consent), \"u13p\" (13-17, with parental consent), or \"u18\" (18+).",
                     "type": "string"
                 },
                 "aiQualityTier": {
