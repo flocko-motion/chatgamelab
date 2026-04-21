@@ -179,6 +179,7 @@ type SystemSetting struct {
 	DefaultAiQualityTier string
 	FreeUseAiQualityTier sql.NullString
 	PromptConstraintU13  sql.NullString
+	PromptConstraintU13p sql.NullString
 	PromptConstraintU18  sql.NullString
 	SchemaVersion        int32
 	FreeUseApiKeyID      uuid.NullUUID

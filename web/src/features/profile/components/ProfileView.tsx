@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/providers/AuthProvider";
 import { UserAvatar } from "@/common/components/UserAvatar";
 import { useUserStats, useUpdateUser } from "@/api/hooks";
+import { AgeGroup } from "@/constants/ageGroup";
 import {
   isAdmin,
   getUserRole,
@@ -166,10 +167,11 @@ export function ProfileView() {
           </Text>
           <Select
             data={[
-              { value: "u13", label: t("profile.ageGroupU13") },
-              { value: "u18", label: t("profile.ageGroupU18") },
+              { value: AgeGroup.U13, label: t("profile.ageGroupU13") },
+              { value: AgeGroup.U13P, label: t("profile.ageGroupU13p") },
+              { value: AgeGroup.U18, label: t("profile.ageGroupU18") },
             ]}
-            value={backendUser.ageGroup || "u13"}
+            value={backendUser.ageGroup || AgeGroup.U13}
             onChange={(value) => {
               if (!value || !backendUser.id) return;
               updateUser.mutate(

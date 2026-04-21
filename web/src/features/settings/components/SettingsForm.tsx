@@ -19,6 +19,7 @@ import { uiLogger } from "@/config/logger";
 import { useUpdateUser } from "@/api/hooks";
 import { Api } from "@/api/generated";
 import { createAuthenticatedApiConfig } from "@/api/client/http";
+import { AgeGroup } from "@/constants/ageGroup";
 
 export function SettingsForm() {
   const { t } = useTranslation("auth");
@@ -212,8 +213,9 @@ export function SettingsForm() {
                 label={t("settings.ageGroupLabel")}
                 description={t("settings.ageGroupDescription")}
                 data={[
-                  { value: "u13", label: t("settings.ageGroupU13") },
-                  { value: "u18", label: t("settings.ageGroupU18") },
+                  { value: AgeGroup.U13, label: t("settings.ageGroupU13") },
+                  { value: AgeGroup.U13P, label: t("settings.ageGroupU13p") },
+                  { value: AgeGroup.U18, label: t("settings.ageGroupU18") },
                 ]}
                 value={backendUser.ageGroup || ""}
                 onChange={(value) => {

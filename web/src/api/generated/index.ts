@@ -343,9 +343,11 @@ export interface ObjSystemSettings {
   freeUseApiKeyWorking?: boolean;
   id?: string;
   modifiedAt?: string;
-  /** constraint for users aged 13-17 */
+  /** constraint for users aged 13-17 without parental consent (u13) */
   promptConstraintU13?: string;
-  /** constraint for users aged 18+ */
+  /** constraint for users aged 13-17 with parental consent (u13p) */
+  promptConstraintU13p?: string;
+  /** constraint for users aged 18+ (u18) */
   promptConstraintU18?: string;
 }
 
@@ -360,7 +362,13 @@ export interface ObjTokenUsage {
 }
 
 export interface ObjUser {
-  /** "u13" (13-17) or "u18" (18+), nil for guests */
+  /**
+   * AgeGroup cohort:
+   *   "u13"  = 13-17, no parental consent on file (strictest; default when unknown)
+   *   "u13p" = 13-17, with parental consent on file
+   *   "u18"  = 18+
+   *   nil    = guest / unknown
+   */
   ageGroup?: string;
   /** high/medium/low, nil = server default */
   aiQualityTier?: string;
@@ -659,7 +667,7 @@ export interface RoutesPrivateShareStatus {
 }
 
 export interface RoutesRegisterRequest {
-  /** "u13" (13-17) or "u18" (18+) */
+  /** AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+). */
   ageGroup?: string;
   email?: string;
   name?: string;
@@ -826,7 +834,11 @@ export interface RoutesUpdateInstitutionRequest {
 export interface RoutesUpdateSystemSettingsRequest {
   defaultAiQualityTier?: string;
   freeUseAiQualityTier?: string;
+  /** 13-17, no parental consent */
   promptConstraintU13?: string;
+  /** 13-17, with parental consent */
+  promptConstraintU13p?: string;
+  /** 18+ */
   promptConstraintU18?: string;
 }
 
@@ -844,7 +856,7 @@ export interface RoutesUpdateWorkshopRequest {
 }
 
 export interface RoutesUserUpdateRequest {
-  /** "u13" or "u18" */
+  /** AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+). */
   ageGroup?: string;
   aiQualityTier?: string;
   defaultApiKeyShareId?: string;

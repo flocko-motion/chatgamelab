@@ -22,7 +22,8 @@ type UserUpdateRequest struct {
 	Email                string     `json:"email"`
 	DefaultApiKeyShareID *uuid.UUID `json:"defaultApiKeyShareId,omitempty"`
 	AiQualityTier        *string    `json:"aiQualityTier,omitempty"`
-	AgeGroup             *string    `json:"ageGroup,omitempty"` // "u13" or "u18"
+	// AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+).
+	AgeGroup *string `json:"ageGroup,omitempty"`
 }
 
 type UsersNewRequest struct {
@@ -332,8 +333,8 @@ func UpdateUserByID(w http.ResponseWriter, r *http.Request) {
 
 	// Handle ageGroup update
 	if req.AgeGroup != nil {
-		if *req.AgeGroup != "u13" && *req.AgeGroup != "u18" {
-			httpx.WriteError(w, http.StatusBadRequest, "Age group must be 'u13' or 'u18'")
+		if *req.AgeGroup != obj.AgeGroupU13 && *req.AgeGroup != obj.AgeGroupU13p && *req.AgeGroup != obj.AgeGroupU18 {
+			httpx.WriteError(w, http.StatusBadRequest, "Age group must be '"+obj.AgeGroupU13+"', '"+obj.AgeGroupU13p+"' or '"+obj.AgeGroupU18+"'")
 			return
 		}
 		if err := db.UpdateUserAgeGroup(r.Context(), userID, req.AgeGroup); err != nil {

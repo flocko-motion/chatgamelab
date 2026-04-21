@@ -24,6 +24,7 @@ import { authLogger } from '@/config/logger';
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
 import { Api } from '@/api/generated';
 import { createAuthenticatedApiConfig } from '@/api/client/http';
+import { AgeGroup, AGE_GROUP_UNDER_13 } from '@/constants/ageGroup';
 
 interface RegistrationFormProps {
   registrationData: RegistrationData;
@@ -112,7 +113,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     if (nameAvailable === false) {
       return;
     }
-    if (!ageGroup || ageGroup === 'under13') {
+    if (!ageGroup || ageGroup === AGE_GROUP_UNDER_13) {
       return;
     }
 
@@ -203,13 +204,14 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
                 required
               >
                 <Stack gap="xs" mt="xs">
-                  <Radio value="under13" label={t('register.ageGroupUnder13')} disabled={isSubmitting} />
-                  <Radio value="u13" label={t('register.ageGroupU13')} disabled={isSubmitting} />
-                  <Radio value="u18" label={t('register.ageGroupU18')} disabled={isSubmitting} />
+                  <Radio value={AGE_GROUP_UNDER_13} label={t('register.ageGroupUnder13')} disabled={isSubmitting} />
+                  <Radio value={AgeGroup.U13} label={t('register.ageGroupU13')} disabled={isSubmitting} />
+                  <Radio value={AgeGroup.U13P} label={t('register.ageGroupU13p')} disabled={isSubmitting} />
+                  <Radio value={AgeGroup.U18} label={t('register.ageGroupU18')} disabled={isSubmitting} />
                 </Stack>
               </Radio.Group>
 
-              {ageGroup === 'under13' && (
+              {ageGroup === AGE_GROUP_UNDER_13 && (
                 <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
                   {t('register.ageGroupUnder13Error')}
                 </Alert>
@@ -226,7 +228,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
                   type="submit"
                   fullWidth
                   loading={isSubmitting}
-                  disabled={isCheckingName || nameAvailable === false || !ageGroup || ageGroup === 'under13'}
+                  disabled={isCheckingName || nameAvailable === false || !ageGroup || ageGroup === AGE_GROUP_UNDER_13}
                 >
                   {isSubmitting
                     ? t('register.submitting')

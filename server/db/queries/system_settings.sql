@@ -8,6 +8,7 @@ SELECT
   default_ai_quality_tier,
   free_use_ai_quality_tier,
   prompt_constraint_u13,
+  prompt_constraint_u13p,
   prompt_constraint_u18,
   free_use_api_key_id
 FROM system_settings
@@ -51,6 +52,12 @@ WHERE free_use_api_key_id IN (
 UPDATE system_settings
 SET
   prompt_constraint_u13 = $1,
+  modified_at = now();
+
+-- name: UpdatePromptConstraintU13p :exec
+UPDATE system_settings
+SET
+  prompt_constraint_u13p = $1,
   modified_at = now();
 
 -- name: UpdatePromptConstraintU18 :exec

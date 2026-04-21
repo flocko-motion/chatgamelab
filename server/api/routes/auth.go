@@ -17,7 +17,8 @@ import (
 type RegisterRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	AgeGroup string `json:"ageGroup"` // "u13" (13-17) or "u18" (18+)
+	// AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+).
+	AgeGroup string `json:"ageGroup"`
 }
 
 // RegisterUser godoc
@@ -82,8 +83,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusBadRequest, "Age group is required")
 		return
 	}
-	if ageGroup != "u13" && ageGroup != "u18" {
-		httpx.WriteError(w, http.StatusBadRequest, "Age group must be 'u13' or 'u18'")
+	if ageGroup != obj.AgeGroupU13 && ageGroup != obj.AgeGroupU13p && ageGroup != obj.AgeGroupU18 {
+		httpx.WriteError(w, http.StatusBadRequest, "Age group must be '"+obj.AgeGroupU13+"', '"+obj.AgeGroupU13p+"' or '"+obj.AgeGroupU18+"'")
 		return
 	}
 
