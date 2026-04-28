@@ -11,6 +11,37 @@ import (
 	"github.com/google/uuid"
 )
 
+// SystemConstraintsResponse exposes only the site-wide age-based constraint texts.
+// Used to render the fallback that applies when an organization has no constraint configured.
+type SystemConstraintsResponse struct {
+	PromptConstraintU13  *string `json:"promptConstraintU13,omitempty"`
+	PromptConstraintU13p *string `json:"promptConstraintU13p,omitempty"`
+	PromptConstraintU18  *string `json:"promptConstraintU18,omitempty"`
+}
+
+// GetSystemConstraints godoc
+//
+//	@Summary		Get site-wide prompt constraints
+//	@Description	Returns the three site-wide age-based prompt constraint texts. Available to any authenticated user so org settings can show the active fallback.
+//	@Tags			system
+//	@Produce		json
+//	@Success		200	{object}	SystemConstraintsResponse
+//	@Failure		500	{object}	httpx.ErrorResponse
+//	@Router			/system/constraints [get]
+func GetSystemConstraints(w http.ResponseWriter, r *http.Request) {
+	settings, err := db.GetSystemSettings(r.Context())
+	if err != nil {
+		httpx.WriteError(w, http.StatusInternalServerError, "Failed to get system constraints: "+err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, SystemConstraintsResponse{
+		PromptConstraintU13:  settings.PromptConstraintU13,
+		PromptConstraintU13p: settings.PromptConstraintU13p,
+		PromptConstraintU18:  settings.PromptConstraintU18,
+	})
+}
+
 // GetSystemSettings godoc
 //
 //	@Summary		Get system settings

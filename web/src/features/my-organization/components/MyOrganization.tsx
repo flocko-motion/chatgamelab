@@ -7,6 +7,7 @@ import {
   Stack,
   Tabs,
   Alert,
+  Divider,
 } from '@mantine/core';
 import { IconAlertCircle, IconUsers, IconSchool, IconKey, IconShieldLock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -66,6 +67,16 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.institution(institutionId!) });
     },
+  });
+
+  const orgConstraintEmpty = !institution?.promptConstraints?.trim();
+  const { data: siteConstraints } = useQuery({
+    queryKey: ['systemConstraints'] as const,
+    queryFn: async () => {
+      const response = await api.system.constraintsList();
+      return response.data;
+    },
+    enabled: canEditSettings && orgConstraintEmpty,
   });
 
   // Early returns for error states
@@ -153,24 +164,57 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
           {canEditSettings && (
             <Tabs.Panel value="constraints" pt="md">
               <Card shadow="sm" padding="lg" radius="md" withBorder>
-                <Textarea
-                  label={t('myOrganization.promptConstraintsLabel')}
-                  placeholder={t('myOrganization.promptConstraintsPlaceholder')}
-                  description={t('myOrganization.promptConstraintsHint')}
-                  size="sm"
-                  minRows={3}
-                  maxRows={4}
-                  autosize
-                  maxLength={200}
-                  defaultValue={institution?.promptConstraints || ''}
-                  key={`prompt-constraints-${institutionId}-${institution?.promptConstraints || ''}`}
-                  disabled={updatePromptConstraints.isPending}
-                  onBlur={(event) => {
-                    const nextValue = event.currentTarget.value;
-                    if ((institution?.promptConstraints || '') === nextValue) return;
-                    updatePromptConstraints.mutate(nextValue);
-                  }}
-                />
+                <Stack gap="md">
+                  <Textarea
+                    label={t('myOrganization.promptConstraintsLabel')}
+                    placeholder={t('myOrganization.promptConstraintsPlaceholder')}
+                    description={t('myOrganization.promptConstraintsHint')}
+                    size="sm"
+                    minRows={3}
+                    maxRows={4}
+                    autosize
+                    maxLength={200}
+                    defaultValue={institution?.promptConstraints || ''}
+                    key={`prompt-constraints-${institutionId}-${institution?.promptConstraints || ''}`}
+                    disabled={updatePromptConstraints.isPending}
+                    onBlur={(event) => {
+                      const nextValue = event.currentTarget.value;
+                      if ((institution?.promptConstraints || '') === nextValue) return;
+                      updatePromptConstraints.mutate(nextValue);
+                    }}
+                  />
+                  {orgConstraintEmpty && siteConstraints && (
+                    <>
+                      <Divider />
+                      <Stack gap="xs">
+                        <Text size="sm" fw={600}>
+                          {t('myOrganization.promptConstraintsFallbackTitle')}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {t('myOrganization.promptConstraintsFallbackHint')}
+                        </Text>
+                        {(['U13', 'U13p', 'U18'] as const).map((bucket) => {
+                          const value =
+                            bucket === 'U13'
+                              ? siteConstraints.promptConstraintU13
+                              : bucket === 'U13p'
+                                ? siteConstraints.promptConstraintU13p
+                                : siteConstraints.promptConstraintU18;
+                          return (
+                            <Stack key={bucket} gap={2}>
+                              <Text size="xs" fw={500}>
+                                {t(`myOrganization.promptConstraintsFallback${bucket}`)}
+                              </Text>
+                              <Text size="xs" c={value ? undefined : 'dimmed'} fs={value ? undefined : 'italic'}>
+                                {value || t('myOrganization.promptConstraintsFallbackEmpty')}
+                              </Text>
+                            </Stack>
+                          );
+                        })}
+                      </Stack>
+                    </>
+                  )}
+                </Stack>
               </Card>
             </Tabs.Panel>
           )}
