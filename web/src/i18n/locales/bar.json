@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Des hilft uns, de richtigen Schutz- und Inhoitrichtlinien auf dei Konto o'zuwenden.",
+      "label": "Oit- und Schutzgruppn",
+      "u13": "13–17 Joahr, ohn Elternerlaubnis",
+      "u13Description": "Du derfst ChatGameLab nutzn. Bei dei Konto galten strengere Schutzeinstellungen.",
+      "u13p": "13–17 Joahr, mit Elternerlaubnis",
+      "u13pDescription": "Du derfst ChatGameLab nutzn, wenn dei Eltern z'stimm.",
+      "u18": "18 Joahr oder oider",
+      "u18Description": "Du derfst ChatGameLab nutzn.",
+      "under13": "Unter 13 Joahr",
+      "under13Blocker": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn.",
+      "under13Description": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn."
+    },
     "login": {
       "auth0Button": "Mit Auth0 einloggn",
       "devMode": "Entwicklungsmodus",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Altersgruppn",
       "ageGroupDescription": "Bestimmt, welche Inhaltsregeln fia dei Spuin gengan. Des kannst jederzeit ändan.",
-      "ageGroupSection": "Altersgruppn",
+      "ageGroupSection": "Oit- und Schutzgruppn",
       "ageGroupU13": "13-17 Joa",
       "ageGroupU18": "18+ Joa",
       "gamesCreated": "Spui erstellt",
@@ -1010,6 +1023,12 @@
       "promoteTitle": "Zur Leitn befördern",
       "promoteToHead": "Zur Leitn machn",
       "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
+      "promptConstraintsFallbackEmpty": "(ned konfiguriert)",
+      "promptConstraintsFallbackHint": "Koane Organisationsvorgabn hinterlegt. Es gilt da seitenweite Standard fia de Oitgruppe vom Spieler:",
+      "promptConstraintsFallbackTitle": "Aktiva seitenweite Ersatzregel",
+      "promptConstraintsFallbackU13": "Unter 13",
+      "promptConstraintsFallbackU13p": "13–17 (mit Elternerlaubnis)",
+      "promptConstraintsFallbackU18": "18 und oider",
       "promptConstraintsHint": "Zusätzliche KI-Vorgaben fia olle Sitzunga in dera Organisation. Gilt, wenn koan Workshop-Level-Vorgab da is, und fia Spuin, de per Link gteil wern.",
       "promptConstraintsLabel": "Organisations-Prompt-Vorgabn",
       "promptConstraintsPlaceholder": "z.B. Gschicht altersgerecht hoitn und koane g'walttätign Inhalte.",
@@ -1186,9 +1205,12 @@
       "constraints": {
         "description": "Leit verpflichtende KI-Regeln je nach Altersgruppn fest. De Vorgabn wern in jede KI-Antwort eig'schobn. Gilt fia olle eigloggten Nutzer ausserhalb vom Workshop-Modus.",
         "title": "Altersbasierte Constraint-Prompts",
-        "u13Hint": "Werd in jede KI-Aufforderung fia eigloggte Nutzer zwischn 13-17 eigsetzt.",
-        "u13Label": "Vorgab fia Nutzer zwischn 13-17 (U13)",
+        "u13Hint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo koane Elternerlaubnis hintlegt is.",
+        "u13Label": "Vorgabn fia Nutzr mit 13–17 Joahr, koane Elternerlaubnis (U13)",
         "u13Placeholder": "z.B. Inhalte strikt jugendgerecht hoitn. Koane G'wald, koa romantischer Inhalt, koa Horrorthema.",
+        "u13pHint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo a Elternerlaubnis hintlegt is.",
+        "u13pLabel": "Vorgabn fia Nutzr mit 13–17 Joahr, mit Elternerlaubnis (U13p)",
+        "u13pPlaceholder": "z.B. oitaspassende Inhoit fia Teenies, deren Eltern z'stimmt ham. A paar reifere Themen san erlaubt, aba koana explizite Inhoit.",
         "u18Hint": "Wird in jede KI-Aufforderung fia Nutzer ab 18 eigsetzt.",
         "u18Label": "Vorgab fia Nutzer ab 18 (U18)",
         "u18Placeholder": "z.B. Inhalt angemessen hoitn. Koa explizite G'wald oder sexuelle Inhalte."

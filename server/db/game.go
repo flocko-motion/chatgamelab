@@ -1094,25 +1094,21 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 }
 
 // ResolveUserConstraint determines the active prompt constraint for a logged-in user.
-// Priority: workshop constraint > org constraint > age-based site constraint.
+// Cascade: workshop constraint → org constraint → site constraint by age group.
+// First non-empty stage wins. Site constraints are always configured (set at install
+// time), so a logged-in user always receives a non-empty constraint.
 // Returns the constraint text and one of the obj.ConstraintSource* labels.
-// The source label always reflects which rule matched, even if no constraint text is configured.
 func ResolveUserConstraint(ctx context.Context, user *obj.User) (*string, string) {
-	// Workshop mode: first non-empty constraint wins, but source reflects the matching rule
 	if user.Role != nil && user.Role.Workshop != nil {
 		if c := trimConstraint(user.Role.Workshop.PromptConstraints); c != nil {
 			return c, obj.ConstraintSourceWorkshop
 		}
-		if user.Role.Institution != nil {
-			if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
-				return c, obj.ConstraintSourceOrganisation
-			}
-		}
-		// No constraint text configured at workshop or org level — report which level matched
-		// (workshop takes precedence as the active context)
-		return nil, obj.ConstraintSourceWorkshop
 	}
-	// Age-based fallback from system settings
+	if user.Role != nil && user.Role.Institution != nil {
+		if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
+			return c, obj.ConstraintSourceOrganisation
+		}
+	}
 	return resolveAgeConstraint(ctx, user.AgeGroup)
 }
 
@@ -1160,8 +1156,11 @@ func trimConstraint(s *string) *string {
 }
 
 // ResolveShareConstraint determines the active prompt constraint for a guest playing via shared link.
-// Priority: workshop constraint > org constraint.
-// Returns the constraint text and a short source label.
+// Cascade: workshop (from share) → org (from share) → author's own ResolveUserConstraint cascade.
+// Final stage means: if the game has no workshop/org context, the constraint that would apply
+// to the author themselves is used (e.g. their org constraint, or their site-by-age constraint
+// if they're an individual). Goal: the player is protected by *some* constraint chosen by
+// whoever published the link.
 func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*string, string) {
 	if gameShare.WorkshopID != nil {
 		workshop, err := GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
@@ -1177,6 +1176,12 @@ func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*str
 			if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
 				return c, obj.ConstraintSourceOrganisation
 			}
+		}
+	}
+	if gameShare.CreatedBy != nil {
+		author, err := GetUserByID(ctx, *gameShare.CreatedBy)
+		if err == nil && author != nil {
+			return ResolveUserConstraint(ctx, author)
 		}
 	}
 	return nil, ""

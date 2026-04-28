@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Tani waxay naga caawinaysaa inaan ku dabaqno ilaalinta saxda ah iyo tilmaamaha nuxurka akoonkaaga.",
+      "label": "Kooxda Da'da iyo Ilaalinta",
+      "u13": "13–17 sano, oggolaansho waalid la'aan",
+      "u13Description": "Waad isticmaali kartaa ChatGameLab. Dejinnada ilaalinta adag ayaa lagu dabaqi doonaa akoonkaaga.",
+      "u13p": "13–17 sano, iyadoo oggolaansho waalid jiro",
+      "u13pDescription": "Waad isticmaali kartaa ChatGameLab haddii waalidiintaadu oggolaadaan.",
+      "u18": "18 sano ama ka weyn",
+      "u18Description": "Waad isticmaali kartaa ChatGameLab.",
+      "under13": "Ka yar 13 sano",
+      "under13Blocker": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro.",
+      "under13Description": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro."
+    },
     "login": {
       "auth0Button": "Gal koonto adoo adeegsanaya Auth0",
       "devMode": "Hab Horumarineed",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Kooxda Da'da",
       "ageGroupDescription": "Waxay go'aamisaa xeerarka nuxurka ee khuseeya ciyaarahaaga. Waxaad beddeli kartaa wakhti kasta.",
-      "ageGroupSection": "Kooxda Da'da",
+      "ageGroupSection": "Kooxda Da'da iyo Ilaalinta",
       "ageGroupU13": "13-17 sano",
       "ageGroupU18": "18+",
       "gamesCreated": "Ciyaaro la abuuray",
@@ -1575,6 +1588,12 @@
       "promoteTitle": "U Dallacsiin Madaxa",
       "promoteToHead": "U Dallacsiin Madaxa",
       "promoteWarning": "Isticmaalahan wuxuu heli doonaa awood uu ku maamulo xubnaha ururka iyo inuu casuumo macalimiinta.",
+      "promptConstraintsFallbackEmpty": "(lama dejin)",
+      "promptConstraintsFallbackHint": "Xayiraad urur lama dejin. Doorashada caadiga ah ee goobta oo dhan ee kooxda da'da ciyaaryahanka ayaa shaqaynaysa:",
+      "promptConstraintsFallbackTitle": "Ku-tiirsanaanta goobta oo dhan ee firfircoon",
+      "promptConstraintsFallbackU13": "Ka yar 13",
+      "promptConstraintsFallbackU13p": "13–17 (iyadoo oggolaansho waalid jiro)",
+      "promptConstraintsFallbackU18": "18 iyo ka weyn",
       "promptConstraintsHint": "Tilmaamo AI oo dheeraad ah oo loogu talagalay fadhi kasta oo ururkan ka mid ah. Waxay dhaqangalaan marka aan la dejin xaddidaad heer aqoon-is-weydaarsi ah, sidoo kalena waxay khuseeyaan ciyaaraha isku-xirka lagu wadaago.",
       "promptConstraintsLabel": "Xaddidaadaha kicinta ururka",
       "promptConstraintsPlaceholder": "tusaale ahaan: Ka dhig sheekada ku habboon da'da oo ka fogow nuxurka rabshadaha.",
@@ -1781,9 +1800,12 @@
       "constraints": {
         "description": "Qeex xeerar AI oo khasab ah oo ku saleysan kooxda da'da ciyaaryahanka. Xaddidaadahan waxaa lagu duraa jawaab kasta oo AI ah. Waxay khuseeyaan dhammaan isticmaalayaasha soo galay ee ka baxsan habka aqoon-is-weydaarsiga.",
         "title": "Kicinta Xaddidaadaha Ku saleysan Da'da",
-        "u13Hint": "Waxaa lagu dura AI prompt kasta isticmaalayaasha soo galay ee da'doodu tahay 13-17.",
-        "u13Label": "Xaddidaad isticmaalayaasha da'doodu tahay 13-17 (U13)",
+        "u13Hint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo aan oggolaansho waalid keydka ku jirin.",
+        "u13Label": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, oggolaansho waalid la' (U13)",
         "u13Placeholder": "tusaale ahaan: Ka dhig dhammaan nuxurka si adag ugu habboon dhallinyarada. Rabshad ma jirto, nuxur jacayl ma jiro, mowduucyo argagax ma jiraan.",
+        "u13pHint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo oggolaansho waalid keydka ku jiro.",
+        "u13pLabel": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, iyadoo oggolaansho waalid jiro (U13p)",
+        "u13pPlaceholder": "tusaale ahaan: Nuxur ku habboon da'da dhalinyarada ay waalidkoodu oggolaadeen. Qaar ka mid ah mowduucyo qaangaar ah waa la oggol yahay, nuxur cad-cad lama oggola.",
         "u18Hint": "Waxaa lagu dura AI prompt kasta isticmaalayaasha soo galay ee da'doodu tahay 18 iyo ka badan.",
         "u18Label": "Xaddidaad isticmaalayaasha da'doodu tahay 18+ (U18)",
         "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."

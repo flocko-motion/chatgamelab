@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Dette hjelper oss med å bruke riktig beskyttelse og innholdsretningslinjer på kontoen din.",
+      "label": "Alders- og beskyttelsesgruppe",
+      "u13": "13–17 år, uten foreldresamtykke",
+      "u13Description": "Du kan bruke ChatGameLab. Sterkere beskyttelsesinnstillinger vil gjelde for kontoen din.",
+      "u13p": "13–17 år, med foreldresamtykke",
+      "u13pDescription": "Du kan bruke ChatGameLab hvis foreldrene dine samtykker.",
+      "u18": "18 år eller eldre",
+      "u18Description": "Du kan bruke ChatGameLab.",
+      "under13": "Under 13 år",
+      "under13Blocker": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon.",
+      "under13Description": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon."
+    },
     "login": {
       "auth0Button": "Logg inn med Auth0",
       "devMode": "Utviklingsmodus",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Aldersgruppe",
       "ageGroupDescription": "Bestemmer hvilke innholdsretningslinjer som gjelder for spillene dine. Du kan endre dette når som helst.",
-      "ageGroupSection": "Aldersgruppe",
+      "ageGroupSection": "Alders- og beskyttelsesgruppe",
       "ageGroupU13": "13–17 år",
       "ageGroupU18": "18+",
       "gamesCreated": "Spill laget",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Forfrem til leder",
       "promoteToHead": "Forfrem til leder",
       "promoteWarning": "Denne brukeren får muligheten til å administrere organisasjonsmedlemmer og invitere lærere.",
+      "promptConstraintsFallbackEmpty": "(ikke konfigurert)",
+      "promptConstraintsFallbackHint": "Ingen organisasjonsbegrensning er konfigurert. Nettstedets standard for spillerens aldersgruppe gjelder:",
+      "promptConstraintsFallbackTitle": "Aktiv reserve for hele nettstedet",
+      "promptConstraintsFallbackU13": "Under 13",
+      "promptConstraintsFallbackU13p": "13–17 (med foreldresamtykke)",
+      "promptConstraintsFallbackU18": "18 og eldre",
       "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne organisasjonen. Gjelder når ingen workshop-nivå-begrensning er satt, og for spill som deles via lenke.",
       "promptConstraintsLabel": "Organisasjonens prompt-begrensninger",
       "promptConstraintsPlaceholder": "f.eks. Hold historien aldersvennlig og unngå voldelig innhold.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse begrensningene legges inn i hvert KI-svar. De gjelder for alle innloggede brukere utenfor workshop-modus.",
         "title": "Aldersbaserte prompt-begrensninger",
-        "u13Hint": "Settes inn i hver KI-prompt for innloggede brukere i alderen 13–17.",
-        "u13Label": "Begrensning for brukere 13–17 år (U13)",
+        "u13Hint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år uten registrert foreldresamtykke.",
+        "u13Label": "Begrensning for brukere mellom 13 og 17 år, uten foreldresamtykke (U13)",
         "u13Placeholder": "f.eks. Hold alt innhold strengt aldersvennlig for tenåringer. Ingen vold, ingen romantisk innhold, ingen skrekktemaer.",
+        "u13pHint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år med registrert foreldresamtykke.",
+        "u13pLabel": "Begrensning for brukere mellom 13 og 17 år, med foreldresamtykke (U13p)",
+        "u13pPlaceholder": "f.eks. Alderstilpasset innhold for tenåringer med foreldresamtykke. Noen modne temaer tillatt, men ikke eksplisitt innhold.",
         "u18Hint": "Settes inn i hver KI-prompt for innloggede brukere som er 18 år eller eldre.",
         "u18Label": "Begrensning for brukere 18+ (U18)",
         "u18Placeholder": "f.eks. Hold innholdet passende. Unngå eksplisitt vold eller seksuelt innhold."

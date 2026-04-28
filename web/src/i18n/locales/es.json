@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Esto nos ayuda a aplicar la protección y las directrices de contenido adecuadas a tu cuenta.",
+      "label": "Grupo de edad y protección",
+      "u13": "13–17 años, sin consentimiento parental",
+      "u13Description": "Puedes usar ChatGameLab. Se aplicarán configuraciones de protección más estrictas a tu cuenta.",
+      "u13p": "13–17 años, con consentimiento parental",
+      "u13pDescription": "Puedes usar ChatGameLab si tus padres están de acuerdo.",
+      "u18": "18 años o más",
+      "u18Description": "Puedes usar ChatGameLab.",
+      "under13": "Menos de 13 años",
+      "under13Blocker": "Aún no puedes crear tu propia cuenta. Si tienes menos de 13 años, solo puedes usar ChatGameLab a través de una organización juvenil.",
+      "under13Description": "Aún no puedes crear tu propia cuenta. Si tienes menos de 13 años, solo puedes usar ChatGameLab a través de una organización juvenil."
+    },
     "login": {
       "auth0Button": "Iniciar sesión con Auth0",
       "devMode": "Modo de desarrollo",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Grupo de edad",
       "ageGroupDescription": "Determina qué directrices de contenido se aplican a tus juegos. Puedes cambiarlo en cualquier momento.",
-      "ageGroupSection": "Grupo de edad",
+      "ageGroupSection": "Grupo de edad y protección",
       "ageGroupU13": "13-17 años",
       "ageGroupU18": "18+",
       "gamesCreated": "Juegos creados",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Ascender a responsable",
       "promoteToHead": "Ascender a responsable",
       "promoteWarning": "Este usuario podrá gestionar miembros de la organización e invitar docentes.",
+      "promptConstraintsFallbackEmpty": "(no configurado)",
+      "promptConstraintsFallbackHint": "No hay restricción de la organización configurada. Se aplica el valor predeterminado del sitio para el grupo de edad del jugador:",
+      "promptConstraintsFallbackTitle": "Respaldo activo para todo el sitio",
+      "promptConstraintsFallbackU13": "Menores de 13",
+      "promptConstraintsFallbackU13p": "13–17 (con consentimiento parental)",
+      "promptConstraintsFallbackU18": "18 o más",
       "promptConstraintsHint": "Instrucciones adicionales para la IA en todas las sesiones de esta organización. Se aplican cuando no hay una restricción a nivel de taller y a los juegos compartidos mediante enlace.",
       "promptConstraintsLabel": "Restricciones de prompt de la organización",
       "promptConstraintsPlaceholder": "p. ej. Mantén la historia adecuada para la edad y evita contenido violento.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Define reglas obligatorias para la IA según el grupo de edad del jugador. Estas restricciones se inyectan en cada respuesta de la IA. Se aplican a todos los usuarios conectados fuera del modo taller.",
         "title": "Indicaciones de restricciones según la edad",
-        "u13Hint": "Se inyecta en cada solicitud a la IA para usuarios conectados de 13-17 años.",
-        "u13Label": "Restricción para usuarios de 13-17 años (U13)",
+        "u13Hint": "Se inyecta en cada solicitud de IA para los usuarios con sesión iniciada de 13 a 17 años sin consentimiento parental registrado.",
+        "u13Label": "Restricción para usuarios de 13 a 17 años, sin consentimiento parental (U13)",
         "u13Placeholder": "p. ej. Mantén todo el contenido estrictamente adecuado para adolescentes. Sin violencia, sin contenido romántico, sin temas de terror.",
+        "u13pHint": "Se inyecta en cada solicitud de IA para los usuarios con sesión iniciada de 13 a 17 años con consentimiento parental registrado.",
+        "u13pLabel": "Restricción para usuarios de 13 a 17 años, con consentimiento parental (U13p)",
+        "u13pPlaceholder": "p. ej. Contenido adecuado para la edad de adolescentes cuyos padres han dado su consentimiento. Se permiten algunos temas maduros, sin contenido explícito.",
         "u18Hint": "Se inyecta en cada solicitud a la IA para usuarios conectados de 18 años o más.",
         "u18Label": "Restricción para usuarios de 18+ (U18)",
         "u18Placeholder": "p. ej. Mantén el contenido apropiado. Evita la violencia explícita o el contenido sexual."

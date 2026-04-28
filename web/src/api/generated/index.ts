@@ -812,6 +812,12 @@ export interface RoutesStatusResponse {
   uptime?: string;
 }
 
+export interface RoutesSystemConstraintsResponse {
+  promptConstraintU13?: string;
+  promptConstraintU13p?: string;
+  promptConstraintU18?: string;
+}
+
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
 }
@@ -2604,6 +2610,22 @@ export class Api<
       }),
   };
   system = {
+    /**
+     * @description Returns the three site-wide age-based prompt constraint texts. Available to any authenticated user so org settings can show the active fallback.
+     *
+     * @tags system
+     * @name ConstraintsList
+     * @summary Get site-wide prompt constraints
+     * @request GET:/system/constraints
+     */
+    constraintsList: (params: RequestParams = {}) =>
+      this.request<RoutesSystemConstraintsResponse, HttpxErrorResponse>({
+        path: `/system/constraints`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Returns the global system settings
      *

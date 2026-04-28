@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Dit helpt ons de juiste beschermings- en inhoudsrichtlijnen op je account toe te passen.",
+      "label": "Leeftijds- en beschermingsgroep",
+      "u13": "13–17 jaar, zonder ouderlijke toestemming",
+      "u13Description": "Je kunt ChatGameLab gebruiken. Op je account zijn strengere beschermingsinstellingen van toepassing.",
+      "u13p": "13–17 jaar, met ouderlijke toestemming",
+      "u13pDescription": "Je kunt ChatGameLab gebruiken als je ouders akkoord gaan.",
+      "u18": "18 jaar of ouder",
+      "u18Description": "Je kunt ChatGameLab gebruiken.",
+      "under13": "Jonger dan 13 jaar",
+      "under13Blocker": "Je kunt nog geen eigen account maken. Als je jonger dan 13 bent, kun je ChatGameLab alleen gebruiken via een jeugdorganisatie.",
+      "under13Description": "Je kunt nog geen eigen account maken. Als je jonger dan 13 bent, kun je ChatGameLab alleen gebruiken via een jeugdorganisatie."
+    },
     "login": {
       "auth0Button": "Inloggen met Auth0",
       "devMode": "Ontwikkelmodus",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Leeftijdsgroep",
       "ageGroupDescription": "Bepaalt welke inhoudsrichtlijnen op je games van toepassing zijn. Je kunt dit op elk moment wijzigen.",
-      "ageGroupSection": "Leeftijdsgroep",
+      "ageGroupSection": "Leeftijds- en beschermingsgroep",
       "ageGroupU13": "13-17 jaar",
       "ageGroupU18": "18+",
       "gamesCreated": "Gemaakte games",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Promoveren tot hoofd",
       "promoteToHead": "Promoveren tot hoofd",
       "promoteWarning": "Deze gebruiker kan voortaan organisatieleden beheren en docenten uitnodigen.",
+      "promptConstraintsFallbackEmpty": "(niet geconfigureerd)",
+      "promptConstraintsFallbackHint": "Geen organisatiebeperking geconfigureerd. De standaard per site voor de leeftijdsgroep van de speler is van toepassing:",
+      "promptConstraintsFallbackTitle": "Actieve sitebrede terugvaloptie",
+      "promptConstraintsFallbackU13": "Jonger dan 13",
+      "promptConstraintsFallbackU13p": "13–17 (met ouderlijke toestemming)",
+      "promptConstraintsFallbackU18": "18 en ouder",
       "promptConstraintsHint": "Aanvullende AI-instructies voor alle sessies in deze organisatie. Van toepassing wanneer er geen workshopniveau-beperking is ingesteld, en op games die via een link worden gedeeld.",
       "promptConstraintsLabel": "Organisatiepromptbeperkingen",
       "promptConstraintsPlaceholder": "bijv. Zorg dat het verhaal leeftijdsgebonden blijft en vermijd gewelddadige inhoud.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Definieer verplichte AI-regels op basis van de leeftijdsgroep van de speler. Deze beperkingen worden in elke AI-respons geïnjecteerd. Ze gelden voor alle ingelogde gebruikers buiten de workshopmodus.",
         "title": "Leeftijdsgebonden constraintprompts",
-        "u13Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 13-17 jaar.",
-        "u13Label": "Beperking voor gebruikers van 13-17 jaar (U13)",
+        "u13Hint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar zonder geregistreerde ouderlijke toestemming.",
+        "u13Label": "Beperking voor gebruikers van 13-17 jaar, geen ouderlijke toestemming (U13)",
         "u13Placeholder": "bijv. Zorg dat alle inhoud strikt geschikt blijft voor tieners. Geen geweld, geen romantische inhoud, geen horrorthema’s.",
+        "u13pHint": "Toegevoegd aan elke AI-prompt voor aangemelde gebruikers van 13-17 jaar met geregistreerde ouderlijke toestemming.",
+        "u13pLabel": "Beperking voor gebruikers van 13-17 jaar, met ouderlijke toestemming (U13p)",
+        "u13pPlaceholder": "bijv. Leeftijdsgeschikte inhoud voor tieners waarvan de ouders toestemming hebben gegeven. Sommige volwassen thema's toegestaan, geen expliciete inhoud.",
         "u18Hint": "Geïnjecteerd in elke AI-prompt voor ingelogde gebruikers van 18 jaar en ouder.",
         "u18Label": "Beperking voor gebruikers van 18+ (U18)",
         "u18Placeholder": "bijv. Houd de inhoud gepast. Vermijd expliciet geweld of seksuele inhoud."

@@ -2,6 +2,19 @@
   "...": "...",
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Bu, hesabınıza doğru koruma ve içerik yönergelerini uygulamamıza yardımcı olur.",
+      "label": "Yaş ve Koruma Grubu",
+      "u13": "13–17 yaş, ebeveyn izni olmadan",
+      "u13Description": "ChatGameLab'i kullanabilirsiniz. Hesabınıza daha güçlü koruma ayarları uygulanacaktır.",
+      "u13p": "13–17 yaş, ebeveyn izniyle",
+      "u13pDescription": "Ebeveynleriniz kabul ederse ChatGameLab'i kullanabilirsiniz.",
+      "u18": "18 yaş veya üzeri",
+      "u18Description": "ChatGameLab'i kullanabilirsiniz.",
+      "under13": "13 yaşın altında",
+      "under13Blocker": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz.",
+      "under13Description": "Henüz kendi hesabınızı oluşturamazsınız. 13 yaşın altındaysanız, ChatGameLab'i yalnızca bir gençlik organizasyonu aracılığıyla kullanabilirsiniz."
+    },
     "login": {
       "auth0Button": "Auth0 ile giriş yap",
       "devMode": "Geliştirme Modu",
@@ -35,7 +48,7 @@
     "profile": {
       "ageGroup": "Yaş Grubu",
       "ageGroupDescription": "Oyunlarınız için hangi içerik kurallarının geçerli olacağını belirler. Bunu istediğiniz zaman değiştirebilirsiniz.",
-      "ageGroupSection": "Yaş Grubu",
+      "ageGroupSection": "Yaş ve Koruma Grubu",
       "ageGroupU13": "13-17 yaş",
       "ageGroupU18": "18+",
       "gamesCreated": "Oluşturulan Oyunlar",
@@ -997,6 +1010,12 @@
       "promoteTitle": "Başkan Yap",
       "promoteToHead": "Başkan Yap",
       "promoteWarning": "Bu kullanıcı, organizasyon üyelerini yönetme ve öğretmen davet etme yetkisi kazanacak.",
+      "promptConstraintsFallbackEmpty": "(yapılandırılmadı)",
+      "promptConstraintsFallbackHint": "Kurumsal bir kısıtlama yapılandırılmadı. Oyuncunun yaş grubuna yönelik site genelindeki varsayılan ayar uygulanır:",
+      "promptConstraintsFallbackTitle": "Etkin site genelindeki geri dönüş",
+      "promptConstraintsFallbackU13": "13 yaş altı",
+      "promptConstraintsFallbackU13p": "13–17 (ebeveyn izniyle)",
+      "promptConstraintsFallbackU18": "18 ve üzeri",
       "promptConstraintsHint": "Bu kuruluşta tüm oturumlar için ek yapay zekâ talimatları. Atölye düzeyinde bir kısıtlama ayarlanmadığında ve bağlantı yoluyla paylaşılan oyunlarda geçerlidir.",
       "promptConstraintsLabel": "Kuruluş istem kısıtlamaları",
       "promptConstraintsPlaceholder": "ör. Hikâyeyi yaşa uygun tut ve şiddet içeriğinden kaçın.",
@@ -1168,9 +1187,12 @@
       "constraints": {
         "description": "Oyuncunun yaş grubuna göre zorunlu yapay zekâ kuralları tanımlayın. Bu kısıtlamalar her yapay zekâ yanıtına eklenir. Atölye modu dışındaki tüm giriş yapmış kullanıcılar için geçerlidir.",
         "title": "Yaşa Göre Kısıtlama İstemleri",
-        "u13Hint": "13-17 yaşındaki giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
-        "u13Label": "13-17 yaş kullanıcılar için kısıtlama (U13)",
+        "u13Hint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunmayan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
+        "u13Label": "13-17 yaş arası, ebeveyn izni olmayan kullanıcılar için kısıtlama (U13)",
         "u13Placeholder": "ör. Tüm içeriği gençler için kesinlikle yaşa uygun tutun. Şiddet, romantik içerik veya korku teması yok.",
+        "u13pHint": "13-17 yaş arasındaki, dosyada ebeveyn izni bulunan oturum açmış kullanıcıların her bir yapay zeka istemine eklenir.",
+        "u13pLabel": "13-17 yaş arası, ebeveyn izni olan kullanıcılar için kısıtlama (U13p)",
+        "u13pPlaceholder": "örn. Ebeveynleri izin vermiş ergenler için yaşa uygun içerik. Bazı olgun temalara izin verilir, açık içerik yok.",
         "u18Hint": "18 yaş ve üzeri giriş yapmış kullanıcılar için her yapay zekâ istemine eklenir.",
         "u18Label": "18+ kullanıcılar için kısıtlama (U18)",
         "u18Placeholder": "ör. İçeriği uygun tutun. Açık şiddet veya cinsel içerikten kaçının."

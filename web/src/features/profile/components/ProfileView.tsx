@@ -1,7 +1,7 @@
 import {
   Card,
   Group,
-  Select,
+  Radio,
   SimpleGrid,
   Stack,
   Text,
@@ -162,15 +162,9 @@ export function ProfileView() {
             </ThemeIcon>
             <Title order={3}>{t("profile.ageGroupSection")}</Title>
           </Group>
-          <Text size="sm" c="dimmed">
-            {t("profile.ageGroupDescription")}
-          </Text>
-          <Select
-            data={[
-              { value: AgeGroup.U13, label: t("profile.ageGroupU13") },
-              { value: AgeGroup.U13P, label: t("profile.ageGroupU13p") },
-              { value: AgeGroup.U18, label: t("profile.ageGroupU18") },
-            ]}
+          <Radio.Group
+            label={t("ageGroup.label")}
+            description={t("ageGroup.description")}
             value={backendUser.ageGroup || AgeGroup.U13}
             onChange={(value) => {
               if (!value || !backendUser.id) return;
@@ -179,10 +173,28 @@ export function ProfileView() {
                 { onSuccess: () => retryBackendFetch() },
               );
             }}
-            disabled={updateUser.isPending}
-            allowDeselect={false}
-            style={{ maxWidth: 300 }}
-          />
+          >
+            <Stack gap="sm" mt="xs">
+              <Radio
+                value={AgeGroup.U13}
+                label={t("ageGroup.u13")}
+                description={t("ageGroup.u13Description")}
+                disabled={updateUser.isPending}
+              />
+              <Radio
+                value={AgeGroup.U13P}
+                label={t("ageGroup.u13p")}
+                description={t("ageGroup.u13pDescription")}
+                disabled={updateUser.isPending}
+              />
+              <Radio
+                value={AgeGroup.U18}
+                label={t("ageGroup.u18")}
+                description={t("ageGroup.u18Description")}
+                disabled={updateUser.isPending}
+              />
+            </Stack>
+          </Radio.Group>
         </Stack>
       </Card>
 

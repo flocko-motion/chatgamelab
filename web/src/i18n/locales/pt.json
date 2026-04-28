@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Isso nos ajuda a aplicar à sua conta as diretrizes corretas de proteção e conteúdo.",
+      "label": "Faixa etária e grupo de proteção",
+      "u13": "13–17 anos, sem consentimento dos pais",
+      "u13Description": "Você pode usar o ChatGameLab. Configurações de proteção mais rígidas serão aplicadas à sua conta.",
+      "u13p": "13–17 anos, com consentimento dos pais",
+      "u13pDescription": "Você pode usar o ChatGameLab se seus pais concordarem.",
+      "u18": "18 anos ou mais",
+      "u18Description": "Você pode usar o ChatGameLab.",
+      "under13": "Menor de 13 anos",
+      "under13Blocker": "Você ainda não pode criar sua própria conta. Se tiver menos de 13 anos, só poderá usar o ChatGameLab por meio de uma organização juvenil.",
+      "under13Description": "Você ainda não pode criar sua própria conta. Se tiver menos de 13 anos, só poderá usar o ChatGameLab por meio de uma organização juvenil."
+    },
     "login": {
       "auth0Button": "Entrar com Auth0",
       "devMode": "Modo de Desenvolvimento",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Faixa etária",
       "ageGroupDescription": "Determina quais diretrizes de conteúdo se aplicam aos seus jogos. Você pode alterar isso a qualquer momento.",
-      "ageGroupSection": "Faixa etária",
+      "ageGroupSection": "Faixa etária e grupo de proteção",
       "ageGroupU13": "13-17 anos",
       "ageGroupU18": "18+",
       "gamesCreated": "Jogos Criados",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Promover a Chefe",
       "promoteToHead": "Promover a Chefe",
       "promoteWarning": "Este usuário poderá gerenciar membros da organização e convidar professores.",
+      "promptConstraintsFallbackEmpty": "(não configurado)",
+      "promptConstraintsFallbackHint": "Nenhuma restrição da organização configurada. Será aplicado o padrão do site para a faixa etária do jogador:",
+      "promptConstraintsFallbackTitle": "Alternativa geral do site ativa",
+      "promptConstraintsFallbackU13": "Menor de 13",
+      "promptConstraintsFallbackU13p": "13–17 (com consentimento dos pais)",
+      "promptConstraintsFallbackU18": "18 ou mais",
       "promptConstraintsHint": "Instruções adicionais de IA para todas as sessões nesta organização. Aplica-se quando não há restrição em nível de workshop e também a jogos compartilhados por link.",
       "promptConstraintsLabel": "Restrições de prompt da organização",
       "promptConstraintsPlaceholder": "ex.: Mantenha a história apropriada para a idade e evite conteúdo violento.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Defina regras obrigatórias de IA com base na faixa etária do jogador. Essas restrições são inseridas em todas as respostas da IA. Elas se aplicam a todos os usuários conectados fora do modo workshop.",
         "title": "Prompts de restrição baseados em idade",
-        "u13Hint": "Inserido em cada prompt de IA para usuários conectados de 13 a 17 anos.",
-        "u13Label": "Restrição para usuários de 13-17 anos (U13)",
+        "u13Hint": "Inserido em cada prompt de IA para usuários conectados de 13 a 17 anos sem consentimento dos pais registrado.",
+        "u13Label": "Restrição para usuários de 13 a 17 anos, sem consentimento dos pais (U13)",
         "u13Placeholder": "ex.: Mantenha todo o conteúdo estritamente apropriado para adolescentes. Sem violência, conteúdo romântico ou temas de terror.",
+        "u13pHint": "Inserido em cada prompt de IA para usuários conectados de 13 a 17 anos com consentimento dos pais registrado.",
+        "u13pLabel": "Restrição para usuários de 13 a 17 anos, com consentimento dos pais (U13p)",
+        "u13pPlaceholder": "ex.: Conteúdo adequado à idade para adolescentes cujos pais autorizaram. Alguns temas maduros são permitidos, sem conteúdo explícito.",
         "u18Hint": "Inserido em cada prompt de IA para usuários conectados com 18 anos ou mais.",
         "u18Label": "Restrição para usuários de 18+ (U18)",
         "u18Placeholder": "ex.: Mantenha o conteúdo apropriado. Evite violência explícita ou conteúdo sexual."

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, Stack, TextInput, Select, Alert, Loader } from "@mantine/core";
+import { Card, Stack, TextInput, Radio, Alert, Loader } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { ActionButton } from "@components/buttons";
 import { SectionTitle } from "@components/typography";
@@ -209,14 +209,9 @@ export function SettingsForm() {
                 {t("settings.emailChangeNote")}
               </Alert>
 
-              <Select
-                label={t("settings.ageGroupLabel")}
-                description={t("settings.ageGroupDescription")}
-                data={[
-                  { value: AgeGroup.U13, label: t("settings.ageGroupU13") },
-                  { value: AgeGroup.U13P, label: t("settings.ageGroupU13p") },
-                  { value: AgeGroup.U18, label: t("settings.ageGroupU18") },
-                ]}
+              <Radio.Group
+                label={t("ageGroup.label")}
+                description={t("ageGroup.description")}
                 value={backendUser.ageGroup || ""}
                 onChange={(value) => {
                   if (!value || !backendUser.id) return;
@@ -225,10 +220,28 @@ export function SettingsForm() {
                     { onSuccess: () => retryBackendFetch() },
                   );
                 }}
-                disabled={isSubmitting}
-                allowDeselect={false}
-                style={{ maxWidth: 300 }}
-              />
+              >
+                <Stack gap="sm" mt="xs">
+                  <Radio
+                    value={AgeGroup.U13}
+                    label={t("ageGroup.u13")}
+                    description={t("ageGroup.u13Description")}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U13P}
+                    label={t("ageGroup.u13p")}
+                    description={t("ageGroup.u13pDescription")}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U18}
+                    label={t("ageGroup.u18")}
+                    description={t("ageGroup.u18Description")}
+                    disabled={isSubmitting}
+                  />
+                </Stack>
+              </Radio.Group>
 
               {submitError && (
                 <Alert color="red" variant="light">

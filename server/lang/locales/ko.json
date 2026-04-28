@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "이 정보는 계정에 적합한 보호 및 콘텐츠 가이드라인을 적용하는 데 도움이 됩니다.",
+      "label": "연령 및 보호 그룹",
+      "u13": "13–17세, 부모 동의 없음",
+      "u13Description": "ChatGameLab을 사용할 수 있습니다. 더 강력한 보호 설정이 계정에 적용됩니다.",
+      "u13p": "13–17세, 부모 동의 있음",
+      "u13pDescription": "부모님이 동의하면 ChatGameLab을 사용할 수 있습니다.",
+      "u18": "18세 이상",
+      "u18Description": "ChatGameLab을 사용할 수 있습니다.",
+      "under13": "13세 미만",
+      "under13Blocker": "아직 본인 계정을 만들 수 없습니다. 13세 미만이라면 청소년 단체를 통해서만 ChatGameLab을 사용할 수 있습니다.",
+      "under13Description": "아직 본인 계정을 만들 수 없습니다. 13세 미만이라면 청소년 단체를 통해서만 ChatGameLab을 사용할 수 있습니다."
+    },
     "login": {
       "auth0Button": "Auth0로 로그인",
       "devMode": "개발 모드",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "연령대",
       "ageGroupDescription": "게임에 적용될 콘텐츠 가이드라인을 결정합니다. 언제든지 변경할 수 있습니다.",
-      "ageGroupSection": "연령대",
+      "ageGroupSection": "연령 및 보호 그룹",
       "ageGroupU13": "13~17세",
       "ageGroupU18": "18세 이상",
       "gamesCreated": "제작한 게임",
@@ -1010,6 +1023,12 @@
       "promoteTitle": "대표로 승격",
       "promoteToHead": "대표로 승격",
       "promoteWarning": "이 사용자는 기관 구성원을 관리하고 교사를 초대할 수 있습니다.",
+      "promptConstraintsFallbackEmpty": "(설정되지 않음)",
+      "promptConstraintsFallbackHint": "조직 제한이 설정되지 않았습니다. 플레이어 연령대에 대한 사이트 전체 기본값이 적용됩니다:",
+      "promptConstraintsFallbackTitle": "활성 사이트 전체 대체 설정",
+      "promptConstraintsFallbackU13": "13세 미만",
+      "promptConstraintsFallbackU13p": "13–17세(부모 동의 있음)",
+      "promptConstraintsFallbackU18": "18세 이상",
       "promptConstraintsHint": "이 조직의 모든 세션에 적용되는 추가 AI 지침입니다. 워크숍 수준 제약이 설정되지 않았을 때 및 링크로 공유된 게임에 적용됩니다.",
       "promptConstraintsLabel": "조직 프롬프트 제약",
       "promptConstraintsPlaceholder": "예: 이야기를 연령에 맞게 유지하고 폭력적인 콘텐츠를 피하세요.",
@@ -1186,9 +1205,12 @@
       "constraints": {
         "description": "플레이어 연령대에 따라 적용되는 필수 AI 규칙을 정의하세요. 이러한 제약은 모든 AI 응답에 삽입되며, 워크숍 모드 밖의 로그인 사용자에게 적용됩니다.",
         "title": "연령 기반 제약 프롬프트",
-        "u13Hint": "13~17세 로그인 사용자에게 모든 AI 프롬프트에 삽입됩니다.",
-        "u13Label": "13~17세(U13) 사용자용 제약",
+        "u13Hint": "부모 동의가 등록되지 않은 13–17세 로그인 사용자에 대해 모든 AI 프롬프트에 삽입됩니다.",
+        "u13Label": "13–17세 사용자용 제한, 부모 동의 없음(U13)",
         "u13Placeholder": "예: 모든 콘텐츠를 청소년에게 적합하게 유지하세요. 폭력, 로맨스, 공포 요소는 금지합니다.",
+        "u13pHint": "부모 동의가 등록된 13–17세 로그인 사용자에 대해 모든 AI 프롬프트에 삽입됩니다.",
+        "u13pLabel": "13–17세 사용자용 제한, 부모 동의 있음(U13p)",
+        "u13pPlaceholder": "예: 부모가 동의한 청소년에게 적합한 연령대 콘텐츠. 일부 성숙한 주제는 허용되지만 노골적인 콘텐츠는 금지.",
         "u18Hint": "18세 이상 로그인 사용자에게 모든 AI 프롬프트에 삽입됩니다.",
         "u18Label": "18세 이상(U18) 사용자용 제약",
         "u18Placeholder": "예: 콘텐츠를 적절하게 유지하세요. 노골적인 폭력 또는 성적 콘텐츠를 피하세요."

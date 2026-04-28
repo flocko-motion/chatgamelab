@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Kjo na ndihmon të zbatojmë udhëzimet e duhura të mbrojtjes dhe përmbajtjes për llogarinë tuaj.",
+      "label": "Grupi i moshës dhe mbrojtjes",
+      "u13": "13–17 vjeç, pa pëlqimin prindëror",
+      "u13Description": "Mund të përdorni ChatGameLab. Cilësimet më të forta të mbrojtjes do të zbatohen për llogarinë tuaj.",
+      "u13p": "13–17 vjeç, me pëlqimin prindëror",
+      "u13pDescription": "Mund të përdorni ChatGameLab nëse prindërit tuaj pajtohen.",
+      "u18": "18 vjeç ose më të mëdhenj",
+      "u18Description": "Mund të përdorni ChatGameLab.",
+      "under13": "Nën 13 vjeç",
+      "under13Blocker": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore.",
+      "under13Description": "Nuk mund të krijoni ende llogarinë tuaj. Nëse jeni nën 13 vjeç, mund të përdorni ChatGameLab vetëm përmes një organizate rinore."
+    },
     "login": {
       "auth0Button": "Hyni me Auth0",
       "devMode": "Modaliteti i zhvillimit",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Grupi i moshës",
       "ageGroupDescription": "Përcakton cilat udhëzime për përmbajtjen zbatohen për lojërat tuaja. Mund ta ndryshoni këtë në çdo kohë.",
-      "ageGroupSection": "Grupi i moshës",
+      "ageGroupSection": "Grupi i moshës dhe mbrojtjes",
       "ageGroupU13": "13-17 vjeç",
       "ageGroupU18": "18+",
       "gamesCreated": "Lojëra të krijuara",
@@ -1010,6 +1023,12 @@
       "promoteTitle": "Promovo në Kreu",
       "promoteToHead": "Promovo në Kreu",
       "promoteWarning": "Ky përdorues do të fitojë aftësinë për të menaxhuar anëtarët e organizatës dhe për të ftuar mësues.",
+      "promptConstraintsFallbackEmpty": "(e pakonfiguruar)",
+      "promptConstraintsFallbackHint": "Nuk ka kufizim organizate të konfiguruar. Zbatohet parazgjedhja e faqes për grupmoshën e lojtarit:",
+      "promptConstraintsFallbackTitle": "Parazgjedhje aktive në nivel faqeje",
+      "promptConstraintsFallbackU13": "Nën 13",
+      "promptConstraintsFallbackU13p": "13–17 (me pëlqimin prindëror)",
+      "promptConstraintsFallbackU18": "18 dhe më të mëdhenj",
       "promptConstraintsHint": "Udhëzime shtesë të AI për të gjitha sesionet në këtë organizatë. Zbatohen kur nuk ka vendosur kufizim në nivel punëtorie dhe për lojërat e ndara me lidhje.",
       "promptConstraintsLabel": "Kufizimet e prompt-it të organizatës",
       "promptConstraintsPlaceholder": "p.sh. Mbajeni historinë të përshtatshme për moshën dhe shmangni përmbajtjen e dhunshme.",
@@ -1186,9 +1205,12 @@
       "constraints": {
         "description": "Përcaktoni rregulla të detyrueshme të AI bazuar në grupmoshën e lojtarit. Këto kufizime futen në çdo përgjigje të AI. Ato zbatohen për të gjithë përdoruesit e kyçur jashtë modalitetit të punëtorisë.",
         "title": "Prompt-e Kufizuese të bazuara në moshë",
-        "u13Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur të moshës 13-17.",
-        "u13Label": "Kufizim për përdoruesit 13-17 vjeç (U13)",
+        "u13Hint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 pa pëlqim prindëror të regjistruar.",
+        "u13Label": "Kufizim për përdoruesit 13-17 vjeç, pa pëlqim prindëror (U13)",
         "u13Placeholder": "p.sh. Mbajeni gjithë përmbajtjen rreptësisht të përshtatshme për adoleshentët. Pa dhunë, pa përmbajtje romantike, pa tema horror.",
+        "u13pHint": "Futet në çdo kërkesë të IA-s për përdoruesit e kyçur të moshës 13-17 me pëlqim prindëror të regjistruar.",
+        "u13pLabel": "Kufizim për përdoruesit 13-17 vjeç, me pëlqim prindëror (U13p)",
+        "u13pPlaceholder": "p.sh. Përmbajtje e përshtatshme për moshën për adoleshentët që kanë marrë pëlqimin e prindërve. Lejohen disa tema të pjekura, pa përmbajtje eksplicite.",
         "u18Hint": "Futet në çdo prompt të AI për përdoruesit e kyçur 18 vjeç e sipër.",
         "u18Label": "Kufizim për përdoruesit 18+ (U18)",
         "u18Placeholder": "p.sh. Mbajeni përmbajtjen të përshtatshme. Shmangni dhunën e qartë ose përmbajtjen seksuale."

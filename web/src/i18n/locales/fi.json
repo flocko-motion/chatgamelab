@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Tämä auttaa meitä soveltamaan oikeat suojaus- ja sisältöohjeet tiliisi.",
+      "label": "Ikä- ja suojaryhmä",
+      "u13": "13–17-vuotiaat, ilman huoltajan suostumusta",
+      "u13Description": "Voit käyttää ChatGameLabia. Tiliisi sovelletaan tiukempia suojausasetuksia.",
+      "u13p": "13–17-vuotiaat, huoltajan suostumuksella",
+      "u13pDescription": "Voit käyttää ChatGameLabia, jos vanhempasi hyväksyvät sen.",
+      "u18": "18-vuotiaat tai vanhemmat",
+      "u18Description": "Voit käyttää ChatGameLabia.",
+      "under13": "Alle 13-vuotiaat",
+      "under13Blocker": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää ChatGameLabia vain nuorisojärjestön kautta.",
+      "under13Description": "Et voi vielä luoda omaa tiliä. Jos olet alle 13-vuotias, voit käyttää ChatGameLabia vain nuorisojärjestön kautta."
+    },
     "login": {
       "auth0Button": "Kirjaudu Auth0:n kautta",
       "devMode": "Kehitystila",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Ikäryhmä",
       "ageGroupDescription": "Määrittää, mitä sisältöohjeita peleihisi sovelletaan. Voit vaihtaa tätä milloin tahansa.",
-      "ageGroupSection": "Ikäryhmä",
+      "ageGroupSection": "Ikä- ja suojaryhmä",
       "ageGroupU13": "13–17 vuotta",
       "ageGroupU18": "18+",
       "gamesCreated": "Luodut pelit",
@@ -1010,6 +1023,12 @@
       "promoteTitle": "Ylennä johtajaksi",
       "promoteToHead": "Ylennä johtajaksi",
       "promoteWarning": "Tämä käyttäjä saa oikeuden hallita organisaation jäseniä ja kutsua opettajia.",
+      "promptConstraintsFallbackEmpty": "(ei määritetty)",
+      "promptConstraintsFallbackHint": "Organisaatiokohtaista rajoitusta ei ole määritetty. Sivuston yleinen oletus pelaajan ikäryhmälle on voimassa:",
+      "promptConstraintsFallbackTitle": "Aktiivinen sivuston laajuinen varavaihtoehto",
+      "promptConstraintsFallbackU13": "Alle 13",
+      "promptConstraintsFallbackU13p": "13–17 (huoltajan suostumuksella)",
+      "promptConstraintsFallbackU18": "18 ja vanhemmat",
       "promptConstraintsHint": "Lisäohjeet tekoälylle kaikkiin tämän organisaation istuntoihin. Käytetään, kun työpajatasolla ei ole rajoitetta, sekä linkin kautta jaettuihin peleihin.",
       "promptConstraintsLabel": "Organisaation kehotusrajoitteet",
       "promptConstraintsPlaceholder": "esim. Pidä tarina ikätasolle sopivana ja vältä väkivaltaista sisältöä.",
@@ -1186,9 +1205,12 @@
       "constraints": {
         "description": "Määritä pakolliset tekoälysäännöt pelaajan ikäryhmän perusteella. Nämä rajoitteet lisätään jokaiseen tekoälyn vastaukseen. Ne koskevat kaikkia kirjautuneita käyttäjiä työpajatilojen ulkopuolella.",
         "title": "Ikäperusteiset kehotusrajoitteet",
-        "u13Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille.",
-        "u13Label": "Rajoite käyttäjille 13–17 v (U13)",
+        "u13Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille, joilla ei ole huoltajan suostumusta.",
+        "u13Label": "Rajoitus 13–17-vuotiaille käyttäjille, ilman huoltajan suostumusta (U13)",
         "u13Placeholder": "esim. Pidä kaikki sisältö ehdottoman ikäryhmälle sopivana. Ei väkivaltaa, ei romanttista sisältöä, ei kauhuteemoja.",
+        "u13pHint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 13–17-vuotiaille käyttäjille, joilla on huoltajan suostumus.",
+        "u13pLabel": "Rajoitus 13–17-vuotiaille käyttäjille, huoltajan suostumuksella (U13p)",
+        "u13pPlaceholder": "esim. Ikäkauden mukainen sisältö nuorille, joiden vanhemmat ovat antaneet suostumuksensa. Joitakin aikuismaisia teemoja sallittu, ei eksplisiittistä sisältöä.",
         "u18Hint": "Lisätään jokaiseen tekoälykehotteeseen kirjautuneille 18 vuotta täyttäneille käyttäjille.",
         "u18Label": "Rajoite käyttäjille 18+ (U18)",
         "u18Placeholder": "esim. Pidä sisältö sopivana. Vältä eksplisiittistä väkivaltaa tai seksuaalista sisältöä."

@@ -3712,6 +3712,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/constraints": {
+            "get": {
+                "description": "Returns the three site-wide age-based prompt constraint texts. Available to any authenticated user so org settings can show the active fallback.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Get site-wide prompt constraints",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.SystemConstraintsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/system/settings": {
             "get": {
                 "description": "Returns the global system settings",
@@ -6832,6 +6858,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "uptime": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.SystemConstraintsResponse": {
+            "type": "object",
+            "properties": {
+                "promptConstraintU13": {
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "type": "string"
+                },
+                "promptConstraintU18": {
                     "type": "string"
                 }
             }

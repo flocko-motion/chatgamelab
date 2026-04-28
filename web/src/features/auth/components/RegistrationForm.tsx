@@ -198,22 +198,43 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
               />
 
               <Radio.Group
-                label={t('register.ageGroupLabel')}
+                label={t('ageGroup.label')}
+                description={t('ageGroup.description')}
                 value={ageGroup}
                 onChange={setAgeGroup}
                 required
               >
-                <Stack gap="xs" mt="xs">
-                  <Radio value={AGE_GROUP_UNDER_13} label={t('register.ageGroupUnder13')} disabled={isSubmitting} />
-                  <Radio value={AgeGroup.U13} label={t('register.ageGroupU13')} disabled={isSubmitting} />
-                  <Radio value={AgeGroup.U13P} label={t('register.ageGroupU13p')} disabled={isSubmitting} />
-                  <Radio value={AgeGroup.U18} label={t('register.ageGroupU18')} disabled={isSubmitting} />
+                <Stack gap="sm" mt="xs">
+                  <Radio
+                    value={AGE_GROUP_UNDER_13}
+                    label={t('ageGroup.under13')}
+                    description={t('ageGroup.under13Description')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U13}
+                    label={t('ageGroup.u13')}
+                    description={t('ageGroup.u13Description')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U13P}
+                    label={t('ageGroup.u13p')}
+                    description={t('ageGroup.u13pDescription')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U18}
+                    label={t('ageGroup.u18')}
+                    description={t('ageGroup.u18Description')}
+                    disabled={isSubmitting}
+                  />
                 </Stack>
               </Radio.Group>
 
               {ageGroup === AGE_GROUP_UNDER_13 && (
                 <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
-                  {t('register.ageGroupUnder13Error')}
+                  {t('ageGroup.under13Blocker')}
                 </Alert>
               )}
 

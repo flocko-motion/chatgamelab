@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "这有助于我们为你的账户应用正确的保护和内容指南。",
+      "label": "年龄与保护分组",
+      "u13": "13–17 岁，未获得家长同意",
+      "u13Description": "你可以使用 ChatGameLab。你的账户将启用更严格的保护设置。",
+      "u13p": "13–17 岁，已获得家长同意",
+      "u13pDescription": "只要你的父母同意，你就可以使用 ChatGameLab。",
+      "u18": "18 岁及以上",
+      "u18Description": "你可以使用 ChatGameLab。",
+      "under13": "13 岁以下",
+      "under13Blocker": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。",
+      "under13Description": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。"
+    },
     "login": {
       "auth0Button": "使用 Auth0 登录",
       "devMode": "开发模式",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "年龄组",
       "ageGroupDescription": "决定适用于你游戏的内容指南。你可随时更改。",
-      "ageGroupSection": "年龄组",
+      "ageGroupSection": "年龄与保护分组",
       "ageGroupU13": "13-17 岁",
       "ageGroupU18": "18 岁及以上",
       "gamesCreated": "已创建的游戏",
@@ -995,6 +1008,12 @@
       "promoteTitle": "提升为负责人",
       "promoteToHead": "提升为负责人",
       "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
+      "promptConstraintsFallbackEmpty": "（未配置）",
+      "promptConstraintsFallbackHint": "未配置组织约束。将使用该年龄组玩家的站点默认设置：",
+      "promptConstraintsFallbackTitle": "启用的站点级回退",
+      "promptConstraintsFallbackU13": "13 岁以下",
+      "promptConstraintsFallbackU13p": "13–17 岁（已获得家长同意）",
+      "promptConstraintsFallbackU18": "18 岁及以上",
       "promptConstraintsHint": "组织中所有会话的额外 AI 指令。若未设置工作坊级约束，并对通过链接分享的游戏生效。",
       "promptConstraintsLabel": "组织提示约束",
       "promptConstraintsPlaceholder": "例如：让故事适合相应年龄，避免暴力内容。",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "根据玩家年龄组定义强制性的 AI 规则。这些约束将注入每次 AI 响应，适用于工作坊模式之外的所有登录用户。",
         "title": "按年龄划分的约束提示",
-        "u13Hint": "注入到所有 13-17 岁登录用户的每个 AI 提示中。",
-        "u13Label": "13-17 岁用户（U13）的约束",
+        "u13Hint": "会注入到所有登录且未有家长同意记录的 13–17 岁用户的 AI 提示中。",
+        "u13Label": "适用于 13–17 岁无家长同意用户的约束（U13）",
         "u13Placeholder": "例如：确保所有内容严格适合青少年。不允许暴力、浪漫内容或恐怖主题。",
+        "u13pHint": "会注入到所有登录且已有家长同意记录的 13–17 岁用户的 AI 提示中。",
+        "u13pLabel": "适用于 13–17 岁有家长同意用户的约束（U13p）",
+        "u13pPlaceholder": "例如：适合父母已同意的青少年内容。允许部分成熟主题，但不含露骨内容。",
         "u18Hint": "注入到所有 18 岁及以上登录用户的每个 AI 提示中。",
         "u18Label": "18 岁以上用户（U18）的约束",
         "u18Placeholder": "例如：保持内容适当。避免明显的暴力或色情内容。"
