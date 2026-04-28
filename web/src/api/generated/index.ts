@@ -54,6 +54,13 @@ export interface DbUserSessionWithGame {
   /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
   language?: string;
   meta?: ObjMeta;
+  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
+  promptConstraintSource?: string;
+  /**
+   * Resolved prompt constraints, re-injected with every AI call.
+   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   */
+  promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
   /** AI-generated visual theme for the game player UI (JSON) */
@@ -61,8 +68,6 @@ export interface DbUserSessionWithGame {
   userId?: string;
   userName?: string;
   workshopId?: string;
-  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
-  workshopPromptConstraints?: string;
 }
 
 export interface HttpxErrorResponse {
@@ -221,6 +226,13 @@ export interface ObjGameSession {
   /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
   language?: string;
   meta?: ObjMeta;
+  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
+  promptConstraintSource?: string;
+  /**
+   * Resolved prompt constraints, re-injected with every AI call.
+   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   */
+  promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
   /** AI-generated visual theme for the game player UI (JSON) */
@@ -228,8 +240,6 @@ export interface ObjGameSession {
   userId?: string;
   userName?: string;
   workshopId?: string;
-  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
-  workshopPromptConstraints?: string;
 }
 
 export interface ObjGameSessionMessage {
@@ -250,6 +260,8 @@ export interface ObjGameSessionMessage {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
+  /** source of active constraint (workshop, organisation, site13, site18) */
+  promptConstraintSource?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -297,6 +309,7 @@ export interface ObjInstitution {
   members?: ObjInstitutionMember[];
   meta?: ObjMeta;
   name?: string;
+  promptConstraints?: string;
 }
 
 export interface ObjInstitutionMember {
@@ -330,6 +343,12 @@ export interface ObjSystemSettings {
   freeUseApiKeyWorking?: boolean;
   id?: string;
   modifiedAt?: string;
+  /** constraint for users aged 13-17 without parental consent (u13) */
+  promptConstraintU13?: string;
+  /** constraint for users aged 13-17 with parental consent (u13p) */
+  promptConstraintU13p?: string;
+  /** constraint for users aged 18+ (u18) */
+  promptConstraintU18?: string;
 }
 
 export interface ObjTokenUsage {
@@ -343,6 +362,14 @@ export interface ObjTokenUsage {
 }
 
 export interface ObjUser {
+  /**
+   * AgeGroup cohort:
+   *   "u13"  = 13-17, no parental consent on file (strictest; default when unknown)
+   *   "u13p" = 13-17, with parental consent on file
+   *   "u18"  = 18+
+   *   nil    = guest / unknown
+   */
+  ageGroup?: string;
   /** high/medium/low, nil = server default */
   aiQualityTier?: string;
   auth0Id?: string;
@@ -563,6 +590,13 @@ export interface RoutesGuestSessionResponse {
   language?: string;
   messages?: RoutesSessionMessageResponse[];
   meta?: ObjMeta;
+  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
+  promptConstraintSource?: string;
+  /**
+   * Resolved prompt constraints, re-injected with every AI call.
+   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   */
+  promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
   /** AI-generated visual theme for the game player UI (JSON) */
@@ -570,8 +604,6 @@ export interface RoutesGuestSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
-  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
-  workshopPromptConstraints?: string;
 }
 
 export interface RoutesImageStatusResponse {
@@ -635,6 +667,8 @@ export interface RoutesPrivateShareStatus {
 }
 
 export interface RoutesRegisterRequest {
+  /** AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+). */
+  ageGroup?: string;
   email?: string;
   name?: string;
 }
@@ -673,6 +707,8 @@ export interface RoutesSessionMessageResponse {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
+  /** source of active constraint (workshop, organisation, site13, site18) */
+  promptConstraintSource?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -723,6 +759,13 @@ export interface RoutesSessionResponse {
   language?: string;
   messages?: ObjGameSessionMessage[];
   meta?: ObjMeta;
+  /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
+  promptConstraintSource?: string;
+  /**
+   * Resolved prompt constraints, re-injected with every AI call.
+   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   */
+  promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
   statusFields?: string;
   /** AI-generated visual theme for the game player UI (JSON) */
@@ -730,8 +773,6 @@ export interface RoutesSessionResponse {
   userId?: string;
   userName?: string;
   workshopId?: string;
-  /** Workshop prompt constraints (if user is in a workshop), re-injected with every AI call */
-  workshopPromptConstraints?: string;
 }
 
 export interface RoutesSetActiveWorkshopRequest {
@@ -771,6 +812,12 @@ export interface RoutesStatusResponse {
   uptime?: string;
 }
 
+export interface RoutesSystemConstraintsResponse {
+  promptConstraintU13?: string;
+  promptConstraintU13p?: string;
+  promptConstraintU18?: string;
+}
+
 export interface RoutesUpdateApiKeyRequest {
   name?: string;
 }
@@ -782,6 +829,10 @@ export interface RoutesUpdateGameShareRequest {
   maxSessions?: number;
 }
 
+export interface RoutesUpdateInstitutionPromptConstraintsRequest {
+  promptConstraints?: string;
+}
+
 export interface RoutesUpdateInstitutionRequest {
   name?: string;
 }
@@ -789,6 +840,12 @@ export interface RoutesUpdateInstitutionRequest {
 export interface RoutesUpdateSystemSettingsRequest {
   defaultAiQualityTier?: string;
   freeUseAiQualityTier?: string;
+  /** 13-17, no parental consent */
+  promptConstraintU13?: string;
+  /** 13-17, with parental consent */
+  promptConstraintU13p?: string;
+  /** 18+ */
+  promptConstraintU18?: string;
 }
 
 export interface RoutesUpdateWorkshopRequest {
@@ -805,6 +862,8 @@ export interface RoutesUpdateWorkshopRequest {
 }
 
 export interface RoutesUserUpdateRequest {
+  /** AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+). */
+  ageGroup?: string;
   aiQualityTier?: string;
   defaultApiKeyShareId?: string;
   email?: string;
@@ -1954,6 +2013,30 @@ export class Api<
         format: "json",
         ...params,
       }),
+
+    /**
+     * @description Sets or clears prompt constraints for an institution (head or admin only)
+     *
+     * @tags institutions
+     * @name PromptConstraintsPartialUpdate
+     * @summary Update institution prompt constraints
+     * @request PATCH:/institutions/{id}/prompt-constraints
+     * @secure
+     */
+    promptConstraintsPartialUpdate: (
+      id: string,
+      request: RoutesUpdateInstitutionPromptConstraintsRequest,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjInstitution, HttpxErrorResponse>({
+        path: `/institutions/${id}/prompt-constraints`,
+        method: "PATCH",
+        body: request,
+        secure: true,
+        type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
   };
   invites = {
     /**
@@ -2527,6 +2610,22 @@ export class Api<
       }),
   };
   system = {
+    /**
+     * @description Returns the three site-wide age-based prompt constraint texts. Available to any authenticated user so org settings can show the active fallback.
+     *
+     * @tags system
+     * @name ConstraintsList
+     * @summary Get site-wide prompt constraints
+     * @request GET:/system/constraints
+     */
+    constraintsList: (params: RequestParams = {}) =>
+      this.request<RoutesSystemConstraintsResponse, HttpxErrorResponse>({
+        path: `/system/constraints`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
     /**
      * @description Returns the global system settings
      *

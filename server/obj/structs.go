@@ -69,6 +69,12 @@ type User struct {
 	ApiKeys       []ApiKeyShare `json:"apiKeys" swaggerignore:"true"`
 	AiQualityTier *string       `json:"aiQualityTier,omitempty"` // high/medium/low, nil = server default
 	Language      string        `json:"language"`                // ISO 639-1 language code (e.g., "en", "de", "fr")
+	// AgeGroup cohort:
+	//   "u13"  = 13-17, no parental consent on file (strictest; default when unknown)
+	//   "u13p" = 13-17, with parental consent on file
+	//   "u18"  = 18+
+	//   nil    = guest / unknown
+	AgeGroup *string `json:"ageGroup,omitempty"`
 }
 
 // UserStats contains aggregated statistics for a user
@@ -86,6 +92,7 @@ type Institution struct {
 	Members              []InstitutionMember `json:"members,omitempty"`
 	FreeUseApiKeyShareID *uuid.UUID          `json:"freeUseApiKeyShareId,omitempty"`
 	FreeUseAiQualityTier *string             `json:"freeUseAiQualityTier,omitempty"` // high/medium/low, nil = server default
+	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
 }
 
 type InstitutionMember struct {
@@ -101,6 +108,9 @@ type SystemSettings struct {
 	ModifiedAt            *time.Time `json:"modifiedAt"`
 	DefaultAiQualityTier  string     `json:"defaultAiQualityTier"`           // ultimate server-wide fallback (e.g. "medium")
 	FreeUseAiQualityTier  *string    `json:"freeUseAiQualityTier,omitempty"` // tier for system free-use key, nil = use default
+	PromptConstraintU13   *string    `json:"promptConstraintU13,omitempty"`  // constraint for users aged 13-17 without parental consent (u13)
+	PromptConstraintU13p  *string    `json:"promptConstraintU13p,omitempty"` // constraint for users aged 13-17 with parental consent (u13p)
+	PromptConstraintU18   *string    `json:"promptConstraintU18,omitempty"`  // constraint for users aged 18+ (u18)
 	FreeUseApiKeyID       *uuid.UUID `json:"freeUseApiKeyId,omitempty"`
 	FreeUseApiKeyName     string     `json:"freeUseApiKeyName,omitempty"`
 	FreeUseApiKeyPlatform string     `json:"freeUseApiKeyPlatform,omitempty"`
@@ -317,8 +327,11 @@ type GameSession struct {
 	ImageStyle string `json:"imageStyle"`
 	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
 	Language string `json:"language"`
-	// Workshop prompt constraints (if user is in a workshop), re-injected with every AI call
-	WorkshopPromptConstraints *string `json:"workshopPromptConstraints,omitempty"`
+	// Resolved prompt constraints, re-injected with every AI call.
+	// Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+	PromptConstraints *string `json:"promptConstraints,omitempty"`
+	// Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18").
+	PromptConstraintSource string `json:"promptConstraintSource,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
@@ -497,7 +510,8 @@ type GameSessionMessage struct {
 	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
 	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
-	ApiKeyType   string        `json:"apiKeyType,omitempty"` // source of API key used (workshop, sponsor, personal, etc.)
+	ApiKeyType             string `json:"apiKeyType,omitempty"`             // source of API key used (workshop, sponsor, personal, etc.)
+	PromptConstraintSource string `json:"promptConstraintSource,omitempty"` // source of active constraint (workshop, organisation, site13, site18)
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)

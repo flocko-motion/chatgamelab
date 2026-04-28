@@ -28,7 +28,15 @@ CREATE TABLE app_user (
     -- User's preferred language (ISO 639-1 code: en, de, fr, etc.)
     language text NOT NULL DEFAULT 'en',
     -- Links guest users to the game_share that created them (NULL for non-guests)
-    private_share_id uuid NULL
+    private_share_id uuid NULL,
+    -- User's age group:
+    --   'u13'  = 13-17, no parental consent on file (strictest; default when unknown)
+    --   'u13p' = 13-17, with parental consent on file
+    --   'u18'  = 18+
+    --   NULL   = guest / unknown
+    age_group text NULL,
+
+    CONSTRAINT app_user_age_group_chk CHECK (age_group IS NULL OR age_group IN ('u13', 'u13p', 'u18'))
 );
 
 -- Institution
@@ -45,7 +53,9 @@ CREATE TABLE institution (
     -- Free-use API key share for institution members (any member can use this key to play)
     free_use_api_key_share_id uuid NULL,
     -- AI quality tier for the institution free-use key (high/medium/low, NULL = server default)
-    free_use_ai_quality_tier text NULL
+    free_use_ai_quality_tier text NULL,
+    -- Additional prompt constraints configured by institution heads
+    prompt_constraints text NULL
 );
 
 -- Workshop
@@ -358,6 +368,8 @@ CREATE TABLE game_session_message (
     url_analytics           text NULL,
     -- Type of API key used to generate this message (shown in AI Insight panel)
     api_key_type            text NULL,
+    -- Source of the active prompt constraint when this message was generated
+    prompt_constraint_source text NULL,
 
     deleted_at          timestamptz NULL,
 
@@ -374,6 +386,12 @@ CREATE TABLE system_settings (
     default_ai_quality_tier text NOT NULL DEFAULT 'medium',
     -- AI quality tier for the system free-use key (NULL = use default_ai_quality_tier)
     free_use_ai_quality_tier text NULL,
+    -- Site-level constraint prompt for users aged 13-17 without parental consent (u13)
+    prompt_constraint_u13 text NULL,
+    -- Site-level constraint prompt for users aged 13-17 with parental consent (u13p)
+    prompt_constraint_u13p text NULL,
+    -- Site-level constraint prompt for users aged 18+ (u18)
+    prompt_constraint_u18 text NULL,
     -- Schema version for tracking applied migrations
     schema_version integer NOT NULL DEFAULT 0,
     -- Free-use API key for all users (admin-configured, references api_key directly)

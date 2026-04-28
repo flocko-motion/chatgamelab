@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Des hilft uns, de richtigen Schutz- und Inhoitrichtlinien auf dei Konto o'zuwenden.",
+      "label": "Oit- und Schutzgruppn",
+      "u13": "13–17 Joahr, ohn Elternerlaubnis",
+      "u13Description": "Du derfst ChatGameLab nutzn. Bei dei Konto galten strengere Schutzeinstellungen.",
+      "u13p": "13–17 Joahr, mit Elternerlaubnis",
+      "u13pDescription": "Du derfst ChatGameLab nutzn, wenn dei Eltern z'stimm.",
+      "u18": "18 Joahr oder oider",
+      "u18Description": "Du derfst ChatGameLab nutzn.",
+      "under13": "Unter 13 Joahr",
+      "under13Blocker": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn.",
+      "under13Description": "Du kannst no koa eigne Konto aufmacha. Wennst unter 13 bist, derfst ChatGameLab bloß über a Jugendorganisation nutzn."
+    },
     "login": {
       "auth0Button": "Mit Auth0 einloggn",
       "devMode": "Entwicklungsmodus",
@@ -32,6 +45,11 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Altersgruppn",
+      "ageGroupDescription": "Bestimmt, welche Inhaltsregeln fia dei Spuin gengan. Des kannst jederzeit ändan.",
+      "ageGroupSection": "Oit- und Schutzgruppn",
+      "ageGroupU13": "13-17 Joa",
+      "ageGroupU18": "18+ Joa",
       "gamesCreated": "Spui erstellt",
       "gamesPlayed": "Spui gspuit",
       "memberSince": "Registriert seit",
@@ -53,6 +71,12 @@
       "totalPlaysOnGames": "Gsamte Spuidurchgänge auf meine Spiele"
     },
     "register": {
+      "ageGroupLabel": "Altersgruppn",
+      "ageGroupRequired": "Bittschee wähl dei Altersgruppn aus.",
+      "ageGroupU13": "13-17 Joa oid",
+      "ageGroupU18": "18 oder oida",
+      "ageGroupUnder13": "Unter 13",
+      "ageGroupUnder13Error": "Du musst mindestns 13 Joa oid sei, damitst ChatGameLab nutzn derfst.",
       "cancelButton": "Abbrecha",
       "emailDescription": "D'Adress nutzn ma fia wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adress",
@@ -73,8 +97,48 @@
       "subtitle": "Nur no a paar Details, dann geht's los",
       "title": "Vervollständig dei Profil"
     },
+    "registerPage": {
+      "agreePrefix": "I bin mit da",
+      "agreeSuffix": "und",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Hast scho a Konto?",
+      "backButton": "Zruck",
+      "chooseType": "Wia mogst ChatGameLab nutzn?",
+      "continueButton": "Weiter zur Anmeldung",
+      "description": "Mir nutzn Auth0 ois Anmeldedienst, damits de Nutzerkontn verwaltn kenna. Du wirst zu Auth0 weitergleitet, damitst dei Konto o'zlegst, und kummst dann wieda her, zum dei Profil fertig macha.",
+      "educatorDescription": "Nutz ChatGameLab in Workshops, Klassenzimma oder in da Organisation.",
+      "educatorModal": {
+        "closeButton": "Zua macha",
+        "copied": "Kopiert!",
+        "copyEmail": "E-Mail kopiern",
+        "eduInfo": "Mehr erfahrn, wia ma ChatGameLab fia Bildungszwecke nutzt:",
+        "intro": "Wennst ChatGameLab mit da Organisation (Schui, Uni, Einrichtung) nutzn mogst, follgst bitte de Schritte:",
+        "registerButton": "Persönlichs Konto o'zlegn",
+        "step1": "1. Persönlichs Konto o'zlegn",
+        "step1Description": "Leg zerscht dei persönliches Konto o. Des is dann dei Login fia d'Plattform.",
+        "step2": "2. Schick uns a E-Mail",
+        "step2Description": "Schreib a Mail an",
+        "step2Item1": "Dei registrierte E-Mail-Adresse",
+        "step2Item2": "Da Nam vo da Organisation (Schui, Einrichtung, etc.)",
+        "step2WithInfo": "mit:",
+        "step3": "3. Mia setzn dei Organisation auf",
+        "step3Description": "Mia legn dei Organisation an und macha di zum Head. Dann kannst Kolleg*innen ei'lodn und Workshops aufsetzn.",
+        "title": "Zugriff fia Lehrkraft \u0026 Profis"
+      },
+      "educatorTitle": "Lehrkraft / Profi",
+      "individualDescription": "Erstell und spiel KI-gstützte Textabenteia",
+      "individualTitle": "Privats Konto",
+      "loginLink": "Einloggn",
+      "privacyPolicy": "Datenschutz",
+      "termsOfService": "Nutzungsbedingunga",
+      "title": "Leg dei Konto o"
+    },
     "settings": {
       "accountSection": "Konto",
+      "ageGroupDescription": "Legt fest, welche Inhaltsregeln fia dei Spuin gengan.",
+      "ageGroupLabel": "Altersgruppn",
+      "ageGroupU13": "13-17 Joa",
+      "ageGroupU18": "18 oder oida",
       "emailChangeNote": "Wennst dei E-Mail ändern wui, meld di bitte beim Seiten-Admin.",
       "errors": {
         "nameRequired": "Nam is Pflicht",
@@ -210,6 +274,7 @@
       "low": "Niedrig (Sparmodus)",
       "max": "Max (Premium + Audio)",
       "medium": "Mittel (Ausgwogn)",
+      "newSessionsOnly": "Daa Tarif gilt bloß fia neie Sitzunga. Laufa Sitzunga bleim beim alten Tarif.",
       "serverDefault": "Server-Standard"
     },
     "allGames": {
@@ -233,6 +298,7 @@
         "sponsored": "G'sponsert"
       },
       "play": "Spuin",
+      "reportGame": "Spui melden",
       "restart": "Neistart",
       "restartConfirm": {
         "confirm": "Neistart",
@@ -240,7 +306,8 @@
         "title": "Spui neu startn"
       },
       "title": "Alle Spiele",
-      "unfavorite": "Aus Favoriten entferna"
+      "unfavorite": "Aus Favoriten entferna",
+      "workshop": "Workshop / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +352,28 @@
       "platform": "Plattform",
       "setDefault": "Als Standard setzn",
       "shares": {
+        "context": {
+          "organization": "Organisation",
+          "personal": "Persönlich",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Spui-Share-Links",
         "goToOrg": "Verwalten",
         "noOrgShares": "Mit koana Organisation gteilt",
         "noSponsorships": "Koane Spui-Sponsoringe",
         "orgShares": "Organisations-Teilungen",
         "privateShares": "Private Teil-Links",
-        "remaining": "{{count}} übrig",
+        "remaining": "{{count}} Nutzungen übrig",
         "removeSponsor": "Sponsoring entferna",
+        "revokeGameShare": "Share-Link zruckziang",
         "revokePrivateShare": "Teil-Link zurückzieh",
         "sponsorships": "Spui-Sponsoringe",
         "toggle": "Teilungen \u00026 Sponsoring",
         "unknownGame": "Unbekannts Spui",
         "unknownOrg": "Unbekannte Organisation",
         "unknownUser": "Unbekannte Person",
-        "unknownWorkshop": "Unbekannter Workshop"
+        "unknownWorkshop": "Unbekannter Workshop",
+        "unlimited": "Unbegrenzte Nutzungen"
       },
       "status": {
         "failed": "Schlüssl funktioniert ned",
@@ -336,6 +411,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Verwendete API-Schlissl gändert",
         "sections": {
           "expandStory": "Anweisungen an d'KI, wia d'Gschicht ausformuliert werd",
           "imageGeneration": "Anweisungen vo da KI fia d'Bilderstellung",
@@ -349,6 +425,15 @@
         "tokens": {
           "received": "Tokens empfangen",
           "sent": "Tokens gschickt"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Da Gratis-Schlissl vo da Organisation is nutzt worn",
+          "label": "Verwendeter API-Schlissl",
+          "personal": "Dei persönlicher Schlissl is nutzt worn",
+          "private_share": "Da Share-Link-Schlissl is nutzt worn",
+          "sponsor": "A Sponsor-Schlissl is nutzt worn",
+          "system_free_use": "A globaler Gratis-Schlissl is nutzt worn",
+          "workshop": "Da Schlissl vo deinem Workshop is nutzt worn"
         }
       },
       "debug": {
@@ -377,7 +462,7 @@
         "gameNotFound": "Spui ned gfundn",
         "missingFields": "Beim Spui fehlen Pflichtfelder:",
         "noApiKey": {
-          "banner": "Da API-Schlüssl, der vorher fia dieses Spui nutzt wor, is nimma verfiegbar. Damitst weidaspui kannst, leg an eigenen API-Schlüssl in dine Kontoeinstellungen an.",
+          "banner": "Koa nutzbarer API-Schlissl fia d'Plattform {{platform}} gfundn. Wennst weida spieln mogst, trag dei eigana API-Schlissl in de Konto-Einstellunga ei.",
           "goToSettings": "API-Schlüssel-Einstellungen",
           "personal": "Du brauchst an API-Schlüssl, bevorst spuin kannst. Füg in deine API-Schlüssel-Einstellungen oana dazu.",
           "title": "Koan API-Schlüssl verfiegbar",
@@ -453,19 +538,23 @@
       "badges": {
         "myGame": "Mei Spui",
         "public": "Öffentlich",
-        "workshop": "Workshop"
+        "workshop": "Workshop-Spui"
       },
       "createButton": "Spui erstellen",
       "createModal": {
         "descriptionPlaceholder": "Um was geht's in deinem Spui?",
         "namePlaceholder": "z. B. Weltraum-Abentea",
-        "publicDescription": "Öffentliche Spiele kennan ois findn.",
+        "publicDescription": "Öffentliche Spuin san fia alle Nutzer auf dera Plattform sichtbar und spielbar.",
         "publicLabel": "Spui öffentlich macha",
         "submit": "Spui erstellen",
         "title": "Neies Spui erstellen"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bist drauf und dran, a Spui z'löschn, des da ned gheat. Des is a adminisztrative Aktion und soi nur fia Moderation nutzt wern.",
         "message": "Bist da sicha, dassd \"{{name}}\" löschn mogst?",
+        "moderatorActionTitle": "Spui vo am Teilnehmenden löschn",
+        "moderatorActionWarning": "Des Spui ghört zua Teilnehmer*in in deinem Workshop. Wennst as löschn tust, is es fia eam/ea weg. Des ko ma ned rückgängig macha.",
         "title": "Spui löschn",
         "warning": "Des laßt si nimma rückgängig macha. Ois Spui-Daten werdn endgültig entfernt."
       },
@@ -484,6 +573,9 @@
         "statusFieldsHint": "Was soi des Spui im Blick behaltn? Z. B. Gsundheit, Punkte oder Munition. Des Spui merkt si de Werte und aktualisiert's während dem Spuin."
       },
       "editModal": {
+        "adminActionTitle": "Admin-Aktion",
+        "adminActionWarning": "Du bearbeitst grad a Spui, des da ned gheat. Des soi nur fia Moderation nutzt wern.",
+        "gameDesignSection": "Spieldesign",
         "title": "Spui bearbeitn",
         "unsavedChanges": {
           "discard": "Änderungen verwerfn",
@@ -517,9 +609,13 @@
       "playNow": "Glei spuin",
       "privateShare": {
         "active": "Privates Teilen is aktiv. Wer den Link hod, ko des Spui anonym spuin.",
+        "aiQualityTier": "KI-Qualität",
+        "aiQualityTierDescription": "Wähl de KI-Modell-Qualität fia Gäsdn, de mit dem Share-Link spuin.",
         "copyLink": "Link kopiern",
+        "createModalTitle": "Privaten Share-Link erstella",
         "description": "Erstell a privaten Link, damit ois, de'n ham, des Spui anonym spuin kennan. Du bestimmst, welcher API-Schlüssl zahlt.",
         "edit": "Einstellungen bearbeiten",
+        "editModalTitle": "Privaten Share-Link bearbeitn",
         "editSettings": "Teil-Einstellungen bearbeiten",
         "enable": "Teil-Link erstellen",
         "loading": "Teil-Status wird glada...",
@@ -527,18 +623,40 @@
         "maxSessions": "Max. Sessions",
         "maxSessionsDescription": "Leer lassn fia unbegrenzt.",
         "noEligibleKeys": "Koan funktioniern API-Schlüssl verfiegbar. Leg zuerst oana in de API-Schlüssel-Einstellungen an.",
+        "noPersonalShare": "Es gibt koan persönlichen oder Organisations-Share-Link. Du kannst ausserhalb vom Workshop oan erstella.",
+        "orgKey": "Organisation",
+        "orgShareDescription": "Organisations-Share-Link – Gäsdn spuin mit dem API-Schlissl vo da Organisation.",
+        "personalCreateHint": "Erstell an privaten Link, damit jeda mit dem Link des Spui anonym spuin ko. Du entscheidst, weicher API-Schlissl d'Kosten übernimmt.",
+        "personalOrgSubsection": "Persönlich / Organisations-Share-Link",
+        "personalShare": "Dei privater Share-Link",
+        "personalShareDescription": "Dei privater Share-Link – Gäsdn spuin mit dem vo dir gwählten API-Schlissl.",
         "remainingSessions": "{{count}} Session(s) übrig",
         "revoke": "Link deaktiviern",
         "selectKey": "API-Schlüssl auswähln",
         "selectKeyPlaceholder": "Wähl an Schlüssl, der die Gästesessions zahlt...",
         "shareLink": "Teil-Link",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
+        "sourceWorkshop": "Workshop",
         "title": "Privater Teil-Link",
         "unlimited": "Unbegrenzt",
-        "update": "Teil-Link aktualisieren"
+        "unlimitedSessions": "Unbegrenzte Sitzunga",
+        "update": "Teil-Link aktualisieren",
+        "workshopCreateHint": "Erstell an Share-Link fia des Spui. Da Workshop-API-Schlissl werd automatisch gnomma und deckt d'Kosten.",
+        "workshopDescription": "Erstell an Share-Link fia des Spui. Da Standard-API-Schlissl vom Workshop werd automatisch fia Gästesitzunga verwendet.",
+        "workshopShare": "Workshop-Share",
+        "workshopShareDescription": "Daa Link is im Workshop \"{{name}}\" erstellt worn – Gäsdn spuin mit dem API-Schlissl vom Workshop.",
+        "workshopSubsection": "Workshop-Share-Link"
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Teilen \u00026 Sponsorn"
+        "privateShareLink": "Privater Share-Link",
+        "privateShareLinkDescription": "Private Share-Links kenna weidaggebn wern. Jeda mit dem Link ko des Spui anonym ohne Konto spuin. A API-Schlissl muaß ausgewählt sei, der d'Kosten übernimmt.",
+        "publicGameWorkshopHint": "Des is a öffentliches Spui und ned Teil vo deinem Workshop. Im Workshop-Modus gibt's koane Sharing-Optionen fia öffentliche Spuin.",
+        "publicSponsoring": "Öffentliches Sponsoring",
+        "publicSponsoringDescription": "Alle Nutzer auf da Plattform kenna des Spui gratis spuin – dei zuagwiesener API-Schlissl übernimmt d'Kosten.",
+        "sectionTitle": "Sharing-Optionen",
+        "sectionTitleShareOnly": "Sharing-Optionen"
       },
       "sort": {
         "createdAt-asc": "Erstellt (oideste)",
@@ -570,11 +688,13 @@
         "loadingKeys": "API-Schlüssel werdn glada...",
         "manageSponsor": "Sponsoring verwalten",
         "next": "Weiter",
-        "noEligibleKeys": "Du host koane API-Schlüssel, bei denen öffentliches Sponsoring erlaubt is. Geh in d'API-Schlüssel-Einstellungen und aktiviere \"Öffentliches Sponsoring erlauben\".",
+        "noEligibleKeys": "Du host koa API-Schlissl zum Sponsern parat. Füg zuerst a API-Schlissl in den Einstellungen dazu.",
         "privateWarning": "Wennst des Spui privat machst, werd des öffentliche Sponsoring entfernt.",
         "removeSponsor": "Sponsoring entferna",
         "selectKey": "API-Schlüssl auswähln",
         "selectKeyPlaceholder": "Wähl an Schlüssl zum Sponsorn...",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Persönlich",
         "sponsorGame": "Spui sponsor'n",
         "sponsored": "G'sponsert",
         "sponsoredTooltip": "Des Spui is g'sponsert – du kannst gratis spuin! Da/die Ersteller/in oder a Unterstützer zahlt d'KI-Kosten.",
@@ -725,6 +845,7 @@
       "profile": "Profil",
       "workshop": "Workshop"
     },
+    "help": "Hilf",
     "home": {
       "features": {
         "create": {
@@ -836,15 +957,15 @@
     "myOrganization": {
       "actions": "Aktionen",
       "apiKeys": {
-        "aboutDescription": "Geteilte API-Schlüssel können ois Mitglida deiner Organisation zum Spuin nutzn. Nua Leitungen und Lehrer/innen derfn des verwalten.",
+        "aboutDescription": "API-Schlissl, de du do teilst, stehna olle Mitglieda vo da Organisation zum Spuin zur Verfügung.",
         "aboutTitle": "Organisations-API-Schlüssel",
         "allowPublicSponsoring": "Öffentliches Sponsoring erlauben",
         "allowPublicSponsoringDesc": "Dieser Schlüssl derf Spiele fia alle Nutzer/innen sponsor'n.",
         "filterByPlatform": "Nach Plattform filter",
         "freeUseKey": {
-          "description": "Leg an Gratis-Schlüssl fest, damit ois Organisations-Mitglida ohne eigenen API-Schlüssl spuin kennan. Nua bereits geteilte Schlüssel san auswählbar.",
+          "description": "Leg an Gratis-Schlissl fest, damit olle Organisationsmitglieda spuin kenna, ohne an eigana API-Schlissl z'braucha.",
           "remove": "Entferna",
-          "selectPlaceholder": "Geteilten Schlüssl auswähln...",
+          "selectPlaceholder": "Schlissl auswähln...",
           "title": "Gratis-Schlüssl",
           "unknownKey": "Unbekannter Schlüssl"
         },
@@ -862,7 +983,14 @@
         "share": "Teilen",
         "shareKey": "Schlüssl teilen",
         "shareKeyTitle": "API-Schlüssl mit Organisation teilen",
+        "showDetails": "Details zeigen",
         "title": "Organisations-API-Schlüssel"
+      },
+      "autoShare": {
+        "confirmMessage": "Daa Schlissl werd mit {{orgName}} gteilt und ko dann vo weitere Heads und Staff fia Workshops nutzt wern. Du kannst des späda in deiner persönlicha oder da Organisations-API-Schlissl-Verwaltung wieda entferna.",
+        "confirmTitle": "Schlissl mit da Organisation teilen",
+        "orgKeyGroup": "Organisations-Schlissl",
+        "personalKeyGroup": "Persönliche Schlissl"
       },
       "demoteConfirm": "Bist da sicha, dassd \"{{name}}\" ({{email}}) zum Lehrer/zur Lehrerin zurückstufst?",
       "demoteTitle": "Zum Lehrer/zur Lehrerin zurückstufn",
@@ -895,6 +1023,15 @@
       "promoteTitle": "Zur Leitn befördern",
       "promoteToHead": "Zur Leitn machn",
       "promoteWarning": "Der/die Nutzer/in derf danach Mitglida verwalten und Lehrer/innen einladen.",
+      "promptConstraintsFallbackEmpty": "(ned konfiguriert)",
+      "promptConstraintsFallbackHint": "Koane Organisationsvorgabn hinterlegt. Es gilt da seitenweite Standard fia de Oitgruppe vom Spieler:",
+      "promptConstraintsFallbackTitle": "Aktiva seitenweite Ersatzregel",
+      "promptConstraintsFallbackU13": "Unter 13",
+      "promptConstraintsFallbackU13p": "13–17 (mit Elternerlaubnis)",
+      "promptConstraintsFallbackU18": "18 und oider",
+      "promptConstraintsHint": "Zusätzliche KI-Vorgaben fia olle Sitzunga in dera Organisation. Gilt, wenn koan Workshop-Level-Vorgab da is, und fia Spuin, de per Link gteil wern.",
+      "promptConstraintsLabel": "Organisations-Prompt-Vorgabn",
+      "promptConstraintsPlaceholder": "z.B. Gschicht altersgerecht hoitn und koane g'walttätign Inhalte.",
       "removeConfirm": "Bist da sicha, dassd \"{{name}}\" aus da Organisation entfernst?",
       "removeMember": "Mitglied entfern",
       "removeTitle": "Mitglied entfern",
@@ -915,11 +1052,21 @@
         "active": "Aktiv",
         "activeDescription": "Aktive Workshops lassn Teilnehmer/innen beitretn und Spiele erstellen.",
         "activeLabel": "Aktiv",
+        "addIndividual": "Organisationsmitglied dazua doa",
+        "addIndividualError": "Mitglied konnt ned zum Workshop dazuaweadn.",
+        "addIndividualHint": "Wennst a Nutzer*in hinzufügst, kimmt a automatisch in den Workshop-Modus. Sia seng dann de Workshop-Ansicht statt ihrem normalen Dashboard. Nur mochn, wenn's so ghört.",
+        "addIndividualStaffNote": "Heads und Lehrkraftn solln Workshops selber über de Workshop-Listn beitretn – de werdn do ned aufg'list.",
+        "addIndividualSuccess": "Mitglied hinzugefügt",
+        "addIndividualSuccessMessage": "{{name}} is zum Workshop dazukemma.",
+        "addIndividualTitle": "Person zum Workshop dazua doa",
+        "addToWorkshop": "Zum Workshop dazua doa",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "Qualitätsstufn fia KI-Antwortn. Höhere Stufn kostn mehr, san aber evtl. besser. Leer = Server-Standard.",
+        "allowGameSharing": "Spuisharing erlauba",
+        "allowGameSharingHint": "Wenn aktiviert, kenna Teilnehmende Share-Links fia ihre Spuin mit dem Workshop-API-Schlissl basteln.",
         "anonymousParticipant": "Anonyma Teilnehmer/in",
         "create": "Workshop erstellen",
         "createFirst": "Erstell deinen erschten Workshop",
@@ -938,6 +1085,11 @@
         "games": "Spui",
         "hideInactive": "Inaktive versteckn",
         "inactive": "Inaktiv",
+        "inviteByEmail": "Per E-Mail ei'lodn",
+        "inviteByEmailDescription": "Gib d'E-Mail vo am registrierten Nutzer ei, um eam zum Workshop eizuladn. D'Eilodung taucht dann im Dashboard auf.",
+        "inviteByEmailSuccess": "Eilodung gschickt",
+        "inviteByEmailSuccessMessage": "A Eilodung is erstellt. Da Nutzer siacht's unter de offanen Eilodungen.",
+        "inviteByEmailTitle": "Nutzer zum Workshop ei'lodn",
         "inviteCreatedAt": "Erstellt",
         "inviteDescription": "Generier an Einladungslink, damit Teilnehmer/innen da Workshop beitretn kennan.",
         "inviteExpiresAt": "Lauft ab",
@@ -956,6 +1108,7 @@
         "noActiveInvite": "Koan aktiven Einladungslink.",
         "noDefaultApiKey": "Koan Standard-API-Schlüssl",
         "noDefaultModel": "Plattform-Standard nutzn",
+        "noIndividuals": "Koane einzelnen Nutzer in der Organisation.",
         "noParticipantToken": "Diese Teilnehmer/in hod koan Einladungslink. Nua anonyme Teilnehmer/innen (Gäste) ham wiederverwendbare Links.",
         "noParticipants": "Noch koane Teilnehmer/innen",
         "notAuthorized": "Du derfst Workshops ned verwalten. Nua Leitungen und Lehrer/innen habn Zugriff.",
@@ -963,7 +1116,9 @@
         "participantJoined": "Dabei seit {{date}}",
         "participantName": "Teilnehmer-Nam",
         "participants": "Teilnehmer/innen",
-        "promptConstraintsHint": "Zuafoige Anweisungen, de beim AI-System-Prompt fia alle Sitzungen in dem Workshop mitdranhängt werdn.",
+        "promptConstraintsFallbackOrg": "Organisations-Vorgab ois Standard: {{constraint}}",
+        "promptConstraintsFallbackSite": "Seitn-Vorgab ois Standard",
+        "promptConstraintsHint": "Zusätzliche KI-Vorgabn fia olle Sitzunga in dem Workshop.",
         "promptConstraintsLabel": "Prompt-Einschränkungen",
         "promptConstraintsPlaceholder": "z. B. Schaug, dass d'Gschicht altersgerecht bleibt und vermeid g'waltige Inhalte.",
         "removeParticipant": "Teilnehmer/in entfern",
@@ -976,6 +1131,7 @@
         "settings": "Einstellungen",
         "shareParticipantLink": "Individuellen Einladungslink kopiern",
         "showOtherParticipantsGames": "Spui vo andern Teilnehmer/innen anzeigen",
+        "showOtherParticipantsGamesHint": "Leitung und Staff seng sowieso olle Spuin vo de Teilnehmenden zur Moderation",
         "showPublicGames": "Öffentliche Spiele anzeigen",
         "sort": {
           "createdAtAsc": "Älteste zuerst",
@@ -1007,7 +1163,9 @@
       "empty": "Koane neuen Benachrichtigungen.",
       "inviteDescription": "Du bist eigladen, als {{role}} mitzumacha.",
       "inviteToJoin": "Organisations-Einladung",
-      "title": "Benachrichtigungen"
+      "title": "Benachrichtigungen",
+      "workshopInvite": "Workshop-Eilodung",
+      "workshopInviteDescription": "Du bist eigloadn worn, bei dem Workshop mitzumacha."
     },
     "play": {
       "cloneGame": "Zu meine Spiele kopiern",
@@ -1044,6 +1202,19 @@
     "search": "Suacha",
     "searchPlaceholder": "Mitglida durchsua...",
     "serverSettings": {
+      "constraints": {
+        "description": "Leit verpflichtende KI-Regeln je nach Altersgruppn fest. De Vorgabn wern in jede KI-Antwort eig'schobn. Gilt fia olle eigloggten Nutzer ausserhalb vom Workshop-Modus.",
+        "title": "Altersbasierte Constraint-Prompts",
+        "u13Hint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo koane Elternerlaubnis hintlegt is.",
+        "u13Label": "Vorgabn fia Nutzr mit 13–17 Joahr, koane Elternerlaubnis (U13)",
+        "u13Placeholder": "z.B. Inhalte strikt jugendgerecht hoitn. Koane G'wald, koa romantischer Inhalt, koa Horrorthema.",
+        "u13pHint": "Wird in jeda KI-Aufforderung eig'schobn fia eigloggte Nutzr mit 13–17 Joahr, wo a Elternerlaubnis hintlegt is.",
+        "u13pLabel": "Vorgabn fia Nutzr mit 13–17 Joahr, mit Elternerlaubnis (U13p)",
+        "u13pPlaceholder": "z.B. oitaspassende Inhoit fia Teenies, deren Eltern z'stimmt ham. A paar reifere Themen san erlaubt, aba koana explizite Inhoit.",
+        "u18Hint": "Wird in jede KI-Aufforderung fia Nutzer ab 18 eigsetzt.",
+        "u18Label": "Vorgab fia Nutzer ab 18 (U18)",
+        "u18Placeholder": "z.B. Inhalt angemessen hoitn. Koa explizite G'wald oder sexuelle Inhalte."
+      },
       "defaultTier": {
         "description": "Serverweite Ersatzstufn, wenn weder Workshop, Organisation noch Nutzer/in a eigene Stufn ham. Höhere Stufn kostn mehr, san aber evtl. besser.",
         "title": "Standard-KI-Qualitätsstufn"
@@ -1119,6 +1290,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Medienpädagogische Arbeit mit ChatGameLab",
+          "title": "Über ChatGameLab"
+        },
         "jff": {
           "description": "Projektkoordination und leitende Organisation.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1229,6 +1404,14 @@
       "workshop": "Workshop-Spiele"
     },
     "gameType": "Spui",
+    "infoModal": {
+      "body": "Bist etz im Workshop-Modus. Solangst do drin bist, is ois, wosd machst, an den Workshop gebundn – Spuin, Sitzunga und Share-Links.\n\nDu kannst jederzeit wieda aussteign. Des Beendn zerstört weder den Workshop no irgendwos, wosd erstellt host.",
+      "dontShowAgain": "Nimma anzeigen",
+      "gotIt": "Passt, hob's",
+      "headStaffNote": "Du kannst den Workshop jederzeit über d'Workshop-Listn deiner Organisation wieda betretn.",
+      "individualNote": "Wennst nachm Gehn wieda einein mogst, brauchst a neie Eilodung vom Workshop-Team.",
+      "title": "Servus bei {{name}}"
+    },
     "members": {
       "empty": "Noch koane Mitglida",
       "title": "Workshop-Mitglida"
@@ -1260,6 +1443,7 @@
     "myOrganization": "Meine Organisation",
     "myWorkshop": "Mein Workshop",
     "orgApiKeys": "API-Schlüssel",
+    "orgConstraints": "Vorgabn",
     "orgMembers": "Mitglida",
     "orgWorkshops": "Workshops",
     "play": "A Spui spuin",

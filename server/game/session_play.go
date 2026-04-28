@@ -166,6 +166,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 
 	// Tag the AI response with the API key source type (shown in AI Insight panel)
 	response.ApiKeyType = session.ApiKeyType
+	response.PromptConstraintSource = session.PromptConstraintSource
 
 	// Attach transcription to the response so the client can display what was recognized
 	if transcription != "" {
@@ -250,7 +251,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 		response.PromptStatusUpdate = functional.Ptr(action.ToAiJSON())
 	}
 	response.PromptResponseSchema = functional.Ptr(string(gameSchemaJSON))
-	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language, session.WorkshopPromptConstraints))
+	response.PromptExpandStory = functional.Ptr(templates.PromptNarratePlotOutline(session.Language, session.PromptConstraints))
 	if response.ImagePrompt != nil {
 		scenarioForImage := functional.First(session.GameScenarioImagePrompt, session.GameScenario)
 		plotOutline := ""

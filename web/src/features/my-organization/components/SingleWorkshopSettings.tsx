@@ -38,7 +38,10 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
+import { useRequiredAuthenticatedApi } from "@/api/useAuthenticatedApi";
+import { queryKeys } from "@/api/queryKeys";
 import {
   useWorkshop,
   useUpdateWorkshop,
@@ -109,6 +112,15 @@ export function SingleWorkshopSettings({
     useState<ObjWorkshopParticipant | null>(null);
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
+  const api = useRequiredAuthenticatedApi();
+  const { data: institution } = useQuery({
+    queryKey: queryKeys.institution(institutionId),
+    queryFn: async () => {
+      const response = await api.institutions.institutionsDetail(institutionId);
+      return response.data;
+    },
+    enabled: !!institutionId,
+  });
 
   // Combined org + personal key options for workshop key selector
   const {
@@ -456,9 +468,13 @@ export function SingleWorkshopSettings({
             </Text>
             <Textarea
               label={t("myOrganization.workshops.promptConstraintsLabel")}
-              placeholder={t(
-                "myOrganization.workshops.promptConstraintsPlaceholder",
-              )}
+              placeholder={
+                institution?.promptConstraints
+                  ? t("myOrganization.workshops.promptConstraintsFallbackOrg", {
+                      constraint: institution.promptConstraints,
+                    })
+                  : t("myOrganization.workshops.promptConstraintsFallbackSite")
+              }
               description={t("myOrganization.workshops.promptConstraintsHint")}
               size="sm"
               minRows={3}

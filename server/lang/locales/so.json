@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "Tani waxay naga caawinaysaa inaan ku dabaqno ilaalinta saxda ah iyo tilmaamaha nuxurka akoonkaaga.",
+      "label": "Kooxda Da'da iyo Ilaalinta",
+      "u13": "13–17 sano, oggolaansho waalid la'aan",
+      "u13Description": "Waad isticmaali kartaa ChatGameLab. Dejinnada ilaalinta adag ayaa lagu dabaqi doonaa akoonkaaga.",
+      "u13p": "13–17 sano, iyadoo oggolaansho waalid jiro",
+      "u13pDescription": "Waad isticmaali kartaa ChatGameLab haddii waalidiintaadu oggolaadaan.",
+      "u18": "18 sano ama ka weyn",
+      "u18Description": "Waad isticmaali kartaa ChatGameLab.",
+      "under13": "Ka yar 13 sano",
+      "under13Blocker": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro.",
+      "under13Description": "Weli ma samaysan kartid akoon kuu gaar ah. Haddii aad ka yar tahay 13, ChatGameLab waxaad ku isticmaali kartaa oo keliya urur dhalinyaro."
+    },
     "login": {
       "auth0Button": "Gal koonto adoo adeegsanaya Auth0",
       "devMode": "Hab Horumarineed",
@@ -32,6 +45,11 @@
       "workshop": "Aqoon-is-weydaarsi"
     },
     "profile": {
+      "ageGroup": "Kooxda Da'da",
+      "ageGroupDescription": "Waxay go'aamisaa xeerarka nuxurka ee khuseeya ciyaarahaaga. Waxaad beddeli kartaa wakhti kasta.",
+      "ageGroupSection": "Kooxda Da'da iyo Ilaalinta",
+      "ageGroupU13": "13-17 sano",
+      "ageGroupU18": "18+",
       "gamesCreated": "Ciyaaro la abuuray",
       "gamesPlayed": "Ciyaaro la ciyaaray",
       "memberSince": "Diiwaangashan tan iyo",
@@ -53,6 +71,12 @@
       "totalPlaysOnGames": "Guud ahaan ciyaarista ciyaarahayga"
     },
     "register": {
+      "ageGroupLabel": "Kooxda Da'da",
+      "ageGroupRequired": "Fadlan dooro kooxdaada da'da",
+      "ageGroupU13": "13-17 sano jir",
+      "ageGroupU18": "18 ama ka weyn",
+      "ageGroupUnder13": "Ka yar 13",
+      "ageGroupUnder13Error": "Waa inaad ahaataa ugu yaraan 13 sano jir si aad u isticmaasho ChatGameLab.",
       "cancelButton": "Jooji",
       "emailDescription": "Waxaan u adeegsan doonaa ogeysiisyo muhiim ah.",
       "emailLabel": "Cinwaanka iimaylka",
@@ -73,8 +97,48 @@
       "subtitle": "Kaliya faahfaahin yar ayaa ka dhiman si aad u bilowdo",
       "title": "Dhammaystir Profile-kaaga"
     },
+    "registerPage": {
+      "agreePrefix": "Waxaan ku raacsanahay",
+      "agreeSuffix": "iyo",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Hore ma u leedahay xisaab?",
+      "backButton": "Dib u noqo",
+      "chooseType": "Sidee ayaad rabtaa inaad u isticmaasho ChatGameLab?",
+      "continueButton": "Sii wad isdiiwaangelinta",
+      "description": "Waxaan u isticmaalnaa Auth0 sidii bixiyaha xaqiijinta si aan u maamulno akoonnada isticmaalaha. Waxaa lagu leexin doonaa Auth0 si aad u abuurto akoonkaaga, dabadeedna halkan ayaa laguugu soo celin doonaa si aad u dhammaystirto profile-kaaga.",
+      "educatorDescription": "U isticmaal ChatGameLab aqoon-is-weydaarsiyo, fasallo, ama ururkaaga",
+      "educatorModal": {
+        "closeButton": "Xir",
+        "copied": "La koobiyeeyey!",
+        "copyEmail": "Nuqul iimaylka",
+        "eduInfo": "Ka ogow wax badan oo ku saabsan isticmaalka ChatGameLab ujeeddooyin waxbarasho:",
+        "intro": "Si aad ChatGameLab ula isticmaasho ururkaaga (iskuul, jaamacad, hay'ad), fadlan raac tallaabooyinkan:",
+        "registerButton": "Abuur Akoon Shakhsiyeed",
+        "step1": "1. Samee akoon shakhsiyeed",
+        "step1Description": "U horay u samee akoonkaaga shakhsiyeed. Tani waxay noqon doontaa gelitaankaaga madasha.",
+        "step2": "2. Noogu soo dir iimayl",
+        "step2Description": "U qor iimayl cinwaanka",
+        "step2Item1": "Cinwaanka iimaylka aad ku isdiiwaangelisay",
+        "step2Item2": "Magaca ururkaaga (iskuul, hay'ad, iwm)",
+        "step2WithInfo": "oo wata:",
+        "step3": "3. Annaga ayaa u qaabayn doona ururkaaga",
+        "step3Description": "Waxaan abuuri doonaa ururkaaga oo waxaan kugu dari doonaa madax ahaan. Dabadeed waxaad casuumi kartaa asxaabta oo aad dejin kartaa aqoon-is-weydaarsiyo.",
+        "title": "Gelitaanka Macallimiinta \u0026 Xirfadlayaasha"
+      },
+      "educatorTitle": "Macallin / Xirfadle",
+      "individualDescription": "Abuur oo ciyaar tacabur qoraal ah oo AI ku shaqeeya",
+      "individualTitle": "Akoon Shakhsiyeed",
+      "loginLink": "Soo gal",
+      "privacyPolicy": "Qaanuunka Arrimaha Khaaska ah",
+      "termsOfService": "Shuruudaha Adeegga",
+      "title": "Abuur Akoonkaaga"
+    },
     "settings": {
       "accountSection": "Akunka",
+      "ageGroupDescription": "Waxay go'aamisaa xeerarka nuxurka ee khuseeya ciyaarahaaga.",
+      "ageGroupLabel": "Kooxda Da'da",
+      "ageGroupU13": "13-17 sano",
+      "ageGroupU18": "18 ama ka weyn",
       "emailChangeNote": "Si aad u beddesho cinwaankaaga iimaylka, fadlan la xiriir maamulaha goobta.",
       "errors": {
         "nameRequired": "Magac waa lagama maarmaan",
@@ -210,6 +274,7 @@
       "low": "Hoose (Economy)",
       "max": "Max (Premium + Cod)",
       "medium": "Dhexdhexaad (Isu dheelli tiran)",
+      "newSessionsOnly": "Heerkan wuxuu khuseeyaa kaliya fadhiyada cusub. Fadhiyada jira waxay sii wataan heerkii ay ku bilaabmeen.",
       "serverDefault": "Dejinta Server-ka"
     },
     "allGames": {
@@ -233,6 +298,7 @@
         "sponsored": "La kafaalo qaaday"
       },
       "play": "Ciyaar",
+      "reportGame": "Sheeg ciyaarta",
       "restart": "Dib u bilow",
       "restartConfirm": {
         "confirm": "Dib u bilow",
@@ -240,7 +306,8 @@
         "title": "Dib u bilow Ciyaarta"
       },
       "title": "Ciyaaraha oo dhan",
-      "unfavorite": "Ka saar kuwa aad jeceshahay"
+      "unfavorite": "Ka saar kuwa aad jeceshahay",
+      "workshop": "Aqoon-is-weydaarsi / Urur"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +352,28 @@
       "platform": "Madal",
       "setDefault": "U deji mid caadi ah",
       "shares": {
+        "context": {
+          "organization": "Urur",
+          "personal": "Shakhsi",
+          "workshop": "Aqoon-is-weydaarsi"
+        },
+        "gameShares": "Isku-xirnaanta Wadaagga Ciyaarta",
         "goToOrg": "Maamul",
         "noOrgShares": "Laguma wadaagin urur",
         "noSponsorships": "Ma jiraan kafaalo ciyaaro ah",
         "orgShares": "Wadaagga Ururka",
         "privateShares": "Isku-xiryo gaara oo la wadaago",
-        "remaining": "{{count}} ka hartay",
+        "remaining": "{{count}} isticmaal oo hadhay",
         "removeSponsor": "Ka saar kafaalo",
+        "revokeGameShare": "Ka noqo isku xirka wadaagga",
         "revokePrivateShare": "Ka noqoshada xiriirka wadaagga",
         "sponsorships": "Kafaalo Ciyaaro",
         "toggle": "Wadaagid \u0026 Kafaalo",
         "unknownGame": "Ciyaar aan la aqoon",
         "unknownOrg": "Urur aan la aqoon",
         "unknownUser": "Isticmaale aan la aqoon",
-        "unknownWorkshop": "Aqoon-is-weydaarsi aan la aqoon"
+        "unknownWorkshop": "Aqoon-is-weydaarsi aan la aqoon",
+        "unlimited": "Isticmaal aan xad lahayn"
       },
       "status": {
         "failed": "Furaha ma shaqeynayo",
@@ -436,6 +511,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Furaha API ee la isticmaalay waa la beddelay",
         "sections": {
           "expandStory": "Tilmaamaha AI-ga loogu qorayo sheekada",
           "imageGeneration": "Tilmaamaha AI-ga u diray sawir-samaynta",
@@ -449,6 +525,15 @@
         "tokens": {
           "received": "token la helay",
           "sent": "token la diray"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Furaha isticmaalka bilaashka ah ee ururkaaga ayaa la adeegsaday",
+          "label": "Furaha API ee la isticmaalay",
+          "personal": "Furahaaga shakhsiyeed ayaa la adeegsaday",
+          "private_share": "Furaha isku xirka wadaagga ayaa la adeegsaday",
+          "sponsor": "Furaha kafaala-qaadka ayaa la adeegsaday",
+          "system_free_use": "Furaha isticmaalka bilaashka ah ee guud ayaa la adeegsaday",
+          "workshop": "Furaha aqoon-is-weydaarsigaaga ayaa la adeegsaday"
         }
       },
       "debug": {
@@ -477,7 +562,7 @@
         "gameNotFound": "Ciyaarta lama helin",
         "missingFields": "Ciyaartu waxay ka maqan tahay goobaha lagama maarmaanka ah:",
         "noApiKey": {
-          "banner": "Furaha API ee ciyaartan loo adeegsaday horay ma jiro. Si aad u sii ciyaarto, fur API kuu gaar ah ku dar dejimaha akoonkaaga.",
+          "banner": "Fure API oo la isticmaali karo lagama helin madasha {{platform}}. Si aad u sii ciyaarto, ku dar furahaaga API dejimaha akoonkaaga.",
           "goToSettings": "Dejinta Furaha API",
           "personal": "Waa inaad dejisaa fure API kahor intaadan ciyaarin. U tag dejinta Furaha API si aad mid ugu darto.",
           "title": "Fure API Lama Hayo",
@@ -553,7 +638,7 @@
       "badges": {
         "myGame": "Ciyaartayda",
         "public": "Guud",
-        "workshop": "Aqoon-is-weydaarsi"
+        "workshop": "Ciyaarta Aqoon-is-weydaarsiga"
       },
       "createButton": "Abuur Ciyaar",
       "createModal": {
@@ -631,7 +716,7 @@
           "unlimited": "Aan xadidnayn",
           "update": "Cusboonaysii Link-ga"
         },
-        "publicDescription": "Ciyaaraha guud qof walba wuu heli karaa.",
+        "publicDescription": "Ciyaaraha dadweynaha waxaa arki kara oo ciyaari kara dhammaan isticmaalayaasha madashan.",
         "publicLabel": "Ka dhig ciyaartan mid guud",
         "sharing": {
           "active": "Firfircoon",
@@ -797,7 +882,11 @@
         }
       },
       "deleteModal": {
+        "adminActionTitle": "Ficil maamulka",
+        "adminActionWarning": "Waxaad tirtiraysaa ciyaar aadan lahayn. Tani waa ficil maamulka ah waana in kaliya loo isticmaalaa ujeeddooyinka kormeerka.",
         "message": "Ma hubtaa inaad tirtiri rabto \"{{name}}\"?",
+        "moderatorActionTitle": "Tirtiridda ciyaar ka qaybgalaha",
+        "moderatorActionWarning": "Ciyaartani waxay ka tirsan tahay ka qaybgalaha aqoon-is-weydaarsigaaga. Haddii la tirtiro si joogto ah ayaa looga tirtiri doonaa iyaga. Lama soo celin karo.",
         "title": "Tirtir Ciyaarta",
         "warning": "Ficilkan lama celin karo. Dhammaan xogta ciyaarta si joogto ah ayaa loo tirtiri doonaa."
       },
@@ -816,6 +905,9 @@
         "statusFieldsHint": "Waa maxay qiimayaasha uu ciyaartu xafidi doono? Tusaale nolosha, dhibcaha, ama rasaasta. Ciyaartu way xasuusan doontaa qiimayaashan oo way cusbooneysiin doontaa inta lagu jiro ciyaarta."
       },
       "editModal": {
+        "adminActionTitle": "Ficil maamulka",
+        "adminActionWarning": "Waxaad wax ka beddelayso ciyaar aadan lahayn. Tani waa ficil maamulka ah waana in kaliya loo isticmaalaa ujeeddooyinka kormeerka.",
+        "gameDesignSection": "Naqshadda Ciyaarta",
         "title": "Tafatir Ciyaarta",
         "unsavedChanges": {
           "discard": "Tir tirtir Isbeddelada",
@@ -1170,6 +1262,28 @@
         "unfavorite": "Ka saar kuwa aad jeceshahay"
       },
       "playNow": "Hadda Ciyaar",
+      "privateShare": {
+        "aiQualityTier": "Tayada AI",
+        "aiQualityTierDescription": "Dooro tayada moodeelka AI ee martida isticmaasha isku xirkan wadaagga.",
+        "createModalTitle": "Abuur Isku-xir Wadaag Gaar ah",
+        "editModalTitle": "Wax ka beddel Isku-xir Wadaag Gaar ah",
+        "noPersonalShare": "Ma jiro isku-xir wadaag shakhsi ama urur ah oo jira. Waxaad ka abuuri kartaa banaanka aqoon-is-weydaarsiga.",
+        "orgKey": "Urur",
+        "orgShareDescription": "Isku-xirka wadaagga ururka - martidu waxay ciyaaraan iyagoo isticmaalaya furaha API ee ururka.",
+        "personalCreateHint": "Abuur isku-xir gaar loo leeyahay si qof kasta oo haysta uu si qarsoodi ah ugu ciyaaro ciyaartan. Adiga ayaa dooranaya furaha API ee bixinaya kharashaadka fadhiyada.",
+        "personalOrgSubsection": "Isku-xir Wadaag Shakhsi / Urur",
+        "personalShare": "Isku-xirkaaga wadaagga gaarka ah",
+        "personalShareDescription": "Isku-xirkaaga wadaagga shakhsiyeed - martidu waxay ciyaaraan iyagoo isticmaalaya furaha API ee aad dooratay.",
+        "sourceOrg": "Urur",
+        "sourcePersonal": "Shakhsi",
+        "sourceWorkshop": "Aqoon-is-weydaarsi",
+        "unlimitedSessions": "Fadhiyaal aan xad lahayn",
+        "workshopCreateHint": "Abuur isku-xir wadaag oo loogu talagalay ciyaartan. Furaha API ee aqoon-is-weydaarsiga ayaa si toos ah loo doortaa oo daboolaya kharashaadka.",
+        "workshopDescription": "Abuur isku-xir wadaag oo ciyaartan ah. Furaha API ee caadiga ah ee aqoon-is-weydaarsiga ayaa si toos ah loogu isticmaali doonaa fadhiyada martida.",
+        "workshopShare": "Wadaagga aqoon-is-weydaarsi",
+        "workshopShareDescription": "Isku-xirkan waxa laga abuuray aqoon-is-weydaarsi \"{{name}}\" - martidu waxay ciyaaraan iyagoo isticmaalaya furaha API ee aqoon-is-weydaarsiga.",
+        "workshopSubsection": "Isku-xir Wadaag Aqoon-is-weydaarsi"
+      },
       "profile": "Profile",
       "promoteConfirm": "Ma hubtaa inaad dallacdo \"{{name}}\" ({{email}}) Madaxa?",
       "promoteTitle": "U dallac Madaxa",
@@ -1245,6 +1359,15 @@
         "untitledGame": "Ciyaar aan magac lahayn"
       },
       "settings": "Dejimo",
+      "sharing": {
+        "privateShareLink": "Isku-xir Wadaag Gaar ah",
+        "privateShareLinkDescription": "Isku-xirrada wadaagga gaarka ah waxaa lala wadaagi karaa dadka kale. Qof kasta oo haysta isku-xirka wuxuu ciyaari karaa ciyaarta si qarsoodi ah asagoo aan akoon lahayn. Waa in la doortaa furaha API si uu u daboolo kharashaadka.",
+        "publicGameWorkshopHint": "Tani waa ciyaar dadweyne oo qayb ka ah aqoon-is-weydaarsigaaga ma aha. Ikhtiyaarada wadaagista lagama heli karo ciyaaraha dadweynaha marka la joogo habka aqoon-is-weydaarsiga.",
+        "publicSponsoring": "Kafaala-qaad Dadweyne",
+        "publicSponsoringDescription": "Dhammaan isticmaalayaasha madasha waxay ciyaartan u ciyaari karaan bilaash - furaha API ee laguugu qoondeeyey ayaa daboolaya kharashaadka.",
+        "sectionTitle": "Ikhtiyaarada Wadaagista",
+        "sectionTitleShareOnly": "Ikhtiyaarada Wadaagista"
+      },
       "showing": "{{count}} xubin",
       "sort": {
         "createdAt-asc": "La abuuray (Ugu da'da weyn)",
@@ -1262,6 +1385,11 @@
         "role-desc": "Door (Z-A)",
         "visibility-asc": "Gaar ahaanta marka hore",
         "visibility-desc": "Guud marka hore"
+      },
+      "sponsor": {
+        "noEligibleKeys": "Ma haysatid wax furayaal API ah oo diyaar u ah kafaala-qaadista. Marka hore ku dar fure API dejimahaaga.",
+        "sourceOrg": "Urur",
+        "sourcePersonal": "Shakhsi"
       },
       "statusFieldsEditor": {
         "addField": "Ku dar qiime cusub",
@@ -1305,6 +1433,7 @@
       "profile": "Xogta",
       "workshop": "Workshop"
     },
+    "help": "Caawimaad",
     "home": {
       "features": {
         "create": {
@@ -1398,11 +1527,15 @@
     "myOrganization": {
       "actions": "Falalka",
       "apiKeys": {
-        "aboutDescription": "Furayaasha API ee halkan wadaagay waxaa heli kara dhammaan xubnaha ururkaaga si ay u ciyaaraan. Kaliya madaxda iyo macalimiintu ayaa maamuli kara furayaashan.",
+        "aboutDescription": "Furayaasha API ee halkan lagu wadaagaa waxay u furnaayeen dhammaan xubnaha ururkaaga si ay ciyaaraha u ciyaaraan.",
         "aboutTitle": "Furayaasha API ee Ururka",
         "allowPublicSponsoring": "U oggolow kafaala-qaad dadweyne",
         "allowPublicSponsoringDesc": "Furehan waxaa loo isticmaali karaa in lagu kafaala-qaado ciyaaro dhammaan isticmaalayaasha.",
         "filterByPlatform": "Sifee iyadoo la adeegsanayo madal",
+        "freeUseKey": {
+          "description": "Deji fure isticmaal bilaash ah si dhammaan xubnaha ururku ugu ciyaaraan ciyaaraha iyaga oo aan u baahnayn furahooda API.",
+          "selectPlaceholder": "Dooro fure..."
+        },
         "keyName": "Magaca Fureha",
         "loadError": "Furayaasha API ee ururka lama soo dejin karo.",
         "noKeys": "Ma jiraan furayaal API ah oo weli lala wadaagay ururkan.",
@@ -1417,7 +1550,14 @@
         "share": "La wadaag",
         "shareKey": "La wadaag Fure",
         "shareKeyTitle": "La wadaag Fure API Ururka",
+        "showDetails": "Muuji faahfaahinta",
         "title": "Furayaasha API ee Ururka"
+      },
+      "autoShare": {
+        "confirmMessage": "Furahan waxaa lala wadaagi doonaa {{orgName}} waxaana isticmaali kara madaxda kale iyo shaqaalaha aqoon-is-weydaarsiyada. Waxaad ka saari kartaa wadaagistan hadhow maaraynta furahaaga API ee shakhsiyeed ama kan ururka.",
+        "confirmTitle": "La wadaag Furaha Ururka",
+        "orgKeyGroup": "Furayaasha Ururka",
+        "personalKeyGroup": "Furayaasha Shakhsiyeed"
       },
       "demoteConfirm": "Ma hubtaa inaad hoos u dhigayso \"{{name}}\" ({{email}}) una dhigto Macalin?",
       "demoteTitle": "Hoos u dhig Macalin",
@@ -1448,6 +1588,15 @@
       "promoteTitle": "U Dallacsiin Madaxa",
       "promoteToHead": "U Dallacsiin Madaxa",
       "promoteWarning": "Isticmaalahan wuxuu heli doonaa awood uu ku maamulo xubnaha ururka iyo inuu casuumo macalimiinta.",
+      "promptConstraintsFallbackEmpty": "(lama dejin)",
+      "promptConstraintsFallbackHint": "Xayiraad urur lama dejin. Doorashada caadiga ah ee goobta oo dhan ee kooxda da'da ciyaaryahanka ayaa shaqaynaysa:",
+      "promptConstraintsFallbackTitle": "Ku-tiirsanaanta goobta oo dhan ee firfircoon",
+      "promptConstraintsFallbackU13": "Ka yar 13",
+      "promptConstraintsFallbackU13p": "13–17 (iyadoo oggolaansho waalid jiro)",
+      "promptConstraintsFallbackU18": "18 iyo ka weyn",
+      "promptConstraintsHint": "Tilmaamo AI oo dheeraad ah oo loogu talagalay fadhi kasta oo ururkan ka mid ah. Waxay dhaqangalaan marka aan la dejin xaddidaad heer aqoon-is-weydaarsi ah, sidoo kalena waxay khuseeyaan ciyaaraha isku-xirka lagu wadaago.",
+      "promptConstraintsLabel": "Xaddidaadaha kicinta ururka",
+      "promptConstraintsPlaceholder": "tusaale ahaan: Ka dhig sheekada ku habboon da'da oo ka fogow nuxurka rabshadaha.",
       "removeConfirm": "Ma hubtaa inaad ka saari rabto \"{{name}}\" ururka?",
       "removeMember": "Ka saar xubin",
       "removeTitle": "Ka saar Xubin",
@@ -1468,11 +1617,21 @@
         "active": "Firfircoon",
         "activeDescription": "Workshops firfircoon waxay u oggolaanayaan kaqaybgaleyaasha inay ku biiraan oo ay abuuraan ciyaaro.",
         "activeLabel": "Firfircoon",
+        "addIndividual": "Kudar Xubin Urur",
+        "addIndividualError": "Ku dari waaye xubin aqoon-is-weydaarsiga.",
+        "addIndividualHint": "Ku darista isticmaale waxay si toos ah u gelinaysaa habka aqoon-is-weydaarsiga. Waxay arki doonaan muuqaalka aqoon-is-weydaarsiga halkii dashboard-kooda caadiga ahaa. Samee oo kaliya haddii loo baahdo.",
+        "addIndividualStaffNote": "Madaxda iyo macallimiintu waa inay si madax-bannaan kaga soo galaan aqoon-is-weydaarsiyada liiska aqoon-is-weydaarsiga - halkaan laguma taxo.",
+        "addIndividualSuccess": "Xubin waa la daray",
+        "addIndividualSuccessMessage": "{{name}} waxaa lagu daray aqoon-is-weydaarsiga.",
+        "addIndividualTitle": "Ku dar Qof Aqoon-is-weydaarsiga",
+        "addToWorkshop": "Ku dar aqoon-is-weydaarsi",
         "aiQualityHigh": "High (Premium)",
         "aiQualityLow": "Low (Economy)",
         "aiQualityMedium": "Medium (Balanced)",
         "aiQualityTier": "AI Quality Tier",
         "aiQualityTierHint": "Quality level for AI responses. Empty uses server default.",
+        "allowGameSharing": "U ogolow wadaagista ciyaarta",
+        "allowGameSharingHint": "Marka la hawlgeliyo, ka-qaybgalayaashu waxay abuuri karaan isku-xirro wadaag oo ciyaarahooda ah iyagoo isticmaalaya furaha API ee aqoon-is-weydaarsiga",
         "anonymousParticipant": "Ka-qaybgal aan magac lahayn",
         "create": "Abuur Workshop",
         "createFirst": "Abuur Workshop-kaaga Ugu Horeeya",
@@ -1490,6 +1649,11 @@
         "games": "Ciyaaro",
         "hideInactive": "Qari kuwa aan firfircoonayn",
         "inactive": "Aan firfircoonayn",
+        "inviteByEmail": "Casuum iimayl ahaan",
+        "inviteByEmailDescription": "Gali iimaylka isticmaale isdiiwaangashan si aad ugu casuunto aqoon-is-weydaarsigan. Waxay ka arki doonaan casuumadda dashboard-kooda.",
+        "inviteByEmailSuccess": "Casuumad waa la diray",
+        "inviteByEmailSuccessMessage": "Casuumad waa la abuuray. Isticmaaluhu wuxuu ku arki doonaa casuumadaha sugitaanka.",
+        "inviteByEmailTitle": "Casuum Isticmaale Aqoon-is-weydaarsi",
         "inviteCreatedAt": "La abuuray",
         "inviteDescription": "Soo saar link casuumaad oo kaqaybgalayaashu isticmaali karaan si ay ugu soo biiraan workshop-kan.",
         "inviteExpiresAt": "Wuxuu dhacayaa",
@@ -1506,6 +1670,7 @@
         "noActiveInvite": "Link casuumaad firfircoon ma jiro.",
         "noDefaultApiKey": "Fure API caadi ah ma jiro",
         "noDefaultModel": "Isticmaal moodelka madal-ka",
+        "noIndividuals": "Xubin shakhsiyeed oo ku jira ururkan ma jiro.",
         "noParticipantToken": "Kaqaybgalahan ma haysto link casuumaad. Kaliya kaqaybgalayaasha martida ah ayaa leh links dib loo isticmaali karo.",
         "noParticipants": "Weli kaqaybgalayaal ma jiraan",
         "notAuthorized": "Ma haysid oggolaansho aad ku maamusho workshops. Kaliya madaxda iyo macalimiintu waxay geli karaan boggan.",
@@ -1513,7 +1678,9 @@
         "participantJoined": "Ku biiray {{date}}",
         "participantName": "Magaca kaqaybgalaha",
         "participants": "Kaqaybgalayaal",
-        "promptConstraintsHint": "Tilmaamo dheeraad ah oo lagu daray tilmaanta nidaamka AI-da ee dhammaan kal-fadhiyada aqoonta-iskuweydaarsigan.",
+        "promptConstraintsFallbackOrg": "Loo adeegsanayo xaddidaadda ururka sidii caadi: {{constraint}}",
+        "promptConstraintsFallbackSite": "Loo adeegsanayo xaddidaadda goobta sidii caadi",
+        "promptConstraintsHint": "Tilmaamo AI oo dheeraad ah oo loogu talagalay fadhi kasta oo aqoon-is-weydaarsigan ah.",
         "promptConstraintsLabel": "Xaddidaadda tilmaamaha",
         "promptConstraintsPlaceholder": "tusaale ahaan. Ka dhig sheekada mid ku habboon carruurta oo ka fogow waxyaabaha rabshadaha ah.",
         "removeParticipant": "Ka saar kaqaybgalaha",
@@ -1526,6 +1693,7 @@
         "settings": "Dejimaha",
         "shareParticipantLink": "Koobiye link casuumaad shaqsi ah oo loogu talagalay kaqaybgalahan",
         "showOtherParticipantsGames": "Muuji ciyaaraha kaqaybgalayaasha kale",
+        "showOtherParticipantsGamesHint": "Madax iyo shaqaaluhu mar walba way arki karaan dhammaan ciyaaraha kaqaybgalayaasha si ay u kormeeraan",
         "showPublicGames": "Muuji ciyaaraha guud ee kaqaybgalayaasha",
         "sort": {
           "createdAtAsc": "Ugu da'da weyn marka hore",
@@ -1600,7 +1768,9 @@
       "empty": "Ogeysiis cusub ma jiraan.",
       "inviteDescription": "Waxaa lagugu casuumay inaad ku biirto sidii {{role}}.",
       "inviteToJoin": "Casuumaad Urur",
-      "title": "Ogeysiisyada"
+      "title": "Ogeysiisyada",
+      "workshopInvite": "Casuumad Aqoon-is-weydaarsi",
+      "workshopInviteDescription": "Waxaa lagugu casuumay inaad ku biirto aqoon-is-weydaarsigan."
     },
     "play": {
       "cloneGame": "Nuqul ku samee ciyaarahayga",
@@ -1626,6 +1796,21 @@
     "profile": "Xogta",
     "save": "Kaydi",
     "search": "Raadi",
+    "serverSettings": {
+      "constraints": {
+        "description": "Qeex xeerar AI oo khasab ah oo ku saleysan kooxda da'da ciyaaryahanka. Xaddidaadahan waxaa lagu duraa jawaab kasta oo AI ah. Waxay khuseeyaan dhammaan isticmaalayaasha soo galay ee ka baxsan habka aqoon-is-weydaarsiga.",
+        "title": "Kicinta Xaddidaadaha Ku saleysan Da'da",
+        "u13Hint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo aan oggolaansho waalid keydka ku jirin.",
+        "u13Label": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, oggolaansho waalid la' (U13)",
+        "u13Placeholder": "tusaale ahaan: Ka dhig dhammaan nuxurka si adag ugu habboon dhallinyarada. Rabshad ma jirto, nuxur jacayl ma jiro, mowduucyo argagax ma jiraan.",
+        "u13pHint": "Waxay ku dhex jirtaa jab kasta oo AI ah ee isticmaaleyaasha soo galay ee da'doodu tahay 13-17 iyadoo oggolaansho waalid keydka ku jiro.",
+        "u13pLabel": "Xayiraadda isticmaalayaasha da'doodu tahay 13-17, iyadoo oggolaansho waalid jiro (U13p)",
+        "u13pPlaceholder": "tusaale ahaan: Nuxur ku habboon da'da dhalinyarada ay waalidkoodu oggolaadeen. Qaar ka mid ah mowduucyo qaangaar ah waa la oggol yahay, nuxur cad-cad lama oggola.",
+        "u18Hint": "Waxaa lagu dura AI prompt kasta isticmaalayaasha soo galay ee da'doodu tahay 18 iyo ka badan.",
+        "u18Label": "Xaddidaad isticmaalayaasha da'doodu tahay 18+ (U18)",
+        "u18Placeholder": "tusaale ahaan: Ka dhig nuxurka mid habboon. Ka fogow rabshado cad ama nuxur galmo."
+      }
+    },
     "sessions": {
       "continueGame": "Sii wad Ciyaarta",
       "deleteConfirm": {
@@ -1663,6 +1848,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Howlaha barbaarinta warbaahinta ee ChatGameLab",
+          "title": "Ku saabsan ChatGameLab"
+        },
         "jff": {
           "description": "Isuduwaha mashruuca iyo ururka hoggaaminaya.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1763,6 +1952,14 @@
       "workshop": "Ciyaaraha Workshop"
     },
     "gameType": "Ciyaar",
+    "infoModal": {
+      "body": "Waxaad gashay habka aqoon-is-weydaarsiga. Inta aad ku jirto habkan, wax walba oo aad samayso waxaa lala xiriirinayaa aqoon-is-weydaarsigan - ciyaaraha aad abuurto, fadhiyada aad ciyaarto, iyo isku-xirrada aad wadaagto.\n\nMar kasta waad ka bixi kartaa. Ka bixitaanku ma joojinayo aqoon-is-weydaarsiga mana tirtirayo wax kasta oo aad abuurtay.",
+      "dontShowAgain": "Mar kale ha i tusin",
+      "gotIt": "Waan fahmay",
+      "headStaffNote": "Waxaad mar kasta dib uga soo geli kartaa aqoon-is-weydaarsigan liiska aqoon-is-weydaarsiyada ururkaaga.",
+      "individualNote": "Si aad dib ugu soo laabato ka dib markaad baxdo, waxaad u baahan doontaa casuumad cusub oo ka timid qabanqaabiyeyaasha aqoon-is-weydaarsiga.",
+      "title": "Ku soo dhowow {{name}}"
+    },
     "organizator": "Qabanqaabiye: {{name}}",
     "settings": {
       "currentWorkshop": "Workshop-ka Hadda",
@@ -1784,6 +1981,7 @@
     "myOrganization": "Ururkayga",
     "myWorkshop": "Workshop-kayga",
     "orgApiKeys": "Furayaasha API",
+    "orgConstraints": "Xaddidaadaha",
     "orgMembers": "Xubnaha",
     "orgWorkshops": "Workshops",
     "play": "Ciyaar Ciyaar",

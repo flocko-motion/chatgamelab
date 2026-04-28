@@ -1,5 +1,18 @@
 {
   "auth": {
+    "ageGroup": {
+      "label": "Age and Protection Group",
+      "description": "This helps us apply the right protection and content guidelines to your account.",
+      "u13": "13–17 years, without parental consent",
+      "u13p": "13–17 years, with parental consent",
+      "u18": "18 years or older",
+      "under13": "Under 13 years",
+      "u13Description": "You can use ChatGameLab. Stronger protection settings will apply to your account.",
+      "u13pDescription": "You can use ChatGameLab if your parents agree.",
+      "u18Description": "You can use ChatGameLab.",
+      "under13Description": "You can't create your own account yet. If you're under 13, you can only use ChatGameLab through a youth organization.",
+      "under13Blocker": "You can't create your own account yet. If you're under 13, you can only use ChatGameLab through a youth organization."
+    },
     "login": {
       "auth0Button": "Login with Auth0",
       "devMode": "Development Mode",
@@ -31,6 +44,7 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroupSection": "Age and Protection Group",
       "gamesCreated": "Games Created",
       "gamesPlayed": "Games Played",
       "memberSince": "Registered since",
@@ -71,6 +85,42 @@
       "submitting": "Creating account...",
       "subtitle": "Just a few more details to get started",
       "title": "Complete Your Profile"
+    },
+    "registerPage": {
+      "agreePrefix": "I agree to the",
+      "agreeSuffix": "and",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Already have an account?",
+      "backButton": "Back",
+      "chooseType": "How would you like to use ChatGameLab?",
+      "continueButton": "Continue to Registration",
+      "description": "We use Auth0 as our authentication provider to manage user accounts. You will be redirected to Auth0 to create your account, then returned here to complete your profile.",
+      "educatorDescription": "Use ChatGameLab in workshops, classrooms, or your organization",
+      "educatorModal": {
+        "closeButton": "Close",
+        "copied": "Copied!",
+        "copyEmail": "Copy email",
+        "eduInfo": "Learn more about using ChatGameLab for educational purposes:",
+        "intro": "To use ChatGameLab with your organization (school, university, institution), please follow these steps:",
+        "registerButton": "Create Personal Account",
+        "step1": "Create a personal account",
+        "step1Description": "Create your personal account first. This will be your login for the platform.",
+        "step2": "2. Send us an email",
+        "step2Description": "Write an email to",
+        "step2Item1": "Your registered email address",
+        "step2Item2": "The name of your organization (school, institution, etc.)",
+        "step2WithInfo": "with:",
+        "step3": "3. We'll set up your organization",
+        "step3Description": "We will create your organization and assign you as the head. You can then invite colleagues and set up workshops.",
+        "title": "Educator \u0026 Professional Access"
+      },
+      "educatorTitle": "Educator / Professional",
+      "individualDescription": "Create and play AI-powered text adventures",
+      "individualTitle": "Personal Account",
+      "loginLink": "Log in",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "title": "Create Your Account"
     },
     "settings": {
       "accountSection": "Account",
@@ -209,6 +259,7 @@
       "low": "Low (Economy)",
       "max": "Max (Premium + Audio)",
       "medium": "Medium (Balanced)",
+      "newSessionsOnly": "This tier applies to new sessions only. Existing sessions keep the tier they started with.",
       "serverDefault": "Server Default"
     },
     "allGames": {
@@ -232,6 +283,7 @@
         "sponsored": "Sponsored"
       },
       "play": "Play",
+      "reportGame": "Report game",
       "restart": "Restart",
       "restartConfirm": {
         "confirm": "Restart",
@@ -239,7 +291,8 @@
         "title": "Restart Game"
       },
       "title": "All Games",
-      "unfavorite": "Remove from favorites"
+      "unfavorite": "Remove from favorites",
+      "workshop": "Workshop / Org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -284,20 +337,28 @@
       "platform": "Platform",
       "setDefault": "Set as default",
       "shares": {
+        "context": {
+          "organization": "Organization",
+          "personal": "Personal",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Game Share Links",
         "goToOrg": "Manage",
         "noOrgShares": "Not shared with any organization",
         "noSponsorships": "No game sponsorships",
         "orgShares": "Organization Shares",
         "privateShares": "Private Share Links",
-        "remaining": "{{count}} remaining",
+        "remaining": "{{count}} usages remaining",
         "removeSponsor": "Remove sponsorship",
+        "revokeGameShare": "Revoke share link",
         "revokePrivateShare": "Revoke share link",
         "sponsorships": "Game Sponsorships",
         "toggle": "Shares \u0026 Sponsorships",
         "unknownGame": "Unknown game",
         "unknownOrg": "Unknown organization",
         "unknownUser": "Unknown user",
-        "unknownWorkshop": "Unknown workshop"
+        "unknownWorkshop": "Unknown workshop",
+        "unlimited": "Unlimited usages"
       },
       "status": {
         "failed": "Key is not working",
@@ -335,6 +396,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Used API Key changed",
         "sections": {
           "expandStory": "Instructions to the AI for writing out the story",
           "imageGeneration": "Instructions from the AI for image generation",
@@ -348,6 +410,15 @@
         "tokens": {
           "received": "tokens received",
           "sent": "tokens sent"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Your organization's free-use key was used",
+          "label": "Used API Key",
+          "personal": "Your personal key was used",
+          "private_share": "The share link key was used",
+          "sponsor": "A sponsor key was used",
+          "system_free_use": "A global free-use key was used",
+          "workshop": "The key of your workshop was used"
         }
       },
       "debug": {
@@ -376,7 +447,7 @@
         "gameNotFound": "Game not found",
         "missingFields": "Game is missing required fields:",
         "noApiKey": {
-          "banner": "The API key previously used for this game is no longer available. To continue playing, add your own API key in your account settings.",
+          "banner": "No usable API key found for platform {{platform}}. To continue playing, add your own API key in your account settings.",
           "goToSettings": "API Key Settings",
           "personal": "You need to configure an API key before you can play. Go to your API Key settings to add one.",
           "title": "No API Key Available",
@@ -437,19 +508,23 @@
       "badges": {
         "myGame": "My Game",
         "public": "Public",
-        "workshop": "Workshop"
+        "workshop": "Workshop Game"
       },
       "createButton": "Create Game",
       "createModal": {
         "descriptionPlaceholder": "What is your game about?",
         "namePlaceholder": "e.g., Space Adventure",
-        "publicDescription": "Public games are discoverable by everyone.",
+        "publicDescription": "Public games are visible and playable by all users on this platform.",
         "publicLabel": "Make this game public",
         "submit": "Create Game",
         "title": "Create New Game"
       },
       "deleteModal": {
+        "adminActionTitle": "Admin action",
+        "adminActionWarning": "You are about to delete a game you do not own. This is an administrative action and should only be used for moderation purposes.",
         "message": "Are you sure you want to delete \"{{name}}\"?",
+        "moderatorActionTitle": "Deleting a participant's game",
+        "moderatorActionWarning": "This game belongs to a participant in your workshop. Deleting it will permanently remove it for them. This cannot be undone.",
         "title": "Delete Game",
         "warning": "This action cannot be undone. All game data will be permanently deleted."
       },
@@ -468,6 +543,9 @@
         "statusFieldsHint": "What should the game keep track of? For example health, points, or ammo. The game remembers these values and updates them while playing."
       },
       "editModal": {
+        "adminActionTitle": "Admin action",
+        "adminActionWarning": "You are editing a game you do not own. This is an administrative action and should only be used for moderation purposes.",
+        "gameDesignSection": "Game Design",
         "title": "Edit Game",
         "unsavedChanges": {
           "discard": "Discard Changes",
@@ -501,9 +579,13 @@
       "playNow": "Play Now",
       "privateShare": {
         "active": "Private sharing is active. Anyone with the link below can play this game anonymously.",
+        "aiQualityTier": "AI Quality",
+        "aiQualityTierDescription": "Select the AI model quality for guests using this share link.",
         "copyLink": "Copy link",
+        "createModalTitle": "Create Private Share Link",
         "description": "Create a private share link so that anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
         "edit": "Edit Settings",
+        "editModalTitle": "Edit Private Share Link",
         "editSettings": "Edit Share Settings",
         "enable": "Create Share Link",
         "loading": "Loading share status...",
@@ -511,18 +593,40 @@
         "maxSessions": "Max Sessions",
         "maxSessionsDescription": "Leave empty for unlimited sessions.",
         "noEligibleKeys": "No working API key available. Add an API key in the API Keys settings first.",
+        "noPersonalShare": "No personal or organization share link exists. You can create one from outside the workshop.",
+        "orgKey": "Organization",
+        "orgShareDescription": "Organization share link - guests play using the organization's API key.",
+        "personalCreateHint": "Create a private link so anyone with it can play this game anonymously. You choose which API key pays for the sessions.",
+        "personalOrgSubsection": "Personal / Organization Share Link",
+        "personalShare": "Your private share link",
+        "personalShareDescription": "Your personal share link - guests play using your selected API key.",
         "remainingSessions": "{{count}} session(s) remaining",
         "revoke": "Revoke Link",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to pay for guest sessions...",
         "shareLink": "Share Link",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
+        "sourceWorkshop": "Workshop",
         "title": "Private Share Link",
         "unlimited": "Unlimited",
-        "update": "Update Share Link"
+        "unlimitedSessions": "Unlimited sessions",
+        "update": "Update Share Link",
+        "workshopCreateHint": "Create a share link for this game. The workshop's API key is automatically selected and covers the costs.",
+        "workshopDescription": "Create a share link for this game. The workshop's default API key will be used automatically for guest sessions.",
+        "workshopShare": "Workshop share",
+        "workshopShareDescription": "This link was created in workshop \"{{name}}\" - guests play using the workshop's API key.",
+        "workshopSubsection": "Workshop Share Link"
       },
       "sharing": {
         "active": "Active",
-        "sectionTitle": "Sharing \u0026 Sponsoring"
+        "privateShareLink": "Private Share Link",
+        "privateShareLinkDescription": "Private share links can be shared with others. Anyone with the link can play the game anonymously without an account. An API key must be selected to cover the costs.",
+        "publicGameWorkshopHint": "This is a public game and not part of your workshop. Sharing options are not available for public games in workshop mode.",
+        "publicSponsoring": "Public Sponsoring",
+        "publicSponsoringDescription": "All users on the platform can play this game for free - your assigned API key covers the cost.",
+        "sectionTitle": "Sharing Options",
+        "sectionTitleShareOnly": "Sharing Options"
       },
       "sort": {
         "createdAt-asc": "Created (Oldest)",
@@ -554,11 +658,13 @@
         "loadingKeys": "Loading API keys...",
         "manageSponsor": "Manage Sponsor",
         "next": "Next",
-        "noEligibleKeys": "You don't have any API keys with public sponsoring enabled. Go to API Keys settings and enable \"Allow public sponsoring\" on a key first.",
+        "noEligibleKeys": "You don't have any API keys available for sponsoring. Add an API key in your settings first.",
         "privateWarning": "Making this game private will remove the public sponsorship.",
         "removeSponsor": "Remove Sponsoring",
         "selectKey": "Select an API Key",
         "selectKeyPlaceholder": "Choose a key to sponsor with...",
+        "sourceOrg": "Organization",
+        "sourcePersonal": "Personal",
         "sponsorGame": "Sponsor Game",
         "sponsored": "Sponsored",
         "sponsoredTooltip": "This game is sponsored - you can play it for free! The game creator or a supporter is covering the AI costs.",
@@ -709,6 +815,7 @@
       "profile": "Profile",
       "workshop": "Workshop"
     },
+    "help": "Help",
     "home": {
       "features": {
         "create": {
@@ -820,15 +927,15 @@
     "myOrganization": {
       "actions": "Actions",
       "apiKeys": {
-        "aboutDescription": "API keys shared here are available to all members of your organization for playing games. Only heads and teachers can manage these keys.",
+        "aboutDescription": "API keys shared here are available to all members of your organization for playing games.",
         "aboutTitle": "Organization API Keys",
         "allowPublicSponsoring": "Allow public sponsoring",
         "allowPublicSponsoringDesc": "This key can be used to sponsor games for all users.",
         "filterByPlatform": "Filter by platform",
         "freeUseKey": {
-          "description": "Set a free-use key to allow all organization members to play games without needing their own API key. Only keys already shared with this organization can be selected.",
+          "description": "Set a free-use key to allow all organization members to play games without needing their own API key.",
           "remove": "Remove",
-          "selectPlaceholder": "Select a shared key...",
+          "selectPlaceholder": "Select a key...",
           "title": "Free-Use Key",
           "unknownKey": "Unknown key"
         },
@@ -846,7 +953,14 @@
         "share": "Share",
         "shareKey": "Share Key",
         "shareKeyTitle": "Share API Key with Organization",
+        "showDetails": "Show details",
         "title": "Organization API Keys"
+      },
+      "autoShare": {
+        "confirmMessage": "This key will be shared with {{orgName}} and can then be used by other heads and staff for workshops. You can remove this sharing later in your personal API key management or the organization API key management.",
+        "confirmTitle": "Share Key with Organization",
+        "orgKeyGroup": "Organization Keys",
+        "personalKeyGroup": "Personal Keys"
       },
       "demoteConfirm": "Are you sure you want to demote \"{{name}}\" ({{email}}) to Teacher?",
       "demoteTitle": "Demote to Teacher",
@@ -879,6 +993,15 @@
       "promoteTitle": "Promote to Head",
       "promoteToHead": "Promote to Head",
       "promoteWarning": "This user will gain the ability to manage organization members and invite teachers.",
+      "promptConstraintsHint": "Additional AI instructions for all sessions in this organization. Applies when no workshop-level constraint is set, and to games shared via link.",
+      "promptConstraintsLabel": "Organization prompt constraints",
+      "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
+      "promptConstraintsFallbackTitle": "Active site-wide fallback",
+      "promptConstraintsFallbackHint": "No organization constraint configured. The site-wide default for the player's age group applies:",
+      "promptConstraintsFallbackU13": "Under 13",
+      "promptConstraintsFallbackU13p": "13–17 (with parental consent)",
+      "promptConstraintsFallbackU18": "18 and older",
+      "promptConstraintsFallbackEmpty": "(not configured)",
       "removeConfirm": "Are you sure you want to remove \"{{name}}\" from the organization?",
       "removeMember": "Remove member",
       "removeTitle": "Remove Member",
@@ -899,7 +1022,17 @@
         "active": "Active",
         "activeDescription": "Active workshops allow participants to join and create games.",
         "activeLabel": "Active",
+        "addIndividual": "Add Organization Member",
+        "addIndividualError": "Failed to add member to workshop.",
+        "addIndividualHint": "Adding a user will put them into workshop mode automatically. They will see the workshop view instead of their regular dashboard. Only do this if intended.",
+        "addIndividualStaffNote": "Heads and teachers should join workshops via the workshop list on their own - they are not listed here.",
+        "addIndividualSuccess": "Member Added",
+        "addIndividualSuccessMessage": "{{name}} has been added to the workshop.",
+        "addIndividualTitle": "Add Individual to Workshop",
+        "addToWorkshop": "Add to workshop",
         "aiQualityTierHint": "Quality level for AI responses. Higher tiers cost more but may have higher quality. Empty uses server default.",
+        "allowGameSharing": "Allow game sharing",
+        "allowGameSharingHint": "When enabled, participants can create share links for their games using the workshop's API key",
         "anonymousParticipant": "Anonymous participant",
         "create": "Create Workshop",
         "createFirst": "Create Your First Workshop",
@@ -918,6 +1051,11 @@
         "games": "Games",
         "hideInactive": "Hide inactive",
         "inactive": "Inactive",
+        "inviteByEmail": "Invite by Email",
+        "inviteByEmailDescription": "Enter the email of a registered user to invite them to this workshop. They will see the invite in their dashboard.",
+        "inviteByEmailSuccess": "Invite sent",
+        "inviteByEmailSuccessMessage": "An invite has been created. The user will see it in their pending invites.",
+        "inviteByEmailTitle": "Invite User to Workshop",
         "inviteCreatedAt": "Created",
         "inviteDescription": "Generate an invite link that participants can use to join this workshop.",
         "inviteExpiresAt": "Expires",
@@ -936,6 +1074,7 @@
         "noActiveInvite": "No active invite link available.",
         "noDefaultApiKey": "No default API key",
         "noDefaultModel": "Use platform default",
+        "noIndividuals": "No individual users in this organization.",
         "noParticipantToken": "This participant doesn't have an invite link. Only anonymous participants (guests) have reusable invite links.",
         "noParticipants": "No participants yet",
         "notAuthorized": "You don't have permission to manage workshops. Only heads and teachers can access this page.",
@@ -943,7 +1082,9 @@
         "participantJoined": "Joined {{date}}",
         "participantName": "Participant name",
         "participants": "Participants",
-        "promptConstraintsHint": "Additional instructions appended to the AI system prompt for all sessions in this workshop.",
+        "promptConstraintsFallbackOrg": "Using organization constraint as default: {{constraint}}",
+        "promptConstraintsFallbackSite": "Using site constraint as default",
+        "promptConstraintsHint": "Additional AI instructions for all sessions in this workshop.",
         "promptConstraintsLabel": "Prompt constraints",
         "promptConstraintsPlaceholder": "e.g. Keep the story age-appropriate and avoid violent content.",
         "removeParticipant": "Remove participant",
@@ -955,6 +1096,7 @@
         "settings": "Settings",
         "shareParticipantLink": "Copy individual invite link for this participant",
         "showOtherParticipantsGames": "Show other participants' games",
+        "showOtherParticipantsGamesHint": "Head and staff can always see all participants' games for moderation",
         "showPublicGames": "Show public games to participants",
         "sort": {
           "createdAtAsc": "Oldest first",
@@ -986,7 +1128,9 @@
       "empty": "No new notifications.",
       "inviteDescription": "You have been invited to join as {{role}}.",
       "inviteToJoin": "Organization Invitation",
-      "title": "Notifications"
+      "title": "Notifications",
+      "workshopInvite": "Workshop Invitation",
+      "workshopInviteDescription": "You have been invited to join this workshop."
     },
     "play": {
       "cloneGame": "Clone to my games",
@@ -1023,6 +1167,19 @@
     "search": "Search",
     "searchPlaceholder": "Search members...",
     "serverSettings": {
+      "constraints": {
+        "description": "Define mandatory AI rules based on the player's age group. These constraints are injected into every AI response. They apply to all logged-in users outside of workshop mode.",
+        "title": "Age-Based Constraint Prompts",
+        "u13Hint": "Injected into every AI prompt for logged-in users aged 13-17 without parental consent on file.",
+        "u13Label": "Constraint for users aged 13-17, no parental consent (U13)",
+        "u13Placeholder": "e.g. Keep all content strictly age-appropriate for teenagers. No violence, no romantic content, no horror themes.",
+        "u13pHint": "Injected into every AI prompt for logged-in users aged 13-17 with parental consent on file.",
+        "u13pLabel": "Constraint for users aged 13-17, with parental consent (U13p)",
+        "u13pPlaceholder": "e.g. Age-appropriate content for teenagers whose parents have consented. Some mature themes allowed, no explicit content.",
+        "u18Hint": "Injected into every AI prompt for logged-in users aged 18 and above.",
+        "u18Label": "Constraint for users aged 18+ (U18)",
+        "u18Placeholder": "e.g. Keep content appropriate. Avoid explicit violence or sexual content."
+      },
       "defaultTier": {
         "description": "The server-wide fallback tier used when no specific tier is configured at the workshop, institution, or user level. Higher tiers cost more but may have higher quality.",
         "title": "Default AI Quality Tier"
@@ -1098,6 +1255,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Media pedagogy work with ChatGameLab",
+          "title": "About ChatGameLab"
+        },
         "jff": {
           "description": "Project coordinator and lead organization.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1207,6 +1368,14 @@
       "workshop": "Workshop Games"
     },
     "gameType": "Game",
+    "infoModal": {
+      "body": "You've entered workshop mode. While in this mode, everything you do is linked to this workshop - games you create, play sessions, and share links.\n\nYou can leave anytime. Leaving won't end the workshop or remove anything you've created.",
+      "dontShowAgain": "Don't show this again",
+      "gotIt": "Got it",
+      "headStaffNote": "You can rejoin this workshop anytime from your organization's workshop list.",
+      "individualNote": "To rejoin after leaving, you'll need a new invitation from the workshop organizers.",
+      "title": "Welcome to {{name}}"
+    },
     "members": {
       "empty": "No members yet",
       "title": "Workshop Members"
@@ -1238,6 +1407,7 @@
     "myOrganization": "My Organization",
     "myWorkshop": "My Workshop",
     "orgApiKeys": "API Keys",
+    "orgConstraints": "Constraints",
     "orgMembers": "Members",
     "orgWorkshops": "Workshops",
     "play": "Play a Game",

@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "这有助于我们为你的账户应用正确的保护和内容指南。",
+      "label": "年龄与保护分组",
+      "u13": "13–17 岁，未获得家长同意",
+      "u13Description": "你可以使用 ChatGameLab。你的账户将启用更严格的保护设置。",
+      "u13p": "13–17 岁，已获得家长同意",
+      "u13pDescription": "只要你的父母同意，你就可以使用 ChatGameLab。",
+      "u18": "18 岁及以上",
+      "u18Description": "你可以使用 ChatGameLab。",
+      "under13": "13 岁以下",
+      "under13Blocker": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。",
+      "under13Description": "你还不能创建自己的账户。如果你未满 13 岁，只能通过青少年组织使用 ChatGameLab。"
+    },
     "login": {
       "auth0Button": "使用 Auth0 登录",
       "devMode": "开发模式",
@@ -32,6 +45,11 @@
       "workshop": "工作坊"
     },
     "profile": {
+      "ageGroup": "年龄组",
+      "ageGroupDescription": "决定适用于你游戏的内容指南。你可随时更改。",
+      "ageGroupSection": "年龄与保护分组",
+      "ageGroupU13": "13-17 岁",
+      "ageGroupU18": "18 岁及以上",
       "gamesCreated": "已创建的游戏",
       "gamesPlayed": "已游玩的游戏",
       "memberSince": "注册时间",
@@ -53,6 +71,12 @@
       "totalPlaysOnGames": "我的游戏总游玩次数"
     },
     "register": {
+      "ageGroupLabel": "年龄组",
+      "ageGroupRequired": "请选择你的年龄组",
+      "ageGroupU13": "13-17 岁",
+      "ageGroupU18": "18 岁或以上",
+      "ageGroupUnder13": "13 岁以下",
+      "ageGroupUnder13Error": "你必须年满 13 岁才能使用 ChatGameLab。",
       "cancelButton": "取消",
       "emailDescription": "我们将用它发送重要通知。",
       "emailLabel": "电子邮箱地址",
@@ -73,8 +97,48 @@
       "subtitle": "再补充一些信息就可以开始了",
       "title": "完善你的个人资料"
     },
+    "registerPage": {
+      "agreePrefix": "我同意",
+      "agreeSuffix": "以及",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "已经有账号？",
+      "backButton": "返回",
+      "chooseType": "你希望如何使用 ChatGameLab？",
+      "continueButton": "继续注册",
+      "description": "我们使用 Auth0 作为认证提供商来管理用户账号。你将被重定向至 Auth0 创建账号，然后返回此处完成个人资料。",
+      "educatorDescription": "在工作坊、课堂或你的机构中使用 ChatGameLab",
+      "educatorModal": {
+        "closeButton": "关闭",
+        "copied": "已复制！",
+        "copyEmail": "复制邮箱",
+        "eduInfo": "了解更多将 ChatGameLab 用于教育目的的信息：",
+        "intro": "若要在你的组织（学校、大学、机构）中使用 ChatGameLab，请按以下步骤操作：",
+        "registerButton": "创建个人账号",
+        "step1": "创建个人账号",
+        "step1Description": "先创建你的个人账号。这将是你登录平台所用的账号。",
+        "step2": "2. 给我们发送电子邮件",
+        "step2Description": "发送邮件至",
+        "step2Item1": "你注册的邮箱地址",
+        "step2Item2": "你的组织名称（学校、机构等）",
+        "step2WithInfo": "内容包括：",
+        "step3": "3. 我们将为你的组织完成设置",
+        "step3Description": "我们会创建你的组织并将你设为负责人。之后你即可邀请同事并设置工作坊。",
+        "title": "教育者与专业访问"
+      },
+      "educatorTitle": "教育者 / 专业人士",
+      "individualDescription": "创建并游玩由 AI 驱动的文字冒险",
+      "individualTitle": "个人账号",
+      "loginLink": "登录",
+      "privacyPolicy": "隐私政策",
+      "termsOfService": "服务条款",
+      "title": "创建你的账号"
+    },
     "settings": {
       "accountSection": "账户",
+      "ageGroupDescription": "决定适用于你游戏的内容指南。",
+      "ageGroupLabel": "年龄组",
+      "ageGroupU13": "13-17 岁",
+      "ageGroupU18": "18 岁或以上",
       "emailChangeNote": "如需修改邮箱地址，请联系站点管理员。",
       "errors": {
         "nameRequired": "名称是必填项",
@@ -210,6 +274,7 @@
       "low": "低（经济）",
       "max": "最高（高级＋音频）",
       "medium": "中（平衡）",
+      "newSessionsOnly": "此等级仅适用于新会话，已有会话会保留其开始时的等级。",
       "serverDefault": "服务器默认"
     },
     "allGames": {
@@ -233,6 +298,7 @@
         "sponsored": "赞助"
       },
       "play": "游玩",
+      "reportGame": "举报游戏",
       "restart": "重新开始",
       "restartConfirm": {
         "confirm": "重新开始",
@@ -240,7 +306,8 @@
         "title": "重新开始游戏"
       },
       "title": "全部游戏",
-      "unfavorite": "移出收藏"
+      "unfavorite": "移出收藏",
+      "workshop": "工作坊 / 组织"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +352,28 @@
       "platform": "平台",
       "setDefault": "设为默认",
       "shares": {
+        "context": {
+          "organization": "组织",
+          "personal": "个人",
+          "workshop": "工作坊"
+        },
+        "gameShares": "游戏分享链接",
         "goToOrg": "管理",
         "noOrgShares": "未与任何组织共享",
         "noSponsorships": "暂无游戏赞助",
         "orgShares": "组织共享",
         "privateShares": "私人分享链接",
-        "remaining": "剩余 {{count}} 次",
+        "remaining": "剩余 {{count}} 次使用",
         "removeSponsor": "移除赞助",
+        "revokeGameShare": "撤销分享链接",
         "revokePrivateShare": "撤销分享链接",
         "sponsorships": "游戏赞助",
         "toggle": "共享与赞助",
         "unknownGame": "未知游戏",
         "unknownOrg": "未知组织",
         "unknownUser": "未知用户",
-        "unknownWorkshop": "未知工作坊"
+        "unknownWorkshop": "未知工作坊",
+        "unlimited": "无限次使用"
       },
       "status": {
         "failed": "密钥不可用",
@@ -336,6 +411,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "已用 API 密钥已更改",
         "sections": {
           "expandStory": "写出故事的 AI 指令",
           "imageGeneration": "AI 的图像生成指令",
@@ -349,6 +425,15 @@
         "tokens": {
           "received": "tokens 已接收",
           "sent": "tokens 已发送"
+        },
+        "usedApiKey": {
+          "institution_free_use": "使用了你组织的免费使用密钥",
+          "label": "已用 API 密钥",
+          "personal": "使用了你的个人密钥",
+          "private_share": "使用了分享链接密钥",
+          "sponsor": "使用了赞助者密钥",
+          "system_free_use": "使用了全局免费使用密钥",
+          "workshop": "使用了你工作坊的密钥"
         }
       },
       "debug": {
@@ -377,7 +462,7 @@
         "gameNotFound": "未找到游戏",
         "missingFields": "游戏缺少必填字段：",
         "noApiKey": {
-          "banner": "该游戏此前使用的 API 密钥已不可用。要继续游玩，请在账户设置中添加你自己的 API 密钥。",
+          "banner": "在平台 {{platform}} 上找不到可用的 API 密钥。要继续游玩，请在账号设置中添加你自己的 API 密钥。",
           "goToSettings": "API 密钥设置",
           "personal": "你需要先配置一个 API 密钥才能游玩。请在 API 密钥设置中添加。",
           "title": "无可用 API 密钥",
@@ -438,19 +523,23 @@
       "badges": {
         "myGame": "我的游戏",
         "public": "公开",
-        "workshop": "工作坊"
+        "workshop": "工作坊游戏"
       },
       "createButton": "创建游戏",
       "createModal": {
         "descriptionPlaceholder": "你的游戏讲述什么？",
         "namePlaceholder": "例如：太空冒险",
-        "publicDescription": "公开游戏对所有人可见。",
+        "publicDescription": "公开游戏在此平台上对所有用户可见且可游玩。",
         "publicLabel": "将此游戏设为公开",
         "submit": "创建游戏",
         "title": "创建新游戏"
       },
       "deleteModal": {
+        "adminActionTitle": "管理员操作",
+        "adminActionWarning": "你即将删除一款不属于你的游戏。这是一次管理员操作，仅应在执行审核时使用。",
         "message": "确定要删除“{{name}}”吗？",
+        "moderatorActionTitle": "删除参与者的游戏",
+        "moderatorActionWarning": "该游戏属于你工作坊中的参与者。删除后他们将永久失去该游戏，此操作无法撤销。",
         "title": "删除游戏",
         "warning": "该操作无法撤销，所有游戏数据将被永久删除。"
       },
@@ -469,6 +558,9 @@
         "statusFieldsHint": "需要追踪哪些数值？例如生命值、积分或弹药。游戏会在游玩时记住并更新这些数值。"
       },
       "editModal": {
+        "adminActionTitle": "管理员操作",
+        "adminActionWarning": "你正在编辑一款不属于你的游戏。这是一次管理员操作，仅应在执行审核时使用。",
+        "gameDesignSection": "游戏设计",
         "title": "编辑游戏",
         "unsavedChanges": {
           "discard": "放弃更改",
@@ -502,9 +594,13 @@
       "playNow": "立即游玩",
       "privateShare": {
         "active": "私人分享已启用。持有以下链接的任何人都可匿名游玩此游戏。",
+        "aiQualityTier": "AI 质量",
+        "aiQualityTierDescription": "为使用此分享链接的访客选择 AI 模型质量。",
         "copyLink": "复制链接",
+        "createModalTitle": "创建私人分享链接",
         "description": "创建私人分享链接，持有者可匿名游玩该游戏。由你选择哪把 API 密钥承担费用。",
         "edit": "编辑设置",
+        "editModalTitle": "编辑私人分享链接",
         "editSettings": "编辑分享设置",
         "enable": "创建分享链接",
         "loading": "正在加载分享状态...",
@@ -512,18 +608,40 @@
         "maxSessions": "最大会话数",
         "maxSessionsDescription": "留空为无限会话。",
         "noEligibleKeys": "没有可用的 API 密钥。请先在 API 密钥设置中添加可用密钥。",
+        "noPersonalShare": "尚未存在个人或组织分享链接。你可以在工作坊之外创建一个。",
+        "orgKey": "组织",
+        "orgShareDescription": "组织分享链接——访客将使用该组织的 API 密钥进行游玩。",
+        "personalCreateHint": "创建一个私人链接，让持有该链接的任何人都能匿名游玩此游戏。你可以选择由哪个 API 密钥支付会话费用。",
+        "personalOrgSubsection": "个人 / 组织分享链接",
+        "personalShare": "你的私人分享链接",
+        "personalShareDescription": "你的个人分享链接——访客将使用你所选的 API 密钥。",
         "remainingSessions": "剩余 {{count}} 个会话",
         "revoke": "撤销链接",
         "selectKey": "选择 API 密钥",
         "selectKeyPlaceholder": "选择一把密钥用于访客会话...",
         "shareLink": "分享链接",
+        "sourceOrg": "组织",
+        "sourcePersonal": "个人",
+        "sourceWorkshop": "工作坊",
         "title": "私人分享链接",
         "unlimited": "无限",
-        "update": "更新分享链接"
+        "unlimitedSessions": "无限次会话",
+        "update": "更新分享链接",
+        "workshopCreateHint": "为此游戏创建分享链接。系统将自动选择工作坊的 API 密钥并承担费用。",
+        "workshopDescription": "为此游戏创建一个分享链接。访客会话将自动使用该工作坊的默认 API 密钥。",
+        "workshopShare": "工作坊分享",
+        "workshopShareDescription": "此链接创建于工作坊「{{name}}」，访客将使用该工作坊的 API 密钥进行游玩。",
+        "workshopSubsection": "工作坊分享链接"
       },
       "sharing": {
         "active": "启用",
-        "sectionTitle": "分享与赞助"
+        "privateShareLink": "私人分享链接",
+        "privateShareLinkDescription": "私人分享链接可以分享给他人。持有该链接的任何人都能在无账号的情况下匿名游玩。必须选择一个 API 密钥来承担费用。",
+        "publicGameWorkshopHint": "这是一个公共游戏，并不属于你的工作坊。在工作坊模式下，公共游戏不提供分享选项。",
+        "publicSponsoring": "公共赞助",
+        "publicSponsoringDescription": "平台上的所有用户都可以免费游玩此游戏——你指定的 API 密钥将承担费用。",
+        "sectionTitle": "分享选项",
+        "sectionTitleShareOnly": "分享选项"
       },
       "sort": {
         "createdAt-asc": "创建时间（最早）",
@@ -555,11 +673,13 @@
         "loadingKeys": "正在加载 API 密钥...",
         "manageSponsor": "管理赞助",
         "next": "下一步",
-        "noEligibleKeys": "你没有启用公开赞助的 API 密钥。请先在 API 密钥设置中启用“允许公开赞助”。",
+        "noEligibleKeys": "你没有可用于赞助的 API 密钥。请先在设置中添加 API 密钥。",
         "privateWarning": "将游戏设为私有会移除公开赞助。",
         "removeSponsor": "取消赞助",
         "selectKey": "选择 API 密钥",
         "selectKeyPlaceholder": "选择用于赞助的密钥...",
+        "sourceOrg": "组织",
+        "sourcePersonal": "个人",
         "sponsorGame": "赞助游戏",
         "sponsored": "已赞助",
         "sponsoredTooltip": "该游戏已被赞助，你可以免费游玩！创作者或支持者正在承担 AI 成本。",
@@ -710,6 +830,7 @@
       "profile": "个人资料",
       "workshop": "工作坊"
     },
+    "help": "帮助",
     "home": {
       "features": {
         "create": {
@@ -821,15 +942,15 @@
     "myOrganization": {
       "actions": "操作",
       "apiKeys": {
-        "aboutDescription": "在此共享的 API 密钥可供组织内所有成员游玩游戏时使用。仅负责人和教师可以管理这些密钥。",
+        "aboutDescription": "在此共享的 API 密钥可供组织的所有成员用来游玩游戏。",
         "aboutTitle": "组织 API 密钥",
         "allowPublicSponsoring": "允许公开赞助",
         "allowPublicSponsoringDesc": "该密钥可用于为所有用户赞助游戏。",
         "filterByPlatform": "按平台筛选",
         "freeUseKey": {
-          "description": "设置一把免费使用的密钥，让所有组织成员无需个人密钥即可游玩。只能选择已与本组织共享的密钥。",
+          "description": "设置一个免费使用密钥，让组织内所有成员无需自有 API 密钥即可游玩。",
           "remove": "移除",
-          "selectPlaceholder": "选择一个共享密钥...",
+          "selectPlaceholder": "请选择一个密钥...",
           "title": "免费使用密钥",
           "unknownKey": "未知密钥"
         },
@@ -847,7 +968,14 @@
         "share": "分享",
         "shareKey": "分享密钥",
         "shareKeyTitle": "将 API 密钥分享给组织",
+        "showDetails": "显示详情",
         "title": "组织 API 密钥"
+      },
+      "autoShare": {
+        "confirmMessage": "此密钥将共享给 {{orgName}}，组织中的其他负责人和职员即可在工作坊中使用它。你可以稍后在个人 API 密钥管理或组织 API 密钥管理中取消共享。",
+        "confirmTitle": "将密钥共享给组织",
+        "orgKeyGroup": "组织密钥",
+        "personalKeyGroup": "个人密钥"
       },
       "demoteConfirm": "确定要将“{{name}}”（{{email}}）降为教师吗？",
       "demoteTitle": "降级为教师",
@@ -880,6 +1008,15 @@
       "promoteTitle": "提升为负责人",
       "promoteToHead": "提升为负责人",
       "promoteWarning": "该用户将获得管理组织成员和邀请教师的权限。",
+      "promptConstraintsFallbackEmpty": "（未配置）",
+      "promptConstraintsFallbackHint": "未配置组织约束。将使用该年龄组玩家的站点默认设置：",
+      "promptConstraintsFallbackTitle": "启用的站点级回退",
+      "promptConstraintsFallbackU13": "13 岁以下",
+      "promptConstraintsFallbackU13p": "13–17 岁（已获得家长同意）",
+      "promptConstraintsFallbackU18": "18 岁及以上",
+      "promptConstraintsHint": "组织中所有会话的额外 AI 指令。若未设置工作坊级约束，并对通过链接分享的游戏生效。",
+      "promptConstraintsLabel": "组织提示约束",
+      "promptConstraintsPlaceholder": "例如：让故事适合相应年龄，避免暴力内容。",
       "removeConfirm": "确定要将“{{name}}”移出组织吗？",
       "removeMember": "移除成员",
       "removeTitle": "移除成员",
@@ -900,7 +1037,17 @@
         "active": "启用",
         "activeDescription": "启用的工作坊允许参与者加入并创建游戏。",
         "activeLabel": "启用",
+        "addIndividual": "添加组织成员",
+        "addIndividualError": "无法将成员添加到工作坊。",
+        "addIndividualHint": "添加用户后会自动将其置于工作坊模式。他们将看到工作坊视图，而不是常规仪表盘。仅在确有需要时执行此操作。",
+        "addIndividualStaffNote": "负责人和教师应自行通过工作坊列表加入，这里不会列出他们。",
+        "addIndividualSuccess": "已添加成员",
+        "addIndividualSuccessMessage": "{{name}} 已被添加到该工作坊。",
+        "addIndividualTitle": "将个人添加到工作坊",
+        "addToWorkshop": "添加到工作坊",
         "aiQualityTierHint": "AI 响应的质量等级。等级越高成本越高，但质量可能更好。留空则使用服务器默认。",
+        "allowGameSharing": "允许游戏分享",
+        "allowGameSharingHint": "启用后，参与者可以使用工作坊的 API 密钥为他们的游戏创建分享链接",
         "anonymousParticipant": "匿名参与者",
         "create": "创建工作坊",
         "createFirst": "创建你的第一个工作坊",
@@ -919,6 +1066,11 @@
         "games": "游戏",
         "hideInactive": "隐藏未启用",
         "inactive": "未启用",
+        "inviteByEmail": "通过邮箱邀请",
+        "inviteByEmailDescription": "输入已注册用户的邮箱以邀请其加入此工作坊。他们会在仪表盘中看到邀请。",
+        "inviteByEmailSuccess": "邀请已发送",
+        "inviteByEmailSuccessMessage": "邀请已创建。该用户会在待处理邀请中看到它。",
+        "inviteByEmailTitle": "邀请用户加入工作坊",
         "inviteCreatedAt": "创建时间",
         "inviteDescription": "生成邀请链接，供参与者加入该工作坊。",
         "inviteExpiresAt": "过期时间",
@@ -937,6 +1089,7 @@
         "noActiveInvite": "暂无有效邀请链接。",
         "noDefaultApiKey": "无默认 API 密钥",
         "noDefaultModel": "使用平台默认",
+        "noIndividuals": "此组织中没有个人用户。",
         "noParticipantToken": "此参与者没有邀请链接。只有匿名参与者（访客）拥有可重复使用的邀请链接。",
         "noParticipants": "暂无参与者",
         "notAuthorized": "你无权管理工作坊，只有负责人和教师可以访问此页面。",
@@ -944,7 +1097,9 @@
         "participantJoined": "加入于 {{date}}",
         "participantName": "参与者姓名",
         "participants": "参与者",
-        "promptConstraintsHint": "附加说明将添加到此工作坊所有会话的 AI 系统提示中。",
+        "promptConstraintsFallbackOrg": "使用组织约束作为默认值：{{constraint}}",
+        "promptConstraintsFallbackSite": "使用站点约束作为默认值",
+        "promptConstraintsHint": "此工作坊中所有会话的额外 AI 指令。",
         "promptConstraintsLabel": "提示约束",
         "promptConstraintsPlaceholder": "例如：保持故事适合相应年龄，避免暴力内容。",
         "removeParticipant": "移除参与者",
@@ -956,6 +1111,7 @@
         "settings": "设置",
         "shareParticipantLink": "复制该参与者的个人邀请链接",
         "showOtherParticipantsGames": "向参与者展示他人的游戏",
+        "showOtherParticipantsGamesHint": "负责人和职员始终可以查看所有参与者的游戏以便审核",
         "showPublicGames": "向参与者展示公开游戏",
         "sort": {
           "createdAtAsc": "最早创建",
@@ -987,7 +1143,9 @@
       "empty": "暂无新通知。",
       "inviteDescription": "你被邀请以 {{role}} 身份加入。",
       "inviteToJoin": "组织邀请",
-      "title": "通知"
+      "title": "通知",
+      "workshopInvite": "工作坊邀请",
+      "workshopInviteDescription": "你已被邀请加入此工作坊。"
     },
     "play": {
       "cloneGame": "克隆到我的游戏",
@@ -1024,6 +1182,19 @@
     "search": "搜索",
     "searchPlaceholder": "搜索成员...",
     "serverSettings": {
+      "constraints": {
+        "description": "根据玩家年龄组定义强制性的 AI 规则。这些约束将注入每次 AI 响应，适用于工作坊模式之外的所有登录用户。",
+        "title": "按年龄划分的约束提示",
+        "u13Hint": "会注入到所有登录且未有家长同意记录的 13–17 岁用户的 AI 提示中。",
+        "u13Label": "适用于 13–17 岁无家长同意用户的约束（U13）",
+        "u13Placeholder": "例如：确保所有内容严格适合青少年。不允许暴力、浪漫内容或恐怖主题。",
+        "u13pHint": "会注入到所有登录且已有家长同意记录的 13–17 岁用户的 AI 提示中。",
+        "u13pLabel": "适用于 13–17 岁有家长同意用户的约束（U13p）",
+        "u13pPlaceholder": "例如：适合父母已同意的青少年内容。允许部分成熟主题，但不含露骨内容。",
+        "u18Hint": "注入到所有 18 岁及以上登录用户的每个 AI 提示中。",
+        "u18Label": "18 岁以上用户（U18）的约束",
+        "u18Placeholder": "例如：保持内容适当。避免明显的暴力或色情内容。"
+      },
       "defaultTier": {
         "description": "当工作坊、机构或用户未设置 AI 质量等级时，服务器使用的全局默认等级。等级越高成本越高，但质量可能更好。",
         "title": "默认 AI 质量等级"
@@ -1099,6 +1270,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "使用 ChatGameLab 进行媒介教育工作",
+          "title": "关于 ChatGameLab"
+        },
         "jff": {
           "description": "项目协调方与牵头组织。",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1383,14 @@
       "workshop": "工作坊游戏"
     },
     "gameType": "游戏",
+    "infoModal": {
+      "body": "你已进入工作坊模式。在该模式下，你的所有操作——创建的游戏、游玩会话以及分享链接——都将关联到此工作坊。\n\n你可随时离开。离开不会结束工作坊，或删除你创建的任何内容。",
+      "dontShowAgain": "不再显示",
+      "gotIt": "知道了",
+      "headStaffNote": "你可以随时从组织的工作坊列表重新加入此工作坊。",
+      "individualNote": "离开后若想重新加入，需要工作坊组织者再次邀请。",
+      "title": "欢迎来到 {{name}}"
+    },
     "members": {
       "empty": "暂时没有成员",
       "title": "工作坊成员"
@@ -1239,6 +1422,7 @@
     "myOrganization": "我的组织",
     "myWorkshop": "我的工作坊",
     "orgApiKeys": "API 密钥",
+    "orgConstraints": "约束",
     "orgMembers": "成员",
     "orgWorkshops": "工作坊",
     "play": "游玩游戏",

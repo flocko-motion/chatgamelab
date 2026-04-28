@@ -132,6 +132,7 @@ export function GamePlayer({ gameId, sessionId }: GamePlayerProps) {
             messageCount={lifecycle.state.messages.length}
             aiModel={lifecycle.state.aiModel}
             aiPlatform={lifecycle.state.aiPlatform}
+            promptConstraintSource={lifecycle.state.promptConstraintSource}
             hasAudioOut={hasAudioOut}
             isAudioMuted={settings.isAudioMuted}
             onToggleAudioMuted={settings.toggleAudioMuted}

@@ -53,19 +53,19 @@ const (
 	SchemaImagePromptDescription = "Vivid description of the scene for image generation"
 )
 
-// appendWorkshopConstraints appends workshop constraints to a prompt if present.
-func appendWorkshopConstraints(prompt string, workshopConstraints *string) string {
-	if workshopConstraints != nil && *workshopConstraints != "" {
-		return prompt + "\n\n⚠️ MANDATORY RULES ⚠️\nYou MUST respect these constraints:\n" + *workshopConstraints
+// appendConstraints appends prompt constraints to a prompt if present.
+func appendConstraints(prompt string, constraints *string) string {
+	if constraints != nil && *constraints != "" {
+		return prompt + "\n\nNARRATION RULES must be respected: " + *constraints
 	}
 	return prompt
 }
 
 // PromptNarratePlotOutline returns the narration prompt with the target language injected.
 // languageCode is an ISO 639-1 code (e.g. "en", "de").
-func PromptNarratePlotOutline(languageCode string, workshopConstraints *string) string {
+func PromptNarratePlotOutline(languageCode string, constraints *string) string {
 	prompt := fmt.Sprintf(promptNarratePlotOutlineTemplate, lang.GetLanguageName(languageCode))
-	return appendWorkshopConstraints(prompt, workshopConstraints)
+	return appendConstraints(prompt, constraints)
 }
 
 func ImageStyleOrDefault(style string) string {

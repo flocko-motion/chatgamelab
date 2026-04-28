@@ -150,6 +150,13 @@ export interface GamePlayerState {
   aiModel: string | null;
   /** AI platform used for this session (e.g. "openai", "mistral") */
   aiPlatform: string | null;
+  /** Source of the active prompt constraint. One of:
+   *  "workshop", "organisation",
+   *  "site13"  (13-17, no parental consent),
+   *  "site13p" (13-17, with parental consent),
+   *  "site18"  (18+).
+   */
+  promptConstraintSource: string | null;
 }
 
 // ============================================================================

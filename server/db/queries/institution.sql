@@ -38,6 +38,11 @@ UPDATE institution
 SET free_use_ai_quality_tier = $2, modified_at = now()
 WHERE id = $1;
 
+-- name: UpdateInstitutionPromptConstraints :exec
+UPDATE institution
+SET prompt_constraints = $2, modified_at = now()
+WHERE id = $1;
+
 -- name: SoftDeleteInstitution :exec
 UPDATE institution SET deleted_at = now() WHERE id = $1;
 

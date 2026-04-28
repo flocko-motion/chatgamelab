@@ -176,14 +176,8 @@ func generateSessionSetup(
 	result := &sessionSetupResult{}
 	needsTranslation := user.Language != "" && user.Language != "en"
 
-	// Extract workshop constraints early for parallel tasks
-	var workshopConstraints *string
-	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
-		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
-		if constraints != "" {
-			workshopConstraints = &constraints
-		}
-	}
+	// Resolve prompt constraints early for parallel tasks (image style adaptation)
+	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
 
 	// If game already has a theme, skip AI generation entirely
 	if game.Theme != nil {
@@ -195,7 +189,7 @@ func generateSessionSetup(
 		// Adapt image style if needed
 		if platform, err := ai.GetAiPlatform(candidates[0].Share.ApiKey.Platform); err == nil {
 			tempSession := makeTempSession(candidates[0], game, user.ID)
-			result.adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, workshopConstraints)
+			result.adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, promptConstraints)
 		}
 		return result, nil
 	}
@@ -211,15 +205,6 @@ func generateSessionSetup(
 
 		tempSession := makeTempSession(candidate, game, user.ID)
 		start := time.Now()
-
-		// Extract workshop constraints early for parallel tasks
-		var workshopConstraints *string
-		if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
-			constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
-			if constraints != "" {
-				workshopConstraints = &constraints
-			}
-		}
 
 		// Run theme generation, translation, scenario image prompt, and image style adaptation in parallel
 		var wg sync.WaitGroup
@@ -271,7 +256,7 @@ func generateSessionSetup(
 				log.Warn("failed to get AI platform for image style adaptation", "game_id", game.ID, "error", platformErr)
 				return
 			}
-			adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, workshopConstraints)
+			adaptedImageStyle = translateAndAdaptImageStyle(ctx, tempSession, platform, promptConstraints)
 		}()
 
 		wg.Wait()
@@ -377,14 +362,9 @@ func createSessionInternal(
 		log.Debug("using workshop-adapted image style", "original", game.ImageStyle, "adapted", imageStyle)
 	}
 
-	// Extract workshop constraints if user is in a workshop
-	var workshopConstraints *string
-	if user.Role != nil && user.Role.Workshop != nil && user.Role.Workshop.PromptConstraints != nil {
-		constraints := strings.TrimSpace(*user.Role.Workshop.PromptConstraints)
-		if constraints != "" {
-			workshopConstraints = &constraints
-		}
-	}
+	// Resolve prompt constraints: workshop > org > age-based
+	// This is resolved at session load time too (for live updates), but we need it here for the system message.
+	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
 
 	// Persist to database with theme and adapted image style
 	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, imageStyle)
@@ -394,8 +374,8 @@ func createSessionInternal(
 	}
 	log.Debug("session created", "session_id", session.ID)
 
-	// Store workshop constraints in session for re-injection during prose generation
-	session.WorkshopPromptConstraints = workshopConstraints
+	// Store resolved constraints in session for re-injection during prose generation
+	session.PromptConstraints = promptConstraints
 
 	// Attach API key and key type for response
 	session.ApiKey = share.ApiKey
@@ -410,8 +390,8 @@ func createSessionInternal(
 	if tmplErr != nil {
 		return nil, nil, obj.NewHTTPErrorWithCode(500, obj.ErrCodeServerError, "Failed to generate system message")
 	}
-	if workshopConstraints != nil {
-		systemMessage += "\n\n---\n⚠️ MANDATORY WORKSHOP RULES (set by your teacher/facilitator) ⚠️\nYou MUST follow these rules in EVERY response throughout the entire game:\n" + *workshopConstraints + "\n---"
+	if promptConstraints != nil {
+		systemMessage += "\n\nNARRATION RULES must be respected: " + *promptConstraints
 	}
 
 	systemMsg := obj.GameSessionMessage{

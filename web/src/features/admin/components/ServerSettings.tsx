@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   Loader,
+  Textarea,
 } from "@mantine/core";
 import {
   IconKey,
@@ -212,6 +213,74 @@ export function ServerSettings() {
             <Text size="xs" c="dimmed" fs="italic">
               {t("aiQualityTier.newSessionsOnly")}
             </Text>
+          </Stack>
+        </Card>
+        {/* Age-Based Constraint Prompts */}
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="md">
+            <Text fw={600} size="sm">
+              {t("serverSettings.constraints.title")}
+            </Text>
+            <Text size="sm" c="dimmed">
+              {t("serverSettings.constraints.description")}
+            </Text>
+            {/* u13: 13-17, no parental consent (strictest) */}
+            <Textarea
+              label={t("serverSettings.constraints.u13Label")}
+              placeholder={t("serverSettings.constraints.u13Placeholder")}
+              description={t("serverSettings.constraints.u13Hint")}
+              size="sm"
+              minRows={3}
+              maxRows={6}
+              autosize
+              maxLength={500}
+              defaultValue={settings?.promptConstraintU13 || ""}
+              key={`constraint-u13-${settings?.promptConstraintU13 || ""}`}
+              disabled={updateSettings.isPending}
+              onBlur={(event) => {
+                const nextValue = event.currentTarget.value;
+                if ((settings?.promptConstraintU13 || "") === nextValue) return;
+                updateSettings.mutate({ promptConstraintU13: nextValue });
+              }}
+            />
+            {/* u13p: 13-17, with parental consent */}
+            <Textarea
+              label={t("serverSettings.constraints.u13pLabel")}
+              placeholder={t("serverSettings.constraints.u13pPlaceholder")}
+              description={t("serverSettings.constraints.u13pHint")}
+              size="sm"
+              minRows={3}
+              maxRows={6}
+              autosize
+              maxLength={500}
+              defaultValue={settings?.promptConstraintU13p || ""}
+              key={`constraint-u13p-${settings?.promptConstraintU13p || ""}`}
+              disabled={updateSettings.isPending}
+              onBlur={(event) => {
+                const nextValue = event.currentTarget.value;
+                if ((settings?.promptConstraintU13p || "") === nextValue) return;
+                updateSettings.mutate({ promptConstraintU13p: nextValue });
+              }}
+            />
+            {/* u18: 18+ */}
+            <Textarea
+              label={t("serverSettings.constraints.u18Label")}
+              placeholder={t("serverSettings.constraints.u18Placeholder")}
+              description={t("serverSettings.constraints.u18Hint")}
+              size="sm"
+              minRows={3}
+              maxRows={6}
+              autosize
+              maxLength={500}
+              defaultValue={settings?.promptConstraintU18 || ""}
+              key={`constraint-u18-${settings?.promptConstraintU18 || ""}`}
+              disabled={updateSettings.isPending}
+              onBlur={(event) => {
+                const nextValue = event.currentTarget.value;
+                if ((settings?.promptConstraintU18 || "") === nextValue) return;
+                updateSettings.mutate({ promptConstraintU18: nextValue });
+              }}
+            />
           </Stack>
         </Card>
       </Stack>

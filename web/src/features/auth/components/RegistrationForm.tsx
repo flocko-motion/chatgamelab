@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
+  Alert,
   Box,
   Card,
   Container,
@@ -11,10 +12,11 @@ import {
   Text,
   TextInput,
   Loader,
+  Radio,
 } from '@mantine/core';
 import { ActionButton, TextButton } from '@components/buttons';
 import { SectionTitle, HelperText } from '@components/typography';
-import { IconUser, IconMail, IconCheck, IconX } from '@tabler/icons-react';
+import { IconUser, IconMail, IconCheck, IconX, IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedValue } from '@mantine/hooks';
 import { authLogger } from '@/config/logger';
@@ -22,6 +24,7 @@ import { authLogger } from '@/config/logger';
 import { useAuth, type RegistrationData } from '@/providers/AuthProvider';
 import { Api } from '@/api/generated';
 import { createAuthenticatedApiConfig } from '@/api/client/http';
+import { AgeGroup, AGE_GROUP_UNDER_13 } from '@/constants/ageGroup';
 
 interface RegistrationFormProps {
   registrationData: RegistrationData;
@@ -34,6 +37,8 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
   const { register: registerUser, getAccessToken, logout } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [ageGroup, setAgeGroup] = useState<string>('');
 
   const schema = z.object({
     name: z
@@ -108,12 +113,15 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
     if (nameAvailable === false) {
       return;
     }
+    if (!ageGroup || ageGroup === AGE_GROUP_UNDER_13) {
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      await registerUser(data.name.trim(), data.email.trim());
+      await registerUser(data.name.trim(), data.email.trim(), ageGroup);
       navigate({ to: '/dashboard' });
     } catch (error: unknown) {
       authLogger.error('Registration failed', { error });
@@ -189,6 +197,47 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
                 disabled={isSubmitting}
               />
 
+              <Radio.Group
+                label={t('ageGroup.label')}
+                description={t('ageGroup.description')}
+                value={ageGroup}
+                onChange={setAgeGroup}
+                required
+              >
+                <Stack gap="sm" mt="xs">
+                  <Radio
+                    value={AGE_GROUP_UNDER_13}
+                    label={t('ageGroup.under13')}
+                    description={t('ageGroup.under13Description')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U13}
+                    label={t('ageGroup.u13')}
+                    description={t('ageGroup.u13Description')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U13P}
+                    label={t('ageGroup.u13p')}
+                    description={t('ageGroup.u13pDescription')}
+                    disabled={isSubmitting}
+                  />
+                  <Radio
+                    value={AgeGroup.U18}
+                    label={t('ageGroup.u18')}
+                    description={t('ageGroup.u18Description')}
+                    disabled={isSubmitting}
+                  />
+                </Stack>
+              </Radio.Group>
+
+              {ageGroup === AGE_GROUP_UNDER_13 && (
+                <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+                  {t('ageGroup.under13Blocker')}
+                </Alert>
+              )}
+
               {submitError && (
                 <Text c="red" size="sm" ta="center">
                   {submitError}
@@ -200,7 +249,7 @@ export function RegistrationForm({ registrationData, onCancel }: RegistrationFor
                   type="submit"
                   fullWidth
                   loading={isSubmitting}
-                  disabled={isCheckingName || nameAvailable === false}
+                  disabled={isCheckingName || nameAvailable === false || !ageGroup || ageGroup === AGE_GROUP_UNDER_13}
                 >
                   {isSubmitting
                     ? t('register.submitting')

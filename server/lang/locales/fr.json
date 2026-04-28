@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Cela nous aide à appliquer les bonnes protections et directives de contenu à votre compte.",
+      "label": "Groupe d’âge et de protection",
+      "u13": "13–17 ans, sans consentement parental",
+      "u13Description": "Vous pouvez utiliser ChatGameLab. Des paramètres de protection renforcés s’appliqueront à votre compte.",
+      "u13p": "13–17 ans, avec consentement parental",
+      "u13pDescription": "Vous pouvez utiliser ChatGameLab si vos parents sont d’accord.",
+      "u18": "18 ans ou plus",
+      "u18Description": "Vous pouvez utiliser ChatGameLab.",
+      "under13": "Moins de 13 ans",
+      "under13Blocker": "Vous ne pouvez pas encore créer votre propre compte. Si vous avez moins de 13 ans, vous ne pouvez utiliser ChatGameLab que par l’intermédiaire d’une organisation jeunesse.",
+      "under13Description": "Vous ne pouvez pas encore créer votre propre compte. Si vous avez moins de 13 ans, vous ne pouvez utiliser ChatGameLab que par l’intermédiaire d’une organisation jeunesse."
+    },
     "login": {
       "auth0Button": "Se connecter avec Auth0",
       "devMode": "Mode développement",
@@ -32,6 +45,11 @@
       "workshop": "Atelier"
     },
     "profile": {
+      "ageGroup": "Tranche d'âge",
+      "ageGroupDescription": "Détermine quelles directives de contenu s'appliquent à vos jeux. Vous pouvez modifier ce réglage à tout moment.",
+      "ageGroupSection": "Groupe d’âge et de protection",
+      "ageGroupU13": "13-17 ans",
+      "ageGroupU18": "18+",
       "gamesCreated": "Jeux créés",
       "gamesPlayed": "Jeux joués",
       "memberSince": "Inscrit depuis",
@@ -53,6 +71,12 @@
       "totalPlaysOnGames": "Nombre total de parties sur mes jeux"
     },
     "register": {
+      "ageGroupLabel": "Tranche d'âge",
+      "ageGroupRequired": "Veuillez sélectionner votre tranche d'âge",
+      "ageGroupU13": "13-17 ans",
+      "ageGroupU18": "18 ans ou plus",
+      "ageGroupUnder13": "Moins de 13 ans",
+      "ageGroupUnder13Error": "Vous devez avoir au moins 13 ans pour utiliser ChatGameLab.",
       "cancelButton": "Annuler",
       "emailDescription": "Nous l’utiliserons pour les notifications importantes.",
       "emailLabel": "Adresse e-mail",
@@ -73,8 +97,48 @@
       "subtitle": "Encore quelques détails pour commencer",
       "title": "Complétez votre profil"
     },
+    "registerPage": {
+      "agreePrefix": "J'accepte les",
+      "agreeSuffix": "et",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Vous avez déjà un compte ?",
+      "backButton": "Retour",
+      "chooseType": "Comment souhaitez-vous utiliser ChatGameLab ?",
+      "continueButton": "Continuer vers l'inscription",
+      "description": "Nous utilisons Auth0 comme fournisseur d'authentification pour gérer les comptes utilisateurs. Vous serez redirigé vers Auth0 pour créer votre compte, puis de retour ici pour compléter votre profil.",
+      "educatorDescription": "Utilisez ChatGameLab lors d'ateliers, en classe ou dans votre organisation",
+      "educatorModal": {
+        "closeButton": "Fermer",
+        "copied": "Copié !",
+        "copyEmail": "Copier l'adresse e-mail",
+        "eduInfo": "En savoir plus sur l'utilisation de ChatGameLab à des fins éducatives :",
+        "intro": "Pour utiliser ChatGameLab avec votre organisation (école, université, institution), veuillez suivre ces étapes :",
+        "registerButton": "Créer un compte personnel",
+        "step1": "Créer un compte personnel",
+        "step1Description": "Créez d'abord votre compte personnel. Il sera votre identifiant pour la plateforme.",
+        "step2": "2. Envoyez-nous un e-mail",
+        "step2Description": "Écrivez un e-mail à",
+        "step2Item1": "Votre adresse e-mail enregistrée",
+        "step2Item2": "Le nom de votre organisation (école, institution, etc.)",
+        "step2WithInfo": "avec :",
+        "step3": "3. Nous configurerons votre organisation",
+        "step3Description": "Nous créerons votre organisation et vous désignerons comme responsable. Vous pourrez ensuite inviter des collègues et configurer des ateliers.",
+        "title": "Accès Enseignant \\u0026 Professionnel"
+      },
+      "educatorTitle": "Enseignant / Professionnel",
+      "individualDescription": "Créez et jouez à des aventures textuelles propulsées par l'IA",
+      "individualTitle": "Compte personnel",
+      "loginLink": "Se connecter",
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d'utilisation",
+      "title": "Créez votre compte"
+    },
     "settings": {
       "accountSection": "Compte",
+      "ageGroupDescription": "Détermine quelles directives de contenu s'appliquent à vos jeux.",
+      "ageGroupLabel": "Tranche d'âge",
+      "ageGroupU13": "13-17 ans",
+      "ageGroupU18": "18 ans ou plus",
       "emailChangeNote": "Pour modifier votre adresse e-mail, veuillez contacter l’administrateur du site.",
       "errors": {
         "nameRequired": "Le nom est requis",
@@ -210,6 +274,7 @@
       "low": "Faible (Économique)",
       "max": "Max (Premium + Audio)",
       "medium": "Moyen (Équilibré)",
+      "newSessionsOnly": "Ce niveau s'applique uniquement aux nouvelles sessions. Les sessions existantes conservent le niveau avec lequel elles ont commencé.",
       "serverDefault": "Par défaut du serveur"
     },
     "allGames": {
@@ -233,6 +298,7 @@
         "sponsored": "Sponsorisé"
       },
       "play": "Jouer",
+      "reportGame": "Signaler le jeu",
       "restart": "Recommencer",
       "restartConfirm": {
         "confirm": "Recommencer",
@@ -240,7 +306,8 @@
         "title": "Recommencer le jeu"
       },
       "title": "Tous les jeux",
-      "unfavorite": "Retirer des favoris"
+      "unfavorite": "Retirer des favoris",
+      "workshop": "Atelier / Org."
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +352,28 @@
       "platform": "Plateforme",
       "setDefault": "Définir par défaut",
       "shares": {
+        "context": {
+          "organization": "Organisation",
+          "personal": "Personnel",
+          "workshop": "Atelier"
+        },
+        "gameShares": "Liens de partage du jeu",
         "goToOrg": "Gérer",
         "noOrgShares": "Non partagé avec une organisation",
         "noSponsorships": "Aucun parrainage de jeu",
         "orgShares": "Partages d’organisation",
         "privateShares": "Liens de partage privés",
-        "remaining": "{{count}} restant(s)",
+        "remaining": "{{count}} utilisations restantes",
         "removeSponsor": "Retirer le parrainage",
+        "revokeGameShare": "Révoquer le lien de partage",
         "revokePrivateShare": "Révoquer le lien de partage",
         "sponsorships": "Parrainages de jeux",
         "toggle": "Partages \u00026 parrainages",
         "unknownGame": "Jeu inconnu",
         "unknownOrg": "Organisation inconnue",
         "unknownUser": "Utilisateur inconnu",
-        "unknownWorkshop": "Atelier inconnu"
+        "unknownWorkshop": "Atelier inconnu",
+        "unlimited": "Utilisations illimitées"
       },
       "status": {
         "failed": "La clé ne fonctionne pas",
@@ -336,6 +411,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Clé API utilisée modifiée",
         "sections": {
           "expandStory": "Instructions données à l’IA pour développer l’histoire",
           "imageGeneration": "Instructions de l’IA pour la génération d’images",
@@ -349,6 +425,15 @@
         "tokens": {
           "received": "jetons reçus",
           "sent": "jetons envoyés"
+        },
+        "usedApiKey": {
+          "institution_free_use": "La clé d'utilisation gratuite de votre organisation a été utilisée",
+          "label": "Clé API utilisée",
+          "personal": "Votre clé personnelle a été utilisée",
+          "private_share": "La clé du lien de partage a été utilisée",
+          "sponsor": "Une clé de sponsor a été utilisée",
+          "system_free_use": "Une clé d'utilisation gratuite globale a été utilisée",
+          "workshop": "La clé de votre atelier a été utilisée"
         }
       },
       "debug": {
@@ -377,7 +462,7 @@
         "gameNotFound": "Jeu introuvable",
         "missingFields": "Le jeu n’a pas les champs requis :",
         "noApiKey": {
-          "banner": "La clé API utilisée précédemment pour ce jeu n’est plus disponible. Pour continuer à jouer, ajoutez votre propre clé API dans les paramètres de votre compte.",
+          "banner": "Aucune clé API utilisable trouvée pour la plateforme {{platform}}. Pour continuer à jouer, ajoutez votre propre clé API dans les paramètres de votre compte.",
           "goToSettings": "Paramètres des clés API",
           "personal": "Vous devez configurer une clé API avant de pouvoir jouer. Rendez-vous dans vos paramètres de clé API pour en ajouter une.",
           "title": "Aucune clé API disponible",
@@ -438,19 +523,23 @@
       "badges": {
         "myGame": "Mon jeu",
         "public": "Public",
-        "workshop": "Atelier"
+        "workshop": "Jeu d'atelier"
       },
       "createButton": "Créer un jeu",
       "createModal": {
         "descriptionPlaceholder": "De quoi parle votre jeu ?",
         "namePlaceholder": "ex. : Aventure spatiale",
-        "publicDescription": "Les jeux publics sont visibles par tous.",
+        "publicDescription": "Les jeux publics sont visibles et jouables par tous les utilisateurs de cette plateforme.",
         "publicLabel": "Rendre ce jeu public",
         "submit": "Créer le jeu",
         "title": "Créer un nouveau jeu"
       },
       "deleteModal": {
+        "adminActionTitle": "Action d'administration",
+        "adminActionWarning": "Vous êtes sur le point de supprimer un jeu qui ne vous appartient pas. Il s'agit d'une action administrative et elle ne doit être utilisée qu'à des fins de modération.",
         "message": "Voulez-vous vraiment supprimer « {{name}} » ?",
+        "moderatorActionTitle": "Suppression d'un jeu de participant",
+        "moderatorActionWarning": "Ce jeu appartient à un participant de votre atelier. Le supprimer le retirera définitivement pour lui. Cette action est irréversible.",
         "title": "Supprimer le jeu",
         "warning": "Cette action est irréversible. Toutes les données du jeu seront supprimées définitivement."
       },
@@ -469,6 +558,9 @@
         "statusFieldsHint": "Que doit suivre le jeu ? Par exemple santé, points ou munitions. Le jeu mémorise et met à jour ces valeurs pendant la partie."
       },
       "editModal": {
+        "adminActionTitle": "Action d'administration",
+        "adminActionWarning": "Vous modifiez un jeu qui ne vous appartient pas. Il s'agit d'une action administrative et elle ne doit être utilisée qu'à des fins de modération.",
+        "gameDesignSection": "Conception du jeu",
         "title": "Modifier le jeu",
         "unsavedChanges": {
           "discard": "Annuler les modifications",
@@ -502,9 +594,13 @@
       "playNow": "Jouer maintenant",
       "privateShare": {
         "active": "Le partage privé est actif. Toute personne possédant le lien ci-dessous peut jouer anonymement à ce jeu.",
+        "aiQualityTier": "Qualité de l'IA",
+        "aiQualityTierDescription": "Sélectionnez la qualité du modèle d'IA pour les invités utilisant ce lien de partage.",
         "copyLink": "Copier le lien",
+        "createModalTitle": "Créer un lien de partage privé",
         "description": "Créez un lien de partage privé pour que toute personne l’ayant puisse jouer anonymement à ce jeu. Vous choisissez quelle clé API paie les sessions.",
         "edit": "Modifier les paramètres",
+        "editModalTitle": "Modifier le lien de partage privé",
         "editSettings": "Modifier les paramètres de partage",
         "enable": "Créer un lien de partage",
         "loading": "Chargement de l’état du partage...",
@@ -512,18 +608,40 @@
         "maxSessions": "Sessions max",
         "maxSessionsDescription": "Laissez vide pour un nombre illimité de sessions.",
         "noEligibleKeys": "Aucune clé API fonctionnelle disponible. Ajoutez d’abord une clé dans les paramètres des clés API.",
+        "noPersonalShare": "Aucun lien de partage personnel ou d'organisation n'existe. Vous pouvez en créer un en dehors de l'atelier.",
+        "orgKey": "Organisation",
+        "orgShareDescription": "Lien de partage de l'organisation - les invités jouent avec la clé API de l'organisation.",
+        "personalCreateHint": "Créez un lien privé afin que toute personne le possédant puisse jouer à ce jeu anonymement. Vous choisissez quelle clé API paie les sessions.",
+        "personalOrgSubsection": "Lien de partage personnel / organisation",
+        "personalShare": "Votre lien de partage privé",
+        "personalShareDescription": "Votre lien de partage personnel - les invités jouent avec la clé API que vous avez sélectionnée.",
         "remainingSessions": "{{count}} session(s) restante(s)",
         "revoke": "Révoquer le lien",
         "selectKey": "Sélectionnez une clé API",
         "selectKeyPlaceholder": "Choisissez une clé pour payer les sessions invité...",
         "shareLink": "Lien de partage",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Personnel",
+        "sourceWorkshop": "Atelier",
         "title": "Lien de partage privé",
         "unlimited": "Illimité",
-        "update": "Mettre à jour le lien"
+        "unlimitedSessions": "Sessions illimitées",
+        "update": "Mettre à jour le lien",
+        "workshopCreateHint": "Créez un lien de partage pour ce jeu. La clé API de l'atelier est automatiquement sélectionnée et couvre les coûts.",
+        "workshopDescription": "Créez un lien de partage pour ce jeu. La clé API par défaut de l'atelier sera automatiquement utilisée pour les sessions invitées.",
+        "workshopShare": "Partage d'atelier",
+        "workshopShareDescription": "Ce lien a été créé dans l'atelier « {{name}} » - les invités jouent avec la clé API de l'atelier.",
+        "workshopSubsection": "Lien de partage de l'atelier"
       },
       "sharing": {
         "active": "Actif",
-        "sectionTitle": "Partage \u00026 parrainage"
+        "privateShareLink": "Lien de partage privé",
+        "privateShareLinkDescription": "Les liens de partage privés peuvent être partagés avec d'autres. Toute personne disposant du lien peut jouer au jeu anonymement sans compte. Une clé API doit être sélectionnée pour couvrir les coûts.",
+        "publicGameWorkshopHint": "Il s'agit d'un jeu public qui ne fait pas partie de votre atelier. Les options de partage ne sont pas disponibles pour les jeux publics en mode atelier.",
+        "publicSponsoring": "Parrainage public",
+        "publicSponsoringDescription": "Tous les utilisateurs de la plateforme peuvent jouer gratuitement à ce jeu - votre clé API assignée couvre les coûts.",
+        "sectionTitle": "Options de partage",
+        "sectionTitleShareOnly": "Options de partage"
       },
       "sort": {
         "createdAt-asc": "Créé (plus ancien)",
@@ -555,11 +673,13 @@
         "loadingKeys": "Chargement des clés API...",
         "manageSponsor": "Gérer le parrainage",
         "next": "Suivant",
-        "noEligibleKeys": "Vous n’avez aucune clé API avec parrainage public activé. Allez dans les paramètres des clés API et activez « Autoriser le parrainage public » sur une clé d’abord.",
+        "noEligibleKeys": "Vous n'avez aucune clé API disponible pour le parrainage. Ajoutez d'abord une clé API dans vos paramètres.",
         "privateWarning": "Rendre ce jeu privé supprimera le parrainage public.",
         "removeSponsor": "Retirer le parrainage",
         "selectKey": "Sélectionnez une clé API",
         "selectKeyPlaceholder": "Choisissez une clé pour parrainer...",
+        "sourceOrg": "Organisation",
+        "sourcePersonal": "Personnel",
         "sponsorGame": "Parrainer le jeu",
         "sponsored": "Parrainé",
         "sponsoredTooltip": "Ce jeu est parrainé : vous pouvez y jouer gratuitement ! Le créateur ou un supporter couvre les coûts IA.",
@@ -710,6 +830,7 @@
       "profile": "Profil",
       "workshop": "Atelier"
     },
+    "help": "Aide",
     "home": {
       "features": {
         "create": {
@@ -821,15 +942,15 @@
     "myOrganization": {
       "actions": "Actions",
       "apiKeys": {
-        "aboutDescription": "Les clés API partagées ici sont disponibles pour tous les membres de votre organisation afin de jouer. Seuls les responsables et enseignants peuvent les gérer.",
+        "aboutDescription": "Les clés API partagées ici sont disponibles pour tous les membres de votre organisation afin de jouer aux jeux.",
         "aboutTitle": "Clés API de l’organisation",
         "allowPublicSponsoring": "Autoriser le parrainage public",
         "allowPublicSponsoringDesc": "Cette clé peut être utilisée pour parrainer des jeux pour tous les utilisateurs.",
         "filterByPlatform": "Filtrer par plateforme",
         "freeUseKey": {
-          "description": "Définissez une clé en libre accès pour permettre à tous les membres de l’organisation de jouer sans leur propre clé API. Seules les clés déjà partagées avec cette organisation peuvent être sélectionnées.",
+          "description": "Définissez une clé en usage libre pour permettre à tous les membres de l'organisation de jouer sans avoir besoin de leur propre clé API.",
           "remove": "Retirer",
-          "selectPlaceholder": "Sélectionnez une clé partagée...",
+          "selectPlaceholder": "Sélectionnez une clé...",
           "title": "Clé en libre accès",
           "unknownKey": "Clé inconnue"
         },
@@ -847,7 +968,14 @@
         "share": "Partager",
         "shareKey": "Partager la clé",
         "shareKeyTitle": "Partager une clé API avec l’organisation",
+        "showDetails": "Afficher les détails",
         "title": "Clés API de l’organisation"
+      },
+      "autoShare": {
+        "confirmMessage": "Cette clé sera partagée avec {{orgName}} et pourra ensuite être utilisée par les autres responsables et membres du personnel pour les ateliers. Vous pourrez supprimer ce partage plus tard dans la gestion de vos clés API personnelles ou celles de l'organisation.",
+        "confirmTitle": "Partager la clé avec l'organisation",
+        "orgKeyGroup": "Clés de l'organisation",
+        "personalKeyGroup": "Clés personnelles"
       },
       "demoteConfirm": "Voulez-vous vraiment rétrograder « {{name}} » ({{email}}) en enseignant ?",
       "demoteTitle": "Rétrograder en enseignant",
@@ -880,6 +1008,15 @@
       "promoteTitle": "Promouvoir en responsable",
       "promoteToHead": "Promouvoir en responsable",
       "promoteWarning": "Cet utilisateur pourra gérer les membres de l’organisation et inviter des enseignants.",
+      "promptConstraintsFallbackEmpty": "(non configuré)",
+      "promptConstraintsFallbackHint": "Aucune contrainte d’organisation configurée. Le paramètre par défaut du site pour le groupe d’âge du joueur s’applique :",
+      "promptConstraintsFallbackTitle": "Solution de repli active à l’échelle du site",
+      "promptConstraintsFallbackU13": "Moins de 13 ans",
+      "promptConstraintsFallbackU13p": "13–17 ans (avec consentement parental)",
+      "promptConstraintsFallbackU18": "18 ans et plus",
+      "promptConstraintsHint": "Instructions IA supplémentaires pour toutes les sessions de cette organisation. S'applique lorsqu'aucune contrainte au niveau de l'atelier n'est définie et aux jeux partagés via un lien.",
+      "promptConstraintsLabel": "Contraintes d'invite pour l'organisation",
+      "promptConstraintsPlaceholder": "ex. Garder l'histoire adaptée à l'âge et éviter le contenu violent.",
       "removeConfirm": "Voulez-vous vraiment retirer « {{name}} » de l’organisation ?",
       "removeMember": "Retirer le membre",
       "removeTitle": "Retirer un membre",
@@ -900,7 +1037,17 @@
         "active": "Actif",
         "activeDescription": "Les ateliers actifs permettent aux participants de rejoindre et de créer des jeux.",
         "activeLabel": "Actif",
+        "addIndividual": "Ajouter un membre de l'organisation",
+        "addIndividualError": "Échec de l'ajout du membre à l'atelier.",
+        "addIndividualHint": "Ajouter un utilisateur le basculera automatiquement en mode atelier. Il verra la vue atelier au lieu de son tableau de bord habituel. Ne le faites que si c'est souhaité.",
+        "addIndividualStaffNote": "Les responsables et enseignants devraient rejoindre les ateliers via la liste des ateliers eux-mêmes - ils ne sont pas listés ici.",
+        "addIndividualSuccess": "Membre ajouté",
+        "addIndividualSuccessMessage": "{{name}} a été ajouté à l'atelier.",
+        "addIndividualTitle": "Ajouter un individu à l'atelier",
+        "addToWorkshop": "Ajouter à l'atelier",
         "aiQualityTierHint": "Niveau de qualité pour les réponses IA. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité. Vide = par défaut du serveur.",
+        "allowGameSharing": "Autoriser le partage de jeux",
+        "allowGameSharingHint": "Lorsque cette option est activée, les participants peuvent créer des liens de partage pour leurs jeux en utilisant la clé API de l'atelier",
         "anonymousParticipant": "Participant anonyme",
         "create": "Créer un atelier",
         "createFirst": "Créez votre premier atelier",
@@ -919,6 +1066,11 @@
         "games": "Jeux",
         "hideInactive": "Masquer les inactifs",
         "inactive": "Inactif",
+        "inviteByEmail": "Inviter par e-mail",
+        "inviteByEmailDescription": "Saisissez l'e-mail d'un utilisateur enregistré pour l'inviter dans cet atelier. Il verra l'invitation dans son tableau de bord.",
+        "inviteByEmailSuccess": "Invitation envoyée",
+        "inviteByEmailSuccessMessage": "Une invitation a été créée. L'utilisateur la verra dans ses invitations en attente.",
+        "inviteByEmailTitle": "Inviter un utilisateur à l'atelier",
         "inviteCreatedAt": "Créé",
         "inviteDescription": "Générez un lien d’invitation que les participants pourront utiliser pour rejoindre cet atelier.",
         "inviteExpiresAt": "Expire",
@@ -937,6 +1089,7 @@
         "noActiveInvite": "Aucun lien d’invitation actif disponible.",
         "noDefaultApiKey": "Aucune clé API par défaut",
         "noDefaultModel": "Utiliser le modèle par défaut de la plateforme",
+        "noIndividuals": "Aucun utilisateur individuel dans cette organisation.",
         "noParticipantToken": "Ce participant n’a pas de lien d’invitation. Seuls les participants anonymes (invités) ont des liens réutilisables.",
         "noParticipants": "Pas encore de participants",
         "notAuthorized": "Vous n’avez pas l’autorisation de gérer les ateliers. Seuls les responsables et enseignants peuvent accéder à cette page.",
@@ -944,7 +1097,9 @@
         "participantJoined": "Rejoint le {{date}}",
         "participantName": "Nom du participant",
         "participants": "Participants",
-        "promptConstraintsHint": "Instructions supplémentaires ajoutées à l’invite système de l’IA pour toutes les sessions de cet atelier.",
+        "promptConstraintsFallbackOrg": "Utilisation par défaut de la contrainte de l'organisation : {{constraint}}",
+        "promptConstraintsFallbackSite": "Utilisation par défaut de la contrainte du site",
+        "promptConstraintsHint": "Instructions IA supplémentaires pour toutes les sessions de cet atelier.",
         "promptConstraintsLabel": "Contraintes de l’invite",
         "promptConstraintsPlaceholder": "p. ex., Veillez à ce que l’histoire soit adaptée à l’âge et évitez le contenu violent.",
         "removeParticipant": "Retirer le participant",
@@ -956,6 +1111,7 @@
         "settings": "Paramètres",
         "shareParticipantLink": "Copier le lien d’invitation individuel pour ce participant",
         "showOtherParticipantsGames": "Afficher les jeux des autres participants",
+        "showOtherParticipantsGamesHint": "Les responsables et le personnel peuvent toujours voir tous les jeux des participants pour la modération",
         "showPublicGames": "Afficher les jeux publics aux participants",
         "sort": {
           "createdAtAsc": "Plus anciens d’abord",
@@ -987,7 +1143,9 @@
       "empty": "Aucune nouvelle notification.",
       "inviteDescription": "Vous avez été invité à rejoindre en tant que {{role}}.",
       "inviteToJoin": "Invitation d’organisation",
-      "title": "Notifications"
+      "title": "Notifications",
+      "workshopInvite": "Invitation à l'atelier",
+      "workshopInviteDescription": "Vous avez été invité à rejoindre cet atelier."
     },
     "play": {
       "cloneGame": "Cloner dans mes jeux",
@@ -1024,6 +1182,19 @@
     "search": "Rechercher",
     "searchPlaceholder": "Rechercher des membres...",
     "serverSettings": {
+      "constraints": {
+        "description": "Définissez des règles IA obligatoires selon la tranche d'âge du joueur. Ces contraintes sont injectées dans chaque réponse IA. Elles s'appliquent à tous les utilisateurs connectés en dehors du mode atelier.",
+        "title": "Invites de contrainte basées sur l'âge",
+        "u13Hint": "Injecté dans chaque prompt IA pour les utilisateurs connectés de 13 à 17 ans sans consentement parental enregistré.",
+        "u13Label": "Contrainte pour les utilisateurs de 13 à 17 ans, sans consentement parental (U13)",
+        "u13Placeholder": "ex. Garder tout le contenu strictement adapté aux adolescents. Pas de violence, pas de contenu romantique, pas de thèmes horrifiques.",
+        "u13pHint": "Injecté dans chaque prompt IA pour les utilisateurs connectés de 13 à 17 ans avec consentement parental enregistré.",
+        "u13pLabel": "Contrainte pour les utilisateurs de 13 à 17 ans, avec consentement parental (U13p)",
+        "u13pPlaceholder": "ex. Contenu adapté aux adolescents dont les parents ont donné leur consentement. Certains thèmes matures autorisés, pas de contenu explicite.",
+        "u18Hint": "Injecté dans chaque invite IA pour les utilisateurs connectés de 18 ans et plus.",
+        "u18Label": "Contrainte pour les utilisateurs de 18 ans et plus (U18)",
+        "u18Placeholder": "ex. Garder le contenu approprié. Éviter la violence explicite ou le contenu sexuel."
+      },
       "defaultTier": {
         "description": "Niveau de qualité IA par défaut du serveur, utilisé lorsqu’aucun niveau spécifique n’est configuré au niveau de l’atelier, de l’institution ou de l’utilisateur. Les niveaux supérieurs coûtent plus cher mais peuvent offrir une meilleure qualité.",
         "title": "Niveau de qualité IA par défaut"
@@ -1099,6 +1270,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Travail de pédagogie des médias avec ChatGameLab",
+          "title": "À propos de ChatGameLab"
+        },
         "jff": {
           "description": "Coordinateur du projet et organisation principale.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1383,14 @@
       "workshop": "Jeux de l’atelier"
     },
     "gameType": "Jeu",
+    "infoModal": {
+      "body": "Vous êtes passé en mode atelier. Dans ce mode, tout ce que vous faites est lié à cet atelier : les jeux que vous créez, les sessions de jeu et les liens de partage.\n\nVous pouvez partir à tout moment. Partir ne mettra pas fin à l'atelier et ne supprimera rien de ce que vous avez créé.",
+      "dontShowAgain": "Ne plus afficher",
+      "gotIt": "Compris",
+      "headStaffNote": "Vous pouvez rejoindre à nouveau cet atelier à tout moment depuis la liste des ateliers de votre organisation.",
+      "individualNote": "Pour revenir après être parti, vous aurez besoin d'une nouvelle invitation des organisateurs de l'atelier.",
+      "title": "Bienvenue dans {{name}}"
+    },
     "members": {
       "empty": "Pas encore de membres",
       "title": "Membres de l’atelier"
@@ -1239,6 +1422,7 @@
     "myOrganization": "Mon organisation",
     "myWorkshop": "Mon atelier",
     "orgApiKeys": "Clés API",
+    "orgConstraints": "Contraintes",
     "orgMembers": "Membres",
     "orgWorkshops": "Ateliers",
     "play": "Jouer à un jeu",

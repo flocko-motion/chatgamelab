@@ -108,7 +108,7 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
 
   // Register user with backend
   const register = useCallback(
-    async (name: string, email: string) => {
+    async (name: string, email: string, ageGroup: string) => {
       authLogger.debug("Starting user registration", { name });
 
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
@@ -116,6 +116,7 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
       const response = await api.auth.registerCreate({
         name,
         email,
+        ageGroup,
       });
 
       setBackendUser(response.data);

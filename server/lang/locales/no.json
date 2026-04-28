@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Dette hjelper oss med å bruke riktig beskyttelse og innholdsretningslinjer på kontoen din.",
+      "label": "Alders- og beskyttelsesgruppe",
+      "u13": "13–17 år, uten foreldresamtykke",
+      "u13Description": "Du kan bruke ChatGameLab. Sterkere beskyttelsesinnstillinger vil gjelde for kontoen din.",
+      "u13p": "13–17 år, med foreldresamtykke",
+      "u13pDescription": "Du kan bruke ChatGameLab hvis foreldrene dine samtykker.",
+      "u18": "18 år eller eldre",
+      "u18Description": "Du kan bruke ChatGameLab.",
+      "under13": "Under 13 år",
+      "under13Blocker": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon.",
+      "under13Description": "Du kan ikke opprette din egen konto ennå. Hvis du er under 13, kan du bare bruke ChatGameLab gjennom en ungdomsorganisasjon."
+    },
     "login": {
       "auth0Button": "Logg inn med Auth0",
       "devMode": "Utviklingsmodus",
@@ -32,6 +45,11 @@
       "workshop": "Workshop"
     },
     "profile": {
+      "ageGroup": "Aldersgruppe",
+      "ageGroupDescription": "Bestemmer hvilke innholdsretningslinjer som gjelder for spillene dine. Du kan endre dette når som helst.",
+      "ageGroupSection": "Alders- og beskyttelsesgruppe",
+      "ageGroupU13": "13–17 år",
+      "ageGroupU18": "18+",
       "gamesCreated": "Spill laget",
       "gamesPlayed": "Spill spilt",
       "memberSince": "Registrert siden",
@@ -53,6 +71,12 @@
       "totalPlaysOnGames": "Totale spilleganger på spillene mine"
     },
     "register": {
+      "ageGroupLabel": "Aldersgruppe",
+      "ageGroupRequired": "Velg aldersgruppe",
+      "ageGroupU13": "13–17 år gammel",
+      "ageGroupU18": "18 år eller eldre",
+      "ageGroupUnder13": "Under 13",
+      "ageGroupUnder13Error": "Du må være minst 13 år for å bruke ChatGameLab.",
       "cancelButton": "Avbryt",
       "emailDescription": "Vi bruker dette til viktige varsler.",
       "emailLabel": "E-postadresse",
@@ -73,8 +97,48 @@
       "subtitle": "Bare noen få detaljer til for å komme i gang",
       "title": "Fullfør profilen din"
     },
+    "registerPage": {
+      "agreePrefix": "Jeg godtar",
+      "agreeSuffix": "og",
+      "agreeSuffix2": "",
+      "alreadyHaveAccount": "Har du allerede en konto?",
+      "backButton": "Tilbake",
+      "chooseType": "Hvordan vil du bruke ChatGameLab?",
+      "continueButton": "Fortsett til registrering",
+      "description": "Vi bruker Auth0 som vår autentiseringsleverandør for å administrere brukerkontoer. Du blir videresendt til Auth0 for å opprette kontoen din, og deretter sendt tilbake hit for å fullføre profilen din.",
+      "educatorDescription": "Bruk ChatGameLab i workshops, klasserom eller organisasjonen din",
+      "educatorModal": {
+        "closeButton": "Lukk",
+        "copied": "Kopiert!",
+        "copyEmail": "Kopier e-post",
+        "eduInfo": "Lær mer om å bruke ChatGameLab til undervisningsformål:",
+        "intro": "For å bruke ChatGameLab med organisasjonen din (skole, universitet, institusjon), følg disse trinnene:",
+        "registerButton": "Opprett personlig konto",
+        "step1": "Opprett en personlig konto",
+        "step1Description": "Opprett din personlige konto først. Dette blir påloggingen din til plattformen.",
+        "step2": "2. Send oss en e-post",
+        "step2Description": "Skriv en e-post til",
+        "step2Item1": "Din registrerte e-postadresse",
+        "step2Item2": "Navnet på organisasjonen din (skole, institusjon osv.)",
+        "step2WithInfo": "med:",
+        "step3": "3. Vi setter opp organisasjonen din",
+        "step3Description": "Vi oppretter organisasjonen din og setter deg som leder. Du kan deretter invitere kolleger og sette opp workshops.",
+        "title": "Tilgang for lærere og profesjonelle"
+      },
+      "educatorTitle": "Lærer / profesjonell",
+      "individualDescription": "Lag og spill KI-drevne teksteventyr",
+      "individualTitle": "Personlig konto",
+      "loginLink": "Logg inn",
+      "privacyPolicy": "Personvernerklæring",
+      "termsOfService": "Vilkår for bruk",
+      "title": "Opprett kontoen din"
+    },
     "settings": {
       "accountSection": "Konto",
+      "ageGroupDescription": "Bestemmer hvilke innholdsretningslinjer som gjelder for spillene dine.",
+      "ageGroupLabel": "Aldersgruppe",
+      "ageGroupU13": "13–17 år",
+      "ageGroupU18": "18 år eller eldre",
       "emailChangeNote": "For å endre e-postadressen må du kontakte nettstedsadministratoren.",
       "errors": {
         "nameRequired": "Navn er påkrevd",
@@ -210,6 +274,7 @@
       "low": "Lav (Økonomi)",
       "max": "Maks (Premium + lyd)",
       "medium": "Middels (Balansert)",
+      "newSessionsOnly": "Dette nivået gjelder bare for nye økter. Eksisterende økter beholder nivået de startet med.",
       "serverDefault": "Serverstandard"
     },
     "allGames": {
@@ -233,6 +298,7 @@
         "sponsored": "Sponset"
       },
       "play": "Spill",
+      "reportGame": "Rapporter spill",
       "restart": "Start på nytt",
       "restartConfirm": {
         "confirm": "Start på nytt",
@@ -240,7 +306,8 @@
         "title": "Start spillet på nytt"
       },
       "title": "Alle spill",
-      "unfavorite": "Fjern fra favoritter"
+      "unfavorite": "Fjern fra favoritter",
+      "workshop": "Workshop / org"
     },
     "apiKeys": {
       "aboutSection": {
@@ -285,20 +352,28 @@
       "platform": "Plattform",
       "setDefault": "Bruk som standard",
       "shares": {
+        "context": {
+          "organization": "Organisasjon",
+          "personal": "Personlig",
+          "workshop": "Workshop"
+        },
+        "gameShares": "Delingslenker for spill",
         "goToOrg": "Administrer",
         "noOrgShares": "Ikke delt med noen organisasjon",
         "noSponsorships": "Ingen spillsponsorater",
         "orgShares": "Organisasjonsdeling",
         "privateShares": "Private delelenker",
-        "remaining": "{{count}} gjenstår",
+        "remaining": "{{count}} bruk gjenstår",
         "removeSponsor": "Fjern sponsing",
+        "revokeGameShare": "Opphev delingslenke",
         "revokePrivateShare": "Trekk tilbake delelenke",
         "sponsorships": "Spillsponsorater",
         "toggle": "Delinger \u001f sponsorater",
         "unknownGame": "Ukjent spill",
         "unknownOrg": "Ukjent organisasjon",
         "unknownUser": "Ukjent bruker",
-        "unknownWorkshop": "Ukjent workshop"
+        "unknownWorkshop": "Ukjent workshop",
+        "unlimited": "Ubegrenset antall bruk"
       },
       "status": {
         "failed": "Nøkkelen fungerer ikke",
@@ -336,6 +411,7 @@
     },
     "gamePlayer": {
       "aiInsight": {
+        "apiKeyChanged": "Brukt API-nøkkel er endret",
         "sections": {
           "expandStory": "Instruksjoner til AI-en for å skrive ut historien",
           "imageGeneration": "Instruksjoner fra AI-en for bildegenerering",
@@ -349,6 +425,15 @@
         "tokens": {
           "received": "tokens mottatt",
           "sent": "tokens sendt"
+        },
+        "usedApiKey": {
+          "institution_free_use": "Organisasjonens nøkkel for gratis bruk ble brukt",
+          "label": "Brukt API-nøkkel",
+          "personal": "Den personlige nøkkelen din ble brukt",
+          "private_share": "Delingslenkens nøkkel ble brukt",
+          "sponsor": "En sponsornøkkel ble brukt",
+          "system_free_use": "En global gratisnøkkel ble brukt",
+          "workshop": "Workshopens nøkkel ble brukt"
         }
       },
       "debug": {
@@ -377,7 +462,7 @@
         "gameNotFound": "Fant ikke spillet",
         "missingFields": "Spillet mangler nødvendige felter:",
         "noApiKey": {
-          "banner": "API-nøkkelen som tidligere ble brukt for dette spillet er ikke lenger tilgjengelig. For å fortsette å spille må du legge til din egen API-nøkkel i kontoinnstillingene.",
+          "banner": "Ingen brukbar API-nøkkel funnet for plattform {{platform}}. For å fortsette å spille, legg til din egen API-nøkkel i kontoinnstillingene dine.",
           "goToSettings": "Innstillinger for API-nøkkel",
           "personal": "Du må konfigurere en API-nøkkel før du kan spille. Gå til innstillingene for API-nøkkel for å legge til en.",
           "title": "Ingen API-nøkkel tilgjengelig",
@@ -438,19 +523,23 @@
       "badges": {
         "myGame": "Mitt spill",
         "public": "Offentlig",
-        "workshop": "Workshop"
+        "workshop": "Workshop-spill"
       },
       "createButton": "Opprett spill",
       "createModal": {
         "descriptionPlaceholder": "Hva handler spillet ditt om?",
         "namePlaceholder": "f.eks. Romeventyr",
-        "publicDescription": "Offentlige spill kan oppdages av alle.",
+        "publicDescription": "Offentlige spill er synlige og spillbare av alle brukere på denne plattformen.",
         "publicLabel": "Gjør dette spillet offentlig",
         "submit": "Opprett spill",
         "title": "Opprett nytt spill"
       },
       "deleteModal": {
+        "adminActionTitle": "Administratorhandling",
+        "adminActionWarning": "Du er i ferd med å slette et spill du ikke eier. Dette er en administratorhandling og skal kun brukes til moderering.",
         "message": "Er du sikker på at du vil slette \"{{name}}\"?",
+        "moderatorActionTitle": "Sletter en deltakers spill",
+        "moderatorActionWarning": "Dette spillet tilhører en deltaker i workshopen din. Å slette det fjerner det permanent for vedkommende. Dette kan ikke angres.",
         "title": "Slett spill",
         "warning": "Denne handlingen kan ikke angres. Alle spildata blir slettet permanent."
       },
@@ -469,6 +558,9 @@
         "statusFieldsHint": "Hva skal spillet holde styr på? For eksempel liv, poeng eller ammunisjon. Spillet husker disse verdiene og oppdaterer dem under spillingen."
       },
       "editModal": {
+        "adminActionTitle": "Administratorhandling",
+        "adminActionWarning": "Du redigerer et spill du ikke eier. Dette er en administratorhandling og skal kun brukes til moderering.",
+        "gameDesignSection": "Spilldesign",
         "title": "Rediger spill",
         "unsavedChanges": {
           "discard": "Forkast endringer",
@@ -502,9 +594,13 @@
       "playNow": "Spill nå",
       "privateShare": {
         "active": "Privat deling er aktiv. Alle med lenken under kan spille dette spillet anonymt.",
+        "aiQualityTier": "KI-kvalitet",
+        "aiQualityTierDescription": "Velg KI-modellkvaliteten for gjester som bruker denne delingslenken.",
         "copyLink": "Kopier lenke",
+        "createModalTitle": "Opprett privat delingslenke",
         "description": "Opprett en privat delelenke slik at alle med den kan spille dette spillet anonymt. Du velger hvilken API-nøkkel som betaler for sesjonene.",
         "edit": "Rediger innstillinger",
+        "editModalTitle": "Rediger privat delingslenke",
         "editSettings": "Rediger delingsinnstillinger",
         "enable": "Opprett delelenke",
         "loading": "Laster delingsstatus...",
@@ -512,18 +608,40 @@
         "maxSessions": "Maks antall sesjoner",
         "maxSessionsDescription": "La stå tomt for ubegrensede sesjoner.",
         "noEligibleKeys": "Ingen fungerende API-nøkkel tilgjengelig. Legg til en API-nøkkel i innstillingene for API-nøkler først.",
+        "noPersonalShare": "Det finnes ingen personlig eller organisasjonslenke. Du kan opprette en utenfor workshopen.",
+        "orgKey": "Organisasjon",
+        "orgShareDescription": "Delingslenke for organisasjon – gjester spiller med organisasjonens API-nøkkel.",
+        "personalCreateHint": "Opprett en privat lenke slik at alle med lenken kan spille dette spillet anonymt. Du velger hvilken API-nøkkel som betaler for øktene.",
+        "personalOrgSubsection": "Personlig / organisasjonslenke",
+        "personalShare": "Din private delingslenke",
+        "personalShareDescription": "Din personlige delingslenke – gjester spiller med API-nøkkelen du har valgt.",
         "remainingSessions": "{{count}} gjenværende sesjon(er)",
         "revoke": "Opphev lenke",
         "selectKey": "Velg en API-nøkkel",
         "selectKeyPlaceholder": "Velg en nøkkel som skal betale for gjestesesjoner...",
         "shareLink": "Delelenke",
+        "sourceOrg": "Organisasjon",
+        "sourcePersonal": "Personlig",
+        "sourceWorkshop": "Workshop",
         "title": "Privat delelenke",
         "unlimited": "Ubegrenset",
-        "update": "Oppdater delelenke"
+        "unlimitedSessions": "Ubegrensede økter",
+        "update": "Oppdater delelenke",
+        "workshopCreateHint": "Opprett en delingslenke for dette spillet. Workshopens API-nøkkel velges automatisk og dekker kostnadene.",
+        "workshopDescription": "Opprett en delingslenke for dette spillet. Workshopens standard-API-nøkkel brukes automatisk for gjesteøkter.",
+        "workshopShare": "Workshop-deling",
+        "workshopShareDescription": "Denne lenken ble opprettet i workshopen «{{name}}» – gjester spiller med workshopens API-nøkkel.",
+        "workshopSubsection": "Delingslenke for workshop"
       },
       "sharing": {
         "active": "Aktiv",
-        "sectionTitle": "Deling \u001f sponsing"
+        "privateShareLink": "Privat delingslenke",
+        "privateShareLinkDescription": "Private delingslenker kan deles med andre. Alle med lenken kan spille spillet anonymt uten konto. En API-nøkkel må velges for å dekke kostnadene.",
+        "publicGameWorkshopHint": "Dette er et offentlig spill og ikke en del av workshopen din. Delingsalternativer er ikke tilgjengelige for offentlige spill i workshop-modus.",
+        "publicSponsoring": "Offentlig sponsoring",
+        "publicSponsoringDescription": "Alle brukere på plattformen kan spille dette spillet gratis – API-nøkkelen du har valgt dekker kostnaden.",
+        "sectionTitle": "Delingsalternativer",
+        "sectionTitleShareOnly": "Delingsalternativer"
       },
       "sort": {
         "createdAt-asc": "Opprettet (eldst)",
@@ -555,11 +673,13 @@
         "loadingKeys": "Laster API-nøkler...",
         "manageSponsor": "Administrer sponsor",
         "next": "Neste",
-        "noEligibleKeys": "Du har ingen API-nøkler med offentlig sponsing aktivert. Gå til innstillingene for API-nøkler og aktiver «Tillat offentlig sponsing» på en nøkkel først.",
+        "noEligibleKeys": "Du har ingen tilgjengelige API-nøkler til sponsoring. Legg først til en API-nøkkel i innstillingene.",
         "privateWarning": "Hvis du gjør dette spillet privat, fjernes den offentlige sponsingen.",
         "removeSponsor": "Fjern sponsing",
         "selectKey": "Velg en API-nøkkel",
         "selectKeyPlaceholder": "Velg en nøkkel å sponse med...",
+        "sourceOrg": "Organisasjon",
+        "sourcePersonal": "Personlig",
         "sponsorGame": "Spons spill",
         "sponsored": "Sponset",
         "sponsoredTooltip": "Dette spillet er sponset – du kan spille det gratis! Spillutvikleren eller en støttespiller dekker AI-kostnadene.",
@@ -710,6 +830,7 @@
       "profile": "Profil",
       "workshop": "Workshop"
     },
+    "help": "Hjelp",
     "home": {
       "features": {
         "create": {
@@ -821,15 +942,15 @@
     "myOrganization": {
       "actions": "Handlinger",
       "apiKeys": {
-        "aboutDescription": "API-nøkler som deles her er tilgjengelige for alle medlemmer av organisasjonen din for å spille spill. Bare ledere og lærere kan administrere disse nøklene.",
+        "aboutDescription": "API-nøkler som deles her er tilgjengelige for alle medlemmer av organisasjonen din for å spille spill.",
         "aboutTitle": "Organisasjonens API-nøkler",
         "allowPublicSponsoring": "Tillat offentlig sponsing",
         "allowPublicSponsoringDesc": "Denne nøkkelen kan brukes til å sponse spill for alle brukere.",
         "filterByPlatform": "Filtrer etter plattform",
         "freeUseKey": {
-          "description": "Angi en fritt-bruk-nøkkel slik at alle organisasjonsmedlemmer kan spille spill uten å trenge sin egen API-nøkkel. Bare nøkler som allerede er delt med denne organisasjonen kan velges.",
+          "description": "Angi en gratisnøkkel slik at alle organisasjonsmedlemmer kan spille spill uten å trenge sin egen API-nøkkel.",
           "remove": "Fjern",
-          "selectPlaceholder": "Velg en delt nøkkel...",
+          "selectPlaceholder": "Velg en nøkkel...",
           "title": "Fritt-bruk-nøkkel",
           "unknownKey": "Ukjent nøkkel"
         },
@@ -847,7 +968,14 @@
         "share": "Del",
         "shareKey": "Del nøkkel",
         "shareKeyTitle": "Del API-nøkkel med organisasjon",
+        "showDetails": "Vis detaljer",
         "title": "Organisasjonens API-nøkler"
+      },
+      "autoShare": {
+        "confirmMessage": "Denne nøkkelen deles med {{orgName}} og kan deretter brukes av andre ledere og ansatte til workshops. Du kan fjerne delingen senere i administrasjonen av personlige API-nøkler eller organisasjonens API-nøkler.",
+        "confirmTitle": "Del nøkkel med organisasjonen",
+        "orgKeyGroup": "Organisasjonsnøkler",
+        "personalKeyGroup": "Personlige nøkler"
       },
       "demoteConfirm": "Er du sikker på at du vil degradere \"{{name}}\" ({{email}}) til lærer?",
       "demoteTitle": "Degrader til lærer",
@@ -880,6 +1008,15 @@
       "promoteTitle": "Forfrem til leder",
       "promoteToHead": "Forfrem til leder",
       "promoteWarning": "Denne brukeren får muligheten til å administrere organisasjonsmedlemmer og invitere lærere.",
+      "promptConstraintsFallbackEmpty": "(ikke konfigurert)",
+      "promptConstraintsFallbackHint": "Ingen organisasjonsbegrensning er konfigurert. Nettstedets standard for spillerens aldersgruppe gjelder:",
+      "promptConstraintsFallbackTitle": "Aktiv reserve for hele nettstedet",
+      "promptConstraintsFallbackU13": "Under 13",
+      "promptConstraintsFallbackU13p": "13–17 (med foreldresamtykke)",
+      "promptConstraintsFallbackU18": "18 og eldre",
+      "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne organisasjonen. Gjelder når ingen workshop-nivå-begrensning er satt, og for spill som deles via lenke.",
+      "promptConstraintsLabel": "Organisasjonens prompt-begrensninger",
+      "promptConstraintsPlaceholder": "f.eks. Hold historien aldersvennlig og unngå voldelig innhold.",
       "removeConfirm": "Er du sikker på at du vil fjerne \"{{name}}\" fra organisasjonen?",
       "removeMember": "Fjern medlem",
       "removeTitle": "Fjern medlem",
@@ -900,7 +1037,17 @@
         "active": "Aktiv",
         "activeDescription": "Aktive workshops lar deltakere bli med og lage spill.",
         "activeLabel": "Aktiv",
+        "addIndividual": "Legg til organisasjonsmedlem",
+        "addIndividualError": "Kunne ikke legge til medlem i workshopen.",
+        "addIndividualHint": "Når du legger til en bruker, settes vedkommende automatisk i workshop-modus. De vil se workshop-visningen i stedet for sitt vanlige dashbord. Gjør dette kun hvis det er hensikten.",
+        "addIndividualStaffNote": "Ledere og lærere bør bli med i workshops via workshop-listen på egen hånd – de er ikke oppført her.",
+        "addIndividualSuccess": "Medlem lagt til",
+        "addIndividualSuccessMessage": "{{name}} er lagt til i workshopen.",
+        "addIndividualTitle": "Legg til person i workshop",
+        "addToWorkshop": "Legg til i workshop",
         "aiQualityTierHint": "Kvalitetsnivå for AI-svar. Høyere nivåer koster mer, men kan ha høyere kvalitet. Tomt bruker serverstandard.",
+        "allowGameSharing": "Tillat deling av spill",
+        "allowGameSharingHint": "Når aktivert, kan deltakerne opprette delingslenker for spillene sine med workshopens API-nøkkel",
         "anonymousParticipant": "Anonym deltaker",
         "create": "Opprett workshop",
         "createFirst": "Opprett din første workshop",
@@ -919,6 +1066,11 @@
         "games": "Spill",
         "hideInactive": "Skjul inaktive",
         "inactive": "Inaktiv",
+        "inviteByEmail": "Inviter via e-post",
+        "inviteByEmailDescription": "Skriv inn e-posten til en registrert bruker for å invitere vedkommende til denne workshopen. De vil se invitasjonen på dashbordet sitt.",
+        "inviteByEmailSuccess": "Invitasjon sendt",
+        "inviteByEmailSuccessMessage": "En invitasjon er opprettet. Brukeren vil se den under ventende invitasjoner.",
+        "inviteByEmailTitle": "Inviter bruker til workshop",
         "inviteCreatedAt": "Opprettet",
         "inviteDescription": "Generer en invitasjonslenke som deltakere kan bruke for å bli med i denne workshopen.",
         "inviteExpiresAt": "Utløper",
@@ -937,6 +1089,7 @@
         "noActiveInvite": "Ingen aktiv invitasjonslenke tilgjengelig.",
         "noDefaultApiKey": "Ingen standard API-nøkkel",
         "noDefaultModel": "Bruk plattformstandard",
+        "noIndividuals": "Ingen individuelle brukere i denne organisasjonen.",
         "noParticipantToken": "Denne deltakeren har ikke en invitasjonslenke. Bare anonyme deltakere (gjester) har gjenbrukbare invitasjonslenker.",
         "noParticipants": "Ingen deltakere ennå",
         "notAuthorized": "Du har ikke tillatelse til å administrere workshops. Bare ledere og lærere kan åpne denne siden.",
@@ -944,7 +1097,9 @@
         "participantJoined": "Ble med {{date}}",
         "participantName": "Deltakernavn",
         "participants": "Deltakere",
-        "promptConstraintsHint": "Ekstra instruksjoner som legges til AI-systemprompten for alle økter i denne workshopen.",
+        "promptConstraintsFallbackOrg": "Bruker organisasjonens begrensning som standard: {{constraint}}",
+        "promptConstraintsFallbackSite": "Bruker sidebegrensning som standard",
+        "promptConstraintsHint": "Ekstra KI-instruksjoner for alle økter i denne workshopen.",
         "promptConstraintsLabel": "Promptbegrensninger",
         "promptConstraintsPlaceholder": "f.eks. Hold historien passende for alder og unngå voldelig innhold.",
         "removeParticipant": "Fjern deltaker",
@@ -956,6 +1111,7 @@
         "settings": "Innstillinger",
         "shareParticipantLink": "Kopier individuell invitasjonslenke for denne deltakeren",
         "showOtherParticipantsGames": "Vis spillene til andre deltakere",
+        "showOtherParticipantsGamesHint": "Ledere og ansatte kan alltid se alle deltakernes spill for moderering",
         "showPublicGames": "Vis offentlige spill for deltakerne",
         "sort": {
           "createdAtAsc": "Eldst først",
@@ -987,7 +1143,9 @@
       "empty": "Ingen nye varsler.",
       "inviteDescription": "Du er invitert til å bli med som {{role}}.",
       "inviteToJoin": "Organisasjonsinvitasjon",
-      "title": "Varsler"
+      "title": "Varsler",
+      "workshopInvite": "Workshop-invitasjon",
+      "workshopInviteDescription": "Du er invitert til å bli med i denne workshopen."
     },
     "play": {
       "cloneGame": "Klon til spillene mine",
@@ -1024,6 +1182,19 @@
     "search": "Søk",
     "searchPlaceholder": "Søk blant medlemmer...",
     "serverSettings": {
+      "constraints": {
+        "description": "Definer obligatoriske KI-regler basert på spillerens aldersgruppe. Disse begrensningene legges inn i hvert KI-svar. De gjelder for alle innloggede brukere utenfor workshop-modus.",
+        "title": "Aldersbaserte prompt-begrensninger",
+        "u13Hint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år uten registrert foreldresamtykke.",
+        "u13Label": "Begrensning for brukere mellom 13 og 17 år, uten foreldresamtykke (U13)",
+        "u13Placeholder": "f.eks. Hold alt innhold strengt aldersvennlig for tenåringer. Ingen vold, ingen romantisk innhold, ingen skrekktemaer.",
+        "u13pHint": "Settes inn i hver AI-forespørsel for påloggede brukere mellom 13 og 17 år med registrert foreldresamtykke.",
+        "u13pLabel": "Begrensning for brukere mellom 13 og 17 år, med foreldresamtykke (U13p)",
+        "u13pPlaceholder": "f.eks. Alderstilpasset innhold for tenåringer med foreldresamtykke. Noen modne temaer tillatt, men ikke eksplisitt innhold.",
+        "u18Hint": "Settes inn i hver KI-prompt for innloggede brukere som er 18 år eller eldre.",
+        "u18Label": "Begrensning for brukere 18+ (U18)",
+        "u18Placeholder": "f.eks. Hold innholdet passende. Unngå eksplisitt vold eller seksuelt innhold."
+      },
       "defaultTier": {
         "description": "Serverens standardnivå som brukes når det ikke er konfigurert noe spesifikt nivå på workshop-, institusjons- eller brukernivå. Høyere nivåer koster mer, men kan ha høyere kvalitet.",
         "title": "Standard AI-kvalitetsnivå"
@@ -1099,6 +1270,10 @@
   "dashboard": {
     "cards": {
       "externalLinks": {
+        "edu": {
+          "description": "Mediepedagogisk arbeid med ChatGameLab",
+          "title": "Om ChatGameLab"
+        },
         "jff": {
           "description": "Prosjektkoordinator og ledende organisasjon.",
           "title": "JFF – Institut für Medienpädagogik"
@@ -1208,6 +1383,14 @@
       "workshop": "Workshop-spill"
     },
     "gameType": "Spill",
+    "infoModal": {
+      "body": "Du har gått inn i workshop-modus. Så lenge du er i denne modusen, er alt du gjør knyttet til denne workshopen – spill du lager, spilløkter og delingslenker.\n\nDu kan forlate den når som helst. Å forlate vil ikke avslutte workshopen eller fjerne noe du har laget.",
+      "dontShowAgain": "Ikke vis dette igjen",
+      "gotIt": "Skjønner",
+      "headStaffNote": "Du kan bli med i denne workshopen igjen når som helst fra organisasjonens workshop-liste.",
+      "individualNote": "For å bli med igjen etter at du har forlatt, trenger du en ny invitasjon fra workshop-arrangørene.",
+      "title": "Velkommen til {{name}}"
+    },
     "members": {
       "empty": "Ingen medlemmer ennå",
       "title": "Workshopmedlemmer"
@@ -1239,6 +1422,7 @@
     "myOrganization": "Min organisasjon",
     "myWorkshop": "Min workshop",
     "orgApiKeys": "API-nøkler",
+    "orgConstraints": "Begrensninger",
     "orgMembers": "Medlemmer",
     "orgWorkshops": "Workshops",
     "play": "Spill et spill",

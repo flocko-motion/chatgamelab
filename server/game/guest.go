@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"cgl/db"
+	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
 
@@ -105,7 +106,9 @@ func createGuestUser(ctx context.Context, shareID uuid.UUID) (*obj.User, *obj.HT
 		}),
 		ung.WithSeparator("-"),
 	)
-	name := "guest-" + nameGenerator.Generate()
+	// Append a short random suffix — the readable color+animal pair has limited
+	// combinations and can collide under load.
+	name := "guest-" + nameGenerator.Generate() + "-" + functional.First(functional.GenerateSecureToken(2))
 	userID := uuid.New()
 
 	err := db.CreateGuestUser(ctx, userID, name, shareID)
@@ -154,7 +157,15 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 
 	// Use shared internal implementation
 	// Guest users: no retries (nil), don't delete existing sessions (false)
-	return createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
+	session, msg, httpErr := createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
+	if httpErr != nil {
+		return nil, nil, httpErr
+	}
+
+	// Resolve constraints from the share's originating workshop/org
+	session.PromptConstraints, session.PromptConstraintSource = db.ResolveShareConstraint(ctx, gameShare)
+
+	return session, msg, nil
 }
 
 // ResolveGuestSessionApiKey re-resolves the API key for a guest session from the game share.

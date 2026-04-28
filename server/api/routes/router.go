@@ -22,6 +22,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/platforms", httpx.RequireAuth(GetPlatforms))
 	mux.Handle("GET /api/roles", httpx.RequireAuth(GetRoles))
 	mux.Handle("GET /api/system/settings", httpx.RequireAuth(GetSystemSettings))
+	mux.Handle("GET /api/system/constraints", httpx.RequireAuth(GetSystemConstraints))
 	mux.Handle("PATCH /api/system/settings", httpx.RequireAuth(UpdateSystemSettings))
 	mux.Handle("PATCH /api/system/settings/free-use-key", httpx.RequireAuth(SetSystemFreeUseApiKey))
 
@@ -88,6 +89,7 @@ func NewMux() *http.ServeMux {
 	mux.Handle("DELETE /api/institutions/{id}/members/{userID}", httpx.RequireAuth(RemoveInstitutionMember))
 	mux.Handle("GET /api/institutions/{id}/apikeys", httpx.RequireAuth(GetInstitutionApiKeys))
 	mux.Handle("PATCH /api/institutions/{id}/free-use-key", httpx.RequireAuth(SetInstitutionFreeUseApiKeyShare))
+	mux.Handle("PATCH /api/institutions/{id}/prompt-constraints", httpx.RequireAuth(UpdateInstitutionPromptConstraints))
 
 	// Workshops
 	mux.Handle("POST /api/workshops", httpx.RequireAuth(CreateWorkshop))

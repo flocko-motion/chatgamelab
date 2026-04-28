@@ -1,6 +1,7 @@
 import {
   Card,
   Group,
+  Radio,
   SimpleGrid,
   Stack,
   Text,
@@ -15,6 +16,7 @@ import {
   IconDeviceGamepad2,
   IconMessage,
   IconPlayerPlay,
+  IconShieldCheck,
   IconShieldStar,
   IconTrophy,
 } from "@tabler/icons-react";
@@ -22,7 +24,8 @@ import { useTranslation } from "react-i18next";
 
 import { useAuth } from "@/providers/AuthProvider";
 import { UserAvatar } from "@/common/components/UserAvatar";
-import { useUserStats } from "@/api/hooks";
+import { useUserStats, useUpdateUser } from "@/api/hooks";
+import { AgeGroup } from "@/constants/ageGroup";
 import {
   isAdmin,
   getUserRole,
@@ -32,8 +35,9 @@ import {
 
 export function ProfileView() {
   const { t } = useTranslation("auth");
-  const { backendUser } = useAuth();
+  const { backendUser, retryBackendFetch } = useAuth();
   const { data: stats, isLoading: statsLoading } = useUserStats();
+  const updateUser = useUpdateUser();
 
   const translateRole = useTranslateRole(t("profile.noRole"));
 
@@ -146,6 +150,51 @@ export function ProfileView() {
               )}
             </Stack>
           </SimpleGrid>
+        </Stack>
+      </Card>
+
+      {/* Age Group Card */}
+      <Card shadow="sm" padding="xl" radius="md" withBorder>
+        <Stack gap="md">
+          <Group gap="sm">
+            <ThemeIcon variant="light" size="lg" color="accent">
+              <IconShieldCheck size={20} />
+            </ThemeIcon>
+            <Title order={3}>{t("profile.ageGroupSection")}</Title>
+          </Group>
+          <Radio.Group
+            label={t("ageGroup.label")}
+            description={t("ageGroup.description")}
+            value={backendUser.ageGroup || AgeGroup.U13}
+            onChange={(value) => {
+              if (!value || !backendUser.id) return;
+              updateUser.mutate(
+                { id: backendUser.id, request: { ageGroup: value } },
+                { onSuccess: () => retryBackendFetch() },
+              );
+            }}
+          >
+            <Stack gap="sm" mt="xs">
+              <Radio
+                value={AgeGroup.U13}
+                label={t("ageGroup.u13")}
+                description={t("ageGroup.u13Description")}
+                disabled={updateUser.isPending}
+              />
+              <Radio
+                value={AgeGroup.U13P}
+                label={t("ageGroup.u13p")}
+                description={t("ageGroup.u13pDescription")}
+                disabled={updateUser.isPending}
+              />
+              <Radio
+                value={AgeGroup.U18}
+                label={t("ageGroup.u18")}
+                description={t("ageGroup.u18Description")}
+                disabled={updateUser.isPending}
+              />
+            </Stack>
+          </Radio.Group>
         </Stack>
       </Card>
 

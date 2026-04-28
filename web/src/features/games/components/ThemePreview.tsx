@@ -142,6 +142,7 @@ export function ThemePreview({ apiTheme }: ThemePreviewProps) {
       theme: apiTheme,
       aiModel: null,
       aiPlatform: null,
+      promptConstraintSource: null,
       sessionLanguage: null,
     }),
     [messages, statusFields, apiTheme],

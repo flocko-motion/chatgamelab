@@ -9,6 +9,6 @@ echo "Rebasing to origin/development..."
 
 git fetch origin development
 git rebase origin/development
-git pull
+git push --force-with-lease
 
 echo "✅ Rebased successfully."

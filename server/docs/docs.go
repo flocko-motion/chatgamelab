@@ -2244,6 +2244,70 @@ const docTemplate = `{
                 }
             }
         },
+        "/institutions/{id}/prompt-constraints": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Sets or clears prompt constraints for an institution (head or admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "institutions"
+                ],
+                "summary": "Update institution prompt constraints",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Prompt constraints",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.UpdateInstitutionPromptConstraintsRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/obj.Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/invites": {
             "get": {
                 "security": [
@@ -3648,6 +3712,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/system/constraints": {
+            "get": {
+                "description": "Returns the three site-wide age-based prompt constraint texts. Available to any authenticated user so org settings can show the active fallback.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "system"
+                ],
+                "summary": "Get site-wide prompt constraints",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.SystemConstraintsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httpx.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/system/settings": {
             "get": {
                 "description": "Returns the global system settings",
@@ -5007,6 +5097,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -5026,10 +5124,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -5372,6 +5466,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -5391,10 +5493,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -5447,6 +5545,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "plot": {
+                    "type": "string"
+                },
+                "promptConstraintSource": {
+                    "description": "source of active constraint (workshop, organisation, site13, site18)",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -5558,6 +5660,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "promptConstraints": {
                     "type": "string"
                 }
             }
@@ -5672,6 +5777,18 @@ const docTemplate = `{
                 },
                 "modifiedAt": {
                     "type": "string"
+                },
+                "promptConstraintU13": {
+                    "description": "constraint for users aged 13-17 without parental consent (u13)",
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "description": "constraint for users aged 13-17 with parental consent (u13p)",
+                    "type": "string"
+                },
+                "promptConstraintU18": {
+                    "description": "constraint for users aged 18+ (u18)",
+                    "type": "string"
                 }
             }
         },
@@ -5700,6 +5817,10 @@ const docTemplate = `{
         "obj.User": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "AgeGroup cohort:\n  \"u13\"  = 13-17, no parental consent on file (strictest; default when unknown)\n  \"u13p\" = 13-17, with parental consent on file\n  \"u18\"  = 18+\n  nil    = guest / unknown",
+                    "type": "string"
+                },
                 "aiQualityTier": {
                     "description": "high/medium/low, nil = server default",
                     "type": "string"
@@ -6242,6 +6363,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -6261,10 +6390,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -6418,6 +6543,10 @@ const docTemplate = `{
         "routes.RegisterRequest": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "AgeGroup: \"u13\" (13-17, no parental consent), \"u13p\" (13-17, with parental consent), or \"u18\" (18+).",
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -6512,6 +6641,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "plot": {
+                    "type": "string"
+                },
+                "promptConstraintSource": {
+                    "description": "source of active constraint (workshop, organisation, site13, site18)",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -6619,6 +6752,14 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintSource": {
+                    "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
+                    "type": "string"
+                },
+                "promptConstraints": {
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "type": "string"
+                },
                 "statusFields": {
                     "description": "Defines the status fields available in the game; copied from game.status_fields at launch.",
                     "type": "string"
@@ -6638,10 +6779,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workshopId": {
-                    "type": "string"
-                },
-                "workshopPromptConstraints": {
-                    "description": "Workshop prompt constraints (if user is in a workshop), re-injected with every AI call",
                     "type": "string"
                 }
             }
@@ -6725,6 +6862,20 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.SystemConstraintsResponse": {
+            "type": "object",
+            "properties": {
+                "promptConstraintU13": {
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "type": "string"
+                },
+                "promptConstraintU18": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.UpdateApiKeyRequest": {
             "type": "object",
             "properties": {
@@ -6746,6 +6897,14 @@ const docTemplate = `{
                 }
             }
         },
+        "routes.UpdateInstitutionPromptConstraintsRequest": {
+            "type": "object",
+            "properties": {
+                "promptConstraints": {
+                    "type": "string"
+                }
+            }
+        },
         "routes.UpdateInstitutionRequest": {
             "type": "object",
             "properties": {
@@ -6761,6 +6920,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "freeUseAiQualityTier": {
+                    "type": "string"
+                },
+                "promptConstraintU13": {
+                    "description": "13-17, no parental consent",
+                    "type": "string"
+                },
+                "promptConstraintU13p": {
+                    "description": "13-17, with parental consent",
+                    "type": "string"
+                },
+                "promptConstraintU18": {
+                    "description": "18+",
                     "type": "string"
                 }
             }
@@ -6803,6 +6974,10 @@ const docTemplate = `{
         "routes.UserUpdateRequest": {
             "type": "object",
             "properties": {
+                "ageGroup": {
+                    "description": "AgeGroup: \"u13\" (13-17, no parental consent), \"u13p\" (13-17, with parental consent), or \"u18\" (18+).",
+                    "type": "string"
+                },
                 "aiQualityTier": {
                     "type": "string"
                 },

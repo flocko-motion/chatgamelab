@@ -1,8 +1,8 @@
 -- app_user -------------------------------------------------------------
 
 -- name: CreateUser :one
-INSERT INTO app_user (id, name, email, auth0_id)
-VALUES (gen_random_uuid(), $1, $2, $3)
+INSERT INTO app_user (id, name, email, auth0_id, age_group)
+VALUES (gen_random_uuid(), $1, $2, $3, $4)
 RETURNING id;
 
 -- name: CreateUserWithID :one
@@ -87,11 +87,13 @@ SELECT
   u.default_api_key_share_id,
   u.ai_quality_tier,
   u.language,
+  u.age_group,
   r.id           AS role_id,
   r.role         AS role,
   r.institution_id,
   i.name         AS institution_name,
   i.free_use_api_key_share_id AS institution_free_use_api_key_share_id,
+  i.prompt_constraints AS institution_prompt_constraints,
   r.workshop_id,
   w.name         AS workshop_name,
   w.show_public_games AS workshop_show_public_games,
@@ -184,6 +186,12 @@ WHERE id = $1;
 -- name: UpdateUserAiQualityTier :exec
 UPDATE app_user SET
   ai_quality_tier = $2,
+  modified_at = now()
+WHERE id = $1;
+
+-- name: UpdateUserAgeGroup :exec
+UPDATE app_user SET
+  age_group = $2,
   modified_at = now()
 WHERE id = $1;
 
