@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Ovo nam pomaže primijeniti odgovarajuću zaštitu i smjernice za sadržaj na vaš račun.",
+      "label": "Dobna i zaštitna skupina",
+      "u13": "13–17 godina, bez roditeljskog pristanka",
+      "u13Description": "Možeš koristiti ChatGameLab. Na tvoj će se račun primijeniti strože postavke zaštite.",
+      "u13p": "13–17 godina, uz roditeljski pristanak",
+      "u13pDescription": "Možeš koristiti ChatGameLab ako se tvoji roditelji slože.",
+      "u18": "18 godina ili više",
+      "u18Description": "Možeš koristiti ChatGameLab.",
+      "under13": "Ispod 13 godina",
+      "under13Blocker": "Još ne možeš stvoriti vlastiti račun. Ako imaš manje od 13 godina, ChatGameLab možeš koristiti samo preko omladinske organizacije.",
+      "under13Description": "Još ne možeš stvoriti vlastiti račun. Ako imaš manje od 13 godina, ChatGameLab možeš koristiti samo preko omladinske organizacije."
+    },
     "login": {
       "auth0Button": "Prijava putem Auth0",
       "devMode": "Razvojni način rada",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Dobna skupina",
       "ageGroupDescription": "Određuje koje se smjernice sadržaja primjenjuju na tvoje igre. Možeš to promijeniti u bilo kojem trenutku.",
-      "ageGroupSection": "Dobna skupina",
+      "ageGroupSection": "Dobna i zaštitna skupina",
       "ageGroupU13": "13-17 godina",
       "ageGroupU18": "18+",
       "gamesCreated": "Kreirane igre",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Unaprijedi u voditelja",
       "promoteToHead": "Unaprijedi u voditelja",
       "promoteWarning": "Ovaj korisnik dobit će mogućnost upravljanja članovima organizacije i pozivanja učitelja.",
+      "promptConstraintsFallbackEmpty": "(nije konfigurirano)",
+      "promptConstraintsFallbackHint": "Nije konfigurirano ograničenje organizacije. Primjenjuje se zadana postavka za dobnu skupinu igrača na razini cijelog web-mjesta:",
+      "promptConstraintsFallbackTitle": "Aktivna zamjenska postavka na razini web-mjesta",
+      "promptConstraintsFallbackU13": "Ispod 13",
+      "promptConstraintsFallbackU13p": "13–17 (uz roditeljski pristanak)",
+      "promptConstraintsFallbackU18": "18 i više",
       "promptConstraintsHint": "Dodatne AI upute za sve sesije u ovoj organizaciji. Primjenjuje se kada nije postavljeno ograničenje na razini radionice i na igre podijeljene putem veze.",
       "promptConstraintsLabel": "Organizacijska ograničenja prompta",
       "promptConstraintsPlaceholder": "npr. Drži priču primjerenom dobi i izbjegavaj nasilni sadržaj.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Definiraj obvezna AI pravila na temelju dobne skupine igrača. Ova se ograničenja umeću u svaki AI odgovor. Primjenjuju se na sve prijavljene korisnike izvan radioničkog načina.",
         "title": "Promptovi ograničenja prema dobi",
-        "u13Hint": "Umeće se u svaki AI prompt za prijavljene korisnike od 13 do 17 godina.",
-        "u13Label": "Ograničenje za korisnike od 13-17 godina (U13)",
+        "u13Hint": "Ubrizgava se u svaki AI upit za prijavljene korisnike od 13 do 17 godina bez evidentiranog roditeljskog pristanka.",
+        "u13Label": "Ograničenje za korisnike od 13 do 17 godina, bez roditeljskog pristanka (U13)",
         "u13Placeholder": "npr. Drži sav sadržaj strogo primjeren tinejdžerima. Bez nasilja, romantičnog sadržaja ili horor tema.",
+        "u13pHint": "Ubrizgava se u svaki AI upit za prijavljene korisnike od 13 do 17 godina s evidentiranim roditeljskim pristankom.",
+        "u13pLabel": "Ograničenje za korisnike od 13 do 17 godina, uz roditeljski pristanak (U13p)",
+        "u13pPlaceholder": "npr. Sadržaj primjeren dobi za tinejdžere čiji su roditelji dali pristanak. Dopuštene su neke zrelije teme, ali ne i eksplicitni sadržaj.",
         "u18Hint": "Umeće se u svaki AI prompt za prijavljene korisnike stare 18 i više godina.",
         "u18Label": "Ograničenje za korisnike 18+ (U18)",
         "u18Placeholder": "npr. Drži sadržaj primjerenim. Izbjegavaj eksplicitno nasilje ili seksualni sadržaj."

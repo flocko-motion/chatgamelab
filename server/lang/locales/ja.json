@@ -1,6 +1,19 @@
 {
   "_sourceHash": "98425c3aa434b7f9",
   "auth": {
+    "ageGroup": {
+      "description": "これにより、あなたのアカウントに適切な保護とコンテンツガイドラインを適用できます。",
+      "label": "年齢と保護区分",
+      "u13": "13～17歳（保護者の同意なし）",
+      "u13Description": "ChatGameLab を利用できます。アカウントにはより強力な保護設定が適用されます。",
+      "u13p": "13～17歳（保護者の同意あり）",
+      "u13pDescription": "保護者の同意があれば ChatGameLab を利用できます。",
+      "u18": "18歳以上",
+      "u18Description": "ChatGameLab を利用できます。",
+      "under13": "13歳未満",
+      "under13Blocker": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。",
+      "under13Description": "まだ自分のアカウントを作成できません。13歳未満の場合は、青少年団体を通じてのみ ChatGameLab を利用できます。"
+    },
     "login": {
       "auth0Button": "Auth0でログイン",
       "devMode": "開発モード",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "年齢層",
       "ageGroupDescription": "これはゲームに適用されるコンテンツガイドラインを決定します。いつでも変更できます。",
-      "ageGroupSection": "年齢層",
+      "ageGroupSection": "年齢と保護区分",
       "ageGroupU13": "13～17歳",
       "ageGroupU18": "18歳以上",
       "gamesCreated": "作成したゲーム",
@@ -1010,6 +1023,12 @@
       "promoteTitle": "代表に昇格",
       "promoteToHead": "代表に昇格",
       "promoteWarning": "このユーザーは組織メンバーの管理と教師の招待ができるようになります。",
+      "promptConstraintsFallbackEmpty": "(未設定)",
+      "promptConstraintsFallbackHint": "組織の制約は設定されていません。サイト全体の既定値（プレイヤーの年齢層）を適用します:",
+      "promptConstraintsFallbackTitle": "サイト全体のアクティブなフォールバック",
+      "promptConstraintsFallbackU13": "13歳未満",
+      "promptConstraintsFallbackU13p": "13～17歳（保護者の同意あり）",
+      "promptConstraintsFallbackU18": "18歳以上",
       "promptConstraintsHint": "この組織内のすべてのセッションに適用される追加のAI指示。ワークショップレベルの制約が設定されていない場合、およびリンク共有されたゲームに適用されます。",
       "promptConstraintsLabel": "組織プロンプト制約",
       "promptConstraintsPlaceholder": "例：物語を年齢相応に保ち、暴力的な内容を避けてください。",
@@ -1186,9 +1205,12 @@
       "constraints": {
         "description": "プレイヤーの年齢層に基づいた必須AIルールを定義します。これらの制約はすべてのAI応答に挿入され、ワークショップモード外のログインユーザー全員に適用されます。",
         "title": "年齢別制約プロンプト",
-        "u13Hint": "13～17歳のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
-        "u13Label": "13～17歳（U13）向けの制約",
+        "u13Hint": "保護者の同意が登録されていない13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
+        "u13Label": "13～17歳（保護者の同意なし）ユーザー向けの制約（U13）",
         "u13Placeholder": "例：すべてのコンテンツを厳密にティーン向けに保ち、暴力・恋愛・ホラーを含めないでください。",
+        "u13pHint": "保護者の同意が登録されている13～17歳のログインユーザーに対するすべてのAIプロンプトへ挿入されます。",
+        "u13pLabel": "13～17歳（保護者の同意あり）ユーザー向けの制約（U13p）",
+        "u13pPlaceholder": "例: 保護者が同意したティーン向けの年齢相応なコンテンツ。成熟したテーマを一部許可、露骨な表現は不可。",
         "u18Hint": "18歳以上のログインユーザー向けに、すべてのAIプロンプトへ挿入されます。",
         "u18Label": "18歳以上（U18）向けの制約",
         "u18Placeholder": "例：コンテンツを適切に保ち、露骨な暴力や性的表現は避けてください。"

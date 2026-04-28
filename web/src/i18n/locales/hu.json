@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Ez segít, hogy a megfelelő védelmi és tartalmi irányelveket alkalmazzuk a fiókodra.",
+      "label": "Életkor és védelmi csoport",
+      "u13": "13–17 éves, szülői beleegyezés nélkül",
+      "u13Description": "Használhatod a ChatGameLabot. Erősebb védelmi beállítások vonatkoznak a fiókodra.",
+      "u13p": "13–17 éves, szülői beleegyezéssel",
+      "u13pDescription": "Használhatod a ChatGameLabot, ha a szüleid beleegyeznek.",
+      "u18": "18 éves vagy idősebb",
+      "u18Description": "Használhatod a ChatGameLabot.",
+      "under13": "13 év alatt",
+      "under13Blocker": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot.",
+      "under13Description": "Még nem hozhatsz létre saját fiókot. Ha 13 év alatti vagy, csak ifjúsági szervezeten keresztül használhatod a ChatGameLabot."
+    },
     "login": {
       "auth0Button": "Bejelentkezés Auth0-val",
       "devMode": "Fejlesztői mód",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Korosztály",
       "ageGroupDescription": "Meghatározza, milyen tartalmi irányelvek vonatkoznak a játékaidra. Ezt bármikor módosíthatod.",
-      "ageGroupSection": "Korosztály",
+      "ageGroupSection": "Életkor és védelmi csoport",
       "ageGroupU13": "13–17 éves",
       "ageGroupU18": "18+",
       "gamesCreated": "Létrehozott játékok",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Előléptetés vezetővé",
       "promoteToHead": "Előléptetés vezetővé",
       "promoteWarning": "A felhasználó jogosultságot kap a szervezeti tagok kezelésére és tanárok meghívására.",
+      "promptConstraintsFallbackEmpty": "(nincs beállítva)",
+      "promptConstraintsFallbackHint": "Nincs szervezeti korlátozás beállítva. Az oldal teljes egészére érvényes alapértelmezés érvényes a játékos korcsoportjára:",
+      "promptConstraintsFallbackTitle": "Aktív, egész oldalra érvényes tartalék",
+      "promptConstraintsFallbackU13": "13 év alatt",
+      "promptConstraintsFallbackU13p": "13–17 (szülői beleegyezéssel)",
+      "promptConstraintsFallbackU18": "18 és idősebb",
       "promptConstraintsHint": "További MI-utasítások a szervezet összes munkamenetére. Akkor lép életbe, ha nincs műhelyszintű korlátozás, illetve a linken megosztott játékokra is vonatkozik.",
       "promptConstraintsLabel": "Szervezeti promptkorlátozások",
       "promptConstraintsPlaceholder": "Pl.: A történet maradjon korosztálynak megfelelő, kerülje az erőszakos tartalmat.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Határozd meg a kötelező MI-szabályokat a játékos korosztálya alapján. Ezek a korlátozások minden MI-válaszba belekerülnek. Az összes, műhely módon kívüli, bejelentkezett felhasználóra vonatkoznak.",
         "title": "Életkor alapú korlátozó promptok",
-        "u13Hint": "Minden 13–17 éves bejelentkezett felhasználó AI-promptjába befecskendezve.",
-        "u13Label": "Korlátozás 13–17 éves felhasználóknak (U13)",
+        "u13Hint": "Beillesztve minden AI promptba a bejelentkezett, 13–17 éves, szülői beleegyezéssel nem rendelkező felhasználók számára.",
+        "u13Label": "Korlátozás a 13–17 éves, szülői beleegyezés nélküli felhasználók számára (U13)",
         "u13Placeholder": "Pl.: A tartalom legyen szigorúan tinédzsereknek megfelelő. Ne legyen erőszak, romantikus vagy horror tartalom.",
+        "u13pHint": "Beillesztve minden AI promptba a bejelentkezett, 13–17 éves, szülői beleegyezéssel rendelkező felhasználók számára.",
+        "u13pLabel": "Korlátozás a 13–17 éves, szülői beleegyezéssel rendelkező felhasználók számára (U13p)",
+        "u13pPlaceholder": "pl. Korosztályuknak megfelelő tartalom olyan tinédzsereknek, akiknek a szülei beleegyeztek. Néhány érettebb téma engedélyezett, explicit tartalom nem.",
         "u18Hint": "Minden 18 éves vagy idősebb bejelentkezett felhasználó AI-promptjába befecskendezve.",
         "u18Label": "Korlátozás 18+ felhasználóknak (U18)",
         "u18Placeholder": "Pl.: Maradjon megfelelő a tartalom. Kerüld a nyílt erőszakot vagy szexuális tartalmat."

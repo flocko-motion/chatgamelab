@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Ini membantu kami menerapkan perlindungan dan pedoman konten yang tepat pada akun Anda.",
+      "label": "Kelompok Usia dan Perlindungan",
+      "u13": "13–17 tahun, tanpa persetujuan orang tua",
+      "u13Description": "Anda dapat menggunakan ChatGameLab. Pengaturan perlindungan yang lebih ketat akan diterapkan pada akun Anda.",
+      "u13p": "13–17 tahun, dengan persetujuan orang tua",
+      "u13pDescription": "Anda dapat menggunakan ChatGameLab jika orang tua Anda setuju.",
+      "u18": "18 tahun ke atas",
+      "u18Description": "Anda dapat menggunakan ChatGameLab.",
+      "under13": "Di bawah 13 tahun",
+      "under13Blocker": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda.",
+      "under13Description": "Anda belum dapat membuat akun sendiri. Jika Anda berusia di bawah 13 tahun, Anda hanya dapat menggunakan ChatGameLab melalui organisasi pemuda."
+    },
     "login": {
       "auth0Button": "Masuk dengan Auth0",
       "devMode": "Mode Pengembangan",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Kelompok Usia",
       "ageGroupDescription": "Menentukan pedoman konten mana yang berlaku untuk gim Anda. Anda dapat mengubahnya kapan saja.",
-      "ageGroupSection": "Kelompok Usia",
+      "ageGroupSection": "Kelompok Usia dan Perlindungan",
       "ageGroupU13": "13-17 tahun",
       "ageGroupU18": "18+",
       "gamesCreated": "Gim yang Dibuat",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Promosikan menjadi Kepala",
       "promoteToHead": "Promosikan menjadi Kepala",
       "promoteWarning": "Pengguna ini akan mendapatkan kemampuan untuk mengelola anggota organisasi dan mengundang guru.",
+      "promptConstraintsFallbackEmpty": "(tidak dikonfigurasi)",
+      "promptConstraintsFallbackHint": "Tidak ada batasan organisasi yang dikonfigurasi. Bawaan seluruh situs untuk kelompok usia pemain akan diterapkan:",
+      "promptConstraintsFallbackTitle": "Cadangan aktif seluruh situs",
+      "promptConstraintsFallbackU13": "Di bawah 13 tahun",
+      "promptConstraintsFallbackU13p": "13–17 (dengan persetujuan orang tua)",
+      "promptConstraintsFallbackU18": "18 tahun ke atas",
       "promptConstraintsHint": "Instruksi AI tambahan untuk semua sesi di organisasi ini. Berlaku ketika tidak ada batasan tingkat lokakarya yang ditetapkan, dan untuk gim yang dibagikan melalui tautan.",
       "promptConstraintsLabel": "Batasan prompt organisasi",
       "promptConstraintsPlaceholder": "mis. Jaga cerita tetap sesuai usia dan hindari konten kekerasan.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Tentukan aturan AI wajib berdasarkan kelompok usia pemain. Batasan ini disisipkan ke setiap respons AI. Berlaku untuk semua pengguna masuk di luar mode lokakarya.",
         "title": "Prompt Batasan Berdasarkan Usia",
-        "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13-17 tahun.",
-        "u13Label": "Batasan untuk pengguna berusia 13-17 (U13)",
+        "u13Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 tanpa persetujuan orang tua yang tercatat.",
+        "u13Label": "Batasan untuk pengguna berusia 13–17, tanpa persetujuan orang tua (U13)",
         "u13Placeholder": "mis. Pastikan semua konten benar-benar sesuai usia remaja. Tidak ada kekerasan, konten romantis, atau tema horor.",
+        "u13pHint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 13–17 dengan persetujuan orang tua yang tercatat.",
+        "u13pLabel": "Batasan untuk pengguna berusia 13–17, dengan persetujuan orang tua (U13p)",
+        "u13pPlaceholder": "mis. Konten sesuai usia untuk remaja yang orang tuanya telah menyetujui. Beberapa tema dewasa diperbolehkan, tanpa konten eksplisit.",
         "u18Hint": "Disisipkan ke setiap prompt AI untuk pengguna masuk berusia 18 tahun ke atas.",
         "u18Label": "Batasan untuk pengguna berusia 18+ (U18)",
         "u18Placeholder": "mis. Jaga konten tetap pantas. Hindari kekerasan eksplisit atau konten seksual."

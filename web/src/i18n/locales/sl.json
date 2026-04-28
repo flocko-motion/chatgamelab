@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "To nam pomaga uporabiti ustrezno zaščito in smernice za vsebino za vaš račun.",
+      "label": "Starost in zaščitna skupina",
+      "u13": "13–17 let, brez soglasja staršev",
+      "u13Description": "Lahko uporabljate ChatGameLab. Za vaš račun bodo veljale strožje nastavitve zaščite.",
+      "u13p": "13–17 let, s soglasjem staršev",
+      "u13pDescription": "ChatGameLab lahko uporabljate, če se starši strinjajo.",
+      "u18": "18 let ali več",
+      "u18Description": "Lahko uporabljate ChatGameLab.",
+      "under13": "Mlajši od 13 let",
+      "under13Blocker": "Zaenkrat še ne morete ustvariti lastnega računa. Če ste mlajši od 13 let, lahko ChatGameLab uporabljate le prek mladinske organizacije.",
+      "under13Description": "Zaenkrat še ne morete ustvariti lastnega računa. Če ste mlajši od 13 let, lahko ChatGameLab uporabljate le prek mladinske organizacije."
+    },
     "login": {
       "auth0Button": "Prijava z Auth0",
       "devMode": "Razvojni način",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Starostna skupina",
       "ageGroupDescription": "Določa, katera vsebinska pravila veljajo za tvoje igre. To lahko kadar koli spremeniš.",
-      "ageGroupSection": "Starostna skupina",
+      "ageGroupSection": "Starost in zaščitna skupina",
       "ageGroupU13": "13–17 let",
       "ageGroupU18": "18+",
       "gamesCreated": "Ustvarjene igre",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Povišaj v vodjo",
       "promoteToHead": "Povišaj v vodjo",
       "promoteWarning": "Ta uporabnik bo lahko upravljal člane organizacije in vabil učitelje.",
+      "promptConstraintsFallbackEmpty": "(ni konfigurirano)",
+      "promptConstraintsFallbackHint": "Omejitev organizacije ni konfigurirana. Uporabi se privzeta nastavitev za starostno skupino igralca na ravni celotnega spletnega mesta:",
+      "promptConstraintsFallbackTitle": "Aktivno zasilno pravilo za celotno spletno mesto",
+      "promptConstraintsFallbackU13": "Mlajši od 13 let",
+      "promptConstraintsFallbackU13p": "13–17 (s soglasjem staršev)",
+      "promptConstraintsFallbackU18": "18 in več",
       "promptConstraintsHint": "Dodatna navodila za UI za vse seje v tej organizaciji. Velja, če na ravni delavnice ni določenih omejitev, in za igre, deljene prek povezave.",
       "promptConstraintsLabel": "Organizacijske omejitve pozivov",
       "promptConstraintsPlaceholder": "npr. Naj bo zgodba primerna starosti in se izogiba nasilni vsebini.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Določi obvezna pravila za UI glede na starostno skupino igralca. Ta pravila se vključijo v vsak AI odziv. Veljajo za vse prijavljene uporabnike zunaj načina delavnice.",
         "title": "Pozivi z omejitvami glede na starost",
-        "u13Hint": "Vstavljeno v vsak AI poziv za prijavljene uporabnike, stare 13–17 let.",
-        "u13Label": "Omejitev za uporabnike stare 13–17 let (U13)",
+        "u13Hint": "Vstavljen v vsak poziv za UI za prijavljene uporabnike, stare 13–17 let, brez soglasja staršev v evidenci.",
+        "u13Label": "Omejitev za uporabnike, stare 13–17 let, brez soglasja staršev (U13)",
         "u13Placeholder": "npr. Vsebina naj bo strogo primerna za najstnike. Brez nasilja, romantičnih vsebin ali tem grozljivk.",
+        "u13pHint": "Vstavljen v vsak poziv za UI za prijavljene uporabnike, stare 13–17 let, s soglasjem staršev v evidenci.",
+        "u13pLabel": "Omejitev za uporabnike, stare 13–17 let, s soglasjem staršev (U13p)",
+        "u13pPlaceholder": "npr. Starosti primerna vsebina za najstnike, za katere so starši dali soglasje. Dovoljene nekatere zrelejše teme, brez eksplicitne vsebine.",
         "u18Hint": "Vstavljeno v vsak AI poziv za prijavljene uporabnike, stare 18 let in več.",
         "u18Label": "Omejitev za uporabnike stare 18+ (U18)",
         "u18Placeholder": "npr. Vsebina naj bo primerna. Izogibaj se izrecnemu nasilju ali spolni vsebini."

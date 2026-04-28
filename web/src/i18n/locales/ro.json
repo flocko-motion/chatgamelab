@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Aceasta ne ajută să aplicăm setările corecte de protecție și ghidurile de conținut pentru contul tău.",
+      "label": "Grup de vârstă și protecție",
+      "u13": "13–17 ani, fără consimțământul părinților",
+      "u13Description": "Poți folosi ChatGameLab. Pentru contul tău se vor aplica setări de protecție mai stricte.",
+      "u13p": "13–17 ani, cu consimțământul părinților",
+      "u13pDescription": "Poți folosi ChatGameLab dacă părinții tăi sunt de acord.",
+      "u18": "18 ani sau mai mult",
+      "u18Description": "Poți folosi ChatGameLab.",
+      "under13": "Sub 13 ani",
+      "under13Blocker": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret.",
+      "under13Description": "Încă nu îți poți crea propriul cont. Dacă ai sub 13 ani, poți folosi ChatGameLab doar printr-o organizație de tineret."
+    },
     "login": {
       "auth0Button": "Autentifică-te cu Auth0",
       "devMode": "Mod dezvoltare",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Grupă de vârstă",
       "ageGroupDescription": "Determină ce reguli de conținut se aplică jocurilor tale. Poți schimba asta oricând.",
-      "ageGroupSection": "Grupă de vârstă",
+      "ageGroupSection": "Grup de vârstă și protecție",
       "ageGroupU13": "13-17 ani",
       "ageGroupU18": "18+",
       "gamesCreated": "Jocuri create",
@@ -998,6 +1011,12 @@
       "promoteTitle": "Promovează la conducător",
       "promoteToHead": "Promovează la conducător",
       "promoteWarning": "Acest utilizator va putea gestiona membrii organizației și invita profesorii.",
+      "promptConstraintsFallbackEmpty": "(neconfigurat)",
+      "promptConstraintsFallbackHint": "Nu este configurată nicio restricție de organizație. Se aplică valoarea implicită la nivel de site pentru grupa de vârstă a jucătorului:",
+      "promptConstraintsFallbackTitle": "Mecanism de rezervă activ la nivelul site-ului",
+      "promptConstraintsFallbackU13": "Sub 13",
+      "promptConstraintsFallbackU13p": "13–17 (cu consimțământul părinților)",
+      "promptConstraintsFallbackU18": "18 și peste",
       "promptConstraintsHint": "Instrucțiuni suplimentare pentru AI pentru toate sesiunile din această organizație. Se aplică atunci când nu este setată o constrângere la nivel de atelier și pentru jocurile partajate prin link.",
       "promptConstraintsLabel": "Constrângeri de prompt ale organizației",
       "promptConstraintsPlaceholder": "ex. Păstrează povestea adecvată vârstei și evită conținutul violent.",
@@ -1169,9 +1188,12 @@
       "constraints": {
         "description": "Definește reguli AI obligatorii în funcție de grupa de vârstă a jucătorului. Aceste constrângeri sunt injectate în fiecare răspuns al AI. Se aplică tuturor utilizatorilor autentificați în afara modului atelier.",
         "title": "Prompturi de constrângere bazate pe vârstă",
-        "u13Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta 13-17 ani.",
-        "u13Label": "Constrângere pentru utilizatori de 13-17 ani (U13)",
+        "u13Hint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani fără consimțământ parental înregistrat.",
+        "u13Label": "Restricție pentru utilizatori cu vârsta 13-17 ani, fără consimțământ parental (U13)",
         "u13Placeholder": "ex. Păstrează tot conținutul strict adecvat adolescenților. Fără violență, fără conținut romantic, fără teme de groază.",
+        "u13pHint": "Este injectată în fiecare prompt AI pentru utilizatorii autentificați cu vârsta între 13-17 ani cu consimțământ parental înregistrat.",
+        "u13pLabel": "Restricție pentru utilizatori cu vârsta 13-17 ani, cu consimțământ parental (U13p)",
+        "u13pPlaceholder": "ex. Conținut adecvat vârstei pentru adolescenți ale căror părinți și-au dat acordul. Sunt permise unele teme mature, fără conținut explicit.",
         "u18Hint": "Injectat în fiecare prompt AI pentru utilizatorii autentificați cu vârsta de 18 ani și peste.",
         "u18Label": "Constrângere pentru utilizatori de 18+ (U18)",
         "u18Placeholder": "ex. Păstrează conținutul adecvat. Evită violența explicită sau conținutul sexual."

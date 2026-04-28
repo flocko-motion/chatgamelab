@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "To nám pomáha uplatniť správnu ochranu a obsahové pravidlá na tvoj účet.",
+      "label": "Veková a ochranná skupina",
+      "u13": "13–17 rokov, bez súhlasu rodičov",
+      "u13Description": "Môžeš používať ChatGameLab. Na tvoj účet sa budú vzťahovať prísnejšie nastavenia ochrany.",
+      "u13p": "13–17 rokov, so súhlasom rodičov",
+      "u13pDescription": "Môžeš používať ChatGameLab, ak s tým tvoji rodičia súhlasia.",
+      "u18": "18 rokov alebo viac",
+      "u18Description": "Môžeš používať ChatGameLab.",
+      "under13": "Mladší ako 13 rokov",
+      "under13Blocker": "Zatiaľ si nemôžeš vytvoriť vlastný účet. Ak máš menej ako 13 rokov, môžeš používať ChatGameLab iba prostredníctvom mládežníckej organizácie.",
+      "under13Description": "Zatiaľ si nemôžeš vytvoriť vlastný účet. Ak máš menej ako 13 rokov, môžeš používať ChatGameLab iba prostredníctvom mládežníckej organizácie."
+    },
     "login": {
       "auth0Button": "Prihlásiť sa cez Auth0",
       "devMode": "Vývojový režim",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Veková skupina",
       "ageGroupDescription": "Určuje, ktoré pokyny pre obsah sa vzťahujú na vaše hry. Môžete to kedykoľvek zmeniť.",
-      "ageGroupSection": "Veková skupina",
+      "ageGroupSection": "Veková a ochranná skupina",
       "ageGroupU13": "13–17 rokov",
       "ageGroupU18": "18+",
       "gamesCreated": "Vytvorené hry",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Povýšiť na vedúceho",
       "promoteToHead": "Povýšiť na vedúceho",
       "promoteWarning": "Tento používateľ získa možnosť spravovať členov organizácie a pozývať učiteľov.",
+      "promptConstraintsFallbackEmpty": "(nenakonfigurované)",
+      "promptConstraintsFallbackHint": "Nie je nastavené žiadne obmedzenie organizácie. Platí predvolená hodnota pre vekovú skupinu hráča na celej lokalite:",
+      "promptConstraintsFallbackTitle": "Aktívna celoportálová záloha",
+      "promptConstraintsFallbackU13": "Mladší ako 13",
+      "promptConstraintsFallbackU13p": "13–17 (so súhlasom rodičov)",
+      "promptConstraintsFallbackU18": "18 a viac",
       "promptConstraintsHint": "Ďalšie inštrukcie pre AI pre všetky relácie v tejto organizácii. Platí, keď nie je nastavené obmedzenie na úrovni workshopu a pre hry zdieľané cez odkaz.",
       "promptConstraintsLabel": "Organizačné obmedzenia promptu",
       "promptConstraintsPlaceholder": "napr. Udržuj príbeh primeraný veku a vyhýbaj sa násilnému obsahu.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Definujte povinné pravidlá AI podľa vekovej skupiny hráča. Tieto obmedzenia sa vkladajú do každej odpovede AI. Platí pre všetkých prihlásených používateľov mimo workshopového režimu.",
         "title": "Prompty s obmedzeniami podľa veku",
-        "u13Hint": "Vkladá sa do každého promptu AI pre prihlásených používateľov vo veku 13–17 rokov.",
-        "u13Label": "Obmedzenie pre používateľov vo veku 13–17 rokov (U13)",
+        "u13Hint": "Vkladá sa do každého AI promptu pre prihlásených používateľov vo veku 13–17 rokov bez evidovaného súhlasu rodičov.",
+        "u13Label": "Obmedzenie pre používateľov vo veku 13–17 rokov, bez súhlasu rodičov (U13)",
         "u13Placeholder": "napr. Udržuj všetok obsah striktne primeraný tínedžerom. Žiadne násilie, žiadny romantický obsah, žiadne hororové motívy.",
+        "u13pHint": "Vkladá sa do každého AI promptu pre prihlásených používateľov vo veku 13–17 rokov so zaznamenaným súhlasom rodičov.",
+        "u13pLabel": "Obmedzenie pre používateľov vo veku 13–17 rokov, so súhlasom rodičov (U13p)",
+        "u13pPlaceholder": "napr. Vekovo primeraný obsah pre tínedžerov, ktorých rodičia dali súhlas. Povolené sú niektoré zrelšie témy, bez explicitného obsahu.",
         "u18Hint": "Vkladá sa do každého promptu AI pre prihlásených používateľov vo veku 18 rokov a viac.",
         "u18Label": "Obmedzenie pre používateľov vo veku 18+ (U18)",
         "u18Placeholder": "napr. Udržuj obsah vhodný. Vyhýbaj sa explicitnému násiliu alebo sexuálnemu obsahu."

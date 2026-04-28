@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "Cela nous aide à appliquer les bonnes protections et directives de contenu à votre compte.",
+      "label": "Groupe d’âge et de protection",
+      "u13": "13–17 ans, sans consentement parental",
+      "u13Description": "Vous pouvez utiliser ChatGameLab. Des paramètres de protection renforcés s’appliqueront à votre compte.",
+      "u13p": "13–17 ans, avec consentement parental",
+      "u13pDescription": "Vous pouvez utiliser ChatGameLab si vos parents sont d’accord.",
+      "u18": "18 ans ou plus",
+      "u18Description": "Vous pouvez utiliser ChatGameLab.",
+      "under13": "Moins de 13 ans",
+      "under13Blocker": "Vous ne pouvez pas encore créer votre propre compte. Si vous avez moins de 13 ans, vous ne pouvez utiliser ChatGameLab que par l’intermédiaire d’une organisation jeunesse.",
+      "under13Description": "Vous ne pouvez pas encore créer votre propre compte. Si vous avez moins de 13 ans, vous ne pouvez utiliser ChatGameLab que par l’intermédiaire d’une organisation jeunesse."
+    },
     "login": {
       "auth0Button": "Se connecter avec Auth0",
       "devMode": "Mode développement",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Tranche d'âge",
       "ageGroupDescription": "Détermine quelles directives de contenu s'appliquent à vos jeux. Vous pouvez modifier ce réglage à tout moment.",
-      "ageGroupSection": "Tranche d'âge",
+      "ageGroupSection": "Groupe d’âge et de protection",
       "ageGroupU13": "13-17 ans",
       "ageGroupU18": "18+",
       "gamesCreated": "Jeux créés",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Promouvoir en responsable",
       "promoteToHead": "Promouvoir en responsable",
       "promoteWarning": "Cet utilisateur pourra gérer les membres de l’organisation et inviter des enseignants.",
+      "promptConstraintsFallbackEmpty": "(non configuré)",
+      "promptConstraintsFallbackHint": "Aucune contrainte d’organisation configurée. Le paramètre par défaut du site pour le groupe d’âge du joueur s’applique :",
+      "promptConstraintsFallbackTitle": "Solution de repli active à l’échelle du site",
+      "promptConstraintsFallbackU13": "Moins de 13 ans",
+      "promptConstraintsFallbackU13p": "13–17 ans (avec consentement parental)",
+      "promptConstraintsFallbackU18": "18 ans et plus",
       "promptConstraintsHint": "Instructions IA supplémentaires pour toutes les sessions de cette organisation. S'applique lorsqu'aucune contrainte au niveau de l'atelier n'est définie et aux jeux partagés via un lien.",
       "promptConstraintsLabel": "Contraintes d'invite pour l'organisation",
       "promptConstraintsPlaceholder": "ex. Garder l'histoire adaptée à l'âge et éviter le contenu violent.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Définissez des règles IA obligatoires selon la tranche d'âge du joueur. Ces contraintes sont injectées dans chaque réponse IA. Elles s'appliquent à tous les utilisateurs connectés en dehors du mode atelier.",
         "title": "Invites de contrainte basées sur l'âge",
-        "u13Hint": "Injecté dans chaque invite IA pour les utilisateurs connectés de 13 à 17 ans.",
-        "u13Label": "Contrainte pour les utilisateurs de 13-17 ans (U13)",
+        "u13Hint": "Injecté dans chaque prompt IA pour les utilisateurs connectés de 13 à 17 ans sans consentement parental enregistré.",
+        "u13Label": "Contrainte pour les utilisateurs de 13 à 17 ans, sans consentement parental (U13)",
         "u13Placeholder": "ex. Garder tout le contenu strictement adapté aux adolescents. Pas de violence, pas de contenu romantique, pas de thèmes horrifiques.",
+        "u13pHint": "Injecté dans chaque prompt IA pour les utilisateurs connectés de 13 à 17 ans avec consentement parental enregistré.",
+        "u13pLabel": "Contrainte pour les utilisateurs de 13 à 17 ans, avec consentement parental (U13p)",
+        "u13pPlaceholder": "ex. Contenu adapté aux adolescents dont les parents ont donné leur consentement. Certains thèmes matures autorisés, pas de contenu explicite.",
         "u18Hint": "Injecté dans chaque invite IA pour les utilisateurs connectés de 18 ans et plus.",
         "u18Label": "Contrainte pour les utilisateurs de 18 ans et plus (U18)",
         "u18Placeholder": "ex. Garder le contenu approprié. Éviter la violence explicite ou le contenu sexuel."

@@ -1,6 +1,19 @@
 {
   "_sourceHash": "511c1a97217e633a",
   "auth": {
+    "ageGroup": {
+      "description": "To nám pomáhá uplatňovat správnou ochranu a obsahové pokyny pro váš účet.",
+      "label": "Věková a ochranná skupina",
+      "u13": "13–17 let, bez souhlasu rodičů",
+      "u13Description": "Můžete používat ChatGameLab. Na váš účet se budou vztahovat přísnější ochranná nastavení.",
+      "u13p": "13–17 let, se souhlasem rodičů",
+      "u13pDescription": "Můžete používat ChatGameLab, pokud s tím rodiče souhlasí.",
+      "u18": "18 let a více",
+      "u18Description": "Můžete používat ChatGameLab.",
+      "under13": "Mladší 13 let",
+      "under13Blocker": "Ještě si nemůžete vytvořit vlastní účet. Pokud vám je méně než 13 let, můžete ChatGameLab používat pouze prostřednictvím mládežnické organizace.",
+      "under13Description": "Ještě si nemůžete vytvořit vlastní účet. Pokud vám je méně než 13 let, můžete ChatGameLab používat pouze prostřednictvím mládežnické organizace."
+    },
     "login": {
       "auth0Button": "Přihlásit se přes Auth0",
       "devMode": "Vývojový režim",
@@ -34,7 +47,7 @@
     "profile": {
       "ageGroup": "Věková skupina",
       "ageGroupDescription": "Určuje, která pravidla pro obsah se na vaše hry vztahují. Můžete to kdykoli změnit.",
-      "ageGroupSection": "Věková skupina",
+      "ageGroupSection": "Věková a ochranná skupina",
       "ageGroupU13": "13–17 let",
       "ageGroupU18": "18+",
       "gamesCreated": "Vytvořené hry",
@@ -995,6 +1008,12 @@
       "promoteTitle": "Povýšit na vedoucího",
       "promoteToHead": "Povýšit na vedoucího",
       "promoteWarning": "Tento uživatel získá možnost spravovat členy organizace a zvát učitele.",
+      "promptConstraintsFallbackEmpty": "(nenastaveno)",
+      "promptConstraintsFallbackHint": "Žádné omezení organizace není nastaveno. Platí výchozí nastavení pro danou věkovou skupinu hráče:",
+      "promptConstraintsFallbackTitle": "Aktivní celoserverová záložní možnost",
+      "promptConstraintsFallbackU13": "Mladší 13 let",
+      "promptConstraintsFallbackU13p": "13–17 (se souhlasem rodičů)",
+      "promptConstraintsFallbackU18": "18 a více",
       "promptConstraintsHint": "Dodatečné pokyny pro AI pro všechny relace v této organizaci. Platí, pokud není nastaveno omezení na úrovni workshopu, a pro hry sdílené prostřednictvím odkazu.",
       "promptConstraintsLabel": "Organizační omezení promptů",
       "promptConstraintsPlaceholder": "např. Udržujte příběh vhodný pro daný věk a vyhýbejte se násilnému obsahu.",
@@ -1166,9 +1185,12 @@
       "constraints": {
         "description": "Definujte povinná pravidla pro AI podle věkové skupiny hráče. Tato omezení se vkládají do každé odpovědi AI. Platí pro všechny přihlášené uživatele mimo režim workshopu.",
         "title": "Prompty s omezeními podle věku",
-        "u13Hint": "Vkládá se do každého promptu AI pro přihlášené uživatele ve věku 13–17 let.",
-        "u13Label": "Omezení pro uživatele ve věku 13–17 let (U13)",
+        "u13Hint": "Vkládá se do každého AI promptu pro přihlášené uživatele ve věku 13–17 let bez záznamu o rodičovském souhlasu.",
+        "u13Label": "Omezení pro uživatele ve věku 13–17 let, bez souhlasu rodičů (U13)",
         "u13Placeholder": "např. Udržujte veškerý obsah přísně vhodný pro teenagery. Žádné násilí, žádný romantický obsah, žádné hororové motivy.",
+        "u13pHint": "Vkládá se do každého AI promptu pro přihlášené uživatele ve věku 13–17 let se záznamem o rodičovském souhlasu.",
+        "u13pLabel": "Omezení pro uživatele ve věku 13–17 let, se souhlasem rodičů (U13p)",
+        "u13pPlaceholder": "např. Obsah vhodný pro teenagery, jejichž rodiče dali souhlas. Některá vyspělejší témata povolena, žádný explicitní obsah.",
         "u18Hint": "Vkládá se do každého promptu AI pro přihlášené uživatele ve věku 18 let a více.",
         "u18Label": "Omezení pro uživatele ve věku 18+ (U18)",
         "u18Placeholder": "např. Udržujte obsah vhodný. Vyhněte se explicitnímu násilí nebo sexuálnímu obsahu."
