@@ -124,11 +124,6 @@
     },
     "settings": {
       "accountSection": "Konto",
-      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten.",
-      "ageGroupLabel": "Altersgruppe",
-      "ageGroupU13": "13-17 Jahre (ohne elterliche Einwilligung)",
-      "ageGroupU13p": "13-17 Jahre (mit elterlicher Einwilligung)",
-      "ageGroupU18": "18 oder älter",
       "emailChangeNote": "Um Ihre E-Mail-Adresse zu ändern, wenden Sie sich bitte an den Administrator.",
       "errors": {
         "nameRequired": "Name ist erforderlich",
