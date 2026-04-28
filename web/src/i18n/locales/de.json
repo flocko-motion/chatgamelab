@@ -1,5 +1,18 @@
 {
   "auth": {
+    "ageGroup": {
+      "label": "Alters- und Schutzgruppe",
+      "description": "Diese Angabe hilft uns, die passenden Schutz- und Inhaltsrichtlinien für dein Konto festzulegen.",
+      "u13": "13–17 Jahre, ohne Zustimmung der Eltern",
+      "u13p": "13–17 Jahre, mit Zustimmung der Eltern",
+      "u18": "18 Jahre oder älter",
+      "under13": "Unter 13 Jahre",
+      "u13Description": "Du kannst ChatGameLab nutzen. Für dein Konto gelten stärkere Schutzeinstellungen.",
+      "u13pDescription": "Du kannst ChatGameLab nutzen, wenn deine Eltern einverstanden sind.",
+      "u18Description": "Du kannst ChatGameLab nutzen.",
+      "under13Description": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du ChatGameLab nur zusammen mit einer Jugendeinrichtung nutzen.",
+      "under13Blocker": "Du kannst noch kein eigenes Konto erstellen. Wenn du unter 13 bist, kannst du ChatGameLab nur zusammen mit einer Jugendeinrichtung nutzen."
+    },
     "login": {
       "auth0Button": "Mit Auth0 anmelden",
       "devMode": "Entwicklungsmodus",
@@ -31,12 +44,7 @@
       "workshop": "Workshop"
     },
     "profile": {
-      "ageGroup": "Altersgruppe",
-      "ageGroupDescription": "Bestimmt, welche Inhaltsrichtlinien für deine Spiele gelten. Du kannst dies jederzeit ändern.",
-      "ageGroupSection": "Altersgruppe",
-      "ageGroupU13": "13-17 Jahre (ohne elterliche Einwilligung)",
-      "ageGroupU13p": "13-17 Jahre (mit elterlicher Einwilligung)",
-      "ageGroupU18": "18+",
+      "ageGroupSection": "Alters- und Schutzgruppe",
       "gamesCreated": "Erstellte Spiele",
       "gamesPlayed": "Gespielte Spiele",
       "memberSince": "Angemeldet seit",
@@ -58,13 +66,6 @@
       "totalPlaysOnGames": "Gesamte Spielrunden meiner Spiele"
     },
     "register": {
-      "ageGroupLabel": "Altersgruppe",
-      "ageGroupRequired": "Bitte wähle deine Altersgruppe",
-      "ageGroupU13": "13-17 Jahre alt (ohne elterliche Einwilligung)",
-      "ageGroupU13p": "13-17 Jahre alt (mit elterlicher Einwilligung)",
-      "ageGroupU18": "18 oder älter",
-      "ageGroupUnder13": "Unter 13",
-      "ageGroupUnder13Error": "Du musst mindestens 13 Jahre alt sein, um ChatGameLab zu nutzen.",
       "cancelButton": "Abbrechen",
       "emailDescription": "Wir verwenden diese für wichtige Benachrichtigungen.",
       "emailLabel": "E-Mail-Adresse",
