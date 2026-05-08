@@ -93,6 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsParticipant,
     isDevMode,
     devTokenCache,
+    auth0TokenError,
   } = useTokenManager();
 
   const {
@@ -299,6 +300,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setBackendUser,
     setIsParticipant,
   ]);
+
+  // ── Stale Token Recovery ─────────────────────────────────────────────
+
+  useEffect(() => {
+    if (auth0TokenError && auth0IsAuthenticated) {
+      authLogger.warning("Auth0 refresh token is stale — logging out to clear session");
+      auth0Logout({
+        logoutParams: {
+          returnTo: auth0Config.logoutUri,
+        },
+      });
+    }
+  }, [auth0TokenError, auth0IsAuthenticated, auth0Logout]);
 
   // ── Login / Logout ──────────────────────────────────────────────────
 
