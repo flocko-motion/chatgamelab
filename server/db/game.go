@@ -136,6 +136,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 				return queries().SearchPublicGamesSortedByModifiedAtAsc(ctx, searchParam)
 			}
 			return queries().SearchPublicGamesSortedByModifiedAt(ctx, searchParam)
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByPlayCountAsc(ctx, searchParam)
+			}
+			return queries().SearchPublicGamesSortedByPlayCount(ctx, searchParam)
 		default:
 			return queries().SearchPublicGames(ctx, searchParam)
 		}
@@ -157,6 +162,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 			return queries().GetPublicGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetPublicGamesSortedByModifiedAt(ctx)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByPlayCountAsc(ctx)
+		}
+		return queries().GetPublicGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetPublicGames(ctx)
 	}
@@ -184,6 +194,11 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 				return queries().SearchOwnGamesSortedByModifiedAtAsc(ctx, db.SearchOwnGamesSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchOwnGamesSortedByModifiedAt(ctx, db.SearchOwnGamesSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByPlayCountAsc(ctx, db.SearchOwnGamesSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByPlayCount(ctx, db.SearchOwnGamesSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -205,6 +220,11 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 			return queries().GetOwnGamesSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetOwnGamesSortedByModifiedAt(ctx, userParam)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByPlayCountAsc(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByPlayCount(ctx, userParam)
 	default:
 		return queries().GetOwnGames(ctx, userParam)
 	}
@@ -231,6 +251,11 @@ func getAllGames(ctx context.Context, search, sortField, sortDir string) ([]db.G
 				return queries().SearchAllGamesSortedByModifiedAtAsc(ctx, searchStr)
 			}
 			return queries().SearchAllGamesSortedByModifiedAt(ctx, searchStr)
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchAllGamesSortedByPlayCountAsc(ctx, searchStr)
+			}
+			return queries().SearchAllGamesSortedByPlayCount(ctx, searchStr)
 		default:
 			return queries().SearchAllGames(ctx, searchStr)
 		}
@@ -252,6 +277,11 @@ func getAllGames(ctx context.Context, search, sortField, sortDir string) ([]db.G
 			return queries().GetAllGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetAllGamesSortedByModifiedAt(ctx)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetAllGamesSortedByPlayCountAsc(ctx)
+		}
+		return queries().GetAllGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetAllGames(ctx)
 	}
@@ -292,6 +322,12 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 			} else {
 				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
+		case "playCount":
+			if sortDir == "asc" {
+				games, err = queries().SearchGamesVisibleToUserSortedByPlayCountAsc(ctx, db.SearchGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByPlayCount(ctx, db.SearchGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			}
 		default:
 			games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		}
@@ -314,6 +350,12 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 				games, err = queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
 			} else {
 				games, err = queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "playCount":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByPlayCountAsc(ctx, db.GetGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByPlayCount(ctx, db.GetGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, WorkshopID: workshopParam})
 			}
 		default:
 			games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
