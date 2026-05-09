@@ -581,15 +581,6 @@ func (q *Queries) DeleteUserParticipantRole(ctx context.Context, arg DeleteUserP
 	return err
 }
 
-const deleteUserRole = `-- name: DeleteUserRole :exec
-DELETE FROM user_role WHERE user_id = $1
-`
-
-func (q *Queries) DeleteUserRole(ctx context.Context, userID uuid.UUID) error {
-	_, err := q.db.ExecContext(ctx, deleteUserRole, userID)
-	return err
-}
-
 const deleteUserRoles = `-- name: DeleteUserRoles :exec
 
 DELETE FROM user_role WHERE user_id = $1
