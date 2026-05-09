@@ -575,7 +575,7 @@ func AcceptTargetedInvite(ctx context.Context, inviteID uuid.UUID, inviteToken s
 	txQueries := queries().WithTx(tx)
 
 	// Delete existing role (enforce single-role constraint)
-	if err := txQueries.DeleteUserRole(ctx, userID); err != nil {
+	if err := txQueries.DeleteUserRoles(ctx, userID); err != nil {
 		// Log but don't fail if no existing role
 		// This is expected for users accepting their first role
 	}
@@ -774,7 +774,7 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 	txQueries := queries().WithTx(tx)
 
 	// Delete existing role (enforce single-role constraint)
-	if err := txQueries.DeleteUserRole(ctx, userID); err != nil {
+	if err := txQueries.DeleteUserRoles(ctx, userID); err != nil {
 		// Log but don't fail if no existing role
 		// This is expected for users accepting their first role
 	}

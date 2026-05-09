@@ -25,7 +25,7 @@ type CreateGameRequest struct {
 //	@Tags			games
 //	@Produce		json
 //	@Param			search	query		string	false	"Search games by name (case-insensitive)"
-//	@Param			sortBy	query		string	false	"Sort field (name, createdAt, modifiedAt)"
+//	@Param			sortBy	query		string	false	"Sort field (name, createdAt, modifiedAt, playCount)"
 //	@Param			sortDir	query		string	false	"Sort direction (asc, desc)"
 //	@Param			filter	query		string	false	"Filter type (all, own, public, organization, favorites)"
 //	@Success		200		{array}		obj.Game

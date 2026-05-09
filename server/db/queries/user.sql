@@ -209,9 +209,6 @@ DELETE FROM app_user WHERE id = $1;
 -- name: DeleteUserRoles :exec
 DELETE FROM user_role WHERE user_id = $1;
 
--- name: DeleteUserRole :exec
-DELETE FROM user_role WHERE user_id = $1;
-
 -- name: GetUsersByInstitution :many
 SELECT
   u.id, u.name, u.email,

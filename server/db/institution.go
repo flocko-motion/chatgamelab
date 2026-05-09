@@ -389,18 +389,29 @@ func RemoveInstitutionMember(ctx context.Context, institutionID uuid.UUID, membe
 		return obj.ErrServerError("failed to clean up workshop API key shares")
 	}
 
-	// Delete the user's role (which removes them from the institution)
-	err := queries().DeleteUserRole(ctx, memberUserID)
+	// Atomically swap the institutional role for an "individual" role so the
+	// user is never left with zero roles if the second step fails.
+	tx, err := sqlDb.BeginTx(ctx, nil)
 	if err != nil {
+		return obj.ErrServerError("failed to begin transaction")
+	}
+	defer tx.Rollback()
+
+	txQueries := queries().WithTx(tx)
+
+	if err := txQueries.DeleteUserRoles(ctx, memberUserID); err != nil {
 		return obj.ErrServerError("failed to remove member")
 	}
 
-	// Assign "individual" role so the user isn't left without a role
-	if _, err := queries().CreateUserRole(ctx, db.CreateUserRoleParams{
+	if _, err := txQueries.CreateUserRole(ctx, db.CreateUserRoleParams{
 		UserID: memberUserID,
 		Role:   sql.NullString{String: string(obj.RoleIndividual), Valid: true},
 	}); err != nil {
 		return obj.ErrServerError("failed to assign individual role after member removal")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return obj.ErrServerError("failed to commit member removal")
 	}
 
 	return nil
