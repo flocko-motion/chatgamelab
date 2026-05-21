@@ -368,8 +368,15 @@ CREATE TABLE game_session_message (
     url_analytics           text NULL,
     -- Type of API key used to generate this message (shown in AI Insight panel)
     api_key_type            text NULL,
-    -- Source of the active prompt constraint when this message was generated
+    -- Source of the active prompt constraint when this message was generated.
+    -- prompt_constraint_source: label ("workshop", "organisation", "site13", "site13p", "site18").
+    -- prompt_constraint_text: the constraint text that was actually sent to the AI for this message
+    --   (snapshot — survives later edits to the underlying workshop/org/site constraint).
+    -- prompt_constraint_source_name: human-readable origin (workshop or organisation name),
+    --   NULL for site-by-age sources.
     prompt_constraint_source text NULL,
+    prompt_constraint_text text NULL,
+    prompt_constraint_source_name text NULL,
 
     deleted_at          timestamptz NULL,
 

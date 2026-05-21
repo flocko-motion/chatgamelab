@@ -157,7 +157,7 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Resolve constraints from the share's originating workshop/org
-	session.PromptConstraints, session.PromptConstraintSource = db.ResolveShareConstraint(r.Context(), gameShare)
+	session.PromptConstraints, session.PromptConstraintSource, session.PromptConstraintSourceName = db.ResolveShareConstraint(r.Context(), gameShare)
 
 	// Re-resolve API key from the private share
 	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameShare); httpErr != nil {

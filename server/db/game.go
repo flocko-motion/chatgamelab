@@ -798,8 +798,10 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
 		HasAudio:      msg.HasAudioOut,
-		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
-		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		ApiKeyType:                 sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource:     sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		PromptConstraintText:       sql.NullString{String: msg.PromptConstraintText, Valid: msg.PromptConstraintText != ""},
+		PromptConstraintSourceName: sql.NullString{String: msg.PromptConstraintSourceName, Valid: msg.PromptConstraintSourceName != ""},
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -872,8 +874,10 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
-		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
-		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		ApiKeyType:                 sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource:     sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		PromptConstraintText:       sql.NullString{String: msg.PromptConstraintText, Valid: msg.PromptConstraintText != ""},
+		PromptConstraintSourceName: sql.NullString{String: msg.PromptConstraintSourceName, Valid: msg.PromptConstraintSourceName != ""},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1123,35 +1127,74 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
 	}
 
-	// Resolve prompt constraints using priority chain:
-	// Workshop mode: workshop > org > age-based
-	// No workshop: age-based (U13/U18)
-	// Guest: constraints resolved separately via game share (not here)
+	// Resolve prompt constraints using priority chain (see ResolveUserConstraint).
+	// Authenticated session loads have no share context here — the auth-via-share play flow
+	// would set share at creation time; for now, share is always nil on this code path.
+	// Guest: constraints resolved separately via game share (not here).
 	user, err := GetUserByID(ctx, s.UserID)
 	if err == nil {
-		session.PromptConstraints, session.PromptConstraintSource = ResolveUserConstraint(ctx, user)
+		session.PromptConstraints, session.PromptConstraintSource, session.PromptConstraintSourceName = ResolveUserConstraint(ctx, user, nil)
 	}
 
 	return session, nil
 }
 
 // ResolveUserConstraint determines the active prompt constraint for a logged-in user.
-// Cascade: workshop constraint → org constraint → site constraint by age group.
-// First non-empty stage wins. Site constraints are always configured (set at install
-// time), so a logged-in user always receives a non-empty constraint.
-// Returns the constraint text and one of the obj.ConstraintSource* labels.
-func ResolveUserConstraint(ctx context.Context, user *obj.User) (*string, string) {
+// Cascade (first non-empty wins):
+//  1. Workshop from the share (if `share` references a workshop)
+//  2. Organisation from the share (if `share` references an org)
+//  3. Workshop from the user's own context
+//  4. Organisation from the user's own context
+//  5. Site constraint by age group (always configured, so a logged-in user always
+//     receives a non-empty source label).
+//
+// Pass share=nil when no share context applies (e.g. the user plays a game they own,
+// or this call is the recursive author-lookup inside ResolveShareConstraint).
+//
+// Returns: constraint text, source label (one of obj.ConstraintSource*), and a
+// human-readable source name (workshop or organisation name; empty for site-by-age).
+func ResolveUserConstraint(ctx context.Context, user *obj.User, share *obj.GameShare) (*string, string, string) {
+	if share != nil {
+		if share.WorkshopID != nil {
+			if workshop, err := GetWorkshopByID(ctx, uuid.Nil, *share.WorkshopID); err == nil {
+				if c := trimConstraint(workshop.PromptConstraints); c != nil {
+					return c, obj.ConstraintSourceWorkshop, formatWorkshopSourceName(workshop)
+				}
+			}
+		}
+		if share.InstitutionID != nil {
+			if inst, err := queries().GetInstitutionByID(ctx, *share.InstitutionID); err == nil && inst.PromptConstraints.Valid {
+				if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
+					return c, obj.ConstraintSourceOrganisation, inst.Name
+				}
+			}
+		}
+	}
 	if user.Role != nil && user.Role.Workshop != nil {
 		if c := trimConstraint(user.Role.Workshop.PromptConstraints); c != nil {
-			return c, obj.ConstraintSourceWorkshop
+			return c, obj.ConstraintSourceWorkshop, formatWorkshopSourceName(user.Role.Workshop)
 		}
 	}
 	if user.Role != nil && user.Role.Institution != nil {
 		if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
-			return c, obj.ConstraintSourceOrganisation
+			return c, obj.ConstraintSourceOrganisation, user.Role.Institution.Name
 		}
 	}
-	return resolveAgeConstraint(ctx, user.AgeGroup)
+	text, source := resolveAgeConstraint(ctx, user.AgeGroup)
+	return text, source, ""
+}
+
+// formatWorkshopSourceName renders a workshop's human-readable origin as
+// 'WorkshopName (OrganisationName)' when the parent org is known, or just the
+// workshop name otherwise.
+func formatWorkshopSourceName(w *obj.Workshop) string {
+	if w == nil {
+		return ""
+	}
+	if w.Institution != nil && w.Institution.Name != "" {
+		return w.Name + " (" + w.Institution.Name + ")"
+	}
+	return w.Name
 }
 
 // resolveAgeConstraint returns the site-level constraint for the user's age group.
@@ -1198,17 +1241,20 @@ func trimConstraint(s *string) *string {
 }
 
 // ResolveShareConstraint determines the active prompt constraint for a guest playing via shared link.
-// Cascade: workshop (from share) → org (from share) → author's own ResolveUserConstraint cascade.
+// Cascade: workshop (from share) → org (from share) → author's own ResolveUserConstraint cascade
+// (called with share=nil — the share is already considered by stages 1 and 2 here).
 // Final stage means: if the game has no workshop/org context, the constraint that would apply
 // to the author themselves is used (e.g. their org constraint, or their site-by-age constraint
 // if they're an individual). Goal: the player is protected by *some* constraint chosen by
 // whoever published the link.
-func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*string, string) {
+//
+// Returns: constraint text, source label, and a human-readable source name.
+func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*string, string, string) {
 	if gameShare.WorkshopID != nil {
 		workshop, err := GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
 		if err == nil {
 			if c := trimConstraint(workshop.PromptConstraints); c != nil {
-				return c, obj.ConstraintSourceWorkshop
+				return c, obj.ConstraintSourceWorkshop, formatWorkshopSourceName(workshop)
 			}
 		}
 	}
@@ -1216,17 +1262,17 @@ func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*str
 		inst, err := queries().GetInstitutionByID(ctx, *gameShare.InstitutionID)
 		if err == nil && inst.PromptConstraints.Valid {
 			if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
-				return c, obj.ConstraintSourceOrganisation
+				return c, obj.ConstraintSourceOrganisation, inst.Name
 			}
 		}
 	}
 	if gameShare.CreatedBy != nil {
 		author, err := GetUserByID(ctx, *gameShare.CreatedBy)
 		if err == nil && author != nil {
-			return ResolveUserConstraint(ctx, author)
+			return ResolveUserConstraint(ctx, author, nil)
 		}
 	}
-	return nil, ""
+	return nil, "", ""
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
@@ -1416,6 +1462,12 @@ func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 	}
 	if m.PromptConstraintSource.Valid {
 		msg.PromptConstraintSource = m.PromptConstraintSource.String
+	}
+	if m.PromptConstraintText.Valid {
+		msg.PromptConstraintText = m.PromptConstraintText.String
+	}
+	if m.PromptConstraintSourceName.Valid {
+		msg.PromptConstraintSourceName = m.PromptConstraintSourceName.String
 	}
 }
 
