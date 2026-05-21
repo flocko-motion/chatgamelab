@@ -167,6 +167,10 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	// Tag the AI response with the API key source type (shown in AI Insight panel)
 	response.ApiKeyType = session.ApiKeyType
 	response.PromptConstraintSource = session.PromptConstraintSource
+	response.PromptConstraintSourceName = session.PromptConstraintSourceName
+	if session.PromptConstraints != nil {
+		response.PromptConstraintText = *session.PromptConstraints
+	}
 
 	// Attach transcription to the response so the client can display what was recognized
 	if transcription != "" {

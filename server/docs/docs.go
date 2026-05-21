@@ -648,7 +648,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Sort field (name, createdAt, modifiedAt)",
+                        "description": "Sort field (name, createdAt, modifiedAt, playCount)",
                         "name": "sortBy",
                         "in": "query"
                     },
@@ -5101,8 +5101,12 @@ const docTemplate = `{
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
                 },
+                "promptConstraintSourceName": {
+                    "description": "Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'\nfor a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.",
+                    "type": "string"
+                },
                 "promptConstraints": {
-                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: share-workshop \u003e share-org \u003e user-workshop \u003e user-org \u003e site-by-age (logged-in)\nor share-workshop \u003e share-org \u003e author's user-cascade (guest via share).",
                     "type": "string"
                 },
                 "statusFields": {
@@ -5470,8 +5474,12 @@ const docTemplate = `{
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
                 },
+                "promptConstraintSourceName": {
+                    "description": "Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'\nfor a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.",
+                    "type": "string"
+                },
                 "promptConstraints": {
-                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: share-workshop \u003e share-org \u003e user-workshop \u003e user-org \u003e site-by-age (logged-in)\nor share-workshop \u003e share-org \u003e author's user-cascade (guest via share).",
                     "type": "string"
                 },
                 "statusFields": {
@@ -5548,7 +5556,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "promptConstraintSource": {
-                    "description": "source of active constraint (workshop, organisation, site13, site18)",
+                    "description": "source label of active constraint (workshop, organisation, site13, site13p, site18)",
+                    "type": "string"
+                },
+                "promptConstraintSourceName": {
+                    "description": "human-readable origin (e.g. workshop or organisation name); empty for site-by-age",
+                    "type": "string"
+                },
+                "promptConstraintText": {
+                    "description": "snapshot of the constraint text actually applied for this message",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -6367,8 +6383,12 @@ const docTemplate = `{
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
                 },
+                "promptConstraintSourceName": {
+                    "description": "Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'\nfor a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.",
+                    "type": "string"
+                },
                 "promptConstraints": {
-                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: share-workshop \u003e share-org \u003e user-workshop \u003e user-org \u003e site-by-age (logged-in)\nor share-workshop \u003e share-org \u003e author's user-cascade (guest via share).",
                     "type": "string"
                 },
                 "statusFields": {
@@ -6644,7 +6664,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "promptConstraintSource": {
-                    "description": "source of active constraint (workshop, organisation, site13, site18)",
+                    "description": "source label of active constraint (workshop, organisation, site13, site13p, site18)",
+                    "type": "string"
+                },
+                "promptConstraintSourceName": {
+                    "description": "human-readable origin (e.g. workshop or organisation name); empty for site-by-age",
+                    "type": "string"
+                },
+                "promptConstraintText": {
+                    "description": "snapshot of the constraint text actually applied for this message",
                     "type": "string"
                 },
                 "requestExpandStory": {
@@ -6756,8 +6784,12 @@ const docTemplate = `{
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
                 },
+                "promptConstraintSourceName": {
+                    "description": "Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'\nfor a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.",
+                    "type": "string"
+                },
                 "promptConstraints": {
-                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: workshop \u003e org \u003e age-based (logged-in) or workshop \u003e org (guest via share).",
+                    "description": "Resolved prompt constraints, re-injected with every AI call.\nDetermined by: share-workshop \u003e share-org \u003e user-workshop \u003e user-org \u003e site-by-age (logged-in)\nor share-workshop \u003e share-org \u003e author's user-cascade (guest via share).",
                     "type": "string"
                 },
                 "statusFields": {

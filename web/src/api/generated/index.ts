@@ -57,8 +57,14 @@ export interface DbUserSessionWithGame {
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
+   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
+   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
+   */
+  promptConstraintSourceName?: string;
+  /**
    * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
+   * or share-workshop > share-org > author's user-cascade (guest via share).
    */
   promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -229,8 +235,14 @@ export interface ObjGameSession {
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
+   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
+   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
+   */
+  promptConstraintSourceName?: string;
+  /**
    * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
+   * or share-workshop > share-org > author's user-cascade (guest via share).
    */
   promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -260,8 +272,12 @@ export interface ObjGameSessionMessage {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
-  /** source of active constraint (workshop, organisation, site13, site18) */
+  /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
   promptConstraintSource?: string;
+  /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
+  promptConstraintSourceName?: string;
+  /** snapshot of the constraint text actually applied for this message */
+  promptConstraintText?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -593,8 +609,14 @@ export interface RoutesGuestSessionResponse {
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
+   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
+   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
+   */
+  promptConstraintSourceName?: string;
+  /**
    * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
+   * or share-workshop > share-org > author's user-cascade (guest via share).
    */
   promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -707,8 +729,12 @@ export interface RoutesSessionMessageResponse {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
-  /** source of active constraint (workshop, organisation, site13, site18) */
+  /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
   promptConstraintSource?: string;
+  /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
+  promptConstraintSourceName?: string;
+  /** snapshot of the constraint text actually applied for this message */
+  promptConstraintText?: string;
   requestExpandStory?: string;
   requestImageGeneration?: string;
   requestResponseSchema?: string;
@@ -762,8 +788,14 @@ export interface RoutesSessionResponse {
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
+   * Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
+   * for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
+   */
+  promptConstraintSourceName?: string;
+  /**
    * Resolved prompt constraints, re-injected with every AI call.
-   * Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+   * Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
+   * or share-workshop > share-org > author's user-cascade (guest via share).
    */
   promptConstraints?: string;
   /** Defines the status fields available in the game; copied from game.status_fields at launch. */
@@ -1436,7 +1468,7 @@ export class Api<
       query?: {
         /** Search games by name (case-insensitive) */
         search?: string;
-        /** Sort field (name, createdAt, modifiedAt) */
+        /** Sort field (name, createdAt, modifiedAt, playCount) */
         sortBy?: string;
         /** Sort direction (asc, desc) */
         sortDir?: string;

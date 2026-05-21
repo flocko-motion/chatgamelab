@@ -8,6 +8,7 @@ import {
   IconBrain,
   IconKey,
   IconHelp,
+  IconShieldCheck,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { HELP_LINKS } from "@/config/helpLinks";
@@ -65,6 +66,7 @@ export function AiInsightPanel({
 
   const hasAnyData =
     message.apiKeyType ||
+    message.promptConstraintSource ||
     message.requestExpandStory ||
     message.requestResponseSchema ||
     message.requestStatusUpdate ||
@@ -73,6 +75,15 @@ export function AiInsightPanel({
     (isFirstGameMessage && systemPrompt);
 
   if (!hasAnyData) return null;
+
+  // Constraint source label: translated source type, plus the entity name when known
+  // (e.g. workshop name + parent org). Names themselves are untranslated.
+  const constraintSourceLabel = message.promptConstraintSource
+    ? t(
+        `gamePlayer.aiInsight.constraintSource.${message.promptConstraintSource}`,
+        message.promptConstraintSource,
+      )
+    : "";
 
   return (
     <div className={classes.wrapper}>
@@ -113,6 +124,26 @@ export function AiInsightPanel({
                   {t(`gamePlayer.aiInsight.usedApiKey.${message.apiKeyType}`, message.apiKeyType)}
                 </span>
               </div>
+            )}
+            {message.promptConstraintSource && (
+              <div className={classes.usedKeySection}>
+                <IconShieldCheck size={13} className={classes.usedKeyIcon} />
+                <span className={classes.usedKeyLabel}>
+                  {t("gamePlayer.aiInsight.usedConstraint.label")}:
+                </span>
+                <span className={classes.usedKeyValue}>
+                  {constraintSourceLabel}
+                  {message.promptConstraintSourceName
+                    ? ` — ${message.promptConstraintSourceName}`
+                    : ""}
+                </span>
+              </div>
+            )}
+            {message.promptConstraintText && (
+              <CollapsibleSection
+                label={t("gamePlayer.aiInsight.sections.constraintText")}
+                content={message.promptConstraintText}
+              />
             )}
             {isFirstGameMessage && systemPrompt && (
               <CollapsibleSection

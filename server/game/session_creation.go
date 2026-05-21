@@ -176,8 +176,9 @@ func generateSessionSetup(
 	result := &sessionSetupResult{}
 	needsTranslation := user.Language != "" && user.Language != "en"
 
-	// Resolve prompt constraints early for parallel tasks (image style adaptation)
-	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
+	// Resolve prompt constraints early for parallel tasks (image style adaptation).
+	// Authenticated session creation has no share context; auth-via-share is not wired here yet.
+	promptConstraints, _, _ := db.ResolveUserConstraint(ctx, user, nil)
 
 	// If game already has a theme, skip AI generation entirely
 	if game.Theme != nil {
@@ -362,9 +363,9 @@ func createSessionInternal(
 		log.Debug("using workshop-adapted image style", "original", game.ImageStyle, "adapted", imageStyle)
 	}
 
-	// Resolve prompt constraints: workshop > org > age-based
+	// Resolve prompt constraints via the full cascade (see db.ResolveUserConstraint).
 	// This is resolved at session load time too (for live updates), but we need it here for the system message.
-	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
+	promptConstraints, promptConstraintSource, promptConstraintSourceName := db.ResolveUserConstraint(ctx, user, nil)
 
 	// Persist to database with theme and adapted image style
 	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, imageStyle)
@@ -376,6 +377,8 @@ func createSessionInternal(
 
 	// Store resolved constraints in session for re-injection during prose generation
 	session.PromptConstraints = promptConstraints
+	session.PromptConstraintSource = promptConstraintSource
+	session.PromptConstraintSourceName = promptConstraintSourceName
 
 	// Attach API key and key type for response
 	session.ApiKey = share.ApiKey

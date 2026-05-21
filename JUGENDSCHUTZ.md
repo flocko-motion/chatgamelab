@@ -36,17 +36,21 @@ Der aktive Constraint wird **pro Spielzug live** aufgelöst. Es gilt immer **gen
 
 Einheitliche Kaskade — die erste **nicht-leere** Stufe gewinnt:
 
-1. Workshop-Constraint (wenn der Nutzer in einem Workshop-Kontext ist)
-2. Orga-Constraint (wenn der Nutzer einer Organisation angehört)
-3. Site-Constraint nach Altersgruppe des Nutzers
+1. Workshop-Constraint (aus dem Share, falls das Spiel zu einem Workshop gehört)
+2. Orga-Constraint (aus dem Share, falls das Spiel zu einer Orga gehört)
+3. Workshop-Constraint (wenn der Nutzer in einem Workshop-Kontext ist)
+4. Orga-Constraint (wenn der Nutzer einer Organisation angehört)
+5. Site-Constraint nach Altersgruppe des Nutzers
 
 Da Site-Constraints immer befüllt sind, erhalten **angemeldete Nutzer immer einen Constraint** — niemals leer.
 
+**Heuristik:** Die Stufen 1–2 (Share) haben Vorrang, damit ein geteiltes Spiel möglichst in seiner ursprünglichen Form bleibt — die Autoren-Organisation hat die Inhalte des Spiels gestaltet und kennt den passenden Schutzrahmen am besten. Die Stufen 3–4 (eigener Kontext) und 5 (Alter) greifen, wenn das Share selbst keine Einschränkungen mitbringt, und schützen den Nutzer über seinen eigenen Workshop, seine Orga oder seine Altersgruppe. Spielt der Nutzer ein eigenes Spiel (kein Share), sind die Stufen 1–2 leer und die Kaskade beginnt effektiv bei Stufe 3.
+
 | Rolle | Effekt |
 |---|---|
-| **Head / Staff** (Orga-Personal) | Workshop (falls aktiv) → Orga → Site nach Alter |
-| **Participant** (Workshop-Teilnehmer, auch via Link beigetreten) | Workshop → Orga → Site nach Alter |
-| **Individual** (freier Nutzer ohne Orga) | direkt Site nach Alter |
+| **Head / Staff** (Orga-Personal) | Share-Workshop → Share-Orga → eigener Workshop → eigene Orga → Site nach Alter |
+| **Participant** (Workshop-Teilnehmer, auch via Link beigetreten) | Share-Workshop → Share-Orga → eigener Workshop → eigene Orga → Site nach Alter |
+| **Individual** (freier Nutzer ohne Orga) | Share-Workshop → Share-Orga → Site nach Alter |
 
 **Hintergrund:** Die Site-Altersgruppen sind primär für `individual` gedacht. Sobald ein Nutzer Teil einer Orga ist, übernimmt die Orga die Kontrolle — wenn sie einen Constraint setzt, gilt der, unabhängig vom Alter des Nutzers. Setzt die Orga keinen Constraint, fällt der Schutz auf die Site-Altersregel zurück.
 
@@ -60,7 +64,21 @@ Eigene Kaskade — die erste **nicht-leere** Stufe gewinnt:
 
 Da Site-Constraints für jede Altersgruppe gesetzt sind, endet die Autoren-Kaskade in Stufe 3 immer mit einem Constraint. Gäste erhalten somit ebenfalls **immer** einen Constraint — den, den der Autor selbst beim Spielen bekäme.
 
-Begründung: Wir kennen den Spieler nicht, also gilt ersatzweise der Schutz, den derjenige für sich selbst gewählt hat, der das Spiel veröffentlicht hat. Öffnet hingegen ein **angemeldeter** Nutzer einen geteilten Link, läuft die Auflösung über die Kaskade für angemeldete Nutzer — sein eigener Constraint, nicht der des Autors.
+Begründung: Wir kennen den Spieler nicht, also gilt ersatzweise der Schutz, den derjenige für sich selbst gewählt hat, der das Spiel veröffentlicht hat. Öffnet hingegen ein **angemeldeter** Nutzer einen geteilten Link, läuft die Auflösung über die Kaskade für angemeldete Nutzer (oben) — der Share bringt seinen Workshop-/Orga-Constraint mit, fällt aber ggf. auf den eigenen Kontext und das Alter des angemeldeten Nutzers zurück.
+
+## Transparenz in den KI-Insights
+
+In der Spielzug-Detailansicht ("KI-Insights") wird pro Zug angezeigt, **welche Einschränkung** angewandt wurde und **woher sie stammt** — direkt nach dem Eintrag zum verwendeten API-Key:
+
+> Verwendete Einschränkungen: `<Quelle>` — `<Text der Einschränkung>`
+
+Mögliche Quellen entsprechen den `ConstraintSource*`-Werten:
+
+- `workshop` — Workshop-Constraint (Share oder eigener Kontext)
+- `organisation` — Orga-Constraint (Share oder eigener Kontext)
+- `site13` / `site13p` / `site18` — Site-Default nach Altersgruppe
+
+So ist transparent, welche Stufe der Kaskade pro Spielzug gewonnen hat.
 
 ## Registrierungsablauf
 
@@ -82,6 +100,6 @@ Eine technische Altersverifikation (z.B. über den Besitz eines API-Keys) ist re
 
 ## Code-Referenz
 
-- `ResolveUserConstraint` in `server/db/game.go` — Kaskade für angemeldete Nutzer.
-- `ResolveShareConstraint` in `server/db/game.go` — Kaskade für Gäste via Share-Token.
+- `ResolveUserConstraint` in `server/db/game.go` — Kaskade für angemeldete Nutzer (Share-Workshop → Share-Orga → eigener Workshop → eigene Orga → Site nach Alter).
+- `ResolveShareConstraint` in `server/db/game.go` — Kaskade für Gäste via Share-Token (Share-Workshop → Share-Orga → `ResolveUserConstraint` des Autors).
 - Aufrufer: `server/game/session_creation.go` (angemeldet), `server/game/guest.go` (Gast). Auflösung passiert pro Spielzug.

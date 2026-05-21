@@ -108,32 +108,34 @@ type GameSession struct {
 }
 
 type GameSessionMessage struct {
-	ID                     uuid.UUID
-	CreatedBy              uuid.NullUUID
-	CreatedAt              time.Time
-	ModifiedBy             uuid.NullUUID
-	ModifiedAt             time.Time
-	GameSessionID          uuid.UUID
-	Seq                    int32
-	Type                   string
-	Message                string
-	Status                 sql.NullString
-	Plot                   sql.NullString
-	ImagePrompt            sql.NullString
-	Image                  []byte
-	Audio                  []byte
-	HasImage               bool
-	HasAudio               bool
-	PromptStatusUpdate     sql.NullString
-	PromptResponseSchema   sql.NullString
-	PromptImageGeneration  sql.NullString
-	PromptExpandStory      sql.NullString
-	ResponseRaw            sql.NullString
-	TokenUsage             pqtype.NullRawMessage
-	UrlAnalytics           sql.NullString
-	ApiKeyType             sql.NullString
-	PromptConstraintSource sql.NullString
-	DeletedAt              sql.NullTime
+	ID                         uuid.UUID
+	CreatedBy                  uuid.NullUUID
+	CreatedAt                  time.Time
+	ModifiedBy                 uuid.NullUUID
+	ModifiedAt                 time.Time
+	GameSessionID              uuid.UUID
+	Seq                        int32
+	Type                       string
+	Message                    string
+	Status                     sql.NullString
+	Plot                       sql.NullString
+	ImagePrompt                sql.NullString
+	Image                      []byte
+	Audio                      []byte
+	HasImage                   bool
+	HasAudio                   bool
+	PromptStatusUpdate         sql.NullString
+	PromptResponseSchema       sql.NullString
+	PromptImageGeneration      sql.NullString
+	PromptExpandStory          sql.NullString
+	ResponseRaw                sql.NullString
+	TokenUsage                 pqtype.NullRawMessage
+	UrlAnalytics               sql.NullString
+	ApiKeyType                 sql.NullString
+	PromptConstraintSource     sql.NullString
+	PromptConstraintText       sql.NullString
+	PromptConstraintSourceName sql.NullString
+	DeletedAt                  sql.NullTime
 }
 
 type GameShare struct {

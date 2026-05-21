@@ -163,7 +163,7 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	}
 
 	// Resolve constraints from the share's originating workshop/org
-	session.PromptConstraints, session.PromptConstraintSource = db.ResolveShareConstraint(ctx, gameShare)
+	session.PromptConstraints, session.PromptConstraintSource, session.PromptConstraintSourceName = db.ResolveShareConstraint(ctx, gameShare)
 
 	return session, msg, nil
 }
