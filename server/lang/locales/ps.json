@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "کارول شوی API کیلي بدل شو",
+        "constraintSource": {
+          "organisation": "سازمان",
+          "site13": "د سایټ تلواله (۱۳–۱۷، د مور او پلار د اجازې پرته)",
+          "site13p": "د سایټ تلواله (۱۳–۱۷، د مور او پلار په اجازې سره)",
+          "site18": "د سایټ تلواله (۱۸+)",
+          "workshop": "ورکشاپ"
+        },
         "sections": {
+          "constraintText": "فعاله د ځوانانو د ساتنې محدودیت",
           "expandStory": "AI ته د کیسې د پراخولو لارښوونې",
           "imageGeneration": "AI ته د انځور جوړولو لارښوونې",
           "rawResponse": "ناسمار شوی د AI ځواب",
@@ -434,6 +442,9 @@
           "sponsor": "د سپانسر کیلي وکارول شوه",
           "system_free_use": "یوه نړيواله وړیا کارولو کیلي وکارول شوه",
           "workshop": "د ستاسو کارګاه کیلي وکارول شوه"
+        },
+        "usedConstraint": {
+          "label": "کارول شوی محدودیت"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "د متن اغېزې بند کړئ",
         "fontSize": "د لیک کچه",
         "increaseFont": "لویه",
-        "muteAudio": "نریشن غلی کړئ",
+        "muteAudio": "روایت غلی کول",
         "resetFont": "بیا تنظیم",
         "settings": "ترتیبات",
-        "unmuteAudio": "نریشن چالان کړئ",
+        "unmuteAudio": "روایت فعالول",
         "useNeutralTheme": "بې پرې بڼه وکاروئ"
       },
       "input": {

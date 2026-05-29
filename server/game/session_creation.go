@@ -65,7 +65,8 @@ func CreateSession(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (*ob
 
 	// Use shared internal implementation
 	// Authenticated users: delete existing sessions (restart scenario)
-	return createSessionInternal(ctx, userID, game, user, candidates, shouldRetry, true)
+	// share=nil: direct authenticated play carries no share context.
+	return createSessionInternal(ctx, userID, game, user, nil, candidates, shouldRetry, true)
 }
 
 // sessionSetupResult holds the output of generateSessionSetup.
@@ -172,12 +173,15 @@ func generateSessionSetup(
 	candidates []resolvedKey,
 	game *obj.Game,
 	user *obj.User,
+	gameShare *obj.GameShare,
 ) (*sessionSetupResult, *obj.HTTPError) {
 	result := &sessionSetupResult{}
 	needsTranslation := user.Language != "" && user.Language != "en"
 
-	// Resolve prompt constraints early for parallel tasks (image style adaptation)
-	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
+	// Resolve prompt constraints early for parallel tasks (image style adaptation),
+	// via the single canonical resolver (see db.ResolveConstraint). gameShare is non-nil
+	// only when the game is played through a shared link.
+	promptConstraints := db.ResolveConstraint(ctx, user, gameShare).Text
 
 	// If game already has a theme, skip AI generation entirely
 	if game.Theme != nil {
@@ -308,6 +312,7 @@ func createSessionInternal(
 	userID uuid.UUID,
 	game *obj.Game,
 	user *obj.User,
+	gameShare *obj.GameShare,
 	candidates []resolvedKey,
 	shouldRetry FallbackDecider,
 	deleteExistingSessions bool,
@@ -325,7 +330,7 @@ func createSessionInternal(
 
 	// Run theme generation + translation with fallback across candidates.
 	// If all keys fail with key-related errors, we fail early here.
-	setup, httpErr := generateSessionSetup(ctx, candidates, game, user)
+	setup, httpErr := generateSessionSetup(ctx, candidates, game, user, gameShare)
 	if httpErr != nil {
 		return nil, nil, httpErr
 	}
@@ -362,9 +367,10 @@ func createSessionInternal(
 		log.Debug("using workshop-adapted image style", "original", game.ImageStyle, "adapted", imageStyle)
 	}
 
-	// Resolve prompt constraints: workshop > org > age-based
+	// Resolve prompt constraints via the single canonical resolver (see db.ResolveConstraint).
 	// This is resolved at session load time too (for live updates), but we need it here for the system message.
-	promptConstraints, _ := db.ResolveUserConstraint(ctx, user)
+	constraint := db.ResolveConstraint(ctx, user, gameShare)
+	promptConstraints := constraint.Text
 
 	// Persist to database with theme and adapted image style
 	session, err := db.CreateGameSession(ctx, userID, game, share.ApiKey.ID, aiModel, nil, theme, user.Language, imageStyle)
@@ -375,7 +381,10 @@ func createSessionInternal(
 	log.Debug("session created", "session_id", session.ID)
 
 	// Store resolved constraints in session for re-injection during prose generation
-	session.PromptConstraints = promptConstraints
+	session.PromptConstraints = constraint.Text
+	session.PromptConstraintSource = constraint.Source
+	session.PromptConstraintSourceName = constraint.SourceName
+	session.PromptConstraintReasoning = constraint.Reasoning
 
 	// Attach API key and key type for response
 	session.ApiKey = share.ApiKey

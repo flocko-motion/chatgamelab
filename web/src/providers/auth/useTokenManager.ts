@@ -12,6 +12,18 @@ import {
   type TokenCache,
 } from "./tokenStorage";
 
+function isRefreshTokenError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    return (
+      msg.includes("unknown or invalid refresh token") ||
+      msg.includes("missing refresh token") ||
+      msg.includes("invalid_grant")
+    );
+  }
+  return false;
+}
+
 export function useTokenManager() {
   const { isAuthenticated: auth0IsAuthenticated, getAccessTokenSilently } =
     useAuth0();
@@ -20,6 +32,7 @@ export function useTokenManager() {
   const [isDevMode] = useState(
     import.meta.env.VITE_DEV_MODE === "true" || import.meta.env.DEV,
   );
+  const [auth0TokenError, setAuth0TokenError] = useState(false);
 
   // Token cache for dev mode tokens (initialize from localStorage)
   const devTokenCache = useRef<TokenCache | null>(getStoredDevToken());
@@ -42,6 +55,10 @@ export function useTokenManager() {
         return token;
       } catch (error) {
         authLogger.error("Failed to get Auth0 access token", { error });
+        if (isRefreshTokenError(error)) {
+          authLogger.warning("Refresh token is invalid/expired — will trigger logout");
+          setAuth0TokenError(true);
+        }
         return null;
       }
     }
@@ -61,5 +78,6 @@ export function useTokenManager() {
     setIsParticipant,
     isDevMode,
     devTokenCache,
+    auth0TokenError,
   };
 }

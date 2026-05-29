@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Použitý klíč API byl změněn",
+        "constraintSource": {
+          "organisation": "Organizace",
+          "site13": "Výchozí nastavení webu (13–17, bez souhlasu rodičů)",
+          "site13p": "Výchozí nastavení webu (13–17, se souhlasem rodičů)",
+          "site18": "Výchozí nastavení webu (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktivní omezení ochrany mládeže",
           "expandStory": "Instrukce pro AI k rozepsání příběhu",
           "imageGeneration": "Instrukce AI pro generování obrázků",
           "rawResponse": "Nezpracovaná odpověď AI",
@@ -434,6 +442,9 @@
           "sponsor": "Byl použit sponzorský klíč",
           "system_free_use": "Byl použit globální klíč pro bezplatné použití",
           "workshop": "Byl použit klíč vašeho workshopu"
+        },
+        "usedConstraint": {
+          "label": "Použité omezení"
         }
       },
       "debug": {
@@ -480,7 +491,7 @@
         "disableTextEffects": "Vypnout textové efekty",
         "fontSize": "Velikost písma",
         "increaseFont": "Větší",
-        "muteAudio": "Vypnout vyprávění",
+        "muteAudio": "Ztlumit vyprávění",
         "resetFont": "Obnovit",
         "settings": "Nastavení",
         "unmuteAudio": "Zapnout vyprávění",

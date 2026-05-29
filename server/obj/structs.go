@@ -328,10 +328,17 @@ type GameSession struct {
 	// Language used for this session (ISO 639-1 code), locked at creation time from user preference.
 	Language string `json:"language"`
 	// Resolved prompt constraints, re-injected with every AI call.
-	// Determined by: workshop > org > age-based (logged-in) or workshop > org (guest via share).
+	// Determined by: share-workshop > share-org > user-workshop > user-org > site-by-age (logged-in)
+	// or share-workshop > share-org > author's user-cascade (guest via share).
 	PromptConstraints *string `json:"promptConstraints,omitempty"`
 	// Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18").
 	PromptConstraintSource string `json:"promptConstraintSource,omitempty"`
+	// Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
+	// for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
+	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"`
+	// Transient human-readable trace of how the active constraint was decided, built up
+	// branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+	PromptConstraintReasoning string `json:"promptConstraintReasoning,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
@@ -510,8 +517,11 @@ type GameSessionMessage struct {
 	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
 	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
 	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
-	ApiKeyType             string `json:"apiKeyType,omitempty"`             // source of API key used (workshop, sponsor, personal, etc.)
-	PromptConstraintSource string `json:"promptConstraintSource,omitempty"` // source of active constraint (workshop, organisation, site13, site18)
+	ApiKeyType                 string `json:"apiKeyType,omitempty"`                 // source of API key used (workshop, sponsor, personal, etc.)
+	PromptConstraintSource     string `json:"promptConstraintSource,omitempty"`     // source label of active constraint (workshop, organisation, site13, site13p, site18)
+	PromptConstraintText       string `json:"promptConstraintText,omitempty"`       // snapshot of the constraint text actually applied for this message
+	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"` // human-readable origin (e.g. workshop or organisation name); empty for site-by-age
+	PromptConstraintReasoning  string `json:"promptConstraintReasoning,omitempty"`  // human-readable trace of how the constraint was decided (db.ResolveConstraint)
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)

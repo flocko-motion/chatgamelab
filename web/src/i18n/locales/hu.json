@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Megváltozott a használt API-kulcs",
+        "constraintSource": {
+          "organisation": "Szervezet",
+          "site13": "Webhely alapértelmezett (13–17, szülői beleegyezés nélkül)",
+          "site13p": "Webhely alapértelmezett (13–17, szülői beleegyezéssel)",
+          "site18": "Webhely alapértelmezett (18+)",
+          "workshop": "Műhely"
+        },
         "sections": {
+          "constraintText": "Aktív ifjúságvédelmi korlátozás",
           "expandStory": "Az MI-nek adott utasítások a történet kidolgozásához",
           "imageGeneration": "Az MI utasításai a képgeneráláshoz",
           "rawResponse": "Feldolgozatlan MI válasz",
@@ -434,6 +442,9 @@
           "sponsor": "Szponzori kulcsot használtunk",
           "system_free_use": "Globális ingyenes kulcsot használtunk",
           "workshop": "A műhelyed kulcsa lett használva"
+        },
+        "usedConstraint": {
+          "label": "Alkalmazott korlátozás"
         }
       },
       "debug": {

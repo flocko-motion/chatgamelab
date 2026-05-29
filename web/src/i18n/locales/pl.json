@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Używany klucz API został zmieniony",
+        "constraintSource": {
+          "organisation": "Organizacja",
+          "site13": "Domyślne ustawienia witryny (13–17, bez zgody rodziców)",
+          "site13p": "Domyślne ustawienia witryny (13–17, za zgodą rodziców)",
+          "site18": "Domyślne ustawienia witryny (18+)",
+          "workshop": "Warsztat"
+        },
         "sections": {
+          "constraintText": "Aktywne ograniczenie ochrony młodzieży",
           "expandStory": "Instrukcje dla AI dotyczące rozwijania historii",
           "imageGeneration": "Instrukcje od AI do generowania obrazów",
           "rawResponse": "Nieprzetworzona odpowiedź AI",
@@ -434,6 +442,9 @@
           "sponsor": "Użyto klucza sponsorskiego",
           "system_free_use": "Użyto globalnego klucza darmowego",
           "workshop": "Użyto klucza Twojego warsztatu"
+        },
+        "usedConstraint": {
+          "label": "Użyte ograniczenie"
         }
       },
       "debug": {

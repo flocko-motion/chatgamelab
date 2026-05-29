@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Použitý kľúč API bol zmenený",
+        "constraintSource": {
+          "organisation": "Organizacija",
+          "site13": "Privzeto za spletno mesto (13–17, brez starševske privolitve)",
+          "site13p": "Privzeto za spletno mesto (13–17, s starševsko privolitvijo)",
+          "site18": "Privzeto za spletno mesto (18+)",
+          "workshop": "Delavnica"
+        },
         "sections": {
+          "constraintText": "Aktivna omejitev zaščite mladih",
           "expandStory": "Inštrukcie pre AI na rozpísanie príbehu",
           "imageGeneration": "Inštrukcie od AI pre generovanie obrázkov",
           "rawResponse": "Nespracovaná odpoveď AI",
@@ -434,6 +442,9 @@
           "sponsor": "Bol použitý sponzorský kľúč",
           "system_free_use": "Bol použitý globálny kľúč na bezplatné používanie",
           "workshop": "Bol použitý kľúč vášho workshopu"
+        },
+        "usedConstraint": {
+          "label": "Uporabljena omejitev"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Vypnúť textové efekty",
         "fontSize": "Veľkosť písma",
         "increaseFont": "Väčšie",
-        "muteAudio": "Stlmiť rozprávanie",
+        "muteAudio": "Utišaj pripovedovanje",
         "resetFont": "Reset",
         "settings": "Nastavenia",
-        "unmuteAudio": "Zapnúť rozprávanie",
+        "unmuteAudio": "Vključi pripovedovanje",
         "useNeutralTheme": "Použiť neutrálnu tému"
       },
       "input": {

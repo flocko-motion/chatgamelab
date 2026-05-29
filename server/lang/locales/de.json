@@ -397,7 +397,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Verwendeter API-Schlüssel geändert",
+        "constraintSource": {
+          "organisation": "Organisation",
+          "site13": "Site-Vorgabe (13–17, ohne elterliche Zustimmung)",
+          "site13p": "Site-Vorgabe (13–17, mit elterlicher Zustimmung)",
+          "site18": "Site-Vorgabe (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktive Jugendschutz-Einschränkung",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung",
           "rawResponse": "Unbearbeitete KI-Antwort",
@@ -419,6 +427,9 @@
           "sponsor": "Ein Sponsor-Schlüssel wurde verwendet",
           "system_free_use": "Ein globaler Freikontingent-Schlüssel wurde verwendet",
           "workshop": "Der Schlüssel deines Workshops wurde verwendet"
+        },
+        "usedConstraint": {
+          "label": "Verwendete Einschränkungen"
         }
       },
       "debug": {
@@ -465,10 +476,10 @@
         "disableTextEffects": "Texteffekte deaktivieren",
         "fontSize": "Schriftgröße",
         "increaseFont": "Größer",
-        "muteAudio": "Erzaehlton ausschalten",
+        "muteAudio": "Erzählton ausschalten",
         "resetFont": "Zurücksetzen",
         "settings": "Einstellungen",
-        "unmuteAudio": "Erzaehlton einschalten",
+        "unmuteAudio": "Erzählton einschalten",
         "useNeutralTheme": "Neutrales Design verwenden"
       },
       "input": {

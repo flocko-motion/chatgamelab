@@ -212,6 +212,18 @@ SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1
 -- name: SearchAllGamesSortedByModifiedAtAsc :many
 SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY modified_at ASC;
 
+-- name: GetAllGamesSortedByPlayCount :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY play_count DESC;
+
+-- name: GetAllGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL ORDER BY play_count ASC;
+
+-- name: SearchAllGamesSortedByPlayCount :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
+
+-- name: SearchAllGamesSortedByPlayCountAsc :many
+SELECT * FROM game WHERE deleted_at IS NULL AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count ASC;
+
 -- name: SearchPublicGamesSortedByPlayCount :many
 SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LIKE LOWER('%' || $1 || '%') ORDER BY play_count DESC;
 
@@ -220,16 +232,16 @@ SELECT * FROM game WHERE deleted_at IS NULL AND public = true AND LOWER(name) LI
 
 -- Games visible to user with additional sort options
 -- name: GetGamesVisibleToUserSortedByPlayCount :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count DESC;
 
 -- name: GetGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) ORDER BY play_count ASC;
 
 -- name: SearchGamesVisibleToUserSortedByPlayCount :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count DESC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count DESC;
 
 -- name: SearchGamesVisibleToUserSortedByPlayCountAsc :many
-SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true) AND LOWER(name) LIKE LOWER('%' || $2 || '%') ORDER BY play_count ASC;
+SELECT * FROM game WHERE deleted_at IS NULL AND (created_by = $1 OR public = true OR workshop_id = $2) AND LOWER(name) LIKE LOWER('%' || $3 || '%') ORDER BY play_count ASC;
 
 -- Creator sorting requires joining with user table
 -- name: GetGamesVisibleToUserSortedByCreator :many
@@ -490,7 +502,9 @@ INSERT INTO game_session_message (
   type, message,
   status, plot, image_prompt, image,
   has_image, has_audio,
-  api_key_type, prompt_constraint_source
+  api_key_type, prompt_constraint_source,
+  prompt_constraint_text, prompt_constraint_source_name,
+  prompt_constraint_reasoning
 ) VALUES (
   gen_random_uuid(), $1,
   $2, $3, $4,
@@ -498,7 +512,9 @@ INSERT INTO game_session_message (
   $6, $7,
   $8, $9, $10, $11,
   $12, $13,
-  $14, $15
+  $14, $15,
+  $16, $17,
+  $18
 )
 RETURNING *;
 
@@ -537,7 +553,10 @@ UPDATE game_session_message SET
   token_usage = $20,
   url_analytics = $21,
   api_key_type = $22,
-  prompt_constraint_source = $23
+  prompt_constraint_source = $23,
+  prompt_constraint_text = $24,
+  prompt_constraint_source_name = $25,
+  prompt_constraint_reasoning = $26
 WHERE id = $1
 RETURNING *;
 

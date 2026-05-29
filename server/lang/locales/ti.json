@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "ዝተጠቀሙ ኤፒአይ ቁልፊ ተለወጠ",
+        "constraintSource": {
+          "organisation": "ድርጅት",
+          "site13": "ናይ ሳይት ነባሪ (13–17፣ ብዘይ ወላጅ ፍቓድ)",
+          "site13p": "ናይ ሳይት ነባሪ (13–17፣ ብወላጅ ፍቓድ)",
+          "site18": "ናይ ሳይት ነባሪ (18+)",
+          "workshop": "ወርክሾፕ"
+        },
         "sections": {
+          "constraintText": "ተንቀሳቓሲ ጥበቃ ናይ ወጣት ግደታ",
           "expandStory": "ተሪፊ ትምህርቲ ንAI ናይ ታሪክ ምጽሓፍ",
           "imageGeneration": "ትምህርታት ካብ AI ንምስል ምፍጣር",
           "rawResponse": "ዘይተስረዩ መልሲ AI",
@@ -434,6 +442,9 @@
           "sponsor": "ነቲ ስፖንሰር ቁልፊ ተጠቕም",
           "system_free_use": "ናይ ዓለም ኣቀፍ ነፃ ጥቅም ቁልፊ ተጠቕም",
           "workshop": "ነቲ ቁልፊ ናይ ስልጠናኻ ተጠቕም"
+        },
+        "usedConstraint": {
+          "label": "ዝተጠቀመ ግደታ"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "ናይ ጽሑፍ ተጽእኖታት ዕጽው",
         "fontSize": "መጠን ፊደል",
         "increaseFont": "ኣንጻር",
-        "muteAudio": "ትርኢት ድምጺ ዕጽው",
+        "muteAudio": "ድምጺ ትርኣይ ኣጽምዕ",
         "resetFont": "ምድጋም",
         "settings": "ቅንብሮም",
-        "unmuteAudio": "ድምጺ ኣንፀባርቕ",
+        "unmuteAudio": "ድምጺ ትርኣይ ኣንብር",
         "useNeutralTheme": "ነጻ ርእይቶ ተጠቀም"
       },
       "input": {

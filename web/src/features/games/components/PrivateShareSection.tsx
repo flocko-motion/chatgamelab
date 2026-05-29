@@ -29,6 +29,7 @@ import {
   useCreateGameShare,
   useRevokePrivateShare,
   useUpdateGameShare,
+  useWorkshop,
   type EnrichedGameShare,
 } from "@/api/hooks";
 import { useAuth } from "@/providers/AuthProvider";
@@ -49,6 +50,7 @@ export function PrivateShareSection({
   const isWorkshopMode = !!workshopId;
 
   const institutionId = backendUser?.role?.institution?.id;
+  const { data: workshop } = useWorkshop(workshopId);
   const { data: apiKeys, isLoading: personalKeysLoading } = useApiKeys();
   const { data: institutionKeys, isLoading: instKeysLoading } =
     useInstitutionApiKeys(institutionId ?? "");
@@ -285,7 +287,9 @@ export function PrivateShareSection({
         <Stack gap="md">
           <Text size="sm" c="dimmed">
             {isWorkshopMode
-              ? t("games.privateShare.workshopDescription")
+              ? t("games.privateShare.workshopDescription", {
+                  name: workshop?.name ?? "",
+                })
               : t("games.privateShare.description")}
           </Text>
 

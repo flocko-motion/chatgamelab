@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Käytetty API-avain vaihtui",
+        "constraintSource": {
+          "organisation": "Organisaatio",
+          "site13": "Sivuston oletus (13–17, ilman vanhempien suostumusta)",
+          "site13p": "Sivuston oletus (13–17, vanhempien suostumuksella)",
+          "site18": "Sivuston oletus (18+)",
+          "workshop": "Työpaja"
+        },
         "sections": {
+          "constraintText": "Aktiivinen nuorisuojarajoitus",
           "expandStory": "Ohjeet AI:lle tarinan kirjoittamista varten",
           "imageGeneration": "AI:n antamat ohjeet kuvien luontiin",
           "rawResponse": "AI:n käsittelemätön vastaus",
@@ -434,6 +442,9 @@
           "sponsor": "Sponsoriavain käytettiin",
           "system_free_use": "Globaalia maksutonta avainta käytettiin",
           "workshop": "Työpajasi avainta käytettiin"
+        },
+        "usedConstraint": {
+          "label": "Käytetty rajoitus"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Poista tehosteteksti",
         "fontSize": "Fonttikoko",
         "increaseFont": "Suurempi",
-        "muteAudio": "Vaimenna kerronta",
+        "muteAudio": "Mykistä kertojan ääni",
         "resetFont": "Palauta",
         "settings": "Asetukset",
-        "unmuteAudio": "Poista vaimennus",
+        "unmuteAudio": "Poista kertojan äänen mykistys",
         "useNeutralTheme": "Käytä neutraalia teemaa"
       },
       "input": {

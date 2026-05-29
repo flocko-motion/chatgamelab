@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Gebruikte API-sleutel gewijzigd",
+        "constraintSource": {
+          "organisation": "Organisatie",
+          "site13": "Standaardsite (13–17, geen ouderlijke toestemming)",
+          "site13p": "Standaardsite (13–17, met ouderlijke toestemming)",
+          "site18": "Standaardsite (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Actieve jeugdbeschermingsbeperking",
           "expandStory": "Instructies aan de AI om het verhaal uit te werken",
           "imageGeneration": "Instructies van de AI voor beeldgeneratie",
           "rawResponse": "Onbewerkte AI-respons",
@@ -434,6 +442,9 @@
           "sponsor": "Er is een sponsorsleutel gebruikt",
           "system_free_use": "Er is een globale gratis sleutel gebruikt",
           "workshop": "De sleutel van je workshop is gebruikt"
+        },
+        "usedConstraint": {
+          "label": "Gebruikte beperking"
         }
       },
       "debug": {
@@ -483,7 +494,7 @@
         "muteAudio": "Vertelling dempen",
         "resetFont": "Resetten",
         "settings": "Instellingen",
-        "unmuteAudio": "Vertelling aanzetten",
+        "unmuteAudio": "Vertelling dempen opheffen",
         "useNeutralTheme": "Neutraal thema gebruiken"
       },
       "input": {

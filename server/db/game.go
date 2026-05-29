@@ -10,7 +10,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -136,6 +135,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 				return queries().SearchPublicGamesSortedByModifiedAtAsc(ctx, searchParam)
 			}
 			return queries().SearchPublicGamesSortedByModifiedAt(ctx, searchParam)
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchPublicGamesSortedByPlayCountAsc(ctx, searchParam)
+			}
+			return queries().SearchPublicGamesSortedByPlayCount(ctx, searchParam)
 		default:
 			return queries().SearchPublicGames(ctx, searchParam)
 		}
@@ -157,6 +161,11 @@ func getPublicGames(ctx context.Context, search, sortField, sortDir string) ([]d
 			return queries().GetPublicGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetPublicGamesSortedByModifiedAt(ctx)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetPublicGamesSortedByPlayCountAsc(ctx)
+		}
+		return queries().GetPublicGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetPublicGames(ctx)
 	}
@@ -184,6 +193,11 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 				return queries().SearchOwnGamesSortedByModifiedAtAsc(ctx, db.SearchOwnGamesSortedByModifiedAtAscParams{CreatedBy: userParam, Column2: searchStr})
 			}
 			return queries().SearchOwnGamesSortedByModifiedAt(ctx, db.SearchOwnGamesSortedByModifiedAtParams{CreatedBy: userParam, Column2: searchStr})
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchOwnGamesSortedByPlayCountAsc(ctx, db.SearchOwnGamesSortedByPlayCountAscParams{CreatedBy: userParam, Column2: searchStr})
+			}
+			return queries().SearchOwnGamesSortedByPlayCount(ctx, db.SearchOwnGamesSortedByPlayCountParams{CreatedBy: userParam, Column2: searchStr})
 		default:
 			return queries().SearchOwnGames(ctx, db.SearchOwnGamesParams{CreatedBy: userParam, Column2: searchStr})
 		}
@@ -205,6 +219,11 @@ func getOwnGames(ctx context.Context, userID uuid.UUID, search, sortField, sortD
 			return queries().GetOwnGamesSortedByModifiedAtAsc(ctx, userParam)
 		}
 		return queries().GetOwnGamesSortedByModifiedAt(ctx, userParam)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetOwnGamesSortedByPlayCountAsc(ctx, userParam)
+		}
+		return queries().GetOwnGamesSortedByPlayCount(ctx, userParam)
 	default:
 		return queries().GetOwnGames(ctx, userParam)
 	}
@@ -231,6 +250,11 @@ func getAllGames(ctx context.Context, search, sortField, sortDir string) ([]db.G
 				return queries().SearchAllGamesSortedByModifiedAtAsc(ctx, searchStr)
 			}
 			return queries().SearchAllGamesSortedByModifiedAt(ctx, searchStr)
+		case "playCount":
+			if sortDir == "asc" {
+				return queries().SearchAllGamesSortedByPlayCountAsc(ctx, searchStr)
+			}
+			return queries().SearchAllGamesSortedByPlayCount(ctx, searchStr)
 		default:
 			return queries().SearchAllGames(ctx, searchStr)
 		}
@@ -252,6 +276,11 @@ func getAllGames(ctx context.Context, search, sortField, sortDir string) ([]db.G
 			return queries().GetAllGamesSortedByModifiedAtAsc(ctx)
 		}
 		return queries().GetAllGamesSortedByModifiedAt(ctx)
+	case "playCount":
+		if sortDir == "asc" {
+			return queries().GetAllGamesSortedByPlayCountAsc(ctx)
+		}
+		return queries().GetAllGamesSortedByPlayCount(ctx)
 	default:
 		return queries().GetAllGames(ctx)
 	}
@@ -292,6 +321,12 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 			} else {
 				games, err = queries().SearchGamesVisibleToUserSortedByModifiedAt(ctx, db.SearchGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 			}
+		case "playCount":
+			if sortDir == "asc" {
+				games, err = queries().SearchGamesVisibleToUserSortedByPlayCountAsc(ctx, db.SearchGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			} else {
+				games, err = queries().SearchGamesVisibleToUserSortedByPlayCount(ctx, db.SearchGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
+			}
 		default:
 			games, err = queries().SearchGamesVisibleToUser(ctx, db.SearchGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam, Column3: searchStr})
 		}
@@ -314,6 +349,12 @@ func getGamesVisibleToUser(ctx context.Context, userID uuid.UUID, search, sortFi
 				games, err = queries().GetGamesVisibleToUserSortedByModifiedAtAsc(ctx, db.GetGamesVisibleToUserSortedByModifiedAtAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
 			} else {
 				games, err = queries().GetGamesVisibleToUserSortedByModifiedAt(ctx, db.GetGamesVisibleToUserSortedByModifiedAtParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			}
+		case "playCount":
+			if sortDir == "asc" {
+				games, err = queries().GetGamesVisibleToUserSortedByPlayCountAsc(ctx, db.GetGamesVisibleToUserSortedByPlayCountAscParams{CreatedBy: userParam, WorkshopID: workshopParam})
+			} else {
+				games, err = queries().GetGamesVisibleToUserSortedByPlayCount(ctx, db.GetGamesVisibleToUserSortedByPlayCountParams{CreatedBy: userParam, WorkshopID: workshopParam})
 			}
 		default:
 			games, err = queries().GetGamesVisibleToUser(ctx, db.GetGamesVisibleToUserParams{CreatedBy: userParam, WorkshopID: workshopParam})
@@ -756,8 +797,11 @@ func CreateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		Image:         msg.Image,
 		HasImage:      msg.HasImage,
 		HasAudio:      msg.HasAudioOut,
-		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
-		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		ApiKeyType:                 sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource:     sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		PromptConstraintText:       sql.NullString{String: msg.PromptConstraintText, Valid: msg.PromptConstraintText != ""},
+		PromptConstraintSourceName: sql.NullString{String: msg.PromptConstraintSourceName, Valid: msg.PromptConstraintSourceName != ""},
+		PromptConstraintReasoning:  sql.NullString{String: msg.PromptConstraintReasoning, Valid: msg.PromptConstraintReasoning != ""},
 	}
 
 	result, err := queries().CreateGameSessionMessage(ctx, arg)
@@ -830,8 +874,11 @@ func UpdateGameSessionMessage(ctx context.Context, userID uuid.UUID, msg obj.Gam
 		ResponseRaw:           sql.NullString{String: functional.Deref(msg.ResponseRaw, ""), Valid: msg.ResponseRaw != nil},
 		TokenUsage:            tokenUsageJSON,
 		UrlAnalytics:          sql.NullString{String: functional.Deref(msg.URLAnalytics, ""), Valid: msg.URLAnalytics != nil},
-		ApiKeyType:              sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
-		PromptConstraintSource: sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		ApiKeyType:                 sql.NullString{String: msg.ApiKeyType, Valid: msg.ApiKeyType != ""},
+		PromptConstraintSource:     sql.NullString{String: msg.PromptConstraintSource, Valid: msg.PromptConstraintSource != ""},
+		PromptConstraintText:       sql.NullString{String: msg.PromptConstraintText, Valid: msg.PromptConstraintText != ""},
+		PromptConstraintSourceName: sql.NullString{String: msg.PromptConstraintSourceName, Valid: msg.PromptConstraintSourceName != ""},
+		PromptConstraintReasoning:  sql.NullString{String: msg.PromptConstraintReasoning, Valid: msg.PromptConstraintReasoning != ""},
 	}
 
 	_, err = queries().UpdateGameSessionMessage(ctx, arg)
@@ -1081,110 +1128,20 @@ func GetGameSessionByID(ctx context.Context, userID *uuid.UUID, sessionID uuid.U
 		// If key not found, leave ApiKey as nil - frontend will prompt for a new one
 	}
 
-	// Resolve prompt constraints using priority chain:
-	// Workshop mode: workshop > org > age-based
-	// No workshop: age-based (U13/U18)
-	// Guest: constraints resolved separately via game share (not here)
+	// Re-resolve prompt constraints live (per-Spielzug) via the single canonical resolver
+	// (see ResolveConstraint). This authenticated session-load path carries no share context;
+	// share-based play (guest or authenticated-via-share) re-resolves on its own token-gated
+	// routes, which always have the share at hand.
 	user, err := GetUserByID(ctx, s.UserID)
 	if err == nil {
-		session.PromptConstraints, session.PromptConstraintSource = ResolveUserConstraint(ctx, user)
+		c := ResolveConstraint(ctx, user, nil)
+		session.PromptConstraints = c.Text
+		session.PromptConstraintSource = c.Source
+		session.PromptConstraintSourceName = c.SourceName
+		session.PromptConstraintReasoning = c.Reasoning
 	}
 
 	return session, nil
-}
-
-// ResolveUserConstraint determines the active prompt constraint for a logged-in user.
-// Cascade: workshop constraint → org constraint → site constraint by age group.
-// First non-empty stage wins. Site constraints are always configured (set at install
-// time), so a logged-in user always receives a non-empty constraint.
-// Returns the constraint text and one of the obj.ConstraintSource* labels.
-func ResolveUserConstraint(ctx context.Context, user *obj.User) (*string, string) {
-	if user.Role != nil && user.Role.Workshop != nil {
-		if c := trimConstraint(user.Role.Workshop.PromptConstraints); c != nil {
-			return c, obj.ConstraintSourceWorkshop
-		}
-	}
-	if user.Role != nil && user.Role.Institution != nil {
-		if c := trimConstraint(user.Role.Institution.PromptConstraints); c != nil {
-			return c, obj.ConstraintSourceOrganisation
-		}
-	}
-	return resolveAgeConstraint(ctx, user.AgeGroup)
-}
-
-// resolveAgeConstraint returns the site-level constraint for the user's age group.
-// See obj.AgeGroup* and obj.ConstraintSource* for the value meanings.
-// Always returns the source label, even when no constraint text is configured.
-func resolveAgeConstraint(ctx context.Context, ageGroup *string) (*string, string) {
-	// Default to the strictest cohort when age is unknown.
-	effectiveGroup := obj.AgeGroupU13
-	if ageGroup != nil {
-		effectiveGroup = *ageGroup
-	}
-	settings, err := GetSystemSettings(ctx)
-	switch effectiveGroup {
-	case obj.AgeGroupU13:
-		if err == nil && settings != nil {
-			return trimConstraint(settings.PromptConstraintU13), obj.ConstraintSourceSite13
-		}
-		return nil, obj.ConstraintSourceSite13
-	case obj.AgeGroupU13p:
-		if err == nil && settings != nil {
-			return trimConstraint(settings.PromptConstraintU13p), obj.ConstraintSourceSite13p
-		}
-		return nil, obj.ConstraintSourceSite13p
-	case obj.AgeGroupU18:
-		if err == nil && settings != nil {
-			return trimConstraint(settings.PromptConstraintU18), obj.ConstraintSourceSite18
-		}
-		return nil, obj.ConstraintSourceSite18
-	}
-	// Unknown/invalid value — fall back to strictest bucket.
-	return nil, obj.ConstraintSourceSite13
-}
-
-// trimConstraint returns the trimmed constraint string, or nil if empty.
-func trimConstraint(s *string) *string {
-	if s == nil {
-		return nil
-	}
-	trimmed := strings.TrimSpace(*s)
-	if trimmed == "" {
-		return nil
-	}
-	return &trimmed
-}
-
-// ResolveShareConstraint determines the active prompt constraint for a guest playing via shared link.
-// Cascade: workshop (from share) → org (from share) → author's own ResolveUserConstraint cascade.
-// Final stage means: if the game has no workshop/org context, the constraint that would apply
-// to the author themselves is used (e.g. their org constraint, or their site-by-age constraint
-// if they're an individual). Goal: the player is protected by *some* constraint chosen by
-// whoever published the link.
-func ResolveShareConstraint(ctx context.Context, gameShare *obj.GameShare) (*string, string) {
-	if gameShare.WorkshopID != nil {
-		workshop, err := GetWorkshopByID(ctx, uuid.Nil, *gameShare.WorkshopID)
-		if err == nil {
-			if c := trimConstraint(workshop.PromptConstraints); c != nil {
-				return c, obj.ConstraintSourceWorkshop
-			}
-		}
-	}
-	if gameShare.InstitutionID != nil {
-		inst, err := queries().GetInstitutionByID(ctx, *gameShare.InstitutionID)
-		if err == nil && inst.PromptConstraints.Valid {
-			if c := trimConstraint(&inst.PromptConstraints.String); c != nil {
-				return c, obj.ConstraintSourceOrganisation
-			}
-		}
-	}
-	if gameShare.CreatedBy != nil {
-		author, err := GetUserByID(ctx, *gameShare.CreatedBy)
-		if err == nil && author != nil {
-			return ResolveUserConstraint(ctx, author)
-		}
-	}
-	return nil, ""
 }
 
 // ResolveAndUpdateGameSessionApiKey re-resolves the API key for a session using the standard
@@ -1374,6 +1331,15 @@ func mapAiInsightFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
 	}
 	if m.PromptConstraintSource.Valid {
 		msg.PromptConstraintSource = m.PromptConstraintSource.String
+	}
+	if m.PromptConstraintText.Valid {
+		msg.PromptConstraintText = m.PromptConstraintText.String
+	}
+	if m.PromptConstraintSourceName.Valid {
+		msg.PromptConstraintSourceName = m.PromptConstraintSourceName.String
+	}
+	if m.PromptConstraintReasoning.Valid {
+		msg.PromptConstraintReasoning = m.PromptConstraintReasoning.String
 	}
 }
 
