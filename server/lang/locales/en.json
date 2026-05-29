@@ -397,7 +397,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Used API Key changed",
+        "constraintSource": {
+          "organisation": "Organisation",
+          "site13": "Site default (13–17, no parental consent)",
+          "site13p": "Site default (13–17, with parental consent)",
+          "site18": "Site default (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Active youth-protection constraint",
           "expandStory": "Instructions to the AI for writing out the story",
           "imageGeneration": "Instructions from the AI for image generation",
           "rawResponse": "Unprocessed AI response",
@@ -419,6 +427,9 @@
           "sponsor": "A sponsor key was used",
           "system_free_use": "A global free-use key was used",
           "workshop": "The key of your workshop was used"
+        },
+        "usedConstraint": {
+          "label": "Used constraint"
         }
       },
       "debug": {

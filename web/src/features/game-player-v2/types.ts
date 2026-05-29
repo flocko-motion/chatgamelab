@@ -70,6 +70,8 @@ export interface SceneMessage {
   promptConstraintText?: string;
   /** Human-readable origin of the constraint (workshop or organisation name); empty for site-by-age */
   promptConstraintSourceName?: string;
+  /** Human-readable trace of how the constraint was decided (db.ResolveConstraint) */
+  promptConstraintReasoning?: string;
 }
 
 export interface StreamChunk {
@@ -210,6 +212,7 @@ export function mapApiMessageToScene(msg: ObjGameSessionMessage): SceneMessage {
     promptConstraintSource: msg.promptConstraintSource ?? undefined,
     promptConstraintText: msg.promptConstraintText ?? undefined,
     promptConstraintSourceName: msg.promptConstraintSourceName ?? undefined,
+    promptConstraintReasoning: msg.promptConstraintReasoning ?? undefined,
   };
 }
 

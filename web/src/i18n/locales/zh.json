@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "已用 API 密钥已更改",
+        "constraintSource": {
+          "organisation": "组织",
+          "site13": "站点默认（13–17 岁，未获得父母同意）",
+          "site13p": "站点默认（13–17 岁，已获得父母同意）",
+          "site18": "站点默认（18 岁及以上）",
+          "workshop": "工作坊"
+        },
         "sections": {
+          "constraintText": "生效中的青少年保护限制",
           "expandStory": "写出故事的 AI 指令",
           "imageGeneration": "AI 的图像生成指令",
           "rawResponse": "AI 的原始响应",
@@ -434,6 +442,9 @@
           "sponsor": "使用了赞助者密钥",
           "system_free_use": "使用了全局免费使用密钥",
           "workshop": "使用了你工作坊的密钥"
+        },
+        "usedConstraint": {
+          "label": "已应用的限制"
         }
       },
       "debug": {

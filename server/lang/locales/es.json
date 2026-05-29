@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "La clave API utilizada cambió",
+        "constraintSource": {
+          "organisation": "Organización",
+          "site13": "Predeterminado del sitio (13–17, sin consentimiento parental)",
+          "site13p": "Predeterminado del sitio (13–17, con consentimiento parental)",
+          "site18": "Predeterminado del sitio (18+)",
+          "workshop": "Taller"
+        },
         "sections": {
+          "constraintText": "Restricción de protección juvenil activa",
           "expandStory": "Instrucciones para la IA para desarrollar la historia",
           "imageGeneration": "Instrucciones de la IA para la generación de imágenes",
           "rawResponse": "Respuesta sin procesar de la IA",
@@ -434,6 +442,9 @@
           "sponsor": "Se usó una clave de patrocinador",
           "system_free_use": "Se usó una clave global de uso gratuito",
           "workshop": "Se usó la clave de tu taller"
+        },
+        "usedConstraint": {
+          "label": "Restricción utilizada"
         }
       },
       "debug": {
@@ -483,7 +494,7 @@
         "muteAudio": "Silenciar narración",
         "resetFont": "Restablecer",
         "settings": "Configuración",
-        "unmuteAudio": "Reactivar narración",
+        "unmuteAudio": "Activar narración",
         "useNeutralTheme": "Usar tema neutral"
       },
       "input": {

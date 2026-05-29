@@ -13,10 +13,17 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateGuestSession creates a game session for an anonymous guest via a private share token.
-// It validates the token, checks the remaining counter, creates an anonymous user,
-// and runs the full session creation flow (theme, translation, first AI action).
-func CreateGuestSession(ctx context.Context, token string, language string) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
+// CreateShareSession creates a game session for a private share link.
+//
+// The player argument decides who owns the session and, therefore, which
+// youth-protection cascade applies (see db.ResolveConstraint):
+//   - player == nil  → an anonymous guest user is created; the share's "Gäste" cascade applies.
+//   - player != nil  → the authenticated user plays as themselves; their own cascade applies,
+//     with the share supplying stages 1–2. The play shows up in their "recently played".
+//
+// Either way the sponsored share key pays (a sponsored game is sponsored for everybody)
+// and the share's play-limit counter is consumed.
+func CreateShareSession(ctx context.Context, token string, language string, player *obj.User) (*obj.GameSession, *obj.GameSessionMessage, *obj.HTTPError) {
 	// 1. Validate token → load game share and game
 	gameShare, game, httpErr := ValidatePrivateShareToken(ctx, token)
 	if httpErr != nil {
@@ -34,22 +41,26 @@ func CreateGuestSession(ctx context.Context, token string, language string) (*ob
 		return nil, nil, httpErr
 	}
 
-	// 4. Create anonymous guest user
-	guestUser, httpErr := createGuestUser(ctx, gameShare.ID)
-	if httpErr != nil {
-		return nil, nil, httpErr
+	// 4. Determine the session owner: the authenticated player, or a fresh guest user.
+	owner := player
+	if owner == nil {
+		guestUser, httpErr := createGuestUser(ctx, gameShare.ID)
+		if httpErr != nil {
+			return nil, nil, httpErr
+		}
+		log.Info("share session: created anonymous guest user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", game.ID)
+		// Set language on guest user (not persisted — used for theme/translation this session).
+		// Authenticated players keep their own profile language.
+		if language != "" {
+			guestUser.Language = language
+		}
+		owner = guestUser
+	} else {
+		log.Info("share session: authenticated player", "user_id", owner.ID, "game_id", game.ID)
 	}
-	log.Info("guest session: created anonymous user", "user_id", guestUser.ID, "user_name", guestUser.Name, "game_id", game.ID)
 
-	// 5. Set language on guest user (not persisted — used for theme/translation in this session)
-	if language != "" {
-		guestUser.Language = language
-	}
-
-	log.Debug("guest session: language for session", "language", guestUser.Language, "requested_language", language)
-
-	// 6. Run the full session creation flow (reuses existing logic)
-	return createSessionForGuest(ctx, guestUser, game, share, gameShare)
+	// 5. Run the full session creation flow (reuses existing logic)
+	return createSessionForGuest(ctx, owner, game, share, gameShare)
 }
 
 // ValidatePrivateShareToken checks if the token maps to a valid, playable game.
@@ -155,17 +166,12 @@ func createSessionForGuest(ctx context.Context, user *obj.User, game *obj.Game, 
 	// Build a single-element candidate list for createSessionInternal
 	candidates := []resolvedKey{{Share: share, AiQualityTier: aiModel, KeyType: obj.ApiKeyTypePrivateShare}}
 
-	// Use shared internal implementation
+	// Use shared internal implementation. Passing gameShare lets the canonical
+	// resolver (db.ResolveConstraint) pick the right cascade for whoever owns this
+	// session — the share's cascade for a guest user, the user's own cascade (with
+	// the share supplying stages 1–2) for an authenticated player.
 	// Guest users: no retries (nil), don't delete existing sessions (false)
-	session, msg, httpErr := createSessionInternal(ctx, user.ID, game, user, candidates, nil, false)
-	if httpErr != nil {
-		return nil, nil, httpErr
-	}
-
-	// Resolve constraints from the share's originating workshop/org
-	session.PromptConstraints, session.PromptConstraintSource, session.PromptConstraintSourceName = db.ResolveShareConstraint(ctx, gameShare)
-
-	return session, msg, nil
+	return createSessionInternal(ctx, user.ID, game, user, gameShare, candidates, nil, false)
 }
 
 // ResolveGuestSessionApiKey re-resolves the API key for a guest session from the game share.

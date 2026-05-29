@@ -405,6 +405,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Why this constraint applies",
           "constraintText": "Active youth-protection constraint",
           "expandStory": "Instructions to the AI for writing out the story",
           "imageGeneration": "Instructions from the AI for image generation",
@@ -624,7 +625,7 @@
         "unlimitedSessions": "Unlimited sessions",
         "update": "Update Share Link",
         "workshopCreateHint": "Create a share link for this game. The workshop's API key is automatically selected and covers the costs.",
-        "workshopDescription": "Create a share link for this game. The workshop's default API key will be used automatically for guest sessions.",
+        "workshopDescription": "This link is created within the workshop \"{{name}}\" – guests play with the workshop's API key and prompt constraints.",
         "workshopShare": "Workshop share",
         "workshopShareDescription": "This link was created in workshop \"{{name}}\" - guests play using the workshop's API key.",
         "workshopSubsection": "Workshop Share Link"

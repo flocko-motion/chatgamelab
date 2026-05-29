@@ -5097,6 +5097,10 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintReasoning": {
+                    "description": "Transient human-readable trace of how the active constraint was decided, built up\nbranch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.",
+                    "type": "string"
+                },
                 "promptConstraintSource": {
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
@@ -5470,6 +5474,10 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintReasoning": {
+                    "description": "Transient human-readable trace of how the active constraint was decided, built up\nbranch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.",
+                    "type": "string"
+                },
                 "promptConstraintSource": {
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
@@ -5553,6 +5561,10 @@ const docTemplate = `{
                     "$ref": "#/definitions/obj.Meta"
                 },
                 "plot": {
+                    "type": "string"
+                },
+                "promptConstraintReasoning": {
+                    "description": "human-readable trace of how the constraint was decided (db.ResolveConstraint)",
                     "type": "string"
                 },
                 "promptConstraintSource": {
@@ -6379,6 +6391,10 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
                 },
+                "promptConstraintReasoning": {
+                    "description": "Transient human-readable trace of how the active constraint was decided, built up\nbranch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.",
+                    "type": "string"
+                },
                 "promptConstraintSource": {
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",
                     "type": "string"
@@ -6663,6 +6679,10 @@ const docTemplate = `{
                 "plot": {
                     "type": "string"
                 },
+                "promptConstraintReasoning": {
+                    "description": "human-readable trace of how the constraint was decided (db.ResolveConstraint)",
+                    "type": "string"
+                },
                 "promptConstraintSource": {
                     "description": "source label of active constraint (workshop, organisation, site13, site13p, site18)",
                     "type": "string"
@@ -6779,6 +6799,10 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/obj.Meta"
+                },
+                "promptConstraintReasoning": {
+                    "description": "Transient human-readable trace of how the active constraint was decided, built up\nbranch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.",
+                    "type": "string"
                 },
                 "promptConstraintSource": {
                     "description": "Transient label identifying the source of the active constraint (e.g. \"workshop\", \"organisation\", \"site13\", \"site18\").",

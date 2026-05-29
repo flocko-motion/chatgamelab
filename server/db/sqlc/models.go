@@ -135,6 +135,7 @@ type GameSessionMessage struct {
 	PromptConstraintSource     sql.NullString
 	PromptConstraintText       sql.NullString
 	PromptConstraintSourceName sql.NullString
+	PromptConstraintReasoning  sql.NullString
 	DeletedAt                  sql.NullTime
 }
 

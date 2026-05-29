@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Çelësi API i përdorur u ndryshua",
+        "constraintSource": {
+          "organisation": "Organizata",
+          "site13": "Parazgjedhja e faqes (13–17, pa pëlqim prindëror)",
+          "site13p": "Parazgjedhja e faqes (13–17, me pëlqim prindëror)",
+          "site18": "Parazgjedhja e faqes (18+)",
+          "workshop": "Punëtori"
+        },
         "sections": {
+          "constraintText": "Kufizim aktiv për mbrojtjen e të rinjve",
           "expandStory": "Udhëzime për AI-në për shkrimin e historisë",
           "imageGeneration": "Udhëzime nga AI për gjenerimin e imazheve",
           "rawResponse": "Përgjigje e papërpunuar e AI",
@@ -434,6 +442,9 @@
           "sponsor": "U përdor një çelës sponsori",
           "system_free_use": "U përdor një çelës global i përdorimit falas",
           "workshop": "U përdor çelësi i punëtorisë suaj"
+        },
+        "usedConstraint": {
+          "label": "Kufizim i përdorur"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Çaktivizo efektet e tekstit",
         "fontSize": "Madhësia e shkronjave",
         "increaseFont": "Më e madhe",
-        "muteAudio": "Çaktivizo narracionin",
+        "muteAudio": "Fik zërin e rrëfimit",
         "resetFont": "Rivendos",
         "settings": "Cilësimet",
-        "unmuteAudio": "Aktivizo narracionin",
+        "unmuteAudio": "Aktivizo zërin e rrëfimit",
         "useNeutralTheme": "Përdor temë neutrale"
       },
       "input": {

@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Brugt API-nøgle ændret",
+        "constraintSource": {
+          "organisation": "Organisation",
+          "site13": "Standardindstilling for site (13–17, uden forældresamtykke)",
+          "site13p": "Standardindstilling for site (13–17, med forældresamtykke)",
+          "site18": "Standardindstilling for site (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktiv ungdomsbeskyttelsesbegrænsning",
           "expandStory": "Instruktioner til AI'en for at uddybe historien",
           "imageGeneration": "Instruktioner fra AI'en til billedgenerering",
           "rawResponse": "Ubehandlet AI-svar",
@@ -434,6 +442,9 @@
           "sponsor": "En sponsornøgle blev brugt",
           "system_free_use": "En global gratisnøgle blev brugt",
           "workshop": "Din workshops nøgle blev brugt"
+        },
+        "usedConstraint": {
+          "label": "Anvendt begrænsning"
         }
       },
       "debug": {

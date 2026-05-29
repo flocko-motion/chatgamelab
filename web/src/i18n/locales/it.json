@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Chiave API utilizzata cambiata",
+        "constraintSource": {
+          "organisation": "Organizzazione",
+          "site13": "Predefinito del sito (13–17, senza consenso dei genitori)",
+          "site13p": "Predefinito del sito (13–17, con consenso dei genitori)",
+          "site18": "Predefinito del sito (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Restrizione attiva di protezione dei minori",
           "expandStory": "Istruzioni all'IA per scrivere la storia",
           "imageGeneration": "Istruzioni dell'IA per la generazione delle immagini",
           "rawResponse": "Risposta IA non elaborata",
@@ -434,6 +442,9 @@
           "sponsor": "È stata utilizzata una chiave sponsor",
           "system_free_use": "È stata utilizzata una chiave globale ad uso gratuito",
           "workshop": "È stata utilizzata la chiave del tuo laboratorio"
+        },
+        "usedConstraint": {
+          "label": "Restrizione utilizzata"
         }
       },
       "debug": {
