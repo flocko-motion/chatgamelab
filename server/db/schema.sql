@@ -377,6 +377,9 @@ CREATE TABLE game_session_message (
     prompt_constraint_source text NULL,
     prompt_constraint_text text NULL,
     prompt_constraint_source_name text NULL,
+    -- Human-readable trace of how the active constraint was decided (db.ResolveConstraint),
+    -- snapshotted per message for the AI insights view.
+    prompt_constraint_reasoning text NULL,
 
     deleted_at          timestamptz NULL,
 

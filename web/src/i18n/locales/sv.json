@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Använd API-nyckel har ändrats",
+        "constraintSource": {
+          "organisation": "Organisation",
+          "site13": "Webbplatsstandard (13–17, utan föräldrasamtycke)",
+          "site13p": "Webbplatsstandard (13–17, med föräldrasamtycke)",
+          "site18": "Webbplatsstandard (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktiv begränsning för ungdomsskydd",
           "expandStory": "Instruktioner till AI:n för att skriva ut berättelsen",
           "imageGeneration": "Instruktioner från AI:n för bildgenerering",
           "rawResponse": "Obehandlat AI-svar",
@@ -434,6 +442,9 @@
           "sponsor": "En sponsornyckel användes",
           "system_free_use": "En global nyckel för kostnadsfri användning användes",
           "workshop": "Workshopens nyckel användes"
+        },
+        "usedConstraint": {
+          "label": "Använd begränsning"
         }
       },
       "debug": {

@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Korišćeni API ključ je promenjen",
+        "constraintSource": {
+          "organisation": "Organizacija",
+          "site13": "Podrazumevana postavka sajta (13–17, bez roditeljskog pristanka)",
+          "site13p": "Podrazumevana postavka sajta (13–17, uz roditeljski pristanak)",
+          "site18": "Podrazumevana postavka sajta (18+)",
+          "workshop": "Radionica"
+        },
         "sections": {
+          "constraintText": "Aktivno ograničenje zaštite mladih",
           "expandStory": "Упутства АИ-ју за проширење приче",
           "imageGeneration": "Упутства АИ-ја за генерисање слика",
           "rawResponse": "Необрађени одговор АИ-ја",
@@ -434,6 +442,9 @@
           "sponsor": "Korišćen je sponzorski ključ",
           "system_free_use": "Korišćen je globalni ključ za besplatno korišćenje",
           "workshop": "Korišćen je ključ vaše radionice"
+        },
+        "usedConstraint": {
+          "label": "Korišćeno ograničenje"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Искључи текстуалне ефекте",
         "fontSize": "Величина фонта",
         "increaseFont": "Веће",
-        "muteAudio": "Искључи нарацију",
+        "muteAudio": "Utišaj naraciju",
         "resetFont": "Ресетуј",
         "settings": "Подешавања",
-        "unmuteAudio": "Укључи нарацију",
+        "unmuteAudio": "Uključi naraciju",
         "useNeutralTheme": "Користи неутралну тему"
       },
       "input": {

@@ -512,7 +512,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Furaha API ee la isticmaalay waa la beddelay",
+        "constraintSource": {
+          "organisation": "Urur",
+          "site13": "Dejinta goobta ee caadiga ah (13–17, oggolaansho waalid la'aan)",
+          "site13p": "Dejinta goobta ee caadiga ah (13–17, iyadoo oggolaansho waalid leh)",
+          "site18": "Dejinta goobta ee caadiga ah (18+)",
+          "workshop": "Aqoon-is-weydaarsi"
+        },
         "sections": {
+          "constraintText": "Xadidayn ilaalinta dhallinyarada oo firfircoon",
           "expandStory": "Tilmaamaha AI-ga loogu qorayo sheekada",
           "imageGeneration": "Tilmaamaha AI-ga u diray sawir-samaynta",
           "rawResponse": "Jawaabta AI-ga ee aan la shaqayn",
@@ -534,6 +542,9 @@
           "sponsor": "Furaha kafaala-qaadka ayaa la adeegsaday",
           "system_free_use": "Furaha isticmaalka bilaashka ah ee guud ayaa la adeegsaday",
           "workshop": "Furaha aqoon-is-weydaarsigaaga ayaa la adeegsaday"
+        },
+        "usedConstraint": {
+          "label": "Xadidayn la adeegsaday"
         }
       },
       "debug": {
@@ -580,10 +591,10 @@
         "disableTextEffects": "Dami saameynta qoraalka",
         "fontSize": "Cabirka farta",
         "increaseFont": "Weynee",
-        "muteAudio": "Aamus akhriska codka",
+        "muteAudio": "Aamus sheekada",
         "resetFont": "Dib u celi",
         "settings": "Dejimo",
-        "unmuteAudio": "Daar akhriska codka",
+        "unmuteAudio": "Fur sheekada",
         "useNeutralTheme": "Isticmaal mawduuc dhexdhexaad ah"
       },
       "input": {

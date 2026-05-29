@@ -145,6 +145,12 @@ export function AiInsightPanel({
                 content={message.promptConstraintText}
               />
             )}
+            {message.promptConstraintReasoning && (
+              <CollapsibleSection
+                label={t("gamePlayer.aiInsight.sections.constraintReasoning")}
+                content={message.promptConstraintReasoning}
+              />
+            )}
             {isFirstGameMessage && systemPrompt && (
               <CollapsibleSection
                 label={t("gamePlayer.aiInsight.sections.systemPrompt")}

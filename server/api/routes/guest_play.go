@@ -13,6 +13,21 @@ import (
 // These endpoints allow anonymous users to play a game via a private share token.
 // No authentication required — the token in the URL is the capability.
 
+// authorizeShareSession gates a token-gated session by its owner. A guest-owned session
+// is reachable by anyone holding the share token (the token is the capability). A session
+// owned by a registered account (authenticated-via-share play) is reachable only by that
+// same authenticated user, so a token holder can't act on someone's logged-in session.
+func authorizeShareSession(r *http.Request, session *obj.GameSession) *obj.HTTPError {
+	if db.IsGuestUser(r.Context(), session.UserID) {
+		return nil
+	}
+	actor := httpx.MaybeUserFromRequest(r)
+	if actor == nil || actor.ID != session.UserID {
+		return obj.NewHTTPErrorWithCode(403, obj.ErrCodeForbidden, "This session belongs to a registered account")
+	}
+	return nil
+}
+
 // GuestGameInfo is the public game info returned for the welcome screen.
 type GuestGameInfo struct {
 	Name        string `json:"name"`
@@ -79,7 +94,9 @@ func PlayGuestCreateSession(w http.ResponseWriter, r *http.Request) {
 	// Body is optional — ignore parse errors (empty body is fine)
 	_ = httpx.ReadJSON(r, &req)
 
-	session, _, httpErr := game.CreateGuestSession(r.Context(), token, req.Language)
+	// Optional auth: an authenticated player plays the shared game as themselves
+	// (their own constraint cascade, shows in their recently-played). Anonymous → guest.
+	session, _, httpErr := game.CreateShareSession(r.Context(), token, req.Language, httpx.MaybeUserFromRequest(r))
 	if httpErr != nil {
 		httpx.WriteHTTPError(w, httpErr)
 		return
@@ -134,6 +151,11 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if httpErr := authorizeShareSession(r, session); httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
+		return
+	}
+
 	var req SessionActionRequest
 	if err := httpx.ReadJSON(r, &req); err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -156,8 +178,15 @@ func PlayGuestSendAction(w http.ResponseWriter, r *http.Request) {
 		AudioMimeType: req.AudioMimeType,
 	}
 
-	// Resolve constraints from the share's originating workshop/org
-	session.PromptConstraints, session.PromptConstraintSource, session.PromptConstraintSourceName = db.ResolveShareConstraint(r.Context(), gameShare)
+	// Re-resolve constraints live via the single canonical resolver. Passing the session
+	// owner lets it pick the right cascade: the share's cascade for a guest-owned session,
+	// the player's own cascade (share supplying stages 1–2) for an authenticated owner.
+	owner, _ := db.GetUserByID(r.Context(), session.UserID)
+	constraint := db.ResolveConstraint(r.Context(), owner, gameShare)
+	session.PromptConstraints = constraint.Text
+	session.PromptConstraintSource = constraint.Source
+	session.PromptConstraintSourceName = constraint.SourceName
+	session.PromptConstraintReasoning = constraint.Reasoning
 
 	// Re-resolve API key from the private share
 	if httpErr := game.ResolveGuestSessionApiKey(r.Context(), session, gameShare); httpErr != nil {
@@ -209,6 +238,11 @@ func PlayGuestGetSession(w http.ResponseWriter, r *http.Request) {
 	session, err := db.GetGameSessionByIDForGuest(r.Context(), sessionID, gameObj.ID)
 	if err != nil {
 		httpx.WriteError(w, http.StatusNotFound, "Session not found")
+		return
+	}
+
+	if httpErr := authorizeShareSession(r, session); httpErr != nil {
+		httpx.WriteHTTPError(w, httpErr)
 		return
 	}
 

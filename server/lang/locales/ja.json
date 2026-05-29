@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "使用APIキーが変更されました",
+        "constraintSource": {
+          "organisation": "組織",
+          "site13": "サイトのデフォルト（13～17歳、保護者の同意不要）",
+          "site13p": "サイトのデフォルト（13～17歳、保護者の同意あり）",
+          "site18": "サイトのデフォルト（18歳以上）",
+          "workshop": "ワークショップ"
+        },
         "sections": {
+          "constraintText": "有効な青少年保護制限",
           "expandStory": "物語を展開するためのAIへの指示",
           "imageGeneration": "画像生成用にAIが作成した指示",
           "rawResponse": "未加工のAIレスポンス",
@@ -434,6 +442,9 @@
           "sponsor": "スポンサーキーが使用されました",
           "system_free_use": "グローバルフリー利用キーが使用されました",
           "workshop": "ワークショップのキーが使用されました"
+        },
+        "usedConstraint": {
+          "label": "使用中の制限"
         }
       },
       "debug": {
@@ -483,7 +494,7 @@
         "muteAudio": "ナレーションをミュート",
         "resetFont": "リセット",
         "settings": "設定",
-        "unmuteAudio": "ナレーションを解除",
+        "unmuteAudio": "ナレーションのミュートを解除",
         "useNeutralTheme": "ニュートラルテーマを使用"
       },
       "input": {

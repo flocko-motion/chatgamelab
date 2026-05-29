@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Verwendete API-Schlissl gändert",
+        "constraintSource": {
+          "organisation": "Organisation",
+          "site13": "Standard-Einstellung da Seitn (13–17, koane elterliche Zustimmung)",
+          "site13p": "Standard-Einstellung da Seitn (13–17, mit elterlicher Zustimmung)",
+          "site18": "Standard-Einstellung da Seitn (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktive Jugendschutz-Einschränkung",
           "expandStory": "Anweisungen an d'KI, wia d'Gschicht ausformuliert werd",
           "imageGeneration": "Anweisungen vo da KI fia d'Bilderstellung",
           "rawResponse": "Unbearbeitete KI-Antwort",
@@ -434,6 +442,9 @@
           "sponsor": "A Sponsor-Schlissl is nutzt worn",
           "system_free_use": "A globaler Gratis-Schlissl is nutzt worn",
           "workshop": "Da Schlissl vo deinem Workshop is nutzt worn"
+        },
+        "usedConstraint": {
+          "label": "Gnutze Einschränkung"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Texteffekte ausschaltn",
         "fontSize": "Schriftgröß",
         "increaseFont": "Größer",
-        "muteAudio": "Erzählstimm stumm",
+        "muteAudio": "Erzählsstimm stumm schaltn",
         "resetFont": "Zurücksetzn",
         "settings": "Einstellungen",
-        "unmuteAudio": "Erzählstimm einschaltn",
+        "unmuteAudio": "Erzählsstimm wieda laut macha",
         "useNeutralTheme": "Neutrales Design nutzn"
       },
       "input": {

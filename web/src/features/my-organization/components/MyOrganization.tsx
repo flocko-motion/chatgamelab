@@ -146,6 +146,7 @@ export function MyOrganization({ autoCreateWorkshop }: MyOrganizationProps) {
               <WorkshopsTab
                 institutionId={institutionId}
                 institutionName={institution?.name}
+                institutionPromptConstraints={institution?.promptConstraints}
                 autoCreate={autoCreateWorkshop}
               />
             </Tabs.Panel>

@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "사용된 API 키가 변경되었습니다",
+        "constraintSource": {
+          "organisation": "기관",
+          "site13": "사이트 기본값 (13–17세, 부모 동의 없음)",
+          "site13p": "사이트 기본값 (13–17세, 부모 동의 있음)",
+          "site18": "사이트 기본값 (18세 이상)",
+          "workshop": "워크숍"
+        },
         "sections": {
+          "constraintText": "활성화된 청소년 보호 제한",
           "expandStory": "스토리를 작성하기 위한 AI 지침",
           "imageGeneration": "AI가 제공한 이미지 생성 지침",
           "rawResponse": "가공되지 않은 AI 응답",
@@ -434,6 +442,9 @@
           "sponsor": "스폰서 키가 사용되었습니다",
           "system_free_use": "글로벌 무료 사용 키가 사용되었습니다",
           "workshop": "워크숍 키가 사용되었습니다"
+        },
+        "usedConstraint": {
+          "label": "사용된 제한"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "텍스트 효과 비활성화",
         "fontSize": "글꼴 크기",
         "increaseFont": "글자 크게",
-        "muteAudio": "내레이션 음소거",
+        "muteAudio": "해설 음소거",
         "resetFont": "초기화",
         "settings": "설정",
-        "unmuteAudio": "내레이션 음소거 해제",
+        "unmuteAudio": "해설 음소거 해제",
         "useNeutralTheme": "중립 테마 사용"
       },
       "input": {

@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Kunci API yang digunakan telah berubah",
+        "constraintSource": {
+          "organisation": "Organisasi",
+          "site13": "Default situs (13–17, tanpa persetujuan orang tua)",
+          "site13p": "Default situs (13–17, dengan persetujuan orang tua)",
+          "site18": "Default situs (18+)",
+          "workshop": "Lokakarya"
+        },
         "sections": {
+          "constraintText": "Pembatasan perlindungan anak yang aktif",
           "expandStory": "Instruksi kepada AI untuk menuliskan cerita",
           "imageGeneration": "Instruksi dari AI untuk pembuatan gambar",
           "rawResponse": "Respons AI yang belum diproses",
@@ -434,6 +442,9 @@
           "sponsor": "Kunci sponsor digunakan",
           "system_free_use": "Kunci penggunaan gratis global digunakan",
           "workshop": "Kunci lokakarya Anda digunakan"
+        },
+        "usedConstraint": {
+          "label": "Pembatasan yang digunakan"
         }
       },
       "debug": {
@@ -483,7 +494,7 @@
         "muteAudio": "Bisukan narasi",
         "resetFont": "Atur ulang",
         "settings": "Pengaturan",
-        "unmuteAudio": "Bunyikan narasi",
+        "unmuteAudio": "Suara narasi kembali",
         "useNeutralTheme": "Gunakan tema netral"
       },
       "input": {

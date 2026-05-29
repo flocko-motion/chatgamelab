@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Cheia API utilizată a fost schimbată",
+        "constraintSource": {
+          "organisation": "Organizație",
+          "site13": "Implicit pentru site (13–17, fără consimțământ parental)",
+          "site13p": "Implicit pentru site (13–17, cu consimțământ parental)",
+          "site18": "Implicit pentru site (18+)",
+          "workshop": "Atelier"
+        },
         "sections": {
+          "constraintText": "Restricție activă de protecție a tinerilor",
           "expandStory": "Instrucțiuni pentru AI pentru a extinde povestea",
           "imageGeneration": "Instrucțiunile AI pentru generarea imaginilor",
           "rawResponse": "Răspuns AI neprocesat",
@@ -434,6 +442,9 @@
           "sponsor": "A fost folosită o cheie de sponsor",
           "system_free_use": "A fost folosită o cheie globală de utilizare gratuită",
           "workshop": "A fost folosită cheia atelierului tău"
+        },
+        "usedConstraint": {
+          "label": "Restricție utilizată"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Dezactivează efectele de text",
         "fontSize": "Mărime font",
         "increaseFont": "Mărește",
-        "muteAudio": "Oprește narațiunea audio",
+        "muteAudio": "Dezactivează narațiunea",
         "resetFont": "Resetează",
         "settings": "Setări",
-        "unmuteAudio": "Pornește narațiunea",
+        "unmuteAudio": "Activează narațiunea",
         "useNeutralTheme": "Folosește tema neutră"
       },
       "input": {

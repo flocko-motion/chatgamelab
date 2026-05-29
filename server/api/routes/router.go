@@ -123,11 +123,13 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PATCH /api/games/{id}/shares/{shareId}", httpx.RequireAuth(UpdateGameShare))
 	mux.Handle("DELETE /api/games/{id}/shares/{shareId}", httpx.RequireAuth(DeleteGameShareByID))
 
-	// Guest Play (public — share token is the capability)
+	// Share Play (share token is the capability). OptionalAuth: anonymous callers play
+	// as guests; an authenticated caller plays the shared game as themselves (own
+	// constraint cascade, shows in recently-played). See game.CreateShareSession.
 	mux.HandleFunc("GET /api/play/{token}/info", PlayGuestGetGameInfo)
-	mux.HandleFunc("POST /api/play/{token}", PlayGuestCreateSession)
-	mux.HandleFunc("POST /api/play/{token}/sessions/{id}", PlayGuestSendAction)
-	mux.HandleFunc("GET /api/play/{token}/sessions/{id}", PlayGuestGetSession)
+	mux.Handle("POST /api/play/{token}", httpx.OptionalAuth(PlayGuestCreateSession))
+	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.OptionalAuth(PlayGuestSendAction))
+	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.OptionalAuth(PlayGuestGetSession))
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))

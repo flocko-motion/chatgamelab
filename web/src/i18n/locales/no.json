@@ -412,7 +412,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Brukt API-nøkkel er endret",
+        "constraintSource": {
+          "organisation": "Organisasjon",
+          "site13": "Nettstedstandard (13–17, uten foreldresamtykke)",
+          "site13p": "Nettstedstandard (13–17, med foreldresamtykke)",
+          "site18": "Nettstedstandard (18+)",
+          "workshop": "Workshop"
+        },
         "sections": {
+          "constraintText": "Aktiv begrensning for ungdomsvern",
           "expandStory": "Instruksjoner til AI-en for å skrive ut historien",
           "imageGeneration": "Instruksjoner fra AI-en for bildegenerering",
           "rawResponse": "Ubehandlet AI-respons",
@@ -434,6 +442,9 @@
           "sponsor": "En sponsornøkkel ble brukt",
           "system_free_use": "En global gratisnøkkel ble brukt",
           "workshop": "Workshopens nøkkel ble brukt"
+        },
+        "usedConstraint": {
+          "label": "Brukt begrensning"
         }
       },
       "debug": {
@@ -480,10 +491,10 @@
         "disableTextEffects": "Deaktiver texteffekter",
         "fontSize": "Skriftstørrelse",
         "increaseFont": "Større",
-        "muteAudio": "Demp fortelling",
+        "muteAudio": "Demp narrasjonen",
         "resetFont": "Tilbakestill",
         "settings": "Innstillinger",
-        "unmuteAudio": "Slå på fortelling",
+        "unmuteAudio": "Slå på narrasjonen",
         "useNeutralTheme": "Bruk nøytralt tema"
       },
       "input": {

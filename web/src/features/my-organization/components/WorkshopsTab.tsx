@@ -90,11 +90,13 @@ import { parseSortValue } from "@/common/lib/sort";
 interface WorkshopsTabProps {
   institutionId: string;
   institutionName?: string;
+  /** Org-level prompt constraint, used as placeholder fallback when a workshop's is empty */
+  institutionPromptConstraints?: string;
   /** Auto-open the create workshop modal on mount */
   autoCreate?: boolean;
 }
 
-export function WorkshopsTab({ institutionId, institutionName, autoCreate }: WorkshopsTabProps) {
+export function WorkshopsTab({ institutionId, institutionName, institutionPromptConstraints, autoCreate }: WorkshopsTabProps) {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { enterWorkshopMode } = useWorkshopMode();
@@ -924,9 +926,16 @@ export function WorkshopsTab({ institutionId, institutionName, autoCreate }: Wor
                           label={t(
                             "myOrganization.workshops.promptConstraintsLabel",
                           )}
-                          placeholder={t(
-                            "myOrganization.workshops.promptConstraintsPlaceholder",
-                          )}
+                          placeholder={
+                            institutionPromptConstraints
+                              ? t(
+                                  "myOrganization.workshops.promptConstraintsFallbackOrg",
+                                  { constraint: institutionPromptConstraints },
+                                )
+                              : t(
+                                  "myOrganization.workshops.promptConstraintsFallbackSite",
+                                )
+                          }
                           description={t(
                             "myOrganization.workshops.promptConstraintsHint",
                           )}

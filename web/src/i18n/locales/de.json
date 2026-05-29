@@ -405,6 +405,7 @@
           "workshop": "Workshop"
         },
         "sections": {
+          "constraintReasoning": "Warum diese Einschränkung gilt",
           "constraintText": "Aktive Jugendschutz-Einschränkung",
           "expandStory": "Anweisung zum Ausformulieren der Geschichte an die KI",
           "imageGeneration": "Anweisung von der KI zur Bildgenerierung",
@@ -624,7 +625,7 @@
         "unlimitedSessions": "Unbegrenzte Sitzungen",
         "update": "Freigabelink aktualisieren",
         "workshopCreateHint": "Erstelle einen Freigabelink für dieses Spiel. Der API-Schlüssel des Workshops ist automatisch ausgewählt und übernimmt die Kosten.",
-        "workshopDescription": "Erstelle einen Freigabelink für dieses Spiel. Der Standard-API-Schlüssel des Workshops wird automatisch für Gastsitzungen verwendet.",
+        "workshopDescription": "Dieser Link wird im Rahmen des Workshops „{{name}}“ erstellt – Gäste spielen mit dem API-Schlüssel und den Prompt-Einschränkungen des Workshops.",
         "workshopShare": "Workshop-Freigabe",
         "workshopShareDescription": "Dieser Link wurde im Workshop \"{{name}}\" erstellt - Gäste spielen mit dem API-Schlüssel des Workshops.",
         "workshopSubsection": "Workshop-Freigabelink"

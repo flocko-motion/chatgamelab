@@ -168,6 +168,7 @@ func DoSessionAction(ctx context.Context, session *obj.GameSession, action obj.G
 	response.ApiKeyType = session.ApiKeyType
 	response.PromptConstraintSource = session.PromptConstraintSource
 	response.PromptConstraintSourceName = session.PromptConstraintSourceName
+	response.PromptConstraintReasoning = session.PromptConstraintReasoning
 	if session.PromptConstraints != nil {
 		response.PromptConstraintText = *session.PromptConstraints
 	}

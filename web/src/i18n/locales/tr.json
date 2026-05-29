@@ -414,7 +414,15 @@
     "gamePlayer": {
       "aiInsight": {
         "apiKeyChanged": "Kullanılan API Anahtarı değişti",
+        "constraintSource": {
+          "organisation": "Kuruluş",
+          "site13": "Site varsayılanı (13–17, ebeveyn izni yok)",
+          "site13p": "Site varsayılanı (13–17, ebeveyn izniyle)",
+          "site18": "Site varsayılanı (18+)",
+          "workshop": "Atölye"
+        },
         "sections": {
+          "constraintText": "Aktif gençlik koruma kısıtlaması",
           "expandStory": "Hikâyeyi yazması için yapay zekâya verilen talimatlar",
           "imageGeneration": "Görsel üretimi için yapay zekâdan gelen talimatlar",
           "rawResponse": "İşlenmemiş yapay zekâ yanıtı",
@@ -436,6 +444,9 @@
           "sponsor": "Sponsor anahtarı kullanıldı",
           "system_free_use": "Küresel ücretsiz kullanım anahtarı kullanıldı",
           "workshop": "Atölyenizin anahtarı kullanıldı"
+        },
+        "usedConstraint": {
+          "label": "Kullanılan kısıtlama"
         }
       },
       "debug": {

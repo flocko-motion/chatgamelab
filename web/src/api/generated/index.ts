@@ -54,6 +54,11 @@ export interface DbUserSessionWithGame {
   /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
   language?: string;
   meta?: ObjMeta;
+  /**
+   * Transient human-readable trace of how the active constraint was decided, built up
+   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+   */
+  promptConstraintReasoning?: string;
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
@@ -232,6 +237,11 @@ export interface ObjGameSession {
   /** Language used for this session (ISO 639-1 code), locked at creation time from user preference. */
   language?: string;
   meta?: ObjMeta;
+  /**
+   * Transient human-readable trace of how the active constraint was decided, built up
+   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+   */
+  promptConstraintReasoning?: string;
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
@@ -272,6 +282,8 @@ export interface ObjGameSessionMessage {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
+  /** human-readable trace of how the constraint was decided (db.ResolveConstraint) */
+  promptConstraintReasoning?: string;
   /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
   promptConstraintSource?: string;
   /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
@@ -606,6 +618,11 @@ export interface RoutesGuestSessionResponse {
   language?: string;
   messages?: RoutesSessionMessageResponse[];
   meta?: ObjMeta;
+  /**
+   * Transient human-readable trace of how the active constraint was decided, built up
+   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+   */
+  promptConstraintReasoning?: string;
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**
@@ -729,6 +746,8 @@ export interface RoutesSessionMessageResponse {
   message?: string;
   meta?: ObjMeta;
   plot?: string;
+  /** human-readable trace of how the constraint was decided (db.ResolveConstraint) */
+  promptConstraintReasoning?: string;
   /** source label of active constraint (workshop, organisation, site13, site13p, site18) */
   promptConstraintSource?: string;
   /** human-readable origin (e.g. workshop or organisation name); empty for site-by-age */
@@ -785,6 +804,11 @@ export interface RoutesSessionResponse {
   language?: string;
   messages?: ObjGameSessionMessage[];
   meta?: ObjMeta;
+  /**
+   * Transient human-readable trace of how the active constraint was decided, built up
+   * branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+   */
+  promptConstraintReasoning?: string;
   /** Transient label identifying the source of the active constraint (e.g. "workshop", "organisation", "site13", "site18"). */
   promptConstraintSource?: string;
   /**

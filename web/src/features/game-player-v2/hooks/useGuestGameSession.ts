@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import i18next from "i18next";
 import { config } from "@/config/env";
+import { useAuth } from "@/providers/AuthProvider";
 import {
   useStreamingSession,
   type SessionAdapter,
@@ -18,6 +19,7 @@ const SESSION_STORAGE_KEY_PREFIX = "cgl-guest-session-";
  */
 export function useGuestGameSession(token: string) {
   const baseUrl = `${config.API_BASE_URL}/play/${token}`;
+  const { getAccessToken } = useAuth();
 
   // ── Session Storage (recoverability) ─────────────────────────────
 
@@ -42,15 +44,25 @@ export function useGuestGameSession(token: string) {
 
   // ── Adapter ─────────────────────────────────────────────────────
 
-  const adapter: SessionAdapter = useMemo(
-    () => ({
-      // Guest SSE: no auth headers needed
-      getStreamHeaders: async () => ({}),
+  const adapter: SessionAdapter = useMemo(() => {
+    // If the visitor is logged in, send their token so they play the shared game as
+    // themselves (own constraint cascade, recently-played). Anonymous visitors send
+    // nothing and play as guests. getAccessToken returns null when not logged in.
+    const authHeaders = async (): Promise<Record<string, string>> => {
+      try {
+        const token = await getAccessToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      } catch {
+        return {};
+      }
+    };
+    return {
+      getStreamHeaders: authHeaders,
 
       createSession: async (): Promise<SessionCreateResult> => {
         const response = await fetch(baseUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(await authHeaders()) },
           body: JSON.stringify({
             language:
               i18next.resolvedLanguage ??
@@ -85,7 +97,7 @@ export function useGuestGameSession(token: string) {
         }
         const response = await fetch(`${baseUrl}/sessions/${sessionId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...(await authHeaders()) },
           body: JSON.stringify(body),
         });
         if (!response.ok) {
@@ -105,6 +117,7 @@ export function useGuestGameSession(token: string) {
       loadSession: async (sessionId: string): Promise<SessionLoadResult> => {
         const response = await fetch(
           `${baseUrl}/sessions/${sessionId}?messages=all`,
+          { headers: await authHeaders() },
         );
         if (!response.ok) {
           throw new Error("Failed to load session");
@@ -115,9 +128,8 @@ export function useGuestGameSession(token: string) {
       onSessionCreated: (sessionId: string) => {
         saveSessionId(sessionId);
       },
-    }),
-    [baseUrl, saveSessionId],
-  );
+    };
+  }, [baseUrl, saveSessionId, getAccessToken]);
 
   const {
     state,

@@ -336,6 +336,9 @@ type GameSession struct {
 	// Transient human-readable origin of the active constraint (e.g. 'Kreativ-AG (Hauptschule Lola)'
 	// for a workshop, 'Hauptschule Lola' for an organisation). Empty for site-by-age sources.
 	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"`
+	// Transient human-readable trace of how the active constraint was decided, built up
+	// branch-by-branch by db.ResolveConstraint. Shown in the AI insights view for transparency.
+	PromptConstraintReasoning string `json:"promptConstraintReasoning,omitempty"`
 	// Defines the status fields available in the game; copied from game.status_fields at launch.
 	StatusFields string `json:"statusFields"`
 	// AI-generated visual theme for the game player UI (JSON)
@@ -518,6 +521,7 @@ type GameSessionMessage struct {
 	PromptConstraintSource     string `json:"promptConstraintSource,omitempty"`     // source label of active constraint (workshop, organisation, site13, site13p, site18)
 	PromptConstraintText       string `json:"promptConstraintText,omitempty"`       // snapshot of the constraint text actually applied for this message
 	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"` // human-readable origin (e.g. workshop or organisation name); empty for site-by-age
+	PromptConstraintReasoning  string `json:"promptConstraintReasoning,omitempty"`  // human-readable trace of how the constraint was decided (db.ResolveConstraint)
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
