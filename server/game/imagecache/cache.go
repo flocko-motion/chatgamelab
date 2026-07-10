@@ -1,3 +1,7 @@
+// package: imagecache / in-memory cache of generated images
+// type:    logic
+// job:     buffers partial and complete generated images per message in memory with age-based cleanup, persisting via a saver callback.
+// limits:  is not durable storage; entries expire after MaxEntryAge and durable persistence is delegated to the ImageSaverFunc.
 package imagecache
 
 import (

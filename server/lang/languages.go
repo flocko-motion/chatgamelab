@@ -1,3 +1,7 @@
+// package: lang / supported language registry
+// type:    data
+// job:     defines the map of supported language codes to their native display names
+// limits:  static data only; locale content loading lives in locales.go
 package lang
 
 var supportedLanguages = map[string]string{

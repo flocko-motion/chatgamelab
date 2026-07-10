@@ -1,3 +1,7 @@
+// package: mistral / Mistral AI platform implementation
+// type:    logic
+// job:     implements the ai.AiPlatform interface against Mistral's Conversations API (actions, story expansion, images, translation).
+// limits:  does not choose which platform to use or resolve API keys; that is the caller's job (-> ai, game).
 package mistral
 
 import (
@@ -14,8 +18,10 @@ import (
 	"sort"
 )
 
+// MistralPlatform implements the ai.AiPlatform interface for Mistral.
 type MistralPlatform struct{}
 
+// GetPlatformInfo returns Mistral's platform descriptor and its available model tiers.
 func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 	return obj.AiPlatform{
 		ID:   "mistral",
@@ -50,11 +56,13 @@ func (p *MistralPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
+// ResolveModelInfo returns the AiModel for the given tier, downgrading to the closest available tier if needed.
 func (p *MistralPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
 	info := p.GetPlatformInfo()
 	return info.ResolveModelWithDowngrade(tierID)
 }
 
+// ResolveModel returns the Mistral model name for the given tier, falling back to the medium tier.
 func (p *MistralPlatform) ResolveModel(tierID string) string {
 	if m := p.ResolveModelInfo(tierID); m != nil {
 		return m.Model
@@ -63,6 +71,7 @@ func (p *MistralPlatform) ResolveModel(tierID string) string {
 	return p.GetPlatformInfo().Models[1].Model
 }
 
+// ExecuteAction sends the player action to Mistral and fills response with the structured plot, status fields, and image prompt.
 func (p *MistralPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 
@@ -277,6 +286,7 @@ func (p *MistralPlatform) GenerateImage(ctx context.Context, session *obj.GameSe
 	return nil
 }
 
+// GenerateAudio is a no-op on Mistral, which does not support text-to-speech; it returns nil.
 func (p *MistralPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
 	log.Debug("Mistral GenerateAudio skipped - not supported", "session_id", session.ID)
 	return nil, nil
@@ -320,6 +330,7 @@ func (p *MistralPlatform) Translate(ctx context.Context, apiKey string, input []
 	return functional.MustAnyToJson(translated), usage, nil
 }
 
+// ListModels retrieves all models available from the Mistral API for the given API key.
 func (p *MistralPlatform) ListModels(ctx context.Context, apiKey string) ([]obj.AiModel, error) {
 	client := p.newApi(apiKey)
 

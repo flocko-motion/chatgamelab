@@ -1,3 +1,7 @@
+// package: user / user management CLI commands
+// type:    cli
+// job:     request a JWT for a user (or the dev user), save it to config, and print a browser login URL
+// limits:  dev/testing helper; token is minted server-side (-> api/routes)
 package user
 
 import (

@@ -1,3 +1,7 @@
+// package: routes / language HTTP handlers
+// type:    logic
+// job:     handles listing available languages and serving per-locale translation files
+// limits:  no route registration (-> router.go); translations sourced from lang
 package routes
 
 import (
@@ -7,6 +11,7 @@ import (
 	"cgl/lang"
 )
 
+// Language describes an available UI language by display label and ISO code.
 type Language struct {
 	Label string `json:"label"`
 	ISO   string `json:"iso"`

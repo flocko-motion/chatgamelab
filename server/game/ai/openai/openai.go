@@ -1,3 +1,7 @@
+// package: openai / OpenAI AI platform implementation
+// type:    logic
+// job:     implements the ai.AiPlatform interface against OpenAI's Responses, image, TTS, and transcription APIs.
+// limits:  does not choose which platform to use or resolve API keys; that is the caller's job (-> ai, game).
 package openai
 
 import (
@@ -20,8 +24,10 @@ import (
 	"strings"
 )
 
+// OpenAiPlatform implements the ai.AiPlatform interface for OpenAI.
 type OpenAiPlatform struct{}
 
+// GetPlatformInfo returns OpenAI's platform descriptor and its available model tiers.
 func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 	return obj.AiPlatform{
 		ID:   "openai",
@@ -31,8 +37,9 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				ID:               obj.AiModelMax,
 				Name:             "GPT-5.2 + Audio",
 				Model:            "gpt-5.2",
-				ImageModel:       "gpt-image-1.5",
+				ImageModel:       "gpt-image-2",
 				ImageQuality:     "low",
+				PartialImages:    1,
 				Description:      "Highest + Audio",
 				SupportsImage:    true,
 				SupportsAudioIn:  true,
@@ -41,8 +48,9 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				ID:              obj.AiModelPremium,
 				Name:            "GPT-5.2",
 				Model:           "gpt-5.2",
-				ImageModel:      "gpt-image-1.5",
+				ImageModel:      "gpt-image-2",
 				ImageQuality:    "low",
+				PartialImages:   1,
 				Description:     "Premium",
 				SupportsImage:   true,
 				SupportsAudioIn: true,
@@ -50,28 +58,30 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				ID:            obj.AiModelBalanced,
 				Name:          "GPT-5.1",
 				Model:         "gpt-5.1",
-				ImageModel:    "gpt-image-1.5",
+				ImageModel:    "gpt-image-2",
 				ImageQuality:  "low",
+				PartialImages: 0, // balanced: images enabled, but no preview frames (each billed ~100 image-output tokens)
 				Description:   "Balanced",
 				SupportsImage: true,
 			}, {
-				ID:            obj.AiModelEconomy,
-				Name:          "GPT-5 Mini",
-				Model:         "gpt-5-mini",
-				ImageModel:    "gpt-image-1-mini",
-				ImageQuality:  "low",
-				Description:   "Economy",
-				SupportsImage: true,
+				// Economy: no image generation at all (cost saving). SupportsImage stays false,
+				// so both per-turn images and the scenario/cover image are skipped.
+				ID:          obj.AiModelEconomy,
+				Name:        "GPT-5 Mini",
+				Model:       "gpt-5-mini",
+				Description: "Economy",
 			},
 		},
 	}
 }
 
+// ResolveModelInfo returns the AiModel for the given tier, downgrading to the closest available tier if needed.
 func (p *OpenAiPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
 	info := p.GetPlatformInfo()
 	return info.ResolveModelWithDowngrade(tierID)
 }
 
+// ResolveModel returns the OpenAI model name for the given tier, falling back to the premium tier.
 func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 	if m := p.ResolveModelInfo(tierID); m != nil {
 		return m.Model
@@ -80,6 +90,7 @@ func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 	return p.GetPlatformInfo().Models[1].Model
 }
 
+// ExecuteAction sends the player action to OpenAI and fills response with the structured plot, status fields, and image prompt.
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 
@@ -281,6 +292,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	if imageQuality == "" {
 		imageQuality = "low"
 	}
+	partialImages := modelInfo.PartialImages
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
@@ -295,7 +307,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, partialImages, fullPrompt, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,

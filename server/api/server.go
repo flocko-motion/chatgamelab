@@ -1,3 +1,7 @@
+// package: api / HTTP server entrypoint
+// type:    entrypoint
+// job:     initializes telemetry, DB, and router, then runs the HTTP server with graceful shutdown
+// limits:  no route handling (-> api/routes) or middleware definitions (-> api/httpx)
 package api
 
 import (
@@ -15,6 +19,7 @@ import (
 	"time"
 )
 
+// RunServer initializes services and runs the HTTP server until the context is cancelled or a shutdown signal is received.
 func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struct{}) {
 
 	telemetry.Init(routes.Version)

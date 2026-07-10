@@ -1,3 +1,7 @@
+// package: game / game turn execution
+// type:    logic
+// job:     runs a player turn against the AI platform (action, story expansion, image, audio), streaming results and handling key-failure fallback.
+// limits:  does not resolve API keys or create sessions; relies on the resolver and creation flows (-> resolve_api_key.go, session_creation.go).
 package game
 
 import (

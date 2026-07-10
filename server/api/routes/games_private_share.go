@@ -1,3 +1,7 @@
+// package: routes / game share HTTP handlers
+// type:    logic
+// job:     handles creating, listing, updating, and deleting private share links for games
+// limits:  no route registration (-> router.go); no guest play flow (-> guest_play.go)
 package routes
 
 import (

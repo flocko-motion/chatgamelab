@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    data
+// job:     add, remove, and list a user's favourite games.
+// limits:  does not define SQL queries (-> db/sqlc) or expose HTTP endpoints (-> api).
 package db
 
 import (

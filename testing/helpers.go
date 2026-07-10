@@ -1,3 +1,7 @@
+// package: testing / test assertion helpers
+// type:    logic
+// job:     generic panic-based helpers for asserting success or expected failure in tests
+// limits:  test-only helpers; no test setup or client logic (-> testutil)
 package testing
 
 import "fmt"
@@ -27,6 +31,7 @@ func MustSucceed(err error) {
 	}
 }
 
+// MustFail expects an error and panics if err is nil.
 func MustFail(err error) {
 	if err == nil {
 		panic("MustFail: expected an error but got none")

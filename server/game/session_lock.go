@@ -1,3 +1,7 @@
+// package: game / per-session serialization locks
+// type:    logic
+// job:     provides per-session mutexes so that AI calls on the same session are serialized and never run concurrently.
+// limits:  does not perform any AI or database work; only guards ordering of calls made by session play.
 package game
 
 import (

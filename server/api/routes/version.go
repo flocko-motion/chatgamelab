@@ -1,3 +1,7 @@
+// package: routes / version HTTP handler
+// type:    logic
+// job:     handles the endpoint reporting build version, git commit, build time, and DB level
+// limits:  no route registration (-> router.go); build vars injected by main at startup
 package routes
 
 import (
@@ -15,6 +19,7 @@ var (
 	BuildTime = "unknown"
 )
 
+// VersionResponse reports the server build version, git commit, build time, and DB schema level.
 type VersionResponse struct {
 	Version   string `json:"version"`
 	GitCommit string `json:"gitCommit"`

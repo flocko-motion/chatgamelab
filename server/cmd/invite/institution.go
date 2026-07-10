@@ -1,3 +1,7 @@
+// package: invite / invite management CLI commands
+// type:    cli
+// job:     create a targeted institution invite for a user (by id or email) with a role
+// limits:  only posts the invite request and prints the result; server issues the token (-> api/routes)
 package invite
 
 import (

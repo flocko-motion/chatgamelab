@@ -1,3 +1,7 @@
+// package: stream / streaming response channels and registry
+// type:    logic
+// job:     manages per-message streams that deliver text, image, and audio chunks to clients and persist them via saver callbacks.
+// limits:  does not generate content; only transports chunks produced by the AI platforms (-> ai).
 package stream
 
 import (

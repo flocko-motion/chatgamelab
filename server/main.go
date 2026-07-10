@@ -1,3 +1,7 @@
+// package: main / entrypoint
+// type:    entrypoint
+// job:     boots the cgl binary by handing off to the cobra command tree
+// limits:  holds no business logic (-> cmd, api/routes)
 package main
 
 import (

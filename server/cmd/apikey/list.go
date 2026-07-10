@@ -1,3 +1,7 @@
+// package: apikey / list API keys command
+// type:    cli
+// job:     implements "apikey list" printing all API keys for the current user as a table.
+// limits:  read-only summary; does not show linked shares (-> apikey/info.go).
 package apikey
 
 import (

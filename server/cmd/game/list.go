@@ -1,3 +1,7 @@
+// package: game / list games command
+// type:    cli
+// job:     implements "game list" printing all games as a table.
+// limits:  read-only summary; use info for full details (-> game/info.go).
 package game
 
 import (

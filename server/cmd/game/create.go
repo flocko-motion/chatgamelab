@@ -1,3 +1,7 @@
+// package: game / create game command
+// type:    cli
+// job:     implements "game create" creating a new empty game by name via the API.
+// limits:  does not set game content; use put to upload YAML (-> game/put.go).
 package game
 
 import (

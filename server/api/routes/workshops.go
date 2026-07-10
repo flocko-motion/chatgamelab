@@ -1,3 +1,7 @@
+// package: routes / workshop HTTP handlers
+// type:    logic
+// job:     handles workshop CRUD, membership, API key assignment, and participant tokens
+// limits:  no route registration (-> router.go); event streaming (-> workshop_events.go)
 package routes
 
 import (

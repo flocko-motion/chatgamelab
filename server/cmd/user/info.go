@@ -1,3 +1,7 @@
+// package: user / user management CLI commands
+// type:    cli
+// job:     fetch a user by UUID or "me" and print their details, role, and API keys
+// limits:  read-only display; does not modify users (-> api/routes)
 package user
 
 import (

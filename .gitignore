@@ -19,3 +19,9 @@ server/cgl
 .sidecar-start.sh
 .sidecar-base
 .td-root
+
+# sindri hub artifacts (agent worktrees + hub state) — not for the repo
+.worktrees/
+
+# Claude Code per-user local settings — not for the repo
+.claude/settings.local.json

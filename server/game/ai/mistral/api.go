@@ -1,3 +1,7 @@
+// package: mistral / Mistral HTTP API client
+// type:    logic
+// job:     performs the low-level HTTP calls to Mistral's Conversations, files, models, and audio endpoints.
+// limits:  does not implement game logic or platform selection; only speaks the Mistral wire protocol.
 package mistral
 
 import (

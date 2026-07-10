@@ -1,3 +1,7 @@
+// package: game / server-side API key resolution
+// type:    logic
+// job:     resolves which API key and AI quality tier a session uses by walking the priority chain (workshop, sponsor, institution, user, system).
+// limits:  does not call the AI or create sessions; only selects and traces candidate keys for callers to apply.
 package game
 
 import (

@@ -1,3 +1,7 @@
+// package: ai / cobra AI platform command group
+// type:    cli
+// job:     defines the parent "ai" cobra command grouping AI platform and model subcommands.
+// limits:  holds no subcommand logic; subcommands register themselves (-> ai/models.go).
 package ai
 
 import (

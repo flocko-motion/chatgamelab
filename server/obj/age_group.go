@@ -1,3 +1,7 @@
+// package: obj / age-group and constraint-source constants
+// type:    data
+// job:     defines stable wire values for age-group cohorts and prompt-constraint sources
+// limits:  constant definitions only; constraint resolution lives in db (-> db)
 package obj
 
 // Age-group cohorts — stable wire values used in the `ageGroup` JSON field

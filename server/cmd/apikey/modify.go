@@ -1,3 +1,7 @@
+// package: apikey / modify API key command
+// type:    cli
+// job:     implements "apikey modify" patching an API key's name by share ID.
+// limits:  only updates the name; does not change key value or platform (-> api/client).
 package apikey
 
 import (

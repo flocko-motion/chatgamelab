@@ -1,3 +1,7 @@
+// package: ai / AI platform registry and abstraction
+// type:    logic
+// job:     defines the AiPlatform interface and resolves platform names to concrete implementations (openai/mistral/mock).
+// limits:  does not implement any provider itself; delegates to the per-provider subpackages (-> mistral, openai, mock).
 package ai
 
 import (
@@ -23,11 +27,14 @@ var ApiKeyPlatforms = []string{
 	Mock,
 }
 
+// IsValidApiKeyPlatform reports whether the given platform name supports user-supplied API keys.
 func IsValidApiKeyPlatform(platform string) bool {
 	return slices.Contains(ApiKeyPlatforms, platform)
 }
 
+// AiPlatform is the abstraction implemented by each AI provider (OpenAI, Mistral, Mock).
 type AiPlatform interface {
+	// GetPlatformInfo returns the platform's descriptor including its available model tiers.
 	GetPlatformInfo() obj.AiPlatform
 
 	// ResolveModelInfo returns the full AiModel definition for the given tier ID, or nil if not found.
@@ -72,6 +79,7 @@ type AiPlatform interface {
 	ToolQuery(ctx context.Context, apiKey string, prompt string) (string, error)
 }
 
+// GetAiPlatformInfos returns descriptors for all known AI platforms with their SupportsApiKey flag set.
 func GetAiPlatformInfos() []obj.AiPlatform {
 	platforms := []obj.AiPlatform{
 		functional.First(getAiPlatform(OpenAi)).GetPlatformInfo(),

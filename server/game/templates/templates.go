@@ -1,3 +1,7 @@
+// package: templates / AI prompt templates and builders
+// type:    logic
+// job:     holds the system/reminder prompt strings and builds the per-game prompts (story, image, theme) from game data.
+// limits:  does not call the AI; only assembles the prompt strings that the platforms send (-> ai).
 package templates
 
 import (
@@ -68,6 +72,7 @@ func PromptNarratePlotOutline(languageCode string, constraints *string) string {
 	return appendConstraints(prompt, constraints)
 }
 
+// ImageStyleOrDefault returns the given image style, or DefaultImageStyle when it is empty.
 func ImageStyleOrDefault(style string) string {
 	if style == "" {
 		return DefaultImageStyle
@@ -153,6 +158,7 @@ The scenario:
 {{SCENARIO}}
 {{GAME_START}}`
 
+// GetTemplate builds the full system prompt template for the given game and language, injecting its status fields and scenario.
 func GetTemplate(game *obj.Game, languageCode string) (string, error) {
 	var statusFields []obj.StatusField
 	if game.StatusFields != "" {

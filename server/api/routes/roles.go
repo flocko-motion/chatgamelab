@@ -1,3 +1,7 @@
+// package: routes / role HTTP handlers
+// type:    logic
+// job:     handles listing the roles that can be assigned to users
+// limits:  no route registration (-> router.go); role assignment (-> user_role.go)
 package routes
 
 import (

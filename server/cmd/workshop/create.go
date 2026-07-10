@@ -1,3 +1,7 @@
+// package: workshop / workshop management CLI commands
+// type:    cli
+// job:     create a workshop with name, optional institution, and active/public flags
+// limits:  only posts the create request; institution auto-resolution and persistence are server-side (-> api/routes)
 package workshop
 
 import (
