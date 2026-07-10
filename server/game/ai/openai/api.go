@@ -196,7 +196,7 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 		"quality":        imageQuality,
 		"output_format":  "png",
 		"stream":         true,
-		"partial_images": 3, // Get previews of the image generation process - each preview is sent as a full png file
+		"partial_images": 0, // No preview frames: OpenAI bills 100 image-output tokens per partial image (~52% of per-image cost at low quality). Final image still arrives via the streamed image_generation.completed event.
 	}
 
 	reqJSON, err := json.Marshal(reqBody)
