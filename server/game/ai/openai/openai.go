@@ -39,6 +39,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Model:            "gpt-5.2",
 				ImageModel:       "gpt-image-2",
 				ImageQuality:     "low",
+				PartialImages:    1,
 				Description:      "Highest + Audio",
 				SupportsImage:    true,
 				SupportsAudioIn:  true,
@@ -49,6 +50,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Model:           "gpt-5.2",
 				ImageModel:      "gpt-image-2",
 				ImageQuality:    "low",
+				PartialImages:   1,
 				Description:     "Premium",
 				SupportsImage:   true,
 				SupportsAudioIn: true,
@@ -58,6 +60,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Model:         "gpt-5.1",
 				ImageModel:    "gpt-image-2",
 				ImageQuality:  "low",
+				PartialImages: 1,
 				Description:   "Balanced",
 				SupportsImage: true,
 			}, {
@@ -66,6 +69,7 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Model:         "gpt-5-mini",
 				ImageModel:    "gpt-image-2",
 				ImageQuality:  "low",
+				PartialImages: 0, // economy: no preview frames (each billed ~100 image-output tokens)
 				Description:   "Economy",
 				SupportsImage: true,
 			},
@@ -290,6 +294,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	if imageQuality == "" {
 		imageQuality = "low"
 	}
+	partialImages := modelInfo.PartialImages
 
 	// Initialize cache entry with image saver for persistence
 	cache := imagecache.Get()
@@ -304,7 +309,7 @@ func (p *OpenAiPlatform) GenerateImage(ctx context.Context, session *obj.GameSes
 	fullPrompt := templates.BuildImagePrompt(session.GameDescription, scenarioForImage, plotOutline, functional.Deref(response.ImagePrompt, ""), session.ImageStyle)
 
 	// Build image generation request - writes to cache for polling
-	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, fullPrompt, response.ID, responseStream)
+	imageData, err := callImageGenerationAPI(ctx, session.ApiKey.Key, imageModel, imageQuality, partialImages, fullPrompt, response.ID, responseStream)
 	if err != nil {
 		log.Error("image generation failed",
 			"error", err,

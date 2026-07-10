@@ -393,6 +393,7 @@ type AiModel struct {
 	Model            string `json:"model"`                      // concrete model ID e.g. "gpt-5.2"
 	ImageModel       string `json:"imageModel,omitempty"`       // model used for image generation (if different from Model)
 	ImageQuality     string `json:"imageQuality,omitempty"`     // image quality: "high", "medium", "low" (default: "low")
+	PartialImages    int    `json:"-"`                          // OpenAI: streamed preview frames requested per image (each billed ~100 image-output tokens; 0 = none). Server-side cost knob, not exposed to clients.
 	Description      string `json:"description"`                // tier label e.g. "Premium"
 	SupportsImage    bool   `json:"supportsImage,omitempty"`    // whether this tier generates images
 	SupportsAudioIn  bool   `json:"supportsAudioIn,omitempty"`  // whether this tier supports voice input (STT transcription)

@@ -185,7 +185,7 @@ func callSpeechAPI(ctx context.Context, apiKey string, text string, responseStre
 // callImageGenerationAPI generates an image with streaming partial images
 // Note: Uses direct HTTP instead of apiclient because it requires SSE streaming with custom buffer sizes
 // for large base64-encoded image data and incremental partial image previews
-func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, prompt string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
+func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel string, imageQuality string, partialImages int, prompt string, messageID uuid.UUID, responseStream *stream.Stream) ([]byte, error) {
 	imageGenURL := openaiBaseURL + imageGenEndpoint
 
 	reqBody := map[string]interface{}{
@@ -196,7 +196,7 @@ func callImageGenerationAPI(ctx context.Context, apiKey string, imageModel strin
 		"quality":        imageQuality,
 		"output_format":  "png",
 		"stream":         true,
-		"partial_images": 0, // No preview frames: OpenAI bills 100 image-output tokens per partial image (~52% of per-image cost at low quality). Final image still arrives via the streamed image_generation.completed event.
+		"partial_images": partialImages, // Per-tier (see openai.go): OpenAI bills 100 image-output tokens per preview frame. Economy uses 0; higher tiers use 1. The final image always arrives via the streamed image_generation.completed event.
 	}
 
 	reqJSON, err := json.Marshal(reqBody)
