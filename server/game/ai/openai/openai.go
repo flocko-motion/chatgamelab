@@ -60,18 +60,16 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				Model:         "gpt-5.1",
 				ImageModel:    "gpt-image-2",
 				ImageQuality:  "low",
-				PartialImages: 1,
+				PartialImages: 0, // balanced: images enabled, but no preview frames (each billed ~100 image-output tokens)
 				Description:   "Balanced",
 				SupportsImage: true,
 			}, {
-				ID:            obj.AiModelEconomy,
-				Name:          "GPT-5 Mini",
-				Model:         "gpt-5-mini",
-				ImageModel:    "gpt-image-2",
-				ImageQuality:  "low",
-				PartialImages: 0, // economy: no preview frames (each billed ~100 image-output tokens)
-				Description:   "Economy",
-				SupportsImage: true,
+				// Economy: no image generation at all (cost saving). SupportsImage stays false,
+				// so both per-turn images and the scenario/cover image are skipped.
+				ID:          obj.AiModelEconomy,
+				Name:        "GPT-5 Mini",
+				Model:       "gpt-5-mini",
+				Description: "Economy",
 			},
 		},
 	}
