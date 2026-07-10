@@ -1,3 +1,7 @@
+// package: status / status field conversion helpers
+// type:    logic
+// job:     converts between StatusFields JSON, ordered []StatusField, and flat maps used by the AI and schema builders.
+// limits:  does not call the AI or render status; purely transforms status field representations.
 package status
 
 import (

@@ -1,3 +1,7 @@
+// package: server / server startup command
+// type:    cli
+// job:     read PORT_BACKEND and DEV_MODE from the environment and start the HTTP server
+// limits:  only bootstraps and launches; request handling lives in the api package (-> api)
 package server
 
 import (

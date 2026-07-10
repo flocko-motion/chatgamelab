@@ -1,3 +1,7 @@
+// package: lang / language translation helper commands
+// type:    cli
+// job:     translate changed locale fields from en/de to target languages via an AI platform, in parallel
+// limits:  orchestration only; AI calls delegated to platform and hashing to hash.go (-> game/ai)
 package lang
 
 import (

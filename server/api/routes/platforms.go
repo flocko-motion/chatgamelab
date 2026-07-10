@@ -1,3 +1,7 @@
+// package: routes / AI platform HTTP handlers
+// type:    logic
+// job:     handles listing available AI platforms and their metadata
+// limits:  no route registration (-> router.go); platform data sourced from game/ai
 package routes
 
 import (

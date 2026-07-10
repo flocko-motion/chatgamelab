@@ -1,3 +1,7 @@
+// package: game / game session creation
+// type:    logic
+// job:     creates a new game session by resolving an API key, translating/adapting the game, and generating the opening scene.
+// limits:  does not process subsequent player turns; that is handled by session play (-> session_play.go).
 package game
 
 import (

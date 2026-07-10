@@ -1,3 +1,7 @@
+// package: routes / institution HTTP handlers
+// type:    logic
+// job:     handles CRUD for institutions, their members, API keys, and prompt constraints
+// limits:  no route registration (-> router.go); persistence delegated to db
 package routes
 
 import (

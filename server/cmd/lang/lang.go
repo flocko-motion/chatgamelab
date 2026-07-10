@@ -1,3 +1,7 @@
+// package: lang / language translation helper commands
+// type:    cli
+// job:     define the root "lang" cobra command and shared file-existence helper
+// limits:  wiring only; subcommands implement listing, translating and verifying
 package lang
 
 import (

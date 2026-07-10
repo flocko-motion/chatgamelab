@@ -1,3 +1,7 @@
+// package: routes / game HTTP handlers
+// type:    logic
+// job:     handles listing, creating, cloning, updating, and deleting games and their sessions
+// limits:  no route registration (-> router.go); game logic delegated to game/db
 package routes
 
 import (
@@ -12,6 +16,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateGameRequest is the request body for creating a new game.
 type CreateGameRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`

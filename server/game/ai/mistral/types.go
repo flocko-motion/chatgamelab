@@ -1,3 +1,7 @@
+// package: mistral / Mistral API request/response types
+// type:    data
+// job:     defines the Go structs and endpoint constants that model Mistral's Conversations API payloads.
+// limits:  holds no behavior beyond JSON (un)marshalling helpers; makes no network calls.
 package mistral
 
 import (

@@ -8,6 +8,11 @@
 // - Reusable client instances
 //
 // For ChatGameLab backend API calls from CLI commands, use the api/client package instead.
+//
+// package: apiclient / http
+// type:    logic
+// job:     generic reusable HTTP/JSON client for external API integrations
+// limits:  no auth/session handling; backend API calls use api/client (-> api/client)
 package apiclient
 
 import (
@@ -89,14 +94,6 @@ func (c *Client) PostJson(ctx context.Context, path string, request, response in
 	return json.NewDecoder(resp.Body).Decode(response)
 }
 
-// SetHeader sets or updates a header
-func (c *Client) SetHeader(key, value string) {
-	if c.headers == nil {
-		c.headers = make(map[string]string)
-	}
-	c.headers[key] = value
-}
-
 // doRequest is the internal method that performs the actual HTTP request
 func (c *Client) doRequest(ctx context.Context, method, path string, body []byte) (*Response, error) {
 	url := c.baseURL + path
@@ -127,13 +124,4 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body []byte
 // Response wraps http.Response to provide additional helper methods
 type Response struct {
 	*http.Response
-}
-
-// ReadAll reads and returns the entire response body
-func (r *Response) ReadAll() ([]byte, error) {
-	if r.Body == nil {
-		return nil, fmt.Errorf("response body is nil")
-	}
-	defer r.Body.Close()
-	return io.ReadAll(r.Body)
 }

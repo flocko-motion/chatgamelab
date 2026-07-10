@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    wiring
+// job:     open the Postgres connection, apply schema/migrations, and hold the shared sqlc Queries singleton.
+// limits:  does not define SQL queries (-> db/sqlc) or per-entity repository logic.
 package db
 
 import (
@@ -65,6 +69,8 @@ func Init() {
 
 // Reset clears the database singleton so the next call to queries() re-initializes.
 // Used in integration tests to reset state between test runs.
+//
+//deadcode:keep // called cross-module by the integration test suite (testing/testutil/suite.go)
 func Reset() {
 	sqlDb = nil
 	queriesSingleton = nil

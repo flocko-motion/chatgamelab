@@ -1,3 +1,7 @@
+// package: routes / game sponsor HTTP handlers
+// type:    logic
+// job:     handles setting and removing the API key share that sponsors a game
+// limits:  no route registration (-> router.go); sponsorship logic delegated to game/db
 package routes
 
 import (

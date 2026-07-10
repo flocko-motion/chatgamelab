@@ -1,3 +1,7 @@
+// package: auth / dev JWT generation and validation
+// type:    logic
+// job:     generates and validates HS256 dev JWTs signed with DEV_JWT_SECRET
+// limits:  no Auth0/production RS256 token handling (-> httpx)
 package auth
 
 import (
@@ -11,6 +15,7 @@ import (
 // secret is used for signing/validating JWTs
 var secret []byte
 
+// InitJwtGeneration loads the dev JWT signing secret from the environment.
 func InitJwtGeneration() {
 	secret = []byte(functional.EnvOrDefault("DEV_JWT_SECRET", ""))
 }

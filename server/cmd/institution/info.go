@@ -1,3 +1,7 @@
+// package: institution / institution management CLI commands
+// type:    cli
+// job:     fetch an institution by UUID and print its details and grouped members
+// limits:  read-only display; does not modify institutions or filter member visibility (-> api/routes)
 package institution
 
 import (

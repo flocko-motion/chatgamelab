@@ -1,3 +1,7 @@
+// package: httpx / HTTP auth middleware
+// type:    wiring
+// job:     authenticates requests via participant tokens, dev JWTs, and Auth0, attaching the user to context
+// limits:  does not issue tokens (-> auth) or define routes (-> api/routes)
 package httpx
 
 import (
@@ -135,10 +139,12 @@ type CustomClaims struct {
 	Nickname string `json:"nickname"`
 }
 
+// Validate satisfies the Auth0 validator.CustomClaims interface; it performs no extra checks.
 func (c CustomClaims) Validate(ctx context.Context) error {
 	return nil
 }
 
+// HasScope reports whether the token's space-separated scope claim contains expectedScope.
 func (c CustomClaims) HasScope(expectedScope string) bool {
 	scopes := strings.Split(c.Scope, " ")
 	for _, s := range scopes {

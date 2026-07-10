@@ -1,3 +1,7 @@
+// package: game / private share sessions and guest players
+// type:    logic
+// job:     creates game sessions from private share links, minting anonymous guest users and resolving the share's API key.
+// limits:  does not run the game turns or generate content; hands off to session play and the AI platforms (-> ai).
 package game
 
 import (

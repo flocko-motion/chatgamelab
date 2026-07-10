@@ -1,3 +1,7 @@
+// package: game / visual theme generation
+// type:    logic
+// job:     generates and validates a game's visual theme JSON via the AI platform, falling back to a default theme on failure.
+// limits:  does not render or store themes; only produces the theme object for callers to persist.
 package game
 
 import (

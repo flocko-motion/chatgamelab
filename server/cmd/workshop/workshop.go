@@ -1,3 +1,7 @@
+// package: workshop / workshop management CLI commands
+// type:    cli
+// job:     define the root "workshop" cobra command that groups the workshop subcommands
+// limits:  wiring only; individual subcommands implement the actual behaviour
 package workshop
 
 import (

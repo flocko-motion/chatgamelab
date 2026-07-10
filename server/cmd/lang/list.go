@@ -1,3 +1,7 @@
+// package: lang / language translation helper commands
+// type:    cli
+// job:     list all supported languages sorted by code, as a text table or JSON
+// limits:  display only; language set is defined elsewhere (-> lang)
 package lang
 
 import (

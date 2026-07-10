@@ -1,3 +1,7 @@
+// package: httpx / HTTP request/response helpers
+// type:    logic
+// job:     reads JSON/YAML request bodies and writes JSON/YAML/error responses, cookies, and CORS headers
+// limits:  no route handling (-> api/routes) or authentication (-> auth.go)
 package httpx
 
 import (

@@ -1,3 +1,7 @@
+// package: institution / institution management CLI commands
+// type:    cli
+// job:     define the root "institution" cobra command that groups the institution subcommands
+// limits:  wiring only; individual subcommands implement the actual behaviour
 package institution
 
 import (

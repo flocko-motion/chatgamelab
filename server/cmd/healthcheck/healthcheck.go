@@ -1,3 +1,7 @@
+// package: healthcheck / server liveness probe command
+// type:    cli
+// job:     query the server's /api/status endpoint and exit 0 if healthy, 1 otherwise
+// limits:  only checks HTTP reachability/status; does not inspect response body or start the server
 package healthcheck
 
 import (

@@ -1,3 +1,7 @@
+// package: routes / user HTTP handlers
+// type:    logic
+// job:     handles user CRUD, current-user info, language/workshop settings, and dev JWT issuance
+// limits:  no route registration (-> router.go); role changes (-> user_role.go)
 package routes
 
 import (
@@ -26,11 +30,13 @@ type UserUpdateRequest struct {
 	AgeGroup *string `json:"ageGroup,omitempty"`
 }
 
+// UsersNewRequest is the request body for creating a user (dev mode).
 type UsersNewRequest struct {
 	Name  string  `json:"name"`
 	Email *string `json:"email,omitempty"`
 }
 
+// UsersJwtResponse holds a dev-issued JWT along with the user and Auth0 identifiers.
 type UsersJwtResponse struct {
 	UserID  string `json:"userId"`
 	Auth0ID string `json:"auth0Id"`

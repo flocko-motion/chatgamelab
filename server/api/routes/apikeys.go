@@ -1,3 +1,7 @@
+// package: routes / API key HTTP handlers
+// type:    logic
+// job:     handles listing, creating, updating, sharing, and deleting AI provider API keys
+// limits:  no route registration (-> router.go); persistence delegated to db
 package routes
 
 import (
@@ -20,21 +24,25 @@ type CreateApiKeyRequest struct {
 	Key      string `json:"key"`
 }
 
+// ShareRequest specifies the target (user, workshop, or institution) to share an API key with.
 type ShareRequest struct {
 	UserID        *uuid.UUID `json:"userId,omitempty"`
 	WorkshopID    *uuid.UUID `json:"workshopId,omitempty"`
 	InstitutionID *uuid.UUID `json:"institutionId,omitempty"`
 }
 
+// UpdateApiKeyRequest is the request body for updating an API key's mutable fields.
 type UpdateApiKeyRequest struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// ApiKeyInfoResponse holds a single API key share and any shares linked to it.
 type ApiKeyInfoResponse struct {
 	Share        *obj.ApiKeyShare  `json:"share"`
 	LinkedShares []obj.ApiKeyShare `json:"linkedShares"`
 }
 
+// ApiKeysResponse holds the API keys owned by the caller and the shares granted to them.
 type ApiKeysResponse struct {
 	ApiKeys []obj.ApiKey      `json:"apiKeys"`
 	Shares  []obj.ApiKeyShare `json:"shares"`

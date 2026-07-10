@@ -1,3 +1,7 @@
+// package: invite / invite management CLI commands
+// type:    cli
+// job:     revoke a pending invite by ID via the invites API endpoint
+// limits:  only sends the delete request; server enforces creator/admin authorization (-> api/routes)
 package invite
 
 import (

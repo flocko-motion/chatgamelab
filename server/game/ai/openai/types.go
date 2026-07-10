@@ -1,3 +1,7 @@
+// package: openai / OpenAI API request/response types
+// type:    data
+// job:     defines the Go structs and endpoint constants that model OpenAI's Responses API payloads and SSE events.
+// limits:  holds no behavior beyond JSON (un)marshalling helpers; makes no network calls.
 package openai
 
 import (
@@ -46,10 +50,12 @@ type ResponsesAPIRequest struct {
 	Text               *TextConfig    `json:"text,omitempty"`
 }
 
+// TextConfig configures the text output format of a Responses API request.
 type TextConfig struct {
 	Format FormatConfig `json:"format"`
 }
 
+// FormatConfig specifies the output format, optionally enforcing a named JSON schema.
 type FormatConfig struct {
 	Type   string      `json:"type"`
 	Name   string      `json:"name,omitempty"`
@@ -124,12 +130,14 @@ type ResponsesAPIResponse struct {
 	Usage  apiTokenUsage `json:"usage"`
 }
 
+// OutputItem is a single item in the Responses API output array.
 type OutputItem struct {
 	Type    string        `json:"type"`
 	Role    string        `json:"role"`
 	Content []ContentItem `json:"content"`
 }
 
+// ContentItem is a single piece of content within an OutputItem.
 type ContentItem struct {
 	Type string `json:"type"`
 	Text string `json:"text"`

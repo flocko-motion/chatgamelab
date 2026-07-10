@@ -1,3 +1,7 @@
+// package: obj / core domain data model
+// type:    data
+// job:     defines the shared domain structs (users, games, sessions, API keys, etc.) exchanged across layers
+// limits:  data shapes and light helpers only; no persistence or business logic (-> db, game)
 package obj
 
 import (
@@ -51,6 +55,7 @@ func (u TokenUsage) Add(other TokenUsage) TokenUsage {
 	return result
 }
 
+// Meta holds creation and modification audit fields common to most entities.
 type Meta struct {
 	CreatedBy  uuid.NullUUID `json:"createdBy"`
 	CreatedAt  *time.Time    `json:"createdAt"`
@@ -58,6 +63,7 @@ type Meta struct {
 	ModifiedAt *time.Time    `json:"modifiedAt"`
 }
 
+// User represents an application user with role, API keys, and preferences.
 type User struct {
 	ID            uuid.UUID     `json:"id"`
 	Meta          Meta          `json:"meta"`
@@ -85,6 +91,7 @@ type UserStats struct {
 	TotalPlaysOnGames int `json:"totalPlaysOnGames"`
 }
 
+// Institution represents an organisation with members and shared settings.
 type Institution struct {
 	ID                   uuid.UUID           `json:"id"`
 	Meta                 Meta                `json:"meta"`
@@ -95,6 +102,7 @@ type Institution struct {
 	PromptConstraints    *string             `json:"promptConstraints,omitempty"`
 }
 
+// InstitutionMember represents a user's membership and role within an institution.
 type InstitutionMember struct {
 	UserID uuid.UUID `json:"userId"`
 	Name   string    `json:"name"`
@@ -102,6 +110,7 @@ type InstitutionMember struct {
 	Role   Role      `json:"role"`
 }
 
+// SystemSettings holds server-wide configuration such as default AI tiers and prompt constraints.
 type SystemSettings struct {
 	ID                    uuid.UUID  `json:"id"`
 	CreatedAt             *time.Time `json:"createdAt"`
@@ -117,6 +126,7 @@ type SystemSettings struct {
 	FreeUseApiKeyWorking  *bool      `json:"freeUseApiKeyWorking,omitempty"`
 }
 
+// Role identifies a user's permission level within the system.
 type Role string
 
 const (
@@ -127,6 +137,7 @@ const (
 	RoleIndividual  Role = "individual"
 )
 
+// InviteStatus represents the lifecycle state of a role invite.
 type InviteStatus string
 
 const (
@@ -137,6 +148,7 @@ const (
 	InviteStatusRevoked  InviteStatus = "revoked"
 )
 
+// UserRole binds a user to a role within an institution and optional workshop.
 type UserRole struct {
 	ID          uuid.UUID    `json:"id"`
 	Meta        Meta         `json:"meta"`
@@ -146,6 +158,7 @@ type UserRole struct {
 	Workshop    *Workshop    `json:"workshop,omitempty"`
 }
 
+// Workshop represents a workshop within an institution with its settings and participants.
 type Workshop struct {
 	ID                   uuid.UUID             `json:"id"`
 	Meta                 Meta                  `json:"meta"`
@@ -166,6 +179,7 @@ type Workshop struct {
 	AllowGameSharing           bool    `json:"allowGameSharing"`
 }
 
+// WorkshopParticipant represents a participant enrolled in a workshop.
 type WorkshopParticipant struct {
 	ID          uuid.UUID `json:"id"`
 	Meta        Meta      `json:"meta"`
@@ -178,6 +192,7 @@ type WorkshopParticipant struct {
 	Permanent   bool      `json:"permanent"`
 }
 
+// ApiKey represents a platform API key owned by a user.
 type ApiKey struct {
 	ID               uuid.UUID `json:"id"`
 	Meta             Meta      `json:"meta"`
@@ -222,6 +237,7 @@ type AvailableKey struct {
 	IsDefault bool      `json:"isDefault"`
 }
 
+// Game represents a playable game definition including its system prompts and metadata.
 type Game struct {
 	ID          uuid.UUID `json:"id" yaml:"id"`
 	Meta        Meta      `json:"meta" yaml:"-"`
@@ -291,6 +307,7 @@ type CSS struct {
 	Font        string `json:"font"`
 }
 
+// GameTag represents a tag label attached to a game.
 type GameTag struct {
 	ID     uuid.UUID `json:"id"`
 	Meta   Meta      `json:"meta"`
@@ -361,6 +378,7 @@ type GameTheme struct {
 	StatusEmojis map[string]string `json:"statusEmojis,omitempty"` // maps status field names to emoji, e.g. {"Health": "❤️", "Gold": "🪙"}
 }
 
+// AiPlatform represents an AI provider and the models it offers.
 type AiPlatform struct {
 	ID             string    `json:"id"`   // technical name without spaces, e.g. "openai"
 	Name           string    `json:"name"` // display name e.g. "OpenAI"
@@ -368,6 +386,7 @@ type AiPlatform struct {
 	SupportsApiKey bool      `json:"supportsApiKey"` // whether this platform supports user API keys
 }
 
+// AiModel represents a single AI model tier and its capabilities on a platform.
 type AiModel struct {
 	ID               string `json:"id"`                         // generic tier: "high", "medium", "low", "max"
 	Name             string `json:"name"`                       // display name e.g. "GPT-5.2"
@@ -439,6 +458,7 @@ func (p *AiPlatform) ResolveModelWithDowngrade(tierID string) *AiModel {
 	return bestMatch
 }
 
+// StatusField represents a single named status value shown during gameplay.
 type StatusField struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
@@ -479,6 +499,7 @@ func (m *GameSessionMessage) ToAiJSON() string {
 	return string(data)
 }
 
+// GameSessionMessage represents a single message (player, game, or system) within a game session.
 type GameSessionMessage struct {
 	ID     uuid.UUID `json:"id"`
 	Meta   Meta      `json:"meta"`

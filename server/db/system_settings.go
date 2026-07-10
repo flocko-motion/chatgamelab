@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    data
+// job:     read and update the global system settings row (defaults, youth-protection prompt constraints).
+// limits:  does not define SQL queries (-> db/sqlc) or expose HTTP endpoints (-> api).
 package db
 
 import (

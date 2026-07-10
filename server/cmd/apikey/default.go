@@ -1,3 +1,7 @@
+// package: apikey / default share command
+// type:    cli
+// job:     implements "apikey default" to show or set the user's default API key share for sessions.
+// limits:  does not create or delete shares; only reads/updates the user default (-> api/client).
 package apikey
 
 import (

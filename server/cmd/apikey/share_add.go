@@ -1,3 +1,7 @@
+// package: apikey / add share command
+// type:    cli
+// job:     implements "apikey share add" sharing an API key with a user, workshop, or institution.
+// limits:  requires a target flag; does not remove shares (-> apikey/share_delete.go).
 package apikey
 
 import (

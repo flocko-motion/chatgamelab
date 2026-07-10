@@ -1,3 +1,7 @@
+// package: user / user management CLI commands
+// type:    cli
+// job:     fetch all users from the API and render them as a table of ID, name, and Auth0 ID
+// limits:  read-only display; no filtering or pagination (-> api/routes)
 package user
 
 import (

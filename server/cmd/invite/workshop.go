@@ -1,3 +1,7 @@
+// package: invite / invite management CLI commands
+// type:    cli
+// job:     create an open workshop invite with optional max-uses and expiry, then print its token
+// limits:  only posts the invite request; server issues the token and enforces limits (-> api/routes)
 package invite
 
 import (

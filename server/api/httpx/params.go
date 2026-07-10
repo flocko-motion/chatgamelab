@@ -1,3 +1,7 @@
+// package: httpx / request parameter helpers
+// type:    logic
+// job:     extracts path and query parameters from HTTP requests, parsing UUIDs where needed
+// limits:  no request body decoding (-> response.go) or validation
 package httpx
 
 import (

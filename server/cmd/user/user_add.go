@@ -1,3 +1,7 @@
+// package: user / user management CLI commands
+// type:    cli
+// job:     create a new user (name and optional email) without Auth0 for development use
+// limits:  only posts the create request; server owns persistence and validation (-> api/routes)
 package user
 
 import (

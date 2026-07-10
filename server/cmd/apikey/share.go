@@ -1,3 +1,7 @@
+// package: apikey / cobra share command group
+// type:    cli
+// job:     defines the parent "apikey share" cobra command grouping share subcommands.
+// limits:  holds no share logic; add/delete subcommands register under it (-> apikey/share_add.go).
 package apikey
 
 import (

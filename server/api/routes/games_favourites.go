@@ -1,3 +1,7 @@
+// package: routes / favourite games HTTP handlers
+// type:    logic
+// job:     handles listing, adding, and removing a user's favourite games
+// limits:  no route registration (-> router.go); persistence delegated to db
 package routes
 
 import (

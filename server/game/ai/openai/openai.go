@@ -1,3 +1,7 @@
+// package: openai / OpenAI AI platform implementation
+// type:    logic
+// job:     implements the ai.AiPlatform interface against OpenAI's Responses, image, TTS, and transcription APIs.
+// limits:  does not choose which platform to use or resolve API keys; that is the caller's job (-> ai, game).
 package openai
 
 import (
@@ -20,8 +24,10 @@ import (
 	"strings"
 )
 
+// OpenAiPlatform implements the ai.AiPlatform interface for OpenAI.
 type OpenAiPlatform struct{}
 
+// GetPlatformInfo returns OpenAI's platform descriptor and its available model tiers.
 func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 	return obj.AiPlatform{
 		ID:   "openai",
@@ -67,11 +73,13 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
+// ResolveModelInfo returns the AiModel for the given tier, downgrading to the closest available tier if needed.
 func (p *OpenAiPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
 	info := p.GetPlatformInfo()
 	return info.ResolveModelWithDowngrade(tierID)
 }
 
+// ResolveModel returns the OpenAI model name for the given tier, falling back to the premium tier.
 func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 	if m := p.ResolveModelInfo(tierID); m != nil {
 		return m.Model
@@ -80,6 +88,7 @@ func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 	return p.GetPlatformInfo().Models[1].Model
 }
 
+// ExecuteAction sends the player action to OpenAI and fills response with the structured plot, status fields, and image prompt.
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 

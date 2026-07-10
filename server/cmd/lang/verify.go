@@ -1,3 +1,7 @@
+// package: lang / language translation helper commands
+// type:    cli
+// job:     verify all locale JSON files in a directory share the structure of the en.json reference
+// limits:  checks structure only, not translation quality; exits non-zero on mismatch (-> functional)
 package lang
 
 import (

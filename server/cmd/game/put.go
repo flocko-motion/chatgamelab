@@ -1,3 +1,7 @@
+// package: game / upload game YAML command
+// type:    cli
+// job:     implements "game put" creating or updating games from a YAML file, directory, or stdin.
+// limits:  does not download games; use get to fetch YAML (-> game/get.go).
 package game
 
 import (

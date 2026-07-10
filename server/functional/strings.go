@@ -1,3 +1,7 @@
+// package: functional / string and formatting helpers
+// type:    logic
+// job:     string shortening, env lookups, duration formatting, and JSON string helpers
+// limits:  stateless pure helpers; no domain types or IO beyond env vars
 package functional
 
 import (
@@ -8,6 +12,7 @@ import (
 	"time"
 )
 
+// Shorten truncates s to at most max characters, appending ".." when truncated.
 func Shorten(s string, max int) string {
 	if len(s) <= max {
 		return s
@@ -23,6 +28,7 @@ func ShortenLeft(s string, max int) string {
 	return ".." + s[len(s)-max+2:]
 }
 
+// MaybeToString formats v as a string, returning ifNil when v is nil or a nil pointer.
 func MaybeToString(v any, ifNil string) string {
 	if v == nil {
 		return ifNil
@@ -40,6 +46,7 @@ func MaybeToString(v any, ifNil string) string {
 	return fmt.Sprintf("%v", v)
 }
 
+// RequireEnv returns the named environment variable, printing a message and exiting if it is unset.
 func RequireEnv(name string) string {
 	v := os.Getenv(name)
 	if v == "" {
@@ -49,6 +56,7 @@ func RequireEnv(name string) string {
 	return v
 }
 
+// EnvOrDefault returns the named environment variable, or defaultValue if it is unset.
 func EnvOrDefault(name, defaultValue string) string {
 	v := os.Getenv(name)
 	if v == "" {
@@ -57,6 +65,7 @@ func EnvOrDefault(name, defaultValue string) string {
 	return v
 }
 
+// HumanizeDuration formats a duration into a short human-readable string (e.g. "2h 5m").
 func HumanizeDuration(d time.Duration) string {
 	if d < time.Minute {
 		return fmt.Sprintf("%ds", int(d.Seconds()))
@@ -81,6 +90,7 @@ func NormalizeJson(in string, o any) string {
 	return string(normalized)
 }
 
+// MustAnyToJson marshals v to a JSON string, panicking on error.
 func MustAnyToJson(v any) string {
 	data, err := json.Marshal(v)
 	if err != nil {

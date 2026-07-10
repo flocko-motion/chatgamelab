@@ -1,3 +1,7 @@
+// package: mock / Mock AI platform for testing
+// type:    logic
+// job:     implements the ai.AiPlatform interface with deterministic lorem-ipsum text, random images, and stub audio.
+// limits:  makes no network calls and ignores workshop constraints; intended only for tests and offline development.
 package mock
 
 import (
@@ -17,8 +21,10 @@ import (
 	lorem "github.com/drhodes/golorem"
 )
 
+// MockPlatform implements the ai.AiPlatform interface with deterministic fake output for testing.
 type MockPlatform struct{}
 
+// GetPlatformInfo returns the mock platform descriptor and its dummy model tiers.
 func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 	return obj.AiPlatform{
 		ID:   "mock",
@@ -31,11 +37,13 @@ func (p *MockPlatform) GetPlatformInfo() obj.AiPlatform {
 	}
 }
 
+// ResolveModelInfo returns the mock AiModel for the given tier, downgrading to the closest available tier if needed.
 func (p *MockPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
 	info := p.GetPlatformInfo()
 	return info.ResolveModelWithDowngrade(tierID)
 }
 
+// ResolveModel returns the mock model name for the given tier, falling back to the balanced tier.
 func (p *MockPlatform) ResolveModel(tierID string) string {
 	if m := p.ResolveModelInfo(tierID); m != nil {
 		return m.Model
@@ -44,6 +52,7 @@ func (p *MockPlatform) ResolveModel(tierID string) string {
 	return p.GetPlatformInfo().Models[1].Model
 }
 
+// ExecuteAction fills response with mock lorem-ipsum plot, random status values, and a mock image prompt.
 func (p *MockPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	// Get field names from session to generate mock status
 	fieldNames := status.FieldNames(session.StatusFields)
@@ -98,6 +107,7 @@ func (p *MockPlatform) GenerateImage(ctx context.Context, session *obj.GameSessi
 	return nil
 }
 
+// GenerateAudio streams and returns a minimal mock MP3 frame for test validation.
 func (p *MockPlatform) GenerateAudio(ctx context.Context, session *obj.GameSession, text string, responseStream *stream.Stream) ([]byte, error) {
 	// Generate a minimal MP3 frame header for test validation
 	// 0xFF 0xFB = MP3 sync word (MPEG1 Layer3), followed by minimal frame data

@@ -1,3 +1,7 @@
+// package: httpx / HTTP middleware chain
+// type:    wiring
+// job:     provides composable middleware for CORS, logging, panic recovery, and cache headers
+// limits:  no authentication logic (-> auth.go) or route registration (-> api/routes)
 package httpx
 
 import (

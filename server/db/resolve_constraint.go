@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    logic
+// job:     resolve which Jugendschutz (youth-protection) constraint applies to a play, with a reasoning trace.
+// limits:  does not define SQL queries (-> db/sqlc) or enforce the constraint at generation time (-> game/ai).
 package db
 
 import (

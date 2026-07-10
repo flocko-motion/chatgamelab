@@ -1,3 +1,7 @@
+// package: role / user role management CLI commands
+// type:    cli
+// job:     remove a user's role by user ID, reverting them to a regular user
+// limits:  only sends the delete request; server enforces authorization (-> api/routes)
 package role
 
 import (

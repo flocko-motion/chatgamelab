@@ -1,3 +1,7 @@
+// package: testutil / integration test suite harness
+// type:    logic
+// job:     spins up Postgres and the backend per suite and manages setup/teardown lifecycle
+// limits:  test infrastructure only; HTTP interactions live in testclient (-> testutil testclient)
 package testutil
 
 import (
@@ -322,30 +326,6 @@ func (s *BaseSuite) User(name string) *UserClient {
 		s.T().Fatalf("User %q not found. Create it first with CreateUser()", name)
 	}
 	return user
-}
-
-// dropAllTables drops all tables in the test database for a clean state
-func (s *BaseSuite) dropAllTables() {
-	// Use psql to drop all tables
-	cmd := exec.Command("docker", "exec", "chatgamelab-db-test",
-		"psql", "-U", "chatgamelab", "-d", "chatgamelab", "-c",
-		"DROP SCHEMA public CASCADE; CREATE SCHEMA public; GRANT ALL ON SCHEMA public TO chatgamelab;")
-	if err := cmd.Run(); err != nil {
-		// If drop fails, fall back to restarting container
-		fmt.Printf("⚠️  Failed to drop tables, restarting Postgres...\n")
-		exec.Command("docker", "rm", "-f", "chatgamelab-db-test").Run()
-		restartCmd := exec.Command("docker", "run", "-d",
-			"--name", "chatgamelab-db-test",
-			"-e", "POSTGRES_DB=chatgamelab",
-			"-e", "POSTGRES_USER=chatgamelab",
-			"-e", "POSTGRES_PASSWORD=testpassword",
-			"-p", "7104:5432",
-			"postgres:18")
-		restartCmd.Stdout = os.Stdout
-		restartCmd.Stderr = os.Stderr
-		restartCmd.Run()
-		time.Sleep(3 * time.Second)
-	}
 }
 
 // waitForBackend waits for the backend to be healthy

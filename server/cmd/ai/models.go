@@ -1,3 +1,7 @@
+// package: ai / list platform models command
+// type:    cli
+// job:     implements "ai models" listing hardcoded or live-queried models for one or all AI platforms.
+// limits:  does not fetch API keys itself; delegates key resolution to config (-> config).
 package ai
 
 import (
