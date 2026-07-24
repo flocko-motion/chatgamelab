@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    data
+// job:     CRUD and listing of institutions with permission checks.
+// limits:  does not define SQL queries (-> db/sqlc) or expose HTTP endpoints (-> api).
 package db
 
 import (

@@ -1,3 +1,7 @@
+// package: events / SSE workshop event broker
+// type:    logic
+// job:     fans out workshop events to subscribed SSE clients keyed by workshop
+// limits:  in-memory pub/sub only; no persistence or cross-process delivery
 package events
 
 import (

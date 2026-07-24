@@ -1,3 +1,7 @@
+// package: game / interactive play command
+// type:    cli
+// job:     implements "game play" running an interactive session loop that streams response text and images.
+// limits:  CLI client only; session and streaming logic run server-side (-> api/client).
 package game
 
 import (

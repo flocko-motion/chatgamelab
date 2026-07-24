@@ -1,3 +1,7 @@
+// package: apikey / delete share command
+// type:    cli
+// job:     implements "apikey share delete" unsharing an API key share by ID without cascade.
+// limits:  does not delete the underlying key (-> apikey/delete.go).
 package apikey
 
 import (

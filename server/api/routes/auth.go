@@ -1,3 +1,7 @@
+// package: routes / authentication HTTP handlers
+// type:    logic
+// job:     handles registration, name-availability checks, logout, and participant login
+// limits:  does not validate tokens (-> api/httpx); no route registration (-> router.go)
 package routes
 
 import (

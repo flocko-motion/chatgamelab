@@ -1,3 +1,7 @@
+// package: routes / HTTP route registration
+// type:    wiring
+// job:     builds the ServeMux mapping API paths to handlers and applies the global middleware chain
+// limits:  implements no handler logic (-> per-resource files) or middleware (-> api/httpx)
 package routes
 
 import (

@@ -1,3 +1,7 @@
+// package: invite / invite management CLI commands
+// type:    cli
+// job:     define the root "invite" cobra command that groups the invite subcommands
+// limits:  wiring only; individual subcommands implement the actual behaviour
 package invite
 
 import (

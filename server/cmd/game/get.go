@@ -1,3 +1,7 @@
+// package: game / get game YAML command
+// type:    cli
+// job:     implements "game get" fetching a game as YAML to stdout or an optional output file.
+// limits:  read-only; does not upload changes (-> game/put.go).
 package game
 
 import (

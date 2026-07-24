@@ -1,3 +1,7 @@
+// package: routes / workshop events SSE handler
+// type:    logic
+// job:     streams real-time workshop updates to clients over Server-Sent Events
+// limits:  no route registration (-> router.go); event production delegated to events
 package routes
 
 import (

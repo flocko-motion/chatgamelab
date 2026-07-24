@@ -8,6 +8,11 @@
 // - Uses config module for server URL and JWT storage
 //
 // For external API calls (OpenAI, Mistral, etc.), use the apiclient package instead.
+//
+// package: client / CLI-to-backend HTTP client
+// type:    glue
+// job:     wraps HTTP verbs, JWT auth, and SSE streaming for CLI calls to the CGL API
+// limits:  not for external provider calls (-> apiclient); no route handling (-> api/routes)
 package client
 
 import (
@@ -37,18 +42,22 @@ func LoadJwt() string {
 	return jwt
 }
 
+// ApiGet performs a GET request to the given endpoint and decodes the JSON response into out.
 func ApiGet(endpoint string, out any) error {
 	return apiRequest("GET", endpoint, nil, out)
 }
 
+// ApiPost performs a POST request with a JSON payload and decodes the JSON response into out.
 func ApiPost(endpoint string, payload any, out any) error {
 	return apiRequest("POST", endpoint, payload, out)
 }
 
+// ApiDelete performs a DELETE request to the given endpoint.
 func ApiDelete(endpoint string) error {
 	return apiRequest("DELETE", endpoint, nil, nil)
 }
 
+// ApiPatch performs a PATCH request with a JSON payload and decodes the JSON response into out.
 func ApiPatch(endpoint string, payload any, out any) error {
 	return apiRequest("PATCH", endpoint, payload, out)
 }

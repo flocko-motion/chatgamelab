@@ -1,3 +1,7 @@
+// package: apikey / API key info command
+// type:    cli
+// job:     implements "apikey info" showing an API key share and, for owners, its linked shares.
+// limits:  read-only; does not modify keys or shares (-> api/client).
 package apikey
 
 import (

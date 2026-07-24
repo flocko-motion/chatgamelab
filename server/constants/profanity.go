@@ -1,3 +1,7 @@
+// package: constants / profanity word filtering
+// type:    logic
+// job:     lazily loads an embedded word list and checks names against it
+// limits:  simple exact word matching only; no fuzzy or language-aware detection
 package constants
 
 import (

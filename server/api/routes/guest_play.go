@@ -1,3 +1,7 @@
+// package: routes / share-token guest play handlers
+// type:    logic
+// job:     handles anonymous and authenticated play of shared games via a share token
+// limits:  no route registration (-> router.go); share management (-> games_private_share.go)
 package routes
 
 import (

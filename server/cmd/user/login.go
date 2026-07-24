@@ -1,3 +1,7 @@
+// package: user / user management CLI commands
+// type:    cli
+// job:     configure the CLI's server connection via remote, local, alias, or JWT-update modes
+// limits:  writes only local CLI config; does not manage server-side accounts (-> config)
 package user
 
 import (

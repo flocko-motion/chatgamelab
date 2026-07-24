@@ -1,3 +1,7 @@
+// package: log / logging
+// type:    logic
+// job:     configures the process-wide structured logger and Sentry bridge
+// limits:  doesn't decide log destinations or sinks (owned by main)
 package log
 
 import (

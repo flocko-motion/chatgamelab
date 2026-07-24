@@ -1,3 +1,7 @@
+// package: game / game content translation
+// type:    logic
+// job:     translates a game's text content and status field names to a target language via the AI platform.
+// limits:  does not persist the translated game; returns it for callers to store.
 package game
 
 import (

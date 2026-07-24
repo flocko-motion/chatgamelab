@@ -1,3 +1,7 @@
+// package: cmd / CLI entrypoint and command tree
+// type:    wiring
+// job:     define the root "cgl" cobra command, load .env, and register all top-level subcommands
+// limits:  wiring only; each subcommand package implements its own behaviour
 package cmd
 
 import (
@@ -41,6 +45,7 @@ func init() {
 	rootCmd.AddCommand(invite.Cmd)
 }
 
+// Execute runs the root command and exits with code 1 if it returns an error.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

@@ -1,3 +1,7 @@
+// package: routes / user role HTTP handlers
+// type:    logic
+// job:     handles assigning and removing roles for a user, scoped to institution or workshop
+// limits:  no route registration (-> router.go); role listing (-> roles.go)
 package routes
 
 import (

@@ -1,3 +1,7 @@
+// package: apikey / add API key command
+// type:    cli
+// job:     implements "apikey add" posting a new platform API key to the server.
+// limits:  does not validate keys locally; server stores and validates (-> api/client).
 package apikey
 
 import (

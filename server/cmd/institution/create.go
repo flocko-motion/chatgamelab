@@ -1,3 +1,7 @@
+// package: institution / institution management CLI commands
+// type:    cli
+// job:     create a new institution by name via the institutions API endpoint
+// limits:  only posts the create request; server owns validation and persistence (-> api/routes)
 package institution
 
 import (

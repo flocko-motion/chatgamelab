@@ -1,3 +1,7 @@
+// package: routes / game YAML import/export handlers
+// type:    logic
+// job:     handles exporting a game as YAML and updating a game from a YAML body
+// limits:  no route registration (-> router.go); YAML parsing delegated to db/obj
 package routes
 
 import (

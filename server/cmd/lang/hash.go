@@ -1,3 +1,7 @@
+// package: lang / language translation helper commands
+// type:    logic
+// job:     compute per-field hashes of locale JSON and diff/merge translations to detect changed fields
+// limits:  pure hashing/JSON manipulation; no file I/O or AI calls (-> functional)
 package lang
 
 import (

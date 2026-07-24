@@ -1,3 +1,7 @@
+// package: obj / application error types
+// type:    data
+// job:     defines AppError, frontend-facing error codes, and typed error constructors
+// limits:  error values only; HTTP mapping lives elsewhere (-> obj http_error, api/httpx)
 package obj
 
 import "fmt"
@@ -35,66 +39,82 @@ const (
 
 // Error type constructors
 
+// ErrValidation returns a validation AppError with the given message.
 func ErrValidation(message string) *AppError {
 	return NewAppError(ErrCodeValidation, message)
 }
 
+// ErrValidationf returns a validation AppError with a formatted message.
 func ErrValidationf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeValidation, fmt.Sprintf(format, args...))
 }
 
+// ErrUnauthorized returns an unauthorized AppError with the given message.
 func ErrUnauthorized(message string) *AppError {
 	return NewAppError(ErrCodeUnauthorized, message)
 }
 
+// ErrForbidden returns a forbidden AppError with the given message.
 func ErrForbidden(message string) *AppError {
 	return NewAppError(ErrCodeForbidden, message)
 }
 
+// ErrNotFound returns a not-found AppError with the given message.
 func ErrNotFound(message string) *AppError {
 	return NewAppError(ErrCodeNotFound, message)
 }
 
+// ErrConflict returns a conflict AppError with the given message.
 func ErrConflict(message string) *AppError {
 	return NewAppError(ErrCodeConflict, message)
 }
 
+// ErrInvalidPlatformf returns an invalid-platform AppError with a formatted message.
 func ErrInvalidPlatformf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeInvalidPlatform, fmt.Sprintf(format, args...))
 }
 
+// ErrInvalidInput returns an invalid-input AppError with the given message.
 func ErrInvalidInput(message string) *AppError {
 	return NewAppError(ErrCodeInvalidInput, message)
 }
 
+// ErrServerError returns a server-error AppError with the given message.
 func ErrServerError(message string) *AppError {
 	return NewAppError(ErrCodeServerError, message)
 }
 
+// ErrServerErrorf returns a server-error AppError with a formatted message.
 func ErrServerErrorf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeServerError, fmt.Sprintf(format, args...))
 }
 
+// ErrDuplicateNamef returns a duplicate-name AppError with a formatted message.
 func ErrDuplicateNamef(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeDuplicateName, fmt.Sprintf(format, args...))
 }
 
+// ErrNameTooLong returns a name-too-long AppError with the given message.
 func ErrNameTooLong(message string) *AppError {
 	return NewAppError(ErrCodeNameTooLong, message)
 }
 
+// ErrProfaneName returns a profane-name AppError with the given message.
 func ErrProfaneName(message string) *AppError {
 	return NewAppError(ErrCodeProfaneName, message)
 }
 
+// ErrAiError returns an AI-error AppError with the given message.
 func ErrAiError(message string) *AppError {
 	return NewAppError(ErrCodeAiError, message)
 }
 
+// ErrAiErrorf returns an AI-error AppError with a formatted message.
 func ErrAiErrorf(format string, args ...any) *AppError {
 	return NewAppError(ErrCodeAiError, fmt.Sprintf(format, args...))
 }
 
+// ErrInvalidApiKey returns an invalid-API-key AppError with the given message.
 func ErrInvalidApiKey(message string) *AppError {
 	return NewAppError(ErrCodeInvalidApiKey, message)
 }

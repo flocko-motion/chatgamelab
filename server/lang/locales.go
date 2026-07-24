@@ -1,3 +1,7 @@
+// package: lang / locale content access
+// type:    logic
+// job:     serves embedded locale JSON files and lists supported languages
+// limits:  read-only access to embedded locales; no translation logic (-> cmd/lang)
 package lang
 
 import (

@@ -1,3 +1,7 @@
+// package: functional / JSON helper utilities
+// type:    logic
+// job:     hashing and JSON structure comparison helpers
+// limits:  stateless pure helpers; no domain types or IO
 package functional
 
 import (

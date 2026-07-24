@@ -1,3 +1,7 @@
+// package: routes / system settings HTTP handlers
+// type:    logic
+// job:     handles reading and updating site-wide settings, constraints, and the free-use API key
+// limits:  no route registration (-> router.go); persistence delegated to db
 package routes
 
 import (

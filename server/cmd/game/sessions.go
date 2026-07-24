@@ -1,3 +1,7 @@
+// package: game / list sessions command
+// type:    cli
+// job:     implements "game sessions" listing all play sessions for a game as a table.
+// limits:  read-only; does not create or resume sessions (-> game/play.go).
 package game
 
 import (

@@ -1,3 +1,7 @@
+// package: apikey / delete API key command
+// type:    cli
+// job:     implements "apikey delete" removing an API key and all its shares via cascade.
+// limits:  does not prompt for confirmation; deletes immediately (-> api/client).
 package apikey
 
 import (

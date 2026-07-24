@@ -17,4 +17,9 @@
 //	@in						header
 //	@name					Authorization
 //	@description				JWT token in format: Bearer {token}
+//
+// package: routes / API package doc and swagger metadata
+// type:    config
+// job:     holds the package-level Go doc and swagger API annotations for the routes package
+// limits:  registers no routes (-> router.go) and defines no handlers
 package routes

@@ -1,3 +1,7 @@
+// package: obj / user role invite model
+// type:    data
+// job:     defines the UserRoleInvite struct describing a role invitation
+// limits:  data shape only; no persistence or invite logic (-> db, api/routes)
 package obj
 
 import (

@@ -1,3 +1,7 @@
+// package: functional / secure random helpers
+// type:    logic
+// job:     generates cryptographically secure random tokens
+// limits:  token generation only; no storage or validation
 package functional
 
 import (

@@ -1,3 +1,7 @@
+// package: config / cli client configuration
+// type:    config
+// job:     loads, holds, and persists the YAML config file (server URLs, JWTs, platform API keys)
+// limits:  only client/CLI config; not server runtime settings (-> obj SystemSettings)
 package config
 
 import (

@@ -1,3 +1,7 @@
+// package: game / game info command
+// type:    cli
+// job:     implements "game info" printing detailed metadata and content for a single game.
+// limits:  read-only; does not modify the game (-> api/client).
 package game
 
 import (

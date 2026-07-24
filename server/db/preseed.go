@@ -1,3 +1,7 @@
+// package: db / database access and repository layer
+// type:    data
+// job:     seed well-known dev users, institutions, and workshops for local development.
+// limits:  does not define SQL queries (-> db/sqlc) or run in production.
 package db
 
 import (

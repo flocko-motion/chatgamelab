@@ -1,3 +1,7 @@
+// package: status / AI response parsing into status fields
+// type:    logic
+// job:     parses raw AI JSON responses into the response message's plot, ordered status fields, and image prompt.
+// limits:  does not call the AI or define status field semantics; only maps the JSON onto message fields.
 package status
 
 import (

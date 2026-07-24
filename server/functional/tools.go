@@ -1,13 +1,19 @@
+// package: functional / generic helper primitives
+// type:    logic
+// job:     small generic helpers for error handling and pointer wrapping
+// limits:  stateless pure helpers; no domain types or IO
 package functional
 
 import "log"
 
+// Must logs the formatted message and exits if err is non-nil.
 func Must(err error, format string, args ...any) {
 	if err != nil {
 		log.Fatalf(format+": %s", append(args, err)...)
 	}
 }
 
+// Ptr returns a pointer to the given value.
 func Ptr[T any](v T) *T {
 	return &v
 }

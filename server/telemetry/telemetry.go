@@ -1,3 +1,7 @@
+// package: telemetry / error reporting setup
+// type:    wiring
+// job:     initializes Sentry/GlitchTip error reporting from environment configuration
+// limits:  setup and lifecycle only; actual logging lives in log (-> log)
 package telemetry
 
 import (

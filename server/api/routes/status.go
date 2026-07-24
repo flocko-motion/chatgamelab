@@ -1,3 +1,7 @@
+// package: routes / server status HTTP handler
+// type:    logic
+// job:     handles the public health/status endpoint reporting server state and uptime
+// limits:  no route registration (-> router.go); build info (-> version.go)
 package routes
 
 import (
@@ -10,6 +14,7 @@ import (
 
 var serverStartTime = time.Now()
 
+// StatusResponse reports the server's health status and uptime.
 type StatusResponse struct {
 	Status string `json:"status"`
 	Uptime string `json:"uptime"`

@@ -1,3 +1,7 @@
+// package: institution / institution management CLI commands
+// type:    cli
+// job:     list all institutions from the API and print their IDs and names
+// limits:  read-only display; no filtering or pagination (-> api/routes)
 package institution
 
 import (
