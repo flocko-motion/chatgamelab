@@ -1,6 +1,7 @@
 // package: openai / OpenAI HTTP API client
 // type:    logic
-// job:     performs the low-level HTTP calls to OpenAI's Responses, image, speech, and transcription endpoints, including SSE streaming.
+// job:     performs the low-level HTTP calls to OpenAI's Responses, image, speech, and transcription
+// endpoints, including SSE streaming.
 // limits:  does not implement game logic or platform selection; only speaks the OpenAI wire protocol.
 package openai
 

@@ -1,6 +1,7 @@
 // package: openai / OpenAI AI platform implementation
 // type:    logic
-// job:     implements the ai.AiPlatform interface against OpenAI's Responses, image, TTS, and transcription APIs.
+// job:     implements the ai.AiPlatform interface against OpenAI's Responses, image, TTS, and
+// transcription APIs.
 // limits:  does not choose which platform to use or resolve API keys; that is the caller's job (-> ai, game).
 package openai
 
@@ -35,8 +36,8 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 		Models: []obj.AiModel{
 			{
 				ID:               obj.AiModelMax,
-				Name:             "GPT-5.2 + Audio",
-				Model:            "gpt-5.2",
+				Name:             "GPT-5.1 + Audio",
+				Model:            "gpt-5.1",
 				ImageModel:       "gpt-image-2",
 				ImageQuality:     "low",
 				PartialImages:    1,
@@ -46,8 +47,8 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				SupportsAudioOut: true,
 			}, {
 				ID:              obj.AiModelPremium,
-				Name:            "GPT-5.2",
-				Model:           "gpt-5.2",
+				Name:            "GPT-5.1",
+				Model:           "gpt-5.1",
 				ImageModel:      "gpt-image-2",
 				ImageQuality:    "low",
 				PartialImages:   1,
@@ -56,8 +57,8 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				SupportsAudioIn: true,
 			}, {
 				ID:            obj.AiModelBalanced,
-				Name:          "GPT-5.1",
-				Model:         "gpt-5.1",
+				Name:          "GPT-5 Mini",
+				Model:         "gpt-5-mini",
 				ImageModel:    "gpt-image-2",
 				ImageQuality:  "low",
 				PartialImages: 0, // balanced: images enabled, but no preview frames (each billed ~100 image-output tokens)
@@ -67,15 +68,16 @@ func (p *OpenAiPlatform) GetPlatformInfo() obj.AiPlatform {
 				// Economy: no image generation at all (cost saving). SupportsImage stays false,
 				// so both per-turn images and the scenario/cover image are skipped.
 				ID:          obj.AiModelEconomy,
-				Name:        "GPT-5 Mini",
-				Model:       "gpt-5-mini",
+				Name:        "GPT-5.6 Luna",
+				Model:       "gpt-5.6-luna",
 				Description: "Economy",
 			},
 		},
 	}
 }
 
-// ResolveModelInfo returns the AiModel for the given tier, downgrading to the closest available tier if needed.
+// ResolveModelInfo returns the AiModel for the given tier, downgrading to the closest available tier
+// if needed.
 func (p *OpenAiPlatform) ResolveModelInfo(tierID string) *obj.AiModel {
 	info := p.GetPlatformInfo()
 	return info.ResolveModelWithDowngrade(tierID)
@@ -86,11 +88,12 @@ func (p *OpenAiPlatform) ResolveModel(tierID string) string {
 	if m := p.ResolveModelInfo(tierID); m != nil {
 		return m.Model
 	}
-	// fallback: medium tier
+	// fallback: premium tier, which Models[1] holds
 	return p.GetPlatformInfo().Models[1].Model
 }
 
-// ExecuteAction sends the player action to OpenAI and fills response with the structured plot, status fields, and image prompt.
+// ExecuteAction sends the player action to OpenAI and fills response with the structured plot, status
+// fields, and image prompt.
 func (p *OpenAiPlatform) ExecuteAction(ctx context.Context, session *obj.GameSession, action obj.GameSessionMessage, response *obj.GameSessionMessage, gameSchema map[string]interface{}) (obj.TokenUsage, error) {
 	model := p.ResolveModel(session.AiModel)
 
