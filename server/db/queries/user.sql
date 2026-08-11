@@ -513,6 +513,13 @@ SELECT COUNT(*)::int AS count
 FROM user_role
 WHERE institution_id = $1 AND role = 'head';
 
+-- name: CountAdmins :one
+-- Count live admins (for the ADMIN_EMAILS bootstrap gate)
+SELECT COUNT(*)::int AS count
+FROM user_role r
+JOIN app_user u ON u.id = r.user_id
+WHERE r.role = 'admin' AND u.deleted_at IS NULL;
+
 -- name: GetParticipantUserIDsByWorkshopID :many
 -- Get user IDs of participants in a workshop
 SELECT user_id FROM user_role WHERE workshop_id = $1 AND role = 'participant';
