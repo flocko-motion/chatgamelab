@@ -460,17 +460,17 @@ Used when translating the game content to the player's language:
 
 For different steps in the game flow we use different models. Cheaper ones for easy tasks like translations, powerful ones for writing the story, specialized ones for generating images or transcribing voice input into text. Further, the quality preferences set by the user influence the choice of model being used for each task. Finally the choice of platform made by the user (e.g. OpenAI or Mistral) decides from which platform the models are picked. 
 
-Here's a list of which models are configured for OpenAI and Mistral as of March 2026:
+Here's a list of which models are configured for OpenAI and Mistral as of August 2026:
 
 | Step | OpenAI | Mistral | Depends on Quality Tier? |
 |------|--------|---------|--------------------------|
 | **Generate Scene** | gpt-5.2 (max/premium), gpt-5.1 (balanced), gpt-5-mini (economy) | mistral-large-latest (premium), mistral-medium-latest (balanced), mistral-small-latest (economy) | Yes |
-| **Rephrase Player Input** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
+| **Rephrase Player Input** | gpt-5.6-luna | mistral-small-latest | No (fixed, runs through Tool Query) |
 | **Expand Plot to Prose** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
 | **Generate Theme** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
-| **Generate Image** | gpt-image-1.5 (premium+), gpt-image-1-mini (economy) | mistral-small-latest | Yes (model only) |
+| **Generate Image** | gpt-image-2 (balanced and up; economy generates no images) | mistral-small-latest | Yes (model only) |
 | **Translate** | gpt-5.1-codex | mistral-small-latest | No (fixed) |
-| **Tool Query** (condense scenario, translate image style) | gpt-5.1-codex | mistral-small-latest | No (fixed) |
+| **Tool Query** (rephrase player input, condense scenario, translate image style) | gpt-5.6-luna | mistral-small-latest | No (fixed) |
 | **Transcribe Audio** | gpt-4o-mini-transcribe | voxtral-mini-latest | No (fixed) |
 | **Generate Speech** | gpt-4o-mini-tts | — (not supported) | No (fixed, max/premium only) |
 
@@ -479,3 +479,25 @@ You can read about each of these models on the websites of their providers.
 Mistral: https://docs.mistral.ai/getting-started/models
 
 OpenAI: https://platform.openai.com/docs/models
+
+### What the OpenAI models cost
+
+Prices in dollars per million tokens, as published by OpenAI on 11 August 2026. Cached input covers the part of a prompt that OpenAI serves from its prompt cache, which the game flow hits from the second turn onwards because it continues the conversation through `previous_response_id`.
+
+| Model | Tier | Input | Cached input | Output |
+|-------|------|-------|--------------|--------|
+| gpt-5.6-sol | flagship | 5.00 | 0.50 | 30.00 |
+| gpt-5.6-terra | mini | 2.00 | 0.20 | 12.00 |
+| gpt-5.6-luna | nano | 0.20 | 0.02 | 1.20 |
+| gpt-5.2 | flagship | 1.75 | 0.175 | 14.00 |
+| gpt-5.1 | flagship | 1.25 | 0.125 | 10.00 |
+| gpt-5.1-codex | flagship, tuned for coding | 1.25 | 0.125 | 10.00 |
+| gpt-5-mini | mini | 0.25 | 0.025 | 2.00 |
+
+The three GPT-5.6 names stand for the tiers that earlier GPT-5 families named in full: Sol is the flagship, Terra the mini, and Luna the nano model. A low headline price therefore reports the tier before it reports a saving. Luna costs about a sixth of gpt-5.1 on input and an eighth on output, and it sits two tiers below it.
+
+The story steps stay on the flagship models because each turn asks for structured output, disciplined status fields, and prose in the player's language over a conversation that grows with every turn. Tool Query runs on Luna because each of its three prompts returns a single line of 50 words at most.
+
+All three GPT-5.6 models bill prompts above 272,000 input tokens at twice the input rate and 1.5 times the output rate, for the whole request. A session would have to reach roughly 500 turns of stored history to cross that mark.
+
+Image generation is billed apart from the text models. gpt-image-2 charges 5.00 per million text input tokens and 30.00 per million image output tokens, and every preview frame costs about 100 image output tokens. That is why the balanced tier requests no preview frames and the economy tier generates no images at all.
