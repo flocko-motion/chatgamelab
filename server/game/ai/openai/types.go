@@ -20,11 +20,13 @@ const (
 	speechEndpoint        = "/audio/speech"
 	transcriptionEndpoint = "/audio/transcriptions"
 	transcriptionModel    = "gpt-4o-mini-transcribe"
-	translateModel        = "gpt-5.1-codex"
-	toolQueryModel        = "gpt-5.6-luna" // nano tier: one-shot prompts capped at 20-50 words
-	ttsModel              = "gpt-4o-mini-tts"
-	ttsVoice              = "cedar" // openai recommends marin or cedar
-	ttsFormat             = "mp3"
+	// Both run on the nano tier: short strings, and every caller falls back to the
+	// untranslated original when a field comes back missing.
+	translateModel = "gpt-5.6-luna"
+	toolQueryModel = "gpt-5.6-luna"
+	ttsModel       = "gpt-4o-mini-tts"
+	ttsVoice       = "cedar" // openai recommends marin or cedar
+	ttsFormat      = "mp3"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity
