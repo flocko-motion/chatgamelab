@@ -35,8 +35,10 @@ func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struc
 
 	log.Debug("initializing database")
 	db.Init()
-	log.Debug("running database preseed")
-	db.Preseed(ctx)
+	if devMode {
+		log.Debug("running database preseed")
+		db.Preseed(ctx)
+	}
 
 	log.Debug("checking admin email promotions")
 	db.PromoteAdminEmails(ctx)

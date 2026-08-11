@@ -53,15 +53,7 @@ func Preseed(ctx context.Context) {
 	preseedDevWorkshop(ctx)
 
 	// Create dev users (2 per role + 1 participant)
-	preseedDevUser(ctx, DevAdmin1UserID, "admin-1", obj.RoleAdmin, nil)
-	preseedDevUser(ctx, DevAdmin2UserID, "admin-2", obj.RoleAdmin, nil)
-	preseedDevUser(ctx, DevHead1UserID, "head-1", obj.RoleHead, &DevInstitutionID)
-	preseedDevUser(ctx, DevHead2UserID, "head-2", obj.RoleHead, &DevInstitutionID)
-	preseedDevUser(ctx, DevStaff1UserID, "staff-1", obj.RoleStaff, &DevInstitutionID)
-	preseedDevUser(ctx, DevStaff2UserID, "staff-2", obj.RoleStaff, &DevInstitutionID)
-	preseedDevUser(ctx, DevIndividual1UserID, "individual-1", obj.RoleIndividual, nil)
-	preseedDevUser(ctx, DevIndividual2UserID, "individual-2", obj.RoleIndividual, nil)
-	preseedDevUser(ctx, DevParticipantUserID, "participant", obj.RoleParticipant, &DevInstitutionID)
+	preseedDevUsers(ctx)
 
 	// Create mock API key for first admin user
 	preseedDevApiKey(ctx, DevAdmin1UserID)
@@ -115,47 +107,118 @@ func preseedDevWorkshop(ctx context.Context) {
 	}
 }
 
-// preseedDevUser creates a dev user with the given role if they don't exist
-func preseedDevUser(ctx context.Context, userID uuid.UUID, name string, role obj.Role, institutionID *uuid.UUID) {
-	user, err := GetUserByID(ctx, userID)
-	if err != nil {
-		log.Debug("creating dev user", "user_id", userID, "name", name, "role", role)
-		email := name + "@dev.local"
-		user, err = CreateUserWithID(ctx, userID, name, &email, "")
+// devUserSlot is one well-known dev account: a fixed ID with the name and role
+// it is meant to carry.
+type devUserSlot struct {
+	id            uuid.UUID
+	name          string
+	role          obj.Role
+	institutionID *uuid.UUID
+}
+
+// devUserSlots lists the dev accounts preseed maintains (2 per role + 1 participant).
+func devUserSlots() []devUserSlot {
+	return []devUserSlot{
+		{DevAdmin1UserID, "admin-1", obj.RoleAdmin, nil},
+		{DevAdmin2UserID, "admin-2", obj.RoleAdmin, nil},
+		{DevHead1UserID, "head-1", obj.RoleHead, &DevInstitutionID},
+		{DevHead2UserID, "head-2", obj.RoleHead, &DevInstitutionID},
+		{DevStaff1UserID, "staff-1", obj.RoleStaff, &DevInstitutionID},
+		{DevStaff2UserID, "staff-2", obj.RoleStaff, &DevInstitutionID},
+		{DevIndividual1UserID, "individual-1", obj.RoleIndividual, nil},
+		{DevIndividual2UserID, "individual-2", obj.RoleIndividual, nil},
+		{DevParticipantUserID, "participant", obj.RoleParticipant, &DevInstitutionID},
+	}
+}
+
+// preseedDevUsers reconciles the well-known dev accounts with devUserSlots.
+//
+// Misnamed accounts are parked under a temporary name and email before the
+// intended ones are applied: the slots have been renumbered before, leaving a
+// name wanted by one slot held by the account of another, and name and email
+// are both unique columns.
+func preseedDevUsers(ctx context.Context) {
+	slots := devUserSlots()
+	exists := make([]bool, len(slots))
+	misnamed := make([]bool, len(slots))
+
+	for i, slot := range slots {
+		user, err := GetUserByIDRaw(ctx, slot.id)
 		if err != nil {
-			log.Warn("failed to create dev user", "name", name, "error", err)
-			return
+			continue
+		}
+		exists[i] = true
+		misnamed[i] = user.Name != slot.name
+		if !misnamed[i] {
+			continue
+		}
+		log.Debug("parking dev user name", "user_id", slot.id, "from", user.Name, "to", slot.name)
+		parked := "preseed-parked-" + slot.id.String()
+		if err := renameDevUser(ctx, slot.id, parked); err != nil {
+			log.Warn("failed to park dev user name", "user_id", slot.id, "from", user.Name, "error", err)
+			misnamed[i] = false
 		}
 	}
 
-	// Assign role if specified
-	if role != "" {
-		// If user has an "individual" role (auto-assigned), delete it first
-		if user.Role != nil && user.Role.Role == obj.RoleIndividual {
-			log.Debug("removing auto-assigned individual role for dev user", "name", name)
-			if err := queries().DeleteUserRoles(ctx, userID); err != nil {
-				log.Warn("failed to delete individual role", "name", name, "error", err)
-				return
+	for i, slot := range slots {
+		switch {
+		case misnamed[i]:
+			log.Debug("renaming dev user", "user_id", slot.id, "name", slot.name)
+			if err := renameDevUser(ctx, slot.id, slot.name); err != nil {
+				log.Warn("failed to rename dev user", "user_id", slot.id, "name", slot.name, "error", err)
+				continue
+			}
+		case !exists[i]:
+			log.Debug("creating dev user", "user_id", slot.id, "name", slot.name, "role", slot.role)
+			email := devUserEmail(slot.name)
+			if _, err := CreateUserWithID(ctx, slot.id, slot.name, &email, ""); err != nil {
+				log.Warn("failed to create dev user", "name", slot.name, "error", err)
+				continue
 			}
 		}
+		setDevUserRole(ctx, slot)
+	}
+}
 
-		// Only assign if user doesn't have the correct role already
-		if user.Role == nil || user.Role.Role != role {
-			log.Debug("assigning role to dev user", "name", name, "role", role)
-			var workshopID uuid.NullUUID
-			if role == obj.RoleParticipant {
-				workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
-			}
-			arg := db.CreateUserRoleParams{
-				UserID:        userID,
-				Role:          sql.NullString{String: string(role), Valid: true},
-				InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(institutionID), Valid: institutionID != nil},
-				WorkshopID:    workshopID,
-			}
-			if _, err := queries().CreateUserRole(ctx, arg); err != nil {
-				log.Warn("failed to assign role to dev user", "name", name, "role", role, "error", err)
-			}
-		}
+// renameDevUser sets a dev user's name and its matching @dev.local email.
+func renameDevUser(ctx context.Context, userID uuid.UUID, name string) error {
+	return queries().UpdateUser(ctx, db.UpdateUserParams{
+		ID:    userID,
+		Name:  name,
+		Email: sql.NullString{String: devUserEmail(name), Valid: true},
+	})
+}
+
+func devUserEmail(name string) string {
+	return name + "@dev.local"
+}
+
+// setDevUserRole leaves the dev user holding exactly the slot's role. The roles
+// are dropped and recreated rather than compared, because GetUserByID surfaces
+// only one of several role rows and a stale second role stays invisible to a
+// comparison. Nothing references user_role.id, so deleting is safe.
+func setDevUserRole(ctx context.Context, slot devUserSlot) {
+	if slot.role == "" {
+		return
+	}
+	if err := queries().DeleteUserRoles(ctx, slot.id); err != nil {
+		log.Warn("failed to clear dev user roles", "name", slot.name, "error", err)
+		return
+	}
+
+	log.Debug("assigning role to dev user", "name", slot.name, "role", slot.role)
+	var workshopID uuid.NullUUID
+	if slot.role == obj.RoleParticipant {
+		workshopID = uuid.NullUUID{UUID: DevWorkshopID, Valid: true}
+	}
+	arg := db.CreateUserRoleParams{
+		UserID:        slot.id,
+		Role:          sql.NullString{String: string(slot.role), Valid: true},
+		InstitutionID: uuid.NullUUID{UUID: uuidPtrToUUID(slot.institutionID), Valid: slot.institutionID != nil},
+		WorkshopID:    workshopID,
+	}
+	if _, err := queries().CreateUserRole(ctx, arg); err != nil {
+		log.Warn("failed to assign role to dev user", "name", slot.name, "role", slot.role, "error", err)
 	}
 }
 
