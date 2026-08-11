@@ -214,18 +214,18 @@ type ApiKey struct {
 // - Institution (for institution-wide sharing)
 // - Game (for game sponsoring)
 type ApiKeyShare struct {
-	ID                        uuid.UUID    `json:"id"`
-	Meta                      Meta         `json:"meta"`
-	ApiKeyID                  uuid.UUID    `json:"apiKeyId"`
-	ApiKey                    *ApiKey      `json:"apiKey,omitempty"`
-	User                      *User        `json:"user,omitempty"`
-	Workshop                  *Workshop    `json:"workshop,omitempty"`
-	Institution               *Institution `json:"institution,omitempty"`
-	Game                      *Game        `json:"game,omitempty"`
-	IsUserDefault             bool         `json:"isUserDefault"`
-	IsPrivateShare            bool         `json:"isPrivateShare,omitempty"`
-	Remaining                 *int         `json:"remaining,omitempty"`
-	GameShareID               *uuid.UUID   `json:"gameShareId,omitempty"`
+	ID             uuid.UUID    `json:"id"`
+	Meta           Meta         `json:"meta"`
+	ApiKeyID       uuid.UUID    `json:"apiKeyId"`
+	ApiKey         *ApiKey      `json:"apiKey,omitempty"`
+	User           *User        `json:"user,omitempty"`
+	Workshop       *Workshop    `json:"workshop,omitempty"`
+	Institution    *Institution `json:"institution,omitempty"`
+	Game           *Game        `json:"game,omitempty"`
+	IsUserDefault  bool         `json:"isUserDefault"`
+	IsPrivateShare bool         `json:"isPrivateShare,omitempty"`
+	Remaining      *int         `json:"remaining,omitempty"`
+	GameShareID    *uuid.UUID   `json:"gameShareId,omitempty"`
 }
 
 // AvailableKey represents an API key available to a user for playing a specific game
@@ -530,31 +530,31 @@ type GameSessionMessage struct {
 	URLAnalytics          *string `json:"urlAnalytics,omitempty"`
 
 	// JSON encoded status fields.
-	StatusFields []StatusField `json:"statusFields"`
-	Plot         *string       `json:"plot,omitempty"`
-	ImagePrompt  *string       `json:"imagePrompt,omitempty"`
-	Image        []byte        `json:"image,omitempty"`
-	Audio        []byte        `json:"audio,omitempty"`
-	HasImage     bool          `json:"hasImage"`    // true when image generation is active for this message
-	HasAudioIn   bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
-	HasAudioOut  bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
-	TokenUsage   *TokenUsage   `json:"tokenUsage,omitempty"`
-	ApiKeyType                 string `json:"apiKeyType,omitempty"`                 // source of API key used (workshop, sponsor, personal, etc.)
-	PromptConstraintSource     string `json:"promptConstraintSource,omitempty"`     // source label of active constraint (workshop, organisation, site13, site13p, site18)
-	PromptConstraintText       string `json:"promptConstraintText,omitempty"`       // snapshot of the constraint text actually applied for this message
-	PromptConstraintSourceName string `json:"promptConstraintSourceName,omitempty"` // human-readable origin (e.g. workshop or organisation name); empty for site-by-age
-	PromptConstraintReasoning  string `json:"promptConstraintReasoning,omitempty"`  // human-readable trace of how the constraint was decided (db.ResolveConstraint)
+	StatusFields               []StatusField `json:"statusFields"`
+	Plot                       *string       `json:"plot,omitempty"`
+	ImagePrompt                *string       `json:"imagePrompt,omitempty"`
+	Image                      []byte        `json:"image,omitempty"`
+	Audio                      []byte        `json:"audio,omitempty"`
+	HasImage                   bool          `json:"hasImage"`    // true when image generation is active for this message
+	HasAudioIn                 bool          `json:"hasAudioIn"`  // true when voice input (STT) is available for this session tier
+	HasAudioOut                bool          `json:"hasAudioOut"` // true when audio narration (TTS) is active for this message
+	TokenUsage                 *TokenUsage   `json:"tokenUsage,omitempty"`
+	ApiKeyType                 string        `json:"apiKeyType,omitempty"`                 // source of API key used (workshop, sponsor, personal, etc.)
+	PromptConstraintSource     string        `json:"promptConstraintSource,omitempty"`     // source label of active constraint (workshop, organisation, site13, site13p, site18)
+	PromptConstraintText       string        `json:"promptConstraintText,omitempty"`       // snapshot of the constraint text actually applied for this message
+	PromptConstraintSourceName string        `json:"promptConstraintSourceName,omitempty"` // human-readable origin (e.g. workshop or organisation name); empty for site-by-age
+	PromptConstraintReasoning  string        `json:"promptConstraintReasoning,omitempty"`  // human-readable trace of how the constraint was decided (db.ResolveConstraint)
 }
 
 // GameSessionMessageChunk represents a piece of streamed content (text, image, or audio)
 type GameSessionMessageChunk struct {
-	Text      string `json:"text,omitempty"`      // Partial text content
-	TextDone  bool   `json:"textDone,omitempty"`  // True when text streaming is complete
+	Text       string `json:"text,omitempty"`       // Partial text content
+	TextDone   bool   `json:"textDone,omitempty"`   // True when text streaming is complete
 	ImageData  []byte `json:"imageData,omitempty"`  // Partial/final image data
 	ImageDone  bool   `json:"imageDone,omitempty"`  // True when image streaming is complete
 	ImageError string `json:"imageError,omitempty"` // Human-readable image error (e.g. "rate limit reached")
-	AudioData []byte `json:"audioData,omitempty"` // Partial/final audio data (opus)
-	AudioDone bool   `json:"audioDone,omitempty"` // True when audio streaming is complete
-	Error     string `json:"error,omitempty"`     // Error message if failed
-	ErrorCode string `json:"errorCode,omitempty"` // Machine-readable error code (maps to frontend i18n)
+	AudioData  []byte `json:"audioData,omitempty"`  // Partial/final audio data (opus)
+	AudioDone  bool   `json:"audioDone,omitempty"`  // True when audio streaming is complete
+	Error      string `json:"error,omitempty"`      // Error message if failed
+	ErrorCode  string `json:"errorCode,omitempty"`  // Machine-readable error code (maps to frontend i18n)
 }

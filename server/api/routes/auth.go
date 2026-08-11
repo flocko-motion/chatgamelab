@@ -19,8 +19,8 @@ import (
 
 // RegisterRequest is the request body for user registration
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 	// AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+).
 	AgeGroup string `json:"ageGroup"`
 }

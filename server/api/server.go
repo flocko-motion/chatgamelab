@@ -19,7 +19,8 @@ import (
 	"time"
 )
 
-// RunServer initializes services and runs the HTTP server until the context is cancelled or a shutdown signal is received.
+// RunServer initializes services and runs the HTTP server until the context is
+// cancelled or a shutdown signal is received.
 func RunServer(ctx context.Context, port int, devMode bool, readyChan chan struct{}) {
 
 	telemetry.Init(routes.Version)
