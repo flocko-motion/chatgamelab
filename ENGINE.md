@@ -295,6 +295,24 @@ real, lived cost in the current `game-player-v2` implementation (`useStreamingSe
 `text-effects/` animation layer, `StatusChangeIndicator`) — a paradigm mismatch, not a preference
 for a different library.
 
+**Sizing the rewrite, checked against source rather than assumed.** The natural worry with
+dropping React is the animation-heavy surface — background particle effects, per-message text
+effects, theme resolution. Read in full against the current `game-player-v2` implementation:
+
+| Area | Lines | Finding |
+|---|---|---|
+| `BackgroundAnimation.tsx` — particle configs (stars, embers, confetti, hyperspace, …) | ~650 | Plain JSON handed to tsParticles. tsParticles core has a vanilla JS API (`tsParticles.load(id, options)`); this data ports verbatim — `@tsparticles/react` is a thin wrapper, not where the logic lives. |
+| `BackgroundAnimation.tsx` — Waves / Sun / Tumbleweed | ~460 | Already pure CSS `@keyframes`, manually injected via `document.createElement("style")`. The React JSX here only builds static markup once. |
+| `BackgroundAnimation.tsx` — Matrix rain | ~80 | Already a raw `<canvas>` + `setInterval` + `ResizeObserver`. React only supplies mount/unmount timing. |
+| `text-effects/*.tsx` (12 files) | ~740 | Core animation math (scramble, glitch, etc.) is pure functions. Only the `setInterval`-driven `setState` tick wrapper per file — ~15–20 lines each — is genuinely React-shaped, and it *simplifies* once ported: a vanilla tick writes `element.textContent` directly instead of forcing a re-render to do it. |
+| `useGameTheme.ts` + `GameThemeContext.tsx` | ~350 | `generateCssVars`, `mergeTheme`, `getStatusEmoji` are pure functions, ported verbatim. Only `createContext`/`useContext`/`Provider` (~30–40 lines) is React-specific — and it doesn't need porting, it needs deleting: Context solves React's prop-drilling problem, which doesn't exist without a component tree. A vanilla version holds one shared theme object every render function reads directly. |
+
+Out of roughly 4,050 surveyed lines, the code that's genuinely React-dependent and needs real
+rewriting is concentrated in the text-effects' tick loops — on the order of 150–200 lines. The rest
+was already data, already-imperative canvas/DOM code, or a mechanism (Context) that stops being
+needed rather than needing a replacement. The "live backgrounds" risk that motivated checking this
+turned out to be much smaller than it looked from the outside.
+
 **Genuinely headless.** A core state machine — session lifecycle, streaming accumulation, turn
 progression — owns the timeline and has zero rendering opinion. A thin UI layer's only job is to
 paint whatever the core's current state says. This mirrors the backend split exactly: one shared
