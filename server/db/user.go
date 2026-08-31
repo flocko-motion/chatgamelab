@@ -10,6 +10,7 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -34,12 +35,19 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 	}
 
 	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	promoted := false
 	if email != nil && isAdminEmail(*email) {
-		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+		err := autoUpgradeUserToAdmin(ctx, id)
+		promoted = err == nil
+		switch {
+		case errors.Is(err, errAdminBootstrapClosed):
+			log.Info("admin email gets the default role: bootstrap closed", "user_id", id)
+		case err != nil:
 			// Log error but don't fail user creation
 			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
-	} else {
+	}
+	if !promoted {
 		// Assign default "individual" role to new users
 		log.Debug("assigning default individual role to new user", "user_id", id)
 		if err := assignDefaultIndividualRole(ctx, id); err != nil {
@@ -75,17 +83,30 @@ func CreateUserWithID(ctx context.Context, id uuid.UUID, name string, email *str
 	}
 
 	_, err := queries().CreateUserWithID(ctx, arg)
+	// ON CONFLICT (id) DO NOTHING returns no row: the user is already there and
+	// keeps the role it has.
+	if errors.Is(err, sql.ErrNoRows) {
+		log.Debug("user with this id already exists", "user_id", id)
+		return GetUserByID(ctx, id)
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	// Auto-upgrade to admin if email is in ADMIN_EMAILS list
+	promoted := false
 	if email != nil && isAdminEmail(*email) {
-		if err := autoUpgradeUserToAdmin(ctx, id); err != nil {
+		err := autoUpgradeUserToAdmin(ctx, id)
+		promoted = err == nil
+		switch {
+		case errors.Is(err, errAdminBootstrapClosed):
+			log.Info("admin email gets the default role: bootstrap closed", "user_id", id)
+		case err != nil:
 			// Log error but don't fail user creation
 			log.Warn("failed to auto-upgrade user to admin", "user_id", id, "error", err)
 		}
-	} else {
+	}
+	if !promoted {
 		// Assign default "individual" role to new users
 		log.Debug("assigning default individual role to new user", "user_id", id)
 		if err := assignDefaultIndividualRole(ctx, id); err != nil {

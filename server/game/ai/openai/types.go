@@ -1,6 +1,7 @@
 // package: openai / OpenAI API request/response types
 // type:    data
-// job:     defines the Go structs and endpoint constants that model OpenAI's Responses API payloads and SSE events.
+// job:     defines the Go structs and endpoint constants that model OpenAI's Responses API payloads and
+// SSE events.
 // limits:  holds no behavior beyond JSON (un)marshalling helpers; makes no network calls.
 package openai
 
@@ -19,11 +20,13 @@ const (
 	speechEndpoint        = "/audio/speech"
 	transcriptionEndpoint = "/audio/transcriptions"
 	transcriptionModel    = "gpt-4o-mini-transcribe"
-	translateModel        = "gpt-5.1-codex"
-	toolQueryModel        = "gpt-5.1-codex"
-	ttsModel              = "gpt-4o-mini-tts"
-	ttsVoice              = "cedar" // openai recommends marin or cedar
-	ttsFormat             = "mp3"
+	// Both run on the nano tier: short strings, and every caller falls back to the
+	// untranslated original when a field comes back missing.
+	translateModel = "gpt-5.6-luna"
+	toolQueryModel = "gpt-5.6-luna"
+	ttsModel       = "gpt-4o-mini-tts"
+	ttsVoice       = "cedar" // openai recommends marin or cedar
+	ttsFormat      = "mp3"
 )
 
 // ModelSession stores the OpenAI response ID for conversation continuity

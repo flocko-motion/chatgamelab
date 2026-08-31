@@ -51,4 +51,3 @@ func GetLocaleContent(langCode string) (map[string]interface{}, error) {
 
 	return content, nil
 }
-
