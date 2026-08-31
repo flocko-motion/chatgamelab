@@ -1,0 +1,31 @@
+/* Usable height of a page rendered inside AppLayout: the viewport minus the
+   header, the footer and all layout padding.
+
+   Full-height pages (game lists, workshop) used to hardcode this as
+   `calc(100vh - 280px)`. The real chrome on desktop is 208px, so those pages
+   came out 72px short and left a dead strip above the footer — roughly one
+   game row that silently went missing.
+
+   Header, footer and AppShell padding come from AppShell's own variables, so
+   they follow whatever AppLayout configures. Only --app-content-inset is ours:
+   the extra top padding AppLayout adds on top of the header (10px / 20px) plus
+   the Container's vertical padding (2 x 12px / 2 x 16px). Keep it in sync with
+   AppLayout.tsx.
+
+   dvh rather than vh so mobile browsers collapsing their toolbars don't
+   overshoot the viewport. */
+:root {
+  --app-content-inset: 34px;
+  --app-content-height: calc(
+    100dvh - var(--app-shell-header-offset, 0px) -
+      var(--app-shell-footer-offset, 0px) - var(--app-shell-padding, 0px) -
+      var(--app-content-inset)
+  );
+}
+
+/* Mantine breakpoint sm */
+@media (min-width: 48em) {
+  :root {
+    --app-content-inset: 52px;
+  }
+}

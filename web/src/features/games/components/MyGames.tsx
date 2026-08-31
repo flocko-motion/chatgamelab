@@ -555,7 +555,7 @@ export function MyGames({
     <>
       <Stack
         gap="lg"
-        h={{ base: "calc(100vh - 130px)", sm: "calc(100vh - 280px)" }}
+        h="var(--app-content-height)"
         style={{ overflow: "hidden" }}
       >
         {/* Sticky header section */}
