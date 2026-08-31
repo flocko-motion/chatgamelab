@@ -16,8 +16,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateUser creates a new user in the database
-func CreateUser(ctx context.Context, name string, email *string, auth0ID string, ageGroup *string) (*obj.User, error) {
+// CreateUser creates a new user in the database.
+// language is an ISO 639-1 code; callers resolve it from the request
+// (-> httpx.PreferredLanguage). It determines the language of the user's game
+// sessions, which are locked to it at launch.
+func CreateUser(ctx context.Context, name string, email *string, auth0ID string, ageGroup *string, language string) (*obj.User, error) {
 	emailStr := ""
 	if email != nil {
 		emailStr = *email
@@ -27,6 +30,7 @@ func CreateUser(ctx context.Context, name string, email *string, auth0ID string,
 		Email:    sql.NullString{String: emailStr, Valid: email != nil},
 		Auth0ID:  sql.NullString{String: auth0ID, Valid: auth0ID != ""},
 		AgeGroup: stringPtrToNullString(ageGroup),
+		Language: language,
 	}
 
 	id, err := queries().CreateUser(ctx, arg)

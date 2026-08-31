@@ -415,8 +415,8 @@ func (q *Queries) CreateTargetedInvite(ctx context.Context, arg CreateTargetedIn
 
 const createUser = `-- name: CreateUser :one
 
-INSERT INTO app_user (id, name, email, auth0_id, age_group)
-VALUES (gen_random_uuid(), $1, $2, $3, $4)
+INSERT INTO app_user (id, name, email, auth0_id, age_group, language)
+VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
 RETURNING id
 `
 
@@ -425,6 +425,7 @@ type CreateUserParams struct {
 	Email    sql.NullString
 	Auth0ID  sql.NullString
 	AgeGroup sql.NullString
+	Language string
 }
 
 // app_user -------------------------------------------------------------
@@ -434,6 +435,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 		arg.Email,
 		arg.Auth0ID,
 		arg.AgeGroup,
+		arg.Language,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -492,8 +494,8 @@ func (q *Queries) CreateUserWithID(ctx context.Context, arg CreateUserWithIDPara
 }
 
 const createUserWithParticipantToken = `-- name: CreateUserWithParticipantToken :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, language)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO NOTHING
 RETURNING id
 `
@@ -504,6 +506,7 @@ type CreateUserWithParticipantTokenParams struct {
 	Email            sql.NullString
 	Auth0ID          sql.NullString
 	ParticipantToken sql.NullString
+	Language         string
 }
 
 func (q *Queries) CreateUserWithParticipantToken(ctx context.Context, arg CreateUserWithParticipantTokenParams) (uuid.UUID, error) {
@@ -513,6 +516,7 @@ func (q *Queries) CreateUserWithParticipantToken(ctx context.Context, arg Create
 		arg.Email,
 		arg.Auth0ID,
 		arg.ParticipantToken,
+		arg.Language,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
