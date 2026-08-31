@@ -1,0 +1,22 @@
+/* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px).
+   Mantine v8 uses CSS modules (hashed classes), so we target elements via
+   the data-variant attribute that Mantine's Box renders on all input elements.
+
+   Imported from main.tsx: this has to apply on every route, including the
+   pages that render outside the router (error boundary fallbacks). */
+@media screen and (max-width: 48em) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input:not([type]),
+  textarea,
+  select,
+  input[data-variant],
+  textarea[data-variant] {
+    font-size: 16px !important;
+  }
+}
