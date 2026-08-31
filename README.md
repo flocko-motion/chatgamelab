@@ -25,6 +25,14 @@ If you're working on ChatGameLab (including web designers), you **must learn Git
 
 This keeps everyone in sync and prevents the project from breaking apart.
 
+**Keeping your branch up to date:**
+
+```bash
+make rebase
+```
+
+This replays your branch on top of the latest `origin/development` and force-pushes it. Only run it on your own feature branch.
+
 
 ## Requirements
 

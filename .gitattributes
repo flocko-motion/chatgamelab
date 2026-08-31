@@ -1,2 +1,7 @@
 # Disable line ending conversion for all files
 * -text
+
+# Go and SQL stay LF: gofmt reports a CRLF file as entirely unformatted,
+# which hides real formatting findings behind whole-file diffs.
+*.go text eol=lf
+*.sql text eol=lf
