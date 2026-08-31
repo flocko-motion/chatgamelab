@@ -112,11 +112,16 @@ export function useBackendUser({ getAccessToken }: UseBackendUserOptions) {
       authLogger.debug("Starting user registration", { name });
 
       const api = new Api(createAuthenticatedApiConfig(getAccessToken));
-      // Auth0 ID is extracted from the token by the backend middleware
+      // Auth0 ID is extracted from the token by the backend middleware.
+      // Send the language the user is registering in: it becomes their stored
+      // preference, and game sessions are locked to it at launch. Without it
+      // every new account defaults to English and games start in English even
+      // though the interface is German.
       const response = await api.auth.registerCreate({
         name,
         email,
         ageGroup,
+        language: i18n.resolvedLanguage ?? i18n.language?.split("-")[0] ?? "en",
       });
 
       setBackendUser(response.data);

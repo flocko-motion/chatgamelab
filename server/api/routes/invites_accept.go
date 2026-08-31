@@ -40,7 +40,10 @@ func AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		// It's a token - check if it's a workshop invite that can be accepted anonymously
 		if user == nil {
 			// Anonymous user accepting workshop invite
-			createdUser, authToken, err := db.AcceptWorkshopInviteAnonymously(r.Context(), idOrToken)
+			// No request body here — the browser's Accept-Language header is the
+			// only language signal a link-joining participant gives us.
+			language := httpx.PreferredLanguage(r, "")
+			createdUser, authToken, err := db.AcceptWorkshopInviteAnonymously(r.Context(), idOrToken, language)
 			if err != nil {
 				if appErr, ok := err.(*obj.AppError); ok {
 					httpx.WriteAppError(w, appErr)
