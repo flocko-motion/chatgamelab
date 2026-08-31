@@ -134,6 +134,21 @@ func (q *Queries) ClearUserActiveWorkshop(ctx context.Context, userID uuid.UUID)
 	return err
 }
 
+const countAdmins = `-- name: CountAdmins :one
+SELECT COUNT(*)::int AS count
+FROM user_role r
+JOIN app_user u ON u.id = r.user_id
+WHERE r.role = 'admin' AND u.deleted_at IS NULL
+`
+
+// Count live admins (for the ADMIN_EMAILS bootstrap gate)
+func (q *Queries) CountAdmins(ctx context.Context) (int32, error) {
+	row := q.db.QueryRowContext(ctx, countAdmins)
+	var count int32
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countApiKeysByUser = `-- name: CountApiKeysByUser :one
 SELECT COUNT(*) FROM api_key WHERE user_id = $1
 `
