@@ -1134,6 +1134,9 @@
     "noRole": "Keine Rolle",
     "notifications": {
       "accept": "Annehmen",
+      "acceptConfirm": "Möchten Sie fortfahren?",
+      "acceptTitle": "Organisation wechseln?",
+      "acceptWarning": "Sie können nur Mitglied einer Organisation gleichzeitig sein. Wenn Sie diese Einladung annehmen, verlassen Sie Ihre aktuelle Organisation „{{organization}}“.",
       "decline": "Ablehnen",
       "declineConfirm": "Sind Sie sicher, dass Sie diese Einladung ablehnen möchten?",
       "declineTitle": "Einladung ablehnen",
