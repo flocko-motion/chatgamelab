@@ -1334,6 +1334,7 @@
     "duplicateName": "Der Name für dieses Spiel wird bereits verwendet. Bitte wähle einen anderen Namen.",
     "forbidden": "Du hast keine Berechtigung, diese Aktion durchzuführen.",
     "generic": "Etwas ist schief gelaufen. Bitte versuche es erneut.",
+    "imageGenerationUnavailable": "Das Bild für diese Szene konnte nicht erzeugt werden. Die Geschichte geht ohne Bild weiter.",
     "insufficientQuota": "Dein API-Schlüssel hat kein Guthaben mehr. Bitte lade Guthaben auf oder verwende einen anderen API-Schlüssel.",
     "invalidApiKey": "Dein API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfe deinen API-Schlüssel in den Einstellungen.",
     "invalidJsonSchema": "Die Spielkonfiguration hat ein ungültiges Schema für die KI erzeugt. Dies ist ein Problem mit der Spieleinrichtung, nicht mit dem API-Schlüssel. Bitte überprüfe die Statusfelder des Spiels und versuche es erneut.",

@@ -1334,6 +1334,7 @@
     "duplicateName": "The name for this game is already in use. Please choose a different name.",
     "forbidden": "You don't have permission to perform this action.",
     "generic": "Something went wrong. Please try again.",
+    "imageGenerationUnavailable": "The image for this scene couldn't be generated. The story continues without it.",
     "insufficientQuota": "Your API key has run out of credits. Please add more credits or use a different API key.",
     "invalidApiKey": "Your API key is invalid or expired. Please check your API key in Settings.",
     "invalidJsonSchema": "The game configuration produced an invalid schema for the AI. This is a game setup issue, not an API key problem. Please check the game's status fields and try again.",

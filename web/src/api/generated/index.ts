@@ -277,6 +277,8 @@ export interface ObjGameSessionMessage {
   hasImage?: boolean;
   id?: string;
   image?: number[];
+  /** content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag */
+  imageHash?: string;
   imagePrompt?: string;
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;
@@ -746,6 +748,8 @@ export interface RoutesSessionMessageResponse {
   hasImage?: boolean;
   id?: string;
   image?: number[];
+  /** content hash of the persisted image (see ImageHash func); drives the ?v= URL + ETag */
+  imageHash?: string;
   imagePrompt?: string;
   /** Plain text of the scene (system message, player action, or game response). */
   message?: string;

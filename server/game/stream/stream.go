@@ -138,8 +138,10 @@ func (s *Stream) SendImage(data []byte, isDone bool) {
 				// Image save failed, but continue with signaling
 			}
 		}
-		// Signal that image is ready to fetch (frontend uses URL endpoint)
-		s.Send(obj.GameSessionMessageChunk{ImageDone: true})
+		// Signal that image is ready to fetch (frontend uses URL endpoint).
+		// Carry the content hash so the client can pin ?v=<hash> immediately,
+		// matching the ETag the image endpoint will serve.
+		s.Send(obj.GameSessionMessageChunk{ImageDone: true, ImageHash: obj.ImageHash(data)})
 	} else {
 		// Send partial image data for WIP preview
 		s.Send(obj.GameSessionMessageChunk{ImageData: data})

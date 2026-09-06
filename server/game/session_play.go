@@ -459,6 +459,12 @@ func RetryImageGeneration(session *obj.GameSession, message *obj.GameSessionMess
 
 	log.Info("retrying image generation for message", "session_id", session.ID, "message_id", message.ID)
 
+	// Count this attempt so a permanently failing scene stops re-rolling on every
+	// session load (see the guard in routes.GetSession).
+	if err := db.IncrementImageGenAttempts(context.Background(), message.ID); err != nil {
+		log.Warn("failed to bump image_gen_attempts", "message_id", message.ID, "error", err)
+	}
+
 	platform, err := ai.GetAiPlatform(session.AiPlatform)
 	if err != nil {
 		log.Warn("skip image retry: failed to get AI platform", "error", err)

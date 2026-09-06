@@ -431,9 +431,13 @@ export function useStreamingSession(adapter: SessionAdapter) {
                     PARTIAL_IMAGE_THROTTLE
                   ) {
                     lastImageThrottleRef.current = now;
+                    // Constant marker (not a timestamp): it only flips SceneImage
+                    // from placeholder to <img>. The generating <img> uses the
+                    // bare URL, which the server serves with Cache-Control:
+                    // no-store, so every fetch is the newest frame.
                     updateMessage(messageId, {
                       imageStatus: "generating",
-                      imageHash: `partial-${now}`,
+                      imageHash: "partial",
                     });
                   }
                 }
@@ -486,7 +490,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: isFailed ? "error" : "complete",
-                    imageHash: isFailed ? undefined : `sse-${Date.now()}`,
+                    // Real content hash from the backend: the same value the
+                    // status poll and a page reload produce, so the final image
+                    // resolves to one stable ?v=<hash> URL and is cached once.
+                    imageHash: isFailed ? undefined : chunk.imageHash || undefined,
                     imageErrorCode: chunk.imageError,
                   });
                 }

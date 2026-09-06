@@ -159,11 +159,22 @@ func UpdateGameSessionMessageImage(ctx context.Context, userID uuid.UUID, messag
 	}
 
 	_, err = queries().UpdateGameSessionMessageImage(ctx, db.UpdateGameSessionMessageImageParams{
-		ID:    messageID,
-		Image: image,
+		ID:        messageID,
+		Image:     image,
+		ImageHash: sql.NullString{String: obj.ImageHash(image), Valid: len(image) > 0},
 	})
 	if err != nil {
 		return obj.ErrServerError("failed to update message image")
+	}
+	return nil
+}
+
+// IncrementImageGenAttempts bumps the per-message image-generation attempt
+// counter. Used to cap the automatic retry-on-load (see RetryImageGeneration).
+// No auth check: called from server-side retry paths only, keyed by message UUID.
+func IncrementImageGenAttempts(ctx context.Context, messageID uuid.UUID) error {
+	if err := queries().IncrementImageGenAttempts(ctx, messageID); err != nil {
+		return obj.ErrServerError("failed to bump image_gen_attempts")
 	}
 	return nil
 }
@@ -201,6 +212,14 @@ func GetGameSessionMessageAudioByID(ctx context.Context, messageID uuid.UUID) ([
 		return nil, obj.ErrNotFound("message not found")
 	}
 	return row.Audio, nil
+}
+
+// mapImageFields copies the image hash + attempt counter from the sqlc row.
+func mapImageFields(msg *obj.GameSessionMessage, m db.GameSessionMessage) {
+	if m.ImageHash.Valid {
+		msg.ImageHash = m.ImageHash.String
+	}
+	msg.ImageGenAttempts = int(m.ImageGenAttempts)
 }
 
 // inferCapabilityFlags ensures HasImage/HasAudio are true when actual data exists.
@@ -266,10 +285,38 @@ func GetGameSessionMessageImageByID(ctx context.Context, messageID uuid.UUID) (*
 		return nil, obj.ErrNotFound("message not found")
 	}
 
-	return &obj.GameSessionMessage{
+	msg := &obj.GameSessionMessage{
 		ID:    m.ID,
 		Image: m.Image,
-	}, nil
+		Meta:  obj.Meta{ModifiedAt: &m.ModifiedAt},
+	}
+	mapImageFields(msg, m)
+	return msg, nil
+}
+
+// ImageDownloadMeta carries the bits needed to build a human-readable download
+// filename for a message image.
+type ImageDownloadMeta struct {
+	GameName    string
+	ImagePrompt string
+	ImageIndex  int // 1-based position among the session's image-bearing messages
+}
+
+// GetImageDownloadMeta returns naming metadata for a message image (no auth
+// required, keyed by unguessable message UUID like the image endpoint itself).
+func GetImageDownloadMeta(ctx context.Context, messageID uuid.UUID) (*ImageDownloadMeta, error) {
+	row, err := queries().GetGameSessionMessageImageMeta(ctx, messageID)
+	if err != nil {
+		return nil, obj.ErrNotFound("message not found")
+	}
+	meta := &ImageDownloadMeta{
+		GameName:   row.GameName,
+		ImageIndex: int(row.ImageIndex),
+	}
+	if row.ImagePrompt.Valid {
+		meta.ImagePrompt = row.ImagePrompt.String
+	}
+	return meta, nil
 }
 
 // GetGameSessionMessageByIDPublic returns message fields needed for the status endpoint (no auth required).
@@ -304,6 +351,7 @@ func GetGameSessionMessageByIDPublic(ctx context.Context, messageID uuid.UUID) (
 	}
 
 	mapAiInsightFields(msg, m)
+	mapImageFields(msg, m)
 	inferCapabilityFlags(msg)
 
 	return msg, nil
@@ -355,6 +403,7 @@ func GetLatestGameSessionMessage(ctx context.Context, userID uuid.UUID, sessionI
 	}
 
 	mapAiInsightFields(msg, m)
+	mapImageFields(msg, m)
 	inferCapabilityFlags(msg)
 
 	return msg, nil
@@ -410,6 +459,7 @@ func GetAllGameSessionMessages(ctx context.Context, userID uuid.UUID, sessionID 
 		}
 
 		mapAiInsightFields(&msg, m)
+		mapImageFields(&msg, m)
 		inferCapabilityFlags(&msg)
 
 		result = append(result, msg)
