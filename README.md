@@ -33,6 +33,22 @@ make rebase
 
 This replays your branch on top of the latest `origin/development` and force-pushes it. Only run it on your own feature branch.
 
+**Landing your branch:**
+
+```bash
+make pr
+```
+
+From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development`, waits for its checks and merges it. Re-running after the merge says so and stops. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
+
+**Releasing:**
+
+```bash
+make release
+```
+
+From `development` this takes it to `main` through a pull request, then merges `main` back so the release tags stay reachable from `development`. `make sync` does that back-merge on its own, for a release someone merged in the browser.
+
 
 ## Requirements
 

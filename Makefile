@@ -1,4 +1,4 @@
-.PHONY: rebase release sync check-clean-tree check-on-development
+.PHONY: rebase pr release sync check-clean-tree check-on-development check-on-feature
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
@@ -7,6 +7,59 @@ rebase:
 	git rebase origin/development
 	git push --force-with-lease
 	@echo "✅ Rebased successfully."
+
+# ── pr ───────────────────────────────────────────────────────────────────────
+#
+# feature branch -> development: merge development in, push, open the pull
+# request, wait for its checks, merge. Getting development onto main is
+# `make release`.
+#
+# The first step is `sync` pointed the other way. origin/development is made an
+# ancestor before the pull request opens, so its checks run over the code that
+# will actually land rather than over a base the branch has drifted from. A
+# feature branch can be rewritten, so `make rebase` reaches the same place more
+# cheaply; the merge is what a run that must not touch anyone's checkout can do
+# on its own.
+
+check-on-feature:
+	@branch="$$(git rev-parse --abbrev-ref HEAD)"; \
+	case "$$branch" in development|main|HEAD) \
+		echo "this runs on a feature branch, not $$branch"; exit 1;; esac
+
+# Resumable: a branch whose pull request is already merged says so and stops,
+# rather than opening a second one.
+pr: check-clean-tree check-on-feature
+	git fetch origin development
+	@branch="$$(git rev-parse --abbrev-ref HEAD)"; \
+	if git merge-base --is-ancestor HEAD origin/development; then \
+		echo "✅ $$branch is already in development — nothing to open"; \
+		exit 0; \
+	fi; \
+	if git merge-base --is-ancestor origin/development HEAD; then \
+		echo ">> origin/development is already an ancestor"; \
+	else \
+		echo ">> merging origin/development in…"; \
+		git merge origin/development -m "chore: merge development into $$branch" \
+			|| { echo "resolve the conflicts, commit, then re-run"; exit 1; }; \
+	fi; \
+	git push --set-upstream origin "$$branch"; \
+	echo ">> what this pull request takes to development:"; \
+	git -c color.ui=never log --oneline --no-merges origin/development..HEAD | cat; \
+	gh pr list --head "$$branch" --base development --state open --json number \
+		--jq '.[0].number' | grep -q . \
+		|| gh pr create --base development --head "$$branch" --fill; \
+	echo ">> waiting for the pull request's checks…"; \
+	: "gh reports no checks both where a base requires none and in the"; \
+	: "seconds before checks register, so probe before watching"; \
+	for i in 1 2 3 4 5; do \
+		gh pr checks "$$branch" >/dev/null 2>&1 && break; \
+		sleep 3; \
+	done; \
+	gh pr checks "$$branch" --watch --fail-fast \
+		|| { echo "a check is failing — fix it, then re-run"; exit 1; }; \
+	echo ">> merging…"; \
+	gh pr merge "$$branch" --merge --delete-branch=false; \
+	echo "✅ merged into development — 'make release' puts it on main"
 
 # ── release ──────────────────────────────────────────────────────────────────
 #
