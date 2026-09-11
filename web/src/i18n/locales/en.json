@@ -1134,6 +1134,9 @@
     "noRole": "No role",
     "notifications": {
       "accept": "Accept",
+      "acceptConfirm": "Do you want to continue?",
+      "acceptTitle": "Switch organization?",
+      "acceptWarning": "You can only be a member of one organization at a time. Accepting this invitation removes you from your current organization \"{{organization}}\".",
       "decline": "Decline",
       "declineConfirm": "Are you sure you want to decline this invitation?",
       "declineTitle": "Decline Invitation",
