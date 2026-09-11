@@ -48,7 +48,8 @@ pr: check-clean-tree check-on-feature
 	git -c color.ui=never log --oneline --no-merges origin/development..HEAD | cat; \
 	gh pr list --head "$$branch" --base development --state open --json number \
 		--jq '.[0].number' | grep -q . \
-		|| gh pr create --base development --head "$$branch" --fill; \
+		|| gh pr create --base development --head "$$branch" --fill \
+		|| { echo "could not open the pull request"; exit 1; }; \
 	if [ -z "$(MERGE)" ]; then \
 		echo "✅ open for review: $$(gh pr view "$$branch" --json url --jq .url)"; \
 		echo "   to wait for its checks and merge it:  make pr MERGE=1"; \
@@ -112,10 +113,16 @@ release:
 		echo ">> already merged into main — going straight to the back-merge"; \
 	else \
 		echo ">> what this release takes to main:"; \
-		git -c color.ui=never log --oneline --no-merges origin/main..origin/development | cat; \
+		notes="$$(git -c color.ui=never log --oneline --no-merges \
+			origin/main..origin/development)"; \
+		echo "$$notes"; \
+		: "--fill reads the local development branch, which this target never"; \
+		: "checks out or updates, so the range it sees can be empty"; \
 		gh pr list --head development --base main --state open --json number \
 			--jq '.[0].number' | grep -q . \
-			|| gh pr create --base main --head development --fill; \
+			|| gh pr create --base main --head development \
+				--title "release $$(date +%Y-%m-%d)" --body "$$notes" \
+			|| { echo "could not open the pull request"; exit 1; }; \
 		echo ">> waiting for the pull request's checks…"; \
 		: "gh reports no checks reported both where a base requires none and"; \
 		: "in the seconds before checks register, so probe before watching"; \
