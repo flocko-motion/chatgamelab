@@ -51,7 +51,7 @@ pr: check-clean-tree check-on-feature
 		|| gh pr create --base development --head "$$branch" --fill; \
 	if [ -z "$(MERGE)" ]; then \
 		echo "✅ open for review: $$(gh pr view "$$branch" --json url --jq .url)"; \
-		echo "   'make pr MERGE=1' waits for its checks and merges it"; \
+		echo "   to wait for its checks and merge it:  make pr MERGE=1"; \
 		exit 0; \
 	fi; \
 	echo ">> waiting for the pull request's checks…"; \
