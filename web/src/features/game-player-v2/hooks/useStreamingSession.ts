@@ -152,6 +152,24 @@ export function useStreamingSession(adapter: SessionAdapter) {
     [],
   );
 
+  // Mark a message's image as still generating - but never resurrect one that
+  // already reached a terminal state. On a throttled connection a buffered
+  // partial-image chunk can arrive after the status poll set "complete" and
+  // stopped polling; without this guard that late chunk would flip the message
+  // back to "generating" and the WIP pulse would stay forever.
+  const markImageGenerating = useCallback((messageId: string) => {
+    setState((prev) => ({
+      ...prev,
+      messages: prev.messages.map((msg) => {
+        if (msg.id !== messageId) return msg;
+        if (msg.imageStatus === "complete" || msg.imageStatus === "error") {
+          return msg;
+        }
+        return { ...msg, imageStatus: "generating", imageHash: "partial" };
+      }),
+    }));
+  }, []);
+
   const appendTextToMessage = useCallback((messageId: string, text: string) => {
     setState((prev) => ({
       ...prev,
@@ -431,10 +449,13 @@ export function useStreamingSession(adapter: SessionAdapter) {
                     PARTIAL_IMAGE_THROTTLE
                   ) {
                     lastImageThrottleRef.current = now;
-                    updateMessage(messageId, {
-                      imageStatus: "generating",
-                      imageHash: `partial-${now}`,
-                    });
+                    // "partial" is a constant marker (not a timestamp): it only
+                    // flips SceneImage from placeholder to <img>. The generating
+                    // <img> uses the bare URL, which the server serves with
+                    // Cache-Control: no-store, so every fetch is the newest
+                    // frame. markImageGenerating ignores this once the image has
+                    // already completed (guards against a late buffered chunk).
+                    markImageGenerating(messageId);
                   }
                 }
 
@@ -486,7 +507,10 @@ export function useStreamingSession(adapter: SessionAdapter) {
                   updateMessage(messageId, {
                     isImageLoading: false,
                     imageStatus: isFailed ? "error" : "complete",
-                    imageHash: isFailed ? undefined : `sse-${Date.now()}`,
+                    // Real content hash from the backend: the same value the
+                    // status poll and a page reload produce, so the final image
+                    // resolves to one stable ?v=<hash> URL and is cached once.
+                    imageHash: isFailed ? undefined : chunk.imageHash || undefined,
                     imageErrorCode: chunk.imageError,
                   });
                 }
@@ -527,6 +551,7 @@ export function useStreamingSession(adapter: SessionAdapter) {
     [
       appendTextToMessage,
       updateMessage,
+      markImageGenerating,
       startPolling,
       stopPolling,
       resetSilenceTimer,

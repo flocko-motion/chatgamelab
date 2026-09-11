@@ -35,6 +35,9 @@ const (
 	ErrCodeInsufficientQuota        = "insufficient_quota"
 	ErrCodeContentFiltered          = "content_filtered"
 	ErrCodePreviousResponseNotFound = "previous_response_not_found"
+	// ErrCodeImageGenerationUnavailable is reported for a message whose image
+	// never generated and whose automatic retry budget is exhausted.
+	ErrCodeImageGenerationUnavailable = "image_generation_unavailable"
 )
 
 // Error type constructors

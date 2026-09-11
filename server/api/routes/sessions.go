@@ -113,15 +113,18 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Check for messages with imagePrompt but no persisted image - retry generation once.
-	// Only for non-streaming (text-complete) messages where the image was lost or never generated.
+	// Check for messages with imagePrompt but no persisted image - retry generation.
+	// Only for non-streaming (text-complete) messages where the image was lost or
+	// never generated, and only up to maxAutoImageRetries times total: a provider
+	// that keeps failing must not re-roll a different picture on every session load.
 	for i := range resp.Messages {
 		msg := &resp.Messages[i]
-		if msg.ImagePrompt != nil && *msg.ImagePrompt != "" && len(msg.Image) == 0 && !msg.Stream {
+		if msg.ImagePrompt != nil && *msg.ImagePrompt != "" && len(msg.Image) == 0 && !msg.Stream &&
+			msg.ImageGenAttempts < maxAutoImageRetries {
 			cache := imagecache.Get()
 			status := cache.GetStatus(msg.ID)
 			if !status.Exists {
-				log.Debug("detected missing image, triggering retry", "session_id", sessionID, "message_id", msg.ID)
+				log.Debug("detected missing image, triggering retry", "session_id", sessionID, "message_id", msg.ID, "attempts", msg.ImageGenAttempts)
 				game.RetryImageGeneration(session, msg)
 			}
 		}

@@ -252,7 +252,7 @@ INSERT INTO game_session_message (
   $16, $17,
   $18
 )
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
 `
 
 type CreateGameSessionMessageParams struct {
@@ -313,6 +313,8 @@ func (q *Queries) CreateGameSessionMessage(ctx context.Context, arg CreateGameSe
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,
@@ -510,7 +512,7 @@ func (q *Queries) DeleteUserGameSessions(ctx context.Context, arg DeleteUserGame
 }
 
 const getAllGameSessionMessages = `-- name: GetAllGameSessionMessages :many
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq ASC
 `
 
 func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID uuid.UUID) ([]GameSessionMessage, error) {
@@ -536,6 +538,8 @@ func (q *Queries) GetAllGameSessionMessages(ctx context.Context, gameSessionID u
 			&i.Plot,
 			&i.ImagePrompt,
 			&i.Image,
+			&i.ImageHash,
+			&i.ImageGenAttempts,
 			&i.Audio,
 			&i.HasImage,
 			&i.HasAudio,
@@ -1127,7 +1131,7 @@ func (q *Queries) GetGameSessionMessageAudioByID(ctx context.Context, id uuid.UU
 }
 
 const getGameSessionMessageByID = `-- name: GetGameSessionMessageByID :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE id = $1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE id = $1
 `
 
 func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (GameSessionMessage, error) {
@@ -1147,6 +1151,8 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,
@@ -1163,6 +1169,47 @@ func (q *Queries) GetGameSessionMessageByID(ctx context.Context, id uuid.UUID) (
 		&i.PromptConstraintSourceName,
 		&i.PromptConstraintReasoning,
 		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const getGameSessionMessageImageMeta = `-- name: GetGameSessionMessageImageMeta :one
+SELECT
+  m.image_prompt AS image_prompt,
+  m.game_session_id AS game_session_id,
+  g.name AS game_name,
+  (
+    SELECT count(*)
+    FROM game_session_message x
+    WHERE x.game_session_id = m.game_session_id
+      AND x.has_image = true
+      AND x.deleted_at IS NULL
+      AND x.seq <= m.seq
+  )::int AS image_index
+FROM game_session_message m
+JOIN game_session s ON s.id = m.game_session_id
+JOIN game g ON g.id = s.game_id
+WHERE m.id = $1
+`
+
+type GetGameSessionMessageImageMetaRow struct {
+	ImagePrompt   sql.NullString
+	GameSessionID uuid.UUID
+	GameName      string
+	ImageIndex    int32
+}
+
+// Fields needed to build a human-readable download filename for an image.
+// image_index is this image's 1-based position among the image-bearing messages
+// of the same session, ordered by seq.
+func (q *Queries) GetGameSessionMessageImageMeta(ctx context.Context, id uuid.UUID) (GetGameSessionMessageImageMetaRow, error) {
+	row := q.db.QueryRowContext(ctx, getGameSessionMessageImageMeta, id)
+	var i GetGameSessionMessageImageMetaRow
+	err := row.Scan(
+		&i.ImagePrompt,
+		&i.GameSessionID,
+		&i.GameName,
+		&i.ImageIndex,
 	)
 	return i, err
 }
@@ -2058,7 +2105,7 @@ func (q *Queries) GetGamesVisibleToUserSortedByPlayCountAsc(ctx context.Context,
 }
 
 const getLatestGameSessionMessage = `-- name: GetLatestGameSessionMessage :one
-SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
+SELECT id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at FROM game_session_message WHERE game_session_id = $1 ORDER BY seq DESC LIMIT 1
 `
 
 func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID uuid.UUID) (GameSessionMessage, error) {
@@ -2078,6 +2125,8 @@ func (q *Queries) GetLatestGameSessionMessage(ctx context.Context, gameSessionID
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,
@@ -3095,6 +3144,18 @@ UPDATE game SET play_count = play_count + 1 WHERE id = $1
 
 func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, incrementGamePlayCount, id)
+	return err
+}
+
+const incrementImageGenAttempts = `-- name: IncrementImageGenAttempts :exec
+UPDATE game_session_message SET
+  image_gen_attempts = image_gen_attempts + 1,
+  modified_at = now()
+WHERE id = $1
+`
+
+func (q *Queries) IncrementImageGenAttempts(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, incrementImageGenAttempts, id)
 	return err
 }
 
@@ -5635,7 +5696,7 @@ UPDATE game_session_message SET
   prompt_constraint_source_name = $25,
   prompt_constraint_reasoning = $26
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
 `
 
 type UpdateGameSessionMessageParams struct {
@@ -5711,6 +5772,8 @@ func (q *Queries) UpdateGameSessionMessage(ctx context.Context, arg UpdateGameSe
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,
@@ -5736,7 +5799,7 @@ UPDATE game_session_message SET
   audio = $2,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
 `
 
 type UpdateGameSessionMessageAudioParams struct {
@@ -5761,6 +5824,8 @@ func (q *Queries) UpdateGameSessionMessageAudio(ctx context.Context, arg UpdateG
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,
@@ -5784,18 +5849,20 @@ func (q *Queries) UpdateGameSessionMessageAudio(ctx context.Context, arg UpdateG
 const updateGameSessionMessageImage = `-- name: UpdateGameSessionMessageImage :one
 UPDATE game_session_message SET
   image = $2,
+  image_hash = $3,
   modified_at = now()
 WHERE id = $1
-RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
+RETURNING id, created_by, created_at, modified_by, modified_at, game_session_id, seq, type, message, status, plot, image_prompt, image, image_hash, image_gen_attempts, audio, has_image, has_audio, prompt_status_update, prompt_response_schema, prompt_image_generation, prompt_expand_story, response_raw, token_usage, url_analytics, api_key_type, prompt_constraint_source, prompt_constraint_text, prompt_constraint_source_name, prompt_constraint_reasoning, deleted_at
 `
 
 type UpdateGameSessionMessageImageParams struct {
-	ID    uuid.UUID
-	Image []byte
+	ID        uuid.UUID
+	Image     []byte
+	ImageHash sql.NullString
 }
 
 func (q *Queries) UpdateGameSessionMessageImage(ctx context.Context, arg UpdateGameSessionMessageImageParams) (GameSessionMessage, error) {
-	row := q.db.QueryRowContext(ctx, updateGameSessionMessageImage, arg.ID, arg.Image)
+	row := q.db.QueryRowContext(ctx, updateGameSessionMessageImage, arg.ID, arg.Image, arg.ImageHash)
 	var i GameSessionMessage
 	err := row.Scan(
 		&i.ID,
@@ -5811,6 +5878,8 @@ func (q *Queries) UpdateGameSessionMessageImage(ctx context.Context, arg UpdateG
 		&i.Plot,
 		&i.ImagePrompt,
 		&i.Image,
+		&i.ImageHash,
+		&i.ImageGenAttempts,
 		&i.Audio,
 		&i.HasImage,
 		&i.HasAudio,

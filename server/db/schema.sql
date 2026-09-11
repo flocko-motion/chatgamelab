@@ -355,6 +355,12 @@ CREATE TABLE game_session_message (
     plot                text NULL,
     image_prompt        text NULL,
     image               bytea NULL,
+    -- Content hash (see obj.ImageHash) of the persisted image bytes. Drives the
+    -- content-addressed ?v=<hash> image URL and the ETag on GET /messages/{id}/image.
+    image_hash          text NULL,
+    -- Number of image-generation attempts made for this message. Caps the
+    -- automatic retry-on-load so a permanently failing scene stops re-rolling.
+    image_gen_attempts  integer NOT NULL DEFAULT 0,
     audio               bytea NULL,
     has_image           boolean NOT NULL DEFAULT false,
     has_audio           boolean NOT NULL DEFAULT false,

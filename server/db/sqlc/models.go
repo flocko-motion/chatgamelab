@@ -121,6 +121,8 @@ type GameSessionMessage struct {
 	Plot                       sql.NullString
 	ImagePrompt                sql.NullString
 	Image                      []byte
+	ImageHash                  sql.NullString
+	ImageGenAttempts           int32
 	Audio                      []byte
 	HasImage                   bool
 	HasAudio                   bool
