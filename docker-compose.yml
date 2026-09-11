@@ -52,6 +52,7 @@ services:
       PUBLIC_URL: ${PUBLIC_URL}
       API_BASE_URL: ${API_BASE_URL}
       SENTRY_DSN_BACKEND: ${SENTRY_DSN_BACKEND:-}
+      SESSION_RETENTION_HOURS: ${SESSION_RETENTION_HOURS:-48}
     depends_on:
       db:
         condition: service_healthy

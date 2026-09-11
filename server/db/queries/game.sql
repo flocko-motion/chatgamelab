@@ -603,3 +603,18 @@ DELETE FROM game_session WHERE user_id = $1;
 DELETE FROM game_session_message WHERE game_session_id IN (
   SELECT id FROM game_session WHERE user_id = $1
 );
+
+-- name: CountExpiredGameSessions :one
+SELECT count(*) FROM game_session WHERE modified_at < $1;
+
+-- name: PurgeExpiredGameSessions :execrows
+-- Deletes a batch of sessions whose last activity predates the cutoff, messages first.
+WITH expired AS (
+  SELECT gs.id FROM game_session gs
+  WHERE gs.modified_at < $1
+  ORDER BY gs.modified_at
+  LIMIT $2
+), purged_messages AS (
+  DELETE FROM game_session_message m WHERE m.game_session_id IN (SELECT e.id FROM expired e)
+)
+DELETE FROM game_session s WHERE s.id IN (SELECT e.id FROM expired e);
