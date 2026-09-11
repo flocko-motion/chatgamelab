@@ -8,6 +8,38 @@ rebase:
 	git push --force-with-lease
 	@echo "✅ Rebased successfully."
 
+# Whether a pull request may merge is GitHub's question, and mergeStateStatus
+# is where it answers. `gh pr checks` reports what sits on the head commit,
+# which for the back-merge is main's own release build, green before the pull
+# request existed — so a required check that has yet to register reads there as
+# success, and the merge that follows is refused by the base branch policy. The
+# checks are watched for the eye; BLOCKED is what holds the merge back, and it
+# persists for as long as a required check is pending.
+define wait_and_merge
+wait_and_merge() { \
+	pr="$$1"; \
+	echo ">> watching #$$pr's checks…"; \
+	gh pr checks "$$pr" --watch --fail-fast || true; \
+	echo ">> waiting for GitHub to call #$$pr mergeable…"; \
+	for i in $$(seq 1 180); do \
+		state="$$(gh pr view "$$pr" --json mergeStateStatus --jq .mergeStateStatus)"; \
+		case "$$state" in \
+			CLEAN|UNSTABLE) break;; \
+			DIRTY) echo "#$$pr has conflicts — resolve them, then re-run"; return 1;; \
+		esac; \
+		sleep 10; \
+	done; \
+	case "$$state" in \
+		CLEAN|UNSTABLE) ;; \
+		*) echo "#$$pr is still $$state after 30 minutes, with:"; \
+		   gh pr checks "$$pr" || true; \
+		   return 1;; \
+	esac; \
+	gh pr merge "$$pr" --merge --delete-branch=false \
+		|| { echo "could not merge #$$pr — merge it in the browser"; return 1; }; \
+}
+endef
+
 # ── pr ───────────────────────────────────────────────────────────────────────
 #
 # feature branch -> development: merge development in, push, open the pull
@@ -55,17 +87,8 @@ pr: check-clean-tree check-on-feature
 		echo "   to wait for its checks and merge it:  make pr MERGE=1"; \
 		exit 0; \
 	fi; \
-	echo ">> waiting for the pull request's checks…"; \
-	: "gh reports no checks both where a base requires none and in the"; \
-	: "seconds before checks register, so probe before watching"; \
-	for i in 1 2 3 4 5; do \
-		gh pr checks "$$branch" >/dev/null 2>&1 && break; \
-		sleep 3; \
-	done; \
-	gh pr checks "$$branch" --watch --fail-fast \
-		|| { echo "a check is failing — fix it, then re-run"; exit 1; }; \
-	echo ">> merging…"; \
-	gh pr merge "$$branch" --merge --delete-branch=false; \
+	$(wait_and_merge); \
+	wait_and_merge "$$branch" || exit 1; \
 	echo "✅ merged into development — 'make release' puts it on main"
 
 # ── release ──────────────────────────────────────────────────────────────────
@@ -136,17 +159,8 @@ release:
 			|| gh pr create --base main --head development \
 				--title "release $$(date +%Y-%m-%d)" --body "$$notes" \
 			|| { echo "could not open the pull request"; exit 1; }; \
-		echo ">> waiting for the pull request's checks…"; \
-		: "gh reports no checks reported both where a base requires none and"; \
-		: "in the seconds before checks register, so probe before watching"; \
-		for i in 1 2 3 4 5; do \
-			gh pr checks development >/dev/null 2>&1 && break; \
-			sleep 3; \
-		done; \
-		gh pr checks development --watch --fail-fast \
-			|| { echo "a check is failing — fix it, then re-run"; exit 1; }; \
-		echo ">> merging…"; \
-		gh pr merge development --merge --delete-branch=false; \
+		$(wait_and_merge); \
+		wait_and_merge development || exit 1; \
 	fi
 	@$(MAKE) --no-print-directory sync
 	@echo "✅ released — CI tags main and builds both branches"
@@ -174,19 +188,10 @@ sync:
 		|| { echo "could not open the back-merge pull request"; exit 1; }; \
 	num="$$(gh pr list --head main --base development --state open --json number \
 		--jq '.[0].number')"; \
-	echo ">> waiting for the back-merge pull request's checks…"; \
-	: "gh reports no checks both where a base requires none and in the"; \
-	: "seconds before checks register, so probe before watching"; \
-	for i in 1 2 3 4 5; do \
-		gh pr checks "$$num" >/dev/null 2>&1 && break; \
-		sleep 3; \
-	done; \
-	gh pr checks "$$num" --watch --fail-fast \
-		|| { echo "checks did not pass on #$$num — fix them, then re-run"; exit 1; }; \
-	: "--delete-branch=false matters more here than anywhere else: the head of"; \
-	: "this pull request is main"; \
-	gh pr merge "$$num" --merge --delete-branch=false \
-		|| { echo "could not merge #$$num — merge it in the browser"; exit 1; }; \
+	: "--delete-branch=false, which wait_and_merge passes, matters more here"; \
+	: "than anywhere else: the head of this pull request is main"; \
+	$(wait_and_merge); \
+	wait_and_merge "$$num" || exit 1; \
 	echo "✅ merged main back — release tags are reachable from development"; \
 	: "git refuses this one while development is the branch you have out, which"; \
 	: "is the case the hint below is for"; \

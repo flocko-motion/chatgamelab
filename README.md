@@ -45,7 +45,7 @@ From your feature branch this merges `origin/development` in so the checks run o
 make pr MERGE=1
 ```
 
-The same, and then it waits for the pull request's checks and merges it. Run it on a pull request that is already open to merge that one. Re-running after the merge says so and stops.
+The same, and then it waits until GitHub will let the pull request merge — which outlasts a required check that has yet to start — and merges it. Run it on a pull request that is already open to merge that one. Re-running after the merge says so and stops.
 
 **Releasing:**
 
