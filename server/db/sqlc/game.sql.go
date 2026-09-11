@@ -24,6 +24,17 @@ func (q *Queries) ClearGameSessionApiKeyByID(ctx context.Context, id uuid.UUID) 
 	return err
 }
 
+const countExpiredGameSessions = `-- name: CountExpiredGameSessions :one
+SELECT count(*) FROM game_session WHERE modified_at < $1
+`
+
+func (q *Queries) CountExpiredGameSessions(ctx context.Context, modifiedAt time.Time) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countExpiredGameSessions, modifiedAt)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const countGameSessionMessages = `-- name: CountGameSessionMessages :one
 SELECT COUNT(*)::int AS count FROM game_session_message WHERE game_session_id = $1
 `
@@ -3096,6 +3107,32 @@ UPDATE game SET play_count = play_count + 1 WHERE id = $1
 func (q *Queries) IncrementGamePlayCount(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.ExecContext(ctx, incrementGamePlayCount, id)
 	return err
+}
+
+const purgeExpiredGameSessions = `-- name: PurgeExpiredGameSessions :execrows
+WITH expired AS (
+  SELECT gs.id FROM game_session gs
+  WHERE gs.modified_at < $1
+  ORDER BY gs.modified_at
+  LIMIT $2
+), purged_messages AS (
+  DELETE FROM game_session_message m WHERE m.game_session_id IN (SELECT e.id FROM expired e)
+)
+DELETE FROM game_session s WHERE s.id IN (SELECT e.id FROM expired e)
+`
+
+type PurgeExpiredGameSessionsParams struct {
+	ModifiedAt time.Time
+	Limit      int32
+}
+
+// Deletes a batch of sessions whose last activity predates the cutoff, messages first.
+func (q *Queries) PurgeExpiredGameSessions(ctx context.Context, arg PurgeExpiredGameSessionsParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, purgeExpiredGameSessions, arg.ModifiedAt, arg.Limit)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
 const searchAllGames = `-- name: SearchAllGames :many
