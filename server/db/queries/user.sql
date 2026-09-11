@@ -1,8 +1,8 @@
 -- app_user -------------------------------------------------------------
 
 -- name: CreateUser :one
-INSERT INTO app_user (id, name, email, auth0_id, age_group)
-VALUES (gen_random_uuid(), $1, $2, $3, $4)
+INSERT INTO app_user (id, name, email, auth0_id, age_group, language)
+VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
 RETURNING id;
 
 -- name: CreateUserWithID :one
@@ -12,8 +12,8 @@ ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
 -- name: CreateUserWithParticipantToken :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, language)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 

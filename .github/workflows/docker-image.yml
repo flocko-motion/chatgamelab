@@ -1,20 +1,20 @@
 name: Build and Push Docker Images
 
+# main only. Its images are what production deploys, and production is the
+# only consumer: the development instance (cgl.fmnoel.de) builds from source on
+# the box, so it can run any commit rather than only the ones published here.
+# Quality is gated before the merge by test.yml, on the pull request.
 on:
   push:
     branches:
       - main
-      - development
   workflow_dispatch:
     inputs:
-      branch:
-        description: "Branch to build from"
+      ref:
+        description: "Ref to build from (branch, tag or SHA)"
         required: true
-        default: "development"
-        type: choice
-        options:
-          - main
-          - development
+        default: "main"
+        type: string
       reason:
         description: "Reason for manual build"
         required: false
@@ -37,7 +37,7 @@ jobs:
       - name: Display build info
         run: |
           echo "🚀 Build triggered"
-          echo "📂 Branch: ${{ github.event.inputs.branch || github.ref_name }}"
+          echo "📂 Ref: ${{ github.event.inputs.ref || github.ref_name }}"
           echo "💬 Reason: ${{ github.event.inputs.reason || 'push' }}"
           echo "👤 Triggered by: ${{ github.actor }}"
 
@@ -46,10 +46,9 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.inputs.branch || github.ref_name }}
+          ref: ${{ github.event.inputs.ref || github.ref_name }}
 
-      - name: Resolve version (main)
-        if: github.ref_name == 'main'
+      - name: Resolve version
         id: main_version
         run: |
           npm install -g semantic-release @semantic-release/github @semantic-release/exec
@@ -71,63 +70,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Resolve version (development)
-        if: github.ref_name == 'development'
-        id: dev_version
-        run: |
-          # Find the latest stable tag (no prerelease suffix)
-          LATEST_STABLE=$(git tag -l "v[0-9]*.[0-9]*.[0-9]*" --sort=-version:refname | grep -v -- '-' | head -n1 | sed 's/^v//')
-
-          if [ -z "$LATEST_STABLE" ]; then
-            LATEST_STABLE="0.0.0"
-          fi
-          echo "Latest stable tag: $LATEST_STABLE"
-
-          # Bump minor version to get the next release version
-          MAJOR=$(echo "$LATEST_STABLE" | cut -d. -f1)
-          MINOR=$(echo "$LATEST_STABLE" | cut -d. -f2)
-          NEXT_MINOR=$((MINOR + 1))
-          NEXT_VERSION="${MAJOR}.${NEXT_MINOR}.0"
-          echo "Next version base: $NEXT_VERSION"
-
-          # Count commits since the latest stable tag
-          COMMIT_COUNT=$(git rev-list "v${LATEST_STABLE}..HEAD" --count 2>/dev/null || echo "0")
-          echo "Commits since v${LATEST_STABLE}: $COMMIT_COUNT"
-
-          BUILD_VERSION="${NEXT_VERSION}-dev.${COMMIT_COUNT}"
-          echo "Dev version: $BUILD_VERSION"
-
-          echo "version=$BUILD_VERSION" >> $GITHUB_OUTPUT
-
       - name: Set final version output
         id: version
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "version=${{ steps.main_version.outputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${{ steps.dev_version.outputs.version }}" >> $GITHUB_OUTPUT
-          fi
+        run: echo "version=${{ steps.main_version.outputs.version }}" >> $GITHUB_OUTPUT
 
-      - name: Comment on merged PR (development)
-        if: github.ref_name == 'development'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const version = '${{ steps.dev_version.outputs.version }}';
-            // Find the PR associated with this merge commit
-            const commits = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-            });
-            for (const pr of commits.data) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body: `This PR is included in version ${version} 🎉\n\nYour semantic-release bot 📦🚀`,
-              });
-            }
 
   build-and-push:
     needs: resolve-version
@@ -169,6 +115,14 @@ jobs:
           SERVICE_NAME="${{ matrix.service.name }}"
           BRANCH_NAME="${{ github.ref_name }}"
           VERSION="${{ needs.resolve-version.outputs.version }}"
+          if [ "$VERSION" != "no-release" ]; then
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-db:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_PREFIX }}-db:latest\`" >> $GITHUB_STEP_SUMMARY
 
           # Base image name
           IMAGE_NAME="${{ env.IMAGE_PREFIX }}-${SERVICE_NAME}"
@@ -181,21 +135,11 @@ jobs:
             TAGS="${IMAGE_NAME}:${VERSION}"
           fi
 
-          # Add branch-specific tags
-          if [ "$BRANCH_NAME" = "main" ]; then
-            # Main branch: add latest
-            if [ -n "$TAGS" ]; then
-              TAGS="${TAGS},${IMAGE_NAME}:latest"
-            else
-              TAGS="${IMAGE_NAME}:latest"
-            fi
-          elif [ "$BRANCH_NAME" = "development" ]; then
-            # Development branch: add dev
-            if [ -n "$TAGS" ]; then
-              TAGS="${TAGS},${IMAGE_NAME}:dev"
-            else
-              TAGS="${IMAGE_NAME}:dev"
-            fi
+          # latest always, beside the version tag
+          if [ -n "$TAGS" ]; then
+            TAGS="${TAGS},${IMAGE_NAME}:latest"
+          else
+            TAGS="${IMAGE_NAME}:latest"
           fi
 
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
@@ -224,30 +168,21 @@ jobs:
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
             org.opencontainers.image.version=${{ needs.resolve-version.outputs.version }}
 
-  webhook:
+  deploy-prod:
+    # Coolify, until production moves to its own v-server deployed from
+    # chatgamelab-deploy. The development instance is triggered by
+    # deploy-dev.yml, which runs on its own branch and needs none of this.
     needs: [build-and-push, resolve-version]
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger deployment webhook
+      - name: Trigger Coolify prod
         run: |
-          echo "Release version: ${{ needs.resolve-version.outputs.version }}"
-
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "Triggering Coolify prod webhook..."
-            curl -X POST \
-              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
-              -f \
-              "${{ secrets.COOLIFY_WEBHOOK_URL_PROD }}" || echo "⚠️ Coolify prod webhook failed"
-          else
-            echo "Triggering Coolify dev webhook..."
-            curl -X POST \
-              -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
-              -f \
-              "${{ secrets.COOLIFY_WEBHOOK_URL }}" || echo "⚠️ Coolify dev webhook failed"
-          fi
+          curl -X POST -f \
+            -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
+            "${{ secrets.COOLIFY_WEBHOOK_URL_PROD }}" || echo "⚠️ Coolify prod webhook failed"
 
   summary:
-    needs: [build-and-push, resolve-version, webhook]
+    needs: [build-and-push, resolve-version, deploy-prod]
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
@@ -261,18 +196,11 @@ jobs:
           echo "### Images:" >> $GITHUB_STEP_SUMMARY
 
           VERSION="${{ needs.resolve-version.outputs.version }}"
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            if [ "$VERSION" != "no-release" ]; then
-              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
-              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
-            fi
-            echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ github.ref_name }}" = "development" ]; then
-            if [ "$VERSION" != "no-release" ]; then
-              echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
-              echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
-            fi
-            echo "- \`${{ env.IMAGE_PREFIX }}-backend:dev\`" >> $GITHUB_STEP_SUMMARY
-            echo "- \`${{ env.IMAGE_PREFIX }}-web:dev\`" >> $GITHUB_STEP_SUMMARY
+          if [ "$VERSION" != "no-release" ]; then
+            echo "- \`${{ env.IMAGE_PREFIX }}-backend:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-web:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- \`${{ env.IMAGE_PREFIX }}-db:${VERSION}\`" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "- \`${{ env.IMAGE_PREFIX }}-backend:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_PREFIX }}-web:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.IMAGE_PREFIX }}-db:latest\`" >> $GITHUB_STEP_SUMMARY

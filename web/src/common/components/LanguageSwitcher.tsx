@@ -16,6 +16,17 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
   const { currentLanguage, availableLanguages, changeLanguage } = useLanguageSwitcher();
   const hasWipLanguages = availableLanguages.some((lang) => !lang.isStatic);
 
+  // onChange stays silent when the already-selected option is picked again, so
+  // picking the language that is already shown would do nothing. That matters
+  // for accounts created before the language was stored at signup: their
+  // interface says German while the server still says English, and re-picking
+  // German is the obvious repair. onOptionSubmit fires on every selection.
+  const handleOptionSubmit = (value: string) => {
+    if (value === currentLanguage.code) {
+      void changeLanguage(value);
+    }
+  };
+
   // Compact mode for dashboard header
   if (variant === 'compact') {
     const selectData = availableLanguages
@@ -34,6 +45,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           if (!value || value === '__separator__') return;
           void changeLanguage(value);
         }}
+        onOptionSubmit={handleOptionSubmit}
         size="sm"
         maxDropdownHeight={400}
         classNames={{
@@ -86,6 +98,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           if (!value || value === '__separator__') return;
           void changeLanguage(value);
         }}
+        onOptionSubmit={handleOptionSubmit}
         size={size}
         maxDropdownHeight={400}
         classNames={{
@@ -133,6 +146,7 @@ export function LanguageSwitcher({ size = 'sm', variant = 'default' }: LanguageS
           if (!selected.isStatic) return;
           void changeLanguage(value);
         }}
+        onOptionSubmit={handleOptionSubmit}
         data={availableLanguages.map((lang: { code: string; name: string; isStatic: boolean }) => ({
           value: lang.code,
           disabled: !lang.isStatic,

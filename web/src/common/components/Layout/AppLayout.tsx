@@ -1,4 +1,5 @@
 import { AppShell, Container } from "@mantine/core";
+import "./AppLayout.css";
 import {
   AppHeader,
   type AppHeaderProps,
@@ -22,6 +23,10 @@ export interface AppLayoutProps {
 
 const HEADER_HEIGHT = { base: 60, sm: 80 } as const;
 const FOOTER_HEIGHT = { base: 50, sm: 60 } as const;
+
+// NOTE: the extra top padding below (+10 / +20) and the Container's py add up to
+// `--app-content-inset` in AppLayout.css, which full-height pages use to size
+// themselves via `--app-content-height`. Change one, change the other.
 
 export function AppLayout({
   children,

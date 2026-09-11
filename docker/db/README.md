@@ -8,6 +8,8 @@ This database image includes automated backup functionality via SSH.
 - SSH client for remote backups
 - Gzip compression
 - Automated backup script
+- A `.sha256` checksum uploaded beside each dump
+- Host keys pinned on first sight, on a volume that survives a restart
 - A logbook entry per run, reported as backup health on `/api/status`
 
 ## Configuration

@@ -23,6 +23,9 @@ type RegisterRequest struct {
 	Email string `json:"email"`
 	// AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+).
 	AgeGroup string `json:"ageGroup"`
+	// Language: ISO 639-1 code of the interface the user registered in (e.g. "de").
+	// Optional; falls back to the Accept-Language header, then English.
+	Language string `json:"language"`
 }
 
 // RegisterUser godoc
@@ -129,7 +132,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 	// Create the user
 	log.Info("attempting to create user", "name", name, "email", email, "auth0_id", auth0ID)
-	user, err := db.CreateUser(r.Context(), name, &email, auth0ID, &ageGroup)
+	language := httpx.PreferredLanguage(r, req.Language)
+	user, err := db.CreateUser(r.Context(), name, &email, auth0ID, &ageGroup, language)
 	if err != nil {
 		log.Error("failed to create user", "name", name, "email", email, "auth0_id", auth0ID, "error", err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user")

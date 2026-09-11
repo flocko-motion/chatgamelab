@@ -6586,6 +6586,10 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "language": {
+                    "description": "Language: ISO 639-1 code of the interface the user registered in (e.g. \"de\").\nOptional; falls back to the Accept-Language header, then English.",
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }
