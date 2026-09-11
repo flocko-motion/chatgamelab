@@ -110,6 +110,18 @@ type InstitutionMember struct {
 	Role   Role      `json:"role"`
 }
 
+// BackupLog is one entry of the database backup logbook, written by docker/db/backup.sh
+// after each run. The server only reads these; it never triggers a backup itself.
+type BackupLog struct {
+	ID         uuid.UUID `json:"id"`
+	StartedAt  time.Time `json:"startedAt"`
+	FinishedAt time.Time `json:"finishedAt"`
+	Success    bool      `json:"success"`
+	Filename   *string   `json:"filename,omitempty"`
+	SizeBytes  *int64    `json:"sizeBytes,omitempty"`
+	Error      *string   `json:"error,omitempty"` // failure reason, nil on success
+}
+
 // SystemSettings holds server-wide configuration such as default AI tiers and prompt constraints.
 type SystemSettings struct {
 	ID                    uuid.UUID  `json:"id"`

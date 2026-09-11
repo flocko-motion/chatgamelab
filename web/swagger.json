@@ -3692,7 +3692,7 @@
         },
         "/status": {
             "get": {
-                "description": "Returns the current server status and uptime",
+                "description": "Returns the current server status, uptime and database backup health",
                 "produces": [
                     "application/json"
                 ],
@@ -6908,6 +6908,14 @@
         "routes.StatusResponse": {
             "type": "object",
             "properties": {
+                "backup": {
+                    "description": "disabled | ok | failed | stale | unknown",
+                    "type": "string"
+                },
+                "backupAge": {
+                    "description": "time since the newest recorded run",
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },

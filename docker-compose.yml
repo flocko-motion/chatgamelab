@@ -52,6 +52,9 @@ services:
       PUBLIC_URL: ${PUBLIC_URL}
       API_BASE_URL: ${API_BASE_URL}
       SENTRY_DSN_BACKEND: ${SENTRY_DSN_BACKEND:-}
+      # Backup health reporting on /api/status (backups themselves run in the db container)
+      BACKUP_ENABLED: ${BACKUP_ENABLED:-false}
+      BACKUP_MAX_AGE_HOURS: ${BACKUP_MAX_AGE_HOURS:-48}
       SESSION_RETENTION_HOURS: ${SESSION_RETENTION_HOURS:-48}
     depends_on:
       db:

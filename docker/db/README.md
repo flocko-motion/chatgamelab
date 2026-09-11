@@ -8,6 +8,7 @@ This database image includes automated backup functionality via SSH.
 - SSH client for remote backups
 - Gzip compression
 - Automated backup script
+- A logbook entry per run, reported as backup health on `/api/status`
 
 ## Configuration
 
@@ -23,7 +24,13 @@ BACKUP_SSH_PORT=22
 BACKUP_SSH_USER=backup-user
 BACKUP_SSH_KEY_PATH=/path/to/ssh/private/key
 BACKUP_PATH=backups
+
+# Hours before a successful backup is reported as stale (default 48)
+BACKUP_MAX_AGE_HOURS=48
 ```
+
+`BACKUP_ENABLED` and `BACKUP_MAX_AGE_HOURS` are also passed to the backend container,
+which needs them to report backup health.
 
 ## SSH Key Setup
 
@@ -57,6 +64,36 @@ For scheduled backups, add a cron job on the host:
 ```
 
 Or use a systemd timer.
+
+The image ships no scheduler of its own, so without this cron entry backups never run.
+That case shows up as `"backup": "unknown"` on `/api/status`.
+
+## Monitoring
+
+Each run appends a row to the `backup_log` table, whether it succeeded or failed:
+
+```bash
+docker exec chatgamelab-db psql -U chatgamelab chatgamelab \
+  -c "SELECT finished_at, success, filename, size_bytes, error FROM backup_log ORDER BY finished_at DESC LIMIT 10;"
+```
+
+The server reads the newest row and reports it on the public `/api/status` endpoint
+alongside its uptime:
+
+```json
+{ "status": "running", "uptime": "3h 12m", "backup": "ok", "backupAge": "9h 4m" }
+```
+
+| `backup`   | Meaning                                                             |
+| ---------- | ------------------------------------------------------------------- |
+| `disabled` | `BACKUP_ENABLED` is not `true`                                       |
+| `ok`       | Newest run succeeded within `BACKUP_MAX_AGE_HOURS`                   |
+| `stale`    | Newest run succeeded but is older than that — the schedule has drifted or stopped |
+| `failed`   | Newest run failed; `backup_log.error` names the step                 |
+| `unknown`  | Enabled, but no run has ever been recorded                           |
+
+Writing the logbook is best-effort: a backup that uploads successfully but cannot
+reach the `backup_log` table still counts as a successful backup, and warns on stderr.
 
 ## Backup Format
 
