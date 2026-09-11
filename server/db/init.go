@@ -139,6 +139,13 @@ func sqlNullBoolToMaybeBool(nb sql.NullBool) *bool {
 	return nil
 }
 
+func sqlNullInt64ToMaybeInt64(ni sql.NullInt64) *int64 {
+	if ni.Valid {
+		return &ni.Int64
+	}
+	return nil
+}
+
 // isDatabaseEmpty checks if the database has any tables.
 func isDatabaseEmpty() (bool, error) {
 	var count int
