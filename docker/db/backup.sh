@@ -42,10 +42,48 @@ SFTP_OPTS=(
 )
 REMOTE="$BACKUP_SSH_USER@$BACKUP_SSH_HOST"
 
+STARTED_AT=$(date -Iseconds)
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
 FILENAME="${DB_NAME}-${TIMESTAMP}.sql.gz"
 TEMP_FILE="/tmp/${FILENAME}"
+STEP="startup"
 trap 'rm -f "$TEMP_FILE" "$TEMP_FILE.sha256"' EXIT
+
+# Append one entry to the backup_log table read by the server's /api/status endpoint.
+# Best-effort: a logbook that cannot be written must never turn a good backup into a
+# failed one, so a psql error only warns.
+# The SQL arrives on stdin because psql interpolates :'vars' only when reading a
+# script, never in a -c string. Interpolation quotes each value, so an error message
+# containing quotes is stored verbatim instead of breaking the statement.
+log_entry() { # success filename size error
+  if ! psql -q -U "$DB_USER" -d "$DB_NAME" \
+    -v ON_ERROR_STOP=1 \
+    -v started="$STARTED_AT" -v success="$1" -v filename="$2" -v size="$3" -v err="$4" \
+    > /dev/null <<'SQL'
+INSERT INTO backup_log (started_at, finished_at, success, filename, size_bytes, error)
+VALUES (:'started'::timestamptz, now(), :'success'::boolean,
+        NULLIF(:'filename', ''), NULLIF(:'size', '')::bigint, NULLIF(:'err', ''));
+SQL
+  then
+    echo "Warning: could not write backup_log entry" >&2
+  fi
+}
+
+# A command on the left of || is invisible to the ERR trap, so the ones that
+# diagnose themselves report through here and every way out still leaves an entry.
+fail() { # message
+  log_entry false "$FILENAME" "" "$1"
+  echo "Backup failed: $1" >&2
+  exit 1
+}
+
+on_error() {
+  local code=$?
+  log_entry false "$FILENAME" "" "$STEP failed (exit $code)"
+  echo "Backup failed during $STEP (exit $code)" >&2
+  exit "$code"
+}
+trap on_error ERR
 
 echo "Starting backup: $FILENAME"
 
@@ -55,6 +93,7 @@ echo "Starting backup: $FILENAME"
 # whether it worked is settled by the cd below, which is not.
 if [ -n "$BACKUP_PATH" ]; then
   echo "Ensuring remote directory exists: $BACKUP_PATH"
+  STEP="remote mkdir"
   {
     path=""
     IFS=/ read -ra parts <<<"$BACKUP_PATH"
@@ -65,23 +104,26 @@ if [ -n "$BACKUP_PATH" ]; then
     done
     echo "cd $BACKUP_PATH"
     echo "quit"
-  } | sftp "${SFTP_OPTS[@]}" -b - "$REMOTE" || {
-    echo "Cannot reach $REMOTE:$BACKUP_PATH — check the key, the account and the path" >&2
-    exit 1
-  }
+  } | sftp "${SFTP_OPTS[@]}" -b - "$REMOTE" \
+    || fail "cannot reach $REMOTE:$BACKUP_PATH — check the key, the account and the path"
 fi
 
 # Compressed backup to a temp file
+STEP="pg_dump"
 pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$TEMP_FILE"
 sha256sum "$TEMP_FILE" | cut -d' ' -f1 > "$TEMP_FILE.sha256"
+SIZE=$(stat -c %s "$TEMP_FILE")
 echo "Dumped $(du -h "$TEMP_FILE" | cut -f1)"
 
 # The checksum goes up beside the dump, so a truncated upload can be told from
 # a good one without downloading and decompressing it.
+STEP="sftp upload"
 sftp "${SFTP_OPTS[@]}" -b - "$REMOTE" <<UPLOAD
 put "$TEMP_FILE" "$BACKUP_PATH/$FILENAME"
 put "$TEMP_FILE.sha256" "$BACKUP_PATH/$FILENAME.sha256"
 quit
 UPLOAD
 
-echo "Backup complete: $FILENAME"
+log_entry true "$FILENAME" "$SIZE" ""
+
+echo "Backup complete: $FILENAME ($SIZE bytes)"

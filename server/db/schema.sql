@@ -446,6 +446,22 @@ CREATE TABLE game_share (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
+-- Backup Log
+-- One row per run of docker/db/backup.sh, written by the script itself from inside
+-- the db container. The server never triggers backups; it only reads the newest row
+-- to report backup health on /api/status.
+CREATE TABLE backup_log (
+    id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    started_at  timestamptz NOT NULL,
+    finished_at timestamptz NOT NULL DEFAULT now(),
+    success     boolean NOT NULL,
+    filename    text NULL,
+    size_bytes  bigint NULL,
+    error       text NULL   -- failure reason, NULL on success
+);
+
+CREATE INDEX backup_log_finished_at_idx ON backup_log (finished_at DESC);
+
 -- Deferred foreign keys (tables referenced before they are created)
 ALTER TABLE institution ADD CONSTRAINT institution_free_use_api_key_share_fk
     FOREIGN KEY (free_use_api_key_share_id) REFERENCES api_key_share(id);

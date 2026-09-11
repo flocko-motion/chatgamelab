@@ -869,6 +869,10 @@ export interface RoutesSponsorGameRequest {
 }
 
 export interface RoutesStatusResponse {
+  /** disabled | ok | failed | stale | unknown */
+  backup?: string;
+  /** time since the newest recorded run */
+  backupAge?: string;
   status?: string;
   uptime?: string;
 }
@@ -2655,7 +2659,7 @@ export class Api<
   };
   status = {
     /**
-     * @description Returns the current server status and uptime
+     * @description Returns the current server status, uptime and database backup health
      *
      * @tags status
      * @name StatusList
