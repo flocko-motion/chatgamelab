@@ -26,6 +26,10 @@ jobs:
       - name: Trigger the dev box
         env:
           SECRET: ${{ secrets.CGL_DEPLOY_HOOK_SECRET }}
+          # Both written by ./deploy.sh in chatgamelab-deploy, so moving the
+          # instance to another domain needs no edit here. Hardcoding it once
+          # left this posting at a name that had stopped resolving.
+          URL: ${{ vars.CGL_DEPLOY_HOOK_URL }}
         run: |
           # A body is sent because a POST without one carries no Content-Length,
           # which the listener answers 411 before looking at anything.
@@ -34,9 +38,17 @@ jobs:
             | openssl dgst -sha256 -hmac "$SECRET" -r | cut -d' ' -f1)"
           # An accepted trigger answers 202, not 200: the deploy it starts
           # outlives the request by minutes. curl -f takes any 2xx.
+          if [ -z "$URL" ]; then
+            echo "::warning::CGL_DEPLOY_HOOK_URL is unset — run ./deploy.sh once to set it"
+            exit 0
+          fi
+          # Non-fatal by design: a dead trigger costs a deploy its promptness
+          # and nothing else, since the box's own timer converges regardless. A
+          # warning annotation rather than a log line, so it shows on the run
+          # summary instead of hiding in a green step.
           curl -fsS -X POST \
             -H 'Content-Type: application/json' \
             -H "X-Hub-Signature-256: sha256=$sig" \
             --data-raw "$body" \
-            https://cgl.fmnoel.de/_hooks/deploy \
-            || echo "⚠️ trigger failed — the box's 15-minute timer still converges"
+            "$URL" \
+            || echo "::warning::trigger to $URL failed — the box's 15-minute timer still converges"
