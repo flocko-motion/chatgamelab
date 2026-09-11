@@ -102,6 +102,9 @@ check-clean-tree:
 # out, mid-edit, and leaves your tree alone. The one thing a checkout of
 # development would lend it is somewhere to make the back-merge commit, and
 # `sync` brings its own.
+#
+# It lists what would enter main and asks before opening anything. `make
+# release YES=1` answers that prompt, for a run with no terminal to ask at.
 release:
 	git fetch origin
 	@if git rev-parse --verify --quiet refs/heads/development >/dev/null \
@@ -112,10 +115,20 @@ release:
 	@if git merge-base --is-ancestor origin/development origin/main; then \
 		echo ">> already merged into main — going straight to the back-merge"; \
 	else \
-		echo ">> what this release takes to main:"; \
-		notes="$$(git -c color.ui=never log --oneline --no-merges \
+		notes="$$(git -c color.ui=never log --pretty='%h %s' --no-merges \
 			origin/main..origin/development)"; \
-		echo "$$notes"; \
+		echo ">> these commits enter main:"; \
+		echo "$$notes" | sed 's/^/     /'; \
+		echo ">> merging them publishes: semantic-release tags main and cuts a"; \
+		echo "   GitHub release, and CI pushes the images production deploys."; \
+		if [ -z "$(YES)" ]; then \
+			printf ">> really release to main? [y/N] "; \
+			read -r reply < /dev/tty || reply=""; \
+			case "$$reply" in \
+				[yY]|[yY][eE][sS]) ;; \
+				*) echo "aborted"; exit 1;; \
+			esac; \
+		fi; \
 		: "--fill reads the local development branch, which this target never"; \
 		: "checks out or updates, so the range it sees can be empty"; \
 		gh pr list --head development --base main --state open --json number \
