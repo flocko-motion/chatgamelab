@@ -53,7 +53,7 @@ The same, and then it waits for the pull request's checks and merges it. Run it 
 make release
 ```
 
-From `development` this takes it to `main` through a pull request, then merges `main` back so the release tags stay reachable from `development`. `make sync` does that back-merge on its own, for a release someone merged in the browser.
+This takes `development` to `main` through a pull request, then merges `main` back so the release tags stay reachable from `development`. It reads `origin/development` and `origin/main` and makes the back-merge in a throwaway worktree, so it runs from any branch, mid-edit, and leaves your working tree alone. `make sync` does the back-merge on its own, for a release someone merged in the browser.
 
 
 ## Requirements

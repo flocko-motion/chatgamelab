@@ -1,4 +1,4 @@
-.PHONY: rebase pr release sync check-clean-tree check-on-development check-on-feature
+.PHONY: rebase pr release sync check-clean-tree check-on-feature
 
 # Force-pushes: only ever run this on your own feature branch.
 rebase:
@@ -93,24 +93,26 @@ check-clean-tree:
 	@git diff --quiet && git diff --cached --quiet \
 		|| { echo "working tree is dirty — commit or stash first"; exit 1; }
 
-check-on-development:
-	@test "$$(git rev-parse --abbrev-ref HEAD)" = development || { \
-		echo "this runs on development, not $$(git rev-parse --abbrev-ref HEAD)"; \
-		exit 1; }
-
 # Resumable: a run whose merge landed and whose back-merge did not can be
 # re-run, and picks up where it stopped rather than trying to open a pull
 # request with nothing in it.
-release: check-clean-tree check-on-development
+#
+# Every ref here is an origin/ ref, so this runs from whatever branch you have
+# out, mid-edit, and leaves your tree alone. The one thing a checkout of
+# development would lend it is somewhere to make the back-merge commit, and
+# `sync` brings its own.
+release:
 	git fetch origin
-	@git merge-base --is-ancestor origin/development HEAD \
-		|| { echo "origin/development has commits you lack — pull first"; exit 1; }
-	@if git merge-base --is-ancestor HEAD origin/main; then \
+	@if git rev-parse --verify --quiet refs/heads/development >/dev/null \
+		&& ! git merge-base --is-ancestor development origin/development; then \
+		echo "your local development has commits origin lacks — push them first"; \
+		exit 1; \
+	fi
+	@if git merge-base --is-ancestor origin/development origin/main; then \
 		echo ">> already merged into main — going straight to the back-merge"; \
 	else \
-		git push origin development; \
 		echo ">> what this release takes to main:"; \
-		git -c color.ui=never log --oneline --no-merges origin/main..HEAD | cat; \
+		git -c color.ui=never log --oneline --no-merges origin/main..origin/development | cat; \
 		gh pr list --head development --base main --state open --json number \
 			--jq '.[0].number' | grep -q . \
 			|| gh pr create --base main --head development --fill; \
@@ -132,13 +134,33 @@ release: check-clean-tree check-on-development
 # The back-merge on its own: for a release whose pull request someone else
 # merged, or which was merged in the browser. Safe to run at any time, and a
 # no-op when main is already an ancestor.
-sync: check-on-development
-	git fetch origin main
-	@if git merge-base --is-ancestor origin/main HEAD; then \
+#
+# The merge commit is made in a throwaway worktree detached at
+# origin/development and pushed from there. That is what lets this run from any
+# checkout without disturbing it, and it is why `release` needs no checkout of
+# development at all.
+sync:
+	git fetch origin main development
+	@if git merge-base --is-ancestor origin/main origin/development; then \
 		echo "✅ main is already an ancestor — nothing to merge back"; \
-	else \
-		git merge origin/main \
+		exit 0; \
+	fi; \
+	tmp="$$(mktemp -d)"; dir="$$tmp/development"; rc=0; \
+	git worktree add --quiet --detach "$$dir" origin/development \
+		&& git -C "$$dir" merge origin/main \
 			-m "chore: merge main back, so release tags stay reachable" \
-		&& git push origin development \
-		&& echo "✅ merged main back — release tags are reachable from development"; \
+		&& git -C "$$dir" push origin HEAD:development \
+		|| rc=1; \
+	git worktree remove --force "$$dir" 2>/dev/null; rm -rf "$$tmp"; git worktree prune; \
+	test $$rc -eq 0 \
+		|| { echo "back-merge failed — check out development and merge origin/main by hand"; \
+		     exit 1; }; \
+	echo "✅ merged main back — release tags are reachable from development"; \
+	: "git refuses this one while development is the branch you have out, which"; \
+	: "is the case the hint below is for"; \
+	git fetch --quiet origin development development:development 2>/dev/null \
+		|| git fetch --quiet origin development; \
+	if git rev-parse --verify --quiet refs/heads/development >/dev/null \
+		&& ! git merge-base --is-ancestor origin/development development; then \
+		echo "   your development checkout is behind it — git pull to catch up"; \
 	fi
