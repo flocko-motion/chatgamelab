@@ -437,7 +437,11 @@ func AcceptOpenInvite(ctx context.Context, inviteToken string, userID uuid.UUID)
 // - They are bound to their workshop via the participant role and CANNOT change roles
 // - They can only acquire a JWT (short-lived) if the workshop is still active
 // - The auth token is their permanent credential stored in the auth0_id field
-func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*obj.User, string, error) {
+//
+// language is an ISO 639-1 code resolved from the request
+// (-> httpx.PreferredLanguage). Participants join through a link and never see
+// a registration form, so their browser language is the only signal we have.
+func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string, language string) (*obj.User, string, error) {
 	// Get the invite by token
 	invite, err := queries().GetInviteByToken(ctx, sql.NullString{String: inviteToken, Valid: true})
 	if err != nil {
@@ -500,6 +504,7 @@ func AcceptWorkshopInviteAnonymously(ctx context.Context, inviteToken string) (*
 		Email:            sql.NullString{Valid: false},
 		Auth0ID:          sql.NullString{Valid: false},
 		ParticipantToken: sql.NullString{String: participantToken, Valid: true},
+		Language:         language,
 	}
 	_, err = txQueries.CreateUserWithParticipantToken(ctx, userArg)
 	if err != nil {

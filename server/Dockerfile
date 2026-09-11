@@ -14,7 +14,7 @@ COPY server/ ./
 ARG VERSION=dev
 ARG GIT_COMMIT=unknown
 ARG BUILD_TIME=unknown
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+RUN CGO_ENABLED=1 go build \
     -ldflags "-X main.GitCommit=${GIT_COMMIT} -X main.Version=${VERSION} -X main.BuildTime=${BUILD_TIME}" \
     -o cgl ./
 

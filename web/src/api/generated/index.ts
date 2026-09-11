@@ -709,6 +709,11 @@ export interface RoutesRegisterRequest {
   /** AgeGroup: "u13" (13-17, no parental consent), "u13p" (13-17, with parental consent), or "u18" (18+). */
   ageGroup?: string;
   email?: string;
+  /**
+   * Language: ISO 639-1 code of the interface the user registered in (e.g. "de").
+   * Optional; falls back to the Accept-Language header, then English.
+   */
+  language?: string;
   name?: string;
 }
 

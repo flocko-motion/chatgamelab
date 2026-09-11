@@ -85,4 +85,3 @@ func UpdateSystemSettingsFreeUseApiKey(ctx context.Context, apiKeyID *uuid.UUID)
 func ClearSystemSettingsFreeUseApiKeyByOwner(ctx context.Context, userID uuid.UUID) error {
 	return queries().ClearSystemSettingsFreeUseApiKeyByOwner(ctx, userID)
 }
-

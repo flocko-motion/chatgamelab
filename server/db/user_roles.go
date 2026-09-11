@@ -10,6 +10,7 @@ import (
 	"cgl/obj"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -37,8 +38,35 @@ func isAdminEmail(email string) bool {
 	return false
 }
 
+// errAdminBootstrapClosed is returned when ADMIN_EMAILS would elevate someone
+// after the first admin already exists.
+var errAdminBootstrapClosed = errors.New("admin bootstrap closed: an admin already exists")
+
+// adminBootstrapOpen reports whether ADMIN_EMAILS may still elevate anyone.
+//
+// The list exists to create the first admin of an empty deployment, so it stops
+// granting anything once one exists — otherwise editing the environment (or
+// registering an address that was left in the list) hands out admin on a live
+// system for as long as the deployment lives. Later admins are appointed by an
+// existing admin instead.
+//
+// A failed count closes the gate: refusing a legitimate bootstrap costs one
+// restart, granting a wrong one costs the deployment.
+func adminBootstrapOpen(ctx context.Context) bool {
+	count, err := queries().CountAdmins(ctx)
+	if err != nil {
+		log.Warn("failed to count admins, refusing admin bootstrap", "error", err)
+		return false
+	}
+	return count == 0
+}
+
 // autoUpgradeUserToAdmin creates an admin role for the user
 func autoUpgradeUserToAdmin(ctx context.Context, userID uuid.UUID) error {
+	if !adminBootstrapOpen(ctx) {
+		return errAdminBootstrapClosed
+	}
+
 	// Create admin role for the user
 	arg := db.CreateUserRoleParams{
 		UserID:        userID,
@@ -94,6 +122,13 @@ func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
 		return user
 	}
 
+	// Checked before the roles are cleared below, so a closed gate leaves the
+	// user's own role intact.
+	if !adminBootstrapOpen(ctx) {
+		log.Debug("skipping login admin promotion: an admin already exists", "user_id", user.ID)
+		return user
+	}
+
 	log.Info("promoting user to admin at login", "user_id", user.ID, "email", *user.Email)
 
 	if err := queries().DeleteUserRoles(ctx, user.ID); err != nil {
@@ -115,12 +150,17 @@ func CheckAndPromoteAdmin(ctx context.Context, user *obj.User) *obj.User {
 	return updated
 }
 
-// PromoteAdminEmails checks users whose email is in ADMIN_EMAILS and promotes
-// them to admin role. Called on server startup.
+// PromoteAdminEmails promotes the users whose email is in ADMIN_EMAILS to admin,
+// for as long as the deployment has no admin yet. Called on server startup.
 func PromoteAdminEmails(ctx context.Context) {
 	adminEmails := os.Getenv("ADMIN_EMAILS")
 	if adminEmails == "" {
 		log.Debug("ADMIN_EMAILS not set, skipping admin promotion check")
+		return
+	}
+
+	if !adminBootstrapOpen(ctx) {
+		log.Debug("admin already exists, skipping ADMIN_EMAILS bootstrap")
 		return
 	}
 
@@ -145,8 +185,12 @@ func PromoteAdminEmails(ctx context.Context) {
 		}
 
 		// Only individual users can be promoted to admin
+		if user.Role != nil && user.Role.Role == obj.RoleAdmin {
+			log.Debug("admin email user is already an admin", "user_id", user.ID, "email", email)
+			continue
+		}
 		if user.Role == nil || user.Role.Role != obj.RoleIndividual {
-			log.Warn("skipping admin promotion: user does not have individual role", "user_id", user.ID, "email", *user.Email, "role", user.Role)
+			log.Warn("skipping admin promotion: role must be individual", "user_id", user.ID, "email", email, "role", user.Role)
 			continue
 		}
 

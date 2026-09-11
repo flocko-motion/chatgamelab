@@ -1,8 +1,8 @@
 -- app_user -------------------------------------------------------------
 
 -- name: CreateUser :one
-INSERT INTO app_user (id, name, email, auth0_id, age_group)
-VALUES (gen_random_uuid(), $1, $2, $3, $4)
+INSERT INTO app_user (id, name, email, auth0_id, age_group, language)
+VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)
 RETURNING id;
 
 -- name: CreateUserWithID :one
@@ -12,8 +12,8 @@ ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
 -- name: CreateUserWithParticipantToken :one
-INSERT INTO app_user (id, name, email, auth0_id, participant_token)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO app_user (id, name, email, auth0_id, participant_token, language)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
@@ -512,6 +512,13 @@ DELETE FROM workshop_participant WHERE workshop_id IN (
 SELECT COUNT(*)::int AS count
 FROM user_role
 WHERE institution_id = $1 AND role = 'head';
+
+-- name: CountAdmins :one
+-- Count live admins (for the ADMIN_EMAILS bootstrap gate)
+SELECT COUNT(*)::int AS count
+FROM user_role r
+JOIN app_user u ON u.id = r.user_id
+WHERE r.role = 'admin' AND u.deleted_at IS NULL;
 
 -- name: GetParticipantUserIDsByWorkshopID :many
 -- Get user IDs of participants in a workshop

@@ -460,22 +460,58 @@ Used when translating the game content to the player's language:
 
 For different steps in the game flow we use different models. Cheaper ones for easy tasks like translations, powerful ones for writing the story, specialized ones for generating images or transcribing voice input into text. Further, the quality preferences set by the user influence the choice of model being used for each task. Finally the choice of platform made by the user (e.g. OpenAI or Mistral) decides from which platform the models are picked. 
 
-Here's a list of which models are configured for OpenAI and Mistral as of March 2026:
+Here's a list of which models are configured for OpenAI and Mistral as of August 2026:
 
 | Step | OpenAI | Mistral | Depends on Quality Tier? |
 |------|--------|---------|--------------------------|
-| **Generate Scene** | gpt-5.2 (max/premium), gpt-5.1 (balanced), gpt-5-mini (economy) | mistral-large-latest (premium), mistral-medium-latest (balanced), mistral-small-latest (economy) | Yes |
-| **Rephrase Player Input** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
-| **Expand Plot to Prose** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
-| **Generate Theme** | gpt-5.2 / gpt-5.1 / gpt-5-mini | mistral-large / mistral-medium / mistral-small | Yes |
-| **Generate Image** | gpt-image-1.5 (premium+), gpt-image-1-mini (economy) | mistral-small-latest | Yes (model only) |
-| **Translate** | gpt-5.1-codex | mistral-small-latest | No (fixed) |
-| **Tool Query** (condense scenario, translate image style) | gpt-5.1-codex | mistral-small-latest | No (fixed) |
+| **Generate Scene** | gpt-5.1 (max/premium), gpt-5-mini (balanced), gpt-5.6-luna (economy) | mistral-large-latest (premium), mistral-medium-latest (balanced), mistral-small-latest (economy) | Yes |
+| **Rephrase Player Input** | gpt-5.6-luna | mistral-small-latest | No (fixed, runs through Tool Query) |
+| **Expand Plot to Prose** | gpt-5.1 / gpt-5-mini / gpt-5.6-luna | mistral-large / mistral-medium / mistral-small | Yes |
+| **Generate Theme** | gpt-5.1 / gpt-5-mini / gpt-5.6-luna | mistral-large / mistral-medium / mistral-small | Yes |
+| **Generate Image** | gpt-image-2 (balanced and up; economy generates no images) | mistral-small-latest | Yes (model only) |
+| **Translate** | gpt-5.6-luna | mistral-small-latest | No (fixed) |
+| **Tool Query** (rephrase player input, condense scenario, translate image style) | gpt-5.6-luna | mistral-small-latest | No (fixed) |
 | **Transcribe Audio** | gpt-4o-mini-transcribe | voxtral-mini-latest | No (fixed) |
 | **Generate Speech** | gpt-4o-mini-tts | — (not supported) | No (fixed, max/premium only) |
+
+### What changed in August 2026
+
+Every OpenAI text model moved, to cut the cost of running the game. The Mistral column is untouched.
+
+| Step or tier | Was | Now |
+|--------------|-----|-----|
+| max, premium | gpt-5.2 | gpt-5.1 |
+| balanced | gpt-5.1 | gpt-5-mini |
+| economy | gpt-5-mini | gpt-5.6-luna |
+| helpers: Tool Query, and the Rephrase step that runs through it | gpt-5.1-codex | gpt-5.6-luna |
+| helpers: Translate | gpt-5.1-codex | gpt-5.6-luna |
+
+The helper moves also correct a mismatch. Both helper steps had been running on a model tuned for agentic coding, which OpenAI does not recommend for general text work, at flagship prices. Mistral needed no equivalent change, because its helpers already ran on mistral-small-latest.
 
 You can read about each of these models on the websites of their providers.
 
 Mistral: https://docs.mistral.ai/getting-started/models
 
 OpenAI: https://platform.openai.com/docs/models
+
+### What the OpenAI models cost
+
+Prices in dollars per million tokens, as published by OpenAI on 11 August 2026. Cached input covers the part of a prompt that OpenAI serves from its prompt cache, which the game flow hits from the second turn onwards because it continues the conversation through `previous_response_id`.
+
+| Model | Tier | Input | Cached input | Output | Runs |
+|-------|------|-------|--------------|--------|------|
+| gpt-5.1 | flagship | 1.25 | 0.125 | 10.00 | max, premium |
+| gpt-5-mini | mini | 0.25 | 0.025 | 2.00 | balanced |
+| gpt-5.6-luna | nano | 0.20 | 0.02 | 1.20 | economy, all helpers |
+| gpt-5.6-terra | mini | 2.00 | 0.20 | 12.00 | — |
+| gpt-5.6-sol | flagship | 5.00 | 0.50 | 30.00 | — |
+
+The two models this replaced were gpt-5.2 at 1.75 input, 0.175 cached, and 14.00 output, and gpt-5.1-codex at 1.25, 0.125, and 10.00.
+
+The three GPT-5.6 names stand for the tiers that earlier GPT-5 families named in full: Sol is the flagship, Terra the mini, and Luna the nano model. A low headline price therefore reports the tier before it reports a saving. Luna costs about a sixth of gpt-5.1 on input and an eighth on output, and it sits two tiers below it. Terra is the reason to read the tier and not the announcement: it undercuts gpt-5.2 on output by 14 per cent while costing more than gpt-5.1 on both input and output, from a lower tier.
+
+The ladder now spans three tiers. max and premium share gpt-5.1 and differ only in audio output; balanced runs the mini tier and economy the nano tier. Every rung asks the same work of its model, so the cheaper rungs buy their price with quality rather than by dropping features. Only the plot step is schema-constrained, and Expand Plot to Prose streams free text, so a cheaper rung shows itself there first. The helpers run on Luna because their prompts are short and each caller keeps the untranslated original whenever a field comes back missing.
+
+All three GPT-5.6 models bill prompts above 272,000 input tokens at twice the input rate and 1.5 times the output rate, for the whole request. A session would have to reach roughly 500 turns of stored history to cross that mark.
+
+Image generation is billed apart from the text models. gpt-image-2 charges 5.00 per million text input tokens and 30.00 per million image output tokens, and every preview frame costs about 100 image output tokens. That is why the balanced tier requests no preview frames and the economy tier generates no images at all.

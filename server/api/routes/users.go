@@ -396,7 +396,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := db.CreateUser(r.Context(), req.Name, req.Email, "", nil)
+	user, err := db.CreateUser(r.Context(), req.Name, req.Email, "", nil, httpx.PreferredLanguage(r, ""))
 	if err != nil {
 		httpx.WriteError(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
 		return

@@ -57,4 +57,3 @@ func GetFavouriteGames(ctx context.Context, userID uuid.UUID) ([]obj.Game, error
 	}
 	return result, nil
 }
-
