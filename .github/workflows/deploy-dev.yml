@@ -1,0 +1,42 @@
+# The development instance, cgl.fmnoel.de, deployed from chatgamelab-deploy.
+#
+# No build here, deliberately. That box builds from source itself, which is
+# what lets it run any commit rather than only the ones a registry holds — so
+# a merge to development needs nothing from CI but a nudge. Quality is gated
+# before the merge, by test.yml on the pull request.
+#
+# The trigger carries no instruction. The listener reads the body only to hash
+# it and then asks the box to converge on the branch it already tracks, so a
+# forged or replayed trigger buys one convergence onto development — which the
+# box's own 15-minute timer was going to do anyway. Nothing on the box is
+# issued to CI: no SSH key, no deploy credential, only this shared HMAC
+# secret, which ./deploy.sh mints fresh on every run and writes to both ends.
+name: Deploy development
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the dev box
+        env:
+          SECRET: ${{ secrets.CGL_DEPLOY_HOOK_SECRET }}
+        run: |
+          # A body is sent because a POST without one carries no Content-Length,
+          # which the listener answers 411 before looking at anything.
+          body='{"ref":"${{ github.ref_name }}","sha":"${{ github.sha }}"}'
+          sig="$(printf '%s' "$body" \
+            | openssl dgst -sha256 -hmac "$SECRET" -r | cut -d' ' -f1)"
+          # An accepted trigger answers 202, not 200: the deploy it starts
+          # outlives the request by minutes. curl -f takes any 2xx.
+          curl -fsS -X POST \
+            -H 'Content-Type: application/json' \
+            -H "X-Hub-Signature-256: sha256=$sig" \
+            --data-raw "$body" \
+            https://cgl.fmnoel.de/_hooks/deploy \
+            || echo "⚠️ trigger failed — the box's 15-minute timer still converges"
