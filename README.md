@@ -39,7 +39,13 @@ This replays your branch on top of the latest `origin/development` and force-pus
 make pr
 ```
 
-From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development`, waits for its checks and merges it. Re-running after the merge says so and stops. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
+From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development` and prints its URL. It stops there, leaving the pull request open for review. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
+
+```bash
+make pr MERGE=1
+```
+
+The same, and then it waits for the pull request's checks and merges it. Run it on a pull request that is already open to merge that one. Re-running after the merge says so and stops.
 
 **Releasing:**
 

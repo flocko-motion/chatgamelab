@@ -11,8 +11,9 @@ rebase:
 # ── pr ───────────────────────────────────────────────────────────────────────
 #
 # feature branch -> development: merge development in, push, open the pull
-# request, wait for its checks, merge. Getting development onto main is
-# `make release`.
+# request, and stop there, which leaves room for a review. `make pr MERGE=1`
+# carries on and waits for the checks and merges. Getting development onto main
+# is `make release`.
 #
 # The first step is `sync` pointed the other way. origin/development is made an
 # ancestor before the pull request opens, so its checks run over the code that
@@ -48,6 +49,11 @@ pr: check-clean-tree check-on-feature
 	gh pr list --head "$$branch" --base development --state open --json number \
 		--jq '.[0].number' | grep -q . \
 		|| gh pr create --base development --head "$$branch" --fill; \
+	if [ -z "$(MERGE)" ]; then \
+		echo "✅ open for review: $$(gh pr view "$$branch" --json url --jq .url)"; \
+		echo "   'make pr MERGE=1' waits for its checks and merges it"; \
+		exit 0; \
+	fi; \
 	echo ">> waiting for the pull request's checks…"; \
 	: "gh reports no checks both where a base requires none and in the"; \
 	: "seconds before checks register, so probe before watching"; \
