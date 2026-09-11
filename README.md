@@ -39,7 +39,13 @@ This replays your branch on top of the latest `origin/development` and force-pus
 make pr
 ```
 
-From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development`, waits for its checks and merges it. Re-running after the merge says so and stops. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
+From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development` and prints its URL. It stops there, leaving the pull request open for review. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
+
+```bash
+make pr MERGE=1
+```
+
+The same, and then it waits until GitHub will let the pull request merge — which outlasts a required check that has yet to start — and merges it. Run it on a pull request that is already open to merge that one. Re-running after the merge says so and stops.
 
 **Releasing:**
 
@@ -47,7 +53,7 @@ From your feature branch this merges `origin/development` in so the checks run o
 make release
 ```
 
-From `development` this takes it to `main` through a pull request, then merges `main` back so the release tags stay reachable from `development`. `make sync` does that back-merge on its own, for a release someone merged in the browser.
+This lists the commits that would enter `main`, says what merging them publishes, and asks before it opens anything — `make release YES=1` answers that prompt for a run with no terminal. Then it takes `development` to `main` through a pull request and merges `main` back so the release tags stay reachable from `development`. Both halves are pull requests, since `development` and `main` each take only those, and it reads `origin/development` and `origin/main` throughout — so it runs from any branch, mid-edit, and leaves your working tree alone. `make sync` does the back-merge on its own, for a release someone merged in the browser.
 
 
 ## Requirements
