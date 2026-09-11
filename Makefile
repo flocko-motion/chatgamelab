@@ -155,26 +155,38 @@ release:
 # merged, or which was merged in the browser. Safe to run at any time, and a
 # no-op when main is already an ancestor.
 #
-# The merge commit is made in a throwaway worktree detached at
-# origin/development and pushed from there. That is what lets this run from any
-# checkout without disturbing it, and it is why `release` needs no checkout of
-# development at all.
+# development takes no direct push — a repository ruleset requires a pull
+# request and passing checks — so the back-merge arrives as one too, opened
+# from main into development. GitHub makes the merge commit, which is why
+# nothing here is checked out or merged locally and why this runs from any
+# branch, mid-edit, without touching the tree.
 sync:
 	git fetch origin main development
 	@if git merge-base --is-ancestor origin/main origin/development; then \
 		echo "✅ main is already an ancestor — nothing to merge back"; \
 		exit 0; \
 	fi; \
-	tmp="$$(mktemp -d)"; dir="$$tmp/development"; rc=0; \
-	git worktree add --quiet --detach "$$dir" origin/development \
-		&& git -C "$$dir" merge origin/main \
-			-m "chore: merge main back, so release tags stay reachable" \
-		&& git -C "$$dir" push origin HEAD:development \
-		|| rc=1; \
-	git worktree remove --force "$$dir" 2>/dev/null; rm -rf "$$tmp"; git worktree prune; \
-	test $$rc -eq 0 \
-		|| { echo "back-merge failed — check out development and merge origin/main by hand"; \
-		     exit 1; }; \
+	gh pr list --head main --base development --state open --json number \
+		--jq '.[0].number' | grep -q . \
+		|| gh pr create --base development --head main \
+			--title "chore: merge main back, so release tags stay reachable" \
+			--body "Carries no file changes. Puts the release tags on main where git describe on development can reach them." \
+		|| { echo "could not open the back-merge pull request"; exit 1; }; \
+	num="$$(gh pr list --head main --base development --state open --json number \
+		--jq '.[0].number')"; \
+	echo ">> waiting for the back-merge pull request's checks…"; \
+	: "gh reports no checks both where a base requires none and in the"; \
+	: "seconds before checks register, so probe before watching"; \
+	for i in 1 2 3 4 5; do \
+		gh pr checks "$$num" >/dev/null 2>&1 && break; \
+		sleep 3; \
+	done; \
+	gh pr checks "$$num" --watch --fail-fast \
+		|| { echo "checks did not pass on #$$num — fix them, then re-run"; exit 1; }; \
+	: "--delete-branch=false matters more here than anywhere else: the head of"; \
+	: "this pull request is main"; \
+	gh pr merge "$$num" --merge --delete-branch=false \
+		|| { echo "could not merge #$$num — merge it in the browser"; exit 1; }; \
 	echo "✅ merged main back — release tags are reachable from development"; \
 	: "git refuses this one while development is the branch you have out, which"; \
 	: "is the case the hint below is for"; \
