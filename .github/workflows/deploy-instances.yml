@@ -1,4 +1,5 @@
-# The development instance, cgl.fmnoel.de, deployed from chatgamelab-deploy.
+# The instances deployed from chatgamelab-deploy: development on a merge to
+# development, and the production rehearsal on a merge to main.
 #
 # No build here, deliberately. That box builds from source itself, which is
 # what lets it run any commit rather than only the ones a registry holds — so
@@ -11,25 +12,30 @@
 # box's own 15-minute timer was going to do anyway. Nothing on the box is
 # issued to CI: no SSH key, no deploy credential, only this shared HMAC
 # secret, which ./deploy.sh mints fresh on every run and writes to both ends.
-name: Deploy development
+name: Deploy instances
 
 on:
   push:
     branches:
       - development
+      - main
   workflow_dispatch:
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger the dev box
+      - name: Trigger the box that follows this branch
         env:
-          SECRET: ${{ secrets.CGL_DEPLOY_HOOK_SECRET }}
-          # Both written by ./deploy.sh in chatgamelab-deploy, so moving the
-          # instance to another domain needs no edit here. Hardcoding it once
-          # left this posting at a name that had stopped resolving.
-          URL: ${{ vars.CGL_DEPLOY_HOOK_URL }}
+          # Per instance, so two boxes following two branches do not share one
+          # pair. Both are written by ./deploy.sh in chatgamelab-deploy, which
+          # is also why moving an instance to another domain needs no edit here.
+          SECRET: ${{ github.ref_name == 'main'
+            && secrets.CGL_HOOK_SECRET_PROD_CGL_FMNOEL_DE
+            || secrets.CGL_HOOK_SECRET_DEV_CGL_FMNOEL_DE }}
+          URL: ${{ github.ref_name == 'main'
+            && vars.CGL_HOOK_URL_PROD_CGL_FMNOEL_DE
+            || vars.CGL_HOOK_URL_DEV_CGL_FMNOEL_DE }}
         run: |
           # A body is sent because a POST without one carries no Content-Length,
           # which the listener answers 411 before looking at anything.
@@ -39,7 +45,7 @@ jobs:
           # An accepted trigger answers 202, not 200: the deploy it starts
           # outlives the request by minutes. curl -f takes any 2xx.
           if [ -z "$URL" ]; then
-            echo "::warning::CGL_DEPLOY_HOOK_URL is unset — run ./deploy.sh once to set it"
+            echo "::warning::no hook URL for ${{ github.ref_name }} — run ./deploy.sh once against that instance to set it"
             exit 0
           fi
           # Non-fatal by design: a dead trigger costs a deploy its promptness
