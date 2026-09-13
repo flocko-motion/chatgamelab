@@ -11,50 +11,23 @@ Create your own text adventure games and play them with your friends.
 
 For a detailed explanation of how the AI game engine works, see [TECHNOLOGY.md](TECHNOLOGY.md).
 
-## Rules for working on this project
+## Contributing
 
-If you're working on ChatGameLab (including web designers), you **must learn Git basics first**. There are user-friendly Git clients for Mac like [GitHub Desktop](https://desktop.github.com/) or [Sourcetree](https://www.sourcetreeapp.com/) that make this easier.
+Work happens on `development`; `main` is what the public uses. You branch off
+`development`, open a pull request against it, automated checks run, a human
+reviews, and once it is merged the development server deploys itself from it.
+Releasing to `main` — and so to production — is a separate step performed by
+the project lead.
 
-**Essential Rules:**
+**[CONTRIBUTING.md](CONTRIBUTING.md) is the full path**, written for someone
+doing it here for the first time. Read it before your first pull request; it
+covers the branches, the checks, what review is for, and the commands
+(`make rebase`, `make pr`, `make release`) that drive each step.
 
-1. **`main` branch** = Published/live website (don't touch!)
-2. **`development` branch** = Current development work
-3. **Your workflow**: Fork `development` → make changes → create Pull Request to `development`→ wait for review
-4. **Never** change `main` directly or make PRs to `main` alone
-5. **Work in small chunks** - when you finish a feature, make a PR right away. Don't work alone for weeks!
-
-This keeps everyone in sync and prevents the project from breaking apart.
-
-**Keeping your branch up to date:**
-
-```bash
-make rebase
-```
-
-This replays your branch on top of the latest `origin/development` and force-pushes it. Only run it on your own feature branch.
-
-**Landing your branch:**
-
-```bash
-make pr
-```
-
-From your feature branch this merges `origin/development` in so the checks run over the code that will land, pushes, opens the pull request against `development` and prints its URL. It stops there, leaving the pull request open for review. `make rebase` first if you would rather the branch replayed on top than carried a merge commit.
-
-```bash
-make pr MERGE=1
-```
-
-The same, and then it waits until GitHub will let the pull request merge — which outlasts a required check that has yet to start — and merges it. Run it on a pull request that is already open to merge that one. Re-running after the merge says so and stops.
-
-**Releasing:**
-
-```bash
-make release
-```
-
-This lists the commits that would enter `main`, says what merging them publishes, and asks before it opens anything — `make release YES=1` answers that prompt for a run with no terminal. Then it takes `development` to `main` through a pull request and merges `main` back so the release tags stay reachable from `development`. Both halves are pull requests, since `development` and `main` each take only those, and it reads `origin/development` and `origin/main` throughout — so it runs from any branch, mid-edit, and leaves your working tree alone. `make sync` does the back-merge on its own, for a release someone merged in the browser.
-
+If you are working on ChatGameLab in any capacity, including as a web designer,
+you need Git basics first. There are friendly clients for Mac such as
+[GitHub Desktop](https://desktop.github.com/) and
+[Sourcetree](https://www.sourcetreeapp.com/).
 
 ## Requirements
 
