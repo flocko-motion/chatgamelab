@@ -1,5 +1,5 @@
 # The instances deployed from chatgamelab-deploy: development on a merge to
-# development, and the production rehearsal on a merge to main.
+# development, production on a merge to main.
 #
 # No build here, deliberately. That box builds from source itself, which is
 # what lets it run any commit rather than only the ones a registry holds — so
@@ -31,10 +31,10 @@ jobs:
           # pair. Both are written by ./deploy.sh in chatgamelab-deploy, which
           # is also why moving an instance to another domain needs no edit here.
           SECRET: ${{ github.ref_name == 'main'
-            && secrets.CGL_HOOK_SECRET_PROD_CGL_FMNOEL_DE
+            && secrets.CGL_HOOK_SECRET_RUN_CHATGAMELAB_EU
             || secrets.CGL_HOOK_SECRET_DEV_CGL_FMNOEL_DE }}
           URL: ${{ github.ref_name == 'main'
-            && vars.CGL_HOOK_URL_PROD_CGL_FMNOEL_DE
+            && vars.CGL_HOOK_URL_RUN_CHATGAMELAB_EU
             || vars.CGL_HOOK_URL_DEV_CGL_FMNOEL_DE }}
         run: |
           # A body is sent because a POST without one carries no Content-Length,
