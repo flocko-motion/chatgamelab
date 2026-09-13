@@ -1,7 +1,7 @@
 name: Build and Push Docker Images
 
 # main only. Its images are what production deploys, and production is the
-# only consumer: the development instance (cgl.fmnoel.de) builds from source on
+# only consumer of them: the development instance (cgl.fmnoel.de) builds from source on
 # the box, so it can run any commit rather than only the ones published here.
 # Quality is gated before the merge by test.yml, on the pull request.
 on:
@@ -168,21 +168,8 @@ jobs:
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
             org.opencontainers.image.version=${{ needs.resolve-version.outputs.version }}
 
-  deploy-prod:
-    # Coolify, until production moves to its own v-server deployed from
-    # chatgamelab-deploy. The development instance is triggered by
-    # deploy-dev.yml, which runs on its own branch and needs none of this.
-    needs: [build-and-push, resolve-version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Coolify prod
-        run: |
-          curl -X POST -f \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_WEBHOOK_TOKEN }}" \
-            "${{ secrets.COOLIFY_WEBHOOK_URL_PROD }}" || echo "⚠️ Coolify prod webhook failed"
-
   summary:
-    needs: [build-and-push, resolve-version, deploy-prod]
+    needs: [build-and-push, resolve-version]
     runs-on: ubuntu-latest
     steps:
       - name: Build summary
