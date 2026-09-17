@@ -18,53 +18,76 @@ the `make` commands below. `gh auth login` once and it remembers.
 Setup, dependencies and how to run the thing locally are in
 [README.md](README.md). This file is only about how a change travels.
 
-## The two branches
+## Things that save everyone time
 
-**`development`** is where work lands. Every change goes here first, and the
-development server redeploys itself from it automatically — so a merged change
-is visible to everyone within a minute or two.
+**Small changes, often.** The single best thing you can do for review speed.
 
-**`main`** is what the public uses. It only ever receives `development`, as a
-whole, when the project lead decides the current state is ready. Nothing goes
-to `main` directly, and no pull request should target it.
+**Say what a change is for.** In the pull request description, and in the
+commit message.
 
-Your own work happens on a branch off `development`, named for what it does:
-`fix/login-redirect`, `feat/workshop-export`.
+**Check the development site after your change lands.** It is the cheapest
+place to find out you were wrong.
 
-## The path a change takes
+**Ask.** A question before you build something is much cheaper than a review
+that concludes it was the wrong thing.
 
-### 1. Branch and work
+## The Process 
 
-Branch from an up-to-date `development`, and keep the change small. A branch
-that lives for weeks is painful to review and painful to merge; one that lands
-every few days is neither. If you are building something large, land it in
-pieces that each make sense on their own.
-
-While you work, `development` moves under you. Catch up with:
-
-```sh
-make rebase
+```
+your branch  →  pull request  →  checks  →  review  →  development  →  dev server (automatic)
+                                                            ↓
+                                                   release, by the lead
+                                                            ↓
+                                                     main  →  production (automatic)
 ```
 
-which replays your commits on top of the latest `origin/development` and
-force-pushes. Only ever run it on your own branch — it rewrites history, which
-is fine on a branch nobody else has and destructive on one they do.
 
-### 2. Open a pull request
+### Clone the Repo 
 
-```sh
-make pr
-```
+When you want to work on chatgamelab, you first need to clone the repo locally 
+and create your personal branch in which you will do your changes. That is called a 
+*feature branch*. 
 
-From your feature branch this merges `origin/development` in — so the checks
-run over the code that will actually land, rather than over your branch in
-isolation — pushes, opens the pull request against `development`, and prints
-its URL. Then it stops, leaving the pull request open for review.
+### Creat a Feature Branch
 
-Write a description that says what changed and why. A reviewer who has to read
-the diff to find out what you were trying to do is a reviewer who will be slow.
+When you work on changes, you do that on a branch that you create yourself. You 
+branch it off from the `development` branch using the command: 
+`git checkoug -b yourbranchname`
 
-### 3. The automated checks run
+Branchnames should start with `fix/` for bugfixes, `feat/` for newly added features 
+or `doc/` when working on documentation only. Those prefixes help others to 
+quickly understand, what your branch is about. So e.g. `fix/broken-upload` would 
+be the perfect branch name for fixing a broken upload function. 
+
+Before you start working on your branch, run `make rebase` once. That syncs 
+your banch against the current state of the project, so that you don't  
+work on an old version. 
+
+### Pull Request
+
+Once your done you make a *pull request* to ask for your changes to be 
+accepted into the project.
+
+#### Creating a pull request 
+
+You can either push your branch and create the pull request on github.com in the 
+browser or you run this script in the repo: 
+
+`make pr`
+
+It runs a script which does everything that's needed. It pushes (uploads) 
+your branch, creates the request to merge (Pull Request) and runs the automatic 
+checks. 
+
+Always make sure to provide an understandable description what you did. Don't flood
+the description with AI generated details, nobody needs that. Write something short 
+and on the point. 
+
+#### The automated checks run
+
+The automatic checks make sure, that your change doesn't break anything. 
+Those tests are of course not perfect, they only test what they were programmed to test, 
+that is running the typical use cases. 
 
 Opening the pull request starts them automatically. There are three:
 
@@ -83,78 +106,33 @@ Occasionally a check fails for a reason that has nothing to do with the change
 — a network timeout pulling a container image, say. Re-run it from the pull
 request page before going looking for a bug.
 
-### 4. A human reviews it
+#### Approval from Project Owner 
 
-Green checks mean the code compiles and the tests pass. They say nothing about
-whether the change is a good idea, fits how the rest of the project works, or
-does what its description claims. That is what review is for.
+Once the tests pass, your PR (Pull Request) is visible on Github and the project 
+owner (Florian Metzger-Noel) will get a notification that you want his review 
+and want to merge your contribution. 
 
-Expect comments, and expect some of them to ask for changes. Push new commits
-to the same branch; the pull request updates itself and the checks run again.
+Once he confirmes, your changes are merged and are now in the *Development Branch*
 
-### 5. Merge to `development`
+### The Development Branch 
 
-Once it is approved:
+**`development`** is where your changework lands once our PR was accepted and merged. 
+After merging it gets automatically deployed to the development server at 
+*dev.cgl.fmnoel.de* where you can try out that version in a real environment. 
 
-```sh
-make pr MERGE=1
-```
+The development server exists, so that stakeholders can try out that version 
+and assess, if it's ready for production. 
 
-waits until GitHub will let the pull request merge — which outlasts a required
-check that has not started yet — and merges it. Or use the button on the pull
-request page; they do the same thing.
+### The Main Branch - Releasing 
 
-**The development server deploys itself from this.** Merging to `development`
-sends a signed trigger to the box, which builds the new code from source and
-restarts. It takes a few minutes, and a timer catches anything the trigger
-misses, so a merge is live within a quarter of an hour at worst. Nobody has to
-deploy it.
+If the `development` branch seems to be good and the stakeholders signal, that it 
+should be released, a PR (Pull Request) from `development` to `main` is created. This 
+can be done with a browser in github.com or with the command 
 
-Go and look at it. The development site is where a change is judged in
-practice, and the gap between "the tests pass" and "it behaves as intended" is
-where most of the remaining problems live.
+`make release` 
 
-### 6. Release to `main`
+Once merged, the updated *main* branch is automatically deployed to the production 
+server. The new version is online within a vew minutes. You can tell from the 
+changed version number on the website. 
 
-This step belongs to the project lead. When the state of `development` is
-worth publishing:
 
-```sh
-make release
-```
-
-lists the commits that would enter `main`, says what merging them publishes,
-and asks before opening anything. It then takes `development` to `main` through
-a pull request, merges it, and merges `main` back into `development` so the
-release tags stay reachable from where the work happens.
-
-Merging to `main` publishes container images, tags the release, and deploys the
-production instance. Version numbers come from the commit messages, so a commit
-that says `fix:` and one that says `feat:` produce different releases — worth
-writing accurately even though nothing enforces it.
-
-## In short
-
-```
-your branch  →  pull request  →  checks  →  review  →  development  →  dev server (automatic)
-                                                            ↓
-                                                   release, by the lead
-                                                            ↓
-                                                     main  →  production (automatic)
-```
-
-## Things that save everyone time
-
-**Small changes, often.** The single best thing you can do for review speed.
-
-**Say what a change is for.** In the pull request description, and in the
-commit message.
-
-**Do not touch `main`.** Not a pull request against it, not a commit on it.
-Releases are one operation performed by one person.
-
-**Check the development site after your change lands.** It is the cheapest
-place to find out you were wrong.
-
-**Ask.** A question before you build something is much cheaper than a review
-that concludes it was the wrong thing.
