@@ -9,34 +9,79 @@ rebase:
 	@echo "✅ Rebased successfully."
 
 # Whether a pull request may merge is GitHub's question, and mergeStateStatus
-# is where it answers. `gh pr checks` reports what sits on the head commit,
-# which for the back-merge is main's own release build, green before the pull
-# request existed — so a required check that has yet to register reads there as
-# success, and the merge that follows is refused by the base branch policy. The
-# checks are watched for the eye; BLOCKED is what holds the merge back, and it
-# persists for as long as a required check is pending.
+# answers it in one word for two situations: BLOCKED is both "a required check
+# has yet to report" and "the base branch policy refuses this merge", and only
+# the first clears by waiting. So the wait is on the required checks named by
+# the base branch's own rules, which says immediately when there is nothing
+# left to wait for. `gh pr checks` is watched for the eye and trusted for
+# nothing: it reports what sits on the head commit, which for the back-merge is
+# main's own release build, green before the pull request existed.
+#
+# A base branch can still refuse the merge for a rule no amount of waiting will
+# satisfy — one that restricts who may update the ref, say. gh names the rule,
+# and that is where the run stops.
 define wait_and_merge
+passed_checks() { \
+	gh pr view "$$1" --json statusCheckRollup \
+		--jq '.statusCheckRollup[]? | select((.conclusion // .state) == "SUCCESS") | .name // .context' \
+		2>/dev/null; \
+}; \
+broken_checks() { \
+	gh pr view "$$1" --json statusCheckRollup \
+		--jq '.statusCheckRollup[]? | select(.conclusion == "FAILURE" or .conclusion == "ERROR" or .conclusion == "TIMED_OUT" or .conclusion == "CANCELLED" or .conclusion == "STARTUP_FAILURE" or .state == "FAILURE" or .state == "ERROR") | .name // .context' \
+		2>/dev/null; \
+}; \
+required_checks() { \
+	gh api "repos/{owner}/{repo}/rules/branches/$$1" \
+		--jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
+		2>/dev/null | sort -u; \
+}; \
+unmet_checks() { \
+	passed="$$(passed_checks "$$1")"; \
+	required_checks "$$2" | while read -r ctx; do \
+		[ -n "$$ctx" ] || continue; \
+		printf '%s\n' "$$passed" | grep -qxF "$$ctx" || printf '%s\n' "$$ctx"; \
+	done; \
+}; \
 wait_and_merge() { \
 	pr="$$1"; \
+	base="$$(gh pr view "$$pr" --json baseRefName --jq .baseRefName)"; \
 	echo ">> watching #$$pr's checks…"; \
+	: "a check run takes a moment to register on a freshly pushed head, and"; \
+	: "--watch returns at once while none has"; \
+	for i in $$(seq 1 12); do \
+		n="$$(gh pr view "$$pr" --json statusCheckRollup \
+			--jq '.statusCheckRollup | length' 2>/dev/null)"; \
+		[ "$${n:-0}" -gt 0 ] && break; \
+		sleep 5; \
+	done; \
 	gh pr checks "$$pr" --watch --fail-fast || true; \
-	echo ">> waiting for GitHub to call #$$pr mergeable…"; \
+	echo ">> waiting for #$$pr's required checks to pass…"; \
 	for i in $$(seq 1 180); do \
-		state="$$(gh pr view "$$pr" --json mergeStateStatus --jq .mergeStateStatus)"; \
-		case "$$state" in \
-			CLEAN|UNSTABLE) break;; \
-			DIRTY) echo "#$$pr has conflicts — resolve them, then re-run"; return 1;; \
-		esac; \
+		broken="$$(broken_checks "$$pr")"; \
+		if [ -n "$$broken" ]; then \
+			echo "#$$pr has checks that did not pass:"; \
+			printf '%s\n' "$$broken" | sed 's/^/     /'; \
+			return 1; \
+		fi; \
+		if [ "$$(gh pr view "$$pr" --json mergeStateStatus \
+			--jq .mergeStateStatus)" = DIRTY ]; then \
+			echo "#$$pr has conflicts — resolve them, then re-run"; \
+			return 1; \
+		fi; \
+		unmet="$$(unmet_checks "$$pr" "$$base")"; \
+		[ -z "$$unmet" ] && break; \
 		sleep 10; \
 	done; \
-	case "$$state" in \
-		CLEAN|UNSTABLE) ;; \
-		*) echo "#$$pr is still $$state after 30 minutes, with:"; \
-		   gh pr checks "$$pr" || true; \
-		   return 1;; \
-	esac; \
+	if [ -n "$$unmet" ]; then \
+		echo "#$$pr is still waiting on these required checks after 30 minutes:"; \
+		printf '%s\n' "$$unmet" | sed 's/^/     /'; \
+		return 1; \
+	fi; \
+	echo ">> merging #$$pr…"; \
 	gh pr merge "$$pr" --merge --delete-branch=false \
-		|| { echo "could not merge #$$pr — merge it in the browser"; return 1; }; \
+		|| { echo "$$base refused #$$pr — the message above names the rule"; \
+		     return 1; }; \
 }
 endef
 
