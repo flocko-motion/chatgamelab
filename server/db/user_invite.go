@@ -9,6 +9,7 @@ import (
 	"cgl/functional"
 	"cgl/functional/wordtoken"
 	"cgl/obj"
+	"cgl/tokenlock"
 	"context"
 	"database/sql"
 	"fmt"
@@ -424,17 +425,17 @@ func inviteTokenExists(ctx context.Context, token string) (bool, error) {
 // ResolveInviteToken returns the stored form of a typed invite token: the token
 // itself if it exists, else its wordtoken.Normalize form if that exists.
 // Old base64 tokens are case-sensitive, hence the exact match first.
+// A token found in neither form counts as a guess (-> tokenlock).
 func ResolveInviteToken(ctx context.Context, token string) (string, bool) {
-	if ok, _ := inviteTokenExists(ctx, token); ok {
-		return token, true
+	for _, candidate := range []string{token, wordtoken.Normalize(token)} {
+		ok, err := inviteTokenExists(ctx, candidate)
+		if err != nil {
+			return token, false
+		}
+		if ok {
+			return candidate, true
+		}
 	}
-	normalized := wordtoken.Normalize(token)
-	if normalized == token {
-		return token, false
-	}
-	ok, _ := inviteTokenExists(ctx, normalized)
-	if ok {
-		return normalized, true
-	}
+	tokenlock.Fail()
 	return token, false
 }

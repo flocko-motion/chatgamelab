@@ -16,6 +16,7 @@ import (
 	"cgl/functional/wordtoken"
 	"cgl/log"
 	"cgl/obj"
+	"cgl/tokenlock"
 )
 
 // RegisterRequest is the request body for user registration
@@ -234,6 +235,9 @@ func ParticipantLogin(w http.ResponseWriter, r *http.Request) {
 	// Validate the token by looking up the user
 	user, err := db.GetUserByParticipantToken(r.Context(), req.Token)
 	if err != nil {
+		if !db.ParticipantTokenKnown(r.Context(), req.Token) {
+			tokenlock.Fail()
+		}
 		log.Debug("participant login failed: invalid token", "error", err)
 		httpx.WriteError(w, http.StatusUnauthorized, "Invalid or expired token")
 		return

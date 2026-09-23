@@ -9,6 +9,7 @@ import (
 	"cgl/db"
 	"cgl/log"
 	"cgl/obj"
+	"cgl/tokenlock"
 	"context"
 	"net/http"
 	"net/url"
@@ -249,10 +250,17 @@ func Authenticate(next http.Handler) http.Handler {
 
 		// Check for participant token (prefixed with "participant-")
 		if strings.HasPrefix(tokenString, "participant-") {
+			if retry := tokenlock.RetryAfter(); retry > 0 {
+				WriteTokenLocked(w, retry)
+				return
+			}
 			// Lookup user by participant token
 			// SQL query validates: user exists, has participant role, linked to active workshop
 			user, err := db.GetUserByParticipantToken(r.Context(), tokenString)
 			if err != nil {
+				if !db.ParticipantTokenKnown(r.Context(), tokenString) {
+					tokenlock.Fail()
+				}
 				// Check for specific error codes
 				if authErr, ok := err.(*db.ParticipantAuthError); ok {
 					log.Debug("participant auth failed", "code", authErr.Code, "error", authErr.Message)
