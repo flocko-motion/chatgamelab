@@ -48,6 +48,19 @@ func (b *Broadcast[T]) Close() {
 	}
 }
 
+// Input names the receiving end for symmetry with Broadcast. A block's input is
+// an ordinary buffered channel — there is no fan-in to manage, since several
+// sources writing to one sink is exactly what a channel already does — but a
+// field typed `chan string` next to one typed TextBroadcast reads as two
+// unrelated things.
+type (
+	AudioInput = chan AudioChunk
+	TextInput  = chan string
+	ImageInput = chan ImageData
+	PropsInput = chan PropMap
+	StateInput = chan State
+)
+
 type (
 	AudioBroadcast = Broadcast[AudioChunk]
 	TextBroadcast  = Broadcast[string]

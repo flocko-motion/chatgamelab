@@ -7,14 +7,32 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <button id="talk" type="button" disabled>hold to talk</button>
-      <span id="state">idle</span>
-      <span id="props"></span>
-    </header>
-    <div id="pipeline" title="the session's wiring; a block lights while it works"></div>
-    <img id="scene" alt="" hidden />
-    <div id="feed"></div>
+    <main>
+      <header>
+        <button id="talk" type="button" disabled>hold to talk</button>
+        <form id="compose">
+          <input id="typed" type="text" placeholder="…or type" autocomplete="off" disabled />
+        </form>
+        <span id="state">idle</span>
+      </header>
+      <img id="scene" alt="" hidden />
+      <div id="feed"></div>
+    </main>
+
+    <aside>
+      <section>
+        <h2>pipeline</h2>
+        <div id="graph"></div>
+      </section>
+      <section>
+        <h2>status</h2>
+        <div id="props" class="kv"></div>
+      </section>
+      <section>
+        <h2>usage</h2>
+        <div id="usage" class="kv"></div>
+      </section>
+    </aside>
   </body>
   <script type="module" src="main.js"></script>
 </html>

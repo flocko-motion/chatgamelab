@@ -5,7 +5,12 @@
  *
  * Integration tests drive this directly against a running engine.
  */
-import { isSessionEvent, type BlockState, type SessionEvent } from "./protocol.js";
+import {
+  isSessionEvent,
+  type BlockState,
+  type SessionEvent,
+  type UsageReport,
+} from "./protocol.js";
 import type { Topology } from "./state.js";
 import { emptyState, type PlayerState } from "./state.js";
 import type { Transport, TransportMessage } from "./transport.js";
@@ -54,6 +59,14 @@ export class Player {
    */
   speak(pcm: ArrayBuffer): void {
     this.transport.send(pcm);
+  }
+
+  /**
+   * Sends typed input. A live session takes both typed and spoken words, and a
+   * turn-based genre takes only these.
+   */
+  say(text: string): void {
+    this.transport.send(JSON.stringify({ text }));
   }
 
   /** Marks the player taking the floor, so the next reply starts a new line. */
@@ -142,6 +155,9 @@ export class Player {
       case "state":
         this.#applyBlockState(event.Value);
         break;
+      case "usage":
+        this.#applyUsage(event.Value);
+        break;
       default:
         this.state.notes.push(`${event.Stream}: ${event.Value}`);
     }
@@ -169,6 +185,14 @@ export class Player {
     const report = parsed as Partial<BlockState>;
     if (typeof report.node !== "string" || typeof report.phase !== "string") return;
     this.state.phases[report.node] = report.phase;
+  }
+
+  #applyUsage(value: string): void {
+    try {
+      this.state.usage = JSON.parse(value) as UsageReport;
+    } catch {
+      // A malformed report costs a display update, not the conversation.
+    }
   }
 
   #extend(delta: string): void {

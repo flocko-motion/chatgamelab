@@ -13,7 +13,8 @@ export interface TransportHandlers {
 
 export interface Transport {
   open(handlers: TransportHandlers): void;
-  send(data: ArrayBuffer): void;
+  /** Binary frames are audio; text frames are everything else. */
+  send(data: ArrayBuffer | string): void;
   close(): void;
 }
 
@@ -38,7 +39,7 @@ export class WebSocketTransport implements Transport {
       handlers.onMessage(message.data);
   }
 
-  send(data: ArrayBuffer): void {
+  send(data: ArrayBuffer | string): void {
     if (this.#socket?.readyState === WebSocket.OPEN) this.#socket.send(data);
   }
 

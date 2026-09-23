@@ -27,14 +27,14 @@ type Observer struct {
 	maxInARow   int
 	consecutive int
 
-	in    chan string
+	in    ports.TextInput
 	out   ports.TextBroadcast
 	state ports.StateBroadcast
 	usage ports.UsageBroadcast
 
 	spent adapters.Usage
 
-	Flags chan string
+	Flags ports.TextInput
 }
 
 func NewObserver(name string, tool adapters.Tool, guardrail, scenario string, maxInARow int) *Observer {
@@ -44,8 +44,8 @@ func NewObserver(name string, tool adapters.Tool, guardrail, scenario string, ma
 		guardrail: guardrail,
 		scenario:  scenario,
 		maxInARow: maxInARow,
-		in:        make(chan string, 32),
-		Flags:     make(chan string, 64),
+		in:        make(ports.TextInput, 32),
+		Flags:     make(ports.TextInput, 64),
 	}
 }
 

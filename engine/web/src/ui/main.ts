@@ -1,6 +1,6 @@
 /**
  * Browser entry point. Its only jobs are constructing the headless player,
- * pointing a view at its state, and piping the microphone into it.
+ * pointing a view at its state, and piping input into it.
  */
 import { AudioIO } from "./audio.js";
 import { Player } from "../player.js";
@@ -16,21 +16,30 @@ function required<T extends Element>(selector: string): T {
 // The session is whatever the server was started with; the player brings no
 // spec of its own.
 const sessionID = new URLSearchParams(location.search).get("session") ?? "standalone";
+const sessionBase = new URL(`../sessions/${sessionID}/`, location.href);
 
-const socketURL = new URL(`../sessions/${sessionID}/live`, location.href);
+const socketURL = new URL("live", sessionBase);
 socketURL.protocol = socketURL.protocol.replace("http", "ws");
 
 const player = new Player(new WebSocketTransport(socketURL));
+const typed = required<HTMLInputElement>("#typed");
+
 const view = new View({
   status: required<HTMLElement>("#state"),
   props: required<HTMLElement>("#props"),
+  usage: required<HTMLElement>("#usage"),
+  graph: required<HTMLElement>("#graph"),
   image: required<HTMLImageElement>("#scene"),
   feed: required<HTMLElement>("#feed"),
   talk: required<HTMLButtonElement>("#talk"),
-  pipeline: required<HTMLElement>("#pipeline"),
+  typed,
 });
 
 player.subscribe((state) => view.render(state));
+
+// The wiring does not change during a session, so it is fetched once and then
+// only its phases and costs are updated.
+void player.loadTopology(sessionBase);
 
 const audio = new AudioIO(new URL("./mic-worklet.js", import.meta.url).href);
 const talk = required<HTMLButtonElement>("#talk");
@@ -39,12 +48,20 @@ talk.addEventListener("pointerdown", () => {
   player.takeFloor();
   void audio.startCapture((pcm) => player.speak(pcm));
 });
-const release = () => audio.stopCapture();
+const release = (): void => audio.stopCapture();
 talk.addEventListener("pointerup", release);
 talk.addEventListener("pointerleave", release);
 
-// The wiring does not change during a session, so it is fetched once and then
-// only its phases are updated.
-void player.loadTopology(new URL(`../sessions/${sessionID}/`, location.href));
+// A live session accepts typed input as readily as spoken, which is how it is
+// played without a microphone.
+required<HTMLFormElement>("#compose").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = typed.value.trim();
+  if (!text) return;
+  typed.value = "";
+  view.echo(text);
+  player.takeFloor();
+  player.say(text);
+});
 
 player.connect();

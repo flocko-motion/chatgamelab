@@ -17,7 +17,7 @@ import (
 type Gate struct {
 	name string
 
-	in chan ports.State
+	in ports.StateInput
 
 	mu       sync.Mutex
 	expected int
@@ -32,7 +32,7 @@ type Gate struct {
 func NewGate(name string) *Gate {
 	return &Gate{
 		name:     name,
-		in:       make(chan ports.State, 16),
+		in:       make(ports.StateInput, 16),
 		worked:   map[string]bool{},
 		finished: map[string]bool{},
 		ready:    make(chan struct{}),

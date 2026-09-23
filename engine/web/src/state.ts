@@ -4,7 +4,7 @@
  * This is what makes the player headless: everything the UI could draw is here,
  * so a test can play a full game and assert on this object without a DOM.
  */
-import type { Phase } from "./protocol.js";
+import type { Phase, UsageReport } from "./protocol.js";
 
 export type ConnectionState = "idle" | "connecting" | "open" | "closed" | "failed";
 
@@ -53,6 +53,8 @@ export interface PlayerState {
   topology: Topology | null;
   /** What each block is doing right now, keyed by node name. */
   phases: Record<string, Phase>;
+  /** What the session has spent, per block and per model. Null until reported. */
+  usage: UsageReport | null;
 }
 
 export function emptyState(): PlayerState {
@@ -66,6 +68,7 @@ export function emptyState(): PlayerState {
     notes: [],
     topology: null,
     phases: {},
+    usage: null,
   };
 }
 

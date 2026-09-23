@@ -14,11 +14,11 @@ import (
 // recorder is the shared body of every sink: buffer in, readable log out.
 type recorder struct {
 	name string
-	Seen chan string
+	Seen ports.TextInput
 }
 
 func newRecorder(name string) recorder {
-	return recorder{name: name, Seen: make(chan string, 256)}
+	return recorder{name: name, Seen: make(ports.TextInput, 256)}
 }
 
 func (r *recorder) NodeName() string { return r.name }
@@ -34,11 +34,11 @@ func (r *recorder) record(ctx context.Context, v string) bool {
 
 type PlayerOutputText struct {
 	recorder
-	in chan string
+	in ports.TextInput
 }
 
 func NewPlayerOutputText(name string) *PlayerOutputText {
-	return &PlayerOutputText{recorder: newRecorder(name), in: make(chan string, 64)}
+	return &PlayerOutputText{recorder: newRecorder(name), in: make(ports.TextInput, 64)}
 }
 
 func (b *PlayerOutputText) TextInPort() chan<- string    { return b.in }
@@ -56,11 +56,11 @@ func (b *PlayerOutputText) Start(ctx context.Context) {
 
 type PlayerOutputAudio struct {
 	recorder
-	in chan ports.AudioChunk
+	in ports.AudioInput
 }
 
 func NewPlayerOutputAudio(name string) *PlayerOutputAudio {
-	return &PlayerOutputAudio{recorder: newRecorder(name), in: make(chan ports.AudioChunk, 64)}
+	return &PlayerOutputAudio{recorder: newRecorder(name), in: make(ports.AudioInput, 64)}
 }
 
 func (b *PlayerOutputAudio) AudioInPort() chan<- ports.AudioChunk { return b.in }
@@ -78,11 +78,11 @@ func (b *PlayerOutputAudio) Start(ctx context.Context) {
 
 type PlayerOutputImage struct {
 	recorder
-	in chan ports.ImageData
+	in ports.ImageInput
 }
 
 func NewPlayerOutputImage(name string) *PlayerOutputImage {
-	return &PlayerOutputImage{recorder: newRecorder(name), in: make(chan ports.ImageData, 64)}
+	return &PlayerOutputImage{recorder: newRecorder(name), in: make(ports.ImageInput, 64)}
 }
 
 func (b *PlayerOutputImage) ImageInPort() chan<- ports.ImageData { return b.in }
@@ -100,11 +100,11 @@ func (b *PlayerOutputImage) Start(ctx context.Context) {
 
 type PlayerOutputProps struct {
 	recorder
-	in chan ports.PropMap
+	in ports.PropsInput
 }
 
 func NewPlayerOutputProps(name string) *PlayerOutputProps {
-	return &PlayerOutputProps{recorder: newRecorder(name), in: make(chan ports.PropMap, 64)}
+	return &PlayerOutputProps{recorder: newRecorder(name), in: make(ports.PropsInput, 64)}
 }
 
 func (b *PlayerOutputProps) PropsInPort() chan<- ports.PropMap { return b.in }

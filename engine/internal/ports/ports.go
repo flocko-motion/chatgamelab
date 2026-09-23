@@ -68,8 +68,13 @@ type StateIn interface{ StateInPort() chan<- State }
 type (
 	AudioIn interface{ AudioInPort() chan<- AudioChunk }
 	TextIn  interface{ TextInPort() chan<- string }
-	ImageIn interface{ ImageInPort() chan<- ImageData }
-	PropsIn interface{ PropsInPort() chan<- PropMap }
+	// SecondaryTextIn is the second text input of a block that genuinely has
+	// two, since a struct satisfies any given interface only once. A live
+	// session is the case: the player's words on one, the observer's correction
+	// on the other.
+	SecondaryTextIn interface{ SecondaryTextInPort() chan<- string }
+	ImageIn         interface{ ImageInPort() chan<- ImageData }
+	PropsIn         interface{ PropsInPort() chan<- PropMap }
 )
 
 type Kind int

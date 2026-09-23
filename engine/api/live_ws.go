@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/coder/websocket"
@@ -63,19 +65,30 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	// Inbound: microphone frames.
+	// Inbound: binary frames are microphone audio, text frames are typed input.
+	// A live session takes both, and so does this endpoint.
 	for {
 		typ, data, err := conn.Read(ctx)
 		if err != nil {
 			return
 		}
-		if typ != websocket.MessageBinary {
-			continue
+
+		var submitErr error
+		if typ == websocket.MessageBinary {
+			submitErr = s.Speak(data)
+		} else {
+			var req inputRequest
+			if err := json.Unmarshal(data, &req); err != nil {
+				submitErr = fmt.Errorf("malformed input: %w", err)
+			} else {
+				submitErr = s.Say(req.Text)
+			}
 		}
-		if err := s.Speak(data); err != nil {
-			// Report and keep going: the wrong input kind is a client mistake,
-			// not a reason to end someone's conversation.
-			if err := wsJSON(ctx, conn, engine.Event{Stream: "error", Value: err.Error()}); err != nil {
+
+		if submitErr != nil {
+			// Report and keep going: a client mistake is not a reason to end
+			// someone's conversation.
+			if err := wsJSON(ctx, conn, engine.Event{Stream: "error", Value: submitErr.Error()}); err != nil {
 				return
 			}
 		}

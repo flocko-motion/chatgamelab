@@ -57,6 +57,9 @@ type LiveConfig struct {
 // Send and Events run concurrently for the connection's lifetime.
 type LiveConn interface {
 	Send(audio []byte) error
+	// SendText submits typed input. A live session takes both, which matters
+	// for testing without a microphone and for anyone who would rather type.
+	SendText(text string) error
 	// Instruct replaces the session's standing instructions mid-conversation,
 	// which is how the observer steers a drifting character.
 	Instruct(text string) error

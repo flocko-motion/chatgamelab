@@ -45,6 +45,12 @@ func (c *liveConn) Send(_ []byte) error {
 	return nil
 }
 
+func (c *liveConn) SendText(_ string) error {
+	// Typed and spoken input are the same thing to the model, so the mock
+	// treats them the same: another turn, another step of drift.
+	return c.Send(nil)
+}
+
 func (c *liveConn) Instruct(text string) error {
 	c.mu.Lock()
 	c.drift = 0

@@ -48,8 +48,8 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 	}
 }
 
-// A genre that takes no typed input must say so rather than swallow it.
-func TestWrongInputKindIsRejected(t *testing.T) {
+// A live session takes both typed and spoken input, because the model does.
+func TestLiveGenreAcceptsBothInputKinds(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -62,11 +62,35 @@ func TestWrongInputKindIsRejected(t *testing.T) {
 	}
 	defer s.Close()
 
-	if err := s.Say("typing at a voice genre"); err == nil {
-		t.Error("expected Say to be refused by npc-live")
-	}
 	if err := s.Speak([]byte("persuasion")); err != nil {
 		t.Errorf("Speak should be accepted by npc-live: %v", err)
+	}
+	if err := s.Say("let me through"); err != nil {
+		t.Errorf("Say should be accepted by npc-live: %v", err)
+	}
+}
+
+// A genre that genuinely takes no input of a kind must say so rather than
+// swallow it: input vanishing into a genre would surface as a mute character
+// rather than as an error.
+//
+// Adventure will gain audio input once it wires a transcription block, which is
+// what v1 does today. Until then it is the genre with one input kind.
+func TestUnsupportedInputKindIsRejected(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if err := s.Speak([]byte("spoken at a typed genre")); err == nil {
+		t.Error("expected Speak to be refused by adventure")
+	}
+	if err := s.Say("I try to cross the bridge"); err != nil {
+		t.Errorf("Say should be accepted by adventure: %v", err)
 	}
 }
 
