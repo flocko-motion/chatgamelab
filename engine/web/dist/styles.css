@@ -29,10 +29,11 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 15px/1.55 ui-sans-serif, system-ui, sans-serif;
-  /* Split screen: the conversation earns the space, the instrumentation gets a
-     fixed column. Below a laptop width they stack instead. */
+  /* Split screen, evenly. Watching the pipeline work is half the point of this
+     platform, so it gets half the room rather than a sidebar's worth. Below a
+     laptop width they stack instead. */
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 @media (max-width: 60rem) {
@@ -114,6 +115,15 @@ aside {
   flex-direction: column;
   gap: 1.25rem;
   font-size: 0.8rem;
+  min-width: 0;
+}
+
+/* The pipeline takes the slack; status and usage take what they need. */
+aside > section:first-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 @media (max-width: 60rem) {
@@ -129,34 +139,15 @@ aside h2 {
   font-weight: 600;
 }
 
-/* The graph reads top to bottom: each block on its own row, with the edges
-   leaving it named beneath. A block is lit while it works, which is what makes
-   a turn legible as it happens. */
-.node {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  padding: 0.2rem 0.5rem;
+/* The drawn graph needs a box to draw into: a canvas has no intrinsic size.
+   Given half the screen it can take most of the column's height, which is what
+   makes a multi-stage pipeline readable rather than cramped. */
+#graph {
+  flex: 1;
+  min-height: 20rem;
   border: 1px solid var(--line);
   border-radius: 6px;
-  margin-bottom: 0.25rem;
   background: var(--bg);
-  transition: border-color 120ms, background-color 120ms;
-}
-
-.node[data-phase="working"] {
-  border-color: var(--live);
-  background: color-mix(in srgb, var(--live) 14%, var(--bg));
-}
-
-.node .name { font-weight: 500; }
-.node .role, .node .cost { color: var(--dim); font-size: 0.72rem; }
-.node .cost { margin-left: auto; font-variant-numeric: tabular-nums; }
-
-.edges {
-  color: var(--dim);
-  font-size: 0.7rem;
-  margin: 0 0 0.4rem 0.9rem;
 }
 
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.75rem; }

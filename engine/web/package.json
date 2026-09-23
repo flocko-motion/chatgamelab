@@ -8,7 +8,11 @@
     "build": "npm run typecheck && npm run bundle"
   },
   "devDependencies": {
+    "@dagrejs/dagre": "^3.1.1",
+    "@types/cytoscape": "^3.21.9",
     "@types/node": "^26.6.2",
+    "cytoscape": "^3.34.3",
+    "cytoscape-dagre": "^4.0.1",
     "esbuild": "^0.28.2",
     "typescript": "^5.9.0"
   }
