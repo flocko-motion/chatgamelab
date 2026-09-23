@@ -163,45 +163,31 @@ aside h2 {
 
 .total { border-top: 1px solid var(--line); margin-top: 0.35rem; padding-top: 0.35rem; }
 
-/* The node inspector. Clicking a stage and reading what actually went through
-   it is the point of this platform, so it gets a real panel rather than a
-   tooltip. */
-dialog {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg);
-  color: var(--fg);
-  padding: 1.25rem;
-  max-width: min(46rem, 92vw);
-  max-height: 80vh;
-  overflow-y: auto;
-  font-size: 0.85rem;
-}
+/* The details panel: the whole session's figures, or one block's. Fixed width
+   comes from the column, so switching between the two never reflows the graph
+   above it. */
+#details { min-height: 9rem; }
 
-dialog::backdrop { background: rgb(0 0 0 / 0.35); }
-
-dialog h3 { margin: 0 0 0.75rem; font-size: 1rem; }
-
-dialog h4 {
-  margin: 1rem 0 0.4rem;
-  font-size: 0.7rem;
+#details h4 {
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--dim);
 }
 
+#details .meta { margin: 0.6rem 0 0; }
+
 .sample {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
-  padding: 0.4rem 0.6rem;
-  margin-bottom: 0.35rem;
+  padding: 0.35rem 0.55rem;
+  margin-bottom: 0.3rem;
   border-left: 2px solid var(--line);
-  background: var(--panel);
+  background: var(--bg);
   border-radius: 0 6px 6px 0;
 }
 
-.sample-kind { color: var(--dim); font-size: 0.7rem; }
+.sample-kind { color: var(--dim); font-size: 0.68rem; }
 .sample-value { white-space: pre-wrap; word-break: break-word; }
-
-dialog form { margin-top: 1rem; }
