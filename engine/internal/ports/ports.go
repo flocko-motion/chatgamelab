@@ -72,6 +72,10 @@ type Starter interface{ Start(ctx context.Context) }
 //
 // State is per block rather than per session: a genre may wire two independent
 // threads, and one field could not hold both.
+//
+// Both methods are called from the caller's goroutine while the block's own
+// loop keeps running — a checkpoint never stops the graph — so an implementation
+// must guard whatever it reports.
 type Resumable interface {
 	ExportState() string
 	RestoreState(string)

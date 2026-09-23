@@ -67,11 +67,11 @@ func (b *PropsStore) Current() ports.PropMap {
 func (b *PropsStore) Start(ctx context.Context) {
 	go func() {
 		defer b.out.Close()
-		// Seed first, so a block wired to this store has values before the
-		// first turn rather than on the second.
-		if len(b.current) > 0 {
-			b.out.Send(b.Current())
-		}
+		// Always publish once at start, even when empty. A block whose props
+		// input is required waits for this first snapshot, so withholding it
+		// when there is nothing to seed would deadlock that block instead of
+		// telling it the values are known and empty.
+		b.out.Send(b.Current())
 		for {
 			select {
 			case <-ctx.Done():
