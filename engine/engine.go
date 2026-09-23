@@ -1,0 +1,344 @@
+// Package engine is the whole public surface. Everything else lives under
+// internal/, where the compiler refuses an import from outside this module —
+// not a convention, not a lint rule.
+//
+// The engine owns no HTTP. A caller wraps these calls in whatever transport it
+// runs, which is what lets the same code be a standalone server or a package
+// compiled into the platform's binary.
+package engine
+
+import (
+	"context"
+	"fmt"
+	"strings"
+	"sync"
+	"time"
+
+	"engine/internal/adapters"
+	"engine/internal/adapters/mock"
+	"engine/internal/adapters/openai"
+	"engine/internal/blocks"
+	"engine/internal/genre"
+)
+
+// KeyFunc yields the API key for a session's platform. The platform injects one
+// closing over its existing resolver; a standalone launcher injects one reading
+// a flag or a config file. The engine itself never learns where a key lives.
+type KeyFunc func(ctx context.Context) (string, error)
+
+// Tier is re-exported so a caller can name one without importing internal/.
+type Tier = adapters.Tier
+
+const (
+	TierEconomy  = adapters.TierEconomy
+	TierBalanced = adapters.TierBalanced
+	TierPremium  = adapters.TierPremium
+	TierMax      = adapters.TierMax
+)
+
+// Platform selects which implementations back the adapter roles. The engine
+// never resolves this itself: it arrives in the spec, already decided.
+type Platform string
+
+const (
+	PlatformMock   Platform = "mock"
+	PlatformOpenAI Platform = "openai"
+)
+
+type Genre string
+
+const (
+	GenreAdventure Genre = "adventure"
+	GenreNPCLive   Genre = "npc-live"
+)
+
+// SessionSpec is everything the engine needs to run a session. It arrives fully
+// resolved: the engine never calls back into platform data.
+type SessionSpec struct {
+	Genre Genre `json:"genre"`
+
+	// ID identifies the session to whatever Persist was injected.
+	ID string `json:"id,omitempty"`
+
+	// Persist is injected by whoever embeds the engine, never read from a spec
+	// file: it is behaviour, not configuration.
+	Persist Persist `json:"-"`
+
+	// Guardrail is the platform's resolved youth-protection constraint. It is
+	// not authored by a game designer.
+	Guardrail string `json:"guardrail,omitempty"`
+
+	// Scenario is the game designer's text: the setting and rules for Adventure,
+	// who the character is and what they must not concede for NPC-Live. Distinct
+	// from Guardrail on purpose — collapsing the two would hand a game author a
+	// lever on youth protection.
+	Scenario string `json:"scenario,omitempty"`
+
+	// Platform selects which implementations back the adapter roles. An empty
+	// Platform means mock: no key, no network, no cost.
+	Platform Platform `json:"platform,omitempty"`
+
+	// Keys supplies the API key on demand. It is injected rather than stored,
+	// for two reasons: the spec is persisted as a blob, so a key field would
+	// write the secret into the database once per session; and resolving at the
+	// point of use means a rotated or revoked key takes effect without
+	// relaunching.
+	Keys KeyFunc `json:"-"`
+
+	// ModelTier is the default every unset Model* field resolves through.
+	// Empty means balanced.
+	ModelTier Tier `json:"modelTier,omitempty"`
+
+	// The Model* fields pin one role for this session. A value starting with
+	// "$" names a tier — "$max" means "this role's model at the max tier" —
+	// and anything else is a literal model name. The sigil is what keeps the
+	// two unambiguous.
+	ModelLive     string `json:"modelLive,omitempty"`
+	ModelTool     string `json:"modelTool,omitempty"`
+	ModelThreaded string `json:"modelThreaded,omitempty"`
+	ModelImage    string `json:"modelImage,omitempty"`
+	ModelAudio    string `json:"modelAudio,omitempty"`
+
+	// Voice is a parameter of the live and audio models rather than a model of
+	// its own, which is why it sits outside the Model* family.
+	Voice string `json:"voice,omitempty"`
+
+	// Status seeds the property values a genre tracks — Adventure's status
+	// fields. The engine neither invents nor interprets them.
+	Status map[string]string `json:"status,omitempty"`
+
+	// Script replaces live player input with canned utterances, for a dev
+	// launcher or a test.
+	Script []string `json:"script,omitempty"`
+	// ScriptIntervalMs is milliseconds, spelled out because a time.Duration
+	// field would silently read a JSON number as nanoseconds.
+	ScriptIntervalMs int `json:"scriptIntervalMs,omitempty"`
+}
+
+// Event is one item on the session-scoped stream. Stream names the output block
+// it came from, so the set of possible values is the genre's wiring.
+type Event struct {
+	Stream string
+	Value  string
+}
+
+type Session struct {
+	spec   SessionSpec
+	wiring *genre.Wiring
+	events chan Event
+	cancel context.CancelFunc
+	once   sync.Once
+}
+
+// SessionState is what a session must carry across a restart, separate from the
+// spec because the spec is fixed at launch and this changes every turn. Keyed by
+// block name: a genre may wire two independent threads, and one field could not
+// hold both.
+type SessionState struct {
+	Blocks map[string]string `json:"blocks,omitempty"`
+}
+
+// Resume launches a session and restores each block's provider-side state, so a
+// threaded genre continues its conversation rather than starting a new one.
+//
+// A stored state naming a block the wiring no longer has is an error, not
+// something to limp past: the wiring changed under the session, and that is
+// exactly the case that should invalidate it.
+func Resume(ctx context.Context, spec SessionSpec, state SessionState) (*Session, error) {
+	return launch(ctx, spec, &state)
+}
+
+// Launch validates a genre's wiring and starts it. The returned session is a
+// self-sufficient handle: whoever holds it can drive the conversation.
+func Launch(ctx context.Context, spec SessionSpec) (*Session, error) {
+	return launch(ctx, spec, nil)
+}
+
+func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Session, error) {
+	var w *genre.Wiring
+	switch spec.Genre {
+	case GenreAdventure:
+		w = genre.NewAdventure(spec.Status)
+	case GenreNPCLive:
+		live, tool, err := spec.adapters()
+		if err != nil {
+			return nil, err
+		}
+		w = genre.NewNPCLive(genre.NPCLiveConfig{
+			Live: live,
+			Tool: tool,
+			LiveCfg: adapters.LiveConfig{
+				Voice:        spec.Voice,
+				Instructions: spec.Scenario + "\n" + spec.Guardrail,
+			},
+			Guardrail: spec.Guardrail,
+			Scenario:  spec.Scenario,
+			Script: blocks.InputScript{
+				Lines:    spec.Script,
+				Interval: time.Duration(spec.ScriptIntervalMs) * time.Millisecond,
+			},
+		})
+	default:
+		return nil, fmt.Errorf("unknown genre %q", spec.Genre)
+	}
+
+	if err := w.Graph.Validate(); err != nil {
+		return nil, err
+	}
+
+	// Restored before anything starts, so the first turn already runs on the
+	// continued thread.
+	if state != nil && len(state.Blocks) > 0 {
+		if err := w.Graph.RestoreState(state.Blocks); err != nil {
+			return nil, err
+		}
+	}
+
+	if spec.Persist == nil {
+		spec.Persist = NoopPersist{}
+	}
+	if spec.ID == "" {
+		spec.ID = "dev-session"
+	}
+
+	ctx, cancel := context.WithCancel(ctx)
+	s := &Session{spec: spec, wiring: w, events: make(chan Event, 256), cancel: cancel}
+	w.Graph.Start(ctx)
+	s.merge(ctx)
+	return s, nil
+}
+
+// merge folds every wired sink into one session-scoped stream. A turn is a
+// bracketed span of these events rather than a stream of its own.
+func (s *Session) merge(ctx context.Context) {
+	for name, ch := range s.wiring.Sinks {
+		go func(name string, ch chan string) {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case v, ok := <-ch:
+					if !ok {
+						return
+					}
+					ev := Event{Stream: name, Value: v}
+					_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
+					select {
+					case s.events <- ev:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}(name, ch)
+	}
+}
+
+// Events is the session-scoped stream the transport serialises.
+func (s *Session) Events() <-chan Event { return s.events }
+
+// Say submits typed player input. It reports an error on a genre that takes no
+// typed input, rather than discarding it silently.
+func (s *Session) Say(text string) error {
+	if s.wiring.Say == nil {
+		return fmt.Errorf("genre %q takes no typed input", s.spec.Genre)
+	}
+	s.wiring.Say(text)
+	return nil
+}
+
+// Speak submits player audio.
+func (s *Session) Speak(audio []byte) error {
+	if s.wiring.Speak == nil {
+		return fmt.Errorf("genre %q takes no audio input", s.spec.Genre)
+	}
+	s.wiring.Speak(audio)
+	return nil
+}
+
+// Describe renders the running wiring, so a launcher can show the graph it got.
+func (s *Session) Describe() string { return s.wiring.Graph.Describe() }
+
+// State is what Resume needs back. It is read at a checkpoint rather than at the
+// end, because a conversation may never reach an end.
+func (s *Session) State() SessionState {
+	return SessionState{Blocks: s.wiring.Graph.ExportState()}
+}
+
+func (s *Session) Close() { s.once.Do(s.cancel) }
+
+// tierSigil marks a Model* value as a reference to a tier rather than a model
+// name. No model name begins with it, so the two never have to be guessed apart.
+const tierSigil = "$"
+
+func (spec SessionSpec) modelTier() Tier {
+	if spec.ModelTier == "" {
+		return TierBalanced
+	}
+	return spec.ModelTier
+}
+
+// resolveModels turns the spec's tier and per-role pins into concrete model
+// names. Roles left unset come from ModelTier; a role pinned to "$tier" comes
+// from that tier instead; anything else is used verbatim.
+//
+// byTier is the platform's own preset table, so the engine holds no model names
+// of its own.
+func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, error)) (adapters.ModelSet, error) {
+	models, err := byTier(spec.modelTier())
+	if err != nil {
+		return models, err
+	}
+
+	for _, role := range []struct {
+		name string
+		pin  string
+		at   func(*adapters.ModelSet) *string
+	}{
+		{"modelLive", spec.ModelLive, func(m *adapters.ModelSet) *string { return &m.Live }},
+		{"modelTool", spec.ModelTool, func(m *adapters.ModelSet) *string { return &m.Tool }},
+		{"modelThreaded", spec.ModelThreaded, func(m *adapters.ModelSet) *string { return &m.Threaded }},
+		{"modelImage", spec.ModelImage, func(m *adapters.ModelSet) *string { return &m.Image }},
+		{"modelAudio", spec.ModelAudio, func(m *adapters.ModelSet) *string { return &m.Audio }},
+	} {
+		if role.pin == "" {
+			continue
+		}
+		if !strings.HasPrefix(role.pin, tierSigil) {
+			*role.at(&models) = role.pin
+			continue
+		}
+
+		tier := Tier(strings.TrimPrefix(role.pin, tierSigil))
+		other, err := byTier(tier)
+		if err != nil {
+			return models, fmt.Errorf("%s: %w", role.name, err)
+		}
+		*role.at(&models) = *role.at(&other)
+	}
+	return models, nil
+}
+
+// adapters resolves the spec's platform choice into implementations. Defaults
+// live here rather than in a block, so a block never has an opinion about which
+// model runs it.
+func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, error) {
+	switch spec.Platform {
+	case "", PlatformMock:
+		return mock.Live{}, mock.Tool{}, nil
+	case PlatformOpenAI:
+		if spec.Keys == nil {
+			return nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
+		}
+		models, err := spec.resolveModels(openai.Models)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		keys := adapters.KeyFunc(spec.Keys)
+		return openai.NewLive(keys, models.Live),
+			openai.NewTool(keys, models.Tool), nil
+	default:
+		return nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
+	}
+}

@@ -8,8 +8,8 @@ written down before deciding whether to do it.
 
 ## Why
 
-A second project needs a similar chat-driven, AI-generated interactive experience — dialogues
-with a single character on a single topic, no workshops, no sharing, no organisational structure.
+A second project needs a similar AI-generated interactive experience — spoken dialogues with a
+single character on a single topic, no workshops, no sharing, no organisational structure.
 Building that as a fork of ChatGameLab would duplicate the engine and diverge over time. Building
 it by hacking a second flow into the current, deeply platform-entangled engine would make both
 worse. The alternative: pull the actual game engine out into something the platform consumes the
@@ -21,25 +21,144 @@ moves out of it.
 
 ## Scope
 
-- Two genres: **Adventure** (today's only genre, rebuilt from generic building blocks) and
-  **NPC-Dialogue** (the new one, the actual reason this work exists). No others are currently
-  planned.
-- Genres are a small, fixed, hand-built set — not a DSL, not user-authorable, not configurable
-  beyond the prompt and stage-toggle level described below. Every attempt to over-generalize this
-  ends the same way: reinventing a programming language. Two genres do not justify that cost.
+- Two genres: **Adventure** (today's only genre, rebuilt by wiring building blocks) and
+  **NPC-Live** (the new one, the actual reason this work exists — a voice-driven conversation with
+  a single character, running on a live speech-to-speech model). No others are currently planned.
+- Genres are a small, fixed, hand-built set of Go wirings — not a DSL, not user-authorable, not
+  declared in data. Every attempt to over-generalize this ends the same way: reinventing a
+  programming language. Two genres do not justify that cost.
 - This document does not cover the platform's business logic (accounts, permissions, workshops,
   sharing, jugendschutz cascade resolution) except where the engine's boundary touches it.
 
-## The shared pipeline
+## Building blocks
 
-All genres run through **one generic, hardcoded pipeline** — not N separate hand-rolled flows.
-A genre is realized by configuring which optional stages are active and which concrete building
-blocks are plugged into which slots, not by writing its own orchestration from scratch.
+The engine ships a library of **building blocks** — small, configurable primitives, each wrapping
+one mechanism. A block is typed by what it does *mechanically*, and configured by prompt into
+whatever role a genre needs it to play:
 
-The pipeline's shape was arrived at empirically, not by generalizing on principle: an earlier,
-single-shot version of the "generate what happens next" step showed real problems — it was too
-sycophantic, too willing to just do what the player asked. Splitting it into rephrase → outline →
-expand fixed that, independent of whatever else runs in parallel:
+| Block | Mechanism | Roles it gets configured into |
+|---|---|---|
+| **Tool call** | one single-shot text-in/text-out call | third-person rephrase, condense-scenario, translate image style, any short transformation |
+| **Threaded call** | a call on a continuing conversation | Outline and Expand, sharing one thread |
+| **Structured extraction** | a call returning a typed properties map | status tracking, theme generation |
+| **Image generation** | prompt in, image out | scene illustration |
+| **Speech synthesis** | text in, audio out | narration |
+| **Transcription** | audio in, text out | voice input on a turn-based genre |
+| **Live session** | a long-lived, full-duplex speech-to-speech connection | NPC-Live's entire wiring |
+
+Shaping blocks by mechanism rather than by task is what keeps the library small. "Rephrase the
+player's input" and "condense a scenario for image prompts" are the same block with different
+prompts, so a new short transformation costs a config entry instead of a new type.
+
+**Output sinks are blocks too** — `output-text`, `output-audio`, `output-image`, `output-status`.
+They carry no prompt and run no model call, so they're a second family under the same word. Which
+means blocks do *not* share one uniform interface, and shouldn't be made to: once genres are
+wiring, a shared signature buys nothing. What the library gives you is a catalogue of pluggable
+things.
+
+### Typed ports
+
+A block exposes **named, typed ports** rather than one union-typed input and one union-typed
+output. `live-session` alone needs two of each — player audio and instruction injection in, audio
+and text out — which a single-slot interface can't express.
+
+Ports are Go interfaces, one pair per data type, and wiring is a method on the graph — a method
+rather than a free function because the edge has to be recorded somewhere for the validity check
+below to have anything to check:
+
+```go
+func (g *Graph) ConnectAudioOut(src AudioOut, dst AudioIn)
+func (g *Graph) ConnectTextOut(src TextOut, dst TextIn)
+```
+
+```go
+g := ports.NewGraph("npc-live")
+g.ConnectAudioOut(player, live)
+g.ConnectAudioOut(live, outAudio)   // speech to the player
+g.ConnectTextOut(live, outText)     // transcript as chat history
+g.ConnectTextOut(live, observer)    // same source, second consumer
+g.ConnectTextOut(observer, live)    // the back edge: steering instruction
+```
+
+**Inputs and output sinks are nodes.** `PlayerInputText`, `PlayerInputAudio` and their dummy
+counterparts are sources; `PlayerOutputText`, `PlayerOutputAudio`, `PlayerOutputImage` and
+`PlayerOutputProps` are sinks. One node per stream rather than one node with four ports, which is
+what makes a genre's event schema readable straight off its graph.
+
+**A source port hands out a fresh stream per call.** This is a hard rule on every block, not an
+implementation detail: `TextOutPort()` subscribes, it doesn't return a shared channel. Two
+consumers of one shared channel would *steal* from each other — the observer eating half the
+player's transcript — and nothing about the types would catch it. Subscription also happens when
+the edge is connected rather than when the graph starts, so a source that emits immediately cannot
+outrun its consumers.
+
+Where a block genuinely carries two outputs of one type — Outline emits a plot outline and an image
+prompt, both text — the second is exposed through a `SecondaryTextOut` interface, since a struct
+satisfies any given interface only once. No block is expected to need a third. If one ever does,
+that's the signal it's doing too much and should be split, rather than the start of an ordinal
+ladder.
+
+Four properties follow, and they're the reason ports are interfaces rather than a
+`RegisterPipe(TypeAudioOut, from, to)` call carrying a runtime type tag:
+
+- **The graph is compile-checked.** A block that doesn't implement `AudioOut` can't be passed where
+  one is wanted. A runtime tag defers that to session start — which in practice means a workshop.
+- **Fan-out is just calling `Connect` twice** on the same source. Each consumer gets its own
+  stream, so the latency-critical frontend edge never waits on the slow observer edge. No splitter
+  block is needed; one would only be worth adding to give a fork its own name in the graph.
+- **Cycles cost nothing.** Blocks exist before any edge is drawn, so a back edge is the same call
+  as a forward one. A builder requiring upstream-before-downstream would choke on exactly the loop
+  NPC-Live needs.
+- **Shared plumbing stays small**, because the interfaces are keyed to data type rather than to
+  port role. Buffering, fan-out and any later tracing tap are written once per type — audio, text,
+  image, properties — instead of once per port.
+
+A genre's wiring is therefore a directed graph over nodes of three kinds — inputs, AI blocks and
+output sinks — and it is **not required to be acyclic**: the observer feedback edge is a cycle on
+purpose.
+
+**Validity is split between the compiler and a unit test.** Types settle whether an edge is legal;
+they say nothing about whether the graph is complete. Because every pipeline is hardcoded and there
+are two of them, a per-genre test can check the rest exhaustively: every required input port has a
+source, every block is reachable from an input, and every output block the genre's event schema
+advertises is actually wired. A cheap test that only stays cheap because pipelines are never
+user-authored.
+
+The one check neither catches is **termination of a cycle**. The observer watches NPC output and
+injects steering, which produces more NPC output for it to watch — self-sustaining by design, and
+capable of running away if a correction itself trips the classifier. A bound on consecutive
+interventions belongs in the observer block rather than in the graph.
+
+Ports stay **narrowly typed to exactly what a block needs**. No port ever carries "the whole turn
+so far" — that makes a block's true dependencies invisible and every test require faking an entire
+turn's worth of state.
+
+There is also **no generic block-execution engine** — no scheduler walking a declarative graph and
+running whatever happens to be ready. The graph in a genre's wiring is Go, and that distinction is
+load-bearing rather than aesthetic: expressed in Go, the compiler checks it; expressed in data, it
+needs a runtime validator and the type safety above evaporates. Two genres do not justify paying
+that.
+
+## Genres are wiring
+
+A genre is **Go code that wires blocks together**. Genres are a small, fixed, hand-built set,
+written by hand and compiled in — a genre is code, not data, and never user-authorable.
+
+An earlier draft of this document specified the opposite: one generic hardcoded pipeline that every
+genre ran through, realized by toggling optional stages on and off. That is abandoned. NPC-Live
+broke it immediately, because a live speech-to-speech session decomposes into no stages at all —
+it is one connection, held open. A spine that only one of two genres can sit on is not a spine.
+
+What the engine provides is the block library, the `SessionSpec`, the persistence interface and the
+protocol. What a genre provides is orchestration — hardcoded Go, including its own parallel fan-out
+(goroutines/`errgroup`).
+
+### Adventure
+
+Adventure's wiring is the pipeline the current engine already runs, rebuilt from blocks. Its shape
+was arrived at empirically, not by generalizing on principle: an earlier, single-shot version of
+the "generate what happens next" step showed real problems — it was too sycophantic, too willing to
+just do what the player asked. Splitting it into rephrase → outline → expand fixed that:
 
 - **Rephrase** turns the player's raw input into third person with an uncertain outcome, which
   distances the AI from the player's literal will and keeps it in control of the fiction rather
@@ -48,9 +167,6 @@ expand fixed that, independent of whatever else runs in parallel:
   character does — "you're writing a book, this is what the protagonist does" — which produces a
   more grounded, less compliant plot than asking for the final prose directly.
 - **Expand** then enriches that plausible-but-terse outline into full narrative prose.
-
-This three-step shape is universal across genres for quality reasons alone, independent of
-whether a genre ever generates an image.
 
 ```mermaid
 graph TB
@@ -102,65 +218,127 @@ graph TB
 
 Notes on this diagram:
 
-- **The Transcribe branch is capability-driven, not genre-driven.** Whether Transcribe runs at
-  all depends on whether the *adapter currently plugged into the Preprocess slot* accepts audio
-  input directly. That's a property of whichever model got resolved into that role, checked once
-  by the pipeline itself — not a per-genre toggle, and not something a genre's config decides. If
-  a future tool-tier model supports audio input directly, the pipeline stops running a separate
-  Transcribe call automatically, with no genre code changing at all. This is the first instance of
-  adapters declaring capabilities the pipeline branches on; it's plausible other stages will want
-  the same pattern later, but nothing else uses it yet.
-- **Image and Audio are optional per genre/config** — the fan-out doesn't run every branch for
-  every genre. Whether a genre generates a scene image or narrates its text is a stage toggle, not
-  a different pipeline.
-- **Veto/fact-check is explicitly not being built now.** It's noted so the pipeline's shape
-  doesn't accidentally preclude it later: a block whose output is pass/fail rather than content,
-  hanging off the same outline Expand and Image consume, with the authority to reject a turn and
-  force regeneration (e.g. catching a plot that asserts a wrong fact). Worth designing *for*, not
-  designing *now*.
+- **The Transcribe branch is capability-driven.** Whether Transcribe runs at all depends on whether
+  the *adapter currently plugged into the Preprocess slot* accepts audio input directly — a
+  property of whichever model got resolved into that role, checked once by the wiring itself. If a
+  future tool-tier model takes audio directly, the separate Transcribe call stops happening with no
+  genre code changing.
+- **Image and Audio are optional**, toggled in Adventure's own configuration.
+- **Veto/fact-check is explicitly not being built now.** It's noted so the shape doesn't
+  accidentally preclude it later: a block whose output is pass/fail rather than content, hanging
+  off the same outline Expand and Image consume, with the authority to reject a turn and force
+  regeneration. Worth designing *for*, not designing *now*.
 
-## Building blocks
+### NPC-Live
 
-Every building block implements one generic interface:
+NPC-Live's wiring puts **nothing in the conversation's path**: one live speech-to-speech session,
+opened at launch and held open for the conversation's lifetime. No rephrase, no outline, no expand
+— the entire value of a live model is that nothing sits between the player's voice and the reply,
+and three sequential calls per turn would destroy exactly that.
 
-- **Input:** text and/or audio
-- **Config:** a set of prompts
-- **Execution:** a preconfigured AI adapter
-- **Output:** text and/or image and/or audio and/or a structured properties map
+Control comes from the side instead, as an **observer loop**:
 
-Confirmed blocks: Preprocess/Rephrase, Transcribe, Outline, Expand, Image, Audio (TTS),
-Translate, Theme generation, Status/properties tracking. Each is a purpose-built Go struct against
-that shared interface — genuinely a single interface, not a family of loosely related ones, tried
-in earnest rather than abandoned at the first awkward fit. Status/properties and theme generation
-are the two blocks whose fit is least obvious on paper and worth validating first during
-implementation.
+```mermaid
+graph LR
+    MIC["Player audio"]
+    LIVE(["live-session
+    (live adapter)"])
+    OBS(["observer
+    (tool adapter, threaded)"])
+    FEA["output-audio
+    → player"]
+    FET["output-text
+    → chat history"]
 
-Two things this deliberately is **not**:
+    MIC --> LIVE
+    LIVE -- audio --> FEA
+    LIVE -- text --> FET
+    LIVE -- text --> OBS
+    OBS -- "steering instruction" --> LIVE
+```
 
-- **Not a shared mutable state blob.** A block does not take or return "the whole turn so far" and
-  write into whatever fields it likes — that makes every block's true dependencies invisible and
-  every test require faking an entire turn's worth of state. Blocks stay narrowly typed to exactly
-  what they need; the pipeline's orchestration code is what explicitly reads a value out of the
-  in-flight turn record and writes a block's result back into it.
-- **Not a generic block-execution engine.** There is no scheduler that walks a declarative graph
-  of blocks and runs whatever's ready — that's a DSL by another name, and there are only two
-  genres to justify it for. The one shared pipeline is itself just hardcoded Go, including its
-  parallel fan-out (goroutines/`errgroup`), and it's the same three lines of orchestration whether
-  a genre uses it directly or a hypothetical third genre reuses it too.
+The live block's text output goes two places at once. One edge is the player's chat history; the
+other feeds an observer that classifies what the NPC just said — is it inside the youth-protection
+guardrail, is it turning sycophantic, is it still in character — and injects a correcting
+instruction back into the live session when it isn't.
+
+**The player's own speech is not transcribed for display or for the record.** Nobody re-reads what
+they just said aloud, and an ASR transcript that diverges from what the conversation model acted on
+is a poor record to keep. Whether it's still worth transcribing *purely as observer input* is open
+(see below).
+
+Two notes on the observer:
+
+- **Sycophancy is a trajectory property.** A single NPC line almost never reads as capitulation; a
+  character softening shows across several exchanges. So the observer keeps its own thread over
+  recent NPC output rather than scoring each chunk cold. Guardrail violations, by contrast, are
+  usually visible in one utterance.
+- **Two prompt slots, two provenances.** The youth-protection guardrail arrives in the
+  `SessionSpec` from the platform's cascade and is not editable by a game designer — collapsing it
+  into the designer's own text would hand a game author a lever on youth protection that
+  JUGENDSCHUTZ.md deliberately denies them. The designer authors the second slot, the **scenario**:
+  the setting and rules for Adventure, and for NPC-Live who the character is and what they must not
+  concede. One field, both genres.
+
+Verified against OpenAI's Realtime API in September 2026, because these properties decide what the
+protocol and the persistence layer have to carry:
+
+- **The model's own speech arrives with its text**, streamed alongside the audio
+  (`response.output_audio.delta` and `response.output_audio_transcript.delta`). This side of the
+  conversation is verbatim.
+- **The player's speech is transcribed by a separate ASR model** — opt-in via
+  `input_audio_transcription`, with `gpt-live-transcribe` streaming deltas as speech arrives. It
+  runs asynchronously from the response, so its events may arrive before or after the reply they
+  belong to, and OpenAI documents the output as a rough guide that may diverge from what the
+  conversation model actually acted on.
+- **Instructions can be changed mid-session** via `session.update`, so the jugendschutz constraint
+  can be re-injected during a conversation rather than fixed at launch. The voice is the exception:
+  settled once the model has produced audio once.
+- Current speech-to-speech model: `gpt-realtime-2.1`.
+
+Two consequences the engine has to design around. **The persisted record is asymmetric** — the
+NPC's half is exactly what it said, the player's half is one model's approximation of what a
+different model heard. Anything presenting a transcript as an audit trail, including the
+AI-insights view and any youth-protection review, has to be honest about which half is which. And
+**event order is not guaranteed**, so reconstructing a conversation means sorting events rather
+than trusting arrival order.
+
+**Sycophancy is the open question.** Rephrase → outline → expand exists precisely because a
+single-shot call was too willing to do what the player asked, and NPC-Live is a single-shot call by
+construction. Whether a live model holds a character who must refuse — a gatekeeper who won't let
+you past, a witness who won't name the culprit — against a player actively trying to talk it out of
+that role is unknown. It is the first thing the spike has to answer.
 
 ## AI adapters
 
-Building blocks don't share one AI adapter — they use a **bundle of four adapter roles**, each
+Building blocks don't share one AI adapter — they use a **set of five adapter roles**, each
 resolving to its own model/tier under the session's one platform and API key:
+
+Roles are named by mechanism, like the blocks that use them. What a genre calls a role —
+Adventure's "plot", say — is a use case and stays in the genre:
 
 | Role | Used by | Continuity |
 |---|---|---|
 | **Tool** | Preprocess/Rephrase, Transcribe, Translate, condense-scenario | Single-shot |
-| **Plot/Prose** | Outline, Expand | **Threaded** — one continuing conversation |
+| **Threaded** | Outline and Expand, which Adventure calls its plot/prose stage | **Threaded** — one continuing conversation |
 | **Image** | Image generation | Single-shot |
 | **Audio** | TTS, transcription | Single-shot |
+| **Live** | NPC-Live's live-session block | **Duplex** — one long-lived bidirectional session |
 
-This was verified against the current implementation, not assumed:
+**Tiers pick the model for each role.** A session names one `ModelTier` — economy, balanced,
+premium or max — and the platform's own preset table turns it into a model per role, so the engine
+holds no model names of its own. Two escape hatches, both explicit:
+
+- `ModelLive: "gpt-realtime-2.1"` pins one role to a named model.
+- `ModelThreaded: "$max"` lifts one role to another tier, which is how a cheap session keeps one
+  expensive stage.
+
+The `$` sigil is what keeps those unambiguous: no model name starts with it, so a field never has
+to be guessed at. A tier may leave a role empty, which means the role is unavailable there —
+economy generates no images, and speech output is a top-tier feature.
+
+The first four were verified against the current implementation, not assumed. The Live role is new
+and has no v1 counterpart to check against:
 
 - `ToolQuery(ctx, apiKey, prompt)` takes no session at all — nothing to thread, confirming it's
   single-shot by construction.
@@ -174,33 +352,47 @@ This was verified against the current implementation, not assumed:
   the game conversation."
 - Neither `GenerateAudio` (TTS) nor `TranscribeAudio` touch `AiSession` either.
 
-**Consequence for persistence:** because Plot/Prose is a real thread, its continuation token
-(response/conversation ID) is state that must survive between calls and across turns — the same
-category of thing as a generated image, not a special case. It's persisted through the same
-`Persist` checkpoint mechanism described below, and because the pipeline is universal across
-genres, that token is a fixed, generic field on the session state, not genre-specific data.
+**Consequence for persistence:** because the Threaded role is a real conversation, its
+continuation token (response/conversation ID) is state that must survive between calls and across
+turns — the same category of thing as a generated image, not a special case. A live session's
+conversation id is the same kind of thing.
 
-## The bundle
+It is stored **per block, keyed by the block's name in the wiring**, rather than as one field on
+the session. A genre may wire two independent threads, and a single field could not hold both.
+Resuming rebuilds the graph and hands each block back what it exported; a stored name the wiring no
+longer has is an error rather than something to limp past, because it means the wiring changed
+under a stored session — exactly the case that should invalidate it.
 
-A session is launched from one self-contained bundle. The engine never calls back into platform
-data to resolve anything — everything it needs arrives already resolved:
+## The SessionSpec
+
+A session is launched from one self-contained `SessionSpec`. The engine never calls back into
+platform data to resolve anything — everything it needs arrives already resolved:
 
 - **Prompts** — per building block, admin-tunable config, not hardcoded strings. This includes
   the jugendschutz constraint text, which is not a distinct field or a special type — it's simply
   one of the prompts, re-injected every turn so the model doesn't drift away from it. Which
   cascade level (workshop / organisation / site-by-age) produced that value is entirely the
-  platform's concern, resolved before the bundle is assembled; the engine can't tell a
+  platform's concern, resolved before the spec is assembled; the engine can't tell a
   cascade-resolved prompt from a hand-authored one, and doesn't need to.
-- **AI configuration** — platform and tier resolution for each of the four adapter roles.
-- **Resolved API key** — who pays. Authorizes the *launch*, not ongoing play (see below).
+- **Genre** — which wiring runs. Fixed for the session's lifetime.
+- **AI configuration** — platform and tier resolution for each of the five adapter roles.
+- **A key provider, not a key** — who pays, supplied as an injected function rather than a field.
+  Two reasons. The spec is persisted as a blob, so a key field would write the secret into the
+  database once per session, and into anything that logs a spec. And resolving at the point of use
+  means a rotated or revoked key takes effect without relaunching, which is what v1 already gets by
+  re-resolving every turn.
 
-A bundle can be assembled two ways, and the engine can't distinguish which:
+  The platform injects a function closing over its existing resolver; a standalone launcher injects
+  one reading a flag or `~/.chatgamelab/config.yaml`. The engine never learns where a key lives,
+  and never holds one longer than a request.
+
+A `SessionSpec` can be assembled two ways, and the engine can't distinguish which:
 
 1. **Platform-resolved** — the portal's normal session-creation flow runs the full jugendschutz
-   cascade and API-key resolution, and drops the results into bundle fields.
+   cascade and API-key resolution, and drops the results into spec fields.
 2. **Hand-assembled** — a dev launcher, or a third party embedding the engine directly, supplies a
    raw key and directly-specified prompt/constraint values with no ChatGameLab account involved at
-   all. Same bundle shape, assembled by hand instead of by a cascade.
+   all. Same spec shape, assembled by hand instead of by a cascade.
 
 ## Session & persistence model
 
@@ -211,29 +403,62 @@ id does, and that id can't be used to launch anything new. Attaching a session t
 optional platform-side bookkeeping (a mapping table the platform keeps outside the engine), not a
 structural requirement of a session.
 
-**One fixed session-state struct**, covering the union of fields every genre might need — not
-every genre populates every field:
+**Two tables, and as few columns as will do the job.** Whatever the engine stores, it stores as a
+blob:
 
-- **Strict SQL columns** for whatever the platform needs to relationally query or enforce: id,
-  optional user id, optional game id, created-at, ownership/permission fields, and the plot/prose
-  thread's continuation token (generic — every genre uses the same threaded slot).
-- **JSONB** for genre-specific state nothing outside the engine needs to query relationally: a
-  quiz's score/streak/whatever bonus values it invents, an NPC's trust meter, or nothing at all
-  for a genre that doesn't need it.
+| Table | Columns |
+|---|---|
+| `sessions` | `id`, `schema_version`, `spec` (JSON blob), `state` (JSON blob) |
+| `turns` | `session_id`, `turn` (counter), `content` (blob) |
 
-**Schema evolution by invalidation, not migration.** The JSONB payload carries an explicit
-schema-version marker (not just "does it unmarshal cleanly" — Go's JSON decoding is too permissive
-to catch a semantic change reliably). A version mismatch on load means the session is simply
-treated as invalid. This is acceptable specifically because sessions are cheap and disposable —
+`spec` and `state` are separate because they change at different rates: the spec is fixed at
+launch, while `state` is rewritten as the session runs.
+
+Nothing here is a column the platform can query by user, workshop or game — and it doesn't need to
+be. Attaching a session to a user is platform-side bookkeeping, so the platform keeps its own
+mapping table with whatever it indexes on, and the engine's schema stays this small. That split is
+what makes a second `Persist` implementation — SQLite for a standalone build — a morning's work
+rather than a schema exercise.
+
+`schema_version` is a column rather than a field inside the blob, so stale sessions can be found
+and purged without parsing every document.
+
+The `spec` blob holds no secret by construction: the API key is an injected function, and
+`Persist` is too. Both are behaviour rather than configuration, so neither serialises.
+
+Media is keyed by session and turn but stored *alongside* the turn rather than inside it. A
+base64'd image in `content` makes every read of that turn expensive, including the text-only replay
+path that exists precisely to avoid touching media.
+
+**Schema evolution by invalidation, not migration.** A version mismatch on load means the session
+is simply treated as invalid. The marker is explicit rather than "does it unmarshal cleanly" —
+Go's JSON decoding is too permissive to catch a semantic change reliably. This is acceptable specifically because sessions are cheap and disposable —
 unlike a `Game` (a teacher's authored scenario) or a `User`, nobody loses anything of lasting value
 when an old session can't be read after an engine upgrade; they start a new one. Games and Users
 keep real migrations; sessions don't need them.
 
+**Adventure fills the `turns` table; NPC-Live may barely touch it.** Adventure's turn is obvious:
+one action in, one bracketed response out, one row. A live conversation is ephemeral by default —
+the likely shape is turn 0 only, holding the one generated image of the character, with the
+dialogue itself never stored. That is deliberately unsettled while the genre is an experiment, and
+nothing above depends on settling it.
+
+An ephemeral conversation is better for data protection and worse for incident review: nothing
+about a child's dialogue is retained, and equally nothing is available when someone asks what the
+character said. The observer's flags are the natural middle ground if one is ever wanted — keep
+what was flagged without keeping the conversation.
+
+**Erasing a user touches both sides.** The mapping lives in the platform's table and the content in
+the engine's, so deletion is a two-table procedure. It should be written down as one procedure
+rather than reconstructed under time pressure.
+
 **Persistence happens at checkpoints during a turn, not once at the end.** This rules out a pure
 "state in, state out" function — real intermediate results need saving mid-flight: a generated
 image, the plot/prose thread's updated continuation token, a status update. The engine calls a
-`Persist`-shaped interface at each of these points; the portal implements it against Postgres, a
-dev launcher can implement it as a no-op or in-memory store. This generalizes a pattern that
+`Persist`-shaped interface at each of these points, and that interface is **dependency-injected**:
+the platform hands in one backed by its Postgres, a standalone build hands in SQLite, a dev
+launcher hands in memory or nothing. The graph holds an interface and never learns where anything
+lands. This generalizes a pattern that
 already exists today — `stream.go`'s `ImageSaver`/`AudioSaver` callbacks already persist media the
 moment it's final, with the caller never knowing where it's saved. `Persist` is that same idea,
 widened to cover the whole turn.
@@ -245,8 +470,10 @@ Two sibling Go modules, joined by `go.work` during development:
 - The engine module's internals live almost entirely under its own `internal/` — compiler-
   enforced: `go build` itself refuses an import from outside the module's own tree. Not a
   convention, not a lint rule, not something that depends on review discipline or on a coding
-  agent remembering a rule — the code simply won't compile if the boundary is crossed.
-- The engine exposes a small, deliberate public API: a `Launch(bundle) (*Session, error)`-shaped
+  agent remembering a rule — the code simply won't compile if the boundary is crossed. Checked
+  against the scaffold from the `server` module: importing `engine/internal/ports` fails with
+  *"use of internal package engine/internal/ports not allowed"*, while importing `engine` builds.
+- The engine exposes a small, deliberate public API: a `Launch(spec) (*Session, error)`-shaped
   call, a `NextTurn(session, action) (*Session, *Response, error)`-shaped call, and the `Persist`
   interface described above.
 - **The engine knows nothing about HTTP or REST.** No `http.Handler`, no request/response types
@@ -256,36 +483,109 @@ Two sibling Go modules, joined by `go.work` during development:
   is the only place that knows SSE exists at all. The split being proposed here is that same
   separation, generalized to the whole engine instead of just the streaming layer.
 - Frontend assets (HTML/CSS/compiled TypeScript) are embedded into the engine module via
-  `//go:embed` and exposed for the portal to serve at whatever route it chooses — the engine
-  doesn't own an HTTP handler for them either, consistent with the point above.
+  `//go:embed` and served from the engine's own subtree, alongside the endpoints they call. That
+  is what lets the player address the API with relative URLs and need no configuration: the same
+  build works under the platform's mount point and under a standalone server.
 - Because the module and `internal/` boundaries are real from day one, moving the engine into its
   own repository later — if that's ever wanted — is a near-zero-cost move: stop workspace-
   including it, tag a version, point at a git URL. Nothing needs untangling first, because nothing
   was allowed to tangle.
 
-## Transport
+### Deployment shapes
 
-Stays REST + SSE. Not WebSockets. The traffic is turn-based and half-duplex end to end, including
-the media within a single turn — text, image, and audio chunks are all part of one turn's
-progressive response, not independent ongoing channels. A WebSocket would add message framing,
-reconnect/backoff handling, and (if this is ever load-balanced across instances) sticky-session
-routing, all to save a connection-setup cost that's dwarfed by what it's waiting on: the AI
-generation call, which takes seconds, next to which a POST-plus-SSE-handshake's overhead is noise.
+**chatgamelab.eu runs the monolith**, and the reason is access control rather than convenience.
+In one binary the engine has no network surface of its own, so there is exactly one door: every
+request passes the portal's JWT validation, role and membership checks and share-token resolution
+before the engine is called at all. A standalone engine would expose its own endpoints, where the
+session id — a bearer handle by design — is the only thing left guarding them, because the engine
+knows nothing about users and cannot check anything else.
 
-Concretely: **POST an action → SSE streams that turn's progressive output → stream closes when the
-turn completes.** Message history and finished media are separately available through plain,
-stateless GET endpoints — usable on reload, and sufficient on their own for reviewing a past
-playthrough with no live session or engine involvement at all. This already exists today
-(`GetMessageStatus`, `GetMessageImage`, `GetMessageAudio` alongside `GetMessageStream`); the split
-doesn't change it, it just clarifies which half belongs to the engine's turn loop and which half
-is ordinary stateless retrieval.
+It also keeps a **live gate** in front of a frozen spec. The `SessionSpec` is fixed at launch, but
+the portal owns the route, so a revoked key, a changed role or a withdrawn share is enforced on the
+next request regardless.
+
+Mechanically: the portal's binary imports the engine and holds sessions as in-memory instances,
+with no second process and no wire protocol between them. `Persist` is the portal's Postgres
+implementation, passed in at launch.
+
+Because the engine owns no transport, the standalone shape stays available without being built: a
+thin `main` wrapping the same calls in HTTP, which is what the dev launcher already is in embryo.
+It stays cheap only while three things hold — the engine owns no HTTP, `Persist` stays injected,
+and the portal never reaches into `internal/`. The compiler enforces the third.
+
+The monolith's real cost is that **a portal deploy ends every live conversation.** A session is a
+running graph, its goroutines and an open model connection, so restarting the binary drops them.
+Adventure survives it — turn-based, state in the database. An open voice call does not, and the
+portal is redeployed whenever anything on the platform side changes, which is far more often than
+the engine changes. That makes deploy timing an operational rule once voice is in production,
+rather than an argument for splitting the process now.
+
+The one seam that needs care is `Persist`, because it is an interface the engine *calls*. Injecting
+a database connection is ordinary DI whatever the shape. What the engine must never do is call back
+into the *platform's API* to save something — that reverses the dependency arrow and hands the
+engine a platform URL, credentials and knowledge of platform endpoints. A standalone engine
+persists to storage it was given, not to the platform it may know nothing about.
+
+A live session also pins itself to one process: an open model connection plus a running graph and
+its goroutines. That is true in both shapes, and only becomes visible if a standalone engine ever
+runs more than one replica.
+
+## Protocol
+
+**The session-scoped event stream is the protocol; a turn is a bracketed span within it.** The
+engine emits one typed event stream for a session's lifetime, and the client sends input over the
+same connection. Adventure's turn loop is then the restricted case — a stream whose events happen
+to fall into one bracket per action — rather than a second protocol wearing the same name.
+
+This reverses an earlier draft, which specified REST + SSE and argued against WebSockets. That
+argument was sound for its stated premise, traffic that is "turn-based and half-duplex end to end",
+and the premise turns out to describe Adventure rather than the engine. NPC-Live is full-duplex by
+construction: barge-in alone means audio flows both ways at once. Designing for the duplex case and
+letting turn-based fall out of it yields one protocol; the other order yields two that drift.
+
+**The wired output blocks define the event schema.** Adventure wires text, image, audio and
+status; NPC-Live wires audio and text. The stream's event types are derived from a genre's wiring
+rather than being a fixed union each genre partially fills.
+
+**The genre declares its interaction model**, and the client reads that flag to pick its shell.
+This is the same capability-driven branching Adventure's Transcribe stage already uses, applied one
+level up.
+
+**Two topologies remain open for live audio**, and deciding between them is part of what the spike
+is for:
+
+- **Browser connects to the model directly** (WebRTC, with an ephemeral token minted by the
+  engine). Lowest latency, and the spendable API key still never reaches client code. But the
+  engine leaves the audio path, so it cannot meter spend per turn, cannot checkpoint mid-turn, and
+  learns what was said only from whichever events it subscribes to.
+- **The engine relays** (WebSocket on both sides). Keeps metering, persistence and moderation where
+  this document puts them, at the cost of latency, bandwidth, and a stateful connection per
+  session — which reintroduces the sticky-routing problem the original transport argument was
+  written to avoid.
+
+**Finished artifacts stay on plain stateless GETs.** Message history and completed media remain
+retrievable with no live session or engine involvement at all — enough on its own to review a past
+playthrough. This already exists today (`GetMessageStatus`, `GetMessageImage`, `GetMessageAudio`
+alongside `GetMessageStream`); the split doesn't change it, it clarifies which half is the engine's
+live stream and which half is ordinary retrieval.
 
 ## Frontend
+
+**Dependencies are judged one at a time, and the bar is "does it own an event model".** A library
+that takes data and paints — tsParticles' vanilla core is the live example — sits underneath the
+timeline and has no opinion about it. A framework that wants to own when things render is what
+this section rules out. That distinction, rather than a dependency count, is the rule.
 
 **The player is iframe-embeddable.** A host page sizes the iframe with ordinary CSS — percentage,
 flex/grid, `vh`, media queries — and the content inside reflows exactly as if the browser window
 itself had resized. No `postMessage` bridge is needed unless content-driven auto-height is wanted
 later; an internally-scrolling box is the natural shape for a chat-style feed regardless.
+
+**Built around the live-duplex case, rendered as a chat.** The headless core's timeline is the
+superset — a continuous session carrying concurrent streams — and Adventure's turn loop runs on
+that same core as the restricted case. The *layout* stays turn-based either way: a live
+conversation's transcript is displayed as chat history, so a voice dialogue and a typed adventure
+look like the same thing on screen even though only one of them is turn-based underneath.
 
 **Not React. Plain HTML5/CSS/TypeScript, no framework.** This is a firm decision, not a stylistic
 preference: React's render-as-function-of-state model fights the actual shape of a game turn,
@@ -315,9 +615,9 @@ turned out to be much smaller than it looked from the outside.
 
 **Genuinely headless.** A core state machine — session lifecycle, streaming accumulation, turn
 progression — owns the timeline and has zero rendering opinion. A thin UI layer's only job is to
-paint whatever the core's current state says. This mirrors the backend split exactly: one shared
-pipeline of narrowly-typed building blocks on the backend, one headless core with a pure render
-layer on the frontend — the same principle, applied on both sides of the boundary.
+paint whatever the core's current state says. This mirrors the backend split exactly: a library of
+narrowly-ported blocks wired per genre on the backend, one headless core with a pure render layer
+on the frontend — the same principle, applied on both sides of the boundary.
 
 **The portal consumes its own engine through the same iframe boundary any external embedder
 would use.** No special-cased "render the player directly" path inside the portal, not even for a
@@ -331,21 +631,39 @@ implements the full adapter interface with deterministic output and no network c
 engine has no DB and no HTTP dependency, pipeline and genre-configuration logic become fast,
 in-process Go tests with the mock adapter swapped in — a real step change from today, where the
 entire `testing/` suite is integration-only, spinning up Postgres and the full backend per run via
-`testutil.suite`. Genre-level correctness (does a status update apply correctly, does a stage
-toggle behave as configured) doesn't need any of that infrastructure at all.
+`testutil.suite`. Genre-level correctness (does a status update apply correctly, does a genre's
+wiring call blocks in the right order) doesn't need any of that infrastructure at all.
+
+The Live adapter role needs a mock of its own, and it's a harder one: replaying a scripted event
+stream, out of order on purpose, is the only way to test that the transcript reconstruction holds
+up under what the real API actually does. A scripted stream is also how the observer loop gets
+tested without a live model — feed it a drifting, increasingly compliant NPC and assert that
+steering fires.
+
+Graph-validity tests per genre are described under Typed ports above.
 
 ## Rollout
 
-1. Build the engine module as a genuine `go.work` sibling, developed and validated end-to-end
-   through a standalone dev launcher — a hand-assembled bundle in, a running session out, zero
-   portal wiring — before the portal is touched.
-2. **Adventure first** — rebuilt from the generic building blocks and the shared pipeline. This is
-   the abstraction's real test: it's shaped by one known-good genre, and its actual correctness
-   only shows once a second, genuinely different genre is built against it.
-3. **NPC-Dialogue second** — the forcing function for this whole document. Expected to expose
-   places where the abstraction, having only ever seen Adventure, cut a seam wrong; that's the
-   plan working as intended, not a sign step 2 was done badly.
-4. Once v2 fully works and is wired into the portal, **v1 is purged entirely — frontend and
+1. **Scaffold the engine thin, and build NPC-Live's observer loop on it first.** *(Under way — a
+   `./engine` module exists with both genres wired from dummy blocks, a graph validator, an
+   injected `Persist`, and a dev launcher that runs either genre with no API key and no network.)*
+   Leave out the portal, the transport, and any real adapter until the flow is proven. The earlier
+   plan here was a throwaway single-file spike outside the engine, on the grounds that building
+   gpt-live *as a block* would presuppose the block model fits it. The observer loop changed that:
+   it is multi-block by construction, so the thing under test is the wiring itself, and a throwaway
+   would mean building that machinery twice in a shape that doesn't transfer. The defence against
+   the original worry — sunk cost quietly bending the abstraction — is keeping the scaffold small
+   enough to still throw away.
+2. **What the spike has to answer**: whether a live model holds a character who must refuse against
+   a player actively trying to talk it out of the role, and whether the observer loop can pull it
+   back when it doesn't; which events a live session actually emits; WebRTC-direct or relayed; and
+   what a five-minute conversation costs.
+3. **Adventure** — rebuilt by wiring the building blocks. It's the known-good genre, so it proves
+   the block library can express what v1 already does.
+4. **NPC-Live** — the forcing function for this whole document. Expected to expose places where the
+   block library, shaped by Adventure, cut a seam wrong; that's the plan working as intended rather
+   than a sign step 3 was done badly.
+5. Once v2 fully works and is wired into the portal, **v1 is purged entirely — frontend and
    backend both.** No prolonged dual-running. Part of the value here is specifically the
    platform-side simplification that comes from deleting the old, entangled implementation, not
    just having a nicer new one sitting next to it.
@@ -357,11 +675,27 @@ No further genres are currently planned beyond these two.
 Noted so they aren't silently forgotten, not because they're expected soon:
 
 - **Veto/fact-check block** — a parallel stage with authority to reject a turn's output (e.g. on a
-  factual error), sketched into the pipeline diagram above but not designed in detail or built.
-- **Capability-flag pattern beyond audio input** — the Transcribe auto-activation is the first
-  instance of an adapter declaring a capability the pipeline branches on. Whether other stages
-  want the same pattern is open.
+  factual error), sketched into Adventure's diagram above but not designed in detail or built. It
+  gets harder rather than easier under NPC-Live: text can be inspected before it renders, whereas a
+  live model is already speaking into the player's ear as it generates. For a platform that argues
+  its youth protection as carefully as JUGENDSCHUTZ.md does, that gap deserves a decision before
+  the voice genre ships, not after.
+- **What a live session persists** — ephemeral for now, possibly a single turn 0 holding the
+  character's generated image. Settling this also settles whether the event stream needs turn
+  brackets at all, which nothing currently requires.
+- **Player speech as observer input** — dropped for display and for the record, but a classifier
+  judging whether the NPC capitulated is reading one half of a dialogue without it: "fine, you may
+  pass" only scores as a concession if the player just demanded passage. Rough-guide transcript
+  quality is adequate for that use, so the open question is whether the ASR cost is worth it.
+- **Cadence, and what a hard hit does** — whether the observer consumes transcript deltas as they
+  stream or the completed transcript per response (one NPC turn is ten to twenty seconds of
+  speech), and whether a guardrail violation lets the current utterance finish or cancels it
+  mid-sentence. For this platform the audible cut is probably right, but it's a product call.
+- **Per-turn spend bound on a session** — the session id is a bearer handle, and while it can't
+  launch anything new, every turn taken on it spends the resolved API key. A voice genre billed per
+  minute of audio sharpens this. Whether a turn or time budget belongs on the session itself is
+  open.
 - **Existing v1 `Game` data at cutover** — whether existing production games need a one-time
-  conversion script into the new bundle-based config shape, or few enough exist that manual
+  conversion script into the new `SessionSpec` shape, or few enough exist that manual
   re-authoring is simpler, depends on a production game count this document doesn't have visibility
   into.

@@ -1,0 +1,279 @@
+package ports
+
+import (
+	"context"
+	"fmt"
+	"sort"
+	"strings"
+)
+
+// Graph is a genre's wiring: nodes of three kinds (inputs, blocks, output
+// sinks) joined by typed edges. It is explicitly allowed to contain cycles —
+// NPC-Live's observer feeds back into the live session on purpose.
+type Graph struct {
+	Name  string
+	nodes []any
+	edges []Edge
+	pumps []func(context.Context)
+}
+
+type Edge struct {
+	From, To any
+	Kind     Kind
+}
+
+func NewGraph(name string) *Graph { return &Graph{Name: name} }
+
+func NodeName(n any) string {
+	if named, ok := n.(Named); ok {
+		return named.NodeName()
+	}
+	return fmt.Sprintf("%T", n)
+}
+
+func (g *Graph) track(n any) {
+	for _, existing := range g.nodes {
+		if existing == n {
+			return
+		}
+	}
+	g.nodes = append(g.nodes, n)
+}
+
+func (g *Graph) connect(src, dst any, kind Kind, pump func(context.Context)) {
+	g.track(src)
+	g.track(dst)
+	g.edges = append(g.edges, Edge{From: src, To: dst, Kind: kind})
+	g.pumps = append(g.pumps, pump)
+}
+
+func pumpChan[T any](ctx context.Context, src <-chan T, dst chan<- T) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case v, ok := <-src:
+			if !ok {
+				return
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case dst <- v:
+			}
+		}
+	}
+}
+
+func (g *Graph) ConnectAudioOut(src AudioOut, dst AudioIn) {
+	stream := src.AudioOutPort()
+	g.connect(src, dst, KindAudio, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.AudioInPort())
+	})
+}
+
+func (g *Graph) ConnectTextOut(src TextOut, dst TextIn) {
+	stream := src.TextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.TextInPort())
+	})
+}
+
+func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
+	stream := src.SecondaryTextOutPort()
+	g.connect(src, dst, KindText, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.TextInPort())
+	})
+}
+
+func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
+	stream := src.ImageOutPort()
+	g.connect(src, dst, KindImage, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.ImageInPort())
+	})
+}
+
+func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
+	stream := src.PropsOutPort()
+	g.connect(src, dst, KindProps, func(ctx context.Context) {
+		go pumpChan(ctx, stream, dst.PropsInPort())
+	})
+}
+
+// Start launches every block's own loop, then every edge pump. Subscription
+// already happened at Connect time, so a source that emits immediately on Start
+// cannot outrun its consumers.
+func (g *Graph) Start(ctx context.Context) {
+	for _, n := range g.nodes {
+		if s, ok := n.(Starter); ok {
+			s.Start(ctx)
+		}
+	}
+	for _, p := range g.pumps {
+		p(ctx)
+	}
+}
+
+// Validate checks what the type system cannot: that the graph is complete.
+// Edge legality is settled at compile time; this settles whether every block
+// that needs an input has one, and whether anything is stranded.
+func (g *Graph) Validate() error {
+	var problems []string
+
+	for _, n := range g.nodes {
+		req, ok := n.(RequiresInputs)
+		if !ok {
+			continue
+		}
+		for _, kind := range req.RequiredInputs() {
+			if !g.hasIncoming(n, kind) {
+				problems = append(problems,
+					fmt.Sprintf("%s has no incoming %s edge", NodeName(n), kind))
+			}
+		}
+	}
+
+	for _, n := range g.nodes {
+		if g.hasAnyIncoming(n) || g.hasAnyOutgoing(n) {
+			continue
+		}
+		problems = append(problems, fmt.Sprintf("%s is connected to nothing", NodeName(n)))
+	}
+
+	for _, n := range g.nodes {
+		if !g.reachable(n) {
+			problems = append(problems,
+				fmt.Sprintf("%s is unreachable from any source", NodeName(n)))
+		}
+	}
+
+	if len(problems) == 0 {
+		return nil
+	}
+	return fmt.Errorf("graph %q invalid:\n  - %s", g.Name, strings.Join(problems, "\n  - "))
+}
+
+func (g *Graph) hasIncoming(n any, kind Kind) bool {
+	for _, e := range g.edges {
+		if e.To == n && e.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Graph) hasAnyIncoming(n any) bool {
+	for _, e := range g.edges {
+		if e.To == n {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Graph) hasAnyOutgoing(n any) bool {
+	for _, e := range g.edges {
+		if e.From == n {
+			return true
+		}
+	}
+	return false
+}
+
+// reachableFromSources walks forward from every node with no inbound edge.
+// Cycles are fine: the seen-set stops the walk, it doesn't reject the graph.
+func (g *Graph) reachableFromSources() []any {
+	seen := map[any]bool{}
+	var walk func(n any)
+	walk = func(n any) {
+		if seen[n] {
+			return
+		}
+		seen[n] = true
+		for _, e := range g.edges {
+			if e.From == n {
+				walk(e.To)
+			}
+		}
+	}
+	for _, n := range g.nodes {
+		if !g.hasAnyIncoming(n) {
+			walk(n)
+		}
+	}
+	out := make([]any, 0, len(seen))
+	for n := range seen {
+		out = append(out, n)
+	}
+	return out
+}
+
+func (g *Graph) reachable(target any) bool {
+	for _, n := range g.reachableFromSources() {
+		if n == target {
+			return true
+		}
+	}
+	return false
+}
+
+// Describe renders the wiring, so a genre's shape can be read without tracing
+// the constructor by hand.
+func (g *Graph) Describe() string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "graph %q\n", g.Name)
+	for _, e := range g.edges {
+		fmt.Fprintf(&b, "  %-22s --%s--> %s\n", NodeName(e.From), e.Kind, NodeName(e.To))
+	}
+	return b.String()
+}
+
+// ExportState collects every resumable block's state, keyed by node name. The
+// names come from the wiring, so they are stable across restarts as long as the
+// wiring is.
+func (g *Graph) ExportState() map[string]string {
+	state := map[string]string{}
+	for _, n := range g.nodes {
+		if r, ok := n.(Resumable); ok {
+			if v := r.ExportState(); v != "" {
+				state[NodeName(n)] = v
+			}
+		}
+	}
+	return state
+}
+
+// RestoreState hands each block back what it exported. A name with no matching
+// block is reported rather than ignored: it means the wiring changed under a
+// stored session, which is the case that has to invalidate rather than limp on.
+func (g *Graph) RestoreState(state map[string]string) error {
+	known := map[string]bool{}
+	for _, n := range g.nodes {
+		if _, ok := n.(Resumable); ok {
+			known[NodeName(n)] = true
+		}
+	}
+
+	var unknown []string
+	for name := range state {
+		if !known[name] {
+			unknown = append(unknown, name)
+		}
+	}
+	if len(unknown) > 0 {
+		sort.Strings(unknown)
+		return fmt.Errorf("graph %q has no resumable block named %s; the wiring changed under this session",
+			g.Name, strings.Join(unknown, ", "))
+	}
+
+	for _, n := range g.nodes {
+		r, ok := n.(Resumable)
+		if !ok {
+			continue
+		}
+		if v, found := state[NodeName(n)]; found {
+			r.RestoreState(v)
+		}
+	}
+	return nil
+}

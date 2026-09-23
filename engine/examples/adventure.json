@@ -1,0 +1,9 @@
+{
+  "genre": "adventure",
+  "id": "bridge-quest",
+  "platform": "mock",
+  "modelTier": "balanced",
+  "scenario": "A medieval bridge crossing guarded by a keeper.",
+  "guardrail": "Keep the story suitable for a 13-year-old.",
+  "status": { "Health": "Good", "Gold": "12" }
+}

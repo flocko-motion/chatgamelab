@@ -1,0 +1,141 @@
+package api_test
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+	"time"
+
+	"engine"
+	"engine/api"
+)
+
+// The subtree must work identically wherever it is mounted, which is the whole
+// reason the engine owns it: the player addresses it with relative URLs.
+func TestHandlerWorksUnderAnyPrefix(t *testing.T) {
+	for _, prefix := range []string{"", "/api/engine", "/deeply/nested/mount"} {
+		t.Run("prefix="+prefix, func(t *testing.T) {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+
+			api := api.New()
+			s, err := engine.Launch(ctx, engine.SessionSpec{
+				Genre: engine.GenreAdventure,
+				ID:    "s1",
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer s.Close()
+			api.Register("s1", s)
+
+			mux := http.NewServeMux()
+			if prefix == "" {
+				mux.Handle("/", api.Handler())
+			} else {
+				mux.Handle(prefix+"/", http.StripPrefix(prefix, api.Handler()))
+			}
+			srv := httptest.NewServer(mux)
+			defer srv.Close()
+
+			resp, err := http.Get(srv.URL + prefix + "/sessions/s1/graph")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				t.Fatalf("graph: status %d", resp.StatusCode)
+			}
+		})
+	}
+}
+
+func TestInputAndStream(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	api := api.New()
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure, ID: "s1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	api.Register("s1", s)
+
+	srv := httptest.NewServer(api.Handler())
+	defer srv.Close()
+
+	streamCtx, stopStream := context.WithTimeout(ctx, 3*time.Second)
+	defer stopStream()
+	req, _ := http.NewRequestWithContext(streamCtx, http.MethodGet, srv.URL+"/sessions/s1/stream", nil)
+	stream, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stream.Body.Close()
+
+	post, err := http.Post(srv.URL+"/sessions/s1/input", "application/json",
+		strings.NewReader(`{"text":"I try to cross the bridge"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer post.Body.Close()
+	if post.StatusCode != http.StatusAccepted {
+		t.Fatalf("input: status %d", post.StatusCode)
+	}
+
+	buf := make([]byte, 512)
+	n, err := stream.Body.Read(buf)
+	if err != nil {
+		t.Fatalf("reading stream: %v", err)
+	}
+	if got := string(buf[:n]); !strings.Contains(got, "event: ") {
+		t.Errorf("stream carried no SSE event, got %q", got)
+	}
+}
+
+// A genre that takes no typed input must refuse it over HTTP too, rather than
+// accepting and discarding.
+func TestInputKindRefusedOverHTTP(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	api := api.New()
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "voice", Guardrail: "refuse passage",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	api.Register("voice", s)
+
+	srv := httptest.NewServer(api.Handler())
+	defer srv.Close()
+
+	resp, err := http.Post(srv.URL+"/sessions/voice/input", "application/json",
+		strings.NewReader(`{"text":"typing at a voice genre"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusUnprocessableEntity {
+		t.Errorf("status %d, want 422", resp.StatusCode)
+	}
+}
+
+func TestUnknownSessionIs404(t *testing.T) {
+	srv := httptest.NewServer(api.New().Handler())
+	defer srv.Close()
+
+	resp, err := http.Get(srv.URL + "/sessions/nope/graph")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("status %d, want 404", resp.StatusCode)
+	}
+}
