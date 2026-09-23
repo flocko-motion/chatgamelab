@@ -248,14 +248,15 @@ export function useUpdateParticipant() {
 }
 
 /**
- * Hook to get a participant's login token (for creating individual share links)
+ * Hook to replace a participant's login token; earlier re-login links stop working.
  */
-export function useGetParticipantToken() {
+export function useResetParticipantToken() {
   const api = useRequiredAuthenticatedApi();
 
   return useMutation({
     mutationFn: async (participantId: string) => {
-      const response = await api.workshops.participantsTokenList(participantId);
+      const response =
+        await api.workshops.participantsTokenResetCreate(participantId);
       return response.data;
     },
   });

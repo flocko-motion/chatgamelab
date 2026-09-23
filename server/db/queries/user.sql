@@ -61,6 +61,17 @@ SELECT
     false
   ) AS workshop_active;
 
+-- name: ParticipantTokenExists :one
+-- Unfiltered: soft-deleted users keep their token, so it must never be reissued.
+SELECT EXISTS(SELECT 1 FROM app_user WHERE participant_token = $1) AS taken;
+
+-- name: InviteTokenExists :one
+SELECT EXISTS(SELECT 1 FROM user_role_invite WHERE invite_token = $1) AS taken;
+
+-- name: UpdateParticipantToken :exec
+UPDATE app_user SET participant_token = $2, modified_by = $3, modified_at = now()
+WHERE id = $1 AND participant_token IS NOT NULL;
+
 -- name: IsNameTaken :one
 SELECT EXISTS(SELECT 1 FROM app_user WHERE name = $1 AND deleted_at IS NULL) AS taken;
 

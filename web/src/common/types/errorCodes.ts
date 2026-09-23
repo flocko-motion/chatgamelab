@@ -18,6 +18,8 @@ export const ErrorCodes = {
   PROFANE_NAME: "profane_name",
   // Auth-related error codes
   AUTH_WORKSHOP_INACTIVE: "auth_workshop_inactive",
+  // Site-wide lock after too many guessed invite/re-login codes (server: tokenlock)
+  TOKEN_LOCKED: "token_locked",
   // AI-related error codes
   INVALID_API_KEY: "invalid_api_key",
   NO_API_KEY: "no_api_key",

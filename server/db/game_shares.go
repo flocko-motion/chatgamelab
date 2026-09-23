@@ -9,8 +9,10 @@ import (
 	"cgl/functional"
 	"cgl/log"
 	"cgl/obj"
+	"cgl/tokenlock"
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -188,6 +190,9 @@ func CreateGameShare(ctx context.Context, userID uuid.UUID, gameID uuid.UUID, so
 func GetGameShareByToken(ctx context.Context, token string) (*obj.GameShare, error) {
 	gs, err := queries().GetGameShareByToken(ctx, token)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			tokenlock.Fail()
+		}
 		return nil, obj.ErrNotFound("share not found")
 	}
 	return dbGameShareToObj(gs), nil

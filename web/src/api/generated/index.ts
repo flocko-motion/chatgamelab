@@ -3087,6 +3087,27 @@ export class Api<
       }),
 
     /**
+     * @description Replaces a participant's access token; all earlier re-login links stop working (staff/heads only)
+     *
+     * @tags workshops
+     * @name ParticipantsTokenResetCreate
+     * @summary Reset participant token
+     * @request POST:/workshops/participants/{participantId}/token/reset
+     * @secure
+     */
+    participantsTokenResetCreate: (
+      participantId: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<Record<string, string>, HttpxErrorResponse>({
+        path: `/workshops/participants/${participantId}/token/reset`,
+        method: "POST",
+        secure: true,
+        format: "json",
+        ...params,
+      }),
+
+    /**
      * @description Gets a workshop by ID
      *
      * @tags workshops

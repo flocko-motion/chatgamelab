@@ -10,11 +10,9 @@ import {
   TextInput,
   Switch,
   Alert,
-  CopyButton,
   ActionIcon,
   Tooltip,
   Text,
-  Code,
   Table,
   Select,
   Textarea,
@@ -23,7 +21,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   IconTrash,
-  IconCopy,
   IconCheck,
   IconAlertCircle,
   IconUser,
@@ -51,13 +48,16 @@ import {
   useShareApiKeyWithInstitution,
   useUpdateParticipant,
   useRemoveParticipant,
-  useGetParticipantToken,
   useCreateWorkshopEmailInvite,
 } from "@/api/hooks";
 import { TextButton } from "@/common/components/buttons/TextButton";
 import { buildShareUrl } from "@/common/lib/url";
+import { isUsableInvite } from "@/common/lib/invite";
+import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
+import { ShareLinkModal } from "@components/share";
 import { DangerButton } from "@/common/components/buttons/DangerButton";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { ParticipantLinkModal } from "./ParticipantLinkModal";
 import { AutoShareConfirmModal } from "./AutoShareConfirmModal";
 import { InviteModal } from "./InviteModal";
 import { AddIndividualModal } from "./AddIndividualModal";
@@ -110,6 +110,10 @@ export function SingleWorkshopSettings({
   const [participantNewName, setParticipantNewName] = useState("");
   const [participantToRemove, setParticipantToRemove] =
     useState<ObjWorkshopParticipant | null>(null);
+  const [linkParticipant, setLinkParticipant] = useState<{
+    id: string;
+    name?: string;
+  } | null>(null);
 
   const { data: workshop, isLoading, isError } = useWorkshop(workshopId);
   const api = useRequiredAuthenticatedApi();
@@ -139,7 +143,6 @@ export function SingleWorkshopSettings({
   const shareApiKeyWithInstitution = useShareApiKeyWithInstitution();
   const updateParticipant = useUpdateParticipant();
   const removeParticipant = useRemoveParticipant();
-  const getParticipantToken = useGetParticipantToken();
   const createEmailInvite = useCreateWorkshopEmailInvite();
   // Auto-share confirmation state
   const [autoSharePending, setAutoSharePending] = useState<string | null>(null);
@@ -171,11 +174,6 @@ export function SingleWorkshopSettings({
     } catch {
       setEmailInviteError(t("myOrganization.workshops.addIndividualError"));
     }
-  };
-
-  const handleViewInviteLink = () => {
-    setNewlyCreatedInvite(null);
-    openInviteLinkModal();
   };
 
   const handleRevokeInviteAndClose = async (inviteId: string) => {
@@ -248,27 +246,11 @@ export function SingleWorkshopSettings({
     setParticipantToRemove(null);
   };
 
-  const handleGetParticipantShareLink = async (participantId: string) => {
-    try {
-      const result = await getParticipantToken.mutateAsync(participantId);
-      if (result?.token) {
-        const shareUrl = buildShareUrl(`/invites/participant/${result.token}`);
-        // Copy to clipboard directly
-        await navigator.clipboard.writeText(shareUrl);
-        notifications.show({
-          title: t("myOrganization.workshops.linkCopied"),
-          message: t("myOrganization.workshops.linkCopiedMessage"),
-          color: "green",
-        });
-      }
-    } catch {
-      // Participant doesn't have a token (not an anonymous participant)
-      notifications.show({
-        title: t("error"),
-        message: t("myOrganization.workshops.noParticipantToken"),
-        color: "red",
-      });
-    }
+  const handleGetParticipantShareLink = (participantId: string) => {
+    const participant = workshop?.participants?.find(
+      (p) => p.id === participantId,
+    );
+    setLinkParticipant({ id: participantId, name: participant?.name });
   };
 
   // Workshop settings handler
@@ -329,14 +311,13 @@ export function SingleWorkshopSettings({
     );
   }
 
-  const existingInvite = workshop.invites?.find(
-    (inv) => inv.status === "pending" && inv.inviteToken,
-  );
-  const inviteLink = existingInvite?.inviteToken
-    ? buildShareUrl(`/invites/${existingInvite.inviteToken}/accept`)
-    : newlyCreatedInvite?.inviteToken
-      ? buildShareUrl(`/invites/${newlyCreatedInvite.inviteToken}/accept`)
-      : null;
+  const existingInvite = workshop.invites?.find(isUsableInvite);
+  // The server returns the open invite or replaces a dead one, so the modal
+  // shows what it answered.
+  const shownInvite = newlyCreatedInvite ?? existingInvite;
+  const inviteLink = shownInvite?.inviteToken
+    ? buildShareUrl(inviteLinkPath(shownInvite.inviteToken))
+    : null;
 
   return (
     <>
@@ -380,11 +361,7 @@ export function SingleWorkshopSettings({
               <ActionIcon
                 variant="subtle"
                 color={existingInvite ? "blue" : "gray"}
-                onClick={() =>
-                  existingInvite
-                    ? handleViewInviteLink()
-                    : handleCreateAndViewInvite()
-                }
+                onClick={handleCreateAndViewInvite}
                 loading={createInvite.isPending}
               >
                 <IconLink size={18} />
@@ -670,7 +647,6 @@ export function SingleWorkshopSettings({
                                           variant="subtle"
                                           color="blue"
                                           size="sm"
-                                          loading={getParticipantToken.isPending}
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             if (participant.id) {
@@ -832,7 +808,6 @@ export function SingleWorkshopSettings({
                                             variant="subtle"
                                             color="blue"
                                             size="sm"
-                                            loading={getParticipantToken.isPending}
                                             onClick={(e) => {
                                               e.stopPropagation();
                                               if (participant.id) {
@@ -903,77 +878,53 @@ export function SingleWorkshopSettings({
       </Card >
 
       {/* Invite Link Modal */}
-      < Modal
-        opened={inviteLinkModalOpened}
-        onClose={closeInviteLinkModal}
-        title={t("myOrganization.workshops.inviteLinkTitle")}
-        size="md"
-      >
-        <Stack gap="md">
-          {inviteLink ? (
-            <>
-              <Text size="sm">
-                {t("myOrganization.workshops.inviteLinkDescription")}
+      {inviteLink && shownInvite?.inviteToken ? (
+        <ShareLinkModal
+          opened={inviteLinkModalOpened}
+          onClose={closeInviteLinkModal}
+          title={t("myOrganization.workshops.inviteLinkTitle")}
+          description={t("myOrganization.workshops.inviteLinkDescription")}
+          url={inviteLink}
+          code={speakableCode(shownInvite.inviteToken)}
+        >
+          {shownInvite.expiresAt && (
+            <Group gap="xs">
+              <IconClock size={14} color="gray" />
+              <Text size="xs" c="dimmed">
+                {t("myOrganization.workshops.inviteExpires", {
+                  date: new Date(shownInvite.expiresAt).toLocaleDateString(),
+                })}
               </Text>
-              <Group gap="xs">
-                <Code style={{ flex: 1, wordBreak: "break-all" }}>
-                  {inviteLink}
-                </Code>
-                <CopyButton value={inviteLink}>
-                  {({ copied, copy }) => (
-                    <Tooltip label={copied ? t("copied") : t("copy")}>
-                      <ActionIcon
-                        variant="subtle"
-                        color={copied ? "green" : "gray"}
-                        onClick={copy}
-                      >
-                        {copied ? (
-                          <IconCheck size={16} />
-                        ) : (
-                          <IconCopy size={16} />
-                        )}
-                      </ActionIcon>
-                    </Tooltip>
-                  )}
-                </CopyButton>
-              </Group>
-              {(existingInvite?.expiresAt || newlyCreatedInvite?.expiresAt) && (
-                <Group gap="xs">
-                  <IconClock size={14} color="gray" />
-                  <Text size="xs" c="dimmed">
-                    {t("myOrganization.workshops.inviteExpires", {
-                      date: new Date(
-                        existingInvite?.expiresAt ||
-                        newlyCreatedInvite?.expiresAt ||
-                        "",
-                      ).toLocaleDateString(),
-                    })}
-                  </Text>
-                </Group>
-              )}
-              <Group justify="space-between" mt="md">
-                <DangerButton
-                  onClick={() =>
-                    handleRevokeInviteAndClose(
-                      existingInvite?.id || newlyCreatedInvite?.id || "",
-                    )
-                  }
-                  loading={revokeInvite.isPending}
-                >
-                  {t("myOrganization.workshops.revokeInvite")}
-                </DangerButton>
-                <TextButton onClick={closeInviteLinkModal}>
-                  {t("close")}
-                </TextButton>
-              </Group>
-            </>
-          ) : (
-            <Text size="sm" c="dimmed">
-              {t("myOrganization.workshops.noInviteLink")}
-            </Text>
+            </Group>
           )}
-        </Stack>
-      </Modal >
+          <Group justify="space-between" mt="md">
+            <DangerButton
+              onClick={() => handleRevokeInviteAndClose(shownInvite.id || "")}
+              loading={revokeInvite.isPending}
+            >
+              {t("myOrganization.workshops.revokeInvite")}
+            </DangerButton>
+            <TextButton onClick={closeInviteLinkModal}>{t("close")}</TextButton>
+          </Group>
+        </ShareLinkModal>
+      ) : (
+        <Modal
+          opened={inviteLinkModalOpened}
+          onClose={closeInviteLinkModal}
+          title={t("myOrganization.workshops.inviteLinkTitle")}
+          size="md"
+        >
+          <Text size="sm" c="dimmed">
+            {t("myOrganization.workshops.noInviteLink")}
+          </Text>
+        </Modal>
+      )}
+
+      <ParticipantLinkModal
+        participantId={linkParticipant?.id ?? null}
+        participantName={linkParticipant?.name}
+        onClose={() => setLinkParticipant(null)}
+      />
 
       {/* Remove Participant Confirmation Modal */}
       < ConfirmationModal

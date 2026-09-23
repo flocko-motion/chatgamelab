@@ -65,7 +65,7 @@ func NewMux() *http.ServeMux {
 	mux.HandleFunc("GET /api/auth/check-name", CheckNameAvailability)
 	mux.Handle("POST /api/auth/register", httpx.RequireAuth0Token(RegisterUser))
 	mux.HandleFunc("POST /api/auth/logout", Logout)
-	mux.HandleFunc("POST /api/auth/participant-login", ParticipantLogin)
+	mux.Handle("POST /api/auth/participant-login", httpx.TokenGuard(http.HandlerFunc(ParticipantLogin)))
 
 	// Users
 	mux.Handle("GET /api/users", httpx.RequireAuth(GetUsers))
@@ -104,13 +104,15 @@ func NewMux() *http.ServeMux {
 	mux.Handle("PUT /api/workshops/{id}/api-key", httpx.RequireAuth(SetWorkshopApiKey))
 	mux.Handle("GET /api/workshops/{id}/events", httpx.RequireAuth(WorkshopEvents))
 	mux.Handle("GET /api/workshops/participants/{participantId}/token", httpx.RequireAuth(GetParticipantToken))
+	mux.Handle("POST /api/workshops/participants/{participantId}/token/reset", httpx.RequireAuth(ResetParticipantToken))
 
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
 	mux.Handle("GET /api/invites/all", httpx.RequireAuth(ListAllInvites))
 	mux.Handle("GET /api/invites/institution/{institutionId}", httpx.RequireAuth(ListInvitesByInstitution))
-	mux.Handle("GET /api/invites/{idOrToken}", httpx.OptionalAuth(GetInvite))            // Optional auth - allows anonymous to view invite details
-	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.OptionalAuth(AcceptInvite)) // Optional auth - supports anonymous workshop invites
+	// TokenGuard on every route that looks up a guessable token (-> tokenlock).
+	mux.Handle("GET /api/invites/{idOrToken}", httpx.TokenGuard(httpx.OptionalAuth(GetInvite)))            // Optional auth - allows anonymous to view invite details
+	mux.Handle("POST /api/invites/{idOrToken}/accept", httpx.TokenGuard(httpx.OptionalAuth(AcceptInvite))) // Optional auth - supports anonymous workshop invites
 	mux.Handle("POST /api/invites/{id}/decline", httpx.RequireAuth(DeclineInvite))
 	mux.Handle("POST /api/invites/institution", httpx.RequireAuth(CreateInstitutionInvite))
 	mux.Handle("POST /api/invites/workshop", httpx.RequireAuth(CreateWorkshopInvite))
@@ -130,10 +132,10 @@ func NewMux() *http.ServeMux {
 	// Share Play (share token is the capability). OptionalAuth: anonymous callers play
 	// as guests; an authenticated caller plays the shared game as themselves (own
 	// constraint cascade, shows in recently-played). See game.CreateShareSession.
-	mux.HandleFunc("GET /api/play/{token}/info", PlayGuestGetGameInfo)
-	mux.Handle("POST /api/play/{token}", httpx.OptionalAuth(PlayGuestCreateSession))
-	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.OptionalAuth(PlayGuestSendAction))
-	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.OptionalAuth(PlayGuestGetSession))
+	mux.Handle("GET /api/play/{token}/info", httpx.TokenGuard(http.HandlerFunc(PlayGuestGetGameInfo)))
+	mux.Handle("POST /api/play/{token}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestCreateSession)))
+	mux.Handle("POST /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestSendAction)))
+	mux.Handle("GET /api/play/{token}/sessions/{id}", httpx.TokenGuard(httpx.OptionalAuth(PlayGuestGetSession)))
 
 	// Sessions
 	mux.Handle("GET /api/sessions", httpx.RequireAuth(GetUserSessions))

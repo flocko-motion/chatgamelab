@@ -374,3 +374,39 @@ func GetParticipantToken(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 	})
 }
+
+// ResetParticipantToken godoc
+//
+//	@Summary		Reset participant token
+//	@Description	Replaces a participant's access token; all earlier re-login links stop working (staff/heads only)
+//	@Tags			workshops
+//	@Produce		json
+//	@Param			participantId	path		string	true	"Participant ID"
+//	@Success		200				{object}	map[string]string
+//	@Failure		403				{object}	httpx.ErrorResponse
+//	@Failure		404				{object}	httpx.ErrorResponse
+//	@Security		BearerAuth
+//	@Router			/workshops/participants/{participantId}/token/reset [post]
+func ResetParticipantToken(w http.ResponseWriter, r *http.Request) {
+	user := httpx.UserFromRequest(r)
+
+	participantID, err := httpx.PathParamUUID(r, "participantId")
+	if err != nil {
+		httpx.WriteAppError(w, obj.ErrValidation("Invalid participant ID"))
+		return
+	}
+
+	token, err := db.ResetWorkshopParticipantToken(r.Context(), participantID, user.ID)
+	if err != nil {
+		if appErr, ok := err.(*obj.AppError); ok {
+			httpx.WriteAppError(w, appErr)
+			return
+		}
+		httpx.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{
+		"token": token,
+	})
+}

@@ -24,6 +24,7 @@ import { LanguageSwitcher } from "@/common/components/LanguageSwitcher";
 import { config } from "@/config/env";
 import { useAuth, storeParticipantToken } from "@/providers/AuthProvider";
 import { ROUTES } from "@/common/routes/routes";
+import { ErrorCodes } from "@/common/types/errorCodes";
 import { buildShareUrl, getCookiePath } from "@/common/lib/url";
 import logo from "@/assets/logos/colorful/ChatGameLab-Logo-2025-Square-Colorful2-Black-Text.png-Black-Text-Transparent.png";
 
@@ -105,6 +106,11 @@ function AcceptInvitePage() {
   const [error, setError] = useState<string | null>(null);
   const [isAccepting, setIsAccepting] = useState(false);
 
+  const acceptErrorMessage = (errorData: { code?: string; message?: string }) =>
+    errorData.code === ErrorCodes.TOKEN_LOCKED
+      ? t("invites.errors.tokenLocked")
+      : errorData.message || t("invites.errors.acceptFailed");
+
   // Get current workshop info if user is a participant
   const currentWorkshopId = backendUser?.role?.workshop?.id;
   const currentWorkshopName = backendUser?.role?.workshop?.name;
@@ -120,7 +126,9 @@ function AcceptInvitePage() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          if (response.status === 404) {
+          if (errorData.code === ErrorCodes.TOKEN_LOCKED) {
+            setError(t("invites.errors.tokenLocked"));
+          } else if (response.status === 404) {
             setError(t("invites.errors.notFound"));
           } else if (errorData.code === "invite_expired") {
             setError(t("invites.errors.expired"));
@@ -241,7 +249,7 @@ function AcceptInvitePage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.message || t("invites.errors.acceptFailed"));
+        setError(acceptErrorMessage(errorData));
         setState("error");
         return;
       }
@@ -346,7 +354,7 @@ function AcceptInvitePage() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          setError(errorData.message || t("invites.errors.acceptFailed"));
+          setError(acceptErrorMessage(errorData));
           setState("error");
           return;
         }

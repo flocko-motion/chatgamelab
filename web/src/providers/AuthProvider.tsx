@@ -14,7 +14,8 @@ import { Api } from "../api/generated";
 import { getApiConfig } from "../api/client/http";
 import { authLogger } from "../config/logger";
 import { getHomepageUrl } from "../common/lib/url";
-import { extractRawErrorCode } from "../common/types/errorCodes";
+import { ErrorCodes, extractRawErrorCode } from "../common/types/errorCodes";
+import { showErrorModal } from "../common/lib/globalErrorModal";
 import type { AuthUser, AuthContextType } from "./auth/types";
 import { useTokenManager } from "./auth/useTokenManager";
 import { useBackendUser } from "./auth/useBackendUser";
@@ -184,6 +185,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsWorkshopInactive(true);
         setIsParticipant(true);
         return true;
+      }
+      if (errorCode === ErrorCodes.TOKEN_LOCKED) {
+        // The token may be valid; keep it for the retry after the lock.
+        authLogger.info("Token checks are locked, keeping stored token");
+        showErrorModal({ code: errorCode });
+        return false;
       }
       if (storedToken) {
         authLogger.debug("Stored participant token invalid, clearing");

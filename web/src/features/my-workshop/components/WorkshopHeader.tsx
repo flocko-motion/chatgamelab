@@ -12,10 +12,20 @@ import {
   IconUsers,
   IconPlayerPause,
   IconPlayerPlay,
+  IconQrcode,
 } from "@tabler/icons-react";
+import { useState } from "react";
+import { useDisclosure } from "@mantine/hooks";
 import { useTranslation } from "react-i18next";
 import { PageTitle } from "@components/typography";
-import { useWorkshop, useUpdateWorkshop } from "@/api/hooks";
+import { ShareLinkModal } from "@components/share";
+import {
+  useWorkshop,
+  useUpdateWorkshop,
+  useCreateWorkshopInvite,
+} from "@/api/hooks";
+import { buildShareUrl } from "@/common/lib/url";
+import { inviteLinkPath, speakableCode } from "@/common/lib/wordToken";
 import { useAuth } from "@/providers/AuthProvider";
 import { useResponsiveDesign } from "@/common/hooks/useResponsiveDesign";
 
@@ -38,6 +48,10 @@ export function WorkshopHeader({
   const { isMobile } = useResponsiveDesign();
   const { data: workshop } = useWorkshop(showMembers ? workshopId : undefined);
   const updateWorkshop = useUpdateWorkshop();
+  const createInvite = useCreateWorkshopInvite();
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteOpened, { open: openInvite, close: closeInvite }] =
+    useDisclosure(false);
 
   const participants = workshop?.participants ?? [];
   const memberCount = participants.length;
@@ -57,6 +71,14 @@ export function WorkshopHeader({
       isPaused: !isPaused,
     });
     retryBackendFetch();
+  };
+
+  // Returns the workshop's open invite, or a fresh one if it expired.
+  const handleShowInvite = async () => {
+    if (!workshopId) return;
+    const invite = await createInvite.mutateAsync({ workshopId });
+    setInviteToken(invite?.inviteToken ?? null);
+    openInvite();
   };
 
   return (
@@ -163,10 +185,40 @@ export function WorkshopHeader({
           </HoverCard>
         )}
       </Group>
-      {organizationName && (
-        <Text size="sm" c="dimmed">
-          {t("organizator", { name: organizationName })}
-        </Text>
+      {(organizationName || showMembers) && (
+        <Group gap="xs" align="center">
+          {organizationName && (
+            <Text size="sm" c="dimmed">
+              {t("organizator", { name: organizationName })}
+            </Text>
+          )}
+          {showMembers && workshopId && (
+            <Tooltip label={t("showInviteLink")}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                size="sm"
+                onClick={handleShowInvite}
+                loading={createInvite.isPending}
+                aria-label={t("showInviteLink")}
+              >
+                <IconQrcode size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </Group>
+      )}
+      {inviteToken && (
+        <ShareLinkModal
+          opened={inviteOpened}
+          onClose={closeInvite}
+          title={tCommon("myOrganization.workshops.inviteLinkTitle", {
+            name: workshopName,
+          })}
+          description={tCommon("myOrganization.workshops.inviteLinkDescription")}
+          url={buildShareUrl(inviteLinkPath(inviteToken))}
+          code={speakableCode(inviteToken)}
+        />
       )}
     </>
   );
