@@ -12,10 +12,11 @@ import (
 // sinks) joined by typed edges. It is explicitly allowed to contain cycles —
 // NPC-Live's observer feeds back into the live session on purpose.
 type Graph struct {
-	Name  string
-	nodes []any
-	edges []Edge
-	pumps []func(context.Context)
+	Name      string
+	inspector *inspector
+	nodes     []any
+	edges     []Edge
+	pumps     []func(context.Context)
 }
 
 type Edge struct {
@@ -23,7 +24,7 @@ type Edge struct {
 	Kind     Kind
 }
 
-func NewGraph(name string) *Graph { return &Graph{Name: name} }
+func NewGraph(name string) *Graph { return &Graph{Name: name, inspector: newInspector()} }
 
 func NodeName(n any) string {
 	if named, ok := n.(Named); ok {
@@ -52,7 +53,7 @@ func (g *Graph) connect(src, dst any, kind Kind, pump func(context.Context)) {
 	g.pumps = append(g.pumps, pump)
 }
 
-func pumpChan[T any](ctx context.Context, src <-chan T, dst chan<- T) {
+func pumpChan[T any](ctx context.Context, src <-chan T, dst chan<- T, seen func(any)) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -66,6 +67,9 @@ func pumpChan[T any](ctx context.Context, src <-chan T, dst chan<- T) {
 				return
 			case dst <- v:
 			}
+			if seen != nil {
+				seen(v)
+			}
 		}
 	}
 }
@@ -73,21 +77,21 @@ func pumpChan[T any](ctx context.Context, src <-chan T, dst chan<- T) {
 func (g *Graph) ConnectAudioOut(src AudioOut, dst AudioIn) {
 	stream := src.AudioOutPort()
 	g.connect(src, dst, KindAudio, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.AudioInPort())
+		go pumpChan(ctx, stream, dst.AudioInPort(), g.watch(src, dst, KindAudio))
 	})
 }
 
 func (g *Graph) ConnectTextOut(src TextOut, dst TextIn) {
 	stream := src.TextOutPort()
 	g.connect(src, dst, KindText, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.TextInPort())
+		go pumpChan(ctx, stream, dst.TextInPort(), g.watch(src, dst, KindText))
 	})
 }
 
 func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	stream := src.SecondaryTextOutPort()
 	g.connect(src, dst, KindText, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.TextInPort())
+		go pumpChan(ctx, stream, dst.TextInPort(), g.watch(src, dst, KindText))
 	})
 }
 
@@ -96,14 +100,14 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 func (g *Graph) ConnectTextOutToSecondary(src TextOut, dst SecondaryTextIn) {
 	stream := src.TextOutPort()
 	g.connect(src, dst, KindText, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.SecondaryTextInPort())
+		go pumpChan(ctx, stream, dst.SecondaryTextInPort(), g.watch(src, dst, KindText))
 	})
 }
 
 func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	stream := src.ImageOutPort()
 	g.connect(src, dst, KindImage, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.ImageInPort())
+		go pumpChan(ctx, stream, dst.ImageInPort(), g.watch(src, dst, KindImage))
 	})
 }
 
@@ -112,14 +116,14 @@ func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 func (g *Graph) ConnectState(src StateOut, dst StateIn) {
 	stream := src.StateOutPort()
 	g.connect(src, dst, KindState, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.StateInPort())
+		go pumpChan(ctx, stream, dst.StateInPort(), g.watch(src, dst, KindState))
 	})
 }
 
 func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
 	stream := src.PropsOutPort()
 	g.connect(src, dst, KindProps, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.PropsInPort())
+		go pumpChan(ctx, stream, dst.PropsInPort(), g.watch(src, dst, KindProps))
 	})
 }
 
@@ -420,6 +424,12 @@ func (g *Graph) Mermaid() string {
 }
 
 func id(name string) string { return strings.ReplaceAll(name, "-", "_") }
+
+// watch records values passing between two blocks, so a reader can ask what a
+// block did rather than inferring it from the conversation.
+func (g *Graph) watch(src, dst any, kind Kind) func(any) {
+	return func(v any) { g.inspector.observe(src, dst, kind, v) }
+}
 
 // ObserveUsage merges every block's spending reports into one stream, by the
 // same introspection as ObserveStates: what a session costs is a property of

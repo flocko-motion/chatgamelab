@@ -6,6 +6,7 @@ import { AudioIO } from "./audio.js";
 import { Player } from "../player.js";
 import { WebSocketTransport } from "../transport.js";
 import { View } from "./view.js";
+import { Inspector } from "./inspector.js";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -24,6 +25,12 @@ socketURL.protocol = socketURL.protocol.replace("http", "ws");
 const player = new Player(new WebSocketTransport(socketURL));
 const typed = required<HTMLInputElement>("#typed");
 
+const inspector = new Inspector(
+  required<HTMLDialogElement>("#inspector"),
+  required<HTMLElement>("#inspector-body"),
+  sessionBase,
+);
+
 const view = new View({
   status: required<HTMLElement>("#state"),
   props: required<HTMLElement>("#props"),
@@ -33,7 +40,7 @@ const view = new View({
   feed: required<HTMLElement>("#feed"),
   talk: required<HTMLButtonElement>("#talk"),
   typed,
-});
+}, (name) => void inspector.open(name));
 
 player.subscribe((state) => view.render(state));
 

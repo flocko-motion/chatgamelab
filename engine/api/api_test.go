@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -147,4 +148,84 @@ func newServer(t *testing.T, id string, session *engine.Session) *httptest.Serve
 	srv := httptest.NewServer(a.Handler())
 	t.Cleanup(srv.Close)
 	return srv
+}
+
+// Every block on the graph is clickable, so every block must answer. A node the
+// wiring does not have is a 404 rather than an empty panel.
+func TestEveryNodeIsInspectable(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "inspect",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "inspect", session)
+
+	topology := session.Topology()
+	if len(topology.Nodes) == 0 {
+		t.Fatal("a genre with no nodes cannot be drawn, let alone inspected")
+	}
+
+	for _, node := range topology.Nodes {
+		resp, err := http.Get(srv.URL + "/sessions/inspect/nodes/" + node.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("%s: status %d", node.Name, resp.StatusCode)
+		}
+	}
+
+	resp, err := http.Get(srv.URL + "/sessions/inspect/nodes/not-a-block")
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("unknown block: status %d, want 404", resp.StatusCode)
+	}
+}
+
+// A block's detail must never carry the key. The engine holds a resolver rather
+// than a secret, so there is nothing to leak — and a test says so, because this
+// is the kind of thing a later change breaks quietly.
+func TestNodeDetailCarriesNoSecret(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "secretless",
+		Scenario: "You are the keeper of a bridge.",
+		Platform: engine.PlatformOpenAI,
+		Keys: func(context.Context) (string, error) {
+			return "sk-should-never-appear", nil
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "secretless", session)
+
+	for _, node := range session.Topology().Nodes {
+		resp, err := http.Get(srv.URL + "/sessions/secretless/nodes/" + node.Name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if strings.Contains(string(body), "sk-should-never-appear") {
+			t.Fatalf("%s leaked the key: %s", node.Name, body)
+		}
+	}
 }

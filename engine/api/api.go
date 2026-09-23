@@ -185,6 +185,26 @@ func (a *API) SessionHistory(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(s.History())
 }
 
+// SessionNode is what one block is and has been doing, for a reader who clicked
+// it on the graph.
+func (a *API) SessionNode(w http.ResponseWriter, r *http.Request) {
+	s, id, ok := a.lookup(r)
+	if !ok {
+		http.Error(w, fmt.Sprintf("unknown session %q", id), http.StatusNotFound)
+		return
+	}
+
+	node := r.PathValue("node")
+	detail, found := s.Inspect(node)
+	if !found {
+		http.Error(w, fmt.Sprintf("session %q has no block %q", id, node), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(detail)
+}
+
 // Handler is the engine's whole HTTP subtree, mounted at one prefix by whoever
 // runs it. Owning the subtree is what lets the embedded player address the
 // engine with relative URLs — the same ones in the monolith and standalone —
@@ -200,6 +220,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("GET /sessions/{id}/topology", a.SessionTopology)
 	mux.HandleFunc("GET /sessions/{id}/state", a.SessionSnapshot)
 	mux.HandleFunc("GET /sessions/{id}/history", a.SessionHistory)
+	mux.HandleFunc("GET /sessions/{id}/nodes/{node}", a.SessionNode)
 	mux.HandleFunc("GET /sessions/{id}/flowchart", a.SessionFlowchart)
 	mux.HandleFunc("GET /sessions/{id}/live", a.SessionLive)
 	mux.Handle("GET /player/", http.StripPrefix("/player/", http.FileServerFS(web.FS())))

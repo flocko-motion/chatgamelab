@@ -358,6 +358,41 @@ func (s *Session) Snapshot() Snapshot {
 	return s.recorder.snapshot(started, s.usage.report())
 }
 
+// NodeDetail is everything the engine knows about one block: what it is, what
+// it is doing, what recently passed through it, and what it has cost.
+//
+// The API key is deliberately absent. It is never stored — the engine holds a
+// function that resolves one at the moment of use — so there is nothing here to
+// redact, and calling the resolver to display a secret would create the exposure
+// the design avoids.
+type NodeDetail struct {
+	ports.NodeDetail
+	Phase string       `json:"phase"`
+	Usage *UsageRecord `json:"usage,omitempty"`
+}
+
+// Inspect reports what is known about one block.
+func (s *Session) Inspect(name string) (NodeDetail, bool) {
+	base, found := s.wiring.Graph.Inspect(name)
+	if !found {
+		return NodeDetail{}, false
+	}
+
+	detail := NodeDetail{NodeDetail: base, Phase: "ready"}
+	snapshot := s.recorder.snapshot(false, UsageReport{})
+	if phase, known := snapshot.Phases[name]; known {
+		detail.Phase = phase
+	}
+	for _, record := range s.usage.report().ByNode {
+		if record.Node == name {
+			spent := record
+			detail.Usage = &spent
+			break
+		}
+	}
+	return detail, true
+}
+
 // History is the conversation so far, in order. A client applies these through
 // exactly the same path as live events, so there is no second way to render a
 // session.
