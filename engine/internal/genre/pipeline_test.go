@@ -8,6 +8,7 @@ import (
 
 	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
+	"engine/internal/ports"
 )
 
 // These drive the genres exactly as they ship — the real wiring, the real
@@ -158,4 +159,60 @@ func TestScriptedPlayerDrivesTheLiveGenre(t *testing.T) {
 		"You shall not pass.",
 		"I suppose the rules bend",
 	})
+}
+
+// A source with no release edge must not be held. Otherwise a genre that wires
+// no gate deadlocks on one that will never open — a failure that looks like the
+// engine ignoring the player.
+func TestUngatedInputIsNotHeld(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("ungated")
+	player := blocks.NewPlayerInputText("player-input-text")
+	sink := blocks.NewPlayerOutputText("out-text")
+	g.ConnectTextOut(player, sink)
+	g.Start(ctx)
+
+	player.Say("nothing is holding me")
+
+	select {
+	case got := <-sink.Seen:
+		if got != "nothing is holding me" {
+			t.Errorf("got %q", got)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("an input with no release edge was held anyway")
+	}
+}
+
+// And one that is wired to a gate stays held until the gate opens.
+func TestGatedInputWaitsForRelease(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("gated")
+	held := blocks.NewOnceText("prep", "preparing")
+	gate := blocks.NewGate("start-game", "")
+	player := blocks.NewPlayerInputText("player-input-text")
+	sink := blocks.NewPlayerOutputText("out-text")
+	prepSink := blocks.NewPlayerOutputText("out-prep")
+
+	g.ConnectTextOut(held, prepSink)
+	g.ConnectState(held, gate)
+	g.ConnectState(gate, player)
+	g.ConnectTextOut(player, sink)
+
+	// Said before anything starts, so it can only arrive once the gate opens.
+	player.Say("said too early")
+	g.Start(ctx)
+
+	select {
+	case got := <-sink.Seen:
+		if got != "said too early" {
+			t.Errorf("got %q", got)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("a held input never arrived after the gate opened")
+	}
 }

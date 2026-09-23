@@ -31,6 +31,10 @@ func (b *PlayerInputText) StateInPort() chan<- ports.State { return b.release }
 func (b *PlayerInputText) Say(s string)                    { b.held.submit(s, b.out.Send) }
 func (b *PlayerInputText) Close()                          { b.out.Close() }
 
+// ExpectReleases lets the wiring decide whether this source is held: the graph
+// counts the release edges, so nothing is configured twice.
+func (b *PlayerInputText) ExpectReleases(n int) { b.held.expect(n, b.out.Send) }
+
 func (b *PlayerInputText) Start(ctx context.Context) {
 	go b.held.wait(ctx, b.release, b.out.Send)
 }
@@ -57,6 +61,8 @@ func (b *PlayerInputAudio) AudioOutPort() <-chan ports.AudioChunk { return b.out
 func (b *PlayerInputAudio) StateInPort() chan<- ports.State       { return b.release }
 func (b *PlayerInputAudio) Speak(a ports.AudioChunk)              { b.held.submit(a, b.out.Send) }
 func (b *PlayerInputAudio) Close()                                { b.out.Close() }
+
+func (b *PlayerInputAudio) ExpectReleases(n int) { b.held.expect(n, b.out.Send) }
 
 func (b *PlayerInputAudio) Start(ctx context.Context) {
 	go b.held.wait(ctx, b.release, b.out.Send)

@@ -20,8 +20,29 @@ type holdUntilReleased[T any] struct {
 	discard bool
 
 	mu       sync.Mutex
+	expected int
 	released bool
 	pending  []T
+}
+
+// expect is called by the graph with the number of release edges leading in.
+// None means nothing holds this source, so it is free from the start — which is
+// what keeps a genre that wired no gate from waiting forever on one.
+func (h *holdUntilReleased[T]) expect(n int, send func(T)) {
+	h.mu.Lock()
+	h.expected = n
+	if n > 0 || h.released {
+		h.mu.Unlock()
+		return
+	}
+	h.released = true
+	queued := h.pending
+	h.pending = nil
+	h.mu.Unlock()
+
+	for _, value := range queued {
+		send(value)
+	}
 }
 
 func (h *holdUntilReleased[T]) submit(value T, send func(T)) {

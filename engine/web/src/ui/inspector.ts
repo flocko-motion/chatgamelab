@@ -66,9 +66,8 @@ export class Inspector {
     if (detail.outputs?.length) parts.push(samples("last outputs", detail.outputs));
     if (detail.inputs?.length) parts.push(samples("last inputs", detail.inputs));
 
-    // Said rather than omitted: a reader looking for the key should learn why
-    // there isn't one rather than assume it was hidden.
-    parts.push(text("p", "meta", "No API key is held: the engine resolves one per call and never stores it."));
+    // Stated, so a reader looking for the key learns where it lives.
+    parts.push(text("p", "meta", "The key is produced by the injected resolver at the moment of use, and lives for that call."));
 
     this.body.replaceChildren(...parts);
   }

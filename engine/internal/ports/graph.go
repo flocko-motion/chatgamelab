@@ -131,19 +131,21 @@ func (g *Graph) ConnectPropsOut(src PropsOut, dst PropsIn) {
 // already happened at Connect time, so a source that emits immediately on Start
 // cannot outrun its consumers.
 func (g *Graph) Start(ctx context.Context) {
-	// A gate has to know what it is waiting for before any of it can arrive.
+	// Everything that waits has to know what it is waiting for before any of it
+	// can arrive: a gate for its reporters, a held source for its release.
 	for _, n := range g.nodes {
-		gate, ok := n.(Gatekeeper)
-		if !ok {
-			continue
-		}
 		incoming := 0
 		for _, e := range g.edges {
 			if e.To == n && e.Kind == KindState {
 				incoming++
 			}
 		}
-		gate.ExpectReporters(incoming)
+		if gate, ok := n.(Gatekeeper); ok {
+			gate.ExpectReporters(incoming)
+		}
+		if held, ok := n.(Releasable); ok {
+			held.ExpectReleases(incoming)
+		}
 	}
 
 	for _, n := range g.nodes {
