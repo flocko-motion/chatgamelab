@@ -23,15 +23,17 @@ type (
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 )
 
-// Phase is what a block is doing. In the init stem a block runs idle → working
-// → done once; in the turn loop it oscillates, and a long-lived block like a
-// live session stays working for as long as the conversation lasts.
+// Phase is what a block is doing. Two values are enough: "not working" needs no
+// distinction between never-started and finished, and a block in the turn loop
+// is never finished anyway.
+//
+// A block reports its initial phase at startup and then only changes, so a
+// reader sees one working and one ready per piece of work.
 type Phase string
 
 const (
-	PhaseIdle    Phase = "idle"
+	PhaseReady   Phase = "ready"
 	PhaseWorking Phase = "working"
-	PhaseDone    Phase = "done"
 )
 
 // State is a block reporting on itself. It names the block because a gate has
@@ -106,8 +108,14 @@ type Resumable interface {
 	RestoreState(string)
 }
 
-// Gatekeeper is a node that waits for every block feeding it to report done
-// before the game may begin. It is where the init stem joins the game loop.
+// Gatekeeper is a node that waits for every block feeding it to work and come
+// back to ready before the game may begin. It is where the init stem joins the
+// game loop.
+//
+// Waiting for working-then-ready rather than for a "done" message means the
+// gate cannot be satisfied by a block that never started. The contract on a
+// gating block is therefore to complete that cycle even when it finds it has
+// nothing to do — a resumed session skipping its image still reports it.
 //
 // The graph tells it how many state edges lead in, because only the graph knows
 // the wiring.

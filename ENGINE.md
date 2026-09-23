@@ -410,22 +410,29 @@ It also means init products reach play blocks through ordinary edges — the fus
 an input to the outline block, not something handed over out of band — so there is no second
 mechanism for moving values around.
 
-**Blocks report their own state** on a port of its own: `idle`, `working`, `done`, carrying the
-name of the block reporting. Inferring completion from a block's data output would conflate two
-different things, because the first value on an edge says a block has *started* producing, which
-for anything streaming is not the same as having finished. A separate report also decouples "I am
-finished" from where the data went, so a block can tell the gate while its output goes elsewhere
-entirely.
+**Blocks report their own state** on a port of its own — `ready` or `working`, carrying the name of
+the block reporting. Two values are enough: "not working" needs no distinction between
+never-started and finished, and a block in the turn loop is never finished anyway. A block reports
+its initial phase at startup and then only changes, so a reader sees one `working` and one `ready`
+per piece of work.
 
-The phases are not only for the gate. In the init stem a block runs through them once; in the turn
-loop it oscillates, and how it oscillates is characteristic — a live session stays `working` for the
-whole conversation, while an observer flicks through `working` on each line it judges. That is the
-substance of the deferred graph view, and it is why the report names its block: a gate has to tell
-one reporter from another, and a view has to know which node lit up.
+**The gate waits for working-then-ready**, not for an announcement of completion. That cannot be
+satisfied by a block which never started, and it does not rely on a block's data output, where the
+first value says it has *started* producing — which for anything streaming is not the same as
+having finished. Reporting separately from data also lets a block tell the gate it is finished
+while its output goes somewhere else entirely.
 
-Naming the reporter also fixes a counting bug the binary version had. A block in the loop reports
-done on every pass, so a gate counting bare signals could be opened early by one chatty block; the
-gate counts reporters, not messages.
+The contract that follows: a gating block owes the gate a working-then-ready cycle **even when it
+finds it has nothing to do**. A resumed session skipping its image generation still reports one, or
+the game never starts. A block whose work fails reports one too, or a single broken optional step
+holds the gate shut forever.
+
+The report names its block for two reasons. A gate has to tell one reporter from another — a block
+in the loop works repeatedly, and a busy one must not stand in for a silent one — and a view
+drawing the graph has to know which node lit up. That second reason is the substance of the
+deferred graph view: the phases describe the loop as well as the stem, and how a block oscillates
+is characteristic. A live session stays `working` for a whole conversation; an observer flicks
+through it once per line it judges.
 
 **What gates is a wiring decision, not a policy.** NPC-Live's portrait is init work whose signal is
 deliberately *not* wired to the gate: a conversation can start before the picture exists, and

@@ -61,9 +61,9 @@ func TestGateWithNothingToWaitForOpensImmediately(t *testing.T) {
 	}
 }
 
-// A block that fails still reports done. Otherwise one broken optional step
+// A block that fails still returns to ready. Otherwise one broken optional step
 // would hold the gate shut forever.
-func TestFailedBlockStillReportsDone(t *testing.T) {
+func TestFailedBlockStillReturnsToReady(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -79,7 +79,7 @@ func TestFailedBlockStillReportsDone(t *testing.T) {
 	select {
 	case <-gate.Ready():
 	case <-time.After(2 * time.Second):
-		t.Fatal("a failed block must still report done, or the gate never opens")
+		t.Fatal("a failed block must still return to ready, or the gate never opens")
 	}
 }
 
@@ -122,9 +122,10 @@ func TestGateCountsReportersNotMessages(t *testing.T) {
 	g.ConnectState(silent, gate)
 	g.Start(ctx)
 
-	// One block reports done three times; the gate must still be waiting.
+	// One block works three times over; the gate must still be waiting.
 	for i := 0; i < 3; i++ {
-		chatty.out <- ports.State{Node: chatty.name, Phase: ports.PhaseDone}
+		chatty.out <- ports.State{Node: chatty.name, Phase: ports.PhaseWorking}
+		chatty.out <- ports.State{Node: chatty.name, Phase: ports.PhaseReady}
 	}
 	select {
 	case <-gate.Ready():
@@ -132,7 +133,8 @@ func TestGateCountsReportersNotMessages(t *testing.T) {
 	case <-time.After(150 * time.Millisecond):
 	}
 
-	silent.out <- ports.State{Node: silent.name, Phase: ports.PhaseDone}
+	silent.out <- ports.State{Node: silent.name, Phase: ports.PhaseWorking}
+	silent.out <- ports.State{Node: silent.name, Phase: ports.PhaseReady}
 	select {
 	case <-gate.Ready():
 	case <-time.After(2 * time.Second):
@@ -140,8 +142,7 @@ func TestGateCountsReportersNotMessages(t *testing.T) {
 	}
 }
 
-// Working is not done: a gate waiting on a block that is still going must stay
-// shut.
+// A block still working has not finished, so the gate stays shut.
 func TestGateIgnoresWorking(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -160,7 +161,7 @@ func TestGateIgnoresWorking(t *testing.T) {
 	case <-time.After(150 * time.Millisecond):
 	}
 
-	busy.out <- ports.State{Node: busy.name, Phase: ports.PhaseDone}
+	busy.out <- ports.State{Node: busy.name, Phase: ports.PhaseReady}
 	select {
 	case <-gate.Ready():
 	case <-time.After(2 * time.Second):
@@ -175,3 +176,32 @@ type repeatingReporter struct {
 
 func (r *repeatingReporter) NodeName() string                 { return r.name }
 func (r *repeatingReporter) StateOutPort() <-chan ports.State { return r.out }
+
+// Every block reports ready at startup, before it has done anything. That must
+// not satisfy a gate, or the game starts before preparation has even begun.
+func TestInitialReadyDoesNotOpenTheGate(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	g := ports.NewGraph("startup-ready")
+	gate := blocks.NewGate("start-game")
+	block := &repeatingReporter{name: "slow", out: make(chan ports.State, 8)}
+
+	g.ConnectState(block, gate)
+	g.Start(ctx)
+
+	block.out <- ports.State{Node: block.name, Phase: ports.PhaseReady}
+	select {
+	case <-gate.Ready():
+		t.Fatal("a startup ready opened the gate before any work happened")
+	case <-time.After(150 * time.Millisecond):
+	}
+
+	block.out <- ports.State{Node: block.name, Phase: ports.PhaseWorking}
+	block.out <- ports.State{Node: block.name, Phase: ports.PhaseReady}
+	select {
+	case <-gate.Ready():
+	case <-time.After(2 * time.Second):
+		t.Fatal("the gate never opened after a full working cycle")
+	}
+}

@@ -21,19 +21,21 @@ type Gate struct {
 
 	mu       sync.Mutex
 	expected int
-	// Counted by name, not by message: a block in the turn loop reports done on
-	// every pass, and one chatty reporter must not stand in for a silent one.
-	seen  map[string]bool
-	open  bool
-	ready chan struct{}
+	// Tracked by name, not by message: a block in the turn loop works
+	// repeatedly, and one busy reporter must not stand in for a silent one.
+	worked   map[string]bool
+	finished map[string]bool
+	open     bool
+	ready    chan struct{}
 }
 
 func NewGate(name string) *Gate {
 	return &Gate{
-		name:  name,
-		in:    make(chan ports.State, 16),
-		seen:  map[string]bool{},
-		ready: make(chan struct{}),
+		name:     name,
+		in:       make(chan ports.State, 16),
+		worked:   map[string]bool{},
+		finished: map[string]bool{},
+		ready:    make(chan struct{}),
 	}
 }
 
@@ -79,12 +81,20 @@ func (b *Gate) Start(ctx context.Context) {
 				if !alive {
 					return
 				}
-				if state.Phase != ports.PhaseDone {
-					continue
-				}
+
 				b.mu.Lock()
-				b.seen[state.Node] = true
-				if len(b.seen) >= b.expected {
+				switch state.Phase {
+				case ports.PhaseWorking:
+					b.worked[state.Node] = true
+				case ports.PhaseReady:
+					// Ready only counts once the block has actually worked;
+					// every block reports ready at startup, before it has done
+					// anything.
+					if b.worked[state.Node] {
+						b.finished[state.Node] = true
+					}
+				}
+				if len(b.finished) >= b.expected {
 					b.openLocked()
 				}
 				open := b.open

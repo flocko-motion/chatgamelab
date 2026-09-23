@@ -71,13 +71,15 @@ func (b *ImageOnce) Start(ctx context.Context) {
 	go func() {
 		defer func() { b.out.Close(); b.state.Close() }()
 
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+
 		b.mu.Lock()
 		already := b.generated
 		b.mu.Unlock()
 
-		if !already {
-			b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-		}
+		// Reported even when there is nothing to generate: a gating block owes
+		// the gate a working-then-ready cycle, or the game never starts.
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 
 		// A resumed session skips generation: the image already exists in
 		// storage, and paying again would produce a different picture. The
@@ -104,6 +106,6 @@ func (b *ImageOnce) Start(ctx context.Context) {
 		if has {
 			b.out.Send(data)
 		}
-		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseDone})
+		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 	}()
 }
