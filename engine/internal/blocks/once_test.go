@@ -65,7 +65,7 @@ func TestRestoredOnceTextStaysSilentAndStillReportsDone(t *testing.T) {
 	resumed := ports.NewGraph("stem")
 	source := blocks.NewOnceText("scenario-prompt", "a bridge keeper")
 	sink := blocks.NewPlayerOutputText("out-text")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	resumed.ConnectTextOut(source, sink)
 	resumed.ConnectState(source, gate)
 	if err := resumed.RestoreState(state); err != nil {
