@@ -206,3 +206,18 @@ aside h2 {
 
 .sample-kind { color: var(--dim); font-size: 0.68rem; }
 .sample-value { white-space: pre-wrap; word-break: break-word; }
+
+/* The status bar sits with the game, above the scene, the way a player expects
+   to find it. What it holds is also visible on the graph as a loop, but reading
+   your own health should not require inspecting a block. */
+.statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+
+.statusbar .field { font-variant-numeric: tabular-nums; }
