@@ -1,2 +1,1 @@
 var t=class extends AudioWorkletProcessor{process(a){let e=a[0]?.[0];if(!e||e.length===0)return!0;let o=new Int16Array(e.length);for(let r=0;r<e.length;r++){let s=Math.max(-1,Math.min(1,e[r]??0));o[r]=s<0?s*32768:s*32767}return this.port.postMessage(o.buffer,[o.buffer]),!0}};registerProcessor("mic-capture",t);
-//# sourceMappingURL=mic-worklet.js.map

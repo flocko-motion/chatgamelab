@@ -7,6 +7,7 @@
  */
 import type { PlayerState } from "../state.js";
 import type { UsageRecord } from "../protocol.js";
+import { Flowchart } from "./flowchart.js";
 
 export interface ViewElements {
   status: HTMLElement;
@@ -24,9 +25,11 @@ export class View {
   #renderedFlags = 0;
   #renderedNotes = 0;
   #shownImage: string | null = null;
-  #nodes = new Map<string, HTMLElement>();
+  #flowchart: Flowchart;
 
-  constructor(private readonly elements: ViewElements) {}
+  constructor(private readonly elements: ViewElements) {
+    this.#flowchart = new Flowchart(elements.graph);
+  }
 
   render(state: PlayerState): void {
     const live = state.connection === "open";
@@ -47,34 +50,9 @@ export class View {
   }
 
   #renderGraph(state: PlayerState): void {
-    const topology = state.topology;
-    if (!topology) return;
-
-    if (this.#nodes.size === 0) {
-      for (const node of topology.nodes) {
-        const row = document.createElement("div");
-        row.className = "node";
-        row.innerHTML =
-          `<span class="name"></span><span class="role"></span><span class="cost"></span>`;
-        row.querySelector<HTMLElement>(".name")!.textContent = node.name;
-        row.querySelector<HTMLElement>(".role")!.textContent = node.role;
-        this.elements.graph.append(row);
-        this.#nodes.set(node.name, row);
-
-        const leaving = topology.edges.filter((edge) => edge.from === node.name);
-        if (leaving.length === 0) continue;
-        const edges = document.createElement("div");
-        edges.className = "edges";
-        edges.textContent = leaving.map((e) => `↳ ${e.kind} → ${e.to}`).join("   ");
-        this.elements.graph.append(edges);
-      }
-    }
-
-    for (const [name, row] of this.#nodes) {
-      row.dataset["phase"] = state.phases[name] ?? "ready";
-      const spent = state.usage?.byNode.find((record) => record.node === name);
-      row.querySelector<HTMLElement>(".cost")!.textContent = spent ? money(spent) : "";
-    }
+    if (!state.topology) return;
+    this.#flowchart.draw(state.topology);
+    this.#flowchart.update(state.phases, state.usage?.byNode ?? []);
   }
 
   #renderProps(state: PlayerState): void {

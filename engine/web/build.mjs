@@ -19,7 +19,10 @@ await build({
   bundle: true,
   format: "esm",
   target: "es2022",
-  sourcemap: true,
+  // Sourcemaps only for a debugging build. dist/ is committed so the Go module
+  // builds without a JavaScript toolchain, and committing a map that changes on
+  // every rebuild costs repository history for something only useful locally.
+  sourcemap: process.env.DEV === "1",
   // The headless entry is read by people debugging a run, so nothing is minified
   // when DEV=1; the page is minified otherwise.
   minify: process.env.DEV !== "1",
