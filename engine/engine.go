@@ -146,12 +146,13 @@ func StreamNames() []string {
 }
 
 type Session struct {
-	spec   SessionSpec
-	wiring *genre.Wiring
-	usage  *usageLedger
-	events chan Event
-	cancel context.CancelFunc
-	once   sync.Once
+	spec     SessionSpec
+	wiring   *genre.Wiring
+	usage    *usageLedger
+	recorder *recorder
+	events   chan Event
+	cancel   context.CancelFunc
+	once     sync.Once
 }
 
 // SessionState is what a session must carry across a restart, separate from the
@@ -230,10 +231,11 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	ctx, cancel := context.WithCancel(ctx)
 
 	s := &Session{
-		spec:   spec,
-		wiring: w,
-		usage:  newUsageLedger(spec.Platform),
-		events: make(chan Event, 256),
+		spec:     spec,
+		wiring:   w,
+		usage:    newUsageLedger(spec.Platform),
+		recorder: newRecorder(),
+		events:   make(chan Event, 256),
 	}
 	s.cancel = cancel
 
@@ -263,6 +265,10 @@ func (s *Session) merge(ctx context.Context) {
 						return
 					}
 					ev := Event{Stream: name, Value: v}
+					s.recorder.record(ev)
+					if name == "props" {
+						s.recorder.recordProps(parseProps(v))
+					}
 					_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
 					select {
 					case s.events <- ev:
@@ -288,6 +294,8 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 				if !alive {
 					return
 				}
+				s.recorder.recordPhase(state.Node, string(state.Phase))
+
 				blob, err := json.Marshal(BlockState{Node: state.Node, Phase: string(state.Phase)})
 				if err != nil {
 					continue
@@ -338,6 +346,23 @@ func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
 // Usage is what the session has spent so far, per block and per model.
 func (s *Session) Usage() UsageReport { return s.usage.report() }
 
+// Snapshot is where the session stands now, for a client that was not watching
+// — a reloaded page, or one opened halfway through.
+func (s *Session) Snapshot() Snapshot {
+	started := false
+	select {
+	case <-s.wiring.Gate.Ready():
+		started = true
+	default:
+	}
+	return s.recorder.snapshot(started, s.usage.report())
+}
+
+// History is the conversation so far, in order. A client applies these through
+// exactly the same path as live events, so there is no second way to render a
+// session.
+func (s *Session) History() []Event { return s.recorder.replay() }
+
 // Events is the session-scoped stream the transport serialises.
 func (s *Session) Events() <-chan Event { return s.events }
 
@@ -381,6 +406,22 @@ func (s *Session) State() SessionState {
 }
 
 func (s *Session) Close() { s.once.Do(s.cancel) }
+
+// parseProps reads back the rendered map a props sink emits. The engine renders
+// it for the stream and parses it here rather than carrying two shapes, which is
+// a wart worth removing when props become structured on the wire.
+func parseProps(value string) map[string]string {
+	inner := strings.TrimSuffix(strings.TrimPrefix(value, "map["), "]")
+	props := map[string]string{}
+	for _, pair := range strings.Fields(inner) {
+		key, val, found := strings.Cut(pair, ":")
+		if !found {
+			continue
+		}
+		props[key] = val
+	}
+	return props
+}
 
 // tierSigil marks a Model* value as a reference to a tier rather than a model
 // name. No model name begins with it, so the two never have to be guessed apart.

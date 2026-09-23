@@ -37,9 +37,9 @@ const view = new View({
 
 player.subscribe((state) => view.render(state));
 
-// The wiring does not change during a session, so it is fetched once and then
-// only its phases and costs are updated.
-void player.loadTopology(sessionBase);
+// A reload has to rebuild what it missed before it starts listening, or the
+// first live event would land on an empty page.
+void player.restore(sessionBase).then(() => player.connect());
 
 const audio = new AudioIO(new URL("./mic-worklet.js", import.meta.url).href);
 const talk = required<HTMLButtonElement>("#talk");
@@ -63,5 +63,3 @@ required<HTMLFormElement>("#compose").addEventListener("submit", (event) => {
   player.takeFloor();
   player.say(text);
 });
-
-player.connect();

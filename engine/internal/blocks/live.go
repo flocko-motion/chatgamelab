@@ -3,6 +3,7 @@ package blocks
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"engine/internal/adapters"
 	"engine/internal/ports"
@@ -29,6 +30,9 @@ type LiveSession struct {
 	usage ports.UsageBroadcast
 
 	spent adapters.Usage
+
+	mu         sync.Mutex
+	responding bool
 }
 
 func NewLiveSession(name string, live adapters.Live, cfg adapters.LiveConfig) *LiveSession {
@@ -60,9 +64,10 @@ func (b *LiveSession) RequiredInputs() []ports.Kind          { return []ports.Ki
 // billed by the minute rather than at the end of a call.
 func (b *LiveSession) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
 
-// StateOutPort reports the connection's life. A live session is working for as
-// long as the conversation lasts, which is what distinguishes it on a graph
-// view from a block that flickers once per turn.
+// StateOutPort reports the block's work per response rather than per
+// connection. Working while the character is answering and ready between
+// answers is what makes the graph show a conversation's rhythm — and it is the
+// only signal that says where one utterance ended.
 func (b *LiveSession) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
 func (b *LiveSession) Start(ctx context.Context) {
@@ -75,8 +80,6 @@ func (b *LiveSession) Start(ctx context.Context) {
 		b.text.Close()
 		return
 	}
-
-	b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 
 	// Inbound: whatever the model produces, split onto the two output ports.
 	go func() {
@@ -98,9 +101,21 @@ func (b *LiveSession) Start(ctx context.Context) {
 				}
 				switch e.Kind {
 				case adapters.EventAudio:
+					b.answering(true)
 					b.audio.Send(ports.AudioChunk(e.Audio))
 				case adapters.EventText:
+					b.answering(true)
 					b.text.Send(e.Text)
+				case adapters.EventTurnComplete:
+					// The boundary travels on the text stream itself. A marker
+					// on a parallel stream cannot bracket anything: the two
+					// reach a reader through different goroutines, so nothing
+					// orders it against the text it is meant to close.
+					//
+					// An empty delta is the end of an utterance. It appends
+					// nothing, so anything that does not care may ignore it.
+					b.text.Send("")
+					b.answering(false)
 				case adapters.EventUsage:
 					b.spent.Add(e.Usage)
 					b.usage.Send(ports.Usage{
@@ -139,4 +154,24 @@ func (b *LiveSession) Start(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+// answering reports the block working while a response is arriving and ready
+// once it has finished, emitting only on a change so a reader sees one pair per
+// answer. That pair is also the only signal saying where one utterance ended,
+// which a client rebuilding a conversation depends on.
+func (b *LiveSession) answering(active bool) {
+	b.mu.Lock()
+	if b.responding == active {
+		b.mu.Unlock()
+		return
+	}
+	b.responding = active
+	b.mu.Unlock()
+
+	phase := ports.PhaseReady
+	if active {
+		phase = ports.PhaseWorking
+	}
+	b.state.Send(ports.State{Node: b.name, Phase: phase})
 }
