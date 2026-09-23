@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 )
 
 // The last few values through a node, kept so a reader can ask what a block
@@ -17,8 +18,11 @@ const (
 
 // Sample is one value seen on an edge.
 type Sample struct {
-	Kind  string `json:"kind"`
-	Value string `json:"value"`
+	// At is when the value crossed, because "the last three" says nothing about
+	// whether they arrived seconds or minutes apart.
+	At    time.Time `json:"at"`
+	Kind  string    `json:"kind"`
+	Value string    `json:"value"`
 	// Peer is the block at the other end, which is what makes a sample
 	// meaningful: "text from rephrase" says more than "text".
 	Peer string `json:"peer"`
@@ -55,7 +59,7 @@ func newInspector() *inspector {
 }
 
 func (i *inspector) observe(src, dst any, kind Kind, value any) {
-	sample := Sample{Kind: kind.String(), Value: describe(value)}
+	sample := Sample{At: time.Now().UTC(), Kind: kind.String(), Value: describe(value)}
 
 	i.mu.Lock()
 	defer i.mu.Unlock()

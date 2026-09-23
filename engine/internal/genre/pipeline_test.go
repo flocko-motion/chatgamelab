@@ -73,7 +73,7 @@ func TestPipelines(t *testing.T) {
 				},
 				// The portrait is made during init, from the scenario, with
 				// nothing triggering it.
-				"image": {"<image of You are the keeper of a bridge."},
+				"image": {"data:image/png;base64,"},
 			},
 		},
 	} {

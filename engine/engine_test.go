@@ -191,8 +191,10 @@ func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 		select {
 		case e := <-s.Events():
 			if e.Stream == "image" {
-				if !strings.Contains(e.Value, "keeper of a bridge") {
-					t.Errorf("portrait was not made from the scenario: %s", e.Value)
+				// A picture, not a placeholder: the client decodes this through
+				// the same path a generated image will use.
+				if !strings.HasPrefix(e.Value, "data:image/png;base64,") {
+					t.Errorf("portrait was not a displayable image: %.40s", e.Value)
 				}
 				return
 			}
