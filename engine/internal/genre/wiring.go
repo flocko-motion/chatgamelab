@@ -24,4 +24,8 @@ type Wiring struct {
 	// Observer is set only by genres that run one, so a test can read what it
 	// flagged.
 	Observer *blocks.Observer
+
+	// Gate opens when every block the first turn depends on has reported done.
+	// A genre with nothing to prepare opens immediately.
+	Gate *blocks.Gate
 }

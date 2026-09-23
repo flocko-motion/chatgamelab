@@ -28,7 +28,10 @@ func NewAdventure(status map[string]string) *Wiring {
 	outProps := blocks.NewPlayerOutputProps("out-props")
 	props := blocks.NewPropsStore("props-store", status)
 
+	gate := blocks.NewGate("start-game")
+
 	g := ports.NewGraph("adventure")
+	g.Track(gate)
 	g.ConnectTextOut(player, rephrase)
 	g.ConnectTextOut(rephrase, outline)
 
@@ -50,6 +53,7 @@ func NewAdventure(status map[string]string) *Wiring {
 
 	return &Wiring{
 		Graph: g,
+		Gate:  gate,
 		Say:   player.Say,
 		Sinks: map[string]chan string{
 			"text":  outText.Seen,

@@ -211,6 +211,7 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
+
 	s := &Session{spec: spec, wiring: w, events: make(chan Event, 256), cancel: cancel}
 	w.Graph.Start(ctx)
 	s.merge(ctx)
@@ -264,6 +265,11 @@ func (s *Session) Speak(audio []byte) error {
 	s.wiring.Speak(audio)
 	return nil
 }
+
+// Ready closes when every block the first turn depends on has reported done.
+// A genre with nothing to prepare is ready at once, so a caller never has to
+// ask which kind it got.
+func (s *Session) Ready() <-chan struct{} { return s.wiring.Gate.Ready() }
 
 // Describe renders the running wiring, so a launcher can show the graph it got.
 func (s *Session) Describe() string { return s.wiring.Graph.Describe() }

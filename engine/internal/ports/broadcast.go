@@ -49,8 +49,9 @@ func (b *Broadcast[T]) Close() {
 }
 
 type (
-	AudioBroadcast = Broadcast[AudioChunk]
-	TextBroadcast  = Broadcast[string]
-	ImageBroadcast = Broadcast[ImageData]
-	PropsBroadcast = Broadcast[PropMap]
+	AudioBroadcast  = Broadcast[AudioChunk]
+	TextBroadcast   = Broadcast[string]
+	ImageBroadcast  = Broadcast[ImageData]
+	PropsBroadcast  = Broadcast[PropMap]
+	SignalBroadcast = Broadcast[Signal]
 )

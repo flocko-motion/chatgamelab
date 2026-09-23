@@ -23,6 +23,12 @@ type (
 	PropsOut         interface{ PropsOutPort() <-chan PropMap }
 )
 
+// Signal carries no payload: it says a block has finished, nothing more.
+type Signal struct{}
+
+type SignalOut interface{ SignalOutPort() <-chan Signal }
+type SignalIn interface{ SignalInPort() chan<- Signal }
+
 type (
 	AudioIn interface{ AudioInPort() chan<- AudioChunk }
 	TextIn  interface{ TextInPort() chan<- string }
@@ -37,6 +43,7 @@ const (
 	KindText
 	KindImage
 	KindProps
+	KindSignal
 )
 
 func (k Kind) String() string {
@@ -49,6 +56,8 @@ func (k Kind) String() string {
 		return "image"
 	case KindProps:
 		return "props"
+	case KindSignal:
+		return "done"
 	}
 	return "unknown"
 }
@@ -79,4 +88,13 @@ type Starter interface{ Start(ctx context.Context) }
 type Resumable interface {
 	ExportState() string
 	RestoreState(string)
+}
+
+// Gatekeeper is a node that waits for every block feeding it to report done
+// before the game may begin. It is where the init stem joins the game loop.
+//
+// The graph tells it how many signal edges lead in, because only the graph
+// knows the wiring.
+type Gatekeeper interface {
+	ExpectSignals(n int)
 }

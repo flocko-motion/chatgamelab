@@ -3,6 +3,7 @@ package engine_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -112,5 +113,67 @@ func TestSpecMarshalsWithoutSecrets(t *testing.T) {
 	}
 	if strings.Contains(string(blob), "sk-should-not-appear") || strings.Contains(string(blob), "Keys") {
 		t.Errorf("serialised spec leaked the key path: %s", blob)
+	}
+}
+
+// The portrait is init work that nothing waits on, so a failure there costs the
+// picture and not the conversation. What gates is a wiring decision, and this is
+// the behaviour that decision buys.
+func TestPortraitFailureDoesNotStopTheSession(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "no-portrait",
+		Platform: engine.PlatformOpenAI,
+		Scenario: "a bridge keeper",
+		// A key resolver that fails stands in for any init work that cannot
+		// complete: the image call never gets a key.
+		Keys: func(context.Context) (string, error) {
+			return "", errors.New("no key for you")
+		},
+	})
+	if err != nil {
+		t.Fatalf("a failed portrait must not stop the session: %v", err)
+	}
+	defer s.Close()
+
+	select {
+	case <-s.Ready():
+	case <-time.After(2 * time.Second):
+		t.Fatal("the gate never opened, though nothing was wired to hold it")
+	}
+}
+
+// The portrait arrives without anything triggering it, because preparation made
+// it before play began.
+func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "portrait",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	deadline := time.After(3 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream == "image" {
+				if !strings.Contains(e.Value, "keeper of a bridge") {
+					t.Errorf("portrait was not made from the scenario: %s", e.Value)
+				}
+				return
+			}
+		case <-deadline:
+			t.Fatal("no portrait, and nobody spoke to trigger one")
+		}
 	}
 }
