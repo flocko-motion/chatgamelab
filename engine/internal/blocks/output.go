@@ -1,7 +1,9 @@
 package blocks
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"engine/internal/ports"
@@ -91,11 +93,24 @@ func (b *PlayerOutputImage) RequiredInputs() []ports.Kind        { return []port
 func (b *PlayerOutputImage) Start(ctx context.Context) {
 	go func() {
 		for v := range b.in {
-			if !b.record(ctx, string(v)) {
+			// Encoded here because the session's stream is text: a sink is
+			// where a picture stops being bytes and becomes something a page
+			// can show.
+			if !b.record(ctx, dataURL(v)) {
 				return
 			}
 		}
 	}()
+}
+
+// dataURL wraps image bytes so a client can display them without a second
+// request. A placeholder adapter that returns text rather than an image is
+// passed through unchanged, so a stub stays readable.
+func dataURL(data ports.ImageData) string {
+	if !bytes.HasPrefix(data, []byte("\x89PNG")) {
+		return string(data)
+	}
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(data)
 }
 
 type PlayerOutputProps struct {

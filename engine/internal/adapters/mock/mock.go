@@ -100,9 +100,9 @@ func (c *liveConn) Close() error {
 type Image struct{}
 
 func (Image) Generate(_ context.Context, prompt string) ([]byte, adapters.Usage, error) {
-	return []byte("<image of " + prompt + ">"),
-		adapters.Usage{Model: "mock-image", InputTokens: int64(len(prompt)), Images: 1},
-		nil
+	drawn, err := paint(prompt)
+	used := adapters.Usage{Model: "mock-image", InputTokens: int64(len(prompt)), Images: 1}
+	return drawn, used, err
 }
 
 // Tool classifies by keyword, which is enough to drive the observer loop

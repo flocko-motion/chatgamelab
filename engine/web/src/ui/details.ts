@@ -9,6 +9,7 @@ import type { UsageRecord } from "../protocol.js";
 import type { PlayerState } from "../state.js";
 
 export interface Sample {
+  readonly at: string;
   readonly kind: string;
   readonly value: string;
   readonly peer: string;
@@ -159,13 +160,19 @@ function facts(detail: NodeDetail): HTMLElement {
 
 function samples(title: string, entries: Sample[]): HTMLElement {
   const section = document.createElement("section");
-  section.append(text("h4", "", title));
-  for (const entry of entries) {
+  section.append(text("h4", "", `${title} — newest first`));
+  // Newest first, because that is what a reader came for; the time settles any
+  // remaining question about order.
+  for (const entry of [...entries].reverse()) {
     const row = document.createElement("div");
     row.className = "sample";
     row.append(
       // An edge sample needs no peer: both ends are already in the heading.
-      text("span", "sample-kind", entry.peer ? `${entry.kind} · ${entry.peer}` : entry.kind),
+      text(
+        "span",
+        "sample-kind",
+        [clock(entry.at), entry.kind, entry.peer].filter(Boolean).join(" · "),
+      ),
       // An empty value is the marker closing an utterance, which is worth
       // naming rather than rendering as a blank line.
       text("span", "sample-value", entry.value || "(end of utterance)"),
@@ -173,6 +180,14 @@ function samples(title: string, entries: Sample[]): HTMLElement {
     section.append(row);
   }
   return section;
+}
+
+/** Time of day to the millisecond: enough to order events that arrive together. */
+function clock(at: string): string {
+  const when = new Date(at);
+  if (Number.isNaN(when.getTime())) return "";
+  return when.toLocaleTimeString(undefined, { hour12: false }) +
+    "." + String(when.getMilliseconds()).padStart(3, "0");
 }
 
 function amount(record: UsageRecord): string {
