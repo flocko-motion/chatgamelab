@@ -19,7 +19,7 @@ func TestGateWaitsForEveryReportingBlock(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("init")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	firstPrompt := blocks.NewOnceText("first-prompt", "a")
 	secondPrompt := blocks.NewOnceText("second-prompt", "b")
 	first := blocks.NewImage("first", slowImage{delay: 60 * time.Millisecond})
@@ -55,7 +55,7 @@ func TestGateWithNothingToWaitForOpensImmediately(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("no-init")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	g.Track(gate)
 	g.Start(ctx)
 
@@ -73,7 +73,7 @@ func TestFailedBlockStillReturnsToReady(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("failing-init")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	prompt := blocks.NewOnceText("prompt", "a")
 	broken := blocks.NewImage("broken", failingImage{})
 	sink := blocks.NewPlayerOutputImage("out-image")
@@ -121,7 +121,7 @@ func TestGateCountsReportersNotMessages(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("repeating-init")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	chatty := &repeatingReporter{name: "chatty", out: make(chan ports.State, 8)}
 	silent := &repeatingReporter{name: "silent", out: make(chan ports.State, 8)}
 
@@ -155,7 +155,7 @@ func TestGateIgnoresWorking(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("working-init")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	busy := &repeatingReporter{name: "busy", out: make(chan ports.State, 8)}
 
 	g.ConnectState(busy, gate)
@@ -191,7 +191,7 @@ func TestInitialReadyDoesNotOpenTheGate(t *testing.T) {
 	defer cancel()
 
 	g := ports.NewGraph("startup-ready")
-	gate := blocks.NewGate("start-game")
+	gate := blocks.NewGate("start-game", "")
 	block := &repeatingReporter{name: "slow", out: make(chan ports.State, 8)}
 
 	g.ConnectState(block, gate)
