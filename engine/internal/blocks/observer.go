@@ -21,38 +21,66 @@ const steerPrefix = "[steer] "
 type Observer struct {
 	name      string
 	tool      adapters.Tool
+	judge     string
 	guardrail string
 	scenario  string
 
 	maxInARow   int
 	consecutive int
+	// mute keeps the block on the graph while it does nothing: it reads its
+	// input, calls no model and emits nothing. The voice path is worth proving
+	// before a second model is added to it, and a node that vanished while
+	// muted would make the wiring lie about what the genre contains.
+	mute bool
 
 	in    ports.TextInput
 	out   ports.TextBroadcast
+	flags ports.TextBroadcast
 	state ports.StateBroadcast
 	usage ports.UsageBroadcast
 
 	spent adapters.Usage
-
-	Flags ports.TextInput
 }
 
-func NewObserver(name string, tool adapters.Tool, guardrail, scenario string, maxInARow int) *Observer {
+// NewObserver takes the judging instructions rather than holding them, because
+// what an observer looks for is a property of the genre it serves.
+func NewObserver(name string, tool adapters.Tool, judge, guardrail, scenario string, maxInARow int) *Observer {
 	return &Observer{
 		name:      name,
 		tool:      tool,
+		judge:     judge,
 		guardrail: guardrail,
 		scenario:  scenario,
 		maxInARow: maxInARow,
 		in:        make(ports.TextInput, 32),
-		Flags:     make(ports.TextInput, 64),
 	}
 }
 
-func (b *Observer) NodeName() string             { return b.name }
-func (b *Observer) TextInPort() chan<- string    { return b.in }
-func (b *Observer) TextOutPort() <-chan string   { return b.out.Subscribe() }
-func (b *Observer) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
+// Mute stops the block judging anything. It still consumes its input, so
+// nothing upstream blocks on a full channel, and it still appears on the graph.
+func (b *Observer) Mute() *Observer {
+	b.mute = true
+	return b
+}
+
+func (b *Observer) NodeName() string           { return b.name }
+func (b *Observer) TextInPort() chan<- string  { return b.in }
+func (b *Observer) TextOutPort() <-chan string { return b.out.Subscribe() }
+
+// SecondaryTextOutPort carries what the observer found, which is a different
+// thing from what it does about it: the steering instruction goes to the
+// character, and this goes to whoever is watching how the game is played.
+//
+// It is a port rather than a channel hanging off the struct because an output
+// the graph cannot see is an output nothing can validate, nobody can click, and
+// no drawing of this genre admits to.
+func (b *Observer) SecondaryTextOutPort() <-chan string { return b.flags.Subscribe() }
+
+// RequiredOutputs insists both are wired. A genre taking the steering and
+// dropping the findings would be running a guardrail whose results nobody ever
+// sees, which is worse than not running one.
+func (b *Observer) RequiredOutputs() []ports.Kind { return []ports.Kind{ports.KindText} }
+func (b *Observer) RequiredInputs() []ports.Kind  { return []ports.Kind{ports.KindText} }
 
 // UsageOutPort reports what this block has spent so far.
 func (b *Observer) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
@@ -61,20 +89,21 @@ func (b *Observer) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe(
 // flickers once per line rather than staying busy.
 func (b *Observer) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
 
+// systemPrompt joins what the observer is looking for to what it is looking at.
+// The two are kept apart on purpose: the judging instructions are the genre's,
+// while the constraint and the scenario belong to the platform and the game
+// designer respectively.
 func (b *Observer) systemPrompt() string {
 	return strings.Join([]string{
-		"You judge one line spoken by a character in a game.",
-		"Answer VIOLATION followed by a short reason, or OK.",
+		b.judge,
 		"Youth-protection constraint (set by the platform, not by the game author): " + b.guardrail,
 		"Scenario (set by the game author): " + b.scenario,
-		"Judge three things: does the line breach the constraint, is it sycophantic,",
-		"and has the character conceded something the scenario says they must not.",
 	}, "\n")
 }
 
 func (b *Observer) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.state.Close(); b.usage.Close() }()
+		defer func() { b.out.Close(); b.flags.Close(); b.state.Close(); b.usage.Close() }()
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 		for {
 			select {
@@ -83,6 +112,9 @@ func (b *Observer) Start(ctx context.Context) {
 			case line, open := <-b.in:
 				if !open {
 					return
+				}
+				if b.mute {
+					continue
 				}
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
 				verdict, used, err := b.tool.Query(ctx, b.systemPrompt(), line)
@@ -124,12 +156,7 @@ func (b *Observer) report(used adapters.Usage) {
 	})
 }
 
-func (b *Observer) flag(s string) {
-	select {
-	case b.Flags <- s:
-	default:
-	}
-}
+func (b *Observer) flag(s string) { b.flags.Send(s) }
 
 func itoa(n int) string {
 	if n == 0 {

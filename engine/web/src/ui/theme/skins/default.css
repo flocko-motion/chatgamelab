@@ -1,0 +1,268 @@
+/* Default: the platform's own look, as a well-made textbook in its cyan. A
+   dot-grid notebook underneath; each
+   part of the story is a numbered section with a margin rule and its first
+   line marked with a highlighter; pictures are captioned as figures; the
+   player's moves stand in callout boxes, and a ruler divides the sections. */
+
+main[data-preset="default"] {
+  --skin-band: rgba(245, 247, 244, 0.7);
+  --skin-accent: #137e8b;
+  --skin-accent-light: #29d0de;
+  --skin-mint: #e6fafb;
+  --skin-ink: #1f2933;
+  --skin-muted: #52606d;
+  --skin-rule: #dfe5de;
+  --skin-highlight: rgba(41, 208, 222, 0.3);
+  --skin-text: "IBM Plex Sans", Inter, sans-serif;
+  --skin-mono: "IBM Plex Mono", "Fira Code", monospace;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="default"] .game-header {
+  background: #ffffff;
+  color: var(--skin-ink);
+  border-bottom: 1px solid var(--skin-rule);
+  box-shadow: none;
+}
+
+main[data-preset="default"] .game-title strong {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font: 600 0.95rem var(--skin-text);
+}
+
+main[data-preset="default"] .game-title strong::before {
+  content: "";
+  width: 4px;
+  height: 1.1rem;
+  border-radius: 2px;
+  background: var(--skin-accent);
+}
+
+main[data-preset="default"] .badge { font-family: var(--skin-mono); border-radius: 4px; }
+main[data-preset="default"] .badge[data-state="ready"] { background: var(--skin-mint); color: var(--skin-accent); box-shadow: inset 0 0 0 1px rgba(19, 126, 139, 0.3); }
+
+/* The notebook: a fine dot grid on cool white. */
+main[data-preset="default"] .scene-area {
+  background:
+    radial-gradient(circle, rgba(82, 96, 109, 0.22) 1px, transparent 1.4px) 0 0 / 22px 22px,
+    #f5f7f4;
+}
+
+main[data-preset="default"] .statusbar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--skin-rule);
+}
+
+/* Key figures: small tiles with a rule on top. */
+main[data-preset="default"] .field {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  min-width: 6.5rem;
+  padding: 0.45rem 0.9rem 0.5rem;
+  background: #ffffff;
+  border: 1px solid var(--skin-rule);
+  border-top: 3px solid var(--skin-accent);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(31, 41, 51, 0.06);
+}
+
+main[data-preset="default"] .field::before { content: none; }
+main[data-preset="default"] .field-name { font: 500 0.62rem var(--skin-mono); color: var(--skin-muted); letter-spacing: 0.08em; }
+main[data-preset="default"] .field-value { font: 600 1.1rem var(--skin-text); color: var(--skin-ink); }
+
+/* ── Sections ───────────────────────────────────────────────────────── */
+
+main[data-preset="default"] .feed { counter-reset: section figure; }
+main[data-preset="default"] .scene-card { counter-increment: section; }
+
+main[data-preset="default"] .game-scene {
+  background: #ffffff;
+  border: 1px solid var(--skin-rule);
+  border-radius: 8px;
+  padding: 2.3rem 2.4rem 2rem 2.6rem;
+  box-shadow: inset 4px 0 0 var(--skin-accent), 0 1px 3px rgba(31, 41, 51, 0.06), 0 8px 20px -10px rgba(31, 41, 51, 0.18);
+}
+
+main[data-preset="default"] .narrative {
+  font: 400 1.06rem/1.8 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* The first line of each section, marked with a highlighter. */
+main[data-preset="default"] .narrative::first-line {
+  background: linear-gradient(transparent 38%, var(--skin-highlight) 38%, var(--skin-highlight) 94%, transparent 94%);
+}
+
+/* The section number in the upper left. */
+main[data-preset="default"] .game-scene .corner { display: none !important; }
+
+main[data-preset="default"] .game-scene .corner.tl {
+  display: block !important;
+  top: 0.8rem;
+  left: 2.6rem;
+  width: auto;
+  height: auto;
+  border: 0;
+  color: var(--skin-accent);
+  font: 500 0.68rem var(--skin-mono);
+  letter-spacing: 0.1em;
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="default"] .game-scene .corner.tl::before { content: "§ " counter(section, decimal-leading-zero) !important; }
+
+/* Pictures as numbered figures, captioned underneath. */
+main[data-preset="default"] .scene-image {
+  counter-increment: figure;
+  overflow: visible;
+  margin-bottom: 1.4rem;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--skin-rule);
+}
+
+main[data-preset="default"] .scene-image img { border-radius: 4px; }
+main[data-preset="default"] .scene-image::before { content: none; }
+
+main[data-preset="default"] .scene-image::after {
+  content: "FIG. " counter(figure);
+  inset: auto;
+  left: 0;
+  bottom: -1.45rem;
+  box-shadow: none;
+  border-radius: 0;
+  color: var(--skin-muted);
+  font: 500 0.66rem var(--skin-mono);
+  letter-spacing: 0.1em;
+}
+
+main[data-preset="default"] .scene-image:hover { transform: none; box-shadow: 0 0 0 2px var(--skin-accent); }
+
+main[data-preset="default"] .game-scene.streaming .narrative::after {
+  content: "▍";
+  color: var(--skin-accent);
+  animation: cursor-blink 0.9s step-end infinite;
+}
+
+/* ── A ruler between sections ───────────────────────────────────────── */
+
+/* The preset asks for a plain line, which hides the symbol and one half;
+   this skin draws both. */
+main[data-preset="default"] .divider::after,
+main[data-preset="default"] .divider-symbol { display: block; }
+
+main[data-preset="default"] .divider { gap: 0.5rem; }
+
+main[data-preset="default"] .divider::before,
+main[data-preset="default"] .divider::after {
+  height: 10px;
+  max-width: 160px;
+  opacity: 1;
+  background:
+    linear-gradient(#9aa5b1, #9aa5b1) bottom / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, #9aa5b1 0 1px, transparent 1px 8px) bottom / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, var(--skin-muted) 0 1.5px, transparent 1.5px 40px) bottom / 100% 10px no-repeat;
+}
+
+main[data-preset="default"] .divider-symbol {
+  color: var(--skin-accent);
+  font-size: 0.6rem;
+  opacity: 1;
+}
+
+main[data-preset="default"] .divider-symbol::before { content: "◆"; }
+
+/* ── The player: a callout box ──────────────────────────────────────── */
+
+main[data-preset="default"] .bubble {
+  background: var(--skin-mint);
+  color: var(--skin-ink);
+  border: 0;
+  border-left: 3px solid var(--skin-accent);
+  border-radius: 0 6px 6px 0;
+  font: 500 0.98rem var(--skin-text);
+  box-shadow: inset 0 0 0 1px rgba(19, 126, 139, 0.16);
+}
+
+main[data-preset="default"] .bubble::before {
+  content: "→";
+  color: var(--skin-accent);
+  font: 600 1rem var(--skin-text);
+  text-shadow: none;
+}
+
+/* The thinking line with a progress bar running under it. */
+main[data-preset="default"] .typing {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  color: var(--skin-muted);
+  border: 1px solid var(--skin-rule);
+  border-radius: 8px;
+  font: 500 0.85rem var(--skin-mono);
+  box-shadow: 0 1px 3px rgba(31, 41, 51, 0.06);
+}
+
+main[data-preset="default"] .typing::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 30%;
+  height: 3px;
+  background: var(--skin-accent-light);
+  animation: skin-default-progress 1.6s ease-in-out infinite;
+}
+
+@keyframes skin-default-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(340%); }
+}
+
+main[data-preset="default"] .dots i { background: var(--skin-accent); }
+
+main[data-preset="default"] .inline-input {
+  background: #ffffff;
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-rule);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px -10px rgba(31, 41, 51, 0.25);
+}
+
+main[data-preset="default"] .input-wrap input {
+  font: 400 1.02rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #fbfcfb;
+  border: 1px solid #cfd8d2;
+  border-radius: 6px;
+}
+
+main[data-preset="default"] .input-wrap input:focus { border-color: var(--skin-accent); box-shadow: 0 0 0 3px rgba(41, 208, 222, 0.22); }
+main[data-preset="default"] .send { background: var(--skin-accent); color: #ffffff; border: 0; border-radius: 5px; }
+main[data-preset="default"] .icon-button { color: var(--skin-muted); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="default"] .system-message {
+  background: #ffffff;
+  border: 1px dashed var(--skin-rule);
+  color: var(--skin-muted);
+  font: italic 400 0.9rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="default"] .standing-image img {
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--skin-rule);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="default"] .typing::after { animation: none; width: 100%; opacity: 0.4; }
+}

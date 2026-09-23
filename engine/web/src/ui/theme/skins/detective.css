@@ -1,0 +1,338 @@
+/* Detective: a whodunit on the investigator's desk. Mahogany under the warm
+   pool of a desk lamp; each part of the story is a page of the case file,
+   paper-clipped and stamped as the next exhibit; the detective's own moves
+   are typed on index cards, and red thread runs between the clues. */
+
+main[data-preset="detective"] {
+  --skin-band: rgba(40, 18, 10, 0.55);
+  --skin-wood: #4a2416;
+  --skin-paper: #f4ecd8;
+  --skin-manila: #e3c485;
+  --skin-manila-dark: #c9a462;
+  --skin-ink: #2a1d14;
+  --skin-stamp: #a3231b;
+  --skin-brass: linear-gradient(180deg, #f3d98f, #c89a3c 45%, #9a7020 55%, #d9b460);
+  --skin-text: "Libre Baskerville", Georgia, serif;
+  --skin-type: "Special Elite", "Courier New", monospace;
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.15 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="detective"] .game-header {
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 2px, transparent 2px 9px, rgba(255, 255, 255, 0.03) 9px 11px, transparent 11px 23px),
+    linear-gradient(#3b1c10, #2a130a);
+  /* Brass-coloured, so what the header holds besides the nameplate (the theme
+     picker, the badge) reads on the dark wood. */
+  color: #f3d98f;
+  border-bottom: 2px solid #1c0c06;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* The title on a brass nameplate, screwed to the desk. */
+main[data-preset="detective"] .game-title strong {
+  display: inline-block;
+  padding: 0.2rem 1.4rem;
+  font: 700 0.85rem var(--skin-text);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #3a2508;
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6);
+  background:
+    radial-gradient(circle at 0.55rem 50%, #6d4b12 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 0.55rem) 50%, #6d4b12 0 2px, transparent 2.5px),
+    var(--skin-brass);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(90, 60, 10, 0.6), 0 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="detective"] .badge { font-family: var(--skin-type); color: #f3d98f; background: rgba(255, 255, 255, 0.08); }
+main[data-preset="detective"] .badge[data-state="ready"] { background: var(--skin-brass); color: #3a2508; }
+
+/* The desk: mahogany grain, the lamp's warm pool in the upper left, a pen left
+   lying there and the ring a cup of coffee left behind. */
+main[data-preset="detective"] .scene-area {
+  background:
+    url("./art/detective-pen.svg") right 1.5rem bottom 2.5rem / 240px 37px no-repeat,
+    url("./art/detective-coffee.svg") left 1rem bottom 1.5rem / 130px 130px no-repeat,
+    radial-gradient(ellipse 65% 55% at 18% 8%, rgba(255, 206, 122, 0.42), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.45)),
+    repeating-linear-gradient(88deg, rgba(0, 0, 0, 0.12) 0 3px, transparent 3px 14px, rgba(255, 255, 255, 0.025) 14px 16px, transparent 16px 37px),
+    linear-gradient(90deg, #4a2416, #5a2d1b 30%, #43200f 60%, #552a17);
+}
+
+/* Status as tabs on a manila folder lying along the top of the desk. */
+main[data-preset="detective"] .statusbar {
+  align-items: flex-end;
+  gap: 0.35rem;
+  padding: 0.7rem 1rem 0;
+  background: linear-gradient(transparent calc(100% - 6px), var(--skin-manila) calc(100% - 6px)), #2e160b;
+  border-bottom: 1px solid var(--skin-manila-dark);
+}
+
+main[data-preset="detective"] .field {
+  padding: 0.45rem 1.4rem 0.4rem;
+  background: var(--skin-grain), var(--skin-manila);
+  border: 0;
+  border-radius: 7px 7px 0 0;
+  clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 100%, 0 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 245, 215, 0.6);
+}
+
+main[data-preset="detective"] .field:nth-child(odd) { background: var(--skin-grain), #ead09a; }
+main[data-preset="detective"] .field::before { content: none; }
+main[data-preset="detective"] .field-name { font: 400 0.75rem var(--skin-type); color: #6a4a1a; }
+main[data-preset="detective"] .field-value { font: 700 0.95rem var(--skin-text); color: var(--skin-ink); }
+
+/* ── Case file pages ────────────────────────────────────────────────── */
+
+main[data-preset="detective"] .feed { counter-reset: exhibit; }
+
+main[data-preset="detective"] .scene-card {
+  position: relative;
+  counter-increment: exhibit;
+}
+
+/* A paperclip over the top edge of each page. */
+main[data-preset="detective"] .scene-card::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -18px;
+  left: 34px;
+  width: 22px;
+  height: 56px;
+  background: url("./art/detective-paperclip.svg") center / contain no-repeat;
+  transform: rotate(-6deg);
+  filter: drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35));
+}
+
+main[data-preset="detective"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(140, 100, 40, 0.18)),
+    var(--skin-grain),
+    var(--skin-paper);
+  border: 0;
+  border-radius: 1px;
+  padding: 2.5rem 2.6rem 2.2rem;
+  box-shadow: 0 1px 0 #d9ccaf, 0 2px 0 #cdbf9f, 0 16px 26px -6px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="detective"] .narrative {
+  font: 400 1.02rem/1.85 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* The exhibit stamp, in the upper right. */
+main[data-preset="detective"] .game-scene .corner { display: none !important; }
+
+main[data-preset="detective"] .game-scene .corner.tr {
+  display: block !important;
+  top: 14px;
+  right: 18px;
+  width: auto;
+  height: auto;
+  padding: 0.1rem 0.5rem;
+  border: 2px solid var(--skin-stamp);
+  border-radius: 2px;
+  color: var(--skin-stamp);
+  opacity: 0.72;
+  transform: rotate(-4deg);
+  font: 400 0.78rem/1.3 var(--skin-type);
+  letter-spacing: 0.12em;
+  animation: none;
+  mix-blend-mode: multiply;
+}
+
+main[data-preset="detective"] .game-scene .corner.tr::before { content: "EXHIBIT " counter(exhibit, upper-alpha); }
+
+/* Office life on the pages: every other page without a picture carries the
+   round seal of the office, every third a coffee ring, and some a question circled in red pen.
+   Symbols only, so they read in any language the game is played in. */
+main[data-preset="detective"] .scene-card:nth-of-type(odd) .game-scene:not(.with-image) .corner.bl {
+  display: block !important;
+  bottom: 12px;
+  left: 18px;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  background: url("./art/detective-seal.svg") center / contain no-repeat;
+  opacity: 0.32;
+  transform: rotate(-14deg);
+  mix-blend-mode: multiply;
+  animation: none;
+}
+
+main[data-preset="detective"] .scene-card:nth-of-type(3n + 2) .game-scene {
+  background:
+    url("./art/detective-coffee.svg") right -26px bottom -30px / 120px 120px no-repeat,
+    radial-gradient(ellipse at 50% 40%, transparent 60%, rgba(140, 100, 40, 0.18)),
+    var(--skin-grain),
+    var(--skin-paper);
+}
+
+main[data-preset="detective"] .scene-card:nth-of-type(3n + 1) .game-scene .corner.br {
+  display: block !important;
+  bottom: 10px;
+  right: 16px;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 2px solid rgba(179, 38, 30, 0.75);
+  border-radius: 52% 46% 55% 44% / 48% 55% 45% 52%;
+  color: rgba(179, 38, 30, 0.85);
+  font: 700 1.45rem/1.9rem "Caveat", cursive;
+  text-align: center;
+  transform: rotate(10deg);
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="detective"] .scene-card:nth-of-type(3n + 1) .game-scene .corner.br::before { content: "?"; }
+
+/* The picture as an evidence photograph, clipped to the page. */
+main[data-preset="detective"] .scene-image {
+  overflow: visible;
+  padding: 6px;
+  background: #fbf8ef;
+  border-radius: 1px;
+  transform: rotate(1.2deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+main[data-preset="detective"] .scene-image:hover { transform: rotate(0.4deg) scale(1.02); }
+main[data-preset="detective"] .scene-image img { border-radius: 0; filter: sepia(0.18) contrast(1.05); }
+
+main[data-preset="detective"] .scene-image::before {
+  inset: auto;
+  top: -20px;
+  right: 26px;
+  width: 20px;
+  height: 50px;
+  border: 0;
+  border-radius: 0;
+  background: url("./art/detective-paperclip.svg") center / contain no-repeat;
+  transform: rotate(8deg);
+  z-index: 3;
+}
+
+main[data-preset="detective"] .scene-image::after { content: none; }
+
+main[data-preset="detective"] .game-scene.streaming .narrative::after {
+  content: "▌";
+  color: var(--skin-ink);
+  animation: cursor-blink 0.9s step-end infinite;
+}
+
+/* ── Red thread between the clues, a lens in the middle ─────────────── */
+
+/* The preset asks for a plain line, which hides the symbol and one half;
+   this skin draws both. */
+main[data-preset="detective"] .divider::after,
+main[data-preset="detective"] .divider-symbol { display: block; }
+
+main[data-preset="detective"] .divider::before,
+main[data-preset="detective"] .divider::after {
+  height: 2px;
+  max-width: 140px;
+  opacity: 1;
+  background: #b3261e;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  transform: rotate(-2deg);
+}
+
+main[data-preset="detective"] .divider::after { transform: rotate(2deg); }
+
+main[data-preset="detective"] .divider-symbol {
+  width: 34px;
+  height: 34px;
+  opacity: 1;
+  background: url("./art/detective-lens.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+}
+
+main[data-preset="detective"] .divider-symbol::before { content: none; }
+
+/* ── The detective's typed index cards ──────────────────────────────── */
+
+main[data-preset="detective"] .bubble {
+  padding: 0.9rem 1.2rem 0.6rem 1rem;
+  background:
+    linear-gradient(#d9483d, #d9483d) 0 0.45rem / 100% 1px no-repeat,
+    repeating-linear-gradient(transparent 0 1.45rem, rgba(70, 110, 170, 0.28) 1.45rem calc(1.45rem + 1px)) 0 0.45rem,
+    #fffdf6;
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 1px;
+  transform: rotate(-0.8deg);
+  font: 400 1rem/1.45rem var(--skin-type);
+  box-shadow: 0 8px 14px -4px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="detective"] .bubble::before {
+  content: "—";
+  color: var(--skin-stamp);
+  font: 400 1rem var(--skin-type);
+  text-shadow: none;
+}
+
+main[data-preset="detective"] .typing {
+  background: var(--skin-grain), var(--skin-paper);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 1px;
+  font: 400 1rem var(--skin-type);
+  box-shadow: 0 12px 22px -6px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="detective"] .dots i { background: var(--skin-ink); }
+
+main[data-preset="detective"] .inline-input {
+  background: var(--skin-grain), var(--skin-paper);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 1px;
+  box-shadow: 0 1px 0 #d9ccaf, 0 16px 26px -6px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="detective"] .input-wrap input {
+  font: 400 1.05rem var(--skin-type);
+  color: var(--skin-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(42, 29, 20, 0.45);
+  border-radius: 0;
+}
+
+main[data-preset="detective"] .input-wrap input:focus { border-bottom-color: var(--skin-stamp); }
+
+main[data-preset="detective"] .send {
+  background: var(--skin-brass);
+  color: #3a2508;
+  border: 0;
+  box-shadow: inset 0 0 0 1px rgba(90, 60, 10, 0.6);
+}
+
+main[data-preset="detective"] .icon-button { color: var(--skin-ink); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="detective"] .system-message {
+  background: #fffdf6;
+  border: 0;
+  color: var(--skin-ink);
+  font: 400 0.9rem var(--skin-type);
+  box-shadow: 0 8px 14px -4px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="detective"] .standing-image img {
+  padding: 6px;
+  background: #fbf8ef;
+  border-radius: 1px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+  filter: sepia(0.18) contrast(1.05);
+}

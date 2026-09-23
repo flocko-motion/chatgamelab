@@ -1,0 +1,413 @@
+/* Cyberpunk: a rain-soaked neon city seen through a HUD. A skyline with lit
+   windows stands in a pink and cyan haze, rain streaks across it, scanlines
+   run over everything, searchlights sweep the smog and spinners drift past;
+   the story comes up on chamfered panels that glow. */
+
+main[data-preset="cyberpunk"] {
+  --skin-band: rgba(7, 4, 13, 0.6);
+  --skin-pink: #ff2e88;
+  --skin-cyan: #22e7ff;
+  --skin-violet: #7a2cff;
+  --skin-night: #07040d;
+  --skin-pane: rgba(9, 6, 18, 0.9);
+  --skin-hud: "Orbitron", "Share Tech Mono", sans-serif;
+  --skin-mono: "Share Tech Mono", "Fira Code", monospace;
+  --skin-cut: 14px;
+  --skin-chamfer: polygon(var(--skin-cut) 0, 100% 0, 100% calc(100% - var(--skin-cut)), calc(100% - var(--skin-cut)) 100%, 0 100%, 0 var(--skin-cut));
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="cyberpunk"] .game-header {
+  background: linear-gradient(#0d0816, #07040d);
+  color: var(--skin-pink);
+  border-bottom: 1px solid var(--skin-pink);
+  box-shadow: 0 0 14px rgba(255, 46, 136, 0.55), 0 1px 0 rgba(34, 231, 255, 0.4);
+}
+
+main[data-preset="cyberpunk"] .game-title strong {
+  font: 700 0.95rem var(--skin-hud);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(255, 46, 136, 0.9), 0 0 18px rgba(255, 46, 136, 0.5);
+}
+
+main[data-preset="cyberpunk"] .game-title strong::before {
+  content: "//";
+  margin-right: 0.5em;
+  color: var(--skin-cyan);
+  text-shadow: 0 0 6px rgba(34, 231, 255, 0.9);
+}
+
+main[data-preset="cyberpunk"] .badge {
+  font: 700 0.62rem var(--skin-hud);
+  letter-spacing: 0.14em;
+  border-radius: 0;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  padding: 0 0.8rem;
+}
+
+main[data-preset="cyberpunk"] .badge[data-state="ready"] { background: var(--skin-cyan); color: var(--skin-night); }
+
+/* The city: violet night, amber smog glowing on the horizon between the pink
+   and cyan neon, the skyline standing in it. */
+main[data-preset="cyberpunk"] .scene-area {
+  background:
+    url("./art/cyberpunk-skyline.svg") 0 100% / 480px 260px repeat-x,
+    radial-gradient(ellipse 55% 30% at 58% 100%, rgba(255, 140, 60, 0.32), transparent 70%),
+    radial-gradient(ellipse 70% 38% at 22% 100%, rgba(255, 46, 136, 0.3), transparent 70%),
+    radial-gradient(ellipse 60% 34% at 88% 100%, rgba(34, 231, 255, 0.2), transparent 70%),
+    linear-gradient(#07040d 0%, #150a26 50%, #2a1234 100%);
+}
+
+/* Searchlights sweeping the clouds from behind the towers. */
+@property --skin-beam-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: -24deg;
+}
+
+@property --skin-beam-b {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 18deg;
+}
+
+main[data-preset="cyberpunk"] .scene-area::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from calc(var(--skin-beam-a) - 4deg) at 28% 100%, transparent 0deg, rgba(150, 200, 255, 0.1) 4deg, transparent 8deg),
+    conic-gradient(from calc(var(--skin-beam-b) - 3deg) at 74% 100%, transparent 0deg, rgba(255, 190, 140, 0.08) 3deg, transparent 6deg);
+  animation: skin-cyber-beams 14s ease-in-out infinite alternate;
+}
+
+@keyframes skin-cyber-beams {
+  from { --skin-beam-a: -24deg; --skin-beam-b: 18deg; }
+  to { --skin-beam-a: 14deg; --skin-beam-b: -20deg; }
+}
+
+/* Spinners: the lights of flying cars drifting across the sky, each with a
+   short trail. */
+main[data-preset="cyberpunk"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  left: -30%;
+  width: 30%;
+  top: 14%;
+  height: 30%;
+  background:
+    radial-gradient(circle at 92% 20%, #fff4d6 0 1.5px, rgba(255, 190, 110, 0.6) 3px, transparent 6px),
+    linear-gradient(90deg, transparent, rgba(255, 190, 110, 0.3)) 40% 19% / 52% 1px no-repeat,
+    radial-gradient(circle at 70% 70%, #ffd0d8 0 1.2px, rgba(255, 60, 90, 0.6) 2.5px, transparent 5px),
+    linear-gradient(90deg, transparent, rgba(255, 80, 100, 0.25)) 30% 69% / 40% 1px no-repeat;
+  animation: skin-cyber-spinners 26s linear infinite;
+}
+
+@keyframes skin-cyber-spinners {
+  to { transform: translateX(460%); }
+}
+
+/* Rain, in two sheets. Each tile moves exactly one tile across and two down
+   per cycle, along the slant of its streaks, so the loop never shows. */
+main[data-preset="cyberpunk"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("./art/cyberpunk-rain-near.svg") 0 0 / 80px 240px,
+    url("./art/cyberpunk-rain-far.svg") 0 0 / 60px 180px;
+  animation: skin-cyber-rain 0.7s linear infinite;
+}
+
+main[data-preset="cyberpunk"] .scene-bg { overflow: hidden; }
+
+@keyframes skin-cyber-rain {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: -80px 480px, -60px 360px; }
+}
+
+/* Scanlines over the whole scene, story included, like a screen. */
+main[data-preset="cyberpunk"] .scene-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.16) 2px 3px);
+}
+
+main[data-preset="cyberpunk"] .statusbar {
+  background: rgba(7, 4, 13, 0.95);
+  border-bottom: 1px solid rgba(34, 231, 255, 0.35);
+}
+
+/* HUD readouts. */
+main[data-preset="cyberpunk"] .field {
+  padding: 0.4rem 1rem 0.4rem 1.1rem;
+  background: linear-gradient(rgba(34, 231, 255, 0.1), rgba(34, 231, 255, 0.02)), rgba(7, 4, 13, 0.9);
+  border: 1px solid rgba(34, 231, 255, 0.55);
+  border-radius: 0;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow: inset 0 0 12px rgba(34, 231, 255, 0.15);
+}
+
+main[data-preset="cyberpunk"] .field::before {
+  left: 3px;
+  top: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 0;
+  background: var(--skin-pink);
+  box-shadow: 0 0 6px var(--skin-pink);
+}
+
+main[data-preset="cyberpunk"] .field-name { font: 700 0.62rem var(--skin-hud); color: var(--skin-pink); letter-spacing: 0.14em; }
+main[data-preset="cyberpunk"] .field-value { font: 400 1.05rem var(--skin-mono); color: var(--skin-cyan); text-shadow: 0 0 6px rgba(34, 231, 255, 0.7); }
+
+/* ── Panels ─────────────────────────────────────────────────────────── */
+
+/* The glow is cast by the wrapper, so it follows the panel's cut corners. */
+main[data-preset="cyberpunk"] .scene-card {
+  filter: drop-shadow(0 0 5px rgba(255, 46, 136, 0.6)) drop-shadow(0 0 16px rgba(255, 46, 136, 0.25));
+}
+
+/* The neon edge is the panel's own background, clipped to the chamfer; the
+   dark pane inside it is a pseudo-element one pixel and a half in. */
+main[data-preset="cyberpunk"] .game-scene {
+  background: linear-gradient(135deg, var(--skin-pink), var(--skin-violet) 60%, var(--skin-cyan));
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: var(--skin-chamfer);
+  padding: 2.1rem 2.4rem 2rem;
+}
+
+main[data-preset="cyberpunk"] .game-scene::before {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  background:
+    linear-gradient(rgba(255, 46, 136, 0.06), transparent 30%),
+    var(--skin-pane);
+  clip-path: var(--skin-chamfer);
+}
+
+main[data-preset="cyberpunk"] .narrative {
+  position: relative;
+  z-index: 1;
+  font: 400 1.05rem/1.75 var(--skin-mono);
+  color: #ffd4e8;
+  text-shadow: 0 0 4px rgba(255, 46, 136, 0.55);
+}
+
+/* HUD brackets in the two corners the chamfer leaves square. */
+main[data-preset="cyberpunk"] .game-scene .corner { display: none !important; }
+
+main[data-preset="cyberpunk"] .game-scene .corner.tr,
+main[data-preset="cyberpunk"] .game-scene .corner.bl {
+  display: block !important;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  border-style: solid;
+  border-color: var(--skin-cyan);
+  opacity: 0.9;
+  animation: none;
+  filter: drop-shadow(0 0 3px var(--skin-cyan));
+}
+
+main[data-preset="cyberpunk"] .game-scene .corner.tr { top: 9px; right: 9px; border-width: 2px 2px 0 0; }
+main[data-preset="cyberpunk"] .game-scene .corner.bl { bottom: 9px; left: 9px; border-width: 0 0 2px 2px; }
+main[data-preset="cyberpunk"] .game-scene .corner::before { content: none !important; }
+
+/* The picture in a targeting frame: a thin cyan line, brackets just outside
+   it, and scanlines over the image. Corners cut, nothing else taken. */
+main[data-preset="cyberpunk"] .scene-image {
+  z-index: 1;
+  overflow: visible;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 6px;
+}
+
+main[data-preset="cyberpunk"] .scene-image img {
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  border-radius: 0;
+}
+
+main[data-preset="cyberpunk"] .scene-image::before {
+  inset: -6px;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 0 0 / 16px 2px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 0 0 / 2px 16px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 100% 0 / 16px 2px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 100% 0 / 2px 16px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 0 100% / 16px 2px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 0 100% / 2px 16px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 100% 100% / 16px 2px no-repeat,
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 100% 100% / 2px 16px no-repeat;
+  filter: drop-shadow(0 0 3px var(--skin-cyan));
+}
+
+main[data-preset="cyberpunk"] .scene-image::after {
+  border-radius: 0;
+  box-shadow: none;
+  background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+
+/* On hover the picture splits into its colour channels for a moment. */
+main[data-preset="cyberpunk"] .scene-image:hover { transform: none; box-shadow: none; }
+main[data-preset="cyberpunk"] .scene-image:hover img { animation: skin-cyber-split 0.35s steps(2) 2; }
+
+@keyframes skin-cyber-split {
+  0% { filter: drop-shadow(3px 0 0 rgba(255, 46, 136, 0.8)) drop-shadow(-3px 0 0 rgba(34, 231, 255, 0.8)); transform: translateX(1px); }
+  100% { filter: none; transform: none; }
+}
+
+main[data-preset="cyberpunk"] .game-scene.streaming .narrative::after {
+  content: "█";
+  color: var(--skin-cyan);
+  text-shadow: 0 0 6px var(--skin-cyan);
+  animation: cursor-blink 0.7s step-end infinite;
+}
+
+/* ── A data line between panels ─────────────────────────────────────── */
+
+main[data-preset="cyberpunk"] .divider::before,
+main[data-preset="cyberpunk"] .divider::after {
+  height: 1px;
+  max-width: 150px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-pink));
+  box-shadow: 0 0 6px var(--skin-pink);
+}
+
+main[data-preset="cyberpunk"] .divider::after { background: linear-gradient(90deg, var(--skin-cyan), transparent); box-shadow: 0 0 6px var(--skin-cyan); }
+
+main[data-preset="cyberpunk"] .divider-symbol {
+  font: 700 0.7rem var(--skin-hud);
+  letter-spacing: 0.3em;
+  color: var(--skin-pink);
+  opacity: 1;
+  text-shadow: 0 0 6px var(--skin-pink);
+}
+
+main[data-preset="cyberpunk"] .divider-symbol::before { content: "◢◤"; }
+
+/* ── The player: a command line ─────────────────────────────────────── */
+
+main[data-preset="cyberpunk"] .player-action { filter: drop-shadow(0 0 5px rgba(34, 231, 255, 0.45)); }
+
+main[data-preset="cyberpunk"] .bubble {
+  padding: 0.6rem 1.1rem 0.6rem 0.9rem;
+  background: linear-gradient(90deg, rgba(34, 231, 255, 0.16), rgba(34, 231, 255, 0.04)), rgba(7, 4, 13, 0.92);
+  color: var(--skin-cyan);
+  border: 0;
+  border-left: 3px solid var(--skin-cyan);
+  border-radius: 0;
+  box-shadow: none;
+  font: 400 1rem var(--skin-mono);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+}
+
+main[data-preset="cyberpunk"] .bubble::before {
+  content: "›";
+  color: var(--skin-pink);
+  font: 700 1.05rem var(--skin-mono);
+  text-shadow: 0 0 5px var(--skin-pink);
+  animation: none;
+}
+
+main[data-preset="cyberpunk"] .bubble::after {
+  content: "_";
+  margin-left: -0.4rem;
+  color: var(--skin-cyan);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+main[data-preset="cyberpunk"] .typing {
+  position: relative;
+  background: var(--skin-pane);
+  color: var(--skin-cyan);
+  border: 1px solid rgba(34, 231, 255, 0.6);
+  border-radius: 0;
+  clip-path: var(--skin-chamfer);
+  font: 700 0.8rem var(--skin-hud);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 14px rgba(34, 231, 255, 0.18);
+}
+
+/* Loading segments for the thinking dots. */
+main[data-preset="cyberpunk"] .dots { gap: 3px; }
+
+main[data-preset="cyberpunk"] .dots i {
+  width: 14px;
+  height: 6px;
+  border-radius: 0;
+  background: var(--skin-cyan);
+  box-shadow: 0 0 6px var(--skin-cyan);
+}
+
+/* Opaque: the story scrolls underneath it. */
+main[data-preset="cyberpunk"] .inline-input {
+  background: var(--skin-night);
+  color: var(--skin-cyan);
+  border: 1px solid rgba(34, 231, 255, 0.6);
+  border-radius: 0;
+  clip-path: var(--skin-chamfer);
+  box-shadow: inset 0 0 18px rgba(34, 231, 255, 0.16);
+}
+
+main[data-preset="cyberpunk"] .input-wrap input {
+  font: 400 1.05rem var(--skin-mono);
+  color: var(--skin-cyan);
+  background: rgba(34, 231, 255, 0.05);
+  border: 1px solid rgba(34, 231, 255, 0.35);
+  border-radius: 0;
+}
+
+main[data-preset="cyberpunk"] .input-wrap input::placeholder { color: var(--skin-cyan); opacity: 0.45; }
+main[data-preset="cyberpunk"] .input-wrap input:focus { border-color: var(--skin-pink); box-shadow: 0 0 8px rgba(255, 46, 136, 0.5); }
+
+main[data-preset="cyberpunk"] .send {
+  border-radius: 0;
+  background: var(--skin-pink);
+  color: var(--skin-night);
+  border: 0;
+  clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+
+main[data-preset="cyberpunk"] .icon-button { color: var(--skin-cyan); border-radius: 0; }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="cyberpunk"] .system-message {
+  background: rgba(7, 4, 13, 0.9);
+  border: 1px dashed rgba(255, 46, 136, 0.55);
+  color: #ffb3d6;
+  font: 400 0.9rem var(--skin-mono);
+  border-radius: 0;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="cyberpunk"] .standing-image img {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="cyberpunk"] .scene-bg::before,
+  main[data-preset="cyberpunk"] .scene-bg::after,
+  main[data-preset="cyberpunk"] .scene-area::before { animation: none; }
+}

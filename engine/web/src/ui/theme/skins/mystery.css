@@ -1,0 +1,290 @@
+/* Mystery: a locked manor at midnight. A gothic house stands against a moonlit
+   sky with a single window lit; clouds drift across the moon, ravens cross
+   now and then, and fog rolls over the lawn behind the iron fence. The story
+   arrives as letters sealed in blue wax, with an old key between them.
+   Suspense, not crime scene: the questions matter more than the answers. */
+
+main[data-preset="mystery"] {
+  --skin-band: rgba(10, 16, 34, 0.6);
+  --skin-night: #0b1224;
+  --skin-moon: #dfe7ff;
+  --skin-paper: #efe9dc;
+  --skin-ink: #1f2436;
+  --skin-blue: #23397a;
+  --skin-brass: #b9985a;
+  --skin-mute: #9aa6c6;
+  --skin-title: "Cinzel", Georgia, serif;
+  --skin-text: "Cormorant Garamond", "EB Garamond", Georgia, serif;
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="mystery"] .game-header {
+  background: linear-gradient(#0e1630, #0a1024);
+  color: #dfe4f2;
+  border-bottom: 1px solid rgba(185, 152, 90, 0.45);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="mystery"] .game-title strong {
+  font: 400 1.1rem var(--skin-title);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+main[data-preset="mystery"] .badge { font-family: var(--skin-text); font-weight: 600; background: rgba(154, 166, 198, 0.14); color: var(--skin-mute); }
+main[data-preset="mystery"] .badge[data-state="ready"] { background: var(--skin-brass); color: #141a2e; }
+
+/* Night: stars, the moon, distant hills and the manor behind its iron fence. */
+main[data-preset="mystery"] .scene-area {
+  background:
+    url("./art/mystery-fence.svg") 0 100% / 120px 60px repeat-x,
+    url("./art/mystery-manor.svg") right 4% bottom 26px / 520px 240px no-repeat,
+    url("./art/mystery-hills.svg") 0 100% / 600px 200px repeat-x,
+    radial-gradient(circle at 18% 16%, var(--skin-moon) 0 30px, rgba(223, 231, 255, 0.3) 32px, rgba(150, 170, 230, 0.12) 95px, transparent 190px),
+    url("./art/mystery-stars.svg") 0 0 / 400px 300px,
+    linear-gradient(#08102a 0%, #111d40 60%, #16224a 100%);
+}
+
+/* Motes of light drifting in the fog, small and few. */
+main[data-preset="mystery"] .scene-bg {
+  background: url("./art/mystery-motes.svg") 0 0 / 420px 520px;
+  animation: skin-mystery-motes 60s linear infinite;
+}
+
+@keyframes skin-mystery-motes {
+  from { background-position: 0 0; }
+  to { background-position: 420px -520px; }
+}
+
+/* Clouds drifting past the moon, their upper edges lit by it. */
+main[data-preset="mystery"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 45% 0;
+  background:
+    url("./art/mystery-cloud-a.svg") 0 60px / 360px 120px repeat-x,
+    url("./art/mystery-cloud-b.svg") 0 10px / 260px 90px repeat-x,
+    url("./art/mystery-cloud-c.svg") 0 150px / 300px 100px repeat-x;
+  -webkit-mask: linear-gradient(90deg, #000 0 24%, transparent 36%, transparent 64%, #000 78%);
+  mask: linear-gradient(90deg, #000 0 24%, transparent 36%, transparent 64%, #000 78%);
+  opacity: 0.9;
+  animation: skin-mystery-clouds 90s linear infinite;
+}
+
+/* Each cloud row moves on by a whole number of its own tiles per cycle, so the
+   loop never shows; the rows drift at different speeds. */
+@keyframes skin-mystery-clouds {
+  from { background-position: 0 60px, 0 10px, 0 150px; }
+  to { background-position: 720px 60px, 520px 10px, 900px 150px; }
+}
+
+/* Fog rolling slowly across the lawn. */
+main[data-preset="mystery"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  bottom: 0;
+  height: 42%;
+  background:
+    radial-gradient(ellipse 28% 45% at 20% 92%, rgba(170, 185, 225, 0.22), transparent 70%),
+    radial-gradient(ellipse 34% 50% at 55% 96%, rgba(170, 185, 225, 0.18), transparent 70%),
+    radial-gradient(ellipse 26% 40% at 88% 90%, rgba(170, 185, 225, 0.2), transparent 70%),
+    radial-gradient(ellipse 30% 30% at 40% 70%, rgba(170, 185, 225, 0.1), transparent 70%);
+  animation: skin-mystery-fog 36s ease-in-out infinite alternate;
+}
+
+@keyframes skin-mystery-fog {
+  from { transform: translateX(-7%); }
+  to { transform: translateX(7%); }
+}
+
+/* Ravens crossing the sky over the manor, each on its own path, beating
+   their wings slowly and gliding; the animation lives in the drawing itself. */
+main[data-preset="mystery"] .scene-area::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 10%;
+  left: 0;
+  width: 900px;
+  height: 220px;
+  background: url("./art/mystery-ravens.svg") 0 0 / 900px 220px no-repeat;
+  pointer-events: none;
+}
+
+main[data-preset="mystery"] .statusbar {
+  background: #0a1024;
+  border-bottom: 1px solid rgba(185, 152, 90, 0.3);
+}
+
+/* Brass escutcheons: a small keyhole before each value. */
+main[data-preset="mystery"] .field {
+  padding-left: 1.7rem;
+  background: linear-gradient(#18223f, #111a33);
+  border: 1px solid rgba(185, 152, 90, 0.4);
+  border-radius: 3px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="mystery"] .field::before {
+  left: 0.6rem;
+  top: 50%;
+  width: 7px;
+  height: 11px;
+  transform: translateY(-50%);
+  border-radius: 0;
+  background: var(--skin-brass);
+  clip-path: polygon(50% 0, 80% 12%, 88% 38%, 68% 55%, 85% 100%, 15% 100%, 32% 55%, 12% 38%, 20% 12%);
+}
+
+main[data-preset="mystery"] .field-name { font: 400 0.72rem var(--skin-title); color: var(--skin-mute); letter-spacing: 0.1em; }
+main[data-preset="mystery"] .field-value { font: 600 1.1rem var(--skin-text); color: #eef1fa; }
+
+/* ── Sealed letters ─────────────────────────────────────────────────── */
+
+main[data-preset="mystery"] .scene-card { position: relative; }
+
+main[data-preset="mystery"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255, 255, 255, 0.35), transparent 70%),
+    var(--skin-grain),
+    var(--skin-paper);
+  border: 0;
+  border-radius: 2px;
+  padding: 2.6rem 2.7rem 2.4rem;
+  /* A fine deckled rule inside the edge, and the letter lifted off the dark. */
+  box-shadow:
+    inset 0 0 0 7px var(--skin-paper),
+    inset 0 0 0 8px rgba(35, 57, 122, 0.25),
+    0 16px 32px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="mystery"] .narrative {
+  font: 500 1.2rem/1.7 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+/* The wax seal, pressed onto the lower right of each letter. */
+main[data-preset="mystery"] .game-scene .corner { display: none !important; }
+
+main[data-preset="mystery"] .game-scene .corner.br {
+  display: block !important;
+  right: 14px;
+  bottom: 12px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: url("./art/mystery-seal.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+  opacity: 1;
+  animation: none;
+}
+
+main[data-preset="mystery"] .game-scene .corner.br::before { content: none !important; }
+
+main[data-preset="mystery"] .scene-image {
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px rgba(185, 152, 90, 0.8), 0 0 0 4px var(--skin-paper), 0 0 0 5px rgba(35, 57, 122, 0.35), 0 8px 18px rgba(0, 0, 0, 0.35);
+  margin: 5px;
+}
+
+main[data-preset="mystery"] .scene-image img { filter: saturate(0.8) contrast(1.05); }
+main[data-preset="mystery"] .scene-image::before { border-radius: 0; border-color: rgba(255, 255, 255, 0.2); }
+main[data-preset="mystery"] .scene-image::after { border-radius: 0; box-shadow: inset 0 0 30px rgba(10, 16, 40, 0.45); }
+
+main[data-preset="mystery"] .game-scene.streaming .narrative::after { content: "…"; color: var(--skin-blue); animation: typing-pulse 1.6s ease-in-out infinite; }
+
+/* ── An old key between the letters ─────────────────────────────────── */
+
+main[data-preset="mystery"] .divider::before,
+main[data-preset="mystery"] .divider::after {
+  height: 1px;
+  max-width: 120px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, rgba(185, 152, 90, 0.6));
+}
+
+main[data-preset="mystery"] .divider::after { background: linear-gradient(90deg, rgba(185, 152, 90, 0.6), transparent); }
+
+main[data-preset="mystery"] .divider-symbol {
+  width: 58px;
+  height: 20px;
+  opacity: 1;
+  background: url("./art/mystery-key.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+main[data-preset="mystery"] .divider-symbol::before { content: none; }
+
+/* ── The player: a note slipped under the door ──────────────────────── */
+
+main[data-preset="mystery"] .bubble {
+  background: linear-gradient(#1a2446, #121a36);
+  color: #e3e8f6;
+  border: 1px solid rgba(185, 152, 90, 0.45);
+  border-radius: 2px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="mystery"] .bubble::before { content: "?"; color: var(--skin-brass); font: 400 1rem var(--skin-title); text-shadow: none; }
+
+main[data-preset="mystery"] .typing {
+  background: var(--skin-grain), var(--skin-paper);
+  color: var(--skin-blue);
+  border: 0;
+  border-radius: 2px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.55);
+}
+
+main[data-preset="mystery"] .dots i { background: var(--skin-blue); }
+
+main[data-preset="mystery"] .inline-input {
+  background: linear-gradient(#141d3a, #0f1630);
+  color: #e3e8f6;
+  border: 1px solid rgba(185, 152, 90, 0.4);
+  border-radius: 3px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.6);
+}
+
+main[data-preset="mystery"] .input-wrap input {
+  font: italic 500 1.12rem var(--skin-text);
+  color: #eef1fa;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(154, 166, 198, 0.35);
+}
+
+main[data-preset="mystery"] .input-wrap input::placeholder { color: var(--skin-mute); opacity: 0.8; }
+main[data-preset="mystery"] .input-wrap input:focus { border-color: var(--skin-brass); }
+main[data-preset="mystery"] .send { background: var(--skin-brass); color: #141a2e; border: 0; }
+main[data-preset="mystery"] .icon-button { color: var(--skin-mute); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="mystery"] .system-message {
+  background: rgba(10, 16, 36, 0.8);
+  border: 1px dashed rgba(185, 152, 90, 0.45);
+  color: var(--skin-mute);
+  font: italic 500 1rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="mystery"] .standing-image img {
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px rgba(185, 152, 90, 0.8), 0 0 0 4px var(--skin-paper), 0 0 0 5px rgba(35, 57, 122, 0.35), 0 8px 18px rgba(0, 0, 0, 0.35);
+  filter: saturate(0.8) contrast(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="mystery"] .scene-bg,
+  main[data-preset="mystery"] .scene-bg::before,
+  main[data-preset="mystery"] .scene-bg::after { animation: none; }
+  main[data-preset="mystery"] .scene-area::before { display: none; }
+}

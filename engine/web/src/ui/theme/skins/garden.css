@@ -1,0 +1,266 @@
+/* Garden: a cottage garden in watercolour. Soft washes of sage, blush and
+   butter over cream; a white picket fence with a bed of tulips, daisies,
+   lavender and hollyhocks in front of it; the story is kept in a pressed-flower
+   journal, the player's moves on wooden plant markers, and painted leaves
+   drift down over it all. */
+
+main[data-preset="garden"] {
+  --skin-band: rgba(244, 246, 234, 0.6);
+  --skin-sage: #6f9a5b;
+  --skin-sage-deep: #4e7340;
+  --skin-rose: #c9657a;
+  --skin-butter: #f6e7b0;
+  --skin-paper: #fdfaf1;
+  --skin-ink: #3b3526;
+  --skin-terracotta: #c4704a;
+  --skin-wood: #e2c9a0;
+  --skin-title: "Playfair Display", Georgia, serif;
+  --skin-text: "Lora", Georgia, serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="garden"] .game-header {
+  background:
+    radial-gradient(ellipse 40% 120% at 10% 50%, rgba(201, 101, 122, 0.12), transparent 70%),
+    radial-gradient(ellipse 40% 120% at 90% 50%, rgba(111, 154, 91, 0.16), transparent 70%),
+    #f7f3e6;
+  color: var(--skin-ink);
+  border-bottom: 1px solid rgba(111, 154, 91, 0.35);
+  box-shadow: 0 2px 8px rgba(80, 100, 60, 0.12);
+}
+
+main[data-preset="garden"] .game-title strong {
+  font: italic 700 1.3rem var(--skin-title);
+  color: var(--skin-sage-deep);
+}
+
+main[data-preset="garden"] .badge { font-family: var(--skin-text); background: rgba(111, 154, 91, 0.14); color: var(--skin-sage-deep); }
+main[data-preset="garden"] .badge[data-state="ready"] { background: var(--skin-sage); color: #ffffff; }
+
+/* Watercolour washes over cream, and the garden bed along the bottom. */
+main[data-preset="garden"] .scene-area {
+  background:
+    url("./art/garden-bed.svg") 0 100% / 600px 210px repeat-x,
+    radial-gradient(ellipse 45% 35% at 15% 20%, rgba(169, 199, 150, 0.45), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 85% 30%, rgba(236, 180, 190, 0.35), transparent 70%),
+    radial-gradient(ellipse 50% 30% at 50% 60%, rgba(246, 231, 176, 0.45), transparent 70%),
+    linear-gradient(#f4f6ea, #fbf6e8);
+}
+
+/* Painted leaves drifting down in two layers. Each tile falls exactly its own
+   height per cycle, so the loop never shows; the layer sways as it falls. */
+main[data-preset="garden"] .scene-bg::before,
+main[data-preset="garden"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background: url("./art/garden-leaves-near.svg") 0 0 / 320px 420px;
+  animation: skin-garden-fall-near 26s linear infinite, skin-garden-sway 7s ease-in-out infinite alternate;
+}
+
+main[data-preset="garden"] .scene-bg::after {
+  background: url("./art/garden-leaves-far.svg") 90px 0 / 260px 340px;
+  opacity: 0.7;
+  animation: skin-garden-fall-far 34s linear infinite, skin-garden-sway 9s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes skin-garden-fall-near {
+  from { background-position: 0 0; }
+  to { background-position: 0 420px; }
+}
+
+@keyframes skin-garden-fall-far {
+  from { background-position: 90px 0; }
+  to { background-position: 90px 340px; }
+}
+
+@keyframes skin-garden-sway {
+  from { transform: translateX(-18px) rotate(-1deg); }
+  to { transform: translateX(18px) rotate(1deg); }
+}
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="garden"] .system-message {
+  background: var(--skin-paper);
+  border: 1px dashed rgba(111, 154, 91, 0.5);
+  color: var(--skin-sage-deep);
+  font: italic 400 0.95rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="garden"] .standing-image img {
+  padding: 5px;
+  background: #ffffff;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(111, 154, 91, 0.45), 0 8px 18px rgba(80, 90, 50, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="garden"] .scene-bg::before,
+  main[data-preset="garden"] .scene-bg::after { animation: none; }
+}
+
+main[data-preset="garden"] .statusbar {
+  background: #f1ecdb;
+  border-bottom: 1px solid rgba(111, 154, 91, 0.3);
+}
+
+/* Terracotta labels, the kind hung on flower pots. */
+main[data-preset="garden"] .field {
+  background: linear-gradient(rgba(255, 255, 255, 0.15), transparent), var(--skin-terracotta);
+  border: 0;
+  border-radius: 3px 3px 12px 12px;
+  box-shadow: inset 0 -2px 0 rgba(90, 40, 20, 0.25), 0 3px 6px rgba(90, 50, 30, 0.25);
+}
+
+main[data-preset="garden"] .field::before { content: none; }
+main[data-preset="garden"] .field-name { font: italic 600 0.85rem var(--skin-title); color: #fbe6d6; letter-spacing: 0.02em; text-transform: none; }
+main[data-preset="garden"] .field-value { font: 600 1rem var(--skin-text); color: #ffffff; }
+
+/* ── The pressed-flower journal ─────────────────────────────────────── */
+
+main[data-preset="garden"] .game-scene {
+  background:
+    radial-gradient(ellipse at 100% 100%, rgba(169, 199, 150, 0.14), transparent 50%),
+    var(--skin-paper);
+  border: 0;
+  border-radius: 4px;
+  padding: 2.4rem 2.6rem 2.3rem;
+  /* A botanical double rule inside the edge. */
+  outline: 1px solid rgba(111, 154, 91, 0.45);
+  outline-offset: -8px;
+  box-shadow: inset 0 0 0 11px var(--skin-paper), inset 0 0 0 12px rgba(111, 154, 91, 0.25), 0 10px 24px rgba(80, 90, 50, 0.18);
+}
+
+main[data-preset="garden"] .narrative {
+  font: 400 1.08rem/1.8 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="garden"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.1em 0 0;
+  font: italic 700 3.2em/0.85 var(--skin-title);
+  color: var(--skin-rose);
+}
+
+main[data-preset="garden"] .corner { color: var(--skin-sage); opacity: 0.7; }
+main[data-preset="garden"] .corner.tl { top: 16px; left: 18px; }
+
+/* A pressed sprig in the lower right of each page. */
+main[data-preset="garden"] .game-scene .corner.br {
+  display: block !important;
+  right: 14px;
+  bottom: 12px;
+  width: 58px;
+  height: 58px;
+  background: url("./art/garden-sprig.svg") center / contain no-repeat;
+  opacity: 0.9;
+}
+
+main[data-preset="garden"] .game-scene .corner.br::before { content: none !important; }
+
+/* The picture mounted on white card with a sage line round it. */
+main[data-preset="garden"] .scene-image {
+  overflow: visible;
+  padding: 5px;
+  background: #ffffff;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(111, 154, 91, 0.45), 0 8px 18px rgba(80, 90, 50, 0.22);
+}
+
+main[data-preset="garden"] .scene-image img { border-radius: 1px; }
+main[data-preset="garden"] .scene-image::before { content: none; }
+main[data-preset="garden"] .scene-image::after { inset: 5px; border-radius: 1px; box-shadow: inset 0 0 18px rgba(60, 70, 30, 0.12); }
+
+main[data-preset="garden"] .game-scene.streaming .narrative::after {
+  content: "❀";
+  color: var(--skin-rose);
+  animation: typing-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── A flowering sprig between pages ────────────────────────────────── */
+
+main[data-preset="garden"] .divider::before,
+main[data-preset="garden"] .divider::after {
+  height: 1px;
+  max-width: 110px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, rgba(111, 154, 91, 0.6));
+}
+
+main[data-preset="garden"] .divider::after { background: linear-gradient(90deg, rgba(111, 154, 91, 0.6), transparent); }
+
+main[data-preset="garden"] .divider-symbol {
+  width: 110px;
+  height: 28px;
+  opacity: 1;
+  background: url("./art/garden-vine.svg") center / contain no-repeat;
+}
+
+main[data-preset="garden"] .divider-symbol::before { content: none; }
+
+/* ── The player: a wooden plant marker ──────────────────────────────── */
+
+main[data-preset="garden"] .bubble {
+  padding: 0.6rem 1.8rem 0.6rem 1rem;
+  background:
+    repeating-linear-gradient(92deg, rgba(120, 80, 40, 0.06) 0 2px, transparent 2px 9px),
+    linear-gradient(rgba(255, 255, 255, 0.25), transparent),
+    var(--skin-wood);
+  color: #3f2d18;
+  border: 0;
+  border-radius: 3px 0 0 3px;
+  font: italic 400 1.05rem var(--skin-text);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+  box-shadow: none;
+}
+
+main[data-preset="garden"] .player-action { filter: drop-shadow(0 4px 5px rgba(80, 60, 30, 0.3)); }
+
+main[data-preset="garden"] .bubble::before {
+  content: "✿";
+  color: var(--skin-sage-deep);
+  font: 1rem serif;
+  text-shadow: none;
+}
+
+main[data-preset="garden"] .typing {
+  background: var(--skin-paper);
+  color: var(--skin-sage-deep);
+  border: 1px solid rgba(111, 154, 91, 0.35);
+  border-radius: 4px;
+  font: italic 600 1.05rem var(--skin-title);
+  box-shadow: 0 8px 18px rgba(80, 90, 50, 0.15);
+}
+
+/* Buds opening for the thinking dots. */
+main[data-preset="garden"] .dots i { background: var(--skin-rose); }
+main[data-preset="garden"] .dots i:nth-child(2) { background: #f2b705; }
+main[data-preset="garden"] .dots i:nth-child(3) { background: #9b7fd1; }
+
+main[data-preset="garden"] .inline-input {
+  background: var(--skin-paper);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 4px;
+  outline: 1px solid rgba(111, 154, 91, 0.45);
+  outline-offset: -7px;
+  box-shadow: 0 10px 24px rgba(80, 90, 50, 0.2);
+}
+
+main[data-preset="garden"] .input-wrap input {
+  font: italic 400 1.05rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 1px solid rgba(111, 154, 91, 0.4);
+}
+
+main[data-preset="garden"] .input-wrap input:focus { border-color: var(--skin-sage); box-shadow: 0 0 0 3px rgba(111, 154, 91, 0.18); }
+main[data-preset="garden"] .send { background: var(--skin-sage); color: #ffffff; border: 0; }
+main[data-preset="garden"] .send:hover:not([disabled]) { background: var(--skin-sage-deep); }
+main[data-preset="garden"] .icon-button { color: var(--skin-sage-deep); }

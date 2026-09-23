@@ -18,6 +18,12 @@ function token(name: string, fallback: string): string {
   return value || fallback;
 }
 
+/**
+ * Every class a selection puts on, cleared together: a stale mark from the last
+ * selection is worse than none, because it reads as part of this one.
+ */
+const MARKS = "selected incident into outOf";
+
 export type NodeClickHandler = (name: string) => void;
 export type BackgroundClickHandler = () => void;
 export type EdgeClickHandler = (from: string, to: string, kind: string) => void;
@@ -56,6 +62,8 @@ export class Flowchart {
     const live = token("--live", "#2f7d5a");
     const liveSoft = token("--live-soft", "#d9ece2");
     const recent = token("--recent", "#9ec9b4");
+    const into = token("--wire-in", "#16a34a");
+    const outOf = token("--wire-out", "#dc2626");
 
     this.#cy = cytoscape({
       container: this.container,
@@ -83,7 +91,7 @@ export class Flowchart {
           style: {
             label: "data(label)",
             "font-size": 9,
-            "font-family": "ui-sans-serif, system-ui, sans-serif",
+            "font-family": "Inter, system-ui, -apple-system, sans-serif",
             color: fg,
             "text-valign": "center",
             "text-halign": "center",
@@ -162,6 +170,20 @@ export class Flowchart {
           selector: "edge.incident",
           style: { "line-color": fg, "target-arrow-color": fg, width: 2, color: fg },
         },
+        // Selecting a block asks what reaches it and what it feeds, which are
+        // different questions with the same answer shape. Colouring them apart
+        // means the direction is read off the picture rather than off the
+        // arrowheads, which at this size are two pixels of difference.
+        //
+        // From the block's own point of view: what comes in, and what goes out.
+        {
+          selector: "edge.into",
+          style: { "line-color": into, "target-arrow-color": into, width: 2, color: into },
+        },
+        {
+          selector: "edge.outOf",
+          style: { "line-color": outOf, "target-arrow-color": outOf, width: 2, color: outOf },
+        },
       ],
       layout: {
         name: "dagre",
@@ -192,22 +214,72 @@ export class Flowchart {
       this.select(null);
       this.onBackgroundClick();
     });
-    this.#cy.fit(undefined, 12);
+    const cy = this.#cy;
+    this.#fit();
+    cy.on("viewport", () => this.#contain());
+
+    // The box changes size when the page stacks or the host resizes the iframe,
+    // and a layout fitted to the old box would sit small in a corner of the new.
+    new ResizeObserver(() => {
+      cy.resize();
+      this.#fit();
+    }).observe(this.container);
   }
 
-  /** Marks one block and the edges touching it, or clears the marking. */
+  /**
+   * Fits the whole graph into the box, and makes that the furthest a reader can
+   * zoom out: any further only shrinks the graph into empty space.
+   */
+  #fit(): void {
+    const cy = this.#cy;
+    if (!cy) return;
+    cy.minZoom(1e-50);
+    cy.fit(undefined, Flowchart.heading);
+    cy.minZoom(cy.zoom());
+    cy.maxZoom(Math.max(cy.zoom(), 3));
+  }
+
+  /**
+   * Keeps the graph in view. While it fits the box it cannot be pushed past an
+   * edge; once zoomed larger than the box, the box always stays covered.
+   */
+  #contain(): void {
+    const cy = this.#cy;
+    if (!cy) return;
+    const box = cy.elements().renderedBoundingBox();
+    const m = Flowchart.margin;
+    const dx = shift(box.x1, box.x2, cy.width(), m, m);
+    const dy = shift(box.y1, box.y2, cy.height(), Flowchart.heading, m);
+    // The correction fires another viewport event, which then finds nothing
+    // left to correct.
+    if (dx || dy) cy.panBy({ x: dx, y: dy });
+  }
+
+  static readonly margin = 12;
+  /** Room at the top for the heading laid over the box. */
+  static readonly heading = 32;
+
+  /**
+   * Marks one block and the wires touching it, or clears the marking.
+   *
+   * The two directions are marked apart, and from the block's own point of
+   * view: what reaches it, and what it feeds. On a graph with a cycle in it —
+   * the observer's correction runs back into the character — that is the
+   * difference between reading the loop and guessing at it.
+   */
   select(name: string | null): void {
     const cy = this.#cy;
     if (!cy) return;
 
     cy.batch(() => {
-      cy.elements().removeClass("selected incident");
+      cy.elements().removeClass(MARKS);
       if (!name) return;
 
       const node = cy.getElementById(name);
       if (node.empty()) return;
       node.addClass("selected");
-      node.connectedEdges().addClass("incident");
+      node.incomers("edge").addClass("into");
+      node.outgoers("edge").addClass("outOf");
     });
   }
 
@@ -217,7 +289,7 @@ export class Flowchart {
     if (!cy) return;
 
     cy.batch(() => {
-      cy.elements().removeClass("selected incident");
+      cy.elements().removeClass(MARKS);
       const edge = cy.getElementById(id);
       if (edge.empty()) return;
       edge.addClass("incident");
@@ -266,6 +338,19 @@ export class Flowchart {
       }, Flowchart.afterglowMs),
     );
   }
+}
+
+/**
+ * How far to move a span [low, high] so it stays within [0, size], keeping
+ * `lead` clear before it and `trail` after it.
+ */
+function shift(low: number, high: number, size: number, lead: number, trail: number): number {
+  const fits = high - low <= size - lead - trail;
+  // A span that fits must stay inside the margins; one that does not must keep
+  // them covered.
+  if (fits ? low < lead : low > lead) return lead - low;
+  if (fits ? high > size - trail : high < size - trail) return size - trail - high;
+  return 0;
 }
 
 /** Cost is an estimate from a hand-maintained table, so it is shown coarsely. */

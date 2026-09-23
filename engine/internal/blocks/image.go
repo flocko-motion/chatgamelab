@@ -61,7 +61,7 @@ func (b *Image) Start(ctx context.Context) {
 				}
 
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				data, used, err := b.image.Generate(ctx, prompt)
+				data, used, err := b.image.Generate(ctx, adapters.ImageRequest{Prompt: prompt})
 				if err == nil {
 					b.report(used)
 					b.out.Send(ports.ImageData(data))

@@ -15,20 +15,24 @@ import (
 // Image generates one picture. Like the other adapters here it follows the
 // documented request shape but has not been run against the API.
 type Image struct {
-	keys   adapters.KeyFunc
-	model  string
-	client *http.Client
+	keys    adapters.KeyFunc
+	model   string
+	quality string
+	size    string
+	client  *http.Client
 }
 
-func NewImage(keys adapters.KeyFunc, model string) *Image {
+func NewImage(keys adapters.KeyFunc, model, quality, size string) *Image {
 	return &Image{
-		keys:   keys,
-		model:  model,
-		client: &http.Client{Timeout: 120 * time.Second},
+		keys:    keys,
+		model:   model,
+		quality: quality,
+		size:    size,
+		client:  &http.Client{Timeout: 120 * time.Second},
 	}
 }
 
-func (i *Image) Generate(ctx context.Context, prompt string) ([]byte, adapters.Usage, error) {
+func (i *Image) Generate(ctx context.Context, ask adapters.ImageRequest) ([]byte, adapters.Usage, error) {
 	used := adapters.Usage{Model: i.model}
 
 	key, err := i.keys(ctx)
@@ -36,11 +40,21 @@ func (i *Image) Generate(ctx context.Context, prompt string) ([]byte, adapters.U
 		return nil, used, fmt.Errorf("resolve api key: %w", err)
 	}
 
-	body, err := json.Marshal(map[string]any{
+	// Anything left empty is left out, so the provider's own default applies
+	// rather than this adapter inventing one.
+	request := map[string]any{
 		"model":  i.model,
-		"prompt": prompt,
+		"prompt": ask.Prompt,
 		"n":      1,
-	})
+	}
+	if i.size != "" {
+		request["size"] = i.size
+	}
+	if i.quality != "" {
+		request["quality"] = i.quality
+	}
+
+	body, err := json.Marshal(request)
 	if err != nil {
 		return nil, used, err
 	}

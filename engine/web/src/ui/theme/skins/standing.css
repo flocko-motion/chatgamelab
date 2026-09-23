@@ -1,0 +1,20 @@
+/* The band that holds a game's one standing picture, in every skin.
+
+   It carries no surface of its own. The scene's background runs the full height
+   of the area behind it, and anything painted here — a tint, a frosted pane —
+   cuts that scenery off in a strip across the top, which reads as the
+   background starting below the picture rather than continuing behind it.
+
+   Nothing is lost by leaving it bare: what hides the story sliding underneath
+   is the mask on .scene-scroll, not a surface over the top of it. The pane was
+   decoration, and the decoration was the thing that looked broken.
+
+   --skin-band survives in the skins that define it, for whatever wants a tinted
+   strip somewhere this is not. */
+main[data-preset] .standing-image {
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+main[data-preset] .standing-image img { box-sizing: border-box; }

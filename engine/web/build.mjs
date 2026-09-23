@@ -18,6 +18,11 @@ await build({
   outdir: "dist",
   bundle: true,
   format: "esm",
+  // A dynamic import becomes its own chunk, so a heavy renderer only a few
+  // themes use loads when one of them does. Chunk names carry no hash:
+  // dist/ is committed, and a hash would rename the file on every rebuild.
+  splitting: true,
+  chunkNames: "chunks/[name]",
   target: "es2022",
   // Sourcemaps only for a debugging build. dist/ is committed so the Go module
   // builds without a JavaScript toolchain, and committing a map that changes on
@@ -30,5 +35,19 @@ await build({
   logLevel: "info",
 });
 
+// The stylesheet is bundled so each part of the page can keep its own file and
+// @import it; the page still loads one.
+await build({
+  entryPoints: { styles: "src/ui/styles.css" },
+  outdir: "dist",
+  bundle: true,
+  // Fonts and skin art are copied next to the page under their own names,
+  // without a hash for the same reason as the chunks, so art files need names
+  // unique across skins.
+  loader: { ".woff2": "file", ".svg": "file" },
+  assetNames: "assets/[name]",
+  minify: process.env.DEV !== "1",
+  logLevel: "info",
+});
+
 await cp("src/ui/index.html", "dist/index.html");
-await cp("src/ui/styles.css", "dist/styles.css");

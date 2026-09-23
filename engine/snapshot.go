@@ -18,6 +18,14 @@ type Snapshot struct {
 	// Props are the status values a genre tracks.
 	Props map[string]string `json:"props"`
 	Usage UsageReport       `json:"usage"`
+	// Conversation is where a live genre's conversation stands: waiting to be
+	// opened, running, or let go. Empty for a genre that holds none.
+	//
+	// It is here rather than on the stream because it is the one thing a
+	// reloading page cannot be shown: the invitation to connect was sent while
+	// that page did not exist, and a live connection cannot be replayed. A page
+	// that is not told sits waiting for a moment that has already passed.
+	Conversation string `json:"conversation,omitempty"`
 }
 
 // recorder keeps what a reloading client will ask for. The engine holds it
@@ -39,7 +47,6 @@ type recorder struct {
 var historyStreams = map[string]bool{
 	"text":  true,
 	"image": true,
-	"flag":  true,
 	"props": true,
 	"error": true,
 	// Phase changes are in here for one reason: the transition back to ready is
@@ -81,7 +88,7 @@ func (r *recorder) recordProps(props map[string]string) {
 	r.props = props
 }
 
-func (r *recorder) snapshot(started bool, usage UsageReport) Snapshot {
+func (r *recorder) snapshot(started bool, usage UsageReport, conversation string) Snapshot {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -93,11 +100,20 @@ func (r *recorder) snapshot(started bool, usage UsageReport) Snapshot {
 	for key, value := range r.props {
 		props[key] = value
 	}
-	return Snapshot{Started: started, Phases: phases, Props: props, Usage: usage}
+	return Snapshot{
+		Started:      started,
+		Phases:       phases,
+		Props:        props,
+		Usage:        usage,
+		Conversation: conversation,
+	}
 }
 
 func (r *recorder) replay() []Event {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return append([]Event(nil), r.history...)
+	// Empty rather than nil: a session nobody has spoken in yet still has a
+	// history, and it is an empty one. A nil slice encodes as JSON null, which
+	// a client iterating what it was handed cannot read.
+	return append(make([]Event, 0, len(r.history)), r.history...)
 }

@@ -25,7 +25,7 @@ func TestOneOutputFeedsManyReceivers(t *testing.T) {
 
 	sinks := make([]*blocks.PlayerOutputText, receivers)
 	for i := range sinks {
-		sinks[i] = blocks.NewPlayerOutputText(fmt.Sprintf("sink-%d", i))
+		sinks[i] = blocks.NewPlayerOutputText(fmt.Sprintf("sink-%d", i), "text")
 		g.ConnectTextOut(src, sinks[i])
 	}
 
@@ -34,7 +34,7 @@ func TestOneOutputFeedsManyReceivers(t *testing.T) {
 	for i, sink := range sinks {
 		for _, want := range lines {
 			select {
-			case got := <-sink.Seen:
+			case got := <-sink.Arrivals():
 				if got != want {
 					t.Fatalf("sink %d: got %q, want %q", i, got, want)
 				}
@@ -56,8 +56,8 @@ func TestIntervalSourceFansOut(t *testing.T) {
 		Interval: 10 * time.Millisecond,
 		Repeat:   true,
 	})
-	a := blocks.NewPlayerOutputText("a")
-	b := blocks.NewPlayerOutputText("b")
+	a := blocks.NewPlayerOutputText("a", "text")
+	b := blocks.NewPlayerOutputText("b", "text")
 	g.ConnectTextOut(src, a)
 	g.ConnectTextOut(src, b)
 	g.Start(ctx)
@@ -65,7 +65,7 @@ func TestIntervalSourceFansOut(t *testing.T) {
 	for _, sink := range []*blocks.PlayerOutputText{a, b} {
 		for i := 0; i < 3; i++ {
 			select {
-			case <-sink.Seen:
+			case <-sink.Arrivals():
 			case <-time.After(2 * time.Second):
 				t.Fatalf("%s stopped receiving at %d", sink.NodeName(), i)
 			}

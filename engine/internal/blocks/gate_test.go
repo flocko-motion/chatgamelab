@@ -24,7 +24,7 @@ func TestGateWaitsForEveryReportingBlock(t *testing.T) {
 	secondPrompt := blocks.NewOnceText("second-prompt", "b")
 	first := blocks.NewImage("first", slowImage{delay: 60 * time.Millisecond})
 	second := blocks.NewImage("second", slowImage{delay: 180 * time.Millisecond})
-	sink := blocks.NewPlayerOutputImage("out-image")
+	sink := blocks.NewPlayerOutputImage("out-image", "image")
 
 	g.ConnectTextOut(firstPrompt, first)
 	g.ConnectTextOut(secondPrompt, second)
@@ -76,7 +76,7 @@ func TestFailedBlockStillReturnsToReady(t *testing.T) {
 	gate := blocks.NewGate("start-game", "")
 	prompt := blocks.NewOnceText("prompt", "a")
 	broken := blocks.NewImage("broken", failingImage{})
-	sink := blocks.NewPlayerOutputImage("out-image")
+	sink := blocks.NewPlayerOutputImage("out-image", "image")
 
 	g.ConnectTextOut(prompt, broken)
 	g.ConnectImageOut(broken, sink)
@@ -92,18 +92,18 @@ func TestFailedBlockStillReturnsToReady(t *testing.T) {
 
 type slowImage struct{ delay time.Duration }
 
-func (s slowImage) Generate(ctx context.Context, prompt string) ([]byte, adapters.Usage, error) {
+func (s slowImage) Generate(ctx context.Context, ask adapters.ImageRequest) ([]byte, adapters.Usage, error) {
 	select {
 	case <-time.After(s.delay):
 	case <-ctx.Done():
 		return nil, adapters.Usage{}, ctx.Err()
 	}
-	return mock.Image{}.Generate(ctx, prompt)
+	return mock.Image{}.Generate(ctx, ask)
 }
 
 type failingImage struct{}
 
-func (failingImage) Generate(context.Context, string) ([]byte, adapters.Usage, error) {
+func (failingImage) Generate(context.Context, adapters.ImageRequest) ([]byte, adapters.Usage, error) {
 	return nil, adapters.Usage{}, errNoImage
 }
 

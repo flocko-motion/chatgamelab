@@ -104,11 +104,15 @@ export class Details {
   #renderSession(state: PlayerState): void {
     const usage = state.usage;
     if (!usage) {
-      this.body.replaceChildren(text("p", "meta", "nothing spent yet"));
+      this.body.replaceChildren(
+        text("p", "meta", "nothing spent yet"),
+        );
       return;
     }
 
-    const rows = usage.byModel.flatMap((record) => [
+    // Go encodes an empty slice as null, which a session that has spent nothing
+    // yet reports.
+    const rows = (usage.byModel ?? []).flatMap((record) => [
       text("span", "k", record.model),
       text("span", "v", `${amount(record)} · ${money(record.cost)}`),
     ]);
@@ -120,7 +124,10 @@ export class Details {
     list.className = "kv";
     list.append(...rows, label, total);
 
-    this.body.replaceChildren(list, text("p", "meta", "Click a block to read what it did."));
+    this.body.replaceChildren(
+      list,
+      text("p", "meta", "Click a block to read what it did."),
+    );
   }
 
   async #renderNode(name: string): Promise<void> {

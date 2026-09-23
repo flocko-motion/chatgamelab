@@ -1,0 +1,270 @@
+/* Fairy: a glade in the forest by moonlight. A pale moon with its halo, mist
+   drifting between dark trees and toadstools with glowing spots; the story
+   floats on dark glass with a vine along its edge, and fairy lights hang
+   between the scenes. The glowworms are the preset's own. */
+
+main[data-preset="fairy"] {
+  --skin-band: rgba(5, 15, 20, 0.5);
+  --skin-glow: #7dffb0;
+  --skin-glow-soft: rgba(125, 255, 176, 0.35);
+  --skin-leaf: #2f9e6a;
+  --skin-moon: #eef7e8;
+  --skin-ink: #e7f6ec;
+  --skin-mute: #9cc9b0;
+  --skin-glass: rgba(8, 26, 22, 0.86);
+  --skin-title: "Cinzel Decorative", "Cinzel", serif;
+  --skin-text: "Cormorant Garamond", "EB Garamond", Georgia, serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="fairy"] .game-header {
+  background: linear-gradient(#081a16, #0a211b);
+  color: var(--skin-ink);
+  border-bottom: 1px solid rgba(125, 255, 176, 0.25);
+  box-shadow: 0 2px 18px rgba(125, 255, 176, 0.12);
+}
+
+main[data-preset="fairy"] .game-title strong {
+  font: 700 1.1rem var(--skin-title);
+  letter-spacing: 0.06em;
+  color: #d9ffe8;
+  text-shadow: 0 0 10px var(--skin-glow-soft), 0 0 2px var(--skin-glow);
+}
+
+main[data-preset="fairy"] .badge { font-family: var(--skin-text); font-weight: 600; background: rgba(125, 255, 176, 0.1); color: var(--skin-mute); }
+main[data-preset="fairy"] .badge[data-state="ready"] { background: rgba(125, 255, 176, 0.18); color: var(--skin-glow); box-shadow: 0 0 10px var(--skin-glow-soft); }
+
+/* Night over the glade: the moon and its halo, the forest in silhouette. */
+main[data-preset="fairy"] .scene-area {
+  background:
+    url("./art/fairy-forest.svg") 0 100% / 600px 260px repeat-x,
+    radial-gradient(circle at 90% 7%, var(--skin-moon) 0 30px, rgba(238, 247, 232, 0.3) 32px, rgba(160, 230, 200, 0.1) 80px, transparent 160px),
+    radial-gradient(ellipse at 50% 100%, rgba(40, 110, 80, 0.45), transparent 65%),
+    linear-gradient(#050f14 0%, #0a1f22 50%, #0d2a24 100%);
+}
+
+/* Mist, in two banks drifting slowly past each other. */
+main[data-preset="fairy"] .scene-bg::before,
+main[data-preset="fairy"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  height: 45%;
+  bottom: 8%;
+  background:
+    radial-gradient(ellipse 30% 40% at 25% 60%, rgba(200, 240, 220, 0.14), transparent 70%),
+    radial-gradient(ellipse 35% 35% at 70% 50%, rgba(200, 240, 220, 0.1), transparent 70%);
+  animation: skin-fairy-mist 38s ease-in-out infinite alternate;
+}
+
+main[data-preset="fairy"] .scene-bg::after {
+  bottom: 22%;
+  animation-duration: 52s;
+  animation-direction: alternate-reverse;
+  opacity: 0.8;
+}
+
+@keyframes skin-fairy-mist {
+  from { transform: translateX(-6%); }
+  to { transform: translateX(6%); }
+}
+
+main[data-preset="fairy"] .statusbar {
+  background: rgba(8, 26, 22, 0.9);
+  border-bottom: 1px solid rgba(125, 255, 176, 0.18);
+}
+
+main[data-preset="fairy"] .field {
+  padding-left: 1.6rem;
+  background: rgba(125, 255, 176, 0.06);
+  border: 1px solid rgba(125, 255, 176, 0.3);
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(125, 255, 176, 0.08);
+}
+
+/* A little leaf in front of each field. */
+main[data-preset="fairy"] .field::before {
+  left: 0.65rem;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 0 60% 0 60%;
+  background: var(--skin-leaf);
+  box-shadow: 0 0 6px var(--skin-glow-soft);
+}
+
+main[data-preset="fairy"] .field-name { font: 600 0.8rem var(--skin-text); color: var(--skin-mute); letter-spacing: 0.1em; }
+main[data-preset="fairy"] .field-value { font: 600 1.1rem var(--skin-text); color: #d9ffe8; }
+
+/* ── Glass with a vine ──────────────────────────────────────────────── */
+
+main[data-preset="fairy"] .game-scene {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(125, 255, 176, 0.08), transparent 60%),
+    var(--skin-glass);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(125, 255, 176, 0.32);
+  border-radius: 18px;
+  padding: 2.5rem 2.5rem 2.1rem;
+  box-shadow: 0 0 22px rgba(125, 255, 176, 0.1), 0 16px 32px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="fairy"] .game-scene::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 18px;
+  right: 18px;
+  height: 26px;
+  background: url("./art/fairy-vine.svg") 0 0 / 240px 26px repeat-x;
+  filter: drop-shadow(0 0 3px rgba(125, 255, 176, 0.35));
+  pointer-events: none;
+}
+
+main[data-preset="fairy"] .narrative {
+  font: 500 1.24rem/1.7 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="fairy"][data-drop-cap] .narrative::first-letter {
+  margin: 0.04em 0.12em 0 0;
+  font: 700 3.2em/0.85 var(--skin-title);
+  color: var(--skin-glow);
+  text-shadow: 0 0 12px rgba(125, 255, 176, 0.7), 0 0 2px #ffffff;
+}
+
+main[data-preset="fairy"] .corner { color: var(--skin-leaf); opacity: 0.8; }
+main[data-preset="fairy"] .corner.tl { top: 30px; }
+
+main[data-preset="fairy"] .scene-image {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1.5px rgba(125, 255, 176, 0.55), 0 0 18px rgba(125, 255, 176, 0.25), 0 12px 24px rgba(0, 0, 0, 0.5);
+  margin: 2px;
+}
+
+main[data-preset="fairy"] .scene-image::before { border-radius: 12px; border-color: rgba(200, 255, 225, 0.2); }
+main[data-preset="fairy"] .scene-image::after { border-radius: 14px; box-shadow: inset 0 0 30px rgba(5, 20, 15, 0.45); }
+main[data-preset="fairy"] .scene-image:hover { box-shadow: 0 0 0 1.5px var(--skin-glow), 0 0 26px rgba(125, 255, 176, 0.45); }
+
+main[data-preset="fairy"] .game-scene.streaming .narrative::after {
+  content: "✧";
+  color: var(--skin-glow);
+  text-shadow: 0 0 8px var(--skin-glow);
+  animation: typing-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Fairy lights between the scenes ────────────────────────────────── */
+
+main[data-preset="fairy"] .divider::before,
+main[data-preset="fairy"] .divider::after {
+  height: 30px;
+  max-width: 160px;
+  opacity: 1;
+  background: url("./art/fairy-lights.svg") center / 160px 30px no-repeat;
+  animation: skin-fairy-twinkle 3s ease-in-out infinite;
+}
+
+main[data-preset="fairy"] .divider::after { animation-delay: -1.5s; }
+
+@keyframes skin-fairy-twinkle {
+  0%, 100% { opacity: 0.55; filter: drop-shadow(0 0 2px var(--skin-glow-soft)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 6px var(--skin-glow)); }
+}
+
+main[data-preset="fairy"] .divider-symbol { color: var(--skin-glow); opacity: 1; text-shadow: 0 0 8px var(--skin-glow); }
+main[data-preset="fairy"] .divider-symbol::before { content: "✦"; }
+
+/* ── The player: a firefly's light ──────────────────────────────────── */
+
+main[data-preset="fairy"] .bubble {
+  background: radial-gradient(ellipse at 0% 50%, rgba(125, 255, 176, 0.2), transparent 70%), rgba(8, 26, 22, 0.85);
+  color: #d9ffe8;
+  border: 1px solid rgba(125, 255, 176, 0.45);
+  border-radius: 18px 18px 4px 18px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 0 16px rgba(125, 255, 176, 0.18);
+}
+
+main[data-preset="fairy"] .bubble::before {
+  content: "✧";
+  color: var(--skin-glow);
+  font: 1rem serif;
+  text-shadow: 0 0 8px var(--skin-glow);
+}
+
+main[data-preset="fairy"] .typing {
+  background: var(--skin-glass);
+  backdrop-filter: blur(6px);
+  color: var(--skin-mute);
+  border: 1px solid rgba(125, 255, 176, 0.25);
+  border-radius: 18px;
+  font: italic 500 1.12rem var(--skin-text);
+  box-shadow: 0 0 18px rgba(125, 255, 176, 0.08);
+}
+
+/* Fireflies for the thinking dots, drifting as they glow. */
+main[data-preset="fairy"] .dots i {
+  width: 6px;
+  height: 6px;
+  background: var(--skin-glow);
+  box-shadow: 0 0 8px var(--skin-glow), 0 0 14px var(--skin-glow-soft);
+  animation: skin-fairy-firefly 2.2s ease-in-out infinite;
+}
+
+main[data-preset="fairy"] .dots i:nth-child(2) { animation-delay: 0.4s; }
+main[data-preset="fairy"] .dots i:nth-child(3) { animation-delay: 0.8s; }
+
+@keyframes skin-fairy-firefly {
+  0%, 100% { opacity: 0.25; transform: translate(0, 0); }
+  50% { opacity: 1; transform: translate(1px, -4px); }
+}
+
+main[data-preset="fairy"] .inline-input {
+  background: rgba(8, 26, 22, 0.94);
+  color: var(--skin-ink);
+  border: 1px solid rgba(125, 255, 176, 0.32);
+  border-radius: 18px;
+  box-shadow: 0 0 22px rgba(125, 255, 176, 0.1), 0 16px 32px rgba(0, 0, 0, 0.45);
+}
+
+main[data-preset="fairy"] .input-wrap input {
+  font: 500 1.15rem var(--skin-text);
+  color: var(--skin-ink);
+  background: rgba(125, 255, 176, 0.05);
+  border: 1px solid rgba(125, 255, 176, 0.28);
+}
+
+main[data-preset="fairy"] .input-wrap input::placeholder { color: var(--skin-mute); font-style: italic; opacity: 0.8; }
+main[data-preset="fairy"] .input-wrap input:focus { border-color: var(--skin-glow); box-shadow: 0 0 10px var(--skin-glow-soft); }
+main[data-preset="fairy"] .send { background: rgba(125, 255, 176, 0.2); color: var(--skin-glow); border: 1px solid rgba(125, 255, 176, 0.5); }
+main[data-preset="fairy"] .send:hover:not([disabled]) { background: rgba(125, 255, 176, 0.35); }
+main[data-preset="fairy"] .icon-button { color: var(--skin-mute); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="fairy"] .system-message {
+  background: rgba(8, 26, 22, 0.85);
+  border: 1px dashed rgba(125, 255, 176, 0.35);
+  color: var(--skin-mute);
+  font: italic 500 1rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="fairy"] .standing-image img {
+  border-radius: 14px;
+  box-shadow: 0 0 0 1.5px rgba(125, 255, 176, 0.55), 0 0 18px rgba(125, 255, 176, 0.25), 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="fairy"] .scene-bg::before,
+  main[data-preset="fairy"] .scene-bg::after,
+  main[data-preset="fairy"] .divider::before,
+  main[data-preset="fairy"] .divider::after,
+  main[data-preset="fairy"] .dots i { animation: none; }
+}

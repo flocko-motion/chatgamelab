@@ -1,0 +1,266 @@
+/* Nautical: a harbour on a bright day, as a yacht club would print it. A
+   lighthouse on the headland sweeps its beam over the water, sailboats sit on
+   the horizon, gulls wheel and the sea rolls in. The story is set on white
+   sailcloth panels piped in navy, a string of signal flags hangs from the
+   header, and a rope with an anchor marks each passage. */
+
+main[data-preset="nautical"] {
+  --skin-band: rgba(220, 236, 245, 0.55);
+  --skin-navy: #1f3a5a;
+  --skin-navy-deep: #152a44;
+  --skin-red: #c8323c;
+  --skin-sail: #fbf9f4;
+  --skin-brass: #c79a45;
+  --skin-sea: #3f7fa8;
+  --skin-ink: #1d2c3f;
+  --skin-label: "Oswald", "Alegreya Sans SC", sans-serif;
+  --skin-text: "Lora", Georgia, serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="nautical"] .game-header {
+  position: relative;
+  background: var(--skin-navy);
+  color: var(--skin-sail);
+  box-shadow: none;
+  border-bottom: 3px solid var(--skin-red);
+}
+
+/* One short string of signal flags hung from the header's right end. */
+main[data-preset="nautical"] .game-header::after {
+  content: "";
+  position: absolute;
+  right: 1rem;
+  bottom: -17px;
+  width: 135px;
+  height: 14px;
+  background: url("./art/nautical-flags.svg") 0 0 / 105px 14px no-repeat;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+main[data-preset="nautical"] .game-title strong {
+  font: 600 1.1rem var(--skin-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+main[data-preset="nautical"] .badge { font-family: var(--skin-label); background: rgba(255, 255, 255, 0.14); color: var(--skin-sail); }
+main[data-preset="nautical"] .badge[data-state="ready"] { background: var(--skin-red); color: #ffffff; }
+
+/* A clear sky over the water, the headland and its lighthouse, boats far off. */
+main[data-preset="nautical"] .scene-area {
+  background:
+    url("./art/nautical-boats.svg") 0 calc(100% - 131px) / 600px 60px repeat-x,
+    linear-gradient(transparent calc(100% - 150px), #5d9cc4 calc(100% - 150px), #3f7fa8),
+    radial-gradient(ellipse 50% 30% at 80% 10%, rgba(255, 255, 255, 0.6), transparent 70%),
+    linear-gradient(#bfe0f2, #e5f2f8 60%, #d7ebf4);
+}
+
+/* The lighthouse beam, sweeping back and forth from the lamp room. */
+@property --skin-beam {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 40deg;
+}
+
+main[data-preset="nautical"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from calc(var(--skin-beam) - 6deg) at 70px calc(100% - 229px), transparent 0deg, rgba(255, 244, 200, 0.45) 5deg, rgba(255, 244, 200, 0.45) 7deg, transparent 12deg);
+  animation: skin-nautical-beam 9s ease-in-out infinite alternate;
+}
+
+@keyframes skin-nautical-beam {
+  from { --skin-beam: 68deg; }
+  to { --skin-beam: 104deg; }
+}
+
+/* The sea rolling in just below the horizon, the boats riding above it and
+   the lighthouse standing in front; the waves move a whole tile per cycle. */
+main[data-preset="nautical"] .scene-area::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 300px;
+  background:
+    url("./art/nautical-lighthouse.svg") left 0 bottom 0 / 200px 300px no-repeat,
+    url("./art/nautical-waves.svg") 0 150px / 240px 60px repeat-x;
+  pointer-events: none;
+  animation: skin-nautical-roll 9s linear infinite;
+}
+
+@keyframes skin-nautical-roll {
+  from { background-position: left 0 bottom 0, 0 150px; }
+  to { background-position: left 0 bottom 0, 240px 150px; }
+}
+
+/* Gulls riding the wind over the harbour, each on its own path, flapping and
+   gliding in turn; the animation lives in the drawing itself. */
+main[data-preset="nautical"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  left: 0;
+  width: 900px;
+  height: 200px;
+  background: url("./art/nautical-gulls.svg") 0 0 / 900px 200px no-repeat;
+  opacity: 0.8;
+}
+
+main[data-preset="nautical"] .statusbar {
+  background: #f4f8fb;
+  border-bottom: 1px solid rgba(31, 58, 90, 0.15);
+}
+
+/* Instruments on the chart table: white dials ringed in brass. */
+main[data-preset="nautical"] .field {
+  background: #ffffff;
+  border: 2px solid var(--skin-brass);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 3px rgba(31, 58, 90, 0.25), 0 2px 5px rgba(20, 40, 60, 0.2);
+}
+
+main[data-preset="nautical"] .field::before { content: none; }
+main[data-preset="nautical"] .field-name { font: 500 0.72rem var(--skin-label); color: var(--skin-sea); letter-spacing: 0.1em; }
+main[data-preset="nautical"] .field-value { font: 600 1.05rem var(--skin-label); color: var(--skin-navy); }
+
+/* ── Sailcloth panels ───────────────────────────────────────────────── */
+
+main[data-preset="nautical"] .game-scene {
+  background:
+    repeating-linear-gradient(90deg, rgba(31, 58, 90, 0.025) 0 1px, transparent 1px 4px),
+    var(--skin-sail);
+  border: 0;
+  border-radius: 6px;
+  padding: 2.3rem 2.5rem 2.2rem;
+  /* Navy piping inside the edge. */
+  outline: 1.5px solid var(--skin-navy);
+  outline-offset: -6px;
+  box-shadow: 0 10px 24px rgba(20, 40, 60, 0.25);
+}
+
+main[data-preset="nautical"] .narrative {
+  font: 400 1.08rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="nautical"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.1em 0 0;
+  font: 600 3em/0.9 var(--skin-label);
+  color: var(--skin-red);
+}
+
+main[data-preset="nautical"] .corner { color: var(--skin-navy); opacity: 0.6; }
+main[data-preset="nautical"] .corner.tl { top: 20px; }
+
+main[data-preset="nautical"] .scene-image {
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--skin-navy), 0 0 0 4px var(--skin-sail), 0 0 0 5px var(--skin-brass), 0 8px 16px rgba(20, 40, 60, 0.25);
+  margin: 5px;
+}
+
+main[data-preset="nautical"] .scene-image::before { border-radius: 2px; }
+main[data-preset="nautical"] .scene-image::after { border-radius: 4px; }
+
+main[data-preset="nautical"] .game-scene.streaming .narrative::after { color: var(--skin-red); }
+
+/* ── An anchor between the panels ───────────────────────────────────── */
+
+main[data-preset="nautical"] .divider::before,
+main[data-preset="nautical"] .divider::after {
+  height: 6px;
+  max-width: 120px;
+  opacity: 1;
+  background: url("./art/nautical-rope.svg") 0 0 / 15px 6px repeat-x;
+}
+
+main[data-preset="nautical"] .divider-symbol {
+  width: 26px;
+  height: 30px;
+  opacity: 1;
+  background: url("./art/nautical-anchor.svg") center / contain no-repeat;
+}
+
+main[data-preset="nautical"] .divider-symbol::before { content: none; }
+
+/* ── The player: a navy pennant ─────────────────────────────────────── */
+
+main[data-preset="nautical"] .bubble {
+  padding: 0.6rem 1.2rem 0.6rem 1rem;
+  background: var(--skin-navy);
+  color: #ffffff;
+  border: 0;
+  border-radius: 4px;
+  font: 500 0.98rem var(--skin-label);
+  letter-spacing: 0.03em;
+  box-shadow: inset 4px 0 0 var(--skin-red), 0 6px 14px rgba(20, 40, 60, 0.3);
+}
+
+main[data-preset="nautical"] .bubble::before { content: "⚓"; color: var(--skin-brass); font: 0.95rem serif; text-shadow: none; }
+
+main[data-preset="nautical"] .typing {
+  background: var(--skin-sail);
+  color: var(--skin-navy);
+  border: 0;
+  border-radius: 6px;
+  outline: 1.5px solid var(--skin-navy);
+  outline-offset: -5px;
+  font: italic 400 1.02rem var(--skin-text);
+}
+
+main[data-preset="nautical"] .dots i { background: var(--skin-navy); }
+main[data-preset="nautical"] .dots i:nth-child(2) { background: var(--skin-red); }
+main[data-preset="nautical"] .dots i:nth-child(3) { background: var(--skin-brass); }
+
+main[data-preset="nautical"] .inline-input {
+  background: var(--skin-sail);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 6px;
+  outline: 1.5px solid var(--skin-navy);
+  outline-offset: -6px;
+  box-shadow: 0 10px 24px rgba(20, 40, 60, 0.28);
+}
+
+main[data-preset="nautical"] .input-wrap input {
+  font: 400 1.04rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 1.5px solid rgba(31, 58, 90, 0.35);
+}
+
+main[data-preset="nautical"] .input-wrap input:focus { border-color: var(--skin-navy); }
+main[data-preset="nautical"] .send { background: var(--skin-red); color: #ffffff; border: 0; }
+main[data-preset="nautical"] .icon-button { color: var(--skin-navy); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="nautical"] .system-message {
+  background: rgba(251, 249, 244, 0.9);
+  border: 1.5px dashed var(--skin-navy);
+  color: var(--skin-navy);
+  font: 500 0.9rem var(--skin-label);
+  font-style: normal;
+  letter-spacing: 0.03em;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="nautical"] .standing-image img {
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--skin-navy), 0 0 0 4px var(--skin-sail), 0 0 0 5px var(--skin-brass), 0 8px 16px rgba(20, 40, 60, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="nautical"] .scene-bg::before,
+  main[data-preset="nautical"] .scene-area::before { animation: none; }
+  main[data-preset="nautical"] .scene-bg::after { display: none; }
+}

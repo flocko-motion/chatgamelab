@@ -2,12 +2,12 @@
 # so its build and test commands live with it rather than in the root Makefile.
 
 .PHONY: help all build test race vet fmt check run dev describe tidy clean \
-        web web-dev web-deps web-toolchain web-clean protocol protocol-check
+        port-free web web-dev web-deps web-toolchain web-clean protocol protocol-check
 
 # A bare `make` explains itself rather than doing something unasked.
 .DEFAULT_GOAL := help
 
-SPEC ?= examples/npc-live-mock.json
+SPEC ?= examples/bridge-keeper-mock.json
 ADDR ?= :8080
 
 help: ## List the targets worth knowing about
@@ -17,13 +17,13 @@ help: ## List the targets worth knowing about
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z0-9_-]+:.*?## / {printf "  \033[1m%-16s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo
 	@echo "Variables:"
-	@echo "  SPEC=<file>      session spec to run          (default: $(SPEC))"
+	@echo "  SPEC=<file>      the game to run              (default: $(SPEC))"
 	@echo "  ADDR=<addr>      listen address               (default: $(ADDR))"
 	@echo
 	@echo "Examples:"
 	@echo "  make dev                                  play against the mock platform, no key needed"
-	@echo "  make dev SPEC=examples/npc-live.json      play against OpenAI, key from --api-key or ~/.chatgamelab/config.yaml"
-	@echo "  make describe SPEC=examples/adventure.json   print a genre's wiring and exit"
+	@echo "  make dev SPEC=examples/stopped-clock.json    play against OpenAI, key from --api-key or ~/.chatgamelab/config.yaml"
+	@echo "  make describe SPEC=examples/bridge-quest.json  print a genre's wiring and exit"
 
 all: check
 
@@ -46,14 +46,45 @@ fmt: ## Format the Go sources in place
 
 # --- Running ----------------------------------------------------------------
 
-dev: web ## Build the player, then serve it with a session ready to play
-	@echo
-	@echo "  player  http://localhost$(ADDR)/player/"
-	@echo
+dev: web port-free ## Build the player, then serve it with a session ready to play
 	@go run ./cmd/engineserver -addr $(ADDR) $(SPEC)
 
-run: ## Serve a session without rebuilding the player
-	go run ./cmd/engineserver -addr $(ADDR) $(SPEC)
+run: port-free ## Serve a session without rebuilding the player
+	@go run ./cmd/engineserver -addr $(ADDR) $(SPEC)
+
+# The port is usually held by a server from the last run, so the useful thing is
+# to say which one and offer to end it — rather than fail with an errno and
+# leave somebody to find the process themselves.
+PORT = $(lastword $(subst :, ,$(ADDR)))
+
+port-free: ## Report whatever holds the dev port, and offer to end it
+	@pids=`lsof -ti tcp:$(PORT) -sTCP:LISTEN 2>/dev/null`; \
+	if [ -z "$$pids" ]; then exit 0; fi; \
+	echo "Port $(PORT) is already in use by:"; \
+	ps -o pid=,etime=,command= -p $$pids 2>/dev/null | cut -c1-110 | sed 's/^/  /'; \
+	echo; \
+	if [ ! -t 0 ]; then \
+		echo "Nothing was asked, because this is not a terminal. Free it, or pass ADDR=:8081." >&2; \
+		exit 1; \
+	fi; \
+	printf "Stop it and carry on? [y/N] "; \
+	read -r reply; \
+	case "$$reply" in \
+		[yY]*) ;; \
+		*) echo "Left running. Pass ADDR=:8081 to use another port." >&2; exit 1 ;; \
+	esac; \
+	kill $$pids 2>/dev/null; \
+	for _ in 1 2 3 4 5 6 7 8 9 10; do \
+		sleep 0.2; \
+		still=`lsof -ti tcp:$(PORT) -sTCP:LISTEN 2>/dev/null`; \
+		[ -z "$$still" ] && break; \
+	done; \
+	still=`lsof -ti tcp:$(PORT) -sTCP:LISTEN 2>/dev/null`; \
+	if [ -n "$$still" ]; then \
+		echo "Asked it to stop and it has not; killing outright." >&2; \
+		kill -9 $$still 2>/dev/null; \
+		sleep 0.3; \
+	fi
 
 describe: ## Print a genre's wiring and exit
 	@go run ./cmd/engineserver -describe $(SPEC)

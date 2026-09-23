@@ -15,19 +15,26 @@ import (
 
 // recorder is the shared body of every sink: buffer in, readable log out.
 type recorder struct {
-	name string
-	Seen ports.TextInput
+	name   string
+	stream string
+	seen   ports.TextInput
 }
 
-func newRecorder(name string) recorder {
-	return recorder{name: name, Seen: make(ports.TextInput, 256)}
+func newRecorder(name, stream string) recorder {
+	return recorder{name: name, stream: stream, seen: make(ports.TextInput, 256)}
 }
 
 func (r *recorder) NodeName() string { return r.name }
 
+// Stream names this sink on the wire, and is set where the node is built so the
+// two cannot be given different answers.
+func (r *recorder) Stream() string { return r.stream }
+
+func (r *recorder) Arrivals() chan string { return r.seen }
+
 func (r *recorder) record(ctx context.Context, v string) bool {
 	select {
-	case r.Seen <- v:
+	case r.seen <- v:
 		return true
 	case <-ctx.Done():
 		return false
@@ -39,8 +46,8 @@ type PlayerOutputText struct {
 	in ports.TextInput
 }
 
-func NewPlayerOutputText(name string) *PlayerOutputText {
-	return &PlayerOutputText{recorder: newRecorder(name), in: make(ports.TextInput, 64)}
+func NewPlayerOutputText(name, stream string) *PlayerOutputText {
+	return &PlayerOutputText{recorder: newRecorder(name, stream), in: make(ports.TextInput, 64)}
 }
 
 func (b *PlayerOutputText) TextInPort() chan<- string    { return b.in }
@@ -61,8 +68,8 @@ type PlayerOutputAudio struct {
 	in ports.AudioInput
 }
 
-func NewPlayerOutputAudio(name string) *PlayerOutputAudio {
-	return &PlayerOutputAudio{recorder: newRecorder(name), in: make(ports.AudioInput, 64)}
+func NewPlayerOutputAudio(name, stream string) *PlayerOutputAudio {
+	return &PlayerOutputAudio{recorder: newRecorder(name, stream), in: make(ports.AudioInput, 64)}
 }
 
 func (b *PlayerOutputAudio) AudioInPort() chan<- ports.AudioChunk { return b.in }
@@ -83,8 +90,8 @@ type PlayerOutputImage struct {
 	in ports.ImageInput
 }
 
-func NewPlayerOutputImage(name string) *PlayerOutputImage {
-	return &PlayerOutputImage{recorder: newRecorder(name), in: make(ports.ImageInput, 64)}
+func NewPlayerOutputImage(name, stream string) *PlayerOutputImage {
+	return &PlayerOutputImage{recorder: newRecorder(name, stream), in: make(ports.ImageInput, 64)}
 }
 
 func (b *PlayerOutputImage) ImageInPort() chan<- ports.ImageData { return b.in }
@@ -118,8 +125,8 @@ type PlayerOutputProps struct {
 	in ports.PropsInput
 }
 
-func NewPlayerOutputProps(name string) *PlayerOutputProps {
-	return &PlayerOutputProps{recorder: newRecorder(name), in: make(ports.PropsInput, 64)}
+func NewPlayerOutputProps(name, stream string) *PlayerOutputProps {
+	return &PlayerOutputProps{recorder: newRecorder(name, stream), in: make(ports.PropsInput, 64)}
 }
 
 func (b *PlayerOutputProps) PropsInPort() chan<- ports.PropMap { return b.in }

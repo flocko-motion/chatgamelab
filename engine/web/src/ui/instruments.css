@@ -1,0 +1,116 @@
+/* ── Instrumentation ──────────────────────────────────────────────────── */
+
+aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  padding: 1rem;
+  background: var(--panel);
+  border-left: 1px solid var(--gray-2);
+  color: var(--gray-7);
+  font-size: 0.8125rem;
+  /* The column itself does not scroll: the graph must stay in view while the
+     panel beneath it is read, so each half is given its own room and the detail
+     scrolls inside its own box. */
+  overflow: hidden;
+}
+
+aside > section {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1px solid var(--gray-2);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* The graph fills its card edge to edge, so the card's border is the only edge
+   it is clipped at. A clip inside the card would cut nodes off at a line
+   nobody can see. */
+aside > section:first-child {
+  position: relative;
+  flex: 1 1 55%;
+  min-height: 12rem;
+  padding: 0;
+  overflow: hidden;
+}
+
+aside > section:first-child h2 {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 1;
+  pointer-events: none;
+}
+aside > section:last-child { flex: 1 1 45%; }
+
+@media (max-width: 60rem) {
+  aside { border-left: none; border-top: 1px solid var(--gray-2); max-height: 45vh; }
+}
+
+aside h2 {
+  margin: 0 0 0.5rem;
+  color: var(--gray-6);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* A canvas has no intrinsic size, so the graph is given a box to draw into. */
+#graph {
+  flex: 1;
+  min-height: 10rem;
+  /* Contained on purpose: the renderer positions its canvases absolutely, so
+     without this they spill past the box and sit on top of what follows. */
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* No column gap: the total's rule runs across both cells without a break. */
+.kv { display: grid; grid-template-columns: auto 1fr; row-gap: 0.2rem; }
+.kv .k { color: var(--dim); padding-right: 0.75rem; }
+.kv .v { text-align: right; font-variant-numeric: tabular-nums; color: var(--gray-9); }
+
+.total { border-top: 1px solid var(--gray-2); margin-top: 0.35rem; padding-top: 0.35rem; font-weight: 600; }
+
+/* Fixed width comes from the column, so switching between the session's
+   figures and one block's never reflows the graph above it. */
+#details {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: 0.35rem;
+  scrollbar-width: thin;
+}
+
+#details h4 {
+  margin: 0.9rem 0 0.35rem;
+  color: var(--gray-6);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+#details .meta { margin: 0.6rem 0 0; }
+
+.meta { color: var(--dim); font-size: 0.8125rem; }
+
+.sample {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--gray-0);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.sample-kind { color: var(--dim); font-size: 0.6875rem; }
+.sample-value { white-space: pre-wrap; word-break: break-word; color: var(--gray-9); }

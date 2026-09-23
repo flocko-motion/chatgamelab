@@ -1,0 +1,789 @@
+/* The game half, ported from the platform's player
+   (game-player-v2/components/GamePlayer.module.css). Every colour, font and
+   border comes from a --game-* property the theme sets on <main>; each has the
+   default theme's value as its fallback. Choices that are not colours travel
+   as attributes on <main> (data-corners, data-drop-cap, ...) or as strings in
+   custom properties read by `content`, so switching theme restyles the feed
+   without rebuilding it. */
+
+main {
+  /* Dimmed backgrounds: a soft grey the tint is laid over. */
+  --game-bg-dim: #e8e8ec;
+  --game-bg-status: #e2e2e8;
+  /* The input bar's one height, set by the tallest thing it ever holds: the
+     microphone, which is the whole control in a voice genre. */
+  --bar-height: 5.25rem;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--game-bg-dim);
+  font-family: var(--platform-font);
+  touch-action: manipulation;
+  /* Cards stack by the width of this half, which a viewport query cannot see. */
+  container-type: inline-size;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.game-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--game-header-bg, #ffffff);
+  color: var(--game-header-font, #1a1a2e);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  z-index: 2;
+}
+
+.game-title { min-width: 0; flex: 1; }
+
+.game-title strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-tools { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.game-tools select {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  opacity: 0.75;
+}
+
+.game-tools select option { color: #1a1a2e; background: #ffffff; }
+
+.badge {
+  padding: 0 0.5rem;
+  line-height: 1.25rem;
+  border-radius: 2rem;
+  background: rgba(127, 127, 127, 0.15);
+  color: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge[data-state="ready"] { background: var(--game-header-accent, #475569); color: var(--game-header-bg, #ffffff); }
+.badge[data-state="failed"], .badge[data-state="closed"] { background: #fee2e2; color: #b91c1c; }
+
+/* ── Status bar ─────────────────────────────────────────────────────── */
+
+.statusbar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  overflow-x: auto;
+  background:
+    linear-gradient(var(--game-bg-tint, transparent), var(--game-bg-tint, transparent)),
+    var(--game-bg-status);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-corner-color, rgba(0, 0, 0, 0.2)) transparent;
+}
+
+.statusbar[hidden] { display: none; }
+
+.field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  white-space: nowrap;
+  padding: 0.625rem 1rem;
+  background: var(--game-status-bg, rgba(255, 255, 255, 0.7));
+  border: 1px solid var(--game-status-border, rgba(0, 0, 0, 0.1));
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+}
+
+.field::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  width: 3px;
+  height: 60%;
+  background: var(--game-status-accent, var(--game-corner-color));
+  border-radius: 0 2px 2px 0;
+}
+
+.field-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--game-status-font, #475569);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.field-emoji { font-size: 0.875rem; text-transform: none; }
+.field-value { color: var(--game-status-font, #0f172a); font-weight: 700; }
+
+.field.changed { animation: field-pulse 2s ease-out; }
+.field.changed .field-value { animation: value-pulse 2s ease-out; }
+
+@keyframes field-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--game-status-accent, #d97706); }
+  30% { transform: scale(1.5); box-shadow: 0 0 12px 4px var(--game-status-accent, #d97706); }
+  60% { transform: scale(1.04); box-shadow: 0 0 8px 2px var(--game-status-accent, #d97706); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 transparent; }
+}
+
+@keyframes value-pulse {
+  0% { transform: scale(1); color: var(--game-status-accent, #d97706); text-shadow: 0 0 8px var(--game-status-accent, #d97706); }
+  30% { transform: scale(2); color: var(--game-status-accent, #d97706); text-shadow: 0 0 12px var(--game-status-accent, #d97706); }
+  60% { transform: scale(1.2); text-shadow: 0 0 4px var(--game-status-accent, #d97706); }
+  100% { transform: scale(1); color: var(--game-status-font, #0f172a); text-shadow: none; }
+}
+
+/* ── Scene area: a fixed background layer under a scrolling story ───── */
+
+.scene-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background-color: var(--game-bg-tint, transparent);
+}
+
+.scene-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-scroll {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: var(--game-corner-color, rgba(255, 255, 255, 0.3)) transparent;
+}
+
+.scenes {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 900px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.feed { display: flex; flex-direction: column; gap: 2rem; }
+.feed:empty { display: none; }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Scene card ─────────────────────────────────────────────────────── */
+
+.scene-card {
+  animation: card-enter 0.4s ease-out both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scene-card:hover { transform: translateY(-2px); }
+
+.game-scene {
+  position: relative;
+  display: flex;
+  gap: 1.25rem;
+  padding: 2rem;
+  background: var(--game-ai-bg, #ffffff);
+  border: var(--game-border-width, 1px) solid var(--game-ai-border-color, #e2e8f0);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.game-scene.with-image { padding: 1.25rem; }
+
+.scene-image {
+  position: relative;
+  flex-shrink: 0;
+  width: 280px;
+  height: 280px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: zoom-in;
+  background: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* A frame inside the picture, and a soft vignette over it. */
+.scene-image::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  z-index: 1;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(var(--radius-md) - 2px);
+  pointer-events: none;
+}
+
+.scene-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.scene-image:hover {
+  transform: scale(1.03) rotate(0.5deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 2px var(--game-image-highlight, var(--game-ai-border-color));
+}
+
+.scene-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: image-reveal 0.5s ease-out both;
+}
+
+@keyframes image-reveal {
+  from { opacity: 0; transform: scale(1.05); filter: blur(4px); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.narrative {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--game-message-font, inherit);
+  font-size: var(--game-font-size, 1rem);
+  line-height: 1.8;
+  color: var(--game-ai-font-color, #1a1a2e);
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: text-reveal 0.6s ease-out both;
+}
+
+@keyframes text-reveal { from { opacity: 0; } to { opacity: 1; } }
+
+main[data-drop-cap] .narrative::first-letter {
+  float: left;
+  font-size: 3.2em;
+  line-height: 0.85;
+  font-weight: 700;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--game-drop-cap-color, #7c3aed);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+@container (max-width: 40rem) {
+  .game-scene { flex-direction: column; }
+  .scene-image { width: 100%; height: 200px; }
+}
+
+/* The cursor trailing a line still being spoken, in the theme's shape. */
+.game-scene.streaming .narrative::after {
+  content: var(--game-streaming-cursor, "•••");
+  margin-left: 0.3em;
+  font-weight: normal;
+  letter-spacing: 2px;
+  animation: cursor-blink 1s step-end infinite;
+}
+
+main[data-cursor="dots"] .game-scene.streaming .narrative::after {
+  animation: typing-pulse 1.4s ease-in-out infinite;
+}
+
+main[data-cursor="none"] .game-scene.streaming .narrative::after { content: none; }
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ── Corner decorations ─────────────────────────────────────────────── */
+
+.corner {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--game-corner-color, #475569);
+  border-color: var(--game-corner-color, #475569);
+}
+
+.corner.tl { top: 8px; left: 8px; }
+.corner.tr { top: 8px; right: 8px; }
+.corner.bl { bottom: 8px; left: 8px; }
+.corner.br { bottom: 8px; right: 8px; }
+
+main[data-corner-tl] .corner.tl,
+main[data-corner-tr] .corner.tr,
+main[data-corner-bl] .corner.bl,
+main[data-corner-br] .corner.br { display: block; }
+
+main[data-corners="none"] .corner { display: none !important; }
+main[data-corner-blink] .corner { animation: cursor-blink 1s step-end infinite; }
+
+main[data-corners="brackets"] .corner {
+  width: 24px;
+  height: 24px;
+  border-style: solid;
+  opacity: 0.7;
+}
+main[data-corners="brackets"] .corner.tl { border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+main[data-corners="brackets"] .corner.tr { border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+main[data-corners="brackets"] .corner.bl { border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+main[data-corners="brackets"] .corner.br { border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+main[data-corners="flourish"] .corner { font-size: 24px; line-height: 1; opacity: 0.6; }
+main[data-corners="flourish"] .corner::before { content: "❧"; }
+main[data-corners="flourish"] .corner.tr { transform: scaleX(-1); }
+main[data-corners="flourish"] .corner.bl { transform: rotate(180deg) scaleX(-1); }
+main[data-corners="flourish"] .corner.br { transform: rotate(180deg); }
+
+main[data-corners="arrows"] .corner { width: 0; height: 0; border-style: solid; opacity: 0.7; }
+main[data-corners="arrows"] .corner.tl {
+  border-width: 12px 12px 0 0;
+  border-color: var(--game-corner-color, #475569) transparent transparent transparent;
+}
+main[data-corners="arrows"] .corner.tr {
+  border-width: 0 12px 12px 0;
+  border-color: transparent var(--game-corner-color, #475569) transparent transparent;
+}
+main[data-corners="arrows"] .corner.bl {
+  border-width: 12px 0 0 12px;
+  border-color: transparent transparent transparent var(--game-corner-color, #475569);
+}
+main[data-corners="arrows"] .corner.br {
+  border-width: 0 0 12px 12px;
+  border-color: transparent transparent var(--game-corner-color, #475569) transparent;
+}
+
+main[data-corners="dots"] .corner { font-size: 10px; letter-spacing: 2px; opacity: 0.6; }
+main[data-corners="dots"] .corner::before { content: "•••"; }
+main[data-corners="dots"] .corner.tr,
+main[data-corners="dots"] .corner.bl { writing-mode: vertical-rl; }
+
+main[data-corners="dot"] .corner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--game-corner-color, #475569);
+  opacity: 0.8;
+  box-shadow: 0 0 6px var(--game-corner-color, #475569);
+}
+
+main[data-corners="cursor"] .corner {
+  font: bold 18px "Courier New", Consolas, monospace;
+}
+main[data-corners="cursor"] .corner::before { content: "_"; }
+
+/* ── Divider between scenes ─────────────────────────────────────────── */
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: -1rem 0;
+  color: var(--game-divider-color, #475569);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  max-width: 100px;
+  height: 1px;
+  background: var(--game-divider-color, rgba(0, 0, 0, 0.1));
+  opacity: 0.3;
+}
+
+.divider-symbol { font-size: 0.75rem; opacity: 0.8; }
+.divider-symbol::before { content: var(--game-divider-symbol, "•"); }
+
+main[data-divider="line"] .divider::after { display: none; }
+main[data-divider="line"] .divider::before { max-width: 300px; opacity: 0.5; }
+main[data-divider="line"] .divider-symbol { display: none; }
+main[data-divider="none"] .divider { display: none; }
+
+/* ── Player action ──────────────────────────────────────────────────── */
+
+.player-action {
+  display: flex;
+  justify-content: flex-end;
+  animation: action-enter 0.2s ease-out both;
+}
+
+@keyframes action-enter {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.bubble {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  background: var(--game-player-bg, rgba(34, 211, 238, 0.1));
+  color: var(--game-player-font-color, #1a1a2e);
+  border: var(--game-border-width, 1px) solid var(--game-player-border-color, rgba(0, 0, 0, 0.2));
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: var(--game-message-font, "Courier New", Consolas, monospace);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.bubble::before {
+  content: var(--game-player-indicator, ">");
+  color: var(--game-player-color, #22d3ee);
+  font: 700 0.875rem "Courier New", Consolas, monospace;
+  text-shadow: 0 0 8px var(--game-player-color, #22d3ee);
+}
+
+main[data-indicator="none"] .bubble::before { content: none; }
+main[data-indicator-blink] .bubble::before { animation: cursor-blink 1s step-end infinite; }
+
+.bubble-text { white-space: pre-wrap; word-break: break-word; }
+
+/* ── Observer flags and system lines ────────────────────────────────── */
+
+/* A flag sits in the story because it changed the story: the reply after it
+   is the steered one. */
+.flag {
+  align-self: flex-end;
+  max-width: 80%;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #fdf2f8;
+  border: 1px solid #fbcfe8;
+  border-left: 3px solid var(--flag);
+  border-radius: var(--radius-md);
+  color: #9d174d;
+  font-size: 0.8125rem;
+  animation: card-enter 0.3s ease-out both;
+}
+
+.flag-label {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.55rem;
+}
+
+.system-message {
+  padding: 0.75rem 1rem;
+  background: #eef2f7;
+  border: 1px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  color: #64748b;
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+  animation: card-enter 0.3s ease-out both;
+}
+
+/* ── Typing indicator ───────────────────────────────────────────────── */
+
+.typing {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--game-ai-bg-alpha, rgba(255, 255, 255, 0.95));
+  color: var(--game-ai-font-color, #1a1a2e);
+  border: var(--game-border-width, 1px) solid var(--game-ai-border-color, #475569);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  font-size: 0.875rem;
+  animation: card-enter 0.3s ease-out both;
+}
+
+.typing[hidden] { display: none; }
+
+/* A fault is not a thing that is coming, so the waiting animation goes. */
+.typing.fault .dots { display: none; }
+
+.dots { display: flex; gap: 4px; }
+
+.dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: typing-pulse 1.4s ease-in-out infinite;
+}
+
+.dots i:nth-child(2) { animation-delay: 0.2s; }
+.dots i:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Input ──────────────────────────────────────────────────────────── */
+
+/* The input is the last card in the story, directly under the latest line as
+   in the platform's player, which leaves the scenery below it in view. Once the
+   story outgrows the screen it sticks to the bottom, since a live conversation
+   takes input at any moment, not only between turns. */
+.inline-input {
+  position: sticky;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  /* One height, whatever is in it. The bar holds a text box, a microphone, or
+     a line saying why the game cannot be played, and a bar that resized itself
+     for each of those would move the conversation above it every time one
+     replaced another. */
+  height: var(--bar-height);
+  padding: 0 1.25rem;
+  background: var(--game-player-bg, rgba(255, 255, 255, 0.9));
+  color: var(--game-player-font-color, #1a1a2e);
+  font-family: var(--game-message-font, inherit);
+  border: var(--game-border-width, 2px) solid var(--game-player-color, #475569);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+/* ── The conversation's audio ───────────────────────────────────────────
+
+   One control, four states. The icon says which state the conversation is in —
+   a microphone while the character can hear you, pause bars once it has been
+   let go — so a glance answers the question a player actually has. Which state
+   is on show is the group's data-state, written by the view; everything below
+   is that one attribute deciding an icon, a colour and whether it flashes.
+
+   Big, because it is the only control a voice genre has, and because a control
+   that also reports a state has to be readable from across a classroom. */
+.audio-control {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.audio-button {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.16);
+  color: inherit;
+  cursor: pointer;
+  touch-action: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.audio-button:hover:not([disabled]) { filter: brightness(1.06); }
+.audio-button:disabled { cursor: default; }
+
+/* The two icons live in the same button and take turns, so the control keeps
+   its place in the bar rather than being replaced by another one. */
+.audio-control[data-state="live"] .icon-pause,
+.audio-control[data-state="resuming"] .icon-pause,
+.audio-control[data-state="paused"] .icon-mic,
+.audio-control[data-state="pausing"] .icon-mic { display: none; }
+
+.audio-label {
+  font-family: var(--platform-font);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0.75;
+  /* Room for the longest state ("Resuming…"), so the input beside it keeps
+     its place while the words change. */
+  min-width: 6.2em;
+}
+
+/* Live: filled, and breathing, because a conversation that is listening is
+   doing something and a still button says it has stopped. */
+.audio-control[data-state="live"] .audio-button {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+  animation: audio-listening 2.6s ease-in-out infinite;
+}
+
+/* Let go: filled the other way rather than dimmed, so the two states are told
+   apart by which one is lit and not by how bright it is. */
+.audio-control[data-state="paused"] .audio-button {
+  background: #1f2937;
+  border-color: #1f2937;
+  color: #ffffff;
+}
+
+/* The transitions flash, and last until the far end says the change happened:
+   letting a session go and building a new connection are both round trips, and
+   a control that arrives at the far state early would be reporting something
+   that has not occurred. */
+.audio-control[data-state="pausing"] .audio-button,
+.audio-control[data-state="resuming"] .audio-button {
+  /* A third colour, so a glance mid-transition lands on neither of the two
+     states it is between. */
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+  animation: audio-flash 0.7s ease-in-out infinite;
+}
+
+.audio-control[data-state="pausing"] .audio-label,
+.audio-control[data-state="resuming"] .audio-label { opacity: 1; }
+
+@keyframes audio-listening {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.45); }
+  50% { box-shadow: 0 0 0 9px rgba(22, 163, 74, 0); }
+}
+
+@keyframes audio-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* A reason the game cannot be played is content of the bar, in the place the
+   controls would be — not a second bar taking the first one's turn. The bar is
+   one shape whatever it holds, and a message that brought its own would move
+   the conversation above it every time the connection hiccuped. */
+.notice {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--platform-font);
+  font-size: 0.9375rem;
+  text-align: center;
+  overflow: hidden;
+}
+
+.send svg, .audio-button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Larger than the send arrow beside it: this one is read as much as pressed. */
+.audio-button svg { width: 28px; height: 28px; }
+
+/* Solid, where the microphone is drawn in line. Two stroked bars grow by half
+   the stroke on each side and meet in the middle, and the gap between them is
+   the whole glyph. */
+.audio-button .icon-pause {
+  fill: currentColor;
+  stroke: none;
+}
+
+.input-wrap { position: relative; flex: 1; display: flex; }
+
+.input-wrap input {
+  flex: 1;
+  min-width: 0;
+  height: 2.625rem;
+  padding: 0 2.75rem 0 1rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--game-font-size, 1rem);
+  border: 1px solid var(--game-player-border-color, #94a3b8);
+  border-radius: 2rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-wrap input::placeholder { color: inherit; opacity: 0.6; }
+.input-wrap input:focus { border-color: var(--game-corner-color, #475569); }
+
+.send {
+  position: absolute;
+  right: 0.4375rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  background: var(--game-player-bg, #ffffff);
+  color: var(--game-player-font-color, #1a1a2e);
+  border: 1px solid var(--game-player-border-color, var(--game-player-color));
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.send svg { width: 14px; height: 14px; fill: currentColor; }
+.send:hover:not([disabled]) { background: var(--game-player-color, #475569); }
+
+/* ── Lightbox ───────────────────────────────────────────────────────── */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: zoom-out;
+  animation: fade-in 0.2s ease-out;
+}
+
+.lightbox[hidden] { display: none; }
+
+.lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  animation: lightbox-zoom 0.2s ease-out;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lightbox-zoom { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }

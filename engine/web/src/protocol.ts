@@ -11,9 +11,10 @@ export type StreamName =
   | "audio"
   | "image"
   | "props"
-  | "flag"
   | "state"
   | "usage"
+  | "connect"
+  | "pause"
   | "error"
   ;
 

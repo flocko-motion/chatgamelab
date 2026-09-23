@@ -25,3 +25,6 @@ server/cgl
 
 # Claude Code per-user local settings — not for the repo
 .claude/settings.local.json
+
+# Claude Code agent worktrees — checkouts of this repo, not for the repo
+.claude/worktrees/

@@ -1,0 +1,275 @@
+/* Desert: golden hour over the dunes. The sky fades from pale gold to
+   apricot above three ridges of sand; the story is carved on sandstone
+   tablets banded with a woven kilim border, and turquoise, the colour of
+   water, marks the player. The sun is the preset's own. */
+
+main[data-preset="desert"] {
+  --skin-band: rgba(251, 224, 166, 0.5);
+  --skin-sand: #f1dcae;
+  --skin-stone: #e8cf9b;
+  --skin-ochre: #c7853b;
+  --skin-terracotta: #b0502b;
+  --skin-turquoise: #1f8a86;
+  --skin-turquoise-deep: #155f5c;
+  --skin-ink: #3e2614;
+  --skin-title: "Marcellus", "Alegreya", serif;
+  --skin-text: "Alegreya", Georgia, serif;
+  /* Grain in the stone, so the tablets are not flat colour. */
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0 0.12 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* A woven zigzag, terracotta on sand. */
+  --skin-kilim:
+    linear-gradient(135deg, var(--skin-terracotta) 25%, transparent 25%) -6px 0 / 12px 12px,
+    linear-gradient(225deg, var(--skin-terracotta) 25%, transparent 25%) -6px 0 / 12px 12px,
+    linear-gradient(315deg, var(--skin-terracotta) 25%, transparent 25%) 0 0 / 12px 12px,
+    linear-gradient(45deg, var(--skin-terracotta) 25%, transparent 25%) 0 0 / 12px 12px,
+    var(--skin-sand);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="desert"] .game-header {
+  position: relative;
+  background: linear-gradient(#b85a30, #9c4524);
+  color: #fbe9c6;
+  border-bottom: 0;
+  box-shadow: 0 3px 10px rgba(90, 40, 10, 0.35);
+}
+
+main[data-preset="desert"] .game-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  background: var(--skin-kilim);
+  background-size: 12px 12px;
+  box-shadow: 0 2px 0 var(--skin-turquoise);
+}
+
+main[data-preset="desert"] .game-title strong {
+  font: 400 1.15rem var(--skin-title);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(60, 20, 5, 0.5);
+}
+
+main[data-preset="desert"] .badge { font-family: var(--skin-title); letter-spacing: 0.08em; }
+main[data-preset="desert"] .badge[data-state="ready"] { background: var(--skin-turquoise); color: #fbe9c6; }
+
+/* The sky over the dunes. */
+main[data-preset="desert"] .scene-area {
+  background:
+    url("./art/desert-dunes.svg") 0 100% / 800px 220px repeat-x,
+    linear-gradient(#fdf3d6 0%, #fbe0a6 45%, #f6b56b 78%, #ef9a52 100%);
+}
+
+/* Heat rising off the sand: a band of haze over the horizon that breathes. */
+main[data-preset="desert"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 120px;
+  height: 90px;
+  background: linear-gradient(transparent, rgba(255, 244, 220, 0.55), transparent);
+  filter: blur(6px);
+  animation: skin-desert-haze 6s ease-in-out infinite;
+}
+
+@keyframes skin-desert-haze {
+  0%, 100% { opacity: 0.35; transform: scaleY(1); }
+  50% { opacity: 0.8; transform: scaleY(1.25) translateY(-6px); }
+}
+
+main[data-preset="desert"] .statusbar {
+  background: linear-gradient(#f3d9a3, #edc98a);
+  border-bottom: 1px solid rgba(176, 80, 43, 0.35);
+  padding-top: 1rem;
+}
+
+/* Small sandstone tiles with a turquoise inlay. */
+main[data-preset="desert"] .field {
+  background: var(--skin-grain), var(--skin-stone);
+  border: 1px solid rgba(120, 70, 30, 0.35);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 2px 4px rgba(90, 40, 10, 0.25);
+}
+
+main[data-preset="desert"] .field::before {
+  left: 7px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 0;
+  background: var(--skin-turquoise);
+}
+
+main[data-preset="desert"] .field { padding-left: 1.4rem; }
+main[data-preset="desert"] .field-name { font-family: var(--skin-title); color: var(--skin-terracotta); letter-spacing: 0.08em; }
+main[data-preset="desert"] .field-value { font: 700 1.05rem var(--skin-text); color: var(--skin-ink); }
+
+/* ── Sandstone tablets ──────────────────────────────────────────────── */
+
+main[data-preset="desert"] .game-scene {
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255, 250, 235, 0.6), transparent 70%),
+    var(--skin-grain),
+    var(--skin-sand);
+  border: 0;
+  border-radius: 6px;
+  padding: 2.5rem 2.5rem 2.1rem;
+  /* Carved: a light top edge, a shadowed bottom, a soft inner chisel line. */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    inset 0 -3px 0 rgba(120, 70, 30, 0.18),
+    0 1px 0 #c9a068,
+    0 12px 24px rgba(110, 50, 15, 0.3);
+}
+
+/* The woven band across the top of each tablet. */
+main[data-preset="desert"] .game-scene::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--skin-kilim);
+  background-size: 12px 12px;
+  box-shadow: 0 2px 0 var(--skin-turquoise);
+  border-radius: 6px 6px 0 0;
+}
+
+main[data-preset="desert"] .narrative {
+  font: 400 1.14rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="desert"] .corner { color: var(--skin-terracotta); border-color: var(--skin-terracotta); }
+main[data-preset="desert"] .corner.tl { top: 18px; }
+
+main[data-preset="desert"] .scene-image {
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--skin-sand), 0 0 0 4px var(--skin-terracotta), 0 10px 20px rgba(110, 50, 15, 0.35);
+  margin: 4px;
+}
+
+main[data-preset="desert"] .scene-image::before { border-radius: 2px; border-color: rgba(255, 244, 220, 0.35); }
+main[data-preset="desert"] .scene-image::after { border-radius: 4px; }
+main[data-preset="desert"] .scene-image img { filter: saturate(1.05) sepia(0.08); }
+
+main[data-preset="desert"] .game-scene.streaming .narrative::after {
+  content: "☼";
+  color: #e8862e;
+  animation: typing-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── The sun going down behind a dune, between tablets ──────────────── */
+
+main[data-preset="desert"] .divider::before,
+main[data-preset="desert"] .divider::after {
+  height: 2px;
+  max-width: 130px;
+  opacity: 0.8;
+  background: linear-gradient(90deg, transparent, var(--skin-ochre));
+}
+
+main[data-preset="desert"] .divider::after { background: linear-gradient(90deg, var(--skin-ochre), transparent); }
+
+main[data-preset="desert"] .divider-symbol {
+  width: 64px;
+  height: 30px;
+  opacity: 1;
+  background: url("./art/desert-oasis.svg") center / contain no-repeat;
+}
+
+main[data-preset="desert"] .divider-symbol::before { content: none; }
+
+/* ── The player: turquoise, the colour of water ─────────────────────── */
+
+main[data-preset="desert"] .bubble {
+  background: linear-gradient(rgba(255, 255, 255, 0.12), transparent), var(--skin-turquoise);
+  color: #fdf1d6;
+  border: 0;
+  border-radius: 4px;
+  font: italic 400 1.05rem var(--skin-text);
+  box-shadow: inset 0 -2px 0 var(--skin-turquoise-deep), 0 6px 14px rgba(20, 70, 70, 0.35);
+}
+
+main[data-preset="desert"] .bubble::before {
+  content: "›";
+  color: var(--skin-sand);
+  font: 700 1.1rem var(--skin-title);
+  text-shadow: none;
+}
+
+/* The thinking line shimmers like air over hot sand. */
+main[data-preset="desert"] .typing {
+  background: var(--skin-grain), var(--skin-sand);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 6px;
+  font: italic 400 1.08rem var(--skin-text);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45), 0 8px 18px rgba(110, 50, 15, 0.28);
+}
+
+main[data-preset="desert"] .typing #thinking-text { display: inline-block; animation: skin-desert-shimmer 2.4s ease-in-out infinite; }
+
+@keyframes skin-desert-shimmer {
+  0%, 100% { transform: skewX(0) translateY(0); filter: blur(0); }
+  30% { transform: skewX(-3deg) translateY(-1px); filter: blur(0.3px); }
+  60% { transform: skewX(2deg) translateY(0.5px); filter: blur(0.2px); }
+}
+
+main[data-preset="desert"] .dots i { background: var(--skin-ochre); border-radius: 50%; }
+
+main[data-preset="desert"] .inline-input {
+  background: var(--skin-grain), var(--skin-sand);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.45),
+    0 1px 0 #c9a068,
+    0 12px 24px rgba(110, 50, 15, 0.3);
+}
+
+main[data-preset="desert"] .input-wrap input {
+  font: 400 1.08rem var(--skin-text);
+  color: var(--skin-ink);
+  background: rgba(255, 250, 235, 0.6);
+  border: 1px solid rgba(176, 80, 43, 0.4);
+}
+
+main[data-preset="desert"] .input-wrap input::placeholder { color: var(--skin-terracotta); opacity: 0.6; }
+main[data-preset="desert"] .input-wrap input:focus { border-color: var(--skin-turquoise); }
+
+main[data-preset="desert"] .send { background: var(--skin-turquoise); color: #fdf1d6; border: 0; }
+main[data-preset="desert"] .send:hover:not([disabled]) { background: var(--skin-turquoise-deep); }
+main[data-preset="desert"] .icon-button { color: var(--skin-terracotta); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="desert"] .system-message {
+  background: rgba(241, 220, 174, 0.8);
+  border: 1px dashed rgba(176, 80, 43, 0.5);
+  color: var(--skin-ink);
+  font: italic 400 0.95rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="desert"] .standing-image img {
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--skin-sand), 0 0 0 4px var(--skin-terracotta), 0 10px 20px rgba(110, 50, 15, 0.35);
+  filter: saturate(1.05) sepia(0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="desert"] .scene-bg::after,
+  main[data-preset="desert"] .typing #thinking-text { animation: none; }
+}

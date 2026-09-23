@@ -1,0 +1,257 @@
+/* Jungle: deep in the rainforest. Great split leaves hang in from the canopy,
+   lianas trail down, ferns crowd the floor and light falls through in patches;
+   the story is written on panels framed in bamboo, and leaves drift down past
+   them. A hibiscus marks each passage. */
+
+main[data-preset="jungle"] {
+  --skin-band: rgba(20, 70, 35, 0.45);
+  --skin-leaf: #2f9e44;
+  --skin-leaf-deep: #155d27;
+  --skin-lime: #94d82d;
+  --skin-hibiscus: #e8384f;
+  --skin-mat: #f4f8e4;
+  --skin-ink: #1d2e17;
+  --skin-bamboo: url("./art/jungle-bamboo.svg") 0 0 / 140px 100% repeat-x;
+  --skin-title: "Lilita One", "Nunito", sans-serif;
+  --skin-text: "Nunito", Inter, sans-serif;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="jungle"] .game-header {
+  position: relative;
+  background: linear-gradient(#1f6f32, #185a28);
+  color: #f1fbe4;
+  border-bottom: 0;
+  box-shadow: 0 3px 10px rgba(10, 40, 15, 0.35);
+}
+
+/* A bamboo pole along the foot of the header. */
+main[data-preset="jungle"] .game-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -9px;
+  height: 9px;
+  background: var(--skin-bamboo);
+  box-shadow: 0 2px 3px rgba(10, 40, 15, 0.35);
+}
+
+main[data-preset="jungle"] .game-title strong {
+  font: 400 1.35rem var(--skin-title);
+  letter-spacing: 0.02em;
+  color: #e9fac8;
+  text-shadow: 0 2px 0 #0f4a1e;
+}
+
+main[data-preset="jungle"] .badge { font-family: var(--skin-text); font-weight: 700; background: rgba(255, 255, 255, 0.15); color: #e9fac8; }
+main[data-preset="jungle"] .badge[data-state="ready"] { background: var(--skin-lime); color: #1d3a0a; }
+
+/* The forest: canopy in the upper corners, lianas, ferns on the floor, and
+   light falling through the leaves in patches. */
+main[data-preset="jungle"] .scene-area {
+  background:
+    url("./art/jungle-canopy-left.svg") left -30px top -20px / 260px 260px no-repeat,
+    url("./art/jungle-canopy-right.svg") right -30px top -20px / 240px 240px no-repeat,
+    url("./art/jungle-vines.svg") 0 -30px / 420px 280px repeat-x,
+    url("./art/jungle-floor.svg") 0 100% / 500px 190px repeat-x,
+    radial-gradient(circle at 30% 30%, rgba(255, 250, 190, 0.22) 0 40px, transparent 90px),
+    radial-gradient(circle at 70% 55%, rgba(255, 250, 190, 0.16) 0 30px, transparent 80px),
+    radial-gradient(circle at 45% 80%, rgba(255, 250, 190, 0.14) 0 30px, transparent 70px),
+    linear-gradient(#2c7a3b, #1d5c2c 60%, #134a21);
+}
+
+/* Leaves drifting down in two layers, each tile falling exactly its height
+   per cycle; the layer sways as it falls. */
+main[data-preset="jungle"] .scene-bg::before,
+main[data-preset="jungle"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background: url("./art/jungle-leaves-near.svg") 0 0 / 320px 420px;
+  animation: skin-jungle-fall-near 22s linear infinite, skin-jungle-sway 6s ease-in-out infinite alternate;
+}
+
+main[data-preset="jungle"] .scene-bg::after {
+  background: url("./art/jungle-leaves-far.svg") 110px 0 / 260px 340px;
+  opacity: 0.75;
+  animation: skin-jungle-fall-far 30s linear infinite, skin-jungle-sway 8s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes skin-jungle-fall-near {
+  from { background-position: 0 0; }
+  to { background-position: 0 420px; }
+}
+
+@keyframes skin-jungle-fall-far {
+  from { background-position: 110px 0; }
+  to { background-position: 110px 340px; }
+}
+
+@keyframes skin-jungle-sway {
+  from { transform: translateX(-20px) rotate(-1deg); }
+  to { transform: translateX(20px) rotate(1deg); }
+}
+
+main[data-preset="jungle"] .statusbar {
+  background: #185a28;
+  border-bottom: 0;
+  padding-top: 1rem;
+}
+
+/* Status on short lengths of bamboo. */
+main[data-preset="jungle"] .field {
+  background: linear-gradient(#c9df7f, #a6c257 40%, #7d9c34);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(60, 90, 20, 0.5), 0 3px 6px rgba(10, 40, 15, 0.4);
+}
+
+main[data-preset="jungle"] .field::before { content: none; }
+main[data-preset="jungle"] .field-name { font: 700 0.72rem var(--skin-text); color: #2f4410; letter-spacing: 0.06em; }
+main[data-preset="jungle"] .field-value { font: 400 1.1rem var(--skin-title); color: #1d2e0a; }
+
+/* ── Bamboo-framed panels ───────────────────────────────────────────── */
+
+main[data-preset="jungle"] .feed { padding-top: 0.5rem; }
+
+main[data-preset="jungle"] .game-scene {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 250, 200, 0.5), transparent 60%),
+    var(--skin-mat);
+  border: 0;
+  border-radius: 6px;
+  padding: 2.6rem 2.5rem 2.5rem;
+  box-shadow: 0 14px 26px rgba(8, 30, 12, 0.45);
+}
+
+/* A bamboo pole across the top and the foot of every panel. */
+main[data-preset="jungle"] .game-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("./art/jungle-bamboo.svg") 0 0 / 140px 10px repeat-x,
+    url("./art/jungle-bamboo.svg") 50px 100% / 140px 10px repeat-x;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+main[data-preset="jungle"] .narrative {
+  font: 500 1.08rem/1.75 var(--skin-text);
+  color: var(--skin-ink);
+}
+
+main[data-preset="jungle"][data-drop-cap] .narrative::first-letter {
+  margin: 0.05em 0.1em 0 0;
+  font: 400 3em/0.9 var(--skin-title);
+  color: var(--skin-leaf);
+  text-shadow: 2px 2px 0 var(--skin-lime);
+}
+
+main[data-preset="jungle"] .corner { color: var(--skin-leaf); opacity: 0.8; }
+main[data-preset="jungle"] .corner.tl { top: 18px; }
+main[data-preset="jungle"] .corner.br { bottom: 18px; }
+
+main[data-preset="jungle"] .scene-image {
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px #9dbb4a, 0 0 0 4px #5f7f22, 0 10px 20px rgba(8, 30, 12, 0.35);
+  margin: 4px;
+}
+
+main[data-preset="jungle"] .scene-image::before { border-radius: 2px; }
+main[data-preset="jungle"] .scene-image::after { border-radius: 4px; }
+
+main[data-preset="jungle"] .game-scene.streaming .narrative::after { color: var(--skin-leaf); }
+
+/* ── A hibiscus between the panels ──────────────────────────────────── */
+
+main[data-preset="jungle"] .divider::before,
+main[data-preset="jungle"] .divider::after {
+  height: 3px;
+  max-width: 120px;
+  opacity: 1;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--skin-lime));
+}
+
+main[data-preset="jungle"] .divider::after { background: linear-gradient(90deg, var(--skin-lime), transparent); }
+
+main[data-preset="jungle"] .divider-symbol {
+  width: 34px;
+  height: 34px;
+  opacity: 1;
+  background: url("./art/jungle-hibiscus.svg") center / contain no-repeat;
+  filter: drop-shadow(0 2px 3px rgba(10, 40, 15, 0.4));
+}
+
+main[data-preset="jungle"] .divider-symbol::before { content: none; }
+
+/* ── The player: a leaf ─────────────────────────────────────────────── */
+
+main[data-preset="jungle"] .bubble {
+  background: linear-gradient(135deg, #51cf66, var(--skin-leaf));
+  color: #ffffff;
+  border: 0;
+  border-radius: 20px 4px 20px 4px;
+  font: 700 1rem var(--skin-text);
+  box-shadow: inset 0 -3px 0 rgba(10, 60, 20, 0.3), 0 6px 14px rgba(10, 40, 15, 0.4);
+}
+
+main[data-preset="jungle"] .bubble::before { content: "»"; color: #e9fac8; font: 400 1.1rem var(--skin-title); text-shadow: none; }
+
+main[data-preset="jungle"] .typing {
+  background: var(--skin-mat);
+  color: var(--skin-leaf-deep);
+  border: 0;
+  border-radius: 6px;
+  font: 400 1.05rem var(--skin-title);
+  box-shadow: 0 10px 20px rgba(8, 30, 12, 0.35);
+}
+
+main[data-preset="jungle"] .dots i { background: var(--skin-leaf); }
+main[data-preset="jungle"] .dots i:nth-child(2) { background: var(--skin-hibiscus); }
+main[data-preset="jungle"] .dots i:nth-child(3) { background: #fab005; }
+
+main[data-preset="jungle"] .inline-input {
+  background: var(--skin-mat);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 10px 0 -7px #9dbb4a, 0 14px 26px rgba(8, 30, 12, 0.45);
+}
+
+main[data-preset="jungle"] .input-wrap input {
+  font: 500 1.05rem var(--skin-text);
+  color: var(--skin-ink);
+  background: #ffffff;
+  border: 2px solid #b2d67a;
+}
+
+main[data-preset="jungle"] .input-wrap input:focus { border-color: var(--skin-leaf); }
+main[data-preset="jungle"] .send { background: var(--skin-leaf); color: #ffffff; border: 0; }
+main[data-preset="jungle"] .icon-button { color: var(--skin-leaf-deep); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="jungle"] .system-message {
+  background: rgba(244, 248, 228, 0.9);
+  border: 2px dashed var(--skin-lime);
+  color: var(--skin-leaf-deep);
+  font: 700 0.92rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="jungle"] .standing-image img {
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px #9dbb4a, 0 0 0 4px #5f7f22, 0 10px 20px rgba(8, 30, 12, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="jungle"] .scene-bg::before,
+  main[data-preset="jungle"] .scene-bg::after { animation: none; }
+}

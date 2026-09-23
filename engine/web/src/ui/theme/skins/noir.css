@@ -1,0 +1,287 @@
+/* Noir: a 1940s picture in black and white. Light falls through venetian
+   blinds in slanting bars across a smoky office, a streetlamp burns beyond the
+   rain on the window, and the whole reel flickers with grain and scratches;
+   the story comes up on intertitle cards in an art-deco border, and pictures
+   are stills from the film. */
+
+main[data-preset="noir"] {
+  --skin-band: rgba(10, 10, 10, 0.6);
+  --skin-black: #0b0b0b;
+  --skin-card: #101010;
+  --skin-silver: #e9e6df;
+  --skin-grey: #9a978f;
+  --skin-title: "Limelight", "Cinzel", serif;
+  --skin-text: "Libre Baskerville", Georgia, serif;
+  --skin-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* The deco border: a white rule, a gap, a hairline, stepped at the corners. */
+  --skin-deco:
+    0 0 0 1px var(--skin-silver),
+    0 0 0 4px var(--skin-card),
+    0 0 0 5px rgba(233, 230, 223, 0.55);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="noir"] .game-header {
+  background: #050505;
+  color: var(--skin-silver);
+  border-bottom: 1px solid rgba(233, 230, 223, 0.35);
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.8);
+}
+
+main[data-preset="noir"] .game-title strong {
+  font: 400 1.25rem var(--skin-title);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+main[data-preset="noir"] .badge { font-family: var(--skin-text); border-radius: 0; background: rgba(233, 230, 223, 0.1); color: var(--skin-grey); }
+main[data-preset="noir"] .badge[data-state="ready"] { background: var(--skin-silver); color: var(--skin-black); }
+
+/* The office: the rainy window, light through the blinds, darkness beyond. */
+main[data-preset="noir"] .scene-area {
+  background:
+    url("./art/noir-window.svg") right 6% top 8% / 170px 246px no-repeat,
+    radial-gradient(ellipse 70% 60% at 85% 20%, rgba(230, 226, 214, 0.16), transparent 70%),
+    radial-gradient(ellipse at 50% 50%, #242424, #080808 85%);
+}
+
+/* The blinds' shadow: bars of light cast from the window, a slanted patch
+   across the room that fades at its edges. */
+main[data-preset="noir"] .scene-area::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: -10%;
+  top: 18%;
+  width: 90%;
+  height: 70%;
+  background: repeating-linear-gradient(180deg, rgba(235, 231, 220, 0.16) 0 16px, transparent 16px 30px);
+  transform: skewY(-18deg) skewX(12deg);
+  -webkit-mask: radial-gradient(ellipse 60% 55% at 60% 45%, #000 45%, transparent 75%);
+  mask: radial-gradient(ellipse 60% 55% at 60% 45%, #000 45%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Smoke curling slowly through the light. */
+main[data-preset="noir"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 20% 12% at 30% 60%, rgba(220, 220, 220, 0.09), transparent 70%),
+    radial-gradient(ellipse 26% 10% at 55% 45%, rgba(220, 220, 220, 0.07), transparent 70%),
+    radial-gradient(ellipse 18% 14% at 70% 70%, rgba(220, 220, 220, 0.08), transparent 70%);
+  filter: blur(8px);
+  animation: skin-noir-smoke 30s ease-in-out infinite alternate;
+}
+
+@keyframes skin-noir-smoke {
+  from { transform: translate(-3%, 2%) rotate(-2deg); }
+  to { transform: translate(4%, -3%) rotate(3deg); }
+}
+
+/* Scratches and dust on the reel, jumping to a new frame. */
+main[data-preset="noir"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./art/noir-scratches.svg") 0 0 / 400px 600px;
+  opacity: 0.5;
+  animation: skin-noir-reel 0.9s steps(3) infinite;
+}
+
+@keyframes skin-noir-reel {
+  0% { background-position: 0 0; }
+  33% { background-position: -137px 211px; }
+  66% { background-position: 91px -340px; }
+  100% { background-position: 0 0; }
+}
+
+/* Grain over the whole picture, story included, and the projector's flicker. */
+main[data-preset="noir"] .scene-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    var(--skin-grain),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55));
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  animation: skin-noir-flicker 0.25s steps(2) infinite;
+}
+
+@keyframes skin-noir-flicker {
+  0% { opacity: 0.32; background-position: 0 0, 0 0; }
+  50% { opacity: 0.4; background-position: 37px 53px, 0 0; }
+  100% { opacity: 0.35; background-position: 0 0, 0 0; }
+}
+
+main[data-preset="noir"] .statusbar {
+  background: #050505;
+  border-bottom: 1px solid rgba(233, 230, 223, 0.2);
+}
+
+main[data-preset="noir"] .field {
+  background: var(--skin-card);
+  border: 1px solid rgba(233, 230, 223, 0.55);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+main[data-preset="noir"] .field::before { content: none; }
+main[data-preset="noir"] .field-name { font: 400 0.7rem var(--skin-title); color: var(--skin-grey); letter-spacing: 0.12em; }
+main[data-preset="noir"] .field-value { font: 700 1rem var(--skin-text); color: var(--skin-silver); }
+
+/* ── Intertitles ────────────────────────────────────────────────────── */
+
+main[data-preset="noir"] .scene-card:hover { transform: none; }
+
+main[data-preset="noir"] .game-scene {
+  background: radial-gradient(ellipse at 50% 40%, #1b1b1b, var(--skin-card) 75%);
+  border: 0;
+  border-radius: 0;
+  padding: 2.4rem 2.8rem 2.3rem;
+  box-shadow: inset var(--skin-deco), 0 16px 34px rgba(0, 0, 0, 0.75);
+  margin: 0 1px;
+}
+
+main[data-preset="noir"] .narrative {
+  font: 400 1.06rem/1.85 var(--skin-text);
+  color: var(--skin-silver);
+  text-align: center;
+}
+
+/* Deco fans in the corners of each card. */
+main[data-preset="noir"] .game-scene .corner {
+  display: block !important;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  background:
+    linear-gradient(var(--skin-silver), var(--skin-silver)) 0 0 / 18px 1.5px no-repeat,
+    linear-gradient(var(--skin-silver), var(--skin-silver)) 0 0 / 1.5px 18px no-repeat,
+    linear-gradient(var(--skin-silver), var(--skin-silver)) 5px 5px / 8px 1px no-repeat,
+    linear-gradient(var(--skin-silver), var(--skin-silver)) 5px 5px / 1px 8px no-repeat;
+  opacity: 0.8;
+  animation: none;
+}
+
+main[data-preset="noir"] .game-scene .corner::before { content: none !important; }
+main[data-preset="noir"] .game-scene .corner.tl { top: 12px; left: 12px; }
+main[data-preset="noir"] .game-scene .corner.tr { top: 12px; right: 12px; transform: scaleX(-1); }
+main[data-preset="noir"] .game-scene .corner.bl { bottom: 12px; left: 12px; transform: scaleY(-1); }
+main[data-preset="noir"] .game-scene .corner.br { bottom: 12px; right: 12px; transform: scale(-1, -1); }
+
+/* Pictures as stills from the film. */
+main[data-preset="noir"] .scene-image {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--skin-silver), 0 0 0 4px var(--skin-card), 0 0 0 5px rgba(233, 230, 223, 0.45);
+  margin: 5px;
+}
+
+main[data-preset="noir"] .scene-image img { border-radius: 0; filter: grayscale(1) contrast(1.25) brightness(0.95); }
+main[data-preset="noir"] .scene-image::before { border-radius: 0; border-color: rgba(255, 255, 255, 0.12); }
+main[data-preset="noir"] .scene-image::after { border-radius: 0; box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7); }
+main[data-preset="noir"] .scene-image:hover { transform: none; }
+
+main[data-preset="noir"] .game-scene.streaming .narrative::after { color: var(--skin-silver); }
+
+/* ── A deco fan between the cards ───────────────────────────────────── */
+
+/* The preset asks for a plain line, which hides the symbol and one half;
+   this skin draws both. */
+main[data-preset="noir"] .divider::after,
+main[data-preset="noir"] .divider-symbol { display: block; }
+
+main[data-preset="noir"] .divider::before,
+main[data-preset="noir"] .divider::after {
+  height: 1px;
+  max-width: 120px;
+  opacity: 1;
+  background: linear-gradient(90deg, transparent, var(--skin-silver));
+}
+
+main[data-preset="noir"] .divider::after { background: linear-gradient(90deg, var(--skin-silver), transparent); }
+
+main[data-preset="noir"] .divider-symbol {
+  width: 70px;
+  height: 24px;
+  opacity: 0.9;
+  background: url("./art/noir-deco.svg") center / contain no-repeat;
+}
+
+main[data-preset="noir"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="noir"] .bubble {
+  background: var(--skin-silver);
+  color: var(--skin-black);
+  border: 0;
+  border-radius: 0;
+  font: italic 400 0.98rem var(--skin-text);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.7);
+}
+
+main[data-preset="noir"] .bubble::before { content: "—"; color: var(--skin-black); font: 400 1rem var(--skin-text); text-shadow: none; }
+
+main[data-preset="noir"] .typing {
+  background: var(--skin-card);
+  color: var(--skin-grey);
+  border: 0;
+  border-radius: 0;
+  font: italic 400 1rem var(--skin-text);
+  box-shadow: inset var(--skin-deco);
+}
+
+main[data-preset="noir"] .dots i { background: var(--skin-silver); }
+
+main[data-preset="noir"] .inline-input {
+  background: var(--skin-card);
+  color: var(--skin-silver);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset var(--skin-deco), 0 16px 34px rgba(0, 0, 0, 0.75);
+}
+
+main[data-preset="noir"] .input-wrap input {
+  font: italic 400 1rem var(--skin-text);
+  color: var(--skin-silver);
+  background: #000;
+  border: 1px solid rgba(233, 230, 223, 0.35);
+  border-radius: 0;
+}
+
+main[data-preset="noir"] .input-wrap input::placeholder { color: var(--skin-grey); opacity: 0.8; }
+main[data-preset="noir"] .input-wrap input:focus { border-color: var(--skin-silver); }
+main[data-preset="noir"] .send { background: var(--skin-silver); color: var(--skin-black); border: 0; border-radius: 0; }
+main[data-preset="noir"] .icon-button { color: var(--skin-grey); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="noir"] .system-message {
+  background: rgba(10, 10, 10, 0.85);
+  border: 1px dashed rgba(233, 230, 223, 0.4);
+  color: var(--skin-grey);
+  font: italic 400 0.92rem var(--skin-text);
+  border-radius: 0;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="noir"] .standing-image img {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--skin-silver), 0 0 0 4px var(--skin-card), 0 0 0 5px rgba(233, 230, 223, 0.45);
+  filter: grayscale(1) contrast(1.25) brightness(0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="noir"] .scene-bg::before,
+  main[data-preset="noir"] .scene-bg::after,
+  main[data-preset="noir"] .scene-area::after { animation: none; }
+}

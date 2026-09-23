@@ -22,10 +22,10 @@ func NewAdventure(status map[string]string) *Wiring {
 	image := blocks.NewDummyImage("image")
 	tts := blocks.NewDummyTTS("tts")
 
-	outText := blocks.NewPlayerOutputText("out-text")
-	outAudio := blocks.NewPlayerOutputAudio("out-audio")
-	outImage := blocks.NewPlayerOutputImage("out-image")
-	outProps := blocks.NewPlayerOutputProps("out-props")
+	outText := blocks.NewPlayerOutputText("out-text", "text")
+	outAudio := blocks.NewPlayerOutputAudio("out-audio", "audio")
+	outImage := blocks.NewPlayerOutputImage("out-image", "image")
+	outProps := blocks.NewPlayerOutputProps("out-props", "props")
 	props := blocks.NewPropsStore("props-store", status)
 
 	// No opening line yet: Adventure begins when the player acts. v1 generates
@@ -61,11 +61,13 @@ func NewAdventure(status map[string]string) *Wiring {
 		Graph: g,
 		Gate:  gate,
 		Say:   player.Say,
-		Sinks: map[string]chan string{
-			"text":  outText.Seen,
-			"audio": outAudio.Seen,
-			"image": outImage.Seen,
-			"props": outProps.Seen,
-		},
+		// Typed, for now. Adventure gains speech when it wires a transcription
+		// block, which is what v1 does today.
+		// Typed only, for now. Adventure takes speech in v1 and will again, as
+		// push-to-talk rather than full duplex — one utterance handed over per
+		// turn — once it wires the transcription block that carries it.
+		Inputs: []ports.InputMode{ports.InputText},
+		// A picture per turn, each belonging to the scene it illustrates.
+		Imagery: ports.ImageryPerTurn,
 	}
 }

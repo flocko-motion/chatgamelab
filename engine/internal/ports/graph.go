@@ -95,15 +95,6 @@ func (g *Graph) ConnectSecondaryTextOut(src SecondaryTextOut, dst TextIn) {
 	})
 }
 
-// ConnectTextOutToSecondary wires a text source to a block's second text input.
-// Where ConnectSecondaryTextOut qualifies the source, this qualifies the sink.
-func (g *Graph) ConnectTextOutToSecondary(src TextOut, dst SecondaryTextIn) {
-	stream := src.TextOutPort()
-	g.connect(src, dst, KindText, func(ctx context.Context) {
-		go pumpChan(ctx, stream, dst.SecondaryTextInPort(), g.watch(src, dst, KindText))
-	})
-}
-
 func (g *Graph) ConnectImageOut(src ImageOut, dst ImageIn) {
 	stream := src.ImageOutPort()
 	g.connect(src, dst, KindImage, func(ctx context.Context) {
@@ -178,6 +169,19 @@ func (g *Graph) Validate() error {
 	}
 
 	for _, n := range g.nodes {
+		req, ok := n.(RequiresOutputs)
+		if !ok {
+			continue
+		}
+		for _, kind := range req.RequiredOutputs() {
+			if !g.hasOutgoing(n, kind) {
+				problems = append(problems,
+					fmt.Sprintf("nothing consumes %s on %s", kind, NodeName(n)))
+			}
+		}
+	}
+
+	for _, n := range g.nodes {
 		if g.hasAnyIncoming(n) || g.hasAnyOutgoing(n) {
 			continue
 		}
@@ -208,6 +212,15 @@ func (g *Graph) Validate() error {
 func (g *Graph) hasIncoming(n any, kind Kind) bool {
 	for _, e := range g.edges {
 		if e.To == n && e.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Graph) hasOutgoing(n any, kind Kind) bool {
+	for _, e := range g.edges {
+		if e.From == n && e.Kind == kind {
 			return true
 		}
 	}
@@ -330,13 +343,38 @@ func (g *Graph) RestoreState(state map[string]string) error {
 	return nil
 }
 
+// Sinks collects the genre's output blocks, keyed by the stream each one
+// carries. This is the genre's event schema, read off the wiring rather than
+// declared beside it: a genre cannot name a stream it did not wire, and cannot
+// wire a sink that carries no stream.
+func (g *Graph) Sinks() map[string]chan string {
+	streams := map[string]chan string{}
+	for _, n := range g.nodes {
+		if sink, ok := n.(Sink); ok {
+			streams[sink.Stream()] = sink.Arrivals()
+		}
+	}
+	return streams
+}
+
 // Topology is the wiring in a form something can draw. The engine ships it
 // because ChatGameLab is an educational platform: showing how a turn is
 // actually assembled is the product, not a debug afterthought.
 type Topology struct {
+	// Name is the wiring's own name — the genre. Title is what this particular
+	// game is called, which is what a player came for; the two are different
+	// questions and a header asking the first one answers nobody.
 	Name  string         `json:"name"`
+	Title string         `json:"title,omitempty"`
 	Nodes []TopologyNode `json:"nodes"`
 	Edges []TopologyEdge `json:"edges"`
+	// Inputs is what a player may supply: the genre's interaction model, which
+	// the genre states rather than the graph infers. A client picks its
+	// controls from this, so a genre offering no text box shows none.
+	Inputs []string `json:"inputs"`
+	// Imagery is how many pictures this genre makes, which decides where a
+	// client puts them. Stated by the genre, like Inputs.
+	Imagery string `json:"imagery"`
 }
 
 type TopologyNode struct {
@@ -352,7 +390,9 @@ type TopologyEdge struct {
 }
 
 func (g *Graph) Topology() Topology {
-	t := Topology{Name: g.Name}
+	// Inputs is left for the genre to fill: what a player may do is a decision
+	// somebody made, not a shape to be read off the wiring.
+	t := Topology{Name: g.Name, Inputs: []string{}}
 	for _, n := range g.nodes {
 		t.Nodes = append(t.Nodes, TopologyNode{Name: NodeName(n), Role: g.role(n)})
 	}

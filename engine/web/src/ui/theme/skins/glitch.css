@@ -1,0 +1,348 @@
+/* Glitch: a screen coming apart. Static crawls over black, a tracking band
+   rolls down it, and blocks of corruption flash in and out; the story
+   comes up in crashed program windows with garbled titles and split colour
+   edges, which jolt now and then as if the signal dropped. */
+
+main[data-preset="glitch"] {
+  --skin-band: rgba(5, 5, 7, 0.7);
+  --skin-red: #ff1f4b;
+  --skin-green: #39ff88;
+  --skin-cyan: #00f0ff;
+  --skin-void: #050507;
+  --skin-panel: #0b0b10;
+  --skin-ink: #d8ffe6;
+  --skin-pixel: "VT323", "Share Tech Mono", monospace;
+  --skin-mono: "Share Tech Mono", "Fira Code", monospace;
+  /* Colour fringes left and right: the channels no longer line up. */
+  --skin-split: -2px 0 0 rgba(255, 31, 75, 0.85), 2px 0 0 rgba(0, 240, 255, 0.85);
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="glitch"] .game-header {
+  background: var(--skin-void);
+  color: var(--skin-green);
+  border-bottom: 1px solid var(--skin-green);
+  box-shadow: 0 2px 0 rgba(255, 31, 75, 0.6), 0 4px 0 rgba(0, 240, 255, 0.35);
+}
+
+main[data-preset="glitch"] .game-title strong {
+  font: 400 1.5rem/1 var(--skin-pixel);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: -2px 0 var(--skin-red), 2px 0 var(--skin-cyan);
+  animation: skin-glitch-title 4.7s steps(1) infinite;
+}
+
+/* The title tears sideways for a few frames, now and then. */
+@keyframes skin-glitch-title {
+  0%, 91%, 100% { transform: none; clip-path: none; }
+  92% { transform: translateX(-4px) skewX(-8deg); clip-path: inset(10% 0 45% 0); }
+  94% { transform: translateX(5px); clip-path: inset(55% 0 5% 0); }
+  96% { transform: translateX(-2px); text-shadow: -4px 0 var(--skin-red), 4px 0 var(--skin-cyan); }
+}
+
+main[data-preset="glitch"] .badge { font: 400 0.95rem var(--skin-pixel); border-radius: 0; background: #111; color: var(--skin-green); }
+main[data-preset="glitch"] .badge[data-state="ready"] { background: var(--skin-green); color: var(--skin-void); box-shadow: var(--skin-split); }
+
+main[data-preset="glitch"] .scene-area { background: var(--skin-void); }
+
+/* Static, jumping to a new frame four times a second. */
+main[data-preset="glitch"] .scene-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./art/glitch-static.svg") 0 0 / 180px 180px;
+  opacity: 0.09;
+  animation: skin-glitch-static 1s steps(4) infinite;
+}
+
+@keyframes skin-glitch-static {
+  0% { background-position: 0 0; }
+  25% { background-position: -63px 41px; }
+  50% { background-position: 27px -88px; }
+  75% { background-position: -101px -17px; }
+  100% { background-position: 0 0; }
+}
+
+/* A tracking band rolling down the picture. */
+main[data-preset="glitch"] .scene-bg::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20%;
+  height: 14%;
+  background:
+    linear-gradient(transparent, rgba(57, 255, 136, 0.06) 40%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 31, 75, 0.06) 60%, transparent),
+    repeating-linear-gradient(90deg, transparent 0 3px, rgba(255, 255, 255, 0.05) 3px 4px);
+  animation: skin-glitch-band 7s linear infinite;
+}
+
+@keyframes skin-glitch-band {
+  to { transform: translateY(900%); }
+}
+
+/* Corruption artefacts: hard-edged slices and macroblocks that flash into
+   fixed places for a frame or two and vanish, the way a broken stream fails.
+   Generated frames; nothing drifts. */
+@keyframes skin-glitch-artefacts {
+  0% { background: none; }
+  7% { background: linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 37% 60% / 30.0% 1.0% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 71% 80% / 9.0% 5.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 3% 63% / 3.6% 4.8% no-repeat,
+      linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 23% 42% / 50.0% 2.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 68% 60% / 53.0% 2.0% no-repeat,
+      linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 25% 89% / 22.0% 1.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 90% 68% / 4.8% 6.4% no-repeat; }
+  9% { background: none; }
+  31% { background: linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 12% 73% / 39.0% 1.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 13% 34% / 4.8% 6.4% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 67% 7% / 25.0% 2.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 28% 73% / 14.0% 5.0% no-repeat,
+      linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 1% 4% / 3.6% 4.8% no-repeat; }
+  34% { background: none; }
+  52% { background: linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 45% 97% / 4.8% 6.4% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 72% 88% / 10.0% 8.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 83% 12% / 4.8% 6.4% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 62% 45% / 23.0% 1.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 61% 18% / 6.0% 4.0% no-repeat; }
+  54% { background: none; }
+  71% { background: linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 85% 59% / 2.4% 3.2% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 17% 30% / 48.0% 1.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 19% 3% / 28.0% 1.0% no-repeat,
+      linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 48% 73% / 60.0% 3.0% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 62% 64% / 3.6% 4.8% no-repeat; }
+  73% { background: none; }
+  88% { background: linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 79% 53% / 3.6% 4.8% no-repeat,
+      linear-gradient(rgba(0, 240, 255, 0.5), rgba(0, 240, 255, 0.5)) 24% 2% / 36.0% 2.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 2% 94% / 2.4% 3.2% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 65% 26% / 60.0% 1.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 13% 85% / 2.4% 3.2% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 88% 98% / 49.0% 3.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 11% 67% / 34.0% 2.0% no-repeat; }
+  90% { background: none; }
+  100% { background: linear-gradient(rgba(57, 255, 136, 0.45), rgba(57, 255, 136, 0.45)) 96% 92% / 35.0% 2.0% no-repeat,
+      linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)) 64% 68% / 14.0% 7.0% no-repeat,
+      linear-gradient(rgba(0, 240, 255, 0.5), rgba(0, 240, 255, 0.5)) 71% 90% / 42.0% 3.0% no-repeat,
+      linear-gradient(rgba(255, 31, 75, 0.55), rgba(255, 31, 75, 0.55)) 86% 13% / 3.6% 4.8% no-repeat,
+      linear-gradient(rgba(0, 240, 255, 0.5), rgba(0, 240, 255, 0.5)) 75% 79% / 21.0% 1.0% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 67% 2% / 2.4% 3.2% no-repeat,
+      linear-gradient(rgba(120, 120, 140, 0.35), rgba(120, 120, 140, 0.35)) 88% 16% / 7.0% 9.0% no-repeat; }
+}
+
+main[data-preset="glitch"] .scene-area::before,
+main[data-preset="glitch"] .scene-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation: skin-glitch-artefacts 5.3s steps(1) infinite;
+}
+
+/* A fainter, rarer layer over the windows, so now and then the corruption
+   crosses the story itself. */
+main[data-preset="glitch"] .scene-area::after {
+  z-index: 2;
+  opacity: 0.45;
+  animation-duration: 11.7s;
+  animation-delay: -4s;
+}
+
+main[data-preset="glitch"] .statusbar {
+  background: var(--skin-void);
+  border-bottom: 1px dashed rgba(57, 255, 136, 0.45);
+}
+
+/* Memory cells, one corner marked as a bad sector. */
+main[data-preset="glitch"] .field {
+  background:
+    linear-gradient(135deg, var(--skin-red) 0 7px, transparent 7px),
+    var(--skin-panel);
+  border: 1px solid rgba(57, 255, 136, 0.55);
+  border-radius: 0;
+  box-shadow: var(--skin-split);
+}
+
+main[data-preset="glitch"] .field::before { content: none; }
+main[data-preset="glitch"] .field-name { font: 400 0.95rem var(--skin-pixel); color: rgba(216, 255, 230, 0.6); letter-spacing: 0.06em; }
+main[data-preset="glitch"] .field-value { font: 400 1.25rem/1 var(--skin-pixel); color: var(--skin-green); text-shadow: 0 0 6px rgba(57, 255, 136, 0.6); }
+
+/* ── Crashed windows ────────────────────────────────────────────────── */
+
+main[data-preset="glitch"] .game-scene {
+  background: var(--skin-panel);
+  border: 1px solid var(--skin-green);
+  border-radius: 0;
+  padding: 3rem 2.3rem 2rem;
+  box-shadow: var(--skin-split), 0 12px 26px rgba(0, 0, 0, 0.7);
+  animation: skin-glitch-jolt 6.3s steps(1) infinite;
+}
+
+main[data-preset="glitch"] .scene-card:nth-of-type(3n + 2) .game-scene { animation-duration: 8.1s; animation-delay: -2.4s; }
+main[data-preset="glitch"] .scene-card:nth-of-type(3n + 3) .game-scene { animation-duration: 9.7s; animation-delay: -5.1s; }
+
+/* The signal drops for a moment: the window slips and its halves tear. */
+@keyframes skin-glitch-jolt {
+  0%, 95%, 100% { transform: none; clip-path: none; }
+  96% { transform: translateX(-5px); clip-path: polygon(0 0, 100% 0, 100% 38%, 0 38%, 0 44%, 100% 44%, 100% 100%, 0 100%); }
+  97% { transform: translateX(6px) skewX(-1deg); }
+  98% { transform: translateX(-2px); box-shadow: -5px 0 0 rgba(255, 31, 75, 0.9), 5px 0 0 rgba(0, 240, 255, 0.9); }
+}
+
+/* The title bar: a garbled name and three window buttons. */
+main[data-preset="glitch"] .game-scene::before {
+  content: "▚▞▟ ░▒▓█▓▒░ ▙▚";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.55rem;
+  padding: 0 0.7rem;
+  background:
+    radial-gradient(circle at calc(100% - 14px) 50%, var(--skin-red) 0 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 30px) 50%, #ffcc00 0 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 46px) 50%, var(--skin-green) 0 4px, transparent 4.5px),
+    linear-gradient(90deg, #11251a, #0b0b10 70%);
+  border-bottom: 1px solid rgba(57, 255, 136, 0.5);
+  color: var(--skin-green);
+  font: 400 1rem/1.55rem var(--skin-pixel);
+  letter-spacing: 0.1em;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+main[data-preset="glitch"] .narrative {
+  font: 400 1.04rem/1.75 var(--skin-mono);
+  color: var(--skin-ink);
+}
+
+main[data-preset="glitch"] .corner { color: var(--skin-green); }
+main[data-preset="glitch"] .corner.tl { top: 1.9rem; }
+
+main[data-preset="glitch"] .scene-image {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--skin-green), var(--skin-split);
+  margin: 3px;
+}
+
+main[data-preset="glitch"] .scene-image img { border-radius: 0; }
+main[data-preset="glitch"] .scene-image::before { border-radius: 0; border-color: rgba(57, 255, 136, 0.2); }
+main[data-preset="glitch"] .scene-image::after { border-radius: 0; box-shadow: none; background: repeating-linear-gradient(transparent 0 2px, rgba(0, 0, 0, 0.25) 2px 3px); }
+
+/* On hover the picture datamoshes for a moment. */
+main[data-preset="glitch"] .scene-image:hover { transform: none; }
+main[data-preset="glitch"] .scene-image:hover img { animation: skin-glitch-mosh 0.45s steps(3) 2; }
+
+@keyframes skin-glitch-mosh {
+  0% { filter: hue-rotate(90deg) saturate(2); transform: translateX(-4px); clip-path: inset(0 0 60% 0); }
+  50% { filter: invert(0.15) saturate(3); transform: translateX(5px); clip-path: inset(30% 0 0 0); }
+  100% { filter: none; transform: none; clip-path: none; }
+}
+
+main[data-preset="glitch"] .game-scene.streaming .narrative::after {
+  color: var(--skin-green);
+  text-shadow: var(--skin-split);
+}
+
+/* ── A corrupted line between windows ───────────────────────────────── */
+
+main[data-preset="glitch"] .divider::before,
+main[data-preset="glitch"] .divider::after {
+  height: 4px;
+  max-width: 150px;
+  opacity: 1;
+  background:
+    repeating-linear-gradient(90deg, var(--skin-green) 0 6px, transparent 6px 9px, var(--skin-red) 9px 11px, transparent 11px 19px, var(--skin-cyan) 19px 21px, transparent 21px 30px);
+}
+
+main[data-preset="glitch"] .divider-symbol { font: 400 1.1rem var(--skin-pixel); color: var(--skin-green); opacity: 1; text-shadow: var(--skin-split); }
+main[data-preset="glitch"] .divider-symbol::before { content: "▓▒░"; }
+
+/* ── The player: a terminal line ────────────────────────────────────── */
+
+main[data-preset="glitch"] .bubble {
+  background: var(--skin-void);
+  color: var(--skin-cyan);
+  border: 1px solid var(--skin-cyan);
+  border-radius: 0;
+  font: 400 1rem var(--skin-mono);
+  box-shadow: -2px 0 0 rgba(255, 31, 75, 0.7), 2px 0 0 rgba(57, 255, 136, 0.5);
+}
+
+main[data-preset="glitch"] .bubble::before { content: ">"; color: var(--skin-green); font: 400 1.2rem/1 var(--skin-pixel); text-shadow: none; }
+
+main[data-preset="glitch"] .typing {
+  background: var(--skin-panel);
+  color: var(--skin-red);
+  border: 1px solid var(--skin-red);
+  border-radius: 0;
+  font: 400 1.25rem var(--skin-pixel);
+  letter-spacing: 0.1em;
+  box-shadow: var(--skin-split);
+  animation: skin-glitch-flicker 1.8s steps(1) infinite;
+}
+
+@keyframes skin-glitch-flicker {
+  0%, 60%, 100% { opacity: 1; }
+  62% { opacity: 0.3; }
+  64% { opacity: 1; }
+  80% { opacity: 0.6; transform: translateX(2px); }
+  82% { opacity: 1; transform: none; }
+}
+
+main[data-preset="glitch"] .dots i { border-radius: 0; background: var(--skin-red); }
+main[data-preset="glitch"] .dots i:nth-child(2) { background: var(--skin-green); }
+main[data-preset="glitch"] .dots i:nth-child(3) { background: var(--skin-cyan); }
+
+main[data-preset="glitch"] .inline-input {
+  background: var(--skin-void);
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-green);
+  border-radius: 0;
+  box-shadow: var(--skin-split), 0 12px 26px rgba(0, 0, 0, 0.7);
+}
+
+main[data-preset="glitch"] .input-wrap input {
+  font: 400 1.02rem var(--skin-mono);
+  color: var(--skin-green);
+  background: #000;
+  border: 1px solid rgba(57, 255, 136, 0.4);
+  border-radius: 0;
+}
+
+main[data-preset="glitch"] .input-wrap input::placeholder { color: var(--skin-green); opacity: 0.45; }
+main[data-preset="glitch"] .input-wrap input:focus { border-color: var(--skin-cyan); box-shadow: var(--skin-split); }
+main[data-preset="glitch"] .send { border-radius: 0; background: var(--skin-green); color: var(--skin-void); border: 0; }
+main[data-preset="glitch"] .icon-button { color: var(--skin-green); border-radius: 0; }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="glitch"] .system-message {
+  background: var(--skin-panel);
+  border: 1px dashed var(--skin-red);
+  color: var(--skin-red);
+  font: 400 1.05rem var(--skin-pixel);
+  box-shadow: var(--skin-split);
+  border-radius: 0;
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="glitch"] .standing-image img {
+  border-radius: 0;
+  box-shadow: 0 0 0 1px var(--skin-green), var(--skin-split);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-preset="glitch"] .game-title strong,
+  main[data-preset="glitch"] .game-scene,
+  main[data-preset="glitch"] .scene-bg::before,
+  main[data-preset="glitch"] .scene-bg::after,
+  main[data-preset="glitch"] .scene-area::before,
+  main[data-preset="glitch"] .scene-area::after,
+  main[data-preset="glitch"] .typing { animation: none; }
+}

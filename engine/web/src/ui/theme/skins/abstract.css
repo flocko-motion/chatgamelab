@@ -1,0 +1,279 @@
+/* Abstract: neon geometry on an indigo night, closer to an 80s arcade than to
+   a gallery. Soft fields of colour drift on the canvas; every card is a pane
+   of glass in a gradient frame,
+   signed at its corners with the four primitives, circle, square, triangle
+   and half-disc. The geometric particles are the preset's own. */
+
+main[data-preset="abstract"] {
+  --skin-band: rgba(18, 11, 43, 0.55);
+  --skin-canvas: #120b2b;
+  --skin-violet: #8b5cf6;
+  --skin-cyan: #22d3ee;
+  --skin-pink: #f472b6;
+  --skin-sun: #facc15;
+  --skin-ink: #f3f0ff;
+  --skin-mute: #b9b0e6;
+  --skin-frame: linear-gradient(135deg, var(--skin-violet), var(--skin-cyan) 45%, var(--skin-pink));
+  --skin-display: "Syne", "Space Grotesk", sans-serif;
+  --skin-text: "Space Grotesk", Inter, sans-serif;
+}
+
+/* A frame drawn as a masked gradient ring, so the pane inside stays glass. */
+main[data-preset="abstract"] :is(.game-scene, .inline-input, .typing)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: var(--skin-frame);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── Chrome ─────────────────────────────────────────────────────────── */
+
+main[data-preset="abstract"] .game-header {
+  position: relative;
+  background: #1a1040;
+  color: var(--skin-ink);
+  border-bottom: 0;
+  box-shadow: none;
+}
+
+/* A band of colour blocks under the header, in unequal measures. */
+main[data-preset="abstract"] .game-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--skin-violet) 0 38%, var(--skin-cyan) 38% 61%,
+    var(--skin-sun) 61% 67%, var(--skin-pink) 67% 100%);
+}
+
+main[data-preset="abstract"] .game-title strong {
+  font: 800 1.05rem var(--skin-display);
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+}
+
+main[data-preset="abstract"] .badge { font-family: var(--skin-display); border-radius: 2px; }
+main[data-preset="abstract"] .badge[data-state="ready"] { background: var(--skin-cyan); color: var(--skin-canvas); }
+
+main[data-preset="abstract"] .scene-area {
+  background:
+    radial-gradient(38% 45% at 18% 22%, rgba(139, 92, 246, 0.45), transparent 70%),
+    radial-gradient(30% 38% at 85% 35%, rgba(34, 211, 238, 0.28), transparent 70%),
+    radial-gradient(42% 40% at 60% 88%, rgba(244, 114, 182, 0.3), transparent 70%),
+    var(--skin-canvas);
+  background-size: 140% 140%;
+  animation: skin-abstract-drift 38s ease-in-out infinite alternate;
+}
+
+@keyframes skin-abstract-drift {
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 60%; }
+}
+
+main[data-preset="abstract"] .statusbar {
+  background: rgba(18, 11, 43, 0.85);
+  border-bottom: 0;
+  padding-top: 0.9rem;
+}
+
+main[data-preset="abstract"] .field {
+  background: rgba(255, 255, 255, 0.06);
+  border: 0;
+  border-radius: 999px 4px 4px 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(6px);
+}
+
+/* Each field takes the next colour of the palette, as a swatch. */
+main[data-preset="abstract"] .field::before {
+  left: 0.55rem;
+  top: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--skin-violet);
+}
+
+main[data-preset="abstract"] .field:nth-child(4n + 2)::before { background: var(--skin-cyan); border-radius: 1px; }
+main[data-preset="abstract"] .field:nth-child(4n + 3)::before { background: var(--skin-pink); clip-path: polygon(50% 0, 100% 100%, 0 100%); border-radius: 0; }
+main[data-preset="abstract"] .field:nth-child(4n + 4)::before { background: var(--skin-sun); }
+
+main[data-preset="abstract"] .field { padding-left: 1.5rem; }
+main[data-preset="abstract"] .field-name { font-family: var(--skin-display); color: var(--skin-mute); }
+main[data-preset="abstract"] .field-value { font-family: var(--skin-text); color: var(--skin-ink); }
+
+/* ── The pane ───────────────────────────────────────────────────────── */
+
+main[data-preset="abstract"] .game-scene {
+  background: rgba(22, 14, 54, 0.62);
+  backdrop-filter: blur(14px) saturate(1.3);
+  border: 0;
+  border-radius: 28px 6px 28px 6px;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  /* Room around the text for the four corner marks. */
+  padding: 2.6rem 3.25rem;
+}
+
+main[data-preset="abstract"] .game-scene.with-image { padding: 2.6rem; gap: 1.75rem; }
+
+main[data-preset="abstract"] .narrative {
+  font-family: var(--skin-text);
+  font-size: 1.08rem;
+  line-height: 1.75;
+  color: var(--skin-ink);
+}
+
+/* All four corners sign the pane, each with its own primitive. */
+main[data-preset="abstract"] .game-scene .corner {
+  display: block !important;
+  width: 14px;
+  height: 14px;
+  border: 0;
+  opacity: 0.95;
+  animation: none;
+}
+
+main[data-preset="abstract"] .corner::before { content: none !important; }
+main[data-preset="abstract"] .corner.tl { top: 16px; left: 18px; border-radius: 50%; background: var(--skin-pink); }
+main[data-preset="abstract"] .corner.tr { top: 16px; right: 18px; background: transparent; box-shadow: inset 0 0 0 2px var(--skin-cyan); }
+main[data-preset="abstract"] .corner.bl { bottom: 16px; left: 18px; background: var(--skin-violet); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+main[data-preset="abstract"] .corner.br { bottom: 16px; right: 18px; width: 16px; height: 8px; border-radius: 16px 16px 0 0; background: var(--skin-sun); }
+
+main[data-preset="abstract"] .scene-image {
+  /* One offset block of colour behind the picture, as in a screen print. */
+  border-radius: 20px 4px 20px 4px;
+  box-shadow: 9px 9px 0 0 var(--skin-violet), 0 16px 32px rgba(0, 0, 0, 0.5);
+}
+
+main[data-preset="abstract"] .scene-image::before { border-radius: 16px 2px 16px 2px; }
+main[data-preset="abstract"] .scene-image::after { border-radius: inherit; }
+
+/* The cursor while a line is spoken: a small square that turns. */
+main[data-preset="abstract"] .game-scene.streaming .narrative::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-left: 0.4em;
+  background: var(--skin-cyan);
+  animation: skin-abstract-turn 1.2s linear infinite;
+}
+
+@keyframes skin-abstract-turn {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Between panes: the three primitives in a row ───────────────────── */
+
+main[data-preset="abstract"] .divider::before,
+main[data-preset="abstract"] .divider::after {
+  height: 2px;
+  opacity: 0.8;
+  max-width: 120px;
+  background: linear-gradient(90deg, transparent, var(--skin-violet));
+}
+
+main[data-preset="abstract"] .divider::after { background: linear-gradient(90deg, var(--skin-pink), transparent); }
+
+main[data-preset="abstract"] .divider-symbol {
+  width: 46px;
+  height: 12px;
+  opacity: 1;
+  background:
+    radial-gradient(circle at 6px 6px, var(--skin-pink) 5.5px, transparent 6px),
+    linear-gradient(var(--skin-cyan), var(--skin-cyan)) 18px 1px / 10px 10px no-repeat,
+    /* The triangle as two halves, each a right triangle filled below its diagonal. */
+    linear-gradient(to bottom right, transparent 50%, var(--skin-sun) 50%) 34px 0 / 6px 12px no-repeat,
+    linear-gradient(to bottom left, transparent 50%, var(--skin-sun) 50%) 40px 0 / 6px 12px no-repeat;
+}
+
+main[data-preset="abstract"] .divider-symbol::before { content: none; }
+
+/* ── The player ─────────────────────────────────────────────────────── */
+
+main[data-preset="abstract"] .bubble {
+  background: linear-gradient(120deg, rgba(139, 92, 246, 0.85), rgba(244, 114, 182, 0.75));
+  color: #ffffff;
+  border: 0;
+  border-radius: 6px 22px 6px 22px;
+  font: 500 0.95rem var(--skin-text);
+  box-shadow: 0 10px 24px -8px rgba(139, 92, 246, 0.7);
+}
+
+main[data-preset="abstract"] .bubble::before {
+  content: "";
+  width: 0.55em;
+  height: 0.55em;
+  align-self: center;
+  background: var(--skin-cyan);
+  transform: rotate(45deg);
+  text-shadow: none;
+}
+
+main[data-preset="abstract"] .typing {
+  position: relative;
+  background: rgba(22, 14, 54, 0.62);
+  backdrop-filter: blur(14px);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 28px 6px 28px 6px;
+  font: 700 0.95rem var(--skin-display);
+}
+
+/* The thinking dots become a circle, a square and a triangle. */
+main[data-preset="abstract"] .dots i:nth-child(1) { background: var(--skin-pink); }
+main[data-preset="abstract"] .dots i:nth-child(2) { background: var(--skin-cyan); border-radius: 1px; }
+main[data-preset="abstract"] .dots i:nth-child(3) { background: var(--skin-sun); border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+main[data-preset="abstract"] .inline-input {
+  position: sticky;
+  background: rgba(22, 14, 54, 0.72);
+  backdrop-filter: blur(14px);
+  color: var(--skin-ink);
+  border: 0;
+  border-radius: 28px 6px 28px 6px;
+}
+
+main[data-preset="abstract"] .input-wrap input {
+  font-family: var(--skin-text);
+  color: var(--skin-ink);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+main[data-preset="abstract"] .input-wrap input:focus { border-color: var(--skin-cyan); }
+
+main[data-preset="abstract"] .send {
+  background: var(--skin-frame);
+  color: #ffffff;
+  border: 0;
+}
+
+main[data-preset="abstract"] .icon-button { color: var(--skin-ink); }
+
+/* ── System lines ───────────────────────────────────────────────────── */
+
+/* Notes the engine adds to the story, such as a flag on what was said. */
+main[data-preset="abstract"] .system-message {
+  background: rgba(22, 14, 54, 0.7);
+  border: 1px dashed rgba(185, 176, 230, 0.4);
+  color: var(--skin-mute);
+  font: italic 400 0.9rem var(--skin-text);
+}
+
+/* ── Fixed image ────────────────────────────────────────────────────── */
+
+/* A game's one standing picture wears the same frame as a scene picture. */
+main[data-preset="abstract"] .standing-image img {
+  box-shadow: 9px 9px 0 0 var(--skin-violet), 0 16px 32px rgba(0, 0, 0, 0.5);
+}

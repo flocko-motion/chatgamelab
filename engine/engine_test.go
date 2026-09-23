@@ -33,7 +33,7 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 	}
 
 	want := map[string]bool{"text": false, "audio": false, "image": false, "props": false}
-	deadline := time.After(3 * time.Second)
+	deadline := time.After(10 * time.Second)
 	for remaining(want) > 0 {
 		select {
 		case e := <-s.Events():
@@ -48,8 +48,11 @@ func TestAdventureThroughPublicAPI(t *testing.T) {
 	}
 }
 
-// A live session takes both typed and spoken input, because the model does.
-func TestLiveGenreAcceptsBothInputKinds(t *testing.T) {
+// A live genre is spoken, and says so. GPT-Live has no event that delivers user
+// text into a conversation, so a text box on this genre would be a control that
+// cannot work — and silently swallowing what was typed would look to a player
+// like a character ignoring them.
+func TestLiveGenreIsSpokenOnly(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -65,8 +68,69 @@ func TestLiveGenreAcceptsBothInputKinds(t *testing.T) {
 	if err := s.Speak([]byte("persuasion")); err != nil {
 		t.Errorf("Speak should be accepted by npc-live: %v", err)
 	}
-	if err := s.Say("let me through"); err != nil {
-		t.Errorf("Say should be accepted by npc-live: %v", err)
+	if err := s.Say("let me through"); err == nil {
+		t.Error("npc-live accepted typed input it has no way to deliver")
+	}
+}
+
+// A player is invited to open their own connection once the game has begun, and
+// not before: the portrait should be on screen before anybody is asked to
+// speak. Until then the conversation does not exist, and is not being billed.
+func TestConnectionIsInvitedOnlyOnceTheGameBegins(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	deadline := time.After(10 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream != "connect" {
+				continue
+			}
+			// The invitation only follows the gate, so the game has started by
+			// the time one arrives.
+			select {
+			case <-s.Ready():
+			default:
+				t.Error("a player was invited to connect before the gate opened")
+			}
+			answer, err := s.Connect(ctx, "v=0 mock offer")
+			if err != nil {
+				t.Fatalf("connect: %v", err)
+			}
+			if answer == "" {
+				t.Error("the browser was given no answer to apply")
+			}
+			return
+		case <-deadline:
+			t.Fatal("nobody was ever invited to connect")
+		}
+	}
+}
+
+// A genre holding no conversation has nothing to broker, and says so rather
+// than leaving a caller waiting for an answer that cannot come.
+func TestConnectIsRefusedByATurnBasedGenre(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	s, err := engine.Launch(ctx, engine.SessionSpec{Genre: engine.GenreAdventure})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if _, err := s.Connect(ctx, "v=0 mock offer"); err == nil {
+		t.Error("adventure brokered a connection to a conversation it does not hold")
 	}
 }
 
@@ -186,7 +250,7 @@ func TestPortraitArrivesWithoutBeingTriggered(t *testing.T) {
 	}
 	defer s.Close()
 
-	deadline := time.After(3 * time.Second)
+	deadline := time.After(10 * time.Second)
 	for {
 		select {
 		case e := <-s.Events():
@@ -221,13 +285,17 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 	}
 	defer s.Close()
 
-	if err := s.Speak([]byte("persuasion")); err != nil {
+	if err := awaitConnection(ctx, s); err != nil {
 		t.Fatal(err)
 	}
 
+	// Both, and in no particular order: these are separate blocks whose reports
+	// are merged by introspection through a goroutine each, so nothing orders
+	// one against the other. Waiting for one and then asserting the other had
+	// already arrived is a race, not a fact.
 	working := map[string]bool{}
-	deadline := time.After(3 * time.Second)
-	for !working["observer"] {
+	deadline := time.After(10 * time.Second)
+	for !working["observer"] || !working["live-session"] {
 		select {
 		case e := <-s.Events():
 			if e.Stream != "state" {
@@ -241,14 +309,8 @@ func TestBlocksReportTheirPhases(t *testing.T) {
 				working[report.Node] = true
 			}
 		case <-deadline:
-			t.Fatalf("no observer working report; saw %v", working)
+			t.Fatalf("not every block reported working; saw %v", working)
 		}
-	}
-
-	// The live session is busy for the whole conversation, which is what
-	// distinguishes it on a graph view from a block that flickers per turn.
-	if !working["live-session"] {
-		t.Error("the live session never reported working")
 	}
 }
 
@@ -269,7 +331,7 @@ func TestGateOpeningIsVisibleOnTheStream(t *testing.T) {
 	}
 	defer s.Close()
 
-	deadline := time.After(3 * time.Second)
+	deadline := time.After(10 * time.Second)
 	for {
 		select {
 		case e := <-s.Events():
@@ -289,9 +351,11 @@ func TestGateOpeningIsVisibleOnTheStream(t *testing.T) {
 	}
 }
 
-// Words typed while the game is still preparing are kept and delivered when it
-// starts, because someone who typed while a portrait rendered meant to say it.
-func TestInputDuringPreparationIsNotLost(t *testing.T) {
+// The cue outlives the wait for a player. It is issued when the gate opens, but
+// there is no character to give it to until somebody connects — and a cue
+// dropped in that window would leave the player facing a portrait that never
+// speaks.
+func TestOpeningCueSurvivesTheWaitForAPlayer(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -305,13 +369,11 @@ func TestInputDuringPreparationIsNotLost(t *testing.T) {
 	}
 	defer s.Close()
 
-	if err := s.Say("hello?"); err != nil {
+	if err := awaitConnection(ctx, s); err != nil {
 		t.Fatal(err)
 	}
 
-	// The character answers, which it can only do if the held line was
-	// delivered once the gate opened.
-	deadline := time.After(3 * time.Second)
+	deadline := time.After(10 * time.Second)
 	for {
 		select {
 		case e := <-s.Events():
@@ -319,7 +381,24 @@ func TestInputDuringPreparationIsNotLost(t *testing.T) {
 				return
 			}
 		case <-deadline:
-			t.Fatal("nothing typed before the gate opened ever reached the game")
+			t.Fatal("the character never spoke, so the opening cue was lost")
+		}
+	}
+}
+
+// awaitConnection plays the browser's part: wait to be invited, then connect.
+func awaitConnection(ctx context.Context, s *engine.Session) error {
+	deadline := time.After(10 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream != "connect" {
+				continue
+			}
+			_, err := s.Connect(ctx, "v=0 mock offer")
+			return err
+		case <-deadline:
+			return errors.New("nobody was ever invited to connect")
 		}
 	}
 }

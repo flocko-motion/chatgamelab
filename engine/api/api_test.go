@@ -2,6 +2,7 @@ package api_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -301,5 +302,246 @@ func TestEdgeInspection(t *testing.T) {
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("an edge the wiring lacks: status %d, want 404", resp.StatusCode)
+	}
+}
+
+// The browser's offer goes to the engine, and only an answer comes back. The
+// provider's session id never appears in the response, because a browser that
+// held one could attach its own control connection to the conversation.
+func TestConnectBrokersTheOfferAndKeepsTheSessionID(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:    engine.GenreNPCLive,
+		ID:       "brokered",
+		Scenario: "You are the keeper of a bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "brokered", session)
+
+	// The invitation comes first: nothing may connect before the game begins.
+	waitForConnectInvitation(t, session)
+
+	body := strings.NewReader(`{"sdp":"v=0 browser offer"}`)
+	resp, err := http.Post(srv.URL+"/sessions/brokered/connect", "application/json", body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("connect answered %s", resp.Status)
+	}
+
+	var answer struct {
+		SDP string `json:"sdp"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&answer); err != nil {
+		t.Fatal(err)
+	}
+	if answer.SDP == "" {
+		t.Error("the browser was given nothing to apply")
+	}
+}
+
+// An offer with no SDP is a client mistake, and says so rather than opening a
+// conversation nobody can hear.
+func TestConnectRejectsAnEmptyOffer(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "empty", Scenario: "A bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "empty", session)
+	resp, err := http.Post(srv.URL+"/sessions/empty/connect", "application/json",
+		strings.NewReader(`{"sdp":""}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusBadRequest {
+		t.Errorf("an empty offer answered %s", resp.Status)
+	}
+}
+
+// What a session runs on is part of the subject on a platform that teaches how
+// AI works, so the prompts are a first-class response rather than a debug dump.
+func TestPromptsAreReadable(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:          engine.GenreNPCLive,
+		ID:             "prompts",
+		Scenario:       "You are the keeper of a bridge.",
+		PromptOverride: map[string]string{"portrait": "A woodcut of: "},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "prompts", session)
+	resp, err := http.Get(srv.URL + "/sessions/prompts/prompts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	var prompts map[string]string
+	if err := json.NewDecoder(resp.Body).Decode(&prompts); err != nil {
+		t.Fatal(err)
+	}
+	if prompts["portrait"] != "A woodcut of: " {
+		t.Errorf("the override is not what the session reports running on: %q", prompts["portrait"])
+	}
+	if prompts["observer"] == "" {
+		t.Error("a prompt the session uses is missing from what it reports")
+	}
+}
+
+// A misspelled override is refused at launch. Overriding by name is untyped by
+// construction, so the alternative is a session running on a default while its
+// author believes otherwise.
+func TestUnknownPromptOverrideIsRefused(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	_, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre:          engine.GenreNPCLive,
+		Scenario:       "A bridge.",
+		PromptOverride: map[string]string{"portraitt": "typo"},
+	})
+	if err == nil {
+		t.Fatal("a misspelled prompt name launched anyway")
+	}
+	if !strings.Contains(err.Error(), "no such prompt") {
+		t.Errorf("the error does not say what went wrong: %v", err)
+	}
+}
+
+// waitForConnectInvitation plays the browser's part: a player is invited once
+// the game has begun, and not before.
+func waitForConnectInvitation(t *testing.T, s *engine.Session) {
+	t.Helper()
+	deadline := time.After(3 * time.Second)
+	for {
+		select {
+		case e := <-s.Events():
+			if e.Stream == "connect" {
+				return
+			}
+		case <-deadline:
+			t.Fatal("nobody was ever invited to connect")
+		}
+	}
+}
+
+// A session nobody has spoken in still has a history, and it is an empty list.
+// Encoding it as null would hand a client something it cannot iterate, which is
+// exactly what a page does on the reload path before anyone has said anything.
+func TestEmptyHistoryIsAnEmptyList(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "fresh", Scenario: "A bridge.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	srv := newServer(t, "fresh", session)
+	resp, err := http.Get(srv.URL + "/sessions/fresh/history")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.TrimSpace(string(body)) == "null" {
+		t.Error("an empty history encoded as null")
+	}
+}
+
+// A server holding one game answers for it whatever a request calls it. The
+// player reads its session from the address, so a bare link, a bookmark from a
+// previous run and a hand-typed address all arrive asking for something else —
+// and every one of them means the only session there is.
+func TestTheOnlySessionAnswersToAnyName(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	session, err := engine.Launch(ctx, engine.SessionSpec{
+		Genre: engine.GenreNPCLive, ID: "stopped-clock", Scenario: "A tower.",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+
+	a := api.New()
+	a.RegisterOnly("stopped-clock", session)
+	srv := httptest.NewServer(a.Handler())
+	t.Cleanup(srv.Close)
+
+	// "standalone" is what the page asks for when the address names nothing.
+	for _, id := range []string{"stopped-clock", "standalone", "a-game-from-last-week"} {
+		resp, err := http.Get(srv.URL + "/sessions/" + id + "/topology")
+		if err != nil {
+			t.Fatal(err)
+		}
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("session %q answered %s: %s", id, resp.Status, body)
+		}
+	}
+}
+
+// A server holding several has nothing to fall back on: an id there is the only
+// thing saying which game a request meant, so an unknown one stays unknown.
+func TestAnUnknownSessionIsUnknownWhenThereAreSeveral(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a := api.New()
+	for _, id := range []string{"one", "two"} {
+		s, err := engine.Launch(ctx, engine.SessionSpec{
+			Genre: engine.GenreNPCLive, ID: id, Scenario: "A tower.",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer s.Close()
+		a.Register(id, s)
+	}
+
+	srv := httptest.NewServer(a.Handler())
+	t.Cleanup(srv.Close)
+
+	resp, err := http.Get(srv.URL + "/sessions/three/topology")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("an unknown session among several answered %s", resp.Status)
 	}
 }
