@@ -21,6 +21,14 @@ function token(name: string, fallback: string): string {
 export class Flowchart {
   #cy: cytoscape.Core | null = null;
   #drawn = false;
+  #phases = new Map<string, Phase>();
+  #fading = new Map<string, ReturnType<typeof setTimeout>>();
+
+  /**
+   * How long a finished block keeps its afterglow: long enough to be seen,
+   * short enough that a busy graph is not permanently lit.
+   */
+  static readonly afterglowMs = 700;
 
   constructor(private readonly container: HTMLElement) {}
 
@@ -37,6 +45,8 @@ export class Flowchart {
     const line = token("--line", "#e2e0dc");
     const bg = token("--bg", "#faf9f7");
     const live = token("--live", "#2f7d5a");
+    const liveSoft = token("--live-soft", "#d9ece2");
+    const recent = token("--recent", "#9ec9b4");
 
     this.#cy = cytoscape({
       container: this.container,
@@ -75,8 +85,15 @@ export class Flowchart {
             "background-color": bg,
             "border-width": 1,
             "border-color": line,
-            "transition-property": "border-color, background-color",
-            "transition-duration": 120,
+            // Every style that changes is animated, so a turn reads as motion
+            // through the graph rather than as a sequence of stills.
+            "transition-property":
+              "border-color, border-width, background-color, overlay-opacity",
+            "transition-duration": 180,
+            "transition-timing-function": "ease-out",
+            "overlay-color": live,
+            "overlay-opacity": 0,
+            "overlay-padding": 6,
           },
         },
         // Sources and sinks are shaped differently so the stem and the sinks
@@ -85,7 +102,20 @@ export class Flowchart {
         { selector: 'node[role = "sink"]', style: { shape: "round-diamond", height: 28 } },
         {
           selector: "node.working",
-          style: { "border-color": live, "border-width": 2, "background-color": bg },
+          style: {
+            "border-color": live,
+            "border-width": 2,
+            "background-color": liveSoft,
+            // A halo, so a working block is findable at a glance on a graph
+            // with a dozen nodes.
+            "overlay-opacity": 0.12,
+          },
+        },
+        {
+          // The afterglow. Without it a block that finishes in 40 ms never
+          // renders at all, and the observer is exactly that fast.
+          selector: "node.recent",
+          style: { "border-color": recent, "border-width": 2 },
         },
         {
           selector: "edge",
@@ -126,13 +156,38 @@ export class Flowchart {
 
     cy.batch(() => {
       for (const node of cy.nodes()) {
-        const phase = phases[node.id()] ?? "ready";
-        node.toggleClass("working", phase === "working");
+        const id = node.id();
+        const phase = phases[id] ?? "ready";
+        const previous = this.#phases.get(id);
 
-        const record = spent.find((entry) => entry.node === node.id());
-        node.data("label", record ? `${node.id()}  ${cost(record)}` : node.id());
+        if (phase !== previous) {
+          this.#phases.set(id, phase);
+          node.toggleClass("working", phase === "working");
+          if (previous === "working" && phase === "ready") this.#afterglow(node);
+        }
+
+        const record = spent.find((entry) => entry.node === id);
+        node.data("label", record ? `${id}  ${cost(record)}` : id);
       }
     });
+  }
+
+  /**
+   * Holds a finished block lit briefly. A tool call can complete between two
+   * frames, so without this the fastest blocks would be the ones nobody ever
+   * sees work.
+   */
+  #afterglow(node: cytoscape.NodeSingular): void {
+    const id = node.id();
+    clearTimeout(this.#fading.get(id));
+    node.addClass("recent");
+    this.#fading.set(
+      id,
+      setTimeout(() => {
+        node.removeClass("recent");
+        this.#fading.delete(id);
+      }, Flowchart.afterglowMs),
+    );
   }
 }
 
