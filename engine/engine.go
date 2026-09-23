@@ -19,6 +19,7 @@ import (
 	"engine/internal/adapters/openai"
 	"engine/internal/blocks"
 	"engine/internal/genre"
+	"engine/internal/ports"
 )
 
 // KeyFunc yields the API key for a session's platform. The platform injects one
@@ -122,6 +123,13 @@ type Event struct {
 	Value  string
 }
 
+// StreamNames is every stream a genre can wire. It is the source the generated
+// TypeScript union is built from, so adding an output block here is what makes
+// the client aware of it.
+func StreamNames() []string {
+	return []string{"text", "audio", "image", "props", "flag", "error"}
+}
+
 type Session struct {
 	spec   SessionSpec
 	wiring *genre.Wiring
@@ -160,13 +168,14 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 	case GenreAdventure:
 		w = genre.NewAdventure(spec.Status)
 	case GenreNPCLive:
-		live, tool, err := spec.adapters()
+		live, tool, image, err := spec.adapters()
 		if err != nil {
 			return nil, err
 		}
 		w = genre.NewNPCLive(genre.NPCLiveConfig{
-			Live: live,
-			Tool: tool,
+			Live:  live,
+			Tool:  tool,
+			Image: image,
 			LiveCfg: adapters.LiveConfig{
 				Voice:        spec.Voice,
 				Instructions: spec.Scenario + "\n" + spec.Guardrail,
@@ -259,6 +268,12 @@ func (s *Session) Speak(audio []byte) error {
 // Describe renders the running wiring, so a launcher can show the graph it got.
 func (s *Session) Describe() string { return s.wiring.Graph.Describe() }
 
+// Topology is the wiring in a form a view can draw.
+func (s *Session) Topology() ports.Topology { return s.wiring.Graph.Topology() }
+
+// Mermaid is the wiring as a flowchart.
+func (s *Session) Mermaid() string { return s.wiring.Graph.Mermaid() }
+
 // State is what Resume needs back. It is read at a checkpoint rather than at the
 // end, because a conversation may never reach an end.
 func (s *Session) State() SessionState {
@@ -322,23 +337,27 @@ func (spec SessionSpec) resolveModels(byTier func(Tier) (adapters.ModelSet, erro
 // adapters resolves the spec's platform choice into implementations. Defaults
 // live here rather than in a block, so a block never has an opinion about which
 // model runs it.
-func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, error) {
+func (spec SessionSpec) adapters() (adapters.Live, adapters.Tool, adapters.Image, error) {
 	switch spec.Platform {
 	case "", PlatformMock:
-		return mock.Live{}, mock.Tool{}, nil
+		return mock.Live{}, mock.Tool{}, mock.Image{}, nil
 	case PlatformOpenAI:
 		if spec.Keys == nil {
-			return nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
+			return nil, nil, nil, fmt.Errorf("platform %q needs a Keys function", spec.Platform)
 		}
 		models, err := spec.resolveModels(openai.Models)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
+		}
+		if models.Image == "" {
+			return nil, nil, nil, fmt.Errorf("tier %q generates no images, which this genre needs", spec.modelTier())
 		}
 
 		keys := adapters.KeyFunc(spec.Keys)
 		return openai.NewLive(keys, models.Live),
-			openai.NewTool(keys, models.Tool), nil
+			openai.NewTool(keys, models.Tool),
+			openai.NewImage(keys, models.Image), nil
 	default:
-		return nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
+		return nil, nil, nil, fmt.Errorf("unknown platform %q", spec.Platform)
 	}
 }

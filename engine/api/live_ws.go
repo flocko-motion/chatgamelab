@@ -73,8 +73,11 @@ func (a *API) SessionLive(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		if err := s.Speak(data); err != nil {
-			_ = wsJSON(ctx, conn, engine.Event{Stream: "error", Value: err.Error()})
-			return
+			// Report and keep going: the wrong input kind is a client mistake,
+			// not a reason to end someone's conversation.
+			if err := wsJSON(ctx, conn, engine.Event{Stream: "error", Value: err.Error()}); err != nil {
+				return
+			}
 		}
 	}
 }
