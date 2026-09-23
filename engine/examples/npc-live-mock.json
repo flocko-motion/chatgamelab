@@ -3,7 +3,5 @@
   "id": "bridge-keeper",
   "platform": "mock",
   "scenario": "You are the keeper of a bridge. You never concede passage.",
-  "guardrail": "Keep the conversation suitable for a 13-year-old.",
-  "script": ["persuasion", "more persuasion", "still more"],
-  "scriptIntervalMs": 3000
+  "guardrail": "Keep the conversation suitable for a 13-year-old."
 }
