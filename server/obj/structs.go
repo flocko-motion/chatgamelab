@@ -189,6 +189,31 @@ type Workshop struct {
 	DesignEditingEnabled       bool    `json:"designEditingEnabled"`
 	IsPaused                   bool    `json:"isPaused"`
 	AllowGameSharing           bool    `json:"allowGameSharing"`
+	// Public page /w/<PublicSlug>, visible while Public is on
+	PublicSlug        *string `json:"publicSlug,omitempty"`
+	PublicDescription *string `json:"publicDescription,omitempty"`
+}
+
+// PublicWorkshopPage is what a visitor of /w/<slug> sees. It names no creators and no institution.
+type PublicWorkshopPage struct {
+	Name        string               `json:"name"`
+	Description string               `json:"description"`
+	Games       []PublicWorkshopGame `json:"games"`
+}
+
+// PublicWorkshopGame is one public game on a workshop's public page.
+type PublicWorkshopGame struct {
+	ID          uuid.UUID           `json:"id"`
+	Name        string              `json:"name"`
+	Description string              `json:"description"`
+	Play        *PublicWorkshopPlay `json:"play,omitempty"` // nil when the workshop has no working key
+}
+
+// PublicWorkshopPlay is the share link through which visitors play a game from the public page.
+type PublicWorkshopPlay struct {
+	Token     string `json:"token"`
+	Remaining int    `json:"remaining"`
+	Limit     int    `json:"limit"`
 }
 
 // WorkshopParticipant represents a participant enrolled in a workshop.

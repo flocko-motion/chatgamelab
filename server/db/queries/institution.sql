@@ -107,14 +107,14 @@ INSERT INTO workshop (
   name, institution_id, active, public, default_api_key_share_id,
   ai_quality_tier, prompt_constraints, show_public_games,
   show_other_participants_games, design_editing_enabled, is_paused,
-  allow_game_sharing
+  allow_game_sharing, public_slug
 ) VALUES (
   $1, $2,
   $3, $4, $5,
   $6, $7, $8, $9, $10,
   $11, $12, $13,
   $14, $15, $16,
-  $17
+  $17, $18
 )
 RETURNING *;
 
@@ -144,7 +144,9 @@ UPDATE workshop SET
   show_other_participants_games = $14,
   design_editing_enabled = $15,
   is_paused = $16,
-  allow_game_sharing = $17
+  allow_game_sharing = $17,
+  public_slug = $18,
+  public_description = $19
 WHERE id = $1
 RETURNING *;
 
@@ -158,6 +160,19 @@ RETURNING *;
 
 -- name: DeleteWorkshop :exec
 UPDATE workshop SET deleted_at = now() WHERE id = $1;
+
+-- name: GetWorkshopByPublicSlug :one
+SELECT * FROM workshop WHERE public_slug = $1 AND deleted_at IS NULL;
+
+-- name: WorkshopPublicSlugExists :one
+-- Deleted workshops keep their slug, so an old link never points at a new workshop.
+SELECT EXISTS(SELECT 1 FROM workshop WHERE public_slug = $1) AS exists;
+
+-- name: ListWorkshopsWithoutPublicSlug :many
+SELECT id, name FROM workshop WHERE public_slug IS NULL;
+
+-- name: SetWorkshopPublicSlug :exec
+UPDATE workshop SET public_slug = $2 WHERE id = $1;
 
 
 -- workshop_participant -------------------------------------------------
