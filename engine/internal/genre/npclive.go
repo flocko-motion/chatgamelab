@@ -14,6 +14,8 @@ type NPCLiveConfig struct {
 	LiveCfg   adapters.LiveConfig
 	Guardrail string
 	Scenario  string
+	// InitPrompt is the first message the gate sends, which starts the game.
+	InitPrompt string
 
 	// Script drives a dummy input instead of a live player, for tests and the
 	// standalone server.
@@ -37,28 +39,28 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	outImage := blocks.NewPlayerOutputImage("out-image")
 
 	// One portrait of the character, made once and never again — and once
-	// because the prompt arrives once, from a source that fires at startup and
-	// closes. The image block itself is the plain mechanism, so nothing in the
-	// turn loop can ask it for a second picture.
+	// because the source fires once, not because the block refuses a second.
 	//
-	// The portrait's done signal is deliberately not wired to the gate. A
-	// conversation can start before the picture exists, and holding a player in
-	// silence while an image renders would be the wrong trade.
+	// It gates the game: the player should see who they are talking to before
+	// they speak, and a face arriving mid-sentence is worse than a short wait.
+	// Gating costs the player a pause before their first word rather than
+	// delaying the session, since the live connection opens regardless.
 	scenarioPrompt := blocks.NewOnceText("scenario-prompt", cfg.Scenario)
+
 	portrait := blocks.NewImage("portrait", cfg.Image)
-	gate := blocks.NewGate("start-game")
+	// The gate both releases the player and sends the first message. The
+	// scenario is already the session's standing instruction, so the init
+	// prompt is the cue to act on it.
+	gate := blocks.NewGate("start-game", cfg.InitPrompt)
 
 	g := ports.NewGraph("npc-live")
 	g.ConnectTextOut(scenarioPrompt, portrait)
 	g.ConnectImageOut(portrait, outImage)
+	g.ConnectState(portrait, gate)
 
 	// The observer's flags ride the same event stream. That also makes them the
 	// one thing worth persisting from an otherwise ephemeral conversation:
 	// what was flagged, without keeping the dialogue.
-	// The gate has no gating inputs for this genre, so it opens at once. It is
-	// still wired so the lifecycle is the same shape in every genre.
-	g.Track(gate)
-
 	w := &Wiring{Graph: g, Sinks: map[string]chan string{
 		"text":  outText.Seen,
 		"audio": outAudio.Seen,
@@ -73,6 +75,12 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	keyboard := blocks.NewPlayerInputText("player-input-text")
 	g.ConnectAudioOut(mic, live)
 	g.ConnectTextOut(keyboard, live)
+	// The gate holds the player until preparation is done. Without these edges
+	// the gate would be decoration: something that opens while the game has
+	// already started is not a gate.
+	g.ConnectState(gate, mic)
+	g.ConnectState(gate, keyboard)
+	g.ConnectTextOut(gate, live)
 	w.Speak = func(b []byte) { mic.Speak(b) }
 	w.Say = keyboard.Say
 
