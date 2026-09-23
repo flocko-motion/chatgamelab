@@ -106,6 +106,10 @@ func NewMux() *http.ServeMux {
 	mux.Handle("GET /api/workshops/participants/{participantId}/token", httpx.RequireAuth(GetParticipantToken))
 	mux.Handle("POST /api/workshops/participants/{participantId}/token/reset", httpx.RequireAuth(ResetParticipantToken))
 
+	// Public workshop page (no auth). The slug is published on purpose, so misses don't count as guesses.
+	mux.HandleFunc("GET /api/public/workshops/{slug}", GetPublicWorkshopPage)
+	mux.HandleFunc("GET /api/public/workshops/{slug}/games/{id}/yaml", GetPublicWorkshopGameYAML)
+
 	// Invites
 	mux.Handle("GET /api/invites", httpx.RequireAuth(ListInvites))
 	mux.Handle("GET /api/invites/all", httpx.RequireAuth(ListAllInvites))

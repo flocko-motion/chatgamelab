@@ -354,6 +354,26 @@ export interface ObjMeta {
   modifiedBy?: UuidNullUUID;
 }
 
+export interface ObjPublicWorkshopGame {
+  description?: string;
+  id?: string;
+  name?: string;
+  /** nil when the workshop has no working key */
+  play?: ObjPublicWorkshopPlay;
+}
+
+export interface ObjPublicWorkshopPage {
+  description?: string;
+  games?: ObjPublicWorkshopGame[];
+  name?: string;
+}
+
+export interface ObjPublicWorkshopPlay {
+  limit?: number;
+  remaining?: number;
+  token?: string;
+}
+
 export interface ObjStatusField {
   name?: string;
   value?: string;
@@ -460,6 +480,9 @@ export interface ObjWorkshop {
   participants?: ObjWorkshopParticipant[];
   promptConstraints?: string;
   public?: boolean;
+  publicDescription?: string;
+  /** Public page /w/<PublicSlug>, visible while Public is on */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -922,6 +945,10 @@ export interface RoutesUpdateWorkshopRequest {
   name?: string;
   promptConstraints?: string;
   public?: boolean;
+  /** omitted keeps the current text, "" clears it */
+  publicDescription?: string;
+  /** omitted keeps the current link */
+  publicSlug?: string;
   showOtherParticipantsGames?: boolean;
   showPublicGames?: boolean;
 }
@@ -2506,6 +2533,42 @@ export class Api<
         body: request,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+  };
+  public = {
+    /**
+     * @description Returns a public workshop's name, description and public games. No authentication. Unknown slugs and switched-off pages both return 404.
+     *
+     * @tags public
+     * @name WorkshopsDetail
+     * @summary Get public workshop page
+     * @request GET:/public/workshops/{slug}
+     */
+    workshopsDetail: (slug: string, params: RequestParams = {}) =>
+      this.request<ObjPublicWorkshopPage, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Exports a game listed on a public workshop page as YAML. No authentication.
+     *
+     * @tags public
+     * @name WorkshopsGamesYamlList
+     * @summary Download a game from a public workshop page
+     * @request GET:/public/workshops/{slug}/games/{id}/yaml
+     */
+    workshopsGamesYamlList: (
+      slug: string,
+      id: string,
+      params: RequestParams = {},
+    ) =>
+      this.request<ObjGame, HttpxErrorResponse>({
+        path: `/public/workshops/${slug}/games/${id}/yaml`,
+        method: "GET",
         ...params,
       }),
   };
