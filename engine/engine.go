@@ -136,12 +136,13 @@ type BlockState struct {
 // TypeScript union is built from, so adding an output block here is what makes
 // the client aware of it.
 func StreamNames() []string {
-	return []string{"text", "audio", "image", "props", "flag", "state", "error"}
+	return []string{"text", "audio", "image", "props", "flag", "state", "usage", "error"}
 }
 
 type Session struct {
 	spec   SessionSpec
 	wiring *genre.Wiring
+	usage  *usageLedger
 	events chan Event
 	cancel context.CancelFunc
 	once   sync.Once
@@ -221,15 +222,23 @@ func launch(ctx context.Context, spec SessionSpec, state *SessionState) (*Sessio
 
 	ctx, cancel := context.WithCancel(ctx)
 
-	s := &Session{spec: spec, wiring: w, events: make(chan Event, 256), cancel: cancel}
+	s := &Session{
+		spec:   spec,
+		wiring: w,
+		usage:  newUsageLedger(spec.Platform),
+		events: make(chan Event, 256),
+	}
+	s.cancel = cancel
 
 	// Subscribed before anything starts: a block reports its opening phase as it
 	// starts, and a subscriber attached afterwards would never see it.
 	states := w.Graph.ObserveStates(ctx)
+	usage := w.Graph.ObserveUsage(ctx)
 
 	w.Graph.Start(ctx)
 	s.merge(ctx)
 	s.forwardStates(ctx, states)
+	s.forwardUsage(ctx, usage)
 	return s, nil
 }
 
@@ -287,6 +296,40 @@ func (s *Session) forwardStates(ctx context.Context, states <-chan ports.State) 
 		}
 	}()
 }
+
+// forwardUsage keeps the ledger current and puts the whole report on the stream
+// whenever it changes. The report rather than the delta, because pricing needs
+// the price table and that lives here: a client renders what it is given.
+func (s *Session) forwardUsage(ctx context.Context, usage <-chan ports.Usage) {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case used, alive := <-usage:
+				if !alive {
+					return
+				}
+				s.usage.record(used)
+
+				blob, err := json.Marshal(s.usage.report())
+				if err != nil {
+					continue
+				}
+				ev := Event{Stream: "usage", Value: string(blob)}
+				_ = s.spec.Persist.Save(ctx, s.spec.ID, ev)
+				select {
+				case s.events <- ev:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+}
+
+// Usage is what the session has spent so far, per block and per model.
+func (s *Session) Usage() UsageReport { return s.usage.report() }
 
 // Events is the session-scoped stream the transport serialises.
 func (s *Session) Events() <-chan Event { return s.events }

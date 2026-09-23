@@ -13,6 +13,7 @@ export type StreamName =
   | "props"
   | "flag"
   | "state"
+  | "usage"
   | "error"
   ;
 

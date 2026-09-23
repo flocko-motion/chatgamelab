@@ -53,7 +53,13 @@ func (c *liveConn) Instruct(text string) error {
 }
 
 func (c *liveConn) emit(text string) {
-	c.send(adapters.LiveEvent{Kind: adapters.EventTranscript, Text: text})
+	// A live session bills by audio time, so usage arrives as it accrues rather
+	// than once at the end of a call.
+	c.send(adapters.LiveEvent{
+		Kind:  adapters.EventUsage,
+		Usage: adapters.Usage{Model: "mock-live", AudioSeconds: 1},
+	})
+	c.send(adapters.LiveEvent{Kind: adapters.EventText, Text: text})
 	c.send(adapters.LiveEvent{Kind: adapters.EventAudio, Audio: []byte("<speech: " + text + ">")})
 	c.send(adapters.LiveEvent{Kind: adapters.EventTurnComplete})
 }
@@ -81,8 +87,10 @@ func (c *liveConn) Close() error {
 // assert on what was asked for.
 type Image struct{}
 
-func (Image) Generate(_ context.Context, prompt string) ([]byte, error) {
-	return []byte("<image of " + prompt + ">"), nil
+func (Image) Generate(_ context.Context, prompt string) ([]byte, adapters.Usage, error) {
+	return []byte("<image of " + prompt + ">"),
+		adapters.Usage{Model: "mock-image", InputTokens: int64(len(prompt)), Images: 1},
+		nil
 }
 
 // Tool classifies by keyword, which is enough to drive the observer loop
@@ -91,12 +99,30 @@ type Tool struct{}
 
 var capitulationMarkers = []string{"i suppose", "fine —", "won't stop you", "go ahead"}
 
-func (Tool) Query(_ context.Context, _, user string) (string, error) {
+func (Tool) Query(_ context.Context, _, user string) (string, adapters.Usage, error) {
+	used := adapters.Usage{
+		Model:        "mock-tool",
+		InputTokens:  int64(len(user)),
+		OutputTokens: 4,
+	}
 	low := strings.ToLower(user)
 	for _, m := range capitulationMarkers {
 		if strings.Contains(low, m) {
-			return "VIOLATION: the character is conceding", nil
+			return "VIOLATION: the character is conceding", used, nil
 		}
 	}
-	return "OK", nil
+	return "OK", used, nil
+}
+
+// Prices for the mock models, so a keyless run still exercises the cost display
+// with numbers that look like money.
+var prices = map[string]adapters.Price{
+	"mock-tool":  {InputPerMTok: 0.20, CachedInputPerMTok: 0.02, OutputPerMTok: 1.20},
+	"mock-image": {InputPerMTok: 5.00, PerImage: 0.04},
+	"mock-live":  {AudioPerMinute: 0.30},
+}
+
+func Prices(model string) (adapters.Price, bool) {
+	price, ok := prices[model]
+	return price, ok
 }

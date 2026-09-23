@@ -30,6 +30,9 @@ type Observer struct {
 	in    chan string
 	out   ports.TextBroadcast
 	state ports.StateBroadcast
+	usage ports.UsageBroadcast
+
+	spent adapters.Usage
 
 	Flags chan string
 }
@@ -51,6 +54,9 @@ func (b *Observer) TextInPort() chan<- string    { return b.in }
 func (b *Observer) TextOutPort() <-chan string   { return b.out.Subscribe() }
 func (b *Observer) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
 
+// UsageOutPort reports what this block has spent so far.
+func (b *Observer) UsageOutPort() <-chan ports.Usage { return b.usage.Subscribe() }
+
 // StateOutPort reports each judgement. An observer is input-driven, so it
 // flickers once per line rather than staying busy.
 func (b *Observer) StateOutPort() <-chan ports.State { return b.state.Subscribe() }
@@ -68,7 +74,7 @@ func (b *Observer) systemPrompt() string {
 
 func (b *Observer) Start(ctx context.Context) {
 	go func() {
-		defer func() { b.out.Close(); b.state.Close() }()
+		defer func() { b.out.Close(); b.state.Close(); b.usage.Close() }()
 		b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
 		for {
 			select {
@@ -79,8 +85,9 @@ func (b *Observer) Start(ctx context.Context) {
 					return
 				}
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseWorking})
-				verdict, err := b.tool.Query(ctx, b.systemPrompt(), line)
+				verdict, used, err := b.tool.Query(ctx, b.systemPrompt(), line)
 				b.state.Send(ports.State{Node: b.name, Phase: ports.PhaseReady})
+				b.report(used)
 				if err != nil {
 					b.flag("classifier failed: " + err.Error())
 					continue
@@ -101,6 +108,20 @@ func (b *Observer) Start(ctx context.Context) {
 			}
 		}
 	}()
+}
+
+// report accumulates and publishes the running total, so a late subscriber sees
+// everything spent rather than only what came after it.
+func (b *Observer) report(used adapters.Usage) {
+	b.spent.Add(used)
+	b.usage.Send(ports.Usage{
+		Node:              b.name,
+		Model:             b.spent.Model,
+		InputTokens:       b.spent.InputTokens,
+		CachedInputTokens: b.spent.CachedInputTokens,
+		OutputTokens:      b.spent.OutputTokens,
+		AudioSeconds:      b.spent.AudioSeconds,
+	})
 }
 
 func (b *Observer) flag(s string) {

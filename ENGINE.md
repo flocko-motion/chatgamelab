@@ -600,6 +600,29 @@ A live session also pins itself to one process: an open model connection plus a 
 its goroutines. That is true in both shapes, and only becomes visible if a standalone engine ever
 runs more than one replica.
 
+## Usage and cost
+
+Blocks report what they spend, on a port of their own, and the engine aggregates it. For a platform
+that teaches how AI works and pays per session, what a turn cost is part of the subject rather than
+an operational detail.
+
+**Three units, because providers bill in three ways**: text per token, live audio per minute, and
+pictures per picture. Cached input is counted apart from fresh input because it is priced apart —
+the game flow hits the prompt cache from the second turn onwards. A report carries the *resolved*
+model name, never a tier reference, since prices attach to models.
+
+**Totals, not deltas.** A block reports what it has spent so far, so a dropped event costs accuracy
+for an instant rather than permanently, and a late subscriber sees the whole session rather than
+the part that came after it. A live session meters on a ticker as audio accrues: waiting until the
+call ends would show nothing for the whole conversation, which is exactly when someone wants to see
+the number.
+
+**The engine prices it, because the price table is configuration.** Providers do not publish prices
+through their APIs, so the table is hand-maintained and carries the date it was taken. The report
+comes back two ways — per block, for labels on a graph view, and per model, because that is what a
+price attaches to — with a flag saying whether every model in the session was priced, so a total is
+never a confident-looking floor.
+
 ## Protocol
 
 **The session-scoped event stream is the protocol; a turn is a bracketed span within it.** The

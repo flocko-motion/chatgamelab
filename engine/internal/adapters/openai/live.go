@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/coder/websocket"
 
@@ -60,6 +61,7 @@ func (l *Live) Open(ctx context.Context, cfg adapters.LiveConfig) (adapters.Live
 	}
 
 	go c.read(ctx)
+	go c.meter(ctx, l.model)
 	return c, nil
 }
 
@@ -111,6 +113,31 @@ func (c *liveConn) Close() error {
 	return c.ws.Close(websocket.StatusNormalClosure, "")
 }
 
+// meter reports audio time as it accrues. A realtime session is billed by the
+// minute, so waiting until the call ends would mean showing nothing for the
+// whole conversation — which is exactly when someone wants to see the cost.
+func (c *liveConn) meter(ctx context.Context, model string) {
+	const tick = time.Second
+	ticker := time.NewTicker(tick)
+	defer ticker.Stop()
+
+	elapsed := 0.0
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-c.done:
+			return
+		case <-ticker.C:
+			elapsed += tick.Seconds()
+			c.emit(adapters.LiveEvent{
+				Kind:  adapters.EventUsage,
+				Usage: adapters.Usage{Model: model, AudioSeconds: elapsed},
+			})
+		}
+	}
+}
+
 type serverEvent struct {
 	Type       string `json:"type"`
 	Delta      string `json:"delta"`
@@ -149,7 +176,7 @@ func (c *liveConn) read(ctx context.Context) {
 		case "response.output_audio_transcript.delta":
 			// The model's own transcript of its own speech: exact, not an ASR
 			// guess, which is why this is what the observer judges.
-			c.emit(adapters.LiveEvent{Kind: adapters.EventTranscript, Text: ev.Delta})
+			c.emit(adapters.LiveEvent{Kind: adapters.EventText, Text: ev.Delta})
 
 		case "response.done":
 			c.emit(adapters.LiveEvent{Kind: adapters.EventTurnComplete})

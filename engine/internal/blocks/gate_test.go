@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"engine/internal/adapters"
 	"engine/internal/adapters/mock"
 	"engine/internal/blocks"
 	"engine/internal/ports"
@@ -19,10 +20,14 @@ func TestGateWaitsForEveryReportingBlock(t *testing.T) {
 
 	g := ports.NewGraph("init")
 	gate := blocks.NewGate("start-game")
-	first := blocks.NewImageOnce("first", slowImage{delay: 60 * time.Millisecond}, "a")
-	second := blocks.NewImageOnce("second", slowImage{delay: 180 * time.Millisecond}, "b")
+	firstPrompt := blocks.NewOnceText("first-prompt", "a")
+	secondPrompt := blocks.NewOnceText("second-prompt", "b")
+	first := blocks.NewImage("first", slowImage{delay: 60 * time.Millisecond})
+	second := blocks.NewImage("second", slowImage{delay: 180 * time.Millisecond})
 	sink := blocks.NewPlayerOutputImage("out-image")
 
+	g.ConnectTextOut(firstPrompt, first)
+	g.ConnectTextOut(secondPrompt, second)
 	g.ConnectImageOut(first, sink)
 	g.ConnectImageOut(second, sink)
 	g.ConnectState(first, gate)
@@ -69,9 +74,11 @@ func TestFailedBlockStillReturnsToReady(t *testing.T) {
 
 	g := ports.NewGraph("failing-init")
 	gate := blocks.NewGate("start-game")
-	broken := blocks.NewImageOnce("broken", failingImage{}, "a")
+	prompt := blocks.NewOnceText("prompt", "a")
+	broken := blocks.NewImage("broken", failingImage{})
 	sink := blocks.NewPlayerOutputImage("out-image")
 
+	g.ConnectTextOut(prompt, broken)
 	g.ConnectImageOut(broken, sink)
 	g.ConnectState(broken, gate)
 	g.Start(ctx)
@@ -85,19 +92,19 @@ func TestFailedBlockStillReturnsToReady(t *testing.T) {
 
 type slowImage struct{ delay time.Duration }
 
-func (s slowImage) Generate(ctx context.Context, prompt string) ([]byte, error) {
+func (s slowImage) Generate(ctx context.Context, prompt string) ([]byte, adapters.Usage, error) {
 	select {
 	case <-time.After(s.delay):
 	case <-ctx.Done():
-		return nil, ctx.Err()
+		return nil, adapters.Usage{}, ctx.Err()
 	}
 	return mock.Image{}.Generate(ctx, prompt)
 }
 
 type failingImage struct{}
 
-func (failingImage) Generate(context.Context, string) ([]byte, error) {
-	return nil, errNoImage
+func (failingImage) Generate(context.Context, string) ([]byte, adapters.Usage, error) {
+	return nil, adapters.Usage{}, errNoImage
 }
 
 var errNoImage = &imageError{}
