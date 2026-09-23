@@ -216,3 +216,20 @@ func TestGatedInputWaitsForRelease(t *testing.T) {
 		t.Fatal("a held input never arrived after the gate opened")
 	}
 }
+
+// The first message carries the scenario and then the cue, so a character is
+// told who it is in the same breath as being told to speak.
+func TestGateOpensWithScenarioThenCue(t *testing.T) {
+	got := opening("You are the keeper of a bridge.", "Begin. Greet whoever arrived.")
+	want := "You are the keeper of a bridge.\n\nBegin. Greet whoever arrived."
+	if got != want {
+		t.Errorf("got %q, want %q", got, want)
+	}
+
+	if only := opening("", "Begin."); only != "Begin." {
+		t.Errorf("a missing scenario should leave the cue alone, got %q", only)
+	}
+	if only := opening("A bridge.", ""); only != "A bridge." {
+		t.Errorf("a missing cue should leave the scenario alone, got %q", only)
+	}
+}

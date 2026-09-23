@@ -48,10 +48,11 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	scenarioPrompt := blocks.NewOnceText("scenario-prompt", cfg.Scenario)
 
 	portrait := blocks.NewImage("portrait", cfg.Image)
-	// The gate both releases the player and sends the first message. The
-	// scenario is already the session's standing instruction, so the init
-	// prompt is the cue to act on it.
-	gate := blocks.NewGate("start-game", cfg.InitPrompt)
+	// The gate both releases the player and sends the first message: the
+	// scenario, then the cue to act on it. The scenario also stands as the
+	// session's instruction, so the character carries it whether it reads the
+	// opening message or the instruction it was given.
+	gate := blocks.NewGate("start-game", opening(cfg.Scenario, cfg.InitPrompt))
 
 	g := ports.NewGraph("npc-live")
 	g.ConnectTextOut(scenarioPrompt, portrait)
@@ -100,4 +101,17 @@ func NewNPCLive(cfg NPCLiveConfig) *Wiring {
 	w.Observer = observer
 	w.Gate = gate
 	return w
+}
+
+// opening is what the gate says to begin the game: who the character is,
+// followed by what to do about it.
+func opening(scenario, initPrompt string) string {
+	switch {
+	case scenario == "":
+		return initPrompt
+	case initPrompt == "":
+		return scenario
+	default:
+		return scenario + "\n\n" + initPrompt
+	}
 }

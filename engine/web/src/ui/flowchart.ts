@@ -127,16 +127,6 @@ export class Flowchart {
           },
         },
         {
-          // A selected block and the edges touching it, so a reader can follow
-          // what a stage is connected to while reading its detail.
-          selector: "node.selected",
-          style: { "border-color": fg, "border-width": 3 },
-        },
-        {
-          selector: "edge.incident",
-          style: { "line-color": fg, "target-arrow-color": fg, width: 2, color: fg },
-        },
-        {
           // The afterglow. Without it a block that finishes in 40 ms never
           // renders at all, and the observer is exactly that fast.
           selector: "node.recent",
@@ -158,6 +148,19 @@ export class Flowchart {
             "arrow-scale": 0.7,
             "curve-style": "bezier",
           },
+        },
+        // Declared last on purpose: cytoscape resolves a conflict in favour of
+        // the later rule, so selection styles have to follow the base ones they
+        // are meant to override.
+        {
+          // A selected block and the edges touching it, so a reader can follow
+          // what a stage is connected to while reading its detail.
+          selector: "node.selected",
+          style: { "border-color": fg, "border-width": 3 },
+        },
+        {
+          selector: "edge.incident",
+          style: { "line-color": fg, "target-arrow-color": fg, width: 2, color: fg },
         },
       ],
       layout: {
