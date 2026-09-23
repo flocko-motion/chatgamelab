@@ -6,7 +6,7 @@ import { AudioIO } from "./audio.js";
 import { Player } from "../player.js";
 import { WebSocketTransport } from "../transport.js";
 import { View } from "./view.js";
-import { Inspector } from "./inspector.js";
+import { Details } from "./details.js";
 
 function required<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -25,24 +25,29 @@ socketURL.protocol = socketURL.protocol.replace("http", "ws");
 const player = new Player(new WebSocketTransport(socketURL));
 const typed = required<HTMLInputElement>("#typed");
 
-const inspector = new Inspector(
-  required<HTMLDialogElement>("#inspector"),
-  required<HTMLElement>("#inspector-body"),
+const details = new Details(
+  required<HTMLElement>("#details-title"),
+  required<HTMLElement>("#details"),
   sessionBase,
 );
 
 const view = new View({
   status: required<HTMLElement>("#state"),
   props: required<HTMLElement>("#props"),
-  usage: required<HTMLElement>("#usage"),
+  details: required<HTMLElement>("#details"),
+  detailsTitle: required<HTMLElement>("#details-title"),
   graph: required<HTMLElement>("#graph"),
   image: required<HTMLImageElement>("#scene"),
   feed: required<HTMLElement>("#feed"),
   talk: required<HTMLButtonElement>("#talk"),
   typed,
-}, (name) => void inspector.open(name));
+}, (name) => void details.show(name),
+   () => details.clear(player.state));
 
-player.subscribe((state) => view.render(state));
+player.subscribe((state) => {
+  view.render(state);
+  details.refresh(state);
+});
 
 // A reload has to rebuild what it missed before it starts listening, or the
 // first live event would land on an empty page.

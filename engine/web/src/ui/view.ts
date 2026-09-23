@@ -6,13 +6,13 @@
  * this platform, so they get a panel rather than a developer console.
  */
 import type { PlayerState } from "../state.js";
-import type { UsageRecord } from "../protocol.js";
 import { Flowchart } from "./flowchart.js";
 
 export interface ViewElements {
   status: HTMLElement;
   props: HTMLElement;
-  usage: HTMLElement;
+  details: HTMLElement;
+  detailsTitle: HTMLElement;
   graph: HTMLElement;
   image: HTMLImageElement;
   feed: HTMLElement;
@@ -30,8 +30,9 @@ export class View {
   constructor(
     private readonly elements: ViewElements,
     onNodeClick: (name: string) => void,
+    onBackgroundClick: () => void,
   ) {
-    this.#flowchart = new Flowchart(elements.graph, onNodeClick);
+    this.#flowchart = new Flowchart(elements.graph, onNodeClick, onBackgroundClick);
   }
 
   render(state: PlayerState): void {
@@ -45,7 +46,6 @@ export class View {
 
     this.#renderGraph(state);
     this.#renderProps(state);
-    this.#renderUsage(state);
     this.#renderImage(state);
     this.#renderFeed(state);
   }
@@ -74,24 +74,6 @@ export class View {
         span("v", value),
       ]),
     );
-  }
-
-  #renderUsage(state: PlayerState): void {
-    const usage = state.usage;
-    if (!usage) return;
-
-    const rows = usage.byModel.flatMap((record) => [
-      span("k", record.model),
-      span("v", `${amount(record)} · ${money(record)}`),
-    ]);
-
-    const totalCost = money({ cost: usage.totalCost });
-    const total = span("v", usage.complete ? totalCost : `${totalCost}+`);
-    total.classList.add("total");
-    const label = span("k", usage.complete ? "total" : "total (partly unpriced)");
-    label.classList.add("total");
-
-    this.elements.usage.replaceChildren(...rows, label, total);
   }
 
   #renderImage(state: PlayerState): void {
@@ -151,20 +133,4 @@ function span(className: string, text: string): HTMLElement {
   element.className = className;
   element.textContent = text;
   return element;
-}
-
-/** Cost is an estimate from a hand-maintained table, so it is shown coarsely. */
-function money(record: { cost: number }): string {
-  if (record.cost === 0) return "—";
-  if (record.cost < 0.01) return `<$0.01`;
-  return `$${record.cost.toFixed(2)}`;
-}
-
-function amount(record: UsageRecord): string {
-  const parts: string[] = [];
-  if (record.images) parts.push(`${record.images} img`);
-  if (record.audioSeconds) parts.push(`${record.audioSeconds.toFixed(0)}s`);
-  const tokens = (record.inputTokens ?? 0) + (record.cachedInputTokens ?? 0) + (record.outputTokens ?? 0);
-  if (tokens) parts.push(`${tokens} tok`);
-  return parts.join(" ") || "—";
 }
