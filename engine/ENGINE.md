@@ -400,8 +400,10 @@ A genre's wiring has a **stem and a bowl**. The stem runs once — v1 does this 
 system message, translating the image style and generating the theme before the first turn — and
 the bowl is the turn loop, which cycles.
 
-They join at a **gate**. Every block whose result the first turn depends on reports *done* to it,
-and play begins when the last one has.
+They join at a **gate**, which does three things: it waits for every block whose result the first
+turn depends on, it releases the player's inputs, and it sends the first message. A gate that only
+waited would be decoration — something that opens after the game has already started is not a gate
+— so what it releases and what it says are both wired, and visible on the diagram.
 
 The init stem is a pipeline, not a set of independent tasks, which is why it is expressed as graph
 rather than as a lifecycle hook. v1's preparation already has chains: condense the scenario, then
@@ -438,15 +440,28 @@ of work, against thousands of audio chunks.
 
 The report names its block for two reasons. A gate has to tell one reporter from another — a block
 in the loop works repeatedly, and a busy one must not stand in for a silent one — and a view
-drawing the graph has to know which node lit up. That second reason is the substance of the
-deferred graph view: the phases describe the loop as well as the stem, and how a block oscillates
-is characteristic. A live session stays `working` for a whole conversation; an observer flicks
-through it once per line it judges.
+drawing the graph has to know which node lit up. That second reason is what the graph view draws: the phases
+describe the loop as well as the stem, and how a block oscillates is characteristic. A live session
+works for the length of one reply; an observer flicks through it once per line it judges.
 
-**What gates is a wiring decision, not a policy.** NPC-Live's portrait is init work whose signal is
-deliberately *not* wired to the gate: a conversation can start before the picture exists, and
-holding a player in silence while an image renders is the wrong trade. A failing block still
-reports done, because one broken optional step must not hold the gate shut forever.
+**What gates is a wiring decision, not a policy.** NPC-Live gates on its portrait: a player should
+see who they are talking to before speaking, and a face arriving mid-sentence is worse than a short
+wait. The cost is a pause before the first word rather than a delayed session, since the live
+connection opens regardless. A genre that would rather not wait simply leaves that edge out.
+
+**Whether an input is held is read off the wiring too.** The graph counts the release edges leading
+into a source and tells it, the same way it tells a gate how many reporters it has, so a source
+with no release edge is free from the start — which is what keeps a genre that wired no gate from
+waiting forever on one.
+
+A held input keeps what was typed during the wait and delivers it on release, because someone who
+typed while a portrait rendered meant to say it. Speech that arrived is dropped instead: replaying
+stale audio into a live conversation is worse than losing it.
+
+**The first message is the scenario followed by the cue** — who the character is, then what to do
+about it — configured on the gate. v1 calls that cue the initialization prompt, and the name is
+kept. The scenario also stands as the session's instruction, so a character holds it whether it
+reads the opening message or the instruction it was given.
 
 A genre with nothing to prepare has a gate with no inputs, which opens immediately — so a caller
 never has to ask which kind of genre it got.
@@ -636,8 +651,17 @@ and the premise turns out to describe Adventure rather than the engine. NPC-Live
 construction: barge-in alone means audio flows both ways at once. Designing for the duplex case and
 letting turn-based fall out of it yields one protocol; the other order yields two that drift.
 
+**Input goes both ways on the same connection.** A binary frame is microphone audio and a text
+frame is typed input, because a live model accepts both and so does the endpoint. Typing is how a
+voice genre is played without a microphone, and how someone who would rather not speak still plays.
+
+**A boundary between utterances travels in-band**, as an empty text delta. The obvious alternative
+— a marker on the state stream — cannot work: the two streams reach a reader through different
+goroutines, so nothing orders a boundary against the text it is meant to close. In-band, it is
+ordered by construction, and it appends nothing, so a reader that does not care may ignore it.
+
 **The wired output blocks define the event schema.** Adventure wires text, image, audio and
-status; NPC-Live wires audio and text. The stream's event types are derived from a genre's wiring
+status; NPC-Live wires audio, text, image and the observer's flags. The stream's event types are derived from a genre's wiring
 rather than being a fixed union each genre partially fills.
 
 **The genre declares its interaction model**, and the client reads that flag to pick its shell.
@@ -656,6 +680,23 @@ is for:
   session — which reintroduces the sticky-routing problem the original transport argument was
   written to avoid.
 
+**A reloading page rebuilds from REST**, which is the same division seen from the client's side:
+the socket carries what is happening, and these carry what has happened and where things stand.
+
+| Endpoint | Answers |
+|---|---|
+| `/topology` | the wiring, which does not change during a session |
+| `/state` | where the session stands: phases, status, spend, whether it has started |
+| `/history` | the conversation so far, in order |
+| `/nodes/{name}` | what one block is and what recently passed through it |
+| `/edge?from=&to=&kind=` | what one wire has carried |
+| `/flowchart` | the same wiring as mermaid |
+
+A replayed event is applied by exactly the same client code as a live one, so there is no second
+way to render a session and no second place for it to be wrong. History keeps the conversation and
+leaves out audio: replaying thirty frames per utterance into a reloaded page would be neither
+useful nor cheap.
+
 **Finished artifacts stay on plain stateless GETs.** Message history and completed media remain
 retrievable with no live session or engine involvement at all — enough on its own to review a past
 playthrough. This already exists today (`GetMessageStatus`, `GetMessageImage`, `GetMessageAudio`
@@ -668,6 +709,36 @@ live stream and which half is ordinary retrieval.
 that takes data and paints — tsParticles' vanilla core is the live example — sits underneath the
 timeline and has no opinion about it. A framework that wants to own when things render is what
 this section rules out. That distinction, rather than a dependency count, is the rule.
+
+### What exists today
+
+A working player lives in `web/`, built with esbuild and TypeScript. `make web` typechecks and
+bundles it; `make dev` does that and then serves a session ready to play. Sources are in `web/src`
+and the build lands in `web/dist`, which is **committed**: the Go module embeds `dist`, so building
+the engine never needs a JavaScript toolchain and only changing the player does.
+
+The layout is split evenly. On the left the conversation — hold-to-talk, a text box, the scene
+image, a status bar for genres that track one. On the right the instrumentation: the wiring drawn
+as a live graph, and a details panel under it.
+
+**The graph is drawn, not listed.** Cytoscape with a dagre layout, top to bottom so the P reads the
+way this document draws it. Sources, blocks, sinks and the gate each have a shape. A block's border
+lights while it works and its label carries what it has spent. A finished block keeps an afterglow
+for 700 ms, which is the only reason a 40 ms tool call is visible at all — the observer finishes
+between two frames, and without it the fastest and most interesting blocks would be the ones nobody
+ever sees work.
+
+Cytoscape is the one weighty dependency, at 154 kB gzipped against a 4 kB headless core. It passes
+the bar above — it takes data and paints, and has no opinion about the session's timeline — and it
+draws a cyclic graph with live per-node styling, which is what the observer loop needs and what a
+hand-rolled layout would get wrong. It is confined to `web/src/ui`, so the headless player never
+loads it.
+
+**Clicking reads.** A block shows its type, role, state, model, spend and the last few values in
+and out, each timestamped and newest first. A wire shows what it last carried — the observer's
+steering edge is the one worth clicking, since it shows the guardrail being re-injected. Selecting
+either marks it and what it touches. With nothing selected the panel shows the session's spend by
+model.
 
 **The player is iframe-embeddable.** A host page sizes the iframe with ordinary CSS — percentage,
 flex/grid, `vh`, media queries — and the content inside reflows exactly as if the browser window
@@ -706,9 +777,16 @@ was already data, already-imperative canvas/DOM code, or a mechanism (Context) t
 needed rather than needing a replacement. The "live backgrounds" risk that motivated checking this
 turned out to be much smaller than it looked from the outside.
 
-**Genuinely headless.** A core state machine — session lifecycle, streaming accumulation, turn
-progression — owns the timeline and has zero rendering opinion. A thin UI layer's only job is to
-paint whatever the core's current state says. This mirrors the backend split exactly: a library of
+**Genuinely headless, and the layout says so.** The player *is* the headless core: it sits at
+`web/src`, and the UI is a subdirectory of it rather than the other way round. The core owns the
+whole session state — transcript, flags, status, portrait, phases, spend — with no DOM and no audio
+device, so a full game is playable from node. A thin UI layer's only job is to paint whatever the
+core's current state says and to pipe input back in.
+
+That is what makes integration testing cheap. A Go test mounts the engine's subtree with `httptest`
+and runs the same core from node against it, playing a real session end to end in a tenth of a
+second with no browser. Go drives, so there is no port to guess and no readiness to poll, and the
+test skips when node is absent. This mirrors the backend split exactly: a library of
 narrowly-ported blocks wired per genre on the backend, one headless core with a pure render layer
 on the frontend — the same principle, applied on both sides of the boundary.
 
