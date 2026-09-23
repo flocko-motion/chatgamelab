@@ -683,6 +683,12 @@ Noted so they aren't silently forgotten, not because they're expected soon:
 - **What a live session persists** — ephemeral for now, possibly a single turn 0 holding the
   character's generated image. Settling this also settles whether the event stream needs turn
   brackets at all, which nothing currently requires.
+- **A live view of the graph.** The wiring is already available as data and as
+  mermaid, so a page can draw it. The interesting version carries node activity on the session
+  stream — this block started, this one produced something — and lights the graph up as a turn
+  flows through it. For a platform whose selling point is showing how the AI actually works, that
+  is closer to the product than to a debug panel. Not being built now; the cost to think about is
+  event volume, since audio chunks would flood a per-value activity stream and want coalescing.
 - **Player speech as observer input** — dropped for display and for the record, but a classifier
   judging whether the NPC capitulated is reading one half of a dialogue without it: "fine, you may
   pass" only scores as a concession if the player just demanded passage. Rough-guide transcript
