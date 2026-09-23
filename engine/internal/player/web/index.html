@@ -1,0 +1,125 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>NPC-Live spike</title>
+<style>
+  :root { color-scheme: light dark; --bg:#faf9f7; --fg:#1b1a19; --dim:#6b6a68; --line:#e2e0dc; --flag:#b4451f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16181c; --fg:#e8e6e3; --dim:#9a9894; --line:#2c2f36; --flag:#f08a5d; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.55 ui-sans-serif,system-ui,sans-serif;
+         display:flex; flex-direction:column; height:100vh; }
+  header { padding:.75rem 1rem; border-bottom:1px solid var(--line); display:flex; gap:.75rem; align-items:center; }
+  h1 { font-size:.9rem; margin:0; font-weight:600; letter-spacing:.01em; }
+  #state { color:var(--dim); font-size:.8rem; }
+  button { font:inherit; padding:.35rem .9rem; border:1px solid var(--line); border-radius:6px;
+           background:transparent; color:var(--fg); cursor:pointer; }
+  button[disabled] { opacity:.45; cursor:default; }
+  #feed { flex:1; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:.5rem; }
+  .line { max-width:60ch; }
+  .npc { font-weight:500; }
+  .flag { color:var(--flag); font-size:.82rem; border-left:2px solid var(--flag); padding-left:.6rem; }
+  .meta { color:var(--dim); font-size:.8rem; }
+</style>
+
+<header>
+  <h1>NPC-Live</h1>
+  <button id="talk">hold to talk</button>
+  <span id="state">idle</span>
+</header>
+<div id="feed"></div>
+
+<script type="module">
+// The player is deliberately plain: no framework, and a timeline it drives
+// imperatively rather than re-rendering from state.
+const feed = document.getElementById("feed");
+const state = document.getElementById("state");
+const talk = document.getElementById("talk");
+
+const sessionID = new URLSearchParams(location.search).get("session") ?? "standalone";
+// Relative URL: identical under a platform mount point and standalone.
+const wsURL = new URL(`../sessions/${sessionID}/live`, location.href);
+wsURL.protocol = wsURL.protocol.replace("http", "ws");
+
+function line(cls, text) {
+  const el = document.createElement("div");
+  el.className = `line ${cls}`;
+  el.textContent = text;
+  feed.append(el);
+  feed.scrollTop = feed.scrollHeight;
+  return el;
+}
+
+const audioCtx = new AudioContext({ sampleRate: 24000 });
+let playAt = 0;
+
+// PCM16 at 24k is what the realtime API speaks in both directions.
+function playPCM16(buffer) {
+  const pcm = new Int16Array(buffer);
+  const frame = audioCtx.createBuffer(1, pcm.length, 24000);
+  const channel = frame.getChannelData(0);
+  for (let i = 0; i < pcm.length; i++) channel[i] = pcm[i] / 32768;
+  const src = audioCtx.createBufferSource();
+  src.buffer = frame;
+  src.connect(audioCtx.destination);
+  playAt = Math.max(playAt, audioCtx.currentTime);
+  src.start(playAt);
+  playAt += frame.duration;
+}
+
+const ws = new WebSocket(wsURL);
+ws.binaryType = "arraybuffer";
+ws.onopen = () => { state.textContent = "connected"; talk.disabled = false; };
+ws.onclose = () => { state.textContent = "closed"; talk.disabled = true; };
+ws.onerror = () => { state.textContent = "error"; };
+
+let current = null;
+ws.onmessage = (ev) => {
+  if (ev.data instanceof ArrayBuffer) { playPCM16(ev.data); return; }
+  const e = JSON.parse(ev.data);
+  if (e.Stream === "text") {
+    // Transcript arrives in deltas; append into one line per utterance.
+    if (!current) current = line("npc", "");
+    current.textContent += e.Value;
+  } else if (e.Stream === "flag") {
+    line("flag", `observer: ${e.Value}`);
+    current = null;
+  } else {
+    line("meta", `${e.Stream}: ${e.Value}`);
+  }
+};
+
+let stream = null, node = null;
+async function startMic() {
+  if (audioCtx.state === "suspended") await audioCtx.resume();
+  stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount:1, sampleRate:24000 } });
+  const src = audioCtx.createMediaStreamSource(stream);
+  node = audioCtx.createScriptProcessor(4096, 1, 1);
+  node.onaudioprocess = (e) => {
+    if (ws.readyState !== WebSocket.OPEN) return;
+    const input = e.inputBuffer.getChannelData(0);
+    const pcm = new Int16Array(input.length);
+    for (let i = 0; i < input.length; i++) {
+      const s = Math.max(-1, Math.min(1, input[i]));
+      pcm[i] = s < 0 ? s * 32768 : s * 32767;
+    }
+    ws.send(pcm.buffer);
+  };
+  src.connect(node);
+  node.connect(audioCtx.destination);
+  state.textContent = "listening";
+}
+
+function stopMic() {
+  node?.disconnect();
+  stream?.getTracks().forEach(t => t.stop());
+  node = null; stream = null;
+  current = null;
+  state.textContent = "connected";
+}
+
+talk.addEventListener("pointerdown", startMic);
+talk.addEventListener("pointerup", stopMic);
+talk.addEventListener("pointerleave", () => { if (stream) stopMic(); });
+talk.disabled = true;
+</script>

@@ -1,0 +1,115 @@
+package blocks
+
+import (
+	"context"
+	"strings"
+
+	"engine/internal/adapters"
+	"engine/internal/ports"
+)
+
+const steerPrefix = "[steer] "
+
+// Observer watches the character's own transcript and steers it back when it
+// drifts. It is the cycle in NPC-Live's graph: its output feeds the block whose
+// output it reads.
+//
+// Two prompt slots with different provenance. Guardrail is the platform's
+// resolved youth-protection constraint and is not authored by a game designer;
+// Scenario is the designer's own text — the setting, the character, and what
+// they must not concede.
+type Observer struct {
+	name      string
+	tool      adapters.Tool
+	guardrail string
+	scenario  string
+
+	maxInARow   int
+	consecutive int
+
+	in  chan string
+	out ports.TextBroadcast
+
+	Flags chan string
+}
+
+func NewObserver(name string, tool adapters.Tool, guardrail, scenario string, maxInARow int) *Observer {
+	return &Observer{
+		name:      name,
+		tool:      tool,
+		guardrail: guardrail,
+		scenario:  scenario,
+		maxInARow: maxInARow,
+		in:        make(chan string, 32),
+		Flags:     make(chan string, 64),
+	}
+}
+
+func (b *Observer) NodeName() string             { return b.name }
+func (b *Observer) TextInPort() chan<- string    { return b.in }
+func (b *Observer) TextOutPort() <-chan string   { return b.out.Subscribe() }
+func (b *Observer) RequiredInputs() []ports.Kind { return []ports.Kind{ports.KindText} }
+
+func (b *Observer) systemPrompt() string {
+	return strings.Join([]string{
+		"You judge one line spoken by a character in a game.",
+		"Answer VIOLATION followed by a short reason, or OK.",
+		"Youth-protection constraint (set by the platform, not by the game author): " + b.guardrail,
+		"Scenario (set by the game author): " + b.scenario,
+		"Judge three things: does the line breach the constraint, is it sycophantic,",
+		"and has the character conceded something the scenario says they must not.",
+	}, "\n")
+}
+
+func (b *Observer) Start(ctx context.Context) {
+	go func() {
+		defer b.out.Close()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case line, open := <-b.in:
+				if !open {
+					return
+				}
+				verdict, err := b.tool.Query(ctx, b.systemPrompt(), line)
+				if err != nil {
+					b.flag("classifier failed: " + err.Error())
+					continue
+				}
+				if !strings.HasPrefix(verdict, "VIOLATION") {
+					b.consecutive = 0
+					continue
+				}
+				// Steering produces more output for this same block to judge,
+				// so the cycle needs a bound or it can sustain itself.
+				if b.consecutive >= b.maxInARow {
+					b.flag("giving up after " + itoa(b.consecutive) + " interventions: " + line)
+					continue
+				}
+				b.consecutive++
+				b.flag(verdict + " | " + line)
+				b.out.Send(steerPrefix + b.guardrail + " " + b.scenario)
+			}
+		}
+	}()
+}
+
+func (b *Observer) flag(s string) {
+	select {
+	case b.Flags <- s:
+	default:
+	}
+}
+
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	var d []byte
+	for n > 0 {
+		d = append([]byte{byte('0' + n%10)}, d...)
+		n /= 10
+	}
+	return string(d)
+}
