@@ -11,6 +11,7 @@ import { Flowchart } from "./flowchart.js";
 export interface ViewElements {
   status: HTMLElement;
   props: HTMLElement;
+  propsSection: HTMLElement;
   details: HTMLElement;
   detailsTitle: HTMLElement;
   graph: HTMLElement;
@@ -68,6 +69,9 @@ export class View {
 
   #renderProps(state: PlayerState): void {
     const entries = Object.entries(state.props);
+    // Hidden until a genre tracks something. A live conversation has no status
+    // fields, and a heading over nothing reads as a bug.
+    this.elements.propsSection.hidden = entries.length === 0;
     this.elements.props.replaceChildren(
       ...entries.flatMap(([key, value]) => [
         span("k", key),
